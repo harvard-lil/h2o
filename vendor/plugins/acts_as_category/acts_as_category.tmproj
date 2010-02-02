@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>currentDocument</key>
+	<string>test/category_test.rb</string>
+	<key>documents</key>
+	<array>
+		<dict>
+			<key>expanded</key>
+			<true/>
+			<key>name</key>
+			<string>acts_as_category</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string></string>
+		</dict>
+	</array>
+	<key>fileHierarchyDrawerWidth</key>
+	<integer>165</integer>
+	<key>metaData</key>
+	<dict>
+		<key>lib/active_record/acts/category.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>53</integer>
+				<key>line</key>
+				<integer>410</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>389</integer>
+		</dict>
+		<key>test/category_test.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>5</integer>
+				<key>line</key>
+				<integer>617</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>580</integer>
+		</dict>
+	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>lib/active_record/acts/category.rb</string>
+		<string>test/category_test.rb</string>
+	</array>
+	<key>showFileHierarchyDrawer</key>
+	<true/>
+	<key>windowFrame</key>
+	<string>{{18, 15}, {1071, 758}}</string>
+</dict>
+</plist>

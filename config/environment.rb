@@ -26,7 +26,6 @@ Rails::Initializer.run do |config|
   config.gem "authlogic_facebook", :version => '1.0.4', :source => "http://gemcutter.org"
   config.gem "acl9", :version => '0.12.0', :source => "http://gemcutter.org"
   config.gem "shoulda", :version => '2.10.3', :source => "http://gemcutter.org"
-  config.gem "funkensturm-acts_as_category", :lib => "acts_as_category", :source => "http://gems.github.com"
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
