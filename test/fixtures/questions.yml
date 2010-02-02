@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  question_instance_id: 1
+  user_id: 1
+  question: MyText
+  posted_anonymously: false
+  email: MyText
+  name: MyText
+  position: 1
+
+two:
+  question_instance_id: 1
+  user_id: 1
+  question: MyText
+  posted_anonymously: false
+  email: MyText
+  name: MyText
+  position: 1

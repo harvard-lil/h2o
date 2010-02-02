@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: MyString
+  user_id: 1
+  project_id: 1
+  password: MyString
+  featured_question_timeout: 1
+  old_question_timeout: 1
+  description: MyText
+
+two:
+  name: MyString
+  user_id: 1
+  project_id: 1
+  password: MyString
+  featured_question_timeout: 1
+  old_question_timeout: 1
+  description: MyText
