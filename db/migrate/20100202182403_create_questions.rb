@@ -3,11 +3,11 @@ class CreateQuestions < ActiveRecord::Migration
     create_table :questions do |t|
       t.integer :question_instance_id
       t.integer :user_id
-      t.text :question
-      t.boolean :posted_anonymously
-      t.text :email
-      t.text :name
-      t.integer :position
+      t.string :question, :limit => 10000, :null => false
+      t.boolean :posted_anonymously, :default => false
+      t.string :email, :limit => 250
+      t.string :name, :limit => 250
+      t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
 
       t.timestamps
     end
