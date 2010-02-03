@@ -9,7 +9,61 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091014202053) do
+ActiveRecord::Schema.define(:version => 20100202182512) do
+
+  create_table "question_instances", :force => true do |t|
+    t.string   "name",                      :limit => 250,  :null => false
+    t.integer  "user_id"
+    t.integer  "project_id"
+    t.string   "password",                  :limit => 128
+    t.integer  "featured_question_count"
+    t.integer  "featured_question_timeout"
+    t.integer  "old_question_timeout"
+    t.string   "description",               :limit => 2000
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.boolean  "hidden"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "question_instances", ["name"], :name => "index_question_instances_on_name"
+  add_index "question_instances", ["parent_id"], :name => "index_question_instances_on_parent_id"
+  add_index "question_instances", ["position"], :name => "index_question_instances_on_position"
+  add_index "question_instances", ["project_id", "position"], :name => "index_question_instances_on_project_id_and_position", :unique => true
+  add_index "question_instances", ["project_id"], :name => "index_question_instances_on_project_id"
+  add_index "question_instances", ["user_id"], :name => "index_question_instances_on_user_id"
+
+  create_table "questions", :force => true do |t|
+    t.integer  "question_instance_id"
+    t.integer  "user_id"
+    t.string   "question",             :limit => 10000,                    :null => false
+    t.boolean  "posted_anonymously",                    :default => false
+    t.string   "email",                :limit => 250
+    t.string   "name",                 :limit => 250
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "replies", :force => true do |t|
+    t.integer  "question_id"
+    t.integer  "user_id"
+    t.text     "reply"
+    t.text     "email"
+    t.text     "name"
+    t.boolean  "posted_anonymously"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
