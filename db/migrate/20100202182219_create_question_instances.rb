@@ -16,12 +16,11 @@ class CreateQuestionInstances < ActiveRecord::Migration
       t.timestamps
     end
 
-    [:name, :user_id, :project_id, :parent_id, :position, :new_question_timeout, :old_question_timeout].each do |col|
+    [:user_id, :project_id, :parent_id, :position, :new_question_timeout, :old_question_timeout].each do |col|
       add_index :question_instances, col
     end
-
+    add_index :question_instances, :name, :unique => true
     add_index :question_instances, [:project_id, :position], :unique => true
-
   end
 
   def self.down

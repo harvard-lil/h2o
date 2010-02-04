@@ -1,7 +1,7 @@
 class CreateQuestions < ActiveRecord::Migration
   def self.up
     create_table :questions do |t|
-      t.integer :question_instance_id
+      t.integer :question_instance_id, :null => false
       t.integer :user_id
       t.string :question, :limit => 10000, :null => false
       t.boolean :posted_anonymously, :default => false
