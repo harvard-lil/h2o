@@ -5,8 +5,8 @@ class CreateQuestionInstances < ActiveRecord::Migration
       t.integer :user_id
       t.integer :project_id
       t.string :password, :limit => 128
-      t.integer :featured_question_count
-      t.integer :featured_question_timeout
+      t.integer :featured_question_count, :default => 2
+      t.integer :new_question_timeout, :default => 30
       t.integer :old_question_timeout
       t.string :description, :limit => 2000
 
@@ -16,7 +16,7 @@ class CreateQuestionInstances < ActiveRecord::Migration
       t.timestamps
     end
 
-    [:name, :user_id, :project_id, :parent_id, :position].each do |col|
+    [:name, :user_id, :project_id, :parent_id, :position, :new_question_timeout, :old_question_timeout].each do |col|
       add_index :question_instances, col
     end
 

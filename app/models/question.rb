@@ -12,4 +12,5 @@ class Question < ActiveRecord::Base
 
   validates_format_of_email :email, :allow_nil => true
 
+
 end
