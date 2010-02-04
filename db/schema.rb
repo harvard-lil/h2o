@@ -12,14 +12,14 @@
 ActiveRecord::Schema.define(:version => 20100202182512) do
 
   create_table "question_instances", :force => true do |t|
-    t.string   "name",                      :limit => 250,  :null => false
+    t.string   "name",                    :limit => 250,                  :null => false
     t.integer  "user_id"
     t.integer  "project_id"
-    t.string   "password",                  :limit => 128
-    t.integer  "featured_question_count"
-    t.integer  "featured_question_timeout"
+    t.string   "password",                :limit => 128
+    t.integer  "featured_question_count",                 :default => 2
+    t.integer  "new_question_timeout",                    :default => 30
     t.integer  "old_question_timeout"
-    t.string   "description",               :limit => 2000
+    t.string   "description",             :limit => 2000
     t.integer  "parent_id"
     t.integer  "children_count"
     t.integer  "ancestors_count"
@@ -31,6 +31,8 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
   end
 
   add_index "question_instances", ["name"], :name => "index_question_instances_on_name"
+  add_index "question_instances", ["new_question_timeout"], :name => "index_question_instances_on_new_question_timeout"
+  add_index "question_instances", ["old_question_timeout"], :name => "index_question_instances_on_old_question_timeout"
   add_index "question_instances", ["parent_id"], :name => "index_question_instances_on_parent_id"
   add_index "question_instances", ["position"], :name => "index_question_instances_on_position"
   add_index "question_instances", ["project_id", "position"], :name => "index_question_instances_on_project_id_and_position", :unique => true

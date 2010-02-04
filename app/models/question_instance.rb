@@ -14,9 +14,6 @@ class QuestionInstance < ActiveRecord::Base
   validates_length_of :password, :maximum => 128, :allow_nil => true
   validates_length_of :description, :maximum => 2000, :allow_nil => true
 
-  validates_length_of :email, :name, 
-    :maximum => 250, :allow_nil => true
+  validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :new_question_timeout, :featured_question_count, :old_question_timeout, :allow_nil => true
 
-  validates_format_of_email :email, :allow_nil => true
-  validates_numericality_of :new_question_timeout, :featured_question_count, :old_question_timeout, :allow_nil => true
 end

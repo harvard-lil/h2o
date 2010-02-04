@@ -5,7 +5,7 @@ one:
   user_id: 1
   project_id: 1
   password: MyString
-  featured_question_timeout: 1
+  featured_question_count: 1
   old_question_timeout: 1
   description: MyText
 
@@ -14,6 +14,6 @@ two:
   user_id: 1
   project_id: 1
   password: MyString
-  featured_question_timeout: 1
+  featured_question_count: 1
   old_question_timeout: 1
   description: MyText

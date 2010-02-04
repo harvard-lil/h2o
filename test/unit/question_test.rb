@@ -1,8 +1,6 @@
 require 'test_helper'
 
 class QuestionTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
-  test "the truth" do
-    assert true
-  end
+  should_not_allow_values_for :email, 'foobar','bee','@ff.com'
+  should_allow_values_for :email, 'foo@bar.com','foo+bar@com.com', 'foo.bar@com.com', 'foo@bar.person'
 end
