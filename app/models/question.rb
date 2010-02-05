@@ -2,9 +2,9 @@ class Question < ActiveRecord::Base
   acts_as_category :scope => :question_instance
   belongs_to :question_instance
   belongs_to :user
+  has_many :replies, :order => :position
 
-  validates_presence_of :question
-
+  validates_presence_of :question, :question_instance_id
   validates_length_of :question, 
     :maximum => 10000
 

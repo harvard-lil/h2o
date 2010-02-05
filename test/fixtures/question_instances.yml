@@ -1,7 +1,7 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
 one:
-  name: MyString
+  name: Question Instance 1
   user_id: 1
   project_id: 1
   password: MyString
@@ -10,7 +10,7 @@ one:
   description: MyText
 
 two:
-  name: MyString
+  name: Question Instance 2
   user_id: 1
   project_id: 1
   password: MyString

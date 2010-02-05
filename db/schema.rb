@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
     t.datetime "updated_at"
   end
 
-  add_index "question_instances", ["name"], :name => "index_question_instances_on_name"
+  add_index "question_instances", ["name"], :name => "index_question_instances_on_name", :unique => true
   add_index "question_instances", ["new_question_timeout"], :name => "index_question_instances_on_new_question_timeout"
   add_index "question_instances", ["old_question_timeout"], :name => "index_question_instances_on_old_question_timeout"
   add_index "question_instances", ["parent_id"], :name => "index_question_instances_on_parent_id"
@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
   add_index "question_instances", ["user_id"], :name => "index_question_instances_on_user_id"
 
   create_table "questions", :force => true do |t|
-    t.integer  "question_instance_id"
+    t.integer  "question_instance_id",                                     :null => false
     t.integer  "user_id"
     t.string   "question",             :limit => 10000,                    :null => false
     t.boolean  "posted_anonymously",                    :default => false
@@ -55,17 +55,37 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
     t.datetime "updated_at"
   end
 
+  add_index "questions", ["email"], :name => "index_questions_on_email"
+  add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
+  add_index "questions", ["position"], :name => "index_questions_on_position"
+  add_index "questions", ["question_instance_id", "position"], :name => "index_questions_on_question_instance_id_and_position", :unique => true
+  add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
+  add_index "questions", ["user_id", "question_instance_id", "position"], :name => "index_questions_on_user_id_and_question_instance_id_and_position", :unique => true
+  add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
+
   create_table "replies", :force => true do |t|
-    t.integer  "question_id"
+    t.integer  "question_id",                                           :null => false
     t.integer  "user_id"
-    t.text     "reply"
-    t.text     "email"
-    t.text     "name"
-    t.boolean  "posted_anonymously"
+    t.text     "reply",              :limit => 1000,                    :null => false
+    t.text     "email",              :limit => 250
+    t.text     "name",               :limit => 250
+    t.boolean  "posted_anonymously",                 :default => false
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
     t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "replies", ["email"], :name => "index_replies_on_email"
+  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
+  add_index "replies", ["position"], :name => "index_replies_on_position"
+  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
+  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
+  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
+  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
