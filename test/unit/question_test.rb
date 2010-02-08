@@ -6,6 +6,7 @@ class QuestionTest < ActiveSupport::TestCase
     should_belong_to :question_instance
     should_belong_to :user
 
+    should_validate_presence_of :user_id
     should_validate_presence_of :question
     should_validate_presence_of :question_instance_id
     should_ensure_length_in_range :question, 0..10000
