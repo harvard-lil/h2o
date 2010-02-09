@@ -23,6 +23,20 @@ class ApplicationController < ActionController::Base
 
   end
 
+  protected
+
+  # Accepts a string or an array and emits stylesheet tags in the layout in that order.
+  def add_stylesheets(new_stylesheets)
+    @stylesheets = [] if ! defined?(@stylesheets)
+    @stylesheets << new_stylesheets
+  end
+  
+  # Accepts a string or an array and emits javascript tags in the layout in that order.
+  def add_javascripts(new_javascripts)
+    @javascripts = [] if ! defined?(@javascripts)
+    @javascripts << new_javascripts
+  end
+
   private
 
     def current_user_session

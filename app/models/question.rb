@@ -4,7 +4,7 @@ class Question < ActiveRecord::Base
   belongs_to :user
   has_many :replies, :order => :position
 
-  validates_presence_of :question, :question_instance_id
+  validates_presence_of :user_id, :question, :question_instance_id
   validates_length_of :question, 
     :maximum => 10000
 
