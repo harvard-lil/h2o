@@ -4,7 +4,7 @@
   <head> 
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" /> 
     <title></title>
-    <% ['h2o', (@stylesheets.blank?) ? nil : @stylesheets ].compact.flatten.each do |ss| -%>
+    <% ['h2o','formtastic','forms', (@stylesheets.blank?) ? nil : @stylesheets ].compact.flatten.each do |ss| -%>
       <%= stylesheet_link_tag ss %>
     <% end -%>
     <% ['jquery-1.4.1.min','application', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>

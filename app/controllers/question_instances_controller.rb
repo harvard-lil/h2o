@@ -5,6 +5,9 @@ class QuestionInstancesController < BaseController
   # GET /question_instances
   # GET /question_instances.xml
   def index
+    add_stylesheets "tablesorter-blue-theme/style"
+    add_javascripts "jquery.tablesorter.min"
+
     @question_instances = QuestionInstance.all
 
     respond_to do |format|

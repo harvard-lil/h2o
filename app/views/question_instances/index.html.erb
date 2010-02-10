@@ -1,18 +1,34 @@
-<h1>Listing question_instances</h1>
+<h1>Question Tool Instance Chooser</h1>
 
-<table>
-  <tr>
-  </tr>
-
-<% @question_instances.each do |question_instance| %>
-  <tr>
-    <td><%= link_to 'Show', question_instance %></td>
-    <td><%= link_to 'Edit', edit_question_instance_path(question_instance) %></td>
-    <td><%= link_to 'Destroy', question_instance, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
+<% unless @question_instances.blank? %>
+  <h2>Choose an existing question tool instance.</h2>
+  <table id="question-instance-chooser" class="tablesorter">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Questions / Replies</th>
+        <th>Created</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @question_instances.each do |question_instance| %>
+        <tr>
+          <td><%= link_to question_instance.name, question_instance %></td>
+          <td><%= question_instance.questions.count %> / <%= question_instance.replies.count %></td>
+          <td><%= question_instance.created_at %></td>
+          <td>
+            <%= link_to 'Edit', edit_question_instance_path(question_instance) %>
+            <%= link_to 'Destroy', question_instance, :confirm => 'Are you sure?', :method => :delete %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <h2>OR</h2>
+<% else %>
+  <h2>No question tools instances are currently active.</h2>
 <% end %>
-</table>
 
-<br />
+<h2><%= link_to 'Create a new instance of the question tool', new_question_instance_path %></h2>
 
-<%= link_to 'New question_instance', new_question_instance_path %>

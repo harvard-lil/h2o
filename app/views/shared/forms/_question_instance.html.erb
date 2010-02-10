@@ -1,7 +1,14 @@
-<% form_for(@question_instance) do |f| %>
-  <%= f.error_messages %>
 
-  <p>
-    <%= f.submit 'Create' %>
-  </p>
+<% semantic_form_for @question_instance do |form| %>
+  <% form.inputs do %>
+    <%= form.input :name %>
+    <%= form.input :description, :as => :text, :input_html => {:size => '40x5'} %>
+    <%= form.input :password %>
+    <%= form.input :featured_question_count, :as => :select, :collection => QuestionInstance::FEATURED_QUESTION_COUNTS %>
+    <%= form.input :new_question_timeout, :as => :select, :collection => QuestionInstance::NEW_QUESTION_TIMEOUTS %>
+    <%= form.input :old_question_timeout, :as => :select, :collection => QuestionInstance::OLD_QUESTION_TIMEOUTS %>
+  <% end %>
+  <% form.buttons do %>
+    <%= form.commit_button %>
+  <% end %>
 <% end %>

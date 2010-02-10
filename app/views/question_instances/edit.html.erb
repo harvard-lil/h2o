@@ -1,12 +1,4 @@
-<h1>Editing question_instance</h1>
-
-<% form_for(@question_instance) do |f| %>
-  <%= f.error_messages %>
-
-  <p>
-    <%= f.submit 'Update' %>
-  </p>
-<% end %>
+<%= render :partial => 'shared/forms/question_instance' %>
 
 <%= link_to 'Show', @question_instance %> |
 <%= link_to 'Back', question_instances_path %>
