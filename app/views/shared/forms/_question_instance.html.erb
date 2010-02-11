@@ -27,6 +27,6 @@
     %>
   <% end %>
   <% form.buttons do %>
-    <%= form.commit_button %>
+    <%= form.commit_button "#{(@question_instance.new_record?) ? 'Create' : 'Save'} Question Tool Instance" %>
   <% end %>
 <% end %>

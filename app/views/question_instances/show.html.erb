@@ -1,3 +1,8 @@
+<h1><%= h @question_instance.name %></h1>
+
+<% if ! @question_instance.description.blank? %>
+  <div class="description"><%= format_html(@question_instance.description) %></div>
+<% end %>
 
 <%= link_to 'Edit', edit_question_instance_path(@question_instance) %> |
 <%= link_to 'Back', question_instances_path %>
