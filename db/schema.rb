@@ -58,17 +58,17 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
   add_index "questions", ["email"], :name => "index_questions_on_email"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
-  add_index "questions", ["question_instance_id", "position"], :name => "index_questions_on_question_instance_id_and_position", :unique => true
+  add_index "questions", ["question_instance_id", "position"], :name => "unique_in_question_instance", :unique => true
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
-  add_index "questions", ["user_id", "question_instance_id", "position"], :name => "index_questions_on_user_id_and_question_instance_id_and_position", :unique => true
+  add_index "questions", ["user_id", "question_instance_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
   create_table "replies", :force => true do |t|
     t.integer  "question_id",                                           :null => false
     t.integer  "user_id"
-    t.text     "reply",              :limit => 1000,                    :null => false
-    t.text     "email",              :limit => 250
-    t.text     "name",               :limit => 250
+    t.string   "reply",              :limit => 1000,                    :null => false
+    t.string   "email",              :limit => 250
+    t.string   "name",               :limit => 250
     t.boolean  "posted_anonymously",                 :default => false
     t.integer  "parent_id"
     t.integer  "children_count"

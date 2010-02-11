@@ -3,9 +3,9 @@ class CreateReplies < ActiveRecord::Migration
     create_table :replies do |t|
       t.integer :question_id, :null => false
       t.integer :user_id
-      t.text :reply, :null => false, :limit => 1000
-      t.text :email, :limit => 250
-      t.text :name, :limit => 250
+      t.string :reply, :null => false, :limit => 1000
+      t.string :email, :limit => 250
+      t.string :name, :limit => 250
       t.boolean :posted_anonymously, :default => false
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
       t.timestamps

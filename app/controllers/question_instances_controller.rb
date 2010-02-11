@@ -48,6 +48,7 @@ class QuestionInstancesController < BaseController
   # POST /question_instances
   # POST /question_instances.xml
   def create
+    add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.new(params[:question_instance])
 
     respond_to do |format|
@@ -65,6 +66,7 @@ class QuestionInstancesController < BaseController
   # PUT /question_instances/1
   # PUT /question_instances/1.xml
   def update
+    add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.find(params[:id])
 
     respond_to do |format|

@@ -7,7 +7,7 @@ class CreateQuestionInstances < ActiveRecord::Migration
       t.string :password, :limit => 128
       t.integer :featured_question_count, :default => 2
       t.integer :new_question_timeout, :default => 30
-      t.integer :old_question_timeout
+      t.integer :old_question_timeout, :default => 900 
       t.string :description, :limit => 2000
 
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position

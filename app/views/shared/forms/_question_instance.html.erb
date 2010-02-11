@@ -2,11 +2,30 @@
 <% semantic_form_for @question_instance do |form| %>
   <% form.inputs do %>
     <%= form.input :name %>
-    <%= form.input :description, :as => :text, :input_html => {:size => '40x5'} %>
-    <%= form.input :password %>
-    <%= form.input :featured_question_count, :as => :select, :collection => QuestionInstance::FEATURED_QUESTION_COUNTS %>
-    <%= form.input :new_question_timeout, :as => :select, :collection => QuestionInstance::NEW_QUESTION_TIMEOUTS %>
-    <%= form.input :old_question_timeout, :as => :select, :collection => QuestionInstance::OLD_QUESTION_TIMEOUTS %>
+    <%= form.input :description, 
+      :as => :text, 
+      :input_html => {:size => '40x5'},
+      :required => false
+    %>
+    <%= form.input :password,
+      :required => false
+    %>
+    <%= form.input :featured_question_count, 
+      :as => :select, 
+      :collection => QuestionInstance::FEATURED_QUESTION_COUNTS, 
+      :label => 'Number of "featured" questions', 
+      :required => false 
+    %>
+    <%= form.input :new_question_timeout, 
+      :as => :select, 
+      :collection => QuestionInstance::NEW_QUESTION_TIMEOUTS,
+      :required => false
+    %>
+    <%= form.input :old_question_timeout, 
+      :as => :select, 
+      :collection => QuestionInstance::OLD_QUESTION_TIMEOUTS,
+      :required => false
+    %>
   <% end %>
   <% form.buttons do %>
     <%= form.commit_button %>
