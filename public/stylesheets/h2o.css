@@ -1,5 +1,36 @@
+/* Tag redefinitions */
+body, h1, h2, h3, h4, h5, div, table, form{
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+form{
+  display: inline;
+}
+
+img{
+  border: none;
+}
+
+h1{
+  margin-top: .25em;
+  margin-bottom: .5em;
+}
+
+h2{
+  margin-top: 1em;
+}
+
+/* end of Tag redefinitions */
+
+/* Structure */
 .clear{
   clear: both;
 }
+
+/* end of Structure */
+
 
 

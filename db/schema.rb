@@ -12,13 +12,13 @@
 ActiveRecord::Schema.define(:version => 20100202182512) do
 
   create_table "question_instances", :force => true do |t|
-    t.string   "name",                    :limit => 250,                  :null => false
+    t.string   "name",                    :limit => 250,                   :null => false
     t.integer  "user_id"
     t.integer  "project_id"
     t.string   "password",                :limit => 128
     t.integer  "featured_question_count",                 :default => 2
     t.integer  "new_question_timeout",                    :default => 30
-    t.integer  "old_question_timeout"
+    t.integer  "old_question_timeout",                    :default => 900
     t.string   "description",             :limit => 2000
     t.integer  "parent_id"
     t.integer  "children_count"

@@ -6,7 +6,8 @@ one:
   project_id: 1
   password: MyString
   featured_question_count: 1
-  old_question_timeout: 1
+  old_question_timeout: 900
+  new_question_timeout: 300
   description: MyText
 
 two:
@@ -15,5 +16,6 @@ two:
   project_id: 1
   password: MyString
   featured_question_count: 1
-  old_question_timeout: 1
+  old_question_timeout: 900
+  new_question_timeout: 300
   description: MyText
