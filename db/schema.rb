@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100202182512) do
+ActiveRecord::Schema.define(:version => 20100217190623) do
 
   create_table "question_instances", :force => true do |t|
     t.string   "name",                    :limit => 250,                   :null => false
@@ -126,5 +126,19 @@ ActiveRecord::Schema.define(:version => 20100202182512) do
   add_index "users", ["login"], :name => "index_users_on_login"
   add_index "users", ["oauth_token"], :name => "index_users_on_oauth_token"
   add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
+
+  create_table "votes", :force => true do |t|
+    t.boolean  "vote",          :default => false
+    t.integer  "voteable_id",                      :null => false
+    t.string   "voteable_type",                    :null => false
+    t.integer  "voter_id"
+    t.string   "voter_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "votes", ["voteable_id", "voteable_type"], :name => "fk_voteables"
+  add_index "votes", ["voter_id", "voter_type", "voteable_id", "voteable_type"], :name => "uniq_one_vote_only", :unique => true
+  add_index "votes", ["voter_id", "voter_type"], :name => "fk_voters"
 
 end
