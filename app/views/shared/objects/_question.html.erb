@@ -5,7 +5,6 @@
   </div>
   <p><%= h question.question.to_s %></p>
   <div class="meta">
-    <%= %>
+    <span class="datetime"><%= time_ago_in_words(question.created_at) %> ago</span>
   </div>
-
 </div>
