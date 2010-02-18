@@ -1,0 +1,11 @@
+<div id="question-<%= question.id %>" class="question">
+  <div class="votes">
+    <div class="vote-count"><%= question.votes.length %></div>
+    <div class="vote-actions"></div>
+  </div>
+  <p><%= h question.question.to_s %></p>
+  <div class="meta">
+    <%= %>
+  </div>
+
+</div>

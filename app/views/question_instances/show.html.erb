@@ -7,7 +7,8 @@
 </div>
 
 <div id="featured_questions">
-  
+  <h2>Featured Questions</h2>
+  <%= render :partial => 'shared/objects/question', :collection => @question_instance.featured_questions %> 
 </div>
 
 <div id="other_questions">

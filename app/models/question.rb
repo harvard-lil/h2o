@@ -18,17 +18,22 @@ class Question < ActiveRecord::Base
 
   def self.featured(question_instance)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
-    self.find_by_sql(["select questions.id,count(votes.id) 
+
+    #We're essentially forcing eager loading for the question object here.
+    columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
+
+    fq = self.find_by_sql(["select #{columns} ,count(votes.id) as vote_count
                      from questions 
                      left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
                      where 
                      questions.question_instance_id = ? 
-                     group by questions.id 
-                     order by count(votes.id) limit ?", 
+                     group by #{columns} 
+                     order by vote_count desc limit ?", 
                      self.name, 
                      question_instance.id,
                      question_instance.featured_question_count
     ])
   end
+
 
 end
