@@ -16,9 +16,8 @@ class Question < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
-  def self.featured(question_instance)
+  def self.featured(params)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
-
     #We're essentially forcing eager loading for the question object here.
     columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
 
@@ -28,10 +27,10 @@ class Question < ActiveRecord::Base
                      where 
                      questions.question_instance_id = ? 
                      group by #{columns} 
-                     order by vote_count desc limit ?", 
+                     order by sticky desc,vote_count desc limit ?", 
                      self.name, 
-                     question_instance.id,
-                     question_instance.featured_question_count
+                     params[:question_instance].id,
+                     params[:question_instance].featured_question_count
     ])
   end
 

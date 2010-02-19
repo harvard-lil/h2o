@@ -1,4 +1,4 @@
-<div id="question-<%= question.id %>" class="question">
+<div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
   <div class="votes">
     <div class="count"><%= question.votes.length %></div>
     <div class="actions"></div>

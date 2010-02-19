@@ -7,13 +7,13 @@ class CreateQuestions < ActiveRecord::Migration
       t.boolean :posted_anonymously, :default => false
       t.string :email, :limit => 250
       t.string :name, :limit => 250
-      t.boolean :is_featured, :default => false
+      t.boolean :sticky, :default => false
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
 
       t.timestamps
     end
 
-    [:user_id, :question_instance_id, :parent_id, :position, :email].each do |col|
+    [:user_id, :question_instance_id, :parent_id, :position, :email, :sticky].each do |col|
       add_index :questions, col
     end
     #Enforce some logical constraints - a questions CAN'T have a duplicate position 

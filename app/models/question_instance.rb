@@ -3,10 +3,6 @@ class QuestionInstance < ActiveRecord::Base
   NEW_QUESTION_TIMEOUTS = [['30 seconds',30],['1 minute',60],['5 minutes',300],['1 hour',3600],['1 day',86400],['1 week',604800]]
   OLD_QUESTION_TIMEOUTS = [['15 minutes',900],['30 minutes',1800],['1 hour',3600],['1 day',86400],['1 week',604800],['30 days',86400 * 30],[ '1 year',86400 * 36,]]
 
-#  named_scope :featured_questions, lambda{||
-#    { :conditions => 
-#  }
-
 #  belongs_to :project
   belongs_to :user
   has_many :questions
@@ -25,8 +21,12 @@ class QuestionInstance < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :new_question_timeout, :featured_question_count, :old_question_timeout, :allow_nil => true
 
-  def featured_questions
-    Question.featured(self)
+  def featured_questions(order = 'vote_count')
+    Question.featured(:question_instance => self, :order => order)
+  end
+
+  def other_questions(order = 'vote_count')
+    Question.not_featured(:question_instance => self, :order => order)
   end
 
 end

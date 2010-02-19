@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20100217190623) do
     t.boolean  "posted_anonymously",                    :default => false
     t.string   "email",                :limit => 250
     t.string   "name",                 :limit => 250
+    t.boolean  "sticky",                                :default => false
     t.integer  "parent_id"
     t.integer  "children_count"
     t.integer  "ancestors_count"
@@ -60,6 +61,7 @@ ActiveRecord::Schema.define(:version => 20100217190623) do
   add_index "questions", ["position"], :name => "index_questions_on_position"
   add_index "questions", ["question_instance_id", "position"], :name => "unique_in_question_instance", :unique => true
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
+  add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["user_id", "question_instance_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
