@@ -1,6 +1,15 @@
 #questions #featured{
-  width: 66%;
+  width: 60%;
   float: left;
+}
+
+#questions #other{
+  float: left;
+}
+
+#questions #other .question{
+  float: left;
+  width: 32%;
 }
 
 .question .votes{

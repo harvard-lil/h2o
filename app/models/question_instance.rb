@@ -21,12 +21,12 @@ class QuestionInstance < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :new_question_timeout, :featured_question_count, :old_question_timeout, :allow_nil => true
 
-  def featured_questions(order = 'vote_count')
-    Question.featured(:question_instance => self, :order => order)
+  def featured_questions(params = {})
+    Question.featured(params.merge(:question_instance => self))
   end
 
-  def other_questions(order = 'vote_count')
-    Question.not_featured(:question_instance => self, :order => order)
+  def not_featured_questions(params = {})
+    Question.not_featured(params.merge(:question_instance => self))
   end
 
 end
