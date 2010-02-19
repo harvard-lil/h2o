@@ -8,6 +8,7 @@ one:
   email: MyText
   name: MyText
   position: 1
+  is_featured: false
 
 two:
   question_instance_id: 1
@@ -17,3 +18,4 @@ two:
   email: MyText
   name: MyText
   position: 2
+  is_featured: false

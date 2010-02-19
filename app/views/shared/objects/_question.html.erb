@@ -1,10 +1,12 @@
 <div id="question-<%= question.id %>" class="question">
   <div class="votes">
-    <div class="vote-count"><%= question.votes.length %></div>
-    <div class="vote-actions"></div>
+    <div class="count"><%= question.votes.length %></div>
+    <div class="actions"></div>
   </div>
   <p><%= h question.question.to_s %></p>
   <div class="meta">
+    by <span class="user"><%= question.user.login %></span>
     <span class="datetime"><%= time_ago_in_words(question.created_at) %> ago</span>
   </div>
+  <div class="clear"></div>
 </div>

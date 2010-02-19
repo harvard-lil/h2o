@@ -7,6 +7,7 @@ class CreateQuestions < ActiveRecord::Migration
       t.boolean :posted_anonymously, :default => false
       t.string :email, :limit => 250
       t.string :name, :limit => 250
+      t.boolean :is_featured, :default => false
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
 
       t.timestamps
