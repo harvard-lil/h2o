@@ -1,0 +1,36 @@
+
+
+<h1>Listing rotisserie_instances</h1>
+
+<div class="ui-widget matrix">
+<table class="ui-widget ui-widget-content">
+  <thead>
+    <tr class="ui-widget-header ">
+      <th>Show</th>
+      <th>Edit</th>
+      <th>Destroy</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @rotisserie_instances.each do |rotisserie_instance| %>
+      <tr>
+        <td><%= link_to 'Link', rotisserie_instance %></td>
+        <td><%= link_to 'Link', edit_rotisserie_instance_path(rotisserie_instance) %></td>
+        <td><%= link_to 'Link', rotisserie_instance, :confirm => 'Are you sure?', :method => :delete %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div>
+
+<br />
+
+
+<button id="create-instance" class="ui-button ui-state-default ui-corner-all">Create new instance</button>
+
+<div id="new-dialog" title="Create new instance">
+  <%= render :partial => 'shared/forms/rotisserie_instance' %>
+</div>
+
+<!-- <%= link_to 'New rotisserie_instance', new_rotisserie_instance_path %> -->

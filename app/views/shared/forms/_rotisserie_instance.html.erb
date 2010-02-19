@@ -1,0 +1,16 @@
+<% semantic_form_for RotisserieInstance.new, :html => {:class => 'ui-widget'} do |form| %>
+  <div id="error_block"></div>
+  <%=  form.errors_on(:state) %>
+  <% form.inputs do %>
+        <%= form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <%= form.input :output, :label => "Display", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <%= form.input :description,
+          :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+          :required => false
+        %>
+        <%= form.input :notes,
+          :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+          :required => false
+        %>
+  <% end %>
+<% end %>
