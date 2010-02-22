@@ -21,6 +21,7 @@ jQuery(function() {
                 }
             },
             Cancel: function() {
+                jQuery('#error_block').html("").removeClass('error').inner
                 jQuery(this).dialog('close');
             }
         }
