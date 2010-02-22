@@ -71,9 +71,17 @@ class RotisserieInstancesController < ApplicationController
     respond_to do |format|
       if @rotisserie_instance.update_attributes(params[:rotisserie_instance])
         flash[:notice] = 'RotisserieInstance was successfully updated.'
+        format.js { render :text => "", :layout => false  }
         format.html { redirect_to(@rotisserie_instance) }
         format.xml  { head :ok }
       else
+        error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_instance.errors.each{ |attr,msg|
+           error_output += "#{attr} #{msg}<br />"
+         }
+        error_output += "</div>"
+        
+        format.js { render :text => error_output, :layout => false  }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @rotisserie_instance.errors, :status => :unprocessable_entity }
       end

@@ -4,7 +4,7 @@
 
 jQuery(function() {
 
-    jQuery("#new-dialog").dialog({
+    jQuery("#dialog-new").dialog({
         bgiframe: true,
         autoOpen: false,
         minWidth: 400,
@@ -16,12 +16,37 @@ jQuery(function() {
                 /* allFields.removeClass('ui-state-error'); */
 
                 if (bValid) {
+                    // bind form using 'ajaxForm'
+                    jQuery('#new_rotisserie_instance').ajaxForm(form_options);
                     jQuery("#new_rotisserie_instance").submit();
-                /* jQuery(this).dialog('close'); */
+                    // jQuery(this).dialog('close');
                 }
             },
-            Cancel: function() {
-                jQuery('#error_block').html("").removeClass('error').inner
+            'Cancel': function() {
+                jQuery(this).dialog('close');
+            }
+        }
+    });
+
+    jQuery("#dialog-edit").dialog({
+        bgiframe: true,
+        autoOpen: false,
+        minWidth: 400,
+        width: 400,
+        modal: true,
+        buttons: {
+            'Update': function() {
+                var bValid = true;
+                /* allFields.removeClass('ui-state-error'); */
+
+                if (bValid) {
+                   // bind form using 'ajaxForm'
+                   jQuery('[id^=edit_rotisserie_instance]').ajaxForm(form_options);
+                   jQuery('[id^=edit_rotisserie_instance]').submit();
+                   //jQuery(this).dialog('close');
+                }
+            },
+            'Cancel': function() {
                 jQuery(this).dialog('close');
             }
         }
@@ -44,8 +69,7 @@ jQuery(function() {
     //timeout:   3000
     };
 
-    // bind form using 'ajaxForm'
-    jQuery('#new_rotisserie_instance').ajaxForm(form_options);
+
 
     // pre-submit callback
     function showRequest(formData, jqForm, options) {
@@ -81,10 +105,19 @@ jQuery(function() {
             '\n\nThe output div should have already been updated with the responseText.');
     }
 
+    // Spawn dialog when button is clicked
     jQuery('#create-instance').click(function() {
-        jQuery('#new-dialog').dialog('open');
+        jQuery('#dialog-new').dialog('open');
+        jQuery('#dialog-new').html("<img src='/images/elements/ajax-loader.gif' />");
+        jQuery('#dialog-new').load('/rotisserie_instances/new');
     })
 
+    jQuery('[name=button-edit]').click(function() {
+       var edit_id = this.id.replace('button-edit-', "");
+       jQuery('#dialog-edit').dialog('open');
+       jQuery('#dialog-edit').html("<img src='/images/elements/ajax-loader.gif' />");
+       jQuery('#dialog-edit').load('/rotisserie_instances/' + edit_id + '/edit');
+    })
 
     .hover(
         function(){

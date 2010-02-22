@@ -1,12 +1,1 @@
-<h1>Editing rotisserie_instance</h1>
-
-<% form_for(@rotisserie_instance) do |f| %>
-  <%= f.error_messages %>
-
-  <p>
-    <%= f.submit 'Update' %>
-  </p>
-<% end %>
-
-<%= link_to 'Show', @rotisserie_instance %> |
-<%= link_to 'Back', rotisserie_instances_path %>
+<%= render :partial => 'shared/forms/rotisserie_instance' %>

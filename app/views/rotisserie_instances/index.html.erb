@@ -15,9 +15,9 @@
   <tbody>
     <% @rotisserie_instances.each do |rotisserie_instance| %>
       <tr>
-        <td><%= link_to 'Link', rotisserie_instance %></td>
-        <td><%= link_to 'Link', edit_rotisserie_instance_path(rotisserie_instance) %></td>
-        <td><%= link_to 'Link', rotisserie_instance, :confirm => 'Are you sure?', :method => :delete %></td>
+        <td><%= link_to rotisserie_instance.title, rotisserie_instance %></td>
+        <td><button id="button-edit-<%= rotisserie_instance.id %>" name="button-edit" class="ui-button ui-state-default ui-corner-all">Edit</button></td>
+        <td></td>
       </tr>
     <% end %>
   </tbody>
@@ -27,10 +27,7 @@
 <br />
 
 
-<button id="create-instance" class="ui-button ui-state-default ui-corner-all">Create new instance</button>
+<button id="create-instance" class="ui-button ui-state-default ui-corner-all">Create instance</button>
 
-<div id="new-dialog" title="Create new instance">
-  <%= render :partial => 'shared/forms/rotisserie_instance' %>
-</div>
-
-<!-- <%= link_to 'New rotisserie_instance', new_rotisserie_instance_path %> -->
+<div id="dialog-new" title="New instance"></div>
+<div id="dialog-edit" title="Edit instance"></div>
