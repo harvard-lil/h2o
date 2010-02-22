@@ -1,6 +1,13 @@
-<% semantic_form_for RotisserieInstance.new, :html => {:class => 'ui-widget'} do |form| %>
-  <div id="error_block"></div>
-  <%=  form.errors_on(:state) %>
+<%
+if controller.action_name == 'edit'
+  rotisserie_object = RotisserieInstance.find(params[:id])
+else
+  rotisserie_object = RotisserieInstance.new
+end
+%>
+
+<div id="error_block"></div>
+  <% semantic_form_for rotisserie_object, :html => {:class => 'ui-widget'} do |form| %>
   <% form.inputs do %>
         <%= form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
         <%= form.input :output, :label => "Display", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
@@ -13,4 +20,5 @@
           :required => false
         %>
   <% end %>
-<% end %>
+  <% end %>
+
