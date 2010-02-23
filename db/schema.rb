@@ -97,6 +97,86 @@ ActiveRecord::Schema.define(:version => 20100217190623) do
     t.datetime "updated_at"
   end
 
+  create_table "rotisserie_assignments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "rotisserie_discussion_id"
+    t.integer  "rotisserie_post_id"
+    t.integer  "round"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rotisserie_assignments", ["rotisserie_discussion_id"], :name => "index_rotisserie_assignments_on_rotisserie_discussion_id"
+  add_index "rotisserie_assignments", ["rotisserie_post_id"], :name => "index_rotisserie_assignments_on_rotisserie_post_id"
+  add_index "rotisserie_assignments", ["round"], :name => "index_rotisserie_assignments_on_round"
+  add_index "rotisserie_assignments", ["user_id"], :name => "index_rotisserie_assignments_on_user_id"
+
+  create_table "rotisserie_discussions", :force => true do |t|
+    t.integer  "rotisserie_instance_id"
+    t.string   "title",                  :limit => 250,                   :null => false
+    t.text     "output"
+    t.integer  "round_length",                          :default => 2
+    t.integer  "final_round",                           :default => 2
+    t.datetime "start_date"
+    t.string   "session_id"
+    t.boolean  "active",                                :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rotisserie_discussions", ["active"], :name => "index_rotisserie_discussions_on_active"
+  add_index "rotisserie_discussions", ["rotisserie_instance_id"], :name => "index_rotisserie_discussions_on_rotisserie_instance_id"
+  add_index "rotisserie_discussions", ["title"], :name => "index_rotisserie_discussions_on_title"
+
+  create_table "rotisserie_instances", :force => true do |t|
+    t.string   "title",       :limit => 250,                   :null => false
+    t.text     "output"
+    t.text     "description"
+    t.text     "notes"
+    t.string   "session_id"
+    t.boolean  "active",                     :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rotisserie_instances", ["title"], :name => "index_rotisserie_instances_on_title", :unique => true
+
+  create_table "rotisserie_posts", :force => true do |t|
+    t.integer  "rotisserie_discussion_id"
+    t.integer  "round"
+    t.string   "title",                    :limit => 250,                   :null => false
+    t.text     "output"
+    t.string   "session_id"
+    t.boolean  "active",                                  :default => true
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.boolean  "hidden"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rotisserie_posts", ["active"], :name => "index_rotisserie_posts_on_active"
+  add_index "rotisserie_posts", ["parent_id"], :name => "index_rotisserie_posts_on_parent_id"
+  add_index "rotisserie_posts", ["position"], :name => "index_rotisserie_posts_on_position"
+  add_index "rotisserie_posts", ["rotisserie_discussion_id"], :name => "index_rotisserie_posts_on_rotisserie_discussion_id"
+  add_index "rotisserie_posts", ["round"], :name => "index_rotisserie_posts_on_round"
+
+  create_table "rotisserie_trackers", :force => true do |t|
+    t.integer  "rotisserie_discussion_id"
+    t.integer  "rotisserie_post_id"
+    t.integer  "user_id"
+    t.string   "notify_description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "rotisserie_trackers", ["rotisserie_discussion_id"], :name => "index_rotisserie_trackers_on_rotisserie_discussion_id"
+  add_index "rotisserie_trackers", ["rotisserie_post_id"], :name => "index_rotisserie_trackers_on_rotisserie_post_id"
+  add_index "rotisserie_trackers", ["user_id"], :name => "index_rotisserie_trackers_on_user_id"
+
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false
     t.text     "data"
