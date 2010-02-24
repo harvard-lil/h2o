@@ -97,6 +97,7 @@ class QuestionInstancesController < BaseController
 
   def prep_resources
     add_stylesheets 'question_tool'
+    add_javascripts 'question_tool'
   end
 
 end

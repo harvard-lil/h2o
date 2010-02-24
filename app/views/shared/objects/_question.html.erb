@@ -1,7 +1,7 @@
 <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
   <div class="votes">
-    <div class="count"><%= question.votes.length %></div>
-    <div class="actions"></div>
+    <div class="count"><%= question.vote_count %></div>
+    <div class="actions"><%= (question.vote_count.to_i == 0 || ! question.voted_by?(current_user)) ? (link_to('+','#', :id => "vote-for-#{question.id}")) : 'n/a' %></div>
   </div>
   <p><%= h question.question.to_s %></p>
   <div class="meta">

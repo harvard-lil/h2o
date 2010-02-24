@@ -1,4 +1,5 @@
 ActionController::Routing::Routes.draw do |map|
+
   map.resources :rotisserie_trackers
 
   map.resources :rotisserie_assignments
@@ -8,10 +9,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rotisserie_discussions
 
   map.resources :rotisserie_instances
-
-  map.resources :question_instances
-
-  map.resources :question_instances
 
   map.resources :replies
 
