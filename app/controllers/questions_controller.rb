@@ -2,6 +2,17 @@ class QuestionsController < BaseController
 
   before_filter :prep_resources
 
+  def vote_for
+    begin
+      q = Question.find(params[:question_id])
+      q.vote_for(current_user)
+      render :text => '<p>Vote tallied!</p>'
+    rescue Exception => e
+      #you fail it.
+      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", :status_code => :internal_server_error
+    end
+  end
+
   # GET /questions/1
   # GET /questions/1.xml
   def show

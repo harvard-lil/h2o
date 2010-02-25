@@ -6,7 +6,16 @@ jQuery(function(){
       observeVoteControls: function() {
         jQuery("a[id*='vote-for']").click(function(){
           var elementId = jQuery(this).attr('id').split('-')[2];
-          alert(elementId);
+
+//          jQuery.ajax({
+//            url: 'ajax/test.html',
+//            success: function(data) {
+//              $('.result').html(data);
+//              alert('Load was performed.');
+//            }
+//          });
+
+//          jQuery
           return false;
           });
         }

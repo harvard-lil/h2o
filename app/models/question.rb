@@ -43,8 +43,9 @@ class Question < ActiveRecord::Base
     questions_to_exclude = []
     if params[:questions_to_exclude].blank?
       params[:questions_to_exclude] = self.featured(params)
-      questions_to_exclude = params[:questions_to_exclude].collect{|q|q.id}.join(',')
     end
+
+    questions_to_exclude = params[:questions_to_exclude].collect{|q|q.id}.join(',')
 
     columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
 
