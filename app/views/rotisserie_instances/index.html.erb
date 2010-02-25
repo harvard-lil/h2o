@@ -2,26 +2,8 @@
 
 <h1>Listing rotisserie_instances</h1>
 
-<div class="ui-widget matrix">
-<table class="ui-widget ui-widget-content">
-  <thead>
-    <tr class="ui-widget-header ">
-      <th>Show</th>
-      <th>Edit</th>
-      <th>Destroy</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @rotisserie_instances.each do |rotisserie_instance| %>
-      <tr>
-        <td><%= link_to rotisserie_instance.title, rotisserie_instance %></td>
-        <td><button id="button-edit-<%= rotisserie_instance.id %>" name="button-edit" class="ui-button ui-state-default ui-corner-all">Edit</button></td>
-        <td></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div id="rotisserie_instances_block" class="ui-widget matrix">
+<%= render :partial => 'rotisserie_instances_block' %>
 </div>
 
 <br />
@@ -31,3 +13,4 @@
 
 <div id="dialog-new" title="New instance"></div>
 <div id="dialog-edit" title="Edit instance"></div>
+<div id="dialog-delete" title="Delete instance"></div>

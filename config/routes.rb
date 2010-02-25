@@ -8,7 +8,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :rotisserie_discussions
 
-  map.resources :rotisserie_instances
+  map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
 
   map.resources :replies
 

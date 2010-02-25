@@ -2,11 +2,11 @@ class RotisserieInstancesController < ApplicationController
   # GET /rotisserie_instances
   # GET /rotisserie_instances.xml
   def index
-    @rotisserie_instances = RotisserieInstance.all
+    #@rotisserie_instances = RotisserieInstance.all
 
     respond_to do |format|
       format.html # index.html.erb
-      format.xml  { render :xml => @rotisserie_instances }
+      #format.xml  { render :xml => @rotisserie_instances }
     end
   end
 
@@ -50,14 +50,15 @@ class RotisserieInstancesController < ApplicationController
         format.html { redirect_to(@rotisserie_instance) }
         format.xml  { render :xml => @rotisserie_instance, :status => :created, :location => @rotisserie_instance }
       else
-        error_output = "<div class='error ui-corner-all'>"
+        @error_output = "<div class='error ui-corner-all'>"
          @rotisserie_instance.errors.each{ |attr,msg|
-           error_output += "#{attr} #{msg}<br />"
+           @error_output += "#{attr} #{msg}<br />"
          }
-        error_output += "</div>"
+        @error_output += "</div>"
         
-        format.js { render :text => error_output, :layout => false }
-        format.html { render :action => "new" }
+        format.js {render :text => @error_output, :status => :unprocessable_entity}
+        # format.js {render :js => error_output, :layout => false, :status => 500}
+        format.html { render :action => "new"}
         format.xml  { render :xml => @rotisserie_instance.errors, :status => :unprocessable_entity }
       end
     end
@@ -95,8 +96,20 @@ class RotisserieInstancesController < ApplicationController
     @rotisserie_instance.destroy
 
     respond_to do |format|
+      format.js {render :text => nil, :layout => false}
       format.html { redirect_to(rotisserie_instances_url) }
       format.xml  { head :ok }
     end
   end
+
+  def block
+    respond_to do |format|
+      format.html { 
+        render :partial => 'rotisserie_instances_block',
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+  end
+
 end

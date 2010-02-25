@@ -8,7 +8,7 @@
       <%= stylesheet_link_tag ss %>
     <% end -%>
 
-    <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form','application','form', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
+    <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
       <%= javascript_include_tag js %>
     <% end -%>
 

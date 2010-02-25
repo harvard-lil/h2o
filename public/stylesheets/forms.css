@@ -28,3 +28,7 @@ div.matrix table td, div.matrix table th { border: 1px solid #eee; padding: .6em
     padding: .5em;
     margin-bottom: 5px;
 }
+
+.invalid {
+    background-color: #CD9B9B;
+}
