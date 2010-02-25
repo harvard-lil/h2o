@@ -143,8 +143,9 @@ jQuery(function() {
 
     // $.ajax options can be used here too, for example:
     //timeout:   3000
-    }
+    };
 
+    /*
     .hover(
         function(){
             jQuery(this).addClass("ui-state-hover");
@@ -159,6 +160,7 @@ jQuery(function() {
     .mouseup(function(){
         jQuery(this).removeClass("ui-state-active");
     });
+    */
 
 });
 
