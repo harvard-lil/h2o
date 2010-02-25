@@ -29,4 +29,9 @@ class QuestionInstance < ActiveRecord::Base
     Question.not_featured(params.merge(:question_instance => self))
   end
 
+  # Only used if there's significant tampering.
+  def self.default_instance
+    self.find(:first)
+  end
+
 end

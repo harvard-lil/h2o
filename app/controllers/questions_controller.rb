@@ -16,7 +16,14 @@ class QuestionsController < BaseController
   # GET /questions/new
   # GET /questions/new.xml
   def new
+    add_stylesheets ["formtastic","forms"]
     @question = Question.new
+
+    begin
+      @question.question_instance_id = params[:question][:question_instance_id]
+    rescue Exception => e
+      @question.question_instance = QuestionInstance.default_instance
+    end
 
     respond_to do |format|
       format.html # new.html.erb
@@ -26,15 +33,18 @@ class QuestionsController < BaseController
 
   # GET /questions/1/edit
   def edit
+    add_stylesheets ["formtastic","forms"]
     @question = Question.find(params[:id])
   end
 
   # POST /questions
   # POST /questions.xml
   def create
+    add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
 
     respond_to do |format|
+      @question.user = current_user
       if @question.save
         flash[:notice] = 'Question was successfully created.'
         format.html { redirect_to(@question) }
@@ -49,6 +59,7 @@ class QuestionsController < BaseController
   # PUT /questions/1
   # PUT /questions/1.xml
   def update
+    add_stylesheets ["formtastic","forms"]
     @question = Question.find(params[:id])
 
     respond_to do |format|

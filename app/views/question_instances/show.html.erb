@@ -9,11 +9,12 @@
 <div id="questions">
   <div id="featured">
     <h2>Featured Questions</h2>
-    <%= render :partial => 'shared/objects/question', :collection => @question_instance.featured_questions %> 
+    <% featured_questions = @question_instance.featured_questions %>
+    <%= render :partial => 'shared/objects/question', :collection => featured_questions %> 
   </div>
 
   <div id="other">
-    <%= render :partial => 'shared/objects/question', :collection => @question_instance.not_featured_questions %> 
+    <%= render :partial => 'shared/objects/question', :collection => @question_instance.not_featured_questions(:questions_to_exclude => featured_questions) %> 
   </div>
 </div>
 

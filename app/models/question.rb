@@ -1,6 +1,7 @@
 class Question < ActiveRecord::Base
   acts_as_voteable
   acts_as_category :scope => :question_instance
+  attr_accessible :question_instance_id, :question, :email, :name, :posted_anonymously
   belongs_to :question_instance
   belongs_to :user
   has_many :replies, :order => :position
