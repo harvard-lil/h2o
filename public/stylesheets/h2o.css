@@ -39,7 +39,7 @@ h2{
 /* end of Structure */
 
 
-#ajax-error{
+.ajax-error{
   float: right;
   border:  2px solid red;
   color: red;

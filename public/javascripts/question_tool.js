@@ -3,6 +3,25 @@
 jQuery(function(){
 
     jQuery.extend({
+      observeNewQuestionControl: function(){
+        jQuery('a.new-question-for').click(function(){
+          var questionInstanceId = jQuery(this).attr('id').split('-')[3];
+          jQuery('#new-question-form-for-' + questionInstanceId).dialog('open');
+        });
+      },
+      observeNewQuestion: function(){
+        jQuery('div.new-question-form').dialog({
+          bgiframe: true,
+          autoOpen: false,
+          minwidth: 300,
+          modal: true,
+          buttons: {
+            'Ask Question': function(){
+            alert('you asked a question!');
+            }
+            }
+          });
+      },
       observeVoteControls: function() {
         jQuery("a[id*='vote-for']").click(function(){
           var questionInstanceId = jQuery(this).attr('id').split('-')[2];
@@ -11,8 +30,8 @@ jQuery(function(){
             type: 'POST',
             url: jQuery.rootPath() + 'questions/vote_for',
             data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
-            beforeSend: function(){jQuery('#ajax-error').html('').hide()},
-            error: function(xhr){jQuery('#ajax-error').show().append(xhr.responseText);}
+            beforeSend: function(){jQuery('#ajax-error-' + questionInstanceId).html('').hide()},
+            error: function(xhr){jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);}
           });
           //TODO - have this poll before just blindly doing the update.
           jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
@@ -31,6 +50,8 @@ jQuery(function(){
 
     jQuery(document).ready(function(){
       jQuery.observeVoteControls();
+      jQuery.observeNewQuestionControl();
+      jQuery.observeNewQuestion();
     });
 
 });
