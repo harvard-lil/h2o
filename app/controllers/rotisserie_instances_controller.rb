@@ -14,6 +14,7 @@ class RotisserieInstancesController < ApplicationController
   # GET /rotisserie_instances/1.xml
   def show
     @rotisserie_instance = RotisserieInstance.find(params[:id])
+    @rotisserie_discussions = 
 
     respond_to do |format|
       format.html # show.html.erb
@@ -45,6 +46,10 @@ class RotisserieInstancesController < ApplicationController
 
     respond_to do |format|
       if @rotisserie_instance.save
+
+        # If save then assign role as owner to object
+        @rotisserie_instance.accepts_role!(:owner, current_user)
+
         flash[:notice] = 'RotisserieInstance was successfully created.'
         format.js
         format.html { redirect_to(@rotisserie_instance) }
@@ -57,7 +62,6 @@ class RotisserieInstancesController < ApplicationController
         @error_output += "</div>"
         
         format.js {render :text => @error_output, :status => :unprocessable_entity}
-        # format.js {render :js => error_output, :layout => false, :status => 500}
         format.html { render :action => "new"}
         format.xml  { render :xml => @rotisserie_instance.errors, :status => :unprocessable_entity }
       end

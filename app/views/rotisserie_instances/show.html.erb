@@ -1,3 +1,15 @@
+<h1>Listing rotisserie discussions</h1>
 
-<%= link_to 'Edit', edit_rotisserie_instance_path(@rotisserie_instance) %> |
-<%= link_to 'Back', rotisserie_instances_path %>
+<div id="spinner_block"></div>
+
+<div id="list_block" class="ui-widget matrix">
+<%= render :partial => 'rotisserie_discussions/rotisserie_discussions_block', :locals => {:rotisserie_instance => @rotisserie_instance} %>
+</div>
+
+<br />
+
+<button id="create-discussion" class="ui-button ui-state-default ui-corner-all">Create discussion</button>
+
+<div id="dialog-new" title="New discussion"></div>
+<div id="dialog-edit" title="Edit discussion"></div>
+<div id="dialog-delete" title="Delete discussion"></div>

@@ -1,0 +1,36 @@
+<%
+if controller.action_name == 'edit'
+  rotisserie_object = RotisserieDiscussion.find(params[:id])
+else
+  rotisserie_object = RotisserieDiscussion.new
+end
+%>
+
+<div id="error_block"></div>
+  <% semantic_form_for rotisserie_object, :html => {:class => 'ui-widget'} do |form| %>
+  <% form.inputs do %>
+        <%= form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li></li>
+        <%= form.input :output, :label => "Display", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li></li>
+        <%= form.input :round_length,
+          :as => :select,
+          :collection => 1..9,
+          :selected => rotisserie_object.round_length.blank? ? 2 : rotisserie_object.round_length,
+          :required => true
+        %>
+        <li></li>
+        <%= form.input :round_length,
+          :as => :select,
+          :collection => 1..9,
+          :selected => rotisserie_object.final_round.blank? ? 2 : rotisserie_object.final_round,
+          :required => true
+        %>
+        <li></li>
+        <%= form.input :start_date, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li></li>
+        <%= form.input :rotisserie_instance_id, :as => :hidden, :value => rotisserie_instance.id%>
+        <li></li>
+  <% end %>
+  <% end %>
+

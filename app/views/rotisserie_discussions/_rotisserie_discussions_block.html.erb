@@ -1,0 +1,29 @@
+<% @rotisserie_discussions = RotisserieDiscussion.all %>
+
+<table class="ui-widget ui-widget-content">
+  <thead>
+    <tr class="ui-widget-header ">
+      <th>Show</th>
+      <th>Edit</th>
+      <th>Destroy</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @rotisserie_discussions.each do |rotisserie_discussion| %>
+      <tr>
+        <td><%= link_to rotisserie_discussion.title, rotisserie_discussion %></td>
+        <td>
+          <button id="button-edit-<%= rotisserie_discussion.id %>" name="button-edit" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_edit.png" %>
+          </button>
+        </td>
+        <td>
+          <button id="button-delete-<%= rotisserie_discussion.id %>" name="button-delete" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_delete.png" %>
+          </button>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

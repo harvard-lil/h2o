@@ -1,128 +1,14 @@
-/* 
- * jQuery related to form creation and submission
- */
+// jQuery related to form creation and submission
 
 jQuery(function() {
 
-    initButtons();
+    initButtonGroup();
 
-    jQuery("#dialog-new").dialog({
-        bgiframe: true,
-        autoOpen: false,
-        minWidth: 400,
-        width: 400,
-        modal: true,
-        buttons: {
-            'Create': function() {
-                jQuery('#new_rotisserie_instance').validate({
-                    //debug: true,
-                    rules: {
-                        "rotisserie_instance[title]": {
-                            required: true
-                        },
-                        "rotisserie_instance[output]": {
-                            required: true
-                        }
-                    },
-                    messages: {
-                        "rotisserie_instance[title]": "A title is required",
-                        "rotisserie_instance[output]": "Please enter some text that will be displayed to the user"
-                    },
-                    submitHandler: function(form) {
-                        jQuery(form).ajaxSubmit(form_options);
-                        jQuery("#dialog-new").dialog('close');
-                        jQuery('#rotisserie_instances_block').html("<img src='/images/elements/ajax-loader.gif' />");
-                        jQuery('#rotisserie_instances_block').load('/rotisserie_instances/block', function() {
-                            initButtons();
-                        });
-                    },
-                    errorClass: "error",
-                    errorElement: "div",
-                    errorPlacement:  function(error, element) {
-                        error.appendTo(element.parent("li").next("li") );
-                    }
-                });
-                jQuery('#new_rotisserie_instance').submit();
 
-            
-            },
-            'Cancel': function() {
-                jQuery("#dialog-new").dialog('close');
-            }
-        }
-    });
-
-    jQuery("#dialog-edit").dialog({
-        bgiframe: true,
-        autoOpen: false,
-        minWidth: 400,
-        width: 400,
-        modal: true,
-        buttons: {
-            'Update': function() {
-                jQuery('[id^=edit_rotisserie_instance]').validate({
-                    //debug: true,
-                    rules: {
-                        "rotisserie_instance[title]": {
-                            required: true
-                        },
-                        "rotisserie_instance[output]": {
-                            required: true
-                        }
-                    },
-                    messages: {
-                        "rotisserie_instance[title]": "A title is required",
-                        "rotisserie_instance[output]": "Please enter some text that will be displayed to the user"
-                    },
-                    submitHandler: function(form) {
-                        jQuery(form).ajaxSubmit(form_options);
-                        jQuery("#dialog-edit").dialog('close');
-                        jQuery('#rotisserie_instances_block').html("<img src='/images/elements/ajax-loader.gif' />");
-                        jQuery('#rotisserie_instances_block').load('/rotisserie_instances/block', function() {
-                            initButtons();
-                        });
-                    },
-                    errorClass: "error",
-                    errorElement: "div",
-                    errorPlacement:  function(error, element) {
-                        error.appendTo(element.parent("li").next("li") );
-                    }
-                });
-                jQuery('[id^=edit_rotisserie_instance]').submit();
-            },
-            'Cancel': function() {
-                jQuery(this).dialog('close');
-            }
-        }
-    });
+    objectDialog('#dialog-instance-new', '#new_rotisserie_instance', rules_instance, messages_instance, 'rotisserie_instances', form_options);
+    objectDialog('#dialog-instance-edit', '[id^=edit_rotisserie_instance]', rules_instance, messages_instance, 'rotisserie_instances', form_options);
     
-    jQuery("#dialog-delete").dialog({
-        bgiframe: true,
-        autoOpen: false,
-        minWidth: 400,
-        width: 400,
-        modal: true,
-        buttons: {
-            'Delete': function() {
-                jQuery('#delete_rotisserie_instance').ajaxSubmit(form_options);
-                jQuery('#delete_rotisserie_instance').submit(function() {
-                    return false;
-                });
-                jQuery(this).dialog('close');
-                jQuery('#rotisserie_instances_block').html("<img src='/images/elements/ajax-loader.gif' />");
-                jQuery('#rotisserie_instances_block').load('/rotisserie_instances/block', function() {
-                    initButtons();
-                });
-            },
-            'Cancel': function() {
-                jQuery(this).dialog('close');
-            }
-        }
-    });
-
-
-
-
+    objectConfirm('#dialog-instance-delete', '#delete_rotisserie_instance', 'rotisserie_instances', form_options);
 
     var form_options = {
         //target: '#error_block'  // target element(s) to be updated with server response
@@ -145,46 +31,119 @@ jQuery(function() {
     //timeout:   3000
     };
 
-    /*
-    .hover(
-        function(){
-            jQuery(this).addClass("ui-state-hover");
-        },
-        function(){
-            jQuery(this).removeClass("ui-state-hover");
-        }
-        ).mousedown(function(){
-        jQuery(this).addClass("ui-state-active");
-    })
 
-    .mouseup(function(){
-        jQuery(this).removeClass("ui-state-active");
-    });
-    */
 
 });
 
-function initButtons() {
+var rules_instance = {
+    "rotisserie_instance[title]": {
+        required: true
+    },
+    "rotisserie_instance[output]": {
+        required: true
+    }
+};
+
+var messages_instance = {
+    "rotisserie_instance[title]": "A title is required",
+    "rotisserie_instance[output]": "Please enter some text that will be displayed to the user"
+};
+
+
+
+function initButtonGroup() {
     
     // Spawn dialog when button is clicked
-    jQuery('#create-instance').click(function() {
-        jQuery('#dialog-new').dialog('open');
-        jQuery('#dialog-new').html("<img src='/images/elements/ajax-loader.gif' />");
-        jQuery('#dialog-new').load('/rotisserie_instances/new');
+    initButton('button-instance-create', '#button-instance-create', '#dialog-instance-new', 'rotisserie_instances', 'new');
+    initButton('button-instance-edit', '[name=button-instance-edit]', '#dialog-instance-edit', 'rotisserie_instances', 'edit');
+    initButton('button-instance-delete', '[name=button-instance-delete]', '#dialog-instance-delete', 'rotisserie_instances', 'delete');
+
+}
+
+function initButton(button_name, button_selector, dialog_id, controller_name, action) {
+    jQuery(button_selector).click(function() {
+        if (action != 'new') {
+            var object_id = this.id.replace(button_name + '-', "");
+        }
+        jQuery(dialog_id).dialog('open');
+        jQuery(dialog_id).html("<img src='/images/elements/ajax-loader.gif' />");
+        if (action == 'new') {
+            jQuery(dialog_id).load('/'+ controller_name + '/new');
+        } else {
+            jQuery(dialog_id).load('/'+ controller_name + '/' + object_id + '/' + action);
+        }
+    });
+}
+
+/*
+ dialog_id e.g.  '#dialog-new' - jQuery selector
+ form_id e.g.  '#new_rotisserie_instance' - jQuery selector
+ */
+
+function objectDialog(dialog_id, form_id, rules_block, messages_block, controller_name, form_options) {
+    
+    jQuery(dialog_id).dialog({
+        bgiframe: true,
+        autoOpen: false,
+        minWidth: 400,
+        width: 400,
+        modal: true,
+        buttons: {
+            'Submit': function() {
+                var dialogObject = this;
+                jQuery(form_id).validate({
+                    //debug: true,
+                    rules: rules_block,
+                    messages: messages_block,
+                    submitHandler: function(form) {
+                        jQuery(form).ajaxSubmit(form_options);
+                        jQuery(dialogObject).dialog('close');
+                        jQuery('#list_block').load('/' + controller_name + '/block', function() {
+                            initButtonGroup();
+                        });
+
+                    },
+                    errorClass: "error",
+                    errorElement: "div",
+                    errorPlacement:  function(error, element) {
+                        error.appendTo(element.parent("li").next("li") );
+                    }
+                });
+                jQuery(form_id).submit();
+
+
+            },
+            'Cancel': function() {
+                jQuery(this).dialog('close');
+            }
+        }
     });
 
-    jQuery('[name=button-edit]').click(function() {
-        var edit_id = this.id.replace('button-edit-', "");
-        jQuery('#dialog-edit').dialog('open');
-        jQuery('#dialog-edit').html("<img src='/images/elements/ajax-loader.gif' />");
-        jQuery('#dialog-edit').load('/rotisserie_instances/' + edit_id + '/edit');
-    });
+}
 
-    jQuery('[name=button-delete]').click(function() {
-        var destroy_id = this.id.replace('button-delete-', "");
-        jQuery('#dialog-delete').dialog('open');
-        jQuery('#dialog-delete').html("<img src='/images/elements/ajax-loader.gif' />");
-        jQuery('#dialog-delete').load('/rotisserie_instances/' + destroy_id + '/delete');
+function objectConfirm(dialog_id, form_id, controller_name, form_options) {
+
+    jQuery(dialog_id).dialog({
+        bgiframe: true,
+        autoOpen: false,
+        minWidth: 400,
+        width: 400,
+        modal: true,
+        buttons: {
+            'Yes': function() {
+                jQuery(form_id).ajaxSubmit(form_options);
+                jQuery(form_id).submit(function() {
+                    return false;
+                });
+                jQuery(this).dialog('close');
+                jQuery('#list_block').load('/' + controller_name + '/block', function() {
+                    initButtonGroup();
+                });
+            },
+            'No': function() {
+                jQuery(this).dialog('close');
+            }
+        }
     });
 
 }
