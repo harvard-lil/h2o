@@ -39,4 +39,10 @@ h2{
 /* end of Structure */
 
 
-
+#ajax-error{
+  float: right;
+  border:  2px solid red;
+  color: red;
+  padding: 5px;
+  width: 30%;
+}

@@ -5,8 +5,8 @@ class QuestionsController < BaseController
   def vote_for
     begin
       q = Question.find(params[:question_id])
-      q.vote_for(current_user)
-      render :text => '<p>Vote tallied!</p>'
+      current_user.vote_for(q)
+      render :text => '<p>Vote tallied!</p>', :layout => false
     rescue Exception => e
       #you fail it.
       render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", :status_code => :internal_server_error

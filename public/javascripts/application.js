@@ -15,7 +15,11 @@ jQuery(function() {
         tips.text(t).effect("highlight",{},1500);
     }
 
-
+  jQuery.extend({
+    rootPath: function(){
+      return '/'
+    }
+  });
  
 
   

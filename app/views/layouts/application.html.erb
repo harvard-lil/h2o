@@ -8,13 +8,11 @@
       <%= stylesheet_link_tag ss %>
     <% end -%>
 
+    <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';") %>
+
     <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
       <%= javascript_include_tag js %>
     <% end -%>
-
-
-
-
   </head>
   <body>
     <%= yield %>
