@@ -22,7 +22,7 @@ class QuestionInstancesController < BaseController
     @question_instance = QuestionInstance.find(params[:id])
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.html {render :layout => (request.xhr?) ? false : true} 
       format.xml  { render :xml => @question_instance }
     end
   end

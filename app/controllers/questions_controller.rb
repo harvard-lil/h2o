@@ -9,7 +9,8 @@ class QuestionsController < BaseController
       render :text => '<p>Vote tallied!</p>', :layout => false
     rescue Exception => e
       #you fail it.
-      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", :status_code => :internal_server_error
+      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
+        :status => :internal_server_error
     end
   end
 

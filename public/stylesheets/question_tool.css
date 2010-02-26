@@ -1,13 +1,13 @@
-#questions{
+.questions{
   background: #e4e4e4;
   float: left;
 }
 
-#questions h2{
+.questions h2{
   margin-top: 0em;
 }
 
-#questions .question{
+.questions .question{
   margin: .5%;
   float: left;
   width: 32%;
@@ -21,11 +21,11 @@
   padding-top: 0px;
 }
 
-#questions #other .question{
+.questions .other .question{
   border-bottom: 1px solid #cccccc;
 }
 
-#questions #featured{
+.questions .featured{
   background: #ffffff;
   width: 64%;
   float: left;
@@ -34,7 +34,7 @@
   margin: 0px .5% .5% 0px;
 }
 
-#questions #featured .question{
+.questions .featured .question{
   width: 100%;
 }
 
