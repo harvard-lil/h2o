@@ -1,3 +1,4 @@
+<div id="new-question-error-<%= @question.question_instance_id %>" style="display:none;"></div>
 <% semantic_form_for @question do |form| %>
   <% form.inputs do %>
     <%= form.input :question_instance_id, :as => :hidden %>

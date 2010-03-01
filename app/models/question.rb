@@ -29,7 +29,7 @@ class Question < ActiveRecord::Base
                      where 
                      questions.question_instance_id = ? 
                      group by #{columns} 
-                     order by sticky desc,vote_count desc limit ?", 
+                     order by sticky desc,vote_count desc, questions.id desc limit ?", 
                      self.name, 
                      params[:question_instance].id,
                      params[:question_instance].featured_question_count
@@ -56,7 +56,7 @@ class Question < ActiveRecord::Base
                      questions.question_instance_id = ?
                      and questions.id not in(#{questions_to_exclude})
                      group by #{columns} 
-                     order by sticky desc,vote_count desc", 
+                     order by sticky desc,vote_count desc, questions.id desc", 
                      self.name, 
                      params[:question_instance].id
     ])

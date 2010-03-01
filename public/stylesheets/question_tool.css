@@ -1,3 +1,6 @@
+div.controls{
+  float: right;
+}
 .questions{
   background: #e4e4e4;
   float: left;
@@ -49,6 +52,10 @@
   margin-right: .25em;
   border: 1px #cccccc;
   border-style: none solid none none;
+}
+
+.sticky .votes{
+  background: url('/images/icons/tick.png') top left no-repeat #e4e4e4;
 }
 
 .question .meta{

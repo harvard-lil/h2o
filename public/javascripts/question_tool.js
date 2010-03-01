@@ -1,27 +1,38 @@
 /* goo-goo gajoob */
-
 jQuery(function(){
-
     jQuery.extend({
+
       observeNewQuestionControl: function(){
-        jQuery('a.new-question-for').click(function(){
+        jQuery('a.new-question-for').each(function(){
           var questionInstanceId = jQuery(this).attr('id').split('-')[3];
-          jQuery('#new-question-form-for-' + questionInstanceId).dialog('open');
-        });
-      },
-      observeNewQuestion: function(){
-        jQuery('div.new-question-form').dialog({
-          bgiframe: true,
-          autoOpen: false,
-          minwidth: 300,
-          modal: true,
-          buttons: {
-            'Ask Question': function(){
-            alert('you asked a question!');
-            }
+          jQuery('#new-question-form-for-' + questionInstanceId).dialog({
+            bgiframe: true,
+            autoOpen: false,
+            minwidth: 300,
+            modal: true,
+            buttons: {
+              'Ask Question': function(){
+                jQuery('#new-question-form-for-' + questionInstanceId + ' form ').ajaxSubmit({
+                    error: function(xhr){jQuery('#new-question-error-' + questionInstanceId).show().append(xhr.responseText);},
+                    beforeSend: function(){jQuery('#new-question-error-' + questionInstanceId).html('').hide()},
+                    success: function(responseText){
+                      jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
+                      jQuery('#new-question-form-for-' + questionInstanceId).dialog('close');
+                    }
+                  });
+              },
+              'Cancel': function(){
+                jQuery(this).dialog('close');
+              }
             }
           });
+          jQuery(this).click(function(e){
+            e.preventDefault();
+            jQuery('#new-question-form-for-' + questionInstanceId).dialog('open');
+          });
+        });
       },
+
       observeVoteControls: function() {
         jQuery("a[id*='vote-for']").click(function(){
           var questionInstanceId = jQuery(this).attr('id').split('-')[2];
@@ -38,20 +49,23 @@ jQuery(function(){
           return false;
           });
         },
+
       updateQuestionInstanceView: function(questionInstanceId,questionId){
         jQuery.ajax({
           type: 'GET',
-          url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
+          url: jQuery.rootPath() + 'question_instances/' + questionInstanceId + '?updated_question_id=' + questionId,
           data: {updated_question_id: questionId},
-          success: function(html){jQuery('#questions-' + questionInstanceId).html(html); jQuery.observeVoteControls();}
+          success: function(html){
+            jQuery('#questions-' + questionInstanceId).html(html); 
+            jQuery.observeVoteControls();
+            jQuery('div.updated').stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+          }
         });
       }
-    });
+  });
 
     jQuery(document).ready(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
-      jQuery.observeNewQuestion();
-    });
-
+  });
 });

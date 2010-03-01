@@ -58,11 +58,10 @@ class QuestionsController < BaseController
     respond_to do |format|
       @question.user = current_user
       if @question.save
-        flash[:notice] = 'Question was successfully created.'
-        format.html { redirect_to(@question) }
+        format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
-        format.html { render :action => "new" }
+        format.html { render :text => "We couldn't add that question. Sorry!", :status => :unprocessable_entity }
         format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
       end
     end

@@ -1,4 +1,4 @@
-<div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
+<div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %><%= (@updated_question_id == question.id) ? ' updated' : '' %>">
   <div class="votes">
     <div class="count"><%= question.vote_count %></div>
     <div class="actions"><%= (question.vote_count.to_i == 0 || ! question.voted_by?(current_user)) ? (link_to('+','#', :id => "vote-for-#{question.question_instance_id}-#{question.id}")) : 'n/a' %></div>
