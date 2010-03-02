@@ -8,7 +8,7 @@ jQuery(function(){
           jQuery('#new-question-form-for-' + questionInstanceId).dialog({
             bgiframe: true,
             autoOpen: false,
-            minwidth: 300,
+            minwidth: 400,
             modal: true,
             buttons: {
               'Ask Question': function(){
