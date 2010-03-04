@@ -61,7 +61,7 @@ class QuestionsController < BaseController
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
-        format.html { render :text => "We couldn't add that question. Sorry!<br/> #{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
+        format.html { render :text => "We couldn't add that question. Sorry!<br/>#{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
         format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
       end
     end
