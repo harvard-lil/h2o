@@ -5,7 +5,8 @@
   </div>
   <p><%= h question.question.to_s %></p>
   <div class="meta">
-    by <span class="user"><%= question.user.login %></span>
+    <span class="replies"><span>replies:</span> <%= question.reply_count %> <%= link_to('add', '#', :id => "new-reply-on-#{question.id}" ) %></span>
+    <span class="user"><span>by</span> <%= question.user.login %></span>
     <span class="datetime"><%= time_ago_in_words(question.created_at) %> ago</span>
   </div>
   <div class="clear"></div>

@@ -2,14 +2,48 @@
 jQuery(function(){
     jQuery.extend({
 
+      observeNewReplyControls: function(){
+        jQuery('#new-reply-form').dialog({
+          bgiframe: true,
+          autoOpen: false,
+          minWidth: 300,
+          width: 450,
+          modal: true,
+          title: 'Add a reply',
+          buttons: {
+            'Add a reply': function(){
+              
+            },
+            'Cancel': function(){
+              jQuery(this).dialog('close');
+            }
+          }
+        });
+        jQuery("a[id*='new-reply-on']").click(function(e){
+          e.preventDefault();
+          var questionId = jQuery(this).attr('id').split('-')[3];
+          jQuery.ajax({
+            type: 'GET',
+            url: jQuery.rootPath() + 'replies/new?reply[question_id]=' + questionId,
+            success: function(html){
+              jQuery('#new-reply-form').html(html);
+              jQuery('#new-reply-form').dialog('open');
+            }
+          });
+        });
+        
+      },
+
       observeNewQuestionControl: function(){
         jQuery('a.new-question-for').each(function(){
           var questionInstanceId = jQuery(this).attr('id').split('-')[3];
           jQuery('#new-question-form-for-' + questionInstanceId).dialog({
             bgiframe: true,
             autoOpen: false,
-            minwidth: 400,
+            minWidth: 300,
+            width: 450,
             modal: true,
+            title: 'Add a question',
             buttons: {
               'Ask Question': function(){
                 jQuery('#new-question-form-for-' + questionInstanceId + ' form ').ajaxSubmit({
@@ -22,6 +56,7 @@ jQuery(function(){
                   });
               },
               'Cancel': function(){
+                jQuery('#new-question-error-' + questionInstanceId).html('').hide();
                 jQuery(this).dialog('close');
               }
             }
@@ -58,6 +93,7 @@ jQuery(function(){
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeVoteControls();
+            jQuery.observeNewReplyControls();
             jQuery('div.updated').stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
           }
         });
@@ -67,5 +103,6 @@ jQuery(function(){
     jQuery(document).ready(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
+      jQuery.observeNewReplyControls();
   });
 });

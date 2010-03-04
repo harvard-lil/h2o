@@ -62,4 +62,9 @@ class Question < ActiveRecord::Base
     ])
   end
 
+  def reply_count
+    reply_count_val = self.replies.length
+    (reply_count_val == 0) ? 'none!' : ((reply_count_val == 1) ? '1 reply' : "#{reply_count_val} replies")
+  end
+
 end
