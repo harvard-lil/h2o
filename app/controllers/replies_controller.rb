@@ -49,17 +49,24 @@ class RepliesController < BaseController
   # POST /replies.xml
   def create
     @reply = Reply.new(params[:reply])
+    @reply.question_id = params[:reply][:question_id]
+    @reply.user = current_user
 
-    respond_to do |format|
-      if @reply.save
-        flash[:notice] = 'Reply was successfully created.'
-        format.html { redirect_to(@reply) }
-        format.xml  { render :xml => @reply, :status => :created, :location => @reply }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @reply.errors, :status => :unprocessable_entity }
+    begin
+      respond_to do |format|
+        if @reply.save
+          flash[:notice] = 'Reply was successfully created.'
+          format.html { redirect_to(@reply) }
+          format.xml  { render :xml => @reply, :status => :created, :location => @reply }
+        else
+          format.html { render :action => "new" }
+          format.xml  { render :xml => @reply.errors, :status => :unprocessable_entity }
+        end
       end
+    rescue Exception => e
+
     end
+
   end
 
   # PUT /replies/1

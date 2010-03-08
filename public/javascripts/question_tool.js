@@ -12,6 +12,14 @@ jQuery(function(){
           title: 'Add a reply',
           buttons: {
             'Add a reply': function(){
+              jQuery('#new_reply').ajaxSubmit({
+                error: function(xhr){jQuery('#new-reply-error').show().append(xhr.responseText);},
+                beforeSend: function(){jQuery('#new-reply-error').html('').hide();},
+                success: function(responseText){
+                  jQuery.updateQuestionInstanceView(1,responseText);
+                  jQuery('#new-reply-form').dialog('close');
+                }
+              });
               
             },
             'Cancel': function(){

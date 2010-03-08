@@ -20,10 +20,5 @@ jQuery(function() {
       return '/'
     }
   });
- 
-
-  
 
 });
-
-

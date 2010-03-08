@@ -1,4 +1,4 @@
-<div id="new-reply-error-<%= @reply.question_id %>" style="display:none;" class="error"></div>
+<div id="new-reply-error" style="display:none;" class="error"></div>
 <% semantic_form_for @reply do |form| %>
   <% form.inputs do %>
     <%= form.input :question_id, :as => :hidden %>
