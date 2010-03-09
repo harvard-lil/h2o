@@ -1,6 +1,23 @@
 /* goo-goo gajoob */
 jQuery(function(){
     jQuery.extend({
+      observeReplyControls: function(){
+        jQuery("a[id*='show-replies-on']").click(function(e){
+            e.preventDefault();
+            var questionId = jQuery(this).attr('id').split('-')[3];
+            jQuery.ajax({
+              type: 'GET',
+              url: jQuery.rootPath() + 'questions/replies/' + questionId,
+              success: function(html){
+                jQuery('#replies-container-' + questionId).html(html).show();
+              },
+              error: function(){
+                alert('You fail it!');
+              }
+            });
+
+          });
+      },
 
       observeNewReplyControls: function(){
         jQuery('#new-reply-form').dialog({
@@ -16,11 +33,11 @@ jQuery(function(){
                 error: function(xhr){jQuery('#new-reply-error').show().append(xhr.responseText);},
                 beforeSend: function(){jQuery('#new-reply-error').html('').hide();},
                 success: function(responseText){
-                  jQuery.updateQuestionInstanceView(1,responseText);
+                  var rspArray = responseText.split(',')
+                  jQuery.updateQuestionInstanceView(rspArray[0],rspArray[1]);
                   jQuery('#new-reply-form').dialog('close');
                 }
               });
-              
             },
             'Cancel': function(){
               jQuery(this).dialog('close');
@@ -112,5 +129,6 @@ jQuery(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
       jQuery.observeNewReplyControls();
+      jQuery.observeReplyControls();
   });
 });
