@@ -16,7 +16,7 @@ div.controls{
   width: 32%;
   padding-bottom: 5px;
   padding-top: 5px;
-  height: 6em;
+  min-height: 6em;
 }
 
 .question p{
@@ -45,7 +45,7 @@ div.controls{
   padding: .25em;
   float: left;
   width: 3.75em;
-  height: 3.75em;
+  min-height: 3.75em;
   font-size: larger;
   text-align: center;
   background-color: #e4e4e4;
@@ -63,4 +63,6 @@ div.controls{
   font-size: smaller;
 }
 
-
+.ajax-error, #spinner_block{
+  float: right;
+}

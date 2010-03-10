@@ -6,6 +6,7 @@ class QuestionsController < BaseController
     begin
       @question = Question.find(params[:id])
       @replies = @question.replies
+      render :layout => false
     rescue Exception => e
       render :text => "We're sorry, we couldn't load the replies for that question.", 
         :status => :internal_server_error

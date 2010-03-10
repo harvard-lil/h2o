@@ -5,17 +5,27 @@ jQuery(function(){
         jQuery("a[id*='show-replies-on']").click(function(e){
             e.preventDefault();
             var questionId = jQuery(this).attr('id').split('-')[3];
-            jQuery.ajax({
-              type: 'GET',
-              url: jQuery.rootPath() + 'questions/replies/' + questionId,
-              success: function(html){
-                jQuery('#replies-container-' + questionId).html(html).toggle();
-              },
-              error: function(){
-                alert('You fail it!');
-              }
-            });
-
+            var repliesContainer = jQuery('#replies-container-' + questionId);
+            if(repliesContainer.html().length > 0 && repliesContainer.is(':visible')){
+              //There's content in here and it's visible. Just hide it.
+              repliesContainer.toggle('fast');
+            } else {
+              //There's no content, or there's content and it's invisible. 
+              //Get the replies again to ensure fresh content.
+              jQuery.ajax({
+                type: 'GET',
+                url: jQuery.rootPath() + 'questions/replies/' + questionId,
+                beforeSend: function(){jQuery('#spinner_block').show()},
+                success: function(html){
+                  jQuery('#spinner_block').hide();
+                  repliesContainer.html(html).toggle('fast');
+                },
+                error: function(xhr){
+                  jQuery('#spinner_block').hide();
+                  jQuery('div.ajax-error').show().append(xhr.responseText);
+                }
+              });
+            }
           });
       },
 
@@ -30,9 +40,16 @@ jQuery(function(){
           buttons: {
             'Add a reply': function(){
               jQuery('#new_reply').ajaxSubmit({
-                error: function(xhr){jQuery('#new-reply-error').show().append(xhr.responseText);},
-                beforeSend: function(){jQuery('#new-reply-error').html('').hide();},
+                error: function(xhr){
+                  jQuery('#spinner_block').hide();
+                  jQuery('#new-reply-error').show().append(xhr.responseText);
+                },
+                beforeSend: function(){
+                  jQuery('#spinner_block').show();
+                  jQuery('#new-reply-error').html('').hide();
+                },
                 success: function(responseText){
+                  jQuery('#spinner_block').hide();
                   var rspArray = responseText.split(',')
                   jQuery.updateQuestionInstanceView(rspArray[0],rspArray[1]);
                   jQuery('#new-reply-form').dialog('close');
@@ -50,13 +67,16 @@ jQuery(function(){
           jQuery.ajax({
             type: 'GET',
             url: jQuery.rootPath() + 'replies/new?reply[question_id]=' + questionId,
+            beforeSend: function(){
+              jQuery('#spinner_block').show();
+            },
             success: function(html){
+              jQuery('#spinner_block').hide();
               jQuery('#new-reply-form').html(html);
               jQuery('#new-reply-form').dialog('open');
             }
           });
         });
-        
       },
 
       observeNewQuestionControl: function(){
@@ -72,9 +92,16 @@ jQuery(function(){
             buttons: {
               'Ask Question': function(){
                 jQuery('#new-question-form-for-' + questionInstanceId + ' form ').ajaxSubmit({
-                    error: function(xhr){jQuery('#new-question-error-' + questionInstanceId).show().append(xhr.responseText);},
-                    beforeSend: function(){jQuery('#new-question-error-' + questionInstanceId).html('').hide()},
+                    error: function(xhr){
+                      jQuery('#spinner_block').hide();
+                      jQuery('#new-question-error-' + questionInstanceId).show().append(xhr.responseText);
+                    },
+                    beforeSend: function(){
+                      jQuery('#spinner_block').show();
+                      jQuery('#new-question-error-' + questionInstanceId).html('').hide();
+                    },
                     success: function(responseText){
+                      jQuery('#spinner_block').hide();
                       jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
                       jQuery('#new-question-form-for-' + questionInstanceId).dialog('close');
                     }
@@ -101,14 +128,22 @@ jQuery(function(){
             type: 'POST',
             url: jQuery.rootPath() + 'questions/vote_for',
             data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
-            beforeSend: function(){jQuery('#ajax-error-' + questionInstanceId).html('').hide()},
-            error: function(xhr){jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);}
+            beforeSend: function(){
+              jQuery('#spinner_block').show();
+              jQuery('#ajax-error-' + questionInstanceId).html('').hide();
+            },
+            error: function(xhr){
+              jQuery('#spinner_block').hide();
+              jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);
+            },
+            success: function(){
+              jQuery('#spinner_block').hide();
+              //TODO - have this poll before just blindly doing the update.
+              jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
+            }
           });
-          //TODO - have this poll before just blindly doing the update.
-          jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
-          return false;
-          });
-        },
+        });
+      },
 
       updateQuestionInstanceView: function(questionInstanceId,questionId){
         jQuery.ajax({
