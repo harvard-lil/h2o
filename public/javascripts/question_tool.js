@@ -1,7 +1,7 @@
 /* goo-goo gajoob */
 jQuery(function(){
     jQuery.extend({
-      observeReplyControls: function(){
+      observeShowReplyControls: function(){
         jQuery("a[id*='show-replies-on']").click(function(e){
             e.preventDefault();
             var questionId = jQuery(this).attr('id').split('-')[3];
@@ -9,7 +9,7 @@ jQuery(function(){
               type: 'GET',
               url: jQuery.rootPath() + 'questions/replies/' + questionId,
               success: function(html){
-                jQuery('#replies-container-' + questionId).html(html).show();
+                jQuery('#replies-container-' + questionId).html(html).toggle();
               },
               error: function(){
                 alert('You fail it!');
@@ -119,6 +119,7 @@ jQuery(function(){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeVoteControls();
             jQuery.observeNewReplyControls();
+            jQuery.observeShowReplyControls();
             jQuery('div.updated').stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
           }
         });
@@ -129,6 +130,6 @@ jQuery(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
       jQuery.observeNewReplyControls();
-      jQuery.observeReplyControls();
+      jQuery.observeShowReplyControls();
   });
 });
