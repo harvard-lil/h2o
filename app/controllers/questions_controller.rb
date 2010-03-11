@@ -5,7 +5,7 @@ class QuestionsController < BaseController
   def replies
     begin
       @question = Question.find(params[:id])
-      @replies = @question.replies
+      @replies = @question.children
       render :layout => false
     rescue Exception => e
       render :text => "We're sorry, we couldn't load the replies for that question.", 

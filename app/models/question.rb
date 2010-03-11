@@ -4,7 +4,6 @@ class Question < ActiveRecord::Base
   attr_accessible :question_instance_id, :question, :email, :name, :posted_anonymously
   belongs_to :question_instance
   belongs_to :user
-  has_many :replies, :order => :position
 
   validates_presence_of :user_id, :question, :question_instance_id
   validates_length_of :question, 
@@ -63,7 +62,7 @@ class Question < ActiveRecord::Base
   end
 
   def reply_count
-    reply_count_val = self.replies.length
+    reply_count_val = self.children.length
     (reply_count_val == 0) ? 'no replies' : ((reply_count_val == 1) ? '1 reply' : "#{reply_count_val} replies")
   end
 

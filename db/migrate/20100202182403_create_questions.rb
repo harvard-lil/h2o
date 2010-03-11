@@ -9,6 +9,7 @@ class CreateQuestions < ActiveRecord::Migration
       t.string :name, :limit => 250
       t.boolean :sticky, :default => false
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
+      t.boolean :hidden
 
       t.timestamps
     end

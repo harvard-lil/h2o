@@ -5,8 +5,7 @@ class QuestionInstance < ActiveRecord::Base
 
 #  belongs_to :project
   belongs_to :user
-  has_many :questions
-  has_many :replies, :through => :questions
+  has_many :questions, :order => :position
   acts_as_category :scope => :project
 
   validates_presence_of :name

@@ -6,7 +6,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Questions / Replies</th>
+        <th>Questions</th>
         <th>Created</th>
         <th>&nbsp;</th>
       </tr>
@@ -15,7 +15,7 @@
       <% @question_instances.each do |question_instance| %>
         <tr>
           <td><%= link_to question_instance.name, question_instance %></td>
-          <td><%= question_instance.questions.count %> / <%= question_instance.replies.count %></td>
+          <td><%= question_instance.questions.count %></td>
           <td><%= question_instance.created_at %></td>
           <td>
             <%= link_to 'Edit', edit_question_instance_path(question_instance) %>
