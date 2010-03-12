@@ -44,10 +44,20 @@ class RotisserieDiscussionsController < ApplicationController
 
     respond_to do |format|
       if @rotisserie_discussion.save
+        @rotisserie_discussion.accepts_role!(:owner, current_user)
+
         flash[:notice] = 'RotisserieDiscussion was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_discussion) }
         format.xml  { render :xml => @rotisserie_discussion, :status => :created, :location => @rotisserie_discussion }
       else
+        @error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_discussion.errors.each{ |attr,msg|
+           @error_output += "#{attr} #{msg}<br />"
+         }
+        @error_output += "</div>"
+
+        format.js {render :text => @error_output, :status => :unprocessable_entity}
         format.html { render :action => "new" }
         format.xml  { render :xml => @rotisserie_discussion.errors, :status => :unprocessable_entity }
       end
@@ -62,9 +72,17 @@ class RotisserieDiscussionsController < ApplicationController
     respond_to do |format|
       if @rotisserie_discussion.update_attributes(params[:rotisserie_discussion])
         flash[:notice] = 'RotisserieDiscussion was successfully updated.'
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_discussion) }
         format.xml  { head :ok }
       else
+        error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_discussion.errors.each{ |attr,msg|
+           error_output += "#{attr} #{msg}<br />"
+         }
+        error_output += "</div>"
+
+        format.js { render :text => error_output, :layout => false  }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @rotisserie_discussion.errors, :status => :unprocessable_entity }
       end
@@ -78,8 +96,32 @@ class RotisserieDiscussionsController < ApplicationController
     @rotisserie_discussion.destroy
 
     respond_to do |format|
+      format.js {render :text => nil}
       format.html { redirect_to(rotisserie_discussions_url) }
       format.xml  { head :ok }
     end
   end
+
+  def block
+    respond_to do |format|
+      format.html {
+        render :partial => 'rotisserie_discussions_block', :locals => {:container_id => params[:container_id]},
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+  end
+  
+  def add_member
+    @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
+    @rotisserie_discussion.accepts_role!(:user, current_user)  
+    
+    respond_to do |format|
+      format.html { redirect_to(rotisserie_discussion_path(@rotisserie_discussion)) }
+      format.xml  { head :ok }
+    end
+  end
+
+
+
 end

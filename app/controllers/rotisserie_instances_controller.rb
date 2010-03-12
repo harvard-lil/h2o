@@ -51,7 +51,7 @@ class RotisserieInstancesController < ApplicationController
         @rotisserie_instance.accepts_role!(:owner, current_user)
 
         flash[:notice] = 'RotisserieInstance was successfully created.'
-        format.js
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_instance) }
         format.xml  { render :xml => @rotisserie_instance, :status => :created, :location => @rotisserie_instance }
       else
@@ -76,7 +76,7 @@ class RotisserieInstancesController < ApplicationController
     respond_to do |format|
       if @rotisserie_instance.update_attributes(params[:rotisserie_instance])
         flash[:notice] = 'RotisserieInstance was successfully updated.'
-        format.js { render :text => "", :layout => false  }
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_instance) }
         format.xml  { head :ok }
       else
@@ -100,7 +100,7 @@ class RotisserieInstancesController < ApplicationController
     @rotisserie_instance.destroy
 
     respond_to do |format|
-      format.js {render :text => nil, :layout => false}
+      format.js {render :text => nil}
       format.html { redirect_to(rotisserie_instances_url) }
       format.xml  { head :ok }
     end

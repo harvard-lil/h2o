@@ -13,6 +13,13 @@ class ApplicationController < ActionController::Base
 
   before_filter :require_user
 
+  layout :layout_switch
+
+  # Switches to nil layout for modal calls
+  def layout_switch
+    ["new", "edit", "reply"].include?(self.action_name) ? nil : :application
+  end
+
   # Method executed when Acl9::AccessDenied is caught
   # should redirect to page with appropriate info
   # and possibly raise a 403?

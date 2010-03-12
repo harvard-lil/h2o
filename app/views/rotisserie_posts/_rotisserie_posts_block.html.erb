@@ -1,0 +1,20 @@
+<%
+object_id = params[:id].blank? ? container_id : params[:id]
+
+@rotisserie_discussion = RotisserieDiscussion.find(object_id)
+@rotisserie_posts = @rotisserie_discussion.rotisserie_posts.roots
+%>
+
+<div class="ui-widget ui-widget-content post_container">
+  <div class="ui-widget-header posts"><%= @rotisserie_discussion.output %></div>
+  <div class="posts"><%= @rotisserie_discussion.description %></div>
+</div>
+
+<% @rotisserie_posts.each do |post|  %>
+  <%= render :partial => 'rotisserie_posts/rotisserie_post_content', :locals => {:post => post} %>
+<% end %>
+
+<% unless @rotisserie_discussion.answered_discussion? %>
+  <button id="button-post-create-<%= @rotisserie_discussion.id %>" name="button-post-create" class="ui-button ui-state-default ui-corner-all">Create post</button>
+<% end %>
+

@@ -1,4 +1,9 @@
-<% @rotisserie_discussions = RotisserieDiscussion.all %>
+<%
+object_id = params[:id].blank? ? container_id : params[:id]
+
+@rotisserie_discussions = RotisserieInstance.find(object_id).rotisserie_discussions
+
+%>
 
 <table class="ui-widget ui-widget-content">
   <thead>
@@ -6,6 +11,7 @@
       <th>Show</th>
       <th>Edit</th>
       <th>Destroy</th>
+      <th>Round</th>
     </tr>
   </thead>
 
@@ -14,14 +20,17 @@
       <tr>
         <td><%= link_to rotisserie_discussion.title, rotisserie_discussion %></td>
         <td>
-          <button id="button-edit-<%= rotisserie_discussion.id %>" name="button-edit" class="ui-button ui-state-default ui-corner-all">
+          <button id="button-discussion-edit-<%= rotisserie_discussion.id %>" name="button-discussion-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
         </td>
         <td>
-          <button id="button-delete-<%= rotisserie_discussion.id %>" name="button-delete" class="ui-button ui-state-default ui-corner-all">
+          <button id="button-discussion-delete-<%= rotisserie_discussion.id %>" name="button-discussion-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
+        </td>
+        <td>
+          <%= rotisserie_discussion.current_round %>
         </td>
       </tr>
     <% end %>

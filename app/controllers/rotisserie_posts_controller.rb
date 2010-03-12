@@ -44,10 +44,20 @@ class RotisseriePostsController < ApplicationController
 
     respond_to do |format|
       if @rotisserie_post.save
+        @rotisserie_post.accepts_role!(:owner, current_user)
+
         flash[:notice] = 'RotisseriePost was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_post) }
         format.xml  { render :xml => @rotisserie_post, :status => :created, :location => @rotisserie_post }
       else
+        @error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_post.errors.each{ |attr,msg|
+           @error_output += "#{attr} #{msg}<br />"
+         }
+        @error_output += "</div>"
+
+        format.js {render :text => @error_output, :status => :unprocessable_entity}
         format.html { render :action => "new" }
         format.xml  { render :xml => @rotisserie_post.errors, :status => :unprocessable_entity }
       end
@@ -62,9 +72,17 @@ class RotisseriePostsController < ApplicationController
     respond_to do |format|
       if @rotisserie_post.update_attributes(params[:rotisserie_post])
         flash[:notice] = 'RotisseriePost was successfully updated.'
+        format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_post) }
         format.xml  { head :ok }
       else
+        error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_post.errors.each{ |attr,msg|
+           error_output += "#{attr} #{msg}<br />"
+         }
+        error_output += "</div>"
+
+        format.js { render :text => error_output, :layout => false  }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @rotisserie_post.errors, :status => :unprocessable_entity }
       end
@@ -82,4 +100,15 @@ class RotisseriePostsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  def block
+    respond_to do |format|
+      format.html {
+        render :partial => 'rotisserie_posts_block', :locals => {:container_id => params[:container_id]},
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+  end
+
 end
