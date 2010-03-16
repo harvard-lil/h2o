@@ -66,7 +66,7 @@ jQuery(function(){
           var questionId = jQuery(this).attr('id').split('-')[3];
           jQuery.ajax({
             type: 'GET',
-            url: jQuery.rootPath() + 'replies/new?reply[question_id]=' + questionId,
+            url: jQuery.rootPath() + 'questions/new?question[parent_id]=' + questionId,
             beforeSend: function(){
               jQuery('#spinner_block').show();
             },

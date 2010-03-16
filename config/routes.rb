@@ -1,6 +1,4 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :replies
-
 
   map.resources :rotisserie_trackers
 
@@ -11,8 +9,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rotisserie_discussions, :collection => {:block => :get}, :member => {:delete => :get, :add_member => :get}
 
   map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
-
-  map.resources :replies
 
   map.resources :questions
 
