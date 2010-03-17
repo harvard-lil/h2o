@@ -2,7 +2,7 @@
 jQuery(function(){
     jQuery.extend({
       observeShowReplyControls: function(){
-        jQuery("a[id*='show-replies-on']").click(function(e){
+        jQuery('a.show-replies').click(function(e){
             e.preventDefault();
             var questionId = jQuery(this).attr('id').split('-')[3];
             var repliesContainer = jQuery('#replies-container-' + questionId);
@@ -19,6 +19,7 @@ jQuery(function(){
                 success: function(html){
                   jQuery('#spinner_block').hide();
                   repliesContainer.html(html).toggle('fast');
+                  jQuery.observeNewQuestionControl();
                 },
                 error: function(xhr){
                   jQuery('#spinner_block').hide();
@@ -33,53 +34,52 @@ jQuery(function(){
         jQuery('a.new-question-for').each(function(){
           var questionInstanceId = jQuery(this).attr('id').split('-')[3];
           var questionId = jQuery(this).attr('id').split('-')[4];
-          jQuery.ajax({
-            type: 'GET',
-            url: jQuery.rootPath() + 'questions/new',
-            data: {question_instance_id: questionInstanceId, question_id: questionId},
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-            },
-            success: function(html){
-              jQuery('#spinner_block').hide();
-              jQuery('#new-question-form').html(html);
-              jQuery('#new-question-form').dialog('open');
-            }
-          });
-          jQuery('#new-question-form-for-' + questionInstanceId).dialog({
-            bgiframe: true,
-            autoOpen: false,
-            minWidth: 300,
-            width: 450,
-            modal: true,
-            title: 'Add a question',
-            buttons: {
-              'Ask Question': function(){
-                jQuery('#new-question-form-for-' + questionInstanceId + ' form ').ajaxSubmit({
-                    error: function(xhr){
-                      jQuery('#spinner_block').hide();
-                      jQuery('#new-question-error-' + questionInstanceId).show().append(xhr.responseText);
-                    },
-                    beforeSend: function(){
-                      jQuery('#spinner_block').show();
-                      jQuery('#new-question-error-' + questionInstanceId).html('').hide();
-                    },
-                    success: function(responseText){
-                      jQuery('#spinner_block').hide();
-                      jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
-                      jQuery('#new-question-form-for-' + questionInstanceId).dialog('close');
-                    }
-                  });
-              },
-              'Cancel': function(){
-                jQuery('#new-question-error-' + questionInstanceId).html('').hide();
-                jQuery(this).dialog('close');
-              }
-            }
-          });
           jQuery(this).click(function(e){
+            jQuery('#new-question-form').dialog({
+              bgiframe: true,
+              autoOpen: false,
+              minWidth: 300,
+              width: 450,
+              modal: true,
+              title: ((questionId == 0) ? 'Add a question' : 'Add a reply'),
+              buttons: {
+                'Ask Question': function(){
+                  jQuery('#new-question-form form').ajaxSubmit({
+                      error: function(xhr){
+                        jQuery('#spinner_block').hide();
+                        jQuery('#new-question-error').show().append(xhr.responseText);
+                      },
+                      beforeSend: function(){
+                        jQuery('#spinner_block').show();
+                        jQuery('#new-question-error').html('').hide();
+                      },
+                      success: function(responseText){
+                        jQuery('#spinner_block').hide();
+                        jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
+                        jQuery('#new-question-form').dialog('close');
+                      }
+                    });
+                },
+                'Cancel': function(){
+                  jQuery('#new-question-error').html('').hide();
+                  jQuery(this).dialog('close');
+                }
+              }
+            });
             e.preventDefault();
-            jQuery('#new-question-form-for-' + questionInstanceId).dialog('open');
+            jQuery.ajax({
+              type: 'GET',
+              url: jQuery.rootPath() + 'questions/new',
+              data: {'question[question_instance_id]': questionInstanceId, 'question[parent_id]': questionId},
+              beforeSend: function(){
+                jQuery('#spinner_block').show();
+              },
+              success: function(html){
+                jQuery('#spinner_block').hide();
+                jQuery('#new-question-form').html(html);
+                jQuery('#new-question-form').dialog('open');
+              }
+            });
           });
         });
       },
@@ -117,7 +117,7 @@ jQuery(function(){
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeVoteControls();
-            jQuery.observeNewReplyControls();
+            jQuery.observeNewQuestionControl();
             jQuery.observeShowReplyControls();
             jQuery('div.updated').stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
           }
@@ -128,7 +128,6 @@ jQuery(function(){
     jQuery(document).ready(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
-      jQuery.observeNewReplyControls();
       jQuery.observeShowReplyControls();
   });
 });

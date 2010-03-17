@@ -1,3 +1,5 @@
 <div class="question-replies" id="replies-for-question-<%= @question.id %>">
-  <%= render :partial => 'shared/objects/question', :collection => @replies %>
+  <ul class="reply-container">
+    <%= render :partial => 'shared/objects/reply', :collection => @replies %>
+  </ul>
 </div>

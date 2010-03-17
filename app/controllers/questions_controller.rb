@@ -5,10 +5,10 @@ class QuestionsController < BaseController
   def replies
     begin
       @question = Question.find(params[:id])
-      @replies = @question.children
+      @replies = @question.reply_list
       render :layout => false
     rescue Exception => e
-      render :text => "We're sorry, we couldn't load the replies for that question.", 
+      render :text => "We're sorry, we couldn't load the replies for that question." + e.inspect, 
         :status => :internal_server_error
     end
   end
@@ -43,7 +43,7 @@ class QuestionsController < BaseController
     @question = Question.new
 
     begin
-      @question.parent_id = params[:question][:parent_id]
+      @question.parent_id = params[:question][:parent_id] || nil
       @question.question_instance_id = params[:question][:question_instance_id]
     rescue Exception => e
       @question.question_instance = QuestionInstance.default_instance
@@ -66,10 +66,12 @@ class QuestionsController < BaseController
   def create
     add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
+    @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
 
     respond_to do |format|
       @question.user = current_user
       if @question.save
+        logger.warn("Question we added is #{@question.id}")
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else

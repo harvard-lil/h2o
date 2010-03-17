@@ -60,10 +60,10 @@ ActiveRecord::Schema.define(:version => 20100226171918) do
   add_index "questions", ["email"], :name => "index_questions_on_email"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
-  add_index "questions", ["question_instance_id", "position"], :name => "unique_in_question_instance", :unique => true
+  add_index "questions", ["question_instance_id", "parent_id", "position"], :name => "unique_in_question_instance", :unique => true
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
-  add_index "questions", ["user_id", "question_instance_id", "position"], :name => "unique_user_in_question_instance", :unique => true
+  add_index "questions", ["user_id", "question_instance_id", "parent_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
   create_table "replies", :force => true do |t|

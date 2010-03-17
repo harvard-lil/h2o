@@ -16,8 +16,21 @@ class Question < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
+  def reply_list
+    columns = self.class.columns.collect{|c| "questions.#{c.name}"}.join(',')
+    self.class.find_by_sql(["select #{columns} ,count(votes.id) as vote_count
+                     from questions 
+                     left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
+                     where 
+                     questions.parent_id = ? 
+                     group by #{columns} 
+                     order by sticky desc,vote_count desc, questions.id desc", 
+                     self.name, 
+                     self.id
+    ])
+  end
+
   def self.featured(params)
-    logger.warn(params.inspect)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
     #We're essentially forcing eager loading for the question object here.
     columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
@@ -26,6 +39,7 @@ class Question < ActiveRecord::Base
                      from questions 
                      left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
                      where 
+                     questions.parent_id is null and
                      questions.question_instance_id = ? 
                      group by #{columns} 
                      order by sticky desc,vote_count desc, questions.id desc limit ?", 
@@ -52,6 +66,7 @@ class Question < ActiveRecord::Base
                      from questions 
                      left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
                      where 
+                     questions.parent_id is null and
                      questions.question_instance_id = ?
                      and questions.id not in(#{questions_to_exclude})
                      group by #{columns} 
