@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
 
   # Switches to nil layout for modal calls
   def layout_switch
-    ["new", "edit", "reply"].include?(self.action_name) ? nil : :application
+    ["new", "edit", "reply", "delete"].include?(self.action_name) ? nil : :application
   end
 
   # Method executed when Acl9::AccessDenied is caught

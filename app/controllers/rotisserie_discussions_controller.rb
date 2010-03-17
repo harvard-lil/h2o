@@ -122,6 +122,26 @@ class RotisserieDiscussionsController < ApplicationController
     end
   end
 
+  def activate
+    RotisserieDiscussion.find(params[:id]).activate_rotisserie
+
+    respond_to do |format|
+      format.js {render :text => nil}
+    end
+  end
+
+  def changestart
+    return_hash = Hash.new
+    discussion = RotisserieDiscussion.find(params[:id])
+    discussion.change_date(h(params[:dayvalue]).to_i)
+    return_hash[:start_date] = discussion.start_date.to_s
+    return_hash[:round] = discussion.current_round
+
+    respond_to do |format|
+      format.js {render :json => return_hash.to_json}
+    end
+  end
+
 
 
 end

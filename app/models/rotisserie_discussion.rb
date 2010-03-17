@@ -30,16 +30,14 @@ class RotisserieDiscussion < ActiveRecord::Base
 
   ### Convert
   def get_last_round
-    return self.posts.last.round
+    return self.rotisserie_posts.last.round
   end
 
-#  ### Convert
-#  def get_last_assignment
-#    max_assignment_round = self.assignments.maximum('round').to_i
-#    if max_assignment_round.nil? then max_assignment_round = 0 end
-#    return max_assignment_round
-#  end
-
+  def get_last_assignment
+    max_assignment_round = self.rotisserie_assignments.maximum('round').to_i
+    if max_assignment_round.nil? then max_assignment_round = 0 end
+    return max_assignment_round
+  end
 
   def current_round
       date_to_round(self.start_date, Time.now(), self.round_length)
@@ -74,21 +72,23 @@ class RotisserieDiscussion < ActiveRecord::Base
       return (get_round_startdate(round) + self.round_length.days)
   end
 
-#  ### Convert
-#  def get_delinquent_users(round)
-#      users = self.posts.collect {|p| p.user if p.round == round}
-#      missing_users = self.group.users - users.to_a
-#      return missing_users.delete(author)
-#  end
-#
+  def get_delinquent_users(round)
+      posted_users = self.rotisserie_posts.collect {|p| p.user if p.round == round}
+      missing_users = self.users - posted_users.to_a
+      return missing_users.delete(author)
+  end
+
   def change_date(value)
       self.update_attributes(:start_date => (self.start_date.to_datetime).advance(:days => value))
   end
 
   ### Convert
   def crankable?
+    round = self.current_round
+    previous_round = (round - 1)
+
     current_round = self.current_round
-    return (current_round > 1) && (self.get_last_assignment < current_round) && (self.posts.count(:conditions => ["round = ?", (current_round - 1)]) > 1) && self.open?
+    return (current_round > 1) && (self.get_last_assignment < current_round) && (self.rotisserie_posts.count(:all, :conditions => {:created_at => self.get_round_startdate(previous_round)..self.get_round_enddate(previous_round)})) && self.open?
   end
 
   def open?
@@ -122,7 +122,6 @@ class RotisserieDiscussion < ActiveRecord::Base
   end
 
 
-   ### Convert
    def activate_rotisserie
 
       round = self.current_round
@@ -135,7 +134,8 @@ class RotisserieDiscussion < ActiveRecord::Base
       users.delete(author)
 
       #get posts at random
-      random_posts = Array.new(self.posts.find(:all, :conditions => ["round = ?", previous_round]))
+      #random_posts = Array.new(self.posts.find(:all, :conditions => {:created_at => get_round_startdate(previous_round)..get_round_enddate(previous_round)}))
+      random_posts = self.rotisserie_posts.find(:all, :conditions => {:created_at => self.get_round_startdate(previous_round)..self.get_round_enddate(previous_round)})
       raise "there are no posts to rotisserie" if random_posts.empty?
 
       #assign one random post to each user
@@ -147,7 +147,7 @@ class RotisserieDiscussion < ActiveRecord::Base
 
           post = available_posts.rand
 
-          Assignment.create(:post_id => post.id, :user_id => user.id, :discussion_id => self.id, :round => round)
+          RotisserieAssignment.create(:rotisserie_post_id => post.id, :user_id => user.id, :rotisserie_discussion_id => self.id, :round => round)
           self.send_assignment_notify(user)
 
           #remove already assigned post

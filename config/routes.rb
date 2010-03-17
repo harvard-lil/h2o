@@ -6,7 +6,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :rotisserie_posts, :collection => {:block => :get}, :member => {:delete => :get }
 
-  map.resources :rotisserie_discussions, :collection => {:block => :get}, :member => {:delete => :get, :add_member => :get}
+  map.resources :rotisserie_discussions, :collection => {:block => :get}, :member => {:delete => :get, :add_member => :get, :activate => :post, :changestart => :post}
 
   map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
 

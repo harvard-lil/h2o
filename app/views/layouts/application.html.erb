@@ -10,11 +10,16 @@
 
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';") %>
 
-    <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
+    <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', 'gui_controls', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
       <%= javascript_include_tag js %>
     <% end -%>
   </head>
   <body>
     <%= yield %>
+
+    <% unless current_user.nil? %>
+    <p><%= link_to("Rotisserie Instances", rotisserie_instances_path) %></p>
+    <p><%= link_to("Logout", user_session_path, :method => :delete) %></p>
+    <% end %>
   </body>
 </html>

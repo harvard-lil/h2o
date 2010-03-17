@@ -46,6 +46,11 @@ h2{
   width: 30%;
 }
 
+.table_cell_wide {
+    width: 200px;
+}
+
+
 #spinner_block {
     height: 15px;
 }

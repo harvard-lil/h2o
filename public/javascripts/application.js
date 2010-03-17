@@ -21,4 +21,7 @@ jQuery(function() {
     }
   });
 
+  //Fire functions for discussions
+  initDiscussionControls();
+
 });

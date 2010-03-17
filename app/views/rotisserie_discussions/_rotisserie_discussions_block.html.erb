@@ -5,13 +5,17 @@ object_id = params[:id].blank? ? container_id : params[:id]
 
 %>
 
-<table class="ui-widget ui-widget-content">
+<table class="ui-widget ui-widget-content ">
   <thead>
     <tr class="ui-widget-header ">
       <th>Show</th>
       <th>Edit</th>
       <th>Destroy</th>
       <th>Round</th>
+      <th class="table_cell_wide">Start Date</th>
+      <th>Crank</th>
+      <th>Decrease Start</th>
+      <th>Increase Start</th>
     </tr>
   </thead>
 
@@ -29,9 +33,27 @@ object_id = params[:id].blank? ? container_id : params[:id]
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
         </td>
-        <td>
+        <td id="rotisserie_discussion_round-<%=  rotisserie_discussion.id %>">
           <%= rotisserie_discussion.current_round %>
         </td>
+        <td id="rotisserie_discussion_startdate-<%=  rotisserie_discussion.id %>" class="table_cell_wide">
+          <%= rotisserie_discussion.start_date %>
+        </td>
+        <td>
+          <button id="button-discussion-activate-<%= rotisserie_discussion.id %>" name="button-discussion-activate" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/cog.png" %>
+          </button>
+        </td>
+        <td>
+          <button id="button-discussion-decreasedate-<%= rotisserie_discussion.id %>" name="button-discussion-decreasedate" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/time_delete.png" %>
+          </button>
+        </td>
+        <td>
+          <button id="button-discussion-increasedate-<%= rotisserie_discussion.id %>" name="button-discussion-increasedate" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/time_add.png" %>
+          </button>
+        </td>        
       </tr>
     <% end %>
   </tbody>
