@@ -29,59 +29,23 @@ jQuery(function(){
           });
       },
 
-      observeNewReplyControls: function(){
-        jQuery('#new-reply-form').dialog({
-          bgiframe: true,
-          autoOpen: false,
-          minWidth: 300,
-          width: 450,
-          modal: true,
-          title: 'Add a reply',
-          buttons: {
-            'Add a reply': function(){
-              jQuery('#new_reply').ajaxSubmit({
-                error: function(xhr){
-                  jQuery('#spinner_block').hide();
-                  jQuery('#new-reply-error').show().append(xhr.responseText);
-                },
-                beforeSend: function(){
-                  jQuery('#spinner_block').show();
-                  jQuery('#new-reply-error').html('').hide();
-                },
-                success: function(responseText){
-                  jQuery('#spinner_block').hide();
-                  var rspArray = responseText.split(',')
-                  jQuery.updateQuestionInstanceView(rspArray[0],rspArray[1]);
-                  jQuery('#new-reply-form').dialog('close');
-                }
-              });
-            },
-            'Cancel': function(){
-              jQuery(this).dialog('close');
-            }
-          }
-        });
-        jQuery("a[id*='new-reply-on']").click(function(e){
-          e.preventDefault();
-          var questionId = jQuery(this).attr('id').split('-')[3];
+      observeNewQuestionControl: function(){
+        jQuery('a.new-question-for').each(function(){
+          var questionInstanceId = jQuery(this).attr('id').split('-')[3];
+          var questionId = jQuery(this).attr('id').split('-')[4];
           jQuery.ajax({
             type: 'GET',
-            url: jQuery.rootPath() + 'questions/new?question[parent_id]=' + questionId,
+            url: jQuery.rootPath() + 'questions/new',
+            data: {question_instance_id: questionInstanceId, question_id: questionId},
             beforeSend: function(){
               jQuery('#spinner_block').show();
             },
             success: function(html){
               jQuery('#spinner_block').hide();
-              jQuery('#new-reply-form').html(html);
-              jQuery('#new-reply-form').dialog('open');
+              jQuery('#new-question-form').html(html);
+              jQuery('#new-question-form').dialog('open');
             }
           });
-        });
-      },
-
-      observeNewQuestionControl: function(){
-        jQuery('a.new-question-for').each(function(){
-          var questionInstanceId = jQuery(this).attr('id').split('-')[3];
           jQuery('#new-question-form-for-' + questionInstanceId).dialog({
             bgiframe: true,
             autoOpen: false,

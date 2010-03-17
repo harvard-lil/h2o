@@ -2,6 +2,7 @@
 <% semantic_form_for @question do |form| %>
   <% form.inputs do %>
     <%= form.input :question_instance_id, :as => :hidden %>
+    <%= form.input :parent_id, :as => :hidden %>
     <%= form.input :question,
       :as => :text,
       :input_html => {:size => '40x5'},

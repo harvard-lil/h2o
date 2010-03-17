@@ -43,13 +43,14 @@ class QuestionsController < BaseController
     @question = Question.new
 
     begin
+      @question.parent_id = params[:question][:parent_id]
       @question.question_instance_id = params[:question][:question_instance_id]
     rescue Exception => e
       @question.question_instance = QuestionInstance.default_instance
     end
 
     respond_to do |format|
-      format.html # new.html.erb
+      format.html { render :partial => 'shared/forms/question', :layout => false}
       format.xml  { render :xml => @question }
     end
   end
