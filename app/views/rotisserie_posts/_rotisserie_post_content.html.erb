@@ -7,7 +7,7 @@ end
 %>
 
   <div class="ui-widget ui-widget-content post_container" style="margin-left: <%= left_margin %>px;">
-    <div class="ui-widget-header posts"><%= post.title %> by <%= post.author.login %> during round <%= post.round %></div>
+    <div class="post-title posts"><%= post.title %> by <%= post.author.login %> during round <%= post.round %></div>
     <div class="posts">
       <%= post.viewable? ? post.output : "<i>This post will be made available after the current round has ended.</i>" %></div>
     <div>

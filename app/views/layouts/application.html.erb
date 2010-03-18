@@ -4,22 +4,23 @@
   <head> 
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" /> 
     <title></title>
-    <% ['formtastic','jquery-ui-themes/overcast/jquery-ui','h2o','forms', (@stylesheets.blank?) ? nil : @stylesheets ].compact.flatten.each do |ss| -%>
+    <% ['formtastic','jquery-ui-themes/custom-theme/jquery-ui','h2o','forms', (@stylesheets.blank?) ? nil : @stylesheets ].compact.flatten.each do |ss| -%>
       <%= stylesheet_link_tag ss %>
     <% end -%>
 
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';") %>
 
-    <% ['jquery-1.4.1.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', 'gui_controls', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
+    <% ['jquery-1.4.2.min','jquery-ui.min','jquery.form', 'jquery.validate.min','application','form', 'gui_controls', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
       <%= javascript_include_tag js %>
     <% end -%>
   </head>
   <body>
-    <%= yield %>
-
-    <% unless current_user.nil? %>
-    <p><%= link_to("Rotisserie Instances", rotisserie_instances_path) %></p>
-    <p><%= link_to("Logout", user_session_path, :method => :delete) %></p>
-    <% end %>
+    
+    <div id="h2o_container">
+      <div id="h2o_header"><%= render :partial => 'shared/layout_components/header' %></div>
+      <div id="h2o_content"><%= yield %></div>
+      <div id="h2o_footer"><%= render :partial => 'shared/layout_components/footer' %></div>
+    </div>
+    
   </body>
 </html>

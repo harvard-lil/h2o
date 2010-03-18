@@ -9,17 +9,6 @@ div.matrix table { margin: 1em 0; border-collapse: collapse; width: 100%; }
 
 div.matrix table td, div.matrix table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
 
-div.post_container {
-    width: 60%;
-    margin-bottom: 20px;
-}
-
-div.posts {
-    border: 1px solid #eee;
-    padding: .6em 10px;
-    text-align: left;
-}
-
 .ui-button, td .ui-button {
     outline: 0;
     margin:0;
