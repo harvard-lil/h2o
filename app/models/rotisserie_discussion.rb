@@ -88,7 +88,7 @@ class RotisserieDiscussion < ActiveRecord::Base
     previous_round = (round - 1)
 
     current_round = self.current_round
-    return (current_round > 1) && (self.get_last_assignment < current_round) && (self.rotisserie_posts.count(:all, :conditions => {:created_at => self.get_round_startdate(previous_round)..self.get_round_enddate(previous_round)})) && self.open?
+    return (current_round > 1) && (self.get_last_assignment < current_round) && (self.rotisserie_posts.count(:all, :conditions => {:round => previous_round})) && self.open?
   end
 
   def open?
@@ -135,12 +135,12 @@ class RotisserieDiscussion < ActiveRecord::Base
 
       #get posts at random
       #random_posts = Array.new(self.posts.find(:all, :conditions => {:created_at => get_round_startdate(previous_round)..get_round_enddate(previous_round)}))
-      random_posts = self.rotisserie_posts.find(:all, :conditions => {:created_at => self.get_round_startdate(previous_round)..self.get_round_enddate(previous_round)})
+      random_posts = self.rotisserie_posts.find(:all, :conditions => {:round => previous_round})
       raise "there are no posts to rotisserie" if random_posts.empty?
 
       #assign one random post to each user
       users.each do |user|
-        available_posts = random_posts.collect{|post| post.user_id == user.id ? nil : post}
+        available_posts = random_posts.collect{|post| post.author.id == user.id ? nil : post}
         available_posts = available_posts.compact
 
         if available_posts.length > 0
@@ -148,13 +148,13 @@ class RotisserieDiscussion < ActiveRecord::Base
           post = available_posts.rand
 
           RotisserieAssignment.create(:rotisserie_post_id => post.id, :user_id => user.id, :rotisserie_discussion_id => self.id, :round => round)
-          self.send_assignment_notify(user)
+          #self.send_assignment_notify(user)
 
           #remove already assigned post
           random_posts.delete(post)
 
           #if there are less posts than users, start again
-          random_posts = self.posts.to_a if random_posts.empty?
+          random_posts = self.rotisserie_posts.to_a if random_posts.empty?
 
         end
 

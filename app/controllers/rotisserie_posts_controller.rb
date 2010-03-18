@@ -41,6 +41,7 @@ class RotisseriePostsController < ApplicationController
   # POST /rotisserie_posts.xml
   def create
     @rotisserie_post = RotisseriePost.new(params[:rotisserie_post])
+    @rotisserie_post.round = @rotisserie_post.rotisserie_discussion.current_round
 
     respond_to do |format|
       if @rotisserie_post.save

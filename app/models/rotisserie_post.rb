@@ -17,10 +17,6 @@ class RotisseriePost < ActiveRecord::Base
     return current_user
   end
 
-   def round
-     date_to_round(self.rotisserie_discussion.start_date, self.created_at, self.rotisserie_discussion.round_length)
-   end
-
   def author?
     return role_users(self.id, self.class, "owner").first == current_user
   end

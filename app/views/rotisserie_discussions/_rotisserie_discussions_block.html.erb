@@ -40,9 +40,11 @@ object_id = params[:id].blank? ? container_id : params[:id]
           <%= rotisserie_discussion.start_date %>
         </td>
         <td>
+          <% if rotisserie_discussion.crankable? %>
           <button id="button-discussion-activate-<%= rotisserie_discussion.id %>" name="button-discussion-activate" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/cog.png" %>
           </button>
+          <% end %>
         </td>
         <td>
           <button id="button-discussion-decreasedate-<%= rotisserie_discussion.id %>" name="button-discussion-decreasedate" class="ui-button ui-state-default ui-corner-all">

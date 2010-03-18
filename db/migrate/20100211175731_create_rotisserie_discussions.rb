@@ -4,6 +4,8 @@ class CreateRotisserieDiscussions < ActiveRecord::Migration
       t.integer     :rotisserie_instance_id
       t.string      :title, :limit => 250, :null => false
       t.text        :output
+      t.text        :description
+      t.text        :notes
       t.integer     :round_length, :default => 2
       t.integer     :final_round, :default => 2
       t.datetime    :start_date
