@@ -1,18 +1,25 @@
 <%
+title_class = ""
+
+
 if post.ancestors_count == 0
   left_margin = 30
 else
   left_margin = 30 + (post.ancestors_count * 30)
 end
+
+if post.assigned? && !post.answered_by_user? then title_class = "post-assigned" end
 %>
 
   <div class="ui-widget ui-widget-content post_container" style="margin-left: <%= left_margin %>px;">
-    <div class="post-title posts"><%= post.title %> by <%= post.author.login %> during round <%= post.round %></div>
+    <div class="post-title posts <%=title_class%>"><%= post.title %> by <%= post.author.login %> during round <%= post.round %>
+
+    </div>
     <div class="posts">
       <%= post.viewable? ? post.output : "<i>This post will be made available after the current round has ended.</i>" %></div>
     <div>
 
-      <% if post.replyable? %>
+      <% if post.replyable?%>
       <button id="button-post-reply-<%= post.id %>" name="button-post-reply" class="ui-button ui-state-default ui-corner-all">
         <%= image_tag "/images/icons/arrow_rotate_anticlockwise.png" %>
       </button>

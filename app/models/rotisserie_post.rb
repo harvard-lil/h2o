@@ -17,6 +17,19 @@ class RotisseriePost < ActiveRecord::Base
     return current_user
   end
 
+  def assigned?
+    return RotisserieAssignment.exists?({:rotisserie_discussion_id => self.rotisserie_discussion.id, :rotisserie_post_id => self.id, :round => self.rotisserie_discussion.current_round, :user_id => current_user.id})
+  end
+
+  def answered_by_user?
+    posts = self.children
+    posts.each do |post|
+      if post.author == current_user then return true end
+    end
+
+    return false
+  end
+
   def author?
     return role_users(self.id, self.class, "owner").first == current_user
   end
@@ -36,7 +49,7 @@ class RotisseriePost < ActiveRecord::Base
 
   def replyable?
     #return self.discussion.open? && !self.author?(current_user)
-    return self.rotisserie_discussion.author?
+    return self.rotisserie_discussion.author? || (self.assigned? && !self.answered_by_user?)
   end
 
   def viewable?

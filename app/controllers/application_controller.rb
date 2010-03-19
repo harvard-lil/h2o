@@ -11,13 +11,22 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_session, :current_user
   filter_parameter_logging :password, :password_confirmation
 
-  before_filter :require_user
+  before_filter :require_user, :title_select
 
   layout :layout_switch
 
   # Switches to nil layout for modal calls
   def layout_switch
     ["new", "edit", "reply", "delete"].include?(self.action_name) ? nil : :application
+  end
+
+  def title_select
+    @logo_title = "default"
+    case self.controller_name
+      when :rotisserie_instances, "rotisserie_discussions" then @logo_title = "Rotisserie"
+    end
+
+    @logo_title.upcase!
   end
 
   # Method executed when Acl9::AccessDenied is caught

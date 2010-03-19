@@ -1,7 +1,7 @@
 /* Tag redefinitions */
 body {
   font-size: 13px;
-  font-family:  Verdana, Arial, sans-serif;
+  font-family:  Arial, sans-serif;
   background-color: #c0c0c0;
 }
 
@@ -20,6 +20,22 @@ body, h1, h2, h3, h4, h5, div, table, form{
     margin-top: 25px;
     margin-bottom: 25px;
     padding: 25px;
+}
+
+#header_logo {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 25px;
+}
+
+#header_title {
+    display: inline-block;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-right: 25px;
+    font-size: 2em;
+    color: #ff9900;
+    vertical-align: middle;
 }
 
 form{
@@ -80,4 +96,10 @@ div.posts {
     border: 1px solid #eee;
     padding: .6em 10px;
     text-align: left;
+}
+
+div.post-assigned {
+    background-color: maroon;
+    color: #ffffff;
+    font-weight: bold;
 }
