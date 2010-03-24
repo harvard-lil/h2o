@@ -1,4 +1,4 @@
-<% cache('question-detail-view-' + question.id.to_s) do %>
+<% cache("question-detail-view-#{question.id}") do %>
   <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %><%= (@updated_question_id == question.id) ? ' updated' : '' %>">
     <div class="votes">
       <div class="count"><%= question.vote_count %></div>

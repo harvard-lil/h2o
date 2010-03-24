@@ -1,4 +1,5 @@
     <% unless current_user.nil? %>
     <p><%= link_to("Rotisserie Instances", rotisserie_instances_path) %></p>
+    <p><%= link_to("Question Instances", question_instances_path) %></p>
     <p><%= link_to("Logout", user_session_path, :method => :delete) %></p>
     <% end %>

@@ -10,9 +10,9 @@ class Question < ActiveRecord::Base
     :maximum => 10000
 
   validates_length_of :email, :name, 
-    :maximum => 250, :allow_nil => true
+    :maximum => 250, :allow_blank => true
 
-  validates_format_of_email :email, :allow_nil => true
+  validates_format_of_email :email, :allow_blank => true
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 

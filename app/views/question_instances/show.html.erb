@@ -1,4 +1,4 @@
-<% cache('question-instance-index-' + @question_instance.id.to_s) do %>
+<% cache("question-instance-index-#{@question_instance.id}-#{request.xhr?.to_s}") do %>
   <% if ! request.xhr? %>
     <div class="question-instance-description">
       <div class="ajax-error" id="ajax-error-<%= @question_instance.id %>" style="display: none;"></div>

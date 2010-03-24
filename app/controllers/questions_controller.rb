@@ -1,11 +1,12 @@
 class QuestionsController < BaseController
 
+  cache_sweeper :question_sweeper
+
   before_filter :prep_resources
 
   def replies
     begin
       @question = Question.find(params[:id])
-      @replies = @question.reply_list
       render :layout => false
     rescue Exception => e
       render :text => "We're sorry, we couldn't load the replies for that question." + e.inspect, 
