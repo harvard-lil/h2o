@@ -20,6 +20,11 @@ class QuestionInstance < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :new_question_timeout, :featured_question_count, :old_question_timeout, :allow_nil => true
 
+  #Get "root" questions in this question instance.
+  def question_count
+    self.questions.find(:all, :conditions => ['parent_id is null']).length
+  end
+
   def featured_questions(params = {})
     Question.featured(params.merge(:question_instance => self))
   end

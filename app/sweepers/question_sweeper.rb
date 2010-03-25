@@ -10,4 +10,9 @@ class QuestionSweeper < ActionController::Caching::Sweeper
     expire_question_instance(record)
   end
 
+  def before_destroy(record)
+    expire_question(record)
+    expire_question_instance(record)
+  end
+
 end

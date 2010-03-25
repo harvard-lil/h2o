@@ -7,7 +7,7 @@
   </span>
   <% if reply.children.length > 0 %>
     <ul>
-      <%= render :partial => 'shared/objects/reply', :collection => reply.children %>
+      <%= render :partial => 'shared/objects/reply', :collection => reply.children.find(:all, :order => 'position desc') %>
     </ul>
   <% end %>
 </li>

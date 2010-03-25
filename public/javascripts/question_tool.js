@@ -175,5 +175,8 @@ jQuery(function(){
       jQuery.observeVoteControls();
       jQuery.observeNewQuestionControl();
       jQuery.observeShowReplyControls();
+      if(jQuery("#question-instance-chooser").length > 0){
+        jQuery("#question-instance-chooser").tablesorter();
+      }
   });
 });

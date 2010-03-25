@@ -24,7 +24,7 @@ class Question < ActiveRecord::Base
                      where 
                      questions.parent_id = ? 
                      group by #{columns} 
-                     order by sticky desc,vote_count desc, questions.id desc", 
+                     order by position", 
                      self.name, 
                      self.id
     ])
