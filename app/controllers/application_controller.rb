@@ -23,7 +23,8 @@ class ApplicationController < ActionController::Base
   def title_select
     @logo_title = "default"
     case self.controller_name
-      when :rotisserie_instances, "rotisserie_discussions" then @logo_title = "Rotisserie"
+      when "base" then @logo_title = "Home"
+      when "rotisserie_instances", "rotisserie_discussions" then @logo_title = "Rotisserie"
     end
 
     @logo_title.upcase!

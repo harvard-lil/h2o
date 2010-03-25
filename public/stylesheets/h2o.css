@@ -1,15 +1,15 @@
 /* Tag redefinitions */
 body {
-  font-size: 13px;
-  font-family:  Arial, sans-serif;
-  background-color: #c0c0c0;
+    font-size: 13px;
+    font-family:  Arial, sans-serif;
+    background-color: #c0c0c0;
 }
 
 body, h1, h2, h3, h4, h5, div, table, form{
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding-top: 0px;
-  padding-bottom: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
 #h2o_container {
@@ -39,20 +39,20 @@ body, h1, h2, h3, h4, h5, div, table, form{
 }
 
 form{
-  display: inline;
+    display: inline;
 }
 
 img{
-  border: none;
+    border: none;
 }
 
 h1{
-  margin-top: .25em;
-  margin-bottom: .5em;
+    margin-top: .25em;
+    margin-bottom: .5em;
 }
 
 h2{
-  margin-top: 1em;
+    margin-top: 1em;
 }
 
 /* end of Tag redefinitions */
@@ -67,10 +67,10 @@ h2{
 
 
 .ajax-error{
-  border:  2px solid red;
-  color: red;
-  padding: 5px;
-  width: 30%;
+    border:  2px solid red;
+    color: red;
+    padding: 5px;
+    width: 30%;
 }
 
 .table_cell_wide {
@@ -103,3 +103,91 @@ div.post-assigned {
     color: #ffffff;
     font-weight: bold;
 }
+
+#featured_container{
+    clear: both;
+    width: 100%;
+    background-color: #607887;
+}
+
+
+#featured_title{
+    background-color: #ff9900;
+    background-image: url(/images/elements/background_yellow.gif);
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 5px;
+    /* width: inherit; */
+}
+
+#featured_content{
+    border-top: 1px solid #fff;
+    background-color: #607887;
+    /* width: inherit; */
+}
+
+.block {
+    padding: 5px;
+    background-color: #607887;
+}
+
+.knockout {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.yellow_heading {
+    border-left: 1px solid #fff;
+    background-color: #cc6600;
+    color: #ff9900;
+    font-weight: bold;
+}
+
+.yellow_content {
+    height: 114px;
+    border-left: 1px solid #fff;
+    background-color: #ff9900;
+    text-align: center;  
+}
+
+.blue_heading {
+    border-left: 1px solid #fff;
+    background-color: #545c63;
+    color: #607887;
+    font-weight: bold;
+}
+
+.blue_content {
+    height: 114px;
+    border-left: 1px solid #fff;
+    background-color: #607887;
+    text-align: center;
+}
+
+#f_block1 {
+    width: 40%;
+    float: left;
+}
+
+#f_block2 {
+    width: 30%;
+    height: 150px;
+    background-color: #ff9900;
+    float: left;
+}
+
+#f_block3 {
+    width: 29%;
+    height: 150px;
+    background-color: #607887;
+    float: left;
+}
+
+#f_block2 img {
+    margin-top: 25px;
+}
+
+#f_block3 img {
+    margin-top: 25px;
+}
+
