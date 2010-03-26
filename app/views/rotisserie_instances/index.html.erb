@@ -4,6 +4,14 @@
  you have the correct permissions.
 </div>
 
+<% current_user.rotisserie_assignments.each do |assignment| %>
+  <% if assignment.open? %>
+    <span class="assignment">
+    <%= link_to "Discussion: #{assignment.rotisserie_discussion.title}", rotisserie_discussion_path(assignment.rotisserie_discussion) %>
+    </span><br />
+  <% end %>
+<% end %>
+
 
 <div id="spinner_block"></div>
 

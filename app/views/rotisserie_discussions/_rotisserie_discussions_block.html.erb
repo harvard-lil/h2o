@@ -34,27 +34,37 @@ object_id = params[:id].blank? ? container_id : params[:id]
           </button>
         </td>
         <td id="rotisserie_discussion_round-<%=  rotisserie_discussion.id %>">
-          <%= rotisserie_discussion.current_round %>
+          <% if rotisserie_discussion.closed? %>
+            Closed
+          <% elsif rotisserie_discussion.pending? %>
+            Pending
+          <% else %>
+            <%= rotisserie_discussion.current_round %>
+          <% end %>
         </td>
         <td id="rotisserie_discussion_startdate-<%=  rotisserie_discussion.id %>" class="table_cell_wide">
           <%= rotisserie_discussion.start_date %>
         </td>
         <td>
-          <% if rotisserie_discussion.crankable? %>
+          <% if rotisserie_discussion.crankable? && (rotisserie_discussion.admin? || rotisserie_discussion.owner?)%>
           <button id="button-discussion-activate-<%= rotisserie_discussion.id %>" name="button-discussion-activate" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/cog.png" %>
           </button>
           <% end %>
         </td>
         <td>
+          <% if rotisserie_discussion.admin? || rotisserie_discussion.owner? %>
           <button id="button-discussion-decreasedate-<%= rotisserie_discussion.id %>" name="button-discussion-decreasedate" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/time_delete.png" %>
           </button>
+          <%  end %>
         </td>
         <td>
+          <% if rotisserie_discussion.admin? || rotisserie_discussion.owner? %>
           <button id="button-discussion-increasedate-<%= rotisserie_discussion.id %>" name="button-discussion-increasedate" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/time_add.png" %>
           </button>
+          <% end %>
         </td>        
       </tr>
     <% end %>

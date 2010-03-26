@@ -19,6 +19,18 @@ class RotisserieDiscussion < ActiveRecord::Base
     return current_user
   end
 
+  def admin?
+    return self.accepts_role?(:admin, current_user)
+  end
+
+  def owner?
+    return self.accepts_role?(:owner, current_user)
+  end
+
+  def user_assignments
+    return self.rotisserie_assignments.all(:conditions => {:user_id => current_user.id})
+  end
+
   def answered_discussion?
     posts = self.rotisserie_posts.find(:all, :conditions => {:ancestors_count => 0})
     posts.each do |post|
