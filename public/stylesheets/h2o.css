@@ -127,7 +127,7 @@ div.post-assigned {
 }
 
 .block {
-    padding: 5px;
+    padding: 10px;
     background-color: #607887;
 }
 
@@ -137,6 +137,7 @@ div.post-assigned {
 }
 
 .yellow_heading {
+    padding: 5px;
     border-left: 1px solid #fff;
     background-color: #cc6600;
     color: #ff9900;
@@ -144,6 +145,7 @@ div.post-assigned {
 }
 
 .yellow_content {
+    padding: 5px;
     height: 114px;
     border-left: 1px solid #fff;
     background-color: #ff9900;
@@ -151,6 +153,7 @@ div.post-assigned {
 }
 
 .blue_heading {
+    padding: 5px;
     border-left: 1px solid #fff;
     background-color: #545c63;
     color: #607887;
@@ -158,6 +161,7 @@ div.post-assigned {
 }
 
 .blue_content {
+    padding: 5px;
     height: 114px;
     border-left: 1px solid #fff;
     background-color: #607887;
@@ -165,19 +169,19 @@ div.post-assigned {
 }
 
 #f_block1 {
-    width: 40%;
+    width: 530px;
     float: left;
 }
 
 #f_block2 {
-    width: 30%;
+    width: 200px;
     height: 150px;
     background-color: #ff9900;
     float: left;
 }
 
 #f_block3 {
-    width: 29%;
+    width: 200px;
     height: 150px;
     background-color: #607887;
     float: left;
@@ -188,6 +192,68 @@ div.post-assigned {
 }
 
 #f_block3 img {
+    margin-top: 25px;
+}
+
+.info_block {
+    margin-top: 25px;
+    border-top: 10px solid #607887;
+    border-bottom: 5px solid #607887;
+    border-left: 1px dotted #607887;
+    border-right: 1px dotted #607887;
+    padding: 10px;
+    color: #607887;
+}
+
+.yellow_title_small {
+    color: #ff9900;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.yellow_title_med {
+    font-size: 1.25em;
+    color: #ff9900;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.yellow_title_large {
+    font-size: 2em;
+    color: #ff9900;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.title_small {
+    color: #000000;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.title_med {
+    font-size: 1.25em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.title_large {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.navigation_block_container {
+    margin-top: 25px;
+}
+
+.navigation_block {
+    font-weight: bold;
+    background-color: #e9e7e1;
+    color: #607887;
+}
+
+#footer_block {
     margin-top: 25px;
 }
 

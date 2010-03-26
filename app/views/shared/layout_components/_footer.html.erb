@@ -1,3 +1,7 @@
     <% unless current_user.nil? %>
-    <p><%= link_to("Logout", user_session_path, :method => :delete) %></p>
+    <div id="footer_block">
+     <%= link_to image_tag("/images/elements/question_small.png"), question_instances_path %>
+     <%= link_to image_tag("/images/elements/cog_small.png"), rotisserie_instances_path %>
+     <%= link_to("Logout", user_session_path, :method => :delete) %>
+    </div>
     <% end %>
