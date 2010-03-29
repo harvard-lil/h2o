@@ -1,5 +1,4 @@
 class QuestionsController < BaseController
-
   cache_sweeper :question_sweeper
 
   before_filter :prep_resources
@@ -18,9 +17,11 @@ class QuestionsController < BaseController
     begin
       q = Question.find(params[:question_id])
       current_user.vote_for(q)
+
       render :text => '<p>Vote tallied!</p>', :layout => false
     rescue Exception => e
       #you fail it.
+      logger.error('Vote failed! Reason:' + e.inspect)
       render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
         :status => :internal_server_error
     end
@@ -72,7 +73,6 @@ class QuestionsController < BaseController
     respond_to do |format|
       @question.user = current_user
       if @question.save
-        logger.warn("Question we added is #{@question.id}")
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
