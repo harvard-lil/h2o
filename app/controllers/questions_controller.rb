@@ -13,18 +13,12 @@ class QuestionsController < BaseController
     end
   end
 
-  def vote_for
-    begin
-      q = Question.find(params[:question_id])
-      current_user.vote_for(q)
+  def vote_against
+    vote_engine('against')
+  end
 
-      render :text => '<p>Vote tallied!</p>', :layout => false
-    rescue Exception => e
-      #you fail it.
-      logger.error('Vote failed! Reason:' + e.inspect)
-      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
-        :status => :internal_server_error
-    end
+  def vote_for
+    vote_engine('for')
   end
 
   # GET /questions/1
@@ -113,7 +107,24 @@ class QuestionsController < BaseController
   end
 
   private
-  
+
+  def vote_engine(vote_type = 'for')
+    begin
+      q = Question.find(params[:question_id])
+      if vote_type == 'for'
+        current_user.vote_for(q)
+      else
+        current_user.vote_against(q)
+      end
+      render :text => '<p>Vote tallied!</p>', :layout => false
+    rescue Exception => e
+      #you fail it.
+      logger.error('Vote failed! Reason:' + e.inspect)
+      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
+        :status => :internal_server_error
+    end
+  end
+
   def prep_resources
 
   end

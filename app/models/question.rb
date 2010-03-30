@@ -33,20 +33,16 @@ class Question < ActiveRecord::Base
   def self.featured(params)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
     #We're essentially forcing eager loading for the question object here.
-    columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
 
-    fq = self.find_by_sql(["select #{columns} ,count(votes.id) as vote_count
-                     from questions 
-                     left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
-                     where 
-                     questions.parent_id is null and
-                     questions.question_instance_id = ? 
-                     group by #{columns} 
-                     order by sticky desc,vote_count desc, questions.id desc limit ?", 
-                     self.name, 
-                     params[:question_instance].id,
-                     params[:question_instance].featured_question_count
-    ])
+    fq = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ?", params[:question_instance].id])
+
+    sorted_fq = fq.sort do |a,b|
+      #sort by sticky and then by vote count, desc.
+      (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||
+        (b.vote_tally <=> a.vote_tally)
+    end
+
+    sorted_fq[0..params[:question_instance].featured_question_count]
   end
 
   def self.not_featured(params)
@@ -60,20 +56,21 @@ class Question < ActiveRecord::Base
 
     questions_to_exclude = params[:questions_to_exclude].collect{|q|q.id}.join(',')
 
-    columns = self.columns.collect{|c| "questions.#{c.name}"}.join(',')
+    q = self.find(:all,:conditions => ["question_instance_id = ? and id not in(#{questions_to_exclude})", params[:question_instance].id])
+    sorted_q = q.sort do |a,b|
+      #sort by sticky and then by vote count, desc.
+      (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||
+        (b.vote_tally <=> a.vote_tally)
+    end
+    sorted_q
+  end
 
-    fq = self.find_by_sql(["select #{columns} ,count(votes.id) as vote_count
-                     from questions 
-                     left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
-                     where 
-                     questions.parent_id is null and
-                     questions.question_instance_id = ?
-                     and questions.id not in(#{questions_to_exclude})
-                     group by #{columns} 
-                     order by sticky desc,vote_count desc, questions.id desc", 
-                     self.name, 
-                     params[:question_instance].id
-    ])
+  def vote_tally
+    count = 0
+    self.votes.each do |v|
+      (v.vote) ? (count += 1) : (count -= 1)
+    end
+    count
   end
 
   def reply_count

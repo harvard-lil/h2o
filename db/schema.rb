@@ -66,6 +66,30 @@ ActiveRecord::Schema.define(:version => 20100226171918) do
   add_index "questions", ["user_id", "question_instance_id", "parent_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
+  create_table "replies", :force => true do |t|
+    t.integer  "question_id",                                           :null => false
+    t.integer  "user_id"
+    t.string   "reply",              :limit => 1000,                    :null => false
+    t.string   "email",              :limit => 250
+    t.string   "name",               :limit => 250
+    t.boolean  "posted_anonymously",                 :default => false
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "replies", ["email"], :name => "index_replies_on_email"
+  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
+  add_index "replies", ["position"], :name => "index_replies_on_position"
+  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
+  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
+  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
+  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
+
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40

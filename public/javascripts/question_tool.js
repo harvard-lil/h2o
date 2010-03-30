@@ -130,13 +130,15 @@ jQuery(function(){
       },
 
       observeVoteControls: function() {
-        jQuery("a[id*='vote-for']").click(function(e){
+        jQuery("a[id*='vote-']").click(function(e){
           e.preventDefault();
+          var for_or_against = jQuery(this).attr('id').split('-')[1];
           var questionInstanceId = jQuery(this).attr('id').split('-')[2];
           var questionId = jQuery(this).attr('id').split('-')[3];
+          var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
           jQuery.ajax({
             type: 'POST',
-            url: jQuery.rootPath() + 'questions/vote_for',
+            url: dispatch_url,
             data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
             beforeSend: function(){
               jQuery('#spinner_block').show();

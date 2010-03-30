@@ -27,6 +27,12 @@ class UsersController < ApplicationController
   def edit
     @user = @current_user
   end
+
+  def has_voted_for
+    render :json => current_user.votes.find(:all, :conditions => ['voteable_type = ?',params[:id]]).collect{|v|v.voteable_id}
+  rescue Exception => e
+    render :json => []
+  end
   
   def update
     @user = @current_user # makes our views "cleaner" and more consistent
