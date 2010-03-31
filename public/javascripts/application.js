@@ -10,6 +10,27 @@ jQuery(function() {
   jQuery.extend({
     rootPath: function(){
       return '/'
+    },
+    serializeHash: function(hashVals){
+      var vals = [];
+      for(var val in hashVals){
+        if(val != undefined){
+          vals.push(val);
+        }
+      }
+      return vals.join(',');
+    },
+    unserializeHash: function(stringVal){
+      if(stringVal && stringVal != undefined){
+        var hashVals = [];
+        var arrayVals = stringVal.split(',');
+        for(var i in arrayVals){
+          hashVals[arrayVals[i]]=1;
+        }
+        return hashVals;
+      } else {
+        return new Array();
+      }
     }
   });
 

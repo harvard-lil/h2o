@@ -18,27 +18,6 @@ jQuery(function(){
           }
         });
       },
-      serializeHash: function(hashVals){
-        var vals = [];
-        for(var val in hashVals){
-          if(val != undefined){
-            vals.push(val);
-          }
-        }
-        return vals.join(',');
-      },
-      unserializeHash: function(stringVal){
-        if(stringVal && stringVal != undefined){
-          var hashVals = [];
-          var arrayVals = stringVal.split(',');
-          for(var i in arrayVals){
-            hashVals[arrayVals[i]]=1;
-          }
-          return hashVals;
-        } else {
-          return new Array();
-        }
-      },
       removeReplyContainerFromCookie: function(cookieName,replyContainer){
         var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
         delete currentVals[replyContainer];
@@ -130,6 +109,21 @@ jQuery(function(){
       },
 
       observeVoteControls: function() {
+        // Do an ajax request to get the votes this user has submitted. Kick ass-feature (if you get the reference,
+        // you win a cookie).
+        // This  allows us to cache on the question-question-instance level, instead of on the
+        // question-question-instance-user level, which would no kind of caching at all.
+        var votes = ''
+        jQuery.ajax({
+          type: 'GET',
+          url: jQuery.rootPath() + 'users/has_voted_for/Question',
+          error: function(xhr){
+            jQuery('div.ajax-error').show().append(xhr.responseText);
+          },
+          success: function(html){
+            votes = eval('(' + html + ')');
+          }
+        });
         jQuery("a[id*='vote-']").click(function(e){
           e.preventDefault();
           var for_or_against = jQuery(this).attr('id').split('-')[1];
@@ -174,11 +168,12 @@ jQuery(function(){
   });
 
     jQuery(document).ready(function(){
-      jQuery.observeVoteControls();
-      jQuery.observeNewQuestionControl();
-      jQuery.observeShowReplyControls();
       if(jQuery("#question-instance-chooser").length > 0){
         jQuery("#question-instance-chooser").tablesorter();
+      } else {
+        jQuery.observeVoteControls();
+        jQuery.observeNewQuestionControl();
+        jQuery.observeShowReplyControls();
       }
   });
 });
