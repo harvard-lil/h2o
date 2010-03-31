@@ -61,6 +61,26 @@ div.controls{
   margin-right: .25em;
 }
 
+.question .votes .up{
+  height: 9px;
+  background: url('/images/elements/arrow-up.gif') top center no-repeat;
+}
+
+.question .votes .already-voted .up{
+  cursor: default;
+  background: url('/images/elements/arrow-up-cccccc.gif') top center no-repeat;
+}
+
+.question .votes .down{
+  height: 9px;
+  background: url('/images/elements/arrow-down.gif') top center no-repeat;
+}
+
+.question .votes .already-voted .down{
+  cursor: default;
+  background: url('/images/elements/arrow-down-cccccc.gif') top center no-repeat;
+}
+
 .sticky .votes{
   background: url('/images/icons/tick.png') top left no-repeat #e4e4e4;
 }

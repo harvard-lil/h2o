@@ -29,9 +29,12 @@ class UsersController < ApplicationController
   end
 
   def has_voted_for
-    render :json => current_user.votes.find(:all, :conditions => ['voteable_type = ?',params[:id]]).collect{|v|v.voteable_id}
+    votes = current_user.votes.find(:all, :conditions => ['voteable_type = ?',params[:id]]).collect{|v|v.voteable_id}
+    hash = {}
+    votes.each{|v| hash[v] = true}
+    render :json => hash
   rescue Exception => e
-    render :json => []
+    render :json => {}
   end
   
   def update

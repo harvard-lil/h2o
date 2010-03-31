@@ -112,8 +112,7 @@ jQuery(function(){
         // Do an ajax request to get the votes this user has submitted. Kick ass-feature (if you get the reference,
         // you win a cookie).
         // This  allows us to cache on the question-question-instance level, instead of on the
-        // question-question-instance-user level, which would no kind of caching at all.
-        var votes = ''
+        // question-question-instance-user level, which would be no kind of caching at all.
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'users/has_voted_for/Question',
@@ -121,36 +120,46 @@ jQuery(function(){
             jQuery('div.ajax-error').show().append(xhr.responseText);
           },
           success: function(html){
-            votes = eval('(' + html + ')');
+            var votes = html;
+            for(i in votes){
+              jQuery("#votes-for-" + i + ' a').each(function(){
+                jQuery(this).attr('class','already-voted'); 
+              });
+            }
           }
         });
-        jQuery("a[id*='vote-']").click(function(e){
-          e.preventDefault();
+        jQuery("a[id*='vote-']").each(function(){
           var for_or_against = jQuery(this).attr('id').split('-')[1];
           var questionInstanceId = jQuery(this).attr('id').split('-')[2];
           var questionId = jQuery(this).attr('id').split('-')[3];
-          var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
-          jQuery.ajax({
-            type: 'POST',
-            url: dispatch_url,
-            data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-              jQuery('#ajax-error-' + questionInstanceId).html('').hide();
-            },
-            error: function(xhr){
-              jQuery('#spinner_block').hide();
-              jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);
-            },
-            success: function(){
-              jQuery('#spinner_block').hide();
-              //TODO - have this poll before just blindly doing the update.
-              jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
+
+          jQuery(this).click(function(e){
+            e.preventDefault();
+            if(jQuery(this).hasClass('already-voted')){
+              return;
             }
+            var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
+            jQuery.ajax({
+              type: 'POST',
+              url: dispatch_url,
+              data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
+              beforeSend: function(){
+                jQuery('#spinner_block').show();
+                jQuery('#ajax-error-' + questionInstanceId).html('').hide();
+              },
+              error: function(xhr){
+                jQuery('#spinner_block').hide();
+                jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);
+              },
+              success: function(){
+                jQuery('#spinner_block').hide();
+                //TODO - have this poll before just blindly doing the update.
+                jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
+              }
+            });
           });
         });
       },
-
       updateQuestionInstanceView: function(questionInstanceId,questionId){
         jQuery.ajax({
           type: 'GET',
