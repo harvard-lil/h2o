@@ -35,4 +35,5 @@
     <%= link_to 'Edit', edit_question_instance_path(@question_instance) %> |
     <%= link_to 'Back', question_instances_path %>
   <% end %>
+  <div id="updated-at" style="display: none"><%= @question_instance.updated_at %></div>
 <% end %>

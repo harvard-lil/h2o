@@ -17,24 +17,14 @@ class Question < ActiveRecord::Base
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
   def reply_list
-    columns = self.class.columns.collect{|c| "questions.#{c.name}"}.join(',')
-    self.class.find_by_sql(["select #{columns} ,count(votes.id) as vote_count
-                     from questions 
-                     left outer join votes on (questions.id = votes.voteable_id and votes.voteable_type = ? and votes.vote is true) 
-                     where 
-                     questions.parent_id = ? 
-                     group by #{columns} 
-                     order by position", 
-                     self.name, 
-                     self.id
-    ])
+    self.children.find(:all, :order => 'position desc')
   end
 
   def self.featured(params)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
     #We're essentially forcing eager loading for the question object here.
 
-    fq = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ?", params[:question_instance].id])
+    fq = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? and parent_id is null", params[:question_instance].id])
 
     sorted_fq = fq.sort do |a,b|
       #sort by sticky and then by vote count, desc.
@@ -56,7 +46,7 @@ class Question < ActiveRecord::Base
 
     questions_to_exclude = params[:questions_to_exclude].collect{|q|q.id}.join(',')
 
-    q = self.find(:all,:conditions => ["question_instance_id = ? and id not in(#{questions_to_exclude})", params[:question_instance].id])
+    q = self.find(:all,:conditions => ["question_instance_id = ? and id not in(#{questions_to_exclude}) and parent_id is null", params[:question_instance].id])
     sorted_q = q.sort do |a,b|
       #sort by sticky and then by vote count, desc.
       (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||

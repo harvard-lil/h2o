@@ -2,6 +2,7 @@ class QuestionsController < BaseController
   cache_sweeper :question_sweeper
 
   before_filter :prep_resources
+  after_filter :update_question_instance_time
 
   def replies
     begin
@@ -63,7 +64,7 @@ class QuestionsController < BaseController
     add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
     @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
-
+    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     respond_to do |format|
       @question.user = current_user
       if @question.save
@@ -81,7 +82,7 @@ class QuestionsController < BaseController
   def update
     add_stylesheets ["formtastic","forms"]
     @question = Question.find(params[:id])
-
+    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     respond_to do |format|
       if @question.update_attributes(params[:question])
         flash[:notice] = 'Question was successfully updated.'
@@ -99,6 +100,7 @@ class QuestionsController < BaseController
   def destroy
     @question = Question.find(params[:id])
     @question.destroy
+    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
 
     respond_to do |format|
       format.html { redirect_to(questions_url) }
@@ -116,6 +118,7 @@ class QuestionsController < BaseController
       else
         current_user.vote_against(q)
       end
+        @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
       render :text => '<p>Vote tallied!</p>', :layout => false
     rescue Exception => e
       #you fail it.

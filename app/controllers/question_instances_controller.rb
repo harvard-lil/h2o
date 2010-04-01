@@ -1,6 +1,7 @@
 class QuestionInstancesController < BaseController
 
   before_filter :prep_resources
+  after_filter :update_question_instance_time
 
   # GET /question_instances
   # GET /question_instances.xml
@@ -14,6 +15,11 @@ class QuestionInstancesController < BaseController
       format.html # index.html.erb
       format.xml  { render :xml => @question_instances }
     end
+  end
+
+  def updated
+    @question_instance = QuestionInstance.find(params[:id])
+    render :text => @question_instance.updated_at.to_s
   end
 
   # GET /question_instances/1
@@ -53,6 +59,7 @@ class QuestionInstancesController < BaseController
 
     respond_to do |format|
       if @question_instance.save
+        @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
         format.html { redirect_to(@question_instance) }
         format.xml  { render :xml => @question_instance, :status => :created, :location => @question_instance }
@@ -71,7 +78,8 @@ class QuestionInstancesController < BaseController
 
     respond_to do |format|
       if @question_instance.update_attributes(params[:question_instance])
-        flash[:notice] = 'QuestionInstance was successfully updated.'
+        @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
+        flash[:notice] = 'Question Instance was successfully updated.'
         format.html { redirect_to(@question_instance) }
         format.xml  { head :ok }
       else

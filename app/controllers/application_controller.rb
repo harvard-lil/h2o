@@ -94,5 +94,14 @@ class ApplicationController < ActionController::Base
       session[:return_to] = nil
     end
 
+    def update_question_instance_time
+      if ! @UPDATE_QUESTION_INSTANCE_TIME.blank?
+        @UPDATE_QUESTION_INSTANCE_TIME.updated_at = Time.now
+        @UPDATE_QUESTION_INSTANCE_TIME.save
+      end
+    rescue Exception => e
+      logger.warn("Couldn't update question instance id: #{@UPDATE_QUESTION_INSTANCE_TIME.id} because #{e.inspect}")
+    end
+
 
 end

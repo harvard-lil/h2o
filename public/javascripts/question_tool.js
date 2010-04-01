@@ -171,7 +171,22 @@ jQuery(function(){
             jQuery.observeVoteControls();
             jQuery.observeNewQuestionControl();
             jQuery.observeShowReplyControls();
-            jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+            if(questionId.length > 0){
+              jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+            }
+          }
+        });
+      },
+      updateAutomatically: function(){
+        var lastUpdated = jQuery('#updated-at').html();
+        var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
+        jQuery.ajax({
+          type: 'GET',
+          url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
+          success: function(html){
+            if(lastUpdated != html){
+              jQuery.updateQuestionInstanceView(questionInstanceId,'');
+            }
           }
         });
       }
@@ -184,7 +199,7 @@ jQuery(function(){
         jQuery.observeVoteControls();
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
-//        setInterval("jQuery.updateQuestionInstanceView(1,'')",5000);
+        setInterval("jQuery.updateAutomatically()",5000);
       }
   });
 });
