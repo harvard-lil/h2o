@@ -1,5 +1,5 @@
 <% cache("question-detail-view-#{question.id}") do %>
-  <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %><%= (@updated_question_id == question.id) ? ' updated' : '' %>">
+  <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
     <div class="votes" id="votes-for-<%= question.id %>">
       <%= link_to('<div class="up"></div>','', :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
       <div class="count"><%= question.vote_tally %></div>

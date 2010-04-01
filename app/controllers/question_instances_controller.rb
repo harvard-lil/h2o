@@ -20,7 +20,6 @@ class QuestionInstancesController < BaseController
   # GET /question_instances/1.xml
   def show
     @question_instance = QuestionInstance.find(params[:id])
-    @updated_question_id = (params[:updated_question_id].blank?) ? nil : params[:updated_question_id].to_i
 
     respond_to do |format|
       format.html {render :layout => (request.xhr?) ? false : true} 

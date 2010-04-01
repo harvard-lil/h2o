@@ -79,6 +79,7 @@ jQuery(function(){
                       },
                       success: function(responseText){
                         jQuery('#spinner_block').hide();
+                        //TODO - resolve the "parent" question id and return it in response text.
                         jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
                         jQuery('#new-question-form').dialog('close');
                       }
@@ -163,14 +164,14 @@ jQuery(function(){
       updateQuestionInstanceView: function(questionInstanceId,questionId){
         jQuery.ajax({
           type: 'GET',
-          url: jQuery.rootPath() + 'question_instances/' + questionInstanceId + '?updated_question_id=' + questionId,
+          url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
           data: {updated_question_id: questionId},
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeVoteControls();
             jQuery.observeNewQuestionControl();
             jQuery.observeShowReplyControls();
-            jQuery('div.updated').stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+            jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
           }
         });
       }
@@ -183,6 +184,7 @@ jQuery(function(){
         jQuery.observeVoteControls();
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
+//        setInterval("jQuery.updateQuestionInstanceView(1,'')",5000);
       }
   });
 });
