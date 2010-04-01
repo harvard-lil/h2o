@@ -74,6 +74,9 @@ var rules_discussion = {
     },
     "rotisserie_discussion[final_round]": {
         required: true
+    },
+    "start_date": {
+        required: true
     }
 };
 
@@ -81,7 +84,8 @@ var messages_discussion = {
     "rotisserie_discussion[title]": "A title is required",
     "rotisserie_discussion[output]": "Please enter some text that will be displayed to the user",
     "rotisserie_discussion[round_length]": "Please enter a minimum number of rounds",
-    "rotisserie_discussion[final_round]": "Please enter the final round"
+    "rotisserie_discussion[final_round]": "Please enter the final round",
+    "start_date": "Please enter a starting date"
 };
 
 var rules_post = {
@@ -169,7 +173,9 @@ function objectDialog(dialog_id, form_id, rules_block, messages_block, controlle
         bgiframe: true,
         autoOpen: false,
         minWidth: 400,
-        width: 400,
+        height: "auto",
+        position: "center",
+        width: 500,
         modal: true,
         buttons: {
             'Submit': function() {

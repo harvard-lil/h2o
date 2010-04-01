@@ -40,7 +40,15 @@ class RotisserieDiscussionsController < ApplicationController
   # POST /rotisserie_discussions
   # POST /rotisserie_discussions.xml
   def create
-    @rotisserie_discussion = RotisserieDiscussion.new(params[:rotisserie_discussion])
+    start_date = params[:start_date]
+    start_time = params[:blankobject]["start_time(4i)"] + ":" + params[:blankobject]["start_time(5i)"]
+
+    full_date = (start_date + " " + start_time)
+    rotisserie_params = params[:rotisserie_discussion]
+
+    rotisserie_params["start_date"] = full_date
+
+    @rotisserie_discussion = RotisserieDiscussion.new(rotisserie_params)
 
     respond_to do |format|
       if @rotisserie_discussion.save
@@ -56,7 +64,7 @@ class RotisserieDiscussionsController < ApplicationController
            @error_output += "#{attr} #{msg}<br />"
          }
         @error_output += "</div>"
-
+        
         format.js {render :text => @error_output, :status => :unprocessable_entity}
         format.html { render :action => "new" }
         format.xml  { render :xml => @rotisserie_discussion.errors, :status => :unprocessable_entity }

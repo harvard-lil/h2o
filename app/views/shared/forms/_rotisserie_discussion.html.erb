@@ -30,17 +30,29 @@ end
           :required => true
         %>
         <li></li>
-        <%= form.input :round_length,
+        <%= form.input :final_round,
           :as => :select,
           :collection => 1..9,
           :selected => rotisserie_object.final_round.blank? ? 2 : rotisserie_object.final_round,
           :required => true
         %>
         <li></li>
-        <%= form.input :start_date, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li class="string_required" id="start_date_input">
+        <label for="start_date">Start Date</label>
+        <%= text_field_tag 'start_date', nil,
+          :maxlength => 30,
+          :size => 30,
+          :name => 'start_date',
+          :class => "ui-widget-content ui-corner-all"
+        %>
+        </li>
         <li></li>
-        <%= form.input :rotisserie_instance_id, :as => :hidden, :value => params[:container_id]%>
+        <li class="string_required" id="start_time_input">
+        <label for="start_time">Start Time</label>
+        <%= time_select(:blankobject, :start_time, :ignore_date => true, :html_options => {:class => "ui-widget-content ui-corner-all"})%>
+        </li>
+        <li></li>
+        <%= form.input :rotisserie_instance_id, :as => :hidden, :value => params[:container_id], :label => false%>
         <%= hidden_field_tag :container_id, params[:container_id] %>
   <% end %>
   <% end %>
-
