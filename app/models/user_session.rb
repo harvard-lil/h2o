@@ -1,4 +1,6 @@
 class UserSession < Authlogic::Session::Base
+  self.last_request_at_threshold = 1.minute
+
 
   def self.oauth_consumer
     OAuth::Consumer.new("yM5O3JWGMPJveOwENu65A", "fgiAmv8QlplWUNDhiOfDUCubgOH5HVPHhrPAnzQ2Eo", {
