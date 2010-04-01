@@ -257,3 +257,70 @@ div.post-assigned {
     margin-top: 25px;
 }
 
+.table_heading {
+    width: 100%;
+    background-color: #ff9900;
+    background-image: url(/images/elements/background_yellow.gif);
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 5px;
+    /* width: inherit; */
+}
+
+
+table.core_table {
+    margin: 0px;
+    border: 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    width: 100%;
+    font-weight: bold;
+    color: #607887;
+    border-left: 1px dotted #607887;
+    border-right: 1px dotted #607887;
+}
+
+
+.core_table th, td {
+    padding: 10px;
+    text-align: left;
+
+    
+}
+
+.core_table td {
+    background-color: #e9e7e1;
+    margin-bottom: 1px;
+    border-bottom: 1px dotted #607887;
+}
+
+.core_table a:link, .core_table a:visited, .core_table a:active {
+	color: #545c63;
+        font-weight: bold;
+        text-decoration: none;
+}
+
+.core_table a:hover {
+	color: #607887;
+}
+
+.discussion_topic {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+
+.discussion_content {
+    border: 1px solid #607887;
+    padding: .6em 10px;
+    text-align: left;
+}
+
+
+.div_header {
+    background-color: #ff9900;
+    background-image: url(/images/elements/background_yellow.gif);
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 5px;
+}

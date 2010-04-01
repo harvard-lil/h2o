@@ -5,9 +5,9 @@ object_id = params[:id].blank? ? container_id : params[:id]
 @rotisserie_posts = @rotisserie_discussion.rotisserie_posts.roots
 %>
 
-<div class="ui-widget ui-widget-content post_container">
-  <div class="ui-widget-header posts"><%= @rotisserie_discussion.output %></div>
-  <div class="posts"><%= @rotisserie_discussion.description %></div>
+<div class="discussion_topic">
+  <div class="div_header"><%= @rotisserie_discussion.output %></div>
+  <div class="discussion_content"><%= @rotisserie_discussion.description %></div>
 </div>
 
 <% @rotisserie_posts.each do |post|  %>
