@@ -208,12 +208,72 @@ jQuery(function(){
         });
       },
       observeNewQuestionInstanceControl: function(){
+        jQuery('#new-question-instance').each(function(){
+          jQuery(this).click(function(e){
+            jQuery('#new-question-instance-form').dialog({
+              bgiframe: true,
+              autoOpen: false,
+              minWidth: 300,
+              width: 450,
+              modal: true,
+              title: 'New Question Instance',
+              buttons: {
+                'Create Question Tool': function(){
+                  jQuery('#new_question_instance').ajaxSubmit({
+                      error: function(xhr){
+                        jQuery('#spinner_block').hide();
+                        jQuery('#new-question-instance-error').show().append(xhr.responseText);
+                      },
+                      beforeSend: function(){
+                        jQuery('#spinner_block').show();
+                        jQuery('#new-question-instance-error').html('').hide();
+                      },
+                      success: function(responseText){
+                        jQuery('#spinner_block').hide();
+                        jQuery.ajax({
+                          type: 'GET',
+                          url: jQuery.rootPath() + 'question_instances',
+                          beforeSend: function(){
+                            jQuery('#spinner_block').show();
+                          },
+                          success: function(html){
+                            jQuery('#spinner_block').hide();
+                            jQuery('#question-instance-list').html(html);
+                            jQuery("#question-instance-chooser").tablesorter();
+                          }
+                        });
+                        jQuery('#new-question-instance-form').dialog('close');
+                      }
+                    });
+                },
+                'Cancel': function(){
+                  jQuery('#new-question-instance-error').html('').hide();
+                  jQuery(this).dialog('close');
+                }
+              }
+            });
+            e.preventDefault();
+            jQuery.ajax({
+              type: 'GET',
+              url: jQuery.rootPath() + 'question_instances/new',
+              beforeSend: function(){
+                jQuery('#spinner_block').show();
+              },
+              success: function(html){
+                jQuery('#spinner_block').hide();
+                jQuery('#new-question-instance-form').html(html);
+                jQuery('#new-question-instance-form').dialog('open');
+              }
+            });
+          });
+        });
       }
   });
 
     jQuery(document).ready(function(){
       if(jQuery("#new-question-instance").length > 0){
         // We're on the question instance list page.
+        jQuery.observeNewQuestionInstanceControl();
         if(jQuery('#question-instance-chooser').length > 0){
           jQuery("#question-instance-chooser").tablesorter();
         }
@@ -223,9 +283,9 @@ jQuery(function(){
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
         jQuery.observeUpdateTimers();
-        // By default we update every 10 seconds.
-        jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()",10000));
-        jQuery('#timer-controls #seconds-10').addClass('selected');
+        // By default we update every 5 seconds.
+        jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()",5000));
+        jQuery('#timer-controls #seconds-5').addClass('selected');
       }
   });
 });

@@ -1,5 +1,5 @@
 class QuestionInstancesController < BaseController
-
+  cache_sweeper :question_instance_sweeper
   before_filter :prep_resources
   after_filter :update_question_instance_time
 
@@ -12,7 +12,7 @@ class QuestionInstancesController < BaseController
     @question_instances = QuestionInstance.all
 
     respond_to do |format|
-      format.html # index.html.erb
+      format.html { render :layout => (! request.xhr?) }
       format.xml  { render :xml => @question_instances }
     end
   end
@@ -61,10 +61,10 @@ class QuestionInstancesController < BaseController
       if @question_instance.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
-        format.html { redirect_to(@question_instance) }
+        format.html { render :text => @question_instance.id, :layout => false }
         format.xml  { render :xml => @question_instance, :status => :created, :location => @question_instance }
       else
-        format.html { render :action => "new" }
+        format.html { render :text => "We couldn't add that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
         format.xml  { render :xml => @question_instance.errors, :status => :unprocessable_entity }
       end
     end
