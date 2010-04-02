@@ -32,7 +32,7 @@ class Question < ActiveRecord::Base
         (b.vote_tally <=> a.vote_tally)
     end
 
-    sorted_fq[0..params[:question_instance].featured_question_count]
+    sorted_fq[0.. (params[:question_instance].featured_question_count - 1)]
   end
 
   def self.not_featured(params)
