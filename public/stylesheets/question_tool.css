@@ -93,3 +93,16 @@ div.controls{
 .ajax-error, #spinner_block{
   float: right;
 }
+
+#timer-controls{
+  float: right;
+  font-size: 9px;
+}
+
+#timer-controls .selected{
+  font-size: larger;
+  font-weight: bold;
+  background: blue;
+  color: white;
+  text-decoration: none;
+}

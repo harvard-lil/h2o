@@ -177,16 +177,33 @@ jQuery(function(){
           }
         });
       },
+      observeUpdateTimers: function(){
+       jQuery('#timer-controls a').click(function(e){
+           e.preventDefault();
+           var timerSeconds = jQuery(this).attr('id').split('-')[1];
+           jQuery('#timer-controls a.selected').removeClass('selected');
+           jQuery(this).addClass('selected');
+           clearInterval(jQuery('#updated-at').data('intervalTracker'));
+           jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()", timerSeconds * 1000));
+           jQuery('#timer-notice').html('updated!').delay(2000).html('');
+       }); 
+      },
       updateAutomatically: function(){
         var lastUpdated = jQuery('#updated-at').html();
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
+          beforeSend: function(){jQuery('#spinner_block').show()},
           success: function(html){
+            jQuery('#spinner_block').hide();
             if(lastUpdated != html){
               jQuery.updateQuestionInstanceView(questionInstanceId,'');
             }
+          },
+          error: function(xhr){
+            jQuery('#spinner_block').hide();
+            jQuery('div.ajax-error').show().append(xhr.responseText);
           }
         });
       }
@@ -199,7 +216,9 @@ jQuery(function(){
         jQuery.observeVoteControls();
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
-        setInterval("jQuery.updateAutomatically()",5000);
+        jQuery.observeUpdateTimers();
+        jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()",10000));
+        jQuery('#timer-controls #seconds-10').addClass('selected');
       }
   });
 });

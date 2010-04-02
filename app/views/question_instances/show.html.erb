@@ -17,6 +17,7 @@
     <div id="new-question-form" style="display: none;"></div>
   <% end %>
 
+  <div class="clear"></div>
   <div class="questions" id="questions-<%= @question_instance.id %>">
     <div class="featured">
       <h2>Featured Questions</h2>
@@ -34,6 +35,9 @@
   <% if ! request.xhr? %>
     <%= link_to 'Edit', edit_question_instance_path(@question_instance) %> |
     <%= link_to 'Back', question_instances_path %>
+    <div id="timer-controls"><span id="timer-notice"></span>
+      Update every: <a href="#" id="seconds-5">5 sec</a> <a href="#" id="seconds-10">10 sec</a> <a href="#" id="seconds-20">20 sec</a> <a href="#" id="seconds-60">1 min</a> <a href="#" id="seconds-300">5 min</a>
+    </div>
   <% end %>
   <div id="updated-at" style="display: none"><%= @question_instance.updated_at %></div>
 <% end %>

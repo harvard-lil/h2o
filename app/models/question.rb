@@ -36,8 +36,6 @@ class Question < ActiveRecord::Base
   end
 
   def self.not_featured(params)
-    #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
-    #We're essentially forcing eager loading for the question object here.
 
     questions_to_exclude = []
     if params[:questions_to_exclude].blank?
@@ -45,8 +43,12 @@ class Question < ActiveRecord::Base
     end
 
     questions_to_exclude = params[:questions_to_exclude].collect{|q|q.id}.join(',')
+    extra_conditions = ''
+    if ! questions_to_exclude.blank?
+      extra_conditions = " and id not in(#{questions_to_exclude}) "
+    end
 
-    q = self.find(:all,:conditions => ["question_instance_id = ? and id not in(#{questions_to_exclude}) and parent_id is null", params[:question_instance].id])
+    q = self.find(:all,:conditions => ["question_instance_id = ? #{extra_conditions} and parent_id is null", params[:question_instance].id])
     sorted_q = q.sort do |a,b|
       #sort by sticky and then by vote count, desc.
       (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||
