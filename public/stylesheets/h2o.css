@@ -324,3 +324,22 @@ table.core_table {
     font-weight: bold;
     padding: 5px;
 }
+
+.assignment {
+    
+}
+
+.assignment a:link, .assignment a:visited, .assignment a:active {
+	color: red;
+        font-weight: bold;
+        text-decoration: none;
+}
+
+.assignment a:hover {
+	color: red;
+}
+
+.assignment_container {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}

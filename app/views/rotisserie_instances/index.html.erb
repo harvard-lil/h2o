@@ -4,6 +4,7 @@
  you have the correct permissions.
 </div>
 
+<div id="assignments_container">
 <% current_user.rotisserie_assignments.each do |assignment| %>
   <% if assignment.open? %>
     <span class="assignment">
@@ -11,6 +12,7 @@
     </span><br />
   <% end %>
 <% end %>
+</div>
 
 
 <div id="spinner_block"></div>

@@ -24,14 +24,18 @@ object_id = params[:id].blank? ? container_id : params[:id]
       <tr>
         <td><%= link_to rotisserie_discussion.title, rotisserie_discussion %></td>
         <td>
+          <% if rotisserie_discussion.admin? || rotisserie_discussion.owner? %>
           <button id="button-discussion-edit-<%= rotisserie_discussion.id %>" name="button-discussion-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
+          <% end %>
         </td>
         <td>
+          <% if rotisserie_discussion.admin? || rotisserie_discussion.owner? %>
           <button id="button-discussion-delete-<%= rotisserie_discussion.id %>" name="button-discussion-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
+          <% end %>
         </td>
         <td id="rotisserie_discussion_round-<%=  rotisserie_discussion.id %>">
           <% if rotisserie_discussion.closed? %>

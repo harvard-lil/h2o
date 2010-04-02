@@ -7,7 +7,7 @@ class RotisserieAssignment < ActiveRecord::Base
 
 
   def open?
-    return self.round == self.rotisserie_discussion.get_current_round
+    return self.round == self.rotisserie_discussion.current_round
   end
 
   #method returns true if post has a response
