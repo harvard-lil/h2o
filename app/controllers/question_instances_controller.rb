@@ -40,7 +40,7 @@ class QuestionInstancesController < BaseController
     @question_instance = QuestionInstance.new
 
     respond_to do |format|
-      format.html # new.html.erb
+      format.html { render :partial => 'shared/forms/question_instance', :layout => false} 
       format.xml  { render :xml => @question_instance }
     end
   end

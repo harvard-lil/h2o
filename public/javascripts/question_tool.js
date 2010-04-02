@@ -206,17 +206,24 @@ jQuery(function(){
             jQuery('div.ajax-error').show().append(xhr.responseText);
           }
         });
+      },
+      observeNewQuestionInstanceControl: function(){
       }
   });
 
     jQuery(document).ready(function(){
-      if(jQuery("#question-instance-chooser").length > 0){
-        jQuery("#question-instance-chooser").tablesorter();
+      if(jQuery("#new-question-instance").length > 0){
+        // We're on the question instance list page.
+        if(jQuery('#question-instance-chooser').length > 0){
+          jQuery("#question-instance-chooser").tablesorter();
+        }
       } else {
+        // We're viewing a question instance.
         jQuery.observeVoteControls();
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
         jQuery.observeUpdateTimers();
+        // By default we update every 10 seconds.
         jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()",10000));
         jQuery('#timer-controls #seconds-10').addClass('selected');
       }

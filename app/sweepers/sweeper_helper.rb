@@ -3,6 +3,7 @@ module SweeperHelper
   def expire_question_instance(record)
     expire_fragment("question-instance-index-#{record.question_instance_id}-false")
     expire_fragment("question-instance-index-#{record.question_instance_id}-true")
+    expire_fragment('question-instance-list')
   end
 
   def expire_question(record)
