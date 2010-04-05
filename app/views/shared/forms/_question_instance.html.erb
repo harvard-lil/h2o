@@ -1,5 +1,5 @@
-<div id="new-question-instance-error" style="display:none;" class="error"></div>
-<% semantic_form_for @question_instance do |form| %>
+<div id="question-instance-error" style="display:none;" class="error"></div>
+<% semantic_form_for(@question_instance, :html => {:id => 'question-instance-form'}) do |form| %>
   <% form.inputs do %>
     <%= form.input :name %>
     <%= form.input :description, 

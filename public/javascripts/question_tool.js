@@ -183,9 +183,10 @@ jQuery(function(){
            var timerSeconds = jQuery(this).attr('id').split('-')[1];
            jQuery('#timer-controls a.selected').removeClass('selected');
            jQuery(this).addClass('selected');
-           clearInterval(jQuery('#updated-at').data('intervalTracker'));
-           jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()", timerSeconds * 1000));
-           jQuery('#timer-notice').html('updated!').delay(2000).html('');
+           alert(jQuery('#updated-at').data('intervalTracker'));
+      //     clearInterval(jQuery('#updated-at').data('intervalTracker'));
+      //     jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()", timerSeconds * 1000));
+      //     jQuery('#timer-notice').html('updated!').delay(2000).html('');
        }); 
       },
       updateAutomatically: function(){
@@ -207,26 +208,26 @@ jQuery(function(){
           }
         });
       },
-      observeNewQuestionInstanceControl: function(){
-        jQuery('#new-question-instance').each(function(){
+      observeQuestionInstanceControl: function(){
+        jQuery('a.question-instance-control').each(function(){
           jQuery(this).click(function(e){
-            jQuery('#new-question-instance-form').dialog({
+            jQuery('#question-instance-form-container').dialog({
               bgiframe: true,
               autoOpen: false,
               minWidth: 300,
               width: 450,
               modal: true,
-              title: 'New Question Instance',
+              title: 'Question Tool',
               buttons: {
-                'Create Question Tool': function(){
-                  jQuery('#new_question_instance').ajaxSubmit({
+                'Save Question Tool': function(){
+                  jQuery('#question-instance-form').ajaxSubmit({
                       error: function(xhr){
                         jQuery('#spinner_block').hide();
-                        jQuery('#new-question-instance-error').show().append(xhr.responseText);
+                        jQuery('#question-instance-error').show().append(xhr.responseText);
                       },
                       beforeSend: function(){
                         jQuery('#spinner_block').show();
-                        jQuery('#new-question-instance-error').html('').hide();
+                        jQuery('#question-instance-error').html('').hide();
                       },
                       success: function(responseText){
                         jQuery('#spinner_block').hide();
@@ -240,40 +241,50 @@ jQuery(function(){
                             jQuery('#spinner_block').hide();
                             jQuery('#question-instance-list').html(html);
                             jQuery("#question-instance-chooser").tablesorter();
+                            jQuery.observeQuestionInstanceControl();
                           }
                         });
-                        jQuery('#new-question-instance-form').dialog('close');
+                        jQuery('#question-instance-form-container').dialog('close');
                       }
                     });
                 },
                 'Cancel': function(){
-                  jQuery('#new-question-instance-error').html('').hide();
+                  jQuery('#question-instance-error').html('').hide();
                   jQuery(this).dialog('close');
                 }
               }
             });
             e.preventDefault();
+            var dispatchUrl = '';
+            if(jQuery(this).attr('id').match(/^edit\-question\-instance/) ){
+              var question_instance_id = jQuery(this).attr('id').split('-')[3];
+              dispatchUrl = jQuery.rootPath() + 'question_instances/' + question_instance_id + '/edit'
+            } else {
+              dispatchUrl = jQuery.rootPath() + 'question_instances/new'
+            }
             jQuery.ajax({
               type: 'GET',
-              url: jQuery.rootPath() + 'question_instances/new',
+              url: dispatchUrl,
               beforeSend: function(){
                 jQuery('#spinner_block').show();
               },
               success: function(html){
                 jQuery('#spinner_block').hide();
-                jQuery('#new-question-instance-form').html(html);
-                jQuery('#new-question-instance-form').dialog('open');
+                jQuery('#question-instance-form-container').html(html);
+                jQuery('#question-instance-form-container').dialog('open');
               }
             });
           });
         });
       }
+
+
   });
 
     jQuery(document).ready(function(){
-      if(jQuery("#new-question-instance").length > 0){
+      if(jQuery(".question-instance-control").length > 0){
         // We're on the question instance list page.
-        jQuery.observeNewQuestionInstanceControl();
+        jQuery.observeQuestionInstanceControl();
         if(jQuery('#question-instance-chooser').length > 0){
           jQuery("#question-instance-chooser").tablesorter();
         }

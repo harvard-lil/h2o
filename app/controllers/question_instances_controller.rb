@@ -9,7 +9,7 @@ class QuestionInstancesController < BaseController
     add_stylesheets "tablesorter-blue-theme/style"
     add_javascripts "jquery.tablesorter.min"
 
-    @question_instances = QuestionInstance.all
+    @question_instances = QuestionInstance.find(:all, :order => :id)
 
     respond_to do |format|
       format.html { render :layout => (! request.xhr?) }
@@ -49,6 +49,10 @@ class QuestionInstancesController < BaseController
   def edit
     add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.find(params[:id])
+    respond_to do |format|
+      format.html { render :partial => 'shared/forms/question_instance', :layout => false} 
+      format.xml  { render :xml => @question_instance }
+    end
   end
 
   # POST /question_instances
@@ -80,10 +84,10 @@ class QuestionInstancesController < BaseController
       if @question_instance.update_attributes(params[:question_instance])
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'Question Instance was successfully updated.'
-        format.html { redirect_to(@question_instance) }
+        format.html { render :text => @question_instance.id, :layout => false }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
+        format.html { render :text => "We couldn't update that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
         format.xml  { render :xml => @question_instance.errors, :status => :unprocessable_entity }
       end
     end

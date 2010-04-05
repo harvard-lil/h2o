@@ -11,9 +11,11 @@ div.question-instance-description{
 div.controls{
   float: right;
 }
+
 .questions{
   background: #e4e4e4;
   float: left;
+  width: 100%;
 }
 
 .questions h2{

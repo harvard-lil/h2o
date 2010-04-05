@@ -1,9 +1,9 @@
 <div id="question-instance-list">
-  <h1>Question Tool Instance Chooser</h1>
+  <h1>Question Tool Chooser</h1>
 
   <% unless @question_instances.blank? %>
     <% cache('question-instance-list') do %>
-      <h2>Choose an existing question tool instance.</h2>
+      <h2>Choose an existing question tool.</h2>
       <table id="question-instance-chooser" class="tablesorter">
         <thead>
           <tr>
@@ -20,7 +20,7 @@
               <td><%= question_instance.question_count %></td>
               <td><%= question_instance.created_at %></td>
               <td>
-                <%= link_to 'Edit', edit_question_instance_path(question_instance) %>
+                <%= link_to 'Edit', edit_question_instance_path(question_instance), :class=> "question-instance-control", :id => "edit-question-instance-#{question_instance.id}" %>
                 <%= link_to 'Destroy', question_instance, :confirm => 'Are you sure?', :method => :delete %>
               </td>
             </tr>
@@ -30,11 +30,10 @@
       <h2>OR</h2>
     <% end %>
   <% else %>
-    <h2>No question tools instances are currently active.</h2>
+    <h2>No question tools are currently active.</h2>
   <% end %>
-</div>
 
-<% if ! request.xhr? %> 
-  <h2><%= link_to 'Create a new instance of the question tool', new_question_instance_path, :id => 'new-question-instance' %></h2>
-  <div id="new-question-instance-form" style="display:none;"></div>
-<% end %>
+  <div class="clear"></div>
+  <h2><%= link_to 'Create a new question tool', new_question_instance_path, :class => 'question-instance-control' %></h2>
+  <div id="question-instance-form-container" style="display:none;"></div>
+</div>
