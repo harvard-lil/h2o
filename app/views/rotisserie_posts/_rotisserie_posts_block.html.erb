@@ -2,7 +2,8 @@
 object_id = params[:id].blank? ? container_id : params[:id]
 
 @rotisserie_discussion = RotisserieDiscussion.find(object_id)
-@rotisserie_posts = @rotisserie_discussion.rotisserie_posts.find(:all, :conditions => ['parent_id is null']) 
+@rotisserie_posts = @rotisserie_discussion.rotisserie_posts.roots
+#@rotisserie_posts = @rotisserie_discussion.rotisserie_posts.find(:all, :conditions => ['parent_id is null']) 
 %>
 
 <div class="discussion_topic">

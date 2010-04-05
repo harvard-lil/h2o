@@ -213,9 +213,9 @@ module ActiveRecord
           # This is intended to be used with roots only
           named_scope :permitted, lambda {
             if permissions.empty?
-              { :conditions => "#{hidden_column} IS NULL OR #{hidden_column}=0", :order => order_by }
+              { :conditions => ["#{hidden_column} IS NULL OR #{hidden_column} = ? ",false], :order => order_by }
             else
-              { :conditions => ["#{hidden_column} IS NULL OR #{hidden_column}=0 OR id IN (?)", class_variable_get(:@@permissions)], :order => order_by }
+              { :conditions => ["#{hidden_column} IS NULL OR #{hidden_column} = ? OR id IN (?)", false, class_variable_get(:@@permissions)], :order => order_by }
             end
           }
 
