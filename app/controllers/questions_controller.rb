@@ -2,7 +2,30 @@ class QuestionsController < BaseController
   cache_sweeper :question_sweeper
 
   before_filter :prep_resources
+  before_filter :load_question, :only => [:destroy, :stick, :unstick]
+
   after_filter :update_question_instance_time
+
+  access_control do
+    allow :owner, :of => :question_instance, :to => [:destroy, :stick, :unstick]
+    allow all, :to => [:replies, :vote_against, :vote_for, :new, :create]
+  end
+
+  def stick
+    @question.sticky = true
+    @question.save
+    render :text => @question.id, :layout => false
+  rescue Exception => e
+    render :text => "There seems to have been a problem: #{e.inspect}", :status => :unprocessable_entity
+  end
+
+  def unstick
+    @question.sticky = false
+    @question.save
+    render :text => @question.id, :layout => false
+  rescue Exception => e
+    render :text => "There seems to have been a problem: #{e.inspect}", :status => :unprocessable_entity
+  end
 
   def replies
     begin
@@ -24,14 +47,14 @@ class QuestionsController < BaseController
 
   # GET /questions/1
   # GET /questions/1.xml
-  def show
-    @question = Question.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @question }
-    end
-  end
+#  def show
+#    @question = Question.find(params[:id])
+#
+#    respond_to do |format|
+#      format.html # show.html.erb
+#      format.xml  { render :xml => @question }
+#    end
+#  end
 
   # GET /questions/new
   # GET /questions/new.xml
@@ -53,10 +76,10 @@ class QuestionsController < BaseController
   end
 
   # GET /questions/1/edit
-  def edit
-    add_stylesheets ["formtastic","forms"]
-    @question = Question.find(params[:id])
-  end
+#  def edit
+#    add_stylesheets ["formtastic","forms"]
+#    @question = Question.find(params[:id])
+#  end
 
   # POST /questions
   # POST /questions.xml
@@ -64,6 +87,7 @@ class QuestionsController < BaseController
     add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
     @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
+    @question.accepts_role!(:asker, current_user)
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     respond_to do |format|
       @question.user = current_user
@@ -79,26 +103,25 @@ class QuestionsController < BaseController
 
   # PUT /questions/1
   # PUT /questions/1.xml
-  def update
-    add_stylesheets ["formtastic","forms"]
-    @question = Question.find(params[:id])
-    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-    respond_to do |format|
-      if @question.update_attributes(params[:question])
-        flash[:notice] = 'Question was successfully updated.'
-        format.html { redirect_to(@question) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
+#  def update
+#    add_stylesheets ["formtastic","forms"]
+#    @question = Question.find(params[:id])
+#    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
+#    respond_to do |format|
+#      if @question.update_attributes(params[:question])
+#        flash[:notice] = 'Question was successfully updated.'
+#        format.html { redirect_to(@question) }
+#        format.xml  { head :ok }
+#      else
+#        format.html { render :action => "edit" }
+#        format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
+#      end
+#    end
+#  end
 
   # DELETE /questions/1
   # DELETE /questions/1.xml
   def destroy
-    @question = Question.find(params[:id])
     @question.destroy
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
 
@@ -131,4 +154,10 @@ class QuestionsController < BaseController
   def prep_resources
 
   end
+
+  def load_question
+    @question = Question.find(params[:id])
+    @question_instance = @question.question_instance
+  end
+
 end

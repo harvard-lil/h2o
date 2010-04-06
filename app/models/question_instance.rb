@@ -1,4 +1,7 @@
 class QuestionInstance < ActiveRecord::Base
+  include AuthUtilities
+  acts_as_authorization_object
+
   FEATURED_QUESTION_COUNTS = [[2,2],[4,4],[6,6],[8,8],[10,10]]
   NEW_QUESTION_TIMEOUTS = [['30 seconds',30],['1 minute',60],['5 minutes',300],['1 hour',3600],['1 day',86400],['1 week',604800]]
   OLD_QUESTION_TIMEOUTS = [['15 minutes',900],['30 minutes',1800],['1 hour',3600],['1 day',86400],['1 week',604800],['30 days',86400 * 30],[ '1 year',86400 * 36,]]

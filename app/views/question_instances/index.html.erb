@@ -2,7 +2,6 @@
   <h1>Question Tool Chooser</h1>
 
   <% unless @question_instances.blank? %>
-    <% cache('question-instance-list') do %>
       <h2>Choose an existing question tool.</h2>
       <table id="question-instance-chooser" class="tablesorter">
         <thead>
@@ -20,15 +19,16 @@
               <td><%= question_instance.question_count %></td>
               <td><%= question_instance.created_at %></td>
               <td>
-                <%= link_to 'Edit', edit_question_instance_path(question_instance), :class=> "question-instance-control", :id => "edit-question-instance-#{question_instance.id}" %>
-                <%= link_to 'Destroy', question_instance, :confirm => 'Are you sure?', :method => :delete %>
+                <% if current_user.has_role?(:owner, question_instance) %>
+                  <%= link_to 'Edit', edit_question_instance_path(question_instance), :class=> "question-instance-control", :id => "edit-question-instance-#{question_instance.id}" %>
+                  <%= link_to 'Destroy', question_instance, :confirm => 'Are you sure?', :method => :delete %>
+                <% end %>
               </td>
             </tr>
           <% end %>
         </tbody>
       </table>
       <h2>OR</h2>
-    <% end %>
   <% else %>
     <h2>No question tools are currently active.</h2>
   <% end %>
