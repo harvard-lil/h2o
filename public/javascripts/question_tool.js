@@ -154,7 +154,6 @@ jQuery(function(){
               },
               success: function(){
                 jQuery('#spinner_block').hide();
-                //TODO - have this poll before just blindly doing the update.
                 jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
               }
             });
@@ -177,18 +176,19 @@ jQuery(function(){
           }
         });
       },
-      observeUpdateTimers: function(){
+/*      observeUpdateTimers: function(){
        jQuery('#timer-controls a').click(function(e){
            e.preventDefault();
            var timerSeconds = jQuery(this).attr('id').split('-')[1];
            jQuery('#timer-controls a.selected').removeClass('selected');
            jQuery(this).addClass('selected');
-           alert(jQuery('#updated-at').data('intervalTracker'));
-      //     clearInterval(jQuery('#updated-at').data('intervalTracker'));
-      //     jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()", timerSeconds * 1000));
-      //     jQuery('#timer-notice').html('updated!').delay(2000).html('');
+           alert(jQuery('#updated-at').attr('class'));
+           clearInterval(jQuery('#updated-at').attr('class'));
+           jQuery('#updated-at').attr('class',setInterval("jQuery.updateAutomatically()", timerSeconds * 1000));
+           jQuery('#timer-notice').html('updated!').delay(2000).html('');
        }); 
       },
+*/
       updateAutomatically: function(){
         var lastUpdated = jQuery('#updated-at').html();
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
@@ -293,10 +293,10 @@ jQuery(function(){
         jQuery.observeVoteControls();
         jQuery.observeNewQuestionControl();
         jQuery.observeShowReplyControls();
-        jQuery.observeUpdateTimers();
+//        jQuery.observeUpdateTimers();
         // By default we update every 5 seconds.
-        jQuery('#updated-at').data('intervalTracker',setInterval("jQuery.updateAutomatically()",5000));
-        jQuery('#timer-controls #seconds-5').addClass('selected');
+        setInterval("jQuery.updateAutomatically()",10000);
+//        jQuery('#timer-controls #seconds-5').addClass('selected');
       }
   });
 });
