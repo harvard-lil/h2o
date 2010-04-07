@@ -14,8 +14,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :question_instances
 
-  map.resources :users
-
   # The priority is based upon order of creation: first created -> highest priority.
 
   # Sample of regular route:

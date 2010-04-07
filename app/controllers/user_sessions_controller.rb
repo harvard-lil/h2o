@@ -11,8 +11,8 @@ class UserSessionsController < ApplicationController
     
     @user_session.save do |result|
       if result
-        #flash[:notice] = "Login successful!"
-        redirect_back_or_default rotisserie_instances_path
+        flash[:notice] = "Login successful!"
+        redirect_back_or_default "/base"
       else
         render :action => :new
       end

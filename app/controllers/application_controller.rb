@@ -17,7 +17,13 @@ class ApplicationController < ActionController::Base
 
   # Switches to nil layout for modal calls
   def layout_switch
-    ["new", "edit", "reply", "delete"].include?(self.action_name) ? nil : :application
+    if ["user_sessions", "users"].include?(self.controller_name)
+      return :application
+    elsif ["new", "edit", "reply", "delete"].include?(self.action_name)
+      return nil
+    else
+      return :application
+    end
   end
 
   def title_select
@@ -67,8 +73,9 @@ class ApplicationController < ActionController::Base
     end
 
     def require_user
+      
 
-      unless current_user 
+      unless current_user
         store_location
         flash[:notice] = "You must be logged in to access this page"
         redirect_to new_user_session_url
@@ -77,6 +84,8 @@ class ApplicationController < ActionController::Base
     end
 
     def require_no_user
+      
+
       if current_user
         store_location
         flash[:notice] = "You must be logged out to access this page"
