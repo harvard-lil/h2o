@@ -1,8 +1,15 @@
 <%
 if controller.action_name == 'edit'
   rotisserie_object = RotisserieDiscussion.find(params[:id])
+  start_date = rotisserie_object.start_date.to_datetime
+  start_date_value = start_date.month.to_s + "/" + start_date.day.to_s + "/" + start_date.year.to_s
+  start_hour = start_date.hour
+  start_minute = start_date.min
 else
   rotisserie_object = RotisserieDiscussion.new
+  start_date_value = ""
+  start_hour = nil
+  start_minute = nil
 end
 %>
 
@@ -39,17 +46,20 @@ end
         <li></li>
         <li class="string_required" id="start_date_input">
         <label for="start_date">Start Date</label>
-        <%= text_field_tag 'start_date', nil,
+        <%= text_field_tag 'start_date-' + rotisserie_object.id.to_s, nil,
           :maxlength => 30,
           :size => 30,
           :name => 'start_date',
-          :class => "ui-widget-content ui-corner-all"
+          :class => "ui-widget-content ui-corner-all",
+          :value => start_date_value
         %>
         </li>
         <li></li>
         <li class="string_required" id="start_time_input">
         <label for="start_time">Start Time</label>
-        <%= time_select(:blankobject, :start_time, :ignore_date => true, :html_options => {:class => "ui-widget-content ui-corner-all"})%>
+        <%= time_select(:blankobject, :start_time, :ignore_date => true,
+          :default => {:hour => start_hour, :minute => start_minute},
+          :html_options => {:class => "ui-widget-content ui-corner-all"})%>
         </li>
         <li></li>
         <%= form.input :rotisserie_instance_id, :as => :hidden, :value => params[:container_id], :label => false%>

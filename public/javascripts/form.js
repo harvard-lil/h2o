@@ -10,6 +10,7 @@ jQuery(function() {
         //beforeSubmit:  showRequest,  // pre-submit callback
         //success:  function(data) {  },
         //error: showResponse
+
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             jQuery('#error_block').html(XMLHttpRequest.responseText);
         }
@@ -125,7 +126,7 @@ function initGroup() {
 }
 
 function initButton(button_name, button_selector, dialog_id, controller_name, action) {
-    jQuery(button_selector).click(function() {
+    jQuery(button_selector).live('click', function() {
         var object_id = this.id.replace(button_name + '-', "");
         jQuery(dialog_id).dialog('open');
         jQuery(dialog_id).html("<img src='/images/elements/ajax-loader.gif' />");
@@ -161,7 +162,7 @@ function objectDialog(dialog_id, form_id, rules_block, messages_block, controlle
             
             jQuery(dialog_id).dialog('close');
             jQuery('#list_block').load('/' + controller_name + '/block' + container_id_string, function() {
-                initGroup();
+                //initGroup();
             });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -220,7 +221,7 @@ function objectConfirm(dialog_id, form_id, controller_name) {
 
             jQuery(dialog_id).dialog('close');
             jQuery('#list_block').load('/' + controller_name + '/block' + container_id_string, function() {
-                initGroup();
+                //initGroup();
             });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {

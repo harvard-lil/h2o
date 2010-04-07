@@ -77,8 +77,16 @@ class RotisserieDiscussionsController < ApplicationController
   def update
     @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
 
+    start_date = params[:start_date]
+    start_time = params[:blankobject]["start_time(4i)"] + ":" + params[:blankobject]["start_time(5i)"]
+
+    full_date = (start_date + " " + start_time)
+    rotisserie_params = params[:rotisserie_discussion]
+
+    rotisserie_params["start_date"] = full_date
+
     respond_to do |format|
-      if @rotisserie_discussion.update_attributes(params[:rotisserie_discussion])
+      if @rotisserie_discussion.update_attributes(rotisserie_params)
         flash[:notice] = 'RotisserieDiscussion was successfully updated.'
         format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_discussion) }

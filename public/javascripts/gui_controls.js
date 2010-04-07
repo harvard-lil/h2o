@@ -1,5 +1,5 @@
 function initDiscussionControls() {
-    jQuery("[id^=button-discussion-decreasedate]").click(function() {
+    jQuery("[id^=button-discussion-decreasedate]").live('click', function() {
         var object_id = this.id.replace('button-discussion-decreasedate-', "");
         var container_id = jQuery('#container_id').text();
         var container_id_string = "";
@@ -16,13 +16,13 @@ function initDiscussionControls() {
             },
             success: function(data) {
                 jQuery('#list_block').load('/rotisserie_discussions/block' + container_id_string, function() {
-                    initDiscussionControls();
+                    //initDiscussionControls();
                 });
             }
         });
     });
 
-    jQuery("[id^=button-discussion-increasedate]").click(function() {
+    jQuery("[id^=button-discussion-increasedate]").live('click', function() {
         var object_id = this.id.replace('button-discussion-increasedate-', "");
         var container_id = jQuery('#container_id').text();
         var container_id_string = "";
@@ -39,7 +39,7 @@ function initDiscussionControls() {
             },
             success: function(data) {
                 jQuery('#list_block').load('/rotisserie_discussions/block' + container_id_string, function() {
-                    initDiscussionControls();
+                    //initDiscussionControls();
                 });
             //jQuery('#rotisserie_discussion_startdate-' + object_id).text(data.start_date);
             //jQuery('#rotisserie_discussion_round-' + object_id).text(data.round);
@@ -48,7 +48,7 @@ function initDiscussionControls() {
     });
 
 
-    jQuery("[id^=button-discussion-activate]").click(function() {
+    jQuery("[id^=button-discussion-activate]").live('click', function() {
         var object_id = this.id.replace('button-discussion-activate-', "");
 
         jQuery.ajax({
