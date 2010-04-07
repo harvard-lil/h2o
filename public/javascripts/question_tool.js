@@ -2,6 +2,9 @@
 jQuery(function(){
     jQuery.extend({
       showReplyContainer: function(questionInstanceId,questionId,repliesContainer,toggleSpeed){
+        /* figures out if a question has its replies shown - if it does, it does an Ajax request to get the list
+           of replies and then toggles the reply container on the question. 
+         */
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'questions/replies/' + questionId,
@@ -19,18 +22,26 @@ jQuery(function(){
         });
       },
       removeReplyContainerFromCookie: function(cookieName,replyContainer){
+        /* self documenting - removes a reply container from the tracking cookie. Spawned when a reply container is
+           closed. 
+         */
         var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
         delete currentVals[replyContainer];
         var cookieVal = jQuery.serializeHash(currentVals);
         jQuery.cookie(cookieName,cookieVal);
       },
       addReplyContainerToCookie: function(cookieName,replyContainer){
+        /* See above. Adds a reply container id to the cookie. Spawned when a reply container is shown. 
+         */
         var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
         currentVals[replyContainer] = 1;
         var cookieVal = jQuery.serializeHash(currentVals);
         jQuery.cookie(cookieName,cookieVal);
       },
       observeNewQuestionControl: function(element,questionInstanceId,questionId){
+        /* Sets up the new question jQuery.dialog() and then populates the form via an ajax call. It then shows
+           the dialog containing the form. 
+         */
         jQuery(element).find('a.new-question-for').click(function(e){
           var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
           var dialogTitle = 'Add to the discussion';
@@ -83,10 +94,11 @@ jQuery(function(){
         });
       },
       toggleVoteControls: function(){
-        // Do an ajax request to get the votes this user has submitted. Kick ass-feature (if you get the reference,
-        // you win a cookie).
-        // This  allows us to cache on the question-question-instance level, instead of on the
-        // question-question-instance-user level, which would be no kind of caching at all.
+        /* Do an ajax request to get the votes this user has submitted. Kick ass-feature (if you get the reference,
+           you win a cookie).
+           This  allows us to cache on the question-question-instance level, instead of on the
+           question-question-instance-user level, which would be no kind of caching at all. 
+         */
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'users/has_voted_for/Question',
@@ -103,6 +115,8 @@ jQuery(function(){
       },
 
       observeVoteControls: function(element,questionInstanceId,questionId) {
+        /* Inits the up/down arrows, ignoring those with an "already-voted" class, which is applied earlier
+         */
         jQuery(element).find("a[id*='vote-']").click(function(e){
           e.preventDefault();
           var for_or_against = jQuery(this).attr('id').split('-')[1];
@@ -130,6 +144,8 @@ jQuery(function(){
         });
       },
       updateQuestionInstanceView: function(questionInstanceId,questionId){
+        /* Update the question instance view - most likely because a question/reply has been added or a vote has been cast. 
+         */
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
@@ -157,6 +173,9 @@ jQuery(function(){
       },
 */
       updateAutomatically: function(){
+        /* Poll to see if the server thinks something in this question instance has changed. If it has, update
+           the question instance view. 
+         */
         var lastUpdated = jQuery('#updated-at').html();
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
         jQuery.ajax({
@@ -176,6 +195,9 @@ jQuery(function(){
         });
       },
       observeQuestionInstanceControl: function(){
+        /* Observe parts of the question instance list. Set up the edit / new jQuery.dialog(), 
+           set up the dispatch URL and then update / reobserve upon successful submission.
+        */
         jQuery('a.question-instance-control').click(function(e){
           jQuery('#question-instance-form-container').dialog({
             bgiframe: true,
@@ -243,6 +265,9 @@ jQuery(function(){
         });
       },
       observeShowReplyControls: function(element,questionInstanceId,questionId,openReplyContainers){
+        /* Observe the link that toggles whether or not a reply is shown. invoke the add/remove reply container
+           from cookie methods and spawn and ajax update to show the replies.
+         */
         var repliesContainer = jQuery('#replies-container-' + questionId);
         jQuery(element).find('a.show-replies').click(function(e){
           e.preventDefault();
@@ -262,6 +287,11 @@ jQuery(function(){
         }
       },
       observeQuestionControls: function(){
+        /* So this figures out the question instance we're in, de-activates the already used vote controls,
+           finds the questions that need to be observed and then dispatches to other jQuery methods
+           to figure out which questions have their replies show and to observe the controls on each. We're doing it
+           it one loop (with .find() restricted sub-loops for each jQuery.observe* method) and this seems to be
+           faster than looping through the DOM for each control - unsurprisingly. */
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
         jQuery.toggleVoteControls();
         jQuery.observeNewQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0); 
@@ -290,7 +320,6 @@ jQuery(function(){
         // We're viewing a question instance.
         jQuery.observeQuestionControls();
 //        jQuery.observeUpdateTimers();
-        // By default we update every 5 seconds.
         setInterval("jQuery.updateAutomatically()",10000);
 //        jQuery('#timer-controls #seconds-5').addClass('selected');
       }

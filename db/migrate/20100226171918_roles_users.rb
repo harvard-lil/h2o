@@ -1,9 +1,12 @@
 class RolesUsers < ActiveRecord::Migration
   def self.up
     create_table :roles_users, :id => false, :force => true do |t|
-      t.integer  "user_id"
-      t.integer  "role_id"
+      t.references  :user
+      t.references  :role
       t.timestamps
+    end
+    [:user_id, :role_id].each do|col|
+      add_index :roles_users, col
     end
   end
 

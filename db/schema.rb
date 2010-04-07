@@ -98,12 +98,19 @@ ActiveRecord::Schema.define(:version => 20100226171918) do
     t.datetime "updated_at"
   end
 
+  add_index "roles", ["authorizable_id"], :name => "index_roles_on_authorizable_id"
+  add_index "roles", ["authorizable_type"], :name => "index_roles_on_authorizable_type"
+  add_index "roles", ["name"], :name => "index_roles_on_name"
+
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
+  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "rotisserie_assignments", :force => true do |t|
     t.integer  "user_id"

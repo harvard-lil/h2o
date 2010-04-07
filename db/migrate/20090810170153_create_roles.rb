@@ -6,6 +6,9 @@ class CreateRoles < ActiveRecord::Migration
       t.integer  "authorizable_id"
       t.timestamps
     end
+    [:authorizable_type, :authorizable_id, :name].each do|col|
+      add_index :roles, col 
+    end
   end
 
   def self.down
