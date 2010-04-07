@@ -286,6 +286,14 @@ jQuery(function(){
           jQuery.showReplyContainer(questionInstanceId,questionId,repliesContainer,0);
         }
       },
+      convertTime: function(element,offset){
+        jQuery(element).find('.unixtime').each(function(){
+            var qDate = new Date();
+            qDate.setTime((jQuery(this).html() * 1000));
+            jQuery(this).html(qDate.getHours() + ':' + qDate.getMinutes());
+            console.log(qDate.getHours() + ':' + qDate.getMinutes() + qDate.toLocaleString());
+        });
+      },
       observeQuestionControls: function(){
         /* So this figures out the question instance we're in, de-activates the already used vote controls,
            finds the questions that need to be observed and then dispatches to other jQuery methods
@@ -303,7 +311,8 @@ jQuery(function(){
             jQuery.observeShowReplyControls(this,questionInstanceId,questionId,openReplyContainers);
             jQuery.observeVoteControls(this,questionInstanceId,questionId);
           }
-          jQuery.observeNewQuestionControl(this,questionInstanceId,questionId); 
+          jQuery.observeNewQuestionControl(this,questionInstanceId,questionId);
+          jQuery.convertTime(this,UTC_OFFSET);
         });
       }
 

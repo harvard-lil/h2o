@@ -156,6 +156,7 @@ class QuestionsController < BaseController
   end
 
   def load_question
+    #Time.zone = 'London'
     @question = Question.find(params[:id])
     @question_instance = @question.question_instance
   end

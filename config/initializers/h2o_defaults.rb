@@ -1,1 +1,1 @@
-DEFAULT_TIMEZONE = 'America/New_York'
+DEFAULT_TIMEZONE = 'Eastern Time (US & Canada)'

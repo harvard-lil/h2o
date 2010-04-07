@@ -3,7 +3,7 @@
   <span class="meta" style="float:right">
     <span class="replies"><%= link_to('reply to this', '#', :id => "new-question-for-#{reply.question_instance_id}-#{reply.id}", :class => 'new-question-for' ) %></span>
     <span class="user"><span>by</span> <%= reply.user.login %></span>
-    <span class="datetime"><%= reply.display_datetime %></span>
+    <span class="datetime unixtime"><%= reply.updated_at.to_i %></span>
   </span>
   <% if reply.children.length > 0 %>
     <ul>

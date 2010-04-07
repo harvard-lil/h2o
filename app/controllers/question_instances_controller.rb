@@ -140,6 +140,7 @@ class QuestionInstancesController < BaseController
   end
 
   def prep_resources
+    #Time.zone = 'London'
     add_stylesheets 'question_tool'
     add_javascripts 'question_tool'
   end
