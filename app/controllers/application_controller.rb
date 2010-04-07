@@ -11,9 +11,9 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_session, :current_user
   filter_parameter_logging :password, :password_confirmation
 
-  before_filter :require_user, :title_select, :set_time_zone
-
   layout :layout_switch
+
+  before_filter :require_user, :title_select, :set_time_zone
 
   #Switch to local time zone
   def set_time_zone
@@ -26,9 +26,12 @@ class ApplicationController < ActionController::Base
 
   # Switches to nil layout for modal calls
   def layout_switch
-    if ["user_sessions", "users"].include?(self.controller_name)
+    @app_controller = self.controller_name.downcase
+    @app_action = self.action_name.downcase
+
+    if ["user_sessions", "users"].include?(@app_controller)
       return :application
-    elsif ["new", "edit", "reply", "delete"].include?(self.action_name)
+    elsif ["new", "edit", "reply", "delete"].include?(@app_action)
       return nil
     else
       return :application
@@ -40,6 +43,8 @@ class ApplicationController < ActionController::Base
     case self.controller_name
       when "base" then @logo_title = "Home"
       when "rotisserie_instances", "rotisserie_discussions" then @logo_title = "Rotisserie"
+    else
+      @logo_title = self.controller_name
     end
 
     @logo_title.upcase!
