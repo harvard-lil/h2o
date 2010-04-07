@@ -11,9 +11,18 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_session, :current_user
   filter_parameter_logging :password, :password_confirmation
 
-  before_filter :require_user, :title_select
+  before_filter :require_user, :title_select, :set_time_zone
 
   layout :layout_switch
+
+  #Switch to local time zone
+  def set_time_zone
+    if current_user && ! current_user.tz_name.blank?
+      Time.zone = current_user.tz_name
+    else
+      Time.zone = DEFAULT_TIMEZONE 
+    end
+  end
 
   # Switches to nil layout for modal calls
   def layout_switch

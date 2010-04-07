@@ -24,6 +24,18 @@ class Question < ActiveRecord::Base
     self.children.find(:all, :order => 'position desc')
   end
 
+  def sticky_votes_id_desc_sort
+    [sprintf('%015d', (self.sticky) ? 1 : 0), sprintf('%015d',self.vote_tally), sprintf('%015d',self.id)].join('')
+  end
+
+  def display_datetime
+    (self.updated_at > 1.day.ago) ? self.updated_at.to_s(:simpletime) : self.updated_at.to_s(:simpledatetime)
+  end
+
+  def sticky_age_id_desc_sort
+    [sprintf('%015d', (self.sticky) ? 1 : 0), sprintf('%015d',self.updated_at.to_i), sprintf('%015d',self.id)].join('')
+  end
+
   def self.featured(params)
     #Unsure how this could efficiently be expressed within a named scope, especially since it's an aggregate function.
     #We're essentially forcing eager loading for the question object here.
@@ -32,8 +44,7 @@ class Question < ActiveRecord::Base
 
     sorted_fq = fq.sort do |a,b|
       #sort by sticky and then by vote count, desc.
-      (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||
-        (b.vote_tally <=> a.vote_tally)
+      (b.sticky_votes_id_desc_sort <=> a.sticky_votes_id_desc_sort)
     end
 
     sorted_fq[0.. (params[:question_instance].featured_question_count - 1)]
@@ -52,11 +63,10 @@ class Question < ActiveRecord::Base
       extra_conditions = " and id not in(#{questions_to_exclude}) "
     end
 
-    q = self.find(:all,:conditions => ["question_instance_id = ? #{extra_conditions} and parent_id is null", params[:question_instance].id])
+    q = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? #{extra_conditions} and parent_id is null", params[:question_instance].id])
     sorted_q = q.sort do |a,b|
       #sort by sticky and then by vote count, desc.
-      (b.sticky.to_s <=> a.sticky.to_s).nonzero? ||
-        (b.vote_tally <=> a.vote_tally)
+      (b.sticky_votes_id_desc_sort <=> a.sticky_votes_id_desc_sort)
     end
     sorted_q
   end

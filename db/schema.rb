@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100226171918) do
+ActiveRecord::Schema.define(:version => 20100407162213) do
 
   create_table "question_instances", :force => true do |t|
     t.string   "name",                    :limit => 250,                   :null => false
@@ -98,19 +98,12 @@ ActiveRecord::Schema.define(:version => 20100226171918) do
     t.datetime "updated_at"
   end
 
-  add_index "roles", ["authorizable_id"], :name => "index_roles_on_authorizable_id"
-  add_index "roles", ["authorizable_type"], :name => "index_roles_on_authorizable_type"
-  add_index "roles", ["name"], :name => "index_roles_on_name"
-
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
-  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "rotisserie_assignments", :force => true do |t|
     t.integer  "user_id"
@@ -219,12 +212,16 @@ ActiveRecord::Schema.define(:version => 20100226171918) do
     t.string   "current_login_ip"
     t.string   "oauth_token"
     t.string   "oauth_secret"
+    t.string   "email_address"
+    t.string   "tz_name"
   end
 
+  add_index "users", ["email_address"], :name => "index_users_on_email_address"
   add_index "users", ["last_request_at"], :name => "index_users_on_last_request_at"
   add_index "users", ["login"], :name => "index_users_on_login"
   add_index "users", ["oauth_token"], :name => "index_users_on_oauth_token"
   add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
+  add_index "users", ["tz_name"], :name => "index_users_on_tz_name"
 
   create_table "votes", :force => true do |t|
     t.boolean  "vote",          :default => false
