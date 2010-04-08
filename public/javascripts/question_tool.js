@@ -14,6 +14,8 @@ jQuery(function(){
             repliesContainer.html(html).toggle(toggleSpeed);
             //We only want to observe the new replies.
             jQuery.observeNewQuestionControl(jQuery('#replies-for-question-' + questionId), questionInstanceId, questionId);
+            jQuery.convertTime(jQuery('#replies-for-question-' + questionId),UTC_OFFSET);
+
           },
           error: function(xhr){
             jQuery('#spinner_block').hide();
@@ -288,10 +290,10 @@ jQuery(function(){
       },
       convertTime: function(element,offset){
         jQuery(element).find('.unixtime').each(function(){
-            var qDate = new Date();
-            qDate.setTime((jQuery(this).html() * 1000));
-            jQuery(this).html(qDate.getHours() + ':' + qDate.getMinutes());
-            console.log(qDate.getHours() + ':' + qDate.getMinutes() + qDate.toLocaleString());
+          var unixtime = jQuery(this).html();
+          var qDate = new Date();
+          var localDate = new Date(((unixtime * 1000) + offset) + (qDate.getTimezoneOffset() * 60000) );
+          jQuery(this).html(localDate.getHours() + ':' + (localDate.getMinutes() < 10 ? '0' : '') + localDate.getMinutes() + ' ' + (localDate.getMonth() + 1) + '/' + localDate.getDate() + '/' + localDate.getFullYear());
         });
       },
       observeQuestionControls: function(){
