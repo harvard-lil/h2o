@@ -3,6 +3,35 @@ class Question < ActiveRecord::Base
 
   acts_as_authorization_object
 
+  POSSIBLE_SORTS = {
+    :sticky_votes_id => {
+      :name => 'Votes',
+      :function => lambda{|q|
+        [sprintf('%015d', (q.sticky) ? 1 : 0), sprintf('%015d',q.vote_tally), sprintf('%015d',q.id)].join('')
+      },
+    },
+    :sticky_votes_id_asc => {
+      :name => 'Votes reverse',
+      :function => lambda{},
+    },
+    :newest => {
+      :name => 'Newest',
+      :function => lambda{}
+    },
+    :oldest => {
+      :name => 'Oldest',
+      :function => lambda{},
+    },
+    :most_active => {
+      :name => 'Most Active',
+      :function => lambda{},
+    },
+    :least_active => {
+      :name => 'Least Active',
+      :function => lambda{}
+    }
+  }
+
   acts_as_voteable
   acts_as_category :scope => :question_instance
   attr_accessible :question_instance_id, :question, :email, :name, :posted_anonymously, :parent_id
@@ -42,9 +71,11 @@ class Question < ActiveRecord::Base
 
     fq = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? and parent_id is null", params[:question_instance].id])
 
+    sort_method = :sticky_votes_id
+
     sorted_fq = fq.sort do |a,b|
       #sort by sticky and then by vote count, desc.
-      (b.sticky_votes_id_desc_sort <=> a.sticky_votes_id_desc_sort)
+      (POSSIBLE_SORTS[sort_method][:function].call(b) <=> POSSIBLE_SORTS[sort_method][:function].call(a))
     end
 
     sorted_fq[0.. (params[:question_instance].featured_question_count - 1)]
@@ -64,9 +95,10 @@ class Question < ActiveRecord::Base
     end
 
     q = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? #{extra_conditions} and parent_id is null", params[:question_instance].id])
+    sort_method = :sticky_votes_id
     sorted_q = q.sort do |a,b|
       #sort by sticky and then by vote count, desc.
-      (b.sticky_votes_id_desc_sort <=> a.sticky_votes_id_desc_sort)
+      (POSSIBLE_SORTS[sort_method][:function].call(b) <=> POSSIBLE_SORTS[sort_method][:function].call(a))
     end
     sorted_q
   end
