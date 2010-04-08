@@ -3,6 +3,12 @@ module SweeperHelper
   def expire_question_instance(record)
     expire_fragment("question-instance-index-#{record.question_instance_id}-false")
     expire_fragment("question-instance-index-#{record.question_instance_id}-true")
+
+    Question::POSSIBLE_SORTS.keys.each do |sort|
+      expire_fragment("question-instance-index-#{record.question_instance_id}-true-#{sort}")
+      expire_fragment("question-instance-index-#{record.question_instance_id}-false-#{sort}")
+    end
+
     expire_fragment('question-instance-list')
     expire_action("updated-at-#{record.question_instance_id}")
     expire_action("last-updated-question-#{record.question_instance_id}")

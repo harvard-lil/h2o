@@ -4,6 +4,7 @@
       <%= link_to('<div class="up"></div>','', :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
       <div class="count"><%= question.vote_tally %></div>
       <%= link_to('<div class="down"></div>','', :id => "vote-against-#{question.question_instance_id}-#{question.id}", :class=> 'down') %>
+      <span class="total_count"><%= (question.votes.blank?) ? '' : "#{question.votes.count} total" %></span>
     </div>
     <p><%= h question.question.to_s %></p>
     <div class="meta">

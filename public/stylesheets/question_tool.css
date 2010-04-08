@@ -87,6 +87,11 @@ div.controls{
   background: url('/images/icons/tick.png') top left no-repeat #e4e4e4;
 }
 
+.votes .total_count{
+  color: #999999;
+  font-size: 9px;
+}
+
 .question .meta{
   text-align: right;
   font-size: smaller;

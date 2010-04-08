@@ -1,4 +1,4 @@
-<% cache("question-instance-index-#{@question_instance.id}-#{request.xhr?.to_s}") do %>
+<% cache("question-instance-index-#{@question_instance.id}-#{request.xhr?.to_s}-#{params[:sort]}") do %>
   <% if ! request.xhr? %>
     <div class="question-instance-description">
       <div class="ajax-error" id="ajax-error-<%= @question_instance.id %>" style="display: none;"></div>
@@ -21,12 +21,12 @@
   <div class="questions" id="questions-<%= @question_instance.id %>">
     <div class="featured">
       <h2>Featured Questions</h2>
-      <% featured_questions = @question_instance.featured_questions %>
+      <% featured_questions = @question_instance.featured_questions(:sort => params[:sort]) %>
       <%= render :partial => 'shared/objects/question', :collection => featured_questions %> 
     </div>
 
     <div class="other">
-      <%= render :partial => 'shared/objects/question', :collection => @question_instance.not_featured_questions(:questions_to_exclude => featured_questions) %> 
+      <%= render :partial => 'shared/objects/question', :collection => @question_instance.not_featured_questions(:questions_to_exclude => featured_questions, :sort => params[:sort]) %> 
     </div>
   </div>
 
