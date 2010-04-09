@@ -46,7 +46,6 @@ jQuery(function(){
            It also determines if the user is the owner and lights up remove/sticky controls.
          */
         if(isOwner){
-          console.log(questionId);
           jQuery(element).find('.meta .destroy').append('<img src="/images/icons/cancel.png" alt="Delete this item" />');
           jQuery(element).find('.meta .toggle-sticky').append('<img src="/images/icons/tick_gray.png" alt="Toggle Stickiness" />');
 
