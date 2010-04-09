@@ -307,6 +307,20 @@ jQuery(function(){
             });
         });
       },
+      determineOwnership: function(questionInstanceId){
+        jQuery.ajax({
+          type: 'GET',
+          url: jQuery.rootPath() + 'question_instances/is_owner/' + questionInstanceId,
+          error: function(xhr){
+            jQuery('div.ajax-error').show().append(xhr.responseText);
+          },
+          success: function(html){
+            if (html == true){
+              jQuery('#is-owner').html('true');
+            }
+          }
+        });
+      },
       observeQuestionControls: function(){
         /* So this figures out the question instance we're in, de-activates the already used vote controls,
            finds the questions that need to be observed and then dispatches to other jQuery methods
@@ -342,6 +356,7 @@ jQuery(function(){
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
         jQuery.observeNewQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0);
         jQuery.observeSortControl(questionInstanceId);
+        jQuery.determineOwnership(questionInstanceId);
         jQuery.observeQuestionControls();
 //        jQuery.observeUpdateTimers();
         setInterval("jQuery.updateAutomatically()",10000);
