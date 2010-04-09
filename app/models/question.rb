@@ -68,7 +68,7 @@ class Question < ActiveRecord::Base
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
   def reply_list
-    self.children.find(:all, :order => 'position desc')
+    self.children.find(:all, :order => 'position')
   end
 
   def display_datetime

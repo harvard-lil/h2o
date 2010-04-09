@@ -1,7 +1,7 @@
 /* goo-goo gajoob */
 jQuery(function(){
     jQuery.extend({
-      showReplyContainer: function(questionInstanceId,questionId,repliesContainer,toggleSpeed){
+      showReplyContainer: function(questionInstanceId,questionId,repliesContainer,toggleSpeed,isOwner){
         /* figures out if a question has its replies shown - if it does, it does an Ajax request to get the list
            of replies and then toggles the reply container on the question. 
          */
@@ -13,7 +13,7 @@ jQuery(function(){
             jQuery('#spinner_block').hide();
             repliesContainer.html(html).toggle(toggleSpeed);
             //We only want to observe the new replies.
-            jQuery.observeNewQuestionControl(jQuery('#replies-for-question-' + questionId), questionInstanceId, questionId);
+            jQuery.observeQuestionControl(jQuery('#replies-for-question-' + questionId), questionInstanceId, questionId,isOwner);
             jQuery.convertTime(jQuery('#replies-for-question-' + questionId),UTC_OFFSET);
 
           },
@@ -40,10 +40,45 @@ jQuery(function(){
         var cookieVal = jQuery.serializeHash(currentVals);
         jQuery.cookie(cookieName,cookieVal);
       },
-      observeNewQuestionControl: function(element,questionInstanceId,questionId){
+      observeQuestionControl: function(element,questionInstanceId,questionId,isOwner){
         /* Sets up the new question jQuery.dialog() and then populates the form via an ajax call. It then shows
-           the dialog containing the form. 
+           the dialog containing the form.
+           It also determines if the user is the owner and lights up remove/sticky controls.
          */
+        if(isOwner){
+         jQuery(element).find('.meta').append('<a class="destroy" href="#" title="Delete this item"><img src="/images/icons/cancel.png" alt="Delete this item" /></a> <a class="toggle_sticky" href="#" title="Toggle Stickiness"><img src="/images/icons/tick_gray.png" alt="Toggle Stickiness" /></a>');
+         jQuery(element).find('.meta .destroy').click(function(e){
+           e.preventDefault();
+           if(confirm('Are you sure?')){
+             jQuery.ajax({
+             type: 'POST',
+               data: {'_method': 'delete'},
+               url: jQuery.rootPath() + "questions/destroy/" + questionId,
+               success: function(html){
+                 jQuery.updateQuestionInstanceView(questionInstanceId,'')
+               },
+               error: function(xhr){
+                 jQuery('div.ajax-error').show().append(xhr.responseText);
+               },
+             });
+           }
+         });
+         jQuery(element).find('.meta .toggle_sticky').click(function(e){
+           e.preventDefault();
+           jQuery.ajax({
+             type: 'POST',
+             url: jQuery.rootPath() + "questions/toggle_sticky/" + questionId,
+             success: function(html){
+               jQuery.updateQuestionInstanceView(questionInstanceId,'')
+             },
+             error: function(xhr){
+               jQuery('div.ajax-error').show().append(xhr.responseText);
+             },
+           });
+         });
+
+        }
+
         jQuery(element).find('a.new-question-for').click(function(e){
           var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
           var dialogTitle = 'Add to the discussion';
@@ -154,7 +189,7 @@ jQuery(function(){
           data: {updated_question_id: questionId, sort: jQuery.cookie('sort')},
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
-            jQuery.observeQuestionControls();
+            jQuery.observeQuestionCollection();
             if(questionId.length > 0){
               jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
             }
@@ -266,7 +301,7 @@ jQuery(function(){
           });
         });
       },
-      observeShowReplyControls: function(element,questionInstanceId,questionId,openReplyContainers){
+      observeShowReplyControls: function(element,questionInstanceId,questionId,openReplyContainers,isOwner){
         /* Observe the link that toggles whether or not a reply is shown. invoke the add/remove reply container
            from cookie methods and spawn and ajax update to show the replies.
          */
@@ -281,11 +316,11 @@ jQuery(function(){
             //There's no content, or there's content and it's invisible. 
             //Get the replies again to ensure fresh content.
             jQuery.addReplyContainerToCookie('show-reply-containers','#replies-container-' + questionId);
-            jQuery.showReplyContainer(questionInstanceId,questionId,repliesContainer,'fast');
+            jQuery.showReplyContainer(questionInstanceId,questionId,repliesContainer,'fast',isOwner);
           }
         });
         if(openReplyContainers['#replies-container-' + questionId] == 1){
-          jQuery.showReplyContainer(questionInstanceId,questionId,repliesContainer,0);
+          jQuery.showReplyContainer(questionInstanceId,questionId,repliesContainer,0,isOwner);
         }
       },
       convertTime: function(element,offset){
@@ -307,37 +342,34 @@ jQuery(function(){
             });
         });
       },
-      determineOwnership: function(questionInstanceId){
-        jQuery.ajax({
-          type: 'GET',
-          url: jQuery.rootPath() + 'question_instances/is_owner/' + questionInstanceId,
-          error: function(xhr){
-            jQuery('div.ajax-error').show().append(xhr.responseText);
-          },
-          success: function(html){
-            if (html == true){
-              jQuery('#is-owner').html('true');
-            }
-          }
-        });
+      determineOwnershipAndInit: function(){
+        var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
+        var isOwner = false;
+        if(jQuery('#is-owner').html() == 'true'){
+          isOwner = true;
+        }
+        jQuery.observeQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0,isOwner);
+        jQuery.observeSortControl(questionInstanceId);
+        jQuery.observeQuestionCollection();
       },
-      observeQuestionControls: function(){
+      observeQuestionCollection: function(){
         /* So this figures out the question instance we're in, de-activates the already used vote controls,
            finds the questions that need to be observed and then dispatches to other jQuery methods
            to figure out which questions have their replies show and to observe the controls on each. We're doing it
            it one loop (with .find() restricted sub-loops for each jQuery.observe* method) and this seems to be
            faster than looping through the DOM for each control - unsurprisingly. */
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
+        var isOwner = (jQuery('#is-owner').html() == 'true') ? true : false;
         jQuery.toggleVoteControls();
         jQuery("div[id*='question-']").each(function(){
           var questionId = jQuery(this).attr('id').split('-')[1];
           var openReplyContainers = jQuery.unserializeHash(jQuery.cookie('show-reply-containers'));
           if(jQuery(this).hasClass('question')){
           // It's a question. Init the reply toggles and voting
-            jQuery.observeShowReplyControls(this,questionInstanceId,questionId,openReplyContainers);
+            jQuery.observeShowReplyControls(this,questionInstanceId,questionId,openReplyContainers,isOwner);
             jQuery.observeVoteControls(this,questionInstanceId,questionId);
           }
-          jQuery.observeNewQuestionControl(this,questionInstanceId,questionId);
+          jQuery.observeQuestionControl(this,questionInstanceId,questionId,isOwner);
           jQuery.convertTime(this,UTC_OFFSET);
         });
       }
@@ -353,11 +385,7 @@ jQuery(function(){
         }
       } else {
         // We're viewing a question instance.
-        var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
-        jQuery.observeNewQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0);
-        jQuery.observeSortControl(questionInstanceId);
-        jQuery.determineOwnership(questionInstanceId);
-        jQuery.observeQuestionControls();
+        jQuery.determineOwnershipAndInit();
 //        jQuery.observeUpdateTimers();
         setInterval("jQuery.updateAutomatically()",10000);
 //        jQuery('#timer-controls #seconds-5').addClass('selected');

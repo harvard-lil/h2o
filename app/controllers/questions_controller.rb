@@ -2,27 +2,21 @@ class QuestionsController < BaseController
   cache_sweeper :question_sweeper
 
   before_filter :prep_resources
-  before_filter :load_question, :only => [:destroy, :stick, :unstick]
+  before_filter :load_question, :only => [:destroy, :toggle_sticky]
 
   after_filter :update_question_instance_time
 
   access_control do
-    allow :owner, :of => :question_instance, :to => [:destroy, :stick, :unstick]
+    allow :owner, :of => :question_instance, :to => [:destroy, :toggle_sticky]
     allow all, :to => [:replies, :vote_against, :vote_for, :new, :create]
   end
 
-  def stick
-    @question.sticky = true
-    @question.save
-    render :text => @question.id, :layout => false
-  rescue Exception => e
-    render :text => "There seems to have been a problem: #{e.inspect}", :status => :unprocessable_entity
-  end
-
-  def unstick
-    @question.sticky = false
-    @question.save
-    render :text => @question.id, :layout => false
+  def toggle_sticky
+    if request.post?
+      @question.sticky = (@question.sticky) ? false : true
+      @question.save
+      render :text => @question.id, :layout => false
+    end
   rescue Exception => e
     render :text => "There seems to have been a problem: #{e.inspect}", :status => :unprocessable_entity
   end
