@@ -113,3 +113,8 @@ div.controls{
   color: white;
   text-decoration: none;
 }
+
+.reply-container li{
+  clear: both;
+
+}

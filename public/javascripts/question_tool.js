@@ -46,37 +46,41 @@ jQuery(function(){
            It also determines if the user is the owner and lights up remove/sticky controls.
          */
         if(isOwner){
-         jQuery(element).find('.meta').append('<a class="destroy" href="#" title="Delete this item"><img src="/images/icons/cancel.png" alt="Delete this item" /></a> <a class="toggle_sticky" href="#" title="Toggle Stickiness"><img src="/images/icons/tick_gray.png" alt="Toggle Stickiness" /></a>');
-         jQuery(element).find('.meta .destroy').click(function(e){
-           e.preventDefault();
-           if(confirm('Are you sure?')){
-             jQuery.ajax({
-             type: 'POST',
-               data: {'_method': 'delete'},
-               url: jQuery.rootPath() + "questions/destroy/" + questionId,
-               success: function(html){
-                 jQuery.updateQuestionInstanceView(questionInstanceId,'')
-               },
-               error: function(xhr){
-                 jQuery('div.ajax-error').show().append(xhr.responseText);
-               },
-             });
-           }
-         });
-         jQuery(element).find('.meta .toggle_sticky').click(function(e){
-           e.preventDefault();
-           jQuery.ajax({
-             type: 'POST',
-             url: jQuery.rootPath() + "questions/toggle_sticky/" + questionId,
-             success: function(html){
-               jQuery.updateQuestionInstanceView(questionInstanceId,'')
-             },
-             error: function(xhr){
-               jQuery('div.ajax-error').show().append(xhr.responseText);
-             },
-           });
-         });
+          console.log(questionId);
+          jQuery(element).find('.meta .destroy').append('<img src="/images/icons/cancel.png" alt="Delete this item" />');
+          jQuery(element).find('.meta .toggle-sticky').append('<img src="/images/icons/tick_gray.png" alt="Toggle Stickiness" />');
 
+          jQuery(element).find('.meta .destroy').click(function(e){
+            var interiorQuestionId = jQuery(this).attr('id').split('-')[1];
+            e.preventDefault();
+            if(confirm('Are you sure?')){
+              jQuery.ajax({
+              type: 'POST',
+                data: {'_method': 'delete'},
+                url: jQuery.rootPath() + "questions/destroy/" + interiorQuestionId,
+                success: function(html){
+                  jQuery.updateQuestionInstanceView(questionInstanceId,'')
+                },
+                error: function(xhr){
+                  jQuery('div.ajax-error').show().append(xhr.responseText);
+                },
+              });
+            }
+          });
+          jQuery(element).find('.meta .toggle-sticky').click(function(e){
+            var interiorQuestionId = jQuery(this).attr('id').split('-')[2];
+            e.preventDefault();
+            jQuery.ajax({
+              type: 'POST',
+              url: jQuery.rootPath() + "questions/toggle_sticky/" + questionId,
+              success: function(html){
+                jQuery.updateQuestionInstanceView(questionInstanceId,'')
+              },
+              error: function(xhr){
+                jQuery('div.ajax-error').show().append(xhr.responseText);
+              },
+            });
+          });
         }
 
         jQuery(element).find('a.new-question-for').click(function(e){
