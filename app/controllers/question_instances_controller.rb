@@ -55,6 +55,9 @@ class QuestionInstancesController < BaseController
   # GET /question_instances/1
   # GET /question_instances/1.xml
   def show
+    if params[:sort].blank?
+      params[:sort] = cookies[:sort]
+    end
     @question_instance = QuestionInstance.find(params[:id])
 
     respond_to do |format|

@@ -5,42 +5,50 @@ class Question < ActiveRecord::Base
 
   POSSIBLE_SORTS = {
     :sticky_votes_id => {
+      :display_sort_order => 1,
       :name => 'Votes',
       :function => lambda{|a,b|
         [sprintf('%015d', (b.sticky) ? 1 : 0), sprintf('%015d',b.vote_tally), sprintf('%015d',b.id)].join('') <=> [sprintf('%015d', (a.sticky) ? 1 : 0), sprintf('%015d',a.vote_tally), sprintf('%015d',a.id)].join('')
       },
     },
     :sticky_votes_id_asc => {
+      :display_sort_order => 2,
       :name => 'Votes reverse',
       :function => lambda{|a,b|
         [sprintf('%015d', (a.sticky) ? 0 : 1), sprintf('%015d',a.vote_tally), sprintf('%015d',a.id)].join('') <=> [sprintf('%015d', (b.sticky) ? 0 : 1), sprintf('%015d',b.vote_tally), sprintf('%015d',b.id)].join('')
       },
     },
     :newest => {
+      :display_sort_order => 3,
       :name => 'Newest',
       :function => lambda{|a,b|
         [sprintf('%015d', (b.sticky) ? 1 : 0), sprintf('%015d',b.updated_at.to_i), sprintf('%015d',b.id)].join('') <=> [sprintf('%015d', (a.sticky) ? 1 : 0), sprintf('%015d',a.updated_at.to_i), sprintf('%015d',a.id)].join('')
       }
     },
     :oldest => {
+      :display_sort_order => 4,
       :name => 'Oldest',
       :function => lambda{|a,b|
         [sprintf('%015d', (a.sticky) ? 0 : 1), sprintf('%015d',a.updated_at.to_i), sprintf('%015d',a.id)].join('') <=> [sprintf('%015d', (b.sticky) ? 0 : 1), sprintf('%015d',b.updated_at.to_i), sprintf('%015d',b.id)].join('')
       }
     },
     :most_active => {
+      :display_sort_order => 5,
       :name => 'Most Active',
       :function => lambda{|a,b|
         [sprintf('%015d', (b.sticky) ? 1 : 0), sprintf('%015d',b.votes.length + b.descendants.length), sprintf('%015d',b.id)].join('') <=> [sprintf('%015d', (a.sticky) ? 1 : 0), sprintf('%015d',a.votes.length + a.descendants.length), sprintf('%015d',a.id)].join('')
       },
     },
     :least_active => {
+      :display_sort_order => 6,
       :name => 'Least Active',
       :function => lambda{|a,b|
         [sprintf('%015d', (a.sticky) ? 0 : 1), sprintf('%015d',a.votes.length + a.descendants.length), sprintf('%015d',a.id)].join('') <=> [sprintf('%015d', (b.sticky) ? 0 : 1), sprintf('%015d',b.votes.length + b.descendants.length), sprintf('%015d',b.id)].join('')
       }
     }
   }
+
+  POSSIBLE_SORTS_FOR_SELECT = POSSIBLE_SORTS.keys.sort{|a,b|POSSIBLE_SORTS[a][:display_sort_order] <=> POSSIBLE_SORTS[b][:display_sort_order]}.collect{|s| [POSSIBLE_SORTS[s][:name],s]}
 
   acts_as_voteable
   acts_as_category :scope => :question_instance
@@ -63,23 +71,15 @@ class Question < ActiveRecord::Base
     self.children.find(:all, :order => 'position desc')
   end
 
-  def sticky_votes_id_desc_sort
-    [sprintf('%015d', (self.sticky) ? 1 : 0), sprintf('%015d',self.vote_tally), sprintf('%015d',self.id)].join('')
-  end
-
   def display_datetime
     (self.updated_at > 1.day.ago) ? self.updated_at.to_s(:simpletime) : self.updated_at.to_s(:simpledatetime)
-  end
-
-  def sticky_age_id_sort
-    [sprintf('%015d', (self.sticky) ? 1 : 0), sprintf('%015d',self.updated_at.to_i), sprintf('%015d',self.id)].join('')
   end
 
   def self.featured(params)
     fq = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? and parent_id is null", params[:question_instance].id])
 
     # Be sure the sort method is one of the configured ones.
-    sort_method = (POSSIBLE_SORTS[params[:sort].to_sym].blank?) ? :sticky_votes_id : params[:sort].to_sym
+    sort_method = (params[:sort].nil? || POSSIBLE_SORTS[params[:sort].to_sym].blank?) ? :sticky_votes_id : params[:sort].to_sym
     sorted_fq = fq.sort do |a,b|
       POSSIBLE_SORTS[sort_method][:function].call(a,b)
     end
@@ -101,7 +101,7 @@ class Question < ActiveRecord::Base
 
     q = self.find(:all, :include => ['votes'], :conditions => ["question_instance_id = ? #{extra_conditions} and parent_id is null", params[:question_instance].id])
     # Be sure the sort method is one of the configured ones.
-    sort_method = (POSSIBLE_SORTS[params[:sort].to_sym].blank?) ? :sticky_votes_id : params[:sort].to_sym
+    sort_method = (params[:sort].nil? || POSSIBLE_SORTS[params[:sort].to_sym].blank?) ? :sticky_votes_id : params[:sort].to_sym
     sorted_q = q.sort do |a,b|
       POSSIBLE_SORTS[sort_method][:function].call(a,b)
     end

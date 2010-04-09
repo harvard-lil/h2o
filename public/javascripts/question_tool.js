@@ -151,7 +151,7 @@ jQuery(function(){
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
-          data: {updated_question_id: questionId},
+          data: {updated_question_id: questionId, sort: jQuery.cookie('sort')},
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeQuestionControls();
@@ -296,6 +296,17 @@ jQuery(function(){
           jQuery(this).html(localDate.getHours() + ':' + (localDate.getMinutes() < 10 ? '0' : '') + localDate.getMinutes() + ' ' + (localDate.getMonth() + 1) + '/' + localDate.getDate() + '/' + localDate.getFullYear());
         });
       },
+      observeSortControl: function(questionInstanceId){
+        jQuery('#sort').each(function(){
+            if(jQuery.cookie('sort') && jQuery.cookie('sort') != jQuery(this).val()){
+              jQuery(this).val(jQuery.cookie('sort')); 
+            }
+            jQuery(this).change(function(){
+              jQuery.cookie('sort', jQuery(this).val());
+              jQuery.updateQuestionInstanceView(questionInstanceId,'');
+            });
+        });
+      },
       observeQuestionControls: function(){
         /* So this figures out the question instance we're in, de-activates the already used vote controls,
            finds the questions that need to be observed and then dispatches to other jQuery methods
@@ -304,7 +315,6 @@ jQuery(function(){
            faster than looping through the DOM for each control - unsurprisingly. */
         var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
         jQuery.toggleVoteControls();
-        jQuery.observeNewQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0); 
         jQuery("div[id*='question-']").each(function(){
           var questionId = jQuery(this).attr('id').split('-')[1];
           var openReplyContainers = jQuery.unserializeHash(jQuery.cookie('show-reply-containers'));
@@ -329,6 +339,9 @@ jQuery(function(){
         }
       } else {
         // We're viewing a question instance.
+        var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
+        jQuery.observeNewQuestionControl(jQuery('#controls-' + questionInstanceId),questionInstanceId,0);
+        jQuery.observeSortControl(questionInstanceId);
         jQuery.observeQuestionControls();
 //        jQuery.observeUpdateTimers();
         setInterval("jQuery.updateAutomatically()",10000);
