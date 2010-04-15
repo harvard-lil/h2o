@@ -1,6 +1,7 @@
 class RotisserieDiscussion < ActiveRecord::Base
   
   include RotisserieUtilities
+  include AuthUtilities
 
   acts_as_authorization_object
 
@@ -11,13 +12,6 @@ class RotisserieDiscussion < ActiveRecord::Base
   has_many :rotisserie_posts
   has_many :rotisserie_assignments
   has_many :rotisserie_trackers
-
-  ### Pulls current user from authlogic
-  def current_user
-    session = UserSession.find
-    current_user = session && session.user
-    return current_user
-  end
 
   def admin?
     return self.accepts_role?(:admin, current_user)
@@ -73,7 +67,9 @@ class RotisserieDiscussion < ActiveRecord::Base
   end
 
   def users
-    Role.first(:conditions => {:authorizable_type => "RotisserieDiscussion", :authorizable_id => self.id, :name => "user"}).users
+    role = Role.first(:conditions => {:authorizable_type => "RotisserieDiscussion", :authorizable_id => self.id, :name => "user"})
+
+    return role.blank? ? Array.new : role.users
   end
 
   def get_round_startdate(round)
@@ -94,13 +90,26 @@ class RotisserieDiscussion < ActiveRecord::Base
       self.update_attributes(:start_date => (self.start_date.to_datetime).advance(:days => value))
   end
 
-  ### Convert
   def crankable?
     round = self.current_round
     previous_round = (round - 1)
 
     current_round = self.current_round
     return (current_round > 1) && (self.get_last_assignment < current_round) && (self.rotisserie_posts.count(:all, :conditions => {:round => previous_round})) && self.open?
+  end
+
+  def notifiable?
+    
+    round = self.current_round
+    tracked_round = 0
+    last_tracker = NotificationTracker.last(:conditions => {:rotisserie_discussion_id => self.id})
+
+    if !last_tracker.blank?
+      tracked_round = date_to_round(self.start_date, last_tracker.created_at.to_datetime, self.round_length)
+    end
+
+    return (round > tracked_round) && round < (self.final_round + 2)
+
   end
 
   def open?
@@ -176,135 +185,108 @@ class RotisserieDiscussion < ActiveRecord::Base
 
     end
 
+  def send_discussion_notify
+    type_description = "discussion_notify"
 
-#  ### Convert
-#  def send_discussion_notify(facebook_session)
-#    type_description = "discussion_notify"
-#
-#    discussion_tracker_hash = {
-#      :discussion_id => self.id,
-#      :notify_description => type_description
-#     }
-#
-#    if !NotificationTracker.exists?(discussion_tracker_hash)
-#       NotifyPublisher.deliver_discussion_notify(self, facebook_session)
-#    end
-#
-#    rescue Facebooker::Session::SessionExpired
-#    # We can't recover from this error, but
-#    # we don't want to show an error to our user
-#  end
-#
-#
-#  ### Convert
-#  def send_discussion_late_notify(facebook_session)
-#    type_description = "discussion_late_notify"
-#
-#    self.group.active_members(facebook_session).each do |user|
-#      if !self.answered_discussion?
-#
-#        discussion_tracker_hash = {
-#          :discussion_id => self.id,
-#          :user_id => user.id,
-#          :notify_description => type_description
-#         }
-#
-#        if !NotificationTracker.exists?(discussion_tracker_hash)
-#           NotifyPublisher.deliver_discussion_late_notify(self, user)
-#        end
-#      end
-#    end
-#
-#    rescue Facebooker::Session::SessionExpired
-#    # We can't recover from this error, but
-#    # we don't want to show an error to our user
-#
-#  end
-#
-#
-#  ### Convert
-#  def send_assignment_notify(user)
-#    type_description = "assignment_notify"
-#
-#    NotifyPublisher.deliver_assignment_notify(self, user)
-#
-#    rescue Facebooker::Session::SessionExpired
-#    # We can't recover from this error, but
-#    # we don't want to show an error to our user
-#  end
-#
-#
-#  ### Convert
-#  def send_assignment_late_notify(facebook_session)
-#    type_description = "assignment_late_notify"
-#    type_description += "#-{self.current_round.to_s}"
-#
-#    self.group.active_members(facebook_session).each do |user|
-#
-#      assignments = user.get_current_assignments(self)
-#
-#      if assignments.length > 0
-#
-#        discussion_tracker_hash = {
-#          :discussion_id => self.id,
-#          :user_id => user.id,
-#          :notify_description => type_description
-#         }
-#
-#        if !NotificationTracker.exists?(discussion_tracker_hash)
-#           NotifyPublisher.deliver_assignment_late_notify(self, user)
-#        end
-#      end
-#    end
-#
-#    rescue Facebooker::Session::SessionExpired
-#    # We can't recover from this error, but
-#    # we don't want to show an error to our user
-#  end
-#
-#
-#  ### Convert
-#  def send_completed_notify(facebook_session)
-#    type_description = "completed_notify"
-#
-#    discussion_tracker_hash = {
-#      :discussion_id => self.id,
-#      :notify_description => type_description
-#     }
-#
-#    if !NotificationTracker.exists?(discussion_tracker_hash)
-#       NotifyPublisher.deliver_completed_notify(self, facebook_session)
-#    end
-#
-#    rescue Facebooker::Session::SessionExpired
-#    # We can't recover from this error, but
-#    # we don't want to show an error to our user
-#  end
-#
-#  ### Convert
-#  def send_all_notifications(facebook_session)
-#
-#    if !self.pending?
-#     if self.open?
-#        if self.current_round == 1
-#          self.send_discussion_notify(facebook_session)
-#        end
-#
-#        if self.less_than_one_day? && (self.current_round == 1)
-#          self.send_discussion_late_notify(facebook_session)
-#        end
-#
-#        if self.less_than_one_day? && (self.current_round > 1)
-#          self.send_assignment_late_notify(facebook_session)
-#        end
-#     elsif self.closed?
-#        self.send_completed_notify(facebook_session)
-#     end
-#    end
-#
-#  end
+    discussion_tracker_hash = {
+      :rotisserie_discussion_id => self.id,
+      :notify_description => type_description
+     }
 
-  ### Convert
+    if !NotificationTracker.exists?(discussion_tracker_hash)
+       Notifier.deliver_discussion_notify(self)
+    end
+
+  end
+
+  def send_discussion_late_notify
+    type_description = "discussion_late_notify"
+
+    self.users.all(:conditions => "email_address IS NOT NULL").each do |user|
+      if !self.answered_discussion?
+
+        discussion_tracker_hash = {
+          :rotisserie_discussion_id => self.id,
+          :user_id => user.id,
+          :notify_description => type_description
+         }
+
+        if !NotificationTracker.exists?(discussion_tracker_hash)
+           Notifier.deliver_discussion_late_notify(self, user)
+        end
+      end
+    end
+  end
+
+  def send_assignment_notify(user)
+    type_description = "assignment_notify"
+
+    if !user.email_address.blank?
+      Notifier.deliver_assignment_notify(self, user)
+    end
+  end
+
+
+  def send_assignment_late_notify
+    type_description = "assignment_late_notify"
+    type_description += "#-{self.current_round.to_s}"
+
+    self.users.all(:conditions => "email_address IS NOT NULL").each do |user|
+
+      assignments = user.get_current_assignments(self)
+
+      if assignments.length > 0
+
+        discussion_tracker_hash = {
+          :rotisserie_discussion_id => self.id,
+          :user_id => user.id,
+          :notify_description => type_description
+         }
+
+        if !NotificationTracker.exists?(discussion_tracker_hash) && !user.email_address.blank?
+           Notifier.deliver_assignment_late_notify(self, user)
+        end
+      end
+    end
+
+  end
+
+  def send_completed_notify
+    type_description = "completed_notify"
+
+    discussion_tracker_hash = {
+      :rotisserie_discussion_id => self.id,
+      :notify_description => type_description
+     }
+
+    if !NotificationTracker.exists?(discussion_tracker_hash)
+       Notifier.deliver_completed_notify(self)
+    end
+
+  end
+
+  def send_all_notifications
+
+    if !self.pending?
+     if self.open?
+        if self.current_round == 1
+          self.send_discussion_notify
+        end
+
+        if self.less_than_one_day? && (self.current_round == 1)
+          self.send_discussion_late_notify
+        end
+
+        if self.less_than_one_day? && (self.current_round > 1)
+          self.send_assignment_late_notify
+        end
+     elsif self.closed?
+        self.send_completed_notify
+     end
+    end
+
+  end
+
   def status_report
     output = ""
 

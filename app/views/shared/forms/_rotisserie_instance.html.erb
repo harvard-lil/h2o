@@ -4,10 +4,9 @@ if controller.action_name == 'edit'
 else
   rotisserie_object = RotisserieInstance.new
 end
-%>
-
+-%>
 <div id="error_block"></div>
-  <% semantic_form_for rotisserie_object, :html => {:class => 'ui-widget'} do |form| %>
+  <% semantic_form_for rotisserie_object do |form| %>
   <% form.inputs do %>
         <%= form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
         <li></li>
@@ -23,6 +22,5 @@ end
           :required => false
         %>
         <li></li>
-  <% end %>
-  <% end %>
-
+  <% end -%>
+  <% end -%>

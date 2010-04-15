@@ -28,4 +28,22 @@ class User < ActiveRecord::Base
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
 
+  def get_current_assignments(rotisserie_discussion = nil)
+    assignments_array = Array.new()
+
+    if rotisserie_discussion.nil?
+      rotisserie_assignments = self.assignments
+    else
+      rotisserie_assignments = RotisserieAssignment.find(:all, :conditions => {:user_id =>  self.id, :round => rotisserie_discussion.current_round, :rotisserie_discussion_id => rotisserie_discussion.id })
+    end
+
+    rotisserie_assignments.each do |assignment|
+        if !assignment.responded? && assignment.open?
+          assignments_array << assignment
+        end
+    end
+
+    return assignments_array
+  end
+
 end

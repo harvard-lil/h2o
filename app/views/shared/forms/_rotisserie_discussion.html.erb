@@ -30,14 +30,14 @@ end
           :required => false
         %>
         <li></li>
-        <%= form.input :round_length,
+        <%= form.input :round_length, :label => "round length in days",
           :as => :select,
           :collection => 1..9,
           :selected => rotisserie_object.round_length.blank? ? 2 : rotisserie_object.round_length,
           :required => true
         %>
         <li></li>
-        <%= form.input :final_round,
+        <%= form.input :final_round, :label => "number of rounds in days",
           :as => :select,
           :collection => 1..9,
           :selected => rotisserie_object.final_round.blank? ? 2 : rotisserie_object.final_round,

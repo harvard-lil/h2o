@@ -14,7 +14,9 @@ edit or delete dicussions, manually crank the rotisserie or increase and decreas
 
 <div id="container_id" style="display: none;"><%= @rotisserie_instance.id %></div>
 
+<% if @rotisserie_instance.admin? || @rotisserie_instance.owner? %>
 <button id="button-discussion-create-<%= @rotisserie_instance.id %>" name="button-discussion-create" class="ui-button ui-state-default ui-corner-all">Create discussion</button>
+<% end %>
 
 <div id="dialog-discussion-new" title="New discussion"></div>
 <div id="dialog-discussion-edit" title="Edit discussion"></div>

@@ -49,12 +49,42 @@ function initDiscussionControls() {
 
 
     jQuery("[id^=button-discussion-activate]").live('click', function() {
+        var container_id = jQuery('#container_id').text();
+        var container_id_string = "";
+        if (container_id) {
+            container_id_string = "?container_id=" + container_id;
+        }
+
         var object_id = this.id.replace('button-discussion-activate-', "");
 
         jQuery.ajax({
             type: 'post',
             url: '/rotisserie_discussions/' +object_id+ '/activate',
-            dataType: 'json'
+            dataType: 'json',
+            complete: function(data) {
+                jQuery('#list_block').load('/rotisserie_discussions/block' + container_id_string, function() {
+                    //initDiscussionControls();
+                });}
+        });
+    });
+
+    jQuery("[id^=button-discussion-notify]").live('click', function() {
+        var object_id = this.id.replace('button-discussion-notify-', "");
+        var container_id = jQuery('#container_id').text();
+        var container_id_string = "";
+        if (container_id) {
+            container_id_string = "?container_id=" + container_id;
+        }
+
+        jQuery.ajax({
+            type: 'post',
+            url: '/rotisserie_discussions/' +object_id+ '/notify',
+            dataType: 'json',
+            complete: function(data) {
+                jQuery('#list_block').load('/rotisserie_discussions/block' + container_id_string, function() {
+                    //initDiscussionControls();
+                });
+            }
         });
     });
 }

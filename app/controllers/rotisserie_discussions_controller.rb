@@ -1,4 +1,5 @@
 class RotisserieDiscussionsController < ApplicationController
+
   # GET /rotisserie_discussions
   # GET /rotisserie_discussions.xml
   def index
@@ -53,6 +54,7 @@ class RotisserieDiscussionsController < ApplicationController
     respond_to do |format|
       if @rotisserie_discussion.save
         @rotisserie_discussion.accepts_role!(:owner, current_user)
+        @rotisserie_discussion.accepts_role!(:user, current_user)
 
         flash[:notice] = 'RotisserieDiscussion was successfully created.'
         format.js {render :text => nil}
@@ -155,6 +157,16 @@ class RotisserieDiscussionsController < ApplicationController
 
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
+    end
+  end
+
+  def notify
+    discussion = RotisserieDiscussion.find(h(params[:id]).to_i)
+ 
+    discussion.send_all_notifications
+
+    respond_to do |format|
+      format.js {render :text => nil}
     end
   end
 

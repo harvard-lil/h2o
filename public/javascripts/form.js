@@ -85,7 +85,7 @@ var messages_discussion = {
     "rotisserie_discussion[title]": "A title is required",
     "rotisserie_discussion[output]": "Please enter some text that will be displayed to the user",
     "rotisserie_discussion[round_length]": "Please enter a minimum number of rounds",
-    "rotisserie_discussion[final_round]": "Please enter the final round",
+    "rotisserie_discussion[final_round]": "Please enter minimum number of rounds",
     "start_date": "Please enter a starting date"
 };
 
@@ -142,6 +142,7 @@ function initButton(button_name, button_selector, dialog_id, controller_name, ac
         } else {
             jQuery(dialog_id).load('/'+ controller_name + '/' + object_id + '/' + action);
         }
+        jQuery(dialog_id).dialog( "option", "height", 'auto' );
     });
 }
 
@@ -173,9 +174,8 @@ function objectDialog(dialog_id, form_id, rules_block, messages_block, controlle
     jQuery(dialog_id).dialog({
         bgiframe: true,
         autoOpen: false,
-        minWidth: 400,
         height: "auto",
-        position: "center",
+        position: "top",
         width: 500,
         modal: true,
         buttons: {

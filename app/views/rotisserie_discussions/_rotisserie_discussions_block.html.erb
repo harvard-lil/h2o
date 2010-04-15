@@ -1,7 +1,7 @@
 <%
 object_id = params[:id].blank? ? container_id : params[:id]
-
-@rotisserie_discussions = RotisserieInstance.find(object_id).rotisserie_discussions
+@rotisserie_instance = RotisserieInstance.find(object_id)
+@rotisserie_discussions = @rotisserie_instance.rotisserie_discussions
 
 %>
 
@@ -14,6 +14,7 @@ object_id = params[:id].blank? ? container_id : params[:id]
       <th>Round</th>
       <th class="table_cell_wide">Start Date</th>
       <th>Crank</th>
+      <th>Notify</th>
       <th>Decrease Start</th>
       <th>Increase Start</th>
     </tr>
@@ -53,6 +54,13 @@ object_id = params[:id].blank? ? container_id : params[:id]
           <% if rotisserie_discussion.crankable? && (rotisserie_discussion.admin? || rotisserie_discussion.owner?)%>
           <button id="button-discussion-activate-<%= rotisserie_discussion.id %>" name="button-discussion-activate" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/cog.png" %>
+          </button>
+          <% end %>
+        </td>
+        <td>
+          <% if rotisserie_discussion.notifiable? && (rotisserie_discussion.admin? || rotisserie_discussion.owner?)%>
+          <button id="button-discussion-notify-<%= rotisserie_discussion.id %>" name="button-discussion-notify" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/email_go.png" %>
           </button>
           <% end %>
         </td>
