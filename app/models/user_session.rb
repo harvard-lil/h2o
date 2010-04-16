@@ -3,7 +3,7 @@ class UserSession < Authlogic::Session::Base
 
 
   def self.oauth_consumer
-    OAuth::Consumer.new("yM5O3JWGMPJveOwENu65A", "fgiAmv8QlplWUNDhiOfDUCubgOH5HVPHhrPAnzQ2Eo", {
+    OAuth::Consumer.new(TWITTER_TOKEN, TWITTER_SECRET, {
         :site=>"http://twitter.com",
         :scheme             => :header,
         :http_method        => :post,
