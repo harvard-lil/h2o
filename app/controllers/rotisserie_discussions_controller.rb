@@ -54,7 +54,7 @@ class RotisserieDiscussionsController < ApplicationController
     respond_to do |format|
       if @rotisserie_discussion.save
         @rotisserie_discussion.accepts_role!(:owner, current_user)
-        @rotisserie_discussion.accepts_role!(:user, current_user)
+        #@rotisserie_discussion.accepts_role!(:user, current_user)
 
         flash[:notice] = 'RotisserieDiscussion was successfully created.'
         format.js {render :text => nil}
