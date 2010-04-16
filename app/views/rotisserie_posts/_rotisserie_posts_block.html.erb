@@ -15,7 +15,7 @@ object_id = params[:id].blank? ? container_id : params[:id]
   <%= render :partial => 'rotisserie_posts/rotisserie_post_content', :locals => {:post => post} %>
 <% end %>
 
-<% unless @rotisserie_discussion.answered_discussion? %>
+<% if  (!@rotisserie_discussion.answered_discussion? && @rotisserie_discussion.current_round == 1) || (@rotisserie_discussion.owner? || @rotisserie_discussion.admin?)%>
   <button id="button-post-create-<%= @rotisserie_discussion.id %>" name="button-post-create" class="ui-button ui-state-default ui-corner-all">Create post</button>
 <% end %>
 
