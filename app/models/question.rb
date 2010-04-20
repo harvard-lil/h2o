@@ -118,7 +118,7 @@ class Question < ActiveRecord::Base
 
   def reply_count
     reply_count_val = self.children.length
-    (reply_count_val == 0) ? 'no replies' : ((reply_count_val == 1) ? '1 reply' : "#{reply_count_val} replies")
+    (reply_count_val == 0) ? 'no comments' : ((reply_count_val == 1) ? '1 comment' : "#{reply_count_val} comments")
   end
 
 end

@@ -13,9 +13,9 @@
     %>
     <%= form.input :featured_question_count, 
       :as => :select, 
-      :collection => QuestionInstance::FEATURED_QUESTION_COUNTS, 
-      :label => 'Number of "featured" questions', 
-      :required => false 
+      :collection => QuestionInstance::FEATURED_QUESTION_COUNTS,
+      :required => true,
+      :label => 'Number of "featured" questions' 
     %>
     <%= form.input :new_question_timeout, 
       :as => :select, 

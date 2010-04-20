@@ -6,7 +6,8 @@
     <%= form.input :question,
       :as => :text,
       :input_html => {:size => '40x5'},
-      :hint => 'You can use markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
+      :hint => 'You can use markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
+      :label => (params[:question] && params[:question][:parent_id].to_i != 0) ? 'Comment' : 'Question'
   %>
   <%= form.input :email,
     :required => false 

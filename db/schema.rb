@@ -9,7 +9,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100407162213) do
+ActiveRecord::Schema.define(:version => 20100409155520) do
+
+  create_table "notification_trackers", :force => true do |t|
+    t.integer  "rotisserie_discussion_id"
+    t.integer  "rotisserie_post_id"
+    t.integer  "user_id"
+    t.string   "notify_description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "notification_trackers", ["rotisserie_discussion_id"], :name => "index_notification_trackers_on_rotisserie_discussion_id"
+  add_index "notification_trackers", ["rotisserie_post_id"], :name => "index_notification_trackers_on_rotisserie_post_id"
+  add_index "notification_trackers", ["user_id"], :name => "index_notification_trackers_on_user_id"
 
   create_table "question_instances", :force => true do |t|
     t.string   "name",                    :limit => 250,                   :null => false
@@ -60,10 +73,8 @@ ActiveRecord::Schema.define(:version => 20100407162213) do
   add_index "questions", ["email"], :name => "index_questions_on_email"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
-  add_index "questions", ["question_instance_id", "parent_id", "position"], :name => "unique_in_question_instance", :unique => true
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
-  add_index "questions", ["user_id", "question_instance_id", "parent_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
   create_table "replies", :force => true do |t|
@@ -98,19 +109,12 @@ ActiveRecord::Schema.define(:version => 20100407162213) do
     t.datetime "updated_at"
   end
 
-  add_index "roles", ["authorizable_id"], :name => "index_roles_on_authorizable_id"
-  add_index "roles", ["authorizable_type"], :name => "index_roles_on_authorizable_type"
-  add_index "roles", ["name"], :name => "index_roles_on_name"
-
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
-  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "rotisserie_assignments", :force => true do |t|
     t.integer  "user_id"

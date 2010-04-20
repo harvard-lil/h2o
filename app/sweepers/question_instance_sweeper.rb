@@ -5,11 +5,11 @@ class QuestionInstanceSweeper < ActionController::Caching::Sweeper
   observe QuestionInstance
 
   def after_save(record)
-    expire_fragment('question-instance-list')
+    expire_question_instance(record)
   end
 
   def before_destroy(record)
-    expire_fragment('question-instance-list')
+    expire_question_instance(record)
   end
 
 end

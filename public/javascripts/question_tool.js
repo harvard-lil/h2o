@@ -15,7 +15,7 @@ jQuery(function(){
             //We only want to observe the new replies.
             jQuery.observeQuestionControl(jQuery('#replies-for-question-' + questionId), questionInstanceId, questionId,isOwner);
             jQuery.convertTime(jQuery('#replies-for-question-' + questionId),UTC_OFFSET);
-
+            jQuery('#show-replies-on-' + questionId).html('hide');
           },
           error: function(xhr){
             jQuery('#spinner_block').hide();
@@ -239,6 +239,27 @@ jQuery(function(){
            set up the dispatch URL and then update / reobserve upon successful submission.
         */
         jQuery('a.question-instance-control').click(function(e){
+          e.preventDefault();
+          var dispatchUrl = '';
+          if(jQuery(this).attr('id').match(/^edit\-question\-instance/) ){
+            var question_instance_id = jQuery(this).attr('id').split('-')[3];
+            dispatchUrl = jQuery.rootPath() + 'question_instances/' + question_instance_id + '/edit'
+          } else {
+            dispatchUrl = jQuery.rootPath() + 'question_instances/new'
+          }
+          jQuery.ajax({
+            type: 'GET',
+            url: dispatchUrl,
+            beforeSend: function(){
+              jQuery('#spinner_block').show();
+            },
+            success: function(html){
+              jQuery('#spinner_block').hide();
+              jQuery('#question-instance-form-container').html(html);
+              jQuery('#question-instance-form-container').dialog('open');
+            }
+          });
+
           jQuery('#question-instance-form-container').dialog({
             bgiframe: true,
             autoOpen: false,
@@ -266,10 +287,17 @@ jQuery(function(){
                         jQuery('#spinner_block').show();
                       },
                       success: function(html){
-                        jQuery('#spinner_block').hide();
+/*                        jQuery('#spinner_block').hide();
                         jQuery('#question-instance-list').html(html);
                         jQuery("#question-instance-chooser").tablesorter();
-                        jQuery.observeQuestionInstanceControl();
+                        jQuery.observeQuestionInstanceControl(); 
+                        Doesn't work properly.
+ */
+                        window.location.href = jQuery.rootPath() + 'question_instances?updated=1';
+                      },
+                      error: function(xhr){
+                        jQuery('#spinner_block').hide();
+                        jQuery('#question-instance-error').show().append(xhr.responseText);
                       }
                     });
                     jQuery('#question-instance-form-container').dialog('close');
@@ -280,26 +308,6 @@ jQuery(function(){
                 jQuery('#question-instance-error').html('').hide();
                 jQuery(this).dialog('close');
               }
-            }
-          });
-          e.preventDefault();
-          var dispatchUrl = '';
-          if(jQuery(this).attr('id').match(/^edit\-question\-instance/) ){
-            var question_instance_id = jQuery(this).attr('id').split('-')[3];
-            dispatchUrl = jQuery.rootPath() + 'question_instances/' + question_instance_id + '/edit'
-          } else {
-            dispatchUrl = jQuery.rootPath() + 'question_instances/new'
-          }
-          jQuery.ajax({
-            type: 'GET',
-            url: dispatchUrl,
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-            },
-            success: function(html){
-              jQuery('#spinner_block').hide();
-              jQuery('#question-instance-form-container').html(html);
-              jQuery('#question-instance-form-container').dialog('open');
             }
           });
         });
@@ -315,6 +323,7 @@ jQuery(function(){
             //There's content in here and it's visible. Just hide it.
             repliesContainer.toggle('fast');
             jQuery.removeReplyContainerFromCookie('show-reply-containers','#replies-container-' + questionId);
+            jQuery(this).html('show');
           } else {
             //There's no content, or there's content and it's invisible. 
             //Get the replies again to ensure fresh content.

@@ -4,13 +4,13 @@ class QuestionInstancesController < BaseController
   caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-question-#{c.params[:id]}"}
 
   before_filter :prep_resources
-  before_filter :load_question_instance, :only => [:destroy, :edit]
+  before_filter :load_question_instance, :only => [:destroy, :edit, :update]
 
   after_filter :update_question_instance_time
 
   access_control do
-    allow :owner, :of => :question_instance, :to => [:destroy, :edit]
-    allow all, :to => [:index, :updated, :last_updated_question, :is_owner, :show, :new, :create, :update]
+    allow :owner, :of => :question_instance, :to => [:destroy, :edit, :update]
+    allow all, :to => [:index, :updated, :last_updated_question, :is_owner, :show, :new, :create]
   end
 
   rescue_from Acl9::AccessDenied do |exception|
@@ -26,7 +26,7 @@ class QuestionInstancesController < BaseController
     @question_instances = QuestionInstance.find(:all, :order => :id)
 
     respond_to do |format|
-      format.html { render :layout => (! request.xhr?) }
+      format.html { render :layout => (request.xhr?) ? false : true }
       format.xml  { render :xml => @question_instances }
     end
   end

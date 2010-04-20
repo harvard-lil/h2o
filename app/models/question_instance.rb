@@ -11,13 +11,13 @@ class QuestionInstance < ActiveRecord::Base
   has_many :questions, :order => :position, :dependent => :destroy
   acts_as_category :scope => :project
 
-  validates_presence_of :name
+  validates_presence_of :name, :featured_question_count
   validates_uniqueness_of :name
   validates_length_of :name, :in => 1..250
   validates_length_of :password, :maximum => 128, :allow_nil => true
   validates_length_of :description, :maximum => 2000, :allow_nil => true
 
-  validates_inclusion_of :featured_question_count, :in => FEATURED_QUESTION_COUNTS.collect{|c| c[1]}, :allow_blank => true
+  validates_inclusion_of :featured_question_count, :in => FEATURED_QUESTION_COUNTS.collect{|c| c[1]}
   validates_inclusion_of :new_question_timeout, :in => NEW_QUESTION_TIMEOUTS.collect{|c| c[1]}, :allow_blank => true
   validates_inclusion_of :old_question_timeout, :in => OLD_QUESTION_TIMEOUTS.collect{|c| c[1]}, :allow_blank => true
 
