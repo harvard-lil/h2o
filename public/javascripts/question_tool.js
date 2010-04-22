@@ -84,17 +84,7 @@ jQuery(function(){
 
         jQuery(element).find('a.new-question-for').click(function(e){
           var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
-          var dialogTitle = 'Add to the discussion';
-          jQuery('#new-question-form').dialog({
-            bgiframe: true,
-            autoOpen: false,
-            minWidth: 300,
-            width: 450,
-            modal: true,
-            title: dialogTitle,
-            buttons: {
-              'Ask Question': function(){
-                  jQuery('#new-question-form form').ajaxSubmit({
+          var submitQuestionForm = function(){jQuery('#new-question-form form').ajaxSubmit({
                     error: function(xhr){
                       jQuery('#spinner_block').hide();
                       jQuery('#new-question-error').show().append(xhr.responseText);
@@ -110,7 +100,17 @@ jQuery(function(){
                       jQuery('#new-question-form').dialog('close');
                     }
                   });
-              },
+          };
+          var dialogTitle = 'Add to the discussion';
+          jQuery('#new-question-form').dialog({
+            bgiframe: true,
+            autoOpen: false,
+            minWidth: 300,
+            width: 450,
+            modal: true,
+            title: dialogTitle,
+            buttons: {
+              'Save': submitQuestionForm,
               'Cancel': function(){
                 jQuery('#new-question-error').html('').hide();
                 jQuery(this).dialog('close');
