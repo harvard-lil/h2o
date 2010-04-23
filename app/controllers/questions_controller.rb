@@ -90,7 +90,7 @@ class QuestionsController < BaseController
           #ping the root question's updated time to ensure we can figure out the questions that've changed since the 
           # last reload.
           root_question = @question.ancestors.last
-          root.question.save
+          root_question.save
         end
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
@@ -129,10 +129,9 @@ class QuestionsController < BaseController
     end
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     @question.destroy
-    respond_to do |format|
-      format.html { redirect_to(questions_url) }
-      format.xml  { head :ok }
-    end
+    render :text => "We've deleted that item.", :layout => false
+  rescue
+    render :text => 'There seems to have been a problem deleting that item.', :status => :unprocessable_entity, :layout => false
   end
 
   private

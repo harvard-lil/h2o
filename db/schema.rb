@@ -77,30 +77,6 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
-  create_table "replies", :force => true do |t|
-    t.integer  "question_id",                                           :null => false
-    t.integer  "user_id"
-    t.string   "reply",              :limit => 1000,                    :null => false
-    t.string   "email",              :limit => 250
-    t.string   "name",               :limit => 250
-    t.boolean  "posted_anonymously",                 :default => false
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "replies", ["email"], :name => "index_replies_on_email"
-  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
-  add_index "replies", ["position"], :name => "index_replies_on_position"
-  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
-  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
-  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
-  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
-
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40
@@ -109,12 +85,19 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
     t.datetime "updated_at"
   end
 
+  add_index "roles", ["authorizable_id"], :name => "index_roles_on_authorizable_id"
+  add_index "roles", ["authorizable_type"], :name => "index_roles_on_authorizable_type"
+  add_index "roles", ["name"], :name => "index_roles_on_name"
+
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
+  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "rotisserie_assignments", :force => true do |t|
     t.integer  "user_id"

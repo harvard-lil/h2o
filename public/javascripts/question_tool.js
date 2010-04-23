@@ -221,7 +221,9 @@ jQuery(function(){
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
-          beforeSend: function(){jQuery('#spinner_block').show()},
+          beforeSend: function(){
+            jQuery('#spinner_block').show();
+          },
           success: function(html){
             jQuery('#spinner_block').hide();
             if(lastUpdated != html){
@@ -238,7 +240,7 @@ jQuery(function(){
         /* Observe parts of the question instance list. Set up the edit / new jQuery.dialog(), 
            set up the dispatch URL and then update / reobserve upon successful submission.
         */
-        jQuery('a.question-instance-control').click(function(e){
+        jQuery('a.question-instance-control').live('click',function(e){
           e.preventDefault();
           var dispatchUrl = '';
           if(jQuery(this).attr('id').match(/^edit\-question\-instance/) ){
@@ -317,7 +319,7 @@ jQuery(function(){
            from cookie methods and spawn and ajax update to show the replies.
          */
         var repliesContainer = jQuery('#replies-container-' + questionId);
-        jQuery(element).find('a.show-replies').click(function(e){
+        jQuery(element).find('a.show-replies').live('click',function(e){
           e.preventDefault();
           if(repliesContainer.html().length > 0 && repliesContainer.is(':visible')){
             //There's content in here and it's visible. Just hide it.
@@ -378,7 +380,7 @@ jQuery(function(){
           var openReplyContainers = jQuery.unserializeHash(jQuery.cookie('show-reply-containers'));
           if(jQuery(this).hasClass('question')){
           // It's a question. Init the reply toggles and voting
-            jQuery.observeShowReplyControls(this,questionInstanceId,questionId,openReplyContainers,isOwner);
+//            jQuery.observeShowReplyControls(this,questionInstanceId,questionId,openReplyContainers,isOwner);
             jQuery.observeVoteControls(this,questionInstanceId,questionId);
           }
           jQuery.observeQuestionControl(this,questionInstanceId,questionId,isOwner);
