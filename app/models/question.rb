@@ -22,14 +22,14 @@ class Question < ActiveRecord::Base
       :display_sort_order => 3,
       :name => 'Newest',
       :function => lambda{|a,b|
-        [sprintf('%015d', (b.sticky) ? 1 : 0), sprintf('%015d',b.updated_at.to_i), sprintf('%015d',b.id)].join('') <=> [sprintf('%015d', (a.sticky) ? 1 : 0), sprintf('%015d',a.updated_at.to_i), sprintf('%015d',a.id)].join('')
+        [sprintf('%015d', (b.sticky) ? 1 : 0), sprintf('%015d',b.created_at.to_i), sprintf('%015d',b.id)].join('') <=> [sprintf('%015d', (a.sticky) ? 1 : 0), sprintf('%015d',a.created_at.to_i), sprintf('%015d',a.id)].join('')
       }
     },
     :oldest => {
       :display_sort_order => 4,
       :name => 'Oldest',
       :function => lambda{|a,b|
-        [sprintf('%015d', (a.sticky) ? 0 : 1), sprintf('%015d',a.updated_at.to_i), sprintf('%015d',a.id)].join('') <=> [sprintf('%015d', (b.sticky) ? 0 : 1), sprintf('%015d',b.updated_at.to_i), sprintf('%015d',b.id)].join('')
+        [sprintf('%015d', (a.sticky) ? 0 : 1), sprintf('%015d',a.created_at.to_i), sprintf('%015d',a.id)].join('') <=> [sprintf('%015d', (b.sticky) ? 0 : 1), sprintf('%015d',b.created_at.to_i), sprintf('%015d',b.id)].join('')
       }
     },
     :most_active => {
@@ -72,7 +72,7 @@ class Question < ActiveRecord::Base
   end
 
   def display_datetime
-    (self.updated_at > 1.day.ago) ? self.updated_at.to_s(:simpletime) : self.updated_at.to_s(:simpledatetime)
+    (self.created_at > 1.day.ago) ? self.created_at.to_s(:simpletime) : self.created_at.to_s(:simpledatetime)
   end
 
   def self.featured(params)

@@ -82,10 +82,16 @@ class QuestionsController < BaseController
     @question = Question.new(params[:question])
     @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
     @question.accepts_role!(:asker, current_user)
-    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     respond_to do |format|
       @question.user = current_user
       if @question.save
+        @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
+        if @question.parent_id != nil
+          #ping the root question's updated time to ensure we can figure out the questions that've changed since the 
+          # last reload.
+          root_question = @question.ancestors.last
+          root.question.save
+        end
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
@@ -116,9 +122,13 @@ class QuestionsController < BaseController
   # DELETE /questions/1
   # DELETE /questions/1.xml
   def destroy
-    @question.destroy
+    if @question.parent_id != nil
+      #ping the root question updated time
+      root = @question.ancestors.last
+      root.save
+    end
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-
+    @question.destroy
     respond_to do |format|
       format.html { redirect_to(questions_url) }
       format.xml  { head :ok }
@@ -135,13 +145,18 @@ class QuestionsController < BaseController
       else
         current_user.vote_against(q)
       end
-        @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
+      #update the question instance and the question.
+      @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
+      if q.parent_id == nil
+        #voted on a root question - ping the update time
+        q.save
+      end
       render :text => '<p>Vote tallied!</p>', :layout => false
     rescue Exception => e
       #you fail it.
       logger.error('Vote failed! Reason:' + e.inspect)
       render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
-        :status => :internal_server_error
+        :status => :unprocessable_entity
     end
   end
 
@@ -150,7 +165,6 @@ class QuestionsController < BaseController
   end
 
   def load_question
-    #Time.zone = 'London'
     @question = Question.find(params[:id])
     @question_instance = @question.question_instance
   end
