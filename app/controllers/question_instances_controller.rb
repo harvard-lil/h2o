@@ -1,7 +1,7 @@
 class QuestionInstancesController < BaseController
   cache_sweeper :question_instance_sweeper
   caches_action :updated, :cache_path => Proc.new {|c| "updated-at-#{c.params[:id]}"}
-  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-question-#{c.params[:id]}"}
+#  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-questions-#{c.params[:id]}"}
 
   before_filter :prep_resources
   before_filter :load_question_instance, :only => [:destroy, :edit, :update]
@@ -10,7 +10,7 @@ class QuestionInstancesController < BaseController
 
   access_control do
     allow :owner, :of => :question_instance, :to => [:destroy, :edit, :update]
-    allow all, :to => [:index, :updated, :last_updated_question, :is_owner, :show, :new, :create]
+    allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create]
   end
 
   rescue_from Acl9::AccessDenied do |exception|
@@ -38,11 +38,11 @@ class QuestionInstancesController < BaseController
     render :text => 'Unable to update right now. Please try again in a few minutes by refreshing your browser', :status => :service_unavailable
   end
 
-  def last_updated_question
-    question_instance = QuestionInstance.find(params[:id])
-    render :text => question_instance.questions.roots.find(:all, :order => 'updated_at desc', :limit => 1).id
+  def last_updated_questions
+    updated = Time.parse(params[:time]) + 1.second
+    render :json => QuestionInstance.find(params[:id]).questions.roots.find(:all, :conditions => ['updated_at > ?',updated.utc]).collect{|q|q.id}
   rescue Exception => e
-    render :text => ''
+    render :json => ''
   end
 
   def is_owner

@@ -14,7 +14,7 @@ class CreateQuestions < ActiveRecord::Migration
       t.timestamps
     end
 
-    [:user_id, :question_instance_id, :parent_id, :position, :email, :sticky].each do |col|
+    [:user_id, :question_instance_id, :parent_id, :position, :email, :sticky, :updated_at, :created_at].each do |col|
       add_index :questions, col
     end
   end

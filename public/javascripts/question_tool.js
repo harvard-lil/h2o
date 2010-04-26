@@ -58,7 +58,7 @@ jQuery(function(){
                 data: {'_method': 'delete'},
                 url: jQuery.rootPath() + "questions/destroy/" + interiorQuestionId,
                 success: function(html){
-                  jQuery.updateQuestionInstanceView(questionInstanceId,'')
+                  jQuery.updateQuestionInstanceView(questionInstanceId)
                 },
                 error: function(xhr){
                   jQuery('div.ajax-error').show().append(xhr.responseText);
@@ -73,7 +73,7 @@ jQuery(function(){
               type: 'POST',
               url: jQuery.rootPath() + "questions/toggle_sticky/" + questionId,
               success: function(html){
-                jQuery.updateQuestionInstanceView(questionInstanceId,'')
+                jQuery.updateQuestionInstanceView(questionInstanceId)
               },
               error: function(xhr){
                 jQuery('div.ajax-error').show().append(xhr.responseText);
@@ -96,7 +96,7 @@ jQuery(function(){
                     success: function(responseText){
                       jQuery('#spinner_block').hide();
                       //TODO - resolve the "parent" question id and return it in response text.
-                      jQuery.updateQuestionInstanceView(questionInstanceId,responseText)
+                      jQuery.updateQuestionInstanceView(questionInstanceId)
                       jQuery('#new-question-form').dialog('close');
                     }
                   });
@@ -178,24 +178,40 @@ jQuery(function(){
             },
             success: function(){
               jQuery('#spinner_block').hide();
-              jQuery.updateQuestionInstanceView(questionInstanceId,questionId);
+              jQuery.updateQuestionInstanceView(questionInstanceId);
             }
           });
         });
       },
-      updateQuestionInstanceView: function(questionInstanceId,questionId){
+      updateQuestionInstanceView: function(questionInstanceId,updatedSince){
         /* Update the question instance view - most likely because a question/reply has been added or a vote has been cast. 
          */
+        if(! updatedSince || updatedSince.length == 0){
+          updatedSince = jQuery('#updated-at').html();
+        }
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
-          data: {updated_question_id: questionId, sort: jQuery.cookie('sort')},
+          data: {sort: jQuery.cookie('sort')},
+          error: function(xhr){
+            jQuery('div.ajax-error').show().append(xhr.responseText);
+          },
           success: function(html){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeQuestionCollection();
-            if(questionId.length > 0){
-              jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
-            }
+            jQuery.ajax({
+              type: 'GET',
+              url: jQuery.rootPath() + 'question_instances/last_updated_questions/' + questionInstanceId,
+              data: {time: updatedSince},
+              success: function(html){
+//                alert(html);
+              },
+              error: function(xhr){
+              }
+            });
+//            if(questionId.length > 0){
+//              jQuery('#question-' + questionId).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+//            }
           }
         });
       },
@@ -227,7 +243,7 @@ jQuery(function(){
           success: function(html){
             jQuery('#spinner_block').hide();
             if(lastUpdated != html){
-              jQuery.updateQuestionInstanceView(questionInstanceId,'');
+              jQuery.updateQuestionInstanceView(questionInstanceId,lastUpdated);
             }
           },
           error: function(xhr){
@@ -352,7 +368,7 @@ jQuery(function(){
             }
             jQuery(this).change(function(){
               jQuery.cookie('sort', jQuery(this).val());
-              jQuery.updateQuestionInstanceView(questionInstanceId,'');
+              jQuery.updateQuestionInstanceView(questionInstanceId);
             });
         });
       },

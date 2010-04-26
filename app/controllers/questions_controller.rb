@@ -86,12 +86,6 @@ class QuestionsController < BaseController
       @question.user = current_user
       if @question.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-        if @question.parent_id != nil
-          #ping the root question's updated time to ensure we can figure out the questions that've changed since the 
-          # last reload.
-          root_question = @question.ancestors.last
-          root_question.save
-        end
         format.html { render :text => @question.id, :layout => false }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
@@ -122,11 +116,6 @@ class QuestionsController < BaseController
   # DELETE /questions/1
   # DELETE /questions/1.xml
   def destroy
-    if @question.parent_id != nil
-      #ping the root question updated time
-      root = @question.ancestors.last
-      root.save
-    end
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     @question.destroy
     render :text => "We've deleted that item.", :layout => false

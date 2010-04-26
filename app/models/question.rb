@@ -56,6 +56,9 @@ class Question < ActiveRecord::Base
   belongs_to :question_instance
   belongs_to :user
 
+  after_save :update_root_question
+  after_destroy :update_root_question
+
   validates_presence_of :user_id, :question, :question_instance_id
   validates_length_of :question, 
     :maximum => 10000
@@ -119,6 +122,15 @@ class Question < ActiveRecord::Base
   def reply_count
     reply_count_val = self.children.length
     (reply_count_val == 0) ? 'no comments' : ((reply_count_val == 1) ? '1 comment' : "#{reply_count_val} comments")
+  end
+
+  private
+
+  def update_root_question
+    if self.parent_id != nil
+      root_question = self.ancestors.last
+      root_question.save
+    end
   end
 
 end
