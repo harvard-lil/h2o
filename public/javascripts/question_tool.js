@@ -238,24 +238,30 @@ jQuery(function(){
            the question instance view. 
          */
         var lastUpdated = jQuery('#updated-at').html();
-        var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
-        jQuery.ajax({
-          type: 'GET',
-          url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
-          beforeSend: function(){
-            jQuery('#spinner_block').show();
-          },
-          success: function(html){
-            jQuery('#spinner_block').hide();
-            if(lastUpdated != html){
-              jQuery.updateQuestionInstanceView(questionInstanceId,lastUpdated);
+        var currentlyPolling = jQuery('#updated-at-singleton').html();
+        if (currentlyPolling != 'true'){
+          var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
+          jQuery.ajax({
+            type: 'GET',
+            url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
+            beforeSend: function(){
+              jQuery('#spinner_block').show();
+              jQuery('#updated-at-singleton').html('true');
+            },
+            success: function(html){
+              if(lastUpdated != html){
+                jQuery.updateQuestionInstanceView(questionInstanceId,lastUpdated);
+              }
+            },
+            error: function(xhr){
+              jQuery('div.ajax-error').show().append(xhr.responseText);
+            },
+            complete: function(){
+              jQuery('#spinner_block').hide();
+              jQuery('#updated-at-singleton').html('');
             }
-          },
-          error: function(xhr){
-            jQuery('#spinner_block').hide();
-            jQuery('div.ajax-error').show().append(xhr.responseText);
-          }
-        });
+          });
+        }
       },
       observeQuestionInstanceControl: function(){
         /* Observe parts of the question instance list. Set up the edit / new jQuery.dialog(), 

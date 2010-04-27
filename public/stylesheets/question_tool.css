@@ -1,11 +1,21 @@
+#h2o_container{
+  margin: 5px auto;
+  width: 95%;
+  padding: 10px;
+}
+
 #h2o_header{
   float: left;
   width: 345px;
 }
 
+#header_logo{
+  padding: 5px;
+}
+
 div.question-instance-description{
   float: right;
-  width: 600px;
+  width: 500px;
 }
 
 div.controls{

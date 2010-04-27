@@ -43,4 +43,5 @@
 <% end %>
 
 <div id="updated-at" style="display: none;"><%= @question_instance.updated_at %></div>
+<div id="updated-at-singleton" style="display: none;"></div>
 <div id="is-owner" style="display:none;"><%= current_user.has_role?(:owner, @question_instance) %></div>
