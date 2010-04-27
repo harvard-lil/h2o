@@ -118,3 +118,16 @@ div.controls{
   clear: both;
 
 }
+
+.ui-button{
+  padding: .3em;
+}
+
+.ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text {
+  font-size:9px;
+  padding:0 1em 0 1.8em;
+}
+.ui-button .ui-button-text {
+  display:block;
+  line-height:1;
+}

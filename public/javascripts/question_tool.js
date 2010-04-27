@@ -15,7 +15,7 @@ jQuery(function(){
             //We only want to observe the new replies.
             jQuery.observeQuestionControl(jQuery('#replies-for-question-' + questionId), questionInstanceId, questionId,isOwner);
             jQuery.convertTime(jQuery('#replies-for-question-' + questionId),UTC_OFFSET);
-            jQuery('#show-replies-on-' + questionId).html('hide');
+            jQuery('#show-replies-on-' + questionId).button({label: 'hide'});
           },
           error: function(xhr){
             jQuery('#spinner_block').hide();
@@ -86,7 +86,7 @@ jQuery(function(){
           });
         }
 
-        jQuery(element).find('a.new-question-for').click(function(e){
+        jQuery(element).find('a.new-question-for').button({icons: {primary: 'ui-icon-circle-plus'}}).click(function(e){
           var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
           var submitQuestionForm = function(){jQuery('#new-question-form form').ajaxSubmit({
                     error: function(xhr){
@@ -340,13 +340,13 @@ jQuery(function(){
            from cookie methods and spawn and ajax update to show the replies.
          */
         var repliesContainer = jQuery('#replies-container-' + questionId);
-        jQuery(element).find('a.show-replies').click(function(e){
+        jQuery(element).find('a.show-replies').button({icons: {primary: 'ui-icon-carat-2-n-s'}}).click(function(e){
           e.preventDefault();
           if(repliesContainer.html().length > 0 && repliesContainer.is(':visible')){
             //There's content in here and it's visible. Just hide it.
             repliesContainer.toggle('fast');
             jQuery.removeReplyContainerFromCookie('show-reply-containers','#replies-container-' + questionId);
-            jQuery(this).html('show');
+            jQuery(this).button({label: 'show'});
           } else {
             //There's no content, or there's content and it's invisible. 
             //Get the replies again to ensure fresh content.
