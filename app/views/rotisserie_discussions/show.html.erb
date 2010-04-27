@@ -14,7 +14,7 @@ then that post will be highlighted in red.  Use the green arrow button to reply 
 
 <div id="spinner_block"></div>
 
-<% if @rotisserie_discussion.user? && @rotisserie_discussion.owner? %>
+<% if @rotisserie_discussion.user? || @rotisserie_discussion.owner? || @rotisserie_discussion.closed? %>
   <div id="list_block" class="ui-widget">
     <%= render :partial => 'rotisserie_posts/rotisserie_posts_block', :locals => {:rotisserie_discussion => @rotisserie_discussion} %>
   </div>

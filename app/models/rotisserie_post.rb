@@ -5,7 +5,7 @@ class RotisseriePost < ActiveRecord::Base
   acts_as_category :scope => :rotisserie_discussion
 
   validates_presence_of :title
-  validates_uniqueness_of :title
+  validates_uniqueness_of :title, :scope => :rotisserie_discussion_id
 
   belongs_to :rotisserie_discussion
   has_many :rotisserie_assignments
