@@ -15,6 +15,7 @@ class QuestionsController < BaseController
     if request.post?
       @question.sticky = (@question.sticky) ? false : true
       @question.save
+      @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
       render :text => @question.id, :layout => false
     end
   rescue Exception => e
