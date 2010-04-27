@@ -137,6 +137,7 @@ class QuestionsController < BaseController
       @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
       if q.parent_id == nil
         #voted on a root question - ping the update time
+        q.updated_at = Time.now
         q.save
       end
       render :text => '<p>Vote tallied!</p>', :layout => false

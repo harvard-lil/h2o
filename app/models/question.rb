@@ -129,6 +129,7 @@ class Question < ActiveRecord::Base
   def update_root_question
     if self.parent_id != nil
       root_question = self.ancestors.last
+      root_question.updated_at = Time.now
       root_question.save
     end
   end

@@ -203,8 +203,12 @@ jQuery(function(){
               type: 'GET',
               url: jQuery.rootPath() + 'question_instances/last_updated_questions/' + questionInstanceId,
               data: {time: updatedSince},
-              success: function(html){
-//                alert(html);
+              success: function(innerHtml){
+                if(innerHtml.length > 0){
+                  jQuery(innerHtml).each(function(){
+                    jQuery('#question-' + this).stop().css("background-color", "#FFFF9C").animate({ backgroundColor: "#FFFFFF"}, 2000);
+                  });
+                }
               },
               error: function(xhr){
               }
