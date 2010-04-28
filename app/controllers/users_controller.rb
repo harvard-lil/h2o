@@ -19,6 +19,24 @@ class UsersController < ApplicationController
     end
 
   end
+
+  def create_anon
+    password = ActiveSupport::SecureRandom.random_bytes(10)
+
+    @user = User.new(:login => "anon_#{ActiveSupport::SecureRandom.hex(13)}",
+      :password => password,
+      :password_confirmation => password)
+
+    @user.save do |result|
+      if result
+        flash[:notice] = "Account registered!"
+        redirect_back_or_default account_url
+      else
+        render :action => :new
+      end
+    end
+
+  end
   
   def show
     @user = @current_user
