@@ -1,4 +1,9 @@
 class QuestionInstancesController < BaseController
+
+  def require_user
+
+  end
+
   cache_sweeper :question_instance_sweeper
   caches_action :updated, :cache_path => Proc.new {|c| "updated-at-#{c.params[:id]}"}
 #  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-questions-#{c.params[:id]}"}
