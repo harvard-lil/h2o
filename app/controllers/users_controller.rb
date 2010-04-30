@@ -27,6 +27,8 @@ class UsersController < ApplicationController
       :password => password,
       :password_confirmation => password)
 
+    @user.has_role! :nonauthenticated
+
     @user.save do |result|
       if result
         if request.xhr?
