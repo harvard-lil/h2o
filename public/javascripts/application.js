@@ -55,3 +55,23 @@ jQuery(function() {
   initDiscussionControls();
 
 });
+
+jQuery(document).ready(function(){
+    jQuery('.loaded-via-xhr #anon-login').live('click', function(e){ 
+      e.preventDefault();
+      jQuery.ajax({
+        type: 'GET',
+        url: jQuery(this).attr('href'),
+        success: function(html){
+          jQuery.ajax({
+            type: 'GET',
+            url: html,
+            success: function(innerHtml){
+              jQuery('#login-form').html(innerHtml);
+            }
+          });
+        }
+      });
+    });
+
+});

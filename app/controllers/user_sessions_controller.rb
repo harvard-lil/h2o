@@ -9,16 +9,19 @@ class UserSessionsController < ApplicationController
   
   def create
     @user_session = UserSession.new(params[:user_session])
-    
     @user_session.save do |result|
       if result
-        flash[:notice] = "Login successful!"
-        redirect_back_or_default "/base"
+        if request.xhr?
+          #Text doesn't matter, status code does.
+          render :text => 'Success!', :layout => false
+        else
+          flash[:notice] = "Login successful!"
+          redirect_back_or_default "/base"
+        end
       else
-        render :action => :new
+        render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity
       end
     end
-
   end
   
   def destroy

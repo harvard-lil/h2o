@@ -29,13 +29,17 @@ class UsersController < ApplicationController
 
     @user.save do |result|
       if result
-        flash[:notice] = "Account registered!"
-        redirect_back_or_default account_url
+        if request.xhr?
+          #text doesn't matter, it's the return code that does
+          render :text => (session[:return_to] || '/'), :layout => false
+        else
+          flash[:notice] = "Account registered!"
+          redirect_back_or_default account_url
+        end
       else
-        render :action => :new
+        render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity 
       end
     end
-
   end
   
   def show
