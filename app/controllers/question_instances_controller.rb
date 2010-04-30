@@ -1,13 +1,10 @@
 class QuestionInstancesController < BaseController
 
-  def require_user
-
-  end
-
   cache_sweeper :question_instance_sweeper
   caches_action :updated, :cache_path => Proc.new {|c| "updated-at-#{c.params[:id]}"}
 #  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-questions-#{c.params[:id]}"}
 
+  before_filter :require_user, :except => [:index, :last_updated_questions, :updated, :show]
   before_filter :prep_resources
   before_filter :load_question_instance, :only => [:destroy, :edit, :update]
 
