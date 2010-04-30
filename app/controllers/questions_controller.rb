@@ -1,7 +1,10 @@
 class QuestionsController < BaseController
+
   cache_sweeper :question_sweeper
 
   before_filter :prep_resources
+
+  before_filter :require_user, :except => [:replies]
   before_filter :load_question, :only => [:destroy, :toggle_sticky]
 
   after_filter :update_question_instance_time
