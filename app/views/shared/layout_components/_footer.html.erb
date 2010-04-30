@@ -1,7 +1,7 @@
-    <% unless current_user.nil? %>
-    <div id="footer_block">
-     <%= link_to image_tag("/images/elements/question_small.png"), question_instances_path %>
-     <%= link_to image_tag("/images/elements/cog_small.png"), rotisserie_instances_path %>
-     <%= link_to("Logout", user_session_path, :method => :delete) %>
-    </div>
-    <% end %>
+<div id="footer_block">
+  <%= link_to image_tag("/images/elements/question_small.png"), question_instances_path %>
+  <%= link_to image_tag("/images/elements/cog_small.png"), rotisserie_instances_path %>
+  <% unless current_user.nil? %>
+    <%= link_to("Logout", user_session_path, :method => :delete, :id => 'logged-in') %>
+  <% end %>
+</div>
