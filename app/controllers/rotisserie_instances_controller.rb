@@ -1,4 +1,7 @@
 class RotisserieInstancesController < ApplicationController
+
+  before_filter :require_user
+
   # GET /rotisserie_instances
   # GET /rotisserie_instances.xml
   def index
