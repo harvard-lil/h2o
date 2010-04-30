@@ -87,8 +87,10 @@ jQuery(function(){
         }
 
         jQuery(element).find('a.new-question-for').button({icons: {primary: 'ui-icon-circle-plus'}}).click(function(e){
-          var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
-          var submitQuestionForm = function(){jQuery('#new-question-form form').ajaxSubmit({
+          if(jQuery('#logged-in').length > 0){
+            e.preventDefault();
+            var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
+            var submitQuestionForm = function(){jQuery('#new-question-form form').ajaxSubmit({
                     error: function(xhr){
                       jQuery('#spinner_block').hide();
                       jQuery('#new-question-error').show().append(xhr.responseText);
@@ -104,37 +106,37 @@ jQuery(function(){
                       jQuery('#new-question-form').dialog('close');
                     }
                   });
-          };
-          var dialogTitle = 'Add to the discussion';
-          jQuery('#new-question-form').dialog({
-            bgiframe: true,
-            autoOpen: false,
-            minWidth: 300,
-            width: 450,
-            modal: true,
-            title: dialogTitle,
-            buttons: {
-              'Save': submitQuestionForm,
-              'Cancel': function(){
-                jQuery('#new-question-error').html('').hide();
-                jQuery(this).dialog('close');
+            };
+            var dialogTitle = 'Add to the discussion';
+            jQuery('#new-question-form').dialog({
+              bgiframe: true,
+              autoOpen: false,
+              minWidth: 300,
+              width: 450,
+              modal: true,
+              title: dialogTitle,
+              buttons: {
+                'Save': submitQuestionForm,
+                'Cancel': function(){
+                  jQuery('#new-question-error').html('').hide();
+                  jQuery(this).dialog('close');
+                }
               }
-            }
-          });
-          e.preventDefault();
-          jQuery.ajax({
-            type: 'GET',
-            url: jQuery.rootPath() + 'questions/new',
-            data: {'question[question_instance_id]': questionInstanceId, 'question[parent_id]': interiorQuestionId},
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-            },
-            success: function(html){
-              jQuery('#spinner_block').hide();
-              jQuery('#new-question-form').html(html);
-              jQuery('#new-question-form').dialog('open');
-            }
-          });
+            });
+            jQuery.ajax({
+              type: 'GET',
+              url: jQuery.rootPath() + 'questions/new',
+              data: {'question[question_instance_id]': questionInstanceId, 'question[parent_id]': interiorQuestionId},
+              beforeSend: function(){
+                jQuery('#spinner_block').show();
+              },
+              success: function(html){
+                jQuery('#spinner_block').hide();
+                jQuery('#new-question-form').html(html);
+                jQuery('#new-question-form').dialog('open');
+              }
+            });
+          }
         });
       },
       toggleVoteControls: function(){

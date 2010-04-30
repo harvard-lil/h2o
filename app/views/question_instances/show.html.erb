@@ -11,7 +11,7 @@
         <span class="datetime">created <%= @question_instance.created_at.to_s(:simpledatetime) %></span>
         <div class="controls" id="controls-<%= @question_instance.id %>">
           <strong>Sort:</strong> <%= select_tag(:sort, options_for_select(Question::POSSIBLE_SORTS_FOR_SELECT)) %>
-          <%= link_to('add question', '#', :id => "new-question-for-#{@question_instance.id}-0", :class=>"new-question-for") %> 
+          <%= link_to('add question', new_question_path('question[question_instance_id]' => @question_instance.id), :id => "new-question-for-#{@question_instance.id}-0", :class=>"new-question-for") %> 
         </div>
       </div>
     </div>

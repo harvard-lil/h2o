@@ -59,18 +59,13 @@ class QuestionsController < BaseController
   def new
     add_stylesheets ["formtastic","forms"]
     @question = Question.new
-
     begin
       @question.parent_id = params[:question][:parent_id] || nil
       @question.question_instance_id = params[:question][:question_instance_id]
     rescue Exception => e
       @question.question_instance = QuestionInstance.default_instance
     end
-
-    respond_to do |format|
-      format.html { render :partial => 'shared/forms/question', :layout => false}
-      format.xml  { render :xml => @question }
-    end
+    render :layout => (request.xhr?) ? false : true
   end
 
   # GET /questions/1/edit
@@ -90,7 +85,7 @@ class QuestionsController < BaseController
       @question.user = current_user
       if @question.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-        format.html { render :text => @question.id, :layout => false }
+        format.html { render :text => @question.id, :layout => (request.xhr?) ? false : true }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
         format.html { render :text => "We couldn't add that question. Sorry!<br/>#{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }

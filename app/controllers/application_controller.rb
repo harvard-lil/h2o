@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
     @app_controller = self.controller_name.downcase
     @app_action = self.action_name.downcase
 
-    if ["user_sessions", "users"].include?(@app_controller)
+    if ["user_sessions", "users",'questions','question_instances'].include?(@app_controller)
       return :application
     elsif ["new", "edit", "reply", "delete"].include?(@app_action)
       return nil
