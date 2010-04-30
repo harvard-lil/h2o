@@ -1,3 +1,15 @@
+<script type="text/javascript">
+  jQuery(function() {
+    jQuery("#user_submit").hover( function () {
+        jQuery(this).attr('src', '/images/elements/signin_twitter_light.png');
+      },
+      function () {
+        jQuery(this).attr('src', '/images/elements/signin_twitter_dark.png');
+      }
+    );
+  });
+</script>
+
 <div id="login-form" <%= (request.xhr?) ? ' class="loaded-via-xhr"' : '' %>>
   <% form_for @user_session, :url => user_session_path do |f| %>
     <%= f.error_messages %>
@@ -10,11 +22,14 @@
     <%= f.check_box :remember_me %><%= f.label :remember_me %><br />
     <br />
     <%= f.submit "Login" %><br />
+    
+    <p>
+    <% #  image_submit_tag("elements/signin_twitter_dark.png", :name => 'login_with_oauth', :id => 'user_submit') %>
     <%= oauth_login_button :value => "Login with Twitter" %><br />
-  <% end %>
+    </p>
+<% end %>
 
   <p>
   <div class="p20"><b><%= link_to "If you don't have a login, please register by clicking here.", new_user_path %></b></div>
-  <div><b><%= link_to 'Participate anonymously', create_anon_users_path, :id => "anon-login" %></b></div> 
   </p>
 </div>
