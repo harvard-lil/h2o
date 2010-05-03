@@ -4,6 +4,8 @@ module SweeperHelper
     #no sort order specified, so the sort order is "null"
     expire_fragment("question-instance-index-#{record.id}-false-null")
     expire_fragment("question-instance-index-#{record.id}-true-null")
+    expire_fragment("question-instance-index-#{record.id}-false-")
+    expire_fragment("question-instance-index-#{record.id}-true-")
 
     Question::POSSIBLE_SORTS.keys.each do |sort|
       expire_fragment("question-instance-index-#{record.id}-true-#{sort}")

@@ -123,27 +123,25 @@ class QuestionsController < BaseController
   private
 
   def vote_engine(vote_type = 'for')
-    begin
-      q = Question.find(params[:question_id])
-      if vote_type == 'for'
-        current_user.vote_for(q)
-      else
-        current_user.vote_against(q)
-      end
-      #update the question instance and the question.
-      @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
-      if q.parent_id == nil
-        #voted on a root question - ping the update time
-        q.updated_at = Time.now
-        q.save
-      end
-      render :text => '<p>Vote tallied!</p>'
-    rescue Exception => e
-      #you fail it.
-      logger.error('Vote failed! Reason:' + e.inspect)
-      render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
-        :status => :unprocessable_entity
+    q = Question.find(params[:id])
+    if vote_type == 'for'
+      current_user.vote_for(q)
+    else
+      current_user.vote_against(q)
     end
+    #update the question instance and the question.
+    @UPDATE_QUESTION_INSTANCE_TIME = q.question_instance
+    if q.parent_id == nil
+      #voted on a root question - ping the update time
+      q.updated_at = Time.now
+      q.save
+    end
+    render :text => '<p>Vote tallied!</p>'
+  rescue Exception => e
+    #you fail it.
+    logger.error('Vote failed! Reason:' + e.inspect)
+    render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
+      :status => :unprocessable_entity
   end
 
   def prep_resources

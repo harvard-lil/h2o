@@ -1,9 +1,9 @@
 <% cache("question-detail-view-#{question.id}") do %>
   <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
     <div class="votes" id="votes-for-<%= question.id %>">
-      <%= link_to('<div class="up"></div>','', :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
+      <%= link_to('<div class="up"></div>',url_for(:controller => '/questions', :action => :vote_for, :id => question.id), :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
       <div class="count"><%= question.vote_tally %></div>
-      <%= link_to('<div class="down"></div>','', :id => "vote-against-#{question.question_instance_id}-#{question.id}", :class=> 'down') %>
+      <%= link_to('<div class="down"></div>',url_for(:controller => '/questions', :action => :vote_against, :id => question.id), :id => "vote-against-#{question.question_instance_id}-#{question.id}", :class=> 'down') %>
       <span class="total_count"><%= (question.votes.blank?) ? '' : "#{question.votes.count} total" %></span>
     </div>
     <p><%= h question.question.to_s %></p>

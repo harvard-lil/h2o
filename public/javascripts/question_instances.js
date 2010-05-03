@@ -87,25 +87,27 @@ jQuery(function(){
         }
 
         jQuery(element).find('a.new-question-for').button({icons: {primary: 'ui-icon-circle-plus'}}).click(function(e){
+          //If they're authenticated, give them access to this stuff.
           if(jQuery('#logged-in').length > 0){
             e.preventDefault();
             var interiorQuestionId = jQuery(this).attr('id').split('-')[4];
-            var submitQuestionForm = function(){jQuery('#new-question-form form').ajaxSubmit({
-                    error: function(xhr){
-                      jQuery('#spinner_block').hide();
-                      jQuery('#new-question-error').show().append(xhr.responseText);
-                    },
-                    beforeSend: function(){
-                      jQuery('#spinner_block').show();
-                      jQuery('#new-question-error').html('').hide();
-                    },
-                    success: function(responseText){
-                      jQuery('#spinner_block').hide();
-                      //TODO - resolve the "parent" question id and return it in response text.
-                      jQuery.updateQuestionInstanceView(questionInstanceId)
-                      jQuery('#new-question-form').dialog('close');
-                    }
-                  });
+            var submitQuestionForm = function(){
+              jQuery('#new-question-form form').ajaxSubmit({
+                error: function(xhr){
+                  jQuery('#spinner_block').hide();
+                  jQuery('#new-question-error').show().append(xhr.responseText);
+                },
+                beforeSend: function(){
+                  jQuery('#spinner_block').show();
+                  jQuery('#new-question-error').html('').hide();
+                },
+                success: function(responseText){
+                  jQuery('#spinner_block').hide();
+                  //TODO - resolve the "parent" question id and return it in response text.
+                  jQuery.updateQuestionInstanceView(questionInstanceId)
+                  jQuery('#new-question-form').dialog('close');
+                }
+              });
             };
             var dialogTitle = 'Add to the discussion';
             jQuery('#new-question-form').dialog({
@@ -164,29 +166,31 @@ jQuery(function(){
         /* Inits the up/down arrows, ignoring those with an "already-voted" class, which is applied earlier
          */
         jQuery(element).find("a[id*='vote-']").click(function(e){
-          e.preventDefault();
-          var for_or_against = jQuery(this).attr('id').split('-')[1];
-          if(jQuery(this).hasClass('already-voted')){
-            return;
-          }
-          var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
-          jQuery.ajax({
-            type: 'POST',
-            url: dispatch_url,
-            data: {question_id: questionId, authenticity_token: AUTH_TOKEN},
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-              jQuery('#ajax-error-' + questionInstanceId).html('').hide();
-            },
-            error: function(xhr){
-              jQuery('#spinner_block').hide();
-              jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);
-            },
-            success: function(){
-              jQuery('#spinner_block').hide();
-              jQuery.updateQuestionInstanceView(questionInstanceId);
+          if(jQuery('#logged-in').length > 0){
+            e.preventDefault();
+            var for_or_against = jQuery(this).attr('id').split('-')[1];
+            if(jQuery(this).hasClass('already-voted')){
+              return;
             }
-          });
+            var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
+            jQuery.ajax({
+              type: 'POST',
+              url: dispatch_url,
+              data: {id: questionId, authenticity_token: AUTH_TOKEN},
+              beforeSend: function(){
+                jQuery('#spinner_block').show();
+                jQuery('#ajax-error-' + questionInstanceId).html('').hide();
+              },
+              error: function(xhr){
+                jQuery('#spinner_block').hide();
+                jQuery('#ajax-error-' + questionInstanceId).show().append(xhr.responseText);
+              },
+              success: function(){
+                jQuery('#spinner_block').hide();
+                jQuery.updateQuestionInstanceView(questionInstanceId);
+              }
+            });
+          }
         });
       },
       updateQuestionInstanceView: function(questionInstanceId,updatedSince){
@@ -338,8 +342,7 @@ jQuery(function(){
           jQuery.convertTime(this,UTC_OFFSET);
         });
       }
-
-  });
+    });
 
   jQuery(document).ready(function(){
     jQuery.determineOwnershipAndInit();
