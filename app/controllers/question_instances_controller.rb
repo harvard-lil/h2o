@@ -148,7 +148,7 @@ class QuestionInstancesController < BaseController
   def prep_resources
     @logo_title = 'Question Tool'
     add_stylesheets 'question_tool'
-    add_javascripts 'question_tool'
+    add_javascripts 'question_instances'
   end
 
 end
