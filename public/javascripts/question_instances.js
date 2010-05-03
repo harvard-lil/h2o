@@ -53,12 +53,6 @@ jQuery(function(){
                         jQuery('#spinner_block').show();
                       },
                       success: function(html){
-/*                        jQuery('#spinner_block').hide();
-                        jQuery('#question-instance-list').html(html);
-                        jQuery("#question-instance-chooser").tablesorter();
-                        jQuery.observeQuestionInstanceControl(); 
-                        Doesn't work properly.
- */
                         window.location.href = jQuery.rootPath() + 'question_instances?updated=1';
                       },
                       error: function(xhr){
@@ -82,7 +76,6 @@ jQuery(function(){
 
     jQuery(document).ready(function(){
       jQuery('#question_instance_submit').button({icons: {primary: 'ui-icon-circle-plus'}});
-      // We're on the question instance list page.
       jQuery.observeQuestionInstanceControl();
       if(jQuery('#question-instance-chooser').length > 0){
         jQuery("#question-instance-chooser").tablesorter();

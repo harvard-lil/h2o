@@ -341,10 +341,8 @@ jQuery(function(){
 
   });
 
-    jQuery(document).ready(function(){
-      jQuery.determineOwnershipAndInit();
-//        jQuery.observeUpdateTimers();
-      setInterval("jQuery.updateAutomatically()",10000);
-//        jQuery('#timer-controls #seconds-5').addClass('selected');
+  jQuery(document).ready(function(){
+    jQuery.determineOwnershipAndInit();
+    setInterval("jQuery.updateAutomatically()",10000);
   });
 });

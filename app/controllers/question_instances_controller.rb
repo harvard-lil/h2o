@@ -5,7 +5,7 @@ class QuestionInstancesController < BaseController
 #  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-questions-#{c.params[:id]}"}
 
   before_filter :require_user, :except => [:index, :last_updated_questions, :updated, :show]
-  before_filter :prep_resources
+  before_filter :prep_resources, :except => [:index]
   before_filter :load_question_instance, :only => [:destroy, :edit, :update]
 
   after_filter :update_question_instance_time
@@ -22,7 +22,9 @@ class QuestionInstancesController < BaseController
   # GET /question_instances
   # GET /question_instances.xml
   def index
+    add_stylesheets 'question_tool'
     add_stylesheets "tablesorter-blue-theme/style"
+    add_javascripts 'question_instances_index'
     add_javascripts "jquery.tablesorter.min"
 
     @question_instances = QuestionInstance.find(:all, :order => :id)
@@ -147,7 +149,7 @@ class QuestionInstancesController < BaseController
 
   def prep_resources
     @logo_title = 'Question Tool'
-    add_stylesheets 'question_tool'
+    add_stylesheets 'question_instances'
     add_javascripts 'question_instances'
   end
 
