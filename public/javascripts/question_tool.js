@@ -420,6 +420,7 @@ jQuery(function(){
   });
 
     jQuery(document).ready(function(){
+      jQuery('#question_instance_submit').button({icons: {primary: 'ui-icon-circle-plus'}});
       if(jQuery(".question-instance-control").length > 0){
         // We're on the question instance list page.
         jQuery.observeQuestionInstanceControl();

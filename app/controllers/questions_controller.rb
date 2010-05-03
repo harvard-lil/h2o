@@ -19,7 +19,7 @@ class QuestionsController < BaseController
       @question.sticky = (@question.sticky) ? false : true
       @question.save
       @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-      render :text => @question.id, :layout => false
+      render :text => @question.id
     end
   rescue Exception => e
     render :text => "There seems to have been a problem: #{e.inspect}", :status => :unprocessable_entity
@@ -28,7 +28,6 @@ class QuestionsController < BaseController
   def replies
     begin
       @question = Question.find(params[:id])
-      render :layout => false
     rescue Exception => e
       render :text => "We're sorry, we couldn't load the replies for that question." + e.inspect, 
         :status => :internal_server_error
@@ -65,7 +64,6 @@ class QuestionsController < BaseController
     rescue Exception => e
       @question.question_instance = QuestionInstance.default_instance
     end
-    render :layout => (request.xhr?) ? false : true
   end
 
   # GET /questions/1/edit
@@ -85,7 +83,7 @@ class QuestionsController < BaseController
       @question.user = current_user
       if @question.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-        format.html { render :text => @question.id, :layout => (request.xhr?) ? false : true }
+        format.html { render :text => @question.id }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
         format.html { render :text => "We couldn't add that question. Sorry!<br/>#{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
@@ -117,9 +115,9 @@ class QuestionsController < BaseController
   def destroy
     @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
     @question.destroy
-    render :text => "We've deleted that item.", :layout => false
+    render :text => "We've deleted that item."
   rescue
-    render :text => 'There seems to have been a problem deleting that item.', :status => :unprocessable_entity, :layout => false
+    render :text => 'There seems to have been a problem deleting that item.', :status => :unprocessable_entity
   end
 
   private
@@ -139,7 +137,7 @@ class QuestionsController < BaseController
         q.updated_at = Time.now
         q.save
       end
-      render :text => '<p>Vote tallied!</p>', :layout => false
+      render :text => '<p>Vote tallied!</p>'
     rescue Exception => e
       #you fail it.
       logger.error('Vote failed! Reason:' + e.inspect)

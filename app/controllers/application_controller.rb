@@ -24,18 +24,9 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  # Switches to nil layout for modal calls
+  # Switches to nil layout for ajax calls.
   def layout_switch
-    @app_controller = self.controller_name.downcase
-    @app_action = self.action_name.downcase
-
-    if ["user_sessions", "users",'questions','question_instances'].include?(@app_controller)
-      return :application
-    elsif ["new", "edit", "reply", "delete"].include?(@app_action)
-      return nil
-    else
-      return :application
-    end
+    (request.xhr?) ? nil : :application
   end
 
   def title_select

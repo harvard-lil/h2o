@@ -28,7 +28,7 @@ class QuestionInstancesController < BaseController
     @question_instances = QuestionInstance.find(:all, :order => :id)
 
     respond_to do |format|
-      format.html { render :layout => (request.xhr?) ? false : true }
+      format.html { render }
       format.xml  { render :xml => @question_instances }
     end
   end
@@ -63,7 +63,7 @@ class QuestionInstancesController < BaseController
     @question_instance = QuestionInstance.find(params[:id])
 
     respond_to do |format|
-      format.html {render :layout => (request.xhr?) ? false : true} 
+      format.html { render } 
       format.xml  { render :xml => @question_instance }
     end
   end
@@ -75,7 +75,8 @@ class QuestionInstancesController < BaseController
     @question_instance = QuestionInstance.new
 
     respond_to do |format|
-      format.html { render :partial => 'shared/forms/question_instance', :layout => false} 
+      format.js { render :partial => 'shared/forms/question_instance' } 
+      format.html { render } 
       format.xml  { render :xml => @question_instance }
     end
   end
@@ -84,7 +85,7 @@ class QuestionInstancesController < BaseController
   def edit
     add_stylesheets ["formtastic","forms"]
     respond_to do |format|
-      format.html { render :partial => 'shared/forms/question_instance', :layout => false} 
+      format.html { render :partial => 'shared/forms/question_instance' } 
       format.xml  { render :xml => @question_instance }
     end
   end
@@ -99,7 +100,7 @@ class QuestionInstancesController < BaseController
       if @question_instance.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
-        format.html { render :text => @question_instance.id, :layout => false }
+        format.html { render :text => @question_instance.id }
         format.xml  { render :xml => @question_instance, :status => :created, :location => @question_instance }
       else
         format.html { render :text => "We couldn't add that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
@@ -118,7 +119,7 @@ class QuestionInstancesController < BaseController
       if @question_instance.update_attributes(params[:question_instance])
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'Question Instance was successfully updated.'
-        format.html { render :text => @question_instance.id, :layout => false }
+        format.html { render :text => @question_instance.id }
         format.xml  { head :ok }
       else
         format.html { render :text => "We couldn't update that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }

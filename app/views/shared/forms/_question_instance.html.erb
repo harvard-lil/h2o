@@ -28,4 +28,9 @@
       :required => false
     %>
   <% end %>
+  <% unless request.xhr? %>
+    <% form.buttons do %>
+     <%= form.commit_button 'Save' %>
+    <% end %>
+  <% end %>
 <% end %>
