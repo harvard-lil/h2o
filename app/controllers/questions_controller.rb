@@ -136,7 +136,11 @@ class QuestionsController < BaseController
       q.updated_at = Time.now
       q.save
     end
-    render :text => '<p>Vote tallied!</p>'
+    if request.xhr?
+      render :text => '<p>Vote tallied!</p>'
+    else
+      redirect_to question_instance_path(q.question_instance)
+    end
   rescue Exception => e
     #you fail it.
     logger.error('Vote failed! Reason:' + e.inspect)
