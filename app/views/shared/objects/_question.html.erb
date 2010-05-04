@@ -1,14 +1,14 @@
 <% cache("question-detail-view-#{question.id}") do %>
   <div id="question-<%= question.id %>" class="question<%= (question.sticky) ? ' sticky' : '' %>">
     <div class="votes" id="votes-for-<%= question.id %>">
-      <%= link_to('<div class="up"></div>',url_for(:controller => '/questions', :action => :vote_for, :id => question.id), :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
+      <%= link_to('<div class="up"></div>',question_vote_for_path(question), :id => "vote-for-#{question.question_instance_id}-#{question.id}", :class => 'up') %>
       <div class="count"><%= question.vote_tally %></div>
-      <%= link_to('<div class="down"></div>',url_for(:controller => '/questions', :action => :vote_against, :id => question.id), :id => "vote-against-#{question.question_instance_id}-#{question.id}", :class=> 'down') %>
+      <%= link_to('<div class="down"></div>',question_vote_against_path(question), :id => "vote-against-#{question.question_instance_id}-#{question.id}", :class=> 'down') %>
       <span class="total_count"><%= (question.votes.blank?) ? '' : "#{question.votes.count} total" %></span>
     </div>
     <p><%= h question.question.to_s %></p>
     <div class="meta">
-      <span class="replies"><%= question.reply_count %> <%= (question.children.length != 0) ? link_to('show', url_for(:controller => '/questions', :action => :replies, :id => question.id), :id => "show-replies-on-#{question.id}",:class => 'show-replies') : '' %> <%= link_to('add', new_question_path('question[question_instance_id]' => question.question_instance_id, 'question[parent_id]' => question.id), :id => "new-question-for-#{question.question_instance_id}-#{question.id}", :class => 'new-question-for' ) %></span>
+      <span class="replies"><%= question.reply_count %> <%= (question.children.length != 0) ? link_to('show', question_replies_path(question), :id => "show-replies-on-#{question.id}",:class => 'show-replies') : '' %> <%= link_to('add', new_question_path('question[question_instance_id]' => question.question_instance_id, 'question[parent_id]' => question.id), :id => "new-question-for-#{question.question_instance_id}-#{question.id}", :class => 'new-question-for' ) %></span>
       <span class="user"><span>by</span> <%= question.user.login %></span>
       <span class="datetime unixtime"><%= question.updated_at.to_i %></span>
       <a href="#" class="destroy" id="destroy-<%= question.id %>"></a>

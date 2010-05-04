@@ -11,9 +11,11 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
 
-  map.resources :questions
-  map.resources :questions, :action => :vote_for, :method => :post
-  map.resources :questions, :action => :vote_against, :method => :post
+  map.resources :questions do |q|
+    q.vote_for 'vote_for', :controller => 'questions', :action => :vote_for, :method => :post
+    q.vote_against 'vote_against', :controller => 'questions', :action => :vote_against, :method => :post
+    q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
+  end
 
   map.resources :question_instances
 
