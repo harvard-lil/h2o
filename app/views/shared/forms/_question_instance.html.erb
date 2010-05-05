@@ -17,16 +17,6 @@
       :required => true,
       :label => 'Number of "featured" questions' 
     %>
-    <%= form.input :new_question_timeout, 
-      :as => :select, 
-      :collection => QuestionInstance::NEW_QUESTION_TIMEOUTS,
-      :required => false
-    %>
-    <%= form.input :old_question_timeout, 
-      :as => :select, 
-      :collection => QuestionInstance::OLD_QUESTION_TIMEOUTS,
-      :required => false
-    %>
   <% end %>
   <% unless request.xhr? %>
     <% form.buttons do %>
