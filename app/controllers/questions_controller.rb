@@ -83,10 +83,22 @@ class QuestionsController < BaseController
       @question.user = current_user
       if @question.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-        format.html { render :text => @question.id }
+        format.html {
+          if request.xhr?
+            render :text => @question.id 
+          else 
+            redirect_to question_instance_path(@question.question_instance)
+          end
+        }
         format.xml  { render :xml => @question, :status => :created, :location => @question }
       else
-        format.html { render :text => "We couldn't add that question. Sorry!<br/>#{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
+        format.html { 
+          if request.xhr?
+          render :text => "We couldn't add that question. Sorry!<br/>#{@question.errors.full_messages.join('<br/')}", :status => :unprocessable_entity 
+          else
+            render :action => :new
+          end
+        }
         format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
       end
     end
@@ -123,7 +135,7 @@ class QuestionsController < BaseController
   private
 
   def vote_engine(vote_type = 'for')
-    q = Question.find(params[:id])
+    q = Question.find(params[:id] || params[:question_id])
     if vote_type == 'for'
       current_user.vote_for(q)
     else

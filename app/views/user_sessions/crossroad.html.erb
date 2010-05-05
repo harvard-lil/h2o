@@ -1,10 +1,20 @@
-<script type="text/javascript">
-  jQuery(function() {
+  <%= javascript_tag(%q|jQuery(function() {
     jQuery("#register_button").button();
     jQuery("#login_button").button();
-    jQuery("#anonymous_button").button();
-  });
-</script>
+    jQuery("#anonymous_button").button().click(function(e){
+      jQuery.ajax({
+        type: 'POST',
+        url: jQuery.rootPath() + 'users/create_anon',
+        beforeSend: function(){
+          jQuery('#spinner_block').show();
+        },
+        success: function(html){
+          jQuery('#spinner_block').hide();
+          window.location.href = html;
+        }
+      });
+    });
+  });|) %>
 
 <p>Are you a first time user?  Click below to register with the site locally
   or by using your Twitter account.</p>
@@ -17,4 +27,4 @@
 
 <p>Want to try it out without creating an account?  Click here to participate anonymously.</p>
 
-<a href="/users/create_anon"><button id="anonymous_button">Anonymous Access</button></a>
+<p><button id="anonymous_button">Anonymous Access</button></p>

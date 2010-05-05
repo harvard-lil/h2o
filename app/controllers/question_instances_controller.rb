@@ -102,10 +102,22 @@ class QuestionInstancesController < BaseController
       if @question_instance.save
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
-        format.html { render :text => @question_instance.id }
+        format.html { 
+          if request.xhr?
+            render :text => @question_instance.id 
+          else
+            redirect_to question_instances_path
+          end
+        }
         format.xml  { render :xml => @question_instance, :status => :created, :location => @question_instance }
       else
-        format.html { render :text => "We couldn't add that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity }
+        format.html { 
+          if request.xhr?
+            render :text => "We couldn't add that question instance. Sorry!<br/>#{@question_instance.errors.full_messages.join('<br/')}", :status => :unprocessable_entity 
+          else
+            render :action => :new
+          end
+        }
         format.xml  { render :xml => @question_instance.errors, :status => :unprocessable_entity }
       end
     end

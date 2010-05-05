@@ -12,8 +12,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
 
   map.resources :questions do |q|
-    q.vote_for 'vote_for', :controller => 'questions', :action => :vote_for, :method => :post
-    q.vote_against 'vote_against', :controller => 'questions', :action => :vote_against, :method => :post
+    q.vote_for 'vote_for', :controller => 'questions', :action => :vote_for, :method => :get
+    q.vote_against 'vote_against', :controller => 'questions', :action => :vote_against, :method => :get
     q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
   end
 
@@ -51,7 +51,7 @@ ActionController::Routing::Routes.draw do |map|
   #   end
 
   map.resource :account, :controller => "users"
-  map.resources :users, :collection => {:create_anon => :get}
+  map.resources :users, :collection => {:create_anon => :post}
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
 
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.

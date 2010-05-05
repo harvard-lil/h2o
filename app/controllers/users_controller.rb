@@ -22,13 +22,10 @@ class UsersController < ApplicationController
 
   def create_anon
     password = ActiveSupport::SecureRandom.random_bytes(10)
-
     @user = User.new(:login => "anon_#{ActiveSupport::SecureRandom.hex(13)}",
       :password => password,
       :password_confirmation => password)
-
     @user.has_role! :nonauthenticated
-
     @user.save do |result|
       if result
         if request.xhr?
