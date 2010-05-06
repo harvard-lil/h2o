@@ -34,6 +34,7 @@ class ApplicationController < ActionController::Base
     case self.controller_name
       when "base" then @logo_title = "Home"
       when "rotisserie_instances", "rotisserie_discussions" then @logo_title = "Rotisserie"
+      when "questions", "question_instances" then @logo_title = "Question Tool"
     else
       @logo_title = self.controller_name
     end

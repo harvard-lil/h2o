@@ -22,12 +22,12 @@ class QuestionInstancesController < BaseController
   # GET /question_instances
   # GET /question_instances.xml
   def index
-    add_stylesheets 'question_tool'
+    add_stylesheets 'question_instances'
     add_stylesheets "tablesorter-blue-theme/style"
     add_javascripts 'question_instances_index'
     add_javascripts "jquery.tablesorter.min"
 
-    @question_instances = QuestionInstance.find(:all, :order => :id)
+    @question_instances = QuestionInstance.find(:all, :include => [:questions], :order => :id)
 
     respond_to do |format|
       format.html { render }

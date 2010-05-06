@@ -21,7 +21,7 @@ class QuestionInstance < ActiveRecord::Base
 
   #Get "root" questions in this question instance.
   def question_count
-    self.questions.find(:all, :conditions => ['parent_id is null']).length
+    self.questions.collect{|q| (q.parent_id == nil) ? 1 : nil}.compact.length
   end
 
   def featured_questions(params = {})
