@@ -2,6 +2,7 @@
     jQuery("#register_button").button();
     jQuery("#login_button").button();
     jQuery("#anonymous_button").button().click(function(e){
+      e.preventDefault();
       jQuery.ajax({
         type: 'POST',
         url: jQuery.rootPath() + 'users/create_anon',

@@ -25,13 +25,11 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
   add_index "notification_trackers", ["user_id"], :name => "index_notification_trackers_on_user_id"
 
   create_table "question_instances", :force => true do |t|
-    t.string   "name",                    :limit => 250,                   :null => false
+    t.string   "name",                    :limit => 250,                 :null => false
     t.integer  "user_id"
     t.integer  "project_id"
     t.string   "password",                :limit => 128
     t.integer  "featured_question_count",                 :default => 2
-    t.integer  "new_question_timeout",                    :default => 30
-    t.integer  "old_question_timeout",                    :default => 900
     t.string   "description",             :limit => 2000
     t.integer  "parent_id"
     t.integer  "children_count"
@@ -44,8 +42,6 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
   end
 
   add_index "question_instances", ["name"], :name => "index_question_instances_on_name", :unique => true
-  add_index "question_instances", ["new_question_timeout"], :name => "index_question_instances_on_new_question_timeout"
-  add_index "question_instances", ["old_question_timeout"], :name => "index_question_instances_on_old_question_timeout"
   add_index "question_instances", ["parent_id"], :name => "index_question_instances_on_parent_id"
   add_index "question_instances", ["position"], :name => "index_question_instances_on_position"
   add_index "question_instances", ["project_id", "position"], :name => "index_question_instances_on_project_id_and_position", :unique => true
@@ -56,9 +52,6 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
     t.integer  "question_instance_id",                                     :null => false
     t.integer  "user_id"
     t.string   "question",             :limit => 10000,                    :null => false
-    t.boolean  "posted_anonymously",                    :default => false
-    t.string   "email",                :limit => 250
-    t.string   "name",                 :limit => 250
     t.boolean  "sticky",                                :default => false
     t.integer  "parent_id"
     t.integer  "children_count"
@@ -70,12 +63,37 @@ ActiveRecord::Schema.define(:version => 20100409155520) do
     t.datetime "updated_at"
   end
 
-  add_index "questions", ["email"], :name => "index_questions_on_email"
+  add_index "questions", ["created_at"], :name => "index_questions_on_created_at"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
+  add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
+
+  create_table "replies", :force => true do |t|
+    t.integer  "question_id",                                           :null => false
+    t.integer  "user_id"
+    t.string   "reply",              :limit => 1000,                    :null => false
+    t.string   "email",              :limit => 250
+    t.string   "name",               :limit => 250
+    t.boolean  "posted_anonymously",                 :default => false
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "replies", ["email"], :name => "index_replies_on_email"
+  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
+  add_index "replies", ["position"], :name => "index_replies_on_position"
+  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
+  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
+  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
+  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
