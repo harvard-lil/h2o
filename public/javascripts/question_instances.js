@@ -7,6 +7,7 @@ jQuery(function(){
          */
         jQuery.ajax({
           type: 'GET',
+          cache: false,
           url: jQuery.rootPath() + 'questions/replies/' + questionId,
           beforeSend: function(){jQuery('#spinner_block').show()},
           success: function(html){
@@ -54,19 +55,20 @@ jQuery(function(){
             e.preventDefault();
             if(confirm('Are you sure?')){
               jQuery.ajax({
-              type: 'POST',
-                data: {'_method': 'delete'},
-                url: jQuery.rootPath() + "questions/destroy/" + interiorQuestionId,
-                beforeSend: function(){
-                  jQuery('#spinner_block').show();
-                },
-                success: function(html){
-                  jQuery('#spinner_block').hide();
-                  jQuery.updateQuestionInstanceView(questionInstanceId);
-                },
-                error: function(xhr){
-                  jQuery('div.ajax-error').show().append(xhr.responseText);
-                },
+                cache: false,
+                type: 'POST',
+                  data: {'_method': 'delete'},
+                  url: jQuery.rootPath() + "questions/destroy/" + interiorQuestionId,
+                  beforeSend: function(){
+                    jQuery('#spinner_block').show();
+                  },
+                  success: function(html){
+                    jQuery('#spinner_block').hide();
+                    jQuery.updateQuestionInstanceView(questionInstanceId);
+                  },
+                  error: function(xhr){
+                    jQuery('div.ajax-error').show().append(xhr.responseText);
+                  },
               });
             }
           });
@@ -74,6 +76,7 @@ jQuery(function(){
             var interiorQuestionId = jQuery(this).attr('id').split('-')[2];
             e.preventDefault();
             jQuery.ajax({
+              cache: false,
               type: 'POST',
               url: jQuery.rootPath() + "questions/toggle_sticky/" + questionId,
               success: function(html){
@@ -127,6 +130,7 @@ jQuery(function(){
             });
             jQuery.ajax({
               type: 'GET',
+              cache: false,
               url: jQuery.rootPath() + 'questions/new',
               data: {'question[question_instance_id]': questionInstanceId, 'question[parent_id]': interiorQuestionId},
               beforeSend: function(){
@@ -149,6 +153,7 @@ jQuery(function(){
          */
         jQuery.ajax({
           type: 'GET',
+          cache: false,
           url: jQuery.rootPath() + 'users/has_voted_for/Question',
           error: function(xhr){
             jQuery('div.ajax-error').show().append(xhr.responseText);
@@ -175,6 +180,7 @@ jQuery(function(){
             var dispatch_url = (for_or_against == 'for') ? jQuery.rootPath() + 'questions/vote_for' : jQuery.rootPath() + 'questions/vote_against';
             jQuery.ajax({
               type: 'POST',
+              cache: false,
               url: dispatch_url,
               data: {id: questionId, authenticity_token: AUTH_TOKEN},
               beforeSend: function(){
@@ -201,6 +207,7 @@ jQuery(function(){
         }
         jQuery.ajax({
           type: 'GET',
+          cache: false,
           url: jQuery.rootPath() + 'question_instances/' + questionInstanceId,
           data: {sort: jQuery.cookie('sort')},
           error: function(xhr){
@@ -210,6 +217,7 @@ jQuery(function(){
             jQuery('#questions-' + questionInstanceId).html(html); 
             jQuery.observeQuestionCollection();
             jQuery.ajax({
+              cache: false,
               type: 'GET',
               url: jQuery.rootPath() + 'question_instances/last_updated_questions/' + questionInstanceId,
               data: {time: updatedSince},
@@ -248,6 +256,7 @@ jQuery(function(){
         if (currentlyPolling != 'true'){
           var questionInstanceId = jQuery('div.questions').attr('id').split('-')[1];
           jQuery.ajax({
+            cache: false,
             type: 'GET',
             url: jQuery.rootPath() + 'question_instances/updated/' + questionInstanceId,
             beforeSend: function(){

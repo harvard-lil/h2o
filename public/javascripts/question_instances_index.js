@@ -15,6 +15,7 @@ jQuery(function(){
               dispatchUrl = jQuery.rootPath() + 'question_instances/new'
             }
             jQuery.ajax({
+              cache: false,
               type: 'GET',
               url: dispatchUrl,
               beforeSend: function(){
@@ -48,6 +49,7 @@ jQuery(function(){
                     success: function(responseText){
                       jQuery('#spinner_block').hide();
                       jQuery.ajax({
+                        cache: false,
                         type: 'GET',
                         url: jQuery.rootPath() + 'question_instances',
                         beforeSend: function(){
