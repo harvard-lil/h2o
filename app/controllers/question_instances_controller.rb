@@ -28,11 +28,6 @@ class QuestionInstancesController < BaseController
     add_javascripts "jquery.tablesorter.min"
 
     @question_instances = QuestionInstance.find(:all, :include => [:questions], :order => :id)
-
-    respond_to do |format|
-      format.html { render }
-      format.xml  { render :xml => @question_instances }
-    end
   end
 
   def updated
@@ -63,11 +58,6 @@ class QuestionInstancesController < BaseController
       params[:sort] = cookies[:sort]
     end
     @question_instance = QuestionInstance.find(params[:id])
-
-    respond_to do |format|
-      format.html { render } 
-      format.xml  { render :xml => @question_instance }
-    end
   end
 
   # GET /question_instances/new
@@ -75,21 +65,11 @@ class QuestionInstancesController < BaseController
   def new
     add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.new
-
-    respond_to do |format|
-      format.js { render :partial => 'shared/forms/question_instance' } 
-      format.html { render } 
-      format.xml  { render :xml => @question_instance }
-    end
   end
 
   # GET /question_instances/1/edit
   def edit
     add_stylesheets ["formtastic","forms"]
-    respond_to do |format|
-      format.html { render :partial => 'shared/forms/question_instance' } 
-      format.xml  { render :xml => @question_instance }
-    end
   end
 
   # POST /question_instances
@@ -146,11 +126,7 @@ class QuestionInstancesController < BaseController
   # DELETE /question_instances/1.xml
   def destroy
     @question_instance.destroy
-
-    respond_to do |format|
-      format.html { redirect_to(question_instances_url) }
-      format.xml  { head :ok }
-    end
+    redirect_to(question_instances_url) 
   end
 
   private

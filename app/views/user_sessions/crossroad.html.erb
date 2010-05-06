@@ -1,31 +1,18 @@
   <%= javascript_tag(%q|jQuery(function() {
     jQuery("#register_button").button();
     jQuery("#login_button").button();
-    jQuery("#anonymous_button").button().click(function(e){
-      e.preventDefault();
-      jQuery.ajax({
-        type: 'POST',
-        url: jQuery.rootPath() + 'users/create_anon',
-        beforeSend: function(){
-          jQuery('#spinner_block').show();
-        },
-        success: function(html){
-          jQuery('#spinner_block').hide();
-          window.location.href = html;
-        }
-      });
-    });
+    jQuery("#anonymous_button").button();
   });|) %>
 
 <p>Are you a first time user?  Click below to register with the site locally
   or by using your Twitter account.</p>
 
-<a href="/users/new"><button id="register_button">Sign Up New User</button></a>
+<a href="/users/new" id="register_button">Sign Up New User</a>
 
 <p>Returning users log in here with your local username and password or with Twitter.</p>
 
-<a href="/user_sessions/new"><button id="login_button">Login</button></a>
+<a href="/user_sessions/new" id="login_button">Login</a>
 
 <p>Want to try it out without creating an account?  Click here to participate anonymously.</p>
 
-<p><button id="anonymous_button">Anonymous Access</button></p>
+<p><%= link_to('Anonymous Access', url_for(:controller => '/users', :action => :create_anon), :id => 'anonymous_button', :method => :post) %></p>

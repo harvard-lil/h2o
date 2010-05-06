@@ -30,13 +30,13 @@ class UsersController < ApplicationController
       if result
         if request.xhr?
           #text doesn't matter, it's the return code that does
-          render :text => (session[:return_to] || '/'), :layout => false
+          render :text => (session[:return_to] || '/')
         else
           flash[:notice] = "Account registered!"
           redirect_back_or_default account_url
         end
       else
-        render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity 
+        render :action => :new, :status => :unprocessable_entity 
       end
     end
   end

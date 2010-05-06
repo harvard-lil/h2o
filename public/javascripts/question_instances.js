@@ -68,7 +68,7 @@ jQuery(function(){
                   },
                   error: function(xhr){
                     jQuery('div.ajax-error').show().append(xhr.responseText);
-                  },
+                  }
               });
             }
           });
@@ -84,7 +84,7 @@ jQuery(function(){
               },
               error: function(xhr){
                 jQuery('div.ajax-error').show().append(xhr.responseText);
-              },
+              }
             });
           });
         }
@@ -285,11 +285,14 @@ jQuery(function(){
         var repliesContainer = jQuery('#replies-container-' + questionId);
         jQuery(element).find('a.show-replies').button({icons: {primary: 'ui-icon-carat-2-n-s'}}).click(function(e){
           e.preventDefault();
-          if(repliesContainer.html().length > 0 && repliesContainer.is(':visible')){
+          if(repliesContainer.is(':visible')){
             //There's content in here and it's visible. Just hide it.
             repliesContainer.toggle('fast');
             jQuery.removeReplyContainerFromCookie('show-reply-containers','#replies-container-' + questionId);
-            jQuery(this).button({label: 'show'});
+            if (! jQuery.browser.msie){
+              // Makes no sense, but this throws a js error on ie 7 & 8.
+              jQuery(this).button('option','label', 'show');
+            }
           } else {
             //There's no content, or there's content and it's invisible. 
             //Get the replies again to ensure fresh content.
@@ -354,7 +357,9 @@ jQuery(function(){
     });
 
   jQuery(document).ready(function(){
-    jQuery.determineOwnershipAndInit();
-    setInterval("jQuery.updateAutomatically()",10000);
+    if(jQuery('div.questions').length > 0 ){
+      jQuery.determineOwnershipAndInit();
+      setInterval("jQuery.updateAutomatically()",10000);
+    }
   });
 });
