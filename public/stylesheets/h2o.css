@@ -169,7 +169,7 @@ div.post-assigned {
 }
 
 #f_block1 {
-    width: 530px;
+    width: 330px;
     float: left;
 }
 
@@ -187,12 +187,23 @@ div.post-assigned {
     float: left;
 }
 
+#f_block4 {
+    width: 200px;
+    height: 150px;
+    background-color: #ff9900;
+    float: left;
+}
+
 #f_block2 img {
     margin-top: 25px;
 }
 
 #f_block3 img {
     margin-top: 25px;
+}
+
+#f_block4 img {
+    margin-top: 15px;
 }
 
 .info_block {

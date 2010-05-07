@@ -51,6 +51,14 @@ jQuery(function() {
       }
     );
 
+    jQuery("#playlist_logo").hover( function () {
+        jQuery(this).attr('src', '/images/elements/playlist_hover.png');
+      },
+      function () {
+        jQuery(this).attr('src', '/images/elements/playlist.png');
+      }
+    );
+
   //Fire functions for discussions
   initDiscussionControls();
 
