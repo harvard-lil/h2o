@@ -36,7 +36,7 @@ class UsersController < ApplicationController
           redirect_back_or_default account_url
         end
       else
-        render :action => :new, :status => :unprocessable_entity 
+        render :action => :create_anon, :status => :unprocessable_entity
       end
     end
   end
