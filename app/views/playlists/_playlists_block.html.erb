@@ -1,0 +1,33 @@
+<% @playlists = Playlist.all(:order => :id) %>
+
+<table class="core_table">
+  <thead>
+    <tr class="table_heading ">
+      <th>Playlist Title</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @playlists.each do |playlist| %>
+      <tr>
+        <td><%= link_to rotisserie_instance.playlist, playlist %></td>
+        <td>
+          <% if playlist.admin? || playlist.owner? %>
+          <button id="button-playlist-edit-<%= playlist.id %>" name="button-playlist-edit" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_edit.png" %>
+          </button>
+          <% end %>
+        </td>
+        <td>
+          <% if playlist.admin? || playlist.owner? %>
+          <button id="button-playlist-delete-<%= playlist.id %>" name="button-playlist-delete" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_delete.png" %>
+          </button>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

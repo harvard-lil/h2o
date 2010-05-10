@@ -1,4 +1,10 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_defaults
+
+  map.resources :playlist_items
+
+  map.resources :playlists
+
 
   map.resources :rotisserie_trackers
 

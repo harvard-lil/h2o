@@ -1,0 +1,12 @@
+<h1>Editing playlist_item</h1>
+
+<% form_for(@playlist_item) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @playlist_item %> |
+<%= link_to 'Back', playlist_items_path %>
