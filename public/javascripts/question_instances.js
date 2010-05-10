@@ -224,7 +224,7 @@ jQuery(function(){
               success: function(innerHtml){
                 if(innerHtml.length > 0){
                   jQuery(innerHtml).each(function(){
-                    jQuery('#question-' + this).effect('pulsate');
+                    jQuery('#question-' + this).effect('highlight',{},2000);
                   });
                 }
               },

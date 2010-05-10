@@ -1,0 +1,18 @@
+<h1>Listing casebooks</h1>
+
+<table>
+  <tr>
+  </tr>
+
+<% @casebooks.each do |casebook| %>
+  <tr>
+    <td><%= link_to 'Show', casebook %></td>
+    <td><%= link_to 'Edit', edit_casebook_path(casebook) %></td>
+    <td><%= link_to 'Destroy', casebook, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New casebook', new_casebook_path %>

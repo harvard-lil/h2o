@@ -1,0 +1,12 @@
+<h1>Editing casebook</h1>
+
+<% form_for(@casebook) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @casebook %> |
+<%= link_to 'Back', casebooks_path %>

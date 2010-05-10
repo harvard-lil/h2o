@@ -1,10 +1,14 @@
 ActionController::Routing::Routes.draw do |map|
+
   map.resources :item_defaults
+
+  map.connect 'casebooks/annotation', :controller => 'casebooks', :action => :annotation, :method => :get
+
+  map.resources :casebooks
 
   map.resources :playlist_items
 
   map.resources :playlists
-
 
   map.resources :rotisserie_trackers
 
