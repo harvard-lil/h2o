@@ -1,0 +1,25 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  collage_id: 1
+  user_id: 1
+  dom_element: MyString
+  annotation: MyString
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false
+
+two:
+  collage_id: 1
+  user_id: 1
+  dom_element: MyString
+  annotation: MyString
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false

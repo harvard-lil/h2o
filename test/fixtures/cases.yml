@@ -1,0 +1,25 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  current_opinion: false
+  short_name: MyString
+  full_name: MyString
+  decision_date: 2010-05-11
+  author: MyString
+  party_header: MyString
+  lawyer_header: MyString
+  header_html: MyString
+  jurisdiction_id: 1
+  content: MyText
+
+two:
+  current_opinion: false
+  short_name: MyString
+  full_name: MyString
+  decision_date: 2010-05-11
+  author: MyString
+  party_header: MyString
+  lawyer_header: MyString
+  header_html: MyString
+  jurisdiction_id: 1
+  content: MyText

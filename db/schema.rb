@@ -9,7 +9,57 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100510181604) do
+ActiveRecord::Schema.define(:version => 20100511172144) do
+
+  create_table "annotations", :force => true do |t|
+    t.integer  "collage_id"
+    t.integer  "user_id"
+    t.string   "dom_element"
+    t.string   "annotation"
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.boolean  "hidden"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "case_citations", :force => true do |t|
+    t.integer  "case_id"
+    t.string   "volume",     :limit => 200, :null => false
+    t.string   "reporter",   :limit => 200, :null => false
+    t.string   "page",       :limit => 200, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "case_citations", ["case_id"], :name => "index_case_citations_on_case_id"
+  add_index "case_citations", ["page"], :name => "index_case_citations_on_page"
+  add_index "case_citations", ["reporter"], :name => "index_case_citations_on_reporter"
+  add_index "case_citations", ["volume"], :name => "index_case_citations_on_volume"
+
+  create_table "case_docket_numbers", :force => true do |t|
+    t.integer  "case_id"
+    t.string   "docket_number", :limit => 200, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "case_docket_numbers", ["case_id"], :name => "index_case_docket_numbers_on_case_id"
+  add_index "case_docket_numbers", ["docket_number"], :name => "index_case_docket_numbers_on_docket_number"
+
+  create_table "case_jurisdictions", :force => true do |t|
+    t.string   "abbreviation", :limit => 150
+    t.string   "name",         :limit => 500
+    t.text     "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
+  add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
   create_table "casebooks", :force => true do |t|
     t.integer  "user_id"
@@ -31,6 +81,46 @@ ActiveRecord::Schema.define(:version => 20100510181604) do
   add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
   add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
   add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
+
+  create_table "cases", :force => true do |t|
+    t.boolean  "current_opinion",                        :default => true
+    t.string   "short_name",           :limit => 150,                      :null => false
+    t.string   "full_name",            :limit => 500,                      :null => false
+    t.date     "decision_date"
+    t.string   "author",               :limit => 150
+    t.string   "party_header",         :limit => 10240
+    t.string   "lawyer_header",        :limit => 2048
+    t.string   "header_html",          :limit => 15360
+    t.integer  "case_jurisdiction_id"
+    t.string   "content",              :limit => 512000,                   :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "cases", ["author"], :name => "index_cases_on_author"
+  add_index "cases", ["case_jurisdiction_id"], :name => "index_cases_on_case_jurisdiction_id"
+  add_index "cases", ["created_at"], :name => "index_cases_on_created_at"
+  add_index "cases", ["current_opinion"], :name => "index_cases_on_current_opinion"
+  add_index "cases", ["decision_date"], :name => "index_cases_on_decision_date"
+  add_index "cases", ["full_name"], :name => "index_cases_on_full_name"
+  add_index "cases", ["short_name"], :name => "index_cases_on_short_name"
+  add_index "cases", ["updated_at"], :name => "index_cases_on_updated_at"
+
+  create_table "collages", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "annotatable_type"
+    t.integer  "annotatable_id"
+    t.string   "name"
+    t.text     "description"
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.boolean  "hidden"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "notification_trackers", :force => true do |t|
     t.integer  "rotisserie_discussion_id"

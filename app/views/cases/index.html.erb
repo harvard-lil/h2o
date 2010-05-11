@@ -1,0 +1,38 @@
+<h1>Listing cases</h1>
+
+<table>
+  <tr>
+    <th>Current opinion</th>
+    <th>Short name</th>
+    <th>Full name</th>
+    <th>Decision date</th>
+    <th>Author</th>
+    <th>Party header</th>
+    <th>Lawyer header</th>
+    <th>Header html</th>
+    <th>Jurisdiction</th>
+    <th>Content</th>
+  </tr>
+
+<% @cases.each do |case| %>
+  <tr>
+    <td><%=h case.current_opinion %></td>
+    <td><%=h case.short_name %></td>
+    <td><%=h case.full_name %></td>
+    <td><%=h case.decision_date %></td>
+    <td><%=h case.author %></td>
+    <td><%=h case.party_header %></td>
+    <td><%=h case.lawyer_header %></td>
+    <td><%=h case.header_html %></td>
+    <td><%=h case.jurisdiction_id %></td>
+    <td><%=h case.content %></td>
+    <td><%= link_to 'Show', case %></td>
+    <td><%= link_to 'Edit', edit_case_path(case) %></td>
+    <td><%= link_to 'Destroy', case, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New case', new_case_path %>

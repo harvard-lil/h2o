@@ -1,4 +1,16 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :annotations
+
+  map.resources :case_jurisdictions
+
+  map.resources :case_docket_numbers
+
+  map.resources :case_citations
+
+  map.resources :cases
+
+  map.resources :collages
+
 
   map.resources :item_defaults
 

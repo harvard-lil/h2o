@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  case_id: 1
+  volume: MyString
+  reporter: MyString
+  page: MyString
+
+two:
+  case_id: 1
+  volume: MyString
+  reporter: MyString
+  page: MyString

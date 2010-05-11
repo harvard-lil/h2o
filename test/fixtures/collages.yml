@@ -1,0 +1,27 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  user_id: 1
+  annotatable_type: MyString
+  annotatable_id: 1
+  name: MyString
+  description: MyText
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false
+
+two:
+  user_id: 1
+  annotatable_type: MyString
+  annotatable_id: 1
+  name: MyString
+  description: MyText
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false

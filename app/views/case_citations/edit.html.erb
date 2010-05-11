@@ -1,0 +1,28 @@
+<h1>Editing case_citation</h1>
+
+<% form_for(@case_citation) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :case_id %><br />
+    <%= f.text_field :case_id %>
+  </p>
+  <p>
+    <%= f.label :volume %><br />
+    <%= f.text_field :volume %>
+  </p>
+  <p>
+    <%= f.label :reporter %><br />
+    <%= f.text_field :reporter %>
+  </p>
+  <p>
+    <%= f.label :page %><br />
+    <%= f.text_field :page %>
+  </p>
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @case_citation %> |
+<%= link_to 'Back', case_citations_path %>

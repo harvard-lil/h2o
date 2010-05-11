@@ -1,0 +1,40 @@
+<h1>Listing collages</h1>
+
+<table>
+  <tr>
+    <th>User</th>
+    <th>Annotatable type</th>
+    <th>Annotatable</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Parent</th>
+    <th>Children count</th>
+    <th>Ancestors count</th>
+    <th>Descendants count</th>
+    <th>Position</th>
+    <th>Hidden</th>
+  </tr>
+
+<% @collages.each do |collage| %>
+  <tr>
+    <td><%=h collage.user_id %></td>
+    <td><%=h collage.annotatable_type %></td>
+    <td><%=h collage.annotatable_id %></td>
+    <td><%=h collage.name %></td>
+    <td><%=h collage.description %></td>
+    <td><%=h collage.parent_id %></td>
+    <td><%=h collage.children_count %></td>
+    <td><%=h collage.ancestors_count %></td>
+    <td><%=h collage.descendants_count %></td>
+    <td><%=h collage.position %></td>
+    <td><%=h collage.hidden %></td>
+    <td><%= link_to 'Show', collage %></td>
+    <td><%= link_to 'Edit', edit_collage_path(collage) %></td>
+    <td><%= link_to 'Destroy', collage, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New collage', new_collage_path %>

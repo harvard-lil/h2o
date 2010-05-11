@@ -1,0 +1,53 @@
+<p>
+  <b>Current opinion:</b>
+  <%=h @case.current_opinion %>
+</p>
+
+<p>
+  <b>Short name:</b>
+  <%=h @case.short_name %>
+</p>
+
+<p>
+  <b>Full name:</b>
+  <%=h @case.full_name %>
+</p>
+
+<p>
+  <b>Decision date:</b>
+  <%=h @case.decision_date %>
+</p>
+
+<p>
+  <b>Author:</b>
+  <%=h @case.author %>
+</p>
+
+<p>
+  <b>Party header:</b>
+  <%=h @case.party_header %>
+</p>
+
+<p>
+  <b>Lawyer header:</b>
+  <%=h @case.lawyer_header %>
+</p>
+
+<p>
+  <b>Header html:</b>
+  <%=h @case.header_html %>
+</p>
+
+<p>
+  <b>Jurisdiction:</b>
+  <%=h @case.jurisdiction_id %>
+</p>
+
+<p>
+  <b>Content:</b>
+  <%=h @case.content %>
+</p>
+
+
+<%= link_to 'Edit', edit_case_path(@case) %> |
+<%= link_to 'Back', cases_path %>
