@@ -6,7 +6,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :playlist_items
 
-  map.resources :playlists
+  map.resources :playlists, :collection => {:block => :get}, :member => {:delete => :get }
 
   map.resources :rotisserie_trackers
 

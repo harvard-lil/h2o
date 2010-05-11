@@ -12,7 +12,7 @@
   <tbody>
     <% @playlists.each do |playlist| %>
       <tr>
-        <td><%= link_to rotisserie_instance.playlist, playlist %></td>
+        <td><%= link_to playlist.output_text, playlist %></td>
         <td>
           <% if playlist.admin? || playlist.owner? %>
           <button id="button-playlist-edit-<%= playlist.id %>" name="button-playlist-edit" class="ui-button ui-state-default ui-corner-all">

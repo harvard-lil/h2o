@@ -7,6 +7,10 @@ module AuthUtilities
     return current_user
   end
 
+  def admin?
+    return self.accepts_role?(:admin, current_user)
+  end
+
   def owner?
     return self.accepts_role?(:owner, current_user)
   end

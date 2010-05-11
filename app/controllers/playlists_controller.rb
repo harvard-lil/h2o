@@ -42,12 +42,26 @@ class PlaylistsController < ApplicationController
   def create
     @playlist = Playlist.new(params[:playlist])
 
+    @playlist.title = @playlist.output_text.downcase.gsub(" ", "_") unless @playlist.title.present?
+
     respond_to do |format|
       if @playlist.save
+
+        # If save then assign role as owner to object
+        @playlist.accepts_role!(:owner, current_user)
+
         flash[:notice] = 'Playlist was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
+        @error_output = "<div class='error ui-corner-all'>"
+         @rotisserie_instance.errors.each{ |attr,msg|
+           @error_output += "#{attr} #{msg}<br />"
+         }
+        @error_output += "</div>"
+
+        format.js {render :text => @error_output, :status => :unprocessable_entity}
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
       end
@@ -82,4 +96,15 @@ class PlaylistsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  def block
+    respond_to do |format|
+      format.html {
+        render :partial => 'playlists_block',
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+  end
+
 end
