@@ -1,0 +1,53 @@
+<p>
+  <b>Collage:</b>
+  <%=h @annotation.collage_id %>
+</p>
+
+<p>
+  <b>User:</b>
+  <%=h @annotation.user_id %>
+</p>
+
+<p>
+  <b>Dom element:</b>
+  <%=h @annotation.dom_element %>
+</p>
+
+<p>
+  <b>Annotation:</b>
+  <%=h @annotation.annotation %>
+</p>
+
+<p>
+  <b>Parent:</b>
+  <%=h @annotation.parent_id %>
+</p>
+
+<p>
+  <b>Children count:</b>
+  <%=h @annotation.children_count %>
+</p>
+
+<p>
+  <b>Ancestors count:</b>
+  <%=h @annotation.ancestors_count %>
+</p>
+
+<p>
+  <b>Descendants count:</b>
+  <%=h @annotation.descendants_count %>
+</p>
+
+<p>
+  <b>Position:</b>
+  <%=h @annotation.position %>
+</p>
+
+<p>
+  <b>Hidden:</b>
+  <%=h @annotation.hidden %>
+</p>
+
+
+<%= link_to 'Edit', edit_annotation_path(@annotation) %> |
+<%= link_to 'Back', annotations_path %>

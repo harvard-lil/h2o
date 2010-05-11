@@ -1,0 +1,38 @@
+<h1>Listing annotations</h1>
+
+<table>
+  <tr>
+    <th>Collage</th>
+    <th>User</th>
+    <th>Dom element</th>
+    <th>Annotation</th>
+    <th>Parent</th>
+    <th>Children count</th>
+    <th>Ancestors count</th>
+    <th>Descendants count</th>
+    <th>Position</th>
+    <th>Hidden</th>
+  </tr>
+
+<% @annotations.each do |annotation| %>
+  <tr>
+    <td><%=h annotation.collage_id %></td>
+    <td><%=h annotation.user_id %></td>
+    <td><%=h annotation.dom_element %></td>
+    <td><%=h annotation.annotation %></td>
+    <td><%=h annotation.parent_id %></td>
+    <td><%=h annotation.children_count %></td>
+    <td><%=h annotation.ancestors_count %></td>
+    <td><%=h annotation.descendants_count %></td>
+    <td><%=h annotation.position %></td>
+    <td><%=h annotation.hidden %></td>
+    <td><%= link_to 'Show', annotation %></td>
+    <td><%= link_to 'Edit', edit_annotation_path(annotation) %></td>
+    <td><%= link_to 'Destroy', annotation, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New annotation', new_annotation_path %>
