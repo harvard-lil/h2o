@@ -13,7 +13,7 @@ class CreateCases < ActiveRecord::Migration
       #Should probably be a little larger than the two fields above as it encompasses them.
       t.string    :header_html,       :limit => 15.kilobytes
       t.references :case_jurisdiction
-      t.string    :content,           :limit => 500.kilobytes,  :null => false
+      t.string    :content,           :limit => 5.megabytes,  :null => false
       t.timestamps
     end
 

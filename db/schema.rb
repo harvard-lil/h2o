@@ -83,16 +83,16 @@ ActiveRecord::Schema.define(:version => 20100511172144) do
   add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
 
   create_table "cases", :force => true do |t|
-    t.boolean  "current_opinion",                        :default => true
-    t.string   "short_name",           :limit => 150,                      :null => false
-    t.string   "full_name",            :limit => 500,                      :null => false
+    t.boolean  "current_opinion",                         :default => true
+    t.string   "short_name",           :limit => 150,                       :null => false
+    t.string   "full_name",            :limit => 500,                       :null => false
     t.date     "decision_date"
     t.string   "author",               :limit => 150
     t.string   "party_header",         :limit => 10240
     t.string   "lawyer_header",        :limit => 2048
     t.string   "header_html",          :limit => 15360
     t.integer  "case_jurisdiction_id"
-    t.string   "content",              :limit => 512000,                   :null => false
+    t.string   "content",              :limit => 5242880,                   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -110,8 +110,8 @@ ActiveRecord::Schema.define(:version => 20100511172144) do
     t.integer  "user_id"
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name"
-    t.text     "description"
+    t.string   "name",              :limit => 250,  :null => false
+    t.string   "description",       :limit => 5120
     t.integer  "parent_id"
     t.integer  "children_count"
     t.integer  "ancestors_count"
@@ -121,6 +121,18 @@ ActiveRecord::Schema.define(:version => 20100511172144) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "collages", ["ancestors_count"], :name => "index_collages_on_ancestors_count"
+  add_index "collages", ["annotatable_id"], :name => "index_collages_on_annotatable_id"
+  add_index "collages", ["annotatable_type"], :name => "index_collages_on_annotatable_type"
+  add_index "collages", ["children_count"], :name => "index_collages_on_children_count"
+  add_index "collages", ["created_at"], :name => "index_collages_on_created_at"
+  add_index "collages", ["descendants_count"], :name => "index_collages_on_descendants_count"
+  add_index "collages", ["hidden"], :name => "index_collages_on_hidden"
+  add_index "collages", ["name"], :name => "index_collages_on_name"
+  add_index "collages", ["parent_id"], :name => "index_collages_on_parent_id"
+  add_index "collages", ["position"], :name => "index_collages_on_position"
+  add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
 
   create_table "notification_trackers", :force => true do |t|
     t.integer  "rotisserie_discussion_id"

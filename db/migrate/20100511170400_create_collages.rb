@@ -1,11 +1,13 @@
+require 'migration_helpers'
 class CreateCollages < ActiveRecord::Migration
+  extend MigrationHelpers
   def self.up
     create_table :collages do |t|
-      t.integer :user_id
+      t.references :user
       t.string :annotatable_type
       t.integer :annotatable_id
-      t.string :name
-      t.text :description
+      t.string :name, :limit => 250, :null => false
+      t.string :description, :limit => 5.kilobytes
       t.integer :parent_id
       t.integer :children_count
       t.integer :ancestors_count
@@ -15,6 +17,10 @@ class CreateCollages < ActiveRecord::Migration
 
       t.timestamps
     end
+    [:annotatable_type, :annotatable_id, :name, :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :hidden, :updated_at, :created_at].each do |col|
+      add_index :collages, col
+    end
+    create_foreign_key(Collage, User)
   end
 
   def self.down

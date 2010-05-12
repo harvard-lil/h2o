@@ -1,3 +1,32 @@
+<%= javascript_tag %Q|
+
+function getSelText(){
+    var txt = '';
+     if (window.getSelection){
+        txt = window.getSelection();
+     } else if (document.getSelection){
+        txt = document.getSelection();
+     } else if (document.selection){
+        txt = document.selection.createRange().text;
+    } else {
+        return;
+    }
+    return txt;
+}
+
+jQuery(document).ready(function(){
+
+  jQuery('p').click(function(){
+    alert(jQuery(this).attr('id'));
+  });
+
+  jQuery('#collapse_text').click(function(e){
+      e.preventDefault();
+      alert(getSelText());  
+  });
+
+});
+| %>
 <p>
   <b>Current opinion:</b>
   <%=h @case.current_opinion %>
@@ -40,14 +69,17 @@
 
 <p>
   <b>Jurisdiction:</b>
-  <%=h @case.jurisdiction_id %>
+  <%=h @case.case_jurisdiction_id %>
 </p>
 
-<p>
+<p id="content">
   <b>Content:</b>
-  <%=h @case.content %>
+  <%= @case.content %>
 </p>
 
+<div id="tools">
+  <a href="#" id="annotate">Annotate</a> | <a href="#" id="collapse_text">Collapse</a>
+</div>
 
 <%= link_to 'Edit', edit_case_path(@case) %> |
 <%= link_to 'Back', cases_path %>
