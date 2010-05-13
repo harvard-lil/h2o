@@ -1,4 +1,7 @@
 class CasesController < ApplicationController
+
+  before_filter :prep_resources
+
   # GET /cases
   # GET /cases.xml
   def index
@@ -82,4 +85,11 @@ class CasesController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  private 
+
+  def prep_resources
+    add_javascripts 'cases'
+  end
+
 end
