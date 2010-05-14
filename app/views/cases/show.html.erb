@@ -4,8 +4,10 @@ jQuery(function(){
   jQuery.extend({
     getUserSelection: function(){
      var selection = jQuery().selectedText();
-     console.log(selection);
-     return selection['obj'];
+     console.log('selection is : ' + selection);
+     console.log('object is: ' + selection.anchorNode.id);
+      console.log(selection);
+     return selection['anchorNode'];
 
     },
     getRangeObj: function(selectionObject){
