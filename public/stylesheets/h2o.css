@@ -354,3 +354,13 @@ table.core_table {
     margin-top: 25px;
     margin-bottom: 25px;
 }
+
+#annotation-tools{
+  border: 2px #aaaaaaa;
+  border-style: none none solid solid;
+  background: white;
+  padding: 20px;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+}

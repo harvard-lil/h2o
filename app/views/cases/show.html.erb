@@ -1,33 +1,68 @@
-<%= javascript_tag %Q|
-
+<script language="javascript">
 jQuery(function(){
   jQuery.extend({
-    getUserSelection: function(){
-     var selection = jQuery().selectedText();
-     console.log('selection is : ' + selection);
-     console.log('object is: ' + selection.anchorNode.id);
-      console.log(selection);
-     return selection['anchorNode'];
+    storeRange: function(anchorXPath,anchorSiblingOffset,anchorOffset,focusXPath,focusSiblingOffset,focusOffset){
+      //This will end up doing a POST.
+      return {anchorXPath: anchorXPath, anchorSiblingOffset: anchorSiblingOffset, anchorOffset: anchorOffset, focusXPath: focusXPath, focusSiblingOffset: focusSiblingOffset, focusOffset: focusOffset}
 
     },
-    getRangeObj: function(selectionObject){
-      if (! selectionObject){
-        selectionObject = jQuery.getUserSelection();
+    createRange: function(rangeObj){
+      var anchorXPathNode = jQuery.evalXPath(rangeObj.anchorXPath);
+      var focusXPathNode = jQuery.evalXPath(rangeObj.focusXPath);
+      var range = document.createRange();
+      range.setStart(anchorXPathNode.childNodes[rangeObj.anchorSiblingOffset],rangeObj.anchorOffset);
+      range.setEnd(focusXPathNode.childNodes[rangeObj.focusSiblingOffset],rangeObj.focusOffset);
+      return range;
+    },
+    evalXPath: function(xpath){
+      if (document.evaluate){
+        return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      } else {//can not use xmldocument.selectSingleNode(xpath);
+        var tags=xpath.slice(1).split('/');
+        var ele=document;
+        for (var i=0; i<tags.length; ++i){
+          var idx=1;
+          if (tags[i].indexOf('[')!=-1){
+            idx=tags[i].split('[')[1].split(']')[0];
+            tags[i]=tags[i].split('[')[0];
+          }
+          var ele=jQuery(ele).children(tags[i])[idx-1];
+        }
+        return ele;
       }
-      if (selectionObject.getRangeAt) {
-        alert('getting range via simpler method');
-        console.log(selectionObject.anchorNode);
-        console.log(selectionObject.focusNode);
-        alert('Anchor Container:' + selectionObject.anchorNode.tagName + selectionObject.anchorNode.id + ' Start Offset:' + selectionObject.anchorOffset);
-        alert('Focus Container:' + selectionObject.focusNode.tagName + selectionObject.focusNode.id + ' End Offset:' + selectionObject.focusOffset);
-        return selectionObject.getRangeAt(0);
-      } else { 
-    		var range = document.createRange();
-    		range.setStart(selectionObject.anchorNode,selectionObject.anchorOffset);
-    		range.setEnd(selectionObject.focusNode,selectionObject.focusOffset);
-    		return range;
-    	}
+    },
+    getXPath: function(node, path) {
+      path = path || [];
+      if(node.parentNode) {
+        path = jQuery.getXPath(node.parentNode, path);
+      }
+      if(node.previousSibling) {
+        var count = 1;
+        var sibling = node.previousSibling
+        do {
+          if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {count++;}
+          sibling = sibling.previousSibling;
+        } while(sibling);
+          if(count == 1) {count = null;}
+        } else if(node.nextSibling) {
+          var sibling = node.nextSibling;
+          do {
+            if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {
+              var count = 1;
+              sibling = null;
+            } else {
+              var count = null;
+              sibling = sibling.previousSibling;
+            }
+          } while(sibling);
+        }
+
+        if(node.nodeType == 1) {
+          path.push(node.nodeName.toLowerCase() + (node.id ? "[@id='"+node.id+"']" : count > 0 ? "["+count+"]" : ''));
+        }
+        return path;
     }
+
   });
 });
 
@@ -39,27 +74,79 @@ jQuery(document).ready(function(){
 
   jQuery('#collapse_text').click(function(e){
       e.preventDefault();
-      var rangeObj = jQuery.getRangeObj();
-      if(window.console){
-        console.log(rangeObj);
-      }
-      alert('Start Container:' + rangeObj.startContainer.tagName + rangeObj.startContainer.id + ' Start Offset:' + rangeObj.startOffset);
-      alert('End Container:' + rangeObj.endContainer.tagName + rangeObj.endContainer.id + ' Start Offset:' + rangeObj.endOffset);
-      if(rangeObj.startContainer == rangeObj.endContainer){
-        alert("It's the same parent container");
-        rangeObj.deleteContents();
-        rangeObj.insertNode(document.createTextNode('. . . '));
+      var sel = window.getSelection();
+
+      var anchorNode = null;
+      var anchorOffset = 0;
+      var anchorSiblingOffset = 0
+
+      var focusNode = null;
+      var focusOffset = 0;
+      var focusSiblingOffset = 0
+
+      var range = null;
+
+      console.log('Anchor Node Name: ' + sel.anchorNode.nodeName);
+      console.log('Focus Node Name: ' + sel.focusNode.nodeName);
+
+      console.log(jQuery.getXPath(sel.focusNode));
+      if((sel.anchorNode === sel.focusNode) ){
+        //Everything happens in a single node.
+        if(sel.anchorNode.nodeName == '#text'){
+          //This is a selection in the same node and it isn't the entire node.
+          console.log('You have selected part of a singular node');
+          anchorNode = sel.anchorNode;
+          anchorOffset = sel.anchorOffset;
+          focusNode = sel.anchorNode;
+          focusOffset = sel.focusOffset;
+
+          var anchorXPath = '/' + jQuery.getXPath(anchorNode).join('/'); 
+
+          console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+          for(var i=0; i <= sel.anchorNode.parentNode.childNodes.length; i++){
+            if(sel.anchorNode.parentNode.childNodes[i] == sel.anchorNode){
+              anchorSiblingOffset = i;
+            }
+          }
+          var rangeObj = jQuery.storeRange(anchorXPath,anchorSiblingOffset,anchorOffset,anchorXPath,anchorSiblingOffset,focusOffset);
+          var range = jQuery.createRange(rangeObj);
+          range.deleteContents();
+
+        } else if(sel.focusOffset == sel.anchorNode.childNodes.length){
+          console.log('You have selected an entire node- just one.');
+          //They have selected an entire node, singularly.
+          anchorNode = sel.anchorNode;
+          anchorOffset = 0;
+          focusNode = sel.anchorNode;
+          focusOffset = anchorNode.childNodes.length;
+          console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+
+          var anchorXPath = '/' + jQuery.getXPath(anchorNode).join('/');
+
+          var rangeObj = jQuery.storeRange(anchorXPath,0,0,anchorXPath,0,focusOffset);
+          console.log(rangeObj);
+          var range = jQuery.createRange(rangeObj);
+          range.deleteContents();
+
+          range = document.createRange();
+          range.setStart(anchorNode,anchorOffset);
+          range.setEnd(focusNode,focusOffset);
+          range.deleteContents();
+        }
       } else {
-        alert("We've gone across containers");
-        rangeObj.deleteContents();
-        rangeObj.insertNode(document.createTextNode('. . . '));
+        anchorNode = sel.anchorNode;
+        anchorOffset = sel.anchorOffset;
+        focusNode = sel.focusNode;
+        focusOffset = sel.focusOffset;
       }
-//      console.log('start object' + rangeObj.start
-//      alert(rangeText.split("&").join("&amp;").split( "<").join("&lt;").split(">").join("&gt;")); 
+
+      myRangeObj = {anchorNode: anchorNode, anchorOffset: anchorOffset, anchorSiblingOffset: anchorSiblingOffset, focusNode: focusNode, focusOffset: focusOffset, focusSiblingOffset: focusSiblingOffset};
+      console.log(myRangeObj);
+
   });
 
 });
-| %>
+</script>
 <p>
   <b>Current opinion:</b>
   <%=h @case.current_opinion %>
@@ -110,7 +197,7 @@ jQuery(document).ready(function(){
   <%= @case.content %>
 </p>
 
-<div id="tools">
+<div id="annotation-tools">
   <a href="#" id="annotate">Annotate</a> | <a href="#" id="collapse_text">Collapse</a>
 </div>
 

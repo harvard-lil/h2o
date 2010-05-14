@@ -2,7 +2,7 @@ jQuery.fn.selectedText = function(win){
 	win = win || window;
 	
 	var anchorNode = null;
-        var focusNode = null;
+  var focusNode = null;
 	var text = null;
 
 	// Get parent element to determine the formatting applied to the selected text
@@ -19,13 +19,13 @@ jQuery.fn.selectedText = function(win){
 			// we can use the anchorOffset to find the childNode that has been selected
 			if(sel.focusNode.nodeName !== '#text'){
 				// Is selection spanning more than one node, then select the parent
-				if((sel.focusOffset - sel.anchorOffset)>1) {
+				if( (sel.focusOffset - sel.anchorOffset) > 1 ) {
 					console.log("Selected spanning more than one",anchorNode = sel.anchorNode);
-                                } else if ( sel.anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ){
+        } else if ( sel.anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ){
 					console.log("Selected non-text",anchorNode = sel.anchorNode.childNodes[sel.anchorOffset]);
-                                } else {
+        } else {
 					console.log("Selected whole element",anchorNode = sel.anchorNode);
-                                }
+        }
 			}
 			// if we have selected text which does not touch the boundaries of an element
 			// the anchorNode and the anchorFocus will be identical
@@ -68,8 +68,12 @@ jQuery.fn.selectedText = function(win){
 			}
 		} else if(sel.isCollapsed) {
 			anchorNode = anchorNode.parentNode;
-                }
-		
+    }
+    if(sel.focusNode.nodeName == '#text'){
+      focusNode = sel.focusNode.parentNode;
+    } else {
+      focusNode = sel.focusNode;
+    }
 	}
 	else if(win.document.selection){
 		var sel = win.document.selection.createRange();
@@ -77,28 +81,34 @@ jQuery.fn.selectedText = function(win){
 
 		if(sel.parentElement){
 			anchorNode = sel.parentElement();
-                } else {
+    } else {
 			anchorNode = sel.item(0);
-                }
+    }
 
 		text = sel.text || sel;
 	
 		if(text.toString){
 			text = text.toString();
-                }
+    }
 	} else {
-		throw 'Error';
-        }
+    throw 'Error';
+  }
 		
 	// webkit
 	if(anchorNode.nodeName==='#text'){
-		anchorNode = anchorNode.parentNode;
-        }
+    anchorNode = anchorNode.parentNode;
+  }
 
 	// if the selected object has no tagName then return false.
 	if(typeof anchorNode.tagName === 'undefined'){
 		return false;
-        }
+  }
 
-	return {'anchorNode':anchorNode,'text':text};
+	return {
+    'anchorNode':anchorNode,
+    'focusNode':focusNode,
+    'text':text,
+    'anchorOffset':sel.anchorOffset,
+    'focusOffset':sel.focusOffset
+  };
 };
