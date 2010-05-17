@@ -1,114 +1,67 @@
-jQuery.fn.selectedText = function(win){
-	win = win || window;
-	
-	var anchorNode = null;
-  var focusNode = null;
-	var text = null;
+jQuery.extend({
+storeRange: function(anchorXPath,anchorSiblingOffset,anchorOffset,focusXPath,focusSiblingOffset,focusOffset){
+  //This will end up doing a POST.
+  return {anchorXPath: anchorXPath, anchorSiblingOffset: anchorSiblingOffset, anchorOffset: anchorOffset, focusXPath: focusXPath, focusSiblingOffset: focusSiblingOffset, focusOffset: focusOffset}
+},
 
-	// Get parent element to determine the formatting applied to the selected text
-	if(win.getSelection){
-		var anchorNode = win.getSelection().anchorNode;
+createRange: function(rangeObj){
+  var anchorXPathNode = jQuery.evalXPath(rangeObj.anchorXPath);
+  var focusXPathNode = jQuery.evalXPath(rangeObj.focusXPath);
+  var range = document.createRange();
+  range.setStart(anchorXPathNode.childNodes[rangeObj.anchorSiblingOffset],rangeObj.anchorOffset);
+  range.setEnd(focusXPathNode.childNodes[rangeObj.focusSiblingOffset],rangeObj.focusOffset);
+  return range;
+},
 
-		var text = win.getSelection().toString();
-		// Mozilla seems to be selecting the wrong Node, the one that comes before the selected node.
-		// I'm not sure if there's a configuration to solve this,
-		var sel = win.getSelection();
-		console.log(win.getSelection());
-		if(!sel.isCollapsed && jQuery.browser.mozilla){
-			// If we've selected an element, (note: only works on Anchors, only checked bold and spans)
-			// we can use the anchorOffset to find the childNode that has been selected
-			if(sel.focusNode.nodeName !== '#text'){
-				// Is selection spanning more than one node, then select the parent
-				if( (sel.focusOffset - sel.anchorOffset) > 1 ) {
-					console.log("Selected spanning more than one",anchorNode = sel.anchorNode);
-        } else if ( sel.anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ){
-					console.log("Selected non-text",anchorNode = sel.anchorNode.childNodes[sel.anchorOffset]);
-        } else {
-					console.log("Selected whole element",anchorNode = sel.anchorNode);
-        }
-			}
-			// if we have selected text which does not touch the boundaries of an element
-			// the anchorNode and the anchorFocus will be identical
-			else if( sel.anchorNode.data === sel.focusNode.data ){
-				console.log("Selected non bounding text",anchorNode = sel.anchorNode.parentNode);
-			}
-			// This is the first element, the element defined by anchorNode is non-text.
-			// Therefore it is the anchorNode that we want
-			else if( sel.anchorOffset === 0 && !sel.anchorNode.data ){
-				console.log("Selected whole element at start of paragraph (whereby selected element has not text e.g. &lt;script&gt;",anchorNode = sel.anchorNode);
-			}
-			// If the element is the first child of another (no text appears before it)
-			else if( typeof sel.anchorNode.data !== 'undefined' 
-						&& sel.anchorOffset === 0 
-						&& sel.anchorOffset < sel.anchorNode.data.length ){
-				console.log("Selected whole element at start of paragraph",anchorNode = sel.anchorNode.parentNode);
-			}
-			// If we select text preceeding an element. Then the focusNode becomes that element
-			// The difference between selecting the preceeding word is that the anchorOffset is less that the anchorNode.length
-			// Thus
-			else if( typeof sel.anchorNode.data !== 'undefined'
-						&& sel.anchorOffset < sel.anchorNode.data.length ){
-				console.log("Selected preceeding element text",anchorNode = sel.anchorNode.parentNode);
-			}
-			// Selected text which fills an element, i.e. ,.. <b>some text</b> ...
-			// The focusNode becomes the suceeding node
-			// The previous element length and the anchorOffset will be identical
-			// And the focus Offset is greater than zero
-			// So basically we are at the end of the preceeding element and have selected 0 of the current.
-			else if( typeof sel.anchorNode.data !== 'undefined' 
-					&& sel.anchorOffset === sel.anchorNode.data.length 
-					&& sel.focusOffset === 0 ){
-				console.log("Selected whole element text", anchorNode = (sel.anchorNode.nextSibling || sel.focusNode.previousSibling));
-			}
-			// if the suceeding text, i.e. it bounds an element on the left
-			// the anchorNode will be the preceeding element
-			// the focusNode will belong to the selected text
-			else if( sel.focusOffset > 0 ){
-				console.log("Selected suceeding element text", anchorNode = sel.focusNode.parentNode);
-			}
-		} else if(sel.isCollapsed) {
-			anchorNode = anchorNode.parentNode;
+evalXPath: function(xpath){
+  if (document.evaluate){
+    return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  } else {//can not use xmldocument.selectSingleNode(xpath);
+    var tags=xpath.slice(1).split('/');
+    var ele=document;
+    for (var i=0; i<tags.length; ++i){
+      var idx=1;
+      if (tags[i].indexOf('[')!=-1){
+        idx=tags[i].split('[')[1].split(']')[0];
+        tags[i]=tags[i].split('[')[0];
+      }
+      var ele=jQuery(ele).children(tags[i])[idx-1];
     }
-    if(sel.focusNode.nodeName == '#text'){
-      focusNode = sel.focusNode.parentNode;
-    } else {
-      focusNode = sel.focusNode;
-    }
-	}
-	else if(win.document.selection){
-		var sel = win.document.selection.createRange();
-		var anchorNode = sel;
-
-		if(sel.parentElement){
-			anchorNode = sel.parentElement();
-    } else {
-			anchorNode = sel.item(0);
-    }
-
-		text = sel.text || sel;
-	
-		if(text.toString){
-			text = text.toString();
-    }
-	} else {
-    throw 'Error';
+    return ele;
   }
-		
-	// webkit
-	if(anchorNode.nodeName==='#text'){
-    anchorNode = anchorNode.parentNode;
+},
+
+getXPath: function(node, path) {
+  path = path || [];
+  if(node.parentNode) {
+    path = jQuery.getXPath(node.parentNode, path);
+  }
+  if(node.previousSibling) {
+    var count = 1;
+    var sibling = node.previousSibling
+      do {
+        if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {count++;}
+        sibling = sibling.previousSibling;
+      } while(sibling);
+    if(count == 1) {count = null;}
+  } else if(node.nextSibling) {
+    var sibling = node.nextSibling;
+    do {
+      if(sibling.nodeType == 1 && sibling.nodeName == node.nodeName) {
+        var count = 1;
+        sibling = null;
+      } else {
+        var count = null;
+        sibling = sibling.previousSibling;
+      }
+    } while(sibling);
   }
 
-	// if the selected object has no tagName then return false.
-	if(typeof anchorNode.tagName === 'undefined'){
-		return false;
+  if(node.nodeType == 1) {
+    path.push(node.nodeName.toLowerCase() + (node.id ? "[@id='"+node.id+"']" : count > 0 ? "["+count+"]" : ''));
   }
+  return path;
+}
+});
 
-	return {
-    'anchorNode':anchorNode,
-    'focusNode':focusNode,
-    'text':text,
-    'anchorOffset':sel.anchorOffset,
-    'focusOffset':sel.focusOffset
-  };
-};
+
