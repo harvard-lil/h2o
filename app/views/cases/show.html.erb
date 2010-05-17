@@ -19,15 +19,18 @@ jQuery(document).ready(function(){
 
       var range = null;
 
-      console.log('Anchor Node Name: ' + sel.anchorNode.nodeName);
-      console.log('Focus Node Name: ' + sel.focusNode.nodeName);
+      if (window.console){
+        console.log('Anchor Node Name: ' + sel.anchorNode.nodeName);
+        console.log('Focus Node Name: ' + sel.focusNode.nodeName);
+      }
 
-      console.log(jQuery.getXPath(sel.focusNode));
       if((sel.anchorNode === sel.focusNode) ){
         //Everything happens in a single node.
         if(sel.anchorNode.nodeName == '#text'){
           //This is a selection in the same node and it isn't the entire node.
-          console.log('You have selected part of a singular node');
+          if (window.console){
+            console.log('You have selected part of a singular node');
+          }
           anchorNode = sel.anchorNode;
           anchorOffset = sel.anchorOffset;
           focusNode = sel.anchorNode;
@@ -35,46 +38,87 @@ jQuery(document).ready(function(){
 
           var anchorXPath = '/' + jQuery.getXPath(anchorNode).join('/'); 
 
-          console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+          if (window.console){
+            console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+          }
           for(var i=0; i <= sel.anchorNode.parentNode.childNodes.length; i++){
             if(sel.anchorNode.parentNode.childNodes[i] == sel.anchorNode){
               anchorSiblingOffset = i;
             }
           }
           var rangeObj = jQuery.storeRange(anchorXPath,anchorSiblingOffset,anchorOffset,anchorXPath,anchorSiblingOffset,focusOffset);
-          console.log(rangeObj);
+
+          if (window.console){
+            console.log(rangeObj);
+          }
+
           var range = jQuery.createRange(rangeObj);
-          range.deleteContents();
+          jQuery.collapseRange(range);
 
         } else if(sel.focusOffset == sel.anchorNode.childNodes.length){
-          console.log('You have selected an entire node- just one.');
           //They have selected an entire node, singularly.
+          if (window.console){
+            console.log('You have selected an entire node- just one.');
+          }
           anchorNode = sel.anchorNode;
-          anchorOffset = 0;
-          focusNode = sel.anchorNode;
-          focusOffset = sel.anchorNode.childNodes.length;
-          console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+          anchorOffset = sel.anchorOffset;
+          focusNode = sel.focusNode;
+          focusOffset = sel.focusOffset;
+          if (window.console){
+            console.log('Anchor Node:' + anchorNode + ' anchorOffset:' + anchorOffset + ' focusNode: ' + focusNode + ' focusOffset: ' + focusOffset);
+          }
 
           var anchorXPath = '/' + jQuery.getXPath(anchorNode).join('/');
+          var rangeObj = jQuery.storeRange(anchorXPath,null,0,anchorXPath,null,focusOffset);
 
-          var rangeObj = jQuery.storeRange(anchorXPath,0,0,anchorXPath,0,focusOffset);
-          console.log(rangeObj);
+
           var range = jQuery.createRange(rangeObj);
-          range.deleteContents();
 
-          range = document.createRange();
-          range.setStart(anchorNode,anchorOffset);
-          range.setEnd(focusNode,focusOffset);
-          range.deleteContents();
+          if (window.console){
+            console.log("Synthetic Range:");
+            console.log(range);
+            console.log(rangeObj);
+          }
+
+          jQuery.collapseRange(range);
         }
       } else {
         // This is a selection that spans nodes
-
-
+        if (window.console){
+          console.log('This selection spans nodes');
+        }
         anchorNode = sel.anchorNode;
         anchorOffset = sel.anchorOffset;
+        anchorSiblingOffset = 0;
         focusNode = sel.focusNode;
         focusOffset = sel.focusOffset;
+        focusSiblingOffset = 0;
+
+        for(var i=0; i <= sel.anchorNode.parentNode.childNodes.length; i++){
+          if(sel.anchorNode.parentNode.childNodes[i] == sel.anchorNode){
+            anchorSiblingOffset = i;
+          }
+        }
+
+        for(var i=0; i <= sel.focusNode.parentNode.childNodes.length; i++){
+          if(sel.focusNode.parentNode.childNodes[i] == sel.focusNode){
+            focusSiblingOffset = i;
+          }
+        }
+
+        var anchorXPath = '/' + jQuery.getXPath(anchorNode).join('/'); 
+        var focusXPath = '/' + jQuery.getXPath(focusNode).join('/'); 
+        var rangeObj = jQuery.storeRange(anchorXPath,anchorSiblingOffset,anchorOffset,focusXPath,focusSiblingOffset,focusOffset);
+
+        if (window.console){
+          console.log(rangeObj);
+        }
+        var range = jQuery.createRange(rangeObj);
+        jQuery.collapseRange(range);
+
+        if (window.console){
+          console.log(range);
+        }
       }
 
 //      myRangeObj = {anchorNode: anchorNode, anchorOffset: anchorOffset, anchorSiblingOffset: anchorSiblingOffset, focusNode: focusNode, focusOffset: focusOffset, focusSiblingOffset: focusSiblingOffset};

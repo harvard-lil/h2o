@@ -8,9 +8,14 @@ createRange: function(rangeObj){
   var anchorXPathNode = jQuery.evalXPath(rangeObj.anchorXPath);
   var focusXPathNode = jQuery.evalXPath(rangeObj.focusXPath);
   var range = document.createRange();
-  range.setStart(anchorXPathNode.childNodes[rangeObj.anchorSiblingOffset],rangeObj.anchorOffset);
-  range.setEnd(focusXPathNode.childNodes[rangeObj.focusSiblingOffset],rangeObj.focusOffset);
+  range.setStart((rangeObj.anchorSiblingOffset != null) ? anchorXPathNode.childNodes[rangeObj.anchorSiblingOffset] : anchorXPathNode,rangeObj.anchorOffset);
+  range.setEnd((rangeObj.focusSiblingOffset != null) ? focusXPathNode.childNodes[rangeObj.focusSiblingOffset] : focusXPathNode,rangeObj.focusOffset);
   return range;
+},
+
+collapseRange: function(range){
+  range.deleteContents();
+
 },
 
 evalXPath: function(xpath){
