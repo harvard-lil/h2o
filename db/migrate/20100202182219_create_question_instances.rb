@@ -1,4 +1,6 @@
+require 'migration_helpers'
 class CreateQuestionInstances < ActiveRecord::Migration
+  extend MigrationHelpers
   def self.up
     create_table :question_instances do |t|
       t.string :name, :limit => 250, :null => false
@@ -10,13 +12,15 @@ class CreateQuestionInstances < ActiveRecord::Migration
 
       t.integer :parent_id, :children_count, :ancestors_count, :descendants_count, :position
       t.boolean :hidden
-
       t.timestamps
     end
 
-    [:user_id, :project_id, :parent_id, :position].each do |col|
+    create_acts_as_category_indexes(QuestionInstance)
+
+    [:user_id, :project_id].each do |col|
       add_index :question_instances, col
     end
+
     add_index :question_instances, :name, :unique => true
     add_index :question_instances, [:project_id, :position], :unique => true
   end

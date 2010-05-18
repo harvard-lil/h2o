@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :excerpts
+
   map.resources :annotations
 
   map.resources :case_jurisdictions

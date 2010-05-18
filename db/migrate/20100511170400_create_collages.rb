@@ -17,7 +17,8 @@ class CreateCollages < ActiveRecord::Migration
 
       t.timestamps
     end
-    [:annotatable_type, :annotatable_id, :name, :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :hidden, :updated_at, :created_at].each do |col|
+    create_acts_as_category_indexes(Collage)
+    [:annotatable_type, :annotatable_id, :name, :updated_at, :created_at].each do |col|
       add_index :collages, col
     end
     create_foreign_key(Collage, User)

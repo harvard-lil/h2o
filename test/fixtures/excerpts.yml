@@ -1,0 +1,35 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  user_id: 1
+  collage_id: 1
+  annotation: MyString
+  anchor_x_path: MyString
+  anchor_sibling_offset: 1
+  anchor_offset: 1
+  focus_x_path: MyString
+  focus_sibling_offset: 1
+  focus_offset: 1
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false
+
+two:
+  user_id: 1
+  collage_id: 1
+  annotation: MyString
+  anchor_x_path: MyString
+  anchor_sibling_offset: 1
+  anchor_offset: 1
+  focus_x_path: MyString
+  focus_sibling_offset: 1
+  focus_offset: 1
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 1
+  descendants_count: 1
+  position: 1
+  hidden: false

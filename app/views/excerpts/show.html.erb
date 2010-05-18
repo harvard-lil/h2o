@@ -1,0 +1,78 @@
+<p>
+  <b>User:</b>
+  <%=h @excerpt.user_id %>
+</p>
+
+<p>
+  <b>Collage:</b>
+  <%=h @excerpt.collage_id %>
+</p>
+
+<p>
+  <b>reason:</b>
+  <%=h @excerpt.reason %>
+</p>
+
+<p>
+  <b>Anchor x path:</b>
+  <%=h @excerpt.anchor_x_path %>
+</p>
+
+<p>
+  <b>Anchor sibling offset:</b>
+  <%=h @excerpt.anchor_sibling_offset %>
+</p>
+
+<p>
+  <b>Anchor offset:</b>
+  <%=h @excerpt.anchor_offset %>
+</p>
+
+<p>
+  <b>Focus x path:</b>
+  <%=h @excerpt.focus_x_path %>
+</p>
+
+<p>
+  <b>Focus sibling offset:</b>
+  <%=h @excerpt.focus_sibling_offset %>
+</p>
+
+<p>
+  <b>Focus offset:</b>
+  <%=h @excerpt.focus_offset %>
+</p>
+
+<p>
+  <b>Parent:</b>
+  <%=h @excerpt.parent_id %>
+</p>
+
+<p>
+  <b>Children count:</b>
+  <%=h @excerpt.children_count %>
+</p>
+
+<p>
+  <b>Ancestors count:</b>
+  <%=h @excerpt.ancestors_count %>
+</p>
+
+<p>
+  <b>Descendants count:</b>
+  <%=h @excerpt.descendants_count %>
+</p>
+
+<p>
+  <b>Position:</b>
+  <%=h @excerpt.position %>
+</p>
+
+<p>
+  <b>Hidden:</b>
+  <%=h @excerpt.hidden %>
+</p>
+
+
+<%= link_to 'Edit', edit_excerpt_path(@excerpt) %> |
+<%= link_to 'Back', excerpts_path %>
