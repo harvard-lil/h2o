@@ -19,7 +19,7 @@ class Case < ActiveRecord::Base
     doc = Nokogiri::HTML.parse(self.content)
     class_name = 1
     doc.xpath('//*').each do |item|
-      puts item.class.name
+  #    puts item.class.name
       if item.is_a?(Nokogiri::XML::Element)
         item['id'] = "n-#{class_name}" 
         class_name += 1

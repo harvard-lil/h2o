@@ -1,9 +1,11 @@
-class ExcerptsController < ApplicationController
+class ExcerptsController < BaseController
+
+  before_filter :prep_resources
+
   # GET /excerpts
   # GET /excerpts.xml
   def index
     @excerpts = Excerpt.all
-
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @excerpts }
@@ -41,13 +43,26 @@ class ExcerptsController < ApplicationController
   # POST /excerpts.xml
   def create
     @excerpt = Excerpt.new(params[:excerpt])
+    @excerpt.accepts_role!(:excerpter, current_user)
+    @excerpt.user = current_user
+    @excerpt.collage_id = 1
+
+    [:anchor_x_path, :focus_x_path].each do |p|
+      @excerpt[p] = params[p]
+    end
+    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset].each do |p|
+      @excerpt[p] = (params[p] == 'null') ? nil : params[p]
+    end
 
     respond_to do |format|
       if @excerpt.save
         flash[:notice] = 'Excerpt was successfully created.'
+        format.json { render :json => {:message => 'Excerpted!', :excerpt_id => @excerpt.id } }
         format.html { redirect_to(@excerpt) }
         format.xml  { render :xml => @excerpt, :status => :created, :location => @excerpt }
       else
+        logger.warn(@excerpt.errors.full_messages.join('<br/>'))
+        format.json { render :json => "We couldn't add that excerpt - sorry!" }
         format.html { render :action => "new" }
         format.xml  { render :xml => @excerpt.errors, :status => :unprocessable_entity }
       end
@@ -82,4 +97,11 @@ class ExcerptsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  private 
+
+  def prep_resources
+    add_javascripts 'collages'
+  end
+
 end

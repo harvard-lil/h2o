@@ -1,4 +1,7 @@
 class CollagesController < ApplicationController
+
+  before_filter :prep_resources
+
   # GET /collages
   # GET /collages.xml
   def index
@@ -82,4 +85,13 @@ class CollagesController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  private 
+
+  def prep_resources
+    add_javascripts 'collages'
+    add_stylesheets 'collages'
+  end
+
+
 end

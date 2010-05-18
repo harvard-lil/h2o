@@ -1,4 +1,4 @@
-class CasesController < ApplicationController
+class CasesController < BaseController
 
   before_filter :prep_resources
 
@@ -89,7 +89,6 @@ class CasesController < ApplicationController
   private 
 
   def prep_resources
-    add_javascripts 'cases'
   end
 
 end

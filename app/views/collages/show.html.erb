@@ -1,58 +1,18 @@
-<p>
-  <b>User:</b>
-  <%=h @collage.user_id %>
-</p>
+<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+<div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
 
-<p>
-  <b>Annotatable type:</b>
-  <%=h @collage.annotatable_type %>
-</p>
-
-<p>
-  <b>Annotatable:</b>
-  <%=h @collage.annotatable_id %>
-</p>
-
-<p>
-  <b>Name:</b>
-  <%=h @collage.name %>
-</p>
-
-<p>
-  <b>Description:</b>
-  <%=h @collage.description %>
-</p>
-
-<p>
-  <b>Parent:</b>
-  <%=h @collage.parent_id %>
-</p>
-
-<p>
-  <b>Children count:</b>
-  <%=h @collage.children_count %>
-</p>
-
-<p>
-  <b>Ancestors count:</b>
-  <%=h @collage.ancestors_count %>
-</p>
-
-<p>
-  <b>Descendants count:</b>
-  <%=h @collage.descendants_count %>
-</p>
-
-<p>
-  <b>Position:</b>
-  <%=h @collage.position %>
-</p>
-
-<p>
-  <b>Hidden:</b>
-  <%=h @collage.hidden %>
-</p>
-
+<div id="collage-<%= @collage.id %>">
+  <div id="annotatable-content">
+    <%= @collage.annotatable.content %>
+  </div>
+</div>
 
 <%= link_to 'Edit', edit_collage_path(@collage) %> |
 <%= link_to 'Back', collages_path %>
+
+<div id="annotation-tools">
+  <ul>
+    <li><a href="#" id="annotate">Annotate</a></li>
+    <li><a href="#" id="excerpt-selection">Excerpt text selection</a></li>
+  </ul>
+</div>

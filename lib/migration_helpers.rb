@@ -7,7 +7,7 @@ module MigrationHelpers
 
   def create_acts_as_category_indexes(model)
     [:parent_id, :children_count, :ancestors_count, :descendants_count, :position, :hidden].each do |col|
-      add_index model.tableize.to_sym, col
+      add_index model.name.tableize.to_sym, col
     end
   end
 end

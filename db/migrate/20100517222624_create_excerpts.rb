@@ -21,6 +21,7 @@ class CreateExcerpts < ActiveRecord::Migration
       t.timestamps
     end
     create_foreign_key(Excerpt,Collage)
+    create_foreign_key(Excerpt,User)
     create_acts_as_category_indexes(Excerpt)
   end
 
