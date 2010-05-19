@@ -61,27 +61,6 @@ ActiveRecord::Schema.define(:version => 20100517222624) do
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
-  create_table "casebooks", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "name",              :limit => 250
-    t.string   "description",       :limit => 65536
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
-  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
-  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
-  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
-  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
-  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
-
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false
@@ -175,11 +154,13 @@ ActiveRecord::Schema.define(:version => 20100517222624) do
   add_index "notification_trackers", ["user_id"], :name => "index_notification_trackers_on_user_id"
 
   create_table "question_instances", :force => true do |t|
-    t.string   "name",                    :limit => 250,                 :null => false
+    t.string   "name",                    :limit => 250,                   :null => false
     t.integer  "user_id"
     t.integer  "project_id"
     t.string   "password",                :limit => 128
     t.integer  "featured_question_count",                 :default => 2
+    t.integer  "new_question_timeout",                    :default => 30
+    t.integer  "old_question_timeout",                    :default => 900
     t.string   "description",             :limit => 2000
     t.integer  "parent_id"
     t.integer  "children_count"
@@ -191,11 +172,9 @@ ActiveRecord::Schema.define(:version => 20100517222624) do
     t.datetime "updated_at"
   end
 
-  add_index "question_instances", ["ancestors_count"], :name => "index_question_instances_on_ancestors_count"
-  add_index "question_instances", ["children_count"], :name => "index_question_instances_on_children_count"
-  add_index "question_instances", ["descendants_count"], :name => "index_question_instances_on_descendants_count"
-  add_index "question_instances", ["hidden"], :name => "index_question_instances_on_hidden"
   add_index "question_instances", ["name"], :name => "index_question_instances_on_name", :unique => true
+  add_index "question_instances", ["new_question_timeout"], :name => "index_question_instances_on_new_question_timeout"
+  add_index "question_instances", ["old_question_timeout"], :name => "index_question_instances_on_old_question_timeout"
   add_index "question_instances", ["parent_id"], :name => "index_question_instances_on_parent_id"
   add_index "question_instances", ["position"], :name => "index_question_instances_on_position"
   add_index "question_instances", ["project_id", "position"], :name => "index_question_instances_on_project_id_and_position", :unique => true
@@ -206,6 +185,9 @@ ActiveRecord::Schema.define(:version => 20100517222624) do
     t.integer  "question_instance_id",                                     :null => false
     t.integer  "user_id"
     t.string   "question",             :limit => 10000,                    :null => false
+    t.boolean  "posted_anonymously",                    :default => false
+    t.string   "email",                :limit => 250
+    t.string   "name",                 :limit => 250
     t.boolean  "sticky",                                :default => false
     t.integer  "parent_id"
     t.integer  "children_count"
@@ -217,12 +199,13 @@ ActiveRecord::Schema.define(:version => 20100517222624) do
     t.datetime "updated_at"
   end
 
-  add_index "questions", ["created_at"], :name => "index_questions_on_created_at"
+  add_index "questions", ["email"], :name => "index_questions_on_email"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
+  add_index "questions", ["question_instance_id", "parent_id", "position"], :name => "unique_in_question_instance", :unique => true
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
-  add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
+  add_index "questions", ["user_id", "question_instance_id", "parent_id", "position"], :name => "unique_user_in_question_instance", :unique => true
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
   create_table "replies", :force => true do |t|

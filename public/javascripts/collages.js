@@ -36,7 +36,6 @@ createRange: function(rangeObj){
       }
     });
   } catch (err){
-    alert(err);
     jQuery('div.ajax-error').show().html(err);
   }
   return range;
@@ -151,7 +150,6 @@ observe_excerpt_controls: function(){
           var range = jQuery.createRange(rangeObj);
           jQuery.collapseRange(range);
         } catch(err){
-          alert(err);
           jQuery('#ajax-error').show().html(err);
         }
 
@@ -179,7 +177,6 @@ observe_excerpt_controls: function(){
           }
           jQuery.collapseRange(range);
         } catch(err){
-          alert(err);
           jQuery('#ajax-error').show().html(err);
         }
       } else {
@@ -205,7 +202,6 @@ observe_excerpt_controls: function(){
           }
           jQuery.collapseRange(range);
         } catch(err){
-          alert(err);
           jQuery('#ajax-error').show().html(err);
         }
       }
@@ -247,7 +243,6 @@ observe_excerpt_controls: function(){
           console.log(range);
         }
       } catch(err) {
-        alert(err);
         jQuery('#ajax-error').show().html(err);
       }
     }

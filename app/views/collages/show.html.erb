@@ -1,6 +1,3 @@
-<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
-<div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
-
 <div id="collage-<%= @collage.id %>">
   <div id="annotatable-content">
     <%= @collage.annotatable.content %>
@@ -15,4 +12,6 @@
     <li><a href="#" id="annotate">Annotate</a></li>
     <li><a href="#" id="excerpt-selection">Excerpt text selection</a></li>
   </ul>
+  <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+  <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
 </div>
