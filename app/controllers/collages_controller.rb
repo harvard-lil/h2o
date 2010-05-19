@@ -1,6 +1,13 @@
 class CollagesController < ApplicationController
 
   before_filter :prep_resources
+  before_filter :load_collage, :only => [:excerpts, :show, :edit, :update, :destroy]  
+
+  def excerpts
+    respond_to do |format|
+      format.json { render :json => @collage.excerpts }
+    end
+  end
 
   # GET /collages
   # GET /collages.xml
@@ -16,8 +23,6 @@ class CollagesController < ApplicationController
   # GET /collages/1
   # GET /collages/1.xml
   def show
-    @collage = Collage.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @collage }
@@ -37,7 +42,6 @@ class CollagesController < ApplicationController
 
   # GET /collages/1/edit
   def edit
-    @collage = Collage.find(params[:id])
   end
 
   # POST /collages
@@ -60,8 +64,6 @@ class CollagesController < ApplicationController
   # PUT /collages/1
   # PUT /collages/1.xml
   def update
-    @collage = Collage.find(params[:id])
-
     respond_to do |format|
       if @collage.update_attributes(params[:collage])
         flash[:notice] = 'Collage was successfully updated.'
@@ -77,7 +79,6 @@ class CollagesController < ApplicationController
   # DELETE /collages/1
   # DELETE /collages/1.xml
   def destroy
-    @collage = Collage.find(params[:id])
     @collage.destroy
 
     respond_to do |format|
@@ -93,5 +94,8 @@ class CollagesController < ApplicationController
     add_stylesheets 'collages'
   end
 
+  def load_collage
+    @collage = Collage.find(params[:id])
+  end
 
 end

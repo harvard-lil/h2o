@@ -1,6 +1,124 @@
 jQuery.extend({
-checkRange: function(anchor_x_path,anchor_sibling_offset,anchor_offset,focus_x_path,focus_sibling_offset,focus_offset){
-  // This may do some sanity checking in the future.
+formatRange: function(){
+  var sel = window.getSelection();
+  var anchor_x_path = '';
+  var anchorNode = sel.anchorNode;
+  var anchor_offset = 0;
+  var anchor_sibling_offset = 0;
+
+  var focus_x_path = '';
+  var focusNode = sel.focusNode;
+  var focus_offset = 0;
+  var focus_sibling_offset = 0;
+
+  if(window.console){
+    console.log('Anchor Node');
+    console.log(anchorNode);
+    console.log('Focus Node');
+    console.log(focusNode);
+  }
+
+  if(jQuery.browser.mozilla){
+    if(focusNode.nodeName !== '#text'){
+      if((sel.focusOffset - sel.anchorOffset)>1){
+         //spanning more than one.
+					focusNode = anchorNode
+      } else if ( anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ) {
+        //Non-text.
+					focusNode = sel.anchorNode.childNodes[sel.anchorOffset];
+      }	else {
+        //Whole element.
+				focusNode = sel.anchorNode;
+			}
+    }
+  }
+  var range = null;
+  if((anchorNode === focusNode)){
+    //Everything happens in a single node.
+    if(anchorNode.nodeName == '#text'){
+      //This is a selection in the same node and it isn't the entire node.
+      if (window.console){
+        console.log('You have selected part of a singular node');
+      }
+      anchor_offset = sel.anchorOffset;
+      focusNode = anchorNode;
+      focus_offset = sel.focusOffset;
+
+      if(focus_offset < anchor_offset){
+        // They selected from right-to-left.
+        if(window.console){
+          console.log('selected from right-to-left');
+        }
+        focus_offset = sel.anchorOffset;
+        anchor_offset = sel.focusOffset;
+
+      }
+      anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/'); 
+      focus_x_path = anchor_x_path;
+
+      if (window.console){
+        console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
+      }
+      for(var i=0; i <= anchorNode.parentNode.childNodes.length; i++){
+        if(anchorNode.parentNode.childNodes[i] == anchorNode){
+          anchor_sibling_offset = i;
+        }
+      }
+      focus_sibling_offset = anchor_sibling_offset;
+
+    } else if(sel.focusOffset == anchorNode.childNodes.length){
+      //They have selected an entire node, singularly.
+      if (window.console){
+        console.log('You have selected an entire node- just one.');
+      }
+      anchor_offset = 0;
+      focus_offset = sel.focusOffset;
+      if (window.console){
+        console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
+      }
+      anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/');
+      focus_x_path = anchor_x_path;
+      anchor_sibling_offset = null;
+      focus_sibling_offset = null;
+    } else {
+      // It's in a single node but spans multiple siblings.
+      anchor_sibling_offset = sel.anchorOffset;
+      focus_sibling_offset = sel.focusOffset;
+
+      if (window.console){
+        console.log('Single node spanning multiple siblings');
+        console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
+      }
+
+      anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/');
+      focus_x_path = anchor_x_path;
+      anchor_offset = 0;
+      focus_offset = 0;
+    }
+  } else {
+    // This is a selection that spans nodes
+    if (window.console){
+      console.log('This selection spans nodes');
+    }
+    anchor_offset = sel.anchorOffset;
+    anchor_sibling_offset = 0;
+    focus_offset = sel.focusOffset;
+    focus_sibling_offset = 0;
+
+    for(var i=0; i <= anchorNode.parentNode.childNodes.length; i++){
+      if(anchorNode.parentNode.childNodes[i] == anchorNode){
+        anchor_sibling_offset = i;
+      }
+    }
+    for(var i=0; i <= focusNode.parentNode.childNodes.length; i++){
+      if(focusNode.parentNode.childNodes[i] == focusNode){
+        focus_sibling_offset = i;
+      }
+    }
+    anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/'); 
+    focus_x_path = '/' + jQuery.getXPath(focusNode).join('/');
+  }
+
   var anchorString = [anchor_x_path, anchor_sibling_offset, anchor_offset].join('-');
   var focusString = [focus_x_path, focus_sibling_offset, focus_offset].join('-');
 
@@ -11,6 +129,22 @@ checkRange: function(anchor_x_path,anchor_sibling_offset,anchor_offset,focus_x_p
   }
 },
 
+storeRange: function(rangeObj){
+  jQuery.ajax({
+    type: 'POST',
+    url: jQuery.rootPath() + 'excerpts/create',
+    data: rangeObj,
+    beforeSend: function(){jQuery('#spinner_block').show()},
+    success: function(html){
+      jQuery('#spinner_block').hide();
+    },
+    error: function(xhr){
+      jQuery('#spinner_block').hide();
+      jQuery('div.ajax-error').show().append(xhr.responseText);
+    }
+  });
+},
+
 createRange: function(rangeObj){
   var anchorXPathNode = jQuery.evalXPath(rangeObj.anchor_x_path);
   var focusXPathNode = jQuery.evalXPath(rangeObj.focus_x_path);
@@ -18,23 +152,6 @@ createRange: function(rangeObj){
     var range = document.createRange();
     range.setStart((rangeObj.anchor_sibling_offset != null) ? anchorXPathNode.childNodes[rangeObj.anchor_sibling_offset] : anchorXPathNode,rangeObj.anchor_offset);
     range.setEnd((rangeObj.focus_sibling_offset != null) ? focusXPathNode.childNodes[rangeObj.focus_sibling_offset] : focusXPathNode,rangeObj.focus_offset);
-    if(window.console){
-      console.log('Before post');
-      console.log(rangeObj);
-    }
-    jQuery.ajax({
-      type: 'POST',
-      url: jQuery.rootPath() + 'excerpts/create',
-      data: rangeObj,
-      beforeSend: function(){jQuery('#spinner_block').show()},
-      success: function(html){
-        jQuery('#spinner_block').hide();
-      },
-      error: function(xhr){
-        jQuery('#spinner_block').hide();
-        jQuery('div.ajax-error').show().append(xhr.responseText);
-      }
-    });
   } catch (err){
     jQuery('div.ajax-error').show().html(err);
   }
@@ -103,155 +220,50 @@ getXPath: function(node, path) {
 observe_excerpt_controls: function(){
   jQuery('#excerpt-selection').click(function(e){
     e.preventDefault();
-    var sel = window.getSelection();
-    var anchorNode = null;
-    var anchor_offset = 0;
-    var anchor_sibling_offset = 0;
-
-    var focusNode = null;
-    var focus_offset = 0;
-    var focus_sibling_offset = 0;
-
-    var range = null;
-
-    if (window.console){
-      console.log('Anchor Node Name: ' + sel.anchorNode.nodeName);
-      console.log('Focus Node Name: ' + sel.focusNode.nodeName);
-    }
-
-    if((sel.anchorNode === sel.focusNode) ){
-      //Everything happens in a single node.
-      if(sel.anchorNode.nodeName == '#text'){
-        //This is a selection in the same node and it isn't the entire node.
-        if (window.console){
-          console.log('You have selected part of a singular node');
-        }
-        anchorNode = sel.anchorNode;
-        anchor_offset = sel.anchorOffset;
-        focusNode = sel.anchorNode;
-        focus_offset = sel.focusOffset;
-
-        var anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/'); 
-
-        if (window.console){
-          console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
-        }
-        for(var i=0; i <= sel.anchorNode.parentNode.childNodes.length; i++){
-          if(sel.anchorNode.parentNode.childNodes[i] == sel.anchorNode){
-            anchor_sibling_offset = i;
-          }
-        }
-
-        try{
-          var rangeObj = jQuery.checkRange(anchor_x_path,anchor_sibling_offset,anchor_offset,anchor_x_path,anchor_sibling_offset,focus_offset);
-          if (window.console){
-            console.log(rangeObj);
-          }
-          var range = jQuery.createRange(rangeObj);
-          jQuery.collapseRange(range);
-        } catch(err){
-          jQuery('#ajax-error').show().html(err);
-        }
-
-      } else if(sel.focusOffset == sel.anchorNode.childNodes.length){
-        //They have selected an entire node, singularly.
-        if (window.console){
-          console.log('You have selected an entire node- just one.');
-        }
-        anchorNode = sel.anchorNode;
-        anchor_offset = sel.anchorOffset;
-        focusNode = sel.focusNode;
-        focus_offset = sel.focusOffset;
-        if (window.console){
-          console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
-        }
-
-        var anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/');
-        try{
-          var rangeObj = jQuery.checkRange(anchor_x_path,null,0,anchor_x_path,null,focus_offset);
-          var range = jQuery.createRange(rangeObj);
-          if (window.console){
-            console.log("Synthetic Range:");
-            console.log(range);
-            console.log(rangeObj);
-          }
-          jQuery.collapseRange(range);
-        } catch(err){
-          jQuery('#ajax-error').show().html(err);
-        }
-      } else {
-        // It's in a single node but spans multiple siblings.
-        anchorNode = sel.anchorNode;
-        anchor_sibling_offset = sel.anchorOffset;
-        focusNode = sel.focusNode;
-        focus_sibling_offset = sel.focusOffset;
-
-        if (window.console){
-          console.log('Single node spanning multiple siblings');
-          console.log('Anchor Node:' + anchorNode + ' anchor_offset:' + anchor_offset + ' focusNode: ' + focusNode + ' focus_offset: ' + focus_offset);
-        }
-
-        var anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/');
-        try{
-          var rangeObj = jQuery.checkRange(anchor_x_path,anchor_sibling_offset,0,anchor_x_path,focus_sibling_offset,0);
-          var range = jQuery.createRange(rangeObj);
-          if (window.console){
-            console.log("Synthetic Range:");
-            console.log(range);
-            console.log(rangeObj);
-          }
-          jQuery.collapseRange(range);
-        } catch(err){
-          jQuery('#ajax-error').show().html(err);
-        }
-      }
-    } else {
-      // This is a selection that spans nodes
+    try{
+      var rangeObj = jQuery.formatRange();
       if (window.console){
-        console.log('This selection spans nodes');
+        console.log(rangeObj);
       }
-      anchorNode = sel.anchorNode;
-      anchor_offset = sel.anchorOffset;
-      anchor_sibling_offset = 0;
-      focusNode = sel.focusNode;
-      focus_offset = sel.focusOffset;
-      focus_sibling_offset = 0;
-
-      for(var i=0; i <= sel.anchorNode.parentNode.childNodes.length; i++){
-        if(sel.anchorNode.parentNode.childNodes[i] == sel.anchorNode){
-          anchor_sibling_offset = i;
-        }
+      var range = jQuery.createRange(rangeObj);
+      jQuery.storeRange(rangeObj);
+      jQuery.collapseRange(range);
+      if (window.console){
+        console.log(range);
       }
- 
-      for(var i=0; i <= sel.focusNode.parentNode.childNodes.length; i++){
-        if(sel.focusNode.parentNode.childNodes[i] == sel.focusNode){
-          focus_sibling_offset = i;
-        }
-      }
-
-      var anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/'); 
-      var focus_x_path = '/' + jQuery.getXPath(focusNode).join('/');
-
-      try{
-        var rangeObj = jQuery.checkRange(anchor_x_path,anchor_sibling_offset,anchor_offset,focus_x_path,focus_sibling_offset,focus_offset);
-        if (window.console){
-          console.log(rangeObj);
-        }
-        var range = jQuery.createRange(rangeObj);
-        jQuery.collapseRange(range);
-        if (window.console){
-          console.log(range);
-        }
-      } catch(err) {
-        jQuery('#ajax-error').show().html(err);
-      }
+    } catch(err) {
+      jQuery('#ajax-error').show().html(err);
     }
-  //      myRangeObj = {anchorNode: anchorNode, anchor_offset: anchor_offset, anchor_sibling_offset: anchor_sibling_offset, focusNode: focusNode, focus_offset: focus_offset, focus_sibling_offset: focus_sibling_offset};
-  //      console.log(myRangeObj);
+
+  });
+},
+initialize_excerpts: function(){
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+  jQuery.ajax({
+    type: 'GET',
+    url: jQuery.rootPath() + 'collages/excerpts/' + collageId,
+    cache: false,
+    beforeSend: function(){jQuery('#spinner_block').show()},
+    success: function(json){
+      jQuery('#spinner_block').hide();
+      jQuery(json).each(function(){
+        var range = jQuery.createRange(this.excerpt);
+        jQuery.collapseRange(range);
+      });
+    }
+  });
+},
+
+insertAtClick: function(){
+  jQuery("#annotatable-content [id*='n-']").click(function(e){
+      console.log(e);
   });
 }
+
 });
 
 jQuery(document).ready(function(){
     jQuery.observe_excerpt_controls();
+    jQuery.initialize_excerpts();
+//    jQuery.insertAtClick();
 });
