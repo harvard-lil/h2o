@@ -45,12 +45,11 @@ class ExcerptsController < BaseController
     @excerpt = Excerpt.new(params[:excerpt])
     @excerpt.accepts_role!(:excerpter, current_user)
     @excerpt.user = current_user
-    @excerpt.collage_id = 1
 
     [:anchor_x_path, :focus_x_path].each do |p|
       @excerpt[p] = params[p]
     end
-    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset].each do |p|
+    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset,:collage_id].each do |p|
       @excerpt[p] = (params[p] == 'null') ? nil : params[p]
     end
 

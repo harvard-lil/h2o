@@ -25,10 +25,11 @@ class AnnotationsController < ApplicationController
   # GET /annotations/new.xml
   def new
     @annotation = Annotation.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @annotation }
+    [:anchor_x_path, :focus_x_path].each do |p|
+      @annotation[p] = params[p]
+    end
+    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset].each do |p|
+      @annotation[p] = (params[p] == 'null') ? nil : params[p]
     end
   end
 
@@ -41,13 +42,17 @@ class AnnotationsController < ApplicationController
   # POST /annotations.xml
   def create
     @annotation = Annotation.new(params[:annotation])
+    @annotation.accepts_role!(:annotater, current_user)
+    @annotation.user = current_user
 
     respond_to do |format|
       if @annotation.save
         flash[:notice] = 'Annotation was successfully created.'
+        format.json { render :json => {:message => 'Annotated!', :annotation_id => @annotation.id } }
         format.html { redirect_to(@annotation) }
         format.xml  { render :xml => @annotation, :status => :created, :location => @annotation }
       else
+        format.json { render :text => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity }
         format.html { render :action => "new" }
         format.xml  { render :xml => @annotation.errors, :status => :unprocessable_entity }
       end

@@ -1,0 +1,22 @@
+<div id="new-annotation-error" style="display:none;" class="error"></div>
+<% unless request.xhr? %>
+  <h1>Add Annotation</h1>
+<% end %>
+<% semantic_form_for @annotation do |form| %>
+  <% form.inputs do %>
+    <% [:collage_id, :parent_id, :anchor_x_path, :anchor_sibling_offset, :anchor_offset, :focus_x_path, :focus_sibling_offset, :focus_offset].each do |col| %>
+      <%= form.input col, :as => :hidden %>
+    <% end %>
+    <%= form.input :annotation,
+      :as => :text,
+      :input_html => {:size => '60x10'},
+      :hint => 'You can use markdown in the annotation. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
+      :label => 'Annotation'
+  %>
+<% end %>
+<% unless request.xhr? %>
+  <% form.buttons do %>
+    <%= form.commit_button 'Save' %>
+  <% end %>
+<% end %>
+<% end %>
