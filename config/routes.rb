@@ -1,4 +1,10 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_texts
+
+  map.resources :item_images
+
+  map.resources :item_youtubes
+
   map.resources :excerpts
 
   map.resources :annotations
@@ -13,15 +19,14 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages
 
+  map.resources :playlists, :collection => {:block => :get, :url_check => :post}, :member => {:delete => :get }
+
+  map.resources :playlist_items, :collection => {:block => :get, :monkey => :get}, :member => {:delete => :get }
 
   map.resources :item_defaults
 
 #  map.connect 'casebooks/annotation', :controller => 'casebooks', :action => :annotation, :method => :get
-
-  map.resources :playlist_items
-
-  map.resources :playlists, :collection => {:block => :get}, :member => {:delete => :get }
-
+  
   map.resources :rotisserie_trackers
 
   map.resources :rotisserie_assignments
