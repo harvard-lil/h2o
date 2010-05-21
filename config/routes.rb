@@ -17,7 +17,10 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :cases
 
-  map.resources :collages
+  map.resources :collages do |cl|
+    cl.undo_annotation 'undo_annotation', :controller => 'collages', :action => :undo_annotation, :method => :post
+    cl.undo_excerpt 'undo_excerpt', :controller => 'collages', :action => :undo_excerpt, :method => :post
+  end
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post}, :member => {:delete => :get }
 

@@ -1,4 +1,5 @@
 class AnnotationsController < ApplicationController
+
   # GET /annotations
   # GET /annotations.xml
   def index

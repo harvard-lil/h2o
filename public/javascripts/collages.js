@@ -169,12 +169,14 @@ collapseRange: function(range){
   range.insertNode(node);
 },
 
-annotateRange: function(range){
+annotateRange: function(range,obj){
   var node = document.createElement('span');
-  node.appendChild(document.createTextNode('. . .'));
-  node.className = 'excerpt';
+  node.className = 'annotation';
+  node.setAttribute('id', 'annotation-' + obj.id);
   node.setAttribute('title', 'Click to see annotation');
-  console.log('trying to insert annotation');
+  if(window.console){
+    console.log('trying to insert annotation');
+  }
   range.insertNode(node);
 },
 
@@ -248,7 +250,7 @@ observeExcerptControls: function(){
 },
 
 observeAnnotationControls: function(){
-  jQuery('#annotate').click(function(e){
+  jQuery('#annotate-selection').click(function(e){
     var rangeObj = jQuery.formatRange();
     var collageId = jQuery('.collage-id').attr('id').split('-')[1];
     rangeObj['collage_id'] = collageId;
@@ -265,6 +267,7 @@ observeAnnotationControls: function(){
         success: function(responseText){
           jQuery('#spinner_block').hide();
           jQuery('#new-annotation-form').dialog('close');
+          // init annotation
         }
       });
     };
@@ -344,15 +347,34 @@ initializeAnnotations: function(){
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
         var range = jQuery.createRange(this.annotation);
-        jQuery.annotateRange(range);
+        jQuery.annotateRange(range,this.annotation);
       });
+    },
+    complete: function(){
+      jQuery("span[id*='annotation-']").button({icons: {primary: 'ui-icon-script'}});
     }
   });
 },
 
-insertAtClick: function(){
-  jQuery("#annotatable-content [id*='n-']").click(function(e){
-      console.log(e);
+observeUndo: function(){
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+  jQuery("a[id*='undo-']").click(function(e){
+    e.preventDefault();
+    var undoType = jQuery(this).attr('id').split('-')[1];
+    var url = jQuery.rootPath() + 'collages/' + collageId + '/undo_' + undoType;
+    jQuery.ajax({
+      type: 'POST',
+      url: url,
+      cache: false,
+      beforeSend: function(){jQuery('#spinner_block').show()},
+      success: function(){
+        window.location.href = jQuery.rootPath() + 'collages/' + collageId;
+      },
+      error: function(xhr){
+        jQuery('#spinner_block').hide();
+        jQuery('div.ajax-error').show().append(xhr.responseText);
+      }
+    });
   });
 }
 
@@ -363,5 +385,9 @@ jQuery(document).ready(function(){
     jQuery.initializeExcerpts();
     jQuery.observeAnnotationControls();
     jQuery.initializeAnnotations();
+    jQuery('#annotate-selection').button({icons: {primary: 'ui-icon-lightbulb'}});
+    jQuery('#excerpt-selection').button({icons: {primary: 'ui-icon-scissors'}});
+    jQuery.observeUndo();
+
 //    jQuery.insertAtClick();
 });

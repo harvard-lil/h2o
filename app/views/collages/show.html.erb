@@ -8,11 +8,18 @@
 <%= link_to 'Back', collages_path %>
 
 <div id="annotation-tools">
+  <% if flash[:notice] %>
+    <div class="notice"><%= h flash[:notice] %></div>
+  <% end %>
+  <h2>Tools</h2>
   <ul>
-    <li><a href="#" id="annotate">Annotate</a></li>
-    <li><a href="#" id="excerpt-selection">Excerpt text selection</a></li>
+    <li><a href="#" id="annotate-selection">Annotate</a></li>
+    <li><a href="#" id="excerpt-selection">Excerpt</a></li>
+    <li><h3>Undo:</h3><br/>
+      <a href="#" id="undo-annotation">Annotation</a> | <a href="#" id="undo-excerpt">Excerpt</a>
+    </li>
   </ul>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
-  <div id="new-annotation-form"></div>
+  <div id="new-annotation-form" style="display: none;"></div>
 </div>

@@ -1,7 +1,25 @@
 class CollagesController < ApplicationController
 
   before_filter :prep_resources
-  before_filter :load_collage, :only => [:excerpts, :annotations, :show, :edit, :update, :destroy]  
+  before_filter :load_collage, :only => [:excerpts, :annotations, :show, :edit, :update, :destroy, :undo_excerpt, :undo_annotation]  
+
+  def undo_excerpt
+    excerpt = @collage.excerpts.last
+    excerpt.destroy
+    flash[:notice] = "We've removed that excerpt."
+    redirect_to @collage
+  rescue Exception => e
+    render :text => 'You fail it!', :status => :unprocessable_entity
+  end
+
+  def undo_annotation
+    annotation = @collage.annotations.last
+    annotation.destroy
+    flash[:notice] = "We've removed that annotation."
+    redirect_to @collage
+  rescue Exception => e
+    render :text => 'You fail it!', :status => :unprocessable_entity
+  end
 
   def excerpts
     respond_to do |format|
@@ -101,7 +119,7 @@ class CollagesController < ApplicationController
   end
 
   def load_collage
-    @collage = Collage.find(params[:id])
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id])
   end
 
 end

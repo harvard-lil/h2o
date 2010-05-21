@@ -1,4 +1,42 @@
+.status{
+  position: fixed;
+  right: 5px;
+}
+#annotation-tools{
+  width: 15em;
+  border: 5px #555555;
+  border-style: none none solid solid;
+  border-bottom-left-radius: 20px;
+  -moz-border-radius-bottomleft: 20px;
+  background: white;
+  padding: 25px;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  opacity: 0.3;
+}
+
+#annotation-tools h2{
+  margin: 0px;
+  padding-bottom: 5px;
+}
+
+#annotation-tools ul, #annotation-tools li{
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+#annotation-tools li{
+  padding-bottom: 10px;
+}
+
+#annotation-tools:hover{
+  opacity: 1;
+}
+
 span.excerpt{
   background-color: #e4e4e4;
   font-weight: bold;
 }
+
