@@ -3,7 +3,7 @@ class Playlist < ActiveRecord::Base
   acts_as_authorization_object
   
   #has_many :playlist_items, :order => :position
-  has_many :playlist_items, :as => :resource_item, :order => "playlist_items.position"
+  has_many :playlist_items, :order => "playlist_items.position"
 
   validates_presence_of :output_text
   validates_uniqueness_of :output_text

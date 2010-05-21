@@ -1,3 +1,24 @@
+<div class="info_block">
+ <div class="yellow_title_med">Playlist Items</div>
+Current playlist items are shown below.  If you are the owner of an item or have been given permission by the owner you may
+edit or delete items.
+</div>
 
-<%= link_to 'Edit', edit_playlist_path(@playlist) %> |
-<%= link_to 'Back', playlists_path %>
+<div id="spinner_block"></div>
+
+<div id="list_block" >
+  <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
+</div>
+
+<br />
+
+<div id="container_id" style="display: none;"><%= @playlist.id %></div>
+
+<% if @playlist.admin? || @playlist.owner? %>
+<button id="button-item-create-<%= @playlist.id %>" name="button-item-create" class="ui-button ui-state-default ui-corner-all">Create playlist item</button>
+<% end %>
+
+<div id="dialog-item-new" title="New item"></div>
+<div id="dialog-item-edit" title="Edit item"></div>
+<div id="dialog-item-delete" title="Delete item"></div>
+

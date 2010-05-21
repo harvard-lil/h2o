@@ -1,0 +1,21 @@
+<%
+if controller.action_name == 'edit'
+  item_object = ItemDefault.find(params[:id])
+else
+  item_object = ItemDefault.new
+end
+-%>
+<div id="error_block"></div>
+  <% semantic_form_for item_object, :html => {:class => "playlist_form"} do |form| %>
+  <% form.inputs do %>
+        <%= form.input :output_text, :label => "Name", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li></li>
+        <%= form.input :description,
+          :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+          :required => false
+        %>
+        <li></li>
+        <%= form.input(:url, :as => :hidden, :value => url_string) unless url_string.blank? %>
+        <%= hidden_field_tag 'container_id', container_id unless container_id.blank? %>
+<% end -%>
+<% end -%>

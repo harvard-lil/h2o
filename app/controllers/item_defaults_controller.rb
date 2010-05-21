@@ -41,10 +41,21 @@ class ItemDefaultsController < ApplicationController
   # POST /item_defaults.xml
   def create
     @item_default = ItemDefault.new(params[:item_default])
+    container_id = params[:container_id]
 
     respond_to do |format|
       if @item_default.save
+        @item_default.accepts_role!(:owner, current_user)
+
+        playlist_item = PlaylistItem.new(:playlist_id => container_id)
+        playlist_item.resource_item = @item_default
+        
+        if playlist_item.save!
+          playlist_item.accepts_role!(:owner, current_user)
+        end
+
         flash[:notice] = 'ItemDefault was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@item_default) }
         format.xml  { render :xml => @item_default, :status => :created, :location => @item_default }
       else

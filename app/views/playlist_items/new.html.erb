@@ -1,11 +1,16 @@
-<h1>New playlist_item</h1>
+<%= javascript_tag(%q|jQuery(function() {
+  jQuery("#url_review").button();
+  });|) %>
 
-<% form_for(@playlist_item) do |f| %>
-  <%= f.error_messages %>
+<%= text_field_tag 'url_input', nil,
+  :size => 50,
+  :name => 'url_input',
+  :class => "ui-widget-content ui-corner-all"
+%>
 
-  <p>
-    <%= f.submit 'Create' %>
-  </p>
-<% end %>
+<p>
+  <a id="url_review">Submit URL</a>
+</p>
 
-<%= link_to 'Back', playlist_items_path %>
+<div id="result_data">
+</div>

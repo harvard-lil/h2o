@@ -1,3 +1,6 @@
 class ItemDefault < ActiveRecord::Base
-  belongs_to :resource_item, :polymorphic => true
+  include AuthUtilities
+  acts_as_authorization_object
+
+  has_one :playlist_item, :as => :resource_item
 end

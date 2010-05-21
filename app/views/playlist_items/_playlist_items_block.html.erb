@@ -1,0 +1,31 @@
+<table class="core_table">
+  <thead>
+    <tr class="table_heading ">
+      <th>Item Title</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @playlist.playlist_items.each do |item| %>
+      <tr>
+        <td><%= link_to item.resource_item.url, item %></td>
+        <td>
+          <% #  if item.resource_item.admin? || item.resource_item.owner? %>
+          <button id="button-item-edit-<%= item.resource_item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_edit.png" %>
+          </button>
+          <% # end %>
+        </td>
+        <td>
+          <% #if item.admin? || item.owner? %>
+          <button id="button-item-delete-<%= item.id %>" name="button-playlist-delete" class="ui-button ui-state-default ui-corner-all">
+            <%= image_tag "/images/icons/application_form_delete.png" %>
+          </button>
+          <% #end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

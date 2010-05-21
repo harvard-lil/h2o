@@ -21,7 +21,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post}, :member => {:delete => :get }
 
-  map.resources :playlist_items, :collection => {:block => :get, :monkey => :get}, :member => {:delete => :get }
+  map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 
   map.resources :item_defaults
 

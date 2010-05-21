@@ -41,9 +41,10 @@ class PlaylistItemsController < ApplicationController
   # POST /playlist_items.xml
   def create
     @playlist_item = PlaylistItem.new(params[:playlist_item])
-
+    
     respond_to do |format|
       if @playlist_item.save
+        
         flash[:notice] = 'PlaylistItem was successfully created.'
         format.html { redirect_to(@playlist_item) }
         format.xml  { render :xml => @playlist_item, :status => :created, :location => @playlist_item }
@@ -82,4 +83,22 @@ class PlaylistItemsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  def block
+    @playlist = Playlist.find(params[:container_id])
+
+    respond_to do |format|
+      format.html {
+        render :partial => 'playlist_items_block',
+        :locals => {:playlist => @playlist},
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+  end
+
 end
+
+
+
+
