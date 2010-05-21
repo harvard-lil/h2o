@@ -1,11 +1,17 @@
 class CollagesController < ApplicationController
 
   before_filter :prep_resources
-  before_filter :load_collage, :only => [:excerpts, :show, :edit, :update, :destroy]  
+  before_filter :load_collage, :only => [:excerpts, :annotations, :show, :edit, :update, :destroy]  
 
   def excerpts
     respond_to do |format|
       format.json { render :json => @collage.excerpts }
+    end
+  end
+
+  def annotations
+    respond_to do |format|
+      format.json { render :json => @collage.annotations }
     end
   end
 

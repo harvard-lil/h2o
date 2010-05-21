@@ -169,6 +169,15 @@ collapseRange: function(range){
   range.insertNode(node);
 },
 
+annotateRange: function(range){
+  var node = document.createElement('span');
+  node.appendChild(document.createTextNode('. . .'));
+  node.className = 'excerpt';
+  node.setAttribute('title', 'Click to see annotation');
+  console.log('trying to insert annotation');
+  range.insertNode(node);
+},
+
 evalXPath: function(xpath){
   if (document.evaluate){
     return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -240,9 +249,9 @@ observeExcerptControls: function(){
 
 observeAnnotationControls: function(){
   jQuery('#annotate').click(function(e){
-
     var rangeObj = jQuery.formatRange();
-
+    var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+    rangeObj['collage_id'] = collageId;
     var submitAnnotation = function(){
       jQuery('#new-annotation-form form').ajaxSubmit({
         error: function(xhr){
@@ -257,7 +266,7 @@ observeAnnotationControls: function(){
           jQuery('#spinner_block').hide();
           jQuery('#new-annotation-form').dialog('close');
         }
-        });
+      });
     };
     jQuery('#new-annotation-form').dialog({
       bgiframe: true,
@@ -324,6 +333,23 @@ initializeExcerpts: function(){
   });
 },
 
+initializeAnnotations: function(){
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+  jQuery.ajax({
+    type: 'GET',
+    url: jQuery.rootPath() + 'collages/annotations/' + collageId,
+    cache: false,
+    beforeSend: function(){jQuery('#spinner_block').show()},
+    success: function(json){
+      jQuery('#spinner_block').hide();
+      jQuery(json).each(function(){
+        var range = jQuery.createRange(this.annotation);
+        jQuery.annotateRange(range);
+      });
+    }
+  });
+},
+
 insertAtClick: function(){
   jQuery("#annotatable-content [id*='n-']").click(function(e){
       console.log(e);
@@ -336,6 +362,6 @@ jQuery(document).ready(function(){
     jQuery.observeExcerptControls();
     jQuery.initializeExcerpts();
     jQuery.observeAnnotationControls();
-//    jQuery.initializeAnnotations();
+    jQuery.initializeAnnotations();
 //    jQuery.insertAtClick();
 });

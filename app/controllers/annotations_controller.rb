@@ -28,7 +28,7 @@ class AnnotationsController < ApplicationController
     [:anchor_x_path, :focus_x_path].each do |p|
       @annotation[p] = params[p]
     end
-    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset].each do |p|
+    [:anchor_sibling_offset, :anchor_offset, :focus_sibling_offset,:focus_offset, :collage_id].each do |p|
       @annotation[p] = (params[p] == 'null') ? nil : params[p]
     end
   end
