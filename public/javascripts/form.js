@@ -103,6 +103,7 @@ var messages_post = {
     "rotisserie_post[output]": "Please enter your response"
 };
 
+
 function initGroup() {
     
     // Spawn instance dialog when button is clicked
@@ -120,9 +121,6 @@ function initGroup() {
     initButton('button-post-create', '[name=button-post-create]', '#dialog-post-new', 'rotisserie_posts', 'new');
     initButton('button-post-edit', '[name=button-post-edit]', '#dialog-post-edit', 'rotisserie_posts', 'edit');
     initButton('button-post-delete', '[name=button-post-delete]', '#dialog-post-delete', 'rotisserie_posts', 'delete');
-
-
-
 }
 
 function initButton(button_name, button_selector, dialog_id, controller_name, action) {
