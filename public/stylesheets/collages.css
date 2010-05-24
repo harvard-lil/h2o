@@ -1,3 +1,6 @@
+.ajax-error{
+  width: auto;
+}
 .status{
   position: fixed;
   right: 5px;
@@ -40,3 +43,14 @@ span.excerpt{
   font-weight: bold;
 }
 
+.ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text{
+  padding:0.2em .8em 0.2em 1.6em;
+}
+
+.undo-button{
+  font-size: 10px;
+}
+
+.annotation-control{
+  font-size: 9px;
+}

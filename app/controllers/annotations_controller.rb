@@ -1,5 +1,7 @@
 class AnnotationsController < ApplicationController
 
+  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy]  
+
   # GET /annotations
   # GET /annotations.xml
   def index
@@ -14,12 +16,6 @@ class AnnotationsController < ApplicationController
   # GET /annotations/1
   # GET /annotations/1.xml
   def show
-    @annotation = Annotation.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @annotation }
-    end
   end
 
   # GET /annotations/new
@@ -36,20 +32,19 @@ class AnnotationsController < ApplicationController
 
   # GET /annotations/1/edit
   def edit
-    @annotation = Annotation.find(params[:id])
   end
 
   # POST /annotations
   # POST /annotations.xml
   def create
     @annotation = Annotation.new(params[:annotation])
-    @annotation.accepts_role!(:annotater, current_user)
+    @annotation.accepts_role!(:owner, current_user)
     @annotation.user = current_user
 
     respond_to do |format|
       if @annotation.save
         flash[:notice] = 'Annotation was successfully created.'
-        format.json { render :json => {:message => 'Annotated!', :annotation_id => @annotation.id } }
+        format.json { render :json => {:message => 'Annotated!', :annotation => @annotation } }
         format.html { redirect_to(@annotation) }
         format.xml  { render :xml => @annotation, :status => :created, :location => @annotation }
       else
@@ -63,8 +58,6 @@ class AnnotationsController < ApplicationController
   # PUT /annotations/1
   # PUT /annotations/1.xml
   def update
-    @annotation = Annotation.find(params[:id])
-
     respond_to do |format|
       if @annotation.update_attributes(params[:annotation])
         flash[:notice] = 'Annotation was successfully updated.'
@@ -80,12 +73,17 @@ class AnnotationsController < ApplicationController
   # DELETE /annotations/1
   # DELETE /annotations/1.xml
   def destroy
-    @annotation = Annotation.find(params[:id])
     @annotation.destroy
-
     respond_to do |format|
       format.html { redirect_to(annotations_url) }
       format.xml  { head :ok }
     end
   end
+
+  private
+
+  def load_annotation
+    @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id])
+  end
+
 end

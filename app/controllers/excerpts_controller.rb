@@ -1,6 +1,7 @@
 class ExcerptsController < BaseController
 
   before_filter :prep_resources
+  before_filter :load_excerpt, :only => [:show, :edit, :update, :destroy]
 
   # GET /excerpts
   # GET /excerpts.xml
@@ -15,8 +16,6 @@ class ExcerptsController < BaseController
   # GET /excerpts/1
   # GET /excerpts/1.xml
   def show
-    @excerpt = Excerpt.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @excerpt }
@@ -36,14 +35,13 @@ class ExcerptsController < BaseController
 
   # GET /excerpts/1/edit
   def edit
-    @excerpt = Excerpt.find(params[:id])
   end
 
   # POST /excerpts
   # POST /excerpts.xml
   def create
     @excerpt = Excerpt.new(params[:excerpt])
-    @excerpt.accepts_role!(:excerpter, current_user)
+    @excerpt.accepts_role!(:owner, current_user)
     @excerpt.user = current_user
 
     [:anchor_x_path, :focus_x_path].each do |p|
@@ -56,7 +54,7 @@ class ExcerptsController < BaseController
     respond_to do |format|
       if @excerpt.save
         flash[:notice] = 'Excerpt was successfully created.'
-        format.json { render :json => {:message => 'Excerpted!', :excerpt_id => @excerpt.id } }
+        format.json { render :json => {:message => 'Excerpted!', :excerpt => @excerpt } }
         format.html { redirect_to(@excerpt) }
         format.xml  { render :xml => @excerpt, :status => :created, :location => @excerpt }
       else
@@ -71,8 +69,6 @@ class ExcerptsController < BaseController
   # PUT /excerpts/1
   # PUT /excerpts/1.xml
   def update
-    @excerpt = Excerpt.find(params[:id])
-
     respond_to do |format|
       if @excerpt.update_attributes(params[:excerpt])
         flash[:notice] = 'Excerpt was successfully updated.'
@@ -88,9 +84,7 @@ class ExcerptsController < BaseController
   # DELETE /excerpts/1
   # DELETE /excerpts/1.xml
   def destroy
-    @excerpt = Excerpt.find(params[:id])
     @excerpt.destroy
-
     respond_to do |format|
       format.html { redirect_to(excerpts_url) }
       format.xml  { head :ok }
@@ -101,6 +95,10 @@ class ExcerptsController < BaseController
 
   def prep_resources
     add_javascripts 'collages'
+  end
+
+  def load_excerpt
+    @excerpt = Excerpt.find((params[:id].blank?) ? params[:excerpt_id] : params[:id])
   end
 
 end

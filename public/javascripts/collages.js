@@ -136,7 +136,10 @@ storeRange: function(rangeObj){
     type: 'POST',
     url: jQuery.rootPath() + 'excerpts/create',
     data: rangeObj,
-    beforeSend: function(){jQuery('#spinner_block').show()},
+    beforeSend: function(){
+      jQuery('#spinner_block').show();
+      jQuery('div.ajax-error').html('').hide();
+    },
     success: function(html){
       jQuery('#spinner_block').hide();
     },
@@ -171,13 +174,50 @@ collapseRange: function(range){
 
 annotateRange: function(range,obj){
   var node = document.createElement('span');
-  node.className = 'annotation';
-  node.setAttribute('id', 'annotation-' + obj.id);
+  node.className = 'annotation-control';
+  node.setAttribute('id', 'annotation-control-' + obj.id);
   node.setAttribute('title', 'Click to see annotation');
+  node.innerHTML = '&nbsp;';
   if(window.console){
     console.log('trying to insert annotation');
+    console.log(node);
   }
   range.insertNode(node);
+  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
+    e.preventDefault();
+    var annotationId = jQuery(this).attr('id').split('-')[2];
+    if(jQuery('#annotation-details-' + annotationId).length == 0){
+      jQuery.ajax({
+        type: 'GET',
+        url: jQuery.rootPath() + 'annotations/' + annotationId,
+        beforeSend: function(){
+          jQuery('#spinner_block').show();
+          jQuery('div.ajax-error').html('').hide();
+        },
+        error: function(xhr){
+          jQuery('#spinner_block').hide();
+          jQuery('div.ajax-error').show().append(xhr.responseText);
+        },
+        success: function(html){
+          jQuery('#spinner_block').hide();
+          var node = jQuery(html);
+          jQuery('body').append(node);
+          var dialog = jQuery('#annotation-details-' + annotationId).dialog({
+            height: 300,
+            position: [e.pageX,e.pageY - 330],
+              buttons: {
+                Close: function(){
+                  jQuery(this).dialog('close');
+                }
+              }
+          });
+          jQuery(dialog).open();
+        }
+      });
+    } else {
+      jQuery('#annotation-details-' + annotationId).dialog({position: [e.pageX,e.pageY - 330]}).open();
+    }
+  });
 },
 
 evalXPath: function(xpath){
@@ -262,12 +302,14 @@ observeAnnotationControls: function(){
         },
         beforeSend: function(){
           jQuery('#spinner_block').show();
+          jQuery('div.ajax-error').html('').hide();
           jQuery('#new-annotation-error').html('').hide();
         },
-        success: function(responseText){
+        success: function(response){
           jQuery('#spinner_block').hide();
           jQuery('#new-annotation-form').dialog('close');
-          // init annotation
+          var range = jQuery.createRange(response.annotation.annotation);
+          jQuery.annotateRange(range,response.annotation.annotation);
         }
       });
     };
@@ -292,7 +334,10 @@ observeAnnotationControls: function(){
       url: jQuery.rootPath() + 'annotations/new',
       data: rangeObj,
       cache: false,
-      beforeSend: function(){jQuery('#spinner_block').show()},
+      beforeSend: function(){
+        jQuery('#spinner_block').show();
+        jQuery('div.ajax-error').html('').hide();
+     },
       success: function(html){
         jQuery('#spinner_block').hide();
         jQuery('#new-annotation-form').html(html);
@@ -325,7 +370,10 @@ initializeExcerpts: function(){
     type: 'GET',
     url: jQuery.rootPath() + 'collages/excerpts/' + collageId,
     cache: false,
-    beforeSend: function(){jQuery('#spinner_block').show()},
+    beforeSend: function(){
+      jQuery('#spinner_block').show();
+      jQuery('div.ajax-error').html('').hide();
+    },
     success: function(json){
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
@@ -342,7 +390,10 @@ initializeAnnotations: function(){
     type: 'GET',
     url: jQuery.rootPath() + 'collages/annotations/' + collageId,
     cache: false,
-    beforeSend: function(){jQuery('#spinner_block').show()},
+    beforeSend: function(){
+      jQuery('#spinner_block').show();
+      jQuery('div.ajax-error').html('').hide();
+    },
     success: function(json){
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
@@ -351,7 +402,6 @@ initializeAnnotations: function(){
       });
     },
     complete: function(){
-      jQuery("span[id*='annotation-']").button({icons: {primary: 'ui-icon-script'}});
     }
   });
 },
@@ -361,12 +411,18 @@ observeUndo: function(){
   jQuery("a[id*='undo-']").click(function(e){
     e.preventDefault();
     var undoType = jQuery(this).attr('id').split('-')[1];
+    if(!confirm("Undo the last " + undoType + '?')){
+      return;
+    }
     var url = jQuery.rootPath() + 'collages/' + collageId + '/undo_' + undoType;
     jQuery.ajax({
       type: 'POST',
       url: url,
       cache: false,
-      beforeSend: function(){jQuery('#spinner_block').show()},
+      beforeSend: function(){
+        jQuery('#spinner_block').show();
+        jQuery('div.ajax-error').html('').hide();
+      },
       success: function(){
         window.location.href = jQuery.rootPath() + 'collages/' + collageId;
       },
@@ -387,6 +443,7 @@ jQuery(document).ready(function(){
     jQuery.initializeAnnotations();
     jQuery('#annotate-selection').button({icons: {primary: 'ui-icon-lightbulb'}});
     jQuery('#excerpt-selection').button({icons: {primary: 'ui-icon-scissors'}});
+    jQuery(".undo-button").button({icons: {primary: 'ui-icon-arrowreturnthick-1-w'}});
     jQuery.observeUndo();
 
 //    jQuery.insertAtClick();

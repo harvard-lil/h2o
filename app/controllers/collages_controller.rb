@@ -9,7 +9,7 @@ class CollagesController < ApplicationController
     flash[:notice] = "We've removed that excerpt."
     redirect_to @collage
   rescue Exception => e
-    render :text => 'You fail it!', :status => :unprocessable_entity
+    render :text => "Sorry, we couldn't remove that excerpt.", :status => :unprocessable_entity
   end
 
   def undo_annotation
@@ -18,7 +18,7 @@ class CollagesController < ApplicationController
     flash[:notice] = "We've removed that annotation."
     redirect_to @collage
   rescue Exception => e
-    render :text => 'You fail it!', :status => :unprocessable_entity
+    render :text => "Sorry, we couldn't remove that annotation", :status => :unprocessable_entity
   end
 
   def excerpts
