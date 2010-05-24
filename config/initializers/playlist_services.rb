@@ -1,0 +1,1 @@
+WEBSNAPR_KEY = "26aT6Fs4qHh2"

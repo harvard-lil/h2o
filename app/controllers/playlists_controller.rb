@@ -3,6 +3,8 @@ class PlaylistsController < ApplicationController
   require 'net/http'
   require 'uri'
 
+  include PlaylistUtilities
+
   before_filter :require_user
 
   # GET /playlists
@@ -68,7 +70,7 @@ class PlaylistsController < ApplicationController
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
         @error_output = "<div class='error ui-corner-all'>"
-        @rotisserie_instance.errors.each{ |attr,msg|
+        @playlist.errors.each{ |attr,msg|
           @error_output += "#{attr} #{msg}<br />"
         }
         @error_output += "</div>"
@@ -127,36 +129,15 @@ class PlaylistsController < ApplicationController
     return_hash["description_string"]
 
     url = URI.parse(test_url)
+
+    object_hash = identify_object(test_url)
+
     return_hash["host"] = url.host
     return_hash["port"] = url.port
+    return_hash["type"] = object_hash["type"]
 
-    Net::HTTP.start(url.host, url.port) do |http|
-      ### return_hash["result"] = http.head(url.request_uri)
-      result = http.head(url.request_uri)
-      return_hash["content_type"] = result.content_type
-      return_hash["code"] = result.code
-    end
+    if return_hash["type"] == "ItemText" then return_hash["body"] = object_hash["body"] end
 
-    case return_hash["content_type"]
-      when "text/html" then 
-        return_hash["description_string"] = "The URL you provided looks like a web page"
-        return_hash["type"] = "ItemDefault"
-      when "text/jpg" then 
-        return_hash["description_string"] = "The URL you provided looks like a image"
-        return_hash["type"] = "ItemImage"
-      when "text/png" then 
-        return_hash["description_string"] = "The URL you provided looks like a image"
-        return_hash["type"] = "ItemImage"
-      when "text/gif" then 
-        return_hash["description_string"] = "The URL you provided looks like a image"
-        return_hash["type"] = "ItemImage"
-      when "text/plain" then 
-        return_hash["description_string"] = "The URL you provided looks like a text file"
-        return_hash["type"] = "ItemText"
-    end
-
-    if return_hash["description_string"].blank? then return_hash["description_string"] = return_hash["content_type"] end
-    
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
     end
@@ -168,7 +149,8 @@ class PlaylistsController < ApplicationController
         render :partial => 'shared/layout_components/playlist_item_chooser',
         :locals => {
           :url_string => params[:url_string],
-          :container_id => params[:container_id]
+          :container_id => params[:container_id],
+          :body => params[:body]
         },
         :layout => false
       }

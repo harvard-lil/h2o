@@ -16,7 +16,8 @@ jQuery(function() {
                 jQuery("#result_data").load("/playlists/item_chooser",{
                     'type': data.type,
                     'url_string': data.url_string,
-                    'container_id': container_id
+                    'container_id': container_id,
+                    'body': data.body
                 })
             }
         });

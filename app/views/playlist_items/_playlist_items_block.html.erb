@@ -10,7 +10,11 @@
   <tbody>
     <% @playlist.playlist_items.each do |item| %>
       <tr>
-        <td><%= link_to item.resource_item.url, item %></td>
+        <td>
+          <div class="item-display-title"><%= item.resource_item.output_text %></div>
+          <div class="item-preview"><%= item.resource_item.preview %></div>
+          <div class="item-url"><a href='<%= item.resource_item.url %>' target="_blank"><%= truncate(item.resource_item.url, 40, "...(more)") %></a></div>
+        </td>
         <td>
           <% #  if item.resource_item.admin? || item.resource_item.owner? %>
           <button id="button-item-edit-<%= item.resource_item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">

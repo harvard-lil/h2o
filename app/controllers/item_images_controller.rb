@@ -41,10 +41,21 @@ class ItemImagesController < ApplicationController
   # POST /item_images.xml
   def create
     @item_image = ItemImage.new(params[:item_image])
+    container_id = params[:container_id]
 
     respond_to do |format|
       if @item_image.save
+        @item_image.accepts_role!(:owner, current_user)
+
+        playlist_item = PlaylistItem.new(:playlist_id => container_id)
+        playlist_item.resource_item = @item_image
+
+        if playlist_item.save!
+          playlist_item.accepts_role!(:owner, current_user)
+        end
+
         flash[:notice] = 'ItemImage was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@item_image) }
         format.xml  { render :xml => @item_image, :status => :created, :location => @item_image }
       else

@@ -354,3 +354,24 @@ table.core_table {
     margin-top: 25px;
     margin-bottom: 25px;
 }
+
+/* Playlist specific CSS */
+
+.item-display-title {
+    margin-bottom: 15px;
+    font-size: 1.25em;
+}
+
+.item-preview {
+    border: none;
+}
+
+.item-url {
+    margin-top: 10px;
+    font-size: .75em;
+}
+
+.text_preview {
+    font-weight: bold;
+    font-size: 1.25em;
+}
