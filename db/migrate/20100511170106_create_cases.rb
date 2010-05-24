@@ -8,12 +8,12 @@ class CreateCases < ActiveRecord::Migration
       t.string    :full_name,         :limit => 500,  :null => false
       t.date      :decision_date
       t.string    :author,            :limit => 150
-      t.string    :party_header,      :limit => 10.kilobytes 
-      t.string    :lawyer_header,     :limit => 2.kilobytes
+      t.text    :party_header,      :limit => 10.kilobytes
+      t.text    :lawyer_header,     :limit => 2.kilobytes
       #Should probably be a little larger than the two fields above as it encompasses them.
-      t.string    :header_html,       :limit => 15.kilobytes
+      t.text    :header_html,       :limit => 15.kilobytes
       t.references :case_jurisdiction
-      t.string    :content,           :limit => 5.megabytes,  :null => false
+      t.text    :content,           :limit => 5.megabytes,  :null => false
       t.timestamps
     end
 

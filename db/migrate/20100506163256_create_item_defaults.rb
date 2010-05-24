@@ -9,6 +9,9 @@ class CreateItemDefaults < ActiveRecord::Migration
       t.timestamps
     end
 
+    [:active, :url].each do |col|
+      add_index :item_defaults, col
+    end
   end
 
   def self.down
