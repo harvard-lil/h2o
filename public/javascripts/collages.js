@@ -163,13 +163,22 @@ createRange: function(rangeObj){
   return range;
 },
 
-collapseRange: function(range){
+collapseRange: function(range,obj){
   range.deleteContents();
+  if(window.console){
+   console.log(obj);
+  }
   var node = document.createElement('span');
+  node.setAttribute('id', 'excerpt-control-' + obj.id);
   node.appendChild(document.createTextNode('. . .'));
-  node.className = 'excerpt';
+  node.className = 'excerpt-control';
   node.setAttribute('title', 'Click to expand');
   range.insertNode(node);
+  jQuery('#excerpt-control-' + obj.id).button({icons: {primary: 'ui-icon-scissors'}}).click(function(e){
+    e.preventDefault();
+    var excerptId = jQuery(this).attr('id').split('-')[2];
+    alert('FIXME - Implement excerpt management controls.');
+  });
 },
 
 annotateRange: function(range,obj){
@@ -278,11 +287,12 @@ observeExcerptControls: function(){
         console.log(rangeObj);
       }
       var range = jQuery.createRange(rangeObj);
-      jQuery.storeRange(rangeObj);
-      jQuery.collapseRange(range);
+      var excerptNode = jQuery.storeRange(rangeObj);
+      jQuery.collapseRange(range,excerptNode.excerpt);
       if (window.console){
         console.log(range);
       }
+      return excerptNode;
     } catch(err) {
       jQuery('#ajax-error').show().html(err);
     }
@@ -353,8 +363,6 @@ observeAnnotationControls: function(){
         console.log(rangeObj);
       }
       var range = jQuery.createRange(rangeObj);
-//      jQuery.storeRange(rangeObj);
-//      jQuery.collapseRange(range);
       if (window.console){
         console.log(range);
       }
@@ -378,7 +386,7 @@ initializeExcerpts: function(){
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
         var range = jQuery.createRange(this.excerpt);
-        jQuery.collapseRange(range);
+        jQuery.collapseRange(range,this.excerpt);
       });
     }
   });
