@@ -29,6 +29,7 @@ Rails::Initializer.run do |config|
   config.gem "vote_fu", :version => '0.0.11', :source => "http://gemcutter.org"
   config.gem "RedCloth", :version => '4.2.2'
   config.gem 'nokogiri', :version => '1.4.1'
+  config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
