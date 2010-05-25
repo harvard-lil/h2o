@@ -18,6 +18,8 @@ formatRange: function(){
     console.log(focusNode);
   }
 
+  var detected_select_type = '';
+
   if(jQuery.browser.mozilla){
     if(focusNode.nodeName !== '#text'){
       if((sel.focusOffset - sel.anchorOffset)>1){
@@ -37,6 +39,7 @@ formatRange: function(){
     //Everything happens in a single node.
     if(anchorNode.nodeName == '#text'){
       //This is a selection in the same node and it isn't the entire node.
+      detected_select_type = 'single node';
       if (window.console){
         console.log('You have selected part of a singular node');
       }
@@ -68,6 +71,7 @@ formatRange: function(){
 
     } else if(sel.focusOffset == anchorNode.childNodes.length){
       //They have selected an entire node, singularly.
+      detected_select_type = 'entire single node';
       if (window.console){
         console.log('You have selected an entire node- just one.');
       }
@@ -82,6 +86,8 @@ formatRange: function(){
       focus_sibling_offset = null;
     } else {
       // It's in a single node but spans multiple siblings.
+
+      detected_select_type = 'single node, multiple siblings';
       anchor_sibling_offset = sel.anchorOffset;
       focus_sibling_offset = sel.focusOffset;
 
@@ -100,6 +106,8 @@ formatRange: function(){
     if (window.console){
       console.log('This selection spans nodes');
     }
+
+    detected_select_type = 'multiple node span';
     anchor_offset = sel.anchorOffset;
     anchor_sibling_offset = 0;
     focus_offset = sel.focusOffset;
@@ -121,6 +129,16 @@ formatRange: function(){
 
   var anchorString = [anchor_x_path, anchor_sibling_offset, anchor_offset].join('-');
   var focusString = [focus_x_path, focus_sibling_offset, focus_offset].join('-');
+
+  if(jQuery("#selector_info").length > 0){
+    jQuery('#select_type').html(detected_select_type);
+    jQuery('#anchor_x_path').html(anchor_x_path);
+    jQuery('#anchor_sibling_offset').html(anchor_sibling_offset);
+    jQuery('#anchor_offset').html(anchor_offset);
+    jQuery('#focus_x_path').html(focus_x_path);
+    jQuery('#focus_sibling_offset').html(focus_sibling_offset);
+    jQuery('#focus_offset').html(focus_offset);
+  }
 
   if((anchor_x_path.match(/annotatable\-content/) && focus_x_path.match(/annotatable\-content/)) && (anchorString != focusString)){
     return {anchor_x_path: anchor_x_path, anchor_sibling_offset: anchor_sibling_offset, anchor_offset: anchor_offset, focus_x_path: focus_x_path, focus_sibling_offset: focus_sibling_offset, focus_offset: focus_offset}

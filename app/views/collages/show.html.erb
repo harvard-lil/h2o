@@ -16,6 +16,17 @@
     <li><a href="#" id="annotate-selection">Annotate</a> <a href="#" id="undo-annotation" class="undo-button">Undo</a></li>
     <li><a href="#" id="excerpt-selection">Excerpt</a> <a href="#" id="undo-excerpt" class="undo-button">Undo</a></li>
   </ul>
+  <% if RAILS_ENV == 'development' %>
+    <ul id="selector_info">
+      <li id="select_type"></li>
+      <li id="anchor_x_path"></li>
+      <li id="anchor_sibling_offset"></li>
+      <li id="anchor_offset"></li>
+      <li id="focus_x_path"></li>
+      <li id="focus_sibling_offset"></li>
+      <li id="focus_offset"></li>
+    </ul>
+  <% end %>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
   <div id="new-annotation-form" style="display: none;"></div>
