@@ -100,10 +100,10 @@ ActiveRecord::Schema.define(:version => 20100520165715) do
     t.string   "full_name",            :limit => 500,                       :null => false
     t.date     "decision_date"
     t.string   "author",               :limit => 150
+    t.integer  "case_jurisdiction_id"
     t.string   "party_header",         :limit => 10240
     t.string   "lawyer_header",        :limit => 2048
     t.string   "header_html",          :limit => 15360
-    t.integer  "case_jurisdiction_id"
     t.string   "content",              :limit => 5242880,                   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -183,20 +183,47 @@ ActiveRecord::Schema.define(:version => 20100520165715) do
     t.datetime "updated_at"
   end
 
+  add_index "item_defaults", ["active"], :name => "index_item_defaults_on_active"
+  add_index "item_defaults", ["url"], :name => "index_item_defaults_on_url"
+
   create_table "item_images", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "item_images", ["active"], :name => "index_item_images_on_active"
+  add_index "item_images", ["url"], :name => "index_item_images_on_url"
 
   create_table "item_texts", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "item_texts", ["active"], :name => "index_item_texts_on_active"
+  add_index "item_texts", ["url"], :name => "index_item_texts_on_url"
+
   create_table "item_youtubes", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
+  add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
 
   create_table "notification_trackers", :force => true do |t|
     t.integer  "rotisserie_discussion_id"

@@ -129,7 +129,7 @@ formatRange: function(){
   }
 },
 
-storeRange: function(rangeObj){
+storeRange: function(range,rangeObj){
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
   rangeObj['collage_id'] = collageId;
   jQuery.ajax({
@@ -140,8 +140,9 @@ storeRange: function(rangeObj){
       jQuery('#spinner_block').show();
       jQuery('div.ajax-error').html('').hide();
     },
-    success: function(html){
+    success: function(response){
       jQuery('#spinner_block').hide();
+      jQuery.collapseRange(range,response.excerpt.excerpt);
     },
     error: function(xhr){
       jQuery('#spinner_block').hide();
@@ -165,9 +166,6 @@ createRange: function(rangeObj){
 
 collapseRange: function(range,obj){
   range.deleteContents();
-  if(window.console){
-   console.log(obj);
-  }
   var node = document.createElement('span');
   node.setAttribute('id', 'excerpt-control-' + obj.id);
   node.appendChild(document.createTextNode('. . .'));
@@ -213,7 +211,9 @@ annotateRange: function(range,obj){
           jQuery('body').append(node);
           var dialog = jQuery('#annotation-details-' + annotationId).dialog({
             height: 300,
-            position: [e.pageX,e.pageY - 330],
+            title: 'Annotation Details',
+            width: 400,
+            position: [e.clientX,e.clientY - 330],
               buttons: {
                 Close: function(){
                   jQuery(this).dialog('close');
@@ -224,7 +224,7 @@ annotateRange: function(range,obj){
         }
       });
     } else {
-      jQuery('#annotation-details-' + annotationId).dialog({position: [e.pageX,e.pageY - 330]}).open();
+      jQuery('#annotation-details-' + annotationId).dialog().open();
     }
   });
 },
@@ -287,12 +287,7 @@ observeExcerptControls: function(){
         console.log(rangeObj);
       }
       var range = jQuery.createRange(rangeObj);
-      var excerptNode = jQuery.storeRange(rangeObj);
-      jQuery.collapseRange(range,excerptNode.excerpt);
-      if (window.console){
-        console.log(range);
-      }
-      return excerptNode;
+      jQuery.storeRange(range,rangeObj);
     } catch(err) {
       jQuery('#ajax-error').show().html(err);
     }
@@ -409,8 +404,6 @@ initializeAnnotations: function(){
         jQuery.annotateRange(range,this.annotation);
       });
     },
-    complete: function(){
-    }
   });
 },
 

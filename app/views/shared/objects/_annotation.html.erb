@@ -1,4 +1,8 @@
 <div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
-  <p><%= @annotation.annotation %></p>
+  <div class="annotation-content"><%= @annotation.annotation %></div>
 
+  <div class="meta">
+    <span class="user"><span>by</span> <%= @annotation.user.login %></span>
+    <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
+  </div>
 </div>

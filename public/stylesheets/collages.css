@@ -54,3 +54,8 @@ span.excerpt{
 .annotation-control{
   font-size: 9px;
 }
+
+.annotation-content{
+  height: 150px;
+  overflow: auto;
+}
