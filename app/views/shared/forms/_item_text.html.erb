@@ -1,7 +1,9 @@
 <%
 if controller.action_name == 'edit'
-  item_object = ItemText.find(params[:id])
+  item_object = PlaylistItem.find(params[:id]).resource_item
   item_body = ""
+  url_string = ""
+  container_id = ""
 else
   item_object = ItemText.new
   item_body = body

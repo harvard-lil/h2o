@@ -1,6 +1,8 @@
 <%
 if controller.action_name == 'edit'
-  item_object = ItemYoutube.find(params[:id])
+  item_object = PlaylistItem.find(params[:id]).resource_item
+  url_string = ""
+  container_id = ""
 else
   item_object = ItemYoutube.new
 end

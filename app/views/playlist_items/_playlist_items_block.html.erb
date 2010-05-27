@@ -16,18 +16,18 @@
           <div class="item-url"><a href='<%= item.resource_item.url %>' target="_blank"><%= truncate(item.resource_item.url, 40, "...(more)") %></a></div>
         </td>
         <td>
-          <% #  if item.resource_item.admin? || item.resource_item.owner? %>
-          <button id="button-item-edit-<%= item.resource_item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">
+          <% if item.resource_item.admin? || item.resource_item.owner? %>
+          <button id="button-item-edit-<%= item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
-          <% # end %>
+          <%  end %>
         </td>
         <td>
-          <% #if item.admin? || item.owner? %>
-          <button id="button-item-delete-<%= item.id %>" name="button-playlist-delete" class="ui-button ui-state-default ui-corner-all">
+          <% if item.admin? || item.owner? %>
+          <button id="button-item-delete-<%= item.id %>" name="button-item-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
-          <% #end %>
+          <% end %>
         </td>
       </tr>
     <% end %>

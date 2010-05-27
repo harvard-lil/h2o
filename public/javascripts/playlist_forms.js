@@ -55,9 +55,9 @@ jQuery(function() {
 
     objectConfirm('#dialog-playlist-delete', '#delete_playlist', 'playlists');
 
-    //playlist dialogs
+    //playlist item dialogs
     playlistDialog('#dialog-item-new', rules_item, messages_item, 'playlist_items');
-    objectDialog('#dialog-item-edit', '[id^=edit_playlist_item]', rules_item, messages_item, 'playlist_items');
+    playlistDialog('#dialog-item-edit', rules_item, messages_item, 'playlist_items');
 
     objectConfirm('#dialog-item-delete', '#delete_playlist_item', 'playlist_items');
 

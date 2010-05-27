@@ -1,0 +1,7 @@
+<%= item_type = @playlist_item.resource_item_type %>
+<div id="playlist_item_form">
+  <%=  render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {
+    :item_type => item_type,
+
+  } %>
+</div>
