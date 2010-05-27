@@ -2,9 +2,7 @@
 
 <%= select_tag(:item_type, options_for_select(PlaylistItem::ITEM_TYPES, :selected => item_type )) %>
 
-<p>
-  <b><%= url_string %></b>
-</p>
+<div id="url_selected"><%= url_string %></div>
 
 <div id="playlist_item_form">
   <%=  render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {

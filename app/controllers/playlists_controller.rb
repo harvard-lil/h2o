@@ -158,4 +158,23 @@ class PlaylistsController < ApplicationController
     end
   end
 
+  def load_form
+    item_type = params[:item_type]
+    url_string = params[:url_string]
+    container_id = params[:container_id]
+
+    respond_to do |format|
+      format.html {
+       render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {
+          :item_type => item_type,
+          :url_string => url_string,
+          :container_id => container_id
+        },
+        :layout => false
+      }
+      format.xml  { head :ok }
+    end
+
+  end
+
 end

@@ -25,6 +25,17 @@ jQuery(function() {
 
     });
 
+    jQuery("#item_type").live('change', function() {
+
+        jQuery("#playlist_item_form").load("/playlists/load_form",{
+            'item_type': jQuery('#item_type').val(),
+            'url_string': jQuery('#url_selected').text(),
+            'container_id': jQuery('#container_id').text()
+        });
+
+
+    });
+
     initPlaylistGroup();
 
     var form_options = {
