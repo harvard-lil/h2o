@@ -19,21 +19,6 @@ formatRange: function(){
   }
 
   var detected_select_type = '';
-
-  if(jQuery.browser.mozilla){
-    if(focusNode.nodeName !== '#text'){
-      if((sel.focusOffset - sel.anchorOffset)>1){
-         //spanning more than one.
-					focusNode = anchorNode
-      } else if ( anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ) {
-        //Non-text.
-					focusNode = sel.anchorNode.childNodes[sel.anchorOffset];
-      }	else {
-        //Whole element.
-				focusNode = sel.anchorNode;
-			}
-    }
-  }
   var range = null;
   if((anchorNode === focusNode)){
     //Everything happens in a single node.
@@ -107,6 +92,20 @@ formatRange: function(){
       console.log('This selection spans nodes');
     }
 
+  if(jQuery.browser.mozilla){
+    if(focusNode.nodeName !== '#text'){
+      if((sel.focusOffset - sel.anchorOffset)>1){
+         //spanning more than one.
+        focusNode = anchorNode
+      } else if ( anchorNode.childNodes[sel.anchorOffset].nodeName !== '#text' ) {
+        //Non-text.
+        focusNode = sel.anchorNode.childNodes[sel.anchorOffset];
+      }	else {
+        //Whole element.
+        focusNode = sel.anchorNode;
+      }
+    }
+  }
     detected_select_type = 'multiple node span';
     anchor_offset = sel.anchorOffset;
     anchor_sibling_offset = 0;
@@ -464,6 +463,27 @@ jQuery(document).ready(function(){
     jQuery('#excerpt-selection').button({icons: {primary: 'ui-icon-scissors'}});
     jQuery(".undo-button").button({icons: {primary: 'ui-icon-arrowreturnthick-1-w'}});
     jQuery.observeUndo();
+/*    
+    var checkCount = function(clickCount){
+      if(clickCount==1) {
+        alert('single');
+      }
+      if(clickCount==2) {
+        alert('double');
+      }
+      if(clickCount==3) {
+        alert('triple');
+      }
+      clickCount=0;
+    }
 
-//    jQuery.insertAtClick();
+    var count = 0;
+    jQuery('p').click(function(e){
+      alert(jQuery(this).attr('id'));
+      clearTimeout(timer);
+      count++;
+      timer = setTimeout(checkCount(count),300);
+    });
+*/
+
 });
