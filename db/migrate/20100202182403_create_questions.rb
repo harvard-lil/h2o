@@ -1,7 +1,8 @@
+require 'migration_helpers'
 class CreateQuestions < ActiveRecord::Migration
   def self.up
     create_table :questions do |t|
-      t.integer :question_instance_id, :null => false
+      t.references :question_instance
       t.integer :user_id
       t.string :question, :limit => 10000, :null => false
       t.boolean :sticky, :default => false
@@ -10,6 +11,8 @@ class CreateQuestions < ActiveRecord::Migration
 
       t.timestamps
     end
+
+    create_foreign_key(Question,QuestionInstance)
 
     [:user_id, :question_instance_id, :parent_id, :position, :sticky, :updated_at, :created_at].each do |col|
       add_index :questions, col

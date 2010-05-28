@@ -63,3 +63,4 @@ jQuery(function() {
   initDiscussionControls();
 
 });
+

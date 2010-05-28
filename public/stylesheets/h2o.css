@@ -376,6 +376,20 @@ table.core_table {
     font-size: 1.25em;
 }
 
+/* for jquery.tag.suggestions */
+span.tagMatches {
+  display: block;
+  margin: 10px;
+}
+
+span.tagMatches span {
+  padding: 2px;
+  margin-right: 4px;
+  background-color: #0000AB;
+  color: #fff;
+  cursor: pointer;
+}
+
 #url_selected {
     font-weight: bold;
     font-size: 1.25em;

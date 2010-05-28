@@ -460,9 +460,18 @@ jQuery(document).ready(function(){
     jQuery.observeAnnotationControls();
     jQuery.initializeAnnotations();
     jQuery('#annotate-selection').button({icons: {primary: 'ui-icon-lightbulb'}});
-    jQuery('#excerpt-selection').button({icons: {primary: 'ui-icon-scissors'}});
+//    jQuery('#excerpt-selection').button({icons: {primary: 'ui-icon-scissors'}});
     jQuery(".undo-button").button({icons: {primary: 'ui-icon-arrowreturnthick-1-w'}});
     jQuery.observeUndo();
+
+    jQuery(".tagging-autofill-layers").live('click',function(){
+      jQuery(this).tagSuggest({
+        url: jQuery.rootPath() + 'annotations/autocomplete_layers',
+        separator: ',',
+        delay: 500
+      });
+    });
+
 /*    
     var checkCount = function(clickCount){
       if(clickCount==1) {

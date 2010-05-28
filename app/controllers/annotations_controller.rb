@@ -1,6 +1,10 @@
 class AnnotationsController < ApplicationController
 
-  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy]  
+  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy]
+
+  def autocomplete_layers
+    render :json => Annotation.autocomplete_for(:layers,params[:tag])
+  end
 
   # GET /annotations
   # GET /annotations.xml

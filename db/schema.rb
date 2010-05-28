@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100520165715) do
+ActiveRecord::Schema.define(:version => 20100527151846) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "user_id"
@@ -72,6 +72,27 @@ ActiveRecord::Schema.define(:version => 20100520165715) do
 
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
+
+  create_table "casebooks", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "name",              :limit => 250
+    t.string   "description",       :limit => 65536
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.boolean  "hidden"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
+  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
+  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
+  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
+  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
+  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
 
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
@@ -297,6 +318,30 @@ ActiveRecord::Schema.define(:version => 20100520165715) do
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
+  create_table "replies", :force => true do |t|
+    t.integer  "question_id",                                           :null => false
+    t.integer  "user_id"
+    t.string   "reply",              :limit => 1000,                    :null => false
+    t.string   "email",              :limit => 250
+    t.string   "name",               :limit => 250
+    t.boolean  "posted_anonymously",                 :default => false
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "replies", ["email"], :name => "index_replies_on_email"
+  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
+  add_index "replies", ["position"], :name => "index_replies_on_position"
+  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
+  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
+  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
+  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
+
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40
@@ -410,6 +455,30 @@ ActiveRecord::Schema.define(:version => 20100520165715) do
 
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
+
+  create_table "taggings", :force => true do |t|
+    t.integer  "tag_id"
+    t.integer  "taggable_id"
+    t.integer  "tagger_id"
+    t.string   "tagger_type"
+    t.string   "taggable_type"
+    t.string   "context"
+    t.datetime "created_at"
+  end
+
+  add_index "taggings", ["context"], :name => "index_taggings_on_context"
+  add_index "taggings", ["tag_id"], :name => "index_taggings_on_tag_id"
+  add_index "taggings", ["taggable_id", "taggable_type", "context"], :name => "index_taggings_on_taggable_id_and_taggable_type_and_context"
+  add_index "taggings", ["taggable_id"], :name => "index_taggings_on_taggable_id"
+  add_index "taggings", ["taggable_type"], :name => "index_taggings_on_taggable_type"
+  add_index "taggings", ["tagger_id"], :name => "index_taggings_on_tagger_id"
+  add_index "taggings", ["tagger_type"], :name => "index_taggings_on_tagger_type"
+
+  create_table "tags", :force => true do |t|
+    t.string "name"
+  end
+
+  add_index "tags", ["name"], :name => "index_tags_on_name"
 
   create_table "users", :force => true do |t|
     t.datetime "created_at"

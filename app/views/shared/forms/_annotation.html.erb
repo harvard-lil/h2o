@@ -13,6 +13,12 @@
       :hint => 'You can use markdown in the annotation. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
       :label => 'Annotation'
   %>
+  <%= form.input :layer_list,
+      :as => :string,
+      :hint => 'Please define the layers this annotation belongs to in a comma-separated list.',
+      :label => 'Layer',
+      :input_html => {:class => 'tagging-autofill-layers'}
+  %>
 <% end %>
 <% unless request.xhr? %>
   <% form.buttons do %>
