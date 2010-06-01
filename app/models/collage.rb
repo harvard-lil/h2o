@@ -12,4 +12,8 @@ class Collage < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
+  def layers
+    self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq
+  end
+
 end

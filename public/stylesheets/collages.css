@@ -59,3 +59,7 @@ span.excerpt{
   height: 150px;
   overflow: auto;
 }
+
+#layer-list .layer-active{
+  background-color: #555;
+}

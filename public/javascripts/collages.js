@@ -171,12 +171,16 @@ storeRange: function(range,rangeObj){
 createRange: function(rangeObj){
   var anchorXPathNode = jQuery.evalXPath(rangeObj.anchor_x_path);
   var focusXPathNode = jQuery.evalXPath(rangeObj.focus_x_path);
+  if(window.console){
+    console.log('In createRange:');
+    console.log(rangeObj);
+  }
   try{
     var range = document.createRange();
     range.setStart((rangeObj.anchor_sibling_offset != null) ? anchorXPathNode.childNodes[rangeObj.anchor_sibling_offset] : anchorXPathNode,rangeObj.anchor_offset);
     range.setEnd((rangeObj.focus_sibling_offset != null) ? focusXPathNode.childNodes[rangeObj.focus_sibling_offset] : focusXPathNode,rangeObj.focus_offset);
   } catch (err){
-    jQuery('div.ajax-error').show().html(err);
+    jQuery('div.ajax-error').show().html(err + 'Failed to create range.');
   }
   return range;
 },
@@ -197,17 +201,29 @@ collapseRange: function(range,obj){
 },
 
 annotateRange: function(range,obj){
-  var node = document.createElement('span');
-  node.className = 'annotation-control';
-  node.setAttribute('id', 'annotation-control-' + obj.id);
-  node.setAttribute('title', 'Click to see annotation');
-  node.innerHTML = '&nbsp;';
+  var node = jQuery('<span class="annotation-control"></span>');
+  node.attr('id', 'annotation-control-' + obj.id);
+  node.attr('title', 'Click to see annotation');
+  node.html('&nbsp;');
   if(window.console){
     console.log('trying to insert annotation');
     console.log(node);
   }
-  range.insertNode(node);
-  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
+  var activeLayer = jQuery.cookie('active-layer');
+
+  var hasActiveLayer = false;
+  jQuery(obj.layers).each(function(){
+      if(this.id == activeLayer){
+        hasActiveLayer = true;
+      }
+  });
+
+  if(hasActiveLayer){
+    range.deleteContents();
+  }
+
+  range.insertNode(node[0]);
+  jQuery(node).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
     e.preventDefault();
     var annotationId = jQuery(this).attr('id').split('-')[2];
     if(jQuery('#annotation-details-' + annotationId).length == 0){
@@ -237,7 +253,6 @@ annotateRange: function(range,obj){
                 }
               }
           });
-          jQuery(dialog).open();
         }
       });
     } else {
@@ -306,7 +321,7 @@ observeExcerptControls: function(){
       var range = jQuery.createRange(rangeObj);
       jQuery.storeRange(range,rangeObj);
     } catch(err) {
-      jQuery('#ajax-error').show().html(err);
+      jQuery('#ajax-error').show().html(err + 'Failed to create excerpt controls');
     }
   });
 },
@@ -379,7 +394,7 @@ observeAnnotationControls: function(){
         console.log(range);
       }
     } catch(err) {
-      jQuery('#ajax-error').show().html(err);
+      jQuery('#ajax-error').show().html(err + 'Failed to observe annotation controls');
     }
   });
 },
@@ -400,6 +415,10 @@ initializeExcerpts: function(){
         var range = jQuery.createRange(this.excerpt);
         jQuery.collapseRange(range,this.excerpt);
       });
+    },
+    error: function(xhr){
+      jQuery('#spinner_block').hide();
+      jQuery('div.ajax-error').show().append(xhr.responseText);
     }
   });
 },
@@ -409,18 +428,70 @@ initializeAnnotations: function(){
   jQuery.ajax({
     type: 'GET',
     url: jQuery.rootPath() + 'collages/annotations/' + collageId,
+    data: {layer_id: jQuery.cookie('active-layer')},
     cache: false,
     beforeSend: function(){
       jQuery('#spinner_block').show();
       jQuery('div.ajax-error').html('').hide();
     },
     success: function(json){
+      if(window.console){
+        console.log(json);
+      }
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
         var range = jQuery.createRange(this.annotation);
         jQuery.annotateRange(range,this.annotation);
       });
     },
+    error: function(xhr){
+      jQuery('#spinner_block').hide();
+      jQuery('div.ajax-error').show().append(xhr.responseText);
+    }
+
+  });
+},
+
+initLayers: function(){
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+  jQuery.ajax({
+    type:'GET',
+    url: jQuery.rootPath() + 'collages/layers/' + collageId,
+    cache: false,
+    beforeSend: function(){
+      jQuery('#spinner_block').show();
+      jQuery('div.ajax-error').html('').hide();
+      jQuery('#layer-list').html('');
+    },
+    success: function(json){
+      jQuery('#spinner_block').hide();
+      var output = '';
+      var tagList = jQuery('#layer-list');
+      var activeLayerId = jQuery.cookie('active-layer');
+      jQuery(json).each(function(){
+        var node = jQuery('<span class="layer-control"></span>');
+        node.attr('id', 'layer-' + this.tag.id);
+        if(this.tag.id == activeLayerId){
+          node.addClass('layer-active');
+        }
+        var anchor = jQuery('<a>');
+        anchor.attr('href', jQuery.rootPath() + 'collages/' + collageId);
+        anchor.html(this.tag.name);
+
+        node.html(anchor);
+        tagList.append(node);
+      });
+      jQuery('.layer-control').click(function(){
+          var layerId = jQuery(this).attr('id').split(/\-/)[1];
+          jQuery('.layer-control').removeClass('layer-active');
+          jQuery.cookie('active-layer',layerId);
+          jQuery(this).addClass('layer-active');
+      });
+    },
+    error: function(xhr){
+      jQuery('#spinner_block').hide();
+      jQuery('div.ajax-error').show().append(xhr.responseText);
+    }
   });
 },
 
@@ -455,8 +526,9 @@ observeUndo: function(){
 });
 
 jQuery(document).ready(function(){
-    jQuery.observeExcerptControls();
-    jQuery.initializeExcerpts();
+//    jQuery.observeExcerptControls();
+//    jQuery.initializeExcerpts();
+    jQuery.initLayers();
     jQuery.observeAnnotationControls();
     jQuery.initializeAnnotations();
     jQuery('#annotate-selection').button({icons: {primary: 'ui-icon-lightbulb'}});

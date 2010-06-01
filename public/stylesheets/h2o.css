@@ -382,7 +382,7 @@ span.tagMatches {
   margin: 10px;
 }
 
-span.tagMatches span {
+span.tagMatches span, #layer-list .layer-control{
   padding: 2px;
   margin-right: 4px;
   background-color: #0000AB;
@@ -395,6 +395,11 @@ span.tagMatches span {
     font-size: 1.25em;
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+#layer-list a{
+  text-decoration: none;
+  color: white;
 }
 
 .item_drag_handle {
