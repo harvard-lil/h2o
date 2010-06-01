@@ -22,7 +22,7 @@ ActionController::Routing::Routes.draw do |map|
     cl.undo_excerpt 'undo_excerpt', :controller => 'collages', :action => :undo_excerpt, :method => :post
   end
 
-  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post}, :member => {:delete => :get }
+  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post}, :member => {:position_update => :post, :delete => :get }
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 

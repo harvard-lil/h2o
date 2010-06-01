@@ -2,18 +2,23 @@
   <thead>
     <tr class="table_heading ">
       <th>Item Title</th>
+      <th>Description</th>
       <th>Edit</th>
       <th>Delete</th>
+      <th></th>
     </tr>
   </thead>
 
-  <tbody>
+  <tbody class="sortable">
     <% @playlist.playlist_items.each do |item| %>
-      <tr>
+      <tr id="playlist_item_<%= item.id%> " class="sortable_item">
         <td>
           <div class="item-display-title"><%= item.resource_item.output_text %></div>
           <div class="item-preview"><%= item.resource_item.preview %></div>
           <div class="item-url"><a href='<%= item.resource_item.url %>' target="_blank"><%= truncate(item.resource_item.url, 40, "...(more)") %></a></div>
+        </td>
+        <td>
+          <div class="item-description"><%= item.resource_item.description %></div>
         </td>
         <td>
           <% if item.resource_item.admin? || item.resource_item.owner? %>
@@ -29,6 +34,7 @@
           </button>
           <% end %>
         </td>
+        <td class="item_drag_handle"></td>
       </tr>
     <% end %>
   </tbody>

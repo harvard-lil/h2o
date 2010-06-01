@@ -10,7 +10,7 @@ class PlaylistsController < ApplicationController
   # GET /playlists
   # GET /playlists.xml
   def index
-    add_javascripts 'playlist_forms'
+    add_javascripts 'playlist'
     
     @playlists = Playlist.all
 
@@ -23,7 +23,7 @@ class PlaylistsController < ApplicationController
   # GET /playlists/1
   # GET /playlists/1.xml
   def show
-    add_javascripts 'playlist_forms'
+    add_javascripts 'playlist'
 
     @playlist = Playlist.find(params[:id])
 
@@ -36,7 +36,7 @@ class PlaylistsController < ApplicationController
   # GET /playlists/new
   # GET /playlists/new.xml
   def new
-    add_javascripts 'playlist_forms'
+    add_javascripts 'playlist'
     
     @playlist = Playlist.new
 
@@ -173,6 +173,23 @@ class PlaylistsController < ApplicationController
         :layout => false
       }
       format.xml  { head :ok }
+    end
+
+  end
+
+  def position_update
+    return_hash = Hash.new
+    
+    playlist_order = (params[:playlist_order].split("&"))
+    playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
+
+    playlist_order.each_index do |item_index|
+      PlaylistItem.update(playlist_order[item_index], :position => item_index + 1)
+    end
+
+
+    respond_to do |format|
+      format.js {render :json => return_hash.to_json}
     end
 
   end

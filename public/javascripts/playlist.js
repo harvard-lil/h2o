@@ -1,6 +1,35 @@
-// jQuery related to form creation and submission
+// Return a helper with preserved width of cells
+var sortableCellHelper = function(e, tr)
+  {
+    var originals = tr.children();
+    var helper = tr.clone();
+    helper.children().each(function(index)
+    {
+      // Set helper cell sizes to match the original sizes
+      jQuery(this).width(originals.eq(index).width())
+    });
+    return helper;
+  };
 
 jQuery(function() {
+
+    jQuery(".sortable").sortable({
+        handle: '.item_drag_handle',
+        axis: 'y',
+        helper: sortableCellHelper,
+        update: function(event, ui) {
+            var container_id = jQuery('#container_id').text();
+            var playlist_order = jQuery(".sortable").sortable("serialize");
+            jQuery.ajax({
+                type: "post",
+                dataType: 'json',
+                url: '/playlists/' + container_id + '/position_update',
+                data: {
+                    playlist_order: playlist_order
+                }
+            });
+        }
+    }).disableSelection();
 
     jQuery("#url_review").live('click', function() {
         var container_id = jQuery('#container_id').text();

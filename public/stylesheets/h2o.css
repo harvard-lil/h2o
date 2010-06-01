@@ -396,3 +396,12 @@ span.tagMatches span {
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+.item_drag_handle {
+    width: 5px;
+    background-color: #8C8C8C;
+}
+
+.sortable_item {
+    width: 949px;
+}

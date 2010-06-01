@@ -6,12 +6,21 @@ class ItemYoutube < ActiveRecord::Base
   def preview
     require 'youtube_g'
     url = URI.parse(self.url)
-    params_hash = CGI::parse(url.query)
-    client = YouTubeG::Client.new
 
-    params_hash["v"][0].present? ? video = client.video_by(params_hash["v"][0]) : video = client.video_by(self.url)
+    if url.query.present?
+      params_hash = CGI::parse(url.query)
+      client = YouTubeG::Client.new
 
-    return video.embed_html(300, 200)
+      if params_hash.has_key?("v")
+        video = client.video_by(params_hash["v"][0])
+      else
+        video = client.video_by(self.url)
+      end
+
+      return video.embed_html(300, 200)
+    else
+      return ""
+    end
 
   end
 
