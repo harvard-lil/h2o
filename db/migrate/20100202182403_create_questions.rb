@@ -1,6 +1,7 @@
 require 'migration_helpers'
 class CreateQuestions < ActiveRecord::Migration
   def self.up
+    extend MigrationHelpers
     create_table :questions do |t|
       t.references :question_instance
       t.integer :user_id
