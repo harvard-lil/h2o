@@ -201,29 +201,40 @@ collapseRange: function(range,obj){
 },
 
 annotateRange: function(range,obj){
-  var node = jQuery('<span class="annotation-control"></span>');
-  node.attr('id', 'annotation-control-' + obj.id);
-  node.attr('title', 'Click to see annotation');
-  node.html('&nbsp;');
+  var node = document.createElement('span');
+
+  node.className = 'annotation-control';
+  node.setAttribute('id', 'annotation-control-' + obj.id);
+  node.setAttribute('title', 'Click to see annotation');
+  node.appendChild(document.createTextNode(' - '));
+
+  var activeLayerId = jQuery.cookie('active-layer-id');
   if(window.console){
     console.log('trying to insert annotation');
     console.log(node);
+    console.log("Active Layer");
+    console.log(activeLayerId);
   }
-  var activeLayer = jQuery.cookie('active-layer');
 
   var hasActiveLayer = false;
   jQuery(obj.layers).each(function(){
-      if(this.id == activeLayer){
+      if(this.id == activeLayerId){
         hasActiveLayer = true;
       }
   });
 
   if(hasActiveLayer){
-    range.deleteContents();
+    alert("This annotation is part of this layer");
+    range.extractContents();
+    range.insertNode(node);
+  } else {
+    alert('Not a part of this layer. . . hrm.');
+  //  range.extractContents();
+    alert(node);
+    range.insertNode(node);
   }
 
-  range.insertNode(node[0]);
-  jQuery(node).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
+  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
     e.preventDefault();
     var annotationId = jQuery(this).attr('id').split('-')[2];
     if(jQuery('#annotation-details-' + annotationId).length == 0){
@@ -345,8 +356,12 @@ observeAnnotationControls: function(){
         success: function(response){
           jQuery('#spinner_block').hide();
           jQuery('#new-annotation-form').dialog('close');
-          var range = jQuery.createRange(response.annotation.annotation);
-          jQuery.annotateRange(range,response.annotation.annotation);
+          if(window.console){
+            console.log("Annotation object is:");
+            console.log(response.annotation);
+          }
+          var range = jQuery.createRange(response.annotation);
+          jQuery.annotateRange(range,response.annotation);
         }
       });
     };
@@ -379,6 +394,9 @@ observeAnnotationControls: function(){
         jQuery('#spinner_block').hide();
         jQuery('#new-annotation-form').html(html);
         jQuery('#new-annotation-form').dialog('open');
+        if(jQuery('#annotation_layer_list').val() == ''){
+          jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-name'));
+        }
       },
       error: function(xhr){
         jQuery('#spinner_block').hide();
@@ -428,7 +446,6 @@ initializeAnnotations: function(){
   jQuery.ajax({
     type: 'GET',
     url: jQuery.rootPath() + 'collages/annotations/' + collageId,
-    data: {layer_id: jQuery.cookie('active-layer')},
     cache: false,
     beforeSend: function(){
       jQuery('#spinner_block').show();
@@ -461,16 +478,19 @@ initLayers: function(){
     beforeSend: function(){
       jQuery('#spinner_block').show();
       jQuery('div.ajax-error').html('').hide();
-      jQuery('#layer-list').html('');
+      jQuery('#view-layer-list').html('');
+      jQuery('#add-layer-list').html('');
     },
     success: function(json){
       jQuery('#spinner_block').hide();
       var output = '';
-      var tagList = jQuery('#layer-list');
-      var activeLayerId = jQuery.cookie('active-layer');
+      var viewTagList = jQuery('#view-layer-list');
+      var addTagList = jQuery('#add-layer-list');
+      var activeLayerId = jQuery.cookie('active-layer-id');
       jQuery(json).each(function(){
-        var node = jQuery('<span class="layer-control"></span>');
-        node.attr('id', 'layer-' + this.tag.id);
+        var node = jQuery('<span></span>');
+        node.addClass('layer-control');
+        node.attr('tag_id',this.tag.id);
         if(this.tag.id == activeLayerId){
           node.addClass('layer-active');
         }
@@ -479,12 +499,15 @@ initLayers: function(){
         anchor.html(this.tag.name);
 
         node.html(anchor);
-        tagList.append(node);
+        viewTagList.append(node);
+        addTagList.append(jQuery(node).clone());
       });
       jQuery('.layer-control').click(function(){
-          var layerId = jQuery(this).attr('id').split(/\-/)[1];
+          var layerId = jQuery(this).attr('tag_id');
           jQuery('.layer-control').removeClass('layer-active');
-          jQuery.cookie('active-layer',layerId);
+          // Set the name and id of the active layer.
+          jQuery.cookie('active-layer-id',layerId,{expires: 365});
+          jQuery.cookie('active-layer-name',jQuery(this).find('a').html(), {expires: 365});
           jQuery(this).addClass('layer-active');
       });
     },

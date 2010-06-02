@@ -11,7 +11,8 @@
       :as => :text,
       :input_html => {:size => '60x10'},
       :hint => 'You can use markdown in the annotation. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
-      :label => 'Annotation'
+      :label => 'Annotation',
+      :required => false
   %>
   <%= form.input :layer_list,
       :as => :string,

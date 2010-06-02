@@ -31,7 +31,7 @@ jQuery(function(){
         var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
         delete currentVals[replyContainer];
         var cookieVal = jQuery.serializeHash(currentVals);
-        jQuery.cookie(cookieName,cookieVal);
+        jQuery.cookie(cookieName,cookieVal,{expires: 365});
       },
       addReplyContainerToCookie: function(cookieName,replyContainer){
         /* See above. Adds a reply container id to the cookie. Spawned when a reply container is shown. 
@@ -39,7 +39,7 @@ jQuery(function(){
         var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
         currentVals[replyContainer] = 1;
         var cookieVal = jQuery.serializeHash(currentVals);
-        jQuery.cookie(cookieName,cookieVal);
+        jQuery.cookie(cookieName,cookieVal,{expires: 365});
       },
       observeQuestionControl: function(element,questionInstanceId,questionId,isOwner){
         /* Sets up the new question jQuery.dialog() and then populates the form via an ajax call. It then shows
