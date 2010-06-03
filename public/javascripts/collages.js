@@ -39,7 +39,6 @@ formatRange: function(){
         }
         focus_offset = sel.anchorOffset;
         anchor_offset = sel.focusOffset;
-
       }
       anchor_x_path = '/' + jQuery.getXPath(anchorNode).join('/'); 
       focus_x_path = anchor_x_path;
@@ -217,20 +216,22 @@ annotateRange: function(range,obj){
   }
 
   var hasActiveLayer = false;
+  alert("Annotation Id:" + obj.id);
   jQuery(obj.layers).each(function(){
+      alert(this.id);
       if(this.id == activeLayerId){
         hasActiveLayer = true;
       }
   });
 
   if(hasActiveLayer){
-    alert("This annotation is part of this layer");
+    alert('A part of this layer.');
     range.extractContents();
     range.insertNode(node);
   } else {
-    alert('Not a part of this layer. . . hrm.');
+//    alert('Not a part of this layer. . . hrm.');
   //  range.extractContents();
-    alert(node);
+ //   alert(node);
     range.insertNode(node);
   }
 
@@ -457,6 +458,7 @@ initializeAnnotations: function(){
       }
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
+        alert('Initializing annotations:' + this.annotation.id);
         var range = jQuery.createRange(this.annotation);
         jQuery.annotateRange(range,this.annotation);
       });
