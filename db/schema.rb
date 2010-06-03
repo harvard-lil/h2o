@@ -73,27 +73,6 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
-  create_table "casebooks", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "name",              :limit => 250
-    t.string   "description",       :limit => 65536
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
-  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
-  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
-  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
-  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
-  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
-
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false

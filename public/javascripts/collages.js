@@ -179,7 +179,7 @@ createRange: function(rangeObj){
     range.setStart((rangeObj.anchor_sibling_offset != null) ? anchorXPathNode.childNodes[rangeObj.anchor_sibling_offset] : anchorXPathNode,rangeObj.anchor_offset);
     range.setEnd((rangeObj.focus_sibling_offset != null) ? focusXPathNode.childNodes[rangeObj.focus_sibling_offset] : focusXPathNode,rangeObj.focus_offset);
   } catch (err){
-    jQuery('div.ajax-error').show().html(err + 'Failed to create range.');
+    jQuery('div.ajax-error').show().html(err + 'Failed to create range for annotation:' + rangeObj.id);
   }
   return range;
 },
@@ -200,23 +200,9 @@ collapseRange: function(range,obj){
 },
 
 annotateRange: function(range,obj){
-  var node = document.createElement('span');
-
-  node.className = 'annotation-control';
-  node.setAttribute('id', 'annotation-control-' + obj.id);
-  node.setAttribute('title', 'Click to see annotation');
-  node.appendChild(document.createTextNode(' - '));
-
   var activeLayerId = jQuery.cookie('active-layer-id');
-  if(window.console){
-    console.log('trying to insert annotation');
-    console.log(node);
-    console.log("Active Layer");
-    console.log(activeLayerId);
-  }
-
   var hasActiveLayer = false;
-  alert("Annotation Id:" + obj.id);
+  // alert("Annotation Id:" + obj.id);
   jQuery(obj.layers).each(function(){
       alert(this.id);
       if(this.id == activeLayerId){
@@ -226,14 +212,27 @@ annotateRange: function(range,obj){
 
   if(hasActiveLayer){
     alert('A part of this layer.');
-    range.extractContents();
-    range.insertNode(node);
+    range.deleteContents();
   } else {
 //    alert('Not a part of this layer. . . hrm.');
   //  range.extractContents();
  //   alert(node);
-    range.insertNode(node);
   }
+  var node = document.createElement('span');
+
+  node.className = 'annotation-control';
+  node.setAttribute('id', 'annotation-control-' + obj.id);
+  node.setAttribute('title', 'Click to see annotation');
+  node.appendChild(document.createTextNode(' - '));
+
+  if(window.console){
+    console.log('trying to insert annotation');
+    console.log(node);
+    console.log("Active Layer");
+    console.log(activeLayerId);
+  }
+
+  range.insertNode(node);
 
   jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
     e.preventDefault();
@@ -458,7 +457,7 @@ initializeAnnotations: function(){
       }
       jQuery('#spinner_block').hide();
       jQuery(json).each(function(){
-        alert('Initializing annotations:' + this.annotation.id);
+        //alert('Initializing annotations:' + this.annotation.id);
         var range = jQuery.createRange(this.annotation);
         jQuery.annotateRange(range,this.annotation);
       });
