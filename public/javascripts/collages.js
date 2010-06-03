@@ -185,7 +185,7 @@ createRange: function(rangeObj){
 },
 
 collapseRange: function(range,obj){
-  range.deleteContents();
+  range.extractContents();
   var node = document.createElement('span');
   node.setAttribute('id', 'excerpt-control-' + obj.id);
   node.appendChild(document.createTextNode('. . .'));
@@ -204,14 +204,14 @@ annotateRange: function(range,obj){
   var hasActiveLayer = false;
   // alert("Annotation Id:" + obj.id);
   jQuery(obj.layers).each(function(){
-      alert(this.id);
+      //alert(this.id);
       if(this.id == activeLayerId){
         hasActiveLayer = true;
       }
   });
 
   if(hasActiveLayer){
-    alert('A part of this layer.');
+    //alert('A part of this layer.');
     range.deleteContents();
   } else {
 //    alert('Not a part of this layer. . . hrm.');

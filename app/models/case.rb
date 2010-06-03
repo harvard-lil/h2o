@@ -5,7 +5,7 @@ class Case < ActiveRecord::Base
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
 
-  #before_create :process_content
+  before_create :process_content
 
   validates_presence_of   :short_name, :full_name, :content
   validates_length_of     :short_name,      :in => 1..150
@@ -15,24 +15,33 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true
 
+  private
+
   def process_content
-    doc = Nokogiri::HTML.parse(self.content)
+    content_to_parse = self.content.gsub(/<br>/,'<br />')
+    puts content_to_parse
+    doc = Nokogiri::HTML.parse(content_to_parse)
     class_name = 1
     doc.xpath('//*').each do |item|
   #    puts item.class.name
-      if item.is_a?(Nokogiri::XML::Element)
-        item['id'] = "n-#{class_name}" 
+      if item.is_a?(Nokogiri::XML::Element) 
+        item['id'] = "n#{class_name}" 
+        puts item.name
         class_name += 1
-#        if item.children.count == 1 && item.children.first.is_a?(Nokogiri::XML::Text)
+        if item.children.count > 0 
           #Leaf node.
 #          puts item.inner_html
-#          text_content = item.inner_html.split.map{|word|class_name += 1; "<q id='t-#{class_name}'>" + word + '</q>'}.join(' ')
+          text_content = item.inner_html.split.map{|word|class_name += 1; "<span id='t#{class_name}'>" + word + '</span>'}.join(' ')
 #          puts text_content
-#          item.inner_html = text_content
-#        end
+          item.inner_html = text_content
+        end
       end
     end
     self.content = doc.xpath("//html/body/*").to_s
+  end
+
+  def process_node(node)
+
   end
 
 end
