@@ -29,6 +29,9 @@ class User < ActiveRecord::Base
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
 
+  MANAGEMENT_ROLES = ["owner", "editor", "user"]
+
+
   def get_current_assignments(rotisserie_discussion = nil)
     assignments_array = Array.new()
 

@@ -268,7 +268,7 @@ div.post-assigned {
     margin-top: 25px;
 }
 
-.table_heading {
+.table_heading, .section_heading {
     width: 100%;
     background-color: #ff9900;
     background-image: url(/images/elements/background_yellow.gif);

@@ -1,0 +1,9 @@
+<div id="playlist_accordion" name="object_accordian">
+  <% objects.each do |object| %>
+    <h3><%= link_to object.output_text, object %></h3>
+    <div>
+      visible: <%= select_tag("object_visible-" + object.class.to_s.tableize + '-' + object.id.to_s, options_for_select([true, false], :selected => object.public )) %>
+      <%= render :partial => "object_roles", :locals => {:roles => object.roles} %>
+    </div>
+  <% end -%>
+</div>

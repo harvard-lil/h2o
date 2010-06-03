@@ -1,0 +1,8 @@
+<table>
+  <% roles.each do |role| %>
+    <tr>
+      <td><%= role.user.login %></td>
+      <td><%= select_tag("object_role-" + role.id.to_s, options_for_select(User::MANAGEMENT_ROLES, :selected => role.name )) %></td>
+    </tr>
+  <% end %>
+</table>

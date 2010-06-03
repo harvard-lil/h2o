@@ -12,13 +12,10 @@ class RotisserieDiscussion < ActiveRecord::Base
   has_many :rotisserie_posts
   has_many :rotisserie_assignments
   has_many :rotisserie_trackers
+  has_many :roles, :as => :authorizable
 
-  def admin?
-    return self.accepts_role?(:admin, current_user)
-  end
-
-  def owner?
-    return self.accepts_role?(:owner, current_user)
+  def output_text
+    self.output
   end
 
   def user_assignments
