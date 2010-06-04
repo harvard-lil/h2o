@@ -19,10 +19,9 @@ class Case < ActiveRecord::Base
 
   def process_content
     content_to_parse = self.content.gsub(/<br>/,'<br />')
-    puts content_to_parse
     doc = Nokogiri::HTML.parse(content_to_parse)
     class_name = 1
-    doc.xpath('//*').each do |item|
+    doc.css('p,div,li,td,th,h1,h2,h3,h4,h5,h6,center,address,blockquote,dl,ol,ul,pre,dd,dt').each do |item|
   #    puts item.class.name
       if item.is_a?(Nokogiri::XML::Element) 
         item['id'] = "n#{class_name}" 
@@ -31,7 +30,7 @@ class Case < ActiveRecord::Base
         if item.children.count > 0 
           #Leaf node.
 #          puts item.inner_html
-          text_content = item.inner_html.split.map{|word|class_name += 1; "<span id='t#{class_name}'>" + word + '</span>'}.join(' ')
+          text_content = item.inner_html.split.map{|word|class_name += 1; "<tt id='t#{class_name}'>" + word + '</tt>'}.join(' ')
 #          puts text_content
           item.inner_html = text_content
         end

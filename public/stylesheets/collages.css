@@ -63,3 +63,7 @@ span.excerpt{
 #view-layer-list .layer-active{
   background-color: #555;
 }
+
+#annotatable-content tt{
+  font-family: inherit;
+}

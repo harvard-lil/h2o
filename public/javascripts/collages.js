@@ -568,27 +568,40 @@ jQuery(document).ready(function(){
       });
     });
 
-/*    
-    var checkCount = function(clickCount){
-      if(clickCount==1) {
-        alert('single');
-      }
-      if(clickCount==2) {
-        alert('double');
-      }
-      if(clickCount==3) {
-        alert('triple');
-      }
-      clickCount=0;
-    }
+    jQuery('tt').bind({
+      mouseover: function(){
+        jQuery(this).css('background-color','yellow')
+      },
+      mouseout:  function(){
+        jQuery(this).css('background-color', '#ffffff')
+      },
+      click: function(e){
+        e.preventDefault();
+        if(jQuery('#new-annotation-start').html().length > 0){
+          // Set end point
+          jQuery('#new-annotation-end').html(jQuery(this).attr('id'));
+          var start = jQuery('#new-annotation-start').html().substring(1);
+          var end = jQuery('#new-annotation-end').html().substring(1);
 
-    var count = 0;
-    jQuery('p').click(function(e){
-      alert(jQuery(this).attr('id'));
-      clearTimeout(timer);
-      count++;
-      timer = setTimeout(checkCount(count),300);
+          var points = [parseInt(start), parseInt(end)];
+
+          points.sort(function(a,b){return a - b});
+
+          var elStart = points[0];
+          var elEnd = points[1];
+          var i = 0;
+          var ids = [];
+          for(i = elStart; i <= elEnd; i++){
+            ids.push('#t' + i);
+          }
+          jQuery(ids.join(',')).hide();
+          jQuery('#new-annotation-start').html('');
+          jQuery('#new-annotation-end').html('');
+        } else {
+          // Set start point
+          jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
+        }
+      }
     });
-*/
 
 });
