@@ -6,12 +6,8 @@ class CreateAnnotations < ActiveRecord::Migration
       t.references :user
       t.references :collage
       t.string :annotation,             :limit => 10.kilobytes
-      t.string :anchor_x_path,          :limit => 1.kilobytes 
-      t.integer :anchor_sibling_offset
-      t.integer :anchor_offset
-      t.string :focus_x_path,           :limit => 1.kilobytes
-      t.integer :focus_sibling_offset
-      t.integer :focus_offset
+      t.string :annotation_start
+      t.string :annotation_end
       t.integer :parent_id
       t.integer :children_count
       t.integer :ancestors_count
@@ -22,6 +18,9 @@ class CreateAnnotations < ActiveRecord::Migration
     end
     create_foreign_key(Annotation,Collage)
     create_foreign_key(Annotation,User)
+    [:annotation_start, :annotation_end].each do|col|
+      add_index :annotations, col
+    end
     create_acts_as_category_indexes(Annotation)
   end
 
