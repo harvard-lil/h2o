@@ -24,6 +24,10 @@ class QuestionInstance < ActiveRecord::Base
     self.questions.collect{|q| (q.parent_id == nil) ? 1 : nil}.compact.length
   end
 
+  def root_question_ids
+    self.questions.collect{|q| (q.parent_id == nil) ? q.id : nil}.compact
+  end
+
   def featured_questions(params = {})
     Question.featured(params.merge(:question_instance => self))
   end

@@ -47,7 +47,9 @@ ActionController::Routing::Routes.draw do |map|
     q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
   end
 
-  map.resources :question_instances
+  map.resources :question_instances do |qi|
+    qi.metadata 'metadata', :controller => 'question_instances', :action => :metadata, :method => :get
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
 

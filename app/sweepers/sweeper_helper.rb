@@ -6,6 +6,7 @@ module SweeperHelper
     expire_fragment("question-instance-index-#{record.id}-true-null")
     expire_fragment("question-instance-index-#{record.id}-false-")
     expire_fragment("question-instance-index-#{record.id}-true-")
+    expire_fragment("question-instance-metadata-#{record.id}")
 
     Question::POSSIBLE_SORTS.keys.each do |sort|
       expire_fragment("question-instance-index-#{record.id}-true-#{sort}")

@@ -2,21 +2,32 @@ class QuestionInstancesController < BaseController
 
   cache_sweeper :question_instance_sweeper
   caches_action :updated, :cache_path => Proc.new {|c| "updated-at-#{c.params[:id]}"}
-#  caches_action :last_updated_question, :cache_path => Proc.new {|c| "last-updated-questions-#{c.params[:id]}"}
+  caches_action :metadata, :cache_path => Proc.new {|c| "question-instance-metadata-#{c.params[:id] || c.params[:question_instance_id]}"}
 
-  before_filter :require_user, :except => [:index, :last_updated_questions, :updated, :show]
-  before_filter :prep_resources, :except => [:index]
-  before_filter :load_question_instance, :only => [:destroy, :edit, :update]
+  before_filter :require_user, :except => [:index, :last_updated_questions, :updated, :show, :metadata]
+  before_filter :prep_resources, :except => [:index, :metadata]
+  before_filter :load_question_instance, :only => [:destroy, :edit, :update, :metadata]
 
   after_filter :update_question_instance_time
 
   access_control do
     allow :owner, :of => :question_instance, :to => [:destroy, :edit, :update]
-    allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create]
+    allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create, :metadata]
   end
 
   rescue_from Acl9::AccessDenied do |exception|
     redirect_to :action => :index
+  end
+
+  def metadata
+    ActiveRecord::Base.include_root_in_json = false
+    @question_instance[:child_object_name] = 'question'
+    @question_instance[:child_object_plural] = 'questions'
+    @question_instance[:child_object_count] = @question_instance.question_count
+    @question_instance[:child_object_type] = 'Question'
+    @question_instance[:child_object_ids] = @question_instance.root_question_ids
+    @question_instance[:title] = @question_instance.name
+    render :json => @question_instance
   end
 
   # GET /question_instances
@@ -132,7 +143,7 @@ class QuestionInstancesController < BaseController
   private
 
   def load_question_instance
-    @question_instance = QuestionInstance.find(params[:id])
+    @question_instance = QuestionInstance.find(params[:id] || params[:question_instance_id])
   end
 
   def prep_resources
