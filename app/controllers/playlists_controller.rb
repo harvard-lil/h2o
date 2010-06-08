@@ -122,6 +122,7 @@ class PlaylistsController < ApplicationController
 
     respond_to do |format|
       if @playlist_copy.save
+        @playlist_copy.accepts_role!(:owner, current_user)
         @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| item.clone }
 
         format.html {
