@@ -111,6 +111,39 @@ class PlaylistsController < ApplicationController
     end
   end
 
+  def copy
+    @playlist = Playlist.find(params[:id])
+  end
+
+  def spawn_copy
+    @playlist = Playlist.find(params[:id])  
+    @playlist_copy = Playlist.new(params[:playlist])
+    if @playlist_copy.title.blank? then @playlist_copy.title = params[:playlist][:output_text] end
+
+    respond_to do |format|
+      if @playlist_copy.save
+        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| item.clone }
+
+        format.html {
+          render :update do |page|
+            page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"
+          end
+        }
+        format.xml  { head :ok }
+      else
+        @error_output = "<div class='error ui-corner-all'>"
+        @playlist_copy.errors.each{ |attr,msg|
+          @error_output += "#{attr} #{msg}<br />"
+        }
+        @error_output += "</div>"
+
+        format.js {render :text => @error_output, :status => :unprocessable_entity}
+        format.html { render :action => "new" }
+        format.xml  { render :xml => @playlist_copy.errors, :status => :unprocessable_entity }
+      end
+    end
+  end
+
   def block
     respond_to do |format|
       format.html {
@@ -165,7 +198,7 @@ class PlaylistsController < ApplicationController
 
     respond_to do |format|
       format.html {
-       render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {
+        render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {
           :item_type => item_type,
           :url_string => url_string,
           :container_id => container_id

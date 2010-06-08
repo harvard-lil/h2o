@@ -6,6 +6,11 @@ edit or delete items.
 
 <div id="spinner_block"></div>
 
+<div id="playlist_head_container">
+  <div id="playlist_title" class="blue_title_large"><%= @playlist.output_text %></div>
+  <button id="button-playlist-copy-<%= @playlist.id %>" name="button-playlist-copy" class="playlist_button ui-button ui-state-default ui-corner-all"><%= image_tag "/images/icons/page_copy.png" %></button>
+</div>
+
 <div id="list_block" >
   <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>
@@ -21,4 +26,4 @@ edit or delete items.
 <div id="dialog-item-new" title="New item"></div>
 <div id="dialog-item-edit" title="Edit item"></div>
 <div id="dialog-item-delete" title="Delete item"></div>
-
+<div id="dialog-playlist-copy" title="Copy playlist"></div>

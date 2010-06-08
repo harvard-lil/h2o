@@ -1,0 +1,2 @@
+module InfluencesHelper
+end

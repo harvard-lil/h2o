@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :influences
+
   map.resources :item_texts
 
   map.resources :item_images
@@ -19,7 +21,8 @@ ActionController::Routing::Routes.draw do |map|
     cl.undo_annotation 'undo_annotation', :controller => 'collages', :action => :undo_annotation, :method => :post
   end
 
-  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post}, :member => {:position_update => :post, :delete => :get }
+  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post},
+    :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post]}
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 

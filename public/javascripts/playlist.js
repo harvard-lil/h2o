@@ -101,6 +101,9 @@ jQuery(function() {
 
     objectConfirm('#dialog-item-delete', '#delete_playlist_item', 'playlist_items');
 
+    //playlist utility dialogs
+    playlistDialog('#dialog-playlist-copy', rules_playlist, messages_playlist, 'playlists');
+    
 });
 
 // Arrays of validation rules and messages
@@ -137,6 +140,9 @@ function initPlaylistGroup() {
     initButton('button-item-edit', '[name=button-item-edit]', '#dialog-item-edit', 'playlist_items', 'edit');
     initButton('button-item-delete', '[name=button-item-delete]', '#dialog-item-delete', 'playlist_items', 'delete');
 
+    //Spawn utility dialogs
+    initButton('button-playlist-copy', '[name=button-playlist-copy]', '#dialog-playlist-copy', 'playlists', 'copy');
+
 }
 
 function playlistDialog(dialog_id, rules_block, messages_block, controller_name) {
@@ -150,9 +156,11 @@ function playlistDialog(dialog_id, rules_block, messages_block, controller_name)
             }
 
             jQuery(dialog_id).dialog('close');
+            if (dialog_id != '#dialog-playlist-copy') {
             jQuery('#list_block').load('/' + controller_name + '/block' + container_id_string, function() {
                 //initGroup();
                 });
+             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             jQuery('#error_block').html(XMLHttpRequest.responseText);
@@ -169,15 +177,12 @@ function playlistDialog(dialog_id, rules_block, messages_block, controller_name)
         buttons: {
             'Submit': function() {
                 var dialogObject = this;
-                jQuery("form.playlist_form").validate({
+                jQuery(dialog_id + " form").validate({
                     //debug: true,
                     rules: rules_block,
                     messages: messages_block,
                     submitHandler: function(form) {
                         jQuery(form).ajaxSubmit(options);
-                    //jQuery(dialogObject).dialog('close');
-                    //jQuery('#list_block').load('/' + controller_name + '/block', function() {initButtonGroup();});
-
                     },
                     errorClass: "error",
                     errorElement: "div",
@@ -185,7 +190,7 @@ function playlistDialog(dialog_id, rules_block, messages_block, controller_name)
                         error.appendTo(element.parent("li").next("li") );
                     }
                 });
-                jQuery("form.playlist_form").submit();
+                jQuery(dialog_id + " form").submit();
 
 
             },

@@ -1,16 +1,13 @@
 <%
-if ['edit'].include?(controller.action_name)
   playlist_object = Playlist.find(params[:id])
-else
-  playlist_object = Playlist.new
-end
 -%>
 <div id="error_block"></div>
-  <% semantic_form_for playlist_object do |form| %>
+  <% semantic_form_for playlist_object, :url => spawn_copy_playlist_path(playlist_object), :html => {:id => "copy_playlist_#{playlist_object.id}", :method => "post", :class => "playlist_form formtastic"} do |form| %>
   <% form.inputs do %>
         <% #  form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
         <!-- <li></li> -->
-        <%= form.input :output_text, :label => "Display", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <%= form.input :output_text, :label => "Display", :as => :string, 
+          :input_html => {:class => "ui-widget-content ui-corner-all", :value => "Copy of " + playlist_object.output_text} %>
         <li></li>
         <%= form.input :description,
           :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
