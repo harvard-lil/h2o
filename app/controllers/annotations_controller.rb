@@ -80,10 +80,9 @@ class AnnotationsController < ApplicationController
   # DELETE /annotations/1.xml
   def destroy
     @annotation.destroy
-    respond_to do |format|
-      format.html { redirect_to(annotations_url) }
-      format.xml  { head :ok }
-    end
+    render :text => "We've deleted that item."
+  rescue
+    render :text => 'There seems to have been a problem deleting that item.', :status => :unprocessable_entity
   end
 
   private

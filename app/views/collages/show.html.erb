@@ -16,14 +16,12 @@
     <li><a href="#" id="annotate-selection">Annotate</a> <a href="#" id="undo-annotation" class="undo-button">Undo</a></li>
   </ul>
   <h2>Hide Layer</h2>
-  <div id="view-layer-list">
-  </div>
-  <h2>Add Layer to selection</h2>
-  <div id="add-layer-list">
+  <div id="view-layer-list" class="layers">
   </div>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
   <div id="new-annotation-form" style="display: none;"></div>
   <div id="new-annotation-start"></div>
   <div id="new-annotation-end"></div>
+  <div id="please-wait" style="display: none;">Please wait. . .</div>
 </div>

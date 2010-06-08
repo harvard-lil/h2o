@@ -5,6 +5,7 @@
   position: fixed;
   right: 5px;
 }
+
 #annotation-tools{
   width: 15em;
   border: 5px #555555;
@@ -55,10 +56,7 @@
   overflow: auto;
 }
 
-#view-layer-list .layer-active{
-  background-color: #555;
-}
-
 #annotatable-content tt{
   font-family: inherit;
 }
+

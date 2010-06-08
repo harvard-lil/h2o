@@ -21,7 +21,7 @@ class Case < ActiveRecord::Base
     content_to_parse = self.content.gsub(/<br>/,'<br />')
     doc = Nokogiri::HTML.parse(content_to_parse)
     class_name = 1
-    doc.css('p,div,li,td,th,h1,h2,h3,h4,h5,h6,center,address,blockquote,dl,ol,ul,pre,dd,dt').each do |item|
+    doc.css('p,div,li,td,th,h1,h2,h3,h4,h5,h6,address,blockquote,dl,ol,ul,pre,dd,dt').each do |item|
   #    puts item.class.name
       if item.is_a?(Nokogiri::XML::Element) 
         item['id'] = "n#{class_name}" 

@@ -6,7 +6,6 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
   has_many :annotations, :order => 'created_at'
-  has_many :excerpts, :order => 'created_at'
 
   validates_presence_of :name
   validates_length_of :name, :in => 1..250

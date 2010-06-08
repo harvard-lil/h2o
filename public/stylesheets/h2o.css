@@ -402,7 +402,7 @@ span.tagMatches {
   margin: 10px;
 }
 
-span.tagMatches span, #view-layer-list .layer-control, #add-layer-list .layer-control{
+span.tagMatches span, .layers span{
   padding: 2px;
   margin-right: 4px;
   background-color: #0000AB;
@@ -417,9 +417,13 @@ span.tagMatches span, #view-layer-list .layer-control, #add-layer-list .layer-co
     margin-bottom: 15px;
 }
 
-#view-layer-list a, #add-layer-list a{
+#view-layer-list a, .layers span a{
   text-decoration: none;
   color: white;
+}
+
+.layers .layer-active{
+  background-color: #555;
 }
 
 .item_drag_handle {
