@@ -125,6 +125,8 @@ class PlaylistsController < ApplicationController
         @playlist_copy.accepts_role!(:owner, current_user)
         @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| item.clone }
 
+        create_influence(@playlist, @playlist_copy)
+
         format.html {
           render :update do |page|
             page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"

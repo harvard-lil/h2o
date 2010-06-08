@@ -51,6 +51,15 @@ class ApplicationController < ActionController::Base
 
   end
 
+  def create_influence(original_object, spawned_object)
+    original_influence = Influence.find_or_create_by_resource_id_and_resource_type(
+      original_object.id, original_object.class.to_s)
+
+    influence_record = Influence.new(:parent_id => original_influence.id)
+    influence_record.resource = spawned_object
+    influence_record.save!
+  end
+
   protected
 
   # Accepts a string or an array and emits stylesheet tags in the layout in that order.

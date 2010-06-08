@@ -236,6 +236,26 @@ div.post-assigned {
     margin-bottom: 5px;
 }
 
+.blue_title_small {
+    color: #607887;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.blue_title_med {
+    font-size: 1.25em;
+    color: #607887;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.blue_title_large {
+    font-size: 2em;
+    color: #607887;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
 .title_small {
     color: #000000;
     font-weight: bold;
@@ -409,4 +429,16 @@ span.tagMatches span, #view-layer-list .layer-control, #add-layer-list .layer-co
 
 .sortable_item {
     width: 949px;
+}
+
+#playlist_head_container {
+    width: 100%;
+}
+
+#playlist_title {
+    display: inline-block;
+}
+
+.playlist_button {
+    display: inline-block;
 }
