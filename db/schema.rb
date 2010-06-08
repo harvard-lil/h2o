@@ -9,18 +9,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100527151846) do
+ActiveRecord::Schema.define(:version => 20100603140855) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "user_id"
     t.integer  "collage_id"
-    t.string   "annotation",            :limit => 10240
-    t.string   "anchor_x_path",         :limit => 1024
-    t.integer  "anchor_sibling_offset"
-    t.integer  "anchor_offset"
-    t.string   "focus_x_path",          :limit => 1024
-    t.integer  "focus_sibling_offset"
-    t.integer  "focus_offset"
+    t.string   "annotation",        :limit => 10240
+    t.string   "annotation_start"
+    t.string   "annotation_end"
     t.integer  "parent_id"
     t.integer  "children_count"
     t.integer  "ancestors_count"
@@ -32,6 +28,8 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
   end
 
   add_index "annotations", ["ancestors_count"], :name => "index_annotations_on_ancestors_count"
+  add_index "annotations", ["annotation_end"], :name => "index_annotations_on_annotation_end"
+  add_index "annotations", ["annotation_start"], :name => "index_annotations_on_annotation_start"
   add_index "annotations", ["children_count"], :name => "index_annotations_on_children_count"
   add_index "annotations", ["descendants_count"], :name => "index_annotations_on_descendants_count"
   add_index "annotations", ["hidden"], :name => "index_annotations_on_hidden"
@@ -72,27 +70,6 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
 
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
-
-  create_table "casebooks", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "name",              :limit => 250
-    t.string   "description",       :limit => 65536
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
-  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
-  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
-  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
-  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
-  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
 
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
@@ -146,33 +123,6 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
   add_index "collages", ["position"], :name => "index_collages_on_position"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
 
-  create_table "excerpts", :force => true do |t|
-    t.integer  "user_id"
-    t.integer  "collage_id"
-    t.string   "reason",                :limit => 10240
-    t.string   "anchor_x_path",         :limit => 1024
-    t.integer  "anchor_sibling_offset"
-    t.integer  "anchor_offset"
-    t.string   "focus_x_path",          :limit => 1024
-    t.integer  "focus_sibling_offset"
-    t.integer  "focus_offset"
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "excerpts", ["ancestors_count"], :name => "index_excerpts_on_ancestors_count"
-  add_index "excerpts", ["children_count"], :name => "index_excerpts_on_children_count"
-  add_index "excerpts", ["descendants_count"], :name => "index_excerpts_on_descendants_count"
-  add_index "excerpts", ["hidden"], :name => "index_excerpts_on_hidden"
-  add_index "excerpts", ["parent_id"], :name => "index_excerpts_on_parent_id"
-  add_index "excerpts", ["position"], :name => "index_excerpts_on_position"
-
   create_table "item_defaults", :force => true do |t|
     t.string   "title"
     t.string   "output_text", :limit => 1024
@@ -181,6 +131,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                      :default => true
   end
 
   add_index "item_defaults", ["active"], :name => "index_item_defaults_on_active"
@@ -194,6 +145,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                      :default => true
   end
 
   add_index "item_images", ["active"], :name => "index_item_images_on_active"
@@ -207,6 +159,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                      :default => true
   end
 
   add_index "item_texts", ["active"], :name => "index_item_texts_on_active"
@@ -220,6 +173,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                      :default => true
   end
 
   add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
@@ -263,6 +217,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                      :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                      :default => true
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
@@ -318,30 +273,6 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
-  create_table "replies", :force => true do |t|
-    t.integer  "question_id",                                           :null => false
-    t.integer  "user_id"
-    t.string   "reply",              :limit => 1000,                    :null => false
-    t.string   "email",              :limit => 250
-    t.string   "name",               :limit => 250
-    t.boolean  "posted_anonymously",                 :default => false
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "replies", ["email"], :name => "index_replies_on_email"
-  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
-  add_index "replies", ["position"], :name => "index_replies_on_position"
-  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
-  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
-  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
-  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
-
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40
@@ -391,6 +322,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                                :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                                :default => true
   end
 
   add_index "rotisserie_discussions", ["active"], :name => "index_rotisserie_discussions_on_active"
@@ -406,6 +338,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "active",                     :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                     :default => true
   end
 
   add_index "rotisserie_instances", ["title"], :name => "index_rotisserie_instances_on_title", :unique => true
@@ -425,6 +358,7 @@ ActiveRecord::Schema.define(:version => 20100527151846) do
     t.boolean  "hidden"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                                  :default => true
   end
 
   add_index "rotisserie_posts", ["active"], :name => "index_rotisserie_posts_on_active"

@@ -38,11 +38,6 @@
   opacity: 1;
 }
 
-span.excerpt{
-  background-color: #e4e4e4;
-  font-weight: bold;
-}
-
 .ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text{
   padding:0.2em .8em 0.2em 1.6em;
 }

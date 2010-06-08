@@ -265,7 +265,6 @@ observeWords: function(){
         }
 
         var collageId = jQuery('.collage-id').attr('id').split('-')[1];
-
         var submitAnnotation = function(){
           jQuery('#new-annotation-form form').ajaxSubmit({
             error: function(xhr){
@@ -284,9 +283,11 @@ observeWords: function(){
                 console.log("Annotation object is:");
                 console.log(response.annotation);
               }
+              // Do UI decoration here.
+              var node = jQuery('<span class="annotation-control" title="Click to see Annotation">Annotation</span>');
+              jQuery(node).attr('id', 'annotation-control-' + response.annotation.id);
+              jQuery("#t" + elStart).before(node);
               jQuery(ids.join(',')).css({display: 'none'});
-              /* var range = jQuery.createRange(response.annotation);
-              jQuery.annotateRange(range,response.annotation); */
             }
           });
         };

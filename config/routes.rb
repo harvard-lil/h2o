@@ -5,8 +5,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :item_youtubes
 
-  map.resources :excerpts
-
   map.resources :annotations
 
   map.resources :case_jurisdictions
@@ -19,7 +17,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages do |cl|
     cl.undo_annotation 'undo_annotation', :controller => 'collages', :action => :undo_annotation, :method => :post
-    cl.undo_excerpt 'undo_excerpt', :controller => 'collages', :action => :undo_excerpt, :method => :post
   end
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post}, :member => {:position_update => :post, :delete => :get }

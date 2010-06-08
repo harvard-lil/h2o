@@ -1,16 +1,7 @@
 class CollagesController < ApplicationController
 
   before_filter :prep_resources
-  before_filter :load_collage, :only => [:layers, :excerpts, :annotations, :show, :edit, :update, :destroy, :undo_excerpt, :undo_annotation]  
-
-  def undo_excerpt
-    excerpt = @collage.excerpts.last
-    excerpt.destroy
-    flash[:notice] = "We've removed that excerpt."
-    redirect_to @collage
-  rescue Exception => e
-    render :text => "Sorry, we couldn't remove that excerpt.", :status => :unprocessable_entity
-  end
+  before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
 
   def undo_annotation
     annotation = @collage.annotations.last
@@ -24,12 +15,6 @@ class CollagesController < ApplicationController
   def layers
     respond_to do |format|
       format.json { render :json => @collage.layers }
-    end
-  end
-
-  def excerpts
-    respond_to do |format|
-      format.json { render :json => @collage.excerpts }
     end
   end
 
