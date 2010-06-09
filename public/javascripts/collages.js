@@ -16,15 +16,18 @@ annotateRange: function(obj){
   var activeLayerId = jQuery.cookie('active-layer-id');
   var hasActiveLayer = false;
   var layerNames = [];
+  var lastLayerId = 0;
   jQuery(obj.layers).each(function(){
     layerNames.push(this.name);
     if(this.id == activeLayerId){
       hasActiveLayer = true;
     }
+    lastLayerId = this.id;
   });
 
   var node = jQuery('<span class="annotation-control" title="Click to see Annotation"></span>');
   jQuery(node).html(layerNames.join(', '));
+  jQuery(node).addClass('c' + (lastLayerId % 10));
   jQuery(node).attr('id', 'annotation-control-' + obj.id);
   jQuery("#t" + elStart).before(node);
 
@@ -32,7 +35,7 @@ annotateRange: function(obj){
     jQuery(ids.join(',')).css({display: 'none'});
   }
 
-  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script'}}).click(function(e){
+  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-e'}}).click(function(e){
     e.preventDefault();
     var annotationId = jQuery(this).attr('id').split('-')[2];
     if(jQuery('#annotation-details-' + annotationId).length == 0){
@@ -147,6 +150,7 @@ initLayers: function(){
       jQuery(json).each(function(){
         var node = jQuery('<span class="layer-control"></span>');
         node.attr('tag_id',this.tag.id);
+        node.addClass('c' + (this.tag.id % 10));
         if(this.tag.id == activeLayerId){
           node.addClass('layer-active');
         }

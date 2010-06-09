@@ -410,6 +410,56 @@ span.tagMatches span, .layers span{
   cursor: pointer;
 }
 
+span.tagMatches span, .layers span.c1,.c1{
+  background: #0000AB;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c2,.c2{
+  background: BlueViolet;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c3,.c3{
+  background: Red;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c4,.c4{
+  background: Blue;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c5,.c5{
+  background: Green;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c6,.c6{
+  background: Brown;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c7,.c7{
+  background: DarkGreen;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c8,.c8{
+  background: DarkBlue;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c9,.c9{
+  background: DarkRed;
+  color: white;
+}
+
+span.tagMatches span, .layers span.c0,.c0{
+  background: Teal;
+  color: white;
+}
+
 #url_selected {
     font-weight: bold;
     font-size: 1.25em;
