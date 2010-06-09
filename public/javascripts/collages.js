@@ -145,8 +145,7 @@ initLayers: function(){
       var viewTagList = jQuery('#view-layer-list');
       var activeLayerId = jQuery.cookie('active-layer-id');
       jQuery(json).each(function(){
-        var node = jQuery('<span></span>');
-        node.addClass('layer-control');
+        var node = jQuery('<span class="layer-control"></span>');
         node.attr('tag_id',this.tag.id);
         if(this.tag.id == activeLayerId){
           node.addClass('layer-active');
