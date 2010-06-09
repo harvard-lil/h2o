@@ -25,76 +25,126 @@ annotateRange: function(obj){
     lastLayerId = this.id;
   });
 
-  var node = jQuery('<span class="annotation-control" title="Click to see Annotation"></span>');
-  jQuery(node).html(layerNames.join(', '));
-  jQuery(node).addClass('c' + (lastLayerId % 10));
-  jQuery(node).attr('id', 'annotation-control-' + obj.id);
-  jQuery("#t" + elStart).before(node);
+  var startNode = jQuery('<span class="annotation-control" title="Click to see Annotation"></span>');
+  jQuery(startNode).html(layerNames.join(', '));
+  jQuery(startNode).addClass('c' + (lastLayerId % 10));
+  jQuery(startNode).attr('id', 'annotation-control-' + obj.id + '-start');
+  jQuery("#t" + elStart).before(startNode);
+  jQuery("#t" + elStart).innerHTML(jQuery("#t" + elStart).innerHTML + '<span class="layer-boundary-' + obj.id + '">');
 
+  var endNode = jQuery('</span><span class="annotation-control" title="Click to see Annotation"></span>');
+  jQuery(endNode).html(layerNames.join(', '));
+  jQuery(endNode).addClass('c' + (lastLayerId % 10));
+  jQuery(endNode).attr('id', 'annotation-control-' + obj.id + '-end');
+
+  jQuery("#t" + elEnd).after(endNode);
+
+  var idList = ids.join(',');
+
+  jQuery(idList).addClass('l' + obj.id);
   if(hasActiveLayer){
-    jQuery(ids.join(',')).css({display: 'none'});
+    jQuery(idList).css({display: 'none'});
   }
 
-  jQuery("#annotation-control-" + obj.id).button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-e'}}).click(function(e){
-    e.preventDefault();
-    var annotationId = jQuery(this).attr('id').split('-')[2];
-    if(jQuery('#annotation-details-' + annotationId).length == 0){
-      jQuery.ajax({
-        type: 'GET',
-        cache: false,
-        url: jQuery.rootPath() + 'annotations/' + annotationId,
-        beforeSend: function(){
-          jQuery('#spinner_block').show();
-          jQuery('div.ajax-error').html('').hide();
-        },
-        error: function(xhr){
-          jQuery('#spinner_block').hide();
-          jQuery('div.ajax-error').show().append(xhr.responseText);
-        },
-        success: function(html){
-          jQuery('#spinner_block').hide();
-          var node = jQuery(html);
-          jQuery('body').append(node);
-          var dialog = jQuery('#annotation-details-' + annotationId).dialog({
-            height: 300,
-            title: 'Annotation Details',
-            width: 400,
-            position: [e.clientX,e.clientY - 330],
-              buttons: {
-                Close: function(){
-                  jQuery(this).dialog('close');
-                },
-                Delete: function(){
-                  if(confirm('Are you sure?')){
-                    jQuery.ajax({
-                      cache: false,
-                      type: 'POST',
-                      data: {'_method': 'delete'},
-                      url: jQuery.rootPath() + 'annotations/destroy/' + annotationId,
-                      beforeSend: function(){
-                        jQuery('#spinner_block').show();
-                      },
-                      error: function(xhr){
-                        jQuery('#spinner_block').hide();
-                        jQuery('div.ajax-error').show().append(xhr.responseText);
-                      },
-                      success: function(response){
-                        jQuery('#annotation-control-' + annotationId).remove();
-                        jQuery(ids.join(',')).show();
-                        jQuery('#annotation-details-' + annotationId).dialog('close');
-                        jQuery.initLayers();
-                      }
-                    });
-                  }
-                }
-              }
-          });
-        }
-      });
-    } else {
-      jQuery('#annotation-details-' + annotationId).dialog().open();
+  jQuery("#annotation-control-" + obj.id + "-start").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-e'}}).bind({
+    click: function(e){
+      jQuery.annotationButton(e,obj.id,ids);
+    },
+    mouseover: function(e){
+      jQuery(".layer-boundary-" + obj.id).css('background-color','yellow');
+    },
+    mouseout: function(e){
+      jQuery(".layer-boundary-" + obj.id).css('background-color','yellow');
     }
   });
+  jQuery("#annotation-control-" + obj.id + "-end").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-w'}}).bind({
+    click: function(e){
+      jQuery.annotationButton(e,obj.id,ids)
+    },
+    mouseover: function(e){
+      jQuery('.l' + obj.id).css('background-color','yellow');
+    },
+    mouseout: function(e){
+      jQuery('.l' + obj.id).css('background-color', '#ffffff');
+    }
+  });
+
+},
+
+annotationButton: function(e,annotationId,ids){
+  e.preventDefault();
+//  var annotationId = jQuery(this).attr('id').split('-')[2];
+  if(jQuery('#annotation-details-' + annotationId).length == 0){
+    jQuery.ajax({
+      type: 'GET',
+      cache: false,
+      url: jQuery.rootPath() + 'annotations/' + annotationId,
+      beforeSend: function(){
+        jQuery('#spinner_block').show();
+        jQuery('div.ajax-error').html('').hide();
+      },
+      error: function(xhr){
+        jQuery('#spinner_block').hide();
+        jQuery('div.ajax-error').show().append(xhr.responseText);
+      },
+      success: function(html){
+        jQuery('#spinner_block').hide();
+        var node = jQuery(html);
+        jQuery('body').append(node);
+        var dialog = jQuery('#annotation-details-' + annotationId).dialog({
+          height: 300,
+          title: 'Annotation Details',
+          width: 400,
+          position: [e.clientX,e.clientY - 330],
+            buttons: {
+              Close: function(){
+                jQuery(this).dialog('close');
+              },
+              Delete: function(){
+                if(confirm('Are you sure?')){
+                  jQuery.ajax({
+                    cache: false,
+                    type: 'POST',
+                    data: {'_method': 'delete'},
+                    url: jQuery.rootPath() + 'annotations/destroy/' + annotationId,
+                    beforeSend: function(){
+                      jQuery('#spinner_block').show();
+                      jQuery.showPleaseWait();
+                    },
+                    error: function(xhr){
+                      jQuery('#spinner_block').hide();
+                      jQuery('div.ajax-error').show().append(xhr.responseText);
+                    },
+                    success: function(response){
+                      jQuery('#annotation-control-' + annotationId + '-start').remove();
+                      jQuery('#annotation-control-' + annotationId + '-end').remove();
+                      jQuery(ids.join(',')).show();
+                      jQuery('#annotation-details-' + annotationId).dialog('close');
+                      jQuery.initLayers();
+                    },
+                    complete: function(){
+                      jQuery('#please-wait').dialog('close');
+                    }
+                  });
+                }
+              }
+            }
+        });
+      }
+    });
+  } else {
+    jQuery('#annotation-details-' + annotationId).dialog('open');
+  }
+},
+
+showPleaseWait: function(){
+  jQuery('#please-wait').dialog({
+    closeOnEscape: false,
+    draggable: false,
+    modal: true,
+    resizable: false,
+    autoOpen: true
+ });
 },
 
 initializeAnnotations: function(){
@@ -105,13 +155,7 @@ initializeAnnotations: function(){
     cache: false,
     beforeSend: function(){
       jQuery('#spinner_block').show();
-      jQuery('#please-wait').dialog({
-        closeOnEscape: false,
-        draggable: false,
-        modal: true,
-        resizable: false,
-        autoOpen: true
-        });
+      jQuery.showPleaseWait();
       jQuery('div.ajax-error').html('').hide();
     },
     success: function(json){
