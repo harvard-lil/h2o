@@ -46,6 +46,7 @@ form.formtastic fieldset ol li { margin-bottom:0.5em; }
 /* clearfixing the li's */
 form.formtastic fieldset ol li { display: inline-block; }
 form.formtastic fieldset ol li:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+html[xmlns] form.formtastic fieldset ol li { display: block; }
 * html form.formtastic fieldset ol li { height: 1%; }
 
 form.formtastic fieldset ol li.required { }
