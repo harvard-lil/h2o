@@ -42,9 +42,21 @@ class ItemPlaylistsController < ApplicationController
   def create
     @item_playlist = ItemPlaylist.new(params[:item_playlist])
 
+    container_id = params[:container_id]
+
     respond_to do |format|
       if @item_playlist.save
-        flash[:notice] = 'ItemPlaylist was successfully created.'
+        @item_playlist.accepts_role!(:owner, current_user)
+
+        playlist_item = PlaylistItem.new(:playlist_id => container_id)
+        playlist_item.resource_item = @item_playlist
+
+        if playlist_item.save!
+          playlist_item.accepts_role!(:owner, current_user)
+        end
+
+        flash[:notice] = 'ItemDefault was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@item_playlist) }
         format.xml  { render :xml => @item_playlist, :status => :created, :location => @item_playlist }
       else

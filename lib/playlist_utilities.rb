@@ -8,16 +8,14 @@ module PlaylistUtilities
   def identify_object(url_string)
     return_hash = Hash.new
     url = URI.parse(url_string)
+    metadata_hash = Hash.new
+    object_type = ""
 
-    # get the XML data as a string
-    document = Net::HTTP.get_response(URI.parse(url_string + "/metadata")).body
+    metadata_hash = get_metadata_hash(url_string)
 
-    if document.present?
-      parsed_xml = Nokogiri::XML(document)
+    if metadata_hash["object-type"].present?
 
-      parsed_xml.xpath('//object-type').each do |node|
-        object_type =  node.text
-      end
+      object_type = metadata_hash["object-type"]
 
       case object_type
       when "QuestionInstance" then
@@ -56,6 +54,19 @@ module PlaylistUtilities
 
     return return_hash
 
+  end
+
+  def get_metadata_hash(url)
+    document = Nokogiri::XML(open(url + "/metadata"))
+    result_hash = Hash.new
+
+    if document.present?
+      document.xpath('//*').each do |node|
+        result_hash[node.name] = node.text
+      end
+    end
+
+    return result_hash
   end
 
 end

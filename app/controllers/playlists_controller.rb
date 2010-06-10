@@ -5,7 +5,7 @@ class PlaylistsController < ApplicationController
 
   include PlaylistUtilities
 
-  before_filter :require_user
+  before_filter :require_user, :except => [:metadata]
 
   # GET /playlists
   # GET /playlists.xml

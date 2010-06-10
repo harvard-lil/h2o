@@ -42,9 +42,21 @@ class ItemRotisserieDiscussionsController < ApplicationController
   def create
     @item_rotisserie_discussion = ItemRotisserieDiscussion.new(params[:item_rotisserie_discussion])
 
+    container_id = params[:container_id]
+
     respond_to do |format|
       if @item_rotisserie_discussion.save
-        flash[:notice] = 'ItemRotisserieDiscussion was successfully created.'
+        @item_rotisserie_discussion.accepts_role!(:owner, current_user)
+
+        playlist_item = PlaylistItem.new(:playlist_id => container_id)
+        playlist_item.resource_item = @item_rotisserie_discussion
+
+        if playlist_item.save!
+          playlist_item.accepts_role!(:owner, current_user)
+        end
+
+        flash[:notice] = 'ItemDefault was successfully created.'
+        format.js {render :text => nil}
         format.html { redirect_to(@item_rotisserie_discussion) }
         format.xml  { render :xml => @item_rotisserie_discussion, :status => :created, :location => @item_rotisserie_discussion }
       else

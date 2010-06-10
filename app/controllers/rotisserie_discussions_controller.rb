@@ -1,5 +1,7 @@
 class RotisserieDiscussionsController < ApplicationController
 
+  before_filter :require_user, :except => [:metadata]
+
   # GET /rotisserie_discussions
   # GET /rotisserie_discussions.xml
   def index
