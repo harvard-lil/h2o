@@ -20,14 +20,20 @@ class Collage < ActiveRecord::Base
       doc = Nokogiri::HTML.parse(self.annotatable.content)
       self.annotations.each do |ann|
 
-        layer_list = ann.layers.collect{|l| "l#{l.id}"}.join(' ')
+        layer_list = ann.layers.collect{|l| "l#{l.id}"}
+        layer_list << "a#{ann.id}"
+        RAILS_DEFAULT_LOGGER.debug("layer list: #{layer_list}")
+
         startId = ann.annotation_start[1,ann.annotation_start.length - 1]
         endId = ann.annotation_end[1,ann.annotation_end.length - 1]
-        doc.css((startId.to_i .. endId.to_i).to_a.collect{|c| "#t#{c}"}.join(',')).each do |item|
-          item['class'] = "#{item['class']} #{layer_list}"
+
+        doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + startId + "' and substring-after(@id,'t')<='" + endId + "']").each do |item|
+          item['class'] = "#{item['class']} #{layer_list.join(' ')}"
         end
       end
       doc.xpath("//html/body/*").to_s
+    else
+      self.annotatable.content
     end
 
   end

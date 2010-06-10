@@ -43,7 +43,7 @@ annotateRange: function(obj){
 
   var idList = ids.join(',');
 
-  jQuery(idList).addClass('l' + obj.id);
+//  jQuery(idList).addClass('l' + obj.id);
   if(hasActiveLayer){
     jQuery(idList).css({display: 'none'});
   }
@@ -53,10 +53,10 @@ annotateRange: function(obj){
       jQuery.annotationButton(e,obj.id,ids);
     },
     mouseover: function(e){
-      jQuery(".layer-boundary-" + obj.id).css('background-color','yellow');
+      jQuery('.a' + obj.id).css('background-color','yellow');
     },
     mouseout: function(e){
-      jQuery(".layer-boundary-" + obj.id).css('background-color','yellow');
+      jQuery('.a' + obj.id).css('background-color', '#ffffff');
     }
   });
   jQuery("#annotation-control-" + obj.id + "-end").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-w'}}).bind({
@@ -64,10 +64,10 @@ annotateRange: function(obj){
       jQuery.annotationButton(e,obj.id,ids)
     },
     mouseover: function(e){
-      jQuery('.l' + obj.id).css('background-color','yellow');
+      jQuery('.a' + obj.id).css('background-color','yellow');
     },
     mouseout: function(e){
-      jQuery('.l' + obj.id).css('background-color', '#ffffff');
+      jQuery('.a' + obj.id).css('background-color', '#ffffff');
     }
   });
 
