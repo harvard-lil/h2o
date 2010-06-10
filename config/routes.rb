@@ -28,7 +28,7 @@ ActionController::Routing::Routes.draw do |map|
   end
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post},
-    :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post]}
+    :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post], :metadata => :get}
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 
@@ -43,7 +43,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rotisserie_posts, :collection => {:block => :get}, :member => {:delete => :get }
 
   map.resources :rotisserie_discussions, :collection => {:block => :get}, :member => {
-    :delete => :get, :add_member => :get, :activate => :post, :notify => :post, :changestart => :post}
+    :delete => :get, :add_member => :get, :activate => :post, :notify => :post, :changestart => :post, :metadata => :get}
 
   map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
 
@@ -53,7 +53,7 @@ ActionController::Routing::Routes.draw do |map|
     q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
   end
 
-  map.resources :question_instances, :member => {:metadata => :any}
+  map.resources :question_instances, :member => {:metadata => :get}
 
   # The priority is based upon order of creation: first created -> highest priority.
 
