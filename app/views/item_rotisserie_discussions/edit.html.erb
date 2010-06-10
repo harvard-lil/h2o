@@ -1,0 +1,12 @@
+<h1>Editing item_rotisserie_discussion</h1>
+
+<% form_for(@item_rotisserie_discussion) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @item_rotisserie_discussion %> |
+<%= link_to 'Back', item_rotisserie_discussions_path %>

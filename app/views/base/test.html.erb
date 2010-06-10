@@ -1,0 +1,18 @@
+<%
+#document = Net::HTTP.get_response(URI.parse("http://gaiking.testing.com:3000/question_instances/1/metadata.xml")).body
+document = Nokogiri::XML(open('http://h2odev.law.harvard.edu/question_instances/1/metadata'))
+object_type = ""
+
+    if document.present?
+      document.xpath('//child-object-type').each do |node|
+        object_type +=  node.text
+      end
+    end
+
+playlist = Playlist.find(3)
+playlist_ids = playlist.playlist_items.collect(&:id).compact
+%>
+
+<%= playlist_ids.inspect %>
+
+<% %>

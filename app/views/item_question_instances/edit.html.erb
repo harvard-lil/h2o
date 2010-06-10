@@ -1,0 +1,12 @@
+<h1>Editing item_question_instance</h1>
+
+<% form_for(@item_question_instance) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @item_question_instance %> |
+<%= link_to 'Back', item_question_instances_path %>

@@ -1,4 +1,10 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_playlists
+
+  map.resources :item_rotisserie_discussions
+
+  map.resources :item_question_instances
+
   map.resources :influences
 
   map.resources :item_texts
@@ -47,9 +53,7 @@ ActionController::Routing::Routes.draw do |map|
     q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
   end
 
-  map.resources :question_instances do |qi|
-    qi.metadata 'metadata', :controller => 'question_instances', :action => :metadata, :method => :get
-  end
+  map.resources :question_instances, :member => {:metadata => :any}
 
   # The priority is based upon order of creation: first created -> highest priority.
 

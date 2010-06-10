@@ -20,6 +20,7 @@ class QuestionInstancesController < BaseController
   end
 
   def metadata
+    @question_instance[:object_type] = @question_instance.class.to_s
     @question_instance[:child_object_name] = 'question'
     @question_instance[:child_object_plural] = 'questions'
     @question_instance[:child_object_count] = @question_instance.question_count

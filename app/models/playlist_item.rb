@@ -6,5 +6,13 @@ class PlaylistItem < ActiveRecord::Base
 
   belongs_to :resource_item, :polymorphic => true
 
-  ITEM_TYPES = [["Basic URL", "ItemDefault"],["Youtube Video", "ItemYoutube"],["Image", "ItemImage"],["Text File", "ItemText"]]
+  ITEM_TYPES = [
+    ["Basic URL", "ItemDefault"],
+    ["Youtube Video", "ItemYoutube"],
+    ["Image", "ItemImage"],
+    ["Text File", "ItemText"],
+    ["H2O Question Tool", "ItemQuestionInstance"],
+    ["H2O Rotisserie", "ItemRotisserieDiscussion"],
+    ["H2O Playlist", "ItemPlaylist"]
+    ]
 end

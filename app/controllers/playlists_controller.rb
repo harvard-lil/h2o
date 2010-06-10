@@ -115,6 +115,19 @@ class PlaylistsController < ApplicationController
     @playlist = Playlist.find(params[:id])
   end
 
+  def metadata
+    @playlist = Playlist.find(params[:id])
+
+    @playlist[:object_type] = @playlist.class.to_s
+    @playlist[:child_object_name] = 'playlist_item'
+    @playlist[:child_object_plural] = 'playlist_items'
+    @playlist[:child_object_count] = @playlist.playlist_items.length
+    @playlist[:child_object_type] = 'PlaylistItem'
+    @playlist[:child_object_ids] = @playlist.playlist_items.collect(&:id).compact
+    @playlist[:title] = @playlist.output_text
+    render :xml => @playlist.to_xml(:skip_types => true)
+  end
+
   def spawn_copy
     @playlist = Playlist.find(params[:id])  
     @playlist_copy = Playlist.new(params[:playlist])

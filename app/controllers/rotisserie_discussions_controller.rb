@@ -129,6 +129,19 @@ class RotisserieDiscussionsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  def metadata
+    @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
+
+    @rotisserie_discussion[:object_type] = @rotisserie_discussion.class.to_s
+    @rotisserie_discussion[:child_object_name] = 'rotisserie_post'
+    @rotisserie_discussion[:child_object_plural] = 'rotisserie_posts'
+    @rotisserie_discussion[:child_object_count] = @rotisserie_discussion.rotisserie_posts.length
+    @rotisserie_discussion[:child_object_type] = 'RotisseriePost'
+    @rotisserie_discussion[:child_object_ids] = @rotisserie_discussion.rotisserie_posts.collect(&:id).compact
+    @rotisserie_discussion[:title] = @rotisserie_discussion.output_text
+    render :xml => @rotisserie_discussion.to_xml(:skip_types => true)
+  end
   
   def add_member
     @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
