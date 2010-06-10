@@ -30,14 +30,16 @@ annotateRange: function(obj){
   jQuery(startNode).addClass('c' + (lastLayerId % 10));
   jQuery(startNode).attr('id', 'annotation-control-' + obj.id + '-start');
   jQuery("#t" + elStart).before(startNode);
-  jQuery("#t" + elStart).innerHTML(jQuery("#t" + elStart).innerHTML + '<span class="layer-boundary-' + obj.id + '">');
+  jQuery("#t" + elStart)[0].innerHTML = jQuery("#t" + elStart)[0].innerHTML + '<span class="layer-boundary-' + obj.id + '">';
 
-  var endNode = jQuery('</span><span class="annotation-control" title="Click to see Annotation"></span>');
+  var endNode = jQuery('<span class="annotation-control" title="Click to see Annotation"></span>');
   jQuery(endNode).html(layerNames.join(', '));
   jQuery(endNode).addClass('c' + (lastLayerId % 10));
   jQuery(endNode).attr('id', 'annotation-control-' + obj.id + '-end');
 
   jQuery("#t" + elEnd).after(endNode);
+
+  jQuery("#t" + elEnd)[0].innerHTML = jQuery("#t" + elEnd)[0].innerHTML + '</span>';
 
   var idList = ids.join(',');
 

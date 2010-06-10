@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100603140855) do
+ActiveRecord::Schema.define(:version => 20100607162500) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "user_id"
@@ -71,27 +71,6 @@ ActiveRecord::Schema.define(:version => 20100603140855) do
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
-  create_table "casebooks", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "name",              :limit => 250
-    t.string   "description",       :limit => 65536
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
-  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
-  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
-  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
-  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
-  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
-
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false
@@ -143,6 +122,26 @@ ActiveRecord::Schema.define(:version => 20100603140855) do
   add_index "collages", ["parent_id"], :name => "index_collages_on_parent_id"
   add_index "collages", ["position"], :name => "index_collages_on_position"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
+
+  create_table "influences", :force => true do |t|
+    t.integer  "resource_id"
+    t.string   "resource_type"
+    t.integer  "parent_id"
+    t.integer  "children_count"
+    t.integer  "ancestors_count"
+    t.integer  "descendants_count"
+    t.boolean  "hidden"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "influences", ["ancestors_count"], :name => "index_influences_on_ancestors_count"
+  add_index "influences", ["children_count"], :name => "index_influences_on_children_count"
+  add_index "influences", ["descendants_count"], :name => "index_influences_on_descendants_count"
+  add_index "influences", ["parent_id"], :name => "index_influences_on_parent_id"
+  add_index "influences", ["resource_id"], :name => "index_influences_on_resource_id"
+  add_index "influences", ["resource_type"], :name => "index_influences_on_resource_type"
 
   create_table "item_defaults", :force => true do |t|
     t.string   "title"
@@ -293,30 +292,6 @@ ActiveRecord::Schema.define(:version => 20100603140855) do
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
-
-  create_table "replies", :force => true do |t|
-    t.integer  "question_id",                                           :null => false
-    t.integer  "user_id"
-    t.string   "reply",              :limit => 1000,                    :null => false
-    t.string   "email",              :limit => 250
-    t.string   "name",               :limit => 250
-    t.boolean  "posted_anonymously",                 :default => false
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "replies", ["email"], :name => "index_replies_on_email"
-  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
-  add_index "replies", ["position"], :name => "index_replies_on_position"
-  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
-  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
-  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
-  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
