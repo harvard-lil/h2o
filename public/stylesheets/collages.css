@@ -39,6 +39,10 @@
   opacity: 1;
 }
 
+.meta .layers{
+  margin-top: 5px;
+}
+
 .ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text{
   padding:0.2em 2.25em 0.2em 1.6em;
 }
@@ -52,7 +56,7 @@
 }
 
 .annotation-content{
-  height: 150px;
+  max-height: 150px;
   overflow: auto;
 }
 
@@ -71,12 +75,4 @@
 .annotated-content h2{
   border-bottom: 1px dotted black;
   margin-bottom: 1em;
-}
-
-.l15{
-  background-color: #ffffff;
-}
-
-.l28{
-  background-color: #ffffff;
 }

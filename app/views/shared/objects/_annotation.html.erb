@@ -7,7 +7,7 @@
 
   <div class="meta">
     <span class="user"><span>by</span> <%= @annotation.user.login %></span>
-    <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span><br />
-    <span class="layers">Layers: <%= @annotation.layers.collect{|l|"<span>#{l.name}</span>"}.join(',') %></span>
+    <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
+    <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(',') %></div>
   </div>
 </div>

@@ -1,5 +1,19 @@
 jQuery.extend({
 
+addLayerToCookie: function(cookieName,layerId){
+  var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
+  currentVals[layerId] = 1;
+  var cookieVal = jQuery.serializeHash(currentVals);
+  jQuery.cookie(cookieName, cookieVal, {expires: 365});
+},
+
+removeLayerFromCookie: function(cookieName,layerId){
+  var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
+  delete currentVals[layerId];
+  var cookieVal = jQuery.serializeHash(currentVals);
+  jQuery.cookie(cookieName,cookieVal,{expires: 365});
+},
+
 annotateRange: function(obj){
   var start = obj.annotation_start.substring(1);
   var end = obj.annotation_end.substring(1);
@@ -12,8 +26,9 @@ annotateRange: function(obj){
   for(i = elStart; i <= elEnd; i++){
     ids.push('#t' + i);
   }
-
+//FIXME
   var activeLayerId = jQuery.cookie('active-layer-id');
+  var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
   var hasActiveLayer = false;
   var layerNames = [];
   var lastLayerId = 0;
@@ -188,7 +203,9 @@ initLayers: function(){
       jQuery('#spinner_block').hide();
       var output = '';
       var viewTagList = jQuery('#view-layer-list');
+      //FIXME
       var activeLayerId = jQuery.cookie('active-layer-id');
+      var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
       jQuery(json).each(function(){
         var node = jQuery('<span class="layer-control"></span>');
         node.attr('tag_id',this.tag.id);
@@ -207,6 +224,9 @@ initLayers: function(){
           var layerId = jQuery(this).attr('tag_id');
           jQuery('.layer-control').removeClass('layer-active');
           // Set the name and id of the active layer.
+          //FIXME
+          jQuery.addLayerToCookie('active-layer-ids',layerId);
+          jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html(layerId));
           jQuery.cookie('active-layer-id',layerId,{expires: 365});
           jQuery.cookie('active-layer-name',jQuery(this).find('a').html(), {expires: 365});
           jQuery(this).addClass('layer-active');
@@ -315,6 +335,7 @@ observeWords: function(){
             jQuery('#new-annotation-form').html(html);
             jQuery('#new-annotation-form').dialog('open');
             if(jQuery('#annotation_layer_list').val() == ''){
+              //FIXME
               jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-name'));
             }
           },
