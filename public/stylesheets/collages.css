@@ -60,6 +60,19 @@
   font-family: inherit;
 }
 
+.annotated-content{
+  padding: 5px;
+  font-size: 10px;
+  color: black;
+  margin-bottom: 1em;
+  border-bottom: 1px dotted black;
+}
+
+.annotated-content h2{
+  border-bottom: 1px dotted black;
+  margin-bottom: 1em;
+}
+
 .l15{
   background-color: #ffffff;
 }

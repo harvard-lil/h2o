@@ -1,5 +1,9 @@
 <div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
   <div class="annotation-content"><%= @annotation.annotation %></div>
+  <div class="annotated-content">
+    <h2>Annotated Content</h2>
+    <%= @annotation.annotated_content %>
+  </div>
 
   <div class="meta">
     <span class="user"><span>by</span> <%= @annotation.user.login %></span>

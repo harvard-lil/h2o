@@ -17,4 +17,24 @@ class Annotation < ActiveRecord::Base
   validates_length_of :annotation, :maximum => 10.kilobytes
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
+  def annotation_start_numeral
+    self.annotation_start[1,self.annotation_start.length - 1]
+  end
+
+  def annotation_end_numeral
+    self.annotation_end[1,self.annotation_end.length - 1]
+  end
+
+  def annotated_nodes(doc = Nokogiri::HTML.parse(self.collage.annotatable.content))
+    doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + self.annotation_start_numeral + "' and substring-after(@id,'t')<='" + self.annotation_end_numeral + "']")
+  end
+
+  def annotated_content
+    output = ''
+    self.annotated_nodes.each do |item|
+      output += "#{item.inner_html} "
+    end
+    output
+  end
+
 end
