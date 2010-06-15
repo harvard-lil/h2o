@@ -15,7 +15,7 @@ class Collage < ActiveRecord::Base
     self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq
   end
 
-  def annotatable_content(active_layer_ids = [])
+  def annotatable_content
     if ! self.layers.blank?
       doc = Nokogiri::HTML.parse(self.annotatable.content)
       self.annotations.each do |ann|

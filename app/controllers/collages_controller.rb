@@ -1,4 +1,6 @@
-class CollagesController < ApplicationController
+class CollagesController < BaseController
+
+  cache_sweeper :collage_sweeper
 
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  

@@ -407,7 +407,7 @@ span.tagMatches span, .layers span{
   margin-right: 4px;
   background-color: #0000AB;
   color: #fff;
-  cursor: pointer;
+  cursor: default;
 }
 
 span.tagMatches span, .layers span.c1,.c1{

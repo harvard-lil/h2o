@@ -53,30 +53,38 @@ annotateRange: function(obj){
 
   var idList = ids.join(',');
 
-  if(hasActiveLayer){
-    jQuery(idList).css({display: 'none'});
-  }
+//  if(hasActiveLayer){
+//    jQuery(idList).css({display: 'none'});
+//  }
 
   jQuery("#annotation-control-" + obj.id + "-start").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-e'}}).bind({
     click: function(e){
       jQuery.annotationButton(e,obj.id,ids);
     },
     mouseover: function(e){
-      jQuery('.a' + obj.id).css('background-color','yellow');
+      if(! hasActiveLayer){
+        jQuery('.a' + obj.id).css('background-color','yellow');
+      }
     },
     mouseout: function(e){
-      jQuery('.a' + obj.id).css('background-color', '#ffffff');
+      if(! hasActiveLayer){
+        jQuery('.a' + obj.id).css('background-color', '#ffffff');
+      }
     }
   });
-  jQuery("#annotation-control-" + obj.id + "-end").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-w'}}).bind({
+  jQuery("#annotation-control-" + obj.id + "-end").button({icons: {primary: 'ui-icon-arrowthick-1-w'}}).bind({
     click: function(e){
       jQuery.annotationButton(e,obj.id,ids)
     },
     mouseover: function(e){
-      jQuery('.a' + obj.id).css('background-color','yellow');
+      if(! hasActiveLayer){
+        jQuery('.a' + obj.id).css('background-color','yellow');
+      }
     },
     mouseout: function(e){
-      jQuery('.a' + obj.id).css('background-color', '#ffffff');
+      if(! hasActiveLayer){
+        jQuery('.a' + obj.id).css('background-color', '#ffffff');
+      }
     }
   });
 
@@ -203,27 +211,35 @@ initLayers: function(){
       var viewTagList = jQuery('#view-layer-list');
       var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
       jQuery(json).each(function(){
-        var node = jQuery('<input type="checkbox" id="layer-checkbox-' + this.tag.id + '" class="layer-control-' + this.tag.id + '" /><span class="layer-control"></span>');
-        node.attr('tag_id',this.tag.id);
+        var checkboxNode = jQuery('<input type="checkbox" id="layer-checkbox-' + this.tag.id + '" class="layer-control" />');
+        var node = jQuery('<span class="layer-control"></span>');
         node.addClass('c' + (this.tag.id % 10));
         if(activeLayers[this.tag.id] == 1){
           node.addClass('layer-active');
-          jQuery(node).find('input').attr('checked', true);
+          jQuery(checkboxNode).attr('checked', true);
         }
         var anchor = jQuery('<a>');
         anchor.attr('href', jQuery.rootPath() + 'collages/' + collageId);
         anchor.html(this.tag.name);
 
         node.html(anchor);
+        viewTagList.append(checkboxNode);
         viewTagList.append(node);
       });
-      jQuery('.layer-control').click(function(){
-          var layerId = jQuery(this).attr('tag_id');
-          jQuery('.layer-control').removeClass('layer-active');
+      jQuery('.layer-control').click(function(e){
+        e.preventDefault();
+        var layerId = jQuery(this).attr('id').split('-')[2];
+        jQuery('.layer-control').removeClass('layer-active');
+        if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
           // Set the name and id of the active layers.
           jQuery.addLayerToCookie('active-layer-ids',layerId);
           jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html());
           jQuery(this).addClass('layer-active');
+        } else {
+          jQuery.removeLayerFromCookie('active-layer-ids',layerId);
+          jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
+        }
+        document.location = '/collages/' + collageId;
       });
     },
     error: function(xhr){

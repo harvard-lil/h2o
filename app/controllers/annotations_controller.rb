@@ -1,4 +1,6 @@
-class AnnotationsController < ApplicationController
+class AnnotationsController < BaseController
+
+  cache_sweeper :annotation_sweeper
 
   before_filter :load_annotation, :only => [:show, :edit, :update, :destroy]
 

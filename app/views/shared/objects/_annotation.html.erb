@@ -1,13 +1,15 @@
-<div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
-  <div class="annotation-content"><%= @annotation.annotation %></div>
-  <div class="annotated-content">
-    <h2>Annotated Content</h2>
-    <%= @annotation.annotated_content %>
-  </div>
+<% cache("annotation-annotated-content-#{@annotation.id}") do %>
+  <div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
+    <div class="annotation-content"><%= @annotation.annotation %></div>
+    <div class="annotated-content">
+      <h2>Annotated Content</h2>
+      <%= @annotation.annotated_content %>
+    </div>
 
-  <div class="meta">
-    <span class="user"><span>by</span> <%= @annotation.user.login %></span>
-    <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
-    <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(',') %></div>
+    <div class="meta">
+      <span class="user"><span>by</span> <%= @annotation.user.login %></span>
+      <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
+      <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(',') %></div>
+    </div>
   </div>
-</div>
+<% end %>
