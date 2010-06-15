@@ -92,7 +92,6 @@ annotateRange: function(obj){
 
 annotationButton: function(e,annotationId,ids){
   e.preventDefault();
-//  var annotationId = jQuery(this).attr('id').split('-')[2];
   if(jQuery('#annotation-details-' + annotationId).length == 0){
     jQuery.ajax({
       type: 'GET',
@@ -239,41 +238,13 @@ initLayers: function(){
           jQuery.removeLayerFromCookie('active-layer-ids',layerId);
           jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
         }
-        document.location = '/collages/' + collageId;
+        document.location = jQuery.rootPath() + 'collages/' + collageId;
       });
     },
     error: function(xhr){
       jQuery('#spinner_block').hide();
       jQuery('div.ajax-error').show().append(xhr.responseText);
     }
-  });
-},
-
-observeUndo: function(){
-  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
-  jQuery("a[id*='undo-']").click(function(e){
-    e.preventDefault();
-    var undoType = jQuery(this).attr('id').split('-')[1];
-    if(!confirm("Undo the last " + undoType + '?')){
-      return;
-    }
-    var url = jQuery.rootPath() + 'collages/' + collageId + '/undo_' + undoType;
-    jQuery.ajax({
-      type: 'POST',
-      url: url,
-      cache: false,
-      beforeSend: function(){
-        jQuery('#spinner_block').show();
-        jQuery('div.ajax-error').html('').hide();
-      },
-      success: function(){
-        window.location.href = jQuery.rootPath() + 'collages/' + collageId;
-      },
-      error: function(xhr){
-        jQuery('#spinner_block').hide();
-        jQuery('div.ajax-error').show().append(xhr.responseText);
-      }
-    });
   });
 },
 
@@ -288,7 +259,7 @@ observeWords: function(){
     click: function(e){
       e.preventDefault();
       if(jQuery('#new-annotation-start').html().length > 0){
-        // Set end point
+        // Set end point and annotate.
         jQuery('#new-annotation-end').html(jQuery(this).attr('id'));
         var collageId = jQuery('.collage-id').attr('id').split('-')[1];
         var submitAnnotation = function(){
@@ -310,8 +281,9 @@ observeWords: function(){
                 console.log(response.annotation);
               }
               // Do UI decoration here.
-              jQuery.annotateRange(response.annotation);
-              jQuery.initLayers();
+//              jQuery.initLayers();
+//              jQuery.annotateRange(response.annotation);
+              document.location = jQuery.rootPath() + 'collages/' + collageId;
             }
           });
         };
@@ -369,9 +341,6 @@ observeWords: function(){
 jQuery(document).ready(function(){
     jQuery.initLayers();
     jQuery.initializeAnnotations();
-    jQuery('#annotate-selection').button({icons: {primary: 'ui-icon-lightbulb'}});
-    jQuery(".undo-button").button({icons: {primary: 'ui-icon-arrowreturnthick-1-w'}});
-    jQuery.observeUndo();
     jQuery.observeWords();
 
     jQuery(".tagging-autofill-layers").live('click',function(){

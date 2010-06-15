@@ -29,7 +29,6 @@ class Collage < ActiveRecord::Base
     else
       self.annotatable.content
     end
-
   end
 
 end

@@ -21,10 +21,16 @@
   <% if flash[:notice] %>
     <div class="notice"><%= h flash[:notice] %></div>
   <% end %>
-  <h2>Tools</h2>
+
+  <h2>Meta</h2>
   <ul>
-    <li><a href="#" id="annotate-selection">Annotate</a> <a href="#" id="undo-annotation" class="undo-button">Undo</a></li>
+    <li>Annotations: <%= (@collage.annotations.blank?) ? 0 : @collage.annotations.length %>
+    <div class="layers">
+
+    </div>
+    </li>
   </ul>
+
   <h2>Hide Layers</h2>
   <div id="view-layer-list" class="layers">
   </div>
