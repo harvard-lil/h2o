@@ -12,7 +12,7 @@ class PlaylistsController < ApplicationController
     allow :admin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:index, :show, :edit, :update]
-    allow :user, :of => :playlist, :to => [:index]
+    allow :user, :of => :playlist, :to => [:index, :show]
   end
 
   # GET /playlists

@@ -14,5 +14,13 @@ module AuthUtilities
   def owner?
     return self.accepts_role?(:owner, current_user)
   end
+  
+  def editor?
+    return self.accepts_role?(:editor, current_user)
+  end
+  
+  def user?
+    return self.accepts_role?(:user, current_user)
+  end
 
 end
