@@ -26,15 +26,13 @@ annotateRange: function(obj){
   for(i = elStart; i <= elEnd; i++){
     ids.push('#t' + i);
   }
-//FIXME
-  var activeLayerId = jQuery.cookie('active-layer-id');
   var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
   var hasActiveLayer = false;
   var layerNames = [];
   var lastLayerId = 0;
   jQuery(obj.layers).each(function(){
     layerNames.push(this.name);
-    if(this.id == activeLayerId){
+    if(activeLayers[this.id] == 1){
       hasActiveLayer = true;
     }
     lastLayerId = this.id;
@@ -203,15 +201,14 @@ initLayers: function(){
       jQuery('#spinner_block').hide();
       var output = '';
       var viewTagList = jQuery('#view-layer-list');
-      //FIXME
-      var activeLayerId = jQuery.cookie('active-layer-id');
       var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
       jQuery(json).each(function(){
-        var node = jQuery('<span class="layer-control"></span>');
+        var node = jQuery('<input type="checkbox" id="layer-checkbox-' + this.tag.id + '" class="layer-control-' + this.tag.id + '" /><span class="layer-control"></span>');
         node.attr('tag_id',this.tag.id);
         node.addClass('c' + (this.tag.id % 10));
-        if(this.tag.id == activeLayerId){
+        if(activeLayers[this.tag.id] == 1){
           node.addClass('layer-active');
+          jQuery(node).find('input').attr('checked', true);
         }
         var anchor = jQuery('<a>');
         anchor.attr('href', jQuery.rootPath() + 'collages/' + collageId);
@@ -223,12 +220,9 @@ initLayers: function(){
       jQuery('.layer-control').click(function(){
           var layerId = jQuery(this).attr('tag_id');
           jQuery('.layer-control').removeClass('layer-active');
-          // Set the name and id of the active layer.
-          //FIXME
+          // Set the name and id of the active layers.
           jQuery.addLayerToCookie('active-layer-ids',layerId);
-          jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html(layerId));
-          jQuery.cookie('active-layer-id',layerId,{expires: 365});
-          jQuery.cookie('active-layer-name',jQuery(this).find('a').html(), {expires: 365});
+          jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html());
           jQuery(this).addClass('layer-active');
       });
     },
