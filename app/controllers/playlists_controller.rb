@@ -1,19 +1,26 @@
 class PlaylistsController < ApplicationController
-
+  
   require 'net/http'
   require 'uri'
 
   include PlaylistUtilities
 
-  before_filter :require_user, :except => [:metadata]
+  before_filter :require_user, :load_playlist, :except => [:metadata]
+  
+  access_control do
+    allow logged_in, :to => [:index, :new, :create]
+    allow :admin
+    allow :owner, :of => :playlist
+    allow :editor, :of => :playlist, :to => [:index, :show, :edit, :update]
+    allow :user, :of => :playlist, :to => [:index]
+  end
 
   # GET /playlists
   # GET /playlists.xml
   def index
     add_javascripts 'playlist'
+    #@playlists = current_user.roles.find(:all, :conditions => {:name => "owner", :authorizable_type => "Playlist"}).collect(&:authorizable).compact
     
-    @playlists = Playlist.all
-
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @playlists }
@@ -242,5 +249,12 @@ class PlaylistsController < ApplicationController
     end
 
   end
+
+  def load_playlist
+    unless params[:id].nil?
+      @playlist = Playlist.find(params[:id])
+    end  
+  end
+
 
 end

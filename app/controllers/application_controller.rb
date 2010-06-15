@@ -48,7 +48,8 @@ class ApplicationController < ActionController::Base
   # FIXME: Place in redirect to error page
   #++
   def deny_access
-
+    flash[:notice] = "You do not have access to this content."
+    redirect_to playlists_path
   end
 
   def create_influence(original_object, spawned_object)

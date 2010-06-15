@@ -1,4 +1,4 @@
-<% @playlists = Playlist.all(:order => :id) %>
+<% @playlists = current_user.roles.find(:all, :conditions => {:name => "owner", :authorizable_type => "Playlist"}).collect(&:authorizable).compact %>
 
 <table class="core_table">
   <thead>
