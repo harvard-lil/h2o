@@ -59,10 +59,6 @@ class RotisserieDiscussion < ActiveRecord::Base
      role_users(self.id, self.class, "owner").first
   end
 
-  def user?
-    current_user.has_role?(:user, self)
-  end
-
   def users
     role = Role.first(:conditions => {:authorizable_type => "RotisserieDiscussion", :authorizable_id => self.id, :name => "user"})
 

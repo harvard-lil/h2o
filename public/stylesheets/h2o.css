@@ -493,6 +493,17 @@ span.tagMatches span, .layers span.c0,.c0{
     display: inline-block;
 }
 
-.playlist_button {
-    display: inline-block;
+#csv-container {
+    clear: both;
+}
+
+#csv-submission {
+   float: left;
+}
+
+#csv-preview {
+    margin-left: 100px;
+    border: 0px solid #607887;
+    float: left;
+    width: 300px;
 }

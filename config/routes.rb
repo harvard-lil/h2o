@@ -45,7 +45,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rotisserie_discussions, :collection => {:block => :get}, :member => {
     :delete => :get, :add_member => :get, :activate => :post, :notify => :post, :changestart => :post, :metadata => :get}
 
-  map.resources :rotisserie_instances, :collection => {:block => :get}, :member => {:delete => :get }
+  map.resources :rotisserie_instances, 
+    :collection => {:block => :get, :display_validation => [:get, :post], :validate_email_csv => [:post]},
+    :member => {:delete => :get, :invite => [:get, :post], :add_member => :get}
 
   map.resources :questions do |q|
     q.vote_for 'vote_for', :controller => 'questions', :action => :vote_for, :method => :get

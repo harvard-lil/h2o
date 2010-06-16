@@ -19,7 +19,7 @@ class RotisserieInstancesController < ApplicationController
     @rotisserie_instance = RotisserieInstance.find(params[:id])
     @rotisserie_discussions = 
 
-    respond_to do |format|
+      respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @rotisserie_instance }
     end
@@ -59,9 +59,9 @@ class RotisserieInstancesController < ApplicationController
         format.xml  { render :xml => @rotisserie_instance, :status => :created, :location => @rotisserie_instance }
       else
         @error_output = "<div class='error ui-corner-all'>"
-         @rotisserie_instance.errors.each{ |attr,msg|
-           @error_output += "#{attr} #{msg}<br />"
-         }
+        @rotisserie_instance.errors.each{ |attr,msg|
+          @error_output += "#{attr} #{msg}<br />"
+        }
         @error_output += "</div>"
         
         format.js {render :text => @error_output, :status => :unprocessable_entity}
@@ -84,9 +84,9 @@ class RotisserieInstancesController < ApplicationController
         format.xml  { head :ok }
       else
         error_output = "<div class='error ui-corner-all'>"
-         @rotisserie_instance.errors.each{ |attr,msg|
-           error_output += "#{attr} #{msg}<br />"
-         }
+        @rotisserie_instance.errors.each{ |attr,msg|
+          error_output += "#{attr} #{msg}<br />"
+        }
         error_output += "</div>"
         
         format.js { render :text => error_output, :layout => false  }
@@ -117,6 +117,74 @@ class RotisserieInstancesController < ApplicationController
       }
       format.xml  { head :ok }
     end
+  end
+
+  def add_member
+    @rotisserie_instance = RotisserieInstance.find(params[:id])
+    @rotisserie_instance.accepts_role!(:user, current_user)
+
+    respond_to do |format|
+      format.html { redirect_to(polymorphic_path(@rotisserie_instance)) }
+      format.xml  { head :ok }
+    end
+  end
+
+  def invite
+    add_javascripts 'rotisserie'
+    @rotisserie_instance = RotisserieInstance.find(params[:id])
+  end
+
+  def validate_email_csv
+    return_hash = Hash.new
+    email_list = params["csv_string"]
+    email_array = email_list.split(",").collect(&:strip)
+    return_hash["good_array"] = Array.new
+    return_hash["bad_array"] = Array.new
+
+    email_array.each do |email_address|
+      (/^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i =~ email_address).present? ? return_hash["good_array"] << email_address : return_hash["bad_array"] << email_address unless email_address.blank?
+    end
+
+    return_hash["good_array"].uniq!
+    return_hash["bad_array"].uniq!
+
+    respond_to do |format|
+      format.js {render :json => return_hash.to_json}
+    end
+  end
+
+  def display_validation
+    good_array = params[:good_array]
+    bad_array = params[:bad_array]
+
+    respond_to do |format|
+      format.html {
+        render :partial => 'email_validation',
+        :layout => false, :locals => {:good_array => good_array, :bad_array => bad_array}
+      }
+      format.xml  { head :ok }
+    end
+  end
+
+  def queue_email
+    return_hash = Hash.new
+    email_addresses = params[:good_addresses]
+    container_id = params[:container_id]
+    container_type = params[:container_type]
+
+    email_addresses.each do |email_address|
+      NotificationInvite.create(:user_id => current_user.id,
+        :email_address => email_address,
+        :resource_id => container_id,
+        :resource_type => container_type,
+        :tid => ActiveSupport::SecureRandom.hex(13)
+      ) unless container_id.blank?
+    end
+
+    respond_to do |format|
+      format.js {render :json => return_hash.to_json}
+    end
+    
   end
 
 end

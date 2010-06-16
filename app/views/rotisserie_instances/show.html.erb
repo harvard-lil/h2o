@@ -6,9 +6,22 @@ edit or delete dicussions, manually crank the rotisserie or increase and decreas
 
 <div id="spinner_block"></div>
 
+
+
+<% if @rotisserie_instance.user? || @rotisserie_instance.owner? %>
 <div id="list_block" >
 <%= render :partial => 'rotisserie_discussions/rotisserie_discussions_block', :locals => {:rotisserie_instance => @rotisserie_instance} %>
 </div>
+
+<% else %>
+  <p>You are not currently a member of this discussion, would you like to become one?</p>
+  <% link_to(add_member_rotisserie_instance_path(@rotisserie_instance), :style => "width: 200px; text-decoration: none;") do %>
+    <div class="ui-button ui-state-default ui-corner-all" style="width: 200px; text-decoration: none;">
+      Become a member
+    </div>
+  <% end %>
+
+<% end %>
 
 <br />
 

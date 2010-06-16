@@ -17,6 +17,7 @@ class RotisserieDiscussionsController < ApplicationController
   # GET /rotisserie_discussions/1.xml
   def show
     @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
+    @rotisserie_instance = @rotisserie_discussion.rotisserie_instance
 
     respond_to do |format|
       format.html # show.html.erb
@@ -147,7 +148,8 @@ class RotisserieDiscussionsController < ApplicationController
   
   def add_member
     @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
-    @rotisserie_discussion.accepts_role!(:user, current_user)  
+    @rotisserie_discussion.accepts_role!(:user, current_user)
+    @rotisserie_discussion.rotisserie_instance.accepts_role!(:user, current_user)
     
     respond_to do |format|
       format.html { redirect_to(rotisserie_discussion_path(@rotisserie_discussion)) }
