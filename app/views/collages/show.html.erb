@@ -23,14 +23,20 @@
   <% end %>
 
   <h2>Meta</h2>
+    <div class="layers">
   <ul>
     <li>Annotations: <%= (@collage.annotations.blank?) ? 0 : @collage.annotations.length %>
-    <div class="layers">
-
-    </div>
+      <%= 
+      output = ''
+      arep = @collage.layer_report
+      arep.keys.each do |l|
+        output += %Q|<li><span class="c#{l}">| + arep[l][:name] + %Q|</span>#{arep[l][:count]} words, #{arep[l][:annotation_count]} total</li>|
+      end
+      output
+    %>
     </li>
   </ul>
-
+    </div>
   <h2>Hide Layers</h2>
   <div id="view-layer-list" class="layers">
   </div>

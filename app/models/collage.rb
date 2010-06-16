@@ -15,14 +15,15 @@ class Collage < ActiveRecord::Base
     self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq
   end
 
-  def annotation_report
+  def layer_report
     layers = {}
     self.annotations.each do |ann|
       ann.layers.each do |l|
         if layers[l.id].blank?
-          layers[l.id] = {:count => 0, :name => l.name}
+          layers[l.id] = {:count => 0, :name => l.name, :annotation_count => 0}
         end
-        layers[l.id][:count] = layers[l.id][:count].to_i + ann.annotated_nodes.length
+        layers[l.id][:count] = layers[l.id][:count].to_i + ann.word_count
+        layers[l.id][:annotation_count] = layers[l.id][:annotation_count].to_i + 1
       end
     end
     return layers

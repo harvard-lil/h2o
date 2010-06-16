@@ -8,6 +8,8 @@ class CreateAnnotations < ActiveRecord::Migration
       t.string :annotation,             :limit => 10.kilobytes
       t.string :annotation_start
       t.string :annotation_end
+      t.integer :word_count
+      t.string :annotated_content,      :limit => 1.megabyte
       t.integer :parent_id
       t.integer :children_count
       t.integer :ancestors_count

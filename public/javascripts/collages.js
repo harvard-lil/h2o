@@ -249,14 +249,19 @@ initLayers: function(){
 },
 
 observeWords: function(){
-  jQuery('tt').bind({
-    mouseover: function(){
+  // It appears that this is a significant burden in that it binds to every "word node" on the page.
+  //jQuery('tt:visible').bind({ <- much less efficient! sad, really.
+//  jQuery('tt').bind("mouseover mouseout", function(e){
+//      console.log(e.type);
+//  });
+
+  jQuery('tt').bind('mouseover mouseout click', function(e){
+    if(e.type == 'mouseover'){
       jQuery(this).css('background-color','yellow')
-    },
-    mouseout: function(){
+    }
+    if(e.type == 'mouseout'){
       jQuery(this).css('background-color', '#ffffff');
-    },
-    click: function(e){
+    } else if(e.type == 'click'){
       e.preventDefault();
       if(jQuery('#new-annotation-start').html().length > 0){
         // Set end point and annotate.

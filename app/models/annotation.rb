@@ -10,6 +10,8 @@ class Annotation < ActiveRecord::Base
 
   acts_as_authorization_object
 
+  before_create :create_annotation_caches
+
   belongs_to :user
   belongs_to :collage
 
@@ -29,12 +31,14 @@ class Annotation < ActiveRecord::Base
     doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + self.annotation_start_numeral + "' and substring-after(@id,'t')<='" + self.annotation_end_numeral + "']")
   end
 
-  def annotated_content
+  def create_annotation_caches
     output = ''
-    self.annotated_nodes.each do |item|
+    anodes = self.annotated_nodes
+    anodes.each do |item|
       output += "#{item.inner_html} "
     end
-    output
+    self.annotated_content = output
+    self.word_count = anodes.length
   end
 
 end

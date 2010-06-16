@@ -17,6 +17,8 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
     t.string   "annotation",        :limit => 10240
     t.string   "annotation_start"
     t.string   "annotation_end"
+    t.integer  "word_count"
+    t.string   "annotated_content", :limit => 1048576
     t.integer  "parent_id"
     t.integer  "children_count"
     t.integer  "ancestors_count"
