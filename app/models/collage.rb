@@ -15,6 +15,19 @@ class Collage < ActiveRecord::Base
     self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq
   end
 
+  def annotation_report
+    layers = {}
+    self.annotations.each do |ann|
+      ann.layers.each do |l|
+        if layers[l.id].blank?
+          layers[l.id] = {:count => 0, :name => l.name}
+        end
+        layers[l.id][:count] = layers[l.id][:count].to_i + ann.annotated_nodes.length
+      end
+    end
+    return layers
+  end
+
   def annotatable_content
     if ! self.layers.blank?
       doc = Nokogiri::HTML.parse(self.annotatable.content)
