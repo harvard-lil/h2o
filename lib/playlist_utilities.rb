@@ -57,8 +57,12 @@ module PlaylistUtilities
   end
 
   def get_metadata_hash(url)
-    document = Nokogiri::XML(open(url + "/metadata"))
     result_hash = Hash.new
+
+    begin
+      document = Nokogiri::XML(open(url + "/metadata"))
+    rescue
+    end
 
     if document.present?
       document.xpath('//*').each do |node|
