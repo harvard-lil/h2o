@@ -17,9 +17,10 @@ class RotisserieInstancesController < ApplicationController
   # GET /rotisserie_instances/1.xml
   def show
     @rotisserie_instance = RotisserieInstance.find(params[:id])
-    @rotisserie_discussions = 
+    @tid = params[:tid]
+    @notification_invite = NotificationInvite.first(:conditions => {:tid => @tid, :accepted => false}) unless @tid.blank?
 
-      respond_to do |format|
+    respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @rotisserie_instance }
     end
@@ -122,6 +123,11 @@ class RotisserieInstancesController < ApplicationController
   def add_member
     @rotisserie_instance = RotisserieInstance.find(params[:id])
     @rotisserie_instance.accepts_role!(:user, current_user)
+    
+    @tid = params[:tid]
+    @notification_invite = NotificationInvite.first(:conditions => {:tid => @tid, :accepted => false}) unless @tid.blank?
+
+    @notification_invite.update_attributes({:accepted => true}) unless @notification_invite.blank?
 
     respond_to do |format|
       format.html { redirect_to(polymorphic_path(@rotisserie_instance)) }

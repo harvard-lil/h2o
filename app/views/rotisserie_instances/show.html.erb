@@ -8,10 +8,20 @@ edit or delete dicussions, manually crank the rotisserie or increase and decreas
 
 
 
-<% if @rotisserie_instance.user? || @rotisserie_instance.owner? %>
+<% if @rotisserie_instance.user? || @rotisserie_instance.owner? || @rotisserie_instance.admin?%>
 <div id="list_block" >
 <%= render :partial => 'rotisserie_discussions/rotisserie_discussions_block', :locals => {:rotisserie_instance => @rotisserie_instance} %>
 </div>
+<% elsif @notification_invite.present? && @rotisserie_instance.public == false %>
+  <p>You are not currently a member of this discussion, would you like to become one?</p>
+  <% link_to(add_member_rotisserie_instance_path(@rotisserie_instance, :tid => @tid), :style => "width: 200px; text-decoration: none;") do %>
+    <div class="ui-button ui-state-default ui-corner-all" style="width: 200px; text-decoration: none;">
+      Become a member
+    </div>
+  <% end %>
+<% elsif @rotisserie_instance.public == false %>
+
+  <p>Sorry, this is not a public Rotisserie Instance</p>
 
 <% else %>
   <p>You are not currently a member of this discussion, would you like to become one?</p>

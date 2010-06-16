@@ -10,4 +10,14 @@ namespace :h2o do
     cl.save
   end
 
+  desc 'Send rotisserie invitations'
+  task(:send_invites => :environment) do
+    notification_invites = NotificationInvite.all(:conditions => {:sent => false, :resource_type => "RotisserieInstance"})
+
+    notification_invites.each do |notification_invite|
+      Notifier.deliver_rotisserie_invite_notify(notification_invite)
+      notification_invite.update_attributes({:sent => true})
+    end
+  end
+
 end
