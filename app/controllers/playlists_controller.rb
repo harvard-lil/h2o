@@ -19,7 +19,7 @@ class PlaylistsController < ApplicationController
   # GET /playlists.xml
   def index
     add_javascripts 'playlist'
-    #@playlists = current_user.roles.find(:all, :conditions => {:name => "owner", :authorizable_type => "Playlist"}).collect(&:authorizable).compact
+    #@playlists = current_user.roles.find(:all, :conditions => {:authorizable_type => "Playlist"}).collect(&:authorizable).compact
     
     respond_to do |format|
       format.html # index.html.erb

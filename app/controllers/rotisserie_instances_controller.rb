@@ -1,6 +1,14 @@
 class RotisserieInstancesController < ApplicationController
 
-  before_filter :require_user
+  before_filter :require_user, :load_rotisserie
+  
+  access_control do
+    allow logged_in, :to => [:index, :new, :create]
+    allow :admin
+    allow :owner, :of => :rotisserie_instance
+    allow :editor, :of => :rotisserie_instance, :to => [:index, :show, :edit, :update]
+    allow :user, :of => :rotisserie_instance, :to => [:index, :show]
+  end
 
   # GET /rotisserie_instances
   # GET /rotisserie_instances.xml
@@ -118,6 +126,12 @@ class RotisserieInstancesController < ApplicationController
       }
       format.xml  { head :ok }
     end
+  end
+  
+  def load_rotisserie
+    unless params[:id].nil?
+      @rotisserie_instance = RotisserieInstance.find(params[:id])
+    end  
   end
 
   def add_member

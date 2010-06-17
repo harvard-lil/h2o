@@ -1,4 +1,4 @@
-<% @rotisserie_instances = RotisserieInstance.all(:order => :id) %>
+<% @rotisserie_instances = current_user.roles.find(:all, :conditions => {:authorizable_type => "RotisserieInstance"}, :order => :id).collect(&:authorizable).compact %>
 
 <table class="core_table">
   <thead>
@@ -14,7 +14,7 @@
       <tr>
         <td><%= link_to rotisserie_instance.title, rotisserie_instance %></td>
         <td>
-          <% if rotisserie_instance.admin? || rotisserie_instance.owner? %>
+          <% if rotisserie_instance.admin? || rotisserie_instance.owner? || rotisserie_instance.editor? %>
           <button id="button-instance-edit-<%= rotisserie_instance.id %>" name="button-instance-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
