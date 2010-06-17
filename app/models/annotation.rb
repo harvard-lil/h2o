@@ -27,7 +27,7 @@ class Annotation < ActiveRecord::Base
     self.annotation_end[1,self.annotation_end.length - 1]
   end
 
-  def annotated_nodes(doc = Nokogiri::HTML.parse(self.collage.annotatable.content))
+  def annotated_nodes(doc = Nokogiri::HTML.parse(self.collage.content))
     doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + self.annotation_start_numeral + "' and substring-after(@id,'t')<='" + self.annotation_end_numeral + "']")
   end
 

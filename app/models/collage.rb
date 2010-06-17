@@ -6,6 +6,7 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
   has_many :annotations, :order => 'created_at'
+  before_create :prepare_content
 
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
@@ -31,7 +32,7 @@ class Collage < ActiveRecord::Base
 
   def annotatable_content
     if ! self.layers.blank?
-      doc = Nokogiri::HTML.parse(self.annotatable.content)
+      doc = Nokogiri::HTML.parse(self.content)
       self.annotations.each do |ann|
         layer_list = ann.layers.collect{|l| "l#{l.id}"}
         layer_list << "a#{ann.id}"
@@ -41,8 +42,26 @@ class Collage < ActiveRecord::Base
       end
       doc.xpath("//html/body/*").to_s
     else
-      self.annotatable.content
+      self.content
     end
   end
 
+  private 
+
+  def prepare_content
+    content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
+    doc = Nokogiri::HTML.parse(content_to_prepare)
+    class_name = 1
+    doc.css('p,div,li,td,th,h1,h2,h3,h4,h5,h6,address,blockquote,dl,ol,ul,pre,dd,dt').each do |item|
+      if item.is_a?(Nokogiri::XML::Element) 
+        item['id'] = "n#{class_name}" 
+        class_name += 1
+        if ! item.children.blank?
+          text_content = item.inner_html.split.map{|word|class_name += 1; "<tt id='t#{class_name}'>" + word + '</tt>'}.join(' ')
+          item.inner_html = text_content
+        end
+      end
+    end
+    self.content = doc.xpath("//html/body/*").to_s
+  end
 end

@@ -14,7 +14,11 @@ class CreateCollages < ActiveRecord::Migration
       t.integer :descendants_count
       t.integer :position
       t.boolean :hidden
-
+      if connection.adapter_name.downcase == 'postgresql'
+        t.string  :content,           :limit => 5.megabytes,  :null => false
+      else
+        t.text    :content,           :limit => 5.megabytes,  :null => false
+      end
       t.timestamps
     end
     create_acts_as_category_indexes(Collage)

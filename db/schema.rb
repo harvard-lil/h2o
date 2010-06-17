@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100610162801) do
+ActiveRecord::Schema.define(:version => 20100614172345) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "user_id"
@@ -73,27 +73,6 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
-  create_table "casebooks", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "name",              :limit => 250
-    t.string   "description",       :limit => 65536
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "casebooks", ["ancestors_count"], :name => "index_casebooks_on_ancestors_count"
-  add_index "casebooks", ["children_count"], :name => "index_casebooks_on_children_count"
-  add_index "casebooks", ["descendants_count"], :name => "index_casebooks_on_descendants_count"
-  add_index "casebooks", ["hidden"], :name => "index_casebooks_on_hidden"
-  add_index "casebooks", ["parent_id"], :name => "index_casebooks_on_parent_id"
-  add_index "casebooks", ["position"], :name => "index_casebooks_on_position"
-
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false
@@ -122,7 +101,7 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
     t.integer  "user_id"
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name",              :limit => 250,  :null => false
+    t.string   "name",              :limit => 250,     :null => false
     t.string   "description",       :limit => 5120
     t.integer  "parent_id"
     t.integer  "children_count"
@@ -130,6 +109,7 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
     t.integer  "descendants_count"
     t.integer  "position"
     t.boolean  "hidden"
+    t.string   "content",           :limit => 5242880, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -267,6 +247,22 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
   add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
   add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
 
+  create_table "notification_invites", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "resource_id"
+    t.string   "resource_type"
+    t.string   "email_address", :limit => 1024
+    t.string   "tid",           :limit => 1024
+    t.boolean  "sent",                          :default => false
+    t.boolean  "accepted",                      :default => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "notification_invites", ["email_address"], :name => "index_notification_invites_on_email_address"
+  add_index "notification_invites", ["tid"], :name => "index_notification_invites_on_tid"
+  add_index "notification_invites", ["user_id"], :name => "index_notification_invites_on_user_id"
+
   create_table "notification_trackers", :force => true do |t|
     t.integer  "rotisserie_discussion_id"
     t.integer  "rotisserie_post_id"
@@ -360,30 +356,6 @@ ActiveRecord::Schema.define(:version => 20100610162801) do
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
-
-  create_table "replies", :force => true do |t|
-    t.integer  "question_id",                                           :null => false
-    t.integer  "user_id"
-    t.string   "reply",              :limit => 1000,                    :null => false
-    t.string   "email",              :limit => 250
-    t.string   "name",               :limit => 250
-    t.boolean  "posted_anonymously",                 :default => false
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "replies", ["email"], :name => "index_replies_on_email"
-  add_index "replies", ["parent_id"], :name => "index_replies_on_parent_id"
-  add_index "replies", ["position"], :name => "index_replies_on_position"
-  add_index "replies", ["question_id", "position"], :name => "index_replies_on_question_id_and_position", :unique => true
-  add_index "replies", ["question_id"], :name => "index_replies_on_question_id"
-  add_index "replies", ["user_id", "question_id", "position"], :name => "index_replies_on_user_id_and_question_id_and_position", :unique => true
-  add_index "replies", ["user_id"], :name => "index_replies_on_user_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
