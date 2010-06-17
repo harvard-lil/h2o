@@ -6,11 +6,13 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
   has_many :annotations, :order => 'created_at'
+
   before_create :prepare_content
 
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
+  validates_length_of :content, :in => 1..(5.megabytes)
 
   def layers
     self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq

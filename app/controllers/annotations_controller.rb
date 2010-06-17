@@ -51,7 +51,7 @@ class AnnotationsController < BaseController
       if @annotation.save
         #force loading
         @layer_count = @annotation.layers.count
-        flash[:notice] = 'Annotation was successfully created.'
+        #flash[:notice] = 'Annotation was successfully created.'
         format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
         format.html { redirect_to(@annotation) }
         format.xml  { render :xml => @annotation, :status => :created, :location => @annotation }
@@ -68,7 +68,7 @@ class AnnotationsController < BaseController
   def update
     respond_to do |format|
       if @annotation.update_attributes(params[:annotation])
-        flash[:notice] = 'Annotation was successfully updated.'
+        #flash[:notice] = 'Annotation was successfully updated.'
         format.html { redirect_to(@annotation) }
         format.xml  { head :ok }
       else
