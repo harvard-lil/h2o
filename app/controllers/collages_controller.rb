@@ -2,16 +2,13 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
+  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
 
-  def undo_annotation
-    annotation = @collage.annotations.last
-    annotation.destroy
-    flash[:notice] = "We've removed that annotation."
-    redirect_to @collage
-  rescue Exception => e
-    render :text => "Sorry, we couldn't remove that annotation", :status => :unprocessable_entity
+  access_control do
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata]
   end
 
   def layers
@@ -65,7 +62,7 @@ class CollagesController < BaseController
   # POST /collages.xml
   def create
     @collage = Collage.new(params[:collage])
-
+    @collage.accepts_role!(:owner, current_user)
     respond_to do |format|
       if @collage.save
         flash[:notice] = 'Collage was successfully created.'
