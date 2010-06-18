@@ -138,7 +138,8 @@ annotationButton: function(e,annotationId,ids){
                       jQuery('#annotation-control-' + annotationId + '-end').remove();
                       jQuery(ids.join(',')).show();
                       jQuery('#annotation-details-' + annotationId).dialog('close');
-                      jQuery.initLayers();
+                      var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+                      document.location = jQuery.rootPath() + 'collages/' + collageId;
                     },
                     complete: function(){
                       jQuery('#please-wait').dialog('close');
@@ -248,14 +249,8 @@ initLayers: function(){
   });
 },
 
-observeWords: function(){
-  // It appears that this is a significant burden in that it binds to every "word node" on the page.
-  //jQuery('tt:visible').bind({ <- much less efficient! sad, really.
-//  jQuery('tt').bind("mouseover mouseout", function(e){
-//      console.log(e.type);
-//  });
 
-  jQuery('tt').bind('mouseover mouseout click', function(e){
+buttonAction: function(e){
     if(e.type == 'mouseover'){
       jQuery(this).css('background-color','yellow')
     }
@@ -338,7 +333,15 @@ observeWords: function(){
         jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
       }
     }
-  });
+  },
+
+observeWords: function(){
+  // It appears that this is a significant burden in that it binds to every "word node" on the page.
+  //jQuery('tt:visible').bind({ <- much less efficient! sad, really.
+//  jQuery('tt').bind("mouseover mouseout", function(e){
+//      console.log(e.type);
+//  });
+  jQuery('tt').bind('mouseover mouseout click', jQuery.buttonAction);
 }
 
 });

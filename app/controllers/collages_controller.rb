@@ -69,6 +69,7 @@ class CollagesController < BaseController
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
       else
+        flash[:notice] = "We couldn't create that collage - " + @collage.errors.full_messages.join(',')
         format.html { render :action => "new" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
       end

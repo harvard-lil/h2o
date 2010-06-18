@@ -2,6 +2,20 @@ class Collage < ActiveRecord::Base
   include AuthUtilities
   acts_as_authorization_object
 
+  def self.annotatable_classes
+    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 
+      model_name = Pathname(file).basename.to_s
+      model_name = model_name[0..(model_name.length - 4)]
+      model_name.camelize.constantize
+    end
+    # Responds to the annotatable class method with true.
+    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:annotatable) && m.send(:annotatable)}
+  end
+
+  def self.annotatable_classes_select_options
+    self.annotatable_classes.collect{|c| [c.model_name]}
+  end
+
   acts_as_voteable
 
   acts_as_category :scope => 'annotatable_id, annotatable_type'
@@ -12,10 +26,14 @@ class Collage < ActiveRecord::Base
 
   before_create :prepare_content
 
-  validates_presence_of :name
+  validates_presence_of :name, :annotatable_type, :annotatable_id
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
-  validates_length_of :content, :in => 1..(5.megabytes)
+  validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
+
+  def display_name
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)} by #{self.accepted_roles.find_by_name('owner').users.collect{|u| u.login}.join(',')}"
+  end
 
   def layers
     self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq

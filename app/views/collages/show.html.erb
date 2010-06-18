@@ -1,10 +1,10 @@
+<% if ! cookies['active-layer-ids'].blank? %> 
 <style type="text/css" id="active-layer-style">
-  <%= if ! cookies['active-layer-ids'].blank? 
-        cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}.join(',')
-      end %>{
+  <%= cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}.join(',') %>{
       display: none;
     }
-</style>
+  </style>
+<% end %>
 
 <% cache("collage-annotable-content-#{@collage.id}") do %>
   <div class="collage-id" id="collage-<%= @collage.id %>">
@@ -14,12 +14,9 @@
   </div>
 <% end %>
 
-<%= link_to 'Edit', edit_collage_path(@collage) %> |
-<%= link_to 'Back', collages_path %>
-
 <div id="annotation-tools">
-  <h2>Meta</h2>
-  <div>Created <%= @collage.created_at.to_s(:simpledatetime) %></div>
+  <h2><%= @collage.display_name %></h2>
+  <h3>Layers</h3>
     <div class="layers">
   <ul>
     <li>Annotations: <%= (@collage.annotations.blank?) ? 0 : @collage.annotations.length %>
@@ -33,8 +30,9 @@
     %>
     </li>
   </ul>
-    </div>
-  <h2>Hide Layers</h2>
+</div>
+<hr />
+  <h3>Hide Layers</h3>
   <div id="view-layer-list" class="layers">
   </div>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
