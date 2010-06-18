@@ -49,7 +49,9 @@ class ApplicationController < ActionController::Base
   #++
   def deny_access
     flash[:notice] = "You do not have access to this content."
-    redirect_to playlists_path
+    #redirect_to playlists_path
+    
+    redirect_back_or_default "/base"
   end
 
   def create_influence(original_object, spawned_object)
