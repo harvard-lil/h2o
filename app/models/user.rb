@@ -31,6 +31,9 @@ class User < ActiveRecord::Base
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
+  def collages
+    self.roles.collect{|o| o.authorizable_type == 'Collage' ? o.authorizable : nil}.compact
+  end 
 
   def get_current_assignments(rotisserie_discussion = nil)
     assignments_array = Array.new()

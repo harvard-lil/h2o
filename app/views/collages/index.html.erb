@@ -1,4 +1,8 @@
-<h1>Listing collages</h1>
+<% if ! current_user.blank? %>
+  <h2>My Collages</h2>
+  <%= render :partial => 'shared/objects/collage', :collection => current_user.collages %>
+<% end %> 
+
 
 <table>
   <tr>
