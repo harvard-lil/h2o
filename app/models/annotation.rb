@@ -19,6 +19,11 @@ class Annotation < ActiveRecord::Base
   validates_length_of :annotation, :maximum => 10.kilobytes
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
+  def display_name
+    owners = self.accepted_roles.find_by_name('owner')
+    "On \"#{self.collage.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+  end
+
   def annotation_start_numeral
     self.annotation_start[1,self.annotation_start.length - 1]
   end

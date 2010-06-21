@@ -78,10 +78,12 @@ h2{
 }
 
 
-#spinner_block {
+#spinner_block{
     height: 15px;
 }
-
+.spacer_block{
+  height: 30px;
+}
 div.post_container {
     width: 60%;
     margin-bottom: 20px;
@@ -315,8 +317,7 @@ table.core_table {
 .core_table th, td {
     padding: 10px;
     text-align: left;
-
-    
+    vertical-align: top;
 }
 
 .core_table td {
@@ -459,6 +460,18 @@ span.tagMatches span, .layers span.c0,.c0{
   background: Teal;
   color: white;
 }
+
+.meta ul{
+  margin: 0px;
+  padding: 0px;
+}
+
+.meta li{
+  list-style-type: none;
+  margin-bottom: 5px;
+}
+
+
 
 #url_selected {
     font-weight: bold;

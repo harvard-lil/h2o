@@ -53,10 +53,6 @@ annotateRange: function(obj){
 
   var idList = ids.join(',');
 
-//  if(hasActiveLayer){
-//    jQuery(idList).css({display: 'none'});
-//  }
-
   jQuery("#annotation-control-" + obj.id + "-start").button({icons: {primary: 'ui-icon-script', secondary: 'ui-icon-arrowthick-1-e'}}).bind({
     click: function(e){
       jQuery.annotationButton(e,obj.id,ids);
@@ -134,9 +130,6 @@ annotationButton: function(e,annotationId,ids){
                       jQuery('div.ajax-error').show().append(xhr.responseText);
                     },
                     success: function(response){
-                      jQuery('#annotation-control-' + annotationId + '-start').remove();
-                      jQuery('#annotation-control-' + annotationId + '-end').remove();
-                      jQuery(ids.join(',')).show();
                       jQuery('#annotation-details-' + annotationId).dialog('close');
                       var collageId = jQuery('.collage-id').attr('id').split('-')[1];
                       document.location = jQuery.rootPath() + 'collages/' + collageId;
@@ -249,7 +242,6 @@ initLayers: function(){
   });
 },
 
-
 buttonAction: function(e){
     if(e.type == 'mouseover'){
       jQuery(this).css('background-color','yellow')
@@ -347,17 +339,19 @@ observeWords: function(){
 });
 
 jQuery(document).ready(function(){
-    jQuery.initLayers();
-    jQuery.initializeAnnotations();
-    jQuery.observeWords();
-
-    jQuery(".tagging-autofill-layers").live('click',function(){
-      jQuery(this).tagSuggest({
-        url: jQuery.rootPath() + 'annotations/autocomplete_layers',
-        separator: ',',
-        delay: 500
+    jQuery('.button').button();
+    if(jQuery('.collage-id').length > 0){
+      jQuery.initLayers();
+      jQuery.initializeAnnotations();
+      jQuery.observeWords();
+  
+      jQuery(".tagging-autofill-layers").live('click',function(){
+        jQuery(this).tagSuggest({
+          url: jQuery.rootPath() + 'annotations/autocomplete_layers',
+          separator: ',',
+          delay: 500
+        });
       });
-    });
-
+    }
 
 });

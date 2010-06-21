@@ -7,6 +7,7 @@ class CollagesController < BaseController
   before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
 
   access_control do
+    allow :admin
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata]
   end
@@ -19,7 +20,7 @@ class CollagesController < BaseController
 
   def annotations
     respond_to do |format|
-      format.json { render :json => @collage.annotations.to_json(:include => [:layers]) }
+      format.json { render :json => @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content]) }
     end
   end
 
@@ -63,6 +64,7 @@ class CollagesController < BaseController
   def create
     @collage = Collage.new(params[:collage])
     @collage.accepts_role!(:owner, current_user)
+    @collage.accepts_role!(:creator, current_user)
     respond_to do |format|
       if @collage.save
         flash[:notice] = 'Collage was successfully created.'

@@ -10,6 +10,7 @@ class QuestionsController < BaseController
   after_filter :update_question_instance_time
 
   access_control do
+    allow :admin
     allow :owner, :of => :question_instance, :to => [:destroy, :toggle_sticky]
     allow all, :to => [:replies, :vote_against, :vote_for, :new, :create]
   end

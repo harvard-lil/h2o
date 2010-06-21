@@ -1,11 +1,19 @@
-<div class="collage">
-  <h3><%= collage.name %></h3>
-  <div class="description">
+<tr>
+  <td>
+    <%= link_to collage.display_name, collage_path(collage) %><br />
     <%= collage.description %>
-  </div>
-  <div class="meta">
-    <ul>
-    </ul>
-
-  </div>
-</div>
+  </td>
+  <td>
+    <%= render :partial => 'shared/collage_meta', :object => collage %>
+  </td>
+  <td>
+    <% if current_user && collage.owner? %>
+      <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
+    <% end %>
+  </td>
+  <td>
+    <% if current_user && collage.owner? %>
+      <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
+    <% end %>
+  </td>
+</tr>

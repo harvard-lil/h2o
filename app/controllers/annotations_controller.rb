@@ -2,21 +2,29 @@ class AnnotationsController < BaseController
 
   cache_sweeper :annotation_sweeper
 
-  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy]
+  before_filter :require_user, :except => [:show]
+  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy, :metadata]
+  before_filter :preload_collage, :only => [:new, :create]
+
+  access_control do
+    allow :admin
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new]
+    allow all, :to => [:show, :metadata]
+  end
+
+  def metadata
+    @annotation[:object_type] = @annotation.class.to_s
+    @annotation[:child_object_name] = 'annotation'
+    @annotation[:child_object_plural] = 'annotations'
+    @annotation[:child_object_count] = nil
+    @annotation[:child_object_type] = 'Annotation'
+    @annotation[:child_object_ids] = nil
+    @annotation[:title] = @annotation.display_name
+    render :xml => @annotation.to_xml(:skip_types => true)
+  end
 
   def autocomplete_layers
     render :json => Annotation.autocomplete_for(:layers,params[:tag])
-  end
-
-  # GET /annotations
-  # GET /annotations.xml
-  def index
-    @annotations = Annotation.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @annotations }
-    end
   end
 
   # GET /annotations/1
@@ -91,6 +99,11 @@ class AnnotationsController < BaseController
 
   def load_annotation
     @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id])
+    @collage = @annotation.collage
+  end
+
+  def preload_collage
+    @collage = Collage.find(params[:collage_id] || params[:annotation][:collage_id])
   end
 
 end

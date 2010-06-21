@@ -11,6 +11,7 @@ class QuestionInstancesController < BaseController
   after_filter :update_question_instance_time
 
   access_control do
+    allow :admin
     allow :owner, :of => :question_instance, :to => [:destroy, :edit, :update]
     allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create, :metadata]
   end

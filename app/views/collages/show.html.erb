@@ -17,28 +17,17 @@
 <div id="annotation-tools">
   <h2><%= @collage.display_name %></h2>
   <h3>Layers</h3>
-    <div class="layers">
-  <ul>
-    <li>Annotations: <%= (@collage.annotations.blank?) ? 0 : @collage.annotations.length %>
-      <%= 
-      output = ''
-      arep = @collage.layer_report
-      arep.keys.each do |l|
-        output += %Q|<li><span class="c#{l}">| + arep[l][:name] + %Q|</span>#{arep[l][:count]} words, #{arep[l][:annotation_count]} total</li>|
-      end
-      output
-    %>
-    </li>
-  </ul>
-</div>
-<hr />
+  <%= render :partial => 'shared/collage_meta', :object => @collage %>
+  <hr />
   <h3>Hide Layers</h3>
   <div id="view-layer-list" class="layers">
   </div>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
   <div id="new-annotation-form" style="display: none;"></div>
-  <div id="new-annotation-start"></div>
-  <div id="new-annotation-end"></div>
+  <div id="new-annotation-start" style="display: none;"></div>
+  <div id="new-annotation-end" style="display: none;"></div>
+  <div id="owners" style="display: none;"><%= @collage.owners.to_json %></div>
+  <div id="is_owner"><%= (current_user && @collage.owner?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
 </div>
