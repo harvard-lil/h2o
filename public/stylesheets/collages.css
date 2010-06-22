@@ -72,3 +72,21 @@
   border-bottom: 1px dotted black;
   margin-bottom: 1em;
 }
+
+.left, .right{
+  width: 50%;
+  float: left;
+}
+
+form.formtastic fieldset ol li#annotation_annotation_input label{
+  float: none;
+}
+
+#preview-container{
+  margin: 1em;
+  padding: 1em;
+  background-color: white;
+  border: 1px solid #cccccc;
+
+
+}

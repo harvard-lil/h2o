@@ -7,6 +7,30 @@ addLayerToCookie: function(cookieName,layerId){
   jQuery.cookie(cookieName, cookieVal, {expires: 365});
 },
 
+submitAnnotation: function(){
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+  jQuery('#annotation-form form').ajaxSubmit({
+    error: function(xhr){
+      jQuery('#spinner_block').hide();
+      jQuery('#new-annotation-error').show().append(xhr.responseText);
+    },
+    beforeSend: function(){
+      jQuery('#spinner_block').show();
+      jQuery('div.ajax-error').html('').hide();
+      jQuery('#new-annotation-error').html('').hide();
+    },
+    success: function(response){
+      jQuery('#spinner_block').hide();
+      jQuery('#annotation-form').dialog('close');
+      if(window.console){
+        console.log("Annotation object is:");
+        console.log(response.annotation);
+      }
+      document.location = jQuery.rootPath() + 'collages/' + collageId;
+    }
+  });
+},
+
 removeLayerFromCookie: function(cookieName,layerId){
   var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
   delete currentVals[layerId];
@@ -88,6 +112,7 @@ annotateRange: function(obj){
 
 annotationButton: function(e,annotationId,ids){
   e.preventDefault();
+  var collageId = jQuery('.collage-id').attr('id').split('-')[1];
   if(jQuery('#annotation-details-' + annotationId).length == 0){
     jQuery.ajax({
       type: 'GET',
@@ -106,9 +131,9 @@ annotationButton: function(e,annotationId,ids){
         var node = jQuery(html);
         jQuery('body').append(node);
         var dialog = jQuery('#annotation-details-' + annotationId).dialog({
-          height: 300,
+          height: 500,
           title: 'Annotation Details',
-          width: 400,
+          width: 600,
           position: [e.clientX,e.clientY - 330],
             buttons: {
               Close: function(){
@@ -131,7 +156,6 @@ annotationButton: function(e,annotationId,ids){
                     },
                     success: function(response){
                       jQuery('#annotation-details-' + annotationId).dialog('close');
-                      var collageId = jQuery('.collage-id').attr('id').split('-')[1];
                       document.location = jQuery.rootPath() + 'collages/' + collageId;
                     },
                     complete: function(){
@@ -139,6 +163,43 @@ annotationButton: function(e,annotationId,ids){
                     }
                   });
                 }
+              },
+              Edit: function(){
+                jQuery(this).dialog('close');
+                jQuery.ajax({
+                  type: 'GET',
+                  cache: false,
+                  url: jQuery.rootPath() + 'annotations/edit/' + annotationId,
+                  beforeSend: function(){
+                    jQuery('#spinner_block').show();
+                    jQuery('#new-annotation-error').html('').hide();
+                  },
+                  error: function(xhr){
+                    jQuery('#spinner_block').hide();
+                    jQuery('#new-annotation-error').show().append(xhr.responseText);
+                  },
+                  success: function(html){
+                    jQuery('#spinner_block').hide();
+                    jQuery('#annotation-form').html(html);
+                    jQuery.updateAnnotationPreview(collageId);
+                    jQuery('#annotation-form').dialog({
+                      bgiframe: true,
+                      minWidth: 600,
+                      width: 800,
+                      modal: true,
+                      title: 'Edit Annotation',
+                      buttons: {
+                        'Save': function(){
+                          jQuery.submitAnnotation();
+                        },
+                        Cancel: function(){
+                          jQuery('#new-annotation-error').html('').hide();
+                          jQuery(this).dialog('close');
+                        }
+                      }
+                    });
+                  }
+                });
               }
             }
         });
@@ -242,6 +303,20 @@ initLayers: function(){
   });
 },
 
+updateAnnotationPreview: function(collageId){
+  jQuery("#annotation-form form").observeForm(5,function(){
+    jQuery.ajax({
+      cache: false,
+      type: 'POST',
+      url: jQuery.rootPath() + 'annotations/annotation_preview',
+      data: {preview: jQuery('#annotation_annotation').val(), collage_id: collageId},
+      success: function(html){
+        jQuery('#annotation_preview').html(html);
+      }
+    });
+  });
+},
+
 buttonAction: function(e){
     if(e.type == 'mouseover'){
       jQuery(this).css('background-color','yellow')
@@ -254,40 +329,17 @@ buttonAction: function(e){
         // Set end point and annotate.
         jQuery('#new-annotation-end').html(jQuery(this).attr('id'));
         var collageId = jQuery('.collage-id').attr('id').split('-')[1];
-        var submitAnnotation = function(){
-          jQuery('#new-annotation-form form').ajaxSubmit({
-            error: function(xhr){
-              jQuery('#spinner_block').hide();
-              jQuery('#new-annotation-error').show().append(xhr.responseText);
-            },
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-              jQuery('div.ajax-error').html('').hide();
-              jQuery('#new-annotation-error').html('').hide();
-            },
-            success: function(response){
-              jQuery('#spinner_block').hide();
-              jQuery('#new-annotation-form').dialog('close');
-              if(window.console){
-                console.log("Annotation object is:");
-                console.log(response.annotation);
-              }
-              // Do UI decoration here.
-//              jQuery.initLayers();
-//              jQuery.annotateRange(response.annotation);
-              document.location = jQuery.rootPath() + 'collages/' + collageId;
-            }
-          });
-        };
-        jQuery('#new-annotation-form').dialog({
+        jQuery('#annotation-form').dialog({
           bgiframe: true,
           autoOpen: false,
-          minWidth: 300,
-          width: 450,
+          minWidth: 600,
+          width: 800,
           modal: true,
           title: 'New Annotation',
           buttons: {
-            'Save': submitAnnotation,
+            'Save': function(){
+              jQuery.submitAnnotation();
+            },
             'Cancel': function(){
               jQuery('#new-annotation-error').html('').hide();
               jQuery(this).dialog('close');
@@ -306,8 +358,9 @@ buttonAction: function(e){
          },
           success: function(html){
             jQuery('#spinner_block').hide();
-            jQuery('#new-annotation-form').html(html);
-            jQuery('#new-annotation-form').dialog('open');
+            jQuery('#annotation-form').html(html);
+            jQuery('#annotation-form').dialog('open');
+            jQuery.updateAnnotationPreview(collageId);
             if(jQuery('#annotation_layer_list').val() == ''){
               //FIXME
               jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-name'));

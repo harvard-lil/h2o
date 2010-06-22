@@ -8,8 +8,12 @@ class AnnotationsController < BaseController
 
   access_control do
     allow :admin
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers, :annotation_preview]
     allow all, :to => [:show, :metadata]
+  end
+
+  def annotation_preview
+    render :text => Annotation.format_annotation(params[:preview]), :layout => false
   end
 
   def metadata
@@ -53,7 +57,7 @@ class AnnotationsController < BaseController
   def create
     @annotation = Annotation.new(params[:annotation])
     @annotation.accepts_role!(:owner, current_user)
-    @annotation.user = current_user
+    @annotation.accepts_role!(:creator, current_user)
 
     respond_to do |format|
       if @annotation.save

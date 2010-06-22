@@ -30,16 +30,6 @@ class Collage < ActiveRecord::Base
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
-  def owners
-    owner_list = self.accepted_roles.find_by_name('owner')
-    (owner_list.blank?) ? nil : owner_list.users.compact.uniq
-  end
-
-  def creators
-    creator_list = self.accepted_roles.find_by_name('creator')
-    (creator_list.blank?) ? nil : creator_list.users.compact.uniq
-  end
-
   def display_name
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)} #{(self.creators.blank?) ? '' : ' by ' + self.creators.collect{|u| u.login}.join(',')}"
   end

@@ -1,8 +1,13 @@
 require 'tagging_extensions'
 
 class Annotation < ActiveRecord::Base
+  include AuthUtilities
   extend TaggingExtensions::ClassMethods
   include TaggingExtensions::InstanceMethods
+
+  def self.format_annotation(input = '')
+    RedCloth.new(input).to_html
+  end
 
   acts_as_voteable
   acts_as_category :scope => :collage_id
@@ -12,7 +17,6 @@ class Annotation < ActiveRecord::Base
 
   before_create :create_annotation_caches
 
-  belongs_to :user
   belongs_to :collage
 
   validates_presence_of :annotation_start, :annotation_end

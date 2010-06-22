@@ -7,10 +7,24 @@ jQuery(function() {
         tips.text(t).effect("highlight",{},1500);
     }
 
+    jQuery.fn.observeForm =  function( time, callback ){
+	    return this.each(function(){
+	        var form = this, change = false;
+	        jQuery(form.elements).keyup(function(){
+	            change = true;
+	        });
+	        setInterval(function(){
+	            if ( change ) callback.call( form );
+	            change = false;
+	        }, time * 1000);
+	    });
+	}
+
   jQuery.extend({
     rootPath: function(){
       return '/'
     },
+
     serializeHash: function(hashVals){
       var vals = [];
       for(var val in hashVals){

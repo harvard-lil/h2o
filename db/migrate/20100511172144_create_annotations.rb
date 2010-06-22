@@ -3,7 +3,6 @@ class CreateAnnotations < ActiveRecord::Migration
   extend MigrationHelpers
   def self.up
     create_table :annotations do |t|
-      t.references :user
       t.references :collage
       t.string :annotation,             :limit => 10.kilobytes
       t.string :annotation_start
@@ -19,7 +18,6 @@ class CreateAnnotations < ActiveRecord::Migration
       t.timestamps
     end
     create_foreign_key(Annotation,Collage)
-    create_foreign_key(Annotation,User)
     [:annotation_start, :annotation_end].each do|col|
       add_index :annotations, col
     end
