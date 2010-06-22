@@ -21,7 +21,6 @@ class Collage < ActiveRecord::Base
   acts_as_category :scope => 'annotatable_id, annotatable_type'
 
   belongs_to :annotatable, :polymorphic => true
-  belongs_to :user
   has_many :annotations, :order => 'created_at'
 
   before_create :prepare_content

@@ -1,5 +1,5 @@
 <% if ! cookies['active-layer-ids'].blank? %> 
-<style type="text/css" id="active-layer-style">
+  <style type="text/css" id="active-layer-style">
   <%= cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}.join(',') %>{
       display: none;
     }
@@ -28,6 +28,6 @@
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>
   <div id="owners" style="display: none;"><%= @collage.owners.to_json %></div>
-  <div id="is_owner"><%= (current_user && @collage.owner?) ? true : false %></div> 
+  <div id="is_owner" style="display: none;"><%= (current_user && @collage.owner?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
 </div>

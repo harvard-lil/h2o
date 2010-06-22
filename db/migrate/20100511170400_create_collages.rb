@@ -3,7 +3,6 @@ class CreateCollages < ActiveRecord::Migration
   extend MigrationHelpers
   def self.up
     create_table :collages do |t|
-      t.references :user
       t.string :annotatable_type
       t.integer :annotatable_id
       t.string :name, :limit => 250, :null => false
@@ -25,7 +24,6 @@ class CreateCollages < ActiveRecord::Migration
     [:annotatable_type, :annotatable_id, :name, :updated_at, :created_at].each do |col|
       add_index :collages, col
     end
-    create_foreign_key(Collage, User)
   end
 
   def self.down

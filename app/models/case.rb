@@ -1,4 +1,10 @@
+require 'tagging_extensions'
+
 class Case < ActiveRecord::Base
+  extend TaggingExtensions::ClassMethods
+  include TaggingExtensions::InstanceMethods
+  
+  acts_as_taggable_on :tags
 
   # This method should return true if instances of this class are annotatable under the collage system.
   def self.annotatable

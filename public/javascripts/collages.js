@@ -343,7 +343,10 @@ jQuery(document).ready(function(){
     if(jQuery('.collage-id').length > 0){
       jQuery.initLayers();
       jQuery.initializeAnnotations();
-      jQuery.observeWords();
+
+      if(jQuery('#is_owner').html() == 'true'){
+        jQuery.observeWords();
+      }
   
       jQuery(".tagging-autofill-layers").live('click',function(){
         jQuery(this).tagSuggest({
