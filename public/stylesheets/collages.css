@@ -82,6 +82,14 @@ form.formtastic fieldset ol li#annotation_annotation_input label{
   float: none;
 }
 
+form.formtastic fieldset ol li#annotation_annotation_input label{
+  float: none;
+}
+
+form.formtastic fieldset ol li.text textarea{
+  width: 99%;
+}
+
 #preview-container{
   margin: 1em;
   padding: 1em;

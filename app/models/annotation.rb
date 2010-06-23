@@ -6,7 +6,9 @@ class Annotation < ActiveRecord::Base
   include TaggingExtensions::InstanceMethods
 
   def self.format_annotation(input = '')
-    RedCloth.new(input).to_html
+    doc = RedCloth.new(input)
+    doc.sanitize_html = true
+    doc.to_html
   end
 
   acts_as_voteable
