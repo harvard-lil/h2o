@@ -43,6 +43,11 @@ class Annotation < ActiveRecord::Base
   end
 
   def create_annotation_caches
+    # Fix node order.
+    nodes = [self.annotation_start_numeral.to_i, self.annotation_end_numeral.to_i].sort.collect{|n| "t#{n}"}
+    self.annotation_start = nodes[0]
+    self.annotation_end = nodes[1]
+
     output = ''
     anodes = self.annotated_nodes
     anodes.each do |item|

@@ -42,7 +42,6 @@ annotateRange: function(obj){
   var start = obj.annotation_start.substring(1);
   var end = obj.annotation_end.substring(1);
   var points = [parseInt(start), parseInt(end)];
-  points.sort(function(a,b){return a - b});
   var elStart = points[0];
   var elEnd = points[1];
   var i = 0;
