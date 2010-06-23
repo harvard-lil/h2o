@@ -221,6 +221,7 @@ showPleaseWait: function(){
 },
 
 initializeAnnotations: function(){
+  // This iterates through the annotations on this collage and emits the controls.
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
   jQuery.ajax({
     type: 'GET',
@@ -235,6 +236,7 @@ initializeAnnotations: function(){
       jQuery(json).each(function(){
         jQuery.annotateRange(this.annotation);
       });
+      jQuery.observeWords();
 //      jQuery('#spinner_block').hide();
     },
     complete: function(){
@@ -249,6 +251,7 @@ initializeAnnotations: function(){
 },
 
 initLayers: function(){
+  // This sets up the layer controls. Constructing nodes should be offloaded to the server. . . 
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
   jQuery.ajax({
     type:'GET',
@@ -317,7 +320,7 @@ updateAnnotationPreview: function(collageId){
   });
 },
 
-buttonAction: function(e){
+wordEvent: function(e){
     if(e.type == 'mouseover'){
       jQuery(this).css('background-color','yellow')
     }
@@ -362,7 +365,7 @@ buttonAction: function(e){
             jQuery('#annotation-form').dialog('open');
             jQuery.updateAnnotationPreview(collageId);
             if(jQuery('#annotation_layer_list').val() == ''){
-              //FIXME
+              //FIXME - Ideally, we'd set this to the last layer that's been clicked. 
               jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-name'));
             }
           },
@@ -381,33 +384,30 @@ buttonAction: function(e){
   },
 
 observeWords: function(){
-  // It appears that this is a significant burden in that it binds to every "word node" on the page.
-  //jQuery('tt:visible').bind({ <- much less efficient! sad, really.
-//  jQuery('tt').bind("mouseover mouseout", function(e){
-//      console.log(e.type);
-//  });
-  jQuery('tt').bind('mouseover mouseout click', jQuery.buttonAction);
+  // This is a significant burden in that it binds to every "word node" on the page, so running it must
+  // align with the rights a user has to this collage, otherwise we're just wasting cpu cycles. Also
+  // the controller enforces privs - so feel free to fiddle with the DOM, it won't get you anywhere.
+
+  // jQuery('tt:visible') as a query is much less efficient - unfortunately.
+  
+  if(jQuery('#is_owner').html() == 'true'){
+    jQuery('tt').bind('mouseover mouseout click', jQuery.wordEvent);
+  }
 }
 
 });
 
 jQuery(document).ready(function(){
-    jQuery('.button').button();
-    if(jQuery('.collage-id').length > 0){
-      jQuery.initLayers();
-      jQuery.initializeAnnotations();
-
-      if(jQuery('#is_owner').html() == 'true'){
-        jQuery.observeWords();
-      }
-  
-      jQuery(".tagging-autofill-layers").live('click',function(){
-        jQuery(this).tagSuggest({
-          url: jQuery.rootPath() + 'annotations/autocomplete_layers',
-          separator: ',',
-          delay: 500
-        });
+  jQuery('.button').button();
+  if(jQuery('.collage-id').length > 0){
+    jQuery.initLayers();
+    jQuery.initializeAnnotations();
+    jQuery(".tagging-autofill-layers").live('click',function(){
+      jQuery(this).tagSuggest({
+        url: jQuery.rootPath() + 'annotations/autocomplete_layers',
+        separator: ',',
+        delay: 500
       });
-    }
-
+    });
+  }
 });
