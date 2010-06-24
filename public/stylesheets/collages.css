@@ -20,9 +20,14 @@
   opacity: 0.3;
 }
 
-#annotation-tools h2{
+#annotation-tools h3{
+  margin-top: 10px;
+}
+
+#annotation-tools h2, #annotation-tools .meta{
   margin: 0px;
   padding-bottom: 5px;
+  border-bottom: 1px dotted #cccccc;
 }
 
 #annotation-tools ul, #annotation-tools li{
@@ -95,6 +100,12 @@ form.formtastic fieldset ol li.text textarea{
   padding: 1em;
   background-color: white;
   border: 1px solid #cccccc;
+}
 
+#view-layer-list{
+  padding: 10px 0px 10px 0px;
+}
 
+#layer-button{
+  float: right;
 }

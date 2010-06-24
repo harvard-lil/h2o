@@ -4,11 +4,13 @@ class CollageSweeper < ActionController::Caching::Sweeper
   observe Collage
 
   def after_save(record)
-    expire_fragment("collage-annotable-content-#{record.id}")
+    # Changing a case shouldn't effect where annotations are located. 
+    # expire_fragment("collage-annotatable-content-#{record.id}")
   end
 
   def before_destroy(record)
-    expire_fragment("collage-annotable-content-#{record.id}")
+    # Probably not really needed, but whatever.
+    expire_fragment("collage-annotatable-content-#{record.id}")
   end
 
 end

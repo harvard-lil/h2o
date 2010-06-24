@@ -1,12 +1,31 @@
 <% if ! cookies['active-layer-ids'].blank? %> 
-  <style type="text/css" id="active-layer-style">
-  <%= cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}.join(',') %>{
+  <style type="text/css">
+    <% 
+      active_layers = []
+      inactive_layers = []
+      layer_cookies = cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}
+      @collage.layers.each do |l|
+        if layer_cookies.include?(".l#{l.id}")
+          active_layers << ".l#{l.id}"
+        else
+          inactive_layers << ".l#{l.id}"
+        end
+      end
+    %>
+    <% unless active_layers.blank? %>
+      <%= active_layers.join(',') %>{
       display: none;
     }
+  <% end %>
+  <% unless inactive_layers.blank? %>
+    <%= inactive_layers.join(',') %>{
+      display: inline;
+  }
+  <% end %>
   </style>
 <% end %>
 
-<% cache("collage-annotable-content-#{@collage.id}") do %>
+<% cache("collage-annotatable-content-#{@collage.id}") do %>
   <div class="collage-id" id="collage-<%= @collage.id %>">
     <div id="annotatable-content">
       <%= @collage.annotatable_content %>
@@ -18,9 +37,15 @@
   <h2><%= @collage.display_name %></h2>
   <h3>Layers</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
-  <hr />
   <h3>Hide Layers</h3>
   <div id="view-layer-list" class="layers">
+    <% @collage.layers.each do |l| %>
+      <%= check_box_tag("layer-checkbox-#{l.id}",1,active_layers.include?(".l#{l.id}"), {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
+      <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id %>" id=""><%= l.name %></span></label>
+    <% end %>
+  </div>
+  <div id="layer-button">
+    <%= link_to('apply', collage_path(@collage), :class => 'layer-button') %>
   </div>
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>

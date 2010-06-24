@@ -236,7 +236,7 @@ initializeAnnotations: function(){
         jQuery.annotateRange(this.annotation);
       });
       jQuery.observeWords();
-//      jQuery('#spinner_block').hide();
+      jQuery('#spinner_block').hide();
     },
     complete: function(){
       jQuery('#please-wait').dialog('close');
@@ -249,59 +249,21 @@ initializeAnnotations: function(){
   });
 },
 
-initLayers: function(){
+observeLayers: function(){
   // This sets up the layer controls. Constructing nodes should be offloaded to the server. . . 
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
-  jQuery.ajax({
-    type:'GET',
-    url: jQuery.rootPath() + 'collages/layers/' + collageId,
-    cache: false,
-    beforeSend: function(){
-      jQuery('#spinner_block').show();
-      jQuery('div.ajax-error').html('').hide();
-      jQuery('#view-layer-list').html('');
-    },
-    success: function(json){
-      jQuery('#spinner_block').hide();
-      var output = '';
-      var viewTagList = jQuery('#view-layer-list');
-      var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
-      jQuery(json).each(function(){
-        var checkboxNode = jQuery('<input type="checkbox" id="layer-checkbox-' + this.tag.id + '" class="layer-control" />');
-        var node = jQuery('<span class="layer-control"></span>');
-        node.addClass('c' + (this.tag.id % 10));
-        if(activeLayers[this.tag.id] == 1){
-          node.addClass('layer-active');
-          jQuery(checkboxNode).attr('checked', true);
-        }
-        var anchor = jQuery('<a>');
-        anchor.attr('href', jQuery.rootPath() + 'collages/' + collageId);
-        anchor.html(this.tag.name);
-
-        node.html(anchor);
-        viewTagList.append(checkboxNode);
-        viewTagList.append(node);
-      });
-      jQuery('.layer-control').click(function(e){
-        e.preventDefault();
-        var layerId = jQuery(this).attr('id').split('-')[2];
-        jQuery('.layer-control').removeClass('layer-active');
-        if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
-          // Set the name and id of the active layers.
-          jQuery.addLayerToCookie('active-layer-ids',layerId);
-          jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html());
-          jQuery(this).addClass('layer-active');
-        } else {
-          jQuery.removeLayerFromCookie('active-layer-ids',layerId);
-          jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
-        }
-        document.location = jQuery.rootPath() + 'collages/' + collageId;
-      });
-    },
-    error: function(xhr){
-      jQuery('#spinner_block').hide();
-      jQuery('div.ajax-error').show().append(xhr.responseText);
+  jQuery('.layer-control').click(function(e){
+//    e.preventDefault();
+    var layerId = jQuery(this).attr('id').split('-')[2];
+    if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
+      // Set the name and id of the active layers.
+      jQuery.addLayerToCookie('active-layer-ids',layerId);
+      jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html());
+    } else {
+      jQuery.removeLayerFromCookie('active-layer-ids',layerId);
+      jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
     }
+    //document.location = jQuery.rootPath() + 'collages/' + collageId;
   });
 },
 
@@ -398,8 +360,9 @@ observeWords: function(){
 
 jQuery(document).ready(function(){
   jQuery('.button').button();
+  jQuery('.layer-button').button({icons: {primary: 'ui-icon-check' }});
   if(jQuery('.collage-id').length > 0){
-    jQuery.initLayers();
+    jQuery.observeLayers();
     jQuery.initializeAnnotations();
     jQuery(".tagging-autofill-layers").live('click',function(){
       jQuery(this).tagSuggest({

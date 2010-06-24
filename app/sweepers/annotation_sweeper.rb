@@ -5,13 +5,17 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
   observe Annotation
 
   def after_save(record)
-    expire_fragment("annotation-annotated-content-#{record.id}")
-    expire_fragment("collage-annotable-content-#{record.collage.id}")
+    expire_fragment("collage-annotatable-content-#{record.collage.id}")
   end
 
-  def before_destroy(record)
-    expire_fragment("annotation-annotated-content-#{record.id}")
-    expire_fragment("collage-annotable-content-#{record.collage.id}")
+  def after_create(record)
+    # We are adding a new annotation and must therefore regenerate annotation decorations.
+    expire_fragment("collage-annotatable-content-#{record.collage.id}")
+  end
+
+  def after_destroy(record)
+    # We are removing an annotation and must remove it from annotation decorations.
+    expire_fragment("collage-annotatable-content-#{record.collage.id}")
   end
 
 end
