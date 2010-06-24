@@ -35,7 +35,7 @@ class Collage < ActiveRecord::Base
   end
 
   def layers
-    self.annotations.find(:all, :include => [:layers]).collect{|a| a.layers}.flatten.uniq
+    self.annotations.collect{|a| a.layers}.flatten.uniq
   end
 
   def layer_report

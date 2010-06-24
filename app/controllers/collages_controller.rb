@@ -112,7 +112,7 @@ class CollagesController < BaseController
   end
 
   def load_collage
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id])
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => {:annotations => [:layers]})
   end
 
 end

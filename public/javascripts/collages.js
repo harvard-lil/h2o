@@ -348,7 +348,6 @@ observeWords: function(){
   // This is a significant burden in that it binds to every "word node" on the page, so running it must
   // align with the rights a user has to this collage, otherwise we're just wasting cpu cycles. Also
   // the controller enforces privs - so feel free to fiddle with the DOM, it won't get you anywhere.
-
   // jQuery('tt:visible') as a query is much less efficient - unfortunately.
   
   if(jQuery('#is_owner').html() == 'true'){
