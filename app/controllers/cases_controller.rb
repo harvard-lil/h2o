@@ -1,6 +1,20 @@
 class CasesController < BaseController
 
   before_filter :prep_resources
+  before_filter :require_user, :except => [:index, :show, :metadata]
+  before_filter :load_case, :only => [:show, :edit, :update, :destroy]
+
+  # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
+  # messed up in terms of location.
+
+  access_control do
+    allow :admin
+    allow all, :to => [:show, :index, :new, :create, :metadata]
+  end
+
+  def metadata
+    #FIXME
+  end
 
   # GET /cases
   # GET /cases.xml
@@ -89,6 +103,10 @@ class CasesController < BaseController
   private 
 
   def prep_resources
+  end
+
+  def load_case
+    @case = Case.find((params[:id].blank?) ? params[:case_id] : params[:id])
   end
 
 end

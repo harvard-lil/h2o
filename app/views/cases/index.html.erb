@@ -14,21 +14,21 @@
     <th>Content</th>
   </tr>
 
-<% @cases.each do |case| %>
+<% @cases.each do |c| %>
   <tr>
-    <td><%=h case.current_opinion %></td>
-    <td><%=h case.short_name %></td>
-    <td><%=h case.full_name %></td>
-    <td><%=h case.decision_date %></td>
-    <td><%=h case.author %></td>
-    <td><%=h case.party_header %></td>
-    <td><%=h case.lawyer_header %></td>
-    <td><%=h case.header_html %></td>
-    <td><%=h case.jurisdiction_id %></td>
-    <td><%=h case.content %></td>
-    <td><%= link_to 'Show', case %></td>
-    <td><%= link_to 'Edit', edit_case_path(case) %></td>
-    <td><%= link_to 'Destroy', case, :confirm => 'Are you sure?', :method => :delete %></td>
+    <td><%=h c.current_opinion %></td>
+    <td><%=h c.short_name %></td>
+    <td><%=h c.full_name %></td>
+    <td><%=h c.decision_date %></td>
+    <td><%=h c.author %></td>
+    <td><%=h c.party_header %></td>
+    <td><%=h c.lawyer_header %></td>
+    <td><%=h c.header_html %></td>
+    <td><%=h c.case_jurisdiction_id %></td>
+    <td><%=h c.content %></td>
+    <td><%= link_to 'Show', c %></td>
+    <td><%= link_to 'Edit', edit_case_path(c) %></td>
+    <td><%= link_to 'Destroy', c, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>
