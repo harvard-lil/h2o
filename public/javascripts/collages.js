@@ -250,10 +250,8 @@ initializeAnnotations: function(){
 },
 
 observeLayers: function(){
-  // This sets up the layer controls. Constructing nodes should be offloaded to the server. . . 
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
   jQuery('.layer-control').click(function(e){
-//    e.preventDefault();
     var layerId = jQuery(this).attr('id').split('-')[2];
     if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
       // Set the name and id of the active layers.
@@ -263,7 +261,6 @@ observeLayers: function(){
       jQuery.removeLayerFromCookie('active-layer-ids',layerId);
       jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
     }
-    //document.location = jQuery.rootPath() + 'collages/' + collageId;
   });
 },
 
@@ -339,6 +336,7 @@ wordEvent: function(e){
         jQuery('#new-annotation-end').html('');
       } else {
         // Set start point
+        //FIXME - add the "annotation start" thingy here.
         jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
       }
     }

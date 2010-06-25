@@ -24,6 +24,11 @@
         :label => 'Layer',
         :input_html => {:class => 'tagging-autofill-layers'}
       %>
+      <div class="layers">
+        <% @annotation.collage.layers.each do |l| %>
+          <span class="_tag_suggestion c<%= l.id %>"><%= l.name %></span>
+        <% end %>
+      </div>
     <% end %>
     <% unless request.xhr? %>
       <% form.buttons do %>
