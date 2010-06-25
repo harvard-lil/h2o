@@ -4,12 +4,12 @@
     jQuery("#anonymous_button").button();
   });|) %>
 
-<p>Are you a first time user?  Click below to register with the site locally
-  or by using your Twitter account.</p>
+  <p>Are you a first time user?  Click below to register<% if false %> with the site locally
+or by using your Twitter account<% end %>.</p>
 
 <a href="/users/new" id="register_button">Sign Up New User</a>
 
-<p>Returning users log in here with your local username and password or with Twitter.</p>
+<p>Returning users log in here<% if false %> with your local username and password or with Twitter<% end %>.</p>
 
 <a href="/user_sessions/new" id="login_button">Login</a>
 

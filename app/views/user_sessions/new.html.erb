@@ -27,7 +27,9 @@
     
     <p>
     <% #  image_submit_tag("elements/signin_twitter_dark.png", :name => 'login_with_oauth', :id => 'user_submit') %>
-    <%= oauth_login_button :value => "Login with Twitter" %><br />
+    <% if false %>
+      <%= oauth_login_button :value => "Login with Twitter" %><br />
+    <% end %>
     </p>
 <% end %>
   <p>
