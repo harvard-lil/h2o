@@ -57,8 +57,10 @@
 }
 
 .annotation-content{
-  max-height: 150px;
+  height: 300px;
   overflow: auto;
+  border: 1px solid black;
+  padding: 5px;
 }
 
 #annotatable-content tt{
@@ -66,11 +68,12 @@
 }
 
 .annotated-content{
-  padding: 5px;
   font-size: 10px;
-  color: black;
+  height: 300px;
+  overflow: auto;
+  padding: 5px;
   margin-bottom: 1em;
-  border-bottom: 1px dotted black;
+  border: 1px solid black;
 }
 
 .annotated-content h2{
@@ -95,11 +98,17 @@ form.formtastic fieldset ol li.text textarea{
   width: 99%;
 }
 
+.markItUp{
+  width: 500px;
+}
+
 #preview-container{
   margin: 1em;
   padding: 1em;
   background-color: white;
   border: 1px solid #cccccc;
+  height: 500px;
+  overflow: auto;
 }
 
 #view-layer-list{

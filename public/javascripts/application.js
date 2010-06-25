@@ -7,6 +7,19 @@ jQuery(function() {
         tips.text(t).effect("highlight",{},1500);
     }
 
+    jQuery.fn.observeField =  function( time, callback ){
+	    return this.each(function(){
+	        var field = this, change = false;
+	        jQuery(field).keyup(function(){
+	            change = true;
+	        });
+	        setInterval(function(){
+	            if ( change ) callback.call( field );
+	            change = false;
+	        }, time * 1000);
+	    });
+	}
+
     jQuery.fn.observeForm =  function( time, callback ){
 	    return this.each(function(){
 	        var form = this, change = false;

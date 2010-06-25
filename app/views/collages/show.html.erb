@@ -40,8 +40,10 @@
   <h3>Hide Layers</h3>
   <div id="view-layer-list" class="layers">
     <% @collage.layers.each do |l| %>
-      <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-      <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id %>" id=""><%= l.name %></span></label>
+      <div style="float: left; margin-top: 5px">
+        <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
+        <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id=""><%= l.name %></span></label>
+      </div>
     <% end %>
   </div>
   <div id="layer-button">

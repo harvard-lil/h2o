@@ -183,8 +183,8 @@ annotationButton: function(e,annotationId,ids){
                     jQuery.updateAnnotationPreview(collageId);
                     jQuery('#annotation-form').dialog({
                       bgiframe: true,
-                      minWidth: 600,
-                      width: 800,
+                      minWidth: 950,
+                      width: 950,
                       modal: true,
                       title: 'Edit Annotation',
                       buttons: {
@@ -265,7 +265,7 @@ observeLayers: function(){
 },
 
 updateAnnotationPreview: function(collageId){
-  jQuery("#annotation-form form").observeForm(5,function(){
+  jQuery("#annotation_annotation").observeField(5,function(){
     jQuery.ajax({
       cache: false,
       type: 'POST',
@@ -293,8 +293,8 @@ wordEvent: function(e){
         jQuery('#annotation-form').dialog({
           bgiframe: true,
           autoOpen: false,
-          minWidth: 600,
-          width: 800,
+          minWidth: 950,
+          width: 950,
           modal: true,
           title: 'New Annotation',
           buttons: {
@@ -364,7 +364,7 @@ jQuery(document).ready(function(){
     jQuery(".tagging-autofill-layers").live('click',function(){
       jQuery(this).tagSuggest({
         url: jQuery.rootPath() + 'annotations/autocomplete_layers',
-        separator: ',',
+        separator: ', ',
         delay: 500
       });
     });

@@ -1,11 +1,8 @@
+<div style="width: 380px; float: left;">
   <div id="new-annotation-error" style="display:none;" class="error"></div>
   <% unless request.xhr? %>
     <h1><%= (@annotation.new_record?) ? 'Add' : 'Edit' %> Annotation</h1>
   <% end %>
-      <div id="preview-container">
-        <h3>Preview</h3>
-        <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_annotation(@annotation.annotation) %></div> 
-      </div>
   <% semantic_form_for @annotation do |form| %>
     <% form.inputs do %>
       <% [:collage_id, :annotation_start, :annotation_end].each do |col| %>
@@ -24,11 +21,14 @@
         :label => 'Layer',
         :input_html => {:class => 'tagging-autofill-layers'}
       %>
-      <div class="layers">
-        <% @annotation.collage.layers.each do |l| %>
-          <span class="_tag_suggestion c<%= l.id %>"><%= l.name %></span>
-        <% end %>
-      </div>
+      <% unless @annotation.collage.layers.blank? %>
+        <h3 style="margin-bottom: 10px;">Layers in use on this collage</h3>
+        <div class="layers">
+          <% @annotation.collage.layers.each do |l| %>
+            <span class="_tag_suggestion c<%= l.id %>"><%= l.name %></span>
+          <% end %>
+        </div>
+      <% end %>
     <% end %>
     <% unless request.xhr? %>
       <% form.buttons do %>
@@ -38,6 +38,12 @@
   <% end %>
 </div>
 
+<div style="width: 380px; float: right;">
+  <h3>Preview</h3>
+  <div id="preview-container">
+    <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_annotation(@annotation.annotation) %></div> 
+  </div>
+</div>
 <%= javascript_tag(%Q|jQuery(document).ready(function() {
   jQuery("#annotation_annotation").markItUp(mySettings);
 });|) %>
