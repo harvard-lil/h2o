@@ -1,38 +1,32 @@
-<h1>Listing cases</h1>
+<div class="case-index">
+  <div class="info_block">
+    <h1 class="yellow_title_med">Cases</h1>
+    Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.
+  </div>
 
-<table>
-  <tr>
-    <th>Current opinion</th>
-    <th>Short name</th>
-    <th>Full name</th>
-    <th>Decision date</th>
-    <th>Author</th>
-    <th>Party header</th>
-    <th>Lawyer header</th>
-    <th>Header html</th>
-    <th>Jurisdiction</th>
-    <th>Content</th>
-  </tr>
+  <div class="spacer_block"></div>
+  <div class="list_block">
+    <table class="core_table">
+      <thead>
+        <tr class="table_heading">
+          <th>Case</th>
+          <th>Tags</th>
+          <th>Collages</th>
+        </tr>
+      </thead>
 
-<% @cases.each do |c| %>
-  <tr>
-    <td><%=h c.current_opinion %></td>
-    <td><%=h c.short_name %></td>
-    <td><%=h c.full_name %></td>
-    <td><%=h c.decision_date %></td>
-    <td><%=h c.author %></td>
-    <td><%=h c.party_header %></td>
-    <td><%=h c.lawyer_header %></td>
-    <td><%=h c.header_html %></td>
-    <td><%=h c.case_jurisdiction_id %></td>
-    <td><%=h c.content %></td>
-    <td><%= link_to 'Show', c %></td>
-    <td><%= link_to 'Edit', edit_case_path(c) %></td>
-    <td><%= link_to 'Destroy', c, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
-
-<%= link_to 'New case', new_case_path %>
+      <tbody>
+        <% @cases.each do |c| %>
+          <tr>
+            <td><%= link_to(c.display_name, c) %>, <%=h c.decision_date %> <br/>
+              <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+            <td><%= c.tags.collect{|t| t.name} %></td>
+            <td><%= c.collages.collect{|collage| link_to(collage.display_name, collage)}.join('<br/>') %></td>
+            <td><%= link_to 'Edit', edit_case_path(c) %></td>
+            <td><%= link_to 'Destroy', c, :confirm => 'Are you sure?', :method => :delete %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
