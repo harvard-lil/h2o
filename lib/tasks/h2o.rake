@@ -1,5 +1,31 @@
 namespace :h2o do
 
+  desc 'Temporary case import'
+  task(:temp_import_cases => :environment) do
+    metadata_hash = {}
+    FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
+      row_hash = row.to_hash
+      metadata_hash[row_hash[:filename]] = row_hash
+    end
+
+#    puts metadata_hash.inspect
+    Dir.glob("#{RAILS_ROOT}/tmp/cases/*.html").each do |file|
+      basename = Pathname(file).basename.to_s
+      if ! metadata_hash[basename].blank?
+        c = Case.new()
+        c.short_name = metadata_hash[basename][:short_name]
+        c.full_name = metadata_hash[basename][:short_name]
+        c.tag_list = metadata_hash[basename][:tags]
+        tmp_content = File.read(file)
+        tmp_content.gsub!(/<\/?(body|head|html)>/i,'')
+        c.content = tmp_content
+        c.save
+      else
+        puts "#{basename} didn't have an entry in the metadata hash"
+      end
+    end
+  end
+
   desc 'Test case import'
   task(:import_cases => :environment) do
     c = Case.new()

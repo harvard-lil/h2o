@@ -31,6 +31,7 @@ Rails::Initializer.run do |config|
   config.gem 'nokogiri', :version => '1.4.1'
   config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
   config.gem 'acts-as-taggable-on', :version => '2.0.6'
+  config.gem 'fastercsv', :version => '1.5.3'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
