@@ -1,32 +1,57 @@
 <div class="case-index">
   <div class="info_block">
     <h1 class="yellow_title_med">Cases</h1>
-    Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.
+    <p>Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.</p>
+    <div class="layers">
+      <% form_tag(url_for, :method => :get) do %>
+        <h2>Filter by tags</h2>
+        <p>
+        <% @tags.each do|t| %>
+          <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
+        <% end %>
+        </p>
+        <%= check_box_tag('any', true,((params[:any]) ? true : false), {:id => 'any'}) %><label for="any">Match any tag</label>
+        <input type="submit" class="button" value="Filter" /> <%= link_to('clear', url_for()) %>
+      <% end %>
+    </div>
   </div>
 
   <div class="spacer_block"></div>
-  <div class="list_block">
-    <table class="core_table tablesorter" id="sort_me">
-      <thead>
-        <tr class="table_heading">
-          <th>Case</th>
-          <th>Tags</th>
-          <th>Collages</th>
-        </tr>
-      </thead>
 
-      <tbody>
-        <% @cases.each do |c| %>
-          <tr>
-            <td><%= link_to(c.display_name, c) %>, <%=h c.decision_date %> <br/>
-              <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-            <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{t.name}</span>"}.join(', ') %></td>
-            <td><%= c.collages.collect{|collage| link_to(collage.display_name, collage)}.join('<br/>') %></td>
-            <td><%= link_to 'Edit', edit_case_path(c) %></td>
-            <td><%= link_to 'Destroy', c, :confirm => 'Are you sure?', :method => :delete %></td>
+  <div class="list_block">
+    <% if @cases.blank? %>
+      <h2>None found.</h2>
+    <% else %>
+      <table class="core_table tablesorter">
+        <thead>
+          <tr class="table_heading">
+            <th>Case</th>
+            <th>Date</th>
+            <th>Tags</th>
+            <th>Collages</th>
+            <th colspan="2">&nbsp;</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% @cases.each do |c| %>
+            <tr>
+              <td><%= link_to(c.display_name, c) %><br/>
+                <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+              <td><%=h c.decision_date %></td>
+              <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{t.name}</span>"}.join(', ') %></td>
+              <td><%= c.collages.collect{|collage| link_to(collage.display_name, collage)}.join('<br/>') %></td>
+              <td>
+                <% if current_user %>
+                  <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
+                <% end %>
+                <% if current_user && c.case_manager? %> 
+                  <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
   </div>
 </div>

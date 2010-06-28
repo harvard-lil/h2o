@@ -34,7 +34,7 @@
 <% end %>
 
 <div id="annotation-tools">
-  <h2><%= @collage.display_name %></h2>
+  <h2><%=h @collage.display_name %></h2>
   <h3>Layers</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
   <h3>Hide Layers</h3>
@@ -42,7 +42,7 @@
     <% @collage.layers.each do |l| %>
       <div style="float: left; margin-top: 5px">
         <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-        <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id=""><%= l.name %></span></label>
+        <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id=""><%=h l.name %></span></label>
       </div>
     <% end %>
   </div>
@@ -54,7 +54,7 @@
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>
-  <div id="owners" style="display: none;"><%= @collage.owners.to_json %></div>
+  <div id="owners" style="display: none;"><%=h @collage.owners.to_json %></div>
   <div id="is_owner" style="display: none;"><%= (current_user && @collage.owner?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
 </div>

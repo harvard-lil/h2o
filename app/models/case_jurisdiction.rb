@@ -5,4 +5,8 @@ class CaseJurisdiction < ActiveRecord::Base
   validates_length_of :abbreviation,  :in => 1..150
   validates_length_of :name,          :in => 1..500
 
+  def display_name
+    self.name
+  end
+
 end

@@ -3,6 +3,8 @@ require 'tagging_extensions'
 class Case < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
   include TaggingExtensions::InstanceMethods
+  include AuthUtilities
+  acts_as_authorization_object
   
   acts_as_taggable_on :tags
 
@@ -16,6 +18,10 @@ class Case < ActiveRecord::Base
   belongs_to :case_jurisdiction
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
+
+  def case_manager?
+    return (current_user.has_role?(:case_manager) || current_user.has_role?(:admin) || self.accepts_role?(:owner, current_user))
+  end
 
   def self.select_options
     self.find(:all).collect{|c|[c.display_name,c.id]}

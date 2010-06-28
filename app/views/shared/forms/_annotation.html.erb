@@ -18,7 +18,7 @@
       <%= form.input :layer_list,
         :as => :string,
         :hint => 'Please define the layers this annotation belongs to in a comma-separated list.',
-        :label => 'Layer',
+        :label => 'Layers',
         :input_html => {:class => 'tagging-autofill-layers'}
       %>
       <% unless @annotation.collage.layers.blank? %>

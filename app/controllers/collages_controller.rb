@@ -47,7 +47,7 @@ class CollagesController < BaseController
   # GET /collages/new
   # GET /collages/new.xml
   def new
-    @collage = Collage.new
+    @collage = Collage.new(:annotatable_type => params[:annotatable_type], :annotatable_id => params[:annotatable_id])
 
     respond_to do |format|
       format.html # new.html.erb

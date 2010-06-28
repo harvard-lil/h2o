@@ -8,8 +8,14 @@ class CasesController < BaseController
   # messed up in terms of location.
 
   access_control do
+    allow :case_manager
     allow :admin
-    allow all, :to => [:show, :index, :new, :create, :metadata]
+    allow :owner, :of => :case, :to => [:destroy, :edit, :update]
+    allow all, :to => [:show, :index, :new, :create, :metadata, :autocomplete_tags]
+  end
+
+  def autocomplete_tags
+    render :json => Case.autocomplete_for(:tags,params[:tag])
   end
 
   def metadata
@@ -19,7 +25,12 @@ class CasesController < BaseController
   # GET /cases
   # GET /cases.xml
   def index
-    @cases = Case.all
+    if params[:tags]
+      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false))
+    else
+      @cases = Case.all
+    end
+    @tags = Case.tag_counts_on(:tags)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -62,7 +73,7 @@ class CasesController < BaseController
     respond_to do |format|
       if @case.save
         flash[:notice] = 'Case was successfully created.'
-        format.html { redirect_to(@case) }
+        format.html { redirect_to(cases_url) }
         format.xml  { render :xml => @case, :status => :created, :location => @case }
       else
         format.html { render :action => "new" }
@@ -79,7 +90,7 @@ class CasesController < BaseController
     respond_to do |format|
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'
-        format.html { redirect_to(@case) }
+        format.html { redirect_to(cases_url) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
