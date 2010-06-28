@@ -103,6 +103,8 @@ class CasesController < BaseController
   private 
 
   def prep_resources
+    add_javascripts ['jquery.tablesorter.min','cases']
+    add_stylesheets ['tablesorter-h2o-theme/style','cases']
   end
 
   def load_case

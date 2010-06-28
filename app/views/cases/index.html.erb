@@ -6,7 +6,7 @@
 
   <div class="spacer_block"></div>
   <div class="list_block">
-    <table class="core_table">
+    <table class="core_table tablesorter" id="sort_me">
       <thead>
         <tr class="table_heading">
           <th>Case</th>
@@ -20,7 +20,7 @@
           <tr>
             <td><%= link_to(c.display_name, c) %>, <%=h c.decision_date %> <br/>
               <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-            <td><%= c.tags.collect{|t| t.name} %></td>
+            <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{t.name}</span>"}.join(', ') %></td>
             <td><%= c.collages.collect{|collage| link_to(collage.display_name, collage)}.join('<br/>') %></td>
             <td><%= link_to 'Edit', edit_case_path(c) %></td>
             <td><%= link_to 'Destroy', c, :confirm => 'Are you sure?', :method => :delete %></td>
