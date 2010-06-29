@@ -22,6 +22,11 @@
     <% if @cases.blank? %>
       <h2>None found.</h2>
     <% else %>
+      <h2><%= (@cases.length > 1) ? "#{@cases.length} cases" : '1 case' %> found
+        <% if params[:tags] %>
+          tagged with <%=h params[:tags].join((params[:any]) ? ' or ' : ' and ') %> 
+        <% end %>
+      </h2>
       <table class="core_table tablesorter">
         <thead>
           <tr class="table_heading">

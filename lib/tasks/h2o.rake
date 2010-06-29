@@ -18,7 +18,7 @@ namespace :h2o do
         c.tag_list = metadata_hash[basename][:tags]
         tmp_content = File.read(file)
         tmp_content.gsub!(/<\/?(body|head|html)>/i,'')
-        c.content = tmp_content
+        c.content = Iconv.iconv('UTF-8','ISO-8859-1',tmp_content)
         c.save
       else
         puts "#{basename} didn't have an entry in the metadata hash"
