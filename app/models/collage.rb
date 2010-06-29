@@ -73,17 +73,20 @@ class Collage < ActiveRecord::Base
   def prepare_content
     content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
     doc = Nokogiri::HTML.parse(content_to_prepare)
-    class_name = 1
-    doc.css('p,div,li,td,th,h1,h2,h3,h4,h5,h6,address,blockquote,dl,ol,ul,pre,dd,dt').each do |item|
-      if item.is_a?(Nokogiri::XML::Element) 
-        item['id'] = "n#{class_name}" 
-        class_name += 1
-        if ! item.children.blank?
-          text_content = item.inner_html.split.map{|word|class_name += 1; "<tt id='t#{class_name}'>" + word + '</tt>'}.join(' ')
-          item.inner_html = text_content
+    doc.xpath('//*').each do |child|
+      child.children.each do|c|
+        if c.class == Nokogiri::XML::Text && ! c.content.blank?
+          text_content = c.content.split.map{|word|"<tt>" + word + ' </tt> '}.join(' ')
+          c.swap(text_content)
         end
       end
     end
+    class_counter = 1
+    doc.xpath('//tt').each do |n|
+      n['id'] = "t#{class_counter}"
+      class_counter +=1
+    end
     self.content = doc.xpath("//html/body/*").to_s
   end
+
 end

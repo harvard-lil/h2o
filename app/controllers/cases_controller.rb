@@ -26,9 +26,9 @@ class CasesController < BaseController
   # GET /cases.xml
   def index
     if params[:tags]
-      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false))
+      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false)).all(:include => [:tags, :collages, :case_citations])
     else
-      @cases = Case.all
+      @cases = Case.find(:all, :include => [:tags, :collages, :case_citations])
     end
     @tags = Case.tag_counts_on(:tags)
 

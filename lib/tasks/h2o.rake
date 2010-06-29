@@ -1,5 +1,24 @@
 namespace :h2o do
 
+  task(:parse_test_new => :environment) do
+    c = Case.find 5
+    doc = Nokogiri::HTML.parse(c.content)
+    doc.xpath('//*').each do |child|
+      child.children.each do|c|
+        if c.class == Nokogiri::XML::Text && ! c.content.blank?
+          text_content = c.content.split.map{|word|"<tt>" + word + ' </tt>'}.join(' ')
+          c.swap(text_content)
+        end
+      end
+    end
+    class_counter = 1
+    doc.xpath('//tt').each do |n|
+      n['id'] = "t#{class_counter}"
+      class_counter +=1
+    end
+    puts doc.xpath("//html/body/*").to_s
+  end
+
   desc 'Temporary case import'
   task(:temp_import_cases => :environment) do
     metadata_hash = {}
@@ -18,7 +37,11 @@ namespace :h2o do
         c.tag_list = metadata_hash[basename][:tags]
         tmp_content = File.read(file)
         tmp_content.gsub!(/<\/?(body|head|html)>/i,'')
-        c.content = Iconv.iconv('UTF-8','ISO-8859-1',tmp_content)
+#        tmp_content.gsub!(/<center>/i,'<div style="text-align: center;">')
+#        tmp_content.gsub!(/<\/center>/i,'</div>')
+#        tmp_content.gsub!(/<small>/i,'<div style="font-size: smaller;">')
+#        tmp_content.gsub!(/<\/small>/i,'</div>')
+        c.content = Iconv.iconv('UTF-8','ISO-8859-1',tmp_content)[0]
         c.save
       else
         puts "#{basename} didn't have an entry in the metadata hash"
