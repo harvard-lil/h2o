@@ -30,7 +30,7 @@ class CasesController < BaseController
     else
       @cases = Case.find(:all, :include => [:tags, :collages, :case_citations])
     end
-    @tags = Case.tag_counts_on(:tags)
+    @tags = Case.tag_counts_on(:tags).all(:order => :name)
 
     respond_to do |format|
       format.html # index.html.erb

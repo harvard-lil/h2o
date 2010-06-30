@@ -31,6 +31,10 @@ class User < ActiveRecord::Base
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
+  def case_manager?
+    self.has_role?(:case_manager) || self.has_role?(:admin)
+  end
+
   def collages
     self.roles.collect{|o| o.authorizable_type == 'Collage' ? o.authorizable : nil}.compact
   end 

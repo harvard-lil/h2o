@@ -4,6 +4,8 @@ class Case < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
   include TaggingExtensions::InstanceMethods
   include AuthUtilities
+
+
   acts_as_authorization_object
   
   acts_as_taggable_on :tags
@@ -19,9 +21,21 @@ class Case < ActiveRecord::Base
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
 
-  def case_manager?
-    return (current_user.has_role?(:case_manager) || current_user.has_role?(:admin) || self.accepts_role?(:owner, current_user))
-  end
+  accepts_nested_attributes_for :case_citations, 
+    :allow_destroy => true, 
+    :reject_if => proc { |att| att['volume'].blank? || att['reporter'].blank? || att['page'].blank? }
+
+  accepts_nested_attributes_for :case_docket_numbers, 
+    :allow_destroy => true,
+    :reject_if => proc { |att| att['docket_number'].blank? }
+
+  accepts_nested_attributes_for :case_jurisdiction,
+    :allow_destroy => true,
+    :reject_if => proc { |att| att['abbreviation'].blank? || att['name'].blank? }
+
+#  def case_manager?
+#    return (current_user.has_role?(:case_manager) || current_user.has_role?(:admin) || self.accepts_role?(:owner, current_user))
+#  end
 
   def self.select_options
     self.find(:all).collect{|c|[c.display_name,c.id]}

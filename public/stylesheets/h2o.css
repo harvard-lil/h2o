@@ -461,6 +461,11 @@ span.tagMatches span, .layers span.c0,.c0{
   color: white;
 }
 
+.tag-container{
+  float: left;
+  margin-top: 5px;
+}
+
 .meta ul{
   margin: 0px;
   padding: 0px;

@@ -7,9 +7,12 @@
         <h2>Filter by tags</h2>
         <p>
         <% @tags.each do|t| %>
-          <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
+          <div class="tag-container">
+            <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
+          </div>
         <% end %>
         </p>
+        <div class="clear spacer_block"></div>
         <%= check_box_tag('any', true,((params[:any]) ? true : false), {:id => 'any'}) %><label for="any">Match any tag</label>
         <input type="submit" class="button" value="Filter" /> <%= link_to('clear', url_for()) %>
       <% end %>
@@ -44,12 +47,20 @@
                 <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
               <td><%=h c.decision_date %></td>
               <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{t.name}</span>"}.join(', ') %></td>
-              <td><%= c.collages.collect{|collage| link_to(collage.display_name, collage)}.join('<br/>') %></td>
+              <td>
+                <% if ! c.collages.blank? %>
+                  <ul>
+                    <% c.collages.each do |collage| %>
+                      <li><%= link_to(collage.display_name, collage) %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </td>
               <td>
                 <% if current_user %>
                   <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
                 <% end %>
-                <% if current_user && c.case_manager? %> 
+                <% if current_user && current_user.case_manager? %> 
                   <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
                 <% end %>
               </td>

@@ -1,20 +1,22 @@
-<h1><%=h @case.display_name %></h1>
-<div class="meta">
+<div id="case-show">
+  <div class="info_block">
+    <h1 class="yellow_title_med"><%=h @case.display_name %></h1>
+    <ul>
+      <li><strong>Decision date:</strong> <%=h @case.decision_date %></li>
+      <li><strong>Author:</strong> <%=h @case.author %></li>
+      <% unless @case.case_citations.blank? %>
+        <li><strong>Citations:</strong> <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></li> 
+      <% end %>
+      <% unless @case.case_docket_numbers.blank? %>
+        <li><strong>Docket Numbers:</strong> <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></li> 
+      <% end %>
+      <% unless @case.case_jurisdiction.blank? %>
+        <li><strong>Jurisdiction:</strong> <%= @case.case_jurisdiction.display_name %></li> 
+      <% end %>
+    </ul>
+  </div>
 
-  <p>
-  <b>Decision date:</b>
-  <%=h @case.decision_date %>
-  </p>
-
-  <p>
-  <b>Author:</b>
-  <%=h @case.author %>
-  </p>
-
-  <p id="content">
-  <b>Content:</b>
   <%= @case.content %>
-  </p>
 
 </div>
 

@@ -7,6 +7,8 @@
   <h1>Add New case</h1>
 <% end %>
 <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
+  <% form.object.case_docket_numbers.build %>
+  <% form.object.case_citations.build %>
   <% form.inputs do %>
     <%= form.input :short_name %>
     <%= form.input :full_name %>
@@ -14,8 +16,13 @@
     <%= form.input :current_opinion %>
     <%= form.input :author %>
     <%= form.input :case_jurisdiction %>
-    <%= form.input :case_docket_numbers %>
-    <%= form.input :case_citations %>
+
+    <% form.semantic_fields_for :case_docket_numbers do |cd| %>
+      <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "New Docket Number" : 'Edit Docket Number') %>
+    <% end %>
+    <% form.semantic_fields_for :case_citations do |cd| %>
+      <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "New Citation" : 'Edit Citation') %>
+    <% end %>
     <%= form.input :tag_list,
         :as => :string,
         :hint => 'Please define the tags for this case in a comma-separated list.',
