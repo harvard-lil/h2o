@@ -1,4 +1,13 @@
-class CaseJurisdictionsController < ApplicationController
+class CaseJurisdictionsController < BaseController
+
+  before_filter :require_user, :except => [:index, :show]
+  
+  access_control do
+    allow :case_manager
+    allow :admin
+    allow all, :to => [:show, :index]
+  end
+
   # GET /case_jurisdictions
   # GET /case_jurisdictions.xml
   def index

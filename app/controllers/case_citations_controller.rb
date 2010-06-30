@@ -1,4 +1,13 @@
-class CaseCitationsController < ApplicationController
+class CaseCitationsController < BaseController
+
+  before_filter :require_user, :except => [:index, :show]
+  
+  access_control do
+    allow :case_manager
+    allow :admin
+    allow all, :to => [:show, :index]
+  end
+
   # GET /case_citations
   # GET /case_citations.xml
   def index

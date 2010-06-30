@@ -44,6 +44,3 @@
     <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_annotation(@annotation.annotation) %></div> 
   </div>
 </div>
-<%= javascript_tag(%Q|jQuery(document).ready(function() {
-  jQuery("#annotation_annotation").markItUp(mySettings);
-});|) %>

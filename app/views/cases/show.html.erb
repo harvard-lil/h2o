@@ -5,13 +5,13 @@
       <li><strong>Decision date:</strong> <%=h @case.decision_date %></li>
       <li><strong>Author:</strong> <%=h @case.author %></li>
       <% unless @case.case_citations.blank? %>
-        <li><strong>Citations:</strong> <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></li> 
+        <li><strong>Citations:</strong> <%=h @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></li> 
       <% end %>
       <% unless @case.case_docket_numbers.blank? %>
-        <li><strong>Docket Numbers:</strong> <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></li> 
+        <li><strong>Docket Numbers:</strong> <%=h @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></li> 
       <% end %>
       <% unless @case.case_jurisdiction.blank? %>
-        <li><strong>Jurisdiction:</strong> <%= @case.case_jurisdiction.display_name %></li> 
+        <li><strong>Jurisdiction:</strong> <%=h @case.case_jurisdiction.display_name %></li> 
       <% end %>
     </ul>
   </div>

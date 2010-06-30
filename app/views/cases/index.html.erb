@@ -37,16 +37,18 @@
             <th>Date</th>
             <th>Tags</th>
             <th>Collages</th>
-            <th colspan="2">&nbsp;</th>
+            <% if current_user %>
+              <th colspan="2">&nbsp;</th>
+            <% end %>
           </tr>
         </thead>
         <tbody>
           <% @cases.each do |c| %>
             <tr>
               <td><%= link_to(c.display_name, c) %><br/>
-                <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+                <%=h c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
               <td><%=h c.decision_date %></td>
-              <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{t.name}</span>"}.join(', ') %></td>
+              <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
               <td>
                 <% if ! c.collages.blank? %>
                   <ul>
@@ -56,14 +58,14 @@
                   </ul>
                 <% end %>
               </td>
-              <td>
-                <% if current_user %>
+              <% if current_user %>
+                <td>
                   <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
-                <% end %>
-                <% if current_user && current_user.case_manager? %> 
-                  <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
-                <% end %>
-              </td>
+                  <% if current_user && current_user.case_manager? %> 
+                    <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
+                  <% end %>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>

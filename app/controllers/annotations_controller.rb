@@ -2,14 +2,14 @@ class AnnotationsController < BaseController
 
   cache_sweeper :annotation_sweeper
 
-  before_filter :require_user, :except => [:show]
+  before_filter :require_user, :except => [:show, :annotation_preview]
   before_filter :load_annotation, :only => [:show, :edit, :update, :destroy, :metadata]
   before_filter :preload_collage, :only => [:new, :create]
 
   access_control do
     allow :admin
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers, :annotation_preview]
-    allow all, :to => [:show, :metadata]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
+    allow all, :to => [:show, :metadata, :annotation_preview]
   end
 
   def annotation_preview

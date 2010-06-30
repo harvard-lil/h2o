@@ -197,11 +197,22 @@ annotationButton: function(e,annotationId,ids){
                         }
                       }
                     });
+                    jQuery("#annotation_annotation").markItUp(mySettings);
+                    jQuery('#annotation_layer_list').keypress(function(e){
+                      if(e.keyCode == '13'){
+                        e.preventDefault();
+                        jQuery.submitAnnotation();
+                      }
+                    }); 
                   }
                 });
               }
             }
         });
+        // Wipe out edit buttons if not owner.
+        if(jQuery('#is_owner').html() != 'true'){
+          jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{Close: function(){jQuery(this).dialog('close');}});
+        }
       }
     });
   } else {
@@ -321,6 +332,13 @@ wordEvent: function(e){
             jQuery('#spinner_block').hide();
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
+            jQuery("#annotation_annotation").markItUp(mySettings);
+            jQuery('#annotation_layer_list').keypress(function(e){
+              if(e.keyCode == '13'){
+                e.preventDefault();
+                jQuery.submitAnnotation();
+              }
+            }); 
             jQuery.updateAnnotationPreview(collageId);
             if(jQuery('#annotation_layer_list').val() == ''){
               //FIXME - Ideally, we'd set this to the last layer that's been clicked. 
