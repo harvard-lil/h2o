@@ -82,12 +82,12 @@ annotateRange: function(obj){
     },
     mouseover: function(e){
       if(! hasActiveLayer){
-        jQuery('.a' + obj.id).css('background-color','yellow');
+        jQuery('.a' + obj.id).addClass('highlight');
       }
     },
     mouseout: function(e){
       if(! hasActiveLayer){
-        jQuery('.a' + obj.id).css('background-color', '#ffffff');
+        jQuery('.a' + obj.id).removeClass('highlight');
       }
     }
   });
@@ -97,12 +97,12 @@ annotateRange: function(obj){
     },
     mouseover: function(e){
       if(! hasActiveLayer){
-        jQuery('.a' + obj.id).css('background-color','yellow');
+        jQuery('.a' + obj.id).addClass('highlight');
       }
     },
     mouseout: function(e){
       if(! hasActiveLayer){
-        jQuery('.a' + obj.id).css('background-color', '#ffffff');
+        jQuery('.a' + obj.id).removeClass('highlight');
       }
     }
   });
@@ -275,6 +275,20 @@ observeLayers: function(){
   });
 },
 
+updateCollagePreview: function(){
+  jQuery("#collage_description").observeField(5,function(){
+    jQuery.ajax({
+      cache: false,
+      type: 'POST',
+      url: jQuery.rootPath() + 'collages/description_preview',
+      data: {preview: jQuery('#collage_description').val()},
+      success: function(html){
+        jQuery('#collage_preview').html(html);
+      }
+    });
+  });
+},
+
 updateAnnotationPreview: function(collageId){
   jQuery("#annotation_annotation").observeField(5,function(){
     jQuery.ajax({
@@ -377,8 +391,14 @@ observeWords: function(){
 });
 
 jQuery(document).ready(function(){
+  jQuery('.tablesorter').tablesorter();
   jQuery('.button').button();
   jQuery('.layer-button').button({icons: {primary: 'ui-icon-check' }});
+  if(jQuery('#collage_description').length > 0){
+    jQuery("#collage_description").markItUp(mySettings);
+    jQuery.updateCollagePreview();
+  }
+  jQuery("#annotation_annotation").markItUp(mySettings);
   jQuery('#cancel-annotation a').click(function(e){
     e.preventDefault();
     // close tip.

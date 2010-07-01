@@ -13,7 +13,7 @@ class AnnotationsController < BaseController
   end
 
   def annotation_preview
-    render :text => Annotation.format_annotation(params[:preview]), :layout => false
+    render :text => Annotation.format_content(params[:preview]), :layout => false
   end
 
   def metadata

@@ -1,15 +1,11 @@
 require 'tagging_extensions'
+require 'redcloth_extensions'
 
 class Annotation < ActiveRecord::Base
   include AuthUtilities
   extend TaggingExtensions::ClassMethods
   include TaggingExtensions::InstanceMethods
-
-  def self.format_annotation(input = '')
-    doc = RedCloth.new(input)
-    doc.sanitize_html = true
-    doc.to_html
-  end
+  extend RedclothExtensions::ClassMethods
 
   acts_as_voteable
   acts_as_category :scope => :collage_id

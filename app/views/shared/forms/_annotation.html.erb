@@ -41,6 +41,6 @@
 <div style="width: 380px; float: right;">
   <h3>Preview</h3>
   <div id="preview-container">
-    <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_annotation(@annotation.annotation) %></div> 
+    <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_content(@annotation.annotation) %></div> 
   </div>
 </div>

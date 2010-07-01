@@ -1,17 +1,19 @@
 <div class="collage-index">
   <div class="info_block">
     <h1 class="yellow_title_med">Collages</h1>
-    Collages allow you to annotate text - for instance, a court case or decision. This page lists Collages you have the ability to view or manage.
+    Collages allow you to annotate text - for instance, <%= link_to('a court case or decision', cases_url) %>. This page lists Collages you have the ability to view or manage.
   </div>
   <div class="spacer_block"></div>
   <div class="list_block">
-    <table class="core_table">
+    <table class="core_table tablesorter">
       <thead>
         <tr class="table_heading">
           <th>Name</th>
+          <th>Item</th>
           <th>Annotations</th>
-          <th>Edit</th>
-          <th>Delete</th>
+          <% if current_user %>
+            <th>&nbsp;</th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -20,7 +22,4 @@
     </table>
   </div>
   <div class="spacer_block"></div>
-  <% if current_user %>
-    <%= link_to 'New collage', new_collage_path, :class => 'button' %>
-  <% end %>
 </div>

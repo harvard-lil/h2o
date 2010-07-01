@@ -2,14 +2,18 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
-  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata]
+  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
 
   access_control do
     allow :admin
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata]
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview]
+  end
+
+  def description_preview
+    render :text => Collage.format_content(params[:preview]), :layout => false
   end
 
   def layers
@@ -27,7 +31,7 @@ class CollagesController < BaseController
   # GET /collages
   # GET /collages.xml
   def index
-    @collages = Collage.all
+    @collages = Collage.find(:all, :include => [:annotations => [:layers], :annotatable => 1])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -107,8 +111,8 @@ class CollagesController < BaseController
   private 
 
   def prep_resources
-    add_javascripts ['collages','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js']
-    add_stylesheets ['markitup/markitup/style.css','markitup/textile/style.css','collages']
+    add_javascripts ['jquery.tablesorter.min','collages','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js']
+    add_stylesheets ['tablesorter-h2o-theme/style','cases','markitup/markitup/style.css','markitup/textile/style.css','collages']
   end
 
   def load_collage

@@ -1,3 +1,4 @@
+<div style="width: 380px; float: left;">
 <div id="collage-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
   <h1>Add New Collage</h1>
@@ -12,14 +13,14 @@
       :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
     %>
     <%= form.input :annotatable_type,
-      :as => :select,
-      :collection => Collage.annotatable_classes_select_options,
+      :as => :hidden,
+#      :collection => Collage.annotatable_classes_select_options,
       :required => true,
       :label => 'I want to annotate a:'
     %>
     <%= form.input :annotatable_id,
-      :as => :select,
-      :collection => Case.select_options,
+      :as => :hidden,
+#      :collection => Case.select_options,
       :required => true,
       :label => "Case I want to annotate:"
     %>
@@ -30,3 +31,12 @@
     <% end %>
   <% end %>
 <% end %>
+</div>
+
+<div style="width: 380px; float: right;">
+  <h3>Preview</h3>
+  <div id="preview-container">
+    <div id="collage_preview"><%= (@collage.description.nil?) ? '' : Collage.format_content(@collage.description) %></div> 
+  </div>
+</div>
+<div class="clear"></div>

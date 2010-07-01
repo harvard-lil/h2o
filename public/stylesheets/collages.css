@@ -86,11 +86,7 @@
   float: left;
 }
 
-form.formtastic fieldset ol li#annotation_annotation_input label{
-  float: none;
-}
-
-form.formtastic fieldset ol li#annotation_annotation_input label{
+form.formtastic fieldset ol li#annotation_annotation_input label, form.formtastic fieldset ol li#collage_description_input label{
   float: none;
 }
 

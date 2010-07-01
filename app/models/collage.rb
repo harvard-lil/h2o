@@ -1,4 +1,6 @@
+require 'redcloth_extensions'
 class Collage < ActiveRecord::Base
+  extend RedclothExtensions::ClassMethods
   include AuthUtilities
   acts_as_authorization_object
 

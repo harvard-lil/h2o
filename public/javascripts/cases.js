@@ -1,5 +1,4 @@
 jQuery(document).ready(function(){
-    jQuery('.tablesorter').tablesorter();
     jQuery('.button').button();
 
     if(jQuery('.tagging-autofill-tags').length > 0){

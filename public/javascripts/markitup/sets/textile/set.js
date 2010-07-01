@@ -34,7 +34,5 @@ mySettings = {
 		{separator:'---------------' },
 		{name:'Quotes', openWith:'bq(!(([![Class]!]))!). '},
 		{name:'Code', openWith:'@', closeWith:'@'},
-		{separator:'---------------' },
-		{name:'Preview', call:'preview', className:'preview'}
-	]
+		{separator:'---------------' }	]
 }
