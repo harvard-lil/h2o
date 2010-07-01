@@ -355,6 +355,8 @@ wordEvent: function(e){
       } else {
         // Set start point
         //FIXME - add the "annotation start" thingy here.
+        jQuery(this).append('<span id="annotation-start-marker">Annotation Start</span>');
+
         jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
       }
     }
