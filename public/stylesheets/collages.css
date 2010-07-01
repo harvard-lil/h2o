@@ -119,13 +119,8 @@ form.formtastic fieldset ol li.text textarea{
   float: right;
 }
 
-#annotation-start-marker{
-  /* FIXME */
-  background-color: red;
- position: absolute;
- color: white;
- font-weight: bold;
- font-size: 10px;
- padding: 5px;
+#cancel-annotation{
+  text-align: right;
+  font-weight: bold;
 }
 

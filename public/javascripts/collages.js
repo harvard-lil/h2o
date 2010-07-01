@@ -291,10 +291,10 @@ updateAnnotationPreview: function(collageId){
 
 wordEvent: function(e){
     if(e.type == 'mouseover'){
-      jQuery(this).css('background-color','yellow')
+      jQuery(this).addClass('highlight')
     }
     if(e.type == 'mouseout'){
-      jQuery(this).css('background-color', '#ffffff');
+      jQuery(this).removeClass('highlight');
     } else if(e.type == 'click'){
       e.preventDefault();
       if(jQuery('#new-annotation-start').html().length > 0){
@@ -318,6 +318,8 @@ wordEvent: function(e){
             }
           }
         });
+        // close tooltip.
+        jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
         e.preventDefault();
         jQuery.ajax({
           type: 'GET',
@@ -354,9 +356,8 @@ wordEvent: function(e){
         jQuery('#new-annotation-end').html('');
       } else {
         // Set start point
-        //FIXME - add the "annotation start" thingy here.
-        jQuery(this).append('<span id="annotation-start-marker">Annotation Start</span>');
-
+        jQuery('#' + jQuery(this).attr('id')).bt({trigger: 'none', contentSelector: 'jQuery("#annotation-start-marker")', positions: ['top','most'], active_class: 'subhighlight', clickAnywhereToClose: false, closeWhenOthersOpen: true});
+        jQuery('#' + jQuery(this).attr('id')).btOn();
         jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
       }
     }
@@ -378,6 +379,13 @@ observeWords: function(){
 jQuery(document).ready(function(){
   jQuery('.button').button();
   jQuery('.layer-button').button({icons: {primary: 'ui-icon-check' }});
+  jQuery('#cancel-annotation a').click(function(e){
+    e.preventDefault();
+    // close tip.
+    jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
+    jQuery('#new-annotation-start').html('');
+    jQuery('#new-annotation-end').html('');
+  });
   if(jQuery('.collage-id').length > 0){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();

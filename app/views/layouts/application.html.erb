@@ -12,9 +12,15 @@
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';
 var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
-    <% ['jquery-1.4.2.min','jquery.cookie','jquery-ui.min','jquery.form', 'jquery.validate.min','jquery.tag.suggestion','application','form', 'gui_controls', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
+    <% ['jquery-1.4.2.min','jquery.cookie','jquery-ui.min','jquery.form', 'jquery.validate.min','jquery.tag.suggestion','application','form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.bt.min', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
       <%= javascript_include_tag js %>
     <% end -%>
+
+<!--[if IE]>
+    <%= javascript_include_tag 'jquery.bgiframe.min' %>
+    <%= javascript_include_tag 'excanvas.compiled.js' %>
+<![endif]--> 
+
   </head>
   <body>
     

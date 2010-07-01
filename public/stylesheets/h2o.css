@@ -523,3 +523,7 @@ span.tagMatches span, .layers span.c0,.c0{
     float: left;
     width: 300px;
 }
+
+.highlight, .subhighlight{
+ background-color: yellow; 
+}
