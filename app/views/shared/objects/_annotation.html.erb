@@ -7,7 +7,7 @@
   <% unless @annotation.annotation.blank? %>
     <h3>Annotation</h3>
     <div class="annotation-content">
-      <%= Annotation.format_annotation(@annotation.annotation) %>
+      <%= Annotation.format_content(@annotation.annotation) %>
     </div>
     <div class="spacer_block"></div>
   <% end %>
