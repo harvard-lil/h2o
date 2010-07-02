@@ -21,6 +21,7 @@ submitAnnotation: function(){
     },
     success: function(response){
       jQuery('#spinner_block').hide();
+      jQuery.cookie('active-layer-names', jQuery('#annotation_layer_list').val());
       jQuery('#annotation-form').dialog('close');
       if(window.console){
         console.log("Annotation object is:");
@@ -267,10 +268,8 @@ observeLayers: function(){
     if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
       // Set the name and id of the active layers.
       jQuery.addLayerToCookie('active-layer-ids',layerId);
-      jQuery.addLayerToCookie('active-layer-names',jQuery(this).find('a').html());
     } else {
       jQuery.removeLayerFromCookie('active-layer-ids',layerId);
-      jQuery.removeLayerFromCookie('active-layer-names',jQuery(this).find('a').html());
     }
   });
 },
@@ -358,7 +357,7 @@ wordEvent: function(e){
             jQuery.updateAnnotationPreview(collageId);
             if(jQuery('#annotation_layer_list').val() == ''){
               //FIXME - Ideally, we'd set this to the last layer that's been clicked. 
-              jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-name'));
+              jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-names'));
             }
           },
           error: function(xhr){
