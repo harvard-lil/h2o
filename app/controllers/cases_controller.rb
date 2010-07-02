@@ -68,6 +68,9 @@ class CasesController < BaseController
   # POST /cases
   # POST /cases.xml
   def create
+    unless params[:case][:tag_list].blank?
+      params[:case][:tag_list] = params[:case][:tag_list].downcase
+    end
     @case = Case.new(params[:case])
 
     respond_to do |format|
@@ -85,8 +88,9 @@ class CasesController < BaseController
   # PUT /cases/1
   # PUT /cases/1.xml
   def update
-    @case = Case.find(params[:id])
-
+    unless params[:case][:tag_list].blank?
+      params[:case][:tag_list] = params[:case][:tag_list].downcase
+    end
     respond_to do |format|
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'

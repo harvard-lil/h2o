@@ -51,43 +51,63 @@ namespace :h2o do
 
   desc 'Test case import'
   task(:import_cases => :environment) do
-    c = Case.new()
-    doc = Nokogiri::XML(File.open(RAILS_ROOT + '/doc/design/sample_case.xml'))
 
-    c.current_opinion = (doc.xpath('//Case/CurrentOpinion').text == 'False') ? false : true
-    
-    c.short_name = doc.xpath('//Case/ShortName').text
-    c.full_name = doc.xpath('//Case/ShortName').text
-    c.decision_date = Time.parse(doc.xpath('//Case/DecisionDate').text)
-    c.author = doc.xpath('//Case/Author').text
-    
-    cj = CaseJurisdiction.find_or_create_by_abbreviation_and_name(
-      doc.xpath('//Case/Jurisdiction/CourtAbbreviation').text, 
-      doc.xpath('//Case/Jurisdiction/CourtName').text
-    )
+    metadata_hash = {}
+    FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
+      row_hash = row.to_hash
+      metadata_hash[row_hash[:filename]] = row_hash
+    end
 
-    c.case_jurisdiction = cj
+    Dir.glob("#{RAILS_ROOT}/tmp/cases/*.xml").each do |file|
+      c = Case.new()
+      basename = Pathname(file).basename.to_s
+      puts file
+      doc = Nokogiri::XML.parse(File.open(file))
+      unless metadata_hash[basename].blank?
+        c.tag_list = metadata_hash[basename][:tags]
+      end
+      c.current_opinion = (doc.xpath('//Case/CurrentOpinion').text == 'False') ? false : true
 
-    doc.xpath('//Case/Citations/Citation').each do |cite|
-      c.case_citations << CaseCitation.find_or_create_by_volume_and_reporter_and_page(
-        cite.xpath('Volume').text || '', 
-        cite.xpath('Reporter').text || '',
-        cite.xpath('Page').text || ''
+      c.short_name = doc.xpath('//Case/ShortName').text
+      c.full_name = doc.xpath('//Case/ShortName').text
+
+      #Done like this because Time.parse doesn't deal with dates before 1901
+      date = doc.xpath('//Case/DecisionDate').text
+      unless date.blank?
+        date_array = date.split(/\D/)
+        c.decision_date = "#{date_array[2]}-#{date_array[0]}-#{date_array[1]}"
+      end
+      c.author = doc.xpath('//Case/Author').text
+
+      cj = CaseJurisdiction.find_or_create_by_abbreviation_and_name(
+        doc.xpath('//Case/Jurisdiction/CourtAbbreviation').text, 
+        doc.xpath('//Case/Jurisdiction/CourtName').text
       )
+
+      c.case_jurisdiction = cj
+
+      doc.xpath('//Case/Citations/Citation').each do |cite|
+        c.case_citations << CaseCitation.find_or_create_by_volume_and_reporter_and_page(
+          cite.xpath('Volume').text || '', 
+          cite.xpath('Reporter').text || '',
+          cite.xpath('Page').text || ''
+        )
+      end
+
+      doc.xpath('//Case/DocketNumbers/DocketNumber').each do |docket|
+        unless docket.text.blank?
+          c.case_docket_numbers << CaseDocketNumber.find_or_create_by_docket_number(docket.text)
+        end
+      end
+
+      c.party_header = doc.xpath('//Case/PartyHeader').text
+      c.lawyer_header = doc.xpath('//Case/LawyerHeader').text
+      c.header_html = doc.xpath('//Case/HeaderHtml').text
+
+      c.content = "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
+
+      c.save!
     end
-
-    doc.xpath('//Case/DocketNumbers/DocketNumber').each do |docket|
-      c.case_docket_numbers << CaseDocketNumber.find_or_create_by_docket_number(docket.text)
-    end
-
-    c.party_header = doc.xpath('//Case/PartyHeader').text
-    c.lawyer_header = doc.xpath('//Case/LawyerHeader').text
-    c.header_html = doc.xpath('//Case/HeaderHtml').text
-
-    c.content = "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
-
-    puts c.inspect
-    c.save!
   end
 
   desc 'Send rotisserie invitations'

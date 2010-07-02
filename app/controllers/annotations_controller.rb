@@ -55,6 +55,9 @@ class AnnotationsController < BaseController
   # POST /annotations
   # POST /annotations.xml
   def create
+    unless params[:annotation][:layer_list].blank?
+      params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
+    end
     @annotation = Annotation.new(params[:annotation])
     @annotation.accepts_role!(:owner, current_user)
     @annotation.accepts_role!(:creator, current_user)
@@ -78,6 +81,9 @@ class AnnotationsController < BaseController
   # PUT /annotations/1
   # PUT /annotations/1.xml
   def update
+    unless params[:annotation][:layer_list].blank?
+      params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
+    end
     respond_to do |format|
       if @annotation.update_attributes(params[:annotation])
         #flash[:notice] = 'Annotation was successfully updated.'
