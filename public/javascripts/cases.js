@@ -1,5 +1,6 @@
 jQuery(document).ready(function(){
     jQuery('.button').button();
+    jQuery('.tablesorter').tablesorter();
 
     if(jQuery('.tagging-autofill-tags').length > 0){
       jQuery(".tagging-autofill-tags").live('click',function(){
