@@ -1,3 +1,5 @@
+<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+<div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
 <% if ! cookies['active-layer-ids'].blank? %> 
   <style type="text/css">
     <% 
@@ -34,6 +36,7 @@
 <% end %>
 
 <div id="annotation-tools">
+  <a id="hide" href="#">hide</a>
   <h2><%=h @collage.display_name %></h2>
   <h3>Layers</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
@@ -49,8 +52,6 @@
   <div id="layer-button">
     <%= link_to('apply', collage_path(@collage), :class => 'layer-button') %>
   </div>
-  <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
-  <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>

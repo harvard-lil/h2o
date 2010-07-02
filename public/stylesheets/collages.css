@@ -2,22 +2,27 @@
   width: auto;
 }
 .status{
-  position: fixed;
-  right: 5px;
+  height: 20px;
+  float:right;
+}
+
+#hide{
+  margin-top: -20px;
+  float: right;
 }
 
 #annotation-tools{
-  width: 25em;
+  width: 250px;
   border: 5px #555555;
   border-style: none none solid solid;
   border-bottom-left-radius: 20px;
   -moz-border-radius-bottomleft: 20px;
-  background: white;
-  padding: 25px;
+  background: url('/images/elements/tools-vertical.gif') white no-repeat;
+  background-position: 7px center;
+  padding: 30px;
   position: fixed;
   top: 0px;
-  right: 0px;
-  opacity: 0.3;
+  right: -280px;
 }
 
 #annotation-tools h3{
@@ -38,10 +43,6 @@
 
 #annotation-tools li{
   padding-bottom: 10px;
-}
-
-#annotation-tools:hover{
-  opacity: 1;
 }
 
 .ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text{

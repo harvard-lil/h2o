@@ -398,6 +398,26 @@ jQuery(document).ready(function(){
     jQuery.updateCollagePreview();
   }
   jQuery("#annotation_annotation").markItUp(mySettings);
+
+  jQuery('#annotation-tools').mouseenter(
+    function(){
+      jQuery(this).animate({
+        right: '0px'
+        },250,'swing'
+      );
+      jQuery(this).css({backgroundImage: 'none'});
+    }
+  );
+
+  jQuery('#hide').click(
+    function(e){
+      e.preventDefault();
+      jQuery('#annotation-tools').animate({
+        right: '-280px'
+      },250,'swing');
+      jQuery('#annotation-tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
+  });
+
   jQuery('#cancel-annotation a').click(function(e){
     e.preventDefault();
     // close tip.
@@ -405,6 +425,7 @@ jQuery(document).ready(function(){
     jQuery('#new-annotation-start').html('');
     jQuery('#new-annotation-end').html('');
   });
+
   if(jQuery('.collage-id').length > 0){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
