@@ -108,7 +108,7 @@
                             'url' : settings.url,
                             'dataType' : 'json',
                             'data' : { 'tag' : currentTag.tag },
-                            'async' : false, // wait until this is ajax hit is complete before continue
+                            //'async' : false, // wait until this is ajax hit is complete before continue
                             'success' : function (m) {
                                 matches = m;
                                 matches = jQuery.grep(matches, function (v, i) {

@@ -195,6 +195,13 @@ annotationButton: function(e,annotationId,ids){
                       }
                     });
                     jQuery("#annotation_annotation").markItUp(mySettings);
+
+                    jQuery(document).bind('keypress','ctrl+shift+n',
+                        function(e){
+                        alert('pressed!');
+                        jQuery.submitAnnotation();
+                        }
+                        );
                     jQuery('#annotation_layer_list').keypress(function(e){
                       if(e.keyCode == '13'){
                         e.preventDefault();
@@ -344,6 +351,10 @@ wordEvent: function(e){
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
             jQuery("#annotation_annotation").markItUp(mySettings);
+            jQuery(document).bind('keypress','ctrl+shift+n',function(e){
+              alert('pressed!');
+              jQuery.submitAnnotation()
+              });
             jQuery('#annotation_layer_list').keypress(function(e){
               if(e.keyCode == '13'){
                 e.preventDefault();
