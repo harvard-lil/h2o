@@ -21,7 +21,7 @@ submitAnnotation: function(){
     },
     success: function(response){
       jQuery('#spinner_block').hide();
-      jQuery.cookie('active-layer-names', jQuery('#annotation_layer_list').val());
+      jQuery.cookie('layer-names', jQuery('#annotation_layer_list').val(), {expires: 365});
       jQuery('#annotation-form').dialog('close');
       if(window.console){
         console.log("Annotation object is:");
@@ -356,8 +356,7 @@ wordEvent: function(e){
             }); 
             jQuery.updateAnnotationPreview(collageId);
             if(jQuery('#annotation_layer_list').val() == ''){
-              //FIXME - Ideally, we'd set this to the last layer that's been clicked. 
-              jQuery('#annotation_layer_list').val(jQuery.cookie('active-layer-names'));
+              jQuery('#annotation_layer_list').val(jQuery.cookie('layer-names'));
             }
           },
           error: function(xhr){
@@ -399,8 +398,13 @@ jQuery(document).ready(function(){
   }
   jQuery("#annotation_annotation").markItUp(mySettings);
 
+  if(jQuery.cookie('tool-open') == '1'){
+      jQuery('#annotation-tools').css({right: '0px', backgroundImage: 'none'});
+  }
+
   jQuery('#annotation-tools').mouseenter(
     function(){
+      jQuery.cookie('tool-open','1', {expires: 365});
       jQuery(this).animate({
         right: '0px'
         },250,'swing'
@@ -411,6 +415,7 @@ jQuery(document).ready(function(){
 
   jQuery('#hide').click(
     function(e){
+      jQuery.cookie('tool-open','0', {expires: 365});
       e.preventDefault();
       jQuery('#annotation-tools').animate({
         right: '-280px'

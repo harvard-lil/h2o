@@ -78,9 +78,9 @@
   </div>
   <%= will_paginate @cases %>
   <%= render :partial => 'shared/layout_components/per_page_selector' %>
-  <div class="info_block controls">
-    <% if current_user && current_user.case_manager? %>
+  <% if current_user && current_user.case_manager? %>
+    <div class="info_block controls">
       <%= link_to 'New case', new_case_path, :class => 'button' %>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>

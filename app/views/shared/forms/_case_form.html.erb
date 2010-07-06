@@ -12,9 +12,9 @@
   <% form.inputs do %>
     <%= form.input :short_name %>
     <%= form.input :full_name %>
-    <%= form.input :decision_date %>
+    <%= form.input :decision_date, :required => false %>
     <%= form.input :current_opinion %>
-    <%= form.input :author %>
+    <%= form.input :author, :required => false %>
     <%= form.input :case_jurisdiction %>
 
     <% form.semantic_fields_for :case_docket_numbers do |cd| %>
