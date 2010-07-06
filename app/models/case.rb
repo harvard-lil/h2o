@@ -5,7 +5,6 @@ class Case < ActiveRecord::Base
   include TaggingExtensions::InstanceMethods
   include AuthUtilities
 
-
   acts_as_authorization_object
   
   acts_as_taggable_on :tags

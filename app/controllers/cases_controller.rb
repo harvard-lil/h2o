@@ -11,7 +11,7 @@ class CasesController < BaseController
     allow :case_manager
     allow :admin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
-    allow all, :to => [:show, :index, :new, :create, :metadata, :autocomplete_tags]
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags]
   end
 
   def autocomplete_tags
@@ -26,9 +26,9 @@ class CasesController < BaseController
   # GET /cases.xml
   def index
     if params[:tags]
-      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false)).all(:include => [:tags, :collages, :case_citations])
+      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false)).paginate(:include => [:tags, :collages, :case_citations], :page => params[:page], :per_page => cookies[:per_page] || nil, :order => 'short_name')
     else
-      @cases = Case.find(:all, :include => [:tags, :collages, :case_citations])
+      @cases = Case.paginate(:include => [:tags, :collages, :case_citations], :page => params[:page], :per_page => cookies[:per_page] || nil, :order => 'short_name')
     end
     @tags = Case.tag_counts_on(:tags).all(:order => :name)
 

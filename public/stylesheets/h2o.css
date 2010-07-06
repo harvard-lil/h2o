@@ -527,3 +527,16 @@ span.tagMatches span, .layers span.c0,.c0{
 .highlight, .subhighlight{
  background-color: yellow; 
 }
+
+.pagination{
+  margin: 5px;
+  float: right;
+}
+
+.per-page{
+  float: right;
+}
+
+.per-page-selector{
+  font-size: 13px;
+}
