@@ -23,10 +23,6 @@ submitAnnotation: function(){
       jQuery('#spinner_block').hide();
       jQuery.cookie('layer-names', jQuery('#annotation_layer_list').val(), {expires: 365});
       jQuery('#annotation-form').dialog('close');
-      if(window.console){
-        console.log("Annotation object is:");
-        console.log(response.annotation);
-      }
       document.location = jQuery.rootPath() + 'collages/' + collageId;
     }
   });
@@ -421,6 +417,20 @@ jQuery(document).ready(function(){
         right: '-280px'
       },250,'swing');
       jQuery('#annotation-tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
+  });
+
+  if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
+    jQuery('#hide-non-annotated-text').attr('checked',true);
+  }
+
+  jQuery('#hide-non-annotated-text').click(function(e){
+      if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
+        jQuery.cookie('hide-non-annotated-text',null);
+        jQuery('#hide-non-annotated-text').attr('checked',false);
+      } else {
+        jQuery.cookie('hide-non-annotated-text','hide',{expires: 365});
+        jQuery('#hide-non-annotated-text').attr('checked',true);
+      }
   });
 
   jQuery('#cancel-annotation a').click(function(e){

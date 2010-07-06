@@ -1,5 +1,12 @@
 <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
 <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
+<% if ! cookies['hide-non-annotated-text'].blank? %>
+  <style type="text/css">
+    tt{
+      display: none;
+    }
+  </style>
+<% end %>
 <% if ! cookies['active-layer-ids'].blank? %> 
   <style type="text/css">
     <% 
@@ -40,7 +47,7 @@
   <h2><%=h @collage.display_name %></h2>
   <h3>Layers</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
-  <h3>Hide Layers</h3>
+  <h3>Layers</h3>
   <div id="view-layer-list" class="layers">
     <% @collage.layers.each do |l| %>
       <div class="tag-container">
@@ -49,8 +56,9 @@
       </div>
     <% end %>
   </div>
+  <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Hide unlayered text</label><br/>
   <div id="layer-button">
-    <%= link_to('apply', collage_path(@collage), :class => 'layer-button') %>
+    <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
   </div>
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
