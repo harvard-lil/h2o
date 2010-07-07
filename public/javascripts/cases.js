@@ -1,4 +1,5 @@
 jQuery(document).ready(function(){
+    jQuery.observeToolbar();
     jQuery('.button').button();
     jQuery('.tablesorter').tablesorter();
 

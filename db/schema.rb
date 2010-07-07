@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100614172345) do
+ActiveRecord::Schema.define(:version => 20100707151105) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -131,6 +131,8 @@ ActiveRecord::Schema.define(:version => 20100614172345) do
     t.string   "content",           :limit => 5242880, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "word_count"
+    t.string   "indexable_content", :limit => 5242880
   end
 
   add_index "collages", ["ancestors_count"], :name => "index_collages_on_ancestors_count"
@@ -144,6 +146,7 @@ ActiveRecord::Schema.define(:version => 20100614172345) do
   add_index "collages", ["parent_id"], :name => "index_collages_on_parent_id"
   add_index "collages", ["position"], :name => "index_collages_on_position"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
+  add_index "collages", ["word_count"], :name => "index_collages_on_word_count"
 
   create_table "influences", :force => true do |t|
     t.integer  "resource_id"

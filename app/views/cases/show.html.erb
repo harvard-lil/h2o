@@ -20,3 +20,19 @@
 
 </div>
 
+<% if current_user %>
+  <div id="tools">
+    <a id="hide" href="#">hide</a>
+    <h2><%=h @case.display_name %></h2>
+    <ul>
+      <li>
+      <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'button') %>
+      </li>
+      <% if current_user && current_user.case_manager? %> 
+        <li>
+        <%= link_to('edit', edit_case_path(@case), :class => 'button' ) %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

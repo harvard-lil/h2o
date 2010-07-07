@@ -3,6 +3,7 @@
 <% unless request.xhr? %>
   <h1>Add New Collage</h1>
 <% end %>
+<h3 style="margin-bottom: 1em;">on <%= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
 <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
   <% form.inputs do %>
     <%= form.input :name %>

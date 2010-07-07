@@ -61,7 +61,7 @@ class Collage < ActiveRecord::Base
         layer_list = ann.layers.collect{|l| "l#{l.id}"}
         layer_list << "a#{ann.id}"
         ann.annotated_nodes(doc).each do |item|
-          item['class'] = "#{item['class']} #{layer_list.join(' ')}"
+          item['class'] = [(item['class'].blank? ? nil : item['class'].split), layer_list].flatten.compact.uniq.join(' ')
         end
       end
       doc.xpath("//html/body/*").to_s
@@ -84,10 +84,14 @@ class Collage < ActiveRecord::Base
       end
     end
     class_counter = 1
+    indexable_content = []
     doc.xpath('//tt').each do |n|
       n['id'] = "t#{class_counter}"
       class_counter +=1
+      indexable_content << n.text.strip
     end
+    self.word_count = class_counter
+    self.indexable_content = indexable_content.join(' ')
     self.content = doc.xpath("//html/body/*").to_s
   end
 

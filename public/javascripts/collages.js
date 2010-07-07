@@ -47,14 +47,10 @@ annotateRange: function(obj){
     ids.push('#t' + i);
   }
   var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
-  var hasActiveLayer = false;
   var layerNames = [];
   var lastLayerId = 0;
   jQuery(obj.layers).each(function(){
     layerNames.push(this.name);
-    if(activeLayers[this.id] == 1){
-      hasActiveLayer = true;
-    }
     lastLayerId = this.id;
   });
 
@@ -78,14 +74,10 @@ annotateRange: function(obj){
       jQuery.annotationButton(e,obj.id,ids);
     },
     mouseover: function(e){
-      if(! hasActiveLayer){
-        jQuery('.a' + obj.id).addClass('highlight');
-      }
+      jQuery('.a' + obj.id).addClass('highlight');
     },
     mouseout: function(e){
-      if(! hasActiveLayer){
-        jQuery('.a' + obj.id).removeClass('highlight');
-      }
+      jQuery('.a' + obj.id).removeClass('highlight');
     }
   });
   jQuery("#annotation-control-" + obj.id + "-end").button({icons: {primary: 'ui-icon-arrowthick-1-w'}}).bind({
@@ -93,14 +85,10 @@ annotateRange: function(obj){
       jQuery.annotationButton(e,obj.id,ids)
     },
     mouseover: function(e){
-      if(! hasActiveLayer){
-        jQuery('.a' + obj.id).addClass('highlight');
-      }
+      jQuery('.a' + obj.id).addClass('highlight');
     },
     mouseout: function(e){
-      if(! hasActiveLayer){
-        jQuery('.a' + obj.id).removeClass('highlight');
-      }
+      jQuery('.a' + obj.id).removeClass('highlight');
     }
   });
 
@@ -405,30 +393,7 @@ jQuery(document).ready(function(){
   }
   jQuery("#annotation_annotation").markItUp(mySettings);
 
-  if(jQuery.cookie('tool-open') == '1'){
-      jQuery('#annotation-tools').css({right: '0px', backgroundImage: 'none'});
-  }
-
-  jQuery('#annotation-tools').mouseenter(
-    function(){
-      jQuery.cookie('tool-open','1', {expires: 365});
-      jQuery(this).animate({
-        right: '0px'
-        },250,'swing'
-      );
-      jQuery(this).css({backgroundImage: 'none'});
-    }
-  );
-
-  jQuery('#hide').click(
-    function(e){
-      jQuery.cookie('tool-open','0', {expires: 365});
-      e.preventDefault();
-      jQuery('#annotation-tools').animate({
-        right: '-280px'
-      },250,'swing');
-      jQuery('#annotation-tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
-  });
+  jQuery.observeToolbar();
 
   if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
     jQuery('#hide-non-annotated-text').attr('checked',true);

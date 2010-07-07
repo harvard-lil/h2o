@@ -540,3 +540,43 @@ span.tagMatches span, .layers span.c0,.c0{
 .per-page-selector{
   font-size: 13px;
 }
+
+#tools{
+  width: 250px;
+  border: 5px #555555;
+  border-style: none none solid solid;
+  border-bottom-left-radius: 20px;
+  -moz-border-radius-bottomleft: 20px;
+  background: url('/images/elements/tools-vertical.gif') white no-repeat;
+  background-position: 7px center;
+  padding: 30px;
+  position: fixed;
+  top: 0px;
+  right: -280px;
+}
+
+#tools h3{
+  margin-top: 10px;
+}
+
+#tools h2, #tools .meta{
+  margin: 0px 0px 1em 0px;
+  padding-bottom: 5px;
+  border-bottom: 1px dotted #cccccc;
+}
+
+#tools ul, #tools li{
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+#tools li{
+  padding-bottom: 10px;
+}
+
+#tools #hide{
+  margin-top: -20px;
+  float: right;
+}
+
