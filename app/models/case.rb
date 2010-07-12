@@ -9,6 +9,8 @@ class Case < ActiveRecord::Base
   
   acts_as_taggable_on :tags
 
+  before_destroy :deleteable?
+
   # This method should return true if instances of this class are annotatable under the collage system.
   def self.annotatable
     true
@@ -51,5 +53,15 @@ class Case < ActiveRecord::Base
   validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes), :allow_blank => true
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes)
+
+  def deleteable?
+    # Only allow deleting if there haven't been any collages created from this case.
+    self.collages.length == 0
+  end
+
+  def content_editable?
+    # Only allow the content to be edited if there haven't been any collages created from this case.
+    self.collages.length == 0
+  end
 
 end
