@@ -71,7 +71,8 @@ class CollagesController < BaseController
     @collage.accepts_role!(:creator, current_user)
     respond_to do |format|
       if @collage.save
-        flash[:notice] = 'Collage was successfully created.'
+        session[:just_born] = true
+        #flash[:notice] = 'Collage was successfully created.'
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
       else

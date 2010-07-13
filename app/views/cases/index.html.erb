@@ -68,7 +68,7 @@
                   <% if current_user && current_user.case_manager? %> 
                     <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
                     <% if c.deleteable? %>
-                      <%= link_to('destroy', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
+                      <%= link_to('delete', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
                     <% end %>
                   <% end %>
                 </td>

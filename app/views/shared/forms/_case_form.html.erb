@@ -12,8 +12,8 @@
   <% form.inputs do %>
     <%= form.input :short_name %>
     <%= form.input :full_name %>
-    <%= form.input :decision_date, :required => false %>
-    <%= form.input :current_opinion %>
+    <%= form.input :decision_date, :required => false, :start_year => 1800, :end_year => Time.now.year %>
+    <%= form.input :current_opinion, :required => false, :name => 'Current Opinion?', :hint => 'Not really needed' %>
     <%= form.input :author, :required => false %>
     <%= form.input :case_jurisdiction %>
 

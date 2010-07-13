@@ -1,12 +1,23 @@
 <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
 <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
-<% if ! cookies['hide-non-annotated-text'].blank? %>
+<% if ! cookies['hide-non-annotated-text'].blank? && session[:just_born].blank? %>
   <style type="text/css">
     tt{
       display: none;
     }
   </style>
 <% end %>
+<% 
+  if ! session[:just_born].blank?
+    # This is a new collage, make sure we don't hide non-annotated text because it'll be confusing.
+    session[:just_born] = nil %>
+    <div class="info_block">
+      <h1 class="yellow_title_med">Collage created!</h1>
+      We've created a new collage. We're showing all text, whether or not the "unlayered text" hide control (under the "tools" menu) is checked or not. Be sure to uncheck "unlayered text" if you're not planning to add an annotation right now.
+    </div>
+<%
+  end 
+%>
 <% if ! cookies['active-layer-ids'].blank? %> 
   <style type="text/css">
     <% 
