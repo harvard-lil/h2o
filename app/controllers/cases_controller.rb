@@ -41,8 +41,6 @@ class CasesController < BaseController
   # GET /cases/1
   # GET /cases/1.xml
   def show
-    @case = Case.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @case }
@@ -62,7 +60,6 @@ class CasesController < BaseController
 
   # GET /cases/1/edit
   def edit
-    @case = Case.find(params[:id])
   end
 
   # POST /cases
@@ -106,9 +103,7 @@ class CasesController < BaseController
   # DELETE /cases/1
   # DELETE /cases/1.xml
   def destroy
-    @case = Case.find(params[:id])
     @case.destroy
-
     respond_to do |format|
       format.html { redirect_to(cases_url) }
       format.xml  { head :ok }

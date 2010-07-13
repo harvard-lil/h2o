@@ -67,6 +67,9 @@
                   <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
                   <% if current_user && current_user.case_manager? %> 
                     <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
+                    <% if c.deleteable? %>
+                      <%= link_to('destroy', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
+                    <% end %>
                   <% end %>
                 </td>
               <% end %>
