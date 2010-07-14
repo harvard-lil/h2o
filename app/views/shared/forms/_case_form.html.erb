@@ -11,18 +11,23 @@
   <% form.object.case_citations.build %>
   <% form.inputs do %>
     <%= form.input :short_name %>
-    <%= form.input :full_name %>
-    <%= form.input :decision_date, :required => false, :start_year => 1800, :end_year => Time.now.year %>
-    <%= form.input :current_opinion, :required => false, :name => 'Current Opinion?', :hint => 'Not really needed' %>
-    <%= form.input :author, :required => false %>
-    <%= form.input :case_jurisdiction %>
-
+    <%= form.input :full_name, :required => false %>
+    <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
+    <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
+    <hr />
+    <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => ((form.object.new_record?) ? 'Please choose a jurisdiction. If it doesn\'t exist, enter it below' : 'Please choose a jurisdiction. You can edit the currently selected jurisdiction below') %>
+    <% form.semantic_fields_for :case_jurisdiction do |cj| %>
+      <%= cj.inputs :abbreviation, :name, :name => ((cj.object.new_record?) ? "New jurisdiction" : 'Edit existing jurisdiction') %>
+    <% end %>
+    <hr />
     <% form.semantic_fields_for :case_docket_numbers do |cd| %>
-      <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "New Docket Number" : 'Edit Docket Number') %>
+      <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>
     <% end %>
+    <hr />
     <% form.semantic_fields_for :case_citations do |cd| %>
-      <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "New Citation" : 'Edit Citation') %>
+      <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
     <% end %>
+    <hr />
     <% if @case.new_record? || @case.content_editable? %>
       <%= form.input :content,
         :as => :text,

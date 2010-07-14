@@ -34,10 +34,6 @@ class Case < ActiveRecord::Base
     :allow_destroy => true,
     :reject_if => proc { |att| att['abbreviation'].blank? || att['name'].blank? }
 
-#  def case_manager?
-#    return (current_user.has_role?(:case_manager) || current_user.has_role?(:admin) || self.accepts_role?(:owner, current_user))
-#  end
-
   def self.select_options
     self.find(:all).collect{|c|[c.display_name,c.id]}
   end
@@ -46,13 +42,16 @@ class Case < ActiveRecord::Base
     (short_name.blank?) ? full_name : short_name
   end
 
-  validates_presence_of   :short_name, :full_name, :content
+  validate :date_check
+
+  validates_presence_of   :short_name,      :content
   validates_length_of     :short_name,      :in => 1..150
-  validates_length_of     :full_name,       :in => 1..500
+  validates_length_of     :full_name,       :in => 1..500,            :allow_blank => true
   validates_length_of     :party_header,    :in => 1..(10.kilobytes), :allow_blank => true
-  validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes), :allow_blank => true
+  validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes),  :allow_blank => true
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes)
+
 
   def deleteable?
     # Only allow deleting if there haven't been any collages created from this case.
@@ -62,6 +61,14 @@ class Case < ActiveRecord::Base
   def content_editable?
     # Only allow the content to be edited if there haven't been any collages created from this case.
     self.collages.length == 0
+  end
+
+  private
+
+  def date_check
+    if ! self.decision_date.blank? && self.decision_date > Date.today
+      errors.add(:decision_date,'cannot be in the future')
+    end
   end
 
 end

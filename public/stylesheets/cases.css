@@ -1,3 +1,8 @@
 .ui-button{
   font-size: 10px;
 }
+
+form.formtastic legend{
+  font-size: larger;
+  font-weight: bold;
+}

@@ -11,7 +11,7 @@ class CasesController < BaseController
     allow :case_manager
     allow :admin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
-    allow all, :to => [:show, :index, :metadata, :autocomplete_tags]
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create]
   end
 
   def autocomplete_tags
@@ -51,6 +51,7 @@ class CasesController < BaseController
   # GET /cases/new.xml
   def new
     @case = Case.new
+    @case.case_jurisdiction = CaseJurisdiction.new
 
     respond_to do |format|
       format.html # new.html.erb
@@ -69,6 +70,8 @@ class CasesController < BaseController
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
     @case = Case.new(params[:case])
+    @case.accepts_role!(:owner, current_user)
+    @case.accepts_role!(:creator, current_user)
 
     respond_to do |format|
       if @case.save
