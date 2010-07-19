@@ -3,21 +3,40 @@
     <h1 class="yellow_title_med">Collages</h1>
     Collages allow you to annotate text - for instance, <%= link_to('a court case or decision', cases_url) %>. This page lists Collages you have the ability to view or manage.
   </div>
-  <div class="spacer_block"></div>
+
+  <% unless @my_collages.blank? %>
+    <div class="info_block">
+      <h1 class="yellow_title_med">My Collages - <%= @my_collages.length %> total</h1>
+    </div>
+    <div class="list_block">
+      <table class="core_table tablesorter">
+        <thead>
+          <tr class="table_heading">
+            <th>Collage</th>
+            <th>Annotations</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render :partial => 'shared/objects/collage', :collection => @my_collages, :locals => {:edit_controls => true} %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <div class="info_block">
+    <h1 class="yellow_title_med">All Collages - <%= @collages.length %> total</h1>
+  </div>
   <div class="list_block">
     <table class="core_table tablesorter">
       <thead>
         <tr class="table_heading">
           <th>Collage</th>
-          <th>Original Case</th>
           <th>Annotations</th>
-          <% if current_user %>
-            <th>&nbsp;</th>
-          <% end %>
         </tr>
       </thead>
       <tbody>
-        <%= render :partial => 'shared/objects/collage', :collection => @collages %>
+        <%= render :partial => 'shared/objects/collage', :collection => @collages, :locals => {:edit_controls => false } %>
       </tbody>
     </table>
   </div>

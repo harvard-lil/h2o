@@ -395,6 +395,11 @@ jQuery(document).ready(function(){
 
   jQuery.observeToolbar();
 
+  if(jQuery('.just_born').length > 0){
+    // New collage. Deactivate control.
+    jQuery.cookie('hide-non-annotated-text', null);
+  }
+
   if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
     jQuery('#hide-non-annotated-text').attr('checked',true);
   }

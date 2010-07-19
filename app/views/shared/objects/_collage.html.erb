@@ -2,18 +2,19 @@
   <td>
     <%= link_to collage.display_name, collage_path(collage) %><br />
     <%= collage.description %>
-  </td>
-  <td><%= link_to(collage.annotatable.display_name, collage.annotatable) %>, in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.
+    <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
   </td>
   <td>
     <%= render :partial => 'shared/collage_meta', :object => collage %>
   </td>
-  <% if current_user %>
-    <td>
-      <% if collage.owner? %>
-        <%= link_to 'Edit metadata', edit_collage_path(collage), :class => 'button' %>
-        <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
-      <% end %>
-    </td>
+  <% if edit_controls %>
+    <% if current_user %>
+      <td>
+        <% if collage.owner? %>
+          <%= link_to 'Edit metadata', edit_collage_path(collage), :class => 'button' %>
+          <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
+        <% end %>
+      </td>
+    <% end %>
   <% end %>
 </tr>

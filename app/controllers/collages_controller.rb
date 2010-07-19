@@ -31,7 +31,8 @@ class CollagesController < BaseController
   # GET /collages
   # GET /collages.xml
   def index
-    @collages = Collage.find(:all, :include => [:annotations => [:layers], :annotatable => 1])
+    @collages = Collage.find(:all, :include => [:annotations => [:layers], :annotatable => true])
+    @my_collages = @collages.find_all{|c| c.accepts_role?(:owner, current_user)}
 
     respond_to do |format|
       format.html # index.html.erb
