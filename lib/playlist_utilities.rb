@@ -5,13 +5,13 @@ module PlaylistUtilities
 
   include ActionView::Helpers::TextHelper
 
-  def identify_object(url_string)
+  def identify_object(url_string,uri)
     return_hash = Hash.new
-    url = URI.parse(url_string)
+    uri = URI.parse(url_string)
     metadata_hash = Hash.new
     object_type = ""
 
-    metadata_hash = get_metadata_hash(url_string)
+    metadata_hash = get_metadata_hash(url_string,uri)
 
     if metadata_hash["object-type"].present?
 
@@ -26,12 +26,12 @@ module PlaylistUtilities
         return_hash["type"] = "ItemPlaylist"
       end
 
-    elsif url.host =~ /youtube.com$/
+    elsif uri.host =~ /youtube.com$/
       return_hash["type"] = "ItemYoutube"
     else
-      Net::HTTP.start(url.host, url.port) do |http|
+      Net::HTTP.start(uri.host, uri.port) do |http|
         ### return_hash["result"] = http.head(url.request_uri)
-        result = http.head(url.request_uri)
+        result = http.head(uri.request_uri)
         return_hash["content_type"] = result.content_type
 
         case return_hash["content_type"]
@@ -45,7 +45,7 @@ module PlaylistUtilities
           return_hash["type"] = "ItemImage"
         when "text/plain" then
           return_hash["type"] = "ItemText"
-          return_hash["body"] = truncate(http.get(url.request_uri).body, :length => 1000)
+          return_hash["body"] = truncate(http.get(uri.request_uri).body, :length => 1000)
         end
       end
     end
@@ -56,11 +56,21 @@ module PlaylistUtilities
 
   end
 
-  def get_metadata_hash(url)
+  def get_metadata_hash(url,uri)
     result_hash = Hash.new
 
+    request = nil
+    document = nil
     begin
-      document = Nokogiri::XML(open(url + "/metadata"))
+      Net::HTTP.start(uri.host,uri.port) do |http|
+        logger.warn('Making head request to see if ' + url + '/metadata is valid')
+        request = http.head(uri.request_uri + '/metadata')
+      end
+      if request.is_a?(Net::HTTPSuccess)
+        logger.warn('it is. Get the content')
+        response = Net::HTTP.get(uri.host,uri.request_url + '/metadata', uri.port)
+        document = Nokogiri::XML(response)
+      end
     rescue
     end
 

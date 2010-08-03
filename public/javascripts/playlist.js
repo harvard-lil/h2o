@@ -31,9 +31,12 @@ jQuery(function() {
         }
     }).disableSelection();
 
-    jQuery("#url_review").live('click', function() {
+    jQuery("#url_review").live('click', function(e){
+      jQuery('#url_error').html('').hide();
+      e.preventDefault();
+      var urlToCheck = jQuery('#url_input').val();
+      if(urlToCheck.length > 0 && urlToCheck.match(/https?:\/\/[^\.]{1,1000}[\.][^\.]{1,1000}/)){
         var container_id = jQuery('#container_id').text();
-
         jQuery.ajax({
             type: "post",
             dataType: 'json',
@@ -50,8 +53,10 @@ jQuery(function() {
                 })
             }
         });
-
-
+      } else {
+        e.preventDefault();
+        jQuery('#url_error').html('Please check the URL you entered to ensure it\'s valid.').show();
+      }
     });
 
     jQuery("#item_type").live('change', function() {

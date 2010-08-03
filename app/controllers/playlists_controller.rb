@@ -184,12 +184,12 @@ class PlaylistsController < ApplicationController
     return_hash["url_string"] = test_url
     return_hash["description_string"]
 
-    url = URI.parse(test_url)
+    uri = URI.parse(test_url)
 
-    object_hash = identify_object(test_url)
+    object_hash = identify_object(test_url,uri)
 
-    return_hash["host"] = url.host
-    return_hash["port"] = url.port
+    return_hash["host"] = uri.host
+    return_hash["port"] = uri.port
     return_hash["type"] = object_hash["type"]
 
     if return_hash["type"] == "ItemText" then return_hash["body"] = object_hash["body"] end
