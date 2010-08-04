@@ -16,15 +16,31 @@ module PlaylistUtilities
     if metadata_hash["object-type"].present?
 
       object_type = metadata_hash["object-type"]
+      
+      logger.warn('object type is:' + object_type)
+
+      logger.warn('Metadata hash' + metadata_hash.inspect)
+
+      created_date = ''
+      begin
+        created_date = Time.parse(metadata_hash['created-at']).to_s(:long)
+      end
 
       case object_type
       when "QuestionInstance" then
         return_hash["type"] = "ItemQuestionInstance"
+        return_hash['body'] = "<h3>#{h metadata_hash['title']}</h3>
+<ul>
+  <li>has #{h metadata_hash['child-object-count']} #{h metadata_hash['child-object-plural']}.</li>
+  <li>was created #{h created_date}.</li>
+</ul>" 
       when "RotisserieDiscussion" then
         return_hash["type"] = "ItemRotisserieDiscussion"
       when "Playlist" then
         return_hash["type"] = "ItemPlaylist"
       end
+
+      logger.warn('type is: ' + return_hash['type'] )
 
     elsif uri.host =~ /youtube.com$/
       return_hash["type"] = "ItemYoutube"
@@ -59,19 +75,18 @@ module PlaylistUtilities
   def get_metadata_hash(url,uri)
     result_hash = Hash.new
 
-    request = nil
+    result = nil
     document = nil
     begin
       Net::HTTP.start(uri.host,uri.port) do |http|
-        logger.warn('Making head request to see if ' + url + '/metadata is valid')
-        request = http.head(uri.request_uri + '/metadata')
+        result = http.head(uri.request_uri + '/metadata')
       end
-      if request.is_a?(Net::HTTPSuccess)
-        logger.warn('it is. Get the content')
-        response = Net::HTTP.get(uri.host,uri.request_url + '/metadata', uri.port)
+      if result.is_a?(Net::HTTPSuccess)
+        response = Net::HTTP.get(uri.host,uri.request_uri + '/metadata', uri.port)
         document = Nokogiri::XML(response)
       end
-    rescue
+    rescue Exception => e
+      logger.warn("Failed to get metadata hash: " + e.inspect)
     end
 
     if document.present?

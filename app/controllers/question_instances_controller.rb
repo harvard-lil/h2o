@@ -21,13 +21,13 @@ class QuestionInstancesController < BaseController
   end
 
   def metadata
-    @question_instance[:object_type] = @question_instance.class.to_s
+    @question_instance[:object_type] = h @question_instance.class.to_s
     @question_instance[:child_object_name] = 'question'
     @question_instance[:child_object_plural] = 'questions'
-    @question_instance[:child_object_count] = @question_instance.question_count
+    @question_instance[:child_object_count] = h @question_instance.question_count
     @question_instance[:child_object_type] = 'Question'
     @question_instance[:child_object_ids] = @question_instance.root_question_ids
-    @question_instance[:title] = @question_instance.name
+    @question_instance[:title] = h @question_instance.name
     render :xml => @question_instance.to_xml(:skip_types => true)
   end
 

@@ -141,7 +141,7 @@ class RotisserieDiscussionsController < ApplicationController
     @rotisserie_discussion[:child_object_plural] = 'rotisserie_posts'
     @rotisserie_discussion[:child_object_count] = @rotisserie_discussion.rotisserie_posts.length
     @rotisserie_discussion[:child_object_type] = 'RotisseriePost'
-    @rotisserie_discussion[:child_object_ids] = @rotisserie_discussion.rotisserie_posts.collect(&:id).compact
+    @rotisserie_discussion[:child_object_ids] = @rotisserie_discussion.rotisserie_posts.collect(&:id).compact.join(',')
     @rotisserie_discussion[:title] = @rotisserie_discussion.output_text
     render :xml => @rotisserie_discussion.to_xml(:skip_types => true)
   end

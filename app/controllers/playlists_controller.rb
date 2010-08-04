@@ -191,8 +191,15 @@ class PlaylistsController < ApplicationController
     return_hash["host"] = uri.host
     return_hash["port"] = uri.port
     return_hash["type"] = object_hash["type"]
+    return_hash["body"] = object_hash["body"]
 
-    if return_hash["type"] == "ItemText" then return_hash["body"] = object_hash["body"] end
+    logger.warn(return_hash.inspect)
+
+#    if return_hash["type"] == "ItemText" 
+#      return_hash["body"] = object_hash["body"] 
+#    elsif return_hash["type"] == 'ItemQuestionInstance'
+#      return_hash["body"] = 'I am a serious body'
+#    end
 
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
