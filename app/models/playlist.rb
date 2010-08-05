@@ -1,7 +1,11 @@
 class Playlist < ActiveRecord::Base
+  extend PlaylistableExtensions::ClassMethods
+
+  include PlaylistableExtensions::InstanceMethods
   include AuthUtilities
+
   acts_as_authorization_object
-  
+
   #has_many :playlist_items, :order => :position
   has_many :playlist_items, :order => "playlist_items.position"
   has_many :roles, :as => :authorizable

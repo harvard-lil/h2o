@@ -1,4 +1,9 @@
+require 'playlistable_extensions'
+
 class Question < ActiveRecord::Base
+  extend PlaylistableExtensions::ClassMethods
+
+  include PlaylistableExtensions::InstanceMethods
   include AuthUtilities
 
   acts_as_authorization_object

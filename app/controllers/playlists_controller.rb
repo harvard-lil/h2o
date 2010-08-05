@@ -1,7 +1,7 @@
+require 'net/http'
+require 'uri'
+
 class PlaylistsController < ApplicationController
-  
-  require 'net/http'
-  require 'uri'
 
   include PlaylistUtilities
 

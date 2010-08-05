@@ -1,7 +1,11 @@
 require 'tagging_extensions'
+require 'playlistable_extensions'
 
 class Case < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
+  extend PlaylistableExtensions::ClassMethods
+
+  include PlaylistableExtensions::InstanceMethods
   include TaggingExtensions::InstanceMethods
   include AuthUtilities
 

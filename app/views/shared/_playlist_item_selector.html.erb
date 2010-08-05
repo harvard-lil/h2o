@@ -1,0 +1,8 @@
+<div id="accordion">
+  <%= render :partial => 'shared/playlistable_item', :collection => PlaylistItem.playlistable_classes %>
+</div>
+<%= javascript_tag(%q|
+  jQuery(document).ready(function(){
+    jQuery('#accordion').accordion();
+  });
+|) %>

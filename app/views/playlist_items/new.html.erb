@@ -1,18 +1,27 @@
-<div id="url_error" class="error" style="display: none;">
+<div id="url_error" class="error" style="display: none;"></div>
+
+<div id="tabs">
+  <ul>
+    <li><a href="#submit-url">From a URL</a></li>
+    <li><a href="#from-h2o">From this h2o</a></li>
+  </ul>
+  <div id="submit-url">
+    <%= text_field_tag 'url_input', nil,
+      :size => 45,
+      :name => 'url_input',
+      :class => "ui-widget-content ui-corner-all"
+    %>
+    <p><a id="url_review">Submit URL</a></p>
+    <div id="result_data">
+    </div>
+  </div>
+  <div id="from-h2o">
+    <%= render :partial => 'shared/playlist_item_selector' %>
+  </div>
 </div>
-<%= javascript_tag(%q|jQuery(function() {
+
+
+<%= javascript_tag(%q|jQuery(document).ready(function(){
   jQuery("#url_review").button();
-  });|) %>
-
-<%= text_field_tag 'url_input', nil,
-  :size => 50,
-  :name => 'url_input',
-  :class => "ui-widget-content ui-corner-all"
-%>
-
-<p>
-  <a id="url_review">Submit URL</a>
-</p>
-
-<div id="result_data">
-</div>
+  jQuery('#tabs').tabs();
+});|) %>

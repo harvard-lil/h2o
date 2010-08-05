@@ -1,4 +1,9 @@
+require 'playlistable_extensions'
+
 class PlaylistItem < ActiveRecord::Base
+  extend PlaylistableExtensions::ClassMethods
+
+  include PlaylistableExtensions::InstanceMethods
   include AuthUtilities
   
   acts_as_category :scope => :playlist, :hidden => :active
@@ -15,4 +20,15 @@ class PlaylistItem < ActiveRecord::Base
     ["H2O Rotisserie", "ItemRotisserieDiscussion"],
     ["H2O Playlist", "ItemPlaylist"]
     ]
+
+  def self.playlistable_classes
+    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 
+      model_name = Pathname(file).basename.to_s
+      model_name = model_name[0..(model_name.length - 4)]
+      model_name.camelize.constantize
+    end
+    # Responds to the annotatable class method with true.
+    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:playlistable?) && m.send(:playlistable?)}.sort{|a,b|a.class_name <=> b.class_name}
+  end
+
 end

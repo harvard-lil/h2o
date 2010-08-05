@@ -1,11 +1,15 @@
 require 'tagging_extensions'
 require 'redcloth_extensions'
+require 'playlistable_extensions'
 
 class Annotation < ActiveRecord::Base
   include AuthUtilities
   extend TaggingExtensions::ClassMethods
-  include TaggingExtensions::InstanceMethods
   extend RedclothExtensions::ClassMethods
+  extend PlaylistableExtensions::ClassMethods
+
+  include TaggingExtensions::InstanceMethods
+  include PlaylistableExtensions::InstanceMethods
 
   acts_as_voteable
   acts_as_category :scope => :collage_id

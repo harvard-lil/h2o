@@ -1,6 +1,11 @@
 require 'redcloth_extensions'
+require 'playlistable_extensions'
+
 class Collage < ActiveRecord::Base
+  extend PlaylistableExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
+
+  include PlaylistableExtensions::InstanceMethods
   include AuthUtilities
   acts_as_authorization_object
 
