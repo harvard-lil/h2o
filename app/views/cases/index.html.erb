@@ -1,89 +1,53 @@
+<% unless request.xhr? %>
 <div class="case-index">
-  <div class="info_block">
-    <h1 class="yellow_title_med">Cases</h1>
-    <p>Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.</p>
-    <div class="layers">
-      <% form_tag(url_for, :method => :get) do %>
-        <h2>Filter by tags</h2>
-        <p>
-        <% @tags.each do|t| %>
-          <div class="tag-container">
-            <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
-          </div>
+    <div class="info_block">
+      <h1 class="yellow_title_med">Cases</h1>
+      <p>Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.</p>
+      <div class="layers">
+        <% form_tag(url_for, :method => :get) do %>
+          <h2>Filter by tags</h2>
+          <p>
+          <% @tags.each do|t| %>
+            <div class="tag-container">
+              <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
+            </div>
+          <% end %>
+          </p>
+          <div class="clear spacer_block"></div>
+          <%= check_box_tag('any', true,((params[:any]) ? true : false), {:id => 'any'}) %><label for="any">Match any tag</label>
+          <input type="submit" class="button" value="Filter" /> <%= link_to('clear', url_for()) %>
         <% end %>
-        </p>
-        <div class="clear spacer_block"></div>
-        <%= check_box_tag('any', true,((params[:any]) ? true : false), {:id => 'any'}) %><label for="any">Match any tag</label>
-        <input type="submit" class="button" value="Filter" /> <%= link_to('clear', url_for()) %>
-      <% end %>
+      </div>
     </div>
-  </div>
+    <div class="spacer_block"></div>
+  <% end %>
 
-  <div class="spacer_block"></div>
 
   <div class="list_block">
     <% if @cases.blank? %>
       <h2>None found.</h2>
     <% else %>
-      <h2>Showing <%= (@cases.length > 1) ? "#{@cases.length} cases" : '1 case' %> of <%= @cases.total_entries %> total
-        <% if params[:tags] %>
-          tagged with <%=h params[:tags].join((params[:any]) ? ' or ' : ' and ') %> 
-        <% end %>
-      </h2>
 
-      <%= will_paginate @cases %>
-      <%= render :partial => 'shared/layout_components/per_page_selector' %>
-
-      <table class="core_table tablesorter">
-        <thead>
-          <tr class="table_heading">
-            <th>Case</th>
-            <th>Date</th>
-            <th>Tags</th>
-            <th>Collages</th>
-            <% if current_user %>
-              <th colspan="2">&nbsp;</th>
-            <% end %>
-          </tr>
-        </thead>
-        <tbody>
-          <% @cases.each do |c| %>
-            <tr>
-              <td><%= link_to(c.display_name, c) %><br/>
-                <%=h c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-              <td><%=h c.decision_date %></td>
-              <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
-              <td>
-                <% if ! c.collages.blank? %>
-                  <ul>
-                    <% c.collages.each do |collage| %>
-                      <li><%= link_to(collage.display_name, collage) %></li>
-                    <% end %>
-                  </ul>
-                <% end %>
-              </td>
-              <% if current_user %>
-                <td>
-                  <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
-                  <% if current_user && (current_user.case_manager? || c.accepts_role?(:owner,current_user) )%> 
-                    <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
-                    <% if c.deleteable? %>
-                      <%= link_to('delete', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
-                    <% end %>
-                  <% end %>
-                </td>
-              <% end %>
-            </tr>
+      <% unless request.xhr? %>
+        <h2>Showing <%= (@cases.length > 1) ? "#{@cases.length} cases" : '1 case' %> of <%= @cases.total_entries %> total
+          <% if params[:tags] %>
+            tagged with <%=h params[:tags].join((params[:any]) ? ' or ' : ' and ') %> 
           <% end %>
-        </tbody>
-      </table>
+        </h2>
+
+        <%= render :partial => 'shared/layout_components/per_page_selector' %>
+      <% end %>
+
+      <%= render :partial => 'case_list', :locals => {:cases => @cases } %>
+
     <% end %>
   </div>
-  <%= will_paginate @cases %>
-  <%= render :partial => 'shared/layout_components/per_page_selector' %>
-  <% if current_user %>
-    <div class="info_block controls">
-      <%= link_to 'New case', new_case_path, :class => 'button' %>
-    </div>
-  <% end %>
+  <% unless request.xhr? %>
+    <%= render :partial => 'shared/layout_components/per_page_selector' %>
+    <% if current_user %>
+      <div class="info_block controls">
+        <%= link_to 'New case', new_case_path, :class => 'button' %>
+      </div>
+    <% end %>
+  <% end %> 
 </div>

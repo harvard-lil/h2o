@@ -1,7 +1,5 @@
 jQuery(document).ready(function(){
     jQuery.observeToolbar();
-    jQuery('.button').button();
-    jQuery('.tablesorter').tablesorter();
 
     jQuery('.per-page-selector').change(function(){
       jQuery.cookie('per_page', jQuery(this).val(), {expires: 365});

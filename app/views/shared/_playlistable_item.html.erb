@@ -1,4 +1,8 @@
 <h3><%= link_to(playlistable_item.playlisting_name, '#') %></h3>
 <div>
-  <ul><li>asdfasdf</li></ul>
+  <ul>
+    <% playlistable_item.all.each do|pi| %>
+      <li><%= pi.display_name %></li>
+    <% end %>
+  </ul>
 </div>

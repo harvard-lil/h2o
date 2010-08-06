@@ -1,0 +1,64 @@
+<div id="case-list">
+  <%= will_paginate @cases %>
+  <div class="clear"></div>
+      <table class="core_table tablesorter">
+        <thead>
+          <tr class="table_heading">
+            <th>Case</th>
+            <th>Date</th>
+            <th>Tags</th>
+            <th>Collages</th>
+            <% if current_user %>
+              <th colspan="2">&nbsp;</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% cases.each do |c| %>
+            <tr>
+              <td><%= link_to(c.display_name, c) %><br/>
+                <%=h c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+              <td><%=h c.decision_date %></td>
+              <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
+              <td>
+                <% if ! c.collages.blank? %>
+                  <ul>
+                    <% c.collages.each do |collage| %>
+                      <li><%= link_to(collage.display_name, collage) %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              </td>
+              <% if current_user %>
+                <td>
+                  <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
+                  <% if current_user && (current_user.case_manager? || c.accepts_role?(:owner,current_user) )%> 
+                    <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
+                    <% if c.deleteable? %>
+                      <%= link_to('delete', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
+                    <% end %>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <%= will_paginate @cases %>
+    </div>
+<%= javascript_tag(%q|
+jQuery(document).ready(function(){
+  jQuery('.button').button();
+  jQuery('.tablesorter').tablesorter();
+  jQuery('.pagination a').click(function(e){
+    e.preventDefault();
+    jQuery.ajax({
+      type: 'GET',
+      url: jQuery(this).attr('href'),
+      success: function(html){
+        jQuery('#case-list').html(html);
+      }
+    });
+  });
+});
+|) %>

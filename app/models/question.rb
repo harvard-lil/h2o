@@ -124,6 +124,11 @@ class Question < ActiveRecord::Base
     (reply_count_val == 0) ? 'no comments' : ((reply_count_val == 1) ? '1 comment' : "#{reply_count_val} comments")
   end
 
+  def display_name
+    owners = self.accepted_roles.find_by_name('owner')
+    "On \"#{self.question_instance.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+  end
+
   private
 
   def update_root_question

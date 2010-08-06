@@ -41,6 +41,11 @@ class QuestionInstance < ActiveRecord::Base
     Question.not_featured(params.merge(:question_instance => self))
   end
 
+  def display_name
+    owners = self.accepted_roles.find_by_name('owner')
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+  end
+
   # Only used if there's significant tampering.
   def self.default_instance
     self.find(:first)
