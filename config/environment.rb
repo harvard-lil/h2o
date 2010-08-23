@@ -33,6 +33,8 @@ Rails::Initializer.run do |config|
   config.gem 'acts-as-taggable-on', :version => '2.0.6'
   config.gem 'fastercsv', :version => '1.5.3'
   config.gem 'will_paginate', :version => '2.3.14'
+#  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
+  config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named

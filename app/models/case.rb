@@ -56,6 +56,14 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes)
 
+  searchable do
+    text :short_name
+    text :full_name, :boost => 2.0
+    text :content
+    time :decision_date 
+    string :author, :stored => true
+    string :tag_list, :stored => true, :multiple => true
+  end
 
   def deleteable?
     # Only allow deleting if there haven't been any collages created from this case.
