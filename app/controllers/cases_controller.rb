@@ -25,11 +25,37 @@ class CasesController < BaseController
   # GET /cases
   # GET /cases.xml
   def index
-    if params[:tags]
-      @cases = Case.tagged_with(params[:tags], :any => (params[:any] ? true : false)).paginate(:include => [:tags, :collages, :case_citations], :page => params[:page], :per_page => cookies[:per_page] || nil, :order => 'short_name')
-    else
-      @cases = Case.paginate(:include => [:tags, :collages, :case_citations], :page => params[:page], :per_page => cookies[:per_page] || nil, :order => 'short_name')
+
+    @cases = Sunspot.new_search(Case)
+
+    @cases.build do
+      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+      data_accessor_for(Case).include = [:tags, :collages, :case_citations]
     end
+
+    if params[:tags]
+
+      if params[:any] 
+        @cases.build do
+          any_of do
+            params[:tags].each do|t|
+              with :tag_list, t
+            end
+          end
+        end
+
+      else
+        @cases.build do
+          params[:tags].each do|t|
+            with :tag_list, t
+          end
+        end
+      end
+
+    end
+
+    @cases.execute!
+
     @tags = Case.tag_counts_on(:tags).all(:order => :name)
 
     respond_to do |format|

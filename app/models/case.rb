@@ -39,7 +39,7 @@ class Case < ActiveRecord::Base
     :reject_if => proc { |att| att['abbreviation'].blank? || att['name'].blank? }
 
   def self.select_options
-    self.find(:all).collect{|c|[c.display_name,c.id]}
+    self.find(:all).collect{|c|[c.to_s,c.id]}
   end
 
   def display_name
@@ -63,6 +63,10 @@ class Case < ActiveRecord::Base
     time :decision_date 
     string :author, :stored => true
     string :tag_list, :stored => true, :multiple => true
+    string :collages, :stored => true, :multiple => true
+    string :case_citations, :stored => true, :multiple => true
+    string :case_docket_numbers, :stored => true, :multiple => true
+    string :case_jurisdiction, :stored => true, :multiple => true
   end
 
   def deleteable?
@@ -74,6 +78,8 @@ class Case < ActiveRecord::Base
     # Only allow the content to be edited if there haven't been any collages created from this case.
     self.collages.length == 0
   end
+
+  alias :to_s :display_name
 
   private
 

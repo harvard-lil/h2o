@@ -38,7 +38,7 @@ class Collage < ActiveRecord::Base
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
   def display_name
-    "#{self.name}, #{self.created_at.to_s(:simpledatetime)} #{(self.creators.blank?) ? '' : ' by ' + self.creators.collect{|u| u.login}.join(',')}"
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.creators.blank?) ? '' : ' by ' + self.creators.collect{|u| u.login}.join(',')}"
   end
 
   def layers
@@ -74,6 +74,8 @@ class Collage < ActiveRecord::Base
       self.content
     end
   end
+
+  alias :to_s :display_name
 
   private 
 

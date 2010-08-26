@@ -9,4 +9,6 @@ class CaseJurisdiction < ActiveRecord::Base
     self.name
   end
 
+  alias :to_s :display_name
+
 end

@@ -29,7 +29,7 @@
     <% else %>
 
       <% unless request.xhr? %>
-        <h2>Showing <%= (@cases.length > 1) ? "#{@cases.length} cases" : '1 case' %> of <%= @cases.total_entries %> total
+        <h2>Showing <%= (@cases.results.length > 1) ? "#{@cases.results.length} cases" : '1 case' %> of <%= @cases.hits.total_entries %> total
           <% if params[:tags] %>
             tagged with <%=h params[:tags].join((params[:any]) ? ' or ' : ' and ') %> 
           <% end %>

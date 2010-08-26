@@ -8,4 +8,6 @@ class CaseCitation < ActiveRecord::Base
     "#{self.volume} #{self.reporter} #{self.page}"
   end
 
+  alias :to_s :display_name
+
 end
