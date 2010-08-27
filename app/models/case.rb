@@ -58,6 +58,7 @@ class Case < ActiveRecord::Base
 
   searchable do
     text :short_name
+    string :short_name, :stored => true
     text :full_name, :boost => 2.0
     text :content
     time :decision_date 

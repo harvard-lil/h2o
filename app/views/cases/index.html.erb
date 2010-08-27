@@ -5,9 +5,10 @@
       <p>Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine.</p>
       <div class="layers">
         <% form_tag(url_for, :method => :get) do %>
-          <h2>Filter by tags</h2>
+          <h2>Filter by tags or keywords</h2>
           <p>
-          <% @tags.each do|t| %>
+          <label for="keywords">Keywords:</label> <%= text_field_tag('keywords', params[:keywords], :size => 50) %><br/>
+          <% Case.tag_counts_on(:tags).all(:order => :name).each do|t| %>
             <div class="tag-container">
               <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
             </div>
@@ -29,10 +30,14 @@
     <% else %>
 
       <% unless request.xhr? %>
-        <h2>Showing <%= (@cases.results.length > 1) ? "#{@cases.results.length} cases" : '1 case' %> of <%= @cases.hits.total_entries %> total
-          <% if params[:tags] %>
-            tagged with <%=h params[:tags].join((params[:any]) ? ' or ' : ' and ') %> 
+        <h2>Showing <%= (@cases.hits.length > 1) ? "#{@cases.hits.length} cases" : '1 case' %> of <%= @cases.total %> total
+          <span style="font-size: 14px"><% if params[:tags] %>
+            <br />Tags: <%=h params[:tags].collect{|t| %Q|"#{t}"|}.join((params[:any]) ? ' OR ' : ' AND ') %> 
           <% end %>
+          <% unless params[:keywords].blank? %>
+            <br />Keywords: "<%=h params[:keywords] %>"
+          <% end %>
+        </span>
         </h2>
 
         <%= render :partial => 'shared/layout_components/per_page_selector' %>

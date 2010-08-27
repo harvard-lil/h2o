@@ -29,8 +29,12 @@ class CasesController < BaseController
     @cases = Sunspot.new_search(Case)
 
     @cases.build do
+      unless params[:keywords].blank?
+        keywords params[:keywords]
+      end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       data_accessor_for(Case).include = [:tags, :collages, :case_citations]
+      order_by :short_name, :asc
     end
 
     if params[:tags]
@@ -55,8 +59,6 @@ class CasesController < BaseController
     end
 
     @cases.execute!
-
-    @tags = Case.tag_counts_on(:tags).all(:order => :name)
 
     respond_to do |format|
       format.html # index.html.erb
