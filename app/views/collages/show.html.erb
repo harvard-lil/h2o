@@ -18,12 +18,10 @@
 <%
   end 
 %>
-<% if ! cookies['active-layer-ids'].blank? %> 
-  <style type="text/css">
     <% 
       active_layers = []
       inactive_layers = []
-      layer_cookies = cookies['active-layer-ids'].split(',').collect{|l| ".l#{l}"}
+      layer_cookies = cookies['active-layer-ids'].to_s.split(',').collect{|l| ".l#{l}"}
       @collage.layers.each do |l|
         if layer_cookies.include?(".l#{l.id}")
           active_layers << ".l#{l.id}"
@@ -32,6 +30,8 @@
         end
       end
     %>
+
+  <style type="text/css">
     <% unless active_layers.blank? %>
       <%= active_layers.join(',') %>{
       display: none;
@@ -43,7 +43,6 @@
   }
   <% end %>
   </style>
-<% end %>
 
 <% cache("collage-annotatable-content-#{@collage.id}") do %>
   <div class="collage-id" id="collage-<%= @collage.id %>">
