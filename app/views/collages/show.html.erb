@@ -1,3 +1,16 @@
+<% 
+  active_layers = []
+  inactive_layers = []
+  layer_cookies = cookies['active-layer-ids'].to_s.split(',').collect{|l| ".l#{l}"}
+  @collage.layers.each do |l|
+    if layer_cookies.include?(".l#{l.id}")
+      active_layers << ".l#{l.id}"
+    else
+      inactive_layers << ".l#{l.id}"
+    end
+  end
+%>
+
 <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
 <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
 <% if ! cookies['hide-non-annotated-text'].blank? && session[:just_born].blank? %>
@@ -18,18 +31,6 @@
 <%
   end 
 %>
-    <% 
-      active_layers = []
-      inactive_layers = []
-      layer_cookies = cookies['active-layer-ids'].to_s.split(',').collect{|l| ".l#{l}"}
-      @collage.layers.each do |l|
-        if layer_cookies.include?(".l#{l.id}")
-          active_layers << ".l#{l.id}"
-        else
-          inactive_layers << ".l#{l.id}"
-        end
-      end
-    %>
 
   <style type="text/css">
     <% unless active_layers.blank? %>
@@ -44,31 +45,25 @@
   <% end %>
   </style>
 
-<% cache("collage-annotatable-content-#{@collage.id}") do %>
-  <div class="collage-id" id="collage-<%= @collage.id %>">
-    <div id="annotatable-content">
-      <%= @collage.annotatable_content %>
-    </div>
-  </div>
-<% end %>
-
 <div id="tools">
   <a id="hide" href="#">hide</a>
   <h2><%=h @collage.display_name %></h2>
   <h3>Layer Info</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
-  <h3>Layers</h3>
-  <div id="view-layer-list" class="layers">
-    <% @collage.layers.each do |l| %>
-      <div class="tag-container">
-        <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-        <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%=h l.name %></span></label>
-      </div>
-    <% end %>
-  </div>
-  <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
-  <div id="layer-button">
-    <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+  <div id="layer-tools">
+    <h3>Layers</h3>
+    <div id="view-layer-list" class="layers">
+      <% @collage.layers.each do |l| %>
+        <div class="tag-container">
+          <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
+          <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%=h l.name %></span></label>
+        </div>
+      <% end %>
+    </div>
+    <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
+    <div id="layer-button">
+      <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+    </div>
   </div>
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
@@ -80,4 +75,14 @@
     Your annotation will start here. Please click another word to set the end point.
     <div id="cancel-annotation"><a href="#">cancel</a></div>
   </div>
+  <hr class="print-block" />
 </div>
+
+<% cache("collage-annotatable-content-#{@collage.id}") do %>
+  <div class="collage-id" id="collage-<%= @collage.id %>">
+    <div id="annotatable-content">
+      <%= @collage.annotatable_content %>
+    </div>
+  </div>
+<% end %>
+

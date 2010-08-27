@@ -1,0 +1,31 @@
+#h2o_header,#hide, #h2o_footer, #layer-tools{
+  display: none;
+}
+
+.annotation-control{
+  font-size: 12px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+.annotation-start, .annotation-end{
+  padding: 3px;
+  border: 2px black;
+  border-style: solid none none solid;
+}
+
+.annotation-end{
+  border-style: none solid solid none;
+}
+
+.print-block{
+  display: block;
+}
+
+.print-inline{
+  display: inline;
+}
+
+tt{
+  font-family: 'Times New Roman',times, serif;
+}

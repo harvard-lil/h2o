@@ -1,9 +1,17 @@
 module RedclothExtensions
   module ClassMethods
-    def format_content(input = '')
-      doc = RedCloth.new(input)
+    def format_content(*args)
+      doc = RedCloth.new(args.join(' '))
       doc.sanitize_html = true
-      doc.to_html
+      doc.filter_styles = true
+      doc.filter_classes = true
+      doc.filter_ids = true
+      output = doc.to_html
+      if output.scan('<p>').length == 1
+        # A single <p> tag. Get rid of it.
+        if output[0..2] == "<p>" then output = output[3..-1] end
+        if output[-4..-1] == "</p>" then output = output[0..-5] end
+      end
     end
   end
   module InstanceMethods

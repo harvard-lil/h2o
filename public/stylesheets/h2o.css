@@ -12,6 +12,10 @@ body, h1, h2, h3, h4, h5, div, table, form{
     padding-bottom: 0px;
 }
 
+.print-block, .print-inline{
+  display: none;
+}
+
 #h2o_container {
     background-color: #ffffff;
     width: 950px;

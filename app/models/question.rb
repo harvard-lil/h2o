@@ -1,7 +1,9 @@
+require 'redcloth_extensions'
 require 'playlistable_extensions'
 
 class Question < ActiveRecord::Base
   extend PlaylistableExtensions::ClassMethods
+  extend RedclothExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
   include AuthUtilities

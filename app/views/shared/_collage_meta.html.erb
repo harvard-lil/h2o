@@ -5,7 +5,7 @@
       output = ''
       arep = collage_meta.layer_report
       arep.keys.each do |l|
-        output += %Q|<li><span class="c#{l % 10}">| + arep[l][:name] + %Q|</span><strong>#{arep[l][:count]}</strong> words, #{arep[l][:annotation_count]} total</li>|
+        output += %Q|<li><span class="c#{l % 10}">| + arep[l][:name] + %Q|</span> <strong>#{arep[l][:count]}</strong> words, #{arep[l][:annotation_count]} total</li>|
       end
       output
     %>

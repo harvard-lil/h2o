@@ -1,7 +1,7 @@
 <tr>
   <td>
     <%= link_to collage.display_name, collage_path(collage) %><br />
-    <%= collage.description %>
+    <%= Collage.format_content(collage.description) %>
     <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
   </td>
   <td>
