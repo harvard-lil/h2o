@@ -7,7 +7,9 @@ class CollagesController < BaseController
   before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
 
   access_control do
+    allow :superadmin
     allow :admin
+    allow :collages_admin
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview]
   end
@@ -90,7 +92,10 @@ class CollagesController < BaseController
   # PUT /collages/1.xml
   def update
     respond_to do |format|
-      if @collage.update_attributes(params[:collage])
+      @collage.attributes = params[:collage]
+      #Track this editor.
+      @collage.accepts_role!(:editor,current_user)
+      if @collage.save
         flash[:notice] = 'Collage was successfully updated.'
         format.html { redirect_to(@collage) }
         format.xml  { head :ok }

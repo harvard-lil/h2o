@@ -37,6 +37,10 @@ class Collage < ActiveRecord::Base
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
+  def can_edit?
+    return self.owner? || self.admin? || current_user.has_role?(:collages_admin) || current_user.has_role?(:superadmin)
+  end
+
   def display_name
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.creators.blank?) ? '' : ' by ' + self.creators.collect{|u| u.login}.join(',')}"
   end

@@ -10,7 +10,7 @@
   <% if edit_controls %>
     <% if current_user %>
       <td>
-        <% if collage.owner? %>
+        <% if collage.can_edit? %>
           <%= link_to 'Edit metadata', edit_collage_path(collage), :class => 'button' %>
           <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
         <% end %>

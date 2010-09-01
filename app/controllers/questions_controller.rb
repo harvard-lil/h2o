@@ -11,6 +11,7 @@ class QuestionsController < BaseController
 
   access_control do
     allow :admin
+    allow :questions_admin
     allow :owner, :of => :question_instance, :to => [:destroy, :toggle_sticky]
     allow all, :to => [:replies, :vote_against, :vote_for, :new, :create]
   end

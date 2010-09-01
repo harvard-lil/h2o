@@ -33,4 +33,9 @@ module AuthUtilities
     (creator_list.blank?) ? nil : creator_list.users.compact.uniq
   end
 
+  def editors
+    editor_list = self.accepted_roles.find_by_name('editor')
+    (editor_list.blank?) ? nil : editor_list.users.compact.uniq
+  end
+
 end

@@ -69,7 +69,7 @@
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>
   <div id="owners" style="display: none;"><%=h @collage.owners.to_json %></div>
-  <div id="is_owner" style="display: none;"><%= (current_user && @collage.owner?) ? true : false %></div> 
+  <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
   <div id="annotation-start-marker" style="display: none;">
     Your annotation will start here. Please click another word to set the end point.

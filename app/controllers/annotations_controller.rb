@@ -7,7 +7,9 @@ class AnnotationsController < BaseController
   before_filter :preload_collage, :only => [:new, :create]
 
   access_control do
+    allow :superadmin
     allow :admin
+    allow :collages_admin
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
     allow all, :to => [:show, :metadata, :annotation_preview]
   end
@@ -34,6 +36,7 @@ class AnnotationsController < BaseController
   # GET /annotations/1
   # GET /annotations/1.xml
   def show
+    @editors = @annotation.editors
   end
 
   # GET /annotations/new
@@ -85,11 +88,16 @@ class AnnotationsController < BaseController
       params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
     end
     respond_to do |format|
-      if @annotation.update_attributes(params[:annotation])
+      @annotation.attributes = params[:annotation]
+      #Track this editor.
+      @annotation.accepts_role!(:editor,current_user)
+      if @annotation.save
         #flash[:notice] = 'Annotation was successfully updated.'
+        format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
         format.html { redirect_to(@annotation) }
         format.xml  { head :ok }
       else
+        format.json { render :text => "We couldn't update that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @annotation.errors, :status => :unprocessable_entity }
       end

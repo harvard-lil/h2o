@@ -33,10 +33,11 @@
         <tr class="table_heading">
           <th>Collage</th>
           <th>Annotations</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-        <%= render :partial => 'shared/objects/collage', :collection => @collages, :locals => {:edit_controls => false } %>
+        <%= render :partial => 'shared/objects/collage', :collection => @collages, :locals => {:edit_controls => true } %>
       </tbody>
     </table>
   </div>

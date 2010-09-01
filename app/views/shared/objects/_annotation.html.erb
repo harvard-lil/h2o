@@ -1,6 +1,9 @@
 <div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
   <div class="meta">
-    <span class="user"><span>by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %></span>
+    <span class="user"><span>created by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %></span>
+    <% if @editors %>
+      <span class="user"><span>edited by</span> <%= @editors.collect{|c| c.login}.join(',') %></span>
+    <% end %>
     <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
     <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ') %></div>
   </div>
