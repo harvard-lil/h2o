@@ -1,5 +1,7 @@
+require 'redcloth_extensions'
 class Playlist < ActiveRecord::Base
   extend PlaylistableExtensions::ClassMethods
+  extend RedclothExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
   include AuthUtilities
