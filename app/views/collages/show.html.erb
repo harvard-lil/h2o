@@ -48,6 +48,9 @@
 <div id="tools">
   <a id="hide" href="#">hide</a>
   <h2><%=h @collage.display_name %></h2>
+  <% form_tag(spawn_copy_collage_path(@collage)) do %>
+  <%= submit_tag('Copy') %>
+<% end %>
   <h3>Layer Info</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
   <div id="layer-tools">

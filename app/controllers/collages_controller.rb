@@ -4,14 +4,14 @@ class CollagesController < BaseController
 
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview]
   before_filter :prep_resources
-  before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation]  
+  before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
 
   access_control do
     allow :superadmin
     allow :admin
     allow :collages_admin
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview]
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy]
   end
 
   def description_preview
@@ -21,6 +21,45 @@ class CollagesController < BaseController
   def layers
     respond_to do |format|
       format.json { render :json => @collage.layers }
+    end
+  end
+
+  def spawn_copy
+    @collage_copy = @collage.clone
+    @collage_copy.name = "#{@collage.name} copy"
+    @collage_copy.parent = @collage
+    respond_to do |format|
+      if @collage_copy.save
+        @collage_copy.accepts_role!(:owner, current_user)
+        @collage_copy.accepts_role!(:creator, current_user)
+        @collage_copy.accepts_role!(:owner, current_user)
+        @collage_copy.accepts_role!(:creator, current_user)
+        @collage.creators.each do|c|
+          @collage_copy.accepts_role!(:original_creator,c)
+        end
+
+        @collage.annotations.each do |annotation| 
+          new_annotation = annotation.clone
+          #copy tags
+          new_annotation.layer_list = annotation.layer_list
+          new_annotation.accepts_role!(:creator, current_user)
+          new_annotation.accepts_role!(:owner, current_user)
+          new_annotation.parent = annotation
+          annotation.creators.each do|c|
+            new_annotation.accepts_role!(:original_creator, c)
+          end
+          @collage_copy.annotations << new_annotation
+        end
+
+        @collage_copy.save
+
+        format.html { redirect_to(@collage_copy) }
+        format.xml  { render :xml => @collage_copy, :status => :created, :location => @collage_copy }
+      else
+        flash[:notice] = "We couldn't copy that collage - " + @collage_copy.errors.full_messages.join(',')
+        format.html { render :action => "new" }
+        format.xml  { render :xml => @collage_copy.errors, :status => :unprocessable_entity }
+      end
     end
   end
 

@@ -23,7 +23,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :cases
 
-  map.resources :collages
+  map.resources :collages, :member => {:spawn_copy => :post}
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post},
     :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post], :metadata => :get}

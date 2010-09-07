@@ -9,7 +9,14 @@ class PlaylistItem < ActiveRecord::Base
   acts_as_category :scope => :playlist, :hidden => :active
   acts_as_authorization_object
 
+
   belongs_to :resource_item, :polymorphic => true
+
+  def display_name
+    (resource_item.respond_to?(:title)) ? resource_item.title : resource_item.name
+  end
+
+  alias :to_s :display_name
 
   ITEM_TYPES = [
     ["Basic URL", "ItemDefault"],
