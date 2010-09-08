@@ -25,7 +25,7 @@ class Collage < ActiveRecord::Base
 
   acts_as_voteable
 
-  acts_as_category :scope => 'annotatable_id, annotatable_type'
+  acts_as_category
 
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at'
@@ -36,6 +36,35 @@ class Collage < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
+
+  def fork_it(new_user)
+    collage_copy = self.clone
+    collage_copy.name = "#{self.name} copy"
+    collage_copy.created_at = Time.now
+    collage_copy.parent = self
+    collage_copy.save!
+    collage_copy.accepts_role!(:owner, new_user)
+    collage_copy.accepts_role!(:creator, new_user)
+    collage_copy.accepts_role!(:owner, new_user)
+    collage_copy.accepts_role!(:creator, new_user)
+    self.creators.each do|c|
+      collage_copy.accepts_role!(:original_creator,c)
+    end
+    self.annotations.each do |annotation|
+      new_annotation = annotation.clone
+      #copy tags
+      new_annotation.layer_list = annotation.layer_list
+      new_annotation.accepts_role!(:creator, new_user)
+      new_annotation.accepts_role!(:owner, new_user)
+      new_annotation.parent = annotation
+      annotation.creators.each do|c|
+        new_annotation.accepts_role!(:original_creator, c)
+      end
+      collage_copy.annotations << new_annotation
+      collage_copy.save!
+    end
+    collage_copy
+  end
 
   def can_edit?
     return self.owner? || self.admin? || current_user.has_role?(:collages_admin) || current_user.has_role?(:superadmin)

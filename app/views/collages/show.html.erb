@@ -49,8 +49,16 @@
   <a id="hide" href="#">hide</a>
   <h2><%=h @collage.display_name %></h2>
   <% form_tag(spawn_copy_collage_path(@collage)) do %>
-  <%= submit_tag('Copy') %>
-<% end %>
+    <%= submit_tag('Copy this collage', :class => 'button') %>
+  <% end %>
+  <div class="lineage">
+    <h3>Lineage</h3>
+    <%= 
+      root = (@collage.root?) ? @collage : @collage.ancestors.first
+      output = ''
+      display_tree(root,output)
+  %>
+  </div>
   <h3>Layer Info</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>
   <div id="layer-tools">

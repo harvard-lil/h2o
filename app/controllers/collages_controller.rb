@@ -25,42 +25,15 @@ class CollagesController < BaseController
   end
 
   def spawn_copy
-    @collage_copy = @collage.clone
-    @collage_copy.name = "#{@collage.name} copy"
-    @collage_copy.parent = @collage
+    @collage_copy = @collage.fork_it(current_user)
     respond_to do |format|
-      if @collage_copy.save
-        @collage_copy.accepts_role!(:owner, current_user)
-        @collage_copy.accepts_role!(:creator, current_user)
-        @collage_copy.accepts_role!(:owner, current_user)
-        @collage_copy.accepts_role!(:creator, current_user)
-        @collage.creators.each do|c|
-          @collage_copy.accepts_role!(:original_creator,c)
-        end
-
-        @collage.annotations.each do |annotation| 
-          new_annotation = annotation.clone
-          #copy tags
-          new_annotation.layer_list = annotation.layer_list
-          new_annotation.accepts_role!(:creator, current_user)
-          new_annotation.accepts_role!(:owner, current_user)
-          new_annotation.parent = annotation
-          annotation.creators.each do|c|
-            new_annotation.accepts_role!(:original_creator, c)
-          end
-          @collage_copy.annotations << new_annotation
-        end
-
-        @collage_copy.save
-
-        format.html { redirect_to(@collage_copy) }
-        format.xml  { render :xml => @collage_copy, :status => :created, :location => @collage_copy }
-      else
-        flash[:notice] = "We couldn't copy that collage - " + @collage_copy.errors.full_messages.join(',')
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @collage_copy.errors, :status => :unprocessable_entity }
-      end
+      format.html { redirect_to(@collage_copy) }
+      format.xml  { render :xml => @collage_copy, :status => :created, :location => @collage_copy }
     end
+  rescue Exception => e
+    flash[:notice] = "We couldn't copy that collage - " + e.inspect
+    format.html { render :action => "new" }
+    format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
   end
 
   def annotations
