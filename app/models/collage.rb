@@ -25,7 +25,7 @@ class Collage < ActiveRecord::Base
 
   acts_as_voteable
 
-  acts_as_category
+  acts_as_category :collapse_children => true
 
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at'
@@ -36,6 +36,14 @@ class Collage < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
+
+  def fix_children
+    logger.warn 'I just got called. Airbag saved my life'
+    self.children.each do |child|
+      #collapse children to the parent of the collage being destroyed.
+      child.parent = self.parent
+    end
+  end
 
   def fork_it(new_user)
     collage_copy = self.clone

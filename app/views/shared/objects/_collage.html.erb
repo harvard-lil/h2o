@@ -7,14 +7,15 @@
   <td>
     <%= render :partial => 'shared/collage_meta', :object => collage %>
   </td>
-  <% if edit_controls %>
     <% if current_user %>
       <td>
+        <% form_tag(spawn_copy_collage_path(collage)) do %>
+          <%= submit_tag('Copy', :class => 'button') %>
+        <% end %>
         <% if collage.can_edit? %>
-          <%= link_to 'Edit metadata', edit_collage_path(collage), :class => 'button' %>
+          <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
           <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
         <% end %>
       </td>
     <% end %>
-  <% end %>
 </tr>

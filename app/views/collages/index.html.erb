@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <%= render :partial => 'shared/objects/collage', :collection => @my_collages, :locals => {:edit_controls => true} %>
+          <%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
         </tbody>
       </table>
     </div>
@@ -37,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        <%= render :partial => 'shared/objects/collage', :collection => @collages, :locals => {:edit_controls => true } %>
+        <%= render :partial => 'shared/objects/collage', :collection => @collages %>
       </tbody>
     </table>
   </div>

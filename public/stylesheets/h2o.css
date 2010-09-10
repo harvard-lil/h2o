@@ -334,10 +334,10 @@ table.core_table {
     border-bottom: 1px dotted #607887;
 }
 
-.core_table a:link, .core_table a:visited, .core_table a:active {
-	color: #545c63;
-        font-weight: bold;
-        text-decoration: none;
+.core_table a:link, .core_table a:visited, .core_table a:active, .core_table input {
+  color: #545c63;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .core_table a:hover {

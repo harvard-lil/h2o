@@ -44,6 +44,15 @@ def setup_db
       t.integer :my_ancestors_count
       t.integer :my_descendants_count
     end
+
+    create_table :collapsing_categories, :force => true do |t|
+      t.integer :my_parent_id
+      t.integer :my_position
+      t.boolean :my_hidden
+      t.integer :my_children_count
+      t.integer :my_ancestors_count
+      t.integer :my_descendants_count
+    end
     
     # Scoped Categories
     create_table :scoped_categories, :force => true do |t|

@@ -52,12 +52,38 @@
     <%= submit_tag('Copy this collage', :class => 'button') %>
   <% end %>
   <div class="lineage">
+    <% if false %>
+      This is more than a little yucky. I wish acts_as_category gave better tree retrieving options.
+    <% end %>
     <h3>Lineage</h3>
-    <%= 
-      root = (@collage.root?) ? @collage : @collage.ancestors.first
-      output = ''
-      display_tree(root,output)
-  %>
+    <ul>
+      <%
+        level = 0
+        @collage.ancestors.reverse.each_with_index do |anc,index| 
+          level += 1
+        %>
+        <li class="depth-<%= level %>"><%= link_to(anc,anc) %></li>
+      <% end %>
+      <% if @collage.parent %>
+        <% level += 1 %>
+        <% @collage.self_and_siblings.each do|sib| %>
+          <% if sib == @collage %>
+            <li class="depth-<%= level %>">&bull; <%= @collage %></li>
+            <% @collage.children.each do |child| %>
+              <li class="depth-<%= level + 1 %>"><%= link_to(child,child) %></li>
+            <% end %>
+          <% else %>
+            <li class="depth-<%= level %>"><%= link_to(sib,sib) %></li>
+          <% end %>
+          </li>
+        <% end %>
+      <% else %>
+        <li class="depth-1">&bull; <%= @collage %></li>
+        <% @collage.children.each do |child| %>
+          <li class="depth-2"><%= link_to(child,child) %></li>
+        <% end %>
+      <% end %>
+    </ul>
   </div>
   <h3>Layer Info</h3>
   <%= render :partial => 'shared/collage_meta', :object => @collage %>

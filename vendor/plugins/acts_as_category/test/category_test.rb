@@ -38,6 +38,18 @@ class UnpositionedCategory < ActiveRecord::Base
                    :counts_readonly => true
 end
 
+class CollapsingCategory < ActiveRecord::Base
+  acts_as_category :foreign_key => 'my_parent_id',
+                   :position => 'my_position',
+                   :order_by => 'my_position',
+                   :hidden => 'my_hidden',
+                   :children_count => 'my_children_count',
+                   :ancestors_count => 'my_ancestors_count',
+                   :descendants_count => 'my_descendants_count',
+                   :counts_readonly => true,
+                   :collapse_children => true
+end
+
 class CategoryTest < Test::Unit::TestCase
   
   # Test category trees:
@@ -615,6 +627,42 @@ class CategoryTest < Test::Unit::TestCase
     assert @n13 = UnpositionedCategory.create!(:my_parent_id => @n1.id)
     assert_equal [@n3, @n2, @n1], UnpositionedCategory.roots
     assert_equal [@n13, @n12, @n11], UnpositionedCategory.find(@n1.id).children
+  end
+
+  def test_collapsing_categories
+    teardown_db
+    setup_db
+    assert @n1   = CollapsingCategory.create! # id 1
+    assert @n2   = CollapsingCategory.create! # id 2
+    assert @n3   = CollapsingCategory.create! # id 3
+    assert @n11  = CollapsingCategory.create!(:my_parent_id => @n1.id)  # id 4
+    assert @n21  = CollapsingCategory.create!(:my_parent_id => @n2.id)  # id 5
+    assert @n22  = CollapsingCategory.create!(:my_parent_id => @n2.id)  # id 6
+    assert @n111 = CollapsingCategory.create!(:my_parent_id => @n11.id) # id 7
+    assert @n211 = CollapsingCategory.create!(:my_parent_id => @n21.id) # id 8
+    assert @n212 = CollapsingCategory.create!(:my_parent_id => @n21.id) # id 9
+    assert @n221 = CollapsingCategory.create!(:my_parent_id => @n22.id) # id 10
+    assert @n1   = CollapsingCategory.find(1)
+    assert @n2   = CollapsingCategory.find(2)
+    assert @n3   = CollapsingCategory.find(3)
+    assert @n11  = CollapsingCategory.find(4)
+    assert @n21  = CollapsingCategory.find(5)
+    assert @n22  = CollapsingCategory.find(6)
+    assert @n111 = CollapsingCategory.find(7)
+    assert @n211 = CollapsingCategory.find(8)
+    assert @n212 = CollapsingCategory.find(9)
+    assert @n221 = CollapsingCategory.find(10)
+
+    assert_equal 10, CollapsingCategory.count
+    assert @n1.destroy
+    assert_equal 9, CollapsingCategory.count
+    assert @n11.root?
+
+    assert_equal @n2,@n21.parent
+    assert @n21.destroy
+    assert_equal 8, CollapsingCategory.count
+    assert_equal @n2, @n211.parent
+    assert_equal @n2, @n212.parent
   end
   
 end
