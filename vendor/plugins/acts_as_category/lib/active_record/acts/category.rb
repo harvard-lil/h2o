@@ -66,7 +66,7 @@ module ActiveRecord
           has_many :children, has_many_options 
 
           # Substantial validations
-          before_validation           :validate_foreign_key
+          before_validation           ((options[:collapse_children] == true) ? :validate_nil : :validate_foreign_key )
           before_validation_on_create :assign_position
           validates_numericality_of   options[:foreign_key], :only_integer => true, :greater_than => 0, :allow_nil => true, :message => I18n.t('acts_as_category.error.no_descendants')
 
@@ -74,7 +74,7 @@ module ActiveRecord
           after_create   :refresh_cache_after_create
           before_update  :prepare_refresh_before_update
           after_update   :refresh_cache_after_update
-          before_destroy (options[:collapse_children] == true) ? [:prepare_refresh_before_destroy, :collapse_children] : :prepare_refresh_before_destroy
+          before_destroy (options[:collapse_children] == true) ? [:collapse_children, :prepare_refresh_before_destroy] : :prepare_refresh_before_destroy
           after_destroy  :refresh_cache_after_destroy
 
           # Assign readonly attribute to "self-made" cache columns
@@ -375,6 +375,9 @@ module ActiveRecord
 
         private
         
+        def validate_nil
+        end
+        
         # Validator for parent_id association after creation and update of a category
         def validate_foreign_key
           # If there is a parent_id given
@@ -429,10 +432,9 @@ module ActiveRecord
 
         # Don't destroy children, collapse them one level up to this category's parent.
         def collapse_children
-          parent_id_before = self.read_attribute(parent_id_column)
-
+          parent_id_before = self.read_attribute(self.parent_id_column)
           self.children.each do |child|
-            child.write_attribute(parent_id_column, parent_id_before)
+            child.write_attribute(self.parent_id_column, ((parent_id_before.nil?) ? 0 : parent_id_before))
             child.save
           end
           true

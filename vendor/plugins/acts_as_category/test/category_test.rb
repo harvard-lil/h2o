@@ -660,6 +660,7 @@ class CategoryTest < Test::Unit::TestCase
 
     assert_equal @n2,@n21.parent
     assert @n21.destroy
+
     assert_equal 8, CollapsingCategory.count
     assert_equal @n2, @n211.parent
     assert_equal @n2, @n212.parent
