@@ -46,7 +46,8 @@ class Annotation < ActiveRecord::Base
     # No need to recreate these caches on a cloned node.
     if self.annotated_content.blank?
 #      logger.warn('CREATED ANNOTATION CACHES!')
-      # Fix node order.
+
+      # Fix annotation start/stop order.
       nodes = [self.annotation_start_numeral.to_i, self.annotation_end_numeral.to_i].sort.collect{|n| "t#{n}"}
       self.annotation_start = nodes[0]
       self.annotation_end = nodes[1]
