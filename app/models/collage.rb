@@ -50,26 +50,23 @@ class Collage < ActiveRecord::Base
     collage_copy.name = "#{self.name} copy"
     collage_copy.created_at = Time.now
     collage_copy.parent = self
-    collage_copy.save!
-    collage_copy.accepts_role!(:owner, new_user)
-    collage_copy.accepts_role!(:creator, new_user)
     collage_copy.accepts_role!(:owner, new_user)
     collage_copy.accepts_role!(:creator, new_user)
     self.creators.each do|c|
       collage_copy.accepts_role!(:original_creator,c)
     end
+    new_annotations = []
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
+      new_annotation.collage = collage_copy
       #copy tags
       new_annotation.layer_list = annotation.layer_list
       new_annotation.accepts_role!(:creator, new_user)
       new_annotation.accepts_role!(:owner, new_user)
-      new_annotation.parent = annotation
+#      new_annotation.parent = annotation
       annotation.creators.each do|c|
         new_annotation.accepts_role!(:original_creator, c)
       end
-      collage_copy.annotations << new_annotation
-      collage_copy.save!
     end
     collage_copy
   end
