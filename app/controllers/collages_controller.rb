@@ -47,7 +47,7 @@ class CollagesController < BaseController
   # GET /collages
   # GET /collages.xml
   def index
-    @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,parent_id,children_count,ancestors_count,descendants_count,position,hidden,created_at,updated_at,word_count', :include => [:annotations => [:layers], :annotatable => true])
+    @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,parent_id,children_count,ancestors_count,descendants_count,position,hidden,created_at,updated_at,word_count')
     if current_user
       @my_collages = @collages.find_all{|c| c.accepts_role?(:owner, current_user)}
     end
