@@ -1,5 +1,3 @@
-# coding:utf-8
-
 module ActiveRecord
   module Acts
     module Category
@@ -44,29 +42,20 @@ module ActiveRecord
         # * <tt>ancestors_count</tt> - specifies a column name used for caching number of ancestors. Default is <tt>ancestors_count</tt>.
         # * <tt>descendants_count</tt> - specifies a column name used for caching number of descendants. Default is <tt>descendants_count</tt>.
         # * <tt>counts_readonly</tt> - will assign <tt>attr_readonly</tt> to the fields <tt>ancestors_count</tt> and <tt>descendants_count</tt>. This is experimental, thus default is <tt>false</tt>.
-        # * <tt>collapse_children</tt> - When a category is destroyed, its child categories are destroyed as well. Set this option to true if you'd like child categories to be collapsed to a category's parent node instead. If a parent is a root node, its children will be turned into roots as well.
-
         def acts_as_category(params = {})
         
           # Load default options whenever acts_as_category is called.
           # After that, overwrite them with the individual settings passed by <tt>params</tt>.
-          options = { :foreign_key => 'parent_id', :position => 'position', :order_by => 'position', :hidden => 'hidden', :scope => '1 = 1', :children_count => 'children_count', :ancestors_count => 'ancestors_count', :descendants_count => 'descendants_count', :counts_readonly => false, :dependent => :destroy, :collapse_children => false}
+          options = { :foreign_key => 'parent_id', :position => 'position', :order_by => 'position', :hidden => 'hidden', :scope => '1 = 1', :children_count => 'children_count', :ancestors_count => 'ancestors_count', :descendants_count => 'descendants_count', :counts_readonly => false }
           options.update(params) if params.is_a?(Hash)
           
           # Create a class association to itself.
-          # Note that subcategories will be destroyed whenever a parent is deleted, unless :collapse_children is set to true.
+          # Note that subcategories will be destroyed whenever a parent is deleted.
           belongs_to :parent, :class_name => name, :foreign_key => options[:foreign_key], :counter_cache => options[:children_count]
-
-          has_many_options = {:class_name => name, :foreign_key => options[:foreign_key], :order => options[:order_by]}
-
-          if options[:collapse_children] == false
-            has_many_options[:dependent] = :destroy
-          end
-
-          has_many :children, has_many_options 
+          has_many :children, :class_name => name, :foreign_key => options[:foreign_key], :order => options[:order_by], :dependent => :destroy
 
           # Substantial validations
-          before_validation           ((options[:collapse_children] == true) ? :validate_nil : :validate_foreign_key )
+          before_validation           :validate_foreign_key
           before_validation_on_create :assign_position
           validates_numericality_of   options[:foreign_key], :only_integer => true, :greater_than => 0, :allow_nil => true, :message => I18n.t('acts_as_category.error.no_descendants')
 
@@ -74,7 +63,7 @@ module ActiveRecord
           after_create   :refresh_cache_after_create
           before_update  :prepare_refresh_before_update
           after_update   :refresh_cache_after_update
-          before_destroy (options[:collapse_children] == true) ? [:collapse_children, :prepare_refresh_before_destroy] : :prepare_refresh_before_destroy
+          before_destroy :prepare_refresh_before_destroy
           after_destroy  :refresh_cache_after_destroy
 
           # Assign readonly attribute to "self-made" cache columns
@@ -217,7 +206,7 @@ module ActiveRecord
           END
           
           # Scope out via given scope conditions for the instance
-          named_scope :manual_scope, lambda { |sender| { :conditions => sender.scope_condition, :order => order_by } }
+          named_scope :scoped, lambda { |sender| { :conditions => sender.scope_condition, :order => order_by } }
           
           # Scope for permitted categories
           # Does *NOT* respect inherited permissions! 
@@ -356,12 +345,12 @@ module ActiveRecord
 
         # Returns all siblings and a reference to the current node, respecting permitted/hidden categories
         def self_and_siblings
-          parent ? parent.children : self.class.roots.manual_scope(self)
+          parent ? parent.children : self.class.roots.scoped(self)
         end
 
         # Returns all ids of siblings and a reference to the current node, respecting permitted/hidden categories
         def self_and_siblings_ids
-          parent ? parent.children_ids : self.class.roots.manual_scope(self).map {|x| x.id}
+          parent ? parent.children_ids : self.class.roots.scoped(self).map {|x| x.id}
         end
         
         # Immediately refresh cache of category instance
@@ -374,9 +363,6 @@ module ActiveRecord
         ############################
 
         private
-        
-        def validate_nil
-        end
         
         # Validator for parent_id association after creation and update of a category
         def validate_foreign_key
@@ -428,16 +414,6 @@ module ActiveRecord
         # Gather root.id before destruction
         def prepare_refresh_before_destroy
           @root_id_before = self.root.id
-        end
-
-        # Don't destroy children, collapse them one level up to this category's parent.
-        def collapse_children
-          parent_id_before = self.read_attribute(self.parent_id_column)
-          self.children.each do |child|
-            child.write_attribute(self.parent_id_column, ((parent_id_before.nil?) ? 0 : parent_id_before))
-            child.save
-          end
-          true
         end
         
         # Refresh cache of branch, where category has been destroyed, unless it was a root
