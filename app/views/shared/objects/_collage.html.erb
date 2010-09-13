@@ -1,12 +1,14 @@
 <tr>
-  <td>
-    <%= link_to collage.display_name, collage_path(collage) %><br />
-    <%= Collage.format_content(collage.description) %>
-    <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
-  </td>
-  <td>
-    <%= render :partial => 'shared/collage_meta', :object => collage %>
-  </td>
+  <% cache("collage-index-view-#{collage.id}") do %>
+    <td>
+      <%= link_to collage.display_name, collage_path(collage) %><br />
+      <%= Collage.format_content(collage.description) %>
+      <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
+    </td>
+    <td>
+      <%= render :partial => 'shared/collage_meta', :object => collage %>
+    </td>
+  <% end %>
     <% if current_user %>
       <td>
         <% form_tag(spawn_copy_collage_path(collage)) do %>
