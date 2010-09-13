@@ -123,6 +123,7 @@ annotationButton: function(e,annotationId,ids){
               Close: function(){
                 jQuery(this).dialog('close');
               },
+              /* FIXME - allow annotation deletion after we fix acts_as_category 
               Delete: function(){
                 if(confirm('Are you sure?')){
                   jQuery.ajax({
@@ -148,6 +149,7 @@ annotationButton: function(e,annotationId,ids){
                   });
                 }
               },
+              */
               Edit: function(){
                 jQuery(this).dialog('close');
                 jQuery.ajax({

@@ -10,7 +10,9 @@ class CollagesController < BaseController
     allow :superadmin
     allow :admin
     allow :collages_admin
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    #FIXME - Allow collage owners to destroy when we fix acts_as_category
+    #allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    allow :owner, :of => :collage, :to => [:edit, :update]
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy]
   end
 

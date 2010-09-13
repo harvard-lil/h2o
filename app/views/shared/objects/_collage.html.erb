@@ -14,7 +14,9 @@
         <% end %>
         <% if collage.can_edit? %>
           <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
-          <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
+          <% if false %>
+            <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
+          <% end %>
         <% end %>
       </td>
     <% end %>
