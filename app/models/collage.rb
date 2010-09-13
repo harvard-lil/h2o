@@ -121,26 +121,30 @@ class Collage < ActiveRecord::Base
   private 
 
   def prepare_content
-    content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
-    doc = Nokogiri::HTML.parse(content_to_prepare)
-    doc.xpath('//*').each do |child|
-      child.children.each do|c|
-        if c.class == Nokogiri::XML::Text && ! c.content.blank?
-          text_content = c.content.split.map{|word|"<tt>" + word + ' </tt> '}.join(' ')
-          c.swap(text_content)
+    # In the case of a cloned collage, we don't need to regenerate these caches. Only regenerate if it's truly new.
+    if self.content.blank?
+#      logger.warn('CREATED COLLAGE CACHES!')
+      content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
+      doc = Nokogiri::HTML.parse(content_to_prepare)
+      doc.xpath('//*').each do |child|
+        child.children.each do|c|
+          if c.class == Nokogiri::XML::Text && ! c.content.blank?
+            text_content = c.content.split.map{|word|"<tt>" + word + ' </tt> '}.join(' ')
+            c.swap(text_content)
+          end
         end
       end
+      class_counter = 1
+      indexable_content = []
+      doc.xpath('//tt').each do |n|
+        n['id'] = "t#{class_counter}"
+        class_counter +=1
+        indexable_content << n.text.strip
+      end
+      self.word_count = class_counter
+      self.indexable_content = indexable_content.join(' ')
+      self.content = doc.xpath("//html/body/*").to_s
     end
-    class_counter = 1
-    indexable_content = []
-    doc.xpath('//tt').each do |n|
-      n['id'] = "t#{class_counter}"
-      class_counter +=1
-      indexable_content << n.text.strip
-    end
-    self.word_count = class_counter
-    self.indexable_content = indexable_content.join(' ')
-    self.content = doc.xpath("//html/body/*").to_s
   end
 
 end
