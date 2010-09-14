@@ -109,8 +109,9 @@ class AnnotationsController < BaseController
   def destroy
     @annotation.destroy
     render :text => "We've deleted that item."
-  rescue
-    render :text => 'There seems to have been a problem deleting that item.', :status => :unprocessable_entity
+  rescue Exception => e
+    logger.warn("Could not delete annotation: #{e.inspect}")
+    render :text => "There seems to have been a problem deleting that item. #{e.inspect}", :status => :unprocessable_entity
   end
 
   private

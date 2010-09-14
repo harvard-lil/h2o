@@ -29,7 +29,7 @@ class Collage < ActiveRecord::Base
   has_ancestry :orphan_strategy => :restrict 
 
   belongs_to :annotatable, :polymorphic => true
-  has_many :annotations, :order => 'created_at'
+  has_many :annotations, :order => 'created_at', :dependent => :destroy
 
   before_create :prepare_content
 
@@ -37,14 +37,6 @@ class Collage < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
-
-  def fix_children
-    logger.warn 'I just got called. Airbag saved my life'
-    self.children.each do |child|
-      #collapse children to the parent of the collage being destroyed.
-      child.parent = self.parent
-    end
-  end
 
   def fork_it(new_user)
     collage_copy = self.clone

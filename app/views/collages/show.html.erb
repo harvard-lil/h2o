@@ -62,9 +62,18 @@
     <div class="lineage">
       <h3>Lineage</h3>
       <ul>
-        <% @collage.path.each do|anc| %>
-          <li class="depth-<%= anc.depth %>"><%= (anc == @collage) ? "&bull; #{anc}" : link_to(anc,anc) %></li>
+        <% @collage.ancestors.each do|anc| %>
+          <li class="depth-<%= anc.depth %>"><%= link_to(anc,anc) %></li>
         <% end %>
+
+        <% if @collage.parent %>
+          <% @collage.siblings.each do |sib| %>
+            <li class="depth-<%= sib.depth %>"><%= (@collage == sib) ? "&bull; #{@collage}" : link_to(sib,sib) %></li>
+          <% end %>
+        <% else %>
+            <li class="depth-<%= @collage.depth %>"><%= "&bull; #{@collage}" %></li>
+        <% end %>
+
         <% @collage.children.each do|child| %>
           <li class="depth-<%= child.depth %>"><%= link_to(child,child) %></li>
         <% end %>

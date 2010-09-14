@@ -31,6 +31,10 @@ class User < ActiveRecord::Base
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
+  def to_s
+    "#{login}"
+  end
+
   def case_manager?
     self.has_role?(:case_manager) || self.has_role?(:admin)
   end

@@ -1,21 +1,43 @@
 <div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
-  <div class="meta">
-    <span class="user"><span>created by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %></span>
-    <% if @editors %>
-      <span class="user"><span>edited by</span> <%= @editors.collect{|c| c.login}.join(',') %></span>
-    <% end %>
-    <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
-    <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ') %></div>
-  </div>
-  <% unless @annotation.annotation.blank? %>
-    <h3>Annotation</h3>
-    <div class="annotation-content">
-      <%= Annotation.format_content(@annotation.annotation) %>
+  <div id="annotation-tabs-<%= @annotation.id %>">
+    <ul>
+      <li><a href="#annotation-info-<%= @annotation.id %>">Annotation info</a></li>
+      <li><a href="#lineage-info-<%= @annotation.id %>">Lineage</a></li>
+    </ul>
+    <div id="annotation-info-<%= @annotation.id %>">
+      <div class="meta">
+        <span class="user"><span>created by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %></span>
+        <% if @editors %>
+          <span class="user"><span>edited by</span> <%= @editors.collect{|c| c.login}.join(',') %></span>
+        <% end %>
+        <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
+        <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ') %></div>
+      </div>
+      <% unless @annotation.annotation.blank? %>
+        <h3>Annotation</h3>
+        <div class="annotation-content">
+          <%= Annotation.format_content(@annotation.annotation) %>
+        </div>
+        <div class="spacer_block"></div>
+      <% end %>
+      <h3>Annotated Content</h3>
+      <div class="annotated-content">
+        <%= @annotation.annotated_content %>
+      </div>
     </div>
-    <div class="spacer_block"></div>
-  <% end %>
-  <h3>Annotated Content</h3>
-  <div class="annotated-content">
-    <%= @annotation.annotated_content %>
+    <div id="lineage-info-<%= @annotation.id %>">
+      <h3>Contributors:</h3>
+      <ul>
+        <% @annotation.path.each do |ann| %>
+          <% [ann.creators, ann.editors].flatten.compact.each do |creator| %>
+            <li><%= h creator.to_s %></li>
+          <% end %>
+        <% end %>
+      </ul>
+      <h3>Lineage</h3>
+      <ul class="lineage">
+        <%= @annotation.path.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? ann : link_to(ann,collage_path(ann.collage.id, :annotation_popup_id => ann.id))}</li>"}.join(' ') %>
+      </ul>
+    </div>
   </div>
 </div>

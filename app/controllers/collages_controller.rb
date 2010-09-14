@@ -26,6 +26,7 @@ class CollagesController < BaseController
 
   def spawn_copy
     @collage_copy = @collage.fork_it(current_user)
+    flash[:notice] = %Q|We've copied "#{@collage_copy.parent}" for you. Please find your copy below.|
     respond_to do |format|
       format.html { redirect_to(@collage_copy) }
       format.xml  { render :xml => @collage_copy, :status => :created, :location => @collage_copy }

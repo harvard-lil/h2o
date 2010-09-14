@@ -111,6 +111,7 @@ annotationButton: function(e,annotationId,ids){
         jQuery('div.ajax-error').show().append(xhr.responseText);
       },
       success: function(html){
+        // Set up the annotation node to be loaded into a dialog
         jQuery('#spinner_block').hide();
         var node = jQuery(html);
         jQuery('body').append(node);
@@ -123,8 +124,8 @@ annotationButton: function(e,annotationId,ids){
               Close: function(){
                 jQuery(this).dialog('close');
               },
-              /* FIXME - allow annotation deletion after we fix acts_as_category 
               Delete: function(){
+                alert("Annotation ID is:" + annotationId);
                 if(confirm('Are you sure?')){
                   jQuery.ajax({
                     cache: false,
@@ -149,7 +150,6 @@ annotationButton: function(e,annotationId,ids){
                   });
                 }
               },
-              */
               Edit: function(){
                 jQuery(this).dialog('close');
                 jQuery.ajax({
@@ -203,6 +203,8 @@ annotationButton: function(e,annotationId,ids){
               }
             }
         });
+
+        jQuery('#annotation-tabs-' + annotationId).tabs();
         // Wipe out edit buttons if not owner.
         if(jQuery('#is_owner').html() != 'true'){
           jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{Close: function(){jQuery(this).dialog('close');}});

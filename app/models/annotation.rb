@@ -12,8 +12,9 @@ class Annotation < ActiveRecord::Base
   include PlaylistableExtensions::InstanceMethods
 
   acts_as_voteable
-  #acts_as_category :scope => :collage_id
+
   before_destroy :collapse_children
+
   has_ancestry :orphan_strategy => :restrict 
   acts_as_taggable_on :layers
 
@@ -32,6 +33,8 @@ class Annotation < ActiveRecord::Base
     "On \"#{self.collage.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
   end
 
+  alias :to_s :display_name
+
   def annotation_start_numeral
     self.annotation_start[1,self.annotation_start.length - 1]
   end
@@ -49,7 +52,6 @@ class Annotation < ActiveRecord::Base
   def create_annotation_caches
     # No need to recreate these caches on a cloned node.
     if self.annotated_content.blank?
-#      logger.warn('CREATED ANNOTATION CACHES!')
 
       # Fix annotation start/stop order.
       nodes = [self.annotation_start_numeral.to_i, self.annotation_end_numeral.to_i].sort.collect{|n| "t#{n}"}
