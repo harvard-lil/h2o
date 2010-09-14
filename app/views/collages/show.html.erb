@@ -52,8 +52,10 @@
 <div id="tools">
   <a id="hide" href="#">hide</a>
   <h2><%=h @collage.display_name %></h2>
-  <% form_tag(spawn_copy_collage_path(@collage)) do %>
-    <%= submit_tag('Copy this collage', :class => 'button') %>
+  <% unless current_user.blank? %>
+    <% form_tag(spawn_copy_collage_path(@collage)) do %>
+      <%= submit_tag('Copy this collage', :class => 'button') %>
+    <% end %>
   <% end %>
 
   <% cache("collage-show-layer-controls-#{@collage.id}") do %>
