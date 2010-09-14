@@ -10,9 +10,7 @@ class CollagesController < BaseController
     allow :superadmin
     allow :admin
     allow :collages_admin
-    #FIXME - Allow collage owners to destroy when we fix acts_as_category
-    #allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
-    allow :owner, :of => :collage, :to => [:edit, :update]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy]
   end
 
@@ -47,7 +45,7 @@ class CollagesController < BaseController
   # GET /collages
   # GET /collages.xml
   def index
-    @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,parent_id,children_count,ancestors_count,descendants_count,position,hidden,created_at,updated_at,word_count')
+    @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,created_at,updated_at,word_count')
     if current_user
       @my_collages = @collages.find_all{|c| c.accepts_role?(:owner, current_user)}
     end
@@ -139,7 +137,7 @@ class CollagesController < BaseController
   end
 
   def load_collage
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => {:annotations => [:layers]})
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id])
   end
 
 end

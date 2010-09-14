@@ -9,6 +9,7 @@ class ModifyAnnotationsForAncestry < ActiveRecord::Migration
     add_index :annotations, :ancestry
     Annotation.build_ancestry_from_parent_ids!
     Annotation.check_ancestry_integrity!
+    remove_column :annotations, :parent_id
   end
 
   def self.down

@@ -10,9 +10,7 @@ class AnnotationsController < BaseController
     allow :superadmin
     allow :admin
     allow :collages_admin
-    # FIXME - Allow collage owners to destroy annotations after we fix acts_as_category
-    #allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
-    allow :owner, :of => :collage, :to => [:edit, :update, :create, :new, :autocomplete_layers]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
     allow all, :to => [:show, :metadata, :annotation_preview]
   end
 

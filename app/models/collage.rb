@@ -25,7 +25,8 @@ class Collage < ActiveRecord::Base
 
   acts_as_voteable
 
-  acts_as_category :collapse_children => true
+  before_destroy :collapse_children
+  has_ancestry :orphan_strategy => :restrict 
 
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at'
@@ -116,6 +117,13 @@ class Collage < ActiveRecord::Base
   alias :to_s :display_name
 
   private 
+
+  def collapse_children
+    self.children.each do|child|
+      child.parent = self.parent
+      child.save
+    end
+  end
 
   def prepare_content
     # In the case of a cloned collage, we don't need to regenerate these caches. Only regenerate if it's truly new.

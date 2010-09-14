@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100913221023) do
+ActiveRecord::Schema.define(:version => 20100914140302) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -18,7 +18,6 @@ ActiveRecord::Schema.define(:version => 20100913221023) do
     t.string   "annotation_end"
     t.integer  "word_count"
     t.string   "annotated_content", :limit => 1048576
-    t.integer  "parent_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
@@ -27,7 +26,6 @@ ActiveRecord::Schema.define(:version => 20100913221023) do
   add_index "annotations", ["ancestry"], :name => "index_annotations_on_ancestry"
   add_index "annotations", ["annotation_end"], :name => "index_annotations_on_annotation_end"
   add_index "annotations", ["annotation_start"], :name => "index_annotations_on_annotation_start"
-  add_index "annotations", ["parent_id"], :name => "index_annotations_on_parent_id"
 
   create_table "case_citations", :force => true do |t|
     t.integer  "case_id"
@@ -93,29 +91,19 @@ ActiveRecord::Schema.define(:version => 20100913221023) do
     t.integer  "annotatable_id"
     t.string   "name",              :limit => 250,     :null => false
     t.string   "description",       :limit => 5120
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
     t.string   "content",           :limit => 5242880, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "word_count"
     t.string   "indexable_content", :limit => 5242880
+    t.string   "ancestry"
   end
 
-  add_index "collages", ["ancestors_count"], :name => "index_collages_on_ancestors_count"
+  add_index "collages", ["ancestry"], :name => "index_collages_on_ancestry"
   add_index "collages", ["annotatable_id"], :name => "index_collages_on_annotatable_id"
   add_index "collages", ["annotatable_type"], :name => "index_collages_on_annotatable_type"
-  add_index "collages", ["children_count"], :name => "index_collages_on_children_count"
   add_index "collages", ["created_at"], :name => "index_collages_on_created_at"
-  add_index "collages", ["descendants_count"], :name => "index_collages_on_descendants_count"
-  add_index "collages", ["hidden"], :name => "index_collages_on_hidden"
   add_index "collages", ["name"], :name => "index_collages_on_name"
-  add_index "collages", ["parent_id"], :name => "index_collages_on_parent_id"
-  add_index "collages", ["position"], :name => "index_collages_on_position"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
   add_index "collages", ["word_count"], :name => "index_collages_on_word_count"
 

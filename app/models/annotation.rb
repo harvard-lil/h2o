@@ -13,7 +13,8 @@ class Annotation < ActiveRecord::Base
 
   acts_as_voteable
   #acts_as_category :scope => :collage_id
-  has_ancestry :orphan_strategy => :rootify
+  before_destroy :collapse_children
+  has_ancestry :orphan_strategy => :restrict 
   acts_as_taggable_on :layers
 
   acts_as_authorization_object
@@ -43,6 +44,8 @@ class Annotation < ActiveRecord::Base
     doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + self.annotation_start_numeral + "' and substring-after(@id,'t')<='" + self.annotation_end_numeral + "']")
   end
 
+  private
+
   def create_annotation_caches
     # No need to recreate these caches on a cloned node.
     if self.annotated_content.blank?
@@ -60,6 +63,13 @@ class Annotation < ActiveRecord::Base
       end
       self.annotated_content = output
       self.word_count = anodes.length
+    end
+  end
+
+  def collapse_children
+    self.children.each do|child|
+      child.parent = self.parent
+      child.save
     end
   end
 

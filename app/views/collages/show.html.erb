@@ -1,12 +1,16 @@
 <% 
   active_layers = []
   inactive_layers = []
+  active_ids = []
+  inactive_ids = []
   layer_cookies = cookies['active-layer-ids'].to_s.split(',').collect{|l| ".l#{l}"}
   @collage.layers.each do |l|
     if layer_cookies.include?(".l#{l.id}")
       active_layers << ".l#{l.id}"
+      active_ids << l.id
     else
       inactive_layers << ".l#{l.id}"
+      inactive_ids << l.id
     end
   end
 %>
@@ -51,57 +55,49 @@
   <% form_tag(spawn_copy_collage_path(@collage)) do %>
     <%= submit_tag('Copy this collage', :class => 'button') %>
   <% end %>
-  <div class="lineage">
-    <% if false %>
-      This is more than a little yucky. I wish acts_as_category gave better tree retrieving options.
-    <% end %>
-    <h3>Lineage</h3>
-    <ul>
-      <%
-        level = 0
-        @collage.ancestors.reverse.each_with_index do |anc,index| 
-          level += 1
-        %>
-        <li class="depth-<%= level %>"><%= link_to(anc,anc) %></li>
-      <% end %>
-      <% if @collage.parent %>
-        <% level += 1 %>
-        <% @collage.self_and_siblings.each do|sib| %>
-          <% if sib == @collage %>
-            <li class="depth-<%= level %>">&bull; <%= @collage %></li>
-            <% @collage.children.each do |child| %>
-              <li class="depth-<%= level + 1 %>"><%= link_to(child,child) %></li>
-            <% end %>
-          <% else %>
-            <li class="depth-<%= level %>"><%= link_to(sib,sib) %></li>
-          <% end %>
-          </li>
+
+  <% cache("collage-show-layer-controls-#{@collage.id}") do %>
+    <div class="lineage">
+      <h3>Lineage</h3>
+      <ul>
+        <% @collage.path.each do|anc| %>
+          <li class="depth-<%= anc.depth %>"><%= (anc == @collage) ? "&bull; #{anc}" : link_to(anc,anc) %></li>
         <% end %>
-      <% else %>
-        <li class="depth-1">&bull; <%= @collage %></li>
-        <% @collage.children.each do |child| %>
-          <li class="depth-2"><%= link_to(child,child) %></li>
+        <% @collage.children.each do|child| %>
+          <li class="depth-<%= child.depth %>"><%= link_to(child,child) %></li>
         <% end %>
-      <% end %>
-    </ul>
-  </div>
-  <h3>Layer Info</h3>
-  <%= render :partial => 'shared/collage_meta', :object => @collage %>
-  <div id="layer-tools">
-    <h3>Layers</h3>
-    <div id="view-layer-list" class="layers">
-      <% @collage.layers.each do |l| %>
-        <div class="tag-container">
-          <%= check_box_tag("layer-checkbox-#{l.id}",1,(!active_layers.blank? && active_layers.include?(".l#{l.id}")) ? true : false, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-          <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%=h l.name %></span></label>
-        </div>
-      <% end %>
+      </ul>
     </div>
-    <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
-    <div id="layer-button">
-      <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+    <h3>Layer Info</h3>
+
+    <%= render :partial => 'shared/collage_meta', :object => @collage %>
+    <div id="layer-tools">
+      <h3>Layers</h3>
+      <div id="view-layer-list" class="layers">
+        <% @collage.layers.each do |l| %>
+          <div class="tag-container">
+            <%= check_box_tag("layer-checkbox-#{l.id}",1,nil, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
+            <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%=h l.name %></span></label>
+          </div>
+        <% end %>
+      </div>
+      <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
+      <div id="layer-button">
+        <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+      </div>
     </div>
-  </div>
+  <% end %>
+
+  <% unless active_ids.blank? 
+  active_ids_for_jquery = active_ids.map{|aid| "#layer-checkbox-" + aid.to_s}.join(',')
+%>
+    <%= javascript_tag %Q|
+  jQuery(document).ready(function(){
+    jQuery('#{active_ids_for_jquery}').attr('checked',true);
+  });
+    | %>
+  <% end %>
+
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>

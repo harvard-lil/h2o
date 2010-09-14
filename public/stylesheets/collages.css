@@ -86,23 +86,23 @@ form.formtastic fieldset ol li.text textarea{
   padding: 2px 0px 2px 0px;
 }
 
-#tools .lineage .depth-2{
+#tools .lineage .depth-1{
   margin-left: 15px;
   margin-bottom: 0px;
 }
-#tools .lineage .depth-3{
+#tools .lineage .depth-2{
   margin-left: 30px;
   margin-bottom: 0px;
 }
-#tools .lineage .depth-4{
+#tools .lineage .depth-3{
   margin-left: 45px;
   margin-bottom: 0px;
 }
-#tools .lineage .depth-5{
+#tools .lineage .depth-4{
   margin-left: 60px;
   margin-bottom: 0px;
 }
-#tools .lineage .depth-6{
+#tools .lineage .depth-5{
   margin-left: 75px;
   margin-bottom: 0px;
 }
