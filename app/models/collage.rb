@@ -55,7 +55,6 @@ class Collage < ActiveRecord::Base
     self.creators.each do|c|
       collage_copy.accepts_role!(:original_creator,c)
     end
-    new_annotations = []
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy
@@ -63,10 +62,11 @@ class Collage < ActiveRecord::Base
       new_annotation.layer_list = annotation.layer_list
       new_annotation.accepts_role!(:creator, new_user)
       new_annotation.accepts_role!(:owner, new_user)
-#      new_annotation.parent = annotation
+      new_annotation.parent = annotation
       annotation.creators.each do|c|
         new_annotation.accepts_role!(:original_creator, c)
       end
+      new_annotation.save
     end
     collage_copy
   end

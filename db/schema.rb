@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100707151105) do
+ActiveRecord::Schema.define(:version => 20100913221023) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -19,23 +19,15 @@ ActiveRecord::Schema.define(:version => 20100707151105) do
     t.integer  "word_count"
     t.string   "annotated_content", :limit => 1048576
     t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
-    t.integer  "position"
-    t.boolean  "hidden"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "ancestry"
   end
 
-  add_index "annotations", ["ancestors_count"], :name => "index_annotations_on_ancestors_count"
+  add_index "annotations", ["ancestry"], :name => "index_annotations_on_ancestry"
   add_index "annotations", ["annotation_end"], :name => "index_annotations_on_annotation_end"
   add_index "annotations", ["annotation_start"], :name => "index_annotations_on_annotation_start"
-  add_index "annotations", ["children_count"], :name => "index_annotations_on_children_count"
-  add_index "annotations", ["descendants_count"], :name => "index_annotations_on_descendants_count"
-  add_index "annotations", ["hidden"], :name => "index_annotations_on_hidden"
   add_index "annotations", ["parent_id"], :name => "index_annotations_on_parent_id"
-  add_index "annotations", ["position"], :name => "index_annotations_on_position"
 
   create_table "case_citations", :force => true do |t|
     t.integer  "case_id"

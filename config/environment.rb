@@ -32,6 +32,7 @@ Rails::Initializer.run do |config|
   config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
   config.gem 'acts-as-taggable-on', :version => '2.0.6'
   config.gem 'fastercsv', :version => '1.5.3'
+  config.gem 'ancestry', :version => '1.2.0'
   config.gem 'will_paginate', :version => '2.3.14'
 #  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
   config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'

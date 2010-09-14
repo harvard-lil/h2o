@@ -12,7 +12,8 @@ class Annotation < ActiveRecord::Base
   include PlaylistableExtensions::InstanceMethods
 
   acts_as_voteable
-  acts_as_category :scope => :collage_id
+  #acts_as_category :scope => :collage_id
+  has_ancestry :orphan_strategy => :rootify
   acts_as_taggable_on :layers
 
   acts_as_authorization_object
@@ -23,7 +24,7 @@ class Annotation < ActiveRecord::Base
 
   validates_presence_of :annotation_start, :annotation_end
   validates_length_of :annotation, :maximum => 10.kilobytes
-  validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
+#  validates_numericality_of :parent_id,  :allow_nil => true
 
   def display_name
     owners = self.accepted_roles.find_by_name('owner')
