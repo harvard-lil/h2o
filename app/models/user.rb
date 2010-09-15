@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def collages
-    self.roles.collect{|o| o.authorizable_type == 'Collage' ? o.authorizable : nil}.compact
+    self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect{|o| o.authorizable}.uniq.sort{|a| a.updated_at}
   end 
 
   def get_current_assignments(rotisserie_discussion = nil)

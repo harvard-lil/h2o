@@ -2,14 +2,15 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
+  before_filter :is_collage_admin
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview]
   before_filter :prep_resources
-  before_filter :load_collage, :only => [:layers, :annotations, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
+
+  caches_action :annotations
 
   access_control do
-    allow :superadmin
-    allow :admin
-    allow :collages_admin
+    allow @collage_admin 
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy]
   end
@@ -38,6 +39,7 @@ class CollagesController < BaseController
   end
 
   def annotations
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:annotations => {:layers => true}])
     respond_to do |format|
       format.json { render :json => @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content]) }
     end
@@ -47,8 +49,9 @@ class CollagesController < BaseController
   # GET /collages.xml
   def index
     @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,created_at,updated_at,word_count')
+
     if current_user
-      @my_collages = @collages.find_all{|c| c.accepts_role?(:owner, current_user)}
+      @my_collages = current_user.collages
     end
 
     respond_to do |format|
@@ -132,13 +135,19 @@ class CollagesController < BaseController
 
   private 
 
+  def is_collage_admin
+    if current_user
+      @collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+    end
+  end
+
   def prep_resources
     add_javascripts ['jquery.tablesorter.min','collages','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js']
     add_stylesheets ['tablesorter-h2o-theme/style','cases','markitup/markitup/style.css','markitup/textile/style.css','collages']
   end
 
   def load_collage
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id])
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}, :annotations => {:layers => true}])
   end
 
 end

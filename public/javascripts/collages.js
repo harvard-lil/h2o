@@ -18,6 +18,7 @@ submitAnnotation: function(){
       jQuery('#spinner_block').show();
       jQuery('div.ajax-error').html('').hide();
       jQuery('#new-annotation-error').html('').hide();
+      jQuery.showPleaseWait();
     },
     success: function(response){
       jQuery('#spinner_block').hide();
@@ -236,6 +237,7 @@ initializeAnnotations: function(){
   jQuery.ajax({
     type: 'GET',
     url: jQuery.rootPath() + 'collages/annotations/' + collageId,
+    dataType: 'json',
     cache: false,
     beforeSend: function(){
       jQuery('#spinner_block').show();

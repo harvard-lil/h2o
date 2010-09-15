@@ -19,7 +19,6 @@
 }
 
 .annotation-content{
-  height: 300px;
   overflow: auto;
   border: 1px solid black;
   padding: 5px;
@@ -31,7 +30,6 @@
 
 .annotated-content{
   font-size: 10px;
-  height: 300px;
   overflow: auto;
   padding: 5px;
   margin-bottom: 1em;

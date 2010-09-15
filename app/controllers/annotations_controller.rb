@@ -117,7 +117,7 @@ class AnnotationsController < BaseController
   private
 
   def load_annotation
-    @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id])
+    @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id], :include => [:layers])
     @collage = @annotation.collage
   end
 
