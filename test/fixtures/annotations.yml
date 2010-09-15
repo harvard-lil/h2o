@@ -2,24 +2,22 @@
 
 one:
   collage_id: 1
-  user_id: 1
-  dom_element: MyString
   annotation: MyString
-  parent_id: 1
-  children_count: 1
-  ancestors_count: 1
-  descendants_count: 1
-  position: 1
-  hidden: false
+  annotation_start: t12
+  annotation_end: t20
+  word_count: 123
+  annotated_content: My annotated content
+  created_at: <%= Time.now - 10.days %>
+  updated_at: <%= Time.now - 1.day %>
+  ancestry: 
 
 two:
   collage_id: 1
-  user_id: 1
-  dom_element: MyString
   annotation: MyString
-  parent_id: 1
-  children_count: 1
-  ancestors_count: 1
-  descendants_count: 1
-  position: 1
-  hidden: false
+  annotation_start: t12
+  annotation_end: t20
+  word_count: 123
+  annotated_content: My annotated content
+  created_at: <%= Time.now - 10.days %>
+  updated_at: <%= Time.now - 1.day %>
+  ancestry: 

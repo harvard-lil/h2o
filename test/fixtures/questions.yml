@@ -3,19 +3,28 @@
 one:
   question_instance_id: 1
   user_id: 1
-  question: MyText
-  posted_anonymously: false
-  email: MyText
-  name: MyText
+  question: My question #1
+  sticky: true
+  parent_id: nil
+  children_count: 0
+  ancestors_count: 0
+  descendants_count: 1
   position: 1
-  is_featured: false
+  hidden: false
+  created_at: <%= Time.now - 2.days %>
+  updated_at: <%= Time.now - 1.days %>
 
-two:
+one:
   question_instance_id: 1
   user_id: 1
-  question: MyText
-  posted_anonymously: false
-  email: MyText
-  name: MyText
-  position: 2
-  is_featured: false
+  question: My question #2
+  sticky: true
+  parent_id: 1
+  children_count: 0
+  ancestors_count: 0
+  descendants_count: 1
+  position: 1
+  hidden: false
+  created_at: <%= Time.now - 2.days %>
+  updated_at: <%= Time.now - 1.days %>
+

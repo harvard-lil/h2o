@@ -8,10 +8,10 @@ class QuestionInstanceTest < ActiveSupport::TestCase
     should_ensure_length_in_range :name, 1..250
     should_have_many :questions
     should_belong_to :user
-    should_belong_to :project
+#    should_belong_to :project
     should_ensure_length_in_range :password, 0..128
     should_ensure_length_in_range :description, 0..2000
-    [:parent_id, :children_count, :ancestors_count, :descendants_count, :new_question_timeout, :featured_question_count, :old_question_timeout].each do |col|
+    [:parent_id, :children_count, :ancestors_count, :descendants_count, :featured_question_count].each do |col|
       should_validate_numericality_of col
     end
   end

@@ -5,17 +5,29 @@ one:
   user_id: 1
   project_id: 1
   password: MyString
-  featured_question_count: 1
-  old_question_timeout: 900
-  new_question_timeout: 300
-  description: MyText
+  featured_question_count: 4
+  description: My question instance #1
+  parent_id: nil
+  children_count: 1
+  ancestors_count: 0
+  descendants_count: 0
+  position: 1
+  hidden: false
+  created_at: <%= Time.now - 7.days %>
+  updated_at: <%= Time.now - 2.days %>
 
 two:
   name: Question Instance 2
   user_id: 1
   project_id: 1
   password: MyString
-  featured_question_count: 1
-  old_question_timeout: 900
-  new_question_timeout: 300
-  description: MyText
+  featured_question_count: 6
+  description: My question instance #2
+  parent_id: 1
+  children_count: 1
+  ancestors_count: 0
+  descendants_count: 0
+  position: 2
+  hidden: false
+  created_at: <%= Time.now - 7.days %>
+  updated_at: <%= Time.now - 2.days %>
