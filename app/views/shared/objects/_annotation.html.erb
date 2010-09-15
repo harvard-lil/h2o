@@ -36,7 +36,7 @@
       </ul>
       <h3>Lineage</h3>
       <ul class="lineage">
-        <%= @annotation.path.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? ann : link_to(ann,collage_path(ann.collage.id, :annotation_popup_id => ann.id))}</li>"}.join(' ') %>
+        <%= [@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? ann : link_to(ann,collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ') %>
       </ul>
     </div>
   </div>

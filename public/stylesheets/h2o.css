@@ -573,7 +573,7 @@ span.tagMatches span, .layers span.c0,.c0{
   border-bottom: 1px dotted #cccccc;
 }
 
-.lineage ul, .lineage li{
+ul.lineage, .lineage li{
   list-style-type: none;
   margin: 0px;
   padding: 0px;
@@ -594,6 +594,10 @@ span.tagMatches span, .layers span.c0,.c0{
 
 .lineage li{
   padding: 2px 0px 2px 0px;
+}
+.lineage .depth-0{
+  margin-left: 0px;
+  margin-bottom: 0px;
 }
 .lineage .depth-1{
   margin-left: 15px;

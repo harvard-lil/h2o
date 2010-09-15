@@ -129,15 +129,17 @@ div.controls{
 
 }
 
-.ui-button{
-  padding: .3em;
+.controls .new-question-for{
+  font-size: 11px;
 }
 
 .ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text {
   font-size:9px;
   padding:0 1em 0 1.8em;
 }
-.ui-button .ui-button-text {
+
+.question .ui-button .ui-button-text {
   display:block;
   line-height:1;
+  padding: .2em .4em .2em 1.8em;
 }

@@ -35,7 +35,7 @@ removeLayerFromCookie: function(cookieName,layerId){
   jQuery.cookie(cookieName,cookieVal,{expires: 365});
 },
 
-annotateRange: function(obj){
+annotateRange: function(obj,activeId){
   var start = obj.annotation_start.substring(1);
   var end = obj.annotation_end.substring(1);
   var points = [parseInt(start), parseInt(end)];
@@ -91,6 +91,10 @@ annotateRange: function(obj){
       jQuery('.a' + obj.id).removeClass('highlight');
     }
   });
+
+  if(obj.id == activeId){
+    jQuery("#annotation-control-" + obj.id + '-start').click();
+  }
 
 },
 
@@ -240,7 +244,11 @@ initializeAnnotations: function(){
     },
     success: function(json){
       jQuery(json).each(function(){
-        jQuery.annotateRange(this.annotation);
+        var activeId = false;
+        if(window.location.hash){
+          activeId = window.location.hash.split('#')[1];
+        }
+        jQuery.annotateRange(this.annotation,activeId);
       });
       jQuery.observeWords();
       jQuery('#spinner_block').hide();
