@@ -88,10 +88,10 @@ class CollagesController < BaseController
   # POST /collages.xml
   def create
     @collage = Collage.new(params[:collage])
-    @collage.accepts_role!(:owner, current_user)
-    @collage.accepts_role!(:creator, current_user)
     respond_to do |format|
       if @collage.save
+        @collage.accepts_role!(:owner, current_user)
+        @collage.accepts_role!(:creator, current_user)
         session[:just_born] = true
         #flash[:notice] = 'Collage was successfully created.'
         format.html { redirect_to(@collage) }

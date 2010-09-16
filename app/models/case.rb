@@ -46,6 +46,8 @@ class Case < ActiveRecord::Base
     (short_name.blank?) ? full_name : short_name
   end
 
+  alias :to_s :display_name
+
   validate :date_check
 
   validates_presence_of   :short_name,      :content

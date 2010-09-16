@@ -98,11 +98,11 @@ class CasesController < BaseController
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
     @case = Case.new(params[:case])
-    @case.accepts_role!(:owner, current_user)
-    @case.accepts_role!(:creator, current_user)
 
     respond_to do |format|
       if @case.save
+        @case.accepts_role!(:owner, current_user)
+        @case.accepts_role!(:creator, current_user)
         flash[:notice] = 'Case was successfully created.'
         format.html { redirect_to(cases_url) }
         format.xml  { render :xml => @case, :status => :created, :location => @case }

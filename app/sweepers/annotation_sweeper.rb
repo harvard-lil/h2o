@@ -9,7 +9,7 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
     expire_fragment("collage-index-view-#{record.collage.id}")
     expire_fragment("collage-show-layer-controls-#{record.collage.id}")
     expire_fragment("collage-meta-#{record.collage.id}")
-    expire_action(collage_annotations_url(record.collage))
+    expire_action(url_for(:controller => 'collages', :action => 'annotations', :id => record.collage))
   end
 
   def after_create(record)
@@ -18,7 +18,7 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
     expire_fragment("collage-show-layer-controls-#{record.collage.id}")
     expire_fragment("collage-meta-#{record.collage.id}")
     expire_fragment("collage-index-view-#{record.collage.id}")
-    expire_action(collage_annotations_url(record.collage))
+    expire_action(url_for(:controller => 'collages', :action => 'annotations', :id => record.collage))
   end
 
   def after_destroy(record)
@@ -27,7 +27,7 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
     expire_fragment("collage-index-view-#{record.collage.id}")
     expire_fragment("collage-meta-#{record.collage.id}")
     expire_fragment("collage-show-layer-controls-#{record.collage.id}")
-    expire_action(collage_annotations_url(record.collage))
+    expire_action(url_for(:controller => 'collages', :action => 'annotations', :id => record.collage))
   end
 
 end

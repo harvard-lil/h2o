@@ -37,6 +37,7 @@ class AnnotationsController < BaseController
   # GET /annotations/1.xml
   def show
     @editors = @annotation.editors
+    @original_creators = @annotation.accepted_roles.find(:all, :conditions => {:name => "original_creator"})
   end
 
   # GET /annotations/new
@@ -62,11 +63,11 @@ class AnnotationsController < BaseController
       params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
     end
     @annotation = Annotation.new(params[:annotation])
-    @annotation.accepts_role!(:owner, current_user)
-    @annotation.accepts_role!(:creator, current_user)
 
     respond_to do |format|
       if @annotation.save
+        @annotation.accepts_role!(:owner, current_user)
+        @annotation.accepts_role!(:creator, current_user)
         #force loading
         @layer_count = @annotation.layers.count
         #flash[:notice] = 'Annotation was successfully created.'
@@ -90,8 +91,10 @@ class AnnotationsController < BaseController
     respond_to do |format|
       @annotation.attributes = params[:annotation]
       #Track this editor.
-      @annotation.accepts_role!(:editor,current_user)
       if @annotation.save
+        unless @annotation.accepts_role?(:creator, current_user)
+          @annotation.accepts_role!(:editor,current_user)
+        end
         #flash[:notice] = 'Annotation was successfully updated.'
         format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
         format.html { redirect_to(@annotation) }

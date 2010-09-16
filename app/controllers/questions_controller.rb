@@ -80,10 +80,10 @@ class QuestionsController < BaseController
     add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
     @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
-    @question.accepts_role!(:asker, current_user)
     respond_to do |format|
       @question.user = current_user
       if @question.save
+        @question.accepts_role!(:asker, current_user)
         @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
         format.html {
           if request.xhr?

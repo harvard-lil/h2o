@@ -4,7 +4,7 @@
 
 <div id="case-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
-  <h1>Add New case</h1>
+  <h1><%= (@case.new_record?) ? 'Add New case' : "Edit #{@case}" %></h1>
 <% end %>
 <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
   <% form.object.case_docket_numbers.build %>

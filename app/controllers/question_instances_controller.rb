@@ -89,9 +89,9 @@ class QuestionInstancesController < BaseController
   def create
     add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.new(params[:question_instance])
-    @question_instance.accepts_role!(:owner, current_user)
     respond_to do |format|
       if @question_instance.save
+        @question_instance.accepts_role!(:owner, current_user)
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
         format.html { 

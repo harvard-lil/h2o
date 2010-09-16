@@ -26,7 +26,7 @@
       </div>
     </div>
     <div id="lineage-info-<%= @annotation.id %>">
-      <h3>Contributors:</h3>
+      <h3>Direct Contributors:</h3>
       <ul>
         <% @annotation.path.each do |ann| %>
           <% [ann.creators, ann.editors].flatten.compact.each do |creator| %>
@@ -34,6 +34,14 @@
           <% end %>
         <% end %>
       </ul>
+      <% if @original_creators %>
+        <h3>Based on an annotation created by:</h3>
+        <ul>
+          <% @original_creators.each do |role| %>
+            <li><%= h role.user %></li>
+          <% end %>
+        </ul>
+      <% end %>
       <h3>Lineage</h3>
       <ul class="lineage">
         <%= [@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? ann : link_to(ann,collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ') %>
