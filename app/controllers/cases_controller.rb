@@ -62,6 +62,7 @@ class CasesController < BaseController
 
     respond_to do |format|
       format.html # index.html.erb
+      format.js { render :partial => 'case_list' }
       format.xml  { render :xml => @cases }
     end
   end

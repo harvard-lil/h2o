@@ -1,0 +1,41 @@
+<div id="collage-list">
+  <div class="list_block">
+    <%= will_paginate @collages.hits %>
+    <div class="clear"></div>
+    <table class="core_table tablesorter">
+      <thead>
+        <tr class="table_heading">
+          <th>Collage</th>
+          <th>Annotations</th>
+          <% if current_user %>
+            <th></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
+      </tbody>
+    </table>
+    <%= will_paginate @collages.hits %>
+    <div class="clear"></div>
+  </div>
+
+</div>
+
+<%= javascript_tag(%q|
+jQuery(document).ready(function(){
+  jQuery('.button').button();
+  jQuery('.tablesorter').tablesorter();
+  jQuery('.pagination a').click(function(e){
+    e.preventDefault();
+    jQuery.ajax({
+      type: 'GET',
+      dataType: 'script',
+      url: jQuery(this).attr('href'),
+      success: function(html){
+        jQuery('#collage-list').html(html);
+      }
+    });
+  });
+});
+|) %>

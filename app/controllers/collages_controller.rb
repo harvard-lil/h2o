@@ -67,6 +67,7 @@ class CollagesController < BaseController
 
     respond_to do |format|
       format.html # index.html.erb
+      format.js {render :partial => 'collage_list'}
       format.xml  { render :xml => @collages }
     end
   end

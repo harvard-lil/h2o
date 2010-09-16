@@ -2,6 +2,11 @@
   <div class="info_block">
     <h1 class="yellow_title_med">Collages</h1>
     Collages allow you to annotate text - for instance, <%= link_to('a court case or decision', cases_url) %>. This page lists Collages you have the ability to view or manage.
+    <% form_tag(url_for, :method => :get) do %>
+      <p>
+      <label for="keywords">Keywords:</label> <%= text_field_tag('keywords', params[:keywords], :size => 50) %>
+      <input type="submit" class="button" value="Search" /> <%= link_to('clear', url_for()) %></p>
+    <% end %>
   </div>
 
   <% unless @my_collages.blank? %>
@@ -24,30 +29,15 @@
     </div>
   <% end %>
 
-  <h2>Showing <%= @collages.hits.length %> Collages of <%= @collages.total %> total</h2>
-  <div class="list_block">
-  <%= will_paginate @collages.hits %>
-    <% unless request.xhr? %>
-      <%= render :partial => 'shared/layout_components/per_page_selector' %>
-    <% end %>
-    <table class="core_table tablesorter">
-      <thead>
-        <tr class="table_heading">
-          <th>Collage</th>
-          <th>Annotations</th>
-          <% if current_user %>
-            <th></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
-      </tbody>
-    </table>
-  <%= will_paginate @collages.hits %>
-    <% unless request.xhr? %>
-      <%= render :partial => 'shared/layout_components/per_page_selector' %>
-    <% end %>
-  </div>
+  <% if @collages.hits.length == 0 %>
+    <h2>None found.</h2>
+  <% else %>
+    <h2>Showing <%= (@collages.hits.length > 1) ? "#{@collages.hits.length} Collages" : '1 collage' %> of <%= @collages.total %> total
+    <% if params[:keywords] %><span style="font-size: 14px;"> for "<%=h params[:keywords] %>"</span><% end %></h2>
+
+    <%= render :partial => 'shared/layout_components/per_page_selector' %>
+    <%= render :partial => 'collage_list' %>
+  <% end %>
+
   <div class="spacer_block"></div>
 </div>
