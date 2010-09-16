@@ -130,7 +130,6 @@ annotationButton: function(e,annotationId,ids){
                 jQuery(this).dialog('close');
               },
               Delete: function(){
-                alert("Annotation ID is:" + annotationId);
                 if(confirm('Are you sure?')){
                   jQuery.ajax({
                     cache: false,

@@ -26,15 +26,13 @@
       </div>
     </div>
     <div id="lineage-info-<%= @annotation.id %>">
-      <h3>Direct Contributors:</h3>
+      <h3>Direct Contributors to this annotation:</h3>
       <ul>
-        <% @annotation.path.each do |ann| %>
-          <% [ann.creators, ann.editors].flatten.compact.each do |creator| %>
-            <li><%= h creator.to_s %></li>
-          <% end %>
+        <% @annotation.editors && @annotation.editors.each do |editor| %>
+          <li><%= h editor.to_s %></li>
         <% end %>
       </ul>
-      <% if @original_creators %>
+      <% unless @original_creators.blank? %>
         <h3>Based on an annotation created by:</h3>
         <ul>
           <% @original_creators.each do |role| %>

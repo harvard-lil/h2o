@@ -67,6 +67,7 @@ class AnnotationsController < BaseController
     respond_to do |format|
       if @annotation.save
         @annotation.accepts_role!(:owner, current_user)
+        @annotation.accepts_role!(:editor, current_user)
         @annotation.accepts_role!(:creator, current_user)
         #force loading
         @layer_count = @annotation.layers.count
@@ -92,9 +93,7 @@ class AnnotationsController < BaseController
       @annotation.attributes = params[:annotation]
       #Track this editor.
       if @annotation.save
-        unless @annotation.accepts_role?(:creator, current_user)
-          @annotation.accepts_role!(:editor,current_user)
-        end
+        @annotation.accepts_role!(:editor,current_user)
         #flash[:notice] = 'Annotation was successfully updated.'
         format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
         format.html { redirect_to(@annotation) }

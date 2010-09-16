@@ -50,6 +50,7 @@ class CollagesController < BaseController
   def index
     @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,created_at,updated_at,word_count')
 
+    @my_collages = []
     if current_user
       @my_collages = current_user.collages
     end
