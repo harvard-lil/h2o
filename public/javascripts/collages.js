@@ -397,6 +397,11 @@ observeWords: function(){
 });
 
 jQuery(document).ready(function(){
+  jQuery('.per-page-selector').change(function(){
+    jQuery.cookie('per_page', jQuery(this).val(), {expires: 365});
+    document.location = document.location;
+    });
+  jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
   jQuery('.tablesorter').tablesorter();
   jQuery('.button').button();
   jQuery('.layer-button').button({icons: {primary: 'ui-icon-check' }});

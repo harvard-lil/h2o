@@ -45,9 +45,35 @@ class CollagesController < BaseController
     end
   end
 
+  def index
+    @collages = Sunspot.new_search(Collage)
+      
+    @collages.build do
+      unless params[:keywords].blank?
+        keywords params[:keywords]
+      end
+      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+      #data_accessor_for(Case).include = [:tags, :collages, :case_citations]
+      order_by :name, :asc
+    end
+
+    @collages.execute!
+
+    @my_collages = []
+
+    if current_user
+      @my_collages = current_user.collages
+    end
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.xml  { render :xml => @collages }
+    end
+  end
+
   # GET /collages
   # GET /collages.xml
-  def index
+  def index_old
     @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,created_at,updated_at,word_count')
 
     @my_collages = []

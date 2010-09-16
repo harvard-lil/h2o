@@ -38,6 +38,16 @@ class Collage < ActiveRecord::Base
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
+  searchable do
+    text :name, :boost => 3.0
+    string :name, :stored => true
+    text :description, :boost => 2.0
+    text :indexable_content
+
+    string :annotatable, :stored => true
+    string :annotations, :multiple => true
+  end
+
   def fork_it(new_user)
     collage_copy = self.clone
     collage_copy.name = "#{self.name} copy"
