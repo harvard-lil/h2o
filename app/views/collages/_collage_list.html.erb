@@ -32,6 +32,12 @@ jQuery(document).ready(function(){
       type: 'GET',
       dataType: 'script',
       url: jQuery(this).attr('href'),
+      beforeSend: function(){
+        jQuery('#spinner_block').show();
+      },
+      complete: function(){
+        jQuery('#spinner_block').hide();
+      },
       success: function(html){
         jQuery('#collage-list').html(html);
       }

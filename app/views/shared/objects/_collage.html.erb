@@ -1,6 +1,6 @@
 <tr>
   <% cache("collage-index-view-#{collage.id}") do %>
-    <td>
+    <td class="title_column">
       <%= link_to collage.display_name, collage_path(collage) %><br />
       <%= Collage.format_content(collage.description) %>
       <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
@@ -10,7 +10,7 @@
     </td>
   <% end %>
     <% if current_user %>
-      <td>
+      <td class="controls_column">
         <% form_tag(spawn_copy_collage_path(collage)) do %>
           <%= submit_tag('Copy', :class => 'button') %>
         <% end %>

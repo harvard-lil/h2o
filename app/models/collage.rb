@@ -46,6 +46,7 @@ class Collage < ActiveRecord::Base
 
     string :annotatable, :stored => true
     string :annotations, :multiple => true
+    string :layer_list, :multiple => true
   end
 
   def fork_it(new_user)
@@ -84,6 +85,10 @@ class Collage < ActiveRecord::Base
 
   def layers
     self.annotations.collect{|a| a.layers}.flatten.uniq
+  end
+
+  def layer_list
+    self.layers.map(&:name)
   end
 
   def layer_report
