@@ -3,8 +3,7 @@
     <tr class="table_heading ">
       <th>Item Title</th>
       <th>Description</th>
-      <th>Edit</th>
-      <th>Delete</th>
+      <th></th>
       <th></th>
     </tr>
   </thead>
@@ -20,21 +19,21 @@
         <td>
           <div class="item-description"><%= item.resource_item.description %></div>
         </td>
-        <td>
+        <td width="10%">
           <% if item.resource_item.admin? || item.resource_item.owner? %>
           <button id="button-item-edit-<%= item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
           <%  end %>
-        </td>
-        <td>
           <% if item.admin? || item.owner? %>
           <button id="button-item-delete-<%= item.id %>" name="button-item-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
           <% end %>
         </td>
-        <td class="item_drag_handle"></td>
+        <td width="10%">
+          <div class="item_drag_handle button">Reorder</div>
+        </td>
       </tr>
     <% end %>
   </tbody>

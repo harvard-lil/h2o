@@ -1,10 +1,17 @@
 require 'redcloth_extensions'
+require 'ancestry_extensions'
+
 class Playlist < ActiveRecord::Base
+  extend AncestryExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include AuthUtilities
+
+  before_destroy :collapse_children
+  has_ancestry :orphan_strategy => :restrict
 
   acts_as_authorization_object
 

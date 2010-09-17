@@ -13,6 +13,8 @@ var sortableCellHelper = function(e, tr)
 
 jQuery(function() {
 
+    jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
+
     jQuery(".sortable").sortable({
         handle: '.item_drag_handle',
         axis: 'y',

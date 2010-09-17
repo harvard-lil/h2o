@@ -1,12 +1,17 @@
 require 'playlistable_extensions'
+require 'ancestry_extensions'
 
 class PlaylistItem < ActiveRecord::Base
+  extend AncestryExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include AuthUtilities
-  
-  acts_as_category :scope => :playlist, :hidden => :active
+
+  before_destroy :collapse_children
+  has_ancestry :orphan_strategy => :restrict
+
   acts_as_authorization_object
 
 

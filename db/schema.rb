@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100914140302) do
+ActiveRecord::Schema.define(:version => 20100917141004) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -262,16 +262,14 @@ ActiveRecord::Schema.define(:version => 20100914140302) do
     t.integer  "resource_item_id"
     t.string   "resource_item_type"
     t.boolean  "active",             :default => true
-    t.integer  "parent_id"
-    t.integer  "children_count"
-    t.integer  "ancestors_count"
-    t.integer  "descendants_count"
     t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "ancestry"
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
+  add_index "playlist_items", ["ancestry"], :name => "index_playlist_items_on_ancestry"
   add_index "playlist_items", ["resource_item_id"], :name => "index_playlist_items_on_resource_item_id"
   add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 
@@ -283,9 +281,13 @@ ActiveRecord::Schema.define(:version => 20100914140302) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "public",                      :default => true
+    t.string   "ancestry"
+    t.integer  "position"
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
+  add_index "playlists", ["ancestry"], :name => "index_playlists_on_ancestry"
+  add_index "playlists", ["position"], :name => "index_playlists_on_position"
 
   create_table "question_instances", :force => true do |t|
     t.string   "name",                    :limit => 250,                 :null => false

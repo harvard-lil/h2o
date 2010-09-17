@@ -20,5 +20,8 @@ class ModifyAnnotationsForAncestry < ActiveRecord::Migration
     add_column :annotations, :position, :integer
     add_column :annotations, :hidden, :boolean
     create_acts_as_category_indexes(Annotation)
+    #this is not going to retain ancestry, so don't do it. Just here for thoroughness
+    remove_column :annotations, :ancestry
+
   end
 end

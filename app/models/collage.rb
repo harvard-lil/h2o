@@ -1,11 +1,15 @@
 require 'redcloth_extensions'
 require 'playlistable_extensions'
+require 'ancestry_extensions'
 
 class Collage < ActiveRecord::Base
   extend PlaylistableExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
+  extend AncestryExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
+
   include AuthUtilities
   acts_as_authorization_object
 
@@ -124,13 +128,6 @@ class Collage < ActiveRecord::Base
   alias :to_s :display_name
 
   private 
-
-  def collapse_children
-    self.children.each do|child|
-      child.parent = self.parent
-      child.save
-    end
-  end
 
   def prepare_content
     # In the case of a cloned collage, we don't need to regenerate these caches. Only regenerate if it's truly new.

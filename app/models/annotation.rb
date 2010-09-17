@@ -1,15 +1,18 @@
 require 'tagging_extensions'
+require 'ancestry_extensions'
 require 'redcloth_extensions'
 require 'playlistable_extensions'
 
 class Annotation < ActiveRecord::Base
-  include AuthUtilities
+  extend AncestryExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
 
   include TaggingExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include PlaylistableExtensions::InstanceMethods
+  include AuthUtilities
 
   acts_as_voteable
 
@@ -18,6 +21,8 @@ class Annotation < ActiveRecord::Base
   has_ancestry :orphan_strategy => :restrict 
   acts_as_taggable_on :layers
 
+  before_destroy :collapse_children
+  has_ancestry :orphan_strategy => :restrict
   acts_as_authorization_object
 
   before_create :create_annotation_caches
@@ -65,13 +70,6 @@ class Annotation < ActiveRecord::Base
       end
       self.annotated_content = output
       self.word_count = anodes.length
-    end
-  end
-
-  def collapse_children
-    self.children.each do|child|
-      child.parent = self.parent
-      child.save
     end
   end
 

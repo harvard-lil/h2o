@@ -504,11 +504,6 @@ span.tagMatches span, .layers span.c0,.c0{
   background-color: #555;
 }
 
-.item_drag_handle {
-    width: 5px;
-    background-color: #8C8C8C;
-}
-
 .sortable_item {
     width: 949px;
 }
