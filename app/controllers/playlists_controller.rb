@@ -1,18 +1,23 @@
 require 'net/http'
 require 'uri'
 
-class PlaylistsController < ApplicationController
+class PlaylistsController < BaseController
 
   include PlaylistUtilities
 
-  before_filter :require_user, :load_playlist, :except => [:metadata]
+  before_filter :require_user, :load_playlist, :except => [:metadata, :embedded_pager]
   
   access_control do
+    allow all, :to => [:embedded_pager]
     allow logged_in, :to => [:index, :new, :create]
     allow :admin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:index, :show, :edit, :update]
     allow :user, :of => :playlist, :to => [:index, :show]
+  end
+
+  def embedded_pager
+    super Playlist
   end
 
   # GET /playlists
@@ -70,6 +75,7 @@ class PlaylistsController < ApplicationController
 
         # If save then assign role as owner to object
         @playlist.accepts_role!(:owner, current_user)
+        @playlist.accepts_role!(:creator, current_user)
 
         flash[:notice] = 'Playlist was successfully created.'
         format.js {render :text => nil}
@@ -96,6 +102,7 @@ class PlaylistsController < ApplicationController
 
     respond_to do |format|
       if @playlist.update_attributes(params[:playlist])
+        @playlist.accepts_role!(:editor,current_user)
         flash[:notice] = 'Playlist was successfully updated.'
         format.html { redirect_to(@playlist) }
         format.xml  { head :ok }
@@ -144,15 +151,24 @@ class PlaylistsController < ApplicationController
     respond_to do |format|
       if @playlist_copy.save
         @playlist_copy.accepts_role!(:owner, current_user)
+        @playlist.creators && @playlist.creators.each do|c|
+          @playlist_copy.accepts_role!(:original_creator,c)
+        end
         @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
           new_item = item.clone
+          item.creators && item.creators.each do|c|
+            new_item.accepts_role!(:original_creator,c)
+          end
+          new_item.accepts_role!(:owner, current_user)
           new_item.playlist_item_parent = item
           new_item
         }
 
         create_influence(@playlist, @playlist_copy)
+        flash[:notice] = "Your copy is below. Cheers!"
 
         format.html {
+          #This is because the post is an ajax submit. . . 
           render :update do |page|
             page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"
           end

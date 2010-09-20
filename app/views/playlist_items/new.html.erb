@@ -3,7 +3,15 @@
 <div id="tabs">
   <ul>
     <li><a href="#submit-url">From a URL</a></li>
-    <li><a href="#from-h2o">From this h2o</a></li>
+
+    <% if false %>
+      <% PlaylistItem.playlistable_classes.each do |objects| %>
+        <li><%= link_to(objects.playlisting_name, '#from-' + objects.name) %></li>
+      <% end %>
+    <% end %>
+  <% [Case,Collage,QuestionInstance,Question,Playlist].each do |objects| %>
+    <li><%= link_to(objects.playlisting_name, '#from-' + objects.name) %></li>
+  <% end %>
   </ul>
   <div id="submit-url">
     <%= text_field_tag 'url_input', nil,
@@ -15,9 +23,11 @@
     <div id="result_data">
     </div>
   </div>
-  <div id="from-h2o">
-    <%= render :partial => 'shared/playlist_item_selector' %>
-  </div>
+  <% [Case,Collage,QuestionInstance,Question,Playlist].each do |objects| %>
+    <div id="from-<%= objects.name %>">
+      <%= render :partial => 'shared/playlistable_item', :object => objects %>
+    </div>
+  <% end %>
 </div>
 
 

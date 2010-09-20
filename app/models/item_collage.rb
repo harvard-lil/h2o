@@ -1,18 +1,18 @@
-class ItemPlaylist < ActiveRecord::Base
+class ItemCollage < ActiveRecord::Base
   include AuthUtilities
   include PlaylistUtilities
 
   acts_as_authorization_object
 
   has_one :playlist_item, :as => :resource_item
-  validates_presence_of :name
+  validates_presence_of :output_text
 
-  def preview(size_indicator = "S")
+  def preview(size_indicator = 'S')
 #    metadata_hash = get_metadata_hash(self.url,URI.parse(self.url))
 
     preview_content = <<-PREVIEW_CONTENT
        <a href='#{self.url}' target='_blank' class='item_default_link'>
-       <img src='/images/elements/playlist.png' style='border: none;' /></a>
+       <img src='/images/elements/collage.png' style='border: none;' /></a>
 
     PREVIEW_CONTENT
 
@@ -22,7 +22,6 @@ class ItemPlaylist < ActiveRecord::Base
 #    preview_content += "</p>\n"
 
     return preview_content
-
   end
 
 end

@@ -1,4 +1,4 @@
-<% @playlists = current_user.roles.find(:all, :conditions => {:authorizable_type => "Playlist"}).collect(&:authorizable).compact %>
+<% @playlists = current_user.playlists %>
 
 <table class="core_table">
   <thead>

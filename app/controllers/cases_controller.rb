@@ -1,17 +1,17 @@
 class CasesController < BaseController
 
   before_filter :prep_resources
-  before_filter :require_user, :except => [:index, :show, :metadata]
+  before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
 
   access_control do
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
     allow :case_manager
     allow :admin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
-    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create]
   end
 
   def autocomplete_tags
@@ -20,6 +20,10 @@ class CasesController < BaseController
 
   def metadata
     #FIXME
+  end
+
+  def embedded_pager
+    super Case
   end
 
   # GET /cases
@@ -34,7 +38,7 @@ class CasesController < BaseController
       end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       data_accessor_for(Case).include = [:tags, :collages, :case_citations]
-      order_by :short_name, :asc
+      order_by :display_name, :asc
     end
 
     if params[:tags]

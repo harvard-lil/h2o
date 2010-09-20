@@ -1,8 +1,76 @@
-<h3><%= link_to(playlistable_item.playlisting_name, '#') %></h3>
-<div>
-  <ul>
-    <% playlistable_item.all.each do|pi| %>
-      <li><%= pi.display_name %></li>
-    <% end %>
-  </ul>
+<div class="h2o-playlistable-<%= playlistable_item.name %>">
+  <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
+  <div class="object-list-<%= playlistable_item.name %>">
+  <% if @objects -%>
+    <table class="core_table tablesorter">
+      <thead>
+        <tr class="table_heading">
+          <th>Name</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @objects.hits.each do |hit| -%>
+          <tr>
+            <td><%= link_to(hit.stored(:display_name), "##{playlistable_item.name}-#{hit.stored(:id)}") -%></td>
+            <td><button class="add-<%= playlistable_item.name %>-button" id="<%= %Q|#{playlistable_item.name}-#{hit.stored(:id)}| %>">Add</button></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <%= will_paginate @objects.hits -%>
+  <% end %>
 </div>
+</div>
+<div class="clear"></div>
+
+<%= javascript_tag %Q| 
+jQuery(document).ready(function(){
+
+  if(jQuery('.object-list-#{playlistable_item.name}').html().length < 15){
+    jQuery.ajax({
+      method: 'GET',
+      cache: false,
+      url: jQuery.rootPath() + '#{playlistable_item.name.tableize}/embedded_pager',
+      dataType: 'script',
+      success: function(html){
+        jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
+      }
+    });
+  }
+  jQuery('.add-#{playlistable_item.name}-button').button().click(function(e){
+    e.preventDefault();
+    var itemId = jQuery(this).attr('id').split('-')[1];
+    jQuery("#dialog-item-new").load("/playlists/load_form",{
+      'item_type': 'Item#{playlistable_item.name}',
+      'url_string': '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
+      'container_id': jQuery('#container_id').text()
+    });
+  });
+  jQuery('.#{playlistable_item.name}-button').button().click(function(e){
+    e.preventDefault();
+    jQuery.ajax({
+      method: 'GET',
+      url: jQuery.rootPath() + '#{playlistable_item.name.tableize}/embedded_pager',
+      data: {keywords: jQuery('##{playlistable_item.name}-keyword-search').val()},
+      dataType: 'script',
+      success: function(html){
+        jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
+      }
+    });
+  });
+  jQuery('.h2o-playlistable-#{playlistable_item.name} .pagination a').click(
+    function(e){
+      e.preventDefault();
+      jQuery.ajax({
+        type: 'GET',
+        dataType: 'script',
+        data: {keywords: jQuery('##{playlistable_item.name}-keyword-search').val()},
+        url: jQuery(this).attr('href'),
+        success: function(html){
+          jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
+        }
+      });
+  });
+})
+| %>

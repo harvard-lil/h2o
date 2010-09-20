@@ -38,6 +38,22 @@ class BaseController < ApplicationController
 
   end
 
+  def embedded_pager(model = Case)
+    @objects = Sunspot.new_search(model)
+    @objects.build do
+      unless params[:keywords].blank?
+        keywords params[:keywords]
+      end
+      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+#      data_accessor_for(model).include = [:tags, :collages, :case_citations]
+      order_by :display_name, :asc
+    end
 
-
+    @objects.execute!
+    respond_to do |format|
+      format.html # index.html.erb
+      format.js { render :partial => 'shared/playlistable_item', :object => model }
+      format.xml  { render :xml => @objects }
+    end
+  end
 end

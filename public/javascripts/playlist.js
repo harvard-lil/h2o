@@ -13,25 +13,6 @@ var sortableCellHelper = function(e, tr)
 
 jQuery(function() {
 
-    jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
-
-    jQuery(".sortable").sortable({
-        handle: '.item_drag_handle',
-        axis: 'y',
-        helper: sortableCellHelper,
-        update: function(event, ui) {
-            var container_id = jQuery('#container_id').text();
-            var playlist_order = jQuery(".sortable").sortable("serialize");
-            jQuery.ajax({
-                type: "post",
-                dataType: 'json',
-                url: '/playlists/' + container_id + '/position_update',
-                data: {
-                    playlist_order: playlist_order
-                }
-            });
-        }
-    }).disableSelection();
 
     jQuery("#url_review").live('click', function(e){
       jQuery('#url_error').html('').hide();

@@ -2,17 +2,21 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
-  before_filter :is_collage_admin
-  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview]
+  before_filter :is_collage_admin, :except => [:embedded_pager]
+  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
 
   caches_action :annotations
 
   access_control do
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]
     allow @collage_admin 
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy]
+  end
+
+  def embedded_pager
+    super Collage
   end
 
   def description_preview
@@ -54,7 +58,7 @@ class CollagesController < BaseController
       end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       #data_accessor_for(Case).include = [:tags, :collages, :case_citations]
-      order_by :name, :asc
+      order_by :display_name, :asc
     end
 
     @collages.execute!

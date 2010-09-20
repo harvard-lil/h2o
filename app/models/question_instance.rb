@@ -26,6 +26,13 @@ class QuestionInstance < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :featured_question_count, :allow_nil => true
 
+  searchable do
+    text :display_name
+    string :display_name, :stored => true
+    string :id, :stored => true
+    text :description
+  end
+
   #Get "root" questions in this question instance.
   def question_count
     self.questions.collect{|q| (q.parent_id == nil) ? 1 : nil}.compact.length

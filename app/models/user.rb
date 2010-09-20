@@ -40,8 +40,12 @@ class User < ActiveRecord::Base
   end
 
   def collages
-    self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect{|o| o.authorizable}.uniq.sort{|a| a.updated_at}
-  end 
+    self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.updated_at}
+  end
+
+  def playlists
+    self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.position}
+  end
 
   def get_current_assignments(rotisserie_discussion = nil)
     assignments_array = Array.new()

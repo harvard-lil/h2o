@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100917141004) do
+ActiveRecord::Schema.define(:version => 20100920200624) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -126,6 +126,36 @@ ActiveRecord::Schema.define(:version => 20100917141004) do
   add_index "influences", ["parent_id"], :name => "index_influences_on_parent_id"
   add_index "influences", ["resource_id"], :name => "index_influences_on_resource_id"
   add_index "influences", ["resource_type"], :name => "index_influences_on_resource_type"
+
+  create_table "item_cases", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
+    t.boolean  "public",                      :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_cases", ["active"], :name => "index_item_cases_on_active"
+  add_index "item_cases", ["public"], :name => "index_item_cases_on_public"
+  add_index "item_cases", ["url"], :name => "index_item_cases_on_url"
+
+  create_table "item_collages", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
+    t.boolean  "public",                      :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_collages", ["active"], :name => "index_item_collages_on_active"
+  add_index "item_collages", ["public"], :name => "index_item_collages_on_public"
+  add_index "item_collages", ["url"], :name => "index_item_collages_on_url"
 
   create_table "item_defaults", :force => true do |t|
     t.string   "title"

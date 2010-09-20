@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_collages
+
+  map.resources :item_cases
+
   map.resources :item_playlists
 
   map.resources :item_rotisserie_discussions
@@ -21,11 +25,11 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :case_citations
 
-  map.resources :cases
+  map.resources :cases, :collection => {:embedded_pager => :get}
 
-  map.resources :collages, :member => {:spawn_copy => :post}
+  map.resources :collages, :collection => {:embedded_pager => :get}, :member => {:spawn_copy => :post}
 
-  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post},
+  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},
     :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post], :metadata => :get}
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
@@ -47,13 +51,14 @@ ActionController::Routing::Routes.draw do |map|
     :collection => {:block => :get, :display_validation => [:get, :post], :validate_email_csv => [:post]},
     :member => {:delete => :get, :invite => [:get, :post], :add_member => :get}
 
-  map.resources :questions do |q|
+
+  map.resources :questions, :collection => {:embedded_pager => :get} do |q|
     q.vote_for 'vote_for', :controller => 'questions', :action => :vote_for, :method => :get
     q.vote_against 'vote_against', :controller => 'questions', :action => :vote_against, :method => :get
     q.replies 'replies', :controller => 'questions', :action => :replies, :method => :get
   end
 
-  map.resources :question_instances, :member => {:metadata => :get}
+  map.resources :question_instances, :member => {:metadata => :get}, :collection => {:embedded_pager => :get}
 
   # The priority is based upon order of creation: first created -> highest priority.
 

@@ -17,12 +17,20 @@ class Playlist < ActiveRecord::Base
 
   acts_as_authorization_object
 
+  searchable do
+    text :display_name
+    string :display_name, :stored => true
+    string :id, :stored => true
+    text :description
+    text :output_text
+  end
+
   #has_many :playlist_items, :order => :position
   has_many :playlist_items, :order => "playlist_items.position"
   has_many :roles, :as => :authorizable
 
   validates_presence_of :output_text
-  validates_uniqueness_of :output_text
+#  validates_uniqueness_of :output_text
   validates_length_of :output_text, :in => 1..250
 
   def display_name

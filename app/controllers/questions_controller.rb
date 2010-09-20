@@ -2,18 +2,22 @@ class QuestionsController < BaseController
 
   cache_sweeper :question_sweeper
 
-  before_filter :prep_resources
+  before_filter :prep_resources, :except => [:embedded_pager]
 
-  before_filter :require_user, :except => [:replies]
+  before_filter :require_user, :except => [:replies,:embedded_pager]
   before_filter :load_question, :only => [:destroy, :toggle_sticky]
 
   after_filter :update_question_instance_time
 
   access_control do
+    allow all, :to => [:replies, :vote_against, :vote_for, :new, :create, :embedded_pager]
     allow :admin
     allow :questions_admin
     allow :owner, :of => :question_instance, :to => [:destroy, :toggle_sticky]
-    allow all, :to => [:replies, :vote_against, :vote_for, :new, :create]
+  end
+
+  def embedded_pager
+    super Question
   end
 
   def toggle_sticky

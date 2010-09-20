@@ -72,6 +72,14 @@ class Question < ActiveRecord::Base
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
 
+  searchable do
+    text :display_name
+    string :display_name, :stored => true
+    string :id, :stored => true
+    text :question
+    string :question, :stored => true
+  end
+
   def reply_list
     self.children.find(:all, :order => 'position')
   end
@@ -128,7 +136,7 @@ class Question < ActiveRecord::Base
 
   def display_name
     owners = self.accepted_roles.find_by_name('owner')
-    "On \"#{self.question_instance.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "\"#{self.question[0..80]}...\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
   end
 
   private

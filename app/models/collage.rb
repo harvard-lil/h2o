@@ -43,8 +43,9 @@ class Collage < ActiveRecord::Base
   validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
   searchable do
-    text :name, :boost => 3.0
-    string :name, :stored => true
+    text :display_name, :boost => 3.0
+    string :display_name, :stored => true
+    string :id, :stored => true
     text :description, :boost => 2.0
     text :indexable_content
 
