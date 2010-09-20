@@ -12,6 +12,8 @@ class Playlist < ActiveRecord::Base
 
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
+  #no sql injection here.
+  acts_as_list :scope => 'ancestry = #{self.connection.quote(self.ancestry)}'
 
   acts_as_authorization_object
 

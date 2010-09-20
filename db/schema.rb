@@ -261,15 +261,18 @@ ActiveRecord::Schema.define(:version => 20100917141004) do
     t.integer  "playlist_id"
     t.integer  "resource_item_id"
     t.string   "resource_item_type"
-    t.boolean  "active",             :default => true
+    t.boolean  "active",                  :default => true
     t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
+    t.integer  "playlist_item_parent_id"
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
   add_index "playlist_items", ["ancestry"], :name => "index_playlist_items_on_ancestry"
+  add_index "playlist_items", ["playlist_item_parent_id"], :name => "index_playlist_items_on_playlist_item_parent_id"
+  add_index "playlist_items", ["position"], :name => "index_playlist_items_on_position"
   add_index "playlist_items", ["resource_item_id"], :name => "index_playlist_items_on_resource_item_id"
   add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 

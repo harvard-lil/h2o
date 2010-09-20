@@ -14,8 +14,10 @@ class PlaylistItem < ActiveRecord::Base
 
   acts_as_authorization_object
 
-
   belongs_to :resource_item, :polymorphic => true
+
+  #This is a self-referential relationship, renamed so as to not conflict with methods exported by ancestry.
+  belongs_to :playlist_item_parent, :class_name => 'PlaylistItem'
 
   def display_name
     (resource_item.respond_to?(:title)) ? resource_item.title : resource_item.name

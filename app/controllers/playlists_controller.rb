@@ -138,12 +138,17 @@ class PlaylistsController < ApplicationController
   def spawn_copy
     @playlist = Playlist.find(params[:id])  
     @playlist_copy = Playlist.new(params[:playlist])
+    @playlist_copy.parent = @playlist
     if @playlist_copy.title.blank? then @playlist_copy.title = params[:playlist][:output_text] end
 
     respond_to do |format|
       if @playlist_copy.save
         @playlist_copy.accepts_role!(:owner, current_user)
-        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| item.clone }
+        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
+          new_item = item.clone
+          new_item.playlist_item_parent = item
+          new_item
+        }
 
         create_influence(@playlist, @playlist_copy)
 
