@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100920200624) do
+ActiveRecord::Schema.define(:version => 20100921142510) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -214,6 +214,21 @@ ActiveRecord::Schema.define(:version => 20100920200624) do
   add_index "item_question_instances", ["active"], :name => "index_item_question_instances_on_active"
   add_index "item_question_instances", ["public"], :name => "index_item_question_instances_on_public"
   add_index "item_question_instances", ["url"], :name => "index_item_question_instances_on_url"
+
+  create_table "item_questions", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text"
+    t.string   "url"
+    t.text     "description"
+    t.boolean  "active"
+    t.boolean  "public"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_questions", ["active"], :name => "index_item_questions_on_active"
+  add_index "item_questions", ["public"], :name => "index_item_questions_on_public"
+  add_index "item_questions", ["url"], :name => "index_item_questions_on_url"
 
   create_table "item_rotisserie_discussions", :force => true do |t|
     t.string   "title"

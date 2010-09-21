@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_questions
+
   map.resources :item_collages
 
   map.resources :item_cases

@@ -15,8 +15,10 @@ class PlaylistItem < ActiveRecord::Base
   has_ancestry :orphan_strategy => :restrict
 
   acts_as_authorization_object
+  acts_as_list :scope => :playlist 
+  belongs_to :playlist
 
-  belongs_to :resource_item, :polymorphic => true
+  belongs_to :resource_item, :polymorphic => true, :dependent => :destroy
 
   #This is a self-referential relationship, renamed so as to not conflict with methods exported by ancestry.
   belongs_to :playlist_item_parent, :class_name => 'PlaylistItem'

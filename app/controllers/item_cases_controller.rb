@@ -1,4 +1,5 @@
 class ItemCasesController < ApplicationController
+  #FIXME - ensure only owners can add items to playlists
 
   # POST /item_cases
   # POST /item_cases.xml
@@ -27,6 +28,10 @@ class ItemCasesController < ApplicationController
         format.xml  { render :xml => @item_case.errors, :status => :unprocessable_entity }
       end
     end
+  end
+
+  def new
+    render :text => '', :status => 500
   end
 
   # PUT /item_cases/1
