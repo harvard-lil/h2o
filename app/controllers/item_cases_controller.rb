@@ -37,7 +37,7 @@ class ItemCasesController < ApplicationController
     respond_to do |format|
       if @item_case.update_attributes(params[:item_case])
         flash[:notice] = 'ItemCase was successfully updated.'
-        format.html { redirect_to(@item_case) }
+        format.html { render :text => nil }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

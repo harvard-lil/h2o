@@ -36,7 +36,7 @@ class ItemCollagesController < ApplicationController
     respond_to do |format|
       if @item_collage.update_attributes(params[:item_collage])
         flash[:notice] = 'ItemCollage was successfully updated.'
-        format.html { redirect_to(@item_collage) }
+        format.html { render :text => nil }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
