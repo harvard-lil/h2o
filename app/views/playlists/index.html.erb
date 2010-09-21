@@ -13,8 +13,14 @@
 <br />
 
 
-<button id="button-playlist-create" class="ui-button ui-state-default ui-corner-all">Create playlist</button>
+<button id="button-playlist-create">Create playlist</button>
+
 
 <div id="dialog-playlist-new" title="New playlist"></div>
 <div id="dialog-playlist-edit" title="Edit playlist"></div>
 <div id="dialog-playlist-delete" title="Delete playlist"></div>
+
+<%= javascript_tag %Q|
+jQuery(document).ready(function(){
+jQuery('#button-playlist-create').button();
+});| %>

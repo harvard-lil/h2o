@@ -5,7 +5,7 @@ class ItemPlaylist < ActiveRecord::Base
   acts_as_authorization_object
 
   has_one :playlist_item, :as => :resource_item
-  validates_presence_of :name
+  validates_presence_of :output_text
 
   def preview(size_indicator = "S")
 #    metadata_hash = get_metadata_hash(self.url,URI.parse(self.url))

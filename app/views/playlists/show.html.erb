@@ -21,7 +21,10 @@ edit or delete items.
 <div id="container_id" style="display: none;"><%= @playlist.id %></div>
 
 <% if @playlist.admin? || @playlist.owner? %>
-<button id="button-item-create-<%= @playlist.id %>" name="button-item-create" class="ui-button ui-state-default ui-corner-all">Create playlist item</button>
+  <button id="button-item-create-<%= @playlist.id %>" name="button-item-create" >Create playlist item</button>
+  <%= javascript_tag %Q|jQuery(document).ready(function(){
+    jQuery('#button-item-create-#{@playlist.id}').button();
+  })| %>
 <% end %>
 
 <div id="dialog-item-new" title="New item"></div>
