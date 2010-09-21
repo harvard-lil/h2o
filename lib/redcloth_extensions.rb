@@ -12,6 +12,7 @@ module RedclothExtensions
         if output[0..2] == "<p>" then output = output[3..-1] end
         if output[-4..-1] == "</p>" then output = output[0..-5] end
       end
+      output
     end
   end
   module InstanceMethods

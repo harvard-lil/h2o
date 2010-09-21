@@ -12,15 +12,17 @@
 
 <br />
 
-
-<button id="button-playlist-create">Create playlist</button>
-
-
-<div id="dialog-playlist-new" title="New playlist"></div>
-<div id="dialog-playlist-edit" title="Edit playlist"></div>
-<div id="dialog-playlist-delete" title="Delete playlist"></div>
+<% if current_user %>
+  <button id="button-playlist-create">Create playlist</button>
 
 <%= javascript_tag %Q|
 jQuery(document).ready(function(){
 jQuery('#button-playlist-create').button();
 });| %>
+
+<% end %>
+
+<div id="dialog-playlist-new" title="New playlist"></div>
+<div id="dialog-playlist-edit" title="Edit playlist"></div>
+<div id="dialog-playlist-delete" title="Delete playlist"></div>
+

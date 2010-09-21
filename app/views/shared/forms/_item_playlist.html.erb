@@ -1,12 +1,16 @@
 <%
+title = ''
 if controller.action_name == 'edit'
   item_object = PlaylistItem.find(params[:id]).resource_item
   url_string = ""
   container_id = ""
+  title = 'Edit this Playlist in your Playlist'
 else
   item_object = ItemPlaylist.new
+  title = 'Add this Playlist to your Playlist'
 end
 -%>
+<h2><%= h title %></h2>
 <div id="error_block"></div>
   <% semantic_form_for item_object, :html => {:class => "playlist_form"} do |form| %>
   <% form.inputs do %>

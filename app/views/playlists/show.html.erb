@@ -20,7 +20,7 @@ edit or delete items.
 
 <div id="container_id" style="display: none;"><%= @playlist.id %></div>
 
-<% if @playlist.admin? || @playlist.owner? %>
+<% if current_user && (@playlist.admin? || @playlist.owner?) %>
   <button id="button-item-create-<%= @playlist.id %>" name="button-item-create" >Create playlist item</button>
   <%= javascript_tag %Q|jQuery(document).ready(function(){
     jQuery('#button-item-create-#{@playlist.id}').button();

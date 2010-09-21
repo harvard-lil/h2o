@@ -1,9 +1,11 @@
+require 'redcloth_extensions'
 require 'playlistable_extensions'
 require 'ancestry_extensions'
 
 class PlaylistItem < ActiveRecord::Base
   extend AncestryExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
+  extend RedclothExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods

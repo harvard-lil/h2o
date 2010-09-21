@@ -10,6 +10,8 @@ class Playlist < ActiveRecord::Base
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
 
+  named_scope :public, :conditions => {:public => true, :active => true}
+
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
   #no sql injection here.
@@ -35,7 +37,9 @@ class Playlist < ActiveRecord::Base
 
   def display_name
     owners = self.accepted_roles.find_by_name('owner')
-    "\"#{self.title}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "\"#{self.output_text}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
   end
+
+  alias :to_s :display_name
 
 end

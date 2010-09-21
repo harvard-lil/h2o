@@ -5,15 +5,16 @@ class PlaylistsController < BaseController
 
   include PlaylistUtilities
 
-  before_filter :require_user, :load_playlist, :except => [:metadata, :embedded_pager]
+  before_filter :load_playlist, :except => [:metadata, :embedded_pager]
+  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index]
   
   access_control do
-    allow all, :to => [:embedded_pager]
-    allow logged_in, :to => [:index, :new, :create]
+    allow all, :to => [:embedded_pager, :show, :index]
+    allow logged_in, :to => [:new, :create]
     allow :admin
     allow :owner, :of => :playlist
-    allow :editor, :of => :playlist, :to => [:index, :show, :edit, :update]
-    allow :user, :of => :playlist, :to => [:index, :show]
+    allow :editor, :of => :playlist, :to => [:edit, :update]
+#    allow :user, :of => :playlist, :to => [:index, :show]
   end
 
   def embedded_pager
@@ -23,6 +24,10 @@ class PlaylistsController < BaseController
   # GET /playlists
   # GET /playlists.xml
   def index
+    if current_user
+      @my_playlists = current_user.playlists 
+    end
+    @playlists = Playlist.public 
     add_javascripts 'playlist'
     #@playlists = current_user.roles.find(:all, :conditions => {:authorizable_type => "Playlist"}).collect(&:authorizable).compact
     
