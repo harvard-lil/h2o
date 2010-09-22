@@ -4,7 +4,7 @@ class ItemCollage < ActiveRecord::Base
 
   acts_as_authorization_object
 
-  has_one :playlist_item, :as => :resource_item
+  has_one :playlist_item, :as => :resource_item, :dependent => :destroy
   validates_presence_of :output_text
 
   def preview(size_indicator = 'S')

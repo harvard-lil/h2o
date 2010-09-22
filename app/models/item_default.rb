@@ -3,7 +3,7 @@ class ItemDefault < ActiveRecord::Base
  
   acts_as_authorization_object
 
-  has_one :playlist_item, :as => :resource_item
+  has_one :playlist_item, :as => :resource_item, :dependent => :destroy
 
   def preview(size_indicator = "S")
 #    preview_content = <<-PREVIEW_CONTENT

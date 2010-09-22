@@ -336,12 +336,20 @@ table.core_table {
 
 .core_table a:link, .core_table a:visited, .core_table a:active, .core_table input {
   color: #545c63;
-  font-weight: bold;
   text-decoration: none;
 }
 
 .core_table a:hover {
 	color: #607887;
+}
+
+table.compact_table, #dialog-item-new .pagination{
+  font-size: 11px;
+}
+
+table.compact_table a{
+  padding: 5px;
+  font-weight: normal;
 }
 
 .title_column{

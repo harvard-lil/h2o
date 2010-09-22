@@ -18,9 +18,7 @@ class Annotation < ActiveRecord::Base
 
   before_destroy :collapse_children
 
-  has_ancestry :orphan_strategy => :restrict 
   acts_as_taggable_on :layers
-
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
   acts_as_authorization_object
@@ -28,6 +26,15 @@ class Annotation < ActiveRecord::Base
   before_create :create_annotation_caches
 
   belongs_to :collage
+
+  searchable do
+    text :display_name, :boost => 2.0
+    string :display_name, :stored => true
+    string :id, :stored => true
+    text :annotation
+    string :layer_list, :multiple => true
+  end
+
 
   validates_presence_of :annotation_start, :annotation_end
   validates_length_of :annotation, :maximum => 10.kilobytes

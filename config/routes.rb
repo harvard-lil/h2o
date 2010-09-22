@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :item_annotations
+
   map.resources :item_questions
 
   map.resources :item_collages
@@ -19,7 +21,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :item_youtubes
 
-  map.resources :annotations
+  map.resources :annotations, :collection => {:embedded_pager => :get}
 
   map.resources :case_jurisdictions
 

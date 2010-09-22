@@ -2,7 +2,7 @@
   <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
   <div class="object-list-<%= playlistable_item.name %>">
   <% if @objects -%>
-    <table class="core_table tablesorter">
+    <table class="core_table tablesorter compact_table">
       <thead>
         <tr class="table_heading">
           <th>Name</th>

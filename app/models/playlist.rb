@@ -28,8 +28,8 @@ class Playlist < ActiveRecord::Base
   end
 
   #has_many :playlist_items, :order => :position
-  has_many :playlist_items, :order => "playlist_items.position"
-  has_many :roles, :as => :authorizable
+  has_many :playlist_items, :order => "playlist_items.position", :dependent => :destroy
+  has_many :roles, :as => :authorizable, :dependent => :destroy
 
   validates_presence_of :output_text
 #  validates_uniqueness_of :output_text

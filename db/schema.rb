@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100921142510) do
+ActiveRecord::Schema.define(:version => 20100922175008) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -126,6 +126,21 @@ ActiveRecord::Schema.define(:version => 20100921142510) do
   add_index "influences", ["parent_id"], :name => "index_influences_on_parent_id"
   add_index "influences", ["resource_id"], :name => "index_influences_on_resource_id"
   add_index "influences", ["resource_type"], :name => "index_influences_on_resource_type"
+
+  create_table "item_annotations", :force => true do |t|
+    t.string   "title"
+    t.string   "output_text", :limit => 1024
+    t.string   "url",         :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                      :default => true
+    t.boolean  "public",                      :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_annotations", ["active"], :name => "index_item_annotations_on_active"
+  add_index "item_annotations", ["public"], :name => "index_item_annotations_on_public"
+  add_index "item_annotations", ["url"], :name => "index_item_annotations_on_url"
 
   create_table "item_cases", :force => true do |t|
     t.string   "title"

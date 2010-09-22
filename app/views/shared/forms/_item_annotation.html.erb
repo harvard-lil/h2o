@@ -1,0 +1,27 @@
+<%
+title = ''
+if controller.action_name == 'edit'
+  item_object = PlaylistItem.find(params[:id]).resource_item
+  url_string = ""
+  container_id = ""
+  title = 'Edit this Annotation in your playlist'
+else
+  item_object = ItemCase.new
+  title = 'Add this Annotation to your playlist'
+end
+-%>
+<h2><%= h title %></h2>
+<div id="error_block"></div>
+  <% semantic_form_for item_object, :html => {:class => "annotation"} do |form| %>
+  <% form.inputs do %>
+        <%= form.input :output_text, :label => "Name", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <li></li>
+        <%= form.input :description,
+          :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+          :required => false
+        %>
+        <li></li>
+        <%= form.input(:url, :as => :hidden, :value => url_string) unless url_string.blank? %>
+        <%= hidden_field_tag 'container_id', container_id unless container_id.blank? %>
+<% end -%>
+<% end -%>
