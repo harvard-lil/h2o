@@ -34,7 +34,8 @@ class ItemBaseController < BaseController
     @object = @model_class.new
 
     respond_to do |format|
-      format.html # new.html.erb
+      format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
+      format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.xml  { render :xml => @item_default }
     end
   end
@@ -67,10 +68,6 @@ class ItemBaseController < BaseController
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
       end
     end
-  end
-
-  def new
-    render :text => '', :status => 500
   end
 
   def update

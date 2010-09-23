@@ -41,11 +41,24 @@ jQuery(document).ready(function(){
   jQuery('.add-#{playlistable_item.name}-button').button().click(function(e){
     e.preventDefault();
     var itemId = jQuery(this).attr('id').split('-')[1];
-    jQuery("#dialog-item-new").load("/playlists/load_form",{
-      'item_type': 'Item#{playlistable_item.name}',
-      'url_string': '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
-      'container_id': jQuery('#container_id').text()
+    jQuery.ajax({
+      method: 'GET',
+      cache: false,
+      dataType: 'script',
+      url: jQuery.rootPath() + 'item_#{playlistable_item.name.tableize}/new',
+      data: {
+        url_string: '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
+        container_id: jQuery('#container_id').text()
+      },
+      success: function(html){
+         jQuery('#dialog-item-new').html(html);
+      }
     });
+//    jQuery("#dialog-item-new").load("/playlists/load_form",{
+//      'item_type': 'Item#{playlistable_item.name}',
+//      'url_string': '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
+//      'container_id': jQuery('#container_id').text()
+//    });
   });
   jQuery('.#{playlistable_item.name}-button').button().click(function(e){
     e.preventDefault();
