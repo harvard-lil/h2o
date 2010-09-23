@@ -24,7 +24,7 @@ class PlaylistItemsController < ApplicationController
   # GET /playlist_items/new
   # GET /playlist_items/new.xml
   def new
-    @playlist_item = PlaylistItem.new
+    @playlist_item = PlaylistItem.new(:playlist_id => params[:container_id])
 
     respond_to do |format|
       format.html # new.html.erb
@@ -85,7 +85,7 @@ class PlaylistItemsController < ApplicationController
   end
 
   def block
-    @playlist = Playlist.find(params[:container_id])
+    @playlist = Playlist.find(params[:container_id] && params[:playlist_id]))
 
     respond_to do |format|
       format.html {

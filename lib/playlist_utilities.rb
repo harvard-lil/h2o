@@ -78,12 +78,22 @@ module PlaylistUtilities
     result = nil
     document = nil
     begin
-      Net::HTTP.start(uri.host,uri.port) do |http|
-        result = http.head(uri.request_uri + '/metadata')
-      end
+      #First check if the metadata method exists.
+      agent = Net::HTTP.new(uri.host,uri.port)
+      if(url.match(/^https/))
+        agent.use_ssl = true
+      end 
+      req = Net::HTTP::Head.new(uri.request_uri + '/metadata')
+      result = agent.start {|http|
+        http.request(req)
+      }
+
       if result.is_a?(Net::HTTPSuccess)
-        response = Net::HTTP.get(uri.host,uri.request_uri + '/metadata', uri.port)
-        document = Nokogiri::XML(response)
+        get_data = Net::HTTP::Get.new(uri.request_uri + '/metadata')
+        response = agent.start{|http|
+          http.request(get_data)
+        }
+        document = Nokogiri::XML(response.body)
       end
     rescue Exception => e
       logger.warn("Failed to get metadata hash: " + e.inspect)

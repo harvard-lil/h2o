@@ -22,6 +22,7 @@ end
         %>
         <li></li>
         <%= form.input(:url, :as => :hidden, :value => url_string) unless url_string.blank? %>
+        <%= form.input(:playlist_id, :as => :hidden) %>
         <%= hidden_field_tag 'container_id', container_id unless container_id.blank? %>
 <% end -%>
 <% end -%>
