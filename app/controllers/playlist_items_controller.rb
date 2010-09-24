@@ -85,7 +85,7 @@ class PlaylistItemsController < ApplicationController
   end
 
   def block
-    @playlist = Playlist.find(params[:container_id] && params[:playlist_id]))
+    @playlist = Playlist.find(params[:container_id] || params[:playlist_id])
 
     respond_to do |format|
       format.html {
