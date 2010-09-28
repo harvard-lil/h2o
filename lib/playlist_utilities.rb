@@ -108,4 +108,9 @@ module PlaylistUtilities
     return result_hash
   end
 
+  # Is this ItemQuestionInstance local? Meaning, does it live authoritatively in this h2o instance?
+  def local?
+    (actual_object) ? true : false
+  end
+
 end

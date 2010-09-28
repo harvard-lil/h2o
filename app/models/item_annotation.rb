@@ -6,6 +6,7 @@ class ItemAnnotation < ActiveRecord::Base
 
   has_one :playlist_item, :as => :resource_item, :dependent => :destroy
   validates_presence_of :output_text
+  belongs_to :actual_object, :polymorphic => true
 
   def preview(size_indicator = 'S')
 #    metadata_hash = get_metadata_hash(self.url,URI.parse(self.url))

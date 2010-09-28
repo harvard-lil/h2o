@@ -3,6 +3,7 @@ class ItemText < ActiveRecord::Base
 
   acts_as_authorization_object
   has_one :playlist_item, :as => :resource_item, :dependent => :destroy
+  belongs_to :actual_object, :polymorphic => true
 
   def preview
     preview_content = <<-PREVIEW_CONTENT

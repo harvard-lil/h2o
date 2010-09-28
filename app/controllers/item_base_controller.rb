@@ -48,6 +48,32 @@ class ItemBaseController < BaseController
   def create
     @object = @model_class.new(params[@param_symbol])
 
+    @base_object = nil
+    logger.warn('Base model class' + @base_model_class.inspect)
+
+    if @base_model_class
+      begin
+        #We believe we have found an object we can link directly to in this instance. Let's see!
+        uri = URI.parse(params[@param_symbol][:url])
+        recognized_item = ActionController::Routing::Routes.recognize_path(uri.path, :method => :get)
+        @base_object = @base_model_class.find(recognized_item[:id])
+
+        logger.warn('URL manually passed in:' + params[@param_symbol][:url])
+        logger.warn('URL we guessed:' + url_for(@base_object))
+
+        #FIXME: This might break if an h2o instances is hosted under a directory.
+        if params[@param_symbol][:url] == url_for(@base_object)
+          #This looks like it's a local object we can link directly to.
+          @object.actual_object = @base_object
+        else
+          # Not local. Do nothing.
+
+        end
+        rescue Exception => e
+          logger.warn('oopsy.' + e.inspect)
+        end
+    end
+
     respond_to do |format|
       if @object.save
         @object.accepts_role!(:owner, current_user)
@@ -99,6 +125,14 @@ class ItemBaseController < BaseController
   
   def set_model
     @model_class = controller_class_name.gsub(/Controller/,'').singularize.constantize
+    @base_model_class = nil
+
+    begin
+      @base_model_class = controller_class_name.gsub(/Item|Controller/,'').singularize.constantize
+    rescue Exception => e
+      logger.warn("We don't have a local type that's equivalent to that object: #{e.inspect}")
+    end
+
     @param_symbol = @model_class.name.tableize.singularize.to_sym
   end
 
