@@ -17,7 +17,7 @@ end
           :required => false
         %>
         <li></li>
-        <%= form.input(:url, :as => :hidden, :value => url_string) unless url_string.blank? %>
-        <%= hidden_field_tag 'container_id', container_id unless container_id.blank? %>
+        <%= form.input(:url, :as => :hidden, :value => params[:url_string]) %>
+        <%= hidden_field_tag 'container_id', params[:container_id] %>
 <% end -%>
 <% end -%>

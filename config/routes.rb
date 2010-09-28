@@ -29,7 +29,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :case_citations
 
-  map.resources :cases, :collection => {:embedded_pager => :get}
+  map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get}
 
   map.resources :collages, :collection => {:embedded_pager => :get}, :member => {:spawn_copy => :post}
 
