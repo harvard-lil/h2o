@@ -1,30 +1,16 @@
 class PlaylistItemsController < BaseController
   
   before_filter :load_playlist
-
   #TODO - Get playlist delegation and editing working properly.
 
   access_control do
-    allow all, :to => [:show, :index]
+    allow all, :to => [:show]
     allow logged_in, :to => [:new, :create]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
   end
-
-  # GET /playlist_items
-  # GET /playlist_items.xml
-  def index
-    @playlist_items = PlaylistItem.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @playlist_items }
-    end
-  end
-
-  # GET /playlist_items/1
-  # GET /playlist_items/1.xml
+    
   def show
     @playlist_item = PlaylistItem.find(params[:id])
 
@@ -34,8 +20,6 @@ class PlaylistItemsController < BaseController
     end
   end
 
-  # GET /playlist_items/new
-  # GET /playlist_items/new.xml
   def new
     @playlist_item = PlaylistItem.new(:playlist_id => params[:container_id])
 
@@ -45,13 +29,10 @@ class PlaylistItemsController < BaseController
     end
   end
 
-  # GET /playlist_items/1/edit
   def edit
     @playlist_item = PlaylistItem.find(params[:id])
   end
 
-  # POST /playlist_items
-  # POST /playlist_items.xml
   def create
     @playlist_item = PlaylistItem.new(params[:playlist_item])
     
@@ -68,8 +49,6 @@ class PlaylistItemsController < BaseController
     end
   end
 
-  # PUT /playlist_items/1
-  # PUT /playlist_items/1.xml
   def update
     @playlist_item = PlaylistItem.find(params[:id])
 
@@ -84,9 +63,7 @@ class PlaylistItemsController < BaseController
       end
     end
   end
-
-  # DELETE /playlist_items/1
-  # DELETE /playlist_items/1.xml
+  
   def destroy
     @playlist_item = PlaylistItem.find(params[:id])
     @playlist_item.destroy
