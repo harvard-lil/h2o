@@ -5,13 +5,14 @@ class PlaylistsController < BaseController
 
   include PlaylistUtilities
 
-  before_filter :load_playlist, :except => [:metadata, :embedded_pager]
+  before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
+  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index]
   
   access_control do
     allow all, :to => [:embedded_pager, :show, :index]
     allow logged_in, :to => [:new, :create]
-    allow :admin
+    allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
 #    allow :user, :of => :playlist, :to => [:index, :show]
@@ -29,7 +30,6 @@ class PlaylistsController < BaseController
     end
     @playlists = Playlist.public 
     add_javascripts 'playlist'
-    #@playlists = current_user.roles.find(:all, :conditions => {:authorizable_type => "Playlist"}).collect(&:authorizable).compact
     
     respond_to do |format|
       format.html # index.html.erb
@@ -41,9 +41,8 @@ class PlaylistsController < BaseController
   # GET /playlists/1.xml
   def show
     add_javascripts 'playlist'
-
-    @playlist = Playlist.find(params[:id])
-
+    @playlist.playlist_items.find(:all, :include => [:resource_item])
+    @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @playlist }
@@ -276,7 +275,6 @@ class PlaylistsController < BaseController
       PlaylistItem.update(playlist_order[item_index], :position => item_index + 1)
     end
 
-
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
     end
@@ -289,5 +287,13 @@ class PlaylistsController < BaseController
     end  
   end
 
+  def playlist_admin_preload
+
+    if current_user
+      @playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
+      @playlists_i_can_edit = current_user.playlists_i_can_edit
+    end
+
+  end
 
 end

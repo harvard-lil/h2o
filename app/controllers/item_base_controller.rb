@@ -7,7 +7,7 @@ class ItemBaseController < BaseController
   access_control do
     allow all, :to => [:show, :index]
     allow logged_in, :to => [:new, :create]
-    allow :admin, :playlist_admin
+    allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
   end

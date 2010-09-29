@@ -1,4 +1,3 @@
-
 <table class="core_table">
   <thead>
     <tr class="table_heading ">
@@ -13,14 +12,14 @@
       <tr>
         <td><%= link_to playlist.display_name, playlist %></td>
         <td>
-          <% if current_user && (playlist.admin? || playlist.owner?  || playlist.editor?) %>
+          <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
           <button id="button-playlist-edit-<%= playlist.id %>" name="button-playlist-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
-          </button>
+          </button
           <% end %>
         </td>
         <td>
-          <% if current_user && (playlist.admin? || playlist.owner?) %>
+          <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
           <button id="button-playlist-delete-<%= playlist.id %>" name="button-playlist-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>

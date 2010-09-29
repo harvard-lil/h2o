@@ -1,4 +1,17 @@
-class PlaylistItemsController < ApplicationController
+class PlaylistItemsController < BaseController
+  
+  before_filter :load_playlist
+
+  #TODO - Get playlist delegation and editing working properly.
+
+  access_control do
+    allow all, :to => [:show, :index]
+    allow logged_in, :to => [:new, :create]
+    allow :admin, :playlist_admin, :superadmin
+    allow :owner, :of => :playlist
+    allow :editor, :of => :playlist, :to => [:edit, :update]
+  end
+
   # GET /playlist_items
   # GET /playlist_items.xml
   def index
@@ -97,8 +110,10 @@ class PlaylistItemsController < ApplicationController
     end
   end
 
+  def load_playlist
+    unless params[:playlist_id].nil?
+      @playlist = Playlist.find(params[:id])
+    end  
+  end
+
 end
-
-
-
-

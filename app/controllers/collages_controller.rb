@@ -2,7 +2,7 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
-  before_filter :is_collage_admin, :except => [:embedded_pager]
+  before_filter :is_collage_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]

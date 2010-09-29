@@ -14,25 +14,25 @@
         <td>
           <div class="item-display-title"><%= item.resource_item.output_text %></div>
           <div class="item-preview"><%= item.resource_item.preview %></div>
-          <div class="item-url"><a href='<%= item.resource_item.url %>' target="_blank"><%= truncate(item.resource_item.url, 40, "...(more)") %></a></div>
+          <div class="item-url"><a href='<%= item.resource_item.url %>' target="_blank"><%= truncate(item.resource_item.url, :length => 40, :omission => "...(more)") %></a></div>
         </td>
         <td>
           <div class="item-description"><%= PlaylistItem.format_content(item.resource_item.description) %></div>
         </td>
         <td width="10%">
-          <% if current_user && (item.resource_item.admin? || item.resource_item.owner?) %>
+          <% if current_user && @playlist_admin || @my_playlist %>
           <button id="button-item-edit-<%= item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
           <%  end %>
-          <% if current_user && (item.admin? || item.owner?) %>
+          <% if current_user && @playlist_admin || @my_playlist %>
           <button id="button-item-delete-<%= item.id %>" name="button-item-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>
           <% end %>
         </td>
         <td width="10%">
-          <% if current_user && (item.admin? || item.owner?) %>
+          <% if current_user && @playlist_admin || @my_playlist %>
             <div class="item_drag_handle button">Reorder</div>
           <% end %>
         </td>

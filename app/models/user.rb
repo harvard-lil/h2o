@@ -47,6 +47,10 @@ class User < ActiveRecord::Base
     self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.position}
   end
 
+  def playlists_i_can_edit
+    self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => 'editor'}).collect(&:authorizable).uniq.sort_by{|a| a.position}
+  end
+
   def get_current_assignments(rotisserie_discussion = nil)
     assignments_array = Array.new()
 
