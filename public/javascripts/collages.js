@@ -230,6 +230,18 @@ showPleaseWait: function(){
  });
 },
 
+hideEmptyElements: function(){
+  jQuery('#annotatable-content :hidden').remove();
+  jQuery('#annotatable-content').find('center,p,div').filter(function(){
+//     console.log(jQuery(this).text());
+      var text = jQuery(this).text();
+      if(text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?p>|<\/?strong>)+$/m)){
+        console.log("Empty " + jQuery(this).attr('tagName') + " tag found:" + text);
+      }
+      text == '' || text == ' ' || text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?strong>)+$/m);
+  }).remove(); 
+},
+
 initializeAnnotations: function(){
   // This iterates through the annotations on this collage and emits the controls.
   var collageId = jQuery('.collage-id').attr('id').split('-')[1];
@@ -252,6 +264,7 @@ initializeAnnotations: function(){
         jQuery.annotateRange(this.annotation,activeId);
       });
       jQuery.observeWords();
+      jQuery.hideEmptyElements();
       jQuery('#spinner_block').hide();
     },
     complete: function(){
