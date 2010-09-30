@@ -33,6 +33,10 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
       <div id="h2o_content"><%= yield %></div>
       <div id="h2o_footer"><%= render :partial => 'shared/layout_components/footer' %></div>
     </div>
+    <div class="print-block" style="margin-top: 1em;">
+      <hr />
+      <strong>From:</strong> <%= url_for(:only_path => false) %>
+    </div>
 
   </body>
 </html>
