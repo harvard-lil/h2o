@@ -29,3 +29,12 @@
 tt{
   font-family: 'Times New Roman',times, serif;
 }
+
+.annotation .annotation{
+  padding: 5px;
+  margin: 1em;
+  border: 1px solid black;
+}
+.meta{
+  font-size: 11px;
+}

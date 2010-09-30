@@ -112,7 +112,6 @@
   <div id="annotation-form" style="display: none;"></div>
   <div id="new-annotation-start" style="display: none;"></div>
   <div id="new-annotation-end" style="display: none;"></div>
-  <div id="owners" style="display: none;"><%=h @collage.owners.to_json %></div>
   <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
   <div id="annotation-start-marker" style="display: none;">
@@ -130,3 +129,25 @@
   </div>
 <% end %>
 
+<hr class="print-block" />
+
+<% cache("collage-annotation-print-content-#{@collage.id}") do %>
+  <div class="print-block">
+    <h1>Annotations</h1>
+    <% @collage.annotations.each do |ann| %>
+      <div class="annotation">
+        <h2><%=h ann.layer_list.join(',') %> #<%= ann.id %></h2>
+        <% unless ann.annotation.blank? %>
+          <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
+        <% end %>
+        <div class="meta">
+          <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
+          <% if ann.editors %>
+            <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
+          <% end %>
+          <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

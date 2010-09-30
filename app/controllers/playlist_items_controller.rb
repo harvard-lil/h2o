@@ -1,6 +1,7 @@
 class PlaylistItemsController < BaseController
   
   before_filter :load_playlist
+  before_filter :playlist_admin_preload, :except => []
   #TODO - Get playlist delegation and editing working properly.
 
   access_control do
@@ -74,6 +75,7 @@ class PlaylistItemsController < BaseController
     end
   end
 
+  # Used in the ajax stuff to emit a representation of this individual item.
   def block
     @playlist = Playlist.find(params[:container_id] || params[:playlist_id])
 
