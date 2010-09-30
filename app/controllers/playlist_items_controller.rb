@@ -90,9 +90,10 @@ class PlaylistItemsController < BaseController
   end
 
   def load_playlist
-    unless params[:playlist_id].nil?
-      @playlist = Playlist.find(params[:id])
-    end  
+    if params[:playlist_id] || params[:container_id]
+      @playlist = Playlist.find(params[:playlist_id] || params[:container_id])
+    end
+    @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false
   end
 
 end
