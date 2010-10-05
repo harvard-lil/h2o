@@ -7,7 +7,7 @@ Activity
     <ul>
       <li><%= link_to("#{Case.count} cases",cases_path) %></li>
       <li><%= link_to("#{Collage.count} collages",collages_path) %></li>
-      <li><%= link_to("#{Annotation.count} case annotations",annotations_path) %></li>
+      <li><%= link_to("#{Annotation.count} case annotations",collages_path) %></li>
       <li><%= link_to("#{Question.count} questions",question_instances_path) %></li>
       <li><%= link_to("#{RotisserieInstance.count} rotisseries",rotisserie_instances_path) %></li>
       <li><%=  "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
