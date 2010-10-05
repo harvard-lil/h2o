@@ -141,9 +141,13 @@ div.post-assigned {
     background-color: #607887;
 }
 
-.knockout {
+.knockout, .knockout a {
     color: #ffffff;
-    font-weight: bold;
+    text-decoration: none;
+}
+
+.knockout a:hover{
+    text-decoration: underline;
 }
 
 .yellow_heading {

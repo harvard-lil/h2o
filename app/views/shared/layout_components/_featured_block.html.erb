@@ -4,7 +4,16 @@ Featured
 </div>
 <div id="featured_content">
   <div id="f_block1" class="block knockout">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    <ul>
+      <li><%= link_to("#{Case.count} cases",cases_path) %></li>
+      <li><%= link_to("#{Collage.count} collages",collages_path) %></li>
+      <li><%= link_to("#{Annotation.count} case annotations",annotations_path) %></li>
+      <li><%= link_to("#{Question.count} questions",question_instances_path) %></li>
+      <li><%= link_to("#{RotisserieInstance.count} rotisseries",rotisserie_instances_path) %></li>
+      <li><%=  "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
+tcount && tcount[0]['tcount']} taggings" %></li>
+    </ul>
+
   </div>
   <div id="f_block2">
     <div class="yellow_heading">Question Tool</div>
@@ -29,8 +38,8 @@ Featured
 </div>
 
 <div class="info_block">
- <div class="yellow_title_med">Information</div>
- Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+ <div class="yellow_title_med">Coming Soon!</div>
+    With support from the <a href="http://www.law.harvard.edu/library/">Harvard Law School Library</a>, the <a href="http://cyber.law.harvard.edu">Berkman Center</a> is revamping – recoding and reintegrating – a suite of classroom tools under its H2O banner. These include the Question Tool, a backchannel for live lecture feedback and questions; the Rotisserie, a structured forum for offline discussion of class content that encourages class members to interact with other students’ ideas; Playlists, a platform for collections of online content that are easily shared and remixed, and are ideal for use as an online course syllabus; and Collage, a new tool built with the goal of creating an entirely online law school casebook by allowing a seed document to be annotated with various layers and notes.
 </div>
 
 

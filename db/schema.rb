@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100928191830) do
+ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -21,11 +21,15 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
+    t.boolean  "public",                               :default => true
+    t.boolean  "active",                               :default => true
   end
 
+  add_index "annotations", ["active"], :name => "index_annotations_on_active"
   add_index "annotations", ["ancestry"], :name => "index_annotations_on_ancestry"
   add_index "annotations", ["annotation_end"], :name => "index_annotations_on_annotation_end"
   add_index "annotations", ["annotation_start"], :name => "index_annotations_on_annotation_start"
+  add_index "annotations", ["public"], :name => "index_annotations_on_public"
 
   create_table "case_citations", :force => true do |t|
     t.integer  "case_id"
@@ -75,35 +79,43 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
     t.string   "content",              :limit => 5242880,                   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                                  :default => true
+    t.boolean  "active",                                  :default => true
   end
 
+  add_index "cases", ["active"], :name => "index_cases_on_active"
   add_index "cases", ["author"], :name => "index_cases_on_author"
   add_index "cases", ["case_jurisdiction_id"], :name => "index_cases_on_case_jurisdiction_id"
   add_index "cases", ["created_at"], :name => "index_cases_on_created_at"
   add_index "cases", ["current_opinion"], :name => "index_cases_on_current_opinion"
   add_index "cases", ["decision_date"], :name => "index_cases_on_decision_date"
   add_index "cases", ["full_name"], :name => "index_cases_on_full_name"
+  add_index "cases", ["public"], :name => "index_cases_on_public"
   add_index "cases", ["short_name"], :name => "index_cases_on_short_name"
   add_index "cases", ["updated_at"], :name => "index_cases_on_updated_at"
 
   create_table "collages", :force => true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name",              :limit => 250,     :null => false
+    t.string   "name",              :limit => 250,                       :null => false
     t.string   "description",       :limit => 5120
-    t.string   "content",           :limit => 5242880, :null => false
+    t.string   "content",           :limit => 5242880,                   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "word_count"
     t.string   "indexable_content", :limit => 5242880
     t.string   "ancestry"
+    t.boolean  "public",                               :default => true
+    t.boolean  "active",                               :default => true
   end
 
+  add_index "collages", ["active"], :name => "index_collages_on_active"
   add_index "collages", ["ancestry"], :name => "index_collages_on_ancestry"
   add_index "collages", ["annotatable_id"], :name => "index_collages_on_annotatable_id"
   add_index "collages", ["annotatable_type"], :name => "index_collages_on_annotatable_type"
   add_index "collages", ["created_at"], :name => "index_collages_on_created_at"
   add_index "collages", ["name"], :name => "index_collages_on_name"
+  add_index "collages", ["public"], :name => "index_collages_on_public"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
   add_index "collages", ["word_count"], :name => "index_collages_on_word_count"
 
@@ -363,12 +375,14 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
     t.datetime "updated_at"
     t.string   "ancestry"
     t.integer  "playlist_item_parent_id"
+    t.boolean  "public",                  :default => true
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
   add_index "playlist_items", ["ancestry"], :name => "index_playlist_items_on_ancestry"
   add_index "playlist_items", ["playlist_item_parent_id"], :name => "index_playlist_items_on_playlist_item_parent_id"
   add_index "playlist_items", ["position"], :name => "index_playlist_items_on_position"
+  add_index "playlist_items", ["public"], :name => "index_playlist_items_on_public"
   add_index "playlist_items", ["resource_item_id"], :name => "index_playlist_items_on_resource_item_id"
   add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 
@@ -389,7 +403,7 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
   add_index "playlists", ["position"], :name => "index_playlists_on_position"
 
   create_table "question_instances", :force => true do |t|
-    t.string   "name",                    :limit => 250,                 :null => false
+    t.string   "name",                    :limit => 250,                    :null => false
     t.integer  "user_id"
     t.integer  "project_id"
     t.string   "password",                :limit => 128
@@ -403,8 +417,11 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
     t.boolean  "hidden"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                                  :default => true
+    t.boolean  "active",                                  :default => true
   end
 
+  add_index "question_instances", ["active"], :name => "index_question_instances_on_active"
   add_index "question_instances", ["ancestors_count"], :name => "index_question_instances_on_ancestors_count"
   add_index "question_instances", ["children_count"], :name => "index_question_instances_on_children_count"
   add_index "question_instances", ["descendants_count"], :name => "index_question_instances_on_descendants_count"
@@ -414,6 +431,7 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
   add_index "question_instances", ["position"], :name => "index_question_instances_on_position"
   add_index "question_instances", ["project_id", "position"], :name => "index_question_instances_on_project_id_and_position", :unique => true
   add_index "question_instances", ["project_id"], :name => "index_question_instances_on_project_id"
+  add_index "question_instances", ["public"], :name => "index_question_instances_on_public"
   add_index "question_instances", ["user_id"], :name => "index_question_instances_on_user_id"
 
   create_table "questions", :force => true do |t|
@@ -429,11 +447,15 @@ ActiveRecord::Schema.define(:version => 20100928191830) do
     t.boolean  "hidden"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                                :default => true
+    t.boolean  "active",                                :default => true
   end
 
+  add_index "questions", ["active"], :name => "index_questions_on_active"
   add_index "questions", ["created_at"], :name => "index_questions_on_created_at"
   add_index "questions", ["parent_id"], :name => "index_questions_on_parent_id"
   add_index "questions", ["position"], :name => "index_questions_on_position"
+  add_index "questions", ["public"], :name => "index_questions_on_public"
   add_index "questions", ["question_instance_id"], :name => "index_questions_on_question_instance_id"
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
