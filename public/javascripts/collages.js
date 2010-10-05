@@ -231,7 +231,7 @@ showPleaseWait: function(){
 },
 
 hideEmptyElements: function(){
-  //TODO - Optimize this function!
+  //TODO - Optimize this function, and exclude the annotation id printing removal.
   jQuery('#annotatable-content :hidden').remove();
   jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
     var text = jQuery(this).text();
