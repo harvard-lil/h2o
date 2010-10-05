@@ -231,15 +231,12 @@ showPleaseWait: function(){
 },
 
 hideEmptyElements: function(){
+  //TODO - Optimize this function!
   jQuery('#annotatable-content :hidden').remove();
-  jQuery('#annotatable-content').find('center,p,div').filter(function(){
-//     console.log(jQuery(this).text());
-      var text = jQuery(this).text();
-      if(text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?p>|<\/?strong>)+$/m)){
-        console.log("Empty " + jQuery(this).attr('tagName') + " tag found:" + text);
-      }
-      text == '' || text == ' ' || text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?strong>)+$/m);
-  }).remove(); 
+  jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
+    var text = jQuery(this).text();
+    return (text == '' || text == ' ' || text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?strong>)+$/im));
+  }).remove();
 },
 
 initializeAnnotations: function(){
@@ -417,6 +414,7 @@ jQuery(document).ready(function(){
   jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
   jQuery('.tablesorter').tablesorter();
   jQuery('.button').button();
+  jQuery('#collage_submit').button({icons: {primary: 'ui-icon-circle-plus'}});
   jQuery('.layer-button').button({icons: {primary: 'ui-icon-check' }});
   if(jQuery('#collage_description').length > 0){
     jQuery("#collage_description").markItUp(mySettings);

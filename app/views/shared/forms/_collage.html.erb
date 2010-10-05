@@ -13,6 +13,12 @@
       :required => false,
       :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
     %>
+    <%= form.input :public,
+      :required => false,
+      :as => :boolean,
+      :label => 'Public?',
+      :hint => 'If this collage is public, then others will be able to see and copy it.'
+    %>
     <%= form.input :annotatable_type,
       :as => :hidden,
 #      :collection => Collage.annotatable_classes_select_options,
@@ -21,9 +27,7 @@
     %>
     <%= form.input :annotatable_id,
       :as => :hidden,
-#      :collection => Case.select_options,
-      :required => true,
-      :label => "Case I want to annotate:"
+      :required => true
     %>
   <% end %>
   <% unless request.xhr? %>
