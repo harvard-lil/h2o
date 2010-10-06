@@ -1,41 +1,41 @@
 <div style="width: 380px; float: left;">
-<div id="collage-error" style="display:none;" class="error"></div>
-<% unless request.xhr? %>
-  <h1>Add New Collage</h1>
-<% end %>
-<h3 style="margin-bottom: 1em;">on <%= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
-<% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
-  <% form.inputs do %>
-    <%= form.input :name %>
-    <%= form.input :description, 
-      :as => :text, 
-      :input_html => {:size => '40x5'},
-      :required => false,
-      :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
-    %>
-    <%= form.input :public,
-      :required => false,
-      :as => :boolean,
-      :label => 'Public?',
-      :hint => 'If this collage is public, then others will be able to see and copy it.'
-    %>
-    <%= form.input :annotatable_type,
-      :as => :hidden,
-#      :collection => Collage.annotatable_classes_select_options,
-      :required => true,
-      :label => 'I want to annotate a:'
-    %>
-    <%= form.input :annotatable_id,
-      :as => :hidden,
-      :required => true
-    %>
-  <% end %>
+  <div id="collage-error" style="display:none;" class="error"></div>
   <% unless request.xhr? %>
-    <% form.buttons do %>
-     <%= form.commit_button 'Save' %>
+    <h1>Add New Collage</h1>
+  <% end %>
+  <h3 style="margin-bottom: 1em;">on <%= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
+  <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
+    <% form.inputs do %>
+      <%= form.input :name %>
+      <%= form.input :description,
+        :as => :text,
+        :input_html => {:size => '40x5'},
+        :required => false,
+        :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
+    %>
+      <%= form.input :public,
+        :required => false,
+        :as => :boolean,
+        :label => 'Public?',
+        :hint => 'If this collage is public, then others will be able to see and copy it.'
+    %>
+      <%= form.input :annotatable_type,
+        :as => :hidden,
+        #      :collection => Collage.annotatable_classes_select_options,
+      :required => true,
+        :label => 'I want to annotate a:'
+    %>
+      <%= form.input :annotatable_id,
+        :as => :hidden,
+        :required => true
+    %>
+    <% end %>
+    <% unless request.xhr? %>
+      <% form.buttons do %>
+        <%= form.commit_button 'Save' %>
+      <% end %>
     <% end %>
   <% end %>
-<% end %>
 </div>
 
 <div style="width: 380px; float: right;">

@@ -13,7 +13,7 @@ body, h1, h2, h3, h4, h5, div, table, form{
 }
 
 .print-block, .print-inline{
-  display: none;
+    display: none;
 }
 
 #h2o_container {
@@ -78,7 +78,7 @@ h2{
 }
 
 .error{
-  width: auto;
+    width: auto;
 }
 
 .table_cell_wide {
@@ -90,7 +90,7 @@ h2{
     height: 15px;
 }
 .spacer_block{
-  height: 30px;
+    height: 30px;
 }
 div.post_container {
     width: 60%;
@@ -339,25 +339,25 @@ table.core_table {
 }
 
 .core_table a:link, .core_table a:visited, .core_table a:active, .core_table input {
-  color: #545c63;
-  text-decoration: none;
+    color: #545c63;
+    text-decoration: none;
 }
 
 .core_table a:hover {
-	color: #607887;
+    color: #607887;
 }
 
 table.compact_table, #dialog-item-new .pagination{
-  font-size: 11px;
+    font-size: 11px;
 }
 
 table.compact_table a{
-  padding: 5px;
-  font-weight: normal;
+    padding: 5px;
+    font-weight: normal;
 }
 
 .title_column{
-  width: 65%;
+    width: 65%;
 }
 
 .discussion_topic {
@@ -382,17 +382,17 @@ table.compact_table a{
 }
 
 .assignment {
-    
+
 }
 
 .assignment a:link, .assignment a:visited, .assignment a:active {
-	color: red;
-        font-weight: bold;
-        text-decoration: none;
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .assignment a:hover {
-	color: red;
+    color: red;
 }
 
 .assignment_container {
@@ -423,81 +423,81 @@ table.compact_table a{
 
 /* for jquery.tag.suggestions */
 span.tagMatches {
-  display: block;
-  margin: 10px;
+    display: block;
+    margin: 10px;
 }
 
 span.tagMatches span, .layers span{
-  padding: 2px;
-  margin-right: 4px;
-  background-color: #0000AB;
-  color: #fff;
-  cursor: default;
+    padding: 2px;
+    margin-right: 4px;
+    background-color: #0000AB;
+    color: #fff;
+    cursor: default;
 }
 
 span.tagMatches span, .layers span.c1,.c1{
-  background: #0000AB;
-  color: white;
+    background: #0000AB;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c2,.c2{
-  background: BlueViolet;
-  color: white;
+    background: BlueViolet;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c3,.c3{
-  background: Red;
-  color: white;
+    background: Red;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c4,.c4{
-  background: Blue;
-  color: white;
+    background: Blue;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c5,.c5{
-  background: Green;
-  color: white;
+    background: Green;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c6,.c6{
-  background: Brown;
-  color: white;
+    background: Brown;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c7,.c7{
-  background: DarkGreen;
-  color: white;
+    background: DarkGreen;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c8,.c8{
-  background: DarkBlue;
-  color: white;
+    background: DarkBlue;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c9,.c9{
-  background: DarkRed;
-  color: white;
+    background: DarkRed;
+    color: white;
 }
 
 span.tagMatches span, .layers span.c0,.c0{
-  background: Teal;
-  color: white;
+    background: Teal;
+    color: white;
 }
 
 .tag-container{
-  float: left;
-  margin-top: 5px;
+    float: left;
+    margin-top: 5px;
 }
 
 .meta ul{
-  margin: 0px;
-  padding: 0px;
+    margin: 0px;
+    padding: 0px;
 }
 
 .meta li{
-  list-style-type: none;
-  margin-bottom: 5px;
+    list-style-type: none;
+    margin-bottom: 5px;
 }
 
 #url_selected {
@@ -508,12 +508,12 @@ span.tagMatches span, .layers span.c0,.c0{
 }
 
 #view-layer-list a, .layers span a{
-  text-decoration: none;
-  color: white;
+    text-decoration: none;
+    color: white;
 }
 
 .layers .layer-active{
-  background-color: #555;
+    background-color: #555;
 }
 
 .sortable_item {
@@ -533,7 +533,7 @@ span.tagMatches span, .layers span.c0,.c0{
 }
 
 #csv-submission {
-   float: left;
+    float: left;
 }
 
 #csv-preview {
@@ -544,89 +544,89 @@ span.tagMatches span, .layers span.c0,.c0{
 }
 
 .highlight, .subhighlight{
- background-color: yellow; 
+    background-color: yellow;
 }
 
 .pagination{
-  margin: 5px;
-  float: right;
+    margin: 5px;
+    float: right;
 }
 
 .per-page{
-  float: right;
+    float: right;
 }
 
 .per-page-selector{
-  font-size: 13px;
+    font-size: 13px;
 }
 
 #tools{
-  width: 250px;
-  border: 5px #555555;
-  border-style: none none solid solid;
-  border-bottom-left-radius: 20px;
-  -moz-border-radius-bottomleft: 20px;
-  background: url('/images/elements/tools-vertical.gif') white no-repeat;
-  background-position: 7px center;
-  padding: 30px;
-  position: fixed;
-  top: 0px;
-  right: -280px;
+    width: 250px;
+    border: 5px #555555;
+    border-style: none none solid solid;
+    border-bottom-left-radius: 20px;
+    -moz-border-radius-bottomleft: 20px;
+    background: url('/images/elements/tools-vertical.gif') white no-repeat;
+    background-position: 7px center;
+    padding: 30px;
+    position: fixed;
+    top: 0px;
+    right: -280px;
 }
 
 #tools h3{
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 #tools h2, #tools .meta{
-  margin: 0px 0px 1em 0px;
-  padding-bottom: 5px;
-  border-bottom: 1px dotted #cccccc;
+    margin: 0px 0px 1em 0px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #cccccc;
 }
 
 ul.lineage, .lineage li{
-  list-style-type: none;
-  margin: 0px;
-  padding: 0px;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
 }
 
 .lineage li{
-  padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 #tools #hide{
-  margin-top: -20px;
-  float: right;
+    margin-top: -20px;
+    float: right;
 }
 
 #accordion h3{
-  font-size: 13px;
+    font-size: 13px;
 }
 
 .lineage li{
-  padding: 2px 0px 2px 0px;
+    padding: 2px 0px 2px 0px;
 }
 .lineage .depth-0{
-  margin-left: 0px;
-  margin-bottom: 0px;
+    margin-left: 0px;
+    margin-bottom: 0px;
 }
 .lineage .depth-1{
-  margin-left: 15px;
-  margin-bottom: 0px;
+    margin-left: 15px;
+    margin-bottom: 0px;
 }
 .lineage .depth-2{
-  margin-left: 30px;
-  margin-bottom: 0px;
+    margin-left: 30px;
+    margin-bottom: 0px;
 }
 .lineage .depth-3{
-  margin-left: 45px;
-  margin-bottom: 0px;
+    margin-left: 45px;
+    margin-bottom: 0px;
 }
 .lineage .depth-4{
-  margin-left: 60px;
-  margin-bottom: 0px;
+    margin-left: 60px;
+    margin-bottom: 0px;
 }
 .lineage .depth-5{
-  margin-left: 75px;
-  margin-bottom: 0px;
+    margin-left: 75px;
+    margin-bottom: 0px;
 }

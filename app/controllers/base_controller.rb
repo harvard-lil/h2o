@@ -52,7 +52,7 @@ class BaseController < ApplicationController
         keywords params[:keywords]
       end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-#      data_accessor_for(model).include = [:tags, :collages, :case_citations]
+      #      data_accessor_for(model).include = [:tags, :collages, :case_citations]
       order_by :display_name, :asc
     end
 
@@ -60,7 +60,7 @@ class BaseController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.js { render :partial => 'shared/playlistable_item', :object => model }
-      format.xml  { render :xml => @objects }
+      format.xml { render :xml => @objects }
     end
   end
 end

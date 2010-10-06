@@ -1,45 +1,45 @@
 <div id="featured_container">
-<div id="featured_title" >
-Activity
-</div>
-<div id="featured_content">
-  <div id="f_block1" class="block knockout">
-    <ul>
-      <li><%= link_to("#{Case.count} cases",cases_path) %></li>
-      <li><%= link_to("#{Collage.count} collages",collages_path) %></li>
-      <li><%= link_to("#{Annotation.count} case annotations",collages_path) %></li>
-      <li><%= link_to("#{Question.count} questions",question_instances_path) %></li>
-      <li><%= link_to("#{RotisserieInstance.count} rotisseries",rotisserie_instances_path) %></li>
-      <li><%=  "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
-tcount && tcount[0]['tcount']} taggings" %></li>
-    </ul>
+  <div id="featured_title" >
+    Activity
+  </div>
+  <div id="featured_content">
+    <div id="f_block1" class="block knockout">
+      <ul>
+        <li><%= link_to("#{Case.count} cases",cases_path) %></li>
+        <li><%= link_to("#{Collage.count} collages",collages_path) %></li>
+        <li><%= link_to("#{Annotation.count} case annotations",collages_path) %></li>
+        <li><%= link_to("#{Question.count} questions",question_instances_path) %></li>
+        <li><%= link_to("#{RotisserieInstance.count} rotisseries",rotisserie_instances_path) %></li>
+        <li><%=  "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
+          tcount && tcount[0]['tcount']} taggings" %></li>
+      </ul>
 
-  </div>
-  <div id="f_block2">
-    <div class="yellow_heading">Question Tool</div>
-    <div class="yellow_content">
-      <%= link_to image_tag("/images/elements/question.png", {:id => "question_logo"}), question_instances_path %>
+    </div>
+    <div id="f_block2">
+      <div class="yellow_heading">Question Tool</div>
+      <div class="yellow_content">
+        <%= link_to image_tag("/images/elements/question.png", {:id => "question_logo"}), question_instances_path %>
+      </div>
+    </div>
+    <div id="f_block3">
+      <div class="blue_heading">Rotisserie</div>
+      <div class="blue_content">
+        <%= link_to image_tag("/images/elements/cog.png", {:id => "rotisserie_logo"}), rotisserie_instances_path %>
+      </div>
+    </div>
+    <div id="f_block4">
+      <div class="yellow_heading">Playlists</div>
+      <div class="yellow_content">
+        <%= link_to image_tag("/images/elements/playlist.png", {:id => "playlist_logo"}), playlists_path %>
+      </div>
     </div>
   </div>
-  <div id="f_block3">
-    <div class="blue_heading">Rotisserie</div>
-    <div class="blue_content">
-      <%= link_to image_tag("/images/elements/cog.png", {:id => "rotisserie_logo"}), rotisserie_instances_path %>
-    </div>
-  </div>
-  <div id="f_block4">
-    <div class="yellow_heading">Playlists</div>
-    <div class="yellow_content">
-      <%= link_to image_tag("/images/elements/playlist.png", {:id => "playlist_logo"}), playlists_path %>
-    </div>
-  </div>
-</div>
   <div style="clear: both;"></div>
 </div>
 
 <div class="info_block">
- <div class="yellow_title_med">Coming Soon!</div>
-    With support from the <a href="http://www.law.harvard.edu/library/">Harvard Law School Library</a>, the <a href="http://cyber.law.harvard.edu">Berkman Center</a> is revamping – recoding and reintegrating – a suite of classroom tools under its H2O banner. These include the Question Tool, a backchannel for live lecture feedback and questions; the Rotisserie, a structured forum for offline discussion of class content that encourages class members to interact with other students’ ideas; Playlists, a platform for collections of online content that are easily shared and remixed, and are ideal for use as an online course syllabus; and Collage, a new tool built with the goal of creating an entirely online law school casebook by allowing a seed document to be annotated with various layers and notes.
+  <div class="yellow_title_med">Coming Soon!</div>
+  With support from the <a href="http://www.law.harvard.edu/library/">Harvard Law School Library</a>, the <a href="http://cyber.law.harvard.edu">Berkman Center</a> is revamping – recoding and reintegrating – a suite of classroom tools under its H2O banner. These include the Question Tool, a backchannel for live lecture feedback and questions; the Rotisserie, a structured forum for offline discussion of class content that encourages class members to interact with other students’ ideas; Playlists, a platform for collections of online content that are easily shared and remixed, and are ideal for use as an online course syllabus; and Collage, a new tool built with the goal of creating an entirely online law school casebook by allowing a seed document to be annotated with various layers and notes.
 </div>
 
 
