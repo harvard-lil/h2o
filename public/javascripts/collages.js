@@ -232,7 +232,11 @@ showPleaseWait: function(){
 
 hideEmptyElements: function(){
   //TODO - Optimize this function, and exclude the annotation id printing removal.
-  jQuery('#annotatable-content :hidden').remove();
+                     jQuery('#annotatable-content :hidden').remove();
+   jQuery('#annotatable-content tt').filter(function(){
+//       console.log('Display: ' + this.currentStyle.display);
+       return (document.defaultView.getComputedStyle(this,null).getPropertyValue('display') == 'none') ? true : false
+    }).remove();
   jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
     var text = jQuery(this).text();
     return (text == '' || text == ' ' || text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?strong>)+$/im));
