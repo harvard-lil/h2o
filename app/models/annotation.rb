@@ -16,14 +16,13 @@ class Annotation < ActiveRecord::Base
 
   acts_as_voteable
 
-  before_destroy :collapse_children
-
   acts_as_taggable_on :layers
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
   acts_as_authorization_object
 
   before_create :create_annotation_caches
+  before_save :create_annotation_word_count_cache
 
   belongs_to :collage
 
@@ -60,6 +59,10 @@ class Annotation < ActiveRecord::Base
   end
 
   private
+
+  def create_annotation_word_count_cache
+    self.annotation_word_count = (self.annotation.blank?) ? 0 : self.annotation.split(/\s+/).length
+  end
 
   def create_annotation_caches
     # No need to recreate these caches on a cloned node.

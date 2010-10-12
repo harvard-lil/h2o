@@ -12,7 +12,7 @@
   <tbody>
     <% @playlist.playlist_items.each do |item| %>
       <tr>
-        <td><%= link_to item.output_text, item %></td>
+        <td><%= link_to item.name, item %></td>
         <td>
           <% if item.admin? || item.owner? %>
           <button id="button-item-edit-<%= item.id %>" name="button-item-edit" class="ui-button ui-state-default ui-corner-all">

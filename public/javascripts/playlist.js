@@ -78,8 +78,8 @@ jQuery(function() {
     };
 
     //playlist dialogs
-    objectDialog('#dialog-playlist-new', '#new_playlist', rules_playlist, messages_playlist, 'playlists');
-    objectDialog('#dialog-playlist-edit', '[id^=edit_playlist]', rules_playlist, messages_playlist, 'playlists');
+//    objectDialog('#dialog-playlist-new', '#new_playlist', rules_playlist, messages_playlist, 'playlists');
+//    objectDialog('#dialog-playlist-edit', '[id^=edit_playlist]', rules_playlist, messages_playlist, 'playlists');
 
     objectConfirm('#dialog-playlist-delete', '#delete_playlist', 'playlists');
 
@@ -97,29 +97,29 @@ jQuery(function() {
 // Arrays of validation rules and messages
 
 var rules_playlist = {
-    "playlist[output_text]": {
+    "playlist[name]": {
         required: true
     }
 };
 
 var messages_playlist = {
-    "playlist[output_text]": "Please enter display text"
+    "playlist[name]": "Please enter display text"
 };
 
 var rules_item = {
-    "playlist_item[output_text]": {
+    "playlist_item[name]": {
         required: true
     }
 };
 
 var messages_item = {
-    "playlist_item[output_text]": "Please enter display text"
+    "playlist_item[name]": "Please enter display text"
 };
 
 function initPlaylistGroup() {
 
     // Spawn playlist dialog when button is clicked
-    initButton('button-playlist-create', '#button-playlist-create', '#dialog-playlist-new', 'playlists', 'new');
+//    initButton('button-playlist-create', '#button-playlist-create', '#dialog-playlist-new', 'playlists', 'new');
     initButton('button-playlist-edit', '[name=button-playlist-edit]', '#dialog-playlist-edit', 'playlists', 'edit');
     initButton('button-playlist-delete', '[name=button-playlist-delete]', '#dialog-playlist-delete', 'playlists', 'delete');
 

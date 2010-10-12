@@ -6,8 +6,8 @@
   <% form.inputs do %>
         <% #  form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
         <!-- <li></li> -->
-        <%= form.input :output_text, :label => "Display", :as => :string, 
-          :input_html => {:class => "ui-widget-content ui-corner-all", :value => "Copy of " + playlist_object.output_text} %>
+        <%= form.input :name, :as => :string, 
+          :input_html => {:class => "ui-widget-content ui-corner-all", :value => "Copy of " + playlist_object.name} %>
         <li></li>
         <%= form.input :description,
           :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},

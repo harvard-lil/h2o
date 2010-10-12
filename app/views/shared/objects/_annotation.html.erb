@@ -12,6 +12,7 @@
         <% end %>
         <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
         <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ') %></div>
+        <div class="counts">Counts: <%= (@annotation.annotation_word_count > 0) ? "#{@annotation.annotation_word_count} word(s) annotating #{@annotation.word_count} words" : "Annotating #{@annotation.word_count} word(s)" %></div>
       </div>
       <% unless @annotation.annotation.blank? %>
         <h3>Annotation</h3>

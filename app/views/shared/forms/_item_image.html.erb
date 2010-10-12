@@ -10,7 +10,7 @@ end
 <div id="error_block"></div>
   <% semantic_form_for item_object, :html => {:class => "playlist_form"} do |form| %>
   <% form.inputs do %>
-        <%= form.input :output_text, :label => "Name", :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+        <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
         <li></li>
         <%= form.input :description,
           :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},

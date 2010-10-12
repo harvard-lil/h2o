@@ -9,20 +9,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101005150523) do
+ActiveRecord::Schema.define(:version => 20101012200155) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
-    t.string   "annotation",        :limit => 10240
+    t.string   "annotation",            :limit => 10240
     t.string   "annotation_start"
     t.string   "annotation_end"
     t.integer  "word_count"
-    t.string   "annotated_content", :limit => 1048576
+    t.string   "annotated_content",     :limit => 1048576
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
-    t.boolean  "public",                               :default => true
-    t.boolean  "active",                               :default => true
+    t.boolean  "public",                                   :default => true
+    t.boolean  "active",                                   :default => true
+    t.integer  "annotation_word_count"
   end
 
   add_index "annotations", ["active"], :name => "index_annotations_on_active"
@@ -141,7 +142,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_annotations", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -160,7 +161,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_cases", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -179,7 +180,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_collages", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -198,7 +199,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_defaults", :force => true do |t|
     t.string   "title"
-    t.string   "output_text", :limit => 1024
+    t.string   "name",        :limit => 1024
     t.string   "url",         :limit => 1024
     t.text     "description"
     t.boolean  "active",                      :default => true
@@ -212,7 +213,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_images", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -230,7 +231,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_playlists", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -249,7 +250,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_question_instances", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -268,7 +269,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_questions", :force => true do |t|
     t.string   "title"
-    t.string   "output_text"
+    t.string   "name"
     t.string   "url"
     t.text     "description"
     t.boolean  "active"
@@ -287,7 +288,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_rotisserie_discussions", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -306,7 +307,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_texts", :force => true do |t|
     t.string   "title"
-    t.string   "output_text",        :limit => 1024
+    t.string   "name",               :limit => 1024
     t.string   "url",                :limit => 1024
     t.text     "description"
     t.boolean  "active",                             :default => true
@@ -324,7 +325,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "item_youtubes", :force => true do |t|
     t.string   "title"
-    t.string   "output_text", :limit => 1024
+    t.string   "name",        :limit => 1024
     t.string   "url",         :limit => 1024
     t.text     "description"
     t.boolean  "active",                      :default => true
@@ -388,7 +389,7 @@ ActiveRecord::Schema.define(:version => 20101005150523) do
 
   create_table "playlists", :force => true do |t|
     t.string   "title",                                         :null => false
-    t.string   "output_text", :limit => 1024
+    t.string   "name",        :limit => 1024
     t.text     "description"
     t.boolean  "active",                      :default => true
     t.datetime "created_at"

@@ -30,6 +30,7 @@ class PlaylistsController < BaseController
     end
     @playlists = Playlist.public 
     add_javascripts 'playlist'
+    add_javascripts 'new_playlists'
     
     respond_to do |format|
       format.html # index.html.erb
@@ -72,7 +73,7 @@ class PlaylistsController < BaseController
   def create
     @playlist = Playlist.new(params[:playlist])
 
-    @playlist.title = @playlist.output_text.downcase.gsub(" ", "_") unless @playlist.title.present?
+    @playlist.title = @playlist.name.downcase.gsub(" ", "_") unless @playlist.title.present?
 
     respond_to do |format|
       if @playlist.save
@@ -82,17 +83,13 @@ class PlaylistsController < BaseController
         @playlist.accepts_role!(:creator, current_user)
 
         flash[:notice] = 'Playlist was successfully created.'
-        format.js {render :text => nil}
+        format.js { render :text => nil }
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
-        @error_output = "<div class='error ui-corner-all'>"
-        @playlist.errors.each{ |attr,msg|
-          @error_output += "#{attr} #{msg}<br />"
+        format.js { 
+          render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/')}", :status => :unprocessable_entity 
         }
-        @error_output += "</div>"
-
-        format.js {render :text => @error_output, :status => :unprocessable_entity}
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
       end
@@ -142,7 +139,7 @@ class PlaylistsController < BaseController
     @playlist[:child_object_count] = @playlist.playlist_items.length
     @playlist[:child_object_type] = 'PlaylistItem'
     @playlist[:child_object_ids] = @playlist.playlist_items.collect(&:id).compact
-    @playlist[:title] = @playlist.output_text
+    @playlist[:title] = @playlist.name
     render :xml => @playlist.to_xml(:skip_types => true)
   end
 
@@ -150,7 +147,7 @@ class PlaylistsController < BaseController
     @playlist = Playlist.find(params[:id])  
     @playlist_copy = Playlist.new(params[:playlist])
     @playlist_copy.parent = @playlist
-    if @playlist_copy.title.blank? then @playlist_copy.title = params[:playlist][:output_text] end
+    if @playlist_copy.title.blank? then @playlist_copy.title = params[:playlist][:name] end
 
     respond_to do |format|
       if @playlist_copy.save

@@ -62,13 +62,13 @@ jQuery.extend({
         });
 
         var startNode = jQuery('<span class="annotation-control annotation-start" title="Click to see Annotation"></span>');
-        jQuery(startNode).html(layerNames.join(', ') + ' <span class="print-inline">#' + obj.id + '</span>');
+        jQuery(startNode).html(layerNames.join(', ') + ((obj.annotation_word_count > 0) ? ' (' + obj.annotation_word_count + ') ' : '' ) + ' <span class="print-inline">#' + obj.id + '</span>');
         jQuery(startNode).addClass('c' + (lastLayerId % 10));
         jQuery(startNode).attr('id', 'annotation-control-' + obj.id + '-start');
         jQuery("#t" + elStart).before(startNode);
 
         var endNode = jQuery('<span class="annotation-control annotation-end" title="Click to see Annotation"></span>');
-        jQuery(endNode).html(layerNames.join(', ') + ' <span class="print-inline">#' + obj.id + '</span>');
+        jQuery(endNode).html(layerNames.join(', ') + ((obj.annotation_word_count > 0) ? ' (' + obj.annotation_word_count + ') ' : '' ) + ' <span class="print-inline">#' + obj.id + '</span>');
         jQuery(endNode).addClass('c' + (lastLayerId % 10));
         jQuery(endNode).attr('id', 'annotation-control-' + obj.id + '-end');
 
