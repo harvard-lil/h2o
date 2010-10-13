@@ -13,9 +13,7 @@
         <td><%= link_to playlist.display_name, playlist %></td>
         <td>
           <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
-          <button id="button-playlist-edit-<%= playlist.id %>" name="button-playlist-edit" class="ui-button ui-state-default ui-corner-all">
-            <%= image_tag "/images/icons/application_form_edit.png" %>
-          </button
+            <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
           <% end %>
         </td>
         <td>

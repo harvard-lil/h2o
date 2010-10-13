@@ -32,7 +32,6 @@ class Playlist < ActiveRecord::Base
   has_many :roles, :as => :authorizable, :dependent => :destroy
 
   validates_presence_of :name
-#  validates_uniqueness_of :output_text
   validates_length_of :name, :in => 1..250
 
   def display_name

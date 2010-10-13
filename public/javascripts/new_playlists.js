@@ -7,10 +7,7 @@ jQuery.extend({
       },
       success: function(response){
         jQuery('#playlist-editor').dialog('close');
-        if(console){
-          console.log(response);
-        }
-        document.location = jQuery.rootPath() + 'playlists/'
+        document.location.href = jQuery.rootPath() + 'playlists/'
       },
       error: function(xhr){
         jQuery('#error_block').show().html(xhr.responseText);
@@ -55,5 +52,5 @@ jQuery.extend({
 
 jQuery(document).ready(function(){
     jQuery('.button').button();
-    jQuery.initPlaylistEditControls('.new-playlist');
+    jQuery.initPlaylistEditControls('.new-playlist,.edit-playlist');
 });

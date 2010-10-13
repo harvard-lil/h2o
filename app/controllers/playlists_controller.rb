@@ -15,7 +15,7 @@ class PlaylistsController < BaseController
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
-#    allow :user, :of => :playlist, :to => [:index, :show]
+    #    allow :user, :of => :playlist, :to => [:index, :show]
   end
 
   def embedded_pager
@@ -105,9 +105,13 @@ class PlaylistsController < BaseController
       if @playlist.update_attributes(params[:playlist])
         @playlist.accepts_role!(:editor,current_user)
         flash[:notice] = 'Playlist was successfully updated.'
+        format.js { render :text => nil}
         format.html { redirect_to(@playlist) }
-        format.xml  { head :ok }
+        format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
+        format.js {
+          render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/')}", :status => :unprocessable_entity
+        }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
       end
@@ -217,11 +221,11 @@ class PlaylistsController < BaseController
 
     logger.warn(return_hash.inspect)
 
-#    if return_hash["type"] == "ItemText" 
-#      return_hash["body"] = object_hash["body"] 
-#    elsif return_hash["type"] == 'ItemQuestionInstance'
-#      return_hash["body"] = 'I am a serious body'
-#    end
+    #    if return_hash["type"] == "ItemText"
+    #      return_hash["body"] = object_hash["body"]
+    #    elsif return_hash["type"] == 'ItemQuestionInstance'
+    #      return_hash["body"] = 'I am a serious body'
+    #    end
 
     respond_to do |format|
       format.js {render :json => return_hash.to_json}

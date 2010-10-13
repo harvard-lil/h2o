@@ -120,7 +120,7 @@ function initPlaylistGroup() {
 
     // Spawn playlist dialog when button is clicked
 //    initButton('button-playlist-create', '#button-playlist-create', '#dialog-playlist-new', 'playlists', 'new');
-    initButton('button-playlist-edit', '[name=button-playlist-edit]', '#dialog-playlist-edit', 'playlists', 'edit');
+    // initButton('button-playlist-edit', '[name=button-playlist-edit]', '#dialog-playlist-edit', 'playlists', 'edit');
     initButton('button-playlist-delete', '[name=button-playlist-delete]', '#dialog-playlist-delete', 'playlists', 'delete');
 
     // Spawn item dialog when button is clicked
