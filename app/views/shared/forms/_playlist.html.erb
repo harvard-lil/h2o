@@ -1,4 +1,4 @@
-<%
+<%  
   if ['edit'].include?(controller.action_name)
     playlist_object = Playlist.find(params[:id])
   else
@@ -15,7 +15,8 @@
     <%= form.input :description,
       :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
       :required => false,
-      :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
+      :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
+      :html_safe => true
     %>
     <li></li>
   <% end -%>

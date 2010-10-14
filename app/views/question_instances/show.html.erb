@@ -2,7 +2,6 @@
   <% if ! request.xhr? %>
     <div class="question-instance-description">
       <div class="ajax-error" id="ajax-error-<%= @question_instance.id %>" style="display: none;"></div>
-      <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
       <h1><%= h @question_instance.name %></h1>
       <% if ! @question_instance.description.blank? %>
         <div class="description"><%= QuestionInstance.format_content(@question_instance.description) %></div>

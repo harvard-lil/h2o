@@ -42,6 +42,7 @@ class PlaylistsController < BaseController
   # GET /playlists/1.xml
   def show
     add_javascripts 'playlist'
+    add_javascripts 'new_playlists'
     @playlist.playlist_items.find(:all, :include => [:resource_item])
     @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false
     respond_to do |format|

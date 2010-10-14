@@ -34,8 +34,6 @@
   <% else %>
     <h2>Showing <%= (@collages.hits.length > 1) ? "#{@collages.hits.length} Collages" : '1 collage' %> of <%= @collages.total %> total
     <% if params[:keywords] %><span style="font-size: 14px;"> for "<%=h params[:keywords] %>"</span><% end %></h2>
-
-    <div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
     <%= render :partial => 'shared/layout_components/per_page_selector' %>
     <%= render :partial => 'collage_list' %>
   <% end %>

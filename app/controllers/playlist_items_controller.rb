@@ -25,6 +25,7 @@ class PlaylistItemsController < BaseController
     @playlist_item = PlaylistItem.new(:playlist_id => params[:container_id])
 
     respond_to do |format|
+      format.js
       format.html # new.html.erb
       format.xml  { render :xml => @playlist_item }
     end

@@ -16,7 +16,6 @@
 %>
 
 <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
-<div class="status" id="spinner_block" style="display: none;"><%= image_tag('/images/elements/ajax-loader.gif') %></div>
 <% if ! cookies['hide-non-annotated-text'].blank? && session[:just_born].blank? %>
   <style type="text/css">
     tt{

@@ -81,7 +81,7 @@ jQuery(function() {
 //    objectDialog('#dialog-playlist-new', '#new_playlist', rules_playlist, messages_playlist, 'playlists');
 //    objectDialog('#dialog-playlist-edit', '[id^=edit_playlist]', rules_playlist, messages_playlist, 'playlists');
 
-    objectConfirm('#dialog-playlist-delete', '#delete_playlist', 'playlists');
+    //objectConfirm('#dialog-playlist-delete', '#delete_playlist', 'playlists');
 
     //playlist item dialogs
     playlistDialog('#dialog-item-new', rules_item, messages_item, 'playlist_items');
@@ -121,7 +121,7 @@ function initPlaylistGroup() {
     // Spawn playlist dialog when button is clicked
 //    initButton('button-playlist-create', '#button-playlist-create', '#dialog-playlist-new', 'playlists', 'new');
     // initButton('button-playlist-edit', '[name=button-playlist-edit]', '#dialog-playlist-edit', 'playlists', 'edit');
-    initButton('button-playlist-delete', '[name=button-playlist-delete]', '#dialog-playlist-delete', 'playlists', 'delete');
+    //initButton('button-playlist-delete', '[name=button-playlist-delete]', '#dialog-playlist-delete', 'playlists', 'delete');
 
     // Spawn item dialog when button is clicked
     initButton('button-item-create', '[name=button-item-create]', '#dialog-item-new', 'playlist_items', 'new');

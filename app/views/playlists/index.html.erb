@@ -1,22 +1,19 @@
 <div class="info_block">
- <div class="yellow_title_med">Your Playlists</div>
- This list shows playlists that you have access to.  You may edit or delete the playlists here if
- you have the correct permissions.
+  <div class="yellow_title_med">Your Playlists</div>
+  This list shows playlists that you have access to.  You may edit or delete the playlists here if
+  you have the correct permissions.
 </div>
 
-<div id="spinner_block"></div>
+
 
 <div id="list_block">
-<%= render :partial => 'playlists_block' %>
+  <%= render :partial => 'playlists_block' %>
 </div>
 
 <br />
 
 <% if current_user %>
-    <div class="info_block controls">
-      <%= link_to 'New Playlist', new_playlist_path, :class => 'button new-playlist' %>
-    </div>
+  <div class="info_block controls">
+    <%= link_to 'New Playlist', new_playlist_path, :class => 'button new-playlist' %>
+  </div>
 <% end %>
-
-<div id="dialog-playlist-delete" title="Delete playlist"></div>
-

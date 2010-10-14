@@ -85,9 +85,9 @@ h2{
     width: 200px;
 }
 
-
 #spinner_block{
     height: 15px;
+    float: right;
 }
 .spacer_block{
     height: 30px;

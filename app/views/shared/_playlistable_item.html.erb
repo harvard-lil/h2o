@@ -1,6 +1,6 @@
 <div class="h2o-playlistable-<%= playlistable_item.name %>">
   <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
-  <div class="object-list-<%= playlistable_item.name %>">
+  <div class="object-list-<%= playlistable_item.name %>-<%= playlistable_item.name.tableize%>">
   <% if @objects -%>
     <table class="core_table tablesorter compact_table">
       <thead>
@@ -23,67 +23,3 @@
 </div>
 </div>
 <div class="clear"></div>
-
-<%= javascript_tag %Q| 
-jQuery(document).ready(function(){
-
-  if(jQuery('.object-list-#{playlistable_item.name}').html().length < 15){
-    jQuery.ajax({
-      method: 'GET',
-      cache: false,
-      url: jQuery.rootPath() + '#{playlistable_item.name.tableize}/embedded_pager',
-      dataType: 'script',
-      success: function(html){
-        jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
-      }
-    });
-  }
-  jQuery('.add-#{playlistable_item.name}-button').button().click(function(e){
-    e.preventDefault();
-    var itemId = jQuery(this).attr('id').split('-')[1];
-    jQuery.ajax({
-      method: 'GET',
-      cache: false,
-      dataType: 'script',
-      url: jQuery.rootPath() + 'item_#{playlistable_item.name.tableize}/new',
-      data: {
-        url_string: '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
-        container_id: jQuery('#container_id').text()
-      },
-      success: function(html){
-         jQuery('#dialog-item-new').html(html);
-      }
-    });
-//    jQuery("#dialog-item-new").load("/playlists/load_form",{
-//      'item_type': 'Item#{playlistable_item.name}',
-//      'url_string': '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
-//      'container_id': jQuery('#container_id').text()
-//    });
-  });
-  jQuery('.#{playlistable_item.name}-button').button().click(function(e){
-    e.preventDefault();
-    jQuery.ajax({
-      method: 'GET',
-      url: jQuery.rootPath() + '#{playlistable_item.name.tableize}/embedded_pager',
-      data: {keywords: jQuery('##{playlistable_item.name}-keyword-search').val()},
-      dataType: 'script',
-      success: function(html){
-        jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
-      }
-    });
-  });
-  jQuery('.h2o-playlistable-#{playlistable_item.name} .pagination a').click(
-    function(e){
-      e.preventDefault();
-      jQuery.ajax({
-        type: 'GET',
-        dataType: 'script',
-        data: {keywords: jQuery('##{playlistable_item.name}-keyword-search').val()},
-        url: jQuery(this).attr('href'),
-        success: function(html){
-          jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
-        }
-      });
-  });
-})
-| %>
