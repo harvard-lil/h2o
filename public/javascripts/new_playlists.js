@@ -46,6 +46,42 @@ jQuery.extend({
           }
         });
       });
+  },
+  initPlaylistDeleteControls: function(){
+    jQuery('.delete-playlist').click(function(e){
+        var url = jQuery(this).attr('href');
+        e.preventDefault();
+        var confirmNode = jQuery('<div>Are you sure you want to delete this playlist?</div>');
+        jQuery(confirmNode).dialog({
+          title: 'Are you sure you want to delete this playlist?',
+          modal: true,
+          position: 'top',
+          width: 500,
+          close: function(){
+            jQuery(confirmNode).remove();
+          },
+          buttons: {
+            Yes: function(){
+              jQuery.ajax({
+                type: 'POST',
+                dataType: 'script',
+                url: url,
+                data: {'_method': 'DELETE'},
+                success: function(html){
+                  document.location.href = jQuery.rootPath() + 'playlists/';
+                },
+                error: function(xhr){
+                  jQuery(confirmNode).html(xhr.responseText);
+                }
+              });
+            },
+            No: function(){
+              jQuery(confirmNode).dialog('close');
+              jQuery(confirmNode).remove();
+            }
+          }
+        });
+    });
   }
     
 });
@@ -53,4 +89,5 @@ jQuery.extend({
 jQuery(document).ready(function(){
     jQuery('.button').button();
     jQuery.initPlaylistEditControls('.new-playlist,.edit-playlist');
+    jQuery.initPlaylistDeleteControls();
 });

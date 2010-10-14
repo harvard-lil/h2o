@@ -7,6 +7,7 @@ class PlaylistItem < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
 
   include PlaylistableExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include AuthUtilities
 
   before_destroy :collapse_children

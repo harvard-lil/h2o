@@ -6,7 +6,7 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
 
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
-  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index]
+  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index]
   
   access_control do
@@ -125,8 +125,15 @@ class PlaylistsController < BaseController
     @playlist.destroy
 
     respond_to do |format|
+      format.js { render :text => nil }
       format.html { redirect_to(playlists_url) }
       format.xml  { head :ok }
+    end
+  rescue Exception => e
+    respond_to do |format|
+      format.js { render :text => "We couldn't delete that, most likely because it's already been deleted.", :status => :unprocessable_entity }
+      format.html {  }
+      format.xml  { render :status => :unprocessable_entity }
     end
   end
 
