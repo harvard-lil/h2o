@@ -124,6 +124,7 @@ jQuery.extend({
                     });
                     jQuery("#url_review").button();
                     jQuery('#tabs').tabs();
+                    jQuery.observeItemObjectLists();
                 },
                 error: function(xhr){
                     jQuery('#spinner_block').hide();
@@ -134,11 +135,11 @@ jQuery.extend({
         });
     },
     observeItemObjectLists: function(){
+        jQuery('[class^=playlistable-object-list]').each(function(){
         var playlistParams = jQuery(this).attr('class').split(/\-/);
-        var itemName = playlistParams[2];
-        var itemController = playlistParams[3];
-
-        if(jQuery('.object-list-' + itemName).html().length < 15){
+        var itemName = playlistParams[3];
+        var itemController = playlistParams[4];
+        if(jQuery(this).html().length < 15){
             jQuery.ajax({
                 method: 'GET',
                 cache: false,
@@ -166,35 +167,37 @@ jQuery.extend({
                 }
             });
         });
-        jQuery('.#{playlistable_item.name}-button').button().click(function(e){
+        jQuery('.' + itemName + '-button').button().click(function(e){
+            alert('you dun goofed up');
             e.preventDefault();
             jQuery.ajax({
                 method: 'GET',
-                url: jQuery.rootPath() + '#{playlistable_item.name.tableize}/embedded_pager',
+                url: jQuery.rootPath() + itemController + '/embedded_pager',
                 data: {
-                    keywords: jQuery('##{playlistable_item.name}-keyword-search').val()
+                    keywords: jQuery('#' + itemName + '-keyword-search').val()
                     },
                 dataType: 'script',
                 success: function(html){
-                    jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
+                    jQuery('.h2o-playlistable-' + itemName).html(html);
                 }
             });
         });
-        jQuery('.h2o-playlistable-#{playlistable_item.name} .pagination a').click(
+        jQuery('.h2o-playlistable-' + itemName + ' .pagination a').click(
             function(e){
                 e.preventDefault();
                 jQuery.ajax({
                     type: 'GET',
                     dataType: 'script',
                     data: {
-                        keywords: jQuery('##{playlistable_item.name}-keyword-search').val()
+                        keywords: jQuery('#' + itemName + '-keyword-search').val()
                         },
                     url: jQuery(this).attr('href'),
                     success: function(html){
-                        jQuery('.h2o-playlistable-#{playlistable_item.name}').html(html);
+                        jQuery('.h2o-playlistable-' + itemName).html(html);
                     }
                 });
             });
+        });
     }
     
 });
