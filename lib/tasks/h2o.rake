@@ -52,20 +52,21 @@ namespace :h2o do
   desc 'Test case import'
   task(:import_cases => :environment) do
 
-    metadata_hash = {}
-    FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
-      row_hash = row.to_hash
-      metadata_hash[row_hash[:filename]] = row_hash
-    end
+    #metadata_hash = {}
+    #FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
+#      row_hash = row.to_hash
+#      metadata_hash[row_hash[:filename]] = row_hash
+#    end
 
     Dir.glob("#{RAILS_ROOT}/tmp/cases/*.xml").each do |file|
       c = Case.new()
       basename = Pathname(file).basename.to_s
       puts file
       doc = Nokogiri::XML.parse(File.open(file))
-      unless metadata_hash[basename].blank?
-        c.tag_list = metadata_hash[basename][:tags]
-      end
+#      unless metadata_hash[basename].blank?
+#        c.tag_list = metadata_hash[basename][:tags]
+#      end
+c.tag_list = 'conlaw'
       c.current_opinion = (doc.xpath('//Case/CurrentOpinion').text == 'False') ? false : true
 
       c.short_name = doc.xpath('//Case/ShortName').text

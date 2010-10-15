@@ -1,5 +1,6 @@
 require 'migration_helpers'
 class PlaylistAncestry < ActiveRecord::Migration
+  extend MigrationHelpers
   def self.up
 
     [:playlists, :playlist_items ].each do|table|
@@ -39,7 +40,7 @@ class PlaylistAncestry < ActiveRecord::Migration
     add_column :playlist_items, :children_count, :integer
     add_column :playlist_items, :ancestors_count, :integer
     add_column :playlist_items, :descendants_count, :integer
-    add_column :playlist_items, :position, :integer
+#    add_column :playlist_items, :position, :integer
     add_column :playlist_items, :hidden, :boolean
     create_acts_as_category_indexes(PlaylistItem)
     #this is not going to retain ancestry, so don't do it. Just here for thoroughness
