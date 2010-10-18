@@ -22,6 +22,12 @@ namespace :h2o do
   desc 'Test case import'
   task(:import_cases => :environment) do
 
+    # -i --add-xml-decl n --doctype omit --show-body-only true
+    TidyFFI::Tidy.default_options.add_xml_decl = false
+    TidyFFI::Tidy.default_options.doctype = 'omit'
+    TidyFFI::Tidy.default_options.show_body_only = 1
+    TidyFFI::Tidy.default_options.output_xhtml = true
+
     #metadata_hash = {}
     #FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
 #      row_hash = row.to_hash
@@ -31,7 +37,7 @@ namespace :h2o do
     Dir.glob("#{RAILS_ROOT}/tmp/cases/*.xml").each do |file|
       c = Case.new()
       basename = Pathname(file).basename.to_s
-      puts file
+#      puts file
       doc = Nokogiri::XML.parse(File.open(file))
 #      unless metadata_hash[basename].blank?
 #        c.tag_list = metadata_hash[basename][:tags]
@@ -76,8 +82,25 @@ namespace :h2o do
       c.lawyer_header = doc.xpath('//Case/LawyerHeader').text
       c.header_html = doc.xpath('//Case/HeaderHtml').text
 
-      c.content = "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
-      c.save!
+#      puts
+#      puts "Content of #{file}, pre-stripping: "
+#      puts  "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
+
+      tidy_content = TidyFFI::Tidy.new("#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}")
+
+      c.content = tidy_content.clean
+#      puts
+#      puts "Content of #{file}, post-stripping: "
+#      puts c.content
+
+#      puts
+#      puts
+
+      if c.save
+#        puts "Successfully imported: #{file}"
+      else 
+        puts "FAILED: #{file}"
+      end
     end
       Sunspot.commit_if_dirty
   end
