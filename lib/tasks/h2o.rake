@@ -19,36 +19,6 @@ namespace :h2o do
     puts doc.xpath("//html/body/*").to_s
   end
 
-  desc 'Temporary case import'
-  task(:temp_import_cases => :environment) do
-    metadata_hash = {}
-    FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
-      row_hash = row.to_hash
-      metadata_hash[row_hash[:filename]] = row_hash
-    end
-
-#    puts metadata_hash.inspect
-    Dir.glob("#{RAILS_ROOT}/tmp/cases/*.html").each do |file|
-      basename = Pathname(file).basename.to_s
-      if ! metadata_hash[basename].blank?
-        c = Case.new()
-        c.short_name = metadata_hash[basename][:short_name]
-        c.full_name = metadata_hash[basename][:short_name]
-        c.tag_list = metadata_hash[basename][:tags]
-        tmp_content = File.read(file)
-        tmp_content.gsub!(/<\/?(body|head|html)>/i,'')
-#        tmp_content.gsub!(/<center>/i,'<div style="text-align: center;">')
-#        tmp_content.gsub!(/<\/center>/i,'</div>')
-#        tmp_content.gsub!(/<small>/i,'<div style="font-size: smaller;">')
-#        tmp_content.gsub!(/<\/small>/i,'</div>')
-        c.content = Iconv.iconv('UTF-8','ISO-8859-1',tmp_content)[0]
-        c.save
-      else
-        puts "#{basename} didn't have an entry in the metadata hash"
-      end
-    end
-  end
-
   desc 'Test case import'
   task(:import_cases => :environment) do
 
@@ -66,7 +36,8 @@ namespace :h2o do
 #      unless metadata_hash[basename].blank?
 #        c.tag_list = metadata_hash[basename][:tags]
 #      end
-c.tag_list = 'conlaw'
+
+      c.tag_list = 'conlaw'
       c.current_opinion = (doc.xpath('//Case/CurrentOpinion').text == 'False') ? false : true
 
       c.short_name = doc.xpath('//Case/ShortName').text
@@ -106,9 +77,9 @@ c.tag_list = 'conlaw'
       c.header_html = doc.xpath('//Case/HeaderHtml').text
 
       c.content = "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
-
       c.save!
     end
+      Sunspot.commit_if_dirty
   end
 
   desc 'Send rotisserie invitations'
