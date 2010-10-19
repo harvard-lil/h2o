@@ -32,6 +32,7 @@ jQuery.extend({
                     jQuery('#spinner_block').hide();
                     var newPlaylistNode = jQuery('<div id="playlist-editor"></div>');
                     jQuery(newPlaylistNode).dialog({
+                        title: 'Edit Playlist',
                         modal: true,
                         width: 500,
                         height: 400,
@@ -113,14 +114,17 @@ jQuery.extend({
                 },
                 success:function(html){
                     jQuery('#spinner_block').hide();
-                    var itemAddNode = jQuery('<div></div>');
-                    jQuery(itemAddNode).html(html);
-                    jQuery(itemAddNode).dialog({
-                        modal: true,
-                        width: 500,
-                        height: 400,
-                        position: 'top'
-
+                    var itemChooserNode = jQuery('<div id="dialog-item-chooser"></div>');
+                    jQuery(itemChooserNode).html(html);
+                    jQuery(itemChooserNode).dialog({
+                      title: "Add an item to this playlist",
+                      modal: true,
+                      width: 500,
+                      height: 400,
+                      position: 'top',
+                      close: function(){
+                        jQuery(itemChooserNode).remove();
+                      }
                     });
                     jQuery("#url_review").button();
                     jQuery('#tabs').tabs();
@@ -129,27 +133,11 @@ jQuery.extend({
                 error: function(xhr){
                     jQuery('#spinner_block').hide();
                 }
-
             });
 
         });
     },
-    observeItemObjectLists: function(){
-        jQuery('[class^=playlistable-object-list]').each(function(){
-        var playlistParams = jQuery(this).attr('class').split(/\-/);
-        var itemName = playlistParams[3];
-        var itemController = playlistParams[4];
-        if(jQuery(this).html().length < 15){
-            jQuery.ajax({
-                method: 'GET',
-                cache: false,
-                url: jQuery.rootPath() + itemController + '/embedded_pager',
-                dataType: 'script',
-                success: function(html){
-                    jQuery('.h2o-playlistable-' + itemName).html(html);
-                }
-            });
-        }
+    initPlaylistItemAddButton: function(itemName, itemController){
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();
             var itemId = jQuery(this).attr('id').split('-')[1];
@@ -158,48 +146,112 @@ jQuery.extend({
                 cache: false,
                 dataType: 'script',
                 url: jQuery.rootPath() + 'item_' + itemController + '/new',
+                beforeSend: function(){
+                    jQuery('#spinner_block').show();
+                },
                 data: {
-                    url_string: '#{url_for(:controller => playlistable_item.name.tableize, :action => :index, :only_path => false)}/' + itemId,
+                    url_string: jQuery.rootPathWithFQDN() + itemController + '/' + itemId,
                     container_id: jQuery('#container_id').text()
                 },
                 success: function(html){
-                    jQuery('#dialog-item-new').html(html);
+                    jQuery('#spinner_block').hide();
+                    jQuery('#dialog-item-chooser').dialog('close');
+                    var addItemDialog = jQuery('<div id="add-item-dialog"></div>');
+                    jQuery(addItemDialog).html(html);
+                    jQuery(addItemDialog).dialog({
+                      title: 'Add ' + itemName ,
+                      modal: true,
+                      width: 500,
+                      height: 400,
+                      position: 'top',
+                      close: function(){
+                        jQuery(addItemDialog).remove();
+                      },
+                      buttons: {
+                        Save: function(){
+                         //TODO: handle ajax submission here.
+                        },
+                        Close: function(){
+                          jQuery(addItemDialog).dialog('close');
+                        }
+                      }
+                    });
                 }
             });
         });
+    },
+    initKeywordSearch: function(itemName,itemController){
         jQuery('.' + itemName + '-button').button().click(function(e){
-            alert('you dun goofed up');
             e.preventDefault();
             jQuery.ajax({
                 method: 'GET',
                 url: jQuery.rootPath() + itemController + '/embedded_pager',
+                beforeSend: function(){
+                    jQuery('#spinner_block').show();
+                },
                 data: {
                     keywords: jQuery('#' + itemName + '-keyword-search').val()
                     },
                 dataType: 'script',
                 success: function(html){
+                    jQuery('#spinner_block').hide();
                     jQuery('.h2o-playlistable-' + itemName).html(html);
+                    jQuery.initPlaylistItemAddButton(itemName,itemController);
+                    jQuery.initKeywordSearch(itemName,itemController);
+                    jQuery.initPlaylistItemPagination(itemName,itemController);
                 }
             });
         });
+    },
+    initPlaylistItemPagination: function(itemName,itemController){
         jQuery('.h2o-playlistable-' + itemName + ' .pagination a').click(
             function(e){
                 e.preventDefault();
                 jQuery.ajax({
                     type: 'GET',
                     dataType: 'script',
+                    beforeSend: function(){
+                      jQuery('#spinner_block').show();
+                    },
                     data: {
                         keywords: jQuery('#' + itemName + '-keyword-search').val()
                         },
                     url: jQuery(this).attr('href'),
                     success: function(html){
+                        jQuery('#spinner_block').hide();
                         jQuery('.h2o-playlistable-' + itemName).html(html);
+                        jQuery.initPlaylistItemAddButton(itemName,itemController);
+                        jQuery.initKeywordSearch(itemName,itemController);
+                        jQuery.initPlaylistItemPagination(itemName,itemController);
                     }
                 });
             });
-        });
+    },
+    observeItemObjectLists: function(){
+      jQuery('[class^=playlistable-object-list]').each(function(){
+        var playlistParams = jQuery(this).attr('class').split(/\-/);
+        var itemName = playlistParams[3];
+        var itemController = playlistParams[4];
+        if(jQuery(this).html().length < 15){
+          jQuery.ajax({
+            method: 'GET',
+            cache: false,
+            url: jQuery.rootPath() + itemController + '/embedded_pager',
+            dataType: 'script',
+            beforeSend: function(){
+              jQuery('#spinner_block').show();
+            },
+            success: function(html){
+              jQuery('#spinner_block').hide();
+              jQuery('.h2o-playlistable-' + itemName).html(html);
+              jQuery.initPlaylistItemAddButton(itemName,itemController);
+              jQuery.initKeywordSearch(itemName,itemController);
+              jQuery.initPlaylistItemPagination(itemName,itemController);
+            }
+          });
+        }
+      });
     }
-    
 });
 
 jQuery(document).ready(function(){

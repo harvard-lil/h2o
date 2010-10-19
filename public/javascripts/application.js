@@ -35,7 +35,13 @@ jQuery(function() {
 
   jQuery.extend({
     rootPath: function(){
-      return '/'
+      return '/';
+    },
+    
+    rootPathWithFQDN: function(){
+      var url = location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
+      console.log(url);
+      return url;
     },
 
     observeToolbar: function(){
