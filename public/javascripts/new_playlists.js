@@ -3,8 +3,7 @@ jQuery.extend({
         jQuery('#playlist-editor').find('form').ajaxSubmit({
             dataType: 'script',
             beforeSend: function(){
-                jQuery('#spinner_block').show();
-                jQuery('#error_block').hide();
+                jQuery('#spinner_block').show();                
             },
             success: function(response){
                 jQuery('#spinner_block').hide();
@@ -12,7 +11,26 @@ jQuery.extend({
                 document.location.href = jQuery.rootPath() + 'playlists/'
             },
             error: function(xhr){
-                jQuery('#spinner_block').show();
+                jQuery('#spinner_block').hide();
+                jQuery('#error_block').show().html(xhr.responseText);
+            }
+        });
+    },
+
+    submitPlaylistItem: function(rootId){
+        jQuery(rootId).find('form').ajaxSubmit({
+            dataType: 'script',
+            beforeSend: function(){
+                jQuery('#spinner_block').show();                
+            },
+            success: function(response){
+                jQuery('#spinner_block').hide();
+                var playlistId = jQuery('#container_id').html();
+                jQuery('#add-item-dialog').dialog('close');
+                document.location.href = jQuery.rootPath() + 'playlists/' + playlistId;
+            },
+            error: function(xhr){
+                jQuery('#spinner_block').hide();
                 jQuery('#error_block').show().html(xhr.responseText);
             }
         });
@@ -34,8 +52,8 @@ jQuery.extend({
                     jQuery(newPlaylistNode).dialog({
                         title: 'Edit Playlist',
                         modal: true,
-                        width: 500,
-                        height: 400,
+                        width: 'auto',
+                        height: 'auto',
                         position: 'top',
                         close: function(){
                             jQuery(newPlaylistNode).remove();
@@ -55,6 +73,50 @@ jQuery.extend({
                 error: function(xhr){
                     jQuery('#spinner_block').hide();
 
+                }
+            });
+        });
+    },
+    initPlaylistItemDeleteControls: function(){
+        jQuery('.delete-playlist-item').click(function(e){
+            var url = jQuery(this).attr('href');
+            e.preventDefault();
+            var confirmNode = jQuery('<div>Are you sure you want to delete this playlist item?</div>');
+            jQuery(confirmNode).dialog({
+                title: 'Are you sure you want to delete this playlist item?',
+                modal: true,
+                position: 'top',
+                width: 500,
+                close: function(){
+                    jQuery(confirmNode).remove();
+                },
+                buttons: {
+                    Yes: function(){
+                        jQuery.ajax({
+                            type: 'POST',
+                            dataType: 'script',
+                            url: url,
+                            data: {
+                                '_method': 'DELETE'
+                            },
+                            beforeSend: function(){
+                                jQuery('#spinner_block').show();
+                            },
+                            success: function(html){
+                                var playlistId = jQuery('#container_id').html();
+                                jQuery('#spinner_block').hide();
+                                document.location.href = jQuery.rootPath() + 'playlists/' + playlistId;
+                            },
+                            error: function(xhr){
+                                jQuery('#spinner_block').hide();
+                                jQuery(confirmNode).html(xhr.responseText);
+                            }
+                        });
+                    },
+                    No: function(){
+                        jQuery(confirmNode).dialog('close');
+                        jQuery(confirmNode).remove();
+                    }
                 }
             });
         });
@@ -117,14 +179,14 @@ jQuery.extend({
                     var itemChooserNode = jQuery('<div id="dialog-item-chooser"></div>');
                     jQuery(itemChooserNode).html(html);
                     jQuery(itemChooserNode).dialog({
-                      title: "Add an item to this playlist",
-                      modal: true,
-                      width: 500,
-                      height: 400,
-                      position: 'top',
-                      close: function(){
-                        jQuery(itemChooserNode).remove();
-                      }
+                        title: "Add an item to this playlist",
+                        modal: true,
+                        width: 'auto',
+                        height: 'auto',
+                        position: 'top',
+                        close: function(){
+                            jQuery(itemChooserNode).remove();
+                        }
                     });
                     jQuery("#url_review").button();
                     jQuery('#tabs').tabs();
@@ -137,6 +199,51 @@ jQuery.extend({
 
         });
     },
+
+    initPlaylistItemEditButtons: function(){
+        jQuery('.edit-playlist-item').click(function(e){
+            e.preventDefault();
+            jQuery.ajax({
+                type: 'GET',
+                dataType: 'script',
+                url: jQuery(this).attr('href'),
+                cache: false,
+                beforeSend: function(){
+                    jQuery('#spinner_block').show();
+                },
+                error: function(){
+                    jQuery('#spinner_block').hide();
+
+                },
+                success: function(html){
+                    jQuery('#spinner_block').hide();
+                    var editNode = jQuery('<div id="edit-playlist-item"></div>');
+                    jQuery(editNode).html(html);
+                    jQuery(editNode).dialog({
+                        modal: true,
+                        height: 'auto',
+                        width: 'auto',
+                        position: 'top',
+                        close: function(){
+                            jQuery(editNode).remove();
+                        },
+                        buttons: {
+                            Save:function(){
+                                jQuery.submitPlaylistItem('#edit-playlist-item');
+
+                            },
+                            Cancel: function(){
+                                jQuery(editNode).dialog('close');
+                            }
+                        }
+                    });
+                    jQuery(editNode).dialog('open');
+                }
+            });
+
+        });
+    },
+
     initPlaylistItemAddButton: function(itemName, itemController){
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();
@@ -159,22 +266,22 @@ jQuery.extend({
                     var addItemDialog = jQuery('<div id="add-item-dialog"></div>');
                     jQuery(addItemDialog).html(html);
                     jQuery(addItemDialog).dialog({
-                      title: 'Add ' + itemName ,
-                      modal: true,
-                      width: 500,
-                      height: 400,
-                      position: 'top',
-                      close: function(){
-                        jQuery(addItemDialog).remove();
-                      },
-                      buttons: {
-                        Save: function(){
-                         //TODO: handle ajax submission here.
+                        title: 'Add ' + itemName ,
+                        modal: true,
+                        width: 'auto',
+                        height: 'auto',
+                        position: 'top',
+                        close: function(){
+                            jQuery(addItemDialog).remove();
                         },
-                        Close: function(){
-                          jQuery(addItemDialog).dialog('close');
+                        buttons: {
+                            Save: function(){
+                                jQuery.submitPlaylistItem('#add-item-dialog');
+                            },
+                            Close: function(){
+                                jQuery(addItemDialog).dialog('close');
+                            }
                         }
-                      }
                     });
                 }
             });
@@ -191,7 +298,7 @@ jQuery.extend({
                 },
                 data: {
                     keywords: jQuery('#' + itemName + '-keyword-search').val()
-                    },
+                },
                 dataType: 'script',
                 success: function(html){
                     jQuery('#spinner_block').hide();
@@ -211,11 +318,11 @@ jQuery.extend({
                     type: 'GET',
                     dataType: 'script',
                     beforeSend: function(){
-                      jQuery('#spinner_block').show();
+                        jQuery('#spinner_block').show();
                     },
                     data: {
                         keywords: jQuery('#' + itemName + '-keyword-search').val()
-                        },
+                    },
                     url: jQuery(this).attr('href'),
                     success: function(html){
                         jQuery('#spinner_block').hide();
@@ -228,29 +335,29 @@ jQuery.extend({
             });
     },
     observeItemObjectLists: function(){
-      jQuery('[class^=playlistable-object-list]').each(function(){
-        var playlistParams = jQuery(this).attr('class').split(/\-/);
-        var itemName = playlistParams[3];
-        var itemController = playlistParams[4];
-        if(jQuery(this).html().length < 15){
-          jQuery.ajax({
-            method: 'GET',
-            cache: false,
-            url: jQuery.rootPath() + itemController + '/embedded_pager',
-            dataType: 'script',
-            beforeSend: function(){
-              jQuery('#spinner_block').show();
-            },
-            success: function(html){
-              jQuery('#spinner_block').hide();
-              jQuery('.h2o-playlistable-' + itemName).html(html);
-              jQuery.initPlaylistItemAddButton(itemName,itemController);
-              jQuery.initKeywordSearch(itemName,itemController);
-              jQuery.initPlaylistItemPagination(itemName,itemController);
+        jQuery('[class^=playlistable-object-list]').each(function(){
+            var playlistParams = jQuery(this).attr('class').split(/\-/);
+            var itemName = playlistParams[3];
+            var itemController = playlistParams[4];
+            if(jQuery(this).html().length < 15){
+                jQuery.ajax({
+                    method: 'GET',
+                    cache: false,
+                    url: jQuery.rootPath() + itemController + '/embedded_pager',
+                    dataType: 'script',
+                    beforeSend: function(){
+                        jQuery('#spinner_block').show();
+                    },
+                    success: function(html){
+                        jQuery('#spinner_block').hide();
+                        jQuery('.h2o-playlistable-' + itemName).html(html);
+                        jQuery.initPlaylistItemAddButton(itemName,itemController);
+                        jQuery.initKeywordSearch(itemName,itemController);
+                        jQuery.initPlaylistItemPagination(itemName,itemController);
+                    }
+                });
             }
-          });
-        }
-      });
+        });
     }
 });
 
@@ -259,4 +366,6 @@ jQuery(document).ready(function(){
     jQuery.initPlaylistEditControls('.new-playlist,.edit-playlist');
     jQuery.initPlaylistDeleteControls();
     jQuery.initPlaylistItemAddControls();
+    jQuery.initPlaylistItemEditButtons();
+    jQuery.initPlaylistItemDeleteControls();
 });

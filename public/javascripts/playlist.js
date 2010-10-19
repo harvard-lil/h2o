@@ -13,7 +13,6 @@ var sortableCellHelper = function(e, tr)
 
 jQuery(function() {
 
-
     jQuery("#url_review").live('click', function(e){
       jQuery('#url_error').html('').hide();
       e.preventDefault();
@@ -84,10 +83,10 @@ jQuery(function() {
     //objectConfirm('#dialog-playlist-delete', '#delete_playlist', 'playlists');
 
     //playlist item dialogs
-    playlistDialog('#dialog-item-new', rules_item, messages_item, 'playlist_items');
-    playlistDialog('#dialog-item-edit', rules_item, messages_item, 'playlist_items');
+    // playlistDialog('#dialog-item-new', rules_item, messages_item, 'playlist_items');
+ //   playlistDialog('#dialog-item-edit', rules_item, messages_item, 'playlist_items');
 
-    objectConfirm('#dialog-item-delete', '#delete_playlist_item', 'playlist_items');
+   // objectConfirm('#dialog-item-delete', '#delete_playlist_item', 'playlist_items');
 
     //playlist utility dialogs
     playlistDialog('#dialog-playlist-copy', rules_playlist, messages_playlist, 'playlists');
@@ -124,9 +123,9 @@ function initPlaylistGroup() {
     //initButton('button-playlist-delete', '[name=button-playlist-delete]', '#dialog-playlist-delete', 'playlists', 'delete');
 
     // Spawn item dialog when button is clicked
-    initButton('button-item-create', '[name=button-item-create]', '#dialog-item-new', 'playlist_items', 'new');
-    initButton('button-item-edit', '[name=button-item-edit]', '#dialog-item-edit', 'playlist_items', 'edit');
-    initButton('button-item-delete', '[name=button-item-delete]', '#dialog-item-delete', 'playlist_items', 'delete');
+    // initButton('button-item-create', '[name=button-item-create]', '#dialog-item-new', 'playlist_items', 'new');
+    //initButton('button-item-edit', '[name=button-item-edit]', '#dialog-item-edit', 'playlist_items', 'edit');
+    //initButton('button-item-delete', '[name=button-item-delete]', '#dialog-item-delete', 'playlist_items', 'delete');
 
     //Spawn utility dialogs
     initButton('button-playlist-copy', '[name=button-playlist-copy]', '#dialog-playlist-copy', 'playlists', 'copy');
@@ -189,7 +188,3 @@ function playlistDialog(dialog_id, rules_block, messages_block, controller_name)
     });
 
 }
-
-
-
-

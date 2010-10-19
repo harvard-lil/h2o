@@ -2,7 +2,7 @@ class ItemBaseController < BaseController
 
   before_filter :set_model
   before_filter :require_user, :except => [:index, :show]
-  before_filter :load_playlist
+  before_filter :load_playlist, :except => [:destroy]
 
   access_control do
     allow all, :to => [:show, :index]
@@ -32,7 +32,8 @@ class ItemBaseController < BaseController
 
   def new
     @object = @model_class.new
-
+    @object.url = params[:url_string]    
+    
     respond_to do |format|
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
@@ -43,6 +44,11 @@ class ItemBaseController < BaseController
   # GET /item_defaults/1/edit
   def edit
     @object = @model_class.find(params[:id])
+    respond_to do |format|
+      format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
+      format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
+      format.xml  { render :xml => @item_default }
+    end
   end
 
   def create
@@ -90,6 +96,9 @@ class ItemBaseController < BaseController
         format.html { redirect_to(@object) }
         format.xml  { render :xml => @object, :status => :created, :location => @object }
       else
+        format.js {
+          render :text => "We couldn't add that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
+        }
         format.html { render :action => "new" }
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
       end
@@ -102,9 +111,13 @@ class ItemBaseController < BaseController
     respond_to do |format|
       if @object.update_attributes(params[@param_symbol])
         flash[:notice] = "#{@model_class.name.titleize} was successfully updated."
+        format.js { render :text => nil }
         format.html { render :text => nil }
         format.xml  { head :ok }
       else
+        format.js {
+          render :text => "We couldn't update that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
+        }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
       end
@@ -116,6 +129,7 @@ class ItemBaseController < BaseController
     @object.destroy
 
     respond_to do |format|
+      format.js { render :text => nil }
       format.html { redirect_to(item_cases_url) }
       format.xml  { head :ok }
     end

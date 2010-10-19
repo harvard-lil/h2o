@@ -89,7 +89,7 @@ class PlaylistsController < BaseController
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
         format.js { 
-          render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/')}", :status => :unprocessable_entity 
+          render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
@@ -111,7 +111,7 @@ class PlaylistsController < BaseController
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
       else
         format.js {
-          render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/')}", :status => :unprocessable_entity
+          render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
         }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }

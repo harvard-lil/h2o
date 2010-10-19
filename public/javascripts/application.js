@@ -39,9 +39,7 @@ jQuery(function() {
     },
     
     rootPathWithFQDN: function(){
-      var url = location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
-      console.log(url);
-      return url;
+      return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
     },
 
     observeToolbar: function(){
