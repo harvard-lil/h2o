@@ -9,15 +9,15 @@
       <%= render :partial => 'shared/collage_meta', :object => collage %>
     </td>
   <% end %>
-    <% if current_user %>
-      <td class="controls_column">
-        <% form_tag(spawn_copy_collage_path(collage)) do %>
-          <%= submit_tag('Copy', :class => 'button') %>
-        <% end %>
-        <% if @collage_admin || @my_collages.include?(collage) %>
-          <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
-          <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
-        <% end %>
-      </td>
-    <% end %>
+  <% if current_user %>
+    <td class="controls_column">
+      <% form_tag(spawn_copy_collage_path(collage)) do %>
+        <%= submit_tag('Copy', :class => 'button') %>
+      <% end %>      
+      <% if @collage_admin || @my_collages.include?(collage) %>
+        <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
+        <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
+      <% end %>      
+    </td>
+  <% end %>
 </tr>

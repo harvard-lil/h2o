@@ -10,9 +10,9 @@ class CollagesController < BaseController
   caches_action :annotations
 
   access_control do
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]
-    allow @collage_admin 
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    allow :admin, :collage_admin, :superadmin
   end
 
   def embedded_pager

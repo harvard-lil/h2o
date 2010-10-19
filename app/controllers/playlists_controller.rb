@@ -169,6 +169,7 @@ class PlaylistsController < BaseController
         end
         @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
           new_item = item.clone
+          new_item.resource_item = item.resource_item.clone
           item.creators && item.creators.each do|c|
             new_item.accepts_role!(:original_creator,c)
           end
