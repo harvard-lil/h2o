@@ -256,7 +256,7 @@ hideEmptyElements: function(){
     jQuery('#annotatable-content tt:hidden').remove();
     jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
         var text = jQuery(this).text();
-        var collapsedText = trim11(text);
+        var collapsedText = jQuery.trim11(text);
 //        if(collapsedText.length > 0){
 //          console.log('|' + escape(text) + '|')
 //        }
