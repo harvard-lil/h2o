@@ -252,19 +252,15 @@ showPleaseWait: function(){
 },
 
 hideEmptyElements: function(){
-  
     // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
     jQuery('#annotatable-content tt:hidden').remove();
-
-    //jQuery('#annotatable-content :hidden').filter(':not(.print-inline)').remove();
-    /*   jQuery('#annotatable-content tt').filter(function(){
-     return (document.defaultView.getComputedStyle(this,null).getPropertyValue('display') == 'none') ? true : false
-//     return (jQuery(this).css('display') == 'none') ? true : false
-   }).remove(); */
-
     jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
         var text = jQuery(this).text();
-        return (text == '' || text == ' ' || text.match(/^(<br\/?>|\s|<\/?center>|<\/?b>|<\/?strong>)+$/im));
+        var collapsedText = trim11(text);
+//        if(collapsedText.length > 0){
+//          console.log('|' + escape(text) + '|')
+//        }
+        return (collapsedText.length == 0);
     }).remove();
 },
 

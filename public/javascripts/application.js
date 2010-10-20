@@ -3,6 +3,18 @@
 $.noConflict();
 
 jQuery(function() {
+    function trim11 (str) {
+      // courtesty of http://blog.stevenlevithan.com/archives/faster-trim-javascript
+    	str = str.replace(/^\s+/, '');
+    	for (var i = str.length - 1; i >= 0; i--) {
+    		if (/\S/.test(str.charAt(i))) {
+    			str = str.substring(0, i + 1);
+    			break;
+    		}
+    	}
+    	return str;
+    }
+
     function updateTips(t) {
         tips.text(t).effect("highlight",{},1500);
     }
