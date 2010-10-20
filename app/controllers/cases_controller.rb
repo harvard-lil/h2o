@@ -1,6 +1,7 @@
 class CasesController < BaseController
 
   before_filter :prep_resources
+  before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
 
@@ -9,8 +10,7 @@ class CasesController < BaseController
 
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
-    allow :case_manager
-    allow :admin
+    allow :case_manager, :admin, :superadmin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
   end
 
@@ -29,6 +29,10 @@ class CasesController < BaseController
   # GET /cases
   # GET /cases.xml
   def index
+
+    if current_user
+      @my_cases = current_user.cases
+    end
 
     @cases = Sunspot.new_search(Case)
 
@@ -156,5 +160,11 @@ class CasesController < BaseController
   def load_case
     @case = Case.find((params[:id].blank?) ? params[:case_id] : params[:id])
   end
+
+    def is_case_admin
+      if current_user
+        @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
+      end
+    end
 
 end

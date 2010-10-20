@@ -169,7 +169,7 @@ class CollagesController < BaseController
 
   def is_collage_admin
     if current_user
-      @collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+      @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
     end
   end
 

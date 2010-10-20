@@ -32,7 +32,7 @@
               <% if current_user %>
                 <td>
                   <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
-                  <% if current_user && (current_user.case_manager? || c.accepts_role?(:owner,current_user) )%> 
+                  <% if @is_case_admin || @my_cases.include(c) %> 
                     <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
                     <% if c.deleteable? %>
                       <%= link_to('delete', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
