@@ -2,7 +2,7 @@
 
 one:
   title: MyString
-  output_text: MyString
+  name: MyString
   url: MyString
   description: MyText
   active: false
@@ -10,7 +10,7 @@ one:
 
 two:
   title: MyString
-  output_text: MyString
+  name: MyString
   url: MyString
   description: MyText
   active: false

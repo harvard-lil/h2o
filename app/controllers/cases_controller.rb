@@ -1,6 +1,7 @@
 class CasesController < BaseController
 
   before_filter :prep_resources
+  before_filter :my_cases, :only => [:index, :show]
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
@@ -29,17 +30,14 @@ class CasesController < BaseController
   # GET /cases
   # GET /cases.xml
   def index
-
-    if current_user
-      @my_cases = current_user.cases
-    end
-
     @cases = Sunspot.new_search(Case)
 
     @cases.build do
       unless params[:keywords].blank?
         keywords params[:keywords]
       end
+      with :public, true
+      with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       data_accessor_for(Case).include = [:tags, :collages, :case_citations]
       order_by :display_name, :asc
@@ -78,10 +76,16 @@ class CasesController < BaseController
   # GET /cases/1
   # GET /cases/1.xml
   def show
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @case }
+    if (! @case.public || ! @case.active ) && ! @my_cases.include?(@case)
+      #if not public or active and the case isn't one of mine. . .
+      render :status => :not_found 
+    else
+      respond_to do |format|
+        format.html # show.html.erb
+        format.xml  { render :xml => @case }
+      end
     end
+
   end
 
   # GET /cases/new
@@ -164,6 +168,12 @@ class CasesController < BaseController
     def is_case_admin
       if current_user
         @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
+      end
+    end
+
+    def my_cases
+      if current_user
+        @my_cases = current_user.cases
       end
     end
 

@@ -2,16 +2,16 @@
 
 one:
   title: MyString
-  output_text: MyString
-  url: MyString
+  name: MyString
+  url: http://www.google.com
   description: MyText
-  active: false
-  public: false
+  active: true
+  public: true
 
 two:
   title: MyString
-  output_text: MyString
-  url: MyString
+  name: MyString
+  url: http://www.fark.com
   description: MyText
-  active: false
-  public: false
+  active: true
+  public: true

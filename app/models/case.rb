@@ -64,6 +64,8 @@ class Case < ActiveRecord::Base
     string :id, :stored => true
     text :content
     time :decision_date 
+    boolean :active
+    boolean :public
     string :author, :stored => true
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
