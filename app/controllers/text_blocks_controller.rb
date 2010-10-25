@@ -1,0 +1,2 @@
+class TextBlocksController < ApplicationController
+end

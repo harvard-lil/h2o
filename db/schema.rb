@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101012200155) do
+ActiveRecord::Schema.define(:version => 20101025191605) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -337,6 +337,51 @@ ActiveRecord::Schema.define(:version => 20101012200155) do
   add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
   add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
 
+  create_table "metadata", :force => true do |t|
+    t.string   "contributor"
+    t.string   "coverage"
+    t.string   "creator"
+    t.date     "date"
+    t.string   "description",       :limit => 5242880
+    t.string   "format"
+    t.string   "identifier"
+    t.string   "language"
+    t.string   "publisher"
+    t.string   "relation"
+    t.string   "rights"
+    t.string   "source"
+    t.string   "subject"
+    t.string   "title"
+    t.string   "dc_type"
+    t.string   "classifiable_type"
+    t.integer  "classifiable_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "metadata", ["classifiable_id"], :name => "index_metadata_on_classifiable_id"
+  add_index "metadata", ["classifiable_type"], :name => "index_metadata_on_classifiable_type"
+
+  create_table "metadatas", :force => true do |t|
+    t.string   "contributor"
+    t.string   "coverage"
+    t.string   "creator"
+    t.date     "date"
+    t.text     "description"
+    t.string   "format"
+    t.string   "identifier"
+    t.string   "language"
+    t.string   "publisher"
+    t.string   "relation"
+    t.string   "rights"
+    t.string   "source"
+    t.string   "subject"
+    t.string   "title"
+    t.string   "dc_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "notification_invites", :force => true do |t|
     t.integer  "user_id"
     t.integer  "resource_id"
@@ -602,6 +647,21 @@ ActiveRecord::Schema.define(:version => 20101012200155) do
   end
 
   add_index "tags", ["name"], :name => "index_tags_on_name"
+
+  create_table "text_blocks", :force => true do |t|
+    t.string   "name",                                                     :null => false
+    t.string   "description", :limit => 5242880,                           :null => false
+    t.string   "mime_type",   :limit => 50,      :default => "text/plain"
+    t.boolean  "active",                         :default => true
+    t.boolean  "public",                         :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "text_blocks", ["created_at"], :name => "index_text_blocks_on_created_at"
+  add_index "text_blocks", ["mime_type"], :name => "index_text_blocks_on_mime_type"
+  add_index "text_blocks", ["name"], :name => "index_text_blocks_on_name"
+  add_index "text_blocks", ["updated_at"], :name => "index_text_blocks_on_updated_at"
 
   create_table "users", :force => true do |t|
     t.datetime "created_at"

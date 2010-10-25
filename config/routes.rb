@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :metadata
+
+  map.resources :text_blocks
+
   map.resources :item_annotations
 
   map.resources :item_questions
