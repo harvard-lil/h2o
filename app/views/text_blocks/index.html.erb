@@ -1,13 +1,13 @@
-<div class="case-index">
+<div class="text_block-index">
   <div class="info_block">
-    <h1 class="yellow_title_med">Cases</h1>
-    <p>Cases exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine and integrated into <%= link_to 'playlists', playlists_path %>.</p>
+    <h1 class="yellow_title_med">Text</h1>
+    <p>Text blocks exist primarily to be annotated in the <%= link_to 'collage', collages_path %> annotation engine and to be linked into <%= link_to 'playlists', playlists_path %>.</p>
     <div class="layers">
       <% form_tag(url_for, :method => :get) do %>
         <h2>Filter by tags or keywords</h2>
         <p>
         <label for="keywords">Keywords:</label> <%= text_field_tag('keywords', params[:keywords], :size => 50) %><br/>
-        <% Case.tag_counts_on(:tags).all(:order => :name).each do|t| %>
+        <% TextBlock.tag_counts_on(:tags).all(:order => :name).each do|t| %>
           <div class="tag-container">
             <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
           </div>
@@ -23,11 +23,11 @@
 
 
   <div class="list_block">
-    <% if @cases.blank? %>
+    <% if @text_blocks.blank? %>
       <h2>None found.</h2>
     <% else %>
 
-      <h2>Showing <%= (@cases.hits.length > 1) ? "#{@cases.hits.length} cases" : '1 case' %> of <%= @cases.total %> total
+      <h2>Showing <%= (@text_blocks.hits.length > 1) ? "#{@text_blocks.hits.length} text blocks" : '1 text block' %> of <%= @text_blocks.total %> total
         <span style="font-size: 14px"><% if params[:tags] %>
             <br />Tags: <%=h params[:tags].collect{|t| %Q|"#{t}"|}.join((params[:any]) ? ' OR ' : ' AND ') %> 
           <% end %>
@@ -38,14 +38,14 @@
       </h2>
 
       <%= render :partial => 'shared/layout_components/per_page_selector' %>
-      <%= render :partial => 'case_list' %>
+      <%= render :partial => 'text_block_list' %>
 
     <% end %>
   </div>
   <%= render :partial => 'shared/layout_components/per_page_selector' %>
   <% if current_user %>
     <div class="info_block controls">
-      <%= link_to 'New case', new_case_path, :class => 'button' %>
+      <%= link_to 'New Text Block', new_text_block_path, :class => 'button' %>
     </div>
   <% end %>
 </div>

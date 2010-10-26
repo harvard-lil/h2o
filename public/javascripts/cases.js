@@ -7,14 +7,6 @@ jQuery(document).ready(function(){
         document.location = document.location;
     });
     jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
+    jQuery.observeTagAutofill('.tagging-autofill-tags','cases');
 
-    if(jQuery('.tagging-autofill-tags').length > 0){
-      jQuery(".tagging-autofill-tags").live('click',function(){
-        jQuery(this).tagSuggest({
-          url: jQuery.rootPath() + 'cases/autocomplete_tags',
-          separator: ', ',
-          delay: 500
-        });
-      });
-    }
 });

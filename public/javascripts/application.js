@@ -4,6 +4,7 @@ $.noConflict();
 
 jQuery(function() {
 
+
     function updateTips(t) {
         tips.text(t).effect("highlight",{},1500);
     }
@@ -39,6 +40,18 @@ jQuery(function() {
       return '/';
     },
     
+    observeTagAutofill: function(className,controllerName){
+      if(jQuery(className).length > 0){
+       jQuery(className).live('click',function(){
+         jQuery(this).tagSuggest({
+           url: jQuery.rootPath() + controllerName + '/autocomplete_tags',
+           separator: ', ',
+           delay: 500
+         });
+       });
+     }
+    },
+
     trim11: function(str) {
       // courtesty of http://blog.stevenlevithan.com/archives/faster-trim-javascript
     	var str = str.replace(/^\s+/, '');

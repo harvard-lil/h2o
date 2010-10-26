@@ -43,6 +43,10 @@ class User < ActiveRecord::Base
     self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.updated_at}
   end
 
+  def text_blocks
+    self.roles.find(:all, :conditions => {:authorizable_type => 'TextBlock', :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.updated_at}
+  end
+
   def collages
     self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.updated_at}
   end

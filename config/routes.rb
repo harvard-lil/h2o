@@ -1,7 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :metadata
 
-  map.resources :text_blocks
+  map.resources :text_blocks, :collection => {:embedded_pager => :get}
 
   map.resources :item_annotations
 
