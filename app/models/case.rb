@@ -1,7 +1,10 @@
 require 'tagging_extensions'
 require 'playlistable_extensions'
+require 'annotatable_extensions'
 
 class Case < ActiveRecord::Base
+
+  include AnnotatableExtensions
   extend TaggingExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
 
@@ -12,13 +15,6 @@ class Case < ActiveRecord::Base
   acts_as_authorization_object
   
   acts_as_taggable_on :tags
-
-  before_destroy :deleteable?
-
-  # This method should return true if instances of this class are annotatable under the collage system.
-  def self.annotatable
-    true
-  end
 
   has_many :case_citations
   has_many :case_docket_numbers
@@ -72,16 +68,6 @@ class Case < ActiveRecord::Base
     string :case_citations, :stored => true, :multiple => true
     string :case_docket_numbers, :stored => true, :multiple => true
     string :case_jurisdiction, :stored => true, :multiple => true
-  end
-
-  def deleteable?
-    # Only allow deleting if there haven't been any collages created from this case.
-    self.collages.length == 0
-  end
-
-  def content_editable?
-    # Only allow the content to be edited if there haven't been any collages created from this case.
-    self.collages.length == 0
   end
 
   alias :to_s :display_name

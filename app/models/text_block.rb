@@ -1,6 +1,7 @@
 class TextBlock < ActiveRecord::Base
+  include H2oModelExtensions
 
-  FORMATS = {
+  MIME_TYPES = {
     'text/plain' => 'Plain text',
     'text/html' => 'HTML formatted text',
     'text/xml' => 'XML',
@@ -10,8 +11,7 @@ class TextBlock < ActiveRecord::Base
     'text/javascript' => 'Javascript'
     }
 
-  include H2oModelExtensions
-  validates_inclusion_of :format, :in => FORMATS.keys
+  include AnnotatableExtensions
 
   extend TaggingExtensions::ClassMethods
   extend PlaylistableExtensions::ClassMethods
@@ -21,17 +21,13 @@ class TextBlock < ActiveRecord::Base
   include AuthUtilities
 
   acts_as_authorization_object
-
   acts_as_taggable_on :tags
-
-  # This method should return true if instances of this class are annotatable under the collage system.
-  def self.annotatable
-    true
-  end
 
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
   has_one :metadatum, :as => :classifiable, :dependent => :destroy
+
+  validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
 
   accepts_nested_attributes_for :metadatum,
     :allow_destroy => true,
@@ -39,6 +35,10 @@ class TextBlock < ActiveRecord::Base
 
   def self.select_options
     self.find(:all).collect{|c|[c.to_s,c.id]}
+  end
+
+  def self.mime_type_select_options
+    MIME_TYPES.keys.collect{|f|[MIME_TYPES[f],f]}
   end
 
   def display_name

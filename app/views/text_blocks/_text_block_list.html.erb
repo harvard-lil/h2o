@@ -4,7 +4,7 @@
       <table class="core_table tablesorter">
         <thead>
           <tr class="table_heading">
-            <th>text_block</th>
+            <th>Text Block</th>
             <th>Date</th>
             <th>Tags</th>
             <th>Collages</th>
@@ -17,7 +17,7 @@
           <% @text_blocks.results.each do |c| %>
             <tr>
               <td><%= link_to(c.display_name, c) %></td>
-              <td><%=h c.decision_date %></td>
+              <td><%=h c.metadatum && c.metadatum.date %></td>
               <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
               <td>
                 <% if ! c.collages.blank? %>
@@ -31,7 +31,7 @@
               <% if current_user %>
                 <td>
                   <%= link_to('collage this', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => c), :class => 'button') %>
-                  <% if @is_text_block_admin || @my_text_blocks.include(c) %> 
+                  <% if @is_text_block_admin || @my_text_blocks.include?(c) %> 
                     <%= link_to('edit', edit_text_block_path(c), :class => 'button' ) %>
                     <% if c.deleteable? %>
                       <%= link_to('delete', text_block_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
