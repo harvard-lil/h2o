@@ -3,10 +3,9 @@ require 'ancestry_extensions'
 
 class Playlist < ActiveRecord::Base
   extend AncestryExtensions::ClassMethods
-  extend PlaylistableExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
-  include PlaylistableExtensions::InstanceMethods
+  include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
 

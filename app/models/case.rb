@@ -3,12 +3,10 @@ require 'playlistable_extensions'
 require 'annotatable_extensions'
 
 class Case < ActiveRecord::Base
-
+  include H2oModelExtensions
   include AnnotatableExtensions
   extend TaggingExtensions::ClassMethods
-  extend PlaylistableExtensions::ClassMethods
-
-  include PlaylistableExtensions::InstanceMethods
+  include PlaylistableExtensions
   include TaggingExtensions::InstanceMethods
   include AuthUtilities
 

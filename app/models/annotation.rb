@@ -7,11 +7,10 @@ class Annotation < ActiveRecord::Base
   extend AncestryExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
-  extend PlaylistableExtensions::ClassMethods
 
   include TaggingExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods
-  include PlaylistableExtensions::InstanceMethods
+  include PlaylistableExtensions
   include AuthUtilities
 
   acts_as_voteable

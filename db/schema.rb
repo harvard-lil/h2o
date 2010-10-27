@@ -362,26 +362,6 @@ ActiveRecord::Schema.define(:version => 20101025191605) do
   add_index "metadata", ["classifiable_id"], :name => "index_metadata_on_classifiable_id"
   add_index "metadata", ["classifiable_type"], :name => "index_metadata_on_classifiable_type"
 
-  create_table "metadatas", :force => true do |t|
-    t.string   "contributor"
-    t.string   "coverage"
-    t.string   "creator"
-    t.date     "date"
-    t.text     "description"
-    t.string   "format"
-    t.string   "identifier"
-    t.string   "language"
-    t.string   "publisher"
-    t.string   "relation"
-    t.string   "rights"
-    t.string   "source"
-    t.string   "subject"
-    t.string   "title"
-    t.string   "dc_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "notification_invites", :force => true do |t|
     t.integer  "user_id"
     t.integer  "resource_id"

@@ -42,10 +42,6 @@ class TextBlocksController < BaseController
 
     @text_block = TextBlock.new(params[:text_block])
 
-    logger.warn(@text_block.inspect)
-    logger.warn(@text_block.metadatum)
-
-
     respond_to do |format|
       if @text_block.save
         @text_block.accepts_role!(:owner, current_user)

@@ -3,13 +3,11 @@ require 'playlistable_extensions'
 require 'ancestry_extensions'
 
 class Collage < ActiveRecord::Base
-  extend PlaylistableExtensions::ClassMethods
+  include H2oModelExtensions
   extend RedclothExtensions::ClassMethods
   extend AncestryExtensions::ClassMethods
-
-  include PlaylistableExtensions::InstanceMethods
+  include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
-
   include AuthUtilities
   acts_as_authorization_object
 
@@ -37,10 +35,8 @@ class Collage < ActiveRecord::Base
 
   before_create :prepare_content
 
-  validates_presence_of :name, :annotatable_type, :annotatable_id
-  validates_length_of :name, :in => 1..250
+  validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
-  validates_length_of :content, :in => 1..(5.megabytes), :allow_blank => true
 
   searchable do
     text :display_name, :boost => 3.0

@@ -1,5 +1,10 @@
 class TextBlock < ActiveRecord::Base
   include H2oModelExtensions
+  include AnnotatableExtensions
+  extend TaggingExtensions::ClassMethods
+  include PlaylistableExtensions
+  include TaggingExtensions::InstanceMethods
+  include AuthUtilities
 
   MIME_TYPES = {
     'text/plain' => 'Plain text',
@@ -10,15 +15,6 @@ class TextBlock < ActiveRecord::Base
     'text/css' => 'CSS',
     'text/javascript' => 'Javascript'
     }
-
-  include AnnotatableExtensions
-
-  extend TaggingExtensions::ClassMethods
-  extend PlaylistableExtensions::ClassMethods
-
-  include PlaylistableExtensions::InstanceMethods
-  include TaggingExtensions::InstanceMethods
-  include AuthUtilities
 
   acts_as_authorization_object
   acts_as_taggable_on :tags
@@ -43,6 +39,11 @@ class TextBlock < ActiveRecord::Base
 
   def display_name
     name
+  end
+
+  #Export the content that's annotated in a Collage
+  def content
+    description
   end
 
   alias :to_s :display_name
