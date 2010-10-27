@@ -37,6 +37,7 @@ Rails::Initializer.run do |config|
   config.gem 'tidy_ffi', :version => '0.1.3'
 #  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
   config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
+  config.gem 'super_exception_notifier', :lib => "exception_notification", :version => '3.0.13'
 
   config.active_record.colorize_logging = false
 

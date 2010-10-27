@@ -1,4 +1,5 @@
 class TextBlock < ActiveRecord::Base
+  extend RedclothExtensions::ClassMethods
   include H2oModelExtensions
   include AnnotatableExtensions
   extend TaggingExtensions::ClassMethods

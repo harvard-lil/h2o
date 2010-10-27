@@ -448,71 +448,71 @@ observeWords: function(){
 });
 
 jQuery(document).ready(function(){
-    jQuery('.per-page-selector').change(function(){
-        jQuery.cookie('per_page', jQuery(this).val(), {
-            expires: 365
-        });
-        document.location = document.location;
+  jQuery('.per-page-selector').change(function(){
+    jQuery.cookie('per_page', jQuery(this).val(), {
+      expires: 365
     });
-    jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
-    jQuery('.tablesorter').tablesorter();
-    jQuery('.button').button();
-    jQuery('#collage_submit').button({
-        icons: {
-            primary: 'ui-icon-circle-plus'
-        }
-    });
-jQuery('.layer-button').button({
+    document.location = document.location;
+  });
+  jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
+  jQuery('.tablesorter').tablesorter();
+  jQuery('.button').button();
+  jQuery('#collage_submit').button({
     icons: {
-        primary: 'ui-icon-check'
+      primary: 'ui-icon-circle-plus'
     }
-});
-if(jQuery('#collage_description').length > 0){
+  });
+  jQuery('.layer-button').button({
+    icons: {
+      primary: 'ui-icon-check'
+    }
+  });
+  if(jQuery('#collage_description').length > 0){
     jQuery("#collage_description").markItUp(mySettings);
     jQuery.updateCollagePreview();
-}
-jQuery("#annotation_annotation").markItUp(mySettings);
+  }
+  jQuery("#annotation_annotation").markItUp(mySettings);
 
-    jQuery.observeToolbar();
+  jQuery.observeToolbar();
 
-    if(jQuery('.just_born').length > 0){
-        // New collage. Deactivate control.
-        jQuery.cookie('hide-non-annotated-text', null);
-    }
+  if(jQuery('.just_born').length > 0){
+    // New collage. Deactivate control.
+    jQuery.cookie('hide-non-annotated-text', null);
+  }
 
+  if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
+    jQuery('#hide-non-annotated-text').attr('checked',true);
+  }
+
+  jQuery('#hide-non-annotated-text').click(function(e){
     if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
-        jQuery('#hide-non-annotated-text').attr('checked',true);
+      jQuery.cookie('hide-non-annotated-text',null);
+      jQuery('#hide-non-annotated-text').attr('checked',false);
+    } else {
+      jQuery.cookie('hide-non-annotated-text','hide',{
+        expires: 365
+      });
+      jQuery('#hide-non-annotated-text').attr('checked',true);
     }
+  });
 
-    jQuery('#hide-non-annotated-text').click(function(e){
-        if(jQuery.cookie('hide-non-annotated-text') == 'hide'){
-            jQuery.cookie('hide-non-annotated-text',null);
-            jQuery('#hide-non-annotated-text').attr('checked',false);
-        } else {
-            jQuery.cookie('hide-non-annotated-text','hide',{
-                expires: 365
-            });
-            jQuery('#hide-non-annotated-text').attr('checked',true);
-        }
+  jQuery('#cancel-annotation a').click(function(e){
+    e.preventDefault();
+    // close tip.
+    jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
+    jQuery('#new-annotation-start').html('');
+    jQuery('#new-annotation-end').html('');
+  });
+
+  if(jQuery('.collage-id').length > 0){
+    jQuery.observeLayers();
+    jQuery.initializeAnnotations();
+    jQuery(".tagging-autofill-layers").live('click',function(){
+      jQuery(this).tagSuggest({
+        url: jQuery.rootPath() + 'annotations/autocomplete_layers',
+        separator: ', ',
+        delay: 500
+      });
     });
-
-    jQuery('#cancel-annotation a').click(function(e){
-        e.preventDefault();
-        // close tip.
-        jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
-        jQuery('#new-annotation-start').html('');
-        jQuery('#new-annotation-end').html('');
-    });
-
-    if(jQuery('.collage-id').length > 0){
-        jQuery.observeLayers();
-        jQuery.initializeAnnotations();
-        jQuery(".tagging-autofill-layers").live('click',function(){
-            jQuery(this).tagSuggest({
-                url: jQuery.rootPath() + 'annotations/autocomplete_layers',
-                separator: ', ',
-                delay: 500
-            });
-        });
-    }
+  }
 });

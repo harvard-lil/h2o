@@ -11,6 +11,14 @@ class TextBlocksController < BaseController
     allow :owner, :of => :text_block, :to => [:destroy, :edit, :update]
   end
 
+  # GET /text_blocks/1/edit
+  def edit
+  end
+
+  def description_preview
+    render :text => TextBlock.format_content(params[:preview]), :layout => false
+  end
+
   def metadata
     #FIXME
   end
@@ -19,8 +27,8 @@ class TextBlocksController < BaseController
     super TextBlock
   end
 
-  # GET /cases/new
-  # GET /cases/new.xml
+  # GET /text_blocks/new
+  # GET /text_blocks/new.xml
   def new
     @text_block = TextBlock.new
     @text_block.build_metadatum
@@ -106,6 +114,36 @@ class TextBlocksController < BaseController
     render :json => TextBlock.autocomplete_for(:tags,params[:tag])
   end
 
+  # PUT /text_blocks/1
+  # PUT /text_blocks/1.xml
+  def update
+    unless params[:text_block][:tag_list].blank?
+      params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
+    end
+    respond_to do |format|
+      if @text_block.update_attributes(params[:text_block])
+        flash[:notice] = 'Text Block was successfully updated.'
+        format.html { redirect_to(text_blocks_url) }
+        format.xml  { head :ok }
+      else
+        format.html { render :action => "edit" }
+        format.xml  { render :xml => @text_block.errors, :status => :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /text_blocks/1
+  # DELETE /text_blocks/1.xml
+  def destroy
+    @text_block.destroy
+    respond_to do |format|
+      format.html { redirect_to(text_blocks_url) }
+      format.xml  { head :ok }
+    end
+  end
+
+  private 
+
   def is_text_block_admin
     if current_user
       @is_text_block_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
@@ -123,8 +161,8 @@ class TextBlocksController < BaseController
   end
 
   def prep_resources
-    add_javascripts ['jquery.tablesorter.min']
-    add_stylesheets ['tablesorter-h2o-theme/style']
+    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js','text_blocks']
+    add_stylesheets ['tablesorter-h2o-theme/style','markitup/markitup/style.css','markitup/textile/style.css']
   end
 
 end

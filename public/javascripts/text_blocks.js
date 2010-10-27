@@ -7,7 +7,7 @@ jQuery.extend({
         dataType: 'script',
         url: jQuery(this).attr('href'),
         success: function(html){
-          jQuery('#case-list').html(html);
+          jQuery('#text_block-list').html(html);
           jQuery('.tablesorter').tablesorter();
           jQuery('.button').button();
           jQuery.observePagination();
@@ -16,15 +16,31 @@ jQuery.extend({
     });
   }
 });
+
 jQuery(document).ready(function(){
   jQuery.observeToolbar();
   jQuery('.button').button();
+
+  if(jQuery('#text_block_description').length > 0 && jQuery('#text_block_mime_type').val() == 'text/plain'){
+    jQuery("#text_block_description").markItUp(mySettings);
+  }
+
+  jQuery('#text_block_mime_type').change(function(e){
+    e.preventDefault();
+    if(jQuery(this).val() == 'text/plain'){
+      jQuery("#text_block_description").markItUp(mySettings);
+    } else {
+      jQuery('#text_block_description').markItUpRemove();
+    }
+  });
 
   jQuery('.per-page-selector').change(function(){
     jQuery.cookie('per_page', jQuery(this).val(), {expires: 365});
     document.location = document.location;
   });
   jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
-  jQuery.observeTagAutofill('.tagging-autofill-tags','cases');
+  jQuery.observeTagAutofill('.tagging-autofill-tags','text_blocks');
+  jQuery('.tablesorter').tablesorter();
   jQuery.observePagination();
+
 });

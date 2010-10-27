@@ -33,7 +33,10 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at', :dependent => :destroy
 
-  before_create :prepare_content
+  # Create the content we're going to annotate. This is a might bit inefficient, mainly because
+  # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing
+  # the creation of a contentless collage, though.
+  before_validation_on_create :prepare_content
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
@@ -127,9 +130,7 @@ class Collage < ActiveRecord::Base
   private 
 
   def prepare_content
-    # In the case of a cloned collage, we don't need to regenerate these caches. Only regenerate if it's truly new.
     if self.content.blank?
-#      logger.warn('CREATED COLLAGE CACHES!')
       content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
       doc = Nokogiri::HTML.parse(content_to_prepare)
       doc.xpath('//*').each do |child|
