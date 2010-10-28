@@ -21,8 +21,12 @@ jQuery(document).ready(function(){
   jQuery.observeToolbar();
   jQuery('.button').button();
 
-  if(jQuery('#text_block_description').length > 0 && jQuery('#text_block_mime_type').val() == 'text/plain'){
-    jQuery("#text_block_description").markItUp(mySettings);
+  if(jQuery('#text_block_description').length > 0 ){
+    if(jQuery('#text_block_mime_type').val() == 'text/plain'){
+      jQuery("#text_block_description").markItUp(mySettings);
+    } else if(jQuery(this).val() == 'text/html'){
+      jQuery("#text_block_description").markItUp(myHtmlSettings);
+    }
   }
 
   jQuery('#text_block_mime_type').change(function(e){

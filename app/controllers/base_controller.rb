@@ -41,6 +41,10 @@ class BaseController < ApplicationController
   end
 
   def preview_html_content
+    render :text => Annotation.format_html(params[:data]), :layout => false
+  end
+
+  def preview_css_content
     render :text => Annotation.format_content(params[:data]), :layout => false
   end
 

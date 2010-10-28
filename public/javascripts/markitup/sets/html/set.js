@@ -11,6 +11,7 @@
 // ----------------------------------------------------------------------------
 myHtmlSettings = {
 	previewParserPath:	'/base/preview_html_content', 
+  previewAutoRefresh: true,
 	onShiftEnter:	{keepDefault:false, replaceWith:'<br />\n'},
 	onCtrlEnter:	{keepDefault:false, openWith:'\n<p>', closeWith:'</p>\n'},
 	onTab:			{keepDefault:false, openWith:'	 '},
@@ -35,6 +36,6 @@ myHtmlSettings = {
 		{name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...' },
 		{separator:'---------------' },
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
-                {name:'Preview',call:'preview',className:'preview'}
+    {name:'Preview',call:'preview',className:'preview'}
 	]
 }

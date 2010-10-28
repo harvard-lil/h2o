@@ -1,5 +1,6 @@
 module RedclothExtensions
   module ClassMethods
+
     def format_content(*args)
       doc = RedCloth.new(args.join(' '))
       doc.sanitize_html = true
@@ -14,6 +15,15 @@ module RedclothExtensions
       end
       output
     end
+
+    def format_html(*args)
+      ActionController::Base.helpers.sanitize(
+        args.join(' '), 
+        :tags => %w|h1 h2 h3 h4 h5 h6 ul li ol a p strong em del strike img div|, 
+        :attributes => %w|class src href height width target title|
+      )
+    end
+
   end
   module InstanceMethods
     def you_win
