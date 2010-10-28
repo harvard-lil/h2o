@@ -28,7 +28,11 @@ jQuery(document).ready(function(){
   jQuery('#text_block_mime_type').change(function(e){
     e.preventDefault();
     if(jQuery(this).val() == 'text/plain'){
+      jQuery('#text_block_description').markItUpRemove();
       jQuery("#text_block_description").markItUp(mySettings);
+    } else if(jQuery(this).val() == 'text/html'){
+      jQuery('#text_block_description').markItUpRemove();
+      jQuery("#text_block_description").markItUp(myHtmlSettings);
     } else {
       jQuery('#text_block_description').markItUpRemove();
     }

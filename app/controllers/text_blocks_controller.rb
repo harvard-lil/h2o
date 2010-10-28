@@ -15,10 +15,6 @@ class TextBlocksController < BaseController
   def edit
   end
 
-  def description_preview
-    render :text => TextBlock.format_content(params[:preview]), :layout => false
-  end
-
   def metadata
     #FIXME
   end
@@ -161,7 +157,7 @@ class TextBlocksController < BaseController
   end
 
   def prep_resources
-    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js','text_blocks']
+    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js','markitup/sets/html/set.js','text_blocks']
     add_stylesheets ['tablesorter-h2o-theme/style','markitup/markitup/style.css','markitup/textile/style.css']
   end
 

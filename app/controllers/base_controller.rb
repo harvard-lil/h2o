@@ -20,7 +20,6 @@ class BaseController < ApplicationController
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
     end
-
   end
 
   def update_visibility
@@ -35,7 +34,14 @@ class BaseController < ApplicationController
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
     end
+  end
 
+  def preview_textile_content
+    render :text => Annotation.format_content(params[:data]), :layout => false
+  end
+
+  def preview_html_content
+    render :text => Annotation.format_content(params[:data]), :layout => false
   end
 
   def playlist_admin_preload
