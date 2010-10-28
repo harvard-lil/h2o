@@ -158,7 +158,7 @@ class TextBlocksController < BaseController
 
   def prep_resources
     add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.pack.js','markitup/sets/textile/set.js','markitup/sets/html/set.js','text_blocks']
-    add_stylesheets ['tablesorter-h2o-theme/style','markitup/markitup/style.css','markitup/textile/style.css']
+    add_stylesheets ['tablesorter-h2o-theme/style','markitup/markitup/style.css','/javascripts/markitup/sets/html/style.css','/javascripts/markitup/sets/textile/style.css']
   end
 
 end
