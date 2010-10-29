@@ -23,8 +23,8 @@ jQuery(document).ready(function(){
 
   if(jQuery('#text_block_description').length > 0 ){
     if(jQuery('#text_block_mime_type').val() == 'text/plain'){
-      jQuery("#text_block_description").markItUp(mySettings);
-    } else if(jQuery(this).val() == 'text/html'){
+      jQuery("#text_block_description").markItUp(myTextileSettings);
+    } else if(jQuery('#text_block_mime_type').val() == 'text/html'){
       jQuery("#text_block_description").markItUp(myHtmlSettings);
     }
   }
@@ -33,7 +33,7 @@ jQuery(document).ready(function(){
     e.preventDefault();
     if(jQuery(this).val() == 'text/plain'){
       jQuery('#text_block_description').markItUpRemove();
-      jQuery("#text_block_description").markItUp(mySettings);
+      jQuery("#text_block_description").markItUp(myTextileSettings);
     } else if(jQuery(this).val() == 'text/html'){
       jQuery('#text_block_description').markItUpRemove();
       jQuery("#text_block_description").markItUp(myHtmlSettings);

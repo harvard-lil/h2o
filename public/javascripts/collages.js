@@ -205,7 +205,7 @@ annotationButton: function(e,annotationId,ids){
                                             }
                                         }
                                     });
-                                    jQuery("#annotation_annotation").markItUp(mySettings);
+                                    jQuery("#annotation_annotation").markItUp(myTextileSettings);
 
                                     /*                    jQuery(document).bind('keypress','ctrl+shift+k',
                         function(e){
@@ -395,7 +395,7 @@ wordEvent: function(e){
                     jQuery('#spinner_block').hide();
                     jQuery('#annotation-form').html(html);
                     jQuery('#annotation-form').dialog('open');
-                    jQuery("#annotation_annotation").markItUp(mySettings);
+                    jQuery("#annotation_annotation").markItUp(myTextileSettings);
                     /*            jQuery('#annotation_annotation').bind('keypress','alt+k',function(e){
               alert('pressed!');
               jQuery.submitAnnotation()
@@ -468,10 +468,10 @@ jQuery(document).ready(function(){
     }
   });
   if(jQuery('#collage_description').length > 0){
-    jQuery("#collage_description").markItUp(mySettings);
+    jQuery("#collage_description").markItUp(myTextileSettings);
     jQuery.updateCollagePreview();
   }
-  jQuery("#annotation_annotation").markItUp(mySettings);
+  jQuery("#annotation_annotation").markItUp(myTextileSettings);
 
   jQuery.observeToolbar();
 

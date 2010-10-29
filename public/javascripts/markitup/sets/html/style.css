@@ -2,58 +2,58 @@
 // markItUp!
 // By Jay Salvat - http://markitup.jaysalvat.com/
 // ------------------------------------------------------------------*/
-.markItUp .markItUpButton1 a {
+.html .markItUp .markItUpButton1 a {
 	background-image:url(images/h1.png); 
 }
-.markItUp .markItUpButton2 a {
+.html .markItUp .markItUpButton2 a {
 	background-image:url(images/h2.png); 
 }
-.markItUp .markItUpButton3 a {
+.html .markItUp .markItUpButton3 a {
 	background-image:url(images/h3.png); 
 }
-.markItUp .markItUpButton4 a {
+.html .markItUp .markItUpButton4 a {
 	background-image:url(images/h4.png); 
 }
-.markItUp .markItUpButton5 a {
+.html .markItUp .markItUpButton5 a {
 	background-image:url(images/h5.png); 
 }
-.markItUp .markItUpButton6 a {
+.html .markItUp .markItUpButton6 a {
 	background-image:url(images/h6.png); 
 }
-.markItUp .markItUpButton7 a {
+.html .markItUp .markItUpButton7 a {
 	background-image:url(images/paragraph.png); 
 }
 
-.markItUp .markItUpButton8 a {
+.html .markItUp .markItUpButton8 a {
 	background-image:url(images/bold.png);
 }
-.markItUp .markItUpButton9 a {
+.html .markItUp .markItUpButton9 a {
 	background-image:url(images/italic.png);
 }
-.markItUp .markItUpButton10 a {
+.html .markItUp .markItUpButton10 a {
 	background-image:url(images/stroke.png);
 }
 
-.markItUp .markItUpButton11 a {
+.html .markItUp .markItUpButton11 a {
 	background-image:url(images/list-bullet.png);
 }
-.markItUp .markItUpButton12 a {
+.html .markItUp .markItUpButton12 a {
 	background-image:url(images/list-numeric.png);
 }
-.markItUp .markItUpButton13 a {
+.html .markItUp .markItUpButton13 a {
 	background-image:url(images/list-item.png);
 }
 
-.markItUp .markItUpButton14 a {
+.html .markItUp .markItUpButton14 a {
 	background-image:url(images/picture.png); 
 }
-.markItUp .markItUpButton15 a {
+.html .markItUp .markItUpButton15 a {
 	background-image:url(images/link.png);
 }
 
-.markItUp .clean a {
+.html .markItUp .clean a {
 	background-image:url(images/clean.png);
 }
-.markItUp .preview a {
+.html .markItUp .preview a {
 	background-image:url(images/preview.png);
 }

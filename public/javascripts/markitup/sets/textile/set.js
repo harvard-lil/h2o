@@ -10,7 +10,8 @@
 // -------------------------------------------------------------------
 // Feel free to add more tags
 // -------------------------------------------------------------------
-mySettings = {
+myTextileSettings = {
+  nameSpace: 'textile',
   previewParserPath:	'/base/preview_textile_content',
   previewAutoRefresh: true,
   onShiftEnter:		{keepDefault:false, replaceWith:'\n\n'},

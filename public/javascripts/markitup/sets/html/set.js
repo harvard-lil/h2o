@@ -10,6 +10,7 @@
 // Basic set. Feel free to add more tags
 // ----------------------------------------------------------------------------
 myHtmlSettings = {
+  nameSpace: 'html',
 	previewParserPath:	'/base/preview_html_content', 
   previewAutoRefresh: true,
 	onShiftEnter:	{keepDefault:false, replaceWith:'<br />\n'},
