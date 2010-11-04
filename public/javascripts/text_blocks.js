@@ -51,4 +51,18 @@ jQuery(document).ready(function(){
   jQuery('.tablesorter').tablesorter();
   jQuery.observePagination();
 
+  jQuery('form .metadata ol').toggle();
+  jQuery('form .metadata legend').bind({
+    click: function(e){
+      e.preventDefault();
+      jQuery('form .metadata ol').toggle();
+    },
+    mouseover: function(){
+      jQuery(this).css('cursor','hand');
+    },
+    mouseout: function(){
+      jQuery(this).css('cursor','pointer');
+    }
+  });
+
 });

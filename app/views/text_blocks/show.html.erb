@@ -1,0 +1,14 @@
+<div id="text_block-show">
+  <div class="info_block">
+    <h1 class="yellow_title_med"><%=h @text_block %></h1>
+    <% unless @text_block.metadatum.blank? %>
+      <ul>
+        <% @text_block.metadatum.class.columns.collect{|c| c.name}.each do|col| %>
+          <li><%= col.titleize %>: <%= @text_block.metadatum.send(col.to_sym) %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <%= @text_block.description %>
+</div>

@@ -13,15 +13,15 @@ module H2oModelExtensions
       to_validate = self.columns.reject{|col| ! [:string,:text].include?(col.type)}
       valid_output = ''
       to_validate.each do|val_col|
-        logger.warn("Auto validating: #{val_col.name}")
+        #logger.warn("Auto validating: #{val_col.name}")
         valid_output += "validates_length_of :#{val_col.name}, :maximum => #{val_col.limit}, :allow_blank => #{val_col.null}\n"
         if ! val_col.null
-          logger.warn("Auto validating: #{val_col.name} for presence")
+          #logger.warn("Auto validating: #{val_col.name} for presence")
           valid_output += "validates_presence_of :#{val_col.name}\n"
         end
       end
 
-      logger.warn('Extra validators:' + valid_output)
+      #logger.warn('Extra validators:' + valid_output)
 
       #This seems ass-backwards, but works well.
       model.class_eval valid_output

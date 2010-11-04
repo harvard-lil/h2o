@@ -11,8 +11,15 @@ class TextBlocksController < BaseController
     allow :owner, :of => :text_block, :to => [:destroy, :edit, :update]
   end
 
+  def show
+
+  end
+
   # GET /text_blocks/1/edit
   def edit
+    if @text_block.metadatum.blank?
+      @text_block.build_metadatum
+    end
   end
 
   def metadata
@@ -54,6 +61,7 @@ class TextBlocksController < BaseController
         format.html { redirect_to(text_blocks_url) }
         format.xml  { render :xml => @text_block, :status => :created, :location => @text_block }
       else
+        @text_block.build_metadatum
         format.html { render :action => "new" }
         format.xml  { render :xml => @text_block.errors, :status => :unprocessable_entity }
       end

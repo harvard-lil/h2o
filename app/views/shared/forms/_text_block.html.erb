@@ -19,9 +19,11 @@
       :input_html => {:class => 'tagging-autofill-tags'}
     %>
     <hr />
-    <% form.semantic_fields_for :metadatum do |md| %>
-      <%= md.inputs :contributor, :coverage, :creator, :date, :description, :format, :identifier,:language,:publisher,:relation,:rights,:source,:subject,:title,:dc_type, :name => 'Metadata' %>
+    <div class="metadata">
+      <% form.semantic_fields_for :metadatum do |md| %>
+      <%= md.inputs :contributor, :coverage, :creator, :date, :description, :format, :identifier,:language,:publisher,:relation,:rights,:source,:subject,:title,:dc_type, :name => 'Metadata (click to expand)' %>
     <% end %>
+  </div>
     <hr />
     <%= form.input :public %>
     <%= form.input :active %>

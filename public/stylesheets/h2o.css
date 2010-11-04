@@ -630,3 +630,7 @@ ul.lineage, .lineage li{
     margin-left: 75px;
     margin-bottom: 0px;
 }
+
+.markItUpContainer{
+  clear:both;
+}
