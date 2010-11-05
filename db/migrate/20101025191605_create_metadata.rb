@@ -19,7 +19,7 @@ class CreateMetadata < ActiveRecord::Migration
       t.string :source, :limit => 255
       t.string :subject, :limit => 255
       t.string :title, :limit => 255
-      t.string :dc_type, :limit => 255
+      t.string :dc_type, :limit => 255, :default => 'text'
       t.string :classifiable_type, :limit => 255
       t.integer :classifiable_id
 

@@ -20,9 +20,7 @@
     %>
     <hr />
     <div class="metadata">
-      <% form.semantic_fields_for :metadatum do |md| %>
-      <%= md.inputs :contributor, :coverage, :creator, :date, :description, :format, :identifier,:language,:publisher,:relation,:rights,:source,:subject,:title,:dc_type, :name => 'Metadata (click to expand)' %>
-    <% end %>
+      <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
   </div>
     <hr />
     <%= form.input :public %>

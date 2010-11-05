@@ -1,0 +1,9 @@
+<div class="metadatum">
+  <ul>
+    <% Metadatum::DISPLAY_FIELDS.each do|col| %>
+      <% unless metadatum.send(col).blank? %>
+        <li><%=h col.to_s.titleize %>: <%=h metadatum.send(col) %></li>
+      <% end %>
+    <% end %>
+  </ul>
+</div>

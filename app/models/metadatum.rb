@@ -3,6 +3,31 @@ class Metadatum < ActiveRecord::Base
   include AuthUtilities
   belongs_to :classifiable, :polymorphic => true
 
+  # From http://dublincore.org/documents/dces/
+
+  DISPLAY_FIELDS = [:contributor, :coverage, :creator, :date, :description, :format, :identifier, :language, :publisher, :relation, :rights, :source, :subject, :title, :dc_type]
+
+  # From http://dublincore.org/documents/dcmi-type-vocabulary/
+  DCMI_TYPE = {
+    'Collection' => 'Collection', 
+    'Dataset' => 'Dataset', 
+    'Event' => 'Event',  
+    'Image' => 'Image', 
+    'InteractiveResource' => 'Interactive Resource',
+    'MovingImage' => 'Video',
+    'PhysicalObject' => 'Physical Object',
+    'Service' => 'Service',
+    'Software' => 'Software',
+    'Sound' => 'Sound',
+    'Text' => 'Text'
+  }
+
+  def self.dcmi_type_select_options
+    options = DCMI_TYPE.keys.collect{|t| [DCMI_TYPE[t],t]}
+    options.unshift(['','-select one-'])
+    return options
+  end
+
   private
   
   validate do |rec|
