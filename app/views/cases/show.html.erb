@@ -25,7 +25,7 @@
     <a id="hide" href="#">hide</a>
     <h2><%=h @case.display_name %></h2>
     <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'button') %>
-    <% if current_user && current_user.case_manager? %> 
+    <% if current_user.case_manager? %> 
       <%= link_to('edit', edit_case_path(@case), :class => 'button' ) %>
     <% end %>
   </div>
