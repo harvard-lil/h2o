@@ -634,3 +634,10 @@ ul.lineage, .lineage li{
 .markItUpContainer{
   clear:both;
 }
+
+.metadata .field-container{
+  padding: 10px;
+  background-color: #e4e4e4;
+
+}
+
