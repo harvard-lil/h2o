@@ -5,7 +5,7 @@
         <%= md.input :contributor, :hint => 'An entity responsible for making contributions to the resource.', :required => false %>
         <%= md.input :coverage, :hint => 'The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.' , :required => false %>
         <%= md.input :creator, :hint => 'An entity primarily responsible for making the resource.', :required => false  %>
-        <%= md.input :date, :hint => 'A point or period of time associated with an event in the lifecycle of the resource.', :required => false  %>
+        <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource.', :required => false  %>
         <%= md.input :description, :hint => 'An account of the resource. Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.', :required => false  %>
 
         <%= md.input :format, :hint => 'The file format, physical medium, or dimensions of the resource.', :required => false  %>

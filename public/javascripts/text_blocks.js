@@ -51,6 +51,6 @@ jQuery(document).ready(function(){
   jQuery('.tablesorter').tablesorter();
   jQuery.observePagination();
   jQuery.observeMetadataForm();
-
+  jQuery.observeMetadataDisplay();
 
 });

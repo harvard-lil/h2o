@@ -4,7 +4,6 @@ $.noConflict();
 
 jQuery(function() {
 
-
     function updateTips(t) {
         tips.text(t).effect("highlight",{},1500);
     }
@@ -53,6 +52,13 @@ jQuery(function() {
         mouseout: function(){
           jQuery(this).css({cursor: 'pointer'});
         }
+      });
+    },
+
+    observeMetadataDisplay: function(){
+      jQuery('.metadatum-display').click(function(e){
+          e.preventDefault();
+          jQuery(this).find('ul').toggle();
       });
     },
     

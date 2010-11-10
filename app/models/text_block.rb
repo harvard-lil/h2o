@@ -44,6 +44,7 @@ class TextBlock < ActiveRecord::Base
 
   #Export the content that's annotated in a Collage
   def content
+    #FIXME - render content based on the mime type
     description
   end
 

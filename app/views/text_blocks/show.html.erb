@@ -6,6 +6,7 @@
     <% end %>
   </div>
 
+  <% #FIXME - render output depending on mime type. %>
   <%= @text_block.description %>
 </div>
 
@@ -14,7 +15,7 @@
     <a id="hide" href="#">hide</a>
     <h2><%=h @text_block.display_name %></h2>
     <%= link_to('collage this', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'button') %>
-    <% if current_user.has_role?(:text_block_manager) %> 
+    <% if @is_text_block_admin ||  current_user.has_role?(:owner) %> 
       <%= link_to('edit', edit_text_block_path(@text_block), :class => 'button' ) %>
     <% end %>
   </div>

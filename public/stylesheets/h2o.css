@@ -638,6 +638,34 @@ ul.lineage, .lineage li{
 .metadata .field-container{
   padding: 10px;
   background-color: #e4e4e4;
-
 }
 
+.metadatum-display ul{
+  margin: 0px;
+  padding: 0px;
+}
+
+.metadatum-display fieldset{
+  padding: 0px;
+}
+
+.metadatum-display li{
+  list-style-type: none;
+  float: left;
+  border: 1px solid #cccccc;
+  margin: 5px;
+  padding: 0px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+
+.metadatum-display span.label{
+  background: #e4e4e4;
+  padding: 5px;
+  float: left;
+}
+
+.metadatum-display span.data{
+  float: left;
+  padding: 5px;
+}
