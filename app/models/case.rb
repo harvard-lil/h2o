@@ -52,7 +52,7 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes)
 
-  searchable do
+  searchable(:include => [:tags, :collages, :case_citations, :case_docket_numbers, :case_jurisdiction]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true

@@ -1,6 +1,6 @@
 <div id="text_block-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
-  <h1><%= (@text_block.new_record?) ? 'Add New Text Block' : "Edit #{@text_block}" %></h1>
+  <h1><%=h (@text_block.new_record?) ? 'Add New Text Block' : %Q|Edit "#{@text_block}"| %></h1>
 <% end %>
 <% semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
   <% form.inputs do %>

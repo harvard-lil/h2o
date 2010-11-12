@@ -5,9 +5,7 @@
       <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
     <% end %>
   </div>
-
-  <% #FIXME - render output depending on mime type. %>
-  <%= @text_block.description %>
+  <%= @text_block.content %>
 </div>
 
 <% if current_user %>

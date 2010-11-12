@@ -42,15 +42,21 @@ class TextBlock < ActiveRecord::Base
     name
   end
 
-  #Export the content that's annotated in a Collage
+  #Export the content that gets annotated in a Collage - also, render the content for display.
+  #As always, the content method should export valid html/XHTML.
   def content
-    #FIXME - render content based on the mime type
-    description
+    if mime_type == 'text/plain'
+      self.class.format_content(description)
+    elsif mime_type == 'text/html'
+      self.class.format_html(description)
+    else
+      self.class.format_content(description)
+    end
   end
 
   alias :to_s :display_name
 
-  searchable do
+  searchable(:include => [:metadatum,:collages,:tags]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
