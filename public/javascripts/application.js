@@ -40,6 +40,12 @@ jQuery(function() {
     },
 
     observeMetadataForm: function(){
+      jQuery('.datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        yearRange: 'c-300:c',
+        dateFormat: 'yy-mm-dd'
+      });
       jQuery('form .metadata ol').toggle();
       jQuery('form .metadata legend').bind({
         click: function(e){

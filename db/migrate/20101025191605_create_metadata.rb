@@ -12,14 +12,14 @@ class CreateMetadata < ActiveRecord::Migration
       end
       t.string :format, :limit => 255
       t.string :identifier, :limit => 255
-      t.string :language, :limit => 255
+      t.string :language, :limit => 255, :default => 'en'
       t.string :publisher, :limit => 255
       t.string :relation, :limit => 255
       t.string :rights, :limit => 255
       t.string :source, :limit => 255
       t.string :subject, :limit => 255
       t.string :title, :limit => 255
-      t.string :dc_type, :limit => 255, :default => 'text'
+      t.string :dc_type, :limit => 255, :default => 'Text'
       t.string :classifiable_type, :limit => 255
       t.integer :classifiable_id
 

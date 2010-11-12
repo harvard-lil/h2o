@@ -23,9 +23,7 @@ class Metadatum < ActiveRecord::Base
   }
 
   def self.dcmi_type_select_options
-    options = DCMI_TYPE.keys.collect{|t| [DCMI_TYPE[t],t]}
-    options.unshift(['','-select one-'])
-    return options
+    DCMI_TYPE.keys.collect{|t| [DCMI_TYPE[t],t]}
   end
 
   private

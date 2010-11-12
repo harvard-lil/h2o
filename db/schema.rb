@@ -352,7 +352,7 @@ ActiveRecord::Schema.define(:version => 20101025191605) do
     t.string   "source"
     t.string   "subject"
     t.string   "title"
-    t.string   "dc_type"
+    t.string   "dc_type",                              :default => "Text"
     t.string   "classifiable_type"
     t.integer  "classifiable_id"
     t.datetime "created_at"

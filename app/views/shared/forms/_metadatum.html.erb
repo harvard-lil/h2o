@@ -2,23 +2,24 @@
   <div class="field-container">
     <% form.semantic_fields_for :metadatum do |md| %>
       <% md.inputs :name => 'Metadata (click to expand)' do %>
+        <h2>Common</h2>
+        <%= md.input :creator, :hint => 'An entity primarily responsible for making the resource- usually the author(s).', :required => false  %>
+        <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource. YYYY-MM-DD format.', :required => false, :input_html => {:class => 'datepicker'}  %>
+        <%= md.input :language, :as => 'select', :collection => LocalizedLanguageSelect.priority_languages_array([:en,:es,:fr,:de,:ru,:zh]), :hint => 'The language of the resource.', :required => false  %>
+        <%= md.input :rights, :hint => 'Information about rights held in and over the resource- for instance the license it\'s published under.', :required => false  %>
+
+        <h2>Less common</h2>
         <%= md.input :contributor, :hint => 'An entity responsible for making contributions to the resource.', :required => false %>
         <%= md.input :coverage, :hint => 'The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.' , :required => false %>
-        <%= md.input :creator, :hint => 'An entity primarily responsible for making the resource.', :required => false  %>
-        <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource.', :required => false  %>
         <%= md.input :description, :hint => 'An account of the resource. Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.', :required => false  %>
-
         <%= md.input :format, :hint => 'The file format, physical medium, or dimensions of the resource.', :required => false  %>
-        <%= md.input :identifier, :hint => 'An unambiguous reference to the resource within a given context. You should probably leave empty, we will use this items URL as the identifier.', :required => false  %>
-
-        <%= md.input :language, :hint => 'A language of the resource.', :required => false  %>
+        <%= md.input :identifier, :hint => 'An unambiguous reference to the resource within a given context. You should probably leave this field empty, we will use its URL as the identifier.', :required => false  %>
         <%= md.input :publisher, :hint => 'An entity responsible for making the resource available.', :required => false  %>
         <%= md.input :relation, :hint => 'A related resource.', :required => false  %>
-        <%= md.input :rights, :hint => 'Information about rights held in and over the resource.', :required => false  %>
         <%= md.input :source, :hint => 'A related resource from which the described resource is derived.', :required => false  %>
         <%= md.input :subject, :hint => 'The topic of the resource.', :required => false  %>
         <%= md.input :title, :hint => 'A name given to the resource. You should probably leave this empty, we will auto-generate the title for you.', :required => false  %>
-        <%= md.input :dc_type, :hint => 'The nature or genre of the resource.', :as => :select, :collection => Metadatum.dcmi_type_select_options, :label => 'Type', :required => false  %>
+        <%= md.input :dc_type, :hint => 'The nature or genre of the resource.', :as => :select, :collection => Metadatum.dcmi_type_select_options, :label => 'Type', :required => false, :default => 'Text' %>
         <p>For more information on metadata, please see: <a href="http://dublincore.org/documents/dces/" target="_blank">Dublin Core Metadata Element Set, Version 1.1</a></p>
       <% end %>
     <% end %>
