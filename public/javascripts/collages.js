@@ -255,7 +255,8 @@ hideEmptyElements: function(){
     // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
     jQuery('#annotatable-content tt:hidden').remove();
     // FIXME - One more look at this to ensure we catch stuff.
-    jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul').filter(function(){
+    //jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul, #annotatable-content blockquote, #annotatable-content ol, #annotatable-content h1').filter(function(){
+    jQuery('#annotatable-content').find('center,p,li,ul,blockquote,ol,h1,h2,h3,h4,h5').filter(function(){
         var text = jQuery(this).text();
         var collapsedText = jQuery.trim11(text);
 //        if(collapsedText.length > 0){
