@@ -12,7 +12,6 @@ class TextBlocksController < BaseController
   end
 
   def show
-
   end
 
   # GET /text_blocks/1/edit

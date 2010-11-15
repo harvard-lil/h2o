@@ -1,7 +1,6 @@
 class CreateItemPlaylists < ActiveRecord::Migration
   def self.up
     create_table :item_playlists do |t|
-      # TODO: get rid of title.
       t.string  :title
       t.string  :output_text,   :limit => 1024
       t.string  :url,   :limit => 1024

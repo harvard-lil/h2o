@@ -254,7 +254,8 @@ showPleaseWait: function(){
 hideEmptyElements: function(){
     // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
     jQuery('#annotatable-content tt:hidden').remove();
-    jQuery('#annotatable-content center, #annotatable-content p').filter(function(){
+    // FIXME - One more look at this to ensure we catch stuff.
+    jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul').filter(function(){
         var text = jQuery(this).text();
         var collapsedText = jQuery.trim11(text);
 //        if(collapsedText.length > 0){

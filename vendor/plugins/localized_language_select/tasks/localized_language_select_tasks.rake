@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'hpricot'
+#require 'hpricot'
 require 'open-uri'
 
 # Rake task for importing language names from Unicode.org's CLDR repository

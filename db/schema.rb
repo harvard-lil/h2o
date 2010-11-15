@@ -345,7 +345,7 @@ ActiveRecord::Schema.define(:version => 20101025191605) do
     t.string   "description",       :limit => 5242880
     t.string   "format"
     t.string   "identifier"
-    t.string   "language"
+    t.string   "language",                             :default => "en"
     t.string   "publisher"
     t.string   "relation"
     t.string   "rights"
