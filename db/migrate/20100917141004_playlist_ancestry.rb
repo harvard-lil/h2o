@@ -27,6 +27,7 @@ class PlaylistAncestry < ActiveRecord::Migration
     add_index :playlist_items, :playlist_item_parent_id
 
     pint = 1
+    Playlist.reset_column_information
     Playlist.find(:all, :order => 'title').each do |pl|
       pl.position = pint
       pl.save
