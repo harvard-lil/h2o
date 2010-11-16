@@ -21,6 +21,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :item_texts
 
+  map.resources :item_text_blocks
+
   map.resources :item_images
 
   map.resources :item_youtubes

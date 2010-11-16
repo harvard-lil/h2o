@@ -1,0 +1,2 @@
+class ItemTextBlocksController < ItemBaseController
+end

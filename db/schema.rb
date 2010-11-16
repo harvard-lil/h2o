@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101025191605) do
+ActiveRecord::Schema.define(:version => 20101116211524) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -304,6 +304,25 @@ ActiveRecord::Schema.define(:version => 20101025191605) do
   add_index "item_rotisserie_discussions", ["actual_object_type"], :name => "index_item_rotisserie_discussions_on_actual_object_type"
   add_index "item_rotisserie_discussions", ["public"], :name => "index_item_rotisserie_discussions_on_public"
   add_index "item_rotisserie_discussions", ["url"], :name => "index_item_rotisserie_discussions_on_url"
+
+  create_table "item_text_blocks", :force => true do |t|
+    t.string   "title"
+    t.string   "name",               :limit => 1024
+    t.string   "url",                :limit => 1024
+    t.text     "description"
+    t.boolean  "active",                             :default => true
+    t.boolean  "public",                             :default => true
+    t.string   "actual_object_type"
+    t.integer  "actual_object_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_text_blocks", ["active"], :name => "index_item_text_blocks_on_active"
+  add_index "item_text_blocks", ["actual_object_id"], :name => "index_item_text_blocks_on_actual_object_id"
+  add_index "item_text_blocks", ["actual_object_type"], :name => "index_item_text_blocks_on_actual_object_type"
+  add_index "item_text_blocks", ["public"], :name => "index_item_text_blocks_on_public"
+  add_index "item_text_blocks", ["url"], :name => "index_item_text_blocks_on_url"
 
   create_table "item_texts", :force => true do |t|
     t.string   "title"

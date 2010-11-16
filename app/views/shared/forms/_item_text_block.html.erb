@@ -1,0 +1,15 @@
+<h2><%= h (@object.new_record?) ? "Add this #{@base_model_class.to_s.singularize.downcase} to your playlist" : "Edit this #{@base_model_class.to_s.singularize.downcase} in your playlist" %></h2>
+<div id="error_block" class="error ui-corner-all" style="display: none;"></div>
+<% semantic_form_for @object, :html => {:class => "case_form"} do |form| %>
+  <% form.inputs do %>
+    <%= form.input :name,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+    <li></li>
+    <%= form.input :description,
+      :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+      :required => false
+  %>
+    <li></li>
+    <%= form.input(:url, :as => :hidden) %>
+    <%= hidden_field_tag 'container_id', params[:container_id] %>
+  <% end -%>
+<% end -%>
