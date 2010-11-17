@@ -19,6 +19,11 @@
         :label => 'Public?',
         :hint => 'If this collage is public, then others will be able to see and copy it.'
     %>
+      <%= form.input :active,
+        :required => false,
+        :as => :boolean,
+        :label => 'Active?'
+    %>
       <%= form.input :annotatable_type,
         :as => :hidden,
         #      :collection => Collage.annotatable_classes_select_options,

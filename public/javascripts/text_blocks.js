@@ -20,6 +20,7 @@ jQuery.extend({
 jQuery(document).ready(function(){
   jQuery.observeToolbar();
   jQuery('.button').button();
+  jQuery('.buttons .create').button();
 
   if(jQuery('#text_block_description').length > 0 ){
     if(jQuery('#text_block_mime_type').val() == 'text/plain'){

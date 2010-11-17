@@ -669,3 +669,9 @@ ul.lineage, .lineage li{
   float: left;
   padding: 5px;
 }
+
+.buttons input[type='submit']{
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px 10px 5px 10px;
+}
