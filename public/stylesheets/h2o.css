@@ -635,6 +635,10 @@ ul.lineage, .lineage li{
   clear:both;
 }
 
+.markItUpEditor{
+  height: 15em;
+}
+
 .metadata .field-container{
   padding: 10px;
   background-color: #e4e4e4;
@@ -674,4 +678,8 @@ ul.lineage, .lineage li{
   font-size: 14px;
   font-weight: bold;
   padding: 5px 10px 5px 10px;
+}
+
+.ui-button {
+  font-size: 12px;
 }
