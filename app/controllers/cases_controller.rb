@@ -157,8 +157,8 @@ class CasesController < BaseController
   private 
 
   def prep_resources
-    add_javascripts ['jquery.tablesorter.min','cases']
-    add_stylesheets ['tablesorter-h2o-theme/style','cases']
+    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.js','markitup/sets/html/set.js','cases']
+    add_stylesheets ['tablesorter-h2o-theme/style','/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/html/style.css','cases']
   end
 
   def load_case
