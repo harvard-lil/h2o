@@ -1,5 +1,27 @@
 namespace :h2o do
 
+  desc 'Fix evidence cases'
+  task(:fix_evidence_cases => :environment) do
+    
+    evcases = Case.tagged_with('evidence')
+
+    evcases.each do |ecase|
+      if ecase.content.scan(/<\/?p>|<br\s*\/?>|<\/?strong>|<\/?center>|<\/?b>/i).length > 0
+        #looks like it might already have HTML in it.
+#        puts ecase.content
+      else
+        #Needs to be converted.
+        ecase.collages.destroy_all
+
+        content = ecase.content
+        ecase.content = ActionController::Base.helpers.simple_format(content)
+        ecase.full_name = (ecase.full_name.blank?) ? ecase.short_name : ecase.full_name
+        puts ecase.inspect
+        ecase.save!
+      end
+    end
+  end
+
   task(:parse_test_new => :environment) do
     c = Case.find 5
     doc = Nokogiri::HTML.parse(c.content)
