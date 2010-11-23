@@ -7,7 +7,7 @@
     <%= form.input :name %>
     <% if @text_block.new_record? || @text_block.content_editable? %>
       <%= form.input :description, :label => 'Textual Content', :as => :text,
-        :hint => 'This is where you post the raw text that comprises the content of this text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags.'
+        :hint => 'This is where you post the raw HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click ' + image_tag('elements/preview.png') + '  in the toolbar to preview.'
       %>
       <%= form.input :mime_type, :label => 'Content Type', :as => :select, :collection =>  TextBlock.mime_type_select_options, :default => 'text/plain' %>
     <% end %>

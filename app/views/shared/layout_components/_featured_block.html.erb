@@ -11,7 +11,7 @@
         <li><%= link_to("#{Annotation.count} case annotations",collages_path) %></li>
         <li><%= link_to("#{Question.count} questions",question_instances_path) %></li>
         <li><%= link_to("#{RotisserieInstance.count} rotisseries",rotisserie_instances_path) %></li>
-        <li><%=  "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
+        <li><%=h "#{tcount = Case.find_by_sql('select count(*) as tcount from taggings')
           tcount && tcount[0]['tcount']} taggings" %></li>
       </ul>
 

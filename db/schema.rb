@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101116211524) do
+ActiveRecord::Schema.define(:version => 20101122230916) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(:version => 20101116211524) do
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false
-    t.string   "full_name",            :limit => 500,                       :null => false
+    t.string   "full_name",            :limit => 500
     t.date     "decision_date"
     t.string   "author",               :limit => 150
     t.integer  "case_jurisdiction_id"

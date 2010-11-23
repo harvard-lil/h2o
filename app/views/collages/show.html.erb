@@ -67,10 +67,10 @@
 
         <% if @collage.parent %>
           <% @collage.siblings.each do |sib| %>
-            <li class="depth-<%= sib.depth %>"><%= (@collage == sib) ? "&bull; #{@collage}" : link_to(sib,sib) %></li>
+            <li class="depth-<%= sib.depth %>"><%= (@collage == sib) ? "&bull; #{h @collage}" : link_to(sib,sib) %></li>
           <% end %>
         <% else %>
-            <li class="depth-<%= @collage.depth %>"><%= "&bull; #{@collage}" %></li>
+            <li class="depth-<%= @collage.depth %>"><%= "&bull; #{h @collage}" %></li>
         <% end %>
 
         <% @collage.children.each do|child| %>
@@ -140,9 +140,9 @@
           <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
         <% end %>
         <div class="meta">
-          <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
+          <span class="user"><span>created by</span> <%=h ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
           <% if ann.editors %>
-            <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
+            <span class="user"><span>edited by</span> <%=h ann.editors.collect{|c| c.login}.join(',') %></span>
           <% end %>
           <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
         </div>

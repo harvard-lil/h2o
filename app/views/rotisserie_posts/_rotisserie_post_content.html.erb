@@ -11,8 +11,8 @@ end
 if post.assigned? && !post.answered_by_user? then title_class = "post-assigned" end
 %>
 
-  <div class="ui-widget ui-widget-content post_container" style="margin-left: <%= left_margin %>px;">
-    <div class="post-title posts <%=title_class%>"><%= post.title %> by <%= post.author.login %> during round <%= post.round %>
+  <div class="ui-widget ui-widget-content post_container" style="margin-left: <%=h left_margin %>px;">
+    <div class="post-title posts <%=h title_class%>"><%=h post.title %> by <%=h post.author.login %> during round <%=h post.round %>
 
     </div>
     <div class="posts">
