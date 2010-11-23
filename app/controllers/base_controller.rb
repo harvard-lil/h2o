@@ -9,6 +9,10 @@ class BaseController < ApplicationController
 
   end
 
+  def raise_error
+    render :text => '', :status => :internal_server_error
+  end
+
   def update_role
     return_hash = Hash.new
     new_role = params[:role_string]
