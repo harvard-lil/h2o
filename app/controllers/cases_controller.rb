@@ -11,7 +11,7 @@ class CasesController < BaseController
 
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
-    allow :case_manager, :admin, :superadmin
+    allow :case_admin, :admin, :superadmin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
   end
 

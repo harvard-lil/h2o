@@ -35,10 +35,6 @@ class User < ActiveRecord::Base
     "#{login}"
   end
 
-  def case_manager?
-    self.has_role?(:case_manager) || self.has_role?(:admin)
-  end
-
   def cases
     self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.sort_by{|a| a.updated_at}
   end

@@ -683,3 +683,7 @@ ul.lineage, .lineage li{
 .ui-button {
   font-size: 12px;
 }
+
+table .ui-button{
+  font-size: 10px;
+}

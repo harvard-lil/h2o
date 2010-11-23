@@ -16,7 +16,8 @@
       :as => :string,
       :hint => 'Please define the tags for this text block in a comma-separated list.',
       :label => 'Tags',
-      :input_html => {:class => 'tagging-autofill-tags'}
+      :input_html => {:class => 'tagging-autofill-tags'},
+      :required => false
     %>
     <hr />
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
