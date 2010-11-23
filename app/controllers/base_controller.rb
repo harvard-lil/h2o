@@ -10,7 +10,8 @@ class BaseController < ApplicationController
   end
 
   def raise_error
-    render :text => '', :status => :internal_server_error
+    asdfasdfasdf
+#    render :text => '', :status => :internal_server_error
   end
 
   def update_role
