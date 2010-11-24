@@ -7,7 +7,7 @@ class TextBlocksController < BaseController
 
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
-    allow :text_block_manager, :admin, :superadmin
+    allow :text_block_admin, :admin, :superadmin
     allow :owner, :of => :text_block, :to => [:destroy, :edit, :update]
   end
 

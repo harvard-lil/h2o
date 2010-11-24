@@ -6,9 +6,9 @@
     </ul>
     <div id="annotation-info-<%= @annotation.id %>">
       <div class="meta">
-        <span class="user"><span>created by</span> <%=h @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %></span>
+        <span class="user"><span>Created by</span> <%=h @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>.</span>
         <% if @editors %>
-          <span class="user"><span>edited by</span> <%=h @editors.collect{|c| c.login}.join(',') %></span>
+          <span class="user"><span>Edited by</span> <%=h @editors.collect{|c| c.login}.join(',') %>.</span>
         <% end %>
         <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
         <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{h l.name}</span>"}.join(' ') %></div>
