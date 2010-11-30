@@ -1,0 +1,13 @@
+<%= form.input :public,
+  :required => false,
+  :as => :boolean,
+  :label => 'Public?',
+  :hint => 'If this item is public, then others will be able to see, copy, or create derivative works from it.'
+%>
+
+<%= form.input :active,
+  :required => false,
+  :as => :boolean,
+  :label => 'Active?',
+  :hint => 'If this item is active, others will be able to see it. Uncheck this to create a "draft" item.'
+%>

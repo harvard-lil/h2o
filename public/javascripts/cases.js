@@ -20,7 +20,7 @@ jQuery(document).ready(function(){
   jQuery.observeToolbar();
   jQuery('.button').button();
   jQuery('#case_content').markItUp(myHtmlSettings);
-  jQuery('.buttons .create').button();
+  jQuery('.buttons .create, .buttons .update').button();
 
   jQuery('.per-page-selector').change(function(){
     jQuery.cookie('per_page', jQuery(this).val(), {expires: 365});

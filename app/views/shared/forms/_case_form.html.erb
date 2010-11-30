@@ -12,6 +12,7 @@
   <% form.inputs do %>
     <%= form.input :short_name %>
     <%= form.input :full_name %>
+    <% #FIXME - put in a date selector %>
     <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
     <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
     <hr />
@@ -40,6 +41,7 @@
         :label => 'Tags',
         :input_html => {:class => 'tagging-autofill-tags'}
       %>
+      <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
   <% end %>
   <% unless request.xhr? %>
     <% form.buttons do %>

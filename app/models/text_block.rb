@@ -6,6 +6,7 @@ class TextBlock < ActiveRecord::Base
   include PlaylistableExtensions
   include TaggingExtensions::InstanceMethods
   include AuthUtilities
+  include MetadataExtensions
 
   #Perhaps some day we'll support these other content types.
   MIME_TYPES = {
@@ -23,13 +24,8 @@ class TextBlock < ActiveRecord::Base
 
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
-  has_one :metadatum, :as => :classifiable, :dependent => :destroy
 
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
-
-  accepts_nested_attributes_for :metadatum,
-    :allow_destroy => true,
-    :reject_if => :all_blank
 
   def self.select_options
     self.find(:all).collect{|c|[c.to_s,c.id]}
@@ -57,7 +53,7 @@ class TextBlock < ActiveRecord::Base
 
   alias :to_s :display_name
 
-  searchable(:include => [:metadatum,:collages,:tags]) do
+  searchable(:include => [:metadatum, :collages, :tags]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true

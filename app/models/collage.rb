@@ -9,6 +9,8 @@ class Collage < ActiveRecord::Base
   include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
+  include MetadataExtensions
+
   acts_as_authorization_object
 
   def self.annotatable_classes
@@ -41,12 +43,14 @@ class Collage < ActiveRecord::Base
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
-  searchable do
+  searchable(:include => [:annotations => {:layers => true}]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
     text :description, :boost => 2.0
     text :indexable_content
+    boolean :active
+    boolean :public
 
     string :annotatable, :stored => true
     string :annotations, :multiple => true

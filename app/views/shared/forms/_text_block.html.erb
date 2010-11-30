@@ -22,8 +22,7 @@
     <hr />
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
     <hr />
-    <%= form.input :public %>
-    <%= form.input :active %>
+    <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
   <% end %>
   <% unless request.xhr? %>
     <% form.buttons do %>

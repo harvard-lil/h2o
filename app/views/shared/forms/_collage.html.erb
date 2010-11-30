@@ -1,7 +1,7 @@
 <div style="width: 380px; float: left;">
   <div id="collage-error" style="display:none;" class="error"></div>
   <% unless request.xhr? %>
-    <h1><%=h (@collage.new_record?) ? 'Add New Collage' : "Edit \"@collage.display_name\"" %></h1>
+    <h1><%=h (@collage.new_record?) ? 'Add New Collage' : "Edit \"#{@collage.display_name}\"" %></h1>
   <% end %>
   <h3 style="margin-bottom: 1em;">on <%= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
   <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
@@ -13,17 +13,10 @@
         :required => false,
         :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
     %>
-      <%= form.input :public,
-        :required => false,
-        :as => :boolean,
-        :label => 'Public?',
-        :hint => 'If this collage is public, then others will be able to see and copy it.'
-    %>
-      <%= form.input :active,
-        :required => false,
-        :as => :boolean,
-        :label => 'Active?'
-    %>
+    <hr />
+      <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
+      <hr />
+      <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
       <%= form.input :annotatable_type,
         :as => :hidden,
         #      :collection => Collage.annotatable_classes_select_options,

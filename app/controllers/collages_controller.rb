@@ -56,6 +56,8 @@ class CollagesController < BaseController
       unless params[:keywords].blank?
         keywords params[:keywords]
       end
+      with :public, true
+      with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       #data_accessor_for(Case).include = [:tags, :collages, :case_citations]
       order_by :display_name, :asc
@@ -114,6 +116,9 @@ class CollagesController < BaseController
 
   # GET /collages/1/edit
   def edit
+    if @collage.metadatum.blank?
+      @collage.build_metadatum
+    end
   end
 
   # POST /collages

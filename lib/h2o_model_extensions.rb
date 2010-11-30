@@ -7,7 +7,6 @@ module H2oModelExtensions
     end
 
     model.instance_eval do
-      #FIXME FIXME
       #Class methods go here.
       # Validate text and string column lengths automatically, and for existence.
       to_validate = self.columns.reject{|col| ! [:string,:text].include?(col.type)}

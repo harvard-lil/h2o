@@ -475,6 +475,7 @@ jQuery(document).ready(function(){
   jQuery("#annotation_annotation").markItUp(myTextileSettings);
 
   jQuery.observeToolbar();
+  jQuery.observeMetadataForm();
 
   if(jQuery('.just_born').length > 0){
     // New collage. Deactivate control.
