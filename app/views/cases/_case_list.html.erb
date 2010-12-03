@@ -17,9 +17,9 @@
       <% @cases.results.each do |c| %>
         <tr>
           <td><%= link_to(c.display_name, c) %><br/>
-            <%=h c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-          <td><%=h c.decision_date %></td>
-          <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
+            <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+          <td><%= c.decision_date %></td>
+          <td class="layers"><%= raw c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
           <td>
             <% if ! c.collages.blank? %>
               <ul>

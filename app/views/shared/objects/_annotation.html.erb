@@ -6,12 +6,12 @@
     </ul>
     <div id="annotation-info-<%= @annotation.id %>">
       <div class="meta">
-        <span class="user"><span>Created by</span> <%=h @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>.</span>
+        <span class="user"><span>Created by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>.</span>
         <% if @editors %>
-          <span class="user"><span>Edited by</span> <%=h @editors.collect{|c| c.login}.join(',') %>.</span>
+          <span class="user"><span>Edited by</span> <%= @editors.collect{|c| c.login}.join(',') %>.</span>
         <% end %>
         <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
-        <div class="layers">Layers: <%= @annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{h l.name}</span>"}.join(' ') %></div>
+        <div class="layers">Layers: <%= raw(@annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ')) %></div>
         <div class="counts">Counts: <%= (! @annotation.annotation_word_count.blank?) ? "#{@annotation.annotation_word_count} word(s) annotating #{@annotation.word_count} words" : "Annotating #{@annotation.word_count} word(s)" %></div>
       </div>
       <% unless @annotation.annotation.blank? %>
@@ -30,20 +30,20 @@
       <h3>Direct Contributors to this annotation:</h3>
       <ul>
         <% @annotation.editors && @annotation.editors.each do |editor| %>
-          <li><%= h editor.to_s %></li>
+          <li><%= editor.to_s %></li>
         <% end %>
       </ul>
       <% unless @original_creators.blank? %>
         <h3>Based on an annotation created by:</h3>
         <ul>
           <% @original_creators.each do |role| %>
-            <li><%= h role.user %></li>
+            <li><%= role.user %></li>
           <% end %>
         </ul>
       <% end %>
       <h3>Lineage</h3>
       <ul class="lineage">
-        <%= [@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? ann : link_to(ann,collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ') %>
+        <%= raw([@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? h(ann) : link_to(h(ann),collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ')) %>
       </ul>
     </div>
   </div>

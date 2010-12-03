@@ -50,7 +50,7 @@
 
 <div id="tools">
   <a id="hide" href="#">hide</a>
-  <h2><%=h @collage.display_name %></h2>
+  <h2><%= @collage.display_name %></h2>
   <% unless current_user.blank? %>
     <% form_tag(spawn_copy_collage_path(@collage)) do %>
       <%= submit_tag('Copy this collage', :class => 'button') %>
@@ -67,10 +67,10 @@
 
         <% if @collage.parent %>
           <% @collage.siblings.each do |sib| %>
-            <li class="depth-<%= sib.depth %>"><%= (@collage == sib) ? "&bull; #{h @collage}" : link_to(sib,sib) %></li>
+            <li class="depth-<%= sib.depth %>"><%= raw((@collage == sib) ? "&bull; #{h(@collage)}" : link_to(h(sib),sib)) %></li>
           <% end %>
         <% else %>
-            <li class="depth-<%= @collage.depth %>"><%= "&bull; #{h @collage}" %></li>
+            <li class="depth-<%= @collage.depth %>">&bull; <%= @collage %></li>
         <% end %>
 
         <% @collage.children.each do|child| %>
@@ -87,7 +87,7 @@
         <% @collage.layers.each do |l| %>
           <div class="tag-container">
             <%= check_box_tag("layer-checkbox-#{l.id}",1,nil, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-            <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%=h l.name %></span></label>
+            <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span></label>
           </div>
         <% end %>
       </div>
@@ -123,7 +123,7 @@
 <% cache("collage-annotatable-content-#{@collage.id}") do %>
   <div class="collage-id" id="collage-<%= @collage.id %>">
     <div id="annotatable-content">
-      <%= @collage.annotatable_content %>
+      <%= raw @collage.annotatable_content %>
     </div>
   </div>
 <% end %>
@@ -135,14 +135,14 @@
     <h1>Annotations</h1>
     <% @collage.annotations.each do |ann| %>
       <div class="annotation">
-        <h2><%=h ann.layer_list.join(',') %> #<%= ann.id %></h2>
+        <h2><%= ann.layer_list.join(',') %> #<%= ann.id %></h2>
         <% unless ann.annotation.blank? %>
           <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
         <% end %>
         <div class="meta">
-          <span class="user"><span>created by</span> <%=h ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
+          <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
           <% if ann.editors %>
-            <span class="user"><span>edited by</span> <%=h ann.editors.collect{|c| c.login}.join(',') %></span>
+            <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
           <% end %>
           <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
         </div>
