@@ -38,6 +38,8 @@ Rails::Initializer.run do |config|
 #  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
   config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
   config.gem 'super_exception_notifier', :lib => "exception_notification", :version => '3.0.13'
+  #erubis is needed to satisfy requirements for rails_xss plugin
+  config.gem 'erubis', :version => '2.6.6'
 
   config.active_record.colorize_logging = false
 

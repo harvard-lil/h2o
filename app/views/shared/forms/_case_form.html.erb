@@ -30,10 +30,7 @@
     <% end %>
     <hr />
     <% if @case.new_record? || @case.content_editable? %>
-      <%= form.input :content,
-        :as => :text,
-        :hint => 'This is where you post the raw HTML that comprises the content of the case. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click ' + image_tag('elements/preview.png') + '  in the toolbar to preview.'
-    %>
+      <%= form.input :content, :as => :text, :required => true %>
     <% end %>
     <%= form.input :tag_list,
         :as => :string,
