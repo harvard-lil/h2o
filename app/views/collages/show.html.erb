@@ -131,7 +131,7 @@
 <hr class="print-block" />
 
 <% cache("collage-annotation-print-content-#{@collage.id}") do %>
-  <div class="print-block">
+  <div class="print-block print-annotation-list">
     <h1>Annotations</h1>
     <% @collage.annotations.each do |ann| %>
       <div class="annotation">

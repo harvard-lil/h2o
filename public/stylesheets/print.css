@@ -71,3 +71,7 @@ tt{
     margin: 1px;
     display: inline;
 }
+
+.print-annotation-list{
+  page-break-before: always;
+}
