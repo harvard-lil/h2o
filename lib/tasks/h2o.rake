@@ -1,5 +1,24 @@
 namespace :h2o do
 
+  desc 'Benchmark methods'
+  task(:benchmark_annotations => :environment) do
+
+    Collage.benchmark('Benchmark old style annotations') do
+      10.times do
+        c = Collage.find 65
+        c.annotatable_content
+      end
+    end
+
+    Collage.benchmark('Benchmark new style annotations') do
+      10.times do
+        c = Collage.find 65
+        c.annotatable_content_new
+      end
+    end
+
+  end
+
   desc 'Fix evidence cases'
   task(:fix_evidence_cases => :environment) do
     

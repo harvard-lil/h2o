@@ -113,6 +113,34 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
+  def annotatable_content_new
+    if ! self.layers.blank?
+      doc = Nokogiri::HTML.parse(self.content)
+      annotation_rules = []
+      self.annotations.each do|ann|
+        annotation_rules << {
+          :start => ann.annotation_start_numeral.to_i, 
+          :end => ann.annotation_end_numeral.to_i, 
+          :annotation_class => "a#{ann.id}",
+          :layer_list => ann.layers.collect{|l| "l#{id}"}
+        }
+      end
+
+      doc.xpath('//tt').each do|node|
+        node_id_num = node['id'][1,node['id'].length - 1].to_i
+        annotation_rules.each do|r|
+          if node_id_num >= r[:start] and node_id_num <= r[:end]
+            node['class'] = [(node['class'].blank? ? nil : node['class'].split), r[:layer_list], r[:annotation_class]].flatten.compact.uniq.join(' ')
+          end
+        end
+      end
+      doc.xpath("//html/body/*").to_s
+    else
+      #No annotations / layers.
+      self.content
+    end
+  end
+
   def annotatable_content
     if ! self.layers.blank?
       doc = Nokogiri::HTML.parse(self.content)
