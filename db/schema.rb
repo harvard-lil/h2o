@@ -418,9 +418,9 @@ ActiveRecord::Schema.define(:version => 20101122230916) do
     t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public",                  :default => true
     t.string   "ancestry"
     t.integer  "playlist_item_parent_id"
-    t.boolean  "public",                  :default => true
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
