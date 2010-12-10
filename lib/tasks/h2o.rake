@@ -3,17 +3,19 @@ namespace :h2o do
   desc 'Benchmark methods'
   task(:benchmark_annotations => :environment) do
 
-    Collage.benchmark('Benchmark old style annotations') do
-      10.times do
-        c = Collage.find 65
-        c.annotatable_content
+    [65,148,100,4,211,16].each do |cid|
+      Collage.benchmark('Benchmark old style annotations') do
+        1.times do
+          c = Collage.find cid
+          c.annotatable_content_old
+        end
       end
-    end
 
-    Collage.benchmark('Benchmark new style annotations') do
-      10.times do
-        c = Collage.find 65
-        c.annotatable_content_new
+      Collage.benchmark('Benchmark new style annotations') do
+        1.times do
+          c = Collage.find cid
+          c.annotatable_content
+        end
       end
     end
 

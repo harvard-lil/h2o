@@ -113,7 +113,7 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
-  def annotatable_content_new
+  def annotatable_content
     if ! self.layers.blank?
       doc = Nokogiri::HTML.parse(self.content)
       annotation_rules = []
@@ -122,7 +122,7 @@ class Collage < ActiveRecord::Base
           :start => ann.annotation_start_numeral.to_i, 
           :end => ann.annotation_end_numeral.to_i, 
           :annotation_class => "a#{ann.id}",
-          :layer_list => ann.layers.collect{|l| "l#{id}"}
+          :layer_list => ann.layers.collect{|l| "l#{l.id}"}
         }
       end
 
@@ -141,7 +141,7 @@ class Collage < ActiveRecord::Base
     end
   end
 
-  def annotatable_content
+  def annotatable_content_old
     if ! self.layers.blank?
       doc = Nokogiri::HTML.parse(self.content)
       self.annotations.each do |ann|
