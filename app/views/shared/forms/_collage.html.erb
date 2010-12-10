@@ -1,7 +1,7 @@
 <div style="width: 380px; float: left;">
   <div id="collage-error" style="display:none;" class="error"></div>
   <% unless request.xhr? %>
-    <h1><%=h (@collage.new_record?) ? 'Add New Collage' : "Edit \"#{@collage.display_name}\"" %></h1>
+    <h1><%= (@collage.new_record?) ? 'Add New Collage' : "Edit \"#{@collage.display_name}\"" %></h1>
   <% end %>
   <h3 style="margin-bottom: 1em;">on <%= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
   <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
@@ -19,8 +19,7 @@
       <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
       <%= form.input :annotatable_type,
         :as => :hidden,
-        #      :collection => Collage.annotatable_classes_select_options,
-      :required => true,
+        :required => true,
         :label => 'I want to annotate a:'
     %>
       <%= form.input :annotatable_id,

@@ -24,18 +24,18 @@ module AuthUtilities
   end
 
   def owners
-    owner_list = self.accepted_roles.find_by_name('owner')
-    (owner_list.blank?) ? nil : owner_list.users.compact.uniq
+    owner_list = self.accepted_roles.reject{|r| r.name != 'owner'}
+    (owner_list.blank?) ? nil : owner_list.first.users.compact.uniq
   end
 
   def creators
-    creator_list = self.accepted_roles.find_by_name('creator')
-    (creator_list.blank?) ? nil : creator_list.users.compact.uniq
+    creator_list = self.accepted_roles.reject{|r| r.name != 'creator'}
+    (creator_list.blank?) ? nil : creator_list.first.users.compact.uniq
   end
 
   def editors
-    editor_list = self.accepted_roles.find_by_name('editor')
-    (editor_list.blank?) ? nil : editor_list.users.compact.uniq
+    editor_list = self.accepted_roles.reject{|r| r.name != 'editor'}
+    (editor_list.blank?) ? nil : editor_list.first.users.compact.uniq
   end
 
 end

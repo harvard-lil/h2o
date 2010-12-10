@@ -25,7 +25,7 @@
         <h3 style="margin-bottom: 10px;">Layers in use on this collage</h3>
         <div class="layers">
           <% @annotation.collage.layers.each do |l| %>
-            <span class="_tag_suggestion c<%= l.id %>"><%=h l.name %></span>
+            <span class="_tag_suggestion c<%= l.id %>"><%= l.name %></span>
           <% end %>
         </div>
       <% end %>

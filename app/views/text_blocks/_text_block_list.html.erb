@@ -18,7 +18,7 @@
         <tr>
           <td><%= link_to(c.display_name, c) %></td>
           <td><%=h c.metadatum && c.metadatum.date %></td>
-          <td class="layers"><%= c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
+          <td class="layers"><%= raw c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
           <td>
             <% if ! c.collages.blank? %>
               <ul>

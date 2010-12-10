@@ -9,7 +9,7 @@
         <label for="keywords">Keywords:</label> <%= text_field_tag('keywords', params[:keywords], :size => 50) %><br/>
         <% Case.tag_counts_on(:tags).all(:order => :name).each do|t| %>
           <div class="tag-container">
-            <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%=h t.name %></span></label>
+            <%= check_box_tag("tags[]",t.name, ((params[:tags] && params[:tags].include?(t.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{t.id}"}) %><label for="tag-control-<%= t.id %>"><span class="c<%= t.id % 10 %>"><%= t.name %></span></label>
           </div>
         <% end %>
         </p>
@@ -29,10 +29,10 @@
 
       <h2>Showing <%= (@cases.hits.length > 1) ? "#{@cases.hits.length} cases" : '1 case' %> of <%= @cases.total %> total
         <span style="font-size: 14px"><% if params[:tags] %>
-            <br />Tags: <%=h params[:tags].collect{|t| %Q|"#{t}"|}.join((params[:any]) ? ' OR ' : ' AND ') %> 
+            <br />Tags: <%= params[:tags].collect{|t| %Q|"#{t}"|}.join((params[:any]) ? ' OR ' : ' AND ') %> 
           <% end %>
           <% unless params[:keywords].blank? %>
-            <br />Keywords: "<%=h params[:keywords] %>"
+            <br />Keywords: "<%= params[:keywords] %>"
           <% end %>
         </span>
       </h2>

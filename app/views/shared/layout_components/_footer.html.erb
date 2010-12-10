@@ -19,7 +19,7 @@
   <%= link_to image_tag("/images/elements/cog_small.png"), rotisserie_instances_path, :title => 'Rotisserie' %>
   <span id="user-meta">
     <% unless current_user.nil? %>
-      Logged in as <%=h current_user.login %>
+      Logged in as <%= current_user.login %>
       <%= link_to("logout", user_session_path, :method => :delete, :id => 'logged-in') %>
     <% else %>
       <%= link_to("log in", crossroad_user_session_path,  :id => 'logged-out') %>

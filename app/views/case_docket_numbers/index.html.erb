@@ -8,8 +8,8 @@
 
 <% @case_docket_numbers.each do |case_docket_number| %>
   <tr>
-    <td><%=h case_docket_number.case_id %></td>
-    <td><%=h case_docket_number.docket_number %></td>
+    <td><%= case_docket_number.case_id %></td>
+    <td><%= case_docket_number.docket_number %></td>
     <td><%= link_to 'Show', case_docket_number %></td>
     <td><%= link_to 'Edit', edit_case_docket_number_path(case_docket_number) %></td>
     <td><%= link_to 'Destroy', case_docket_number, :confirm => 'Are you sure?', :method => :delete %></td>

@@ -39,7 +39,7 @@ class CasesController < BaseController
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      data_accessor_for(Case).include = [:tags, :collages, :case_citations]
+      data_accessor_for(Case).include = {:tags => [], :collages => {:accepted_roles => []}, :case_citations => [], :accepted_roles => {}}
       order_by :display_name, :asc
     end
 

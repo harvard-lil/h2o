@@ -133,9 +133,9 @@
 <% cache("collage-annotation-print-content-#{@collage.id}") do %>
   <div class="print-block print-annotation-list">
     <h1>Annotations</h1>
-    <% @collage.annotations.each do |ann| %>
+    <% @collage.annotations.find(:all,:include => {:accepted_roles => {:users => []}, :layers=> []}).each do |ann| %>
       <div class="annotation">
-        <h2><%= ann.layer_list.join(',') %> #<%= ann.id %></h2>
+        <h2><%= ann.layers.map(&:name).join(',') %> #<%= ann.id %></h2>
         <% unless ann.annotation.blank? %>
           <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
         <% end %>

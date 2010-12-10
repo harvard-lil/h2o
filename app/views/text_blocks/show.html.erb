@@ -1,6 +1,6 @@
 <div id="text_block-show">
   <div class="info_block">
-    <h1 class="yellow_title_med"><%=h @text_block %></h1>
+    <h1 class="yellow_title_med"><%= @text_block %></h1>
     <% unless @text_block.metadatum.blank? %>
       <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
     <% end %>
@@ -11,7 +11,7 @@
 <% if current_user %>
   <div id="tools">
     <a id="hide" href="#">hide</a>
-    <h2><%=h @text_block.display_name %></h2>
+    <h2><%= @text_block.display_name %></h2>
     <%= link_to('collage this', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'button') %>
     <% if @is_text_block_admin ||  current_user.has_role?(:owner) %> 
       <%= link_to('edit', edit_text_block_path(@text_block), :class => 'button' ) %>

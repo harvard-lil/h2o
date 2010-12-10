@@ -5,9 +5,9 @@
 </div>
 
 <div id="playlist_head_container">
-  <div id="playlist_title" class="blue_title_large"><%=h @playlist.name %> <button id="button-playlist-copy-<%= @playlist.id %>" name="button-playlist-copy" class="playlist_button ui-button ui-state-default ui-corner-all"><%= image_tag "/images/icons/page_copy.png" %></button></div>
+  <div id="playlist_title" class="blue_title_large"><%= @playlist.name %> <button id="button-playlist-copy-<%= @playlist.id %>" name="button-playlist-copy" class="playlist_button ui-button ui-state-default ui-corner-all"><%= image_tag "/images/icons/page_copy.png" %></button></div>
 
-  <%= (@playlist.description.blank?) ? '' : %Q|<div class="description">#{Playlist.format_content(@playlist.description)}</div>| %>
+  <%= raw (@playlist.description.blank?) ? '' : %Q|<div class="description">#{Playlist.format_content(@playlist.description)}</div>| %>
 </div>
 
 <div id="list_block" >
