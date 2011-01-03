@@ -14,34 +14,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @cases.results.each do |c| %>
-        <tr>
-          <td><%= link_to(c.display_name, c) %><br/>
-            <%= c.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-          <td><%= c.decision_date %></td>
-          <td class="layers"><%= raw c.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
-          <td>
-            <% if ! c.collages.blank? %>
-              <ul>
-                <% c.collages.each do |collage| %>
-                  <li><%= link_to(collage.display_name, collage) %></li>
-                <% end %>
-              </ul>
-            <% end %>
-          </td>
-          <% if current_user %>
-            <td>
-              <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => c), :class => 'button') %>
-              <% if @is_case_admin || @my_cases.include?(c) %>
-                <%= link_to('edit', edit_case_path(c), :class => 'button' ) %>
-                <% if c.deleteable? %>
-                  <%= link_to('delete', case_path(c), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
-                <% end %>
-              <% end %>
-            </td>
-          <% end %>
-        </tr>
-      <% end %>
+        <%= render :partial => 'shared/objects/case_obj', :collection => @cases.results %>
     </tbody>
   </table>
   <%= will_paginate @cases.hits %>

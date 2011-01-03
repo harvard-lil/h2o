@@ -21,6 +21,29 @@
   </div>
   <div class="spacer_block"></div>
 
+  <% unless @my_cases.blank? %>
+    <div class="info_block">
+      <h1 class="yellow_title_med">My Cases - <%= @my_cases.length %> total</h1>
+    </div>
+    <div class="list_block">
+      <table class="core_table tablesorter">
+        <thead>
+          <tr class="table_heading">
+            <th>Case</th>
+            <th>Date</th>
+            <th>Tags</th>
+            <th>Collages</th>
+            <% if current_user %>
+              <th colspan="2">&nbsp;</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render :partial => 'shared/objects/case_obj', :collection => @my_cases %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
 
   <div class="list_block">
     <% if @cases.blank? %>

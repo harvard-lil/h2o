@@ -1,0 +1,26 @@
+        <tr>
+          <td><%= link_to(case_obj.display_name, case_obj) %><br/>
+            <%= case_obj.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
+          <td><%= case_obj.decision_date %></td>
+          <td class="layers"><%= raw case_obj.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
+          <td>
+            <% if ! case_obj.collages.blank? %>
+              <ul>
+                <% case_obj.collages.each do |collage| %>
+                  <li><%= link_to(collage.display_name, collage) %></li>
+                <% end %>
+              </ul>
+            <% end %>
+          </td>
+          <% if current_user %>
+            <td>
+              <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => 'button') %>
+              <% if @is_case_admin || @my_cases.include?(case_obj) %>
+                <%= link_to('edit', edit_case_path(case_obj), :class => 'button' ) %>
+                <% if case_obj.deleteable? %>
+                  <%= link_to('delete', case_path(case_obj), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
+                <% end %>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
