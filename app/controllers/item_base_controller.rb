@@ -22,8 +22,6 @@ class ItemBaseController < BaseController
   end
 
   def show
-    @object = @model_class.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @item_default }
@@ -43,7 +41,6 @@ class ItemBaseController < BaseController
 
   # GET /item_defaults/1/edit
   def edit
-    @object = @model_class.find(params[:id])
     respond_to do |format|
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
@@ -106,8 +103,6 @@ class ItemBaseController < BaseController
   end
 
   def update
-    @object = @model_class.find(params[:id])
-
     respond_to do |format|
       if @object.update_attributes(params[@param_symbol])
         flash[:notice] = "#{@model_class.name.titleize} was successfully updated."
@@ -152,6 +147,16 @@ class ItemBaseController < BaseController
 
   def load_playlist
     @playlist = Playlist.find(params[:container_id])
+    if params[:id]
+      @object = @model_class.find(params[:id])
+      if @object.playlist != @playlist
+        #FIXME - make sure this works.
+        return nil
+      end
+    else
+      @object = @model_class.new
+    end
+
   end
 
 end
