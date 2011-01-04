@@ -7,7 +7,7 @@ class ItemBaseController < BaseController
 
   access_control do
     allow all, :to => [:show, :index]
-    allow logged_in, :to => [:new, :create]
+#    allow logged_in, :to => [:new, :create]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
@@ -49,7 +49,7 @@ class ItemBaseController < BaseController
   end
 
   def create
-    @object = @model_class.update_attributes(params[@param_symbol])
+    @object.update_attributes(params[@param_symbol])
 
     @base_object = nil
     logger.warn('Base model class' + @base_model_class.inspect)
@@ -119,7 +119,6 @@ class ItemBaseController < BaseController
     end
   end
 
-
   def destroy
     @object = @model_class.find(params[:id])
     @object.destroy
@@ -146,10 +145,6 @@ class ItemBaseController < BaseController
     @param_symbol = @model_class.name.tableize.singularize.to_sym
   end
 
-  def load_playlist
-    @playlist = Playlist.find(params[:container_id])
-  end
-
   def load_object_and_playlist
     @object = @model_class.find(params[:id])
     @playlist = @object.playlist_item.playlist
@@ -157,7 +152,7 @@ class ItemBaseController < BaseController
 
   def create_object_and_load_playlist
     @object = @model_class.new
-    @playlist = @object.playlist_item.playlist
+    @playlist = Playlist.find(params[:container_id])
   end
 
 end
