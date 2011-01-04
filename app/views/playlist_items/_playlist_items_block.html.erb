@@ -21,7 +21,7 @@
         </td>
         <td width="10%">
           <% if current_user && @playlist_admin || @my_playlist %>
-            <%= link_to 'edit', url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item, :container_id => item.playlist), :class => 'button edit-playlist-item' %>
+            <%= link_to 'edit', url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => 'button edit-playlist-item' %>
           <%  end %>
           <% if current_user && @playlist_admin || @my_playlist %>
             <%= link_to('Delete', url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => 'button delete-playlist-item' ) %>

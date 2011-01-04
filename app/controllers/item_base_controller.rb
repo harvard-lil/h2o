@@ -1,8 +1,9 @@
 class ItemBaseController < BaseController
 
   before_filter :set_model
+  before_filter :load_object_and_playlist, :except => [:new, :create]
+  before_filter :create_object_and_load_playlist, :only => [:new, :create]
   before_filter :require_user, :except => [:index, :show]
-  before_filter :load_playlist, :except => [:destroy]
 
   access_control do
     allow all, :to => [:show, :index]
@@ -29,7 +30,6 @@ class ItemBaseController < BaseController
   end
 
   def new
-    @object = @model_class.new
     @object.url = params[:url_string]    
     
     respond_to do |format|
@@ -49,7 +49,7 @@ class ItemBaseController < BaseController
   end
 
   def create
-    @object = @model_class.new(params[@param_symbol])
+    @object = @model_class.update_attributes(params[@param_symbol])
 
     @base_object = nil
     logger.warn('Base model class' + @base_model_class.inspect)
@@ -119,6 +119,7 @@ class ItemBaseController < BaseController
     end
   end
 
+
   def destroy
     @object = @model_class.find(params[:id])
     @object.destroy
@@ -147,16 +148,16 @@ class ItemBaseController < BaseController
 
   def load_playlist
     @playlist = Playlist.find(params[:container_id])
-    if params[:id]
-      @object = @model_class.find(params[:id])
-      if @object.playlist != @playlist
-        #FIXME - make sure this works.
-        return nil
-      end
-    else
-      @object = @model_class.new
-    end
+  end
 
+  def load_object_and_playlist
+    @object = @model_class.find(params[:id])
+    @playlist = @object.playlist_item.playlist
+  end
+
+  def create_object_and_load_playlist
+    @object = @model_class.new
+    @playlist = @object.playlist_item.playlist
   end
 
 end
