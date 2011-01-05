@@ -16,6 +16,7 @@
 
 .annotation-control{
   font-size: 9px;
+  display: none;
 }
 
 .annotation-content{
@@ -78,5 +79,10 @@ form.formtastic fieldset ol li.text textarea{
 #cancel-annotation{
   text-align: right;
   font-weight: bold;
+}
+
+.arr{
+  font-size: 18px;
+  margin: 0px 5px 0px 5px;
 }
 

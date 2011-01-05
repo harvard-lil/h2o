@@ -61,58 +61,49 @@ jQuery.extend({
             lastLayerId = this.id;
         });
 
-        var startNode = jQuery('<span class="annotation-control annotation-start" title="Click to see Annotation"></span>');
+        var startNode = jQuery('<span class="annotation-control annotation-start ' + 'c' + (lastLayerId % 10) + '" title="Click to see Annotation" id="' + 'annotation-control-' + obj.id + '-start' + '"></span>');
         jQuery(startNode).html(layerNames.join(', ') + ((obj.annotation_word_count > 0) ? ' (' + obj.annotation_word_count + ') ' : '' ) + ' <span class="print-inline">#' + obj.id + '</span>');
-        jQuery(startNode).addClass('c' + (lastLayerId % 10));
-        jQuery(startNode).attr('id', 'annotation-control-' + obj.id + '-start');
-        jQuery("#t" + elStart).before(startNode);
+        var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '">&#9654;</span>');
+        jQuery("#t" + elStart).before(startNode, startArrow);
 
-        var endNode = jQuery('<span class="annotation-control annotation-end" title="Click to see Annotation"></span>');
+        var endNode = jQuery('<span class="annotation-control annotation-end ' + 'c' + (lastLayerId % 10) + '" title="Click to see Annotation" id="' + 'annotation-control-' + obj.id + '-end' + '"></span>');
         jQuery(endNode).html(layerNames.join(', ') + ((obj.annotation_word_count > 0) ? ' (' + obj.annotation_word_count + ') ' : '' ) + ' <span class="print-inline">#' + obj.id + '</span>');
-        jQuery(endNode).addClass('c' + (lastLayerId % 10));
-        jQuery(endNode).attr('id', 'annotation-control-' + obj.id + '-end');
-
-        jQuery("#t" + elEnd).after(endNode);
+        var endArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '">&#9664;</span>');
+        jQuery("#t" + elEnd).after(endArrow,endNode);
 
         var idList = ids.join(',');
 
-        jQuery("#annotation-control-" + obj.id + "-start").button({
-            icons: {
-                primary: 'ui-icon-script',
-                secondary: 'ui-icon-arrowthick-1-e'
+        jQuery([startNode,endNode]).each(function(){
+          jQuery(this).button({
+            }).bind({
+              click: function(e){
+                jQuery.annotationButton(e,obj.id,ids);
+              },
+              mouseover: function(e){
+                jQuery('.a' + obj.id).addClass('highlight');
+              },
+              mouseout: function(e){
+                jQuery('.a' + obj.id).removeClass('highlight');
+              }
+            });
+          });
+
+        jQuery([startArrow, endArrow]).each(function(){
+          jQuery(this).bind({
+            mouseover: function(e){
+              jQuery('.a' + obj.id).addClass('highlight');
+            },
+            mouseout: function(e){
+              jQuery('.a' + obj.id).removeClass('highlight');
             }
-        }).bind({
-        click: function(e){
-            jQuery.annotationButton(e,obj.id,ids);
-        },
-        mouseover: function(e){
-            jQuery('.a' + obj.id).addClass('highlight');
-        },
-        mouseout: function(e){
-            jQuery('.a' + obj.id).removeClass('highlight');
-        }
-    });
-    jQuery("#annotation-control-" + obj.id + "-end").button({
-        icons: {
-            primary: 'ui-icon-arrowthick-1-w'
-        }
-    }).bind({
-    click: function(e){
-        jQuery.annotationButton(e,obj.id,ids)
-    },
-    mouseover: function(e){
-        jQuery('.a' + obj.id).addClass('highlight');
-    },
-    mouseout: function(e){
-        jQuery('.a' + obj.id).removeClass('highlight');
-    }
-});
+          });
+        });
 
-if(obj.id == activeId){
-    jQuery("#annotation-control-" + obj.id + '-start').click();
-}
+        if(obj.id == activeId){
+          jQuery("#annotation-control-" + obj.id + '-start').click();
+        }
 
-},
+    },
 
 annotationButton: function(e,annotationId,ids){
     e.preventDefault();

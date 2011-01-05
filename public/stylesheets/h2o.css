@@ -440,9 +440,17 @@ span.tagMatches span, .layers span.c1,.c1{
     color: white;
 }
 
+.rc1{
+    color: #0000AB;
+}
+
 span.tagMatches span, .layers span.c2,.c2{
     background: BlueViolet;
     color: white;
+}
+
+.rc2{
+  color: BlueViolet;
 }
 
 span.tagMatches span, .layers span.c3,.c3{
@@ -450,9 +458,17 @@ span.tagMatches span, .layers span.c3,.c3{
     color: white;
 }
 
+.rc3{
+  color: Red;
+}
+
 span.tagMatches span, .layers span.c4,.c4{
     background: Blue;
     color: white;
+}
+
+.rc4{
+  color: Blue;
 }
 
 span.tagMatches span, .layers span.c5,.c5{
@@ -460,9 +476,17 @@ span.tagMatches span, .layers span.c5,.c5{
     color: white;
 }
 
+.rc5{
+  color: Green;
+}
+
 span.tagMatches span, .layers span.c6,.c6{
     background: Brown;
     color: white;
+}
+
+.rc6{
+  color: Brown;
 }
 
 span.tagMatches span, .layers span.c7,.c7{
@@ -470,9 +494,17 @@ span.tagMatches span, .layers span.c7,.c7{
     color: white;
 }
 
+.rc7{
+  color: DarkGreen;
+}
+
 span.tagMatches span, .layers span.c8,.c8{
     background: DarkBlue;
     color: white;
+}
+
+.rc8{
+  color: DarkBlue;
 }
 
 span.tagMatches span, .layers span.c9,.c9{
@@ -480,9 +512,17 @@ span.tagMatches span, .layers span.c9,.c9{
     color: white;
 }
 
+.rc9{
+  color: DarkRed;
+}
+
 span.tagMatches span, .layers span.c0,.c0{
     background: Teal;
     color: white;
+}
+
+.rc0{
+  color: Teal;
 }
 
 .tag-container{
