@@ -74,10 +74,9 @@ jQuery.extend({
         var idList = ids.join(',');
 
         jQuery([startNode,endNode]).each(function(){
-          jQuery(this).button({
-            }).bind({
+          jQuery(this).bind({
               click: function(e){
-                jQuery.annotationButton(e,obj.id,ids);
+                jQuery.annotationButton(e,obj.id);
               },
               mouseover: function(e){
                 jQuery('.a' + obj.id).addClass('highlight');
@@ -88,8 +87,38 @@ jQuery.extend({
             });
           });
 
-        jQuery([startArrow, endArrow]).each(function(){
+          jQuery([startArrow, endArrow]).each(function(){
+            jQuery(this).bt({
+              contentSelector: "jQuery('annotation-control-" + obj.id + "-start').show().html()",
+              fill: '#F7F7F7', 
+              strokeStyle: '#B7B7B7', 
+              spikeLength: 10, 
+              spikeGirth: 10, 
+              padding: 8, 
+              cornerRadius: 0, 
+              cssStyles: {
+                fontFamily: '"lucida grande",tahoma,verdana,arial,sans-serif', 
+                fontSize: '11px'
+              },
+              hoverIntentOpts: {
+                interval: 500,
+                timeout: 3000
+              }
+            });
+//            jQuery(this).hoverIntent({
+//              over: function(){jQuery('#annotation-control-' + obj.id + '-start').bt()},
+//              out: function(){jQuery('#annotation-control-' + obj.id + '-start').hide()},
+//              timeout: 5000
+//            });
           jQuery(this).bind({
+            click: function(e){
+              e.preventDefault();
+              if(jQuery('.a' + obj.id + ':visible').length > 0){
+                jQuery('.a' + obj.id).hide();
+              } else {
+                jQuery('.a' + obj.id).show();
+              }
+            },
             mouseover: function(e){
               jQuery('.a' + obj.id).addClass('highlight');
             },
@@ -105,7 +134,7 @@ jQuery.extend({
 
     },
 
-annotationButton: function(e,annotationId,ids){
+annotationButton: function(e,annotationId){
     e.preventDefault();
     var collageId = jQuery('.collage-id').attr('id').split('-')[1];
     if(jQuery('#annotation-details-' + annotationId).length == 0){

@@ -78,22 +78,6 @@ class CollagesController < BaseController
     end
   end
 
-  # GET /collages
-  # GET /collages.xml
-  def index_old
-    @collages = Collage.find(:all, :select => 'id,annotatable_type,annotatable_id,name,description,created_at,updated_at,word_count')
-
-    @my_collages = []
-    if current_user
-      @my_collages = current_user.collages
-    end
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @collages }
-    end
-  end
-
   # GET /collages/1
   # GET /collages/1.xml
   def show
