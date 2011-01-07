@@ -114,8 +114,7 @@
   <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
   <div id="annotation-start-marker" style="display: none;">
-    Your annotation will start here. Please click another word to set the end point.
-    <div id="cancel-annotation"><a href="#">cancel</a></div>
+ <a href="#" id="cancel-annotation"><%= image_tag('elements/close.gif') %></a> Your annotation will start here. Please click another word to set the end point.
   </div>
   <hr class="print-block" />
 </div>

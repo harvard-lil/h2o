@@ -21,13 +21,16 @@
   border-radius: 5px;
   -moz-border-radius: 5px;
   position: absolute;
-
 }
 
 .annotation-content{
   overflow: auto;
   border: 1px solid black;
   padding: 5px;
+}
+
+.close-annotation-details{
+  float: right;
 }
 
 #annotatable-content tt{
@@ -82,8 +85,7 @@ form.formtastic fieldset ol li.text textarea{
 }
 
 #cancel-annotation{
-  text-align: right;
-  font-weight: bold;
+  float: right;
 }
 
 .arr{
