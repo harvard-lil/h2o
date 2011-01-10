@@ -140,7 +140,4 @@ class ApplicationController < ActionController::Base
       logger.warn("Couldn't update question instance id: #{@UPDATE_QUESTION_INSTANCE_TIME.id} because #{e.inspect}")
     end
 
-
-
-
 end

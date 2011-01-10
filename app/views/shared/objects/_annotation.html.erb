@@ -17,13 +17,13 @@
       <% unless @annotation.annotation.blank? %>
         <h3>Annotation</h3>
         <div class="annotation-content">
-          <%= Annotation.format_content(@annotation.annotation) %>
+          <%= raw @annotation.formatted_annotation_content %>
         </div>
         <div class="spacer_block"></div>
       <% end %>
       <h3>Annotated Content</h3>
       <div class="annotated-content">
-        <%= @annotation.annotated_content %>
+        <%= raw @annotation.annotated_content %>
       </div>
     </div>
     <div id="lineage-info-<%= @annotation.id %>">

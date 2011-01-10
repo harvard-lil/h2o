@@ -33,6 +33,9 @@ class Annotation < ActiveRecord::Base
     string :layer_list, :multiple => true
   end
 
+  def formatted_annotation_content
+    Annotation.format_content(annotation)
+  end
 
   validates_presence_of :annotation_start, :annotation_end
   validates_length_of :annotation, :maximum => 10.kilobytes

@@ -427,6 +427,15 @@ span.tagMatches {
     margin: 10px;
 }
 
+.ltag{
+  border-radius: 5px;
+  padding: 2px;
+  -moz-border-radius: 3px;
+  float: left;
+  display: block;
+  margin-right: 2px;
+}
+
 span.tagMatches span, .layers span{
     padding: 2px;
     margin-right: 4px;
