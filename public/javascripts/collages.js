@@ -72,19 +72,6 @@ jQuery.extend({
 
         var idList = ids.join(',');
 
-/*        jQuery([startNode,endNode]).each(function(){
-          jQuery(this).bind({
-              click: function(e){
-                jQuery.annotationButton(e,obj.id);
-              },
-              mouseover: function(e){
-                jQuery('.a' + obj.id).addClass('highlight');
-              },
-              mouseout: function(e){
-                jQuery('.a' + obj.id).removeClass('highlight');
-              }
-            });
-          }); */
           var btOptions = {
             contentSelector: "jQuery('.annotation-control-" + obj.id + "').html()",
             fill: '#F7F7F7',
@@ -102,10 +89,9 @@ jQuery.extend({
             },
             postShow: function(box){
               jQuery('.adetails-' + obj.id).click(function(e){
-                // FIXME
                 e.preventDefault();
-                console.log(box);
-                jQuery(box).find('.adetails-' + obj.id).btOff();
+                jQuery(startArrow).btOff();
+                jQuery(endArrow).btOff();
               });
             },
             hoverIntentOpts: {
@@ -115,7 +101,6 @@ jQuery.extend({
           };
 
           jQuery([startArrow, endArrow]).each(function(){
-            jQuery(this).bt(btOptions);
             jQuery(this).bind({
               click: function(e){
                 e.preventDefault();
@@ -126,6 +111,7 @@ jQuery.extend({
                 }
               },
               mouseover: function(e){
+                jQuery(this).bt(btOptions);
                 jQuery('.a' + obj.id).addClass('highlight');
               },
               mouseout: function(e){
