@@ -39,6 +39,14 @@ jQuery(function() {
       return '/';
     },
 
+    initCanvas: function(el){
+      if(el.getContext){
+        //already there
+      } else {
+        G_vmlCanvasManager.initElement(el);
+      }
+    },
+
     observeMetadataForm: function(){
       jQuery('.datepicker').datepicker({
         changeMonth: true,

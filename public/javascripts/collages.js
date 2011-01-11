@@ -66,14 +66,38 @@ jQuery.extend({
     var detailNode = jQuery('<span class="annotation-control annotation-start ' + 'c' + (lastLayerId % 10) + ' annotation-control-' + obj.id + '"></span>');
     jQuery(detailNode).html('<a href="#" class="close-annotation-details ann-close-' + obj.id + '"><img src="/images/elements/close.gif" /></a>' + layerOutput + '<div class="clear"></div>' + ((obj.annotation_word_count > 0) ? '<div class="annotation-content">' + obj.formatted_annotation_content + '</div>' : '' ) + '<div class="more"><a href="#" class="ann-details-' + obj.id +'">more &raquo;</a></div>' + ' <span class="print-inline">#' + obj.id + '</span>');
 
-    var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '">' + ((obj.annotation_word_count > 0) ? '<span class="c' + (lastLayerId % 10) + '">' + aIndex + '</span> ' : '') + '&#9654;</span>');
+    var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elStart).before(detailNode, startArrow);
+
+    var startCanvas = document.createElement('canvas'); 
+    jQuery(startCanvas).attr('width',60).attr('height',18).appendTo(jQuery(startArrow)); 
+    if(jQuery.browser.msie){
+      startCanvas = G_vmlCanvasManager.initElement(startCanvas);
+    }
+
+//    startArrow.html(startCanvas);
+
+//    if (typeof G_vmlCanvasManager != 'undefined') {
+//      startCanvas = G_vmlCanvasManager.initElement(startCanvas);
+//    }
+    var ctx = startCanvas.getContext('2d');
+    ctx.fillStyle = jQuery(startArrow).css('color');
+    ctx.strokeStyle = jQuery(startArrow).css('color');
+    ctx.beginPath();
+    ctx.moveTo(42,0);
+    ctx.lineTo(60,9);
+    ctx.lineTo(42,18);
+    ctx.lineTo(42,0);
+    ctx.fill();
+    ctx.strokeRect(0,0,42,18);
+    ctx.textAlign = 'center';
+    ctx.font = '12px Arial';
+    ctx.fillText(aIndex,18,14);
 
     var endArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '">&#9664;' + ((obj.annotation_word_count > 0) ? aIndex : '') + '</span>');
     jQuery("#t" + elEnd).after(endArrow);
 
     var idList = ids.join(',');
-
 
     jQuery([startArrow, endArrow]).each(function(){
       jQuery.annotationArrow(this,obj);
