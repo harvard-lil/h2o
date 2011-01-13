@@ -11,7 +11,7 @@ class PlaylistsController < BaseController
   
   access_control do
     allow all, :to => [:embedded_pager, :show, :index]
-    allow logged_in, :to => [:new, :create]
+    allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
@@ -159,7 +159,10 @@ class PlaylistsController < BaseController
     @playlist = Playlist.find(params[:id])  
     @playlist_copy = Playlist.new(params[:playlist])
     @playlist_copy.parent = @playlist
-    if @playlist_copy.title.blank? then @playlist_copy.title = params[:playlist][:name] end
+
+    if @playlist_copy.title.blank?
+      @playlist_copy.title = params[:playlist][:name] 
+    end
 
     respond_to do |format|
       if @playlist_copy.save
