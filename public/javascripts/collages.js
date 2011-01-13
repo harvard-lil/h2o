@@ -69,46 +69,57 @@ jQuery.extend({
     var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elStart).before(detailNode, startArrow);
 
-    var startCanvas = document.createElement('canvas'); 
-    jQuery(startCanvas).attr('width',60).attr('height',18).appendTo(jQuery(startArrow)); 
-    if(jQuery.browser.msie){
-      startCanvas = G_vmlCanvasManager.initElement(startCanvas);
-    }
-
-//    startArrow.html(startCanvas);
-
-//    if (typeof G_vmlCanvasManager != 'undefined') {
-//      startCanvas = G_vmlCanvasManager.initElement(startCanvas);
-//    }
-    var ctx = startCanvas.getContext('2d');
-    ctx.fillStyle = jQuery(startArrow).css('color');
-    ctx.strokeStyle = jQuery(startArrow).css('color');
-    ctx.beginPath();
-    ctx.moveTo(42,0);
-    ctx.lineTo(60,9);
-    ctx.lineTo(42,18);
-    ctx.lineTo(42,0);
-    ctx.fill();
-    ctx.strokeRect(0,0,42,18);
-    ctx.textAlign = 'center';
-    ctx.font = '12px Arial';
-    ctx.fillText(aIndex,18,14);
-
-    var endArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '">&#9664;' + ((obj.annotation_word_count > 0) ? aIndex : '') + '</span>');
+    var endArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elEnd).after(endArrow);
 
     var idList = ids.join(',');
 
-    jQuery([startArrow, endArrow]).each(function(){
-      jQuery.annotationArrow(this,obj);
-    });
+    jQuery.annotationArrow(startArrow,obj,aIndex,'start');
+    jQuery.annotationArrow(endArrow,obj,aIndex,'end');
 
     if(obj.id == activeId){
       jQuery(".annotation-control-" + obj.id).click();
     }
   },
 
-  annotationArrow: function(arr,obj){
+  annotationArrow: function(arr,obj,aIndex,arrowType){
+    if(jQuery.browser.msie){
+      // do something crippled and stupid here for IE.
+      if (arrowType == 'start'){
+        jQuery(arr).html(((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : '') + '&#9658;' );
+      } else {
+        jQuery(arr).html('&#9668;' + ((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : ''));
+      }
+    } else {
+      var canvas = document.createElement('canvas');
+      jQuery(canvas).attr('width',60).attr('height',18).appendTo(jQuery(arr)); 
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = jQuery(arr).css('color');
+      ctx.strokeStyle = jQuery(arr).css('color');
+      ctx.textAlign = 'center';
+      ctx.font = '12px Arial';
+      ctx.beginPath();
+      if(arrowType == 'start'){
+        ctx.moveTo(42,0);
+        ctx.lineTo(60,9);
+        ctx.lineTo(42,18);
+        ctx.fill();
+        if(obj.annotation_word_count > 0){
+          ctx.strokeRect(0,0,42,18);
+          ctx.fillText(aIndex,18,14);
+        }
+      } else {
+        ctx.moveTo(18,0);
+        ctx.lineTo(0,9);
+        ctx.lineTo(18,18);
+        ctx.fill();
+        if(obj.annotation_word_count > 0){
+          ctx.strokeRect(18,0,42,18);
+          ctx.fillText(aIndex,36,14);
+        }
+      }
+    }
+
     var btOptions = {
       trigger: 'none',
       contentSelector: "jQuery('.annotation-control-" + obj.id + "').html()",

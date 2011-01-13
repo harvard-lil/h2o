@@ -93,6 +93,10 @@ form.formtastic fieldset ol li.text textarea{
   margin: 0px 5px 0px 5px;
 }
 
+.arr .arrbox{
+  border: 1px solid black;
+}
+
 .arr .c{
   font-size: 14px;
   padding: 2px;
