@@ -85,15 +85,15 @@
       <h3><span class="print-inline">Hidden </span>Layers</h3>
       <div id="view-layer-list" class="layers">
         <% @collage.layers.each do |l| %>
-          <div class="tag-container">
-            <%= check_box_tag("layer-checkbox-#{l.id}",1,nil, {:class => "layer-control", :id => "layer-checkbox-#{l.id}"}) %>
-            <label for="layer-checkbox-<%= l.id %>"><span class="c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span></label>
-          </div>
+          <span class="layer c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span><br/>
         <% end %>
       </div>
       <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
       <div id="layer-button">
         <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+      </div>
+      <div>
+        <a href="#" id="hide-unlayered-text">hide unlayered text</a>
       </div>
     </div>
   <% end %>
@@ -133,19 +133,21 @@
   <div class="print-block print-annotation-list">
     <h1>Annotations</h1>
     <% @collage.annotations.find(:all,:include => {:accepted_roles => {:users => []}, :layers=> []}).each do |ann| %>
-      <div class="annotation">
-        <h2><%= ann.layers.map(&:name).join(',') %> #<%= ann.id %></h2>
-        <% unless ann.annotation.blank? %>
-          <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
-        <% end %>
-        <div class="meta">
-          <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
-          <% if ann.editors %>
-            <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
+      <% if ann.annotation_word_count > 0 %>
+        <div class="annotation">
+          <h2><%= ann.layers.map(&:name).join(',') %> #<%= ann.id %></h2>
+          <% unless ann.annotation.blank? %>
+            <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
           <% end %>
-          <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
+          <div class="meta">
+            <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
+            <% if ann.editors %>
+              <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
+            <% end %>
+            <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
+          </div>
         </div>
-      </div>
+      <% end %>
     <% end %>
   </div>
 <% end %>

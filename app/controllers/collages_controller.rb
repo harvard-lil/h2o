@@ -43,9 +43,13 @@ class CollagesController < BaseController
   end
 
   def annotations
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:annotations => {:layers => true}])
+    @annotations = Annotation.find(:all, 
+                                    :conditions => ['collage_id = ?', (params[:id].blank?) ? params[:collage_id] : params[:id]],
+                                    :include => :layers,
+                                    :order => 'substring(annotation_start from 2)::INTEGER'
+                                   )
     respond_to do |format|
-      format.json { render :json => @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) }
+      format.json { render :json => @annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) }
     end
   end
 

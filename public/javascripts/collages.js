@@ -92,7 +92,8 @@ jQuery.extend({
       }
     } else {
       var canvas = document.createElement('canvas');
-      jQuery(canvas).attr('width',60).attr('height',18).appendTo(jQuery(arr)); 
+      var canvasWidth = (obj.annotation_word_count > 0) ? 60 : 18;
+      jQuery(canvas).attr('width',canvasWidth).attr('height',18).appendTo(jQuery(arr)); 
       var ctx = canvas.getContext('2d');
       ctx.fillStyle = jQuery(arr).css('color');
       ctx.strokeStyle = jQuery(arr).css('color');
@@ -100,12 +101,12 @@ jQuery.extend({
       ctx.font = '12px Arial';
       ctx.beginPath();
       if(arrowType == 'start'){
-        ctx.moveTo(42,0);
-        ctx.lineTo(60,9);
-        ctx.lineTo(42,18);
+        ctx.moveTo(canvasWidth - 18,0);
+        ctx.lineTo(canvasWidth,9);
+        ctx.lineTo(canvasWidth - 18,18);
         ctx.fill();
         if(obj.annotation_word_count > 0){
-          ctx.strokeRect(0,0,42,18);
+          ctx.strokeRect(0,0,canvasWidth - 18,18);
           ctx.fillText(aIndex,18,14);
         }
       } else {
@@ -339,7 +340,9 @@ jQuery.extend({
             activeId = window.location.hash.split('#')[1];
           }
           jQuery.annotateRange(this.annotation,activeId,aIndex);
-          aIndex++;
+          if(this.annotation.annotation_word_count > 0){
+            aIndex++;
+          }
         });
         jQuery.observeWords();
         jQuery.hideEmptyElements();
@@ -565,6 +568,25 @@ jQuery(document).ready(function(){
   if(jQuery('.collage-id').length > 0){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
+
+    jQuery('#hide-unlayered-text').click(function(e){
+      e.preventDefault();
+      if(jQuery(this).html().match(/hide/i)){
+        jQuery('#annotatable-content tt:not(.a)').css('display','none');
+        jQuery(this).html('show unlayered text');
+      } else {
+        jQuery('#annotatable-content tt:not(.a)').css('display','inline');
+        jQuery(this).html('hide unlayered text');
+      }
+    });
+
+    jQuery('#view-layer-list .layer').click(function(e){
+      e.preventDefault();
+      var layerId = jQuery(this).attr('id').split(/-/)[2];
+      //FIXME - create toggle.
+      jQuery('.l' + layerId).hide();
+    });
+
     jQuery(".tagging-autofill-layers").live('click',function(){
       jQuery(this).tagSuggest({
         url: jQuery.rootPath() + 'annotations/autocomplete_layers',

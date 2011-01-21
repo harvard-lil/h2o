@@ -121,7 +121,7 @@ class Collage < ActiveRecord::Base
         annotation_rules << {
           :start => ann.annotation_start_numeral.to_i, 
           :end => ann.annotation_end_numeral.to_i, 
-          :annotation_class => "a#{ann.id}",
+          :annotation_class => "a a#{ann.id}",
           :layer_list => ann.layers.collect{|l| "l#{l.id}"}
         }
       end
