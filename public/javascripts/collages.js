@@ -569,22 +569,53 @@ jQuery(document).ready(function(){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
 
-    jQuery('#hide-unlayered-text').click(function(e){
-      e.preventDefault();
-      if(jQuery(this).html().match(/hide/i)){
-        jQuery('#annotatable-content tt:not(.a)').css('display','none');
-        jQuery(this).html('show unlayered text');
-      } else {
-        jQuery('#annotatable-content tt:not(.a)').css('display','inline');
-        jQuery(this).html('hide unlayered text');
-      }
-    });
-
     jQuery('#view-layer-list .layer').click(function(e){
       e.preventDefault();
       var layerId = jQuery(this).attr('id').split(/-/)[2];
-      //FIXME - create toggle.
-      jQuery('.l' + layerId).hide();
+      if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
+        //shown. Hide it.
+        jQuery('.l' + layerId).css('display','none');
+        jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
+      } else {
+        //hidden. show it.
+        jQuery('.l' + layerId).css('display','');
+        jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+      }
+    });
+
+    jQuery('#toggle-unlayered-text').click(function(e){
+      e.preventDefault();
+      if(jQuery('#unlayered-text-indicator').html() == 'on'){
+        jQuery('#annotatable-content tt:not(.a)').css('display','none');
+        jQuery('#unlayered-text-indicator').html('off').addClass('off');
+      } else {
+        // Browsers will assume the default display for a specific tag.
+        jQuery('#annotatable-content tt:not(.a)').css('display','');
+        jQuery('#unlayered-text-indicator').html('on').removeClass('off');
+      }
+    });
+    
+    jQuery('.collapsible').bind({
+      click: function(e){
+        e.preventDefault();
+        // get the second class right after .collapsible
+        var targetClass = jQuery(this).attr('class').split(/\s+/)[1];
+        if(jQuery('.' + targetClass + '-target').is(':visible')){
+          jQuery(this).html(jQuery(this).html().replace('▼','▶'));
+          jQuery('.' + targetClass + '-target').hide('fast');
+        } else {
+          jQuery(this).html(jQuery(this).html().replace('▶','▼'));
+          jQuery('.' + targetClass + '-target').show('fast');
+        }
+        
+      },
+      mouseover: function(e){
+        e.preventDefault();
+        jQuery(this).css('cursor','pointer');
+      },
+      mouseout: function(e){
+        jQuery(this).css('cursor','pointer');
+      }
     });
 
     jQuery(".tagging-autofill-layers").live('click',function(){

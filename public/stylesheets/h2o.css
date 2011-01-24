@@ -436,12 +436,37 @@ span.tagMatches {
   margin-right: 2px;
 }
 
+.layers{
+  line-height: 1.6em;
+}
 span.tagMatches span, .layers span{
     padding: 2px;
     margin-right: 4px;
     background-color: #0000AB;
     color: #fff;
     cursor: default;
+}
+
+.layers .layer-indicator{
+  width: 3em;
+  font-size: smaller;
+  font-weight: bold;
+  background-color: white;
+  color: black;
+  padding: 2px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  border: 1px solid black;
+}
+
+.layers .unlayered{
+  background: white;
+  color: black;
+}
+
+.layers .layer-indicator.off{
+  background-color: #aaaaaa;
+  color: white;
 }
 
 span.tagMatches span, .layers span.c1,.c1{
@@ -623,17 +648,13 @@ span.tagMatches span, .layers span.c0,.c0{
     right: -280px;
 }
 
-#tools h3{
-    margin-top: 10px;
-}
-
 #tools h2, #tools .meta{
     margin: 0px 0px 1em 0px;
     padding-bottom: 5px;
     border-bottom: 1px dotted #cccccc;
 }
 
-ul.lineage, .lineage li{
+.lineage ul, .lineage li{
     list-style-type: none;
     margin: 0px;
     padding: 0px;

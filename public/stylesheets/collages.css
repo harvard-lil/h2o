@@ -106,3 +106,8 @@ form.formtastic fieldset ol li.text textarea{
   text-align: right;
   margin-top: 5px;
 }
+
+.lineage-target, .layer-meta-target{
+  display: none;
+}
+

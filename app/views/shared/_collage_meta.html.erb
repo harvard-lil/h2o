@@ -1,5 +1,5 @@
 <% cache("collage-meta-#{collage_meta.id}") do %>
-  <div class="meta layers">
+  <div class="meta layers layer-meta-target">
     <ul>
       <li>Annotations: <%= (collage_meta.annotations.blank?) ? 0 : collage_meta.annotations.length %></li>
       <%=  

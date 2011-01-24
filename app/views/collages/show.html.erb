@@ -59,8 +59,8 @@
 
   <% cache("collage-show-layer-controls-#{@collage.id}") do %>
     <div class="lineage">
-      <h3>Lineage</h3>
-      <ul class="lineage">
+      <h3 class="collapsible lineage">▶ Lineage</h3>
+      <ul class="lineage-target">
         <% @collage.ancestors.each do|anc| %>
           <li class="depth-<%= anc.depth %>"><%= link_to(anc,anc) %></li>
         <% end %>
@@ -78,22 +78,19 @@
         <% end %>
       </ul>
     </div>
-    <h3>Layer Info</h3>
+    <h3 class="collapsible layer-meta">▶ Layer Meta</h3>
 
     <%= render :partial => 'shared/collage_meta', :object => @collage %>
     <div id="layer-tools">
       <h3><span class="print-inline">Hidden </span>Layers</h3>
       <div id="view-layer-list" class="layers">
         <% @collage.layers.each do |l| %>
-          <span class="layer c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span><br/>
+          <span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span><br/>
         <% end %>
+        <span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered" id="toggle-unlayered-text">unlayered text</span>
       </div>
-      <br /><input name="hide-non-annotated-text" id="hide-non-annotated-text" type="checkbox" value="" /><label for="hide-non-annotated-text">Unlayered text</label><br/>
       <div id="layer-button">
         <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
-      </div>
-      <div>
-        <a href="#" id="hide-unlayered-text">hide unlayered text</a>
       </div>
     </div>
   <% end %>
