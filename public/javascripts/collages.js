@@ -150,9 +150,17 @@ jQuery.extend({
     jQuery(arr).click(function(e){
       e.preventDefault();
       if(jQuery('.a' + obj.id + ':visible').length > 0){
-        jQuery('.a' + obj.id).hide();
+        var node = jQuery('#' + obj.annotation_start);
+        var endId = obj.annotation_end;
+        // FIXME
+        jQuery('#' + obj.annotation_start).next().css('display','none');
+        jQuery('#' + obj.annotation_end).prev().css('display','none');
+//        jQuery('#' + obj.annotation_start).css('display','none');
+//        jQuery('#' + obj.annotation_end).css('display','none');
       } else {
-        jQuery('.a' + obj.id).show();
+        jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display','');
+        jQuery('#' + obj.annotation_start).css('display','');
+        jQuery('#' + obj.annotation_end).css('display','');
       }
     });
     jQuery(arr).hoverIntent({
@@ -308,7 +316,7 @@ jQuery.extend({
   hideEmptyElements: function(){
     // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
     // FIXME! dammit.
-    jQuery('#annotatable-content tt:hidden').remove();
+  //  jQuery('#annotatable-content tt:hidden').remove();
     //jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul, #annotatable-content blockquote, #annotatable-content ol, #annotatable-content h1').filter(function(){
       jQuery('#annotatable-content').find('center,p,li,ul,blockquote,ol,h1,h2,h3,h4,h5').filter(function(){
         var text = jQuery(this).text();
@@ -573,15 +581,38 @@ jQuery(document).ready(function(){
     jQuery('#view-layer-list .layer').click(function(e){
       e.preventDefault();
       var layerId = jQuery(this).attr('id').split(/-/)[2];
+      var spinner = jQuery('#layer-spinner-' + layerId);
+      spinner.queue(function(){
+        jQuery(this).show();
+        jQuery(this).delay(250);
+        jQuery(this).dequeue();
+      });
       if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
         //shown. Hide it.
-        jQuery('.l' + layerId).css('display','none');
-        jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
+        spinner.queue(function(){
+          jQuery('.l' + layerId).css('display','none');
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
+          jQuery(this).dequeue();
+        });
       } else {
         //hidden. show it.
-        jQuery('.l' + layerId).css('display','');
-        jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+        spinner.queue(function(){
+          jQuery('.l' + layerId).css('display','');
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+          jQuery(this).dequeue();
+        });
       }
+      spinner.queue(function(){
+        jQuery(this).hide();
+        jQuery(this).dequeue();
+      });
+
     });
 
     jQuery('#toggle-unlayered-text').click(function(e){
