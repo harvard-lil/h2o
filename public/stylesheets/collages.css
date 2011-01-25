@@ -115,3 +115,7 @@ form.formtastic fieldset ol li.text textarea{
   display: block;
 }
 
+.layer-spinner{
+  display: none;
+}
+

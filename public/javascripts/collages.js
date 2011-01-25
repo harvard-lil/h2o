@@ -586,14 +586,38 @@ jQuery(document).ready(function(){
 
     jQuery('#toggle-unlayered-text').click(function(e){
       e.preventDefault();
+      var spinner = jQuery('#unlayered-spinner');
+      spinner.queue(function(){
+        jQuery(this).show();
+        jQuery(this).delay(250);
+        jQuery(this).dequeue();
+      });
+
       if(jQuery('#unlayered-text-indicator').html() == 'on'){
-        jQuery('#annotatable-content tt:not(.a)').css('display','none');
-        jQuery('#unlayered-text-indicator').html('off').addClass('off');
+        spinner.queue(function(){
+          jQuery('#annotatable-content tt:not(.a)').css('display','none');
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#unlayered-text-indicator').html('off').addClass('off');
+          jQuery(this).dequeue();
+        });
       } else {
-        // Browsers will assume the default display for a specific tag.
-        jQuery('#annotatable-content tt:not(.a)').css('display','');
-        jQuery('#unlayered-text-indicator').html('on').removeClass('off');
+        spinner.queue(function(){
+          jQuery('#annotatable-content tt:not(.a)').css('display','');
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#unlayered-text-indicator').html('on').removeClass('off');
+          jQuery(this).dequeue();
+        });
       }
+
+      spinner.queue(function(){
+        jQuery(this).hide();
+        jQuery(this).dequeue();
+      });
+
     });
     
     jQuery('.collapsible').bind({
