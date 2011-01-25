@@ -111,3 +111,7 @@ form.formtastic fieldset ol li.text textarea{
   display: none;
 }
 
+#collage-list .layer-meta-target{
+  display: block;
+}
+

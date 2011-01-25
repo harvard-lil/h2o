@@ -307,6 +307,7 @@ jQuery.extend({
 
   hideEmptyElements: function(){
     // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
+    // FIXME! dammit.
     jQuery('#annotatable-content tt:hidden').remove();
     //jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul, #annotatable-content blockquote, #annotatable-content ol, #annotatable-content h1').filter(function(){
       jQuery('#annotatable-content').find('center,p,li,ul,blockquote,ol,h1,h2,h3,h4,h5').filter(function(){
