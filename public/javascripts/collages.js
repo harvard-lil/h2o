@@ -612,91 +612,97 @@ jQuery(document).ready(function(){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
 
-    jQuery('#view-layer-list .layer').click(function(e){
-      e.preventDefault();
-      var layerId = jQuery(this).attr('id').split(/-/)[2];
-      var spinner = jQuery('#layer-spinner-' + layerId);
-      spinner.queue(function(){
-        jQuery(this).show();
-        jQuery(this).delay(250);
-        jQuery(this).dequeue();
-      });
-      // Update indicator
-      if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
+    jQuery('#view-layer-list .layer').bind({
+      click: function(e){
+        e.preventDefault();
+        var layerId = jQuery(this).attr('id').split(/-/)[2];
+        var spinner = jQuery('#layer-spinner-' + layerId);
         spinner.queue(function(){
-          var annotations = jQuery('body').data('annotation_objects');
-          jQuery(annotations).each(function(i,ann){
-            jQuery(ann.annotation.layers).each(function(i,layer){
-//              console.log(layer.id);
-              if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'off');
-              }
+          jQuery(this).show();
+          jQuery(this).delay(250);
+          jQuery(this).dequeue();
+        });
+        // Update indicator
+        if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
+          spinner.queue(function(){
+            var annotations = jQuery('body').data('annotation_objects');
+            jQuery(annotations).each(function(i,ann){
+              jQuery(ann.annotation.layers).each(function(i,layer){
+                //              console.log(layer.id);
+                if(layer.id == layerId){
+                  jQuery.toggleAnnotation(ann.annotation,'off');
+                }
+              });
             });
+            jQuery(this).dequeue();
           });
-          jQuery(this).dequeue();
-        });
-        spinner.queue(function(){
-          jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
-          jQuery(this).dequeue();
-        });
-      } else {
-        spinner.queue(function(){
-          var annotations = jQuery('body').data('annotation_objects');
-          jQuery(annotations).each(function(i,ann){
-            jQuery(ann.annotation.layers).each(function(i,layer){
-              if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'on');
-              }
+          spinner.queue(function(){
+            jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
+            jQuery(this).dequeue();
+          });
+        } else {
+          spinner.queue(function(){
+            var annotations = jQuery('body').data('annotation_objects');
+            jQuery(annotations).each(function(i,ann){
+              jQuery(ann.annotation.layers).each(function(i,layer){
+                if(layer.id == layerId){
+                  jQuery.toggleAnnotation(ann.annotation,'on');
+                }
+              });
             });
+            jQuery(this).dequeue();
           });
-          jQuery(this).dequeue();
-        });
+          spinner.queue(function(){
+            jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+            jQuery(this).dequeue();
+          });
+        }
         spinner.queue(function(){
-          jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+          jQuery(this).hide();
           jQuery(this).dequeue();
         });
+      },
+      mouseover: function(e){
+        jQuery(this).css('cursor','pointer');
       }
-      spinner.queue(function(){
-        jQuery(this).hide();
-        jQuery(this).dequeue();
-      });
-
     });
 
-    jQuery('#toggle-unlayered-text').click(function(e){
-      e.preventDefault();
-      var spinner = jQuery('#unlayered-spinner');
-      spinner.queue(function(){
-        jQuery(this).show();
-        jQuery(this).delay(250);
-        jQuery(this).dequeue();
-      });
-
-      if(jQuery('#unlayered-text-indicator').html() == 'on'){
+    jQuery('#toggle-unlayered-text').bind({
+      click: function(e){
+        e.preventDefault();
+        var spinner = jQuery('#unlayered-spinner');
         spinner.queue(function(){
-          jQuery('#annotatable-content tt:not(.a)').css('display','none');
+          jQuery(this).show();
+          jQuery(this).delay(250);
           jQuery(this).dequeue();
         });
+        if(jQuery('#unlayered-text-indicator').html() == 'on'){
+          spinner.queue(function(){
+            jQuery('#annotatable-content tt:not(.a)').css('display','none');
+            jQuery(this).dequeue();
+          });
+          spinner.queue(function(){
+            jQuery('#unlayered-text-indicator').html('off').addClass('off');
+            jQuery(this).dequeue();
+          });
+        } else {
+          spinner.queue(function(){
+            jQuery('#annotatable-content tt:not(.a)').css('display','');
+            jQuery(this).dequeue();
+          });
+          spinner.queue(function(){
+            jQuery('#unlayered-text-indicator').html('on').removeClass('off');
+            jQuery(this).dequeue();
+          });
+        }
         spinner.queue(function(){
-          jQuery('#unlayered-text-indicator').html('off').addClass('off');
+          jQuery(this).hide();
           jQuery(this).dequeue();
         });
-      } else {
-        spinner.queue(function(){
-          jQuery('#annotatable-content tt:not(.a)').css('display','');
-          jQuery(this).dequeue();
-        });
-        spinner.queue(function(){
-          jQuery('#unlayered-text-indicator').html('on').removeClass('off');
-          jQuery(this).dequeue();
-        });
+      },
+      mouseover: function(e){
+        jQuery(this).css('cursor','pointer');
       }
-
-      spinner.queue(function(){
-        jQuery(this).hide();
-        jQuery(this).dequeue();
-      });
-
     });
     
     jQuery('.collapsible').bind({
@@ -711,15 +717,11 @@ jQuery(document).ready(function(){
           jQuery(this).html(jQuery(this).html().replace('▶','▼'));
           jQuery('.' + targetClass + '-target').show('fast');
         }
-        
       },
       mouseover: function(e){
         e.preventDefault();
         jQuery(this).css('cursor','pointer');
-      },
-      mouseout: function(e){
-        jQuery(this).css('cursor','pointer');
-      }
+      }    
     });
 
     jQuery(".tagging-autofill-layers").live('click',function(){
