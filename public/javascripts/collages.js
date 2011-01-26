@@ -149,62 +149,7 @@ jQuery.extend({
     };
     jQuery(arr).click(function(e){
       e.preventDefault();
-      if(jQuery('.a' + obj.id + ':visible').length > 0){
-        var node = jQuery('#' + obj.annotation_start);
-        var endId = obj.annotation_end;
-        // FIXME
-
-        //So what we want to do is get parents up to #annotatable-content for the start node.
-        //Then - for the end node, get its parents up to #annotatable-content.
-        //* If the start and end node have the same parent, just the hide content between them.
-        //* If they are different, hide from the start to the end of its parent.
-        //* Then iterate from the start node's parent to the end node's parent, hiding nodes along the way. Then hide from the end node to the start of its parent.
-
-        var startNode = jQuery('#' + obj.annotation_start);
-        var endNode = jQuery('#' + obj.annotation_end);
-
-        var startRootParent = jQuery(startNode).parentsUntil('#annotatable-content').last();
-        var endRootParent = jQuery(endNode).parentsUntil('#annotatable-content').last();
-
-        console.log('Start root parent:', jQuery(startRootParent)[0]);
-        console.log('end root parent:', jQuery(endRootParent)[0]);
-
-        if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
-          // start and end parents are the same.
-          console.log('start and end are the same');
-          jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display','none');
-          jQuery(startNode).css('display','none');
-          jQuery(endNode).css('display','none');
-        } else {
-          // start and end parents AREN'T the same.
-          // Iterate over the nodes between startRootParent and endRootParent, hiding them.
-          // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
-          console.log('start and end ARE NOT the same');
-          // nextUntil takes a selector, not a node. We'll need to iterate through. poo.
-
-          jQuery(startRootParent).nextAll().each(function(index,el){
-            console.log('node',el);
-            console.log('endRootParent',endRootParent);
-            //FIXME - does not work in IE. FUCK YOU, IE!
-            if (el.isSameNode(jQuery(endRootParent)[0])){
-              console.log("we're at the end!");
-              return false;
-            } else {
-              jQuery(el).css('display','none');
-            }
-          });
-//          jQuery(startRootParent).nextUntil(endRootParent).css('display','none');
-          jQuery(startNode).nextUntil().css('display','none');
-          jQuery(endNode).prevUntil().css('display','none');
-         jQuery(startNode).css('display','none');
-          jQuery(endNode).css('display','none');
-        }
-
-      } else {
-        jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display','');
-        jQuery('#' + obj.annotation_start).css('display','');
-        jQuery('#' + obj.annotation_end).css('display','');
-      }
+      jQuery.toggleAnnotation(obj);
     });
     jQuery(arr).hoverIntent({
       over: function(e){
@@ -217,6 +162,50 @@ jQuery.extend({
         jQuery('.a' + obj.id).removeClass('highlight');
       }
     });
+  },
+
+  toggleAnnotation: function(obj,displaySelector){
+    var displayVal = '';
+    if(typeof displaySelector === 'undefined'){
+      displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
+    } else {
+      displayVal = (displaySelector == 'on') ? '' : 'none';
+    }
+    var node = jQuery('#' + obj.annotation_start);
+    var endId = obj.annotation_end;
+    //So what we want to do is get parents up to #annotatable-content for the start node.
+    //Then - for the end node, get its parents up to #annotatable-content.
+    //* If the start and end node have the same parent, just the hide content between them.
+    //* If they are different, hide from the start to the end of its parent.
+    //* Then iterate from the start node's parent to the end node's parent, hiding nodes along the way. Then hide from the end node to the start of its parent.
+    var startNode = jQuery('#' + obj.annotation_start);
+    var endNode = jQuery('#' + obj.annotation_end);
+
+    var startRootParent = jQuery(startNode).parentsUntil('#annotatable-content').last();
+    var endRootParent = jQuery(endNode).parentsUntil('#annotatable-content').last();
+    if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
+      // start and end parents are the same.
+      jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display',displayVal);
+      jQuery(startNode).css('display',displayVal);
+      jQuery(endNode).css('display',displayVal);
+    } else {
+      // start and end parents AREN'T the same.
+      // Iterate over the nodes between startRootParent and endRootParent, hiding them.
+      // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
+      //          console.log('start and end ARE NOT the same');
+      // nextUntil takes a selector, not a node. We'll need to iterate through. poo.
+      jQuery(startRootParent).nextAll().each(function(index,el){
+        if (el === jQuery(endRootParent)[0]){
+          return false;
+        } else {
+          jQuery(el).filter(':not(.arr)').css('display',displayVal);
+        }
+      });
+      jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
+      jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
+      jQuery(startNode).css('display',displayVal);
+      jQuery(endNode).css('display',displayVal);
+    }
   },
 
   annotationButton: function(e,annotationId){
@@ -386,6 +375,8 @@ jQuery.extend({
       },
       success: function(json){
         var aIndex = 1;
+        //stash for later
+        jQuery('body').data('annotation_objects',json);
         jQuery(json).each(function(){
           var activeId = false;
           if(window.location.hash){
@@ -630,10 +621,18 @@ jQuery(document).ready(function(){
         jQuery(this).delay(250);
         jQuery(this).dequeue();
       });
+      // Update indicator
       if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
-        //shown. Hide it.
         spinner.queue(function(){
-          jQuery('.l' + layerId).css('display','none');
+          var annotations = jQuery('body').data('annotation_objects');
+          jQuery(annotations).each(function(i,ann){
+            jQuery(ann.annotation.layers).each(function(i,layer){
+//              console.log(layer.id);
+              if(layer.id == layerId){
+                jQuery.toggleAnnotation(ann.annotation,'off');
+              }
+            });
+          });
           jQuery(this).dequeue();
         });
         spinner.queue(function(){
@@ -641,9 +640,15 @@ jQuery(document).ready(function(){
           jQuery(this).dequeue();
         });
       } else {
-        //hidden. show it.
         spinner.queue(function(){
-          jQuery('.l' + layerId).css('display','');
+          var annotations = jQuery('body').data('annotation_objects');
+          jQuery(annotations).each(function(i,ann){
+            jQuery(ann.annotation.layers).each(function(i,layer){
+              if(layer.id == layerId){
+                jQuery.toggleAnnotation(ann.annotation,'on');
+              }
+            });
+          });
           jQuery(this).dequeue();
         });
         spinner.queue(function(){
