@@ -153,10 +153,53 @@ jQuery.extend({
         var node = jQuery('#' + obj.annotation_start);
         var endId = obj.annotation_end;
         // FIXME
-        jQuery('#' + obj.annotation_start).next().css('display','none');
-        jQuery('#' + obj.annotation_end).prev().css('display','none');
-//        jQuery('#' + obj.annotation_start).css('display','none');
-//        jQuery('#' + obj.annotation_end).css('display','none');
+
+        //So what we want to do is get parents up to #annotatable-content for the start node.
+        //Then - for the end node, get its parents up to #annotatable-content.
+        //* If the start and end node have the same parent, just the hide content between them.
+        //* If they are different, hide from the start to the end of its parent.
+        //* Then iterate from the start node's parent to the end node's parent, hiding nodes along the way. Then hide from the end node to the start of its parent.
+
+        var startNode = jQuery('#' + obj.annotation_start);
+        var endNode = jQuery('#' + obj.annotation_end);
+
+        var startRootParent = jQuery(startNode).parentsUntil('#annotatable-content').last();
+        var endRootParent = jQuery(endNode).parentsUntil('#annotatable-content').last();
+
+        console.log('Start root parent:', jQuery(startRootParent)[0]);
+        console.log('end root parent:', jQuery(endRootParent)[0]);
+
+        if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
+          // start and end parents are the same.
+          console.log('start and end are the same');
+          jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display','none');
+          jQuery(startNode).css('display','none');
+          jQuery(endNode).css('display','none');
+        } else {
+          // start and end parents AREN'T the same.
+          // Iterate over the nodes between startRootParent and endRootParent, hiding them.
+          // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
+          console.log('start and end ARE NOT the same');
+          // nextUntil takes a selector, not a node. We'll need to iterate through. poo.
+
+          jQuery(startRootParent).nextAll().each(function(index,el){
+            console.log('node',el);
+            console.log('endRootParent',endRootParent);
+            //FIXME - does not work in IE. FUCK YOU, IE!
+            if (el.isSameNode(jQuery(endRootParent)[0])){
+              console.log("we're at the end!");
+              return false;
+            } else {
+              jQuery(el).css('display','none');
+            }
+          });
+//          jQuery(startRootParent).nextUntil(endRootParent).css('display','none');
+          jQuery(startNode).nextUntil().css('display','none');
+          jQuery(endNode).prevUntil().css('display','none');
+         jQuery(startNode).css('display','none');
+          jQuery(endNode).css('display','none');
+        }
+
       } else {
         jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display','');
         jQuery('#' + obj.annotation_start).css('display','');
