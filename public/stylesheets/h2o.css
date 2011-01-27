@@ -447,6 +447,9 @@ span.tagMatches span, .layers span{
     cursor: default;
 }
 
+.layers .layer-control{
+  background: transparent;
+}
 .layers .layer-indicator{
   width: 3em;
   font-size: smaller;
@@ -619,6 +622,10 @@ span.tagMatches span, .layers span.c0,.c0{
 
 .highlight, .subhighlight{
     background-color: yellow;
+}
+
+.annotation_start_highlight{
+  background-color: #98C3E0;
 }
 
 .pagination{

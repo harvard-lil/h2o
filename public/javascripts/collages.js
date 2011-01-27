@@ -129,7 +129,8 @@ jQuery.extend({
       strokeStyle: '#B7B7B7', 
       spikeLength: 20, 
       shadow: true,
-      spikeGirth: 10, 
+      spikeGirth: 10,
+      width: ((obj.annotation_word_count > 0) ? 300 : 150),
       padding: 8, 
       cornerRadius: 5,
       wrapperzIndex: 900,
@@ -147,21 +148,28 @@ jQuery.extend({
         });
       }
     };
+
     jQuery(arr).click(function(e){
       e.preventDefault();
       jQuery.toggleAnnotation(obj);
     });
+
     jQuery(arr).hoverIntent({
       over: function(e){
         jQuery(arr).bt(btOptions);
         jQuery(arr).btOn();
         jQuery('.a' + obj.id).addClass('highlight');
       },
-      timeout: 300,
+      timeout: 3000,
       out: function(e){
         jQuery('.a' + obj.id).removeClass('highlight');
+        if(obj.annotation_word_count == 0){
+          // If an annotation doesn't have text, close it automatically.
+          jQuery(arr).btOff();
+        }
       }
     });
+
   },
 
   toggleAnnotation: function(obj,displaySelector){
@@ -450,10 +458,10 @@ jQuery.extend({
 
   wordEvent: function(e){
     if(e.type == 'mouseover'){
-      jQuery(this).addClass('highlight')
+      jQuery(this).addClass('annotation_start_highlight')
     }
     if(e.type == 'mouseout'){
-      jQuery(this).removeClass('highlight');
+      jQuery(this).removeClass('annotation_start_highlight');
     } else if(e.type == 'click'){
       e.preventDefault();
       if(jQuery('#new-annotation-start').html().length > 0){
@@ -477,7 +485,6 @@ jQuery.extend({
             }
           }
         });
-        // close tooltip.
         jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
         e.preventDefault();
         jQuery.ajax({
@@ -527,7 +534,7 @@ jQuery.extend({
           contentSelector: 'jQuery("#annotation-start-marker")',
           fill: '#F7F7F7',
           positions: ['top','most'],
-          active_class: 'subhighlight',
+          active_class: 'annotation_start_highlight',
           clickAnywhereToClose: false,
           closeWhenOthersOpen: true
         });
@@ -563,11 +570,6 @@ jQuery(document).ready(function(){
   jQuery('#collage_submit').button({
     icons: {
       primary: 'ui-icon-circle-plus'
-    }
-  });
-  jQuery('.layer-button').button({
-    icons: {
-      primary: 'ui-icon-check'
     }
   });
   if(jQuery('#collage_description').length > 0){
@@ -612,97 +614,92 @@ jQuery(document).ready(function(){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
 
-    jQuery('#view-layer-list .layer').bind({
-      click: function(e){
-        e.preventDefault();
-        var layerId = jQuery(this).attr('id').split(/-/)[2];
-        var spinner = jQuery('#layer-spinner-' + layerId);
+    jQuery('#view-layer-list .layer-control').click(function(e){
+      e.preventDefault();
+      var layerId = jQuery(this).attr('id').split(/-/)[2];
+      var spinner = jQuery('#layer-spinner-' + layerId);
+      spinner.queue(function(){
+        jQuery(this).show();
+        jQuery(this).delay(250);
+        jQuery(this).dequeue();
+      });
+      // Update indicator
+      if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
         spinner.queue(function(){
-          jQuery(this).show();
-          jQuery(this).delay(250);
+          var annotations = jQuery('body').data('annotation_objects');
+          jQuery(annotations).each(function(i,ann){
+            jQuery(ann.annotation.layers).each(function(i,layer){
+              //              console.log(layer.id);
+              if(layer.id == layerId){
+                jQuery.toggleAnnotation(ann.annotation,'off');
+              }
+            });
+          });
           jQuery(this).dequeue();
         });
-        // Update indicator
-        if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
-          spinner.queue(function(){
-            var annotations = jQuery('body').data('annotation_objects');
-            jQuery(annotations).each(function(i,ann){
-              jQuery(ann.annotation.layers).each(function(i,layer){
-                //              console.log(layer.id);
-                if(layer.id == layerId){
-                  jQuery.toggleAnnotation(ann.annotation,'off');
-                }
-              });
-            });
-            jQuery(this).dequeue();
-          });
-          spinner.queue(function(){
-            jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
-            jQuery(this).dequeue();
-          });
-        } else {
-          spinner.queue(function(){
-            var annotations = jQuery('body').data('annotation_objects');
-            jQuery(annotations).each(function(i,ann){
-              jQuery(ann.annotation.layers).each(function(i,layer){
-                if(layer.id == layerId){
-                  jQuery.toggleAnnotation(ann.annotation,'on');
-                }
-              });
-            });
-            jQuery(this).dequeue();
-          });
-          spinner.queue(function(){
-            jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
-            jQuery(this).dequeue();
-          });
-        }
         spinner.queue(function(){
-          jQuery(this).hide();
+          jQuery('#layer-indicator-' + layerId).html('off').addClass('off');
           jQuery(this).dequeue();
         });
-      },
-      mouseover: function(e){
-        jQuery(this).css('cursor','pointer');
+      } else {
+        spinner.queue(function(){
+          var annotations = jQuery('body').data('annotation_objects');
+          jQuery(annotations).each(function(i,ann){
+            jQuery(ann.annotation.layers).each(function(i,layer){
+              if(layer.id == layerId){
+                jQuery.toggleAnnotation(ann.annotation,'on');
+              }
+            });
+          });
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#layer-indicator-' + layerId).html('on').removeClass('off');
+          jQuery(this).dequeue();
+        });
       }
+      spinner.queue(function(){
+        jQuery(this).hide();
+        jQuery(this).dequeue();
+      });
     });
 
-    jQuery('#toggle-unlayered-text').bind({
-      click: function(e){
-        e.preventDefault();
-        var spinner = jQuery('#unlayered-spinner');
+    jQuery('#view-layer-list .layer-control, #view-layer-list .layer-indicator, #view-layer-list .layer, #toggle-unlayered-text, .unlayered').mouseover(function(e){
+      e.preventDefault();
+      jQuery(this).css('cursor','pointer');
+    });
+
+    jQuery('#toggle-unlayered-text').click(function(e){
+      e.preventDefault();
+      var spinner = jQuery('#unlayered-spinner');
+      spinner.queue(function(){
+        jQuery(this).show();
+        jQuery(this).delay(250);
+        jQuery(this).dequeue();
+      });
+      if(jQuery('#unlayered-text-indicator').html() == 'on'){
         spinner.queue(function(){
-          jQuery(this).show();
-          jQuery(this).delay(250);
+          jQuery('#annotatable-content tt:not(.a)').css('display','none');
           jQuery(this).dequeue();
         });
-        if(jQuery('#unlayered-text-indicator').html() == 'on'){
-          spinner.queue(function(){
-            jQuery('#annotatable-content tt:not(.a)').css('display','none');
-            jQuery(this).dequeue();
-          });
-          spinner.queue(function(){
-            jQuery('#unlayered-text-indicator').html('off').addClass('off');
-            jQuery(this).dequeue();
-          });
-        } else {
-          spinner.queue(function(){
-            jQuery('#annotatable-content tt:not(.a)').css('display','');
-            jQuery(this).dequeue();
-          });
-          spinner.queue(function(){
-            jQuery('#unlayered-text-indicator').html('on').removeClass('off');
-            jQuery(this).dequeue();
-          });
-        }
         spinner.queue(function(){
-          jQuery(this).hide();
+          jQuery('#unlayered-text-indicator').html('off').addClass('off');
           jQuery(this).dequeue();
         });
-      },
-      mouseover: function(e){
-        jQuery(this).css('cursor','pointer');
+      } else {
+        spinner.queue(function(){
+          jQuery('#annotatable-content tt:not(.a)').css('display','');
+          jQuery(this).dequeue();
+        });
+        spinner.queue(function(){
+          jQuery('#unlayered-text-indicator').html('on').removeClass('off');
+          jQuery(this).dequeue();
+        });
       }
+      spinner.queue(function(){
+        jQuery(this).hide();
+        jQuery(this).dequeue();
+      });
     });
     
     jQuery('.collapsible').bind({

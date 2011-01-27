@@ -85,12 +85,9 @@
       <h3><span class="print-inline">Hidden </span>Layers</h3>
       <div id="view-layer-list" class="layers">
         <% @collage.layers.each do |l| %>
-          <span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>" id="layer-name-<%= l.id %>"><%= l.name %></span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "layer-spinner-#{l.id}", :class => 'layer-spinner') %><br/>
+          <div class="layer-control" id="layer-name-<%= l.id %>"><span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>"><%= l.name %></span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "layer-spinner-#{l.id}", :class => 'layer-spinner') %></div>
         <% end %>
-        <span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered" id="toggle-unlayered-text">unlayered text</span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "unlayered-spinner", :class => 'layer-spinner') %>
-      </div>
-      <div id="layer-button">
-        <%= link_to('hide', collage_path(@collage), :class => 'layer-button') %>
+        <div id="toggle-unlayered-text"><span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered">unlayered text</span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "unlayered-spinner", :class => 'layer-spinner') %></div>
       </div>
     </div>
   <% end %>

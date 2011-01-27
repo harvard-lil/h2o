@@ -29,6 +29,13 @@
   padding: 5px;
 }
 
+.bt-content .annotation-content{
+  margin-top: 5px;
+  border: 1px #cccccc;
+  border-style: solid none none none;
+  height: 100px;
+}
+
 .close-annotation-details{
   float: right;
 }
