@@ -64,7 +64,7 @@ jQuery.extend({
     });
 
     var detailNode = jQuery('<span class="annotation-control annotation-start ' + 'c' + (lastLayerId % 10) + ' annotation-control-' + obj.id + '"></span>');
-    jQuery(detailNode).html('<a href="#" class="close-annotation-details ann-close-' + obj.id + '"><img src="/images/elements/close.gif" /></a>' + layerOutput + '<div class="clear"></div>' + ((obj.annotation_word_count > 0) ? '<div class="annotation-content">' + obj.formatted_annotation_content + '</div>' : '' ) + '<div class="more"><a href="#" class="ann-details-' + obj.id +'">more &raquo;</a></div>' + ' <span class="print-inline">#' + obj.id + '</span>');
+    jQuery(detailNode).html('<a href="#" class="close-annotation-details ann-close-' + obj.id + '"><img src="' + jQuery.rootPath() + 'images/elements/close.gif" /></a>' + layerOutput + '<div class="clear"></div>' + ((obj.annotation_word_count > 0) ? '<div class="annotation-content">' + obj.formatted_annotation_content + '</div>' : '' ) + '<div class="more"><a href="#" class="ann-details-' + obj.id +'">more &raquo;</a></div>' + ' <span class="print-inline">#' + obj.id + '</span>');
 
     var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elStart).before(detailNode, startArrow);
