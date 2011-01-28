@@ -174,7 +174,7 @@ jQuery.extend({
 
   toggleAnnotation: function(obj,displaySelector){
     var displayVal = '';
-    if(typeof displaySelector === 'undefined'){
+    if(typeof(displaySelector) === 'undefined'){
       displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
     } else {
       displayVal = (displaySelector == 'on') ? '' : 'none';
@@ -191,20 +191,48 @@ jQuery.extend({
 
     var startRootParent = jQuery(startNode).parentsUntil('#annotatable-content').last();
     var endRootParent = jQuery(endNode).parentsUntil('#annotatable-content').last();
+
+    console.log('Start root: ', startRootParent, typeof(jQuery(startRootParent)[0]),'End Root: ', endRootParent, typeof(jQuery(endRootParent)[0]));
+
     if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
-      // start and end parents are the same.
-      jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).css('display',displayVal);
-      jQuery(startNode).css('display',displayVal);
-      jQuery(endNode).css('display',displayVal);
+      console.log('start and end parent nodes are the same');
+      // start and end parents are the same, which could be an orphaned start and end context.
+      jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).filter(':not(.arr)').css('display',displayVal);
+    } else if(typeof(jQuery(startRootParent)[0]) === 'undefined' && typeof(jQuery(endRootParent)[0]) === 'object'){
+      console.log("There's no start parent node but a valid end parent node");
+      //Hide from the endNode to the beginning of its parent.
+      //And then from the startNode to the end root parent node
+      jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
+      jQuery(startNode).nextAll().each(function(index,el){
+        if (el === jQuery(endRootParent)[0]){
+          return false;
+        } else {
+          jQuery(el).filter(':not(.arr)').css('display',displayVal);
+        }
+      });
+    } else if(typeof(jQuery(startRootParent)[0]) === 'object' && typeof(jQuery(endRootParent)[0]) === 'undefined'){
+      console.log("There's a valid start parent node but no end parent node");
+      // Hide from the start node until the end of it's parent.
+      jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
+      // And then from the endNode to the start parent node.
+      jQuery(endNode).prevAll().each(function(index,el){
+        if (el === jQuery(startRootParent)[0]){
+          return false;
+        } else {
+          jQuery(el).filter(':not(.arr)').css('display',displayVal);
+        }
+      });
+    } else if(typeof(jQuery(startRootParent)[0]) === 'undefined' && typeof(jQuery(endRootParent)[0]) === 'undefined'){
+      //Both nodes start and end with orphan text nodes.
+      console.log("there isn't a valid start or end parent node");
+
+
     } else {
-      // start and end parents AREN'T the same.
+      console.log('start and end are valid nodes and ARE NOT the same');
+      // start and end rootNodes AREN'T the same and are valid nodes nested under #annotatable-content
       // Iterate over the nodes between startRootParent and endRootParent, hiding them.
       // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
-      // console.log('start and end ARE NOT the same');
-      // FIXME
-      // So if a node DOES NOT have a root parent, we need to do something with it, as
-      // the nextUntil / prevUntil filter is going to hide too much.
-      // 
+
       jQuery(startRootParent).nextAll().each(function(index,el){
         if (el === jQuery(endRootParent)[0]){
           return false;
@@ -214,9 +242,9 @@ jQuery.extend({
       });
       jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
       jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
-      jQuery(startNode).css('display',displayVal);
-      jQuery(endNode).css('display',displayVal);
     }
+    jQuery(startNode).css('display',displayVal);
+    jQuery(endNode).css('display',displayVal);
   },
 
   annotationButton: function(e,annotationId){
