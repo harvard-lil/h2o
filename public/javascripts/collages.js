@@ -200,8 +200,11 @@ jQuery.extend({
       // start and end parents AREN'T the same.
       // Iterate over the nodes between startRootParent and endRootParent, hiding them.
       // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
-      //          console.log('start and end ARE NOT the same');
-      // nextUntil takes a selector, not a node. We'll need to iterate through. poo.
+      // console.log('start and end ARE NOT the same');
+      // FIXME
+      // So if a node DOES NOT have a root parent, we need to do something with it, as
+      // the nextUntil / prevUntil filter is going to hide too much.
+      // 
       jQuery(startRootParent).nextAll().each(function(index,el){
         if (el === jQuery(endRootParent)[0]){
           return false;
