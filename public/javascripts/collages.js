@@ -197,7 +197,15 @@ jQuery.extend({
     if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
       console.log('start and end parent nodes are the same');
       // start and end parents are the same, which could be an orphaned start and end context.
-      jQuery('#' + obj.annotation_start).nextUntil('#' + obj.annotation_end).filter(':not(.arr)').css('display',displayVal);
+      //      jQuery(startNode).nextUntil('#' + obj.annotation_end).filter(':not(.arr)').css('display',displayVal);
+      // So this doesn't recurse into block level elements, meaning arrows get hidden wheny they shouldn't. It probably makes sense to write a generic iterator that will find all arrow nodes in the affected range and show them. 
+      jQuery(startNode).nextAll().each(function(index,el){
+        if (el === jQuery(endNode)[0]){
+          return false;
+        } else {
+          jQuery(el).filter(':not(.arr)').css('display',displayVal);
+        }
+      });
     } else if(typeof(jQuery(startRootParent)[0]) === 'undefined' && typeof(jQuery(endRootParent)[0]) === 'object'){
       console.log("There's no start parent node but a valid end parent node");
       //Hide from the endNode to the beginning of its parent.
