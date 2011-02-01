@@ -66,10 +66,10 @@ jQuery.extend({
     var detailNode = jQuery('<span class="annotation-control annotation-start ' + 'c' + (lastLayerId % 10) + ' annotation-control-' + obj.id + '"></span>');
     jQuery(detailNode).html('<a href="#" class="close-annotation-details ann-close-' + obj.id + '"><img src="' + jQuery.rootPath() + 'images/elements/close.gif" /></a>' + layerOutput + '<div class="clear"></div>' + ((obj.annotation_word_count > 0) ? '<div class="annotation-content">' + obj.formatted_annotation_content + '</div>' : '' ) + '<div class="more"><a href="#" class="ann-details-' + obj.id +'">more &raquo;</a></div>' + ' <span class="print-inline">#' + obj.id + '</span>');
 
-    var startArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
+    var startArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elStart).before(detailNode, startArrow);
 
-    var endArrow = jQuery('<span class="arr rc' + (lastLayerId % 10) + '"></span>');
+    var endArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elEnd).after(endArrow);
 
     var idList = ids.join(',');
@@ -78,7 +78,8 @@ jQuery.extend({
     jQuery.annotationArrow(endArrow,obj,aIndex,'end');
 
     if(obj.id == activeId){
-      jQuery(".annotation-control-" + obj.id).click();
+      jQuery("#annotation-control-" + obj.id).mouseenter();
+      console.log('active!');
     }
   },
 
@@ -175,6 +176,7 @@ jQuery.extend({
     jQuery('.arr:not(:visible)').each(function(index,el){
       //FIXME - so it looks like if you hide a canvas element it doesn't unhide in the way you might hope.
       jQuery(el).css('display','');
+      jQuery(el).html('WHY DO YOU NOT GET SHOWN!');
       jQuery(el).find('canvas').css('display','');
     });
   },
@@ -205,7 +207,7 @@ jQuery.extend({
       console.log('start and end parent nodes are the same');
       // start and end parents are the same, which could be an orphaned start and end context.
       //      jQuery(startNode).nextUntil('#' + obj.annotation_end).filter(':not(.arr)').css('display',displayVal);
-      // So this doesn't recurse into block level elements, meaning arrows get hidden wheny they shouldn't. It probably makes sense to write a generic iterator that will find all arrow nodes in the affected range and show them. 
+      // So this doesn't recurse into block level elements, meaning arrows get hidden when they shouldn't. It probably makes sense to write a generic iterator that will find all arrow nodes in the affected range and show them. 
       jQuery(startNode).nextAll().each(function(index,el){
         if (el === jQuery(endNode)[0]){
           return false;
