@@ -151,7 +151,7 @@ jQuery.extend({
 
     jQuery(arr).click(function(e){
       e.preventDefault();
-      jQuery.toggleAnnotation(obj);
+      jQuery.toggleAnnotation(obj, undefined, true);
     });
 
     jQuery(arr).hoverIntent({
@@ -169,10 +169,17 @@ jQuery.extend({
         }
       }
     });
-
   },
 
-  toggleAnnotation: function(obj,displaySelector){
+  fixArrows: function(){
+    jQuery('.arr:not(:visible)').each(function(index,el){
+      //FIXME - so it looks like if you hide a canvas element it doesn't unhide in the way you might hope.
+      jQuery(el).css('display','');
+      jQuery(el).find('canvas').css('display','');
+    });
+  },
+
+  toggleAnnotation: function(obj,displaySelector,fixArrows){
     var displayVal = '';
     if(typeof(displaySelector) === 'undefined'){
       displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
@@ -253,6 +260,10 @@ jQuery.extend({
     }
     jQuery(startNode).css('display',displayVal);
     jQuery(endNode).css('display',displayVal);
+    if(fixArrows == true && displayVal == 'none'){
+      console.log('fixing arrows');
+      jQuery.fixArrows();
+    }
   },
 
   annotationButton: function(e,annotationId){
@@ -670,7 +681,7 @@ jQuery(document).ready(function(){
             jQuery(ann.annotation.layers).each(function(i,layer){
               //              console.log(layer.id);
               if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'off');
+                jQuery.toggleAnnotation(ann.annotation,'off',false);
               }
             });
           });
@@ -686,7 +697,7 @@ jQuery(document).ready(function(){
           jQuery(annotations).each(function(i,ann){
             jQuery(ann.annotation.layers).each(function(i,layer){
               if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'on');
+                jQuery.toggleAnnotation(ann.annotation,'on',false);
               }
             });
           });
