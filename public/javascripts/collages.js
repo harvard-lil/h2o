@@ -84,7 +84,7 @@ jQuery.extend({
   },
 
   annotationArrow: function(arr,obj,aIndex,arrowType){
-    if(jQuery.browser.msie){
+    if(true){
       // do something crippled and stupid here for IE.
       if (arrowType == 'start'){
         jQuery(arr).html(((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : '') + '&#9658;' );
@@ -172,16 +172,42 @@ jQuery.extend({
     });
   },
 
+
   fixArrows: function(){
     jQuery('.arr:not(:visible)').each(function(index,el){
       //FIXME - so it looks like if you hide a canvas element it doesn't unhide in the way you might hope.
       jQuery(el).css('display','');
-      jQuery(el).html('WHY DO YOU NOT GET SHOWN!');
-      jQuery(el).find('canvas').css('display','');
+//      jQuery(el).parent().css('display','');
+//      jQuery(el).html('WHY DO YOU NOT GET SHOWN!');
+//      jQuery(el).find('canvas').css('display','');
     });
   },
 
-  toggleAnnotation: function(obj,displaySelector,fixArrows){
+  toggleAnnotation: function(obj, displaySelector,fixArrows){
+    var displayVal = '';
+    if(typeof(displaySelector) === 'undefined'){
+      displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
+    } else {
+      displayVal = (displaySelector == 'on') ? '' : 'none';
+    }
+    jQuery('.a' + obj.id).each(function(){
+      jQuery(this).css('display',displayVal);
+      var parentNode = jQuery(this).parent();
+      if(displayVal == 'none'){
+        if(jQuery(parentNode).css('display') == 'block'){
+          jQuery(parentNode).css('display', 'inline');
+        }
+      } else {
+        console.log(jQuery(parentNode)[0].tagName);
+        // FIXME - look for block-level elements and reset their display to block. Perhaps we could use jQUery.data() to store the display value? hmm. . . 
+        if(jQuery(parentNode).css('display') == 'inline'){
+          jQuery(parentNode).css('display','block');
+        }
+      }
+    });
+  },
+
+  toggleAnnotationOld: function(obj,displaySelector,fixArrows){
     var displayVal = '';
     if(typeof(displaySelector) === 'undefined'){
       displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
@@ -257,6 +283,9 @@ jQuery.extend({
           jQuery(el).filter(':not(.arr)').css('display',displayVal);
         }
       });
+
+//      jQuery(startRootParent).children().css('display',displayVal);
+
       jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
       jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
     }
