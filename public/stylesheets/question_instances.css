@@ -105,6 +105,15 @@ div.controls{
 .question .meta{
   text-align: right;
   font-size: smaller;
+  color: #999;
+}
+
+.question > .meta{
+  float: right; 
+  border: 1px #aaaaaa; 
+  border-style: none none dotted dotted; 
+  padding: 0 0 3px 3px; 
+  margin: 0 0 3px 3px;
 }
 
 .ajax-error, #spinner_block{
@@ -126,6 +135,7 @@ div.controls{
 
 .reply-container li{
   clear: both;
+  margin-bottom: 10px;
 }
 
 .controls .new-question-for{

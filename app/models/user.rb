@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
   def to_s
-    "#{login}"
+    (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
   end
 
   def cases
