@@ -152,7 +152,7 @@ jQuery.extend({
 
     jQuery(arr).click(function(e){
       e.preventDefault();
-      jQuery.toggleAnnotation(obj, undefined, true);
+      jQuery.toggleAnnotation(obj, undefined, jQuery.blockLevels());
     });
 
     jQuery(arr).hoverIntent({
@@ -172,51 +172,51 @@ jQuery.extend({
     });
   },
 
-
-  fixArrows: function(){
-    jQuery('.arr:not(:visible)').each(function(index,el){
-      //FIXME - so it looks like if you hide a canvas element it doesn't unhide in the way you might hope.
-      jQuery(el).css('display','');
-//      jQuery(el).parent().css('display','');
-//      jQuery(el).html('WHY DO YOU NOT GET SHOWN!');
-//      jQuery(el).find('canvas').css('display','');
-    });
+  blockLevels: function(){
+    // from: http://www.cs.sfu.ca/CC/165/sbrown1/wdgxhtml10/block.html
+    return {ADDRESS: true, BLOCKQUOTE: true, CENTER: true, DIR: true, DIV: true, DL: true, FIELDSET: true, FORM: true, H1: true, H2: true, H3: true, H4: true, H5: true, H6: true, HR: true, ISINDEX: true, MENU:true , NOFRAMES: true, NOSCRIPT: true, OL: true , P: true , PRE: true , TABLE: true, UL: true, DD: true, DT: true, FRAMESET: true, LI: true, TBODY: true, TD: true, TFOOT: true, TH: true, THEAD: true, TR: true};
   },
 
-  toggleAnnotation: function(obj, displaySelector,fixArrows){
+  toggleAnnotation: function(obj, displaySelector, blockLevels){
     var displayVal = '';
-    // from: http://www.cs.sfu.ca/CC/165/sbrown1/wdgxhtml10/block.html
-    var blockLevels = {address: true, blockquote: true, center: true, dir: true, div: true, dl: true, fieldset: true, form: true, h1: true, h2: true, h3: true, h4: true, h5: true, h6: true, hr: true, isindex: true, menu:true , noframes: true, noscript: true, ol: true , p: true , pre: true , table: true, ul: true, dd: true, dt: true,frameset: true,li: true, tbody: true, td: true, tfoot: true, th: true, thead: true, tr: true};
 
     if(typeof(displaySelector) === 'undefined'){
       displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
     } else {
       displayVal = (displaySelector == 'on') ? '' : 'none';
     }
+
+    var blockLevelElements = [];
     jQuery('.a' + obj.id).each(function(){
       jQuery(this).css('display',displayVal);
-      var parentNode = jQuery(this).parent();
-      var sibling = jQuery(this).next();
-//      console.log('sibling', sibling);
+
+      var parentNode = jQuery(this).parent().get(0);
+      var sibling = jQuery(this).next().get(0);
 
       //      console.log('Parent Display: ',jQuery(parentNode).css('display'), 'Parent Tag Name: ', jQuery(parentNode)[0].tagName, 'Sibling Display: ', jQuery(sibling).css('display'), 'Sibling Tag Name: ', (typesibling) ? jQuery(sibling)[0].tagName : null);
+      if( blockLevels[parentNode.tagName] == true){
+        blockLevelElements.push(parentNode);
+      }
       if(displayVal == 'none'){
-        if( blockLevels[jQuery(parentNode)[0].tagName.toLowerCase()] == true && jQuery(parentNode).css('display') != 'inline' ){
-          jQuery(parentNode).css('display', 'inline');
-        }
-        if(sibling.length > 0 && jQuery(sibling)[0].tagName == 'BR'){
+        if(sibling != undefined && sibling.tagName == 'BR'){
           jQuery(sibling).hide();
         }
       } else {
-        // FIXME - look for block-level elements and reset their display to block. Perhaps we could use jQUery.data() to store the display value? hmm. . . 
-        if( blockLevels[jQuery(parentNode)[0].tagName.toLowerCase()] == true && jQuery(parentNode).css('display') != 'block' ){
-          jQuery(parentNode).css('display','block');
-        }
-        if(sibling.length > 0 && jQuery(sibling)[0].tagName == 'BR'){
+        if(sibling != undefined && sibling.tagName == 'BR'){
           jQuery(sibling).show();
         }
       }
     });
+
+    blockLevelElements = jQuery.unique(blockLevelElements);
+    jQuery(blockLevelElements).each(function(index,el){
+      if(displayVal == 'none'){
+        jQuery(el).css('display','inline');
+      } else {
+        jQuery(el).css('display','block');
+      }
+    });
+
   },
 
   toggleAnnotationOld: function(obj,displaySelector,fixArrows){
@@ -720,11 +720,12 @@ jQuery(document).ready(function(){
       if(jQuery('#layer-indicator-' + layerId).html() == 'on'){
         spinner.queue(function(){
           var annotations = jQuery('body').data('annotation_objects');
+          var blockLevels = jQuery.blockLevels();
           jQuery(annotations).each(function(i,ann){
             jQuery(ann.annotation.layers).each(function(i,layer){
               //              console.log(layer.id);
               if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'off',false);
+                jQuery.toggleAnnotation(ann.annotation,'off',blockLevels);
               }
             });
           });
@@ -737,10 +738,11 @@ jQuery(document).ready(function(){
       } else {
         spinner.queue(function(){
           var annotations = jQuery('body').data('annotation_objects');
+          var blockLevels = jQuery.blockLevels();
           jQuery(annotations).each(function(i,ann){
             jQuery(ann.annotation.layers).each(function(i,layer){
               if(layer.id == layerId){
-                jQuery.toggleAnnotation(ann.annotation,'on',false);
+                jQuery.toggleAnnotation(ann.annotation,'on',blockLevels);
               }
             });
           });
