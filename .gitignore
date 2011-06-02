@@ -1,0 +1,5 @@
+*.swp
+tmp/
+log/
+solr/
+config/database.yml
