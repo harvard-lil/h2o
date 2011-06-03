@@ -5,7 +5,7 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title></title>
-    <% ['formtastic','jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom','h2o','forms', (@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
+    <% ['formtastic','jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom','ui','forms', (@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
       <%= stylesheet_link_tag ss %>
     <% end -%>
 
@@ -18,31 +18,22 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= javascript_include_tag 'excanvas.js' %>
 <![endif]--> 
 
-<% ['jquery-1.4.2.min','jquery.cookie','jquery-ui-1.8.4.custom.min','jquery.form', 'jquery.validate.min','jquery.tag.suggestion','application','form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.bt.min', 'jquery.hotkeys', (@javascripts.blank?) ? nil : @javascripts ].compact.flatten.each do |js| -%>
-  <%= javascript_include_tag js %>
-<% end -%>
-
   </head>
   <body>
+	<%= render :partial => 'shared/layout_components/header' %>
+    <% if flash[:notice] %>
+      <p style="color: red"><%= flash[:notice] %></p>
+    <% end %>
+    <%= yield %>
+	<%= render :partial => 'shared/layout_components/footer' %>
 
-    <div id="h2o_container">
-      <div id="h2o_header"><%= render :partial => 'shared/layout_components/header' %></div>
-      <% if flash[:notice] %>
-        <p style="color: red"><%= flash[:notice] %></p>
-      <% end %>
-      <div id="h2o_content"><%= yield %></div>
-      <div id="h2o_footer"><%= render :partial => 'shared/layout_components/footer' %></div>
-    </div>
-
-    <% begin %>
-      <div class="print-block" style="margin-top: 1em;">
-        <hr />
-        <strong>From:</strong> <%= url_for(:only_path => false) %>
-      </div>
-      <% 
-       rescue Exception => e 
-       end 
-      %>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<%= javascript_include_tag 'jquery.cookie','jquery.form', 'jquery.validate.min','jquery.tag.suggestion','application',
+	'form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.bt.min', 'jquery.hotkeys', :cached => 'site' %>
+<% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
+  <%= javascript_include_tag js %>
+<% end -%>
 
   </body>
 </html>

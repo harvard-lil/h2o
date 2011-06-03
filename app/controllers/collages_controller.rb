@@ -88,6 +88,7 @@ class CollagesController < BaseController
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @collage }
+	  format.pdf { render :pdf => "file_name" }
     end
   end
 

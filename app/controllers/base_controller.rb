@@ -78,4 +78,17 @@ class BaseController < ApplicationController
       format.xml { render :xml => @objects }
     end
   end
+
+  def index
+    tcount = Case.find_by_sql("SELECT COUNT(*) AS tcount FROM taggings")
+    @counts = {
+		:cases => Case.count,
+		:text_blocks => TextBlock.count,
+		:collages => Collage.count,
+		:annotation => Annotation.count,
+		:questions => Question.count,
+		:rotisseries => RotisserieInstance.count,
+		:taggings => tcount[0]['tcount'] 
+	}
+  end
 end

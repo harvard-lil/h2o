@@ -41,6 +41,8 @@ Rails::Initializer.run do |config|
   #erubis is needed to satisfy requirements for rails_xss plugin
   config.gem 'erubis', :version => '2.6.6'
 
+  config.gem "wicked_pdf" # TODO: version
+
   config.active_record.colorize_logging = false
 
   # Only load the plugins named here, in the order given (default is alphabetical).
@@ -65,3 +67,5 @@ Rails::Initializer.run do |config|
   config.action_mailer.default_url_options = { :host => 'localhost', :port => 3000 }
 
 end
+
+Mime::Type.register "application/pdf", :pdf
