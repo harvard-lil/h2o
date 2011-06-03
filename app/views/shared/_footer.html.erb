@@ -1,6 +1,4 @@
-<div id="footer">
-footer
-</div>
+<footer></footer>
 
 <% if @NEVER_TRUE %>
 <div class="navigation_block_container">
@@ -14,12 +12,6 @@ footer
 </div>
 
 <div id="footer_block">
-  <%= link_to image_tag("/images/elements/playlist_small.png"), playlists_path, :title => 'Playlists' %>
-  <%= link_to image_tag('/images/elements/collage_small.png'), collages_path, :title => 'Collages' %>
-  <%= link_to image_tag('/images/elements/case_small.png'), cases_path %>
-  <%= link_to image_tag('/images/elements/text_medium.png'), text_blocks_path %>
-  <%= link_to image_tag("/images/elements/question_small.png"), question_instances_path, :title => 'Question Tool' %>
-  <%= link_to image_tag("/images/elements/cog_small.png"), rotisserie_instances_path, :title => 'Rotisserie' %>
   <span id="user-meta">
     <% unless current_user.nil? %>
       Logged in as <%= current_user.login %>

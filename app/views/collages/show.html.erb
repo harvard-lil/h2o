@@ -1,3 +1,84 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'collage-logo',
+  :url => collages_path,
+  :right_search => 'collages/nav_search' } %>
+
+<div id="collage">
+	<hgroup class="description">
+		<h2><%= @collage.name %></h2>
+		<aside class="toolbar">
+			<ul>
+				<li><a href="#"><img src="/images/ui/collage-toolbar-1.png"  alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/collage-toolbar-2.png"  alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/collage-toolbar-3.png"  alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/collage-toolbar-4.png"  alt="" /></a></li>
+			</ul>
+  			<% unless current_user.blank? %>
+    		<% form_tag(spawn_copy_collage_path(@collage)) do %>
+     			<%= submit_tag('Copy this collage', :class => 'button') %>
+    		<% end %>
+  			<% end %>
+		</aside>
+		<aside class="buttons">
+			<ul>
+				<li class="btn-li">
+					<a href="#" class="btn-a"><span>TOOLS</span></a>
+					<div class="popup tools-popup">
+						<ul>
+							<li>
+								<strong>FULL TEXT</strong>
+								<a href="#"><strong>SHOW</strong></a>
+								<div class="cl">&nbsp;</div>
+							</li>
+							<li>
+								<strong>ANNOTATIONS</strong>
+								<a href="#"><strong>SHOW</strong></a>
+								<div class="cl">&nbsp;</div>
+							</li>
+						</ul>
+						<h5>LAYERS</h5>
+						<ul>
+   							<% @collage.layers.each do |layer| %>
+							<li>
+								<strong><%= layer.name %></strong>
+								<a href="#"><strong>HIDE</strong></a>
+								<a href="#" class="link-o">HIGHLIGHT</a>
+								<div class="cl">&nbsp;</div>
+							</li>
+   							<% end %>
+						</ul>
+					</div>
+				</li>
+				<li class="btn-li">
+					<a href="#" class="btn-a">EDIT</a>
+				</li>
+			</ul>
+		</aside>
+		<div class="cl">&nbsp;</div>
+	</hgroup>
+	<details>
+		<div class="tags">
+			<ul>
+   				<% @collage.layers.each do |layer| %>
+				<li><a href="#"><%= layer.name %></a></li>
+   				<% end %><br />
+			</ul>
+		</div>
+		<h5>
+			<%= @collage.created_at.to_s(:simpledatetime) %> by <a href="#"><%= @collage.creators.collect { |u| u.login }.join(',') %></a> |
+			<a href="#"><strong>COLLAGE STATS</strong></a>
+		</h5>
+		<p><%= @collage.description %> <a href="#" class="link-more">MORE</a></p>
+	</details>
+
+<% if ! session[:just_born].blank?
+    # This is a new collage, make sure we don't hide non-annotated text because it'll be confusing.
+    session[:just_born] = nil %>
+    <div class="info_block just_born">
+      <h1 class="yellow_title_med">Collage created!</h1>
+      You've created a new collage. We're showing all text, regardless of whether or not you had un-annotated text hidden before.
+    </div>
+<% end -%> 
+
 <% 
   active_layers = []
   inactive_layers = []
@@ -23,17 +104,6 @@
     }
   </style>
 <% end %>
-<% 
-  if ! session[:just_born].blank?
-    # This is a new collage, make sure we don't hide non-annotated text because it'll be confusing.
-    session[:just_born] = nil %>
-    <div class="info_block just_born">
-      <h1 class="yellow_title_med">Collage created!</h1>
-      You've created a new collage. We're showing all text, regardless of whether or not you had un-annotated text hidden before.
-    </div>
-<%
-  end 
-%>
 
   <style type="text/css">
     <% unless active_layers.blank? %>
@@ -48,16 +118,44 @@
   <% end %>
   </style>
 
+	<% cache("collage-annotatable-content-#{@collage.id}") do %>
+	<article>
+		<%= raw @collage.annotatable_content %>
+	</article>
+	<% end -%>
+</div>
+
+
+
+
+
+
+<% if false -%>
 <div id="tools">
-  <a id="hide" href="#"><%= image_tag('elements/close.gif') %></a>
-  <h2><%= @collage.display_name %></h2>
-  <% unless current_user.blank? %>
-    <% form_tag(spawn_copy_collage_path(@collage)) do %>
-      <%= submit_tag('Copy this collage', :class => 'button') %>
-    <% end %>
+  <% cache("collage-show-layer-controls-#{@collage.id}") do %>
+    <div id="layer-tools">
+      <h3><span class="print-inline">Hidden </span>Layers</h3>
+      <div id="view-layer-list" class="layers">
+        <% @collage.layers.each do |l| %>
+          <div class="layer-control" id="layer-name-<%= l.id %>"><span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>"><%= l.name %></span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "layer-spinner-#{l.id}", :class => 'layer-spinner') %></div>
+        <% end %>
+        <div id="toggle-unlayered-text"><span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered">unlayered text</span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "unlayered-spinner", :class => 'layer-spinner') %></div>
+      </div>
+    </div>
   <% end %>
 
-  <% cache("collage-show-layer-controls-#{@collage.id}") do %>
+  <div id="annotation-form" style="display: none;"></div>
+  <div id="new-annotation-start" style="display: none;"></div>
+  <div id="new-annotation-end" style="display: none;"></div>
+  <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
+  <div id="please-wait" style="display: none;">Please wait. . .</div>
+  <div id="annotation-start-marker" style="display: none;">
+ <a href="#" id="cancel-annotation"><%= image_tag('elements/close.gif') %></a> Your annotation will start here. Please click another word to set the end point.
+  </div>
+  <hr class="print-block" />
+</div>
+
+Removal of Lineage from Template
     <div class="lineage">
       <h3 class="collapsible lineage">▶ Lineage</h3>
       <ul class="lineage-target">
@@ -78,52 +176,11 @@
         <% end %>
       </ul>
     </div>
+Annotation Data
     <h3 class="collapsible layer-meta">▶ Layer Meta</h3>
-
     <%= render :partial => 'shared/collage_meta', :object => @collage %>
-    <div id="layer-tools">
-      <h3><span class="print-inline">Hidden </span>Layers</h3>
-      <div id="view-layer-list" class="layers">
-        <% @collage.layers.each do |l| %>
-          <div class="layer-control" id="layer-name-<%= l.id %>"><span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>"><%= l.name %></span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "layer-spinner-#{l.id}", :class => 'layer-spinner') %></div>
-        <% end %>
-        <div id="toggle-unlayered-text"><span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered">unlayered text</span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "unlayered-spinner", :class => 'layer-spinner') %></div>
-      </div>
-    </div>
-  <% end %>
-
-  <% unless active_ids.blank? 
-  active_ids_for_jquery = active_ids.map{|aid| "#layer-checkbox-" + aid.to_s}.join(',')
-%>
-    <%= javascript_tag %Q|
-  jQuery(document).ready(function(){
-    jQuery('#{active_ids_for_jquery}').attr('checked',true);
-  });
-    | %>
-  <% end %>
-
-  <div id="annotation-form" style="display: none;"></div>
-  <div id="new-annotation-start" style="display: none;"></div>
-  <div id="new-annotation-end" style="display: none;"></div>
-  <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
-  <div id="please-wait" style="display: none;">Please wait. . .</div>
-  <div id="annotation-start-marker" style="display: none;">
- <a href="#" id="cancel-annotation"><%= image_tag('elements/close.gif') %></a> Your annotation will start here. Please click another word to set the end point.
-  </div>
-  <hr class="print-block" />
-</div>
-
-<% cache("collage-annotatable-content-#{@collage.id}") do %>
-  <div class="collage-id" id="collage-<%= @collage.id %>">
-    <div id="annotatable-content">
-      <%= raw @collage.annotatable_content %>
-    </div>
-  </div>
-<% end %>
-
-<hr class="print-block" />
-
-<% cache("collage-annotation-print-content-#{@collage.id}") do %>
+More Annotation Data
+	<% cache("collage-annotation-print-content-#{@collage.id}") do %>
   <div class="print-block print-annotation-list">
     <h1>Annotations</h1>
     <% @collage.annotations.find(:all,:include => {:accepted_roles => {:users => []}, :layers=> []}).each do |ann| %>
@@ -144,4 +201,5 @@
       <% end %>
     <% end %>
   </div>
-<% end %>
+	<% end %>
+<% end -%>

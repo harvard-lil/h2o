@@ -1,14 +1,8 @@
-<div class="collage-index">
-  <div class="info_block">
-    <h1 class="yellow_title_med">Collages</h1>
-    Collages allow you to annotate text - for instance, <%= link_to('a court case or decision', cases_url) %>. This page lists Collages you have the ability to view or manage.
-    <% form_tag(url_for, :method => :get) do %>
-      <p>
-      <label for="keywords">Keywords:</label> <%= text_field_tag('keywords', params[:keywords], :size => 50) %>
-      <input type="submit" class="button" value="Search" /> <%= link_to('clear', url_for()) %></p>
-    <% end %>
-  </div>
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'collage-logo',
+  :url => collages_path,
+  :right_search => 'collages/nav_search' } %>
 
+<div class="collage-index">
   <% unless @my_collages.blank? %>
     <div class="info_block">
       <h1 class="yellow_title_med">My Collages - <%= @my_collages.length %> total</h1>

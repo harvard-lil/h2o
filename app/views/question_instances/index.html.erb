@@ -1,3 +1,6 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'questions-logo',
+  :url => question_instances_path } %>
+
 <div id="question-instance-list">
   <% unless @question_instances.blank? %>
     <h2>Please choose an existing question tool.</h2>
