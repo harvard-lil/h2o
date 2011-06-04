@@ -1,23 +1,22 @@
-<tr>
-  <% cache("collage-index-view-#{collage.id}") do %>
-    <td class="title_column">
-      <%= link_to collage.display_name, collage_path(collage) %><br />
-      <%= Collage.format_content(collage.description) %>
-      <p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>", in <%= Collage.count(:conditions => {:annotatable_type => collage.annotatable.class.name, :annotatable_id => collage.annotatable_id}) %> collages.</p>
-    </td>
-    <td>
-      <%= render :partial => 'shared/collage_meta', :object => collage %>
-    </td>
+<div class="collage_list<%= ' alt' if collage_counter%2 == 0 %>">
+<div class="left">
+<%= link_to collage.name, collage_path(collage), :class => "title" %>
+<div class="meta">
+	<%= collage.created_at.to_s(:simpledatetime) %> by <%= collage.creators.collect { |u| u.login }.join(',') %>
+</div>
+<p>On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %></p>
+</div>
+
+<div class="right">
+<% if current_user %>
+  <% form_tag(spawn_copy_collage_path(collage)) do %>
+    <%= submit_tag('Copy', :class => 'button') %>
+  <% end %>      
+  <% if @is_collage_admin || @my_collages.include?(collage) %>
+    <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
+    <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
   <% end %>
-  <% if current_user %>
-    <td class="controls_column">
-      <% form_tag(spawn_copy_collage_path(collage)) do %>
-        <%= submit_tag('Copy', :class => 'button') %>
-      <% end %>      
-      <% if @is_collage_admin || @my_collages.include?(collage) %>
-        <%= link_to 'Edit', edit_collage_path(collage), :class => 'button' %>
-        <%= link_to 'Delete', collage, :confirm => 'Are you sure?', :method => :delete, :class => 'button' %>
-      <% end %>      
-    </td>
-  <% end %>
-</tr>
+<% end %>
+</div>
+<div class="cl"></div>
+</div>

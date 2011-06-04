@@ -1,3 +1,5 @@
+* { margin: 0; padding: 0; outline:0; }
+
 body {
     font-size: 12px;
     line-height: 1.3;
@@ -74,22 +76,22 @@ header { display:block; height:71px; background:url(/images/ui/header.png); padd
 #breadcrumbs .filter { float: left; display: inline; }
 #breadcrumbs .filter p { font-size:12px; line-height:24px; color:#333; }
 #breadcrumbs .filter p a { font-size:9px; text-transform:uppercase; font-weight:bold; color:#69c; }
-#breadcrumbs .paggination { float: right; display: inline; padding:6px 6px 0 0; }
-#breadcrumbs .paggination ul { list-style:none; }
-#breadcrumbs .paggination ul li { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/paggination-divider.png) right 3px no-repeat; font-weight:bold; }
-#breadcrumbs .paggination ul li a { text-decoration:underline; }
-#breadcrumbs .paggination ul li a:hover,
-#breadcrumbs .paggination ul li a.active { color:#999; text-decoration:none; }
-#breadcrumbs .paggination ul li.last { background:none; margin-right:0; }
-#breadcrumbs .paggination ul li.dots { padding-right:0; background:none; }
-#breadcrumbs .paggination ul li.dots a { text-decoration:none; }
-#breadcrumbs .paggination ul li.arrow { padding:3px 0 0 9px; line-height:9px; background:none; margin-right:0; }
-#breadcrumbs .paggination ul li.arrow a { float: left; display: inline; width:7px; height:9px; font-size: 0; line-height: 0; text-indent: -4000px; }
-#breadcrumbs .paggination ul li.arrow-first a { background:url(/images/ui/paggination-first.png); }
-#breadcrumbs .paggination ul li.arrow-prev { padding-right:14px; }
-#breadcrumbs .paggination ul li.arrow-prev a { background:url(/images/ui/paggination-prev.png); }
-#breadcrumbs .paggination ul li.arrow-next a { background:url(/images/ui/paggination-next.png); }
-#breadcrumbs .paggination ul li.arrow-last a { background:url(/images/ui/paggination-last.png); }
+#breadcrumbs .pagination { float: right; display: inline; padding:6px 6px 0 0; }
+#breadcrumbs .pagination ul { list-style:none; }
+#breadcrumbs .pagination ul li { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; }
+#breadcrumbs .pagination ul li a { text-decoration:underline; }
+#breadcrumbs .pagination ul li a:hover,
+#breadcrumbs .pagination ul li a.active { color:#999; text-decoration:none; }
+#breadcrumbs .pagination ul li.last { background:none; margin-right:0; }
+#breadcrumbs .pagination ul li.dots { padding-right:0; background:none; }
+#breadcrumbs .pagination ul li.dots a { text-decoration:none; }
+#breadcrumbs .pagination ul li.arrow { padding:3px 0 0 9px; line-height:9px; background:none; margin-right:0; }
+#breadcrumbs .pagination ul li.arrow a { float: left; display: inline; width:7px; height:9px; font-size: 0; line-height: 0; text-indent: -4000px; }
+#breadcrumbs .pagination ul li.arrow-first a { background:url(/images/ui/pagination-first.png); }
+#breadcrumbs .pagination ul li.arrow-prev { padding-right:14px; }
+#breadcrumbs .pagination ul li.arrow-prev a { background:url(/images/ui/pagination-prev.png); }
+#breadcrumbs .pagination ul li.arrow-next a { background:url(/images/ui/pagination-next.png); }
+#breadcrumbs .pagination ul li.arrow-last a { background:url(/images/ui/pagination-last.png); }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
 #results hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png); height:30px; line-height:30px; display:block; }
@@ -307,5 +309,11 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #activity_bottom { clear: both; margin: 3px 0px 2px 0px; border-top: 1px solid #d9d9d9;
   height: 1px; width: 100%; }
 
-* { margin: 0; padding: 0; outline:0; }
+.highlight { background: #E0F5BD; }
 
+/* Collage index */
+#results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); margin-bottom: 10px; }
+#results .alt { background: #f4f4f4; }
+.collage_list { padding: 10px; }
+.collage_list .title { font-weight: bold; display: block; }
+.collage_list .meta { padding-bottom: 5px; }

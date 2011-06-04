@@ -168,8 +168,8 @@ class CollagesController < BaseController
   end
 
   def prep_resources
-    add_javascripts ['jquery.tablesorter.min','collages','markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
-    add_stylesheets ['tablesorter-h2o-theme/style','cases','/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css']
+    add_javascripts ['collages','markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
+    add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css']
   end
 
   def load_collage

@@ -8,15 +8,16 @@
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#"><img src="/images/ui/collage-toolbar-1.png"  alt="" /></a></li>
-				<li><a href="#"><img src="/images/ui/collage-toolbar-2.png"  alt="" /></a></li>
+  				<% unless current_user.blank? %>
+				<li>
+    				<% form_tag(spawn_copy_collage_path(@collage)) do %>
+					<input type="image" src="/images/ui/collage-toolbar-2.png" />
+    				<% end %>
+				</li>
+  				<% end %>
 				<li><a href="#"><img src="/images/ui/collage-toolbar-3.png"  alt="" /></a></li>
 				<li><a href="#"><img src="/images/ui/collage-toolbar-4.png"  alt="" /></a></li>
 			</ul>
-  			<% unless current_user.blank? %>
-    		<% form_tag(spawn_copy_collage_path(@collage)) do %>
-     			<%= submit_tag('Copy this collage', :class => 'button') %>
-    		<% end %>
-  			<% end %>
 		</aside>
 		<aside class="buttons">
 			<ul>
@@ -36,21 +37,23 @@
 							</li>
 						</ul>
 						<h5>LAYERS</h5>
-						<ul>
+						<ul id="layers">
    							<% @collage.layers.each do |layer| %>
-							<li>
+							<li id="l<%= layer.id %>">
 								<strong><%= layer.name %></strong>
-								<a href="#"><strong>HIDE</strong></a>
-								<a href="#" class="link-o">HIGHLIGHT</a>
+								<a href="#" class="hide_show shown"><strong>HIDE</strong></a>
+								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>
 								<div class="cl">&nbsp;</div>
 							</li>
    							<% end %>
 						</ul>
 					</div>
 				</li>
+				<% if current_user && @collage.users.include?(current_user) -%>
 				<li class="btn-li">
-					<a href="#" class="btn-a">EDIT</a>
+					<%= link_to "EDIT", edit_collage_path(@collage), :class => "btn-a" %>
 				</li>
+				<% end -%>
 			</ul>
 		</aside>
 		<div class="cl">&nbsp;</div>

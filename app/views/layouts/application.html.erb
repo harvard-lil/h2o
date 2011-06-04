@@ -6,7 +6,8 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title></title>
 
-    <% ['formtastic','jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom','ui','forms', (@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
+    <% ['formtastic','jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom',
+	  'forms', (@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
       <%#= stylesheet_link_tag ss %>
     <% end -%>
     <%#= stylesheet_link_tag 'print', :media => :print %>
@@ -19,14 +20,14 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
   </head>
   <body>
-  	<section id="shell">
+  	<div id="shell">
 	<%= render :partial => 'shared/header' %>
     <% if flash[:notice] %>
       <p style="color: red"><%= flash[:notice] %></p>
     <% end %>
 	<%= yield %>
 	<%= render :partial => 'shared/footer' %>
-	</section>
+	</div>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
@@ -34,7 +35,8 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= javascript_include_tag 'new_ui' %>
 
 <%= javascript_include_tag 'jquery.cookie','jquery.form', 'jquery.validate.min','jquery.tag.suggestion',
-	'form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.bt.min', 'jquery.hotkeys', :cached => 'site' %>
+	'form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.bt.min', 'jquery.hotkeys',
+	'jquery.tablesorter.min', :cached => 'site' %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
   <%= javascript_include_tag js %>

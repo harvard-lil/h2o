@@ -157,17 +157,21 @@ jQuery.extend({
 
     jQuery(arr).hoverIntent({
       over: function(e){
+	  /* TODO: Figure out how to get to work with 1.6.1.
         jQuery(arr).bt(btOptions);
         jQuery(arr).btOn();
+		*/
         jQuery('.a' + obj.id).addClass('highlight');
       },
       timeout: 3000,
       out: function(e){
         jQuery('.a' + obj.id).removeClass('highlight');
+	  /* TODO: Figure out how to get to work with 1.6.1
         if(obj.annotation_word_count == 0){
           // If an annotation doesn't have text, close it automatically.
           jQuery(arr).btOff();
         }
+		*/
       }
     });
   },
@@ -217,96 +221,6 @@ jQuery.extend({
       }
     });
 
-  },
-
-  toggleAnnotationOld: function(obj,displaySelector,fixArrows){
-    var displayVal = '';
-    if(typeof(displaySelector) === 'undefined'){
-      displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
-    } else {
-      displayVal = (displaySelector == 'on') ? '' : 'none';
-    }
-    var node = jQuery('#' + obj.annotation_start);
-    var endId = obj.annotation_end;
-    //So what we want to do is get parents up to #annotatable-content for the start node.
-    //Then - for the end node, get its parents up to #annotatable-content.
-    //* If the start and end node have the same parent, just the hide content between them.
-    //* If they are different, hide from the start to the end of its parent.
-    //* Then iterate from the start node's parent to the end node's parent, hiding nodes along the way. Then hide from the end node to the start of its parent.
-    var startNode = jQuery('#' + obj.annotation_start);
-    var endNode = jQuery('#' + obj.annotation_end);
-
-    var startRootParent = jQuery(startNode).parentsUntil('#annotatable-content').last();
-    var endRootParent = jQuery(endNode).parentsUntil('#annotatable-content').last();
-
-    console.log('Start root: ', startRootParent, typeof(jQuery(startRootParent)[0]),'End Root: ', endRootParent, typeof(jQuery(endRootParent)[0]));
-
-    if(jQuery(endRootParent)[0] == jQuery(startRootParent)[0]){
-      console.log('start and end parent nodes are the same');
-      // start and end parents are the same, which could be an orphaned start and end context.
-      //      jQuery(startNode).nextUntil('#' + obj.annotation_end).filter(':not(.arr)').css('display',displayVal);
-      // So this doesn't recurse into block level elements, meaning arrows get hidden when they shouldn't. It probably makes sense to write a generic iterator that will find all arrow nodes in the affected range and show them. 
-      jQuery(startNode).nextAll().each(function(index,el){
-        if (el === jQuery(endNode)[0]){
-          return false;
-        } else {
-          jQuery(el).filter(':not(.arr)').css('display',displayVal);
-        }
-      });
-    } else if(typeof(jQuery(startRootParent)[0]) === 'undefined' && typeof(jQuery(endRootParent)[0]) === 'object'){
-      console.log("There's no start parent node but a valid end parent node");
-      //Hide from the endNode to the beginning of its parent.
-      //And then from the startNode to the end root parent node
-      jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
-      jQuery(startNode).nextAll().each(function(index,el){
-        if (el === jQuery(endRootParent)[0]){
-          return false;
-        } else {
-          jQuery(el).filter(':not(.arr)').css('display',displayVal);
-        }
-      });
-    } else if(typeof(jQuery(startRootParent)[0]) === 'object' && typeof(jQuery(endRootParent)[0]) === 'undefined'){
-      console.log("There's a valid start parent node but no end parent node");
-      // Hide from the start node until the end of it's parent.
-      jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
-      // And then from the endNode to the start parent node.
-      jQuery(endNode).prevAll().each(function(index,el){
-        if (el === jQuery(startRootParent)[0]){
-          return false;
-        } else {
-          jQuery(el).filter(':not(.arr)').css('display',displayVal);
-        }
-      });
-    } else if(typeof(jQuery(startRootParent)[0]) === 'undefined' && typeof(jQuery(endRootParent)[0]) === 'undefined'){
-      //Both nodes start and end with orphan text nodes.
-      console.log("there isn't a valid start or end parent node");
-
-
-    } else {
-      console.log('start and end are valid nodes and ARE NOT the same');
-      // start and end rootNodes AREN'T the same and are valid nodes nested under #annotatable-content
-      // Iterate over the nodes between startRootParent and endRootParent, hiding them.
-      // Then hide the nodes from the startNode to the end of its parent, and the nodes from the endNode to the beginning of its parent.
-
-      jQuery(startRootParent).nextAll().each(function(index,el){
-        if (el === jQuery(endRootParent)[0]){
-          return false;
-        } else {
-          jQuery(el).filter(':not(.arr)').css('display',displayVal);
-        }
-      });
-
-//      jQuery(startRootParent).children().css('display',displayVal);
-
-      jQuery(startNode).nextUntil().filter(':not(.arr)').css('display',displayVal);
-      jQuery(endNode).prevUntil().filter(':not(.arr)').css('display',displayVal);
-    }
-    jQuery(startNode).css('display',displayVal);
-    jQuery(endNode).css('display',displayVal);
-    if(fixArrows == true && displayVal == 'none'){
-      console.log('fixing arrows');
-      jQuery.fixArrows();
-    }
   },
 
   annotationButton: function(e,annotationId){
@@ -707,6 +621,32 @@ jQuery(document).ready(function(){
     jQuery.observeLayers();
     jQuery.initializeAnnotations();
 
+	jQuery('#layers .hide_show').click(function(e) {
+		if(jQuery(this).hasClass('shown')) {
+			jQuery(this).find('strong').html('SHOW');
+			jQuery(this).addClass('hidden').removeClass('shown');
+        	jQuery('.' + jQuery(this).parent().attr('id')).hide();
+		} else {
+			jQuery(this).find('strong').html('HIDE');
+			jQuery(this).addClass('shown').removeClass('hidden');
+        	jQuery('.' + jQuery(this).parent().attr('id')).show();
+		}
+      	e.preventDefault();
+	});
+	jQuery('#layers .link-o').click(function(e) {
+		if(jQuery(this).hasClass('unhighlighted')) {
+			jQuery(this).html('UNHIGHLIGHT');
+			jQuery(this).addClass('highlighted').removeClass('unhighlighted');
+        	jQuery('.' + jQuery(this).parent().attr('id')).addClass('highlight');
+		} else {
+			jQuery(this).html('HIGHLIGHT');
+			jQuery(this).addClass('unhighlighted').removeClass('highlighted');
+        	jQuery('.' + jQuery(this).parent().attr('id')).removeClass('highlight');
+		}
+      	e.preventDefault();
+	});
+
+/*
     jQuery('#view-layer-list .layer-control').click(function(e){
       e.preventDefault();
       var layerId = jQuery(this).attr('id').split(/-/)[2];
@@ -823,5 +763,7 @@ jQuery(document).ready(function(){
         delay: 500
       });
     });
+*/
+
   }
 });

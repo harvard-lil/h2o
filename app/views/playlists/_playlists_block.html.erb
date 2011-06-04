@@ -1,24 +1,55 @@
-<table class="core_table">
-  <thead>
-    <tr class="table_heading ">
-      <th>Playlist Title</th>
-      <th></th>
-    </tr>
-  </thead>
+<section id="breadcrumbs">
+	<aside class="filter">
+		All Playlists
+	</aside>
+	<aside class="pagination">
+		-- pagination here
+	</aside>
+	<div class="cl"></div>
+</section>
 
-  <tbody>
-    <% @playlists.each do |playlist| %>
-      <tr>
-        <td><%= link_to playlist.display_name, playlist %></td>
-        <td>
+<section id="results">
+	<hgroup>
+	<ul class="tabs">
+		<li><a href="#" class="active">ALL PLAYLISTS</a></li>
+		<li><a href="#">MY PLAYLISTS</a></li>
+		<li><a href="#">MY BOOKMARKS</a></li>
+	</ul>
+	<aside class="sort">
+		<label>SORT:</label>
+		-- sort
+	</aside>
+	<div class="cl"></div>
+	</hgroup>
+	<article class="songs">
+	<ul>
+    	<% @playlists.each do |playlist| %>
+		<li class="song">
+			<div class="controls">
           <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
             <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
           <% end %>
           <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
             <%= link_to('Delete', playlist_path(playlist), :class => 'button delete-playlist') %>
           <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+			</div>
+			<details>
+				<div class="tags">
+					<ul>
+						<li><a href="#">Tag 1</a></li>
+						<li><a href="#">Tag 2</a></li>
+					</ul>
+				</div>
+				<h4><%= link_to playlist.name, playlist %></h4>
+				<p>
+					<%= playlist.created_at.to_s(:simpledatetime) %> by
+					<%= playlist.owners.collect{|u| u.login}.join(',') %>
+				</p>
+				<div class="influence"></div>
+			</details>
+			<div class="cl"></div>
+		</li>
+   		<% end %>
+	</ul>
+	</article>
+</section>

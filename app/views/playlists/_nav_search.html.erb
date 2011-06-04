@@ -1,0 +1,31 @@
+<section id="search"> 
+	<% form_tag("/playlists", :method => :get, :class => "search") do %>
+	<ul>
+		<li class="btn">
+			<a href="<%= new_playlist_path %>" class="btn-a">
+				<span>CREATE PLAYLIST</span>
+			</a>
+		</li>
+		<li class="btn">
+			<a href="#" class="btn-a btn-tags">
+				<span>BROWSE TAGS</span>
+			</a>
+			<div class="browse-tags-popup">
+				<ul>
+					<% Tag.all.each do |tag| %>
+					<li><a href="#"><strong><%= tag.name %></strong></a></li>
+					<% end -%>
+				</ul>
+				<div class="cl">&nbsp;</div>
+			</div>
+		</li>
+		<li class="field">
+			<%= text_field_tag('keywords', params[:keywords], :size => 50) %>
+		</li>
+		<li class="submit">
+			<input type="submit" class="submit" value="SEARCH" name="submit" />
+		</li>
+	</ul>
+	<% end %>
+</section>
+<div class="cl"></div>

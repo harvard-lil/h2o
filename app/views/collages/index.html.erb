@@ -2,35 +2,42 @@
   :url => collages_path,
   :right_search => 'collages/nav_search' } %>
 
-<div class="collage-index">
-  <% unless @my_collages.blank? %>
-    <div class="info_block">
-      <h1 class="yellow_title_med">My Collages - <%= @my_collages.length %> total</h1>
-    </div>
-    <div class="list_block">
-      <table class="core_table tablesorter">
-        <thead>
-          <tr class="table_heading">
-            <th>Collage</th>
-            <th>Annotations</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          <%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
-        </tbody>
-      </table>
-    </div>
-  <% end %>
+<section id="breadcrumbs">
+	<aside class="filter">
+		<% if params[:keywords] -%>
+		<p>
+		Results for: <%= params[:keywords] %> (<%= pluralize @collages.hits.length, 'Collage' %> Total)
+		<%= link_to "CLEAR SEARCH", collages_path %>
+		</p>
+		<% else -%>
+    	<%= pluralize @collages.hits.length, 'Collage' %>
+		<% end -%>
+	</aside>
+	<aside class="pagination">
+		<%= will_paginate @collages.hits %>
+	</aside>
+	<div class="cl"></div>
+</section>
 
-  <% if @collages.hits.length == 0 %>
+<section id="results">
+	<hgroup id="collage_hgroup">
+		<ul class="tabs">
+			<li><a href="#" class="active">ALL COLLAGES</a></li>
+			<% if false -%>
+			<li><a href="#">POPULAR COLLAGES</a></li>
+			<% end -%>
+  			<% unless @my_collages.blank? %>
+			<li><a href="#">MY COLLAGES</a></li>
+			<% end -%>
+		</ul>
+	</hgroup>
+  	<% unless @my_collages.blank? %>
+    	<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
+  	<% end %>
+
+  	<% if @collages.hits.length == 0 %>
     <h2>None found.</h2>
-  <% else %>
-    <h2>Showing <%= (@collages.hits.length > 1) ? "#{@collages.hits.length} Collages" : '1 collage' %> of <%= @collages.total %> total
-    <% if params[:keywords] %><span style="font-size: 14px;"> for "<%=h params[:keywords] %>"</span><% end %></h2>
-    <%= render :partial => 'shared/layout_components/per_page_selector' %>
+ 	 <% else %>
     <%= render :partial => 'collage_list' %>
-  <% end %>
-
-  <div class="spacer_block"></div>
-</div>
+  	<% end %>
+</section>
