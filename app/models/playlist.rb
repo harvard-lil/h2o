@@ -24,6 +24,7 @@ class Playlist < ActiveRecord::Base
     string :id, :stored => true
     text :description
     text :name
+    boolean :public
   end
 
   #has_many :playlist_items, :order => :position

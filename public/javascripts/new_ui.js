@@ -193,8 +193,8 @@ jQuery(function() {
 	});
 
 
-	jQuery("#search_all input[type=radio]").click(function() {
-		jQuery("#search_all").attr("action", jQuery(this.val()));
+	jQuery(".search_all input[type=radio]").click(function() {
+		jQuery(".search_all form").attr("action", "/" + jQuery(this).val());
 	});
 	jQuery("#search_all_radio").click();
 

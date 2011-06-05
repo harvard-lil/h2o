@@ -6,6 +6,7 @@ class CollagesController < BaseController
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
+  before_filter :list_tags, :only => [:index, :show, :edit]
 
   caches_action :annotations
 
@@ -13,6 +14,11 @@ class CollagesController < BaseController
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow :admin, :collage_admin, :superadmin
+  end
+
+  def list_tags
+    @collage_tags = Tag.find_by_sql("SELECT id, name FROM tags WHERE id IN
+		(SELECT DISTINCT tag_id FROM taggings WHERE taggable_type = 'Annotation')") 
   end
 
   def embedded_pager
@@ -60,6 +66,9 @@ class CollagesController < BaseController
       unless params[:keywords].blank?
         keywords params[:keywords]
       end
+	  unless params[:tag].blank?
+	    with :layer_list, params[:tag]
+	  end
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
@@ -69,11 +78,7 @@ class CollagesController < BaseController
 
     @collages.execute!
 
-    @my_collages = []
-
-    if current_user
-      @my_collages = current_user.collages
-    end
+	@my_collages = current_user ? current_user.collages : [] 
 
     respond_to do |format|
       format.html # index.html.erb
@@ -168,7 +173,7 @@ class CollagesController < BaseController
   end
 
   def prep_resources
-    add_javascripts ['collages','jquery.simpletip.min', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
+    add_javascripts ['collages', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css']
   end
 

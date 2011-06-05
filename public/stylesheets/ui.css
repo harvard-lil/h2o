@@ -38,7 +38,7 @@ nav ul li a.active { color:#b0bdc7; text-decoration:none; }
 nav p { float: right; display: inline; }
 
 
-header { display:block; height:71px; background:url(/images/ui/header.png); padding:26px 0 31px 27px; position:relative; z-index:2; }
+header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px -37px; padding:26px 0 31px 27px; position:relative; z-index:2; }
 #logo { float: left; display: inline; padding-right:9px; }
 #logo a { float: left; display: inline; width:71px; height:71px; background:url(/images/ui/logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 #playlists-logo { float: left; display: inline; }
@@ -281,6 +281,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 /* END jQuery.Rating Plugin CSS */
 
 /* Home Page */
+#base header { height: 108px; padding-top: 30px; }
 #homepage-logo { float: left; display: inline; }
 #homepage-logo a { float: left; display: inline; width:143px; height:71px; background:url(/images/ui/collage-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 .search_all form { padding-right: 50px; }

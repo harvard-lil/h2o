@@ -4,13 +4,18 @@
 
 <section id="breadcrumbs">
 	<aside class="filter">
-		<% if params[:keywords] -%>
+		<% if params[:tag] -%>
 		<p>
-		Results for: <%= params[:keywords] %> (<%= pluralize @collages.hits.length, 'Collage' %> Total)
+		Collages tagged: <%= params[:tag] %> (<%= pluralize @collages.total, 'Collage' %> Total)
+		<%= link_to "CLEAR TAG", collages_path %>
+		</p>
+		<% elsif params[:keywords] -%>
+		<p>
+		Results for: <%= params[:keywords] %> (<%= pluralize @collages.total, 'Collage' %> Total)
 		<%= link_to "CLEAR SEARCH", collages_path %>
 		</p>
 		<% else -%>
-    	<%= pluralize @collages.hits.length, 'Collage' %>
+    	<%= pluralize @collages.total, 'Collage' %> Total
 		<% end -%>
 	</aside>
 	<aside class="pagination">

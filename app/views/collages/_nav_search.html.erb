@@ -12,8 +12,8 @@
 			</a>
 			<div class="browse-tags-popup">
 				<ul>
-					<% Tag.all.each do |tag| %>
-					<li><a href="#"><strong><%= tag.name %></strong></a></li>
+					<% @collage_tags.each do |tag| %>
+					<li><a href="<%= collage_tag_path(tag.name) %>"><strong><%= tag.name %></strong></a></li>
 					<% end -%>
 				</ul>
 				<div class="cl">&nbsp;</div>

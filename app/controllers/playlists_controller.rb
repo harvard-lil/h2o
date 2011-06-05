@@ -25,12 +25,24 @@ class PlaylistsController < BaseController
   # GET /playlists
   # GET /playlists.xml
   def index
-    if current_user
-      @my_playlists = current_user.playlists 
-    end
-    @playlists = Playlist.public 
-    add_javascripts 'playlist'
-    add_javascripts 'new_playlists'
+    add_javascripts ['playlist', 'new_playlists']
+
+    @playlists = Sunspot.new_search(Playlist)
+
+	@playlists.build do
+	  unless params[:keywords].blank?
+	    keywords params[:keywords]
+	  end
+	  #unless params[:tag].blank?
+	  #end
+	  #with :public, true
+	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	  order_by :display_name, :asc
+	end
+
+	@playlists.execute!
+
+    @my_playlists = current_user ? current_user.playlists : []
     
     respond_to do |format|
       format.html # index.html.erb
