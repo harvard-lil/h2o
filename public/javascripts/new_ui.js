@@ -197,4 +197,11 @@ jQuery(function() {
 		jQuery("#search_all").attr("action", jQuery(this.val()));
 	});
 	jQuery("#search_all_radio").click();
+
+	jQuery(".tabs a").click(function() {
+		jQuery(".tabs a").removeClass("active");
+		jQuery('.' + jQuery('.tabs').parent().attr("id").replace(/_hgroup/, "") + "_section").hide();
+		jQuery("#" + jQuery(this).attr('id').replace(/_link$/, "")).show();
+		jQuery(this).addClass("active");
+	});
 });

@@ -6,8 +6,6 @@ body {
     font-family: Verdana, Arial, Helvetica, Sans-Serif;
     color: #333;
     background: #c9c9c9;
-	width: 990px;
-	margin: 0px auto;
 }
 
 a { color: #369; text-decoration: none; cursor:pointer; }
@@ -17,15 +15,17 @@ a img { border: 0; }
 input, textarea, select { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; }
 textarea { overflow: auto; }
 
+section,details,aside,hgroup { display:block; }
+
 .cl { display: block; height: 0; font-size: 0; line-height: 0; text-indent: -4000px; clear: both; }
 .notext { font-size: 0; line-height: 0; text-indent: -4000px; }
 
 .left, .alignleft { float: left; display: inline; }
 .right, .alignright { float: right; display: inline; }
 
-#shell { width:982px; padding:0 2px; background:#fff; margin:0 auto; }
+#shell { width:982px; padding:0 2px; background:#fff; margin:0 auto; position:relative; overflow:hidden; display:block; }
 
-nav { display:block;  font-size:10px; line-height:34px; padding:3px 27px 0;  font-weight:bold; text-transform:uppercase; border-bottom:2px solid #fff; }
+nav { display:block;  font-size:10px; line-height:34px; height:34px; padding:3px 27px 0;  font-weight:bold; text-transform:uppercase; border-bottom:2px solid #fff; }
 nav { background:#324552; background:-moz-linear-gradient(top, #324552, #7d909d);  }
 nav { background: -o-linear-gradient(#324552,#7d909d); background:-webkit-gradient(linear, left top, left bottom, from(#324552), to(#7d909d));  }
 nav a { color:#fff; }
@@ -94,7 +94,7 @@ header { display:block; height:71px; background:url(/images/ui/header.png); padd
 #breadcrumbs .pagination ul li.arrow-last a { background:url(/images/ui/pagination-last.png); }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
-#results hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png); height:30px; line-height:30px; display:block; }
+#results hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png); height:30px; line-height:30px; display:block; position:relative; z-index:2; }
 #results hgroup { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #results .tabs { list-style:none; float: left; display: inline; padding:4px 0 0 11px; }
 #results .tabs li { float: left; display: inline; font-weight:bold; font-size:10px; line-height:24px; padding-right:3px; }
@@ -109,12 +109,12 @@ header { display:block; height:71px; background:url(/images/ui/header.png); padd
 #results .sort .jsb { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px;  }
 #results .sort .jsb { width:103px !important; }
 #results .sort .jsb .jsb-currentItem { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; background:url(/images/ui/results-sort-select.png); }
-#results .sort .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:100%; height:100%; cursor:pointer; }
+#results .sort .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:103px; height:20px; cursor:pointer; background:url(/images/ui/transparent.gif); }
 #results .sort .jsb .jsb-list { position:absolute; top:20px; left:-1px; width:103px !important; background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 #results .sort .jsb .jsb-list { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; display:none; }
 #results .sort .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; cursor:default; }
 
-#results .songs { padding:11px 0 0; }
+#results .songs { padding:11px 0 0; position:relative; z-index:1; }
 #results .songs ul { list-style:none; }
 #results .song  { border-top:1px solid #e0e1e1; padding:1px 0 13px; position:relative; z-index:1; width:100%; }
 #results .song-active  { z-index:2; }
@@ -155,8 +155,8 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 
 
 
-#playlist { display:block; padding:11px 7px; position:relative; z-index:1; }
-#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/playlist-description.png); height:30px; line-height:30px; }
+#playlist { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
+#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/playlist-description.png); height:30px; line-height:30px; display:block; }
 #playlist .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #playlist .description { padding-left:73px; }
 #playlist .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#fff; }
@@ -177,28 +177,30 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist details p { font-size:12px; line-height:18px; color:#999; }
 #playlist details p .link-more { font-size:9px; text-transform:uppercase; font-weight:bold; }
 
-#playlist .playlists { padding-top:1px; }
+#playlist .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
-#playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; }
+#playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
 #playlist .playlist .link-add { float:left; display:inline; width:24px; height:23px;  background:url(/images/ui/song-controls-add.png); font-size:0; line-height:0; text-indent: -4000px;  }
 #playlist .playlist .number { float:left; display:inline;  width:40px; font-size:10px; line-height:20px; color:#666; font-weight:bold; text-align:center; }
 #playlist .playlist .data { float: right; display: inline; width:895px; position:relative; width:550px; padding-right:345px; }
 #playlist .playlist .data .dd-open { position:absolute; top:5px; left:-17px; width:17px; height:12px; background:url(/images/ui/playlist-arrow.png) center no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
 #playlist .playlist .data .tags { position:absolute; top:0; right:0; }
-#playlist .playlist .data .tags ul { list-style:none; }
+#playlist .playlist .data .tags ul { list-style:none; float:right; display:inline; }
 #playlist .playlist .data .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
 #playlist .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
-#playlist .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; }
-#playlist .playlist .data h3 { font-size:14px; line-height:18px; padding-bottom:3px; font-weight:normal; display:inline-block; }
-#playlist .playlist .data .icon-type { display:inline-block; width:18px; height:18px;  }
+#playlist .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
+#playlist .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
+#playlist .playlist .data .icon-type { float:left; display:inline; margin-left:5px; width:18px; height:18px;  }
 #playlist .playlist .data .icon-type-collage { background-image:url(/images/ui/icon-type-collage.png); }
 #playlist .playlist .data .icon-type-question { background-image:url(/images/ui/icon-type-question.png); }
 #playlist .playlist .data .icon-type-playlist { background-image:url(/images/ui/icon-type-playlist.png); }
-#playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; }
+#playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
-#playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; }
+#playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
 #playlist .playlists .playlists .data { padding-right:271px; }
+#playlist .playlists .playlists .playlists { width:823px;}
 #playlist .playlists .playlists .playlists .data { padding-right:197px; }
+#playlist .playlists .playlists .playlists .playlists { width:749px; }
 #playlist .playlists .playlists .playlists .playlists .data { padding-right:119px; }
 #playlist .playlists .full-list-link { position:absolute; top:13px; right:0; width:78px; height:24px; background:#d8dada; color:#333; text-align:center; font-size:10px; line-height:24px; font-weight:bold; }
 
@@ -250,6 +252,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #collage details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
 #collage details p { font-size:12px; line-height:18px; color:#616e5c; }
 #collage details p .link-more { font-size:9px; text-transform:uppercase; font-weight:bold; }
+#collage details p .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
 
 #collage article { display:block; font-size:11px; line-height:16px; color:#000; padding:13px 9px 0 35px; height:100%; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
@@ -259,6 +262,9 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #collage article p a.hint { color:#669900; }
 #collage article p strong { font-weight:normal; color:#999; }
 #collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/collage-article-del.png) center no-repeat; }
+
+
+
 
 /* jQuery.Rating Plugin CSS - http://www.fyneworks.com/jquery/star-rating/ */
 div.rating-cancel { display:none !important; }
@@ -275,8 +281,12 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 /* END jQuery.Rating Plugin CSS */
 
 /* Home Page */
-#search_all p { color: #666; float: left; width: 150px; margin: 0px; font-size: 9pt; }
-#search_all p input { margin: 0px 7px 7px 0px; }
+#homepage-logo { float: left; display: inline; }
+#homepage-logo a { float: left; display: inline; width:143px; height:71px; background:url(/images/ui/collage-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
+.search_all form { padding-right: 50px; }
+.search_all #radios { clear: both; padding: 10px 0px 0px 20px; }
+.search_all p { color: #666; float: left; width: 140px; margin: 0px; font-size: 9pt; }
+.search_all p input { margin: 0px 7px 7px 0px; }
 
 #home_nav { clear: both; background: #FFFFFF; border-bottom: 1px solid #d9d9d9; margin-top: 3px; }
 #home_nav .panel { float: left; width: 200px; border-right: 1px solid #d9d9d9;
@@ -293,8 +303,14 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
     #home_nav #collage .icon_nav { background-position: 0px 0px; width: 36px; }
   #home_nav #playlist a { color: #ff9504; }
     #home_nav #playlist .icon_nav { background-position: -110px 0px; }
+
 #home_nav p { text-align: left; font-size: 10pt; color: #999999; }
-#home_nav .button { font-size: 10pt; font-weight: bold; }
+#home_nav .button { font-weight: bold; border:1px solid #f6f6f6;
+  border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;
+  -ms-border-radius:4px; -o-border-radius:4px; display: inline-block; 
+  font-size:11px; line-height:28px; color:#fff;
+  background:url(/images/ui/grey-btn.png); 
+  z-index:2; padding:0 11px; text-decoration:none; margin-top: 10px; }
 
 #empty_panel { background: #f4f3d4; float: right; width: 485px; height: 158px;
   margin-top: 3px; }  
@@ -310,10 +326,16 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   height: 1px; width: 100%; }
 
 .highlight { background: #E0F5BD; }
+.annotation_start_highlight { background: #E0F5BD; }
+#tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
+  display: none; background: #c4eb80; padding: 10px; width: 200px; }
+#annotation-form { display: none; }
+#description_more { display: none; }
 
 /* Collage index */
 #results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); margin-bottom: 10px; }
 #results .alt { background: #f4f4f4; }
-.collage_list { padding: 10px; }
+.collage_list { padding: 10px 10px 10px 30px; }
 .collage_list .title { font-weight: bold; display: block; }
 .collage_list .meta { padding-bottom: 5px; }
+#my_collages { display: none; }

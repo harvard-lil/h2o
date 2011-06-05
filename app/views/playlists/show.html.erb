@@ -1,8 +1,6 @@
-<div class="info_block">
-  <div class="yellow_title_med">Playlist Items</div>
-  Current playlist items are shown below.  If you are the owner of an item or have been given permission by the owner you may
-  edit or delete items.
-</div>
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'playlists-logo',
+  :url => playlists_path,
+  :right_search => 'playlists/nav_search' } %>
 
 <div id="playlist_head_container">
   <div id="playlist_title" class="blue_title_large"><%= @playlist.name %> <button id="button-playlist-copy-<%= @playlist.id %>" name="button-playlist-copy" class="playlist_button ui-button ui-state-default ui-corner-all"><%= image_tag "/images/icons/page_copy.png" %></button></div>

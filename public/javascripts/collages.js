@@ -1,3 +1,7 @@
+var new_annotation_start = '';
+var new_annotation_end = '';
+var just_hidden = 0;
+
 jQuery.extend({
 
   addLayerToCookie: function(cookieName,layerId){
@@ -336,7 +340,7 @@ jQuery.extend({
 
           jQuery('#annotation-tabs-' + annotationId).tabs();
           // Wipe out edit buttons if not owner.
-          if(jQuery('#is_owner').html() != 'true'){
+          if(is_owner) {
             jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
               Close: function(){
                 jQuery(this).dialog('close');
@@ -402,7 +406,7 @@ jQuery.extend({
             aIndex++;
           }
         });
-        jQuery.observeWords();
+        //jQuery.observeWords();
         jQuery.hideEmptyElements();
         jQuery('#spinner_block').hide();
       },
@@ -464,16 +468,16 @@ jQuery.extend({
   },
 
   wordEvent: function(e){
+  	var el = jQuery(this);
     if(e.type == 'mouseover'){
-      jQuery(this).addClass('annotation_start_highlight')
+      el.addClass('annotation_start_highlight');
     }
     if(e.type == 'mouseout'){
-      jQuery(this).removeClass('annotation_start_highlight');
+      el.removeClass('annotation_start_highlight');
     } else if(e.type == 'click'){
       e.preventDefault();
-      if(jQuery('#new-annotation-start').html().length > 0){
-        // Set end point and annotate.
-        jQuery('#new-annotation-end').html(jQuery(this).attr('id'));
+      if(new_annotation_start != '') {
+		new_annotation_end = el.attr('id');
         var collageId = jQuery('.collage-id').attr('id').split('-')[1];
         jQuery('#annotation-form').dialog({
           bgiframe: true,
@@ -488,19 +492,17 @@ jQuery.extend({
             },
             'Cancel': function(){
               jQuery('#new-annotation-error').html('').hide();
-              jQuery(this).dialog('close');
+              el.dialog('close');
             }
           }
         });
-        jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
-        e.preventDefault();
         jQuery.ajax({
           type: 'GET',
           url: jQuery.rootPath() + 'annotations/new',
           data: {
             collage_id: collageId,
-            annotation_start: jQuery('#new-annotation-start').html(),
-            annotation_end: jQuery('#new-annotation-end').html()
+            annotation_start: new_annotation_start,
+            annotation_end: new_annotation_end
           },
           cache: false,
           beforeSend: function(){
@@ -512,10 +514,6 @@ jQuery.extend({
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
             jQuery("#annotation_annotation").markItUp(myTextileSettings);
-            /*            jQuery('#annotation_annotation').bind('keypress','alt+k',function(e){
-              alert('pressed!');
-              jQuery.submitAnnotation()
-              }); */
               jQuery('#annotation_layer_list').keypress(function(e){
                 if(e.keyCode == '13'){
                   e.preventDefault();
@@ -532,21 +530,14 @@ jQuery.extend({
             jQuery('div.ajax-error').show().append(xhr.responseText);
           }
         });
-        jQuery('#new-annotation-start').html('');
-        jQuery('#new-annotation-end').html('');
+
+		jQuery("#tooltip").fadeOut();
+        new_annotation_start = '';
+        new_annotation_end = '';
       } else {
-        // Set start point
-        jQuery('#' + jQuery(this).attr('id')).bt({
-          trigger: 'none',
-          contentSelector: 'jQuery("#annotation-start-marker")',
-          fill: '#F7F7F7',
-          positions: ['top','most'],
-          active_class: 'annotation_start_highlight',
-          clickAnywhereToClose: false,
-          closeWhenOthersOpen: true
-        });
-        jQuery('#' + jQuery(this).attr('id')).btOn();
-        jQuery('#new-annotation-start').html(jQuery(this).attr('id'));
+		var pos = el.position();
+		jQuery("#tooltip").css({ left: pos.left - 100 + el.width()/2, top: pos.top + 100 }).fadeIn();
+        new_annotation_start = el.attr('id');
       }
     }
   },
@@ -557,9 +548,14 @@ jQuery.extend({
     // the controller enforces privs - so feel free to fiddle with the DOM, it won't get you anywhere.
     // jQuery('tt:visible') as a query is much less efficient - unfortunately.
 
-    if(jQuery('#is_owner').html() == 'true'){
+    if(is_owner) {
       jQuery('tt').bind('mouseover mouseout click', jQuery.wordEvent);
     }
+  },
+
+  unObserveWords: function() {
+  	//TODO: See if this works
+  	jQuery('tt').unbind('mouseover mouseout click');
   }
 
 });
@@ -609,44 +605,67 @@ jQuery(document).ready(function(){
     }
   });
 
-  jQuery('a#cancel-annotation').click(function(e){
+  jQuery('#cancel-annotation').click(function(e){
     e.preventDefault();
-    // close tip.
-    jQuery('#' + jQuery('#new-annotation-start').html()).btOff();
-    jQuery('#new-annotation-start').html('');
-    jQuery('#new-annotation-end').html('');
+	jQuery("#tooltip").hide();
+    new_annotation_start = '';
+	new_annotation_end = '';
   });
 
   if(jQuery('.collage-id').length > 0){
-    jQuery.observeLayers();
     jQuery.initializeAnnotations();
 
 	jQuery('#layers .hide_show').click(function(e) {
-		if(jQuery(this).hasClass('shown')) {
-			jQuery(this).find('strong').html('SHOW');
-			jQuery(this).addClass('hidden').removeClass('shown');
+		var el = jQuery(this);
+		if(el.hasClass('shown')) {
+			el.find('strong').html('SHOW');
+			el.removeClass('shown');
         	jQuery('.' + jQuery(this).parent().attr('id')).hide();
 		} else {
-			jQuery(this).find('strong').html('HIDE');
-			jQuery(this).addClass('shown').removeClass('hidden');
+			el.find('strong').html('HIDE');
+			el.addClass('shown');
         	jQuery('.' + jQuery(this).parent().attr('id')).show();
 		}
       	e.preventDefault();
 	});
 	jQuery('#layers .link-o').click(function(e) {
-		if(jQuery(this).hasClass('unhighlighted')) {
-			jQuery(this).html('UNHIGHLIGHT');
-			jQuery(this).addClass('highlighted').removeClass('unhighlighted');
-        	jQuery('.' + jQuery(this).parent().attr('id')).addClass('highlight');
+		var el = jQuery(this);
+		if(el.hasClass('highlighted')) {
+			el.html('HIGHLIGHT');
+			el.removeClass('highlighted');
+        	jQuery('.' + el.parent().attr('id')).removeClass('highlight');
 		} else {
-			jQuery(this).html('HIGHLIGHT');
-			jQuery(this).addClass('unhighlighted').removeClass('highlighted');
-        	jQuery('.' + jQuery(this).parent().attr('id')).removeClass('highlight');
+			el.html('UNHIGHLIGHT');
+			el.addClass('highlighted');
+        	jQuery('.' + el.parent().attr('id')).addClass('highlight');
 		}
       	e.preventDefault();
 	});
 
+	jQuery("#edit-show").click(function(e) {
+		var el = jQuery(this);
+		if(el.hasClass('editing')) {
+			el.removeClass("editing").html("EDIT");	
+       		jQuery.unObserveWords();
+		} else {
+			el.addClass("editing").html("READ");	
+       		jQuery.observeWords();
+		}
+      	e.preventDefault();
+	});
+
+	jQuery(".link-more").click(function() {
+		jQuery("#description_less").hide();
+		jQuery("#description_more").show();
+	});
+	jQuery(".link-less").click(function() {
+		jQuery("#description_more").hide();
+		jQuery("#description_less").show();
+	});
+
 /*
+    jQuery.observeLayers();
+
     jQuery('#view-layer-list .layer-control').click(function(e){
       e.preventDefault();
       var layerId = jQuery(this).attr('id').split(/-/)[2];

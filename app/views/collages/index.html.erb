@@ -22,22 +22,26 @@
 <section id="results">
 	<hgroup id="collage_hgroup">
 		<ul class="tabs">
-			<li><a href="#" class="active">ALL COLLAGES</a></li>
+			<li><a href="#" class="active" id="all_collages_link">ALL COLLAGES</a></li>
 			<% if false -%>
 			<li><a href="#">POPULAR COLLAGES</a></li>
 			<% end -%>
   			<% unless @my_collages.blank? %>
-			<li><a href="#">MY COLLAGES</a></li>
+			<li><a href="#" id="my_collages_link">MY COLLAGES</a></li>
 			<% end -%>
 		</ul>
 	</hgroup>
   	<% unless @my_collages.blank? %>
+	<div id="my_collages" class="collage_section">
     	<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
+	</div>
   	<% end %>
 
+	<div id="all_collages" class="collage_section">
   	<% if @collages.hits.length == 0 %>
     <h2>None found.</h2>
  	 <% else %>
     <%= render :partial => 'collage_list' %>
   	<% end %>
+	</div>
 </section>

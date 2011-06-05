@@ -1,5 +1,5 @@
-<section id="search">
-<% form_tag(url_for, :method => :get, :id => "search_all", :class => "search") do -%>
+<section id="search" class="search_all">
+<% form_tag(url_for, :method => :get, :class => "search") do -%>
 	<ul>
 	<li class="field">
 		<%= text_field_tag "keywords", params[:keywords], :size => 50 %>
@@ -11,9 +11,11 @@
 	<div id="radios">
 		<p><input type="radio" name="searchtype" value="search" id="search_all_radio" />All</p>
 		<p><input type="radio" name="searchtype" value="cases" />Cases</p>
-		<p class="cl"><input type="radio" name="searchtype" value="playlists" />Playlists</p>
+		<div class="cl"></div>
+		<p><input type="radio" name="searchtype" value="playlists" />Playlists</p>
 		<p><input type="radio" name="searchtype" value="question_instances" />Question Tool</p>
-		<p class="cl"><input type="radio" name="searchtype" value="collages" />Collages</p>
+		<div class="cl"></div>
+		<p><input type="radio" name="searchtype" value="collages" />Collages</p>
 		<p><input type="radio" name="searchtype" value="rotisseries" />Rotisseries</p>
 		<div class="cl"></div>
 	</div>

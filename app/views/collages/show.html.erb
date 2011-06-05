@@ -2,9 +2,14 @@
   :url => collages_path,
   :right_search => 'collages/nav_search' } %>
 
+<div id="tooltip">
+Your annotation will start here. Please click another word to set the end point.
+<a href="#" id="cancel-annotation">cancel</a>
+</div>
+
 <div id="collage">
 	<hgroup class="description">
-		<h2><%= @collage.name %></h2>
+		<h2 class="collage-id" id="collage-<%= @collage.id %>"><%= @collage.name %></h2>
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#"><img src="/images/ui/collage-toolbar-1.png"  alt="" /></a></li>
@@ -51,7 +56,7 @@
 				</li>
 				<% if current_user && @collage.users.include?(current_user) -%>
 				<li class="btn-li">
-					<%= link_to "EDIT", edit_collage_path(@collage), :class => "btn-a" %>
+					<%= link_to "EDIT", '#', :class => "btn-a", :id => "edit-show" %>
 				</li>
 				<% end -%>
 			</ul>
@@ -70,7 +75,16 @@
 			<%= @collage.created_at.to_s(:simpledatetime) %> by <a href="#"><%= @collage.creators.collect { |u| u.login }.join(',') %></a> |
 			<a href="#"><strong>COLLAGE STATS</strong></a>
 		</h5>
-		<p><%= @collage.description %> <a href="#" class="link-more">MORE</a></p>
+		<% if @collage.description.length > 100 -%>
+			<p id="description_less">
+			<%= @collage.description[1..100] %>... <a href="#" class="link-more">MORE</a>
+			</p>
+			<p id="description_more">
+			<%= @collage.description %> <a href="#" class="link-less">LESS</a>
+			</p>
+		<% else -%>
+			<p><%= @collage.description %></p>
+		<% end -%>
 	</details>
 
 <% if ! session[:just_born].blank?
@@ -127,10 +141,12 @@
 	</article>
 	<% end -%>
 </div>
-
-
-
-
+  
+ 
+<script type="text/javascript">
+var is_owner = <%= current_user && @collage.can_edit? ? 1 : 0 %>;
+</script>
+<div id="annotation-form"></div>
 
 
 <% if false -%>
@@ -147,15 +163,7 @@
     </div>
   <% end %>
 
-  <div id="annotation-form" style="display: none;"></div>
-  <div id="new-annotation-start" style="display: none;"></div>
-  <div id="new-annotation-end" style="display: none;"></div>
-  <div id="is_owner" style="display: none;"><%= (current_user && @collage.can_edit?) ? true : false %></div> 
   <div id="please-wait" style="display: none;">Please wait. . .</div>
-  <div id="annotation-start-marker" style="display: none;">
- <a href="#" id="cancel-annotation"><%= image_tag('elements/close.gif') %></a> Your annotation will start here. Please click another word to set the end point.
-  </div>
-  <hr class="print-block" />
 </div>
 
 Removal of Lineage from Template

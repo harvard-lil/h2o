@@ -168,7 +168,7 @@ class CollagesController < BaseController
   end
 
   def prep_resources
-    add_javascripts ['collages','markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
+    add_javascripts ['collages','jquery.simpletip.min', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css']
   end
 

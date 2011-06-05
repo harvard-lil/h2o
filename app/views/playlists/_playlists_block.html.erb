@@ -9,11 +9,11 @@
 </section>
 
 <section id="results">
-	<hgroup>
+	<hgroup id="playlists_hgroup">
 	<ul class="tabs">
-		<li><a href="#" class="active">ALL PLAYLISTS</a></li>
-		<li><a href="#">MY PLAYLISTS</a></li>
-		<li><a href="#">MY BOOKMARKS</a></li>
+		<li><a href="#" class="active" id="all_playlists_link">ALL PLAYLISTS</a></li>
+		<li><a href="#" id="my_playlists_link">MY PLAYLISTS</a></li>
+		<% if false -%><li><a href="#">MY BOOKMARKS</a></li><% end -%>
 	</ul>
 	<aside class="sort">
 		<label>SORT:</label>
@@ -22,9 +22,41 @@
 	<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
-	<ul>
-    	<% @playlists.each do |playlist| %>
-		<li class="song">
+	<ul id="all_playlists" class="playlists_section">
+    	<% @playlists.each_with_index do |playlist, playlist_counter| %>
+		<li class="song<%= ' alt' if playlist_counter%2 == 0 %>">
+			<div class="controls">
+          <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
+            <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
+          <% end %>
+          <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
+            <%= link_to('Delete', playlist_path(playlist), :class => 'button delete-playlist') %>
+          <% end %>
+			</div>
+			<details>
+				<div class="tags">
+					<ul>
+						<li><a href="#">Tag 1</a></li>
+						<li><a href="#">Tag 2</a></li>
+					</ul>
+				</div>
+				<h4><%= link_to playlist.name, playlist %></h4>
+				<p>
+					<%= playlist.created_at.to_s(:simpledatetime) %> by
+					<%= playlist.owners.collect{|u| u.login}.join(',') %>
+				</p>
+				<div class="influence"></div>
+			</details>
+			<div class="cl"></div>
+		</li>
+   		<% end %>
+	</ul>
+	<ul id="my_playlists" class="playlists_section">
+    	<% if @my_playlists.empty? -%>
+		None!
+		<% end -%>
+    	<% @my_playlists.each_with_index do |playlist, playlist_counter| %>
+		<li class="song<%= ' alt' if playlist_counter%2 == 0 %>">
 			<div class="controls">
           <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
             <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
