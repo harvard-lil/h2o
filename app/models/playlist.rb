@@ -41,4 +41,14 @@ class Playlist < ActiveRecord::Base
 
   alias :to_s :display_name
 
+  def tags
+  	#need to figure out how recursive to get here
+	tags = []
+	playlist_items.each do |item|
+	  next if !['ItemCase', 'ItemCollage', 'ItemTextBlock'].include?(item.resource_item_type)
+	  next if item.resource_item.actual_object.nil?
+	  tags << item.resource_item.actual_object.tags
+	end
+    tags.flatten.uniq
+  end
 end

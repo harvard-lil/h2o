@@ -19,7 +19,7 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
-		<%= will_paginate @collages.hits %>
+		<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 	</aside>
 	<div class="cl"></div>
 </section>
@@ -35,18 +35,27 @@
 			<li><a href="#" id="my_collages_link">MY COLLAGES</a></li>
 			<% end -%>
 		</ul>
+		<aside class="sort">
+			<label>SORT:</label>
+			<select name="">
+				<option value="">BY DATE</option>
+				<option value="">BY RATING</option>
+			</select>
+		</aside>
 	</hgroup>
-  	<% unless @my_collages.blank? %>
-	<div id="my_collages" class="collage_section">
-    	<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
-	</div>
-  	<% end %>
+	<article class="songs">
+  		<% unless @my_collages.blank? %>
+		<ul id="my_collages" class="collage_section">
+   	 		<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
+		</ul>
+  		<% end %>
 
-	<div id="all_collages" class="collage_section">
-  	<% if @collages.hits.length == 0 %>
-    <h2>None found.</h2>
- 	 <% else %>
-    <%= render :partial => 'collage_list' %>
-  	<% end %>
-	</div>
+		<ul id="all_collages" class="collage_section">
+  		<% if @collages.hits.length == 0 %>
+    	<li>None found.</li>
+ 	 	<% else %>
+		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
+  		<% end %>
+		</ul>
+	</article>
 </section>

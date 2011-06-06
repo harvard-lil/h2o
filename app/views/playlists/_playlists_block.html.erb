@@ -3,7 +3,7 @@
 		<%= @playlists.total %> Playlists Total
 	</aside>
 	<aside class="pagination">
-		<%= will_paginate @playlists.hits %>
+		<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 	</aside>
 	<div class="cl"></div>
 </section>
@@ -19,7 +19,10 @@
 	</ul>
 	<aside class="sort">
 		<label>SORT:</label>
-		-- sort
+		<select name="">
+			<option value="">BY DATE</option>
+			<option value="">BY RATING</option>
+		</select>
 	</aside>
 	<div class="cl"></div>
 	</hgroup>

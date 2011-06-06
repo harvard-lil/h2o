@@ -1,17 +1,33 @@
-<li class="song<%= ' alt' if playlist_counter%2 == 0 %>">
+<li class="listitem<%= ' alt' if playlist_counter%2 == 0 %>">
 	<div class="controls">
+		<ul>
+			<li class="link-play"><a href="#">Play</a></li>
+			<li class="link-add"><a href="#">Add</a></li>
+		</ul>
+		<div class="popup add-popup">
+			<h4>ADD TO</h4>
+			<%= collection_select(:playlist, :id, @all_playlists, :id, :name) %>
+			<ul>
+				<li><a href="#">CREATE NEW PLAYLIST</a></li>
+				<li><a href="#">ADD BOOKMARK</a></li>
+			</ul>
+			<a href="#" class="btn">ADD FILE</a>
+		</div>
+		<% if false -%>
           <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
             <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
           <% end %>
           <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
             <%= link_to('Delete', playlist_path(playlist), :class => 'button delete-playlist') %>
           <% end %>
+		<% end -%>
 	</div>
 	<details>
 		<div class="tags">
 			<ul>
-				<li><a href="#">Tag 1</a></li>
-				<li><a href="#">Tag 2</a></li>
+				<% playlist.tags.each do |tag| %>
+				<li><a href="#"><%= tag.name %></a></li>
+				<% end -%>
 			</ul>
 		</div>
 		<h4><%= link_to playlist.name, playlist %></h4>

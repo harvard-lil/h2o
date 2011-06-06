@@ -1,15 +1,5 @@
 <%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'playlists-logo',
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
-
-<div id="list_block">
-  <%= render :partial => 'playlists_block' %>
-</div>
-
-<br />
-
-<% if current_user %>
-  <div class="info_block controls">
-    <%= link_to 'New Playlist', new_playlist_path, :class => 'button new-playlist' %>
-  </div>
-<% end %>
+	
+<%= render :partial => 'playlists_block' %>

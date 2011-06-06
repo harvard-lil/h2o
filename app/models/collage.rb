@@ -94,6 +94,9 @@ class Collage < ActiveRecord::Base
   def layers
     self.annotations.collect{|a| a.layers}.flatten.uniq
   end
+  def tags  #alias not working as expected
+    layers
+  end 
 
   def layer_list
     self.layers.map(&:name)

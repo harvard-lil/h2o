@@ -148,4 +148,8 @@ class Question < ActiveRecord::Base
     end
   end
 
+  def tags
+    #empty right now
+	[]
+  end
 end

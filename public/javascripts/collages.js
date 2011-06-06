@@ -654,14 +654,6 @@ jQuery(document).ready(function(){
       	e.preventDefault();
 	});
 
-	jQuery(".link-more").click(function() {
-		jQuery("#description_less").hide();
-		jQuery("#description_more").show();
-	});
-	jQuery(".link-less").click(function() {
-		jQuery("#description_more").hide();
-		jQuery("#description_less").show();
-	});
 
 /*
     jQuery.observeLayers();

@@ -17,7 +17,7 @@
 var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 	<%= javascript_include_tag 'modernizr.custom.86311' %>
   </head>
-  <body id="<%= params[:controller] %>">
+  <body id="b<%= params[:controller] %>">
   	<section id="shell">
 	<%= render :partial => 'shared/header' %>
     <% if flash[:notice] %>

@@ -8,6 +8,7 @@ class PlaylistsController < BaseController
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index]
+  before_filter :list_tags, :only => [:index, :show, :edit]
   
   access_control do
     allow all, :to => [:embedded_pager, :show, :index]
@@ -22,11 +23,14 @@ class PlaylistsController < BaseController
     super Playlist
   end
 
+  def list_tags
+    @playlist_tags = [] #really slow: Playlist.all.collect { |p| p.tags }.flatten.uniq
+  end
+
   # GET /playlists
   # GET /playlists.xml
   def index
-    add_javascripts ['playlist', 'new_playlists']
-
+    @all_playlists = Playlist.all
     @playlists = Sunspot.new_search(Playlist)
 
 	@playlists.build do

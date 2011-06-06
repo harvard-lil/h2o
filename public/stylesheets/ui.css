@@ -38,7 +38,7 @@ nav ul li a.active { color:#b0bdc7; text-decoration:none; }
 nav p { float: right; display: inline; }
 
 
-header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px -37px; padding:26px 0 31px 27px; position:relative; z-index:2; }
+header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px -39px; padding:26px 0 31px 27px; position:relative; z-index:2; }
 #logo { float: left; display: inline; padding-right:9px; }
 #logo a { float: left; display: inline; width:71px; height:71px; background:url(/images/ui/logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 #playlists-logo { float: left; display: inline; }
@@ -76,26 +76,21 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #breadcrumbs .filter { float: left; display: inline; }
 #breadcrumbs .filter p { font-size:12px; line-height:24px; color:#333; }
 #breadcrumbs .filter p a { font-size:9px; text-transform:uppercase; font-weight:bold; color:#69c; }
-#breadcrumbs .pagination { float: right; display: inline; padding:6px 6px 0 0; }
-#breadcrumbs .pagination ul { list-style:none; }
-#breadcrumbs .pagination ul li { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; }
-#breadcrumbs .pagination ul li a { text-decoration:underline; }
-#breadcrumbs .pagination ul li a:hover,
-#breadcrumbs .pagination ul li a.active { color:#999; text-decoration:none; }
-#breadcrumbs .pagination ul li.last { background:none; margin-right:0; }
-#breadcrumbs .pagination ul li.dots { padding-right:0; background:none; }
-#breadcrumbs .pagination ul li.dots a { text-decoration:none; }
-#breadcrumbs .pagination ul li.arrow { padding:3px 0 0 9px; line-height:9px; background:none; margin-right:0; }
-#breadcrumbs .pagination ul li.arrow a { float: left; display: inline; width:7px; height:9px; font-size: 0; line-height: 0; text-indent: -4000px; }
-#breadcrumbs .pagination ul li.arrow-first a { background:url(/images/ui/pagination-first.png); }
-#breadcrumbs .pagination ul li.arrow-prev { padding-right:14px; }
-#breadcrumbs .pagination ul li.arrow-prev a { background:url(/images/ui/pagination-prev.png); }
-#breadcrumbs .pagination ul li.arrow-next a { background:url(/images/ui/pagination-next.png); }
-#breadcrumbs .pagination ul li.arrow-last a { background:url(/images/ui/pagination-last.png); }
+#breadcrumbs .pagination { float: right; display: inline; padding:0px 6px 0 0; }
+#breadcrumbs .pagination span { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; }
+#breadcrumbs .pagination a { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; text-decoration:underline; }
+#breadcrumbs .pagination a:hover,
+#breadcrumbs .paginatio a.active { color: #999; }
+#breadcrumbs .pagination .next_page { background:none; margin-right:0;
+  background:url(/images/ui/pagination-next.png); text-indent: -4000px; width: 7px;
+  height: 9px; padding: 0px; margin-top: 2px; }
+#breadcrumbs .pagination .prev_page { background:url(/images/ui/pagination-prev.png); text-indent: -4000px; 
+  width: 7px; height: 9px; padding: 0px; margin-top: 2px; }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
 #results hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png); height:30px; line-height:30px; display:block; position:relative; z-index:2; }
-#results hgroup { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
+#results hgroup { border-radius:4px; -moz-border-radius:4px;
+  -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; margin-bottom: 10px; }
 #results .tabs { list-style:none; float: left; display: inline; padding:4px 0 0 11px; }
 #results .tabs li { float: left; display: inline; font-weight:bold; font-size:10px; line-height:24px; padding-right:3px; }
 #results .tabs li a { float: left; display: inline; background:url(/images/ui/tabs-nav.png); color:#630; padding:0 15px 2px; position:relative; }
@@ -114,39 +109,43 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #results .sort .jsb .jsb-list { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; display:none; }
 #results .sort .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; cursor:default; }
 
-#results .songs { padding:11px 0 0; position:relative; z-index:1; }
+#results .songs { padding: 0px; position:relative; z-index:1; }
 #results .songs ul { list-style:none; }
-#results .song  { border-top:1px solid #e0e1e1; padding:1px 0 13px; position:relative; z-index:1; width:100%; }
+#results .listitem  { border-top:1px solid #e0e1e1; padding:1px 0 13px; position:relative; z-index:1; width:100%; }
 #results .song-active  { z-index:2; }
 
-#results .song .controls { float: left; display: inline; padding-right:10px; position:relative; }
-#results .song .controls ul { list-style:none; }
-#results .song .controls ul li { float: left; display: inline; padding-right:1px; }
-#results .song .controls ul li a { float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
-#results .song .controls ul li.link-play a { background:url(/images/ui/song-controls-play.png); }
-#results .song .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); }
+#results .listitem .controls { float: left; display: inline; padding-right:10px; position:relative; }
+#results .listitem .controls ul { list-style:none; }
+#results .listitem .controls ul li { float: left; display: inline; padding-right:1px; }
+#results .listitem .controls ul li a { float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
+#results .listitem .controls ul li.link-play a { background:url(/images/ui/song-controls-play.png); }
+#results .listitem .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); }
 
-#results .song .controls .popup { display:none; border:2px solid #666; position:absolute; top:0; left:0; background:#fff; padding:4px 17px 9px 7px; }
-#results .song .controls .popup { box-shadow:#777 4px 4px 6px; -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px; -o-box-shadow:#777 4px 4px 6px; -ms-box-shadow:#777 4px 4px 6px; }
-#results .song .controls .add-popup { top:24px; left:25px; }
-#results .song .controls .add-popup h4 { font-size:11px; line-height:18px; text-transform:uppercase; padding-bottom:11px; }
-#results .song .controls .add-popup select { width:230px; }
-#results .song .controls .add-popup ul { list-style:none;  padding:12px 0 4px; }
-#results .song .controls .add-popup ul li { display:block; float:none; }
-#results .song .controls .add-popup ul li a { font-size:10px; line-height:18px; color:#359; float:none; width:auto; height:auto; }
-#results .song .controls .add-popup .btn { float: right; display: inline; background:url(/images/ui/popup-btn.png); border:1px solid #8a9eb5; padding:0 9px; font-size:9px; line-height:21px; color:#fff; }
-#results .song .controls .add-popup .btn { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; text-decoration:none; }
+#results .listitem .controls .popup { display:none; border:2px solid #666; position:absolute; top:0; left:0; background:#fff; padding:4px 17px 9px 7px; }
+#results .listitem .controls .popup { box-shadow:#777 4px 4px 6px; -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px; -o-box-shadow:#777 4px 4px 6px; -ms-box-shadow:#777 4px 4px 6px; }
+#results .listitem .controls .add-popup { top:24px; left:25px; }
+#results .listitem .controls .add-popup h4 { font-size:11px; line-height:18px; text-transform:uppercase; padding-bottom:11px; }
+#results .listitem .controls .add-popup select { width:230px; }
+#results .listitem .controls .add-popup ul { list-style:none;  padding:12px 0 4px; }
+#results .listitem .controls .add-popup ul li { display:block; float:none; }
+#results .listitem .controls .add-popup ul li a { font-size:10px; line-height:18px; color:#359; float:none; width:auto; height:auto; }
+#results .listitem .controls .add-popup .btn { float: right; display: inline; background:url(/images/ui/popup-btn.png); border:1px solid #8a9eb5; padding:0 9px; font-size:9px; line-height:21px; color:#fff; }
+#results .listitem .controls .add-popup .btn { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; text-decoration:none; }
 
-#results .song details { float: right; display: inline; width:902px; }
-#results .song details .tags { float: right; display: inline; }
-#results .song details .tags ul { list-style:none; }
-#results .song details .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
-#results .song details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
-#results .song details h4 { font-size:14px; line-height:18px; padding-bottom:4px; }
-#results .song details p { float: left; display: inline; font-size:10px; line-height:16px; }
-#results .song details p a { font-weight:bold; }
-#results .song details .influence { float: left; display: inline;  }
-#results .song details .influence label { float: left; display: inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding:0 7px; }
+#results .listitem details { float: right; display: inline; width:902px; }
+#results .listitem details .tags { float: right; display: inline; }
+#results .listitem details .tags ul { list-style:none; }
+#results .listitem details .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
+#results .listitem details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
+#results .listitem details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
+#results .listitem details h4 .action { font-size: 10px; font-weight: normal; }
+#results .listitem details h4 .delete_action { padding-left: 5px; background:
+  transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
+#results .listitem details p { float: left; display: inline; font-size:10px; line-height:16px; }
+#results .listitem details p a { font-weight:bold; }
+#results .listitem details .influence { float: left; display: inline;  }
+#results .listitem details .influence label { float: left; display: inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding:0 7px; }
+#results .listitem details .extra { display: block; clear: both; padding-top: 8px; }
 
 
 footer { display:block; background:#455864; margin-top:58px; height:auto !important; height:330px; min-height:330px;  }
@@ -181,7 +180,10 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlists ul { list-style:none; }
 #playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
 #playlist .playlist .link-add { float:left; display:inline; width:24px; height:23px;  background:url(/images/ui/song-controls-add.png); font-size:0; line-height:0; text-indent: -4000px;  }
-#playlist .playlist .number { float:left; display:inline;  width:40px; font-size:10px; line-height:20px; color:#666; font-weight:bold; text-align:center; }
+#playlist .playlist .number { float:left; display:inline;  width:24px; font-size:10px;
+  line-height:20px; color:#666; font-weight:bold; text-align:center;
+  border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
+  padding-top: 2px; }
 #playlist .playlist .data { float: right; display: inline; width:895px; position:relative; width:550px; padding-right:345px; }
 #playlist .playlist .data .dd-open { position:absolute; top:5px; left:-17px; width:17px; height:12px; background:url(/images/ui/playlist-arrow.png) center no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
 #playlist .playlist .data .tags { position:absolute; top:0; right:0; }
@@ -191,9 +193,9 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
 #playlist .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
 #playlist .playlist .data .icon-type { float:left; display:inline; margin-left:5px; width:18px; height:18px;  }
-#playlist .playlist .data .icon-type-collage { background-image:url(/images/ui/icon-type-collage.png); }
-#playlist .playlist .data .icon-type-question { background-image:url(/images/ui/icon-type-question.png); }
-#playlist .playlist .data .icon-type-playlist { background-image:url(/images/ui/icon-type-playlist.png); }
+#playlist .playlist .data .icon-type-itemcollage { background-image:url(/images/ui/icon-type-collage.png); }
+#playlist .playlist .data .icon-type-itemquestion { background-image:url(/images/ui/icon-type-question.png); }
+#playlist .playlist .data .icon-type-itemplaylist { background-image:url(/images/ui/icon-type-playlist.png); }
 #playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
@@ -281,9 +283,9 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 /* END jQuery.Rating Plugin CSS */
 
 /* Home Page */
-#base header { height: 108px; padding-top: 30px; }
-#homepage-logo { float: left; display: inline; }
-#homepage-logo a { float: left; display: inline; width:143px; height:71px; background:url(/images/ui/collage-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
+#bbase header { height: 106px; padding-top: 30px; }
+#homepage-logo { float: left; display: inline; margin-top: 20px; }
+#homepage-logo a { float: left; display: inline; width:249px; height:32px; background:url(/images/ui/homepage-logo.png); font-size: 0; line-height: 0; text-indent: -4000px; }
 .search_all form { padding-right: 50px; }
 .search_all #radios { clear: both; padding: 10px 0px 0px 20px; }
 .search_all p { color: #666; float: left; width: 140px; margin: 0px; font-size: 9pt; }
@@ -334,9 +336,14 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #description_more { display: none; }
 
 /* Collage index */
-#results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); margin-bottom: 10px; }
-#results .alt { background: #f4f4f4; }
-.collage_list { padding: 10px 10px 10px 30px; }
-.collage_list .title { font-weight: bold; display: block; }
-.collage_list .meta { padding-bottom: 5px; }
+#results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); }
 #my_collages { display: none; }
+#bcollages #results .sort label { color: #006a07; }
+#bcollages #results .sort .jsb .jsb-currentItem { color: #006a07; }
+#bcollages #results .sort .jsb { background: #e0f5bd; border: 1px solid #8eb356; }
+#bcollages #results .sort .jsb .jsb-list { background: #e0f5bd; border: 1px solid #8eb356; }
+#bcollages #results .sort .jsb .jsb-list .jsb-item { color: #006a07; }
+
+#my_playlists { display: none; }
+
+#busers header { height: 106px; padding-top: 30px; }

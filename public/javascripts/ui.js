@@ -164,8 +164,8 @@ jQuery(function() {
 	jQuery('#results .song details .influence input').rating();
 	jQuery('#playlist details .influence input').rating();
 	
-	jQuery("#results .song .controls ul li.link-add").click(function() {
-		jQuery(this).parents(".song").toggleClass("song-active").find(".add-popup").toggle();
+	jQuery("#results .listitem .controls ul li.link-add").click(function() {
+		jQuery(this).parents(".listitem").toggleClass("song-active").find(".add-popup").toggle();
 		
 		return false;
 	});
@@ -203,5 +203,14 @@ jQuery(function() {
 		jQuery('.' + jQuery('.tabs').parent().attr("id").replace(/_hgroup/, "") + "_section").hide();
 		jQuery("#" + jQuery(this).attr('id').replace(/_link$/, "")).show();
 		jQuery(this).addClass("active");
+	});
+
+	jQuery(".link-more").click(function() {
+		jQuery("#description_less").hide();
+		jQuery("#description_more").show();
+	});
+	jQuery(".link-less").click(function() {
+		jQuery("#description_more").hide();
+		jQuery("#description_less").show();
 	});
 });

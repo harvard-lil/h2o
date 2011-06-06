@@ -2,15 +2,50 @@
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
 
-<div id="playlist_head_container">
-  <div id="playlist_title" class="blue_title_large"><%= @playlist.name %> <button id="button-playlist-copy-<%= @playlist.id %>" name="button-playlist-copy" class="playlist_button ui-button ui-state-default ui-corner-all"><%= image_tag "/images/icons/page_copy.png" %></button></div>
-
-  <%= raw (@playlist.description.blank?) ? '' : %Q|<div class="description">#{Playlist.format_content(@playlist.description)}</div>| %>
+<div id="playlist">
+	<hgroup class="description">
+		<h2><%= @playlist.name %></h2>
+		<aside class="toolbar">
+			<ul>
+				<li><a href="#"><img src="/images/ui/toolbar-1.png" alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/toolbar-2.png" alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/toolbar-3.png" alt="" /></a></li>
+				<li><a href="#"><img src="/images/ui/toolbar-4.png" alt="" /></a></li>
+			</ul>
+		</aside>
+		<div class="cl"></div>
+	</hgroup>
+	<details>
+		<div class="tags">
+			<ul>
+				<% @playlist.tags.each do |tag| -%>
+				<li><a href="#"><%= tag.name %></a></li>
+				<% end -%>
+			</ul>
+		</div>
+		<h5>
+			<%= @playlist.created_at.to_s(:simpledatetime) %> 
+			by <a href="#"><%= @playlist.creators.collect { |u| u.login }.join(', ') %></a>
+		</h5>
+		<% if false -%>
+		<div class="influence"></div>
+		<% end -%>
+		<div class="cl"></div>
+		<% if @playlist.description.length > 500 -%>
+			<p id="description_less">
+			<%= @playlist.description[1..500] %>... <a href="#" class="link-more">MORE</a>
+			</p>
+			<p id="description_more">
+			<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
+			</p>
+		<% else -%>
+			<p><%= @playlist.description %></p>
+		<% end -%>
+		</p>
+	</details>
+	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>
 
-<div id="list_block" >
-  <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
-</div>
 
 <div id="container_id" style="display: none;"><%= @playlist.id %></div>
 

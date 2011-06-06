@@ -60,6 +60,7 @@ class CollagesController < BaseController
   end
 
   def index
+    @all_playlists = Playlist.all
     @collages = Sunspot.new_search(Collage)
       
     @collages.build do

@@ -1,5 +1,5 @@
 <%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
-<%= will_paginate @collages.hits %>
+<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 
 <%= javascript_tag(%q|
 jQuery(document).ready(function(){
