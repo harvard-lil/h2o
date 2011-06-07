@@ -42,6 +42,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},
     :member => {:spawn_copy => :post, :position_update => :post, :delete => :get, :copy => [:get, :post], :metadata => :get}
+  map.playlist_tag "playlists/tag/:tag", :controller => :playlists, :action => :index
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 

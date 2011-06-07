@@ -163,13 +163,25 @@ jQuery(function() {
 	
 	jQuery('#results .song details .influence input').rating();
 	jQuery('#playlist details .influence input').rating();
-	
-	jQuery("#results .listitem .controls ul li.link-add").click(function() {
-		jQuery(this).parents(".listitem").toggleClass("song-active").find(".add-popup").toggle();
-		
+
+	jQuery(".link-add a").click(function() {
+		var position = jQuery(this).offset();
+		var popup = jQuery('.popup');
+		var current_id = jQuery(this).attr('class');
+		var last_id = popup.data('item_id');
+		if(last_id) {
+			popup.removeData('item_id').fadeOut(100, function() {
+				if(current_id != last_id) {
+					popup.css({ top: position.top + 24, left: position.left }).fadeIn(100).data('item_id', current_id);
+				}
+			});
+		} else {
+			popup.css({ top: position.top + 24, left: position.left }).fadeIn(100).data('item_id', current_id);
+
+		}
 		return false;
 	});
-	
+
 	jQuery("#search .btn-tags").click(function() {
 		var $p = jQuery(".browse-tags-popup");
 		
@@ -199,6 +211,7 @@ jQuery(function() {
 	jQuery("#search_all_radio").click();
 
 	jQuery(".tabs a").click(function() {
+		jQuery(".popup").fadeOut().removeData('item_id');
 		jQuery(".tabs a").removeClass("active");
 		jQuery('.' + jQuery('.tabs').parent().attr("id").replace(/_hgroup/, "") + "_section").hide();
 		jQuery("#" + jQuery(this).attr('id').replace(/_link$/, "")).show();

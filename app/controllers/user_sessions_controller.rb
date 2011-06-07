@@ -15,7 +15,6 @@ class UserSessionsController < ApplicationController
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false
         else
-          flash[:notice] = "Login successful!"
           redirect_back_or_default "/base"
         end
       else
@@ -26,7 +25,6 @@ class UserSessionsController < ApplicationController
   
   def destroy
     current_user_session.destroy
-    flash[:notice] = "Logout successful!"
     redirect_to "/"
   end
 end

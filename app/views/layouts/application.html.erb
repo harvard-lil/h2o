@@ -27,6 +27,16 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 	<%= render :partial => 'shared/footer' %>
 	</section>
 
+<div class="popup add-popup">
+	<h4>ADD TO</h4>
+	<%= collection_select(:playlist, :id, [], :id, :name) %>
+	<ul>
+		<li><a href="#">CREATE NEW PLAYLIST</a></li>
+		<li><a href="#">ADD BOOKMARK</a></li>
+	</ul>
+	<a href="#" class="btn">ADD FILE</a>
+</div>
+
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 <%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311', 'ui', :cached => 'new_ui' %>

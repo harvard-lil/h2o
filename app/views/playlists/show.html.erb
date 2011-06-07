@@ -19,7 +19,7 @@
 		<div class="tags">
 			<ul>
 				<% @playlist.tags.each do |tag| -%>
-				<li><a href="#"><%= tag.name %></a></li>
+				<li><%= link_to tag.name, playlist_tag_path(tag.name) %></li>
 				<% end -%>
 			</ul>
 		</div>

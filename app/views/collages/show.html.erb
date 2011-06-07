@@ -66,8 +66,8 @@ Your annotation will start here. Please click another word to set the end point.
 	<details>
 		<div class="tags">
 			<ul>
-   				<% @collage.layers.each do |layer| %>
-				<li><a href="#"><%= layer.name %></a></li>
+   				<% @collage.tags.each do |tag| %>
+				<li><%= link_to tag.name, collage_tag_path(tag.name) %></li>
    				<% end %><br />
 			</ul>
 		</div>

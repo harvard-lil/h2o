@@ -18,7 +18,11 @@ class CollagesController < BaseController
 
   def list_tags
     @collage_tags = Tag.find_by_sql("SELECT id, name FROM tags WHERE id IN
-		(SELECT DISTINCT tag_id FROM taggings WHERE taggable_type = 'Annotation')") 
+		(SELECT tag_id FROM taggings WHERE
+			(taggable_type = 'Case' AND taggable_id IN (SELECT annotatable_id FROM collages WHERE annotatable_type = 'Case'))
+			OR
+			(taggable_type = 'TextBlock' AND taggable_id IN (SELECT annotatable_id FROM collages WHERE annotatable_type = 'TextBlock')
+		))")
   end
 
   def embedded_pager

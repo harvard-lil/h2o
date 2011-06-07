@@ -1,33 +1,12 @@
 <section class="playlists">
 	<ul>
-    	<% @playlist.playlist_items.each_with_index do |item, index| %>
-		<li class="playlist" id="playlist_item_<%= item.id %>">
-			<div class="number"><%= index + 1 %></div>
-			<a class="link-add" href="#">+</a>
-			<div class="data">
-				<div class="tags">
-					<% if item.resource_item.actual_object -%>
-					<ul>
-						<% item.resource_item.actual_object.tags.each do |tag| -%>	
-						<li><a href="#"><%= tag.name %></a></li>
-						<% end -%>
-					</ul>
-					<% end -%>
-				</div>
-				<hgroup>
-					<h3>
-						<%= link_to item.resource_item.name, item.resource_item.url %>
-					</h3>
-					<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
-					<div class="cl"></div>
-				</hgroup>
-				<p>
-					<%= PlaylistItem.format_content(item.resource_item.description) %>
-				</p>
-			</div>
-			<div class="cl"></div>
-	  	</li>
-    	<% end %>
+		<% @playlist.playlist_items.each_with_index do |item, index| -%>
+		  <%= render :partial => 'shared/objects/playlist_item',
+		    :locals => { :item => item,
+			  :parent_index => '',
+			  :index => index,
+			  :recursive_level => 0 } %> 
+		<% end -%>
 	</ul>
 </section>
 

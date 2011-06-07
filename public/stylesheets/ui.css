@@ -31,6 +31,7 @@ nav { background: -o-linear-gradient(#324552,#7d909d); background:-webkit-gradie
 nav a { color:#fff; }
 
 nav ul { list-style:none; float: left; display: inline; }
+nav ul.right { float: right; }
 nav ul li { float: left; display: inline; padding-right:11px; margin-right:9px; background:url(/images/ui/navigation-li.png) right 12px no-repeat; }
 nav ul li.last { background:none; }
 nav ul li a:hover,
@@ -121,17 +122,6 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #results .listitem .controls ul li.link-play a { background:url(/images/ui/song-controls-play.png); }
 #results .listitem .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); }
 
-#results .listitem .controls .popup { display:none; border:2px solid #666; position:absolute; top:0; left:0; background:#fff; padding:4px 17px 9px 7px; }
-#results .listitem .controls .popup { box-shadow:#777 4px 4px 6px; -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px; -o-box-shadow:#777 4px 4px 6px; -ms-box-shadow:#777 4px 4px 6px; }
-#results .listitem .controls .add-popup { top:24px; left:25px; }
-#results .listitem .controls .add-popup h4 { font-size:11px; line-height:18px; text-transform:uppercase; padding-bottom:11px; }
-#results .listitem .controls .add-popup select { width:230px; }
-#results .listitem .controls .add-popup ul { list-style:none;  padding:12px 0 4px; }
-#results .listitem .controls .add-popup ul li { display:block; float:none; }
-#results .listitem .controls .add-popup ul li a { font-size:10px; line-height:18px; color:#359; float:none; width:auto; height:auto; }
-#results .listitem .controls .add-popup .btn { float: right; display: inline; background:url(/images/ui/popup-btn.png); border:1px solid #8a9eb5; padding:0 9px; font-size:9px; line-height:21px; color:#fff; }
-#results .listitem .controls .add-popup .btn { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; text-decoration:none; }
-
 #results .listitem details { float: right; display: inline; width:902px; }
 #results .listitem details .tags { float: right; display: inline; }
 #results .listitem details .tags ul { list-style:none; }
@@ -179,7 +169,8 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
 #playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
-#playlist .playlist .link-add { float:left; display:inline; width:24px; height:23px;  background:url(/images/ui/song-controls-add.png); font-size:0; line-height:0; text-indent: -4000px;  }
+#playlist .listitem .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); 
+  float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
 #playlist .playlist .number { float:left; display:inline;  width:24px; font-size:10px;
   line-height:20px; color:#666; font-weight:bold; text-align:center;
   border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
@@ -228,18 +219,6 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #collage .description .buttons ul .btn-a-active { -moz-border-radius-bottomright: 0px; border-bottom-right-radius: 0px; -webkit-border-bottom-right-radius: 0px;  }
 #collage .description .buttons ul .btn-a span { float:left; display:inline; padding-right:14px; background:url(/images/ui/collage-hgroup-btn-arrow.png) right no-repeat; }
 #collage .description .buttons ul .btn-a-active span { background-image:url(/images/ui/collage-hgroup-btn-active.png); }
-
-#collage .description .buttons .popup { position:absolute; top:25px; left:0; z-index:1; background:#fff; border:1px solid #6d87a2; width:180px; padding:12px 9px 10px;  display:none; }
-#collage .description .buttons .popup h5 { font-size:9px; line-height:22px; }
-#collage .description .buttons .popup ul { list-style:none; font-size:9px; line-height:17px; }
-#collage .description .buttons .popup ul li { padding-bottom:3px; color:#333; }
-#collage .description .buttons .popup ul li strong { float:left; display:inline; font-weight:normal; padding-right:5px; }
-#collage .description .buttons .popup ul li a { color:#fff; background:#69c; padding:0 7px; text-decoration:none; float:left; display:inline; margin-left:3px; font-weight:normal; }
-#collage .description .buttons .popup ul li a { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; }
-#collage .description .buttons .popup ul li a strong { padding:0; font-weight:bold; }
-#collage .description .buttons .popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
-#collage .description .buttons .popup ul li a.link-p { background:#ff9999; color:#664d4d; }
-#collage .description .buttons .popup ul li a.link-g { background:#bae66b; color:#664d4d; }
 
 
 #collage details { background:#e0f5bd; display:block; position:relative; padding:7px 300px 11px 74px; height:100%; z-index:1; }
@@ -346,4 +325,28 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 
 #my_playlists { display: none; }
 
-#busers header { height: 106px; padding-top: 30px; }
+#busers header, #buser_sessions header { height: 106px; padding-top: 30px; }
+
+/* Popup */
+.popup { position:absolute; top:25px; left:0; z-index:1; background:#fff; border: 2px solid #666; 
+  padding: 4px 9px 10px;  display:none;
+  top: 0px; left: 0px; background: #FFF; box-shadow:#777 4px 4px 6px;
+  -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px;
+  -o-box-shadow:#777 4px 4px 6px; -ms-box-shadow:#777 4px 4px 6px; }
+.popup h4 { font-size:11px; line-height:18px; text-transform:uppercase; padding-bottom:11px; }
+.popup ul { list-style:none; font-size:9px; line-height:17px; padding: 12px 0px 4px; }
+.popup ul li { display:block; float:none; }
+.popup ul li strong { float:left; display:inline; font-weight:normal; padding-right:5px; }
+.popup ul li a { color:#fff; padding: 0px; text-decoration:none;
+  float:left; display:inline; font-weight:normal; font-size:10px;
+  line-height:18px; color:#359; float:none; width:auto; height:auto; }
+.popup ul li a strong { padding:0; font-weight:bold; }
+.popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
+.popup ul li a.link-p { background:#ff9999; color:#664d4d; }
+.popup ul li a.link-g { background:#bae66b; color:#664d4d; }
+.popup select { width:230px; }
+.popup .btn { float: right; display: inline; background:url(/images/ui/popup-btn.png);
+  border:1px solid #8a9eb5; padding:0 9px; font-size:9px; line-height:21px;
+  color:#fff; border-radius:3px; -moz-border-radius:3px; 
+  -webkit-border-radius:3px; -o-border-radius:3px; 
+  -ms-border-radius:3px; text-decoration:none; }

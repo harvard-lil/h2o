@@ -4,29 +4,21 @@
   		<% form_tag(spawn_copy_collage_path(collage)) do %>
 		<ul>
 			<li><%= image_submit_tag "ui/song-controls-copy.png" %></li>
-			<li class="link-add"><a href="#">Add</a></li>
+			<li class="link-add"><a class="<%= collage.id %>" href="#">Add</a></li>
 		</ul>
   		<% end %>      
   		<% else -%>
 		<ul>
-			<li class="link-add"><a href="#">Add</a></li>
+			<li></li>
+			<li class="link-add"><a class="<%= collage.id %>" href="#">Add</a></li>
 		</ul>
   		<% end %>      
-		<div class="popup add-popup">
-			<h4>ADD TO</h4>
-			<%= collection_select(:playlist, :id, @all_playlists, :id, :name) %>
-			<ul>
-				<li><a href="#">CREATE NEW PLAYLIST</a></li>
-				<li><a href="#">ADD BOOKMARK</a></li>
-			</ul>
-			<a href="#" class="btn">ADD FILE</a>
-		</div>
 	</div>
 	<details>
 		<div class="tags">
 			<ul>
 				<% collage.tags.each do |tag| %>
-				<li><a href="#"><%= tag.name %></a></li>
+				<li><%= link_to tag.name, collage_tag_path(tag.name) %></li>
 				<% end -%>
 			</ul>
 		</div>
