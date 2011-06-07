@@ -19,7 +19,7 @@ class BaseController < ApplicationController
 
     @objects.execute!
     respond_to do |format|
-      format.html # index.html.erb
+      format.html { render :partial => 'shared/playlistable_item', :object => model }
       format.js { render :partial => 'shared/playlistable_item', :object => model }
       format.xml { render :xml => @objects }
     end

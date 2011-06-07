@@ -51,6 +51,7 @@ class Collage < ActiveRecord::Base
     text :indexable_content
     boolean :active
     boolean :public
+	time :created_at
 
     string :annotatable, :stored => true
     string :annotations, :multiple => true

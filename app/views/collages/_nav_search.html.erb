@@ -1,11 +1,13 @@
 <section id="search"> 
 	<% form_tag("/collages", :method => :get, :class => "search") do %>
 	<ul>
+		<% if current_user -%>
 		<li class="btn">
 			<a href="<%= new_collage_path %>" class="btn-a">
 				<span>CREATE COLLAGE</span>
 			</a>
 		</li>
+		<% end -%>
 		<li class="btn">
 			<a href="#" class="btn-a btn-tags">
 				<span>BROWSE TAGS</span>

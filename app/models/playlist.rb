@@ -25,6 +25,7 @@ class Playlist < ActiveRecord::Base
     text :description
     text :name
     boolean :public
+	time :created_at
   end
 
   #has_many :playlist_items, :order => :position

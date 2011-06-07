@@ -10,21 +10,15 @@
 
 <section id="results">
 	<hgroup id="playlists_hgroup">
-	<ul class="tabs">
-		<li><a href="#" class="active" id="all_playlists_link">ALL PLAYLISTS</a></li>
-		<% if current_user -%>
-		<li><a href="#" id="my_playlists_link">MY PLAYLISTS</a></li>
-		<% end -%>
-		<% if false -%><li><a href="#">MY BOOKMARKS</a></li><% end -%>
-	</ul>
-	<aside class="sort">
-		<label>SORT:</label>
-		<select name="">
-			<option value="">BY DATE</option>
-			<option value="">BY RATING</option>
-		</select>
-	</aside>
-	<div class="cl"></div>
+		<ul class="tabs">
+			<li><a href="#" class="active" id="all_playlists_link">ALL PLAYLISTS</a></li>
+			<% if current_user -%>
+			<li><a href="#" id="my_playlists_link">MY PLAYLISTS</a></li>
+			<% end -%>
+			<% if false -%><li><a href="#">MY BOOKMARKS</a></li><% end -%>
+		</ul>
+		<%= render :partial => 'shared/sort' %>
+		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
 	<ul id="all_playlists" class="playlists_section">

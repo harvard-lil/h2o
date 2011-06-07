@@ -19,7 +19,8 @@ jQuery.extend({
 
     submitPlaylistItem: function(rootId){
         jQuery(rootId).find('form').ajaxSubmit({
-            dataType: 'script',
+			//THIS NEEDS TO BE SCRIPT
+            dataType: "script",
             beforeSend: function(){
                 jQuery('#spinner_block').show();                
             },
@@ -41,7 +42,6 @@ jQuery.extend({
             e.preventDefault();
             jQuery.ajax({
                 cache: false,
-                dataType: 'script',
                 url: jQuery(this).attr('href'),
                 beforeSend: function(){
                     jQuery('#spinner_block').show();
@@ -70,9 +70,8 @@ jQuery.extend({
                     jQuery(newPlaylistNode).html(html);
                     jQuery(newPlaylistNode).dialog('open');
                 },
-                error: function(xhr){
+                error: function(xhr, textStatus, errorThrown) {
                     jQuery('#spinner_block').hide();
-
                 }
             });
         });
@@ -148,7 +147,7 @@ jQuery.extend({
                             },
                             success: function(html){
                                 jQuery('#spinner_block').hide();
-                                document.location.href = jQuery.rootPath() + 'playlists/';
+                                document.location.href = jQuery.rootPath() + 'playlists';
                             },
                             error: function(xhr){
                                 jQuery('#spinner_block').hide();
@@ -169,7 +168,7 @@ jQuery.extend({
             e.preventDefault();
             jQuery.ajax({
                 type: 'GET',
-                dataType: 'script',
+				dataType: "html",
                 url: jQuery(this).attr('href'),
                 beforeSend: function(){
                     jQuery('#spinner_block').show()
@@ -192,7 +191,7 @@ jQuery.extend({
                     jQuery('#tabs').tabs();
                     jQuery.observeItemObjectLists();
                 },
-                error: function(xhr){
+                error: function(xhr, textStatus, errorThrown) {
                     jQuery('#spinner_block').hide();
                 }
             });
@@ -205,15 +204,16 @@ jQuery.extend({
             e.preventDefault();
             jQuery.ajax({
                 type: 'GET',
-                dataType: 'script',
+                dataType: "html",
                 url: jQuery(this).attr('href'),
                 cache: false,
                 beforeSend: function(){
                     jQuery('#spinner_block').show();
                 },
-                error: function(){
+                error: function(xhr, textStatus, errorThrown) {
+				console.log(textStatus);
+				console.log(errorThrown);
                     jQuery('#spinner_block').hide();
-
                 },
                 success: function(html){
                     jQuery('#spinner_block').hide();
@@ -251,7 +251,7 @@ jQuery.extend({
             jQuery.ajax({
                 method: 'GET',
                 cache: false,
-                dataType: 'script',
+                dataType: "html",
                 url: jQuery.rootPath() + 'item_' + itemController + '/new',
                 beforeSend: function(){
                     jQuery('#spinner_block').show();
@@ -344,7 +344,7 @@ jQuery.extend({
                     method: 'GET',
                     cache: false,
                     url: jQuery.rootPath() + itemController + '/embedded_pager',
-                    dataType: 'script',
+                    dataType: "html",
                     beforeSend: function(){
                         jQuery('#spinner_block').show();
                     },
@@ -362,7 +362,6 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
-    jQuery('.button').button();
     jQuery.initPlaylistEditControls('.new-playlist,.edit-playlist');
     jQuery.initPlaylistDeleteControls();
     jQuery.initPlaylistItemAddControls();

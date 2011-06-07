@@ -30,21 +30,28 @@ class PlaylistsController < BaseController
   # GET /playlists
   # GET /playlists.xml
   def index
-    @all_playlists = Playlist.all
     @playlists = Sunspot.new_search(Playlist)
 
+	if !params.has_key?(:sort)
+	  params[:sort] = "display_name"
+	end
+
+    sort_base_url = ''
 	@playlists.build do
-	  unless params[:keywords].blank?
+	  if params.has_key?(:keywords)
 	    keywords params[:keywords]
+        sort_base_url += "&keywords=#{params[:keywords]}"
 	  end
-	  #unless params[:tag].blank?
+	  #if params.has_key?(:tag)
 	  #end
 	  #with :public, true
 	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-	  order_by :display_name, :asc
+	  order_by params[:sort].to_sym, :asc
 	end
 
 	@playlists.execute!
+
+    generate_sort_list("/playlists?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
 
     @my_playlists = current_user ? current_user.playlists : []
     
@@ -57,8 +64,6 @@ class PlaylistsController < BaseController
   # GET /playlists/1
   # GET /playlists/1.xml
   def show
-    add_javascripts 'playlist'
-    add_javascripts 'new_playlists'
     @playlist.playlist_items.find(:all, :include => [:resource_item])
     @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false
     respond_to do |format|
@@ -70,8 +75,6 @@ class PlaylistsController < BaseController
   # GET /playlists/new
   # GET /playlists/new.xml
   def new
-    add_javascripts 'playlist'
-    
     @playlist = Playlist.new
 
     respond_to do |format|

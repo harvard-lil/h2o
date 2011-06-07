@@ -88,7 +88,7 @@ class ItemBaseController < BaseController
           playlist_item.accepts_role!(:owner, current_user)
         end
 
-        flash[:notice] = 'ItemDefault was successfully created.'
+        #flash[:notice] = 'ItemDefault was successfully created.'
         format.js {render :text => nil}
         format.html { redirect_to(@object) }
         format.xml  { render :xml => @object, :status => :created, :location => @object }

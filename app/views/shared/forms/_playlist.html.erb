@@ -1,15 +1,11 @@
 <%  
   if ['edit'].include?(controller.action_name)
     playlist_object = Playlist.find(params[:id])
-  else
-    playlist_object = Playlist.new
   end
 -%>
 <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
 <% semantic_form_for playlist_object do |form| %>
   <% form.inputs do %>
-    <% #  form.input :title, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
-    <!-- <li></li> -->
     <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
     <li></li>
     <%= form.input :description,

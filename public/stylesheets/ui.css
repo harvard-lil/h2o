@@ -166,6 +166,14 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist details p { font-size:12px; line-height:18px; color:#999; }
 #playlist details p .link-more { font-size:9px; text-transform:uppercase; font-weight:bold; }
 
+#playlist .description .buttons { float:right; display:inline;  }
+#playlist .description .buttons ul { list-style:none; }
+#playlist .description .buttons ul .btn-li { float:left; display:inline; font-size:9px; line-height:20px; font-weight:bold; padding:4px 10px 0 0; position:relative; height:20px; }
+#playlist .description .buttons ul .btn-a { float:left; display:inline; background: #F8EDDC; 
+  color:#c45027; text-decoration:none; padding:0 9px; position:relative; z-index:2; 
+  border:1px solid #c45027; border-radius:4px; -moz-border-radius:4px;
+  -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; font-weight: bold; }
+
 #playlist .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
 #playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
@@ -197,6 +205,9 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlists .playlists .playlists .playlists .data { padding-right:119px; }
 #playlist .playlists .full-list-link { position:absolute; top:13px; right:0; width:78px; height:24px; background:#d8dada; color:#333; text-align:center; font-size:10px; line-height:24px; font-weight:bold; }
 
+#playlist .listitem .action { font-size: 10px; font-weight: normal; }
+#playlist .listitem .delete_action { padding-left: 10px; background:
+  transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 
 
 #collage { display:block; padding:11px 7px; position:relative; z-index:1; }
@@ -328,7 +339,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #busers header, #buser_sessions header { height: 106px; padding-top: 30px; }
 
 /* Popup */
-.popup { position:absolute; top:25px; left:0; z-index:1; background:#fff; border: 2px solid #666; 
+.add-popup { position:absolute; top:25px; left:0; z-index:1; background:#fff; border: 2px solid #666; 
   padding: 4px 9px 10px;  display:none;
   top: 0px; left: 0px; background: #FFF; box-shadow:#777 4px 4px 6px;
   -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px;
@@ -341,12 +352,24 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   float:left; display:inline; font-weight:normal; font-size:10px;
   line-height:18px; color:#359; float:none; width:auto; height:auto; }
 .popup ul li a strong { padding:0; font-weight:bold; }
-.popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
-.popup ul li a.link-p { background:#ff9999; color:#664d4d; }
-.popup ul li a.link-g { background:#bae66b; color:#664d4d; }
 .popup select { width:230px; }
 .popup .btn { float: right; display: inline; background:url(/images/ui/popup-btn.png);
   border:1px solid #8a9eb5; padding:0 9px; font-size:9px; line-height:21px;
   color:#fff; border-radius:3px; -moz-border-radius:3px; 
   -webkit-border-radius:3px; -o-border-radius:3px; 
   -ms-border-radius:3px; text-decoration:none; }
+
+.tools-popup { position:absolute; left:0; z-index:1;
+  background:#fff; border: 2px solid #666; 
+  padding: 4px 9px 10px;  display:none;
+  top: 0px; left: 0px; background: #FFF;
+  width: 185px; border: 1px solid #6D87A2; top: 25px; }
+.tools-popup h5 { font-size: 9px; line-height: 22px; }
+.tools-popup ul { padding-top: 0px; line-height: 17px; list-style: none; }
+.tools-popup ul li { padding-bottom: 3px; text-transform: uppercase; }
+.tools-popup ul li a { border-radius:3px; -moz-border-radius:3px;
+-webkit-border-radius:3px; -ms-border-radius:3px; -o-border-radius:3px; 
+text-decoration: none; float: left; display: inline; margin-left: 3px; 
+font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
+color: #FFF; }
+.tools-popup ul li a.link-o { background:#ffcc00; color:#664d4d; }

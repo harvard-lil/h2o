@@ -13,6 +13,15 @@
 				<li><a href="#"><img src="/images/ui/toolbar-4.png" alt="" /></a></li>
 			</ul>
 		</aside>
+		<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+		<aside class="buttons">
+			<ul>
+    			<li class="btn-li">
+					<%= link_to 'ADD ITEM +', new_playlist_item_path, :class => 'btn-a new-playlist-item' %>
+				</li>
+			</ul>
+		</aside>
+		<% end %>
 		<div class="cl"></div>
 	</hgroup>
 	<details>
@@ -48,12 +57,6 @@
 
 
 <div id="container_id" style="display: none;"><%= @playlist.id %></div>
-
-<% if current_user && (@playlist.admin? || @playlist.owner?) %>
-  <div class="info_block">
-    <%= link_to('Create Playlist Item',new_playlist_item_path, :class => 'button new-playlist-item') %>
-  </div>
-<% end %>
 
 <div id="dialog-item-edit" title="Edit item"></div>
 <div id="dialog-item-delete" title="Delete item"></div>

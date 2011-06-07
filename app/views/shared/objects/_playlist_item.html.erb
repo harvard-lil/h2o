@@ -23,6 +23,10 @@
 				<%= link_to item.resource_item.name, item.resource_item.url %>
 			</h3>
 			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
+			<% if current_user && @playlist_admi || @my_playlist %>
+			<%= link_to "DELETE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete_action delete-playlist-item" %>
+			<%= link_to "EDIT", url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => "action edit-playlist-item" %>
+			<% end -%>
 			<div class="cl"></div>
 		</hgroup>
 		<p>

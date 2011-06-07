@@ -1,0 +1,8 @@
+<aside class="sort">
+	<label>SORT:</label>
+	<select name="sort">
+		<% @sort_list.each do |s| -%>
+			<option value="<%= s[1] %>" <%= 'selected="selected"' if s[2] %>><%= s[0] %></option>
+		<% end -%>
+	</select>
+</aside>

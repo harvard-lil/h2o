@@ -6,7 +6,7 @@ class CollagesController < BaseController
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
   before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
-  before_filter :list_tags, :only => [:index, :show, :edit]
+  before_filter :list_tags, :only => [:index, :show, :edit, :new]
 
   caches_action :annotations
 
@@ -64,24 +64,36 @@ class CollagesController < BaseController
   end
 
   def index
-    @all_playlists = Playlist.all
     @collages = Sunspot.new_search(Collage)
-      
+    sort_base_url = ''
+     
+	if !params.has_key?(:sort)
+	  params[:sort] = "display_name"
+	end
+
     @collages.build do
-      unless params[:keywords].blank?
+      if params.has_key?(:keywords)
         keywords params[:keywords]
+		sort_base_url += "&keywords=#{params[:keywords]}"
       end
-	  unless params[:tag].blank?
+	  if params.has_key?(:tag)
 	    with :layer_list, params[:tag]
+		sort_base_url += "&tag=#{params[:tag]}"
 	  end
+	  #Uncomment if sort needs to carry over pages
+	  #if params.has_key?(:page)
+	  #	sort_base_url += "&page=#{params[:page]}"
+	  #end
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
-      order_by :display_name, :asc
+	  order_by params[:sort].to_sym, :asc
     end
 
     @collages.execute!
+
+    generate_sort_list("/collages?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
 
 	@my_collages = current_user ? current_user.collages : [] 
 

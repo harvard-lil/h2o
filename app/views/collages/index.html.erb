@@ -35,13 +35,7 @@
 			<li><a href="#" id="my_collages_link">MY COLLAGES</a></li>
 			<% end -%>
 		</ul>
-		<aside class="sort">
-			<label>SORT:</label>
-			<select name="">
-				<option value="">BY DATE</option>
-				<option value="">BY RATING</option>
-			</select>
-		</aside>
+		<%= render :partial => 'shared/sort' %>
 	</hgroup>
 	<article class="songs">
   		<% unless @my_collages.blank? %>

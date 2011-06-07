@@ -23,7 +23,12 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
-  before_filter :title_select, :set_time_zone
+  before_filter :title_select, :set_time_zone, :load_playlists
+
+  # add caching on this action later
+  def load_playlists
+    @all_playlists = current_user ? current_user.playlists : []
+  end
 
   #Switch to local time zone
   def set_time_zone
@@ -75,6 +80,17 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def generate_sort_list(sort_base_url, sort_fields)
+    @sort_list = []
+	sort_fields.each do |k, v|
+	  @sort_list.push([v, 
+	    "#{sort_base_url}&sort=#{k}".gsub(/\?&/, '?'),
+		(params.has_key?(:sort) && params[:sort] == k) ? true : false]
+	  )
+	end
+
+  end
 
   # Accepts a string or an array and emits stylesheet tags in the layout in that order.
   def add_stylesheets(new_stylesheets)

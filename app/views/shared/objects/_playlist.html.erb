@@ -1,16 +1,10 @@
 <li class="listitem">
 	<div class="controls">
+		<% if current_user -%>
 		<ul>
 			<li class="link-play"><a href="#">Play</a></li>
 			<li class="link-add"><a class="<%= playlist.id %>" href="#">Add</a></li>
 		</ul>
-		<% if false -%>
-          <% if current_user && (@is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist)) %>
-            <%= link_to('Edit', edit_playlist_path(playlist), :class => 'button edit-playlist') %>
-          <% end %>
-          <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
-            <%= link_to('Delete', playlist_path(playlist), :class => 'button delete-playlist') %>
-          <% end %>
 		<% end -%>
 	</div>
 	<details>
@@ -21,7 +15,17 @@
 				<% end -%>
 			</ul>
 		</div>
-		<h4><%= link_to playlist.name, playlist %></h4>
+		<h4>
+			<%= link_to playlist.name, playlist %>
+			<% if current_user -%>
+          	<% if @is_playlist_admin || @my_playlists.include?(playlist) %>
+            <%= link_to "DELETE", '#', :class => "action delete_action delete-playlist" %>
+			<% end -%>
+          	<% if @is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist) %>
+            <%= link_to "EDIT", edit_playlist_path(playlist), :class => "action edit-playlist" %>
+          	<% end %>
+          	<% end %>
+		</h4>
 		<p>
 			<%= playlist.created_at.to_s(:simpledatetime) %> by
 			<%= playlist.owners.collect{|u| u.login}.join(',') %>

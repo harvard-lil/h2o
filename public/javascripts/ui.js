@@ -159,6 +159,8 @@ jQuery(function() {
 
 	jQuery("#results .sort select").selectbox({
 		className: "jsb"
+	}).change(function() {
+		window.location = jQuery(this).val();
 	});
 	
 	jQuery('#results .song details .influence input').rating();
@@ -197,10 +199,9 @@ jQuery(function() {
 		return false;
 	});
 	
-	jQuery("#collage .description .buttons ul .btn-a span").parent().click(function() {
-		jQuery(this).parents(".btn-li").find(".popup").toggle();
+	jQuery("#collage .description .buttons ul .btn-a span").parent().click(function() { 
+		jQuery('.tools-popup').css({ 'top': 25 }).toggle();
 		jQuery(this).toggleClass("btn-a-active");
-		
 		return false;
 	});
 
@@ -226,4 +227,25 @@ jQuery(function() {
 		jQuery("#description_more").hide();
 		jQuery("#description_less").show();
 	});
+
+    jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
+
+	/* TODO: Generic-ize this to work on multiple pages */
+    jQuery(".sortable").sortable({
+        handle: '.item_drag_handle',
+        axis: 'y',
+        helper: sortableCellHelper,
+        update: function(event, ui) {
+            var container_id = jQuery('#container_id').text();
+            var playlist_order = jQuery(".sortable").sortable("serialize");
+            jQuery.ajax({
+                type: "post",
+                dataType: 'json',
+                url: '/playlists/' + container_id + '/position_update',
+                data: {
+                    playlist_order: playlist_order
+                }
+            });
+		}
+	}).disableSelection();
 });
