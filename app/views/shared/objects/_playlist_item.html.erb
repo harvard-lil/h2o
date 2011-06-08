@@ -13,7 +13,7 @@
 			<% if item.resource_item.actual_object -%>
 			<ul>
 				<% item.resource_item.actual_object.tags.each do |tag| -%>	
-				<li><%#= item.resource_item.actual_object.class %><a href="#"><%= tag.name %></a></li>
+				<li><a href="#"><%= tag.name %></a></li>
 				<% end -%>
 			</ul>
 			<% end -%>

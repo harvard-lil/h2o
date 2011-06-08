@@ -4,10 +4,7 @@ $.noConflict();
 
 jQuery(function() {
 
-    function updateTips(t) {
-        tips.text(t).effect("highlight",{},1500);
-    }
-
+	/* Only used in collages */
     jQuery.fn.observeField =  function( time, callback ){
 	    return this.each(function(){
 	        var field = this, change = false;
@@ -21,30 +18,9 @@ jQuery(function() {
 	    });
 	}
 
-    jQuery.fn.observeForm =  function( time, callback ){
-	    return this.each(function(){
-	        var form = this, change = false;
-	        jQuery(form.elements).keyup(function(){
-	            change = true;
-	        });
-	        setInterval(function(){
-	            if ( change ) callback.call( form );
-	            change = false;
-	        }, time * 1000);
-	    });
-	}
-
   jQuery.extend({
     rootPath: function(){
       return '/';
-    },
-
-    initCanvas: function(el){
-      if(el.getContext){
-        //already there
-      } else {
-        G_vmlCanvasManager.initElement(el);
-      }
     },
 
     observeMetadataForm: function(){
@@ -88,6 +64,7 @@ jQuery(function() {
      }
     },
 
+	/* Only used in collages.js */
     trim11: function(str) {
       // courtesty of http://blog.stevenlevithan.com/archives/faster-trim-javascript
     	var str = str.replace(/^\s+/, '');
@@ -100,6 +77,7 @@ jQuery(function() {
     	return str;
     },
 
+	/* Only used in new_playlists.js */
     rootPathWithFQDN: function(){
       return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
     },
@@ -157,6 +135,8 @@ jQuery(function() {
   //Fire functions for discussions
   initDiscussionControls();
 
+
+
 	jQuery("#results .sort select").selectbox({
 		className: "jsb"
 	}).change(function() {
@@ -167,20 +147,39 @@ jQuery(function() {
 	jQuery('#playlist details .influence input').rating();
 
 	jQuery(".link-add a").click(function() {
-		var position = jQuery(this).offset();
+		var element = jQuery(this);
+		var position = element.offset();
+		var results_posn = jQuery('.popup').parent().offset();
+		var left = position.left - results_posn.left;
+		var current_id = element.attr('class');
 		var popup = jQuery('.popup');
-		var current_id = jQuery(this).attr('class');
 		var last_id = popup.data('item_id');
 		if(last_id) {
 			popup.removeData('item_id').fadeOut(100, function() {
 				if(current_id != last_id) {
-					popup.css({ top: position.top + 24, left: position.left }).fadeIn(100).data('item_id', current_id);
+					popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
 				}
 			});
 		} else {
-			popup.css({ top: position.top + 24, left: position.left }).fadeIn(100).data('item_id', current_id);
+			popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
 
 		}
+		return false;
+	});
+
+	jQuery(".bookmark-this").click(function() {
+		jQuery.ajax({
+        	type: "post",
+            dataType: "json",
+            url: "/bookmark_item",
+            data: {
+				item: jQuery(".popup").data("item_id"),
+				type: jQuery(".popup").data("type")
+            },
+			success: function() {
+				alert('here');
+			}
+        });
 		return false;
 	});
 
@@ -219,13 +218,8 @@ jQuery(function() {
 		jQuery(this).addClass("active");
 	});
 
-	jQuery(".link-more").click(function() {
-		jQuery("#description_less").hide();
-		jQuery("#description_more").show();
-	});
-	jQuery(".link-less").click(function() {
-		jQuery("#description_more").hide();
-		jQuery("#description_less").show();
+	jQuery(".link-more,.link-less").click(function() {
+		jQuery("#description_less,#description_more").toggle();
 	});
 
     jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
@@ -248,4 +242,8 @@ jQuery(function() {
             });
 		}
 	}).disableSelection();
+
+	jQuery('.link-copy').click(function() {
+		jQuery(this).closest('form').submit();
+	});
 });

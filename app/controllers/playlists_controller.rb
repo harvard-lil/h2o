@@ -24,7 +24,7 @@ class PlaylistsController < BaseController
   end
 
   def list_tags
-    @playlist_tags = [] #really slow: Playlist.all.collect { |p| p.tags }.flatten.uniq
+    @playlist_tags = Tag.all #really slow: Playlist.all.collect { |p| p.tags }.flatten.uniq
   end
 
   # GET /playlists

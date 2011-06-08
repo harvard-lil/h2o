@@ -1,0 +1,9 @@
+<div class="popup add-popup" data-type="<%= type %>">
+	<h4>ADD TO</h4>
+	<%= collection_select(:playlist, :id, @all_playlists, :id, :name) %>
+	<ul>
+		<li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist" %></li>
+		<li><a href="#" class="bookmark-this">ADD BOOKMARK</a></li>
+	</ul>
+	<a href="#" class="btn new-playlist-item">ADD FILE</a>
+</div>

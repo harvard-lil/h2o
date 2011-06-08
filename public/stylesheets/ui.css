@@ -29,7 +29,6 @@ nav { display:block;  font-size:10px; line-height:34px; height:34px; padding:3px
 nav { background:#324552; background:-moz-linear-gradient(top, #324552, #7d909d);  }
 nav { background: -o-linear-gradient(#324552,#7d909d); background:-webkit-gradient(linear, left top, left bottom, from(#324552), to(#7d909d));  }
 nav a { color:#fff; }
-
 nav ul { list-style:none; float: left; display: inline; }
 nav ul.right { float: right; }
 nav ul li { float: left; display: inline; padding-right:11px; margin-right:9px; background:url(/images/ui/navigation-li.png) right 12px no-repeat; }
@@ -83,9 +82,9 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #breadcrumbs .pagination a:hover,
 #breadcrumbs .paginatio a.active { color: #999; }
 #breadcrumbs .pagination .next_page { background:none; margin-right:0;
-  background:url(/images/ui/pagination-next.png); text-indent: -4000px; width: 7px;
+  background:url(/images/ui/pagination.png); text-indent: -4000px; width: 7px;
   height: 9px; padding: 0px; margin-top: 2px; }
-#breadcrumbs .pagination .prev_page { background:url(/images/ui/pagination-prev.png); text-indent: -4000px; 
+#breadcrumbs .pagination .prev_page { background:url(/images/ui/pagination.png) -7px 0px; text-indent: -4000px; 
   width: 7px; height: 9px; padding: 0px; margin-top: 2px; }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
@@ -119,8 +118,9 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #results .listitem .controls ul { list-style:none; }
 #results .listitem .controls ul li { float: left; display: inline; padding-right:1px; }
 #results .listitem .controls ul li a { float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
-#results .listitem .controls ul li.link-play a { background:url(/images/ui/song-controls-play.png); }
-#results .listitem .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); }
+#results .listitem .controls ul li.link-play a { background:url(/images/ui/playlist-controls.png) -48px 0px; }
+#results .listitem .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png); }
+#results .listitem .controls ul li.link-copy a { background:url(/images/ui/playlist-controls.png) -24px 0px; }
 
 #results .listitem details { float: right; display: inline; width:902px; }
 #results .listitem details .tags { float: right; display: inline; }
@@ -142,8 +142,7 @@ footer { display:block; background:#455864; margin-top:58px; height:auto !import
 footer { background:-moz-linear-gradient(top, #334552, #526572); background:-webkit-gradient(linear, left top, left bottom, from(#334552), to(#526572)); background: -o-linear-gradient(#334552,#526572); }
 
 
-
-
+/* Playlist */
 #playlist { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
 #playlist .description { border:1px solid #ff8b11; background:url(/images/ui/playlist-description.png); height:30px; line-height:30px; display:block; }
 #playlist .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
@@ -153,6 +152,14 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .description .toolbar ul { list-style:none; }
 #playlist .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #f1c47e; }
 #playlist .description .toolbar ul li img { display:block; }
+
+#playlist .toolbar a { background: url(/images/ui/show_icons.png);
+  display: block; width: 23px; height: 30px; text-indent: -4000px; }
+#playlist .toolbar .link-share { background-position: -82px 0px; width: 19px; }
+#playlist .toolbar .link-remix { background-position: -101px 0px; width: 20px; }
+#playlist .toolbar .link-bookmark { background-position: -120px 0px; width: 18px; }
+#playlist .toolbar .link-print { background-position: -140px 0px; width: 22px; }
+
 #playlist details { background:#f8eddc; display:block; position:relative; padding:7px 300px 7px 80px; }
 #playlist details .tags { position:absolute; top:1px; right:1px; }
 #playlist details .tags ul { list-style:none; font-size:10px; line-height:24px; }
@@ -177,7 +184,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
 #playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
-#playlist .listitem .controls ul li.link-add a { background:url(/images/ui/song-controls-add.png); 
+#playlist .listitem .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png);
   float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
 #playlist .playlist .number { float:left; display:inline;  width:24px; font-size:10px;
   line-height:20px; color:#666; font-weight:bold; text-align:center;
@@ -191,10 +198,11 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 #playlist .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
 #playlist .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
-#playlist .playlist .data .icon-type { float:left; display:inline; margin-left:5px; width:18px; height:18px;  }
-#playlist .playlist .data .icon-type-itemcollage { background-image:url(/images/ui/icon-type-collage.png); }
-#playlist .playlist .data .icon-type-itemquestion { background-image:url(/images/ui/icon-type-question.png); }
-#playlist .playlist .data .icon-type-itemplaylist { background-image:url(/images/ui/icon-type-playlist.png); }
+#playlist .playlist .data .icon-type { float:left; display:inline;
+  margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
+#playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
+#playlist .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
+#playlist .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
 #playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
@@ -210,6 +218,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 
 
+/* Collages */
 #collage { display:block; padding:11px 7px; position:relative; z-index:1; }
 #collage .description { display:block; border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); height:30px; line-height:30px; position:relative; z-index:2; }
 #collage .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
@@ -253,9 +262,13 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #collage article p a { color:#336699; }
 #collage article p a.hint { color:#669900; }
 #collage article p strong { font-weight:normal; color:#999; }
-#collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/collage-article-del.png) center no-repeat; }
-
-
+#collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/pagination.png) center no-repeat; }
+#collage .toolbar a { background: url(/images/ui/show_icons.png);
+  display: block; width: 23px; height: 30px; text-indent: -4000px; }
+#collage .toolbar .link-share { width: 26px; }
+#collage .toolbar .link-copy { background-position: -26px 0px; width: 15px; }
+#collage .toolbar .link-bookmark { background-position: -41px 0px; width: 18px; }
+#collage .toolbar .link-print { background-position: -60px 0px; width: 22px; }
 
 
 /* jQuery.Rating Plugin CSS - http://www.fyneworks.com/jquery/star-rating/ */
@@ -339,7 +352,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #busers header, #buser_sessions header { height: 106px; padding-top: 30px; }
 
 /* Popup */
-.add-popup { position:absolute; top:25px; left:0; z-index:1; background:#fff; border: 2px solid #666; 
+.add-popup { position:absolute; z-index:1; background:#fff; border: 2px solid #666; 
   padding: 4px 9px 10px;  display:none;
   top: 0px; left: 0px; background: #FFF; box-shadow:#777 4px 4px 6px;
   -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 4px 4px 6px;

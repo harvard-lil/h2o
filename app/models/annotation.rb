@@ -60,6 +60,10 @@ class Annotation < ActiveRecord::Base
     doc.xpath("//tt[starts-with(@id,'t') and substring-after(@id,'t')>='" + self.annotation_start_numeral + "' and substring-after(@id,'t')<='" + self.annotation_end_numeral + "']")
   end
 
+  def tags
+    self.layers
+  end
+
   private
 
   def create_annotation_word_count_cache

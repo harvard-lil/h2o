@@ -106,6 +106,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :account, :controller => "users"
   map.resources :users, :collection => {:create_anon => :post}
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
+  map.bookmark_item "/bookmark_item", :controller => :users, :action => :bookmark_item
 
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
   map.root :controller => "base"

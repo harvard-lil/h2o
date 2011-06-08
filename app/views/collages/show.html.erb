@@ -12,16 +12,16 @@ Your annotation will start here. Please click another word to set the end point.
 		<h2 class="collage-id" id="collage-<%= @collage.id %>"><%= @collage.name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<li><a href="#"><img src="/images/ui/collage-toolbar-1.png"  alt="" /></a></li>
+				<li><a href="#" class="link-share">Share</a></li>
   				<% unless current_user.blank? %>
 				<li>
     				<% form_tag(spawn_copy_collage_path(@collage)) do %>
-					<input type="image" src="/images/ui/collage-toolbar-2.png" />
+					<a class="link-copy">Copy</a>
     				<% end %>
 				</li>
   				<% end %>
-				<li><a href="#"><img src="/images/ui/collage-toolbar-3.png"  alt="" /></a></li>
-				<li><a href="#"><img src="/images/ui/collage-toolbar-4.png"  alt="" /></a></li>
+				<li><a href="#" class="link-bookmark">Bookmark</a></li>
+				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
 		</aside>
 		<aside class="buttons">

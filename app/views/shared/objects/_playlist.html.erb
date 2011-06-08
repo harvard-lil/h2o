@@ -19,7 +19,7 @@
 			<%= link_to playlist.name, playlist %>
 			<% if current_user -%>
           	<% if @is_playlist_admin || @my_playlists.include?(playlist) %>
-            <%= link_to "DELETE", '#', :class => "action delete_action delete-playlist" %>
+            <%= link_to "DELETE", playlist_path(playlist), :class => "action delete_action delete-playlist" %>
 			<% end -%>
           	<% if @is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist) %>
             <%= link_to "EDIT", edit_playlist_path(playlist), :class => "action edit-playlist" %>

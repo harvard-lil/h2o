@@ -7,10 +7,10 @@
 		<h2><%= @playlist.name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<li><a href="#"><img src="/images/ui/toolbar-1.png" alt="" /></a></li>
-				<li><a href="#"><img src="/images/ui/toolbar-2.png" alt="" /></a></li>
-				<li><a href="#"><img src="/images/ui/toolbar-3.png" alt="" /></a></li>
-				<li><a href="#"><img src="/images/ui/toolbar-4.png" alt="" /></a></li>
+				<li><a href="#" class="link-share">Share</a></li>
+				<li><a href="#" class="link-remix">Bookmark</a></li>
+				<li><a href="#" class="link-bookmark">Bookmark</a></li>
+				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
 		</aside>
 		<% if current_user && (@playlist.admin? || @playlist.owner?) %>
@@ -61,3 +61,5 @@
 <div id="dialog-item-edit" title="Edit item"></div>
 <div id="dialog-item-delete" title="Delete item"></div>
 <div id="dialog-playlist-copy" title="Copy playlist"></div>
+
+<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

@@ -3,7 +3,7 @@
 		<% if current_user %>
   		<% form_tag(spawn_copy_collage_path(collage)) do %>
 		<ul>
-			<li><%= image_submit_tag "ui/song-controls-copy.png" %></li>
+			<li class="link-copy"><a href="#">Copy</a></li>
 			<li class="link-add"><a class="<%= collage.id %>" href="#">Add</a></li>
 		</ul>
   		<% end %>      

@@ -67,4 +67,9 @@ class UsersController < ApplicationController
       render :action => :edit
     end
   end
+
+  def bookmark_item
+    RAILS_DEFAULT_LOGGER.warn("#{params.inspect}")
+    render :json => {}
+  end
 end

@@ -59,4 +59,7 @@ class QuestionInstance < ActiveRecord::Base
     self.find(:first)
   end
 
+  def tags
+    []
+  end
 end

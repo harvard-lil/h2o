@@ -138,6 +138,10 @@ class Question < ActiveRecord::Base
     "\"#{self.question[0..80]}...\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
   end
 
+  def tags
+	[]
+  end
+
   private
 
   def update_root_question
@@ -146,10 +150,5 @@ class Question < ActiveRecord::Base
       root_question.updated_at = Time.now
       root_question.save
     end
-  end
-
-  def tags
-    #empty right now
-	[]
   end
 end
