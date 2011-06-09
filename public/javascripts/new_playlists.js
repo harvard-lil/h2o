@@ -1,168 +1,4 @@
 jQuery.extend({
-    submitPlaylist: function(className){
-        jQuery('#playlist-editor').find('form').ajaxSubmit({
-            dataType: 'script',
-            beforeSend: function(){
-                jQuery('#spinner_block').show();                
-            },
-            success: function(response){
-                jQuery('#spinner_block').hide();
-                jQuery('#playlist-editor').dialog('close');
-                document.location.href = jQuery.rootPath() + 'playlists/'
-            },
-            error: function(xhr){
-                jQuery('#spinner_block').hide();
-                jQuery('#error_block').show().html(xhr.responseText);
-            }
-        });
-    },
-
-    submitPlaylistItem: function(rootId){
-        jQuery(rootId).find('form').ajaxSubmit({
-			//THIS NEEDS TO BE SCRIPT
-            dataType: "script",
-            beforeSend: function(){
-                jQuery('#spinner_block').show();                
-            },
-            success: function(response){
-                jQuery('#spinner_block').hide();
-                var playlistId = jQuery('#container_id').html();
-                jQuery('#add-item-dialog').dialog('close');
-                document.location.href = jQuery.rootPath() + 'playlists/' + playlistId;
-            },
-            error: function(xhr){
-                jQuery('#spinner_block').hide();
-                jQuery('#error_block').show().html(xhr.responseText);
-            }
-        });
-    },
-
-    initPlaylistEditControls: function(className){
-        jQuery(className).click(function(e){
-            e.preventDefault();
-            jQuery.ajax({
-                cache: false,
-                url: jQuery(this).attr('href'),
-                beforeSend: function(){
-                    jQuery('#spinner_block').show();
-                },
-                success: function(html){
-                    jQuery('#spinner_block').hide();
-                    var newPlaylistNode = jQuery('<div id="playlist-editor"></div>');
-                    jQuery(newPlaylistNode).dialog({
-                        title: 'Edit Playlist',
-                        modal: true,
-                        width: 'auto',
-                        height: 'auto',
-                        position: 'top',
-                        close: function(){
-                            jQuery(newPlaylistNode).remove();
-                        },
-                        buttons: {
-                            Save: function(){
-                                jQuery.submitPlaylist(className);
-                            },
-                            Close: function(){
-                                jQuery(newPlaylistNode).dialog('close');
-                            }
-                        }
-                    });
-                    jQuery(newPlaylistNode).html(html);
-                    jQuery(newPlaylistNode).dialog('open');
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    jQuery('#spinner_block').hide();
-                }
-            });
-        });
-    },
-    initPlaylistItemDeleteControls: function(){
-        jQuery('.delete-playlist-item').click(function(e){
-            var url = jQuery(this).attr('href');
-            e.preventDefault();
-            var confirmNode = jQuery('<div>Are you sure you want to delete this playlist item?</div>');
-            jQuery(confirmNode).dialog({
-                title: 'Are you sure you want to delete this playlist item?',
-                modal: true,
-                position: 'top',
-                width: 500,
-                close: function(){
-                    jQuery(confirmNode).remove();
-                },
-                buttons: {
-                    Yes: function(){
-                        jQuery.ajax({
-                            type: 'POST',
-                            dataType: 'script',
-                            url: url,
-                            data: {
-                                '_method': 'DELETE'
-                            },
-                            beforeSend: function(){
-                                jQuery('#spinner_block').show();
-                            },
-                            success: function(html){
-                                var playlistId = jQuery('#container_id').html();
-                                jQuery('#spinner_block').hide();
-                                document.location.href = jQuery.rootPath() + 'playlists/' + playlistId;
-                            },
-                            error: function(xhr){
-                                jQuery('#spinner_block').hide();
-                                jQuery(confirmNode).html(xhr.responseText);
-                            }
-                        });
-                    },
-                    No: function(){
-                        jQuery(confirmNode).dialog('close');
-                        jQuery(confirmNode).remove();
-                    }
-                }
-            });
-        });
-    },
-    initPlaylistDeleteControls: function(){
-        jQuery('.delete-playlist').click(function(e){
-            var url = jQuery(this).attr('href');
-            e.preventDefault();
-            var confirmNode = jQuery('<div>Are you sure you want to delete this playlist?</div>');
-            jQuery(confirmNode).dialog({
-                title: 'Are you sure you want to delete this playlist?',
-                modal: true,
-                position: 'top',
-                width: 500,
-                close: function(){
-                    jQuery(confirmNode).remove();
-                },
-                buttons: {
-                    Yes: function(){
-                        jQuery.ajax({
-                            type: 'POST',
-                            dataType: 'script',
-                            url: url,
-                            data: {
-                                '_method': 'DELETE'
-                            },
-                            beforeSend: function(){
-                                jQuery('#spinner_block').show();
-                            },
-                            success: function(html){
-                                jQuery('#spinner_block').hide();
-                                document.location.href = jQuery.rootPath() + 'playlists';
-                            },
-                            error: function(xhr){
-                                jQuery('#spinner_block').hide();
-                                jQuery(confirmNode).html(xhr.responseText);
-                            }
-                        });
-                    },
-                    No: function(){
-                        jQuery(confirmNode).dialog('close');
-                        jQuery(confirmNode).remove();
-                    }
-                }
-            });
-        });
-    },
     initPlaylistItemAddControls: function(){
         jQuery('.new-playlist-item').click(function(e){
             e.preventDefault();
@@ -199,51 +35,6 @@ jQuery.extend({
         });
     },
 
-    initPlaylistItemEditButtons: function(){
-        jQuery('.edit-playlist-item').click(function(e){
-            e.preventDefault();
-            jQuery.ajax({
-                type: 'GET',
-                dataType: "html",
-                url: jQuery(this).attr('href'),
-                cache: false,
-                beforeSend: function(){
-                    jQuery('#spinner_block').show();
-                },
-                error: function(xhr, textStatus, errorThrown) {
-				console.log(textStatus);
-				console.log(errorThrown);
-                    jQuery('#spinner_block').hide();
-                },
-                success: function(html){
-                    jQuery('#spinner_block').hide();
-                    var editNode = jQuery('<div id="edit-playlist-item"></div>');
-                    jQuery(editNode).html(html);
-                    jQuery(editNode).dialog({
-                        modal: true,
-                        height: 'auto',
-                        width: 'auto',
-                        position: 'top',
-                        close: function(){
-                            jQuery(editNode).remove();
-                        },
-                        buttons: {
-                            Save:function(){
-                                jQuery.submitPlaylistItem('#edit-playlist-item');
-
-                            },
-                            Cancel: function(){
-                                jQuery(editNode).dialog('close');
-                            }
-                        }
-                    });
-                    jQuery(editNode).dialog('open');
-                }
-            });
-
-        });
-    },
-
     initPlaylistItemAddButton: function(itemName, itemController){
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();
@@ -263,7 +54,7 @@ jQuery.extend({
                 success: function(html){
                     jQuery('#spinner_block').hide();
                     jQuery('#dialog-item-chooser').dialog('close');
-                    var addItemDialog = jQuery('<div id="add-item-dialog"></div>');
+                    var addItemDialog = jQuery('<div id="generic-node"></div>');
                     jQuery(addItemDialog).html(html);
                     jQuery(addItemDialog).dialog({
                         title: 'Add ' + itemName ,
@@ -276,7 +67,7 @@ jQuery.extend({
                         },
                         buttons: {
                             Save: function(){
-                                jQuery.submitPlaylistItem('#add-item-dialog');
+								jQuery.submitGenericNode();
                             },
                             Close: function(){
                                 jQuery(addItemDialog).dialog('close');
@@ -362,9 +153,5 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
-    jQuery.initPlaylistEditControls('.new-playlist,.edit-playlist');
-    jQuery.initPlaylistDeleteControls();
     jQuery.initPlaylistItemAddControls();
-    jQuery.initPlaylistItemEditButtons();
-    jQuery.initPlaylistItemDeleteControls();
 });

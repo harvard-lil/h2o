@@ -19,6 +19,9 @@ jQuery(function() {
 	}
 
   jQuery.extend({
+  	classType: function() {
+		return jQuery('body').attr('id').replace(/^b/, '');
+	},
     rootPath: function(){
       return '/';
     },
@@ -225,6 +228,7 @@ jQuery(function() {
     jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
 
 	/* TODO: Generic-ize this to work on multiple pages */
+/*
     jQuery(".sortable").sortable({
         handle: '.item_drag_handle',
         axis: 'y',
@@ -241,9 +245,12 @@ jQuery(function() {
                 }
             });
 		}
-	}).disableSelection();
+	}).disableSelection();*/
 
 	jQuery('.link-copy').click(function() {
 		jQuery(this).closest('form').submit();
 	});
+
+	jQuery.observeDestroyControls();
+	jQuery.observeRemixControls();
 });

@@ -1,8 +1,8 @@
-<li class="listitem">
+<li class="listitem listitem<%= playlist.id %>" data-itemid="<%= playlist.id %>">
 	<div class="controls">
 		<% if current_user -%>
 		<ul>
-			<li class="link-play"><a href="#">Play</a></li>
+			<li class="link-play"><%= link_to 'Play', copy_playlist_path(playlist), :class => "remix-action" %></li>
 			<li class="link-add"><a class="<%= playlist.id %>" href="#">Add</a></li>
 		</ul>
 		<% end -%>
@@ -19,10 +19,10 @@
 			<%= link_to playlist.name, playlist %>
 			<% if current_user -%>
           	<% if @is_playlist_admin || @my_playlists.include?(playlist) %>
-            <%= link_to "DELETE", playlist_path(playlist), :class => "action delete_action delete-playlist" %>
+            <%= link_to "DELETE", playlist_path(playlist), :class => "action delete-action" %>
 			<% end -%>
           	<% if @is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist) %>
-            <%= link_to "EDIT", edit_playlist_path(playlist), :class => "action edit-playlist" %>
+            <%= link_to "EDIT", edit_playlist_path(playlist), :class => "action edit-playlist edit-action" %>
           	<% end %>
           	<% end %>
 		</h4>

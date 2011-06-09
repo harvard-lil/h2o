@@ -2,13 +2,13 @@
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
 
-<div id="playlist">
+<div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
 		<h2><%= @playlist.name %></h2>
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#" class="link-share">Share</a></li>
-				<li><a href="#" class="link-remix">Bookmark</a></li>
+				<li><%= link_to "Bookmark", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
 				<li><a href="#" class="link-bookmark">Bookmark</a></li>
 				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
@@ -33,8 +33,8 @@
 			</ul>
 		</div>
 		<h5>
-			<%= @playlist.created_at.to_s(:simpledatetime) %> 
-			by <a href="#"><%= @playlist.creators.collect { |u| u.login }.join(', ') %></a>
+			<%= @playlist.created_at.to_s(:simpledatetime) %>
+			by <a href="#"><%#= @playlist.creators.collect { |u| u.login }.join(', ') %></a>
 		</h5>
 		<% if false -%>
 		<div class="influence"></div>

@@ -64,6 +64,8 @@ class PlaylistsController < BaseController
   # GET /playlists/1
   # GET /playlists/1.xml
   def show
+    add_javascripts 'new_playlists'
+
     @playlist.playlist_items.find(:all, :include => [:resource_item])
     @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false
     respond_to do |format|
@@ -106,12 +108,14 @@ class PlaylistsController < BaseController
         format.js { render :text => nil }
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
+	    format.json { render :json => { :id => @playlist.id } }
       else
         format.js { 
           render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
+	    format.json { render :json => { :id => @playlist.id } }
       end
     end
   end
@@ -128,12 +132,14 @@ class PlaylistsController < BaseController
         format.js { render :text => nil}
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
+	  	format.json { render :json => { :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
         }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
+	  	format.json { render :json => { :id => @playlist.id } }
       end
     end
   end
@@ -145,12 +151,14 @@ class PlaylistsController < BaseController
     @playlist.destroy
 
     respond_to do |format|
+	  format.json { render :json => {} }
       format.js { render :text => nil }
       format.html { redirect_to(playlists_url) }
       format.xml  { head :ok }
     end
   rescue Exception => e
     respond_to do |format|
+	  format.json { render :json => {} }
       format.js { render :text => "We couldn't delete that, most likely because it's already been deleted.", :status => :unprocessable_entity }
       format.html {  }
       format.xml  { render :status => :unprocessable_entity }
@@ -209,6 +217,7 @@ class PlaylistsController < BaseController
             page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"
           end
         }
+		format.json { render :json => { :id => @playlist_copy.id } } 
         format.xml  { head :ok }
       else
         @error_output = "<div class='error ui-corner-all'>"

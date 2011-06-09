@@ -77,7 +77,7 @@ class CollagesController < BaseController
 		sort_base_url += "&keywords=#{params[:keywords]}"
       end
 	  if params.has_key?(:tag)
-	    with :layer_list, params[:tag]
+	    with :tag_list, params[:tag]
 		sort_base_url += "&tag=#{params[:tag]}"
 	  end
 	  #Uncomment if sort needs to carry over pages
@@ -144,10 +144,12 @@ class CollagesController < BaseController
         #flash[:notice] = 'Collage was successfully created.'
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
+	    format.json { render :json => { :id => @collage.id } }
       else
         flash[:notice] = "We couldn't create that collage - " + @collage.errors.full_messages.join(',')
         format.html { render :action => "new" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
+	    format.json { render :json => { :id => @collage.id } }
       end
     end
   end
@@ -163,9 +165,11 @@ class CollagesController < BaseController
         flash[:notice] = 'Collage was successfully updated.'
         format.html { redirect_to(@collage) }
         format.xml  { head :ok }
+		format.json { render :json => { :id => @collage.id } }
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
+		format.json { render :json => { :id => @collage.id } }
       end
     end
   end
@@ -178,6 +182,7 @@ class CollagesController < BaseController
     respond_to do |format|
       format.html { redirect_to(collages_url) }
       format.xml  { head :ok }
+      format.json { render :json => {} }
     end
   end
 

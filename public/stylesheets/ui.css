@@ -129,7 +129,7 @@ header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px 
 #results .listitem details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 #results .listitem details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
 #results .listitem details h4 .action { font-size: 10px; font-weight: normal; }
-#results .listitem details h4 .delete_action { padding-left: 5px; background:
+#results .listitem details h4 .delete-action { padding-left: 5px; background:
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 #results .listitem details p { float: left; display: inline; font-size:10px; line-height:16px; }
 #results .listitem details p a { font-weight:bold; }
@@ -214,7 +214,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlist .playlists .full-list-link { position:absolute; top:13px; right:0; width:78px; height:24px; background:#d8dada; color:#333; text-align:center; font-size:10px; line-height:24px; font-weight:bold; }
 
 #playlist .listitem .action { font-size: 10px; font-weight: normal; }
-#playlist .listitem .delete_action { padding-left: 10px; background:
+#playlist .listitem .delete-action { padding-left: 10px; background:
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 
 
@@ -386,3 +386,5 @@ text-decoration: none; float: left; display: inline; margin-left: 3px;
 font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
 color: #FFF; }
 .tools-popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
+
+#search ul li#spinner { display: none; }

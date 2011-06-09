@@ -52,6 +52,7 @@ class Collage < ActiveRecord::Base
     boolean :active
     boolean :public
 	time :created_at
+	string :tags, :stored => true, :multiple => true
 
     string :annotatable, :stored => true
     string :annotations, :multiple => true
