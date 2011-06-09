@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => [:show, :edit, :update]
+  before_filter :require_user, :only => [:show, :edit, :update, :bookmark_item]
   
   def new
     @user = User.new
@@ -69,7 +69,20 @@ class UsersController < ApplicationController
   end
 
   def bookmark_item
-    RAILS_DEFAULT_LOGGER.warn("#{params.inspect}")
-    render :json => {}
+    if current_user.bookmark_id.nil?
+	  playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks" })
+	  playlist.save
+	  current_user.update_attribute(:bookmark_id, playlist.id)
+	end
+
+    #Abstract this out to work on various pages.
+    params[:container_id] = current_user.bookmark_id
+    @object = ItemPlaylist.new #laylistItem.new #(:playlist_id => current_user.bookmark_id)
+	@object.url = "some url" #playlist_path(current_user.playlist)
+	@base_model_class = 'Playlist'
+
+    respond_to do |format|
+      format.html { render :partial => "/shared/forms/item_playlist" }
+    end
   end
 end

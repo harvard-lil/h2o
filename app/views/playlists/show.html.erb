@@ -8,8 +8,8 @@
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#" class="link-share">Share</a></li>
-				<li><%= link_to "Bookmark", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
-				<li><a href="#" class="link-bookmark">Bookmark</a></li>
+				<li><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
+				<li><%= link_to "Bookmark This Playlist", bookmark_item_path, :class => "link-bookmark bookmark-action" %></li>
 				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
 		</aside>

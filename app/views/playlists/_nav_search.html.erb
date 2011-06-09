@@ -18,7 +18,7 @@
 			<div class="browse-tags-popup">
 				<ul>
 					<% @playlist_tags.each do |tag| %>
-					<li><a href="#<%#= collage_tag_path(tag.name) %>"><strong><%= tag.name %></strong></a></li>
+					<li><a href="<%= playlist_tag_path(tag.name) %>"><strong><%= tag.name %></strong></a></li>
 					<% end -%>
 				</ul>
 				<div class="cl">&nbsp;</div>

@@ -10,7 +10,7 @@ jQuery.extend({
 	},
 
     observeDestroyControls: function(){
-	  	jQuery('a.delete-action').live('click', function(e){
+	  	jQuery('.delete-action').live('click', function(e){
 			var item_id;
 			if(jQuery("#results")) {
 				item_id = jQuery(this).closest(".listitem").data("itemid");
@@ -21,7 +21,6 @@ jQuery.extend({
         	e.preventDefault();
         	var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
         	jQuery(confirmNode).dialog({
-          		title: 'Are you sure you want to delete this item?',
           		modal: true,
 				close: function() {
 					jQuery(confirmNode).remove();
@@ -58,18 +57,19 @@ jQuery.extend({
 		});
     },
     observeRemixControls: function(){
-	  	jQuery('.remix-action,.edit-action,.new-action').live('click', function(e){
+	  	jQuery('.remix-action,.edit-action,.new-action,.bookmark-action').live('click', function(e){
 			var item_id;
 			if(jQuery("#results")) {
 				item_id = jQuery(this).closest(".listitem").data("itemid");
 			} else {
 				item_id = jQuery(".singleitem").data("itemid");
 			}
-        	var remixUrl = jQuery(this).attr('href');
+        	var actionUrl = jQuery(this).attr('href');
+			var actionText = jQuery(this).html();
         	e.preventDefault();
 			jQuery.ajax({
 				cache: false,
-				url: remixUrl,
+				url: actionUrl,
 				beforeSend: function() {
                   	jQuery.showGlobalSpinnerNode();
 				},
@@ -77,7 +77,7 @@ jQuery.extend({
                   	jQuery.hideGlobalSpinnerNode();
 					var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
 					jQuery(newItemNode).dialog({
-						title: 'Do Something to an Item',
+						title: actionText,
 						modal: true,
 						width: 'auto',
 						height: 'auto',

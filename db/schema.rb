@@ -679,6 +679,7 @@ ActiveRecord::Schema.define(:version => 20101122230916) do
     t.string   "oauth_secret"
     t.string   "email_address"
     t.string   "tz_name"
+    t.integer  "bookmark_id"
   end
 
   add_index "users", ["email_address"], :name => "index_users_on_email_address"

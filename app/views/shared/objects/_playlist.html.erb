@@ -1,12 +1,12 @@
 <li class="listitem listitem<%= playlist.id %>" data-itemid="<%= playlist.id %>">
+	<% if current_user -%>
 	<div class="controls">
-		<% if current_user -%>
 		<ul>
-			<li class="link-play"><%= link_to 'Play', copy_playlist_path(playlist), :class => "remix-action" %></li>
+			<li class="link-play"><%= link_to 'Remix Playlist', copy_playlist_path(playlist), :class => "remix-action" %></li>
 			<li class="link-add"><a class="<%= playlist.id %>" href="#">Add</a></li>
 		</ul>
-		<% end -%>
 	</div>
+	<% end -%>
 	<details>
 		<div class="tags">
 			<ul>

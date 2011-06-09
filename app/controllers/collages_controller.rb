@@ -77,13 +77,9 @@ class CollagesController < BaseController
 		sort_base_url += "&keywords=#{params[:keywords]}"
       end
 	  if params.has_key?(:tag)
-	    with :tag_list, params[:tag]
+	    with :tags, params[:tag]
 		sort_base_url += "&tag=#{params[:tag]}"
 	  end
-	  #Uncomment if sort needs to carry over pages
-	  #if params.has_key?(:page)
-	  #	sort_base_url += "&page=#{params[:page]}"
-	  #end
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
