@@ -103,6 +103,8 @@ class CollagesController < BaseController
   # GET /collages/1
   # GET /collages/1.xml
   def show
+    add_stylesheets 'collages'
+
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @collage }

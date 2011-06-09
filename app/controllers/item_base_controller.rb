@@ -41,10 +41,12 @@ class ItemBaseController < BaseController
 
   # GET /item_defaults/1/edit
   def edit
+  logger.warn "steph: #{@playlist.inspect}"
     respond_to do |format|
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.xml  { render :xml => @item_default }
+	  format.json { render :json => { :id => @playlist.id } }
     end
   end
 
@@ -92,12 +94,14 @@ class ItemBaseController < BaseController
         format.js {render :text => nil}
         format.html { redirect_to(@object) }
         format.xml  { render :xml => @object, :status => :created, :location => @object }
+	    format.json { render :json => { :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't add that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "new" }
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
+	    format.json { render :json => { :message => "We could not add that playlist item." } }
       end
     end
   end
@@ -109,24 +113,28 @@ class ItemBaseController < BaseController
         format.js { render :text => nil }
         format.html { render :text => nil }
         format.xml  { head :ok }
+	    format.json { render :json => { :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't update that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
+	    format.json { render :json => { :error => @object.errors } }
       end
     end
   end
 
   def destroy
     @object = @model_class.find(params[:id])
+	logger.debug "steph: #{@object.inspect}"
     @object.destroy
 
     respond_to do |format|
       format.js { render :text => nil }
       format.html { redirect_to(item_cases_url) }
       format.xml  { head :ok }
+	  format.json { render :json => { :type => 'playlist_item', } }
     end
   end
 

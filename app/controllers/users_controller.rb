@@ -69,16 +69,17 @@ class UsersController < ApplicationController
   end
 
   def bookmark_item
+    # TODO: change this to be if current_user.bookmark.nil?
     if current_user.bookmark_id.nil?
 	  playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks" })
+	  playlist.creators << current_user
 	  playlist.save
 	  current_user.update_attribute(:bookmark_id, playlist.id)
 	end
 
     #Abstract this out to work on various pages.
     params[:container_id] = current_user.bookmark_id
-    @object = ItemPlaylist.new #laylistItem.new #(:playlist_id => current_user.bookmark_id)
-	@object.url = "some url" #playlist_path(current_user.playlist)
+    @object = ItemPlaylist.new(:url => params[:url])
 	@base_model_class = 'Playlist'
 
     respond_to do |format|

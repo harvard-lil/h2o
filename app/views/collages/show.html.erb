@@ -32,12 +32,12 @@ Your annotation will start here. Please click another word to set the end point.
 						<ul>
 							<li>
 								<strong>FULL TEXT</strong>
-								<a href="#"><strong>SHOW</strong></a>
+								<a href="#" id="full_text"><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 							<li>
 								<strong>ANNOTATIONS</strong>
-								<a href="#"><strong>SHOW</strong></a>
+								<a href="#" id="hide_show_annotations"><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 						</ul>
@@ -81,9 +81,10 @@ Your annotation will start here. Please click another word to set the end point.
 			</p>
 			<p id="description_more">
 			<%= @collage.description %> <a href="#" class="link-less">LESS</a>
+			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 			</p>
 		<% else -%>
-			<p><%= @collage.description %></p>
+			<p><%= @collage.description %> <%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %></p>
 		<% end -%>
 	</details>
 

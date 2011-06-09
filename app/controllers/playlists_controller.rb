@@ -54,7 +54,12 @@ class PlaylistsController < BaseController
 
     generate_sort_list("/playlists?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
 
+    # TODO: Update this to be linked through user / foreign key
+    @my_bookmarks = current_user && !current_user.bookmark_id.nil? ? Playlist.find(current_user.bookmark_id): nil
+
+    # TODO: Update this to exclude my bookmark
     @my_playlists = current_user ? current_user.playlists : []
+
     
     respond_to do |format|
       format.html # index.html.erb
@@ -66,6 +71,7 @@ class PlaylistsController < BaseController
   # GET /playlists/1.xml
   def show
     add_javascripts 'new_playlists'
+    add_stylesheets 'playlists'
 
     @playlist.playlist_items.find(:all, :include => [:resource_item])
     @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) : false

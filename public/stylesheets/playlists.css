@@ -1,0 +1,49 @@
+#playlist { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
+#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/playlist-description.png); height:30px; line-height:30px; display:block; }
+#playlist .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
+#playlist .description { padding-left:73px; }
+#playlist .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#fff; }
+#playlist .description .toolbar { float:right; display:inline;  }
+#playlist .description .toolbar ul { list-style:none; }
+#playlist .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #f1c47e; }
+#playlist .description .toolbar ul li img { display:block; }
+
+#playlist .toolbar a { background: url(/images/ui/show_icons.png);
+  display: block; width: 23px; height: 30px; text-indent: -4000px; }
+#playlist .toolbar .link-share { background-position: -82px 0px; width: 19px; }
+#playlist .toolbar .link-remix { background-position: -101px 0px; width: 20px; }
+#playlist .toolbar .link-bookmark { background-position: -120px 0px; width: 18px; }
+#playlist .toolbar .link-print { background-position: -140px 0px; width: 22px; }
+
+#playlist details { background:#f8eddc; display:block; position:relative; padding:7px 300px 7px 80px; }
+#playlist details .tags { position:absolute; top:1px; right:1px; }
+#playlist details .tags ul { list-style:none; font-size:10px; line-height:24px; }
+#playlist details .tags ul li { float:left; display:inline;  padding-left:1px; }
+#playlist details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#e27020; background:#f2d09c; }
+#playlist details .influence { padding-bottom:9px; }
+#playlist details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
+#playlist details .influence div.star-rating { background:none !important;}
+#playlist details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
+#playlist details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
+#playlist details p { font-size:12px; line-height:18px; color:#999; }
+#playlist details p .link-more { font-size:9px; text-transform:uppercase; font-weight:bold; }
+
+#playlist .description .buttons { float:right; display:inline;  }
+#playlist .description .buttons ul { list-style:none; }
+#playlist .description .buttons ul .btn-li { float:left; display:inline; font-size:9px; line-height:20px; font-weight:bold; padding:4px 10px 0 0; position:relative; height:20px; }
+#playlist .description .buttons ul .btn-a { float:left; display:inline; background: #F8EDDC; 
+  color:#c45027; text-decoration:none; padding:0 9px; position:relative; z-index:2; 
+  border:1px solid #c45027; border-radius:4px; -moz-border-radius:4px;
+  -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; font-weight: bold; }
+
+#playlist .playlists { padding-top:1px; display:block; }
+#playlist .playlists ul { list-style:none; }
+#playlist .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
+#playlist .listitem .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png);
+  float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
+#playlist .playlist .number { float:left; display:inline;  width:24px; font-size:10px;
+  line-height:20px; color:#666; font-weight:bold; text-align:center;
+  border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
+  padding-top: 2px; }
+#playlist .playlist .data { float: right; display: inline; width:895px; position:relative; width:550px; padding-right:345px; }
+#playlist .playlist .data .dd-open { position:absolute; top:5px; left:-17px; width:17px; height:12px; background:url(/images/ui/playlist-arrow.png) center no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }

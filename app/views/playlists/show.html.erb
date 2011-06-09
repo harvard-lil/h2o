@@ -40,17 +40,24 @@
 		<div class="influence"></div>
 		<% end -%>
 		<div class="cl"></div>
+		<% if !@playlist.description.nil? -%>
 		<% if @playlist.description.length > 500 -%>
 			<p id="description_less">
-			<%= @playlist.description[1..500] %>... <a href="#" class="link-more">MORE</a>
+				<%= @playlist.description[1..500] %>... <a href="#" class="link-more">MORE</a>
 			</p>
 			<p id="description_more">
-			<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
+				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 			</p>
 		<% else -%>
-			<p><%= @playlist.description %></p>
+			<p>
+				<%= @playlist.description %>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
+			</p>
 		<% end -%>
-		</p>
+		<% else -%>
+			<p><%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %></p>
+		<% end -%>
 	</details>
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>

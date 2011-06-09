@@ -17,17 +17,16 @@ jQuery.extend({
     var collageId = jQuery('.collage-id').attr('id').split('-')[1];
     jQuery('#annotation-form form').ajaxSubmit({
       error: function(xhr){
-        jQuery('#spinner_block').hide();
+		jQuery.hideGlobalSpinnerNode();
         jQuery('#new-annotation-error').show().append(xhr.responseText);
       },
       beforeSend: function(){
-        jQuery('#spinner_block').show();
+		jQuery.showGlobalSpinnerNode();
         jQuery('div.ajax-error').html('').hide();
         jQuery('#new-annotation-error').html('').hide();
-        jQuery.showPleaseWait();
       },
       success: function(response){
-        jQuery('#spinner_block').hide();
+		jQuery.hideGlobalSpinnerNode();
         jQuery.cookie('layer-names', jQuery('#annotation_layer_list').val(), {
           expires: 365
         });
@@ -67,14 +66,13 @@ jQuery.extend({
       lastLayerId = this.id;
     });
 
-    var detailNode = jQuery('<span class="annotation-control annotation-start ' + 'c' + (lastLayerId % 10) + ' annotation-control-' + obj.id + '"></span>');
-    jQuery(detailNode).html('<a href="#" class="close-annotation-details ann-close-' + obj.id + '"><img src="' + jQuery.rootPath() + 'images/elements/close.gif" /></a>' + layerOutput + '<div class="clear"></div>' + ((obj.annotation_word_count > 0) ? '<div class="annotation-content">' + obj.formatted_annotation_content + '</div>' : '' ) + '<div class="more"><a href="#" class="ann-details-' + obj.id +'">more &raquo;</a></div>' + ' <span class="print-inline">#' + obj.id + '</span>');
+	var detailNode = jQuery('<div class="annotation-content" id="annotation-content-' + obj.id + '">' + obj.formatted_annotation_content + '</div>');
 
     var startArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
-    jQuery("#t" + elStart).before(detailNode, startArrow);
+    jQuery("#t" + elStart).before(startArrow);
 
     var endArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
-    jQuery("#t" + elEnd).after(endArrow);
+    jQuery("#t" + elEnd).after(endArrow,detailNode);
 
     var idList = ids.join(',');
 
@@ -83,148 +81,37 @@ jQuery.extend({
 
     if(obj.id == activeId){
       jQuery("#annotation-control-" + obj.id).mouseenter();
-      //console.log('active!');
     }
   },
 
   annotationArrow: function(arr,obj,aIndex,arrowType){
-    if(true){
-      // do something crippled and stupid here for IE.
-      if (arrowType == 'start'){
-        jQuery(arr).html(((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : '') + '&#9658;' );
-      } else {
-        jQuery(arr).html('&#9668;' + ((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : ''));
-      }
+  	// do something crippled and stupid here for IE.
+    if (arrowType == 'start'){
+    	jQuery(arr).html(((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : '') + '&#9658;' );
     } else {
-      var canvas = document.createElement('canvas');
-      var canvasWidth = (obj.annotation_word_count > 0) ? 60 : 18;
-      jQuery(canvas).attr('width',canvasWidth).attr('height',18).appendTo(jQuery(arr)); 
-      var ctx = canvas.getContext('2d');
-      ctx.fillStyle = jQuery(arr).css('color');
-      ctx.strokeStyle = jQuery(arr).css('color');
-      ctx.textAlign = 'center';
-      ctx.font = '12px Arial';
-      ctx.beginPath();
-      if(arrowType == 'start'){
-        ctx.moveTo(canvasWidth - 18,0);
-        ctx.lineTo(canvasWidth,9);
-        ctx.lineTo(canvasWidth - 18,18);
-        ctx.fill();
-        if(obj.annotation_word_count > 0){
-          ctx.strokeRect(0,0,canvasWidth - 18,18);
-          ctx.fillText(aIndex,18,14);
-        }
-      } else {
-        ctx.moveTo(18,0);
-        ctx.lineTo(0,9);
-        ctx.lineTo(18,18);
-        ctx.fill();
-        if(obj.annotation_word_count > 0){
-          ctx.strokeRect(18,0,42,18);
-          ctx.fillText(aIndex,36,14);
-        }
-      }
+        jQuery(arr).html('&#9668;' + ((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : ''));
     }
 
-    var btOptions = {
-      trigger: 'none',
-      contentSelector: "jQuery('.annotation-control-" + obj.id + "').html()",
-      fill: '#F7F7F7',
-      clickAnywhereToClose: false,
-      strokeStyle: '#B7B7B7', 
-      spikeLength: 20, 
-      shadow: true,
-      spikeGirth: 10,
-      width: ((obj.annotation_word_count > 0) ? 300 : 150),
-      padding: 8, 
-      cornerRadius: 5,
-      wrapperzIndex: 900,
-      boxzIndex: 901,
-      textzIndex: 902,
-      positions: ['top'],
-      cssStyles: { fontSize: '11px' },
-      postShow: function(box){
-        jQuery('.ann-details-' + obj.id).click(function(e){
-          jQuery.annotationButton(e,obj.id);
-        });
-        jQuery('.ann-close-' + obj.id).click(function(e){
-          e.preventDefault();
-          jQuery(arr).btOff();
-        });
-      }
-    };
-
-    jQuery(arr).click(function(e){
-      e.preventDefault();
-      jQuery.toggleAnnotation(obj, undefined, jQuery.blockLevels());
-    });
+	if(obj.annotation_word_count > 0) {
+    	jQuery(arr).click(function(e){
+      		e.preventDefault();
+      		jQuery.toggleAnnotation(obj);
+    	});
+	}
 
     jQuery(arr).hoverIntent({
       over: function(e){
-	  /* TODO: Figure out how to get to work with 1.6.1.
-        jQuery(arr).bt(btOptions);
-        jQuery(arr).btOn();
-		*/
         jQuery('.a' + obj.id).addClass('highlight');
       },
-      timeout: 3000,
+      timeout: 2000,
       out: function(e){
         jQuery('.a' + obj.id).removeClass('highlight');
-	  /* TODO: Figure out how to get to work with 1.6.1
-        if(obj.annotation_word_count == 0){
-          // If an annotation doesn't have text, close it automatically.
-          jQuery(arr).btOff();
-        }
-		*/
       }
     });
   },
 
-  blockLevels: function(){
-    // from: http://www.cs.sfu.ca/CC/165/sbrown1/wdgxhtml10/block.html
-    return {ADDRESS: true, BLOCKQUOTE: true, CENTER: true, DIR: true, DIV: true, DL: true, FIELDSET: true, FORM: true, H1: true, H2: true, H3: true, H4: true, H5: true, H6: true, HR: true, ISINDEX: true, MENU:true , NOFRAMES: true, NOSCRIPT: true, OL: true , P: true , PRE: true , TABLE: true, UL: true, DD: true, DT: true, FRAMESET: true, LI: true, TBODY: true, TD: true, TFOOT: true, TH: true, THEAD: true, TR: true};
-  },
-
-  toggleAnnotation: function(obj, displaySelector, blockLevels){
-    var displayVal = '';
-
-    if(typeof(displaySelector) === 'undefined'){
-      displayVal = (jQuery('.a' + obj.id + ':visible').length > 0) ? 'none' : '';
-    } else {
-      displayVal = (displaySelector == 'on') ? '' : 'none';
-    }
-
-    var blockLevelElements = [];
-    jQuery('.a' + obj.id).each(function(){
-      jQuery(this).css('display',displayVal);
-
-      var parentNode = jQuery(this).parent().get(0);
-      var sibling = jQuery(this).next().get(0);
-
-      //      console.log('Parent Display: ',jQuery(parentNode).css('display'), 'Parent Tag Name: ', jQuery(parentNode)[0].tagName, 'Sibling Display: ', jQuery(sibling).css('display'), 'Sibling Tag Name: ', (typesibling) ? jQuery(sibling)[0].tagName : null);
-      if( blockLevels[parentNode.tagName] == true){
-        blockLevelElements.push(parentNode);
-      }
-      if(displayVal == 'none'){
-        if(sibling != undefined && sibling.tagName == 'BR'){
-          jQuery(sibling).hide();
-        }
-      } else {
-        if(sibling != undefined && sibling.tagName == 'BR'){
-          jQuery(sibling).show();
-        }
-      }
-    });
-
-    blockLevelElements = jQuery.unique(blockLevelElements);
-    jQuery(blockLevelElements).each(function(index,el){
-      if(displayVal == 'none'){
-        jQuery(el).css('display','inline');
-      } else {
-        jQuery(el).css('display','block');
-      }
-    });
-
+  toggleAnnotation: function(obj) {
+  	jQuery('#annotation-content-' + obj.id).toggle();
   },
 
   annotationButton: function(e,annotationId){
@@ -236,16 +123,16 @@ jQuery.extend({
         cache: false,
         url: jQuery.rootPath() + 'annotations/' + annotationId,
         beforeSend: function(){
-          jQuery('#spinner_block').show();
+			jQuery.showGlobalSpinnerNode();
           jQuery('div.ajax-error').html('').hide();
         },
         error: function(xhr){
-          jQuery('#spinner_block').hide();
+			jQuery.hideGlobalSpinnerNode();
           jQuery('div.ajax-error').show().append(xhr.responseText);
         },
         success: function(html){
           // Set up the annotation node to be loaded into a dialog
-          jQuery('#spinner_block').hide();
+			jQuery.hideGlobalSpinnerNode();
           var node = jQuery(html);
           jQuery('body').append(node);
           var dialog = jQuery('#annotation-details-' + annotationId).dialog({
@@ -267,11 +154,10 @@ jQuery.extend({
                     },
                     url: jQuery.rootPath() + 'annotations/destroy/' + annotationId,
                     beforeSend: function(){
-                      jQuery('#spinner_block').show();
-                      jQuery.showPleaseWait();
+					  jQuery.showGlobalSpinnerNode();
                     },
                     error: function(xhr){
-                      jQuery('#spinner_block').hide();
+					  jQuery.hideGlobalSpinnerNode();
                       jQuery('div.ajax-error').show().append(xhr.responseText);
                     },
                     success: function(response){
@@ -291,15 +177,15 @@ jQuery.extend({
                   cache: false,
                   url: jQuery.rootPath() + 'annotations/edit/' + annotationId,
                   beforeSend: function(){
-                    jQuery('#spinner_block').show();
+					jQuery.showGlobalSpinnerNode();
                     jQuery('#new-annotation-error').html('').hide();
                   },
                   error: function(xhr){
-                    jQuery('#spinner_block').hide();
+					jQuery.hideGlobalSpinnerNode();
                     jQuery('#new-annotation-error').show().append(xhr.responseText);
                   },
                   success: function(html){
-                    jQuery('#spinner_block').hide();
+					jQuery.hideGlobalSpinnerNode();
                     jQuery('#annotation-form').html(html);
                     jQuery.updateAnnotationPreview(collageId);
                     jQuery('#annotation-form').dialog({
@@ -354,28 +240,6 @@ jQuery.extend({
     }
   },
 
-  showPleaseWait: function(){
-    jQuery('#please-wait').dialog({
-      closeOnEscape: false,
-      draggable: false,
-      modal: true,
-      resizable: false,
-      autoOpen: true
-    });
-  },
-
-  hideEmptyElements: function(){
-    // So - as brute force as this would appear, this seems to represent the best compromise between performance and cross-browser compatibility.
-    // FIXME! dammit.
-  //  jQuery('#annotatable-content tt:hidden').remove();
-    //jQuery('#annotatable-content center, #annotatable-content p, #annotatable-content li, #annotatable-content ul, #annotatable-content blockquote, #annotatable-content ol, #annotatable-content h1').filter(function(){
-      jQuery('#annotatable-content').find('center,p,li,ul,blockquote,ol,h1,h2,h3,h4,h5').filter(function(){
-        var text = jQuery(this).text();
-        var collapsedText = jQuery.trim11(text);
-          return (collapsedText.length == 0);
-      }).remove();
-  },
-
   initializeAnnotations: function(){
     // This iterates through the annotations on this collage and emits the controls.
     var collageId = jQuery('.collage-id').attr('id').split('-')[1];
@@ -385,8 +249,7 @@ jQuery.extend({
       dataType: 'json',
       cache: false,
       beforeSend: function(){
-        jQuery('#spinner_block').show();
-        jQuery.showPleaseWait();
+		jQuery.showGlobalSpinnerNode();
         jQuery('div.ajax-error').html('').hide();
       },
       success: function(json){
@@ -404,14 +267,14 @@ jQuery.extend({
           }
         });
         //jQuery.observeWords();
-        jQuery.hideEmptyElements();
-        jQuery('#spinner_block').hide();
+        //jQuery.hideEmptyElements();
+		jQuery.hideGlobalSpinnerNode();
       },
       complete: function(){
         jQuery('#please-wait').dialog('close');
       },
       error: function(xhr){
-        jQuery('#spinner_block').hide();
+		jQuery.hideGlobalSpinnerNode();
         jQuery('div.ajax-error').show().append(xhr.responseText);
       }
 
@@ -503,11 +366,11 @@ jQuery.extend({
           },
           cache: false,
           beforeSend: function(){
-            jQuery('#spinner_block').show();
+			jQuery.showGlobalSpinnerNode();
             jQuery('div.ajax-error').html('').hide();
           },
           success: function(html){
-            jQuery('#spinner_block').hide();
+			jQuery.hideGlobalSpinnerNode();
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
             jQuery("#annotation_annotation").markItUp(myTextileSettings);
@@ -523,7 +386,7 @@ jQuery.extend({
               }
           },
           error: function(xhr){
-            jQuery('#spinner_block').hide();
+			jQuery.hideGlobalSpinnerNode();
             jQuery('div.ajax-error').show().append(xhr.responseText);
           }
         });
@@ -565,7 +428,6 @@ jQuery(document).ready(function(){
     document.location = document.location;
   });
   jQuery('.per-page-selector').val(jQuery.cookie('per_page'));
-  jQuery('.tablesorter').tablesorter();
   jQuery('.button').button();
   jQuery('#collage_submit').button({
     icons: {
@@ -612,29 +474,55 @@ jQuery(document).ready(function(){
   if(jQuery('.collage-id').length > 0){
     jQuery.initializeAnnotations();
 
-	jQuery('#layers .hide_show').click(function(e) {
-		var el = jQuery(this);
-		if(el.hasClass('shown')) {
-			el.find('strong').html('SHOW');
-			el.removeClass('shown');
-        	jQuery('.' + jQuery(this).parent().attr('id')).hide();
-		} else {
-			el.find('strong').html('HIDE');
-			el.addClass('shown');
-        	jQuery('.' + jQuery(this).parent().attr('id')).show();
-		}
+	jQuery('#full_text').click(function(e) {
       	e.preventDefault();
+		jQuery('article tt,.annotation-content').show();
+		jQuery('#layers a strong').html('HIDE');
+		jQuery('#layers .shown').removeClass('shown');
+		//Need to consider greying this out if anything is hidden
+	});
+
+	/* TODO: Possibly add some abstraction here */
+	jQuery('#hide_show_annotations').click(function(e) {
+      	e.preventDefault();
+		jQuery.showGlobalSpinnerNode();
+		var el = jQuery(this);
+		el.toggleClass('shown');
+        jQuery('.annotation-content').toggle('fast', function() {
+			jQuery.hideGlobalSpinnerNode();
+		});
+		if(el.hasClass('shown')) {
+			el.find('strong').html('HIDE');
+		} else {
+			el.find('strong').html('SHOW');
+		}
+	});
+
+	jQuery('#layers .hide_show').click(function(e) {
+      	e.preventDefault();
+		jQuery.showGlobalSpinnerNode();
+
+		var el = jQuery(this);
+		el.toggleClass('shown');
+
+        jQuery('.' + el.parent().attr('id')).toggle('fast', function() {
+			jQuery.hideGlobalSpinnerNode();
+		});
+
+		if(el.hasClass('shown')) {
+			el.find('strong').html('HIDE');
+		} else {
+			el.find('strong').html('SHOW');
+		}
 	});
 	jQuery('#layers .link-o').click(function(e) {
 		var el = jQuery(this);
+		el.toggleClass('highlighted');
+        jQuery('.' + el.parent().attr('id')).toggleClass('highlight');
 		if(el.hasClass('highlighted')) {
 			el.html('HIGHLIGHT');
-			el.removeClass('highlighted');
-        	jQuery('.' + el.parent().attr('id')).removeClass('highlight');
 		} else {
 			el.html('UNHIGHLIGHT');
-			el.addClass('highlighted');
-        	jQuery('.' + el.parent().attr('id')).addClass('highlight');
 		}
       	e.preventDefault();
 	});

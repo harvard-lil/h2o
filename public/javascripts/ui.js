@@ -1,24 +1,6 @@
-/* I am the walrus! */
-
 $.noConflict();
 
-jQuery(function() {
-
-	/* Only used in collages */
-    jQuery.fn.observeField =  function( time, callback ){
-	    return this.each(function(){
-	        var field = this, change = false;
-	        jQuery(field).keyup(function(){
-	            change = true;
-	        });
-	        setInterval(function(){
-	            if ( change ) callback.call( field );
-	            change = false;
-	        }, time * 1000);
-	    });
-	}
-
-  jQuery.extend({
+jQuery.extend({
   	classType: function() {
 		return jQuery('body').attr('id').replace(/^b/, '');
 	},
@@ -54,7 +36,7 @@ jQuery(function() {
           jQuery(this).find('ul').toggle();
       });
     },
-    
+
     observeTagAutofill: function(className,controllerName){
       if(jQuery(className).length > 0){
        jQuery(className).live('click',function(){
@@ -132,13 +114,183 @@ jQuery(function() {
       } else {
         return new Array();
       }
-    }
-  });
+    },
 
-  //Fire functions for discussions
-  initDiscussionControls();
+    showGlobalSpinnerNode: function() {
+		jQuery('#spinner').show();
+	},
+	hideGlobalSpinnerNode: function() {
+		jQuery('#spinner').hide();
+	},
+	showMajorError: function(xhr) {
+		//empty for now
+	},
+	getItemId: function(element) {
+		if(jQuery("#results")) {
+			return jQuery(element).closest(".listitem").data("itemid");		
+		} else {
+			return jQuery(".singleitem").data("itemid");
+		}
+	},
 
+	/* 
+	This is a generic UI function that applies to all elements with the "delete-action" class.
+	With this, a dialog box is generated that asks the user if they want to delete the item (Yes, No).
+	When a user clicks "Yes", an ajax call is made to the link's href, which responds with JSON.
+	The listed item is then removed from the UI.
+	*/
+    observeDestroyControls: function(){
+	  	jQuery('.delete-action').live('click', function(e){
+			var item_id = jQuery.getItemId(this);
+        	var destroyUrl = jQuery(this).attr('href');
+        	e.preventDefault();
+        	var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
+        	jQuery(confirmNode).dialog({
+          		modal: true,
+				close: function() {
+					jQuery(confirmNode).remove();
+				},
+          		buttons: {
+					Yes: function() {
+              			jQuery.ajax({
+                			cache: false,
+                			type: 'POST',
+                			url: destroyUrl,
+                			dataType: 'JSON',
+                			data: {'_method': 'delete'},
+                			beforeSend: function(){
+                  				jQuery.showGlobalSpinnerNode();
+                			},
+                			error: function(xhr){
+                  				jQuery.hideGlobalSpinnerNode();
+                  				//jQuery.showMajorError(xhr); 
+                			},
+                			success: function(data){
+								if(data.type == 'playlist_item') {
+									jQuery("#playlist_item_" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+										jQuery("#playlist_item_" + item_id).remove();
+									});
+								} else {
+									jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+										jQuery(".listitem" + item_id).remove();
+									});
+								}
+                  				jQuery.hideGlobalSpinnerNode();
+                  				jQuery(confirmNode).remove();
+							}
+              			});
+            		},
+          			No: function(){
+            			jQuery(confirmNode).remove();
+          			}
+				}
+        	}).dialog('open');
+		});
+    },
+	/*
+	Generic bookmark item, more details here.
+	*/
+    observeBookmarkControls: function() {
+	  	jQuery('.bookmark-action').live('click', function(e){
+			var item_id = jQuery(".singleitem").data("itemid");
+        	var actionUrl = jQuery(this).attr('href');
+			var actionText = jQuery(this).html();
+        	e.preventDefault();
+			jQuery.ajax({
+				cache: false,
+				url: actionUrl,
+				data: { "url" : location.href },
+				beforeSend: function() {
+                  	jQuery.showGlobalSpinnerNode();
+				},
+				success: function(html) {
+                  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateGenericNode(actionText, html);
+				},
+				error: function(xhr, textStatus, errorThrown) {
+                  	jQuery.hideGlobalSpinnerNode();
+				}
+			});
+		});
+	},
+	/* Generic HTML form elements */
+    observeGenericControls: function(){
+	  	jQuery('.remix-action,.edit-action,.new-action').live('click', function(e){
+			var item_id = jQuery.getItemId(this);
+        	var actionUrl = jQuery(this).attr('href');
+			var actionText = jQuery(this).html();
+        	e.preventDefault();
+			jQuery.ajax({
+				cache: false,
+				url: actionUrl,
+				beforeSend: function() {
+                  	jQuery.showGlobalSpinnerNode();
+				},
+				success: function(html) {
+                  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateGenericNode(actionText, html);
+				},
+				error: function(xhr, textStatus, errorThrown) {
+                  	jQuery.hideGlobalSpinnerNode();
+				}
+			});
+		});
+	},
+	generateGenericNode: function(title, html) {
+		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
+		jQuery(newItemNode).dialog({
+			title: title,
+			modal: true,
+			width: 'auto',
+			height: 'auto',
+			close: function() {
+				jQuery(newItemNode).remove();
+			},
+			buttons: {
+				Submit: function() {
+					jQuery.submitGenericNode();
+				},
+				Close: function() {
+					jQuery(newItemNode).remove();
+				}
+			}
+		}).dialog('open');
+	},
+	submitGenericNode: function() {
+		jQuery('#generic-node').find('form').ajaxSubmit({
+			dataType: "JSON",
+			beforeSend: function() {
+				jQuery.showGlobalSpinnerNode();
+			},
+			success: function(data) {
+				document.location.href = jQuery.rootPath() + jQuery.classType() + '/' + data.id;
+			},
+			error: function(xhr) {
+				jQuery.hideGlobalSpinnerNode();
+				//message some error
+			}
+		});
+	}
+});
 
+jQuery(function() {
+	
+	/* Only used in collages */
+    jQuery.fn.observeField =  function( time, callback ){
+	    return this.each(function(){
+	        var field = this, change = false;
+	        jQuery(field).keyup(function(){
+	            change = true;
+	        });
+	        setInterval(function(){
+	            if ( change ) callback.call( field );
+	            change = false;
+	        }, time * 1000);
+	    });
+	}
+
+  	//Fire functions for discussions
+  	initDiscussionControls();
 
 	jQuery("#results .sort select").selectbox({
 		className: "jsb"
@@ -252,5 +404,6 @@ jQuery(function() {
 	});
 
 	jQuery.observeDestroyControls();
-	jQuery.observeRemixControls();
+	jQuery.observeGenericControls();
+	jQuery.observeBookmarkControls();
 });

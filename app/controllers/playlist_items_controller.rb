@@ -44,11 +44,9 @@ class PlaylistItemsController < BaseController
         flash[:notice] = 'PlaylistItem was successfully created.'
         format.html { redirect_to(@playlist_item) }
         format.xml  { render :xml => @playlist_item, :status => :created, :location => @playlist_item }
-	    format.json { render :json => { :id => @playlist_item.playlist.id } }
       else
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist_item.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :id => @playlist_item.playlist.id } }
       end
     end
   end
@@ -61,11 +59,9 @@ class PlaylistItemsController < BaseController
         flash[:notice] = 'PlaylistItem was successfully updated.'
         format.html { redirect_to(@playlist_item) }
         format.xml  { head :ok }
-	    format.json { render :json => { :id => @playlist_item.playlist.id } }
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist_item.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :id => @playlist_item.playlist.id } }
       end
     end
   end
@@ -77,7 +73,6 @@ class PlaylistItemsController < BaseController
     respond_to do |format|
       format.html { redirect_to(playlist_items_url) }
       format.xml  { head :ok }
-	  format.json { render :json => {} }
     end
   end
 

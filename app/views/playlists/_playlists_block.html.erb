@@ -26,15 +26,23 @@
 		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
 	</ul>
 	<% if current_user -%>
+    <% if @my_playlists.any? -%>
 	<ul id="my_playlists" class="playlists_section">
-    	<% if @my_playlists.empty? -%>
-		<li>None!</li>
-		<% end -%>
 		<%= render :partial => 'shared/objects/playlist', :collection => @my_playlists %>
 	</ul>
+	<% end -%>
+	<% if @my_bookmarks -%>
 	<ul id="my_bookmarks" class="playlists_section">
-		<li>Not implemented!</li>
+		<% @my_bookmarks.playlist_items.each_with_index do |item, index| -%>
+		<%= render :partial => 'shared/objects/playlist_item',
+			:locals => { :item => item,
+				:parent_index => '',
+				:index => index,
+				:recursive_level => 4,
+				:my_playlist => true } %>
+		<% end -%>
 	</ul>
+	<% end -%>
 	<% end -%>
 	</article>
 </section>

@@ -1,129 +1,52 @@
-.ajax-error{
-  width: auto;
-}
-.status{
-  height: 20px;
-  float:right;
-}
+/* Collages */
+#collage { display:block; padding:11px 7px; position:relative; z-index:1; }
+#collage .description { display:block; border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); height:30px; line-height:30px; position:relative; z-index:2; }
+#collage .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
+#collage .description { padding-left:73px; }
+#collage .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; }
+#collage .description .toolbar { float:right; display:inline;  }
+#collage .description .toolbar ul { list-style:none; }
+#collage .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #d5f1a6; }
+#collage .description .toolbar ul li img { display:block; }
 
-.ui-button-text-icon .ui-button-text, .ui-button-text-icons .ui-button-text{
-/*  padding:0.2em 2.25em 0.2em 2.25em; */
-}
+#collage .description .buttons { float:right; display:inline;  }
+#collage .description .buttons ul { list-style:none; }
+#collage .description .buttons ul .btn-li { float:left; display:inline; font-size:9px; line-height:20px; font-weight:bold; padding:4px 10px 0 0; position:relative; height:20px; }
+#collage .description .buttons ul .btn-a { float:left; display:inline; background:url(/images/ui/collage-hgroup-btn.png); color:#fff; text-decoration:none; padding:0 9px; position:relative; z-index:2; }
+#collage .description .buttons ul .btn-a { border:1px solid #6d87a2; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
+#collage .description .buttons ul .btn-a-active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; }
+#collage .description .buttons ul .btn-a-active { -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }
+#collage .description .buttons ul .btn-a-active { -moz-border-radius-bottomright: 0px; border-bottom-right-radius: 0px; -webkit-border-bottom-right-radius: 0px;  }
+#collage .description .buttons ul .btn-a span { float:left; display:inline; padding-right:14px; background:url(/images/ui/collage-hgroup-btn-arrow.png) right no-repeat; }
+#collage .description .buttons ul .btn-a-active span { background-image:url(/images/ui/collage-hgroup-btn-active.png); }
 
-.undo-button{
-  font-size: 10px;
-}
+#collage details { background:#e0f5bd; display:block; position:relative; padding:7px 300px 11px 74px; height:100%; z-index:1; }
+#collage details .tags { position:absolute; top:1px; right:1px; }
+#collage details .tags ul { list-style:none; font-size:10px; line-height:24px; }
+#collage details .tags ul li { float:left; display:inline;  padding-left:1px; }
+#collage details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#376100; background:#c4eb80; }
+#collage details .influence { padding-bottom:9px; }
+#collage details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
+#collage details .influence div.star-rating { background:none !important;}
+#collage details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
+#collage details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
+#collage details p { font-size:12px; line-height:18px; color:#616e5c; }
+#collage details p .link-more { font-size:9px; text-transform:uppercase; font-weight:bold; }
+#collage details p .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
 
-.annotation-control{
-  font-size: 9px;
-  display: none;
-  padding: 3px;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  position: absolute;
-}
+#collage article { display:block; font-size:11px; line-height:16px; color:#000; padding:13px 9px 0 35px; height:100%; }
+#collage article .chorus { text-align:center; padding-bottom:16px; }
+#collage article p { padding-bottom:16px; }
+#collage article p em { color:#669933; }
+#collage article p a { color:#336699; }
+#collage article p a.hint { color:#669900; }
+#collage article p strong { font-weight:normal; color:#999; }
+#collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/pagination.png) center no-repeat; }
+#collage .toolbar a { background: url(/images/ui/show_icons.png);
+  display: block; width: 23px; height: 30px; text-indent: -4000px; }
+#collage .toolbar .link-share { width: 26px; }
+#collage .toolbar .link-copy { background-position: -26px 0px; width: 15px; }
+#collage .toolbar .link-bookmark { background-position: -41px 0px; width: 18px; }
+#collage .toolbar .link-print { background-position: -60px 0px; width: 22px; }
 
-.annotation-content{
-  overflow: auto;
-  border: 1px solid black;
-  padding: 5px;
-}
-
-.bt-content .annotation-content{
-  margin-top: 5px;
-  border: 1px #cccccc;
-  border-style: solid none none none;
-  height: 75px;
-
-}
-
-.close-annotation-details{
-  float: right;
-}
-
-#annotatable-content tt{
-  font-family: inherit;
-}
-
-.annotated-content{
-  font-size: 10px;
-  overflow: auto;
-  padding: 5px;
-  margin-bottom: 1em;
-  border: 1px solid black;
-}
-
-.annotated-content h2{
-  border-bottom: 1px dotted black;
-  margin-bottom: 1em;
-}
-
-.left, .right{
-  width: 50%;
-  float: left;
-}
-
-form.formtastic fieldset ol li#annotation_annotation_input label, form.formtastic fieldset ol li#collage_description_input label{
-  float: none;
-}
-
-form.formtastic fieldset ol li.text textarea{
-  width: 99%;
-}
-
-.markItUp{
-  width: 500px;
-}
-
-#preview-container{
-  margin: 1em;
-  padding: 1em;
-  background-color: white;
-  border: 1px solid #cccccc;
-  height: 500px;
-  overflow: auto;
-}
-
-#view-layer-list{
-  padding: 10px 0px 10px 0px;
-}
-
-#layer-button{
-  float: right;
-}
-
-#cancel-annotation{
-  float: right;
-}
-
-.arr{
-  font-size: 18px;
-  margin: 0px 5px 0px 5px;
-}
-
-.arr .arrbox{
-  border: 1px solid black;
-}
-
-.arr .c{
-  font-size: 14px;
-  padding: 2px;
-}
-
-.more{
-  text-align: right;
-  margin-top: 5px;
-}
-
-.lineage-target, .layer-meta-target{
-  display: none;
-}
-
-#collage-list .layer-meta-target{
-  display: block;
-}
-
-.layer-spinner{
-  display: none;
-}
-
+#collage article .annotation-content { color: red; font-size: 14px; line-height: 1.5; display: none; padding-top: 10px; }
