@@ -505,6 +505,7 @@ jQuery(document).ready(function(){
 		var el = jQuery(this);
 		el.toggleClass('shown');
 
+		//TODO: This is really slow. Figure out why.
         jQuery('.' + el.parent().attr('id')).toggle('fast', function() {
 			jQuery.hideGlobalSpinnerNode();
 		});

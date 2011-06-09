@@ -45,5 +45,31 @@
   line-height:20px; color:#666; font-weight:bold; text-align:center;
   border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
   padding-top: 2px; }
-#playlist .playlist .data { float: right; display: inline; width:895px; position:relative; width:550px; padding-right:345px; }
+#playlist .playlist .data { float: right; display: inline; width:895px; position:relative; 904px; } /*width:550px; padding-right:345px; } */
 #playlist .playlist .data .dd-open { position:absolute; top:5px; left:-17px; width:17px; height:12px; background:url(/images/ui/playlist-arrow.png) center no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
+
+#playlist .playlist .data .tags { position:absolute; top:0; right:0; }
+#playlist .playlist .data .tags ul { list-style:none; float:right; display:inline; }
+#playlist .playlist .data .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
+#playlist .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
+#playlist .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
+#playlist .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
+#playlist .playlist .data .icon-type { float:left; display:inline;
+  margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
+#playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
+#playlist .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
+#playlist .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
+#playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
+
+#playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
+#playlist .playlists .playlists .data { padding-right:271px; }
+#playlist .playlists .playlists .playlists { width:823px;}
+#playlist .playlists .playlists .playlists .data { padding-right:197px; }
+#playlist .playlists .playlists .playlists .playlists { width:749px; }
+#playlist .playlists .playlists .playlists .playlists .data { padding-right:119px; }
+#playlist .playlists .full-list-link { position:absolute; top:13px; right:0; width:78px; height:24px; background:#d8dada; color:#333; text-align:center; font-size:10px; line-height:24px; font-weight:bold; }
+
+#playlist .listitem .action { font-size: 10px; font-weight: normal; line-height: 20px; }
+#playlist .listitem .delete-action { padding-left: 10px; background:
+  transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
+

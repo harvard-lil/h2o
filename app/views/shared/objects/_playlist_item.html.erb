@@ -19,9 +19,7 @@
 			<% end -%>
 		</div>
 		<hgroup>
-			<h3>
-				<%= link_to item.resource_item.name, item.resource_item.url %>
-			</h3>
+			<h3><%= link_to item.resource_item.name, item.resource_item.url %></h3>
 			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
 			<% if current_user && @playlist_admi || my_playlist %>
 			<%= link_to "DELETE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item" %>
