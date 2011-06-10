@@ -58,8 +58,7 @@ class PlaylistsController < BaseController
     @my_bookmarks = current_user && !current_user.bookmark_id.nil? ? Playlist.find(current_user.bookmark_id): nil
 
     # TODO: Update this to exclude my bookmark
-    @my_playlists = current_user ? current_user.playlists : []
-
+    @my_playlists = current_user ? current_user.playlists.select { |p| p != @my_bookmarks } : []
     
     respond_to do |format|
       format.html # index.html.erb
