@@ -187,6 +187,7 @@ jQuery.extend({
         	}).dialog('open');
 		});
     },
+
 	/*
 	Generic bookmark item, more details here.
 	*/
@@ -205,7 +206,7 @@ jQuery.extend({
 				},
 				success: function(html) {
                   	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateGenericNode(actionText, html);
+					jQuery.generateBookmarkNode(actionText, html);
 				},
 				error: function(xhr, textStatus, errorThrown) {
                   	jQuery.hideGlobalSpinnerNode();
@@ -213,6 +214,42 @@ jQuery.extend({
 			});
 		});
 	},
+	generateGenericNode: function(title, html) {
+		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
+		jQuery(newItemNode).dialog({
+			title: title,
+			modal: true,
+			width: 'auto',
+			height: 'auto',
+			close: function() {
+				jQuery(newItemNode).remove();
+			},
+			buttons: {
+				Submit: function() {
+					jQuery.submitGenericNode();
+				},
+				Close: function() {
+					jQuery(newItemNode).remove();
+				}
+			}
+		}).dialog('open');
+	},
+	submitGenericNode: function() {
+		jQuery('#generic-node').find('form').ajaxSubmit({
+			dataType: "JSON",
+			beforeSend: function() {
+				jQuery.showGlobalSpinnerNode();
+			},
+			success: function(data) {
+				document.location.href = jQuery.rootPath() + jQuery.classType() + '/' + data.id;
+			},
+			error: function(xhr) {
+				jQuery.hideGlobalSpinnerNode();
+				//message some error
+			}
+		});
+	},
+
 	/* Generic HTML form elements */
     observeGenericControls: function(){
 	  	jQuery('.remix-action,.edit-action,.new-action').live('click', function(e){
@@ -228,7 +265,7 @@ jQuery.extend({
 				},
 				success: function(html) {
                   	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateGenericNode(actionText, html);
+					jQuery.generateBookmarkNode(actionText, html);
 				},
 				error: function(xhr, textStatus, errorThrown) {
                   	jQuery.hideGlobalSpinnerNode();
@@ -236,6 +273,43 @@ jQuery.extend({
 			});
 		});
 	},
+	generateBookmarkNode: function(title, html) {
+		html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery.classType().replace(/s$/, '') + '</h2>');
+		var newItemNode = jQuery('<div id="bookmark-node"></div>').html(html);
+		jQuery(newItemNode).dialog({
+			title: title,
+			modal: true,
+			width: 'auto',
+			height: 'auto',
+			close: function() {
+				jQuery(newItemNode).remove();
+			},
+			buttons: {
+				Submit: function() {
+					jQuery.submitBookmarkNode();
+				},
+				Close: function() {
+					jQuery(newItemNode).remove();
+				}
+			}
+		}).dialog('open');
+	},
+	submitBookmarkNode: function() {
+		jQuery('#bookmark-node').find('form').ajaxSubmit({
+			dataType: "JSON",
+			beforeSend: function() {
+				jQuery.showGlobalSpinnerNode();
+			},
+			success: function(data) {
+				document.location.href = jQuery.rootPath() + 'playlists/' + data.id;
+			},
+			error: function(xhr) {
+				jQuery.hideGlobalSpinnerNode();
+				//message some error
+			}
+		});
+	},
+
 	generateGenericNode: function(title, html) {
 		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
 		jQuery(newItemNode).dialog({

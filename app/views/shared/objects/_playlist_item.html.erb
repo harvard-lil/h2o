@@ -10,7 +10,7 @@
 		<%= link_to 'Show/Hide More', '#', :class => 'dd-open' %>
 		<% end -%>
 		<div class="tags">
-			<% if item.resource_item.actual_object -%>
+			<% if defined?(item.resource_item.actual_object) -%>
 			<ul>
 				<% item.resource_item.actual_object.tags.each do |tag| -%>	
 				<li><a href="#"><%= tag.name %></a></li>

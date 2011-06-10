@@ -13,14 +13,14 @@ Your annotation will start here. Please click another word to set the end point.
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#" class="link-share">Share</a></li>
-  				<% unless current_user.blank? %>
+  				<% if current_user -%>
 				<li>
     				<% form_tag(spawn_copy_collage_path(@collage)) do %>
 					<a class="link-copy">Copy</a>
     				<% end %>
 				</li>
-  				<% end %>
-				<li><a href="#" class="link-bookmark">Bookmark</a></li>
+				<li><%= link_to "Bookmark This Collage", bookmark_item_path("item_collage"), :class => "link-bookmark bookmark-action" %></li>
+  				<% end -%>
 				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
 		</aside>
@@ -81,10 +81,17 @@ Your annotation will start here. Please click another word to set the end point.
 			</p>
 			<p id="description_more">
 			<%= @collage.description %> <a href="#" class="link-less">LESS</a>
+			<% if current_user && @collage.users.include?(current_user) -%>
 			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
+			<% end -%>
 			</p>
 		<% else -%>
-			<p><%= @collage.description %> <%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %></p>
+			<p>
+				<%= @collage.description %>
+				<% if current_user && @collage.users.include?(current_user) -%>
+				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
+				<% end -%>
+			</p>
 		<% end -%>
 	</details>
 

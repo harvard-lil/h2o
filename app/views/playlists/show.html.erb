@@ -8,8 +8,10 @@
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#" class="link-share">Share</a></li>
+				<% if current_user -%>
 				<li><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
-				<li><%= link_to "Bookmark This Playlist", bookmark_item_path, :class => "link-bookmark bookmark-action" %></li>
+				<li><%= link_to "Bookmark This Playlist", bookmark_item_path("item_playlist"), :class => "link-bookmark bookmark-action" %></li>
+				<% end -%>
 				<li><a href="#" class="link-print">Print</a></li>
 			</ul>
 		</aside>
@@ -47,16 +49,24 @@
 			</p>
 			<p id="description_more">
 				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
+				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
+				<% end -%>
 			</p>
 		<% else -%>
 			<p>
 				<%= @playlist.description %>
+				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
+				<% end -%>
 			</p>
 		<% end -%>
 		<% else -%>
-			<p><%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %></p>
+			<p>
+				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
+				<% end -%>
+			</p>
 		<% end -%>
 	</details>
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>

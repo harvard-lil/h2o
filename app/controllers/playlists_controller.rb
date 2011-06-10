@@ -45,7 +45,7 @@ class PlaylistsController < BaseController
 	  if params.has_key?(:tag)
 	    with :tags, params[:tag]
 	  end
-	  #with :public, true
+	  with :public, true
 	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	  order_by params[:sort].to_sym, :asc
 	end

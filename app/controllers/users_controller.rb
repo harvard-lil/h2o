@@ -68,22 +68,27 @@ class UsersController < ApplicationController
     end
   end
 
+  # post bookmark_item/:type
+  # post bookmark_item/item_playlist
+  # post bookmark_item/item_collage
+  # this method calls the existing item_* forms to hook up to item_base_controllers new method
+  # and then redirects to the users bookmark
   def bookmark_item
-    # TODO: change this to be if current_user.bookmark.nil?
     if current_user.bookmark_id.nil?
-	  playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks" })
-	  playlist.creators << current_user
+	  playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false })
 	  playlist.save
+      playlist.accepts_role!(:owner, current_user)
+      playlist.accepts_role!(:creator, current_user)
 	  current_user.update_attribute(:bookmark_id, playlist.id)
 	end
 
-    #Abstract this out to work on various pages.
     params[:container_id] = current_user.bookmark_id
-    @object = ItemPlaylist.new(:url => params[:url])
-	@base_model_class = 'Playlist'
+	klass = params[:type].classify.constantize
+    @object = klass.new(:url => params[:url])
+	@base_model_class = klass.to_s.gsub(/Item|Controller/, '').singularize.constantize
 
     respond_to do |format|
-      format.html { render :partial => "/shared/forms/item_playlist" }
+      format.html { render :partial => "/shared/forms/#{params[:type]}" }
     end
   end
 end

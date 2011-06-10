@@ -105,6 +105,7 @@ jQuery.extend({
       },
       timeout: 2000,
       out: function(e){
+	    //TODO: This needs to be updated to account for layer highlighting status 
         jQuery('.a' + obj.id).removeClass('highlight');
       }
     });
@@ -491,10 +492,8 @@ jQuery(document).ready(function(){
         jQuery('.annotation-content').toggle('fast', function() {
 			jQuery.hideGlobalSpinnerNode();
 		});
-		if(el.hasClass('shown')) {
+		if(el.find('strong').html() == 'SHOW') {
 			el.find('strong').html('HIDE');
-		} else {
-			el.find('strong').html('SHOW');
 		}
 	});
 
@@ -503,27 +502,25 @@ jQuery(document).ready(function(){
 		jQuery.showGlobalSpinnerNode();
 
 		var el = jQuery(this);
-		el.toggleClass('shown');
-
-		//TODO: This is really slow. Figure out why.
-        jQuery('.' + el.parent().attr('id')).toggle('fast', function() {
-			jQuery.hideGlobalSpinnerNode();
-		});
-
-		if(el.hasClass('shown')) {
+		//Toggle here was very slow 
+		if(el.find('strong').html() == 'SHOW') {
 			el.find('strong').html('HIDE');
+        	jQuery('article .' + el.parent().attr('id')).show();
 		} else {
 			el.find('strong').html('SHOW');
+        	jQuery('article .' + el.parent().attr('id')).hide(); 
 		}
+		jQuery.hideGlobalSpinnerNode();
 	});
 	jQuery('#layers .link-o').click(function(e) {
 		var el = jQuery(this);
 		el.toggleClass('highlighted');
-        jQuery('.' + el.parent().attr('id')).toggleClass('highlight');
 		if(el.hasClass('highlighted')) {
-			el.html('HIGHLIGHT');
-		} else {
+        	jQuery('.' + el.parent().attr('id')).addClass('highlight');
 			el.html('UNHIGHLIGHT');
+		} else {
+			el.html('HIGHLIGHT');
+        	jQuery('.' + el.parent().attr('id')).removeClass('highlight');
 		}
       	e.preventDefault();
 	});

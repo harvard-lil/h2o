@@ -216,8 +216,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #bcollages #results .sort .jsb .jsb-list { background: #e0f5bd; border: 1px solid #8eb356; }
 #bcollages #results .sort .jsb .jsb-list .jsb-item { color: #006a07; }
 
-#my_playlists { display: none; }
-
 #busers header, #buser_sessions header { height: 106px; padding-top: 30px; }
 
 /* Popup */
@@ -258,7 +256,11 @@ color: #FFF; }
 
 #search ul li#spinner { display: none; }
 
+#my_playlists { display: none; }
+
 /* Bookmark */
+#my_bookmarks { display: none; }
+
 #my_bookmarks hgroup { background: none; border: none; margin: 0px; line-height: 12px; }
 #my_bookmarks .listitem .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png);
   float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
