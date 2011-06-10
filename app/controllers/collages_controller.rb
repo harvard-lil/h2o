@@ -94,8 +94,20 @@ class CollagesController < BaseController
 	@my_collages = current_user ? current_user.collages : [] 
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.js {render :partial => 'collage_list'}
+	  #The following is called via normal page load
+	  # and via AJAX. To differentiate what HTML is returned 
+	  # here, I've added the param :is_pagination.
+      format.html do
+	    if params.has_key?(:is_pagination)
+		  render :partial => 'collage_list'
+		else
+		  render 'index'
+		end
+	  end
+	  # Returning HTML with a jQuery.ajax call of dataType 
+	  # 'script' is invalid and jQuery is dying. This has
+	  # been moved to HTML call.
+      #format.js { render :partial => 'collage_list' }
       format.xml  { render :xml => @collages }
     end
   end

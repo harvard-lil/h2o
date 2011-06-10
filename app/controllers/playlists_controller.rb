@@ -54,14 +54,28 @@ class PlaylistsController < BaseController
 
     generate_sort_list("/playlists?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
 
-    # TODO: Update this to be linked through user / foreign key
-    @my_bookmarks = current_user && !current_user.bookmark_id.nil? ? Playlist.find(current_user.bookmark_id): nil
+	@my_bookmarks = nil
+	if current_user && current_user.bookmark_id
+      # TODO: Update this to be linked through user / foreign key
+      @my_bookmarks = Playlist.find(current_user.bookmark_id).playlist_items.inject([]) do |arr, p|
+	    if p.resource_item_type == "ItemPlaylist" && p.resource_item.actual_object
+	      arr << p.resource_item.actual_object
+		end
+		arr
+      end
+	end
 
-    # TODO: Update this to exclude my bookmark
-    @my_playlists = current_user ? current_user.playlists.select { |p| p != @my_bookmarks } : []
+    @my_playlists = current_user ? current_user.playlists.select { |p| p.id != current_user.bookmark_id } : []
     
     respond_to do |format|
-      format.html # index.html.erb
+	  #See notes in collage respond_to regarding this is_pagination option
+      format.html do
+	    if params.has_key?(:is_pagination)
+		  render :partial => 'playlists_block'
+		else
+		  render 'index'
+		end
+	  end 
       format.xml  { render :xml => @playlists }
     end
   end

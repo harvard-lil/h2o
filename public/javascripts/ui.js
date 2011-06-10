@@ -8,6 +8,55 @@ jQuery.extend({
       return '/';
     },
 
+	observeTabDisplay: function(region) {
+		jQuery(region + ' .link-add a').click(function() {
+			var element = jQuery(this);
+			var position = element.offset();
+			var results_posn = jQuery('.popup').parent().offset();
+			var left = position.left - results_posn.left;
+			var current_id = element.attr('class');
+			var popup = jQuery('.popup');
+			var last_id = popup.data('item_id');
+			if(last_id) {
+				popup.removeData('item_id').fadeOut(100, function() {
+					if(current_id != last_id) {
+						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
+					}
+				});
+			} else {
+				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
+			}
+			return false;
+		});
+	},
+    observePagination: function(){
+		jQuery('.pagination a').click(function(e){
+      
+	  		e.preventDefault();
+      		jQuery.ajax({
+        		type: 'GET',
+        		dataType: 'html',
+                data: { 'is_pagination' : 1 },
+        		url: jQuery(this).attr('href'),
+                beforeSend: function(){
+               		jQuery.showGlobalSpinnerNode();
+               	},
+               	error: function(xhr){
+               		jQuery.hideGlobalSpinnerNode();
+				},
+        		success: function(html){
+               		jQuery.hideGlobalSpinnerNode();
+					var region = '#all_' + jQuery.classType();
+					jQuery(region).html(html);
+					jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
+          			jQuery.observePagination(); 
+					//Here we need to re-observe tab popup
+					jQuery.observeTabDisplay(region);
+        		}
+      		});
+    	});
+	},
+
     observeMetadataForm: function(){
       jQuery('.datepicker').datepicker({
         changeMonth: true,
@@ -139,8 +188,8 @@ jQuery.extend({
 	When a user clicks "Yes", an ajax call is made to the link's href, which responds with JSON.
 	The listed item is then removed from the UI.
 	*/
-    observeDestroyControls: function(){
-	  	jQuery('.delete-action').live('click', function(e){
+    observeDestroyControls: function(region){
+	  	jQuery(region + ' .delete-action').live('click', function(e){
 			var item_id = jQuery.getItemId(this);
         	var destroyUrl = jQuery(this).attr('href');
         	e.preventDefault();
@@ -167,8 +216,10 @@ jQuery.extend({
                 			},
                 			success: function(data){
 								if(data.type == 'playlist_item') {
-									jQuery("#playlist_item_" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
-										jQuery("#playlist_item_" + item_id).remove();
+									jQuery('.level0').each(function(i, el) {
+										if(jQuery(el).data('itemid') == item_id) {
+											jQuery(el).remove();
+										}
 									});
 								} else {
 									jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
@@ -191,8 +242,8 @@ jQuery.extend({
 	/*
 	Generic bookmark item, more details here.
 	*/
-    observeBookmarkControls: function() {
-	  	jQuery('.bookmark-action').live('click', function(e){
+    observeBookmarkControls: function(region) {
+	  	jQuery(region + ' .bookmark-action').live('click', function(e){
 			var item_id = jQuery(".singleitem").data("itemid");
         	var actionUrl = jQuery(this).attr('href');
 			var actionText = jQuery(this).html();
@@ -251,8 +302,8 @@ jQuery.extend({
 	},
 
 	/* Generic HTML form elements */
-    observeGenericControls: function(){
-	  	jQuery('.remix-action,.edit-action,.new-action').live('click', function(e){
+    observeGenericControls: function(region){
+	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
 			var item_id = jQuery.getItemId(this);
         	var actionUrl = jQuery(this).attr('href');
 			var actionText = jQuery(this).html();
@@ -366,52 +417,15 @@ jQuery(function() {
   	//Fire functions for discussions
   	initDiscussionControls();
 
+
+	/* TODO: Move a lot of this to custom jQuery functions */
 	jQuery("#results .sort select").selectbox({
 		className: "jsb"
 	}).change(function() {
+		//TODO: Modify this to use AJAX here, similar to pagination
 		window.location = jQuery(this).val();
 	});
 	
-	jQuery('#results .song details .influence input').rating();
-	jQuery('#playlist details .influence input').rating();
-
-	jQuery(".link-add a").click(function() {
-		var element = jQuery(this);
-		var position = element.offset();
-		var results_posn = jQuery('.popup').parent().offset();
-		var left = position.left - results_posn.left;
-		var current_id = element.attr('class');
-		var popup = jQuery('.popup');
-		var last_id = popup.data('item_id');
-		if(last_id) {
-			popup.removeData('item_id').fadeOut(100, function() {
-				if(current_id != last_id) {
-					popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
-				}
-			});
-		} else {
-			popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
-
-		}
-		return false;
-	});
-
-	jQuery(".bookmark-this").click(function() {
-		jQuery.ajax({
-        	type: "post",
-            dataType: "json",
-            url: "/bookmark_item",
-            data: {
-				item: jQuery(".popup").data("item_id"),
-				type: jQuery(".popup").data("type")
-            },
-			success: function() {
-				alert('here');
-			}
-        });
-		return false;
-	});
-
 	jQuery("#search .btn-tags").click(function() {
 		var $p = jQuery(".browse-tags-popup");
 		
@@ -433,7 +447,6 @@ jQuery(function() {
 		return false;
 	});
 
-
 	jQuery(".search_all input[type=radio]").click(function() {
 		jQuery(".search_all form").attr("action", "/" + jQuery(this).val());
 	});
@@ -453,31 +466,17 @@ jQuery(function() {
 
     jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
 
-	/* TODO: Generic-ize this to work on multiple pages */
-/*
-    jQuery(".sortable").sortable({
-        handle: '.item_drag_handle',
-        axis: 'y',
-        helper: sortableCellHelper,
-        update: function(event, ui) {
-            var container_id = jQuery('#container_id').text();
-            var playlist_order = jQuery(".sortable").sortable("serialize");
-            jQuery.ajax({
-                type: "post",
-                dataType: 'json',
-                url: '/playlists/' + container_id + '/position_update',
-                data: {
-                    playlist_order: playlist_order
-                }
-            });
-		}
-	}).disableSelection();*/
-
 	jQuery('.link-copy').click(function() {
 		jQuery(this).closest('form').submit();
 	});
+	//jQuery('#results .song details .influence input').rating();
+	//jQuery('#playlist details .influence input').rating();
 
-	jQuery.observeDestroyControls();
-	jQuery.observeGenericControls();
-	jQuery.observeBookmarkControls();
+	/* End TODO */
+
+	jQuery.observeDestroyControls('');
+	jQuery.observeGenericControls('');
+	jQuery.observeBookmarkControls('');
+	jQuery.observePagination(); 
+	jQuery.observeTabDisplay('');
 });

@@ -1,4 +1,25 @@
 jQuery.extend({
+	observeDragAndDrop: function() {
+		jQuery('.sortable').sortable({
+			stop: function(event, ui) {
+				var playlist_order = jQuery('.sortable').sortable('serialize');
+				jQuery.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: '/playlists/' + jQuery('#playlist').data('itemid') + '/position_update',
+					data: {
+						playlist_order: playlist_order
+					},
+                	beforeSend: function(){
+               			jQuery.showGlobalSpinnerNode();
+                	},
+					complete: function() {
+               			jQuery.hideGlobalSpinnerNode();
+					}
+				});
+			}
+		}); 
+	},
     initPlaylistItemAddControls: function(){
         jQuery('.new-playlist-item').click(function(e){
             e.preventDefault();
@@ -7,10 +28,10 @@ jQuery.extend({
 				dataType: "html",
                 url: jQuery(this).attr('href'),
                 beforeSend: function(){
-                    jQuery('#spinner_block').show()
+               		jQuery.showGlobalSpinnerNode();
                 },
                 success:function(html){
-                    jQuery('#spinner_block').hide();
+               		jQuery.hideGlobalSpinnerNode();
                     var itemChooserNode = jQuery('<div id="dialog-item-chooser"></div>');
                     jQuery(itemChooserNode).html(html);
                     jQuery(itemChooserNode).dialog({
@@ -28,7 +49,7 @@ jQuery.extend({
                     jQuery.observeItemObjectLists();
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    jQuery('#spinner_block').hide();
+               		jQuery.hideGlobalSpinnerNode();
                 }
             });
 
@@ -45,14 +66,14 @@ jQuery.extend({
                 dataType: "html",
                 url: jQuery.rootPath() + 'item_' + itemController + '/new',
                 beforeSend: function(){
-                    jQuery('#spinner_block').show();
+               		jQuery.showGlobalSpinnerNode();
                 },
                 data: {
                     url_string: jQuery.rootPathWithFQDN() + itemController + '/' + itemId,
                     container_id: jQuery('#container_id').text()
                 },
                 success: function(html){
-                    jQuery('#spinner_block').hide();
+               		jQuery.hideGlobalSpinnerNode();
                     jQuery('#dialog-item-chooser').dialog('close');
                     var addItemDialog = jQuery('<div id="generic-node"></div>');
                     jQuery(addItemDialog).html(html);
@@ -85,14 +106,14 @@ jQuery.extend({
                 method: 'GET',
                 url: jQuery.rootPath() + itemController + '/embedded_pager',
                 beforeSend: function(){
-                    jQuery('#spinner_block').show();
+               		jQuery.showGlobalSpinnerNode();
                 },
                 data: {
                     keywords: jQuery('#' + itemName + '-keyword-search').val()
                 },
                 dataType: 'script',
                 success: function(html){
-                    jQuery('#spinner_block').hide();
+               		jQuery.hideGlobalSpinnerNode();
                     jQuery('.h2o-playlistable-' + itemName).html(html);
                     jQuery.initPlaylistItemAddButton(itemName,itemController);
                     jQuery.initKeywordSearch(itemName,itemController);
@@ -109,14 +130,14 @@ jQuery.extend({
                     type: 'GET',
                     dataType: 'script',
                     beforeSend: function(){
-                        jQuery('#spinner_block').show();
+               			jQuery.showGlobalSpinnerNode();
                     },
                     data: {
                         keywords: jQuery('#' + itemName + '-keyword-search').val()
                     },
                     url: jQuery(this).attr('href'),
                     success: function(html){
-                        jQuery('#spinner_block').hide();
+               			jQuery.hideGlobalSpinnerNode();
                         jQuery('.h2o-playlistable-' + itemName).html(html);
                         jQuery.initPlaylistItemAddButton(itemName,itemController);
                         jQuery.initKeywordSearch(itemName,itemController);
@@ -137,10 +158,10 @@ jQuery.extend({
                     url: jQuery.rootPath() + itemController + '/embedded_pager',
                     dataType: "html",
                     beforeSend: function(){
-                        jQuery('#spinner_block').show();
+               			jQuery.showGlobalSpinnerNode();
                     },
                     success: function(html){
-                        jQuery('#spinner_block').hide();
+               			jQuery.hideGlobalSpinnerNode();
                         jQuery('.h2o-playlistable-' + itemName).html(html);
                         jQuery.initPlaylistItemAddButton(itemName,itemController);
                         jQuery.initKeywordSearch(itemName,itemController);
@@ -154,4 +175,7 @@ jQuery.extend({
 
 jQuery(document).ready(function(){
     jQuery.initPlaylistItemAddControls();
+	if(owner_can_sort) {
+		jQuery.observeDragAndDrop();
+	}
 });

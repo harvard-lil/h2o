@@ -2,6 +2,58 @@
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
 	
-<%= render :partial => 'playlists_block' %>
+<section id="breadcrumbs">
+	<aside class="filter">
+		<% if params[:tag] -%>
+		<p>
+		Playlists tagged: <%= params[:tag] %> (<%= pluralize @playlists.total, 'Playlist' %> Total)
+		<%= link_to "CLEAR TAG", playlists_path %>
+		</p>
+		<% elsif params[:keywords] -%>
+		<p>
+		Results for: <%= params[:keywords] %> (<%= pluralize @playlists.total, 'Playlist' %> Total)
+		<%= link_to "CLEAR SEARCH", playlists_path %>
+		</p>
+		<% else -%>
+		<%= @playlists.total %> Playlists Total
+		<% end -%>
+	</aside>
+	<aside class="pagination">
+		<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+	</aside>
+	<div class="cl"></div>
+</section>
+
+<section id="results">
+	<hgroup id="playlists_hgroup">
+		<ul class="tabs">
+			<li><a href="#" class="active" id="all_playlists_link">ALL PLAYLISTS</a></li>
+			<% if current_user -%>
+			<li><a href="#" id="my_playlists_link">MY PLAYLISTS</a></li>
+			<li><a href="#" id="my_bookmarks_link">MY BOOKMARKS</a></li>
+			<% end -%>
+			<% if false -%><li><a href="#">MY BOOKMARKS</a></li><% end -%>
+		</ul>
+		<%= render :partial => 'shared/sort' %>
+		<div class="cl"></div>
+	</hgroup>
+	<article class="songs">
+	<ul id="all_playlists" class="playlists_section">
+		<%= render :partial => 'playlists_block' %>
+	</ul>
+	<% if current_user -%>
+    <% if @my_playlists.any? -%>
+	<ul id="my_playlists" class="playlists_section">
+		<%= render :partial => 'shared/objects/playlist', :collection => @my_playlists %>
+	</ul>
+	<% end -%>
+	<% if @my_bookmarks -%>
+	<ul id="my_bookmarks" class="playlists_section">
+		<%= render :partial => 'shared/objects/playlist', :collection => @my_bookmarks %>
+	</ul>
+	<% end -%>
+	<% end -%>
+	</article>
+</section>
 
 <%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

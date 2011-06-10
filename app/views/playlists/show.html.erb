@@ -80,3 +80,10 @@
 <div id="dialog-playlist-copy" title="Copy playlist"></div>
 
 <%= render :partial => "shared/popup", :locals => { :type => "collage" } %>
+<script type="text/javascript">
+<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+var owner_can_sort = true;
+<% else -%>
+var owner_can_sort = false;
+<% end -%>
+</script>
