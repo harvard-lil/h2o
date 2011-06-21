@@ -1,6 +1,7 @@
 var new_annotation_start = '';
 var new_annotation_end = '';
 var just_hidden = 0;
+var layer_colors = {};
 
 jQuery.extend({
 
@@ -45,28 +46,17 @@ jQuery.extend({
     });
   },
 
-  annotateRange: function(obj,activeId,aIndex){
-    var start = obj.annotation_start.substring(1);
-    var end = obj.annotation_end.substring(1);
-    var points = [parseInt(start), parseInt(end)];
-    var elStart = points[0];
-    var elEnd = points[1];
-    var i = 0;
-    var ids = [];
-    for(i = elStart; i <= elEnd; i++){
-      ids.push('#t' + i);
-    }
-    var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
-    var layerNames = [];
-    var lastLayerId = 0;
-    var layerOutput = '';
-    jQuery(obj.layers).each(function(){
-      layerNames.push(this.name);
-      layerOutput += '<span class="ltag c' + (this.id % 10) + '">' + this.name + '</span>';
-      lastLayerId = this.id;
-    });
+  annotateRange: function(obj) {
+    var elStart = parseInt(obj.annotation_start.substring(1));
+    var elEnd = parseInt(obj.annotation_end.substring(1));
 
-	var detailNode = jQuery('<div class="annotation-content" id="annotation-content-' + obj.id + '">' + obj.formatted_annotation_content + '</div>');
+    //var activeLayers = jQuery.unserializeHash(jQuery.cookie('active-layer-ids'));
+	lastLayerId = 0;
+	if(obj.layers.length) {
+		lastLayerId = obj.layers[obj.layers.length - 1].id;
+	}
+
+	var detailNode = jQuery('<div class="annotation-content" id="annotation-content-' + obj.id + '">' + obj.formatted_annotation_content + '&nbsp;&nbsp;<a href="#" id="ann-details-' + obj.id + '">more</a></div>');
 
     var startArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elStart).before(startArrow);
@@ -74,22 +64,26 @@ jQuery.extend({
     var endArrow = jQuery('<span id="annotation-control-' + obj.id +'" class="arr rc' + (lastLayerId % 10) + '"></span>');
     jQuery("#t" + elEnd).after(endArrow,detailNode);
 
-    var idList = ids.join(',');
+    jQuery.annotationArrow(startArrow,obj,'start', lastLayerId);
+    jQuery.annotationArrow(endArrow,obj,'end', lastLayerId);
 
-    jQuery.annotationArrow(startArrow,obj,aIndex,'start');
-    jQuery.annotationArrow(endArrow,obj,aIndex,'end');
-
-    if(obj.id == activeId){
-      jQuery("#annotation-control-" + obj.id).mouseenter();
-    }
+	//TODO: Possibly pull these out to be global listeners? Do perf testing here.
+	jQuery('#ann-details-' + obj.id).click(function(e) {
+		jQuery.annotationButton(e, obj.id);
+	});
+	jQuery('#ann-ellipsis-' + obj.id).click(function(e) {
+		jQuery('article tt.a' + obj.id).show();
+		jQuery(this).hide();
+      	e.preventDefault();
+	});
   },
 
-  annotationArrow: function(arr,obj,aIndex,arrowType){
-  	// do something crippled and stupid here for IE.
+  annotationArrow: function(arr,obj,arrowType, layer_id){
     if (arrowType == 'start'){
-    	jQuery(arr).html(((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : '') + '&#9658;' );
+    	jQuery(arr).html('|');
     } else {
-        jQuery(arr).html('&#9668;' + ((obj.annotation_word_count > 0) ? ('<span class="arrbox">' + aIndex + '</span>') : ''));
+        jQuery('<a href="#" style="display:none;" class="ann-ellipsis ann-ellipsis-l' + layer_id + '" id="ann-ellipsis-' + obj.id + '">[...]</a>').insertBefore(arr);
+        jQuery(arr).html((obj.annotation_word_count > 0) ? ('|<span class="arrbox">*</span>') : '|');
     }
 
 	if(obj.annotation_word_count > 0) {
@@ -101,12 +95,11 @@ jQuery.extend({
 
     jQuery(arr).hoverIntent({
       over: function(e){
-        jQuery('.a' + obj.id).addClass('highlight');
+        jQuery('.a' + obj.id).css('background', '#' + layer_colors['l' + layer_id]);
       },
       timeout: 2000,
       out: function(e){
-	    //TODO: This needs to be updated to account for layer highlighting status 
-        jQuery('.a' + obj.id).removeClass('highlight');
+        jQuery('.a' + obj.id).css('background', '#FFF');
       }
     });
   },
@@ -227,7 +220,7 @@ jQuery.extend({
 
           jQuery('#annotation-tabs-' + annotationId).tabs();
           // Wipe out edit buttons if not owner.
-          if(is_owner) {
+          if(!is_owner) {
             jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
               Close: function(){
                 jQuery(this).dialog('close');
@@ -254,21 +247,19 @@ jQuery.extend({
         jQuery('div.ajax-error').html('').hide();
       },
       success: function(json){
-        var aIndex = 1;
         //stash for later
-        jQuery('body').data('annotation_objects',json);
+        //jQuery('body').data('annotation_objects',json);
         jQuery(json).each(function(){
-          var activeId = false;
+          /* var activeId = false;
           if(window.location.hash){
             activeId = window.location.hash.split('#')[1];
-          }
-          jQuery.annotateRange(this.annotation,activeId,aIndex);
-          if(this.annotation.annotation_word_count > 0){
-            aIndex++;
-          }
+          } */
+          jQuery.annotateRange(this.annotation);
         });
-        //jQuery.observeWords();
-        //jQuery.hideEmptyElements();
+
+		//Later will toggle this if user enters in "edit" mode
+        jQuery.unObserveWords();
+
 		jQuery.hideGlobalSpinnerNode();
       },
       complete: function(){
@@ -410,13 +401,24 @@ jQuery.extend({
     // jQuery('tt:visible') as a query is much less efficient - unfortunately.
 
     if(is_owner) {
+  	  jQuery('tt').unbind('mouseover mouseout click');
       jQuery('tt').bind('mouseover mouseout click', jQuery.wordEvent);
     }
   },
 
   unObserveWords: function() {
-  	//TODO: See if this works
   	jQuery('tt').unbind('mouseover mouseout click');
+	jQuery('#layers li').each(function(i, el) {
+		jQuery('article tt.' + jQuery(el).data('id')).mouseover(function() {
+			var pos = jQuery(this).position();
+			jQuery("#annotation_tip")
+				.css({ left: pos.left - 60 + jQuery(el).width()/2, top: pos.top + 120 })
+				.html(jQuery(el).data('name'))
+				.show();
+		}).mouseout(function() {
+			jQuery('#annotation_tip').hide();
+		});
+	});
   }
 
 });
@@ -477,24 +479,27 @@ jQuery(document).ready(function(){
 
 	jQuery('#full_text').click(function(e) {
       	e.preventDefault();
-		jQuery('article tt,.annotation-content').show();
+		jQuery('article tt').show();
+		jQuery('.ann-ellipsis').hide();
 		jQuery('#layers a strong').html('HIDE');
 		jQuery('#layers .shown').removeClass('shown');
-		//Need to consider greying this out if anything is hidden
 	});
 
 	/* TODO: Possibly add some abstraction here */
 	jQuery('#hide_show_annotations').click(function(e) {
       	e.preventDefault();
 		jQuery.showGlobalSpinnerNode();
+
 		var el = jQuery(this);
 		el.toggleClass('shown');
-        jQuery('.annotation-content').toggle('fast', function() {
-			jQuery.hideGlobalSpinnerNode();
-		});
 		if(el.find('strong').html() == 'SHOW') {
+        	jQuery('.annotation-content').show();
 			el.find('strong').html('HIDE');
+		} else {
+        	jQuery('.annotation-content').hide();
+			el.find('strong').html('SHOW');
 		}
+		jQuery.hideGlobalSpinnerNode();
 	});
 
 	jQuery('#layers .hide_show').click(function(e) {
@@ -502,25 +507,27 @@ jQuery(document).ready(function(){
 		jQuery.showGlobalSpinnerNode();
 
 		var el = jQuery(this);
-		//Toggle here was very slow 
+		var layer_id = el.parent().data('id');
+		//Note: Toggle here was very slow 
 		if(el.find('strong').html() == 'SHOW') {
 			el.find('strong').html('HIDE');
-        	jQuery('article .' + el.parent().attr('id')).show();
+        	jQuery('article .' + layer_id).show();
+			jQuery('.ann-ellipsis-' + layer_id).hide();
 		} else {
 			el.find('strong').html('SHOW');
-        	jQuery('article .' + el.parent().attr('id')).hide(); 
+        	jQuery('article .' + layer_id).hide(); 
+			jQuery('.ann-ellipsis-' + layer_id).show();
 		}
 		jQuery.hideGlobalSpinnerNode();
 	});
 	jQuery('#layers .link-o').click(function(e) {
 		var el = jQuery(this);
-		el.toggleClass('highlighted');
 		if(el.hasClass('highlighted')) {
-        	jQuery('.' + el.parent().attr('id')).addClass('highlight');
-			el.html('UNHIGHLIGHT');
+        	jQuery('.' + el.parent().data('id')).css('background', '#FFF');
+			el.removeClass('highlighted').html('HIGHLIGHT');
 		} else {
-			el.html('HIGHLIGHT');
-        	jQuery('.' + el.parent().attr('id')).removeClass('highlight');
+        	jQuery('.' + el.parent().data('id')).css('background', '#' + el.parent().data('hex'));
+			el.addClass('highlighted').html('UNHIGHLIGHT');
 		}
       	e.preventDefault();
 	});
@@ -528,13 +535,21 @@ jQuery(document).ready(function(){
 	jQuery("#edit-show").click(function(e) {
 		var el = jQuery(this);
 		if(el.hasClass('editing')) {
-			el.removeClass("editing").html("EDIT");	
+			el.html("EDIT");	
        		jQuery.unObserveWords();
+			jQuery('details .edit-action').hide();
 		} else {
-			el.addClass("editing").html("READ");	
+			el.html("READ");	
        		jQuery.observeWords();
+			jQuery('details .edit-action').show();
 		}
+		el.toggleClass('editing');
       	e.preventDefault();
+	});
+
+	jQuery('#layers li').each(function(i, el) {
+		layer_colors[jQuery(el).data('id')] = jQuery(el).data('hex');
+		jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
 	});
   }
 });

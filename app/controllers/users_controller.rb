@@ -42,7 +42,25 @@ class UsersController < ApplicationController
   end
   
   def show
-    @user = @current_user
+    @user = User.find_by_id(params[:id])
+
+	@playlists = @user.playlists
+	@collages = @user.collages
+
+	if current_user
+	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+	  @playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
+      @playlists_i_can_edit = current_user.playlists_i_can_edit
+	
+	  if current_user == @current_user
+	    @my_collages = @collages
+	    @my_playlists = @playlists
+	  end
+	else
+	  @is_collage_admin = false
+	  @my_collages = []
+	  @my_playlists = []
+	end
   end
 
   def edit

@@ -89,7 +89,11 @@ class CollagesController < BaseController
 
     @collages.execute!
 
-    generate_sort_list("/collages?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
+    generate_sort_list("/collages?#{sort_base_url}",
+		{	"display_name" => "DISPLAY NAME",
+			"created_at" => "BY DATE",
+			"author" => "BY AUTHOR"	}
+		)
 
 	@my_collages = current_user ? current_user.collages : [] 
 

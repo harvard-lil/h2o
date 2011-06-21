@@ -13,7 +13,8 @@
         :required => false,
         :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
     %>
-    <hr />
+    <% if @collage.new_record? -%>
+      <hr />
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
       <hr />
       <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
@@ -21,11 +22,12 @@
         :as => :hidden,
         :required => true,
         :label => 'I want to annotate a:'
-    %>
+      %>
       <%= form.input :annotatable_id,
         :as => :hidden,
         :required => true
-    %>
+      %>
+    <% end %>
     <% end %>
     <% unless request.xhr? %>
       <% form.buttons do %>
@@ -35,6 +37,7 @@
   <% end %>
 </div>
 
+<% if @collage.new_record? -%>
 <div style="width: 380px; float: right;">
   <h3>Preview</h3>
   <div id="preview-container">
@@ -42,3 +45,4 @@
   </div>
 </div>
 <div class="clear"></div>
+<% end -%>

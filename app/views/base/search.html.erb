@@ -1,0 +1,39 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
+  :url => "/",
+  :right_search => 'shared/search_all' } %>
+	
+<section id="breadcrumbs">
+	<aside class="filter">
+		<% if params[:keywords] -%>
+		<p>
+		Results for: <%= params[:keywords] %> (<%= pluralize @playlists.total, 'Playlist' %> Total, <%= pluralize @collages.total, 'Collage' %> Total)
+		</p>
+		<% end -%>
+	</aside>
+	<aside class="pagination">
+		<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+	</aside>
+	<div class="cl"></div>
+</section>
+
+<section id="results">
+	<hgroup id="playlists_hgroup">
+		<ul class="tabs">
+			<li><a href="#" class="active" id="all_playlists_link">PLAYLISTS</a></li>
+			<li><a href="#" id="all_collages_link">COLLAGES</a></li>
+		</ul>
+		<%= render :partial => 'shared/sort' %>
+		<div class="cl"></div>
+	</hgroup>
+	<article class="songs">
+	<ul id="all_playlists" class="playlists_section">
+		<%= render :partial => 'playlists/playlists_block' %>
+	</ul>
+	<ul id="all_collages" class="collages_section" style="display:none;">
+		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
+	</ul>
+	</article>
+</section>
+
+<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

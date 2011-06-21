@@ -2,40 +2,56 @@
   :url => "/",
   :right_search => 'shared/search_all' } %>
 
-<p>
-  <b>Login:</b>
-  <%= @user.login %>
-</p>
+<section id="breadcrumbs">
+	<aside class="filter">
+		<% if params[:keywords] -%>
+		<p>
+		User has: <%= params[:keywords] %> (<%= pluralize @playlists, 'Playlist' %> Total, <%= pluralize @collages, 'Collage' %> Total)
+		</p>
+		<% end -%>
+	</aside>
+	<div class="cl"></div>
+</section>
 
-<p>
-  <b>Login count:</b>
-  <%= @user.login_count %>
-</p>
+<section id="results">
+	<hgroup id="playlists_hgroup">
+		<ul class="tabs">
+		    <% if @playlists.any? -%>
+			<li><a href="#" class="active" data-region="all_playlists">PLAYLISTS</a></li>
+			<% end -%>
+		    <% if @collages.any? -%>
+			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
+			<% end -%>
+			<% if current_user == @user -%>
+			<li><a href="#" data-region="user_info">USER INFO</a></li>
+			<% end -%>
+		</ul>
+		<div class="cl"></div>
+	</hgroup>
+	<article class="songs">
+	<% if @playlists.any? -%>
+	<ul id="all_playlists" class="playlists_section">
+		<%= render :partial => 'shared/objects/playlist', :collection => @playlists %>
+	</ul>
+	<% end -%>
+	<% if @collages.any? -%>
+	<ul id="all_collages" class="collages_section" style="display:none;">
+		<%= render :partial => 'shared/objects/collage', :collection => @collages %>
+	</ul>
+	<% end -%>
+	<% if current_user == @user -%>
+	<ul id="user_info" style="display:none;">
+      <li><b>Login:</b><%= @user.login %></li>
+      <li><b>Login count:</b><%= @user.login_count %></li>
+      <li><b>Last request at:</b><%= @user.last_request_at %></li>
+      <li><b>Last login at:</b><%= @user.last_login_at %></li>
+      <li><b>Current login at:</b><%= @user.current_login_at %></li>
+      <li><b>Last login ip:</b><%= @user.last_login_ip %></li>
+      <li><b>Current login ip:</b><%= @user.current_login_ip %></li>
+      <li><%= link_to 'Edit', edit_account_path %></li>
+	</ul>
+	<% end -%>
+	</article>
+</section>
 
-<p>
-  <b>Last request at:</b>
-  <%= @user.last_request_at %>
-</p>
-
-<p>
-  <b>Last login at:</b>
-  <%= @user.last_login_at %>
-</p>
-
-<p>
-  <b>Current login at:</b>
-  <%= @user.current_login_at %>
-</p>
-
-<p>
-  <b>Last login ip:</b>
-  <%= @user.last_login_ip %>
-</p>
-
-<p>
-  <b>Current login ip:</b>
-  <%= @user.current_login_ip %>
-</p>
-
-
-<%= link_to 'Edit', edit_account_path %>
+<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

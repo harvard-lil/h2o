@@ -36,7 +36,7 @@
 		</div>
 		<h5>
 			<%= @playlist.created_at.to_s(:simpledatetime) %>
-			by <a href="#"><%#= @playlist.creators.collect { |u| u.login }.join(', ') %></a>
+			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
 		</h5>
 		<% if false -%>
 		<div class="influence"></div>

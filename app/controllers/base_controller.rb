@@ -37,4 +37,59 @@ class BaseController < ApplicationController
 		:taggings => tcount[0]['tcount'] 
 	}
   end
+
+  def search
+    @playlists = Sunspot.new_search(Playlist)
+	@collages = Sunspot.new_search(Collage)
+
+	if !params.has_key?(:sort)
+	  params[:sort] = "display_name"
+	end
+
+    sort_base_url = ''
+	@playlists.build do
+	  if params.has_key?(:keywords)
+	    keywords params[:keywords]
+		sort_base_url += "&keywords=#{params[:keywords]}"
+	  end
+	  with :public, true
+	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	  order_by params[:sort].to_sym, :asc
+	end
+	@collages.build do
+	  if params.has_key?(:keywords)
+	    keywords params[:keywords]
+		sort_base_url += "&keywords=#{params[:keywords]}"
+	  end
+	  with :public, true
+	  with :active, true
+	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+
+	  # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
+	  data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
+
+	  order_by params[:sort].to_sym, :asc
+	end
+
+    @collages.execute!
+	@playlists.execute!
+
+	if current_user
+	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+	  @my_collages = current_user.collages
+	  @my_playlists = current_user.playlists.select { |p| p.id != current_user.bookmark_id }
+	else
+	  @is_collage_admin = false
+	  @my_collages = []
+	  @my_playlists = []
+	end
+
+    playlist_admin_preload
+
+    generate_sort_list("/search?#{sort_base_url}",
+		{	"display_name" => "DISPLAY NAME",
+			"created_at" => "BY DATE",
+			"author" => "BY AUTHOR"	}
+		)
+  end
 end

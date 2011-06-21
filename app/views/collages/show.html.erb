@@ -6,6 +6,7 @@
 Your annotation will start here. Please click another word to set the end point.
 <a href="#" id="cancel-annotation">cancel</a>
 </div>
+<div id="annotation_tip"></div>
 
 <div id="collage">
 	<hgroup class="description">
@@ -44,7 +45,7 @@ Your annotation will start here. Please click another word to set the end point.
 						<h5>LAYERS</h5>
 						<ul id="layers">
    							<% @collage.layers.each do |layer| %>
-							<li id="l<%= layer.id %>">
+							<li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= cycle('ffcd00', 'ff999a', 'bdec68') %>">
 								<strong><%= layer.name %></strong>
 								<a href="#" class="hide_show shown"><strong>HIDE</strong></a>
 								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>
@@ -72,7 +73,7 @@ Your annotation will start here. Please click another word to set the end point.
 			</ul>
 		</div>
 		<h5>
-			<%= @collage.created_at.to_s(:simpledatetime) %> by <a href="#"><%= @collage.creators.collect { |u| u.login }.join(',') %></a> |
+			<%= @collage.created_at.to_s(:simpledatetime) %> by <a href="#"><%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %></a> |
 			<a href="#"><strong>COLLAGE STATS</strong></a>
 		</h5>
 		<% if @collage.description.length > 100 -%>
@@ -81,10 +82,10 @@ Your annotation will start here. Please click another word to set the end point.
 			</p>
 			<p id="description_more">
 			<%= @collage.description %> <a href="#" class="link-less">LESS</a>
+			</p>
 			<% if current_user && @collage.users.include?(current_user) -%>
 			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 			<% end -%>
-			</p>
 		<% else -%>
 			<p>
 				<%= @collage.description %>

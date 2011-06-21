@@ -52,7 +52,11 @@ class PlaylistsController < BaseController
 
 	@playlists.execute!
 
-    generate_sort_list("/playlists?#{sort_base_url}", {"display_name" => "DISPLAY NAME", "created_at" => "BY DATE"})
+    generate_sort_list("/playlists?#{sort_base_url}",
+		{	"display_name" => "DISPLAY NAME",
+			"created_at" => "BY DATE",
+			"author" => "BY AUTHOR"	}
+		)
 
 	@my_bookmarks = nil
 	if current_user && current_user.bookmark_id
@@ -327,14 +331,14 @@ class PlaylistsController < BaseController
   end
 
   def position_update
-    return_hash = Hash.new
-    
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
 
     playlist_order.each_index do |item_index|
       PlaylistItem.update(playlist_order[item_index], :position => item_index + 1)
     end
+
+    return_hash = @playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h }
 
     respond_to do |format|
       format.js {render :json => return_hash.to_json}

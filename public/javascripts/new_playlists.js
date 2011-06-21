@@ -1,3 +1,5 @@
+var dragged_element;
+
 jQuery.extend({
 	observeDragAndDrop: function() {
 		jQuery('.sortable').sortable({
@@ -13,6 +15,17 @@ jQuery.extend({
                 	beforeSend: function(){
                			jQuery.showGlobalSpinnerNode();
                 	},
+					success: function(data) {
+						jQuery.each(data, function(index, value) {
+							var current_val = jQuery('#playlist_item_' + index + ' .number:first').html();
+							if(current_val != value) {
+								var posn_rep = new RegExp('^' + current_val + '');
+								jQuery('#playlist_item_' + index + ' .number').each(function(i, el) {
+									jQuery(el).html(jQuery(el).html().replace(posn_rep, value));
+								});
+							}
+						});
+					},
 					complete: function() {
                			jQuery.hideGlobalSpinnerNode();
 					}

@@ -14,7 +14,8 @@ jQuery.extend({
 			var position = element.offset();
 			var results_posn = jQuery('.popup').parent().offset();
 			var left = position.left - results_posn.left;
-			var current_id = element.attr('class');
+			var current_id = element.data('item_id');
+			jQuery('.bookmark-this').attr('href', '/bookmark_item/' + element.data('bookmarktype'));
 			var popup = jQuery('.popup');
 			var last_id = popup.data('item_id');
 			if(last_id) {
@@ -265,67 +266,12 @@ jQuery.extend({
 			});
 		});
 	},
-	generateGenericNode: function(title, html) {
-		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
-		jQuery(newItemNode).dialog({
-			title: title,
-			modal: true,
-			width: 'auto',
-			height: 'auto',
-			close: function() {
-				jQuery(newItemNode).remove();
-			},
-			buttons: {
-				Submit: function() {
-					jQuery.submitGenericNode();
-				},
-				Close: function() {
-					jQuery(newItemNode).remove();
-				}
-			}
-		}).dialog('open');
-	},
-	submitGenericNode: function() {
-		jQuery('#generic-node').find('form').ajaxSubmit({
-			dataType: "JSON",
-			beforeSend: function() {
-				jQuery.showGlobalSpinnerNode();
-			},
-			success: function(data) {
-				document.location.href = jQuery.rootPath() + jQuery.classType() + '/' + data.id;
-			},
-			error: function(xhr) {
-				jQuery.hideGlobalSpinnerNode();
-				//message some error
-			}
-		});
-	},
-
-	/* Generic HTML form elements */
-    observeGenericControls: function(region){
-	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
-			var item_id = jQuery.getItemId(this);
-        	var actionUrl = jQuery(this).attr('href');
-			var actionText = jQuery(this).html();
-        	e.preventDefault();
-			jQuery.ajax({
-				cache: false,
-				url: actionUrl,
-				beforeSend: function() {
-                  	jQuery.showGlobalSpinnerNode();
-				},
-				success: function(html) {
-                  	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateBookmarkNode(actionText, html);
-				},
-				error: function(xhr, textStatus, errorThrown) {
-                  	jQuery.hideGlobalSpinnerNode();
-				}
-			});
-		});
-	},
 	generateBookmarkNode: function(title, html) {
-		html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery.classType().replace(/s$/, '') + '</h2>');
+		if(jQuery.classType() == 'base') {
+			html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery('.bookmark-this').attr('href').replace(/\/bookmark_item\/item_/, '') + '</h2>');
+		} else {
+			html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery.classType().replace(/s$/, '') + '</h2>');
+		}
 		var newItemNode = jQuery('<div id="bookmark-node"></div>').html(html);
 		jQuery(newItemNode).dialog({
 			title: title,
@@ -361,6 +307,30 @@ jQuery.extend({
 		});
 	},
 
+
+	/* Generic HTML form elements */
+    observeGenericControls: function(region){
+	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
+			var item_id = jQuery.getItemId(this);
+        	var actionUrl = jQuery(this).attr('href');
+			var actionText = jQuery(this).html();
+        	e.preventDefault();
+			jQuery.ajax({
+				cache: false,
+				url: actionUrl,
+				beforeSend: function() {
+                  	jQuery.showGlobalSpinnerNode();
+				},
+				success: function(html) {
+                  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateGenericNode(actionText, html);
+				},
+				error: function(xhr, textStatus, errorThrown) {
+                  	jQuery.hideGlobalSpinnerNode();
+				}
+			});
+		});
+	},
 	generateGenericNode: function(title, html) {
 		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
 		jQuery(newItemNode).dialog({
@@ -455,8 +425,8 @@ jQuery(function() {
 	jQuery(".tabs a").click(function() {
 		jQuery(".popup").fadeOut().removeData('item_id');
 		jQuery(".tabs a").removeClass("active");
-		jQuery('.' + jQuery('.tabs').parent().attr("id").replace(/_hgroup/, "") + "_section").hide();
-		jQuery("#" + jQuery(this).attr('id').replace(/_link$/, "")).show();
+		jQuery('.songs > ul').hide();
+		jQuery("#" + jQuery(this).data('region')).show();
 		jQuery(this).addClass("active");
 	});
 

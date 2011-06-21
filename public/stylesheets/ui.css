@@ -23,7 +23,7 @@ section,details,aside,hgroup { display:block; }
 .left, .alignleft { float: left; display: inline; }
 .right, .alignright { float: right; display: inline; }
 
-#shell { width:982px; padding:0 2px; background:#fff; margin:0 auto; position:relative; overflow:hidden; display:block; }
+#shell { width:982px; padding:0 2px; background:#fff; margin:0 auto; position:relative; display:block; }
 
 nav { display:block;  font-size:10px; line-height:34px; height:34px; padding:3px 27px 0;  font-weight:bold; text-transform:uppercase; border-bottom:2px solid #fff; }
 nav { background:#324552; background:-moz-linear-gradient(top, #324552, #7d909d);  }
@@ -74,6 +74,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #search .browse-tags-popup ul { list-style:none; text-align:justify; }
 #search .browse-tags-popup ul li { display:inline; font-size:11px; line-height:23px; }
 #search .browse-tags-popup ul li a { display:inline-block; margin:0 1px 1px 0; background:#e0e5ec; padding:0 10px; white-space:nowrap; }
+#search .browse-tags-popup ul li a.even strong { font-weight: normal; }
 
 #breadcrumbs { display:block; padding:14px 12px 7px 32px; }
 #breadcrumbs .filter { float: left; display: inline; }
@@ -200,11 +201,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #activity_bottom { clear: both; margin: 3px 0px 2px 0px; border-top: 1px solid #d9d9d9;
   height: 1px; width: 100%; }
 
-.highlight { background: #E0F5BD; }
-.annotation_start_highlight { background: #E0F5BD; }
-#tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
-  display: none; background: #c4eb80; padding: 10px; width: 200px; }
-#annotation-form { display: none; }
 #description_more { display: none; }
 
 /* Collage index */

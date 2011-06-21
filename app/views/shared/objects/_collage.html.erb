@@ -4,7 +4,7 @@
   		<% form_tag(spawn_copy_collage_path(collage)) do %>
 		<ul>
 			<li class="link-copy"><a href="#">Copy</a></li>
-			<li class="link-add"><a class="<%= collage.id %>" href="#">Add</a></li>
+			<li class="link-add"><a data-item_id="<%= collage.id %>" data-bookmarktype="item_collage" href="#">Add</a></li>
 		</ul>
   		<% end %>      
 	</div>
@@ -25,7 +25,7 @@
 		</h4>
 		<p>
 			<%= collage.created_at.to_s(:simpledatetime) %> by
-			<%= collage.creators.collect { |u| u.login }.join(',') %>
+			<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
 		</p>
 		<p class="extra">
 			On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>

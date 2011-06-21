@@ -27,12 +27,9 @@
 <section id="results">
 	<hgroup id="collage_hgroup">
 		<ul class="tabs">
-			<li><a href="#" class="active" id="all_collages_link">ALL COLLAGES</a></li>
-			<% if false -%>
-			<li><a href="#">POPULAR COLLAGES</a></li>
-			<% end -%>
+			<li><a href="#" class="active" data-region="all_collages">ALL COLLAGES</a></li>
   			<% unless @my_collages.blank? %>
-			<li><a href="#" id="my_collages_link">MY COLLAGES</a></li>
+			<li><a href="#" data-region="my_collages">MY COLLAGES</a></li>
 			<% end -%>
 		</ul>
 		<%= render :partial => 'shared/sort' %>
