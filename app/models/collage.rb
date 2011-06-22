@@ -1,3 +1,4 @@
+require 'tagging_extensions'
 require 'redcloth_extensions'
 require 'playlistable_extensions'
 require 'ancestry_extensions'
@@ -8,9 +9,11 @@ class Collage < ActiveRecord::Base
   extend AncestryExtensions::ClassMethods
   include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
+  include TaggingExtensions::InstanceMethods
   include AuthUtilities
   include MetadataExtensions
 
+  acts_as_taggable_on :tags
   acts_as_authorization_object
 
   def self.annotatable_classes
@@ -43,7 +46,8 @@ class Collage < ActiveRecord::Base
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
-  searchable(:include => [:annotations => {:layers => true}]) do
+  # TODO: Figure out why tags & annotations breaks in searchable
+  searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -52,7 +56,7 @@ class Collage < ActiveRecord::Base
     boolean :active
     boolean :public
 	time :created_at
-	string :tags, :stored => true, :multiple => true
+	string :tag_list, :stored => true, :multiple => true
 	string :author
 
     string :annotatable, :stored => true
@@ -101,9 +105,6 @@ class Collage < ActiveRecord::Base
   def layers
     self.annotations.collect{|a| a.layers}.flatten.uniq
   end
-  def tags  #alias not working as expected
-    self.annotatable.tags
-  end 
 
   def layer_list
     self.layers.map(&:name)

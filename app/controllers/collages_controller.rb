@@ -17,12 +17,11 @@ class CollagesController < BaseController
   end
 
   def list_tags
-    @collage_tags = Tag.find_by_sql("SELECT id, name FROM tags WHERE id IN
-		(SELECT tag_id FROM taggings WHERE
-			(taggable_type = 'Case' AND taggable_id IN (SELECT annotatable_id FROM collages WHERE annotatable_type = 'Case'))
-			OR
-			(taggable_type = 'TextBlock' AND taggable_id IN (SELECT annotatable_id FROM collages WHERE annotatable_type = 'TextBlock')
-		))")
+    @collage_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+		JOIN tags t ON ts.tag_id = t.id
+		WHERE taggable_type = 'Collage'
+		GROUP BY ts.tag_id, t.name
+		ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   def embedded_pager
@@ -77,7 +76,7 @@ class CollagesController < BaseController
 		sort_base_url += "&keywords=#{params[:keywords]}"
       end
 	  if params.has_key?(:tag)
-	    with :tags, params[:tag]
+	    with :tag_list, params[:tag]
 		sort_base_url += "&tag=#{params[:tag]}"
 	  end
       with :public, true
@@ -96,6 +95,7 @@ class CollagesController < BaseController
 		)
 
 	@my_collages = current_user ? current_user.collages : [] 
+    build_bookmarks("ItemCollage")
 
     respond_to do |format|
 	  #The following is called via normal page load

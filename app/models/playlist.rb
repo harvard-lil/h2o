@@ -1,3 +1,4 @@
+require 'tagging_extensions'
 require 'redcloth_extensions'
 require 'ancestry_extensions'
 
@@ -7,6 +8,7 @@ class Playlist < ActiveRecord::Base
 
   include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
+  include TaggingExtensions::InstanceMethods
   include AuthUtilities
 
   named_scope :public, :conditions => {:public => true, :active => true}
@@ -17,14 +19,15 @@ class Playlist < ActiveRecord::Base
   acts_as_list :scope => 'ancestry = #{self.connection.quote(self.ancestry)}'
 
   acts_as_authorization_object
+  acts_as_taggable_on :tags
 
-  searchable do
+  searchable(:include => [:tags]) do
     text :display_name
     string :display_name, :stored => true
     string :id, :stored => true
     text :description
     text :name
-	string :tags, :stored => true, :multiple => true
+	string :tag_list, :stored => true, :multiple => true
 	text :author
 
     boolean :public
@@ -49,15 +52,4 @@ class Playlist < ActiveRecord::Base
   end
 
   alias :to_s :display_name
-
-  def tags
-  	#need to figure out how recursive to get here
-	tags = []
-	playlist_items.each do |item|
-	  next if !['ItemCase', 'ItemCollage', 'ItemTextBlock'].include?(item.resource_item_type)
-	  next if item.resource_item.actual_object.nil?
-	  tags << item.resource_item.actual_object.tags
-	end
-    tags.flatten.uniq
-  end
 end

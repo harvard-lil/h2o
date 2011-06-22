@@ -28,8 +28,10 @@
 	<hgroup id="playlists_hgroup">
 		<ul class="tabs">
 			<li><a href="#" class="active" data-region="all_playlists">ALL PLAYLISTS</a></li>
-			<% if current_user -%>
+    		<% if @my_playlists.any? -%>
 			<li><a href="#" data-region="my_playlists">MY PLAYLISTS</a></li>
+			<% end -%>
+			<% if @my_bookmarks.any? -%>
 			<li><a href="#" data-region="my_bookmarks">MY BOOKMARKS</a></li>
 			<% end -%>
 		</ul>
@@ -46,7 +48,7 @@
 		<%= render :partial => 'shared/objects/playlist', :collection => @my_playlists %>
 	</ul>
 	<% end -%>
-	<% if @my_bookmarks -%>
+	<% if @my_bookmarks.any? -%>
 	<ul id="my_bookmarks" class="playlists_section">
 		<%= render :partial => 'shared/objects/playlist', :collection => @my_bookmarks %>
 	</ul>

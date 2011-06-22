@@ -25,7 +25,6 @@ class User < ActiveRecord::Base
   
   has_and_belongs_to_many :roles
   has_many :rotisserie_assignments
-  # TODO: implement link through to playlist/bookmarks
 
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
@@ -49,11 +48,19 @@ class User < ActiveRecord::Base
   end
 
   def playlists
-    self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}
+    self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
   end
 
   def playlists_i_can_edit
     self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => 'editor'}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}
+  end
+
+  def bookmarks
+    if self.bookmark_id
+	  Playlist.find(self.bookmark_id).playlist_items
+	else
+	  []
+	end
   end
 
   def get_current_assignments(rotisserie_discussion = nil)

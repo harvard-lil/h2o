@@ -19,13 +19,13 @@ jQuery.extend({
 			var popup = jQuery('.popup');
 			var last_id = popup.data('item_id');
 			if(last_id) {
-				popup.removeData('item_id').fadeOut(100, function() {
+				popup.removeData('item_id').removeData('item_type').fadeOut(100, function() {
 					if(current_id != last_id) {
-						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
+						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('item_type', element.data('type'));
 					}
 				});
 			} else {
-				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id);
+				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('item_type', element.data('type'));
 			}
 			return false;
 		});
@@ -245,7 +245,12 @@ jQuery.extend({
 	*/
     observeBookmarkControls: function(region) {
 	  	jQuery(region + ' .bookmark-action').live('click', function(e){
-			var item_id = jQuery(".singleitem").data("itemid");
+			var item_url;
+			if(jQuery('.singleitem').length) {
+				item_url = 'http://' + location.host + '/' + jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
+			} else {
+				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('item_type') + '/' + jQuery('.popup').data('item_id');
+			}
         	var actionUrl = jQuery(this).attr('href');
 			var actionText = jQuery(this).html();
         	e.preventDefault();
@@ -258,7 +263,7 @@ jQuery.extend({
 				},
 				success: function(html) {
                   	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateBookmarkNode(actionText, html);
+					jQuery.generateBookmarkNode(actionText, html, jQuery('.popup').data('item_type').replace(/s$/, ''), item_url);
 				},
 				error: function(xhr, textStatus, errorThrown) {
                   	jQuery.hideGlobalSpinnerNode();
@@ -266,7 +271,7 @@ jQuery.extend({
 			});
 		});
 	},
-	generateBookmarkNode: function(title, html) {
+	generateBookmarkNode: function(title, html, item_type, item_url) {
 		if(jQuery.classType() == 'base') {
 			html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery('.bookmark-this').attr('href').replace(/\/bookmark_item\/item_/, '') + '</h2>');
 		} else {
@@ -278,6 +283,9 @@ jQuery.extend({
 			modal: true,
 			width: 'auto',
 			height: 'auto',
+			open: function(event, ui) {
+				jQuery('#bookmark-node #item_' + item_type + '_url').val(item_url);
+			},
 			close: function() {
 				jQuery(newItemNode).remove();
 			},

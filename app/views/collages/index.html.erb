@@ -28,19 +28,16 @@
 	<hgroup id="collage_hgroup">
 		<ul class="tabs">
 			<li><a href="#" class="active" data-region="all_collages">ALL COLLAGES</a></li>
-  			<% unless @my_collages.blank? %>
+  			<% if @my_collages.any? %>
 			<li><a href="#" data-region="my_collages">MY COLLAGES</a></li>
+			<% end -%>
+  			<% if @my_bookmarks.any? %>
+			<li><a href="#" data-region="my_bookmarks">MY BOOKMARKS</a></li>
 			<% end -%>
 		</ul>
 		<%= render :partial => 'shared/sort' %>
 	</hgroup>
 	<article class="songs">
-  		<% unless @my_collages.blank? %>
-		<ul id="my_collages" class="collage_section">
-   	 		<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
-		</ul>
-  		<% end %>
-
 		<ul id="all_collages" class="collage_section">
   		<% if @collages.hits.length == 0 %>
     	<li>None found.</li>
@@ -48,6 +45,18 @@
 		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
   		<% end %>
 		</ul>
+
+  		<% if @my_collages.any? %>
+		<ul id="my_collages" class="collage_section">
+   	 		<%= render :partial => 'shared/objects/collage', :collection => @my_collages %>
+		</ul>
+  		<% end %>
+
+  		<% if @my_bookmarks.any? %>
+		<ul id="my_bookmarks" class="collage_section">
+   	 		<%= render :partial => 'shared/objects/collage', :collection => @my_bookmarks %>
+		</ul>
+  		<% end %>
 	</article>
 </section>
 

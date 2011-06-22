@@ -77,7 +77,7 @@ class BaseController < ApplicationController
 	if current_user
 	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
 	  @my_collages = current_user.collages
-	  @my_playlists = current_user.playlists.select { |p| p.id != current_user.bookmark_id }
+	  @my_playlists = current_user.playlists
 	else
 	  @is_collage_admin = false
 	  @my_collages = []
@@ -91,5 +91,24 @@ class BaseController < ApplicationController
 			"created_at" => "BY DATE",
 			"author" => "BY AUTHOR"	}
 		)
+  end
+
+  protected
+
+  def build_bookmarks(type)
+	@my_bookmarks = []
+	if current_user && current_user.bookmark_id
+	  # TODO: Update this to be linked through user / foreign key
+	  @my_bookmarks = current_user.bookmarks.inject([]) do |arr, p|
+	    logger.warn "steph: #{p.resource_item_type}"
+		logger.warn "steph: #{p.resource_item.inspect}"
+	    if p.resource_item_type == type && p.resource_item.actual_object
+		  logger.warn "steph: adding item"
+		  arr << p.resource_item.actual_object
+		end
+		arr
+	  end
+	end
+	logger.warn "steph: #{@my_bookmarks.inspect}"
   end
 end

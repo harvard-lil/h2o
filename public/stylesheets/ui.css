@@ -180,7 +180,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   #home_nav #playlist a { color: #ff9504; }
     #home_nav #playlist .icon_nav { background-position: -110px 0px; }
 
-#home_nav p { text-align: left; font-size: 10pt; color: #999999; }
+#home_nav p { text-align: left; font-size: 10px; color: #999999; line-height: 16px; }
 #home_nav .button { font-weight: bold; border:1px solid #f6f6f6;
   border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;
   -ms-border-radius:4px; -o-border-radius:4px; display: inline-block; 

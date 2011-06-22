@@ -24,7 +24,11 @@ class PlaylistsController < BaseController
   end
 
   def list_tags
-    @playlist_tags = Tag.all #really slow: Playlist.all.collect { |p| p.tags }.flatten.uniq
+    @playlist_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+		JOIN tags t ON ts.tag_id = t.id
+		WHERE taggable_type = 'Playlist'
+		GROUP BY ts.tag_id, t.name
+		ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   # GET /playlists
@@ -43,7 +47,8 @@ class PlaylistsController < BaseController
         sort_base_url += "&keywords=#{params[:keywords]}"
 	  end
 	  if params.has_key?(:tag)
-	    with :tags, params[:tag]
+	    with :tag_list, params[:tag]
+		sort_base_url += "&tag=#{params[:tag]}"
 	  end
 	  with :public, true
 	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
@@ -58,18 +63,9 @@ class PlaylistsController < BaseController
 			"author" => "BY AUTHOR"	}
 		)
 
-	@my_bookmarks = nil
-	if current_user && current_user.bookmark_id
-      # TODO: Update this to be linked through user / foreign key
-      @my_bookmarks = Playlist.find(current_user.bookmark_id).playlist_items.inject([]) do |arr, p|
-	    if p.resource_item_type == "ItemPlaylist" && p.resource_item.actual_object
-	      arr << p.resource_item.actual_object
-		end
-		arr
-      end
-	end
+    build_bookmarks("ItemPlaylist")
 
-    @my_playlists = current_user ? current_user.playlists.select { |p| p.id != current_user.bookmark_id } : []
+    @my_playlists = current_user ? current_user.playlists : []
     
     respond_to do |format|
 	  #See notes in collage respond_to regarding this is_pagination option
