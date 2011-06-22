@@ -20,8 +20,10 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
   <body id="b<%= params[:controller] %>">
   	<section id="shell">
 	<%= render :partial => 'shared/header' %>
+	<% if false -%>
     <% if flash[:notice] %>
       <p style="color: red"><%= flash[:notice] %></p>
+    <% end %>
     <% end %>
 	<%= yield %>
 	<%= render :partial => 'shared/footer' %>

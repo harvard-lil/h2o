@@ -41,6 +41,11 @@ Your annotation will start here. Please click another word to set the end point.
 								<a href="#" id="hide_show_annotations"><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
+							<li>
+								<strong>UNLAYERED TEXT</strong>
+								<a href="#" id="hide_show_unlayered"><strong>SHOW</strong></a>
+								<div class="cl">&nbsp;</div>
+							</li>
 						</ul>
 						<h5>LAYERS</h5>
 						<ul id="layers">
@@ -144,10 +149,10 @@ Your annotation will start here. Please click another word to set the end point.
   <% end %>
   </style>
 
-	<% cache("collage-annotatable-content-#{@collage.id}") do %>
 	<article>
 		<%= raw @collage.annotatable_content %>
 	</article>
+	<% cache("collage-annotatable-content-#{@collage.id}") do %>
 	<% end -%>
 </div>
   

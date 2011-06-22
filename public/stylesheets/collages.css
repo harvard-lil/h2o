@@ -37,7 +37,9 @@
 #collage details p .link-less { background: url(/images/ui/pagination-divider.png) right 3px no-repeat; }
 #collage details .edit-action { padding-left: 5px; display: none; }
 
-#collage article { display:block; font-size:11px; line-height:16px; color:#000; padding:13px 9px 0 35px; height:100%; }
+#collage article { display:block; font-size:11px; line-height:16px;
+  color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
+#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
 #collage article p { padding-bottom:16px; }
 #collage article p em { color:#669933; }
@@ -52,9 +54,10 @@
 #collage .toolbar .link-bookmark { background-position: -41px 0px; width: 18px; }
 #collage .toolbar .link-print { background-position: -60px 0px; width: 22px; }
 
-#collage article .annotation-content { color: red; font-size: 14px; line-height: 1.5; display: none; padding-top: 10px; }
-#collage article .arrbox { font-size: 20px; }
+#collage article .annotation-content { color: #6b933d; font-size: 14px; line-height: 1.5; display: none; padding: 0px 0px 0px 3px; }
+#collage article .arrbox { font-size: 13px; color: #6b933d; }
 #collage article .ann-ellipsis { padding: 0px 5px; }
+#collage article .ann-details { display: none; }
 
 .highlight { background: #E0F5BD; }
 .annotation_start_highlight { background: #E0F5BD; }

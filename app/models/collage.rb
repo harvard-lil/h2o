@@ -125,45 +125,44 @@ class Collage < ActiveRecord::Base
   end
 
   def annotatable_content
-    if ! self.layers.blank?
+    if self.layers.any?
       doc = Nokogiri::HTML.parse(self.content)
       annotation_rules = []
       self.annotations.each do|ann|
         annotation_rules << {
           :start => ann.annotation_start_numeral.to_i, 
           :end => ann.annotation_end_numeral.to_i, 
-          :annotation_class => "a a#{ann.id}",
+          :id => ann.id.to_s,
           :layer_list => ann.layers.collect{|l| "l#{l.id}"}
         }
       end
 
+      unlayered_start = 1
+	  unlayered_start_node = true
       doc.xpath('//tt').each do|node|
         node_id_num = node['id'][1,node['id'].length - 1].to_i
-        annotation_rules.each do|r|
+		classes = []
+        annotation_rules.each do |r|
           if node_id_num >= r[:start] and node_id_num <= r[:end]
-            node['class'] = [(node['class'].blank? ? nil : node['class'].split), r[:layer_list], r[:annotation_class]].flatten.compact.uniq.join(' ')
+		    classes = classes.push(r[:id]).push(r[:layer_list]).flatten
           end
         end
+		if classes.length > 0
+		  unlayered_start = node_id_num + 1
+		  unlayered_start_node = true
+		  classes.push('a')
+		  node['class'] = classes.uniq.join(' ')
+		else
+		  node['class'] = "unlayered unlayered_#{unlayered_start}"
+		  if unlayered_start_node
+		    node['class'] = "#{node['class']} unlayered_start"
+		    unlayered_start_node = false
+		  end
+		end
       end
       doc.xpath("//html/body/*").to_s
     else
       #No annotations / layers.
-      self.content
-    end
-  end
-
-  def annotatable_content_old
-    if ! self.layers.blank?
-      doc = Nokogiri::HTML.parse(self.content)
-      self.annotations.each do |ann|
-        layer_list = ann.layers.collect{|l| "l#{l.id}"}
-        layer_list << "a#{ann.id}"
-        ann.annotated_nodes(doc).each do |item|
-          item['class'] = [(item['class'].blank? ? nil : item['class'].split), layer_list].flatten.compact.uniq.join(' ')
-        end
-      end
-      doc.xpath("//html/body/*").to_s
-    else
       self.content
     end
   end
