@@ -1,6 +1,9 @@
 <section id="search" class="search_all">
 <% form_tag(url_for, :method => :get, :class => "search") do -%>
 	<ul>
+	<li id="spinner">
+		<img src="/images/ui/ajax-loader.gif" alt="" />
+	</li>
 	<li class="field">
 		<%= text_field_tag "keywords", params[:keywords], :size => 50 %>
 	</li>

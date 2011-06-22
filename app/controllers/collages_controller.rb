@@ -103,7 +103,7 @@ class CollagesController < BaseController
 	  # here, I've added the param :is_pagination.
       format.html do
 	    if params.has_key?(:is_pagination)
-		  render :partial => 'collage_list'
+		  render :partial => 'collages_block'
 		else
 		  render 'index'
 		end

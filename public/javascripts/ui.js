@@ -32,13 +32,18 @@ jQuery.extend({
 	},
     observePagination: function(){
 		jQuery('.pagination a').click(function(e){
-      
+    		var element = jQuery(this); 
+	 		var data = { 'is_pagination' : 1 };
+			if(jQuery('#bbase').length) {
+				data.is_pagination = element.closest('div').data('type');
+			}
+
 	  		e.preventDefault();
       		jQuery.ajax({
         		type: 'GET',
         		dataType: 'html',
-                data: { 'is_pagination' : 1 },
-        		url: jQuery(this).attr('href'),
+                data: data,
+        		url: element.attr('href'),
                 beforeSend: function(){
                		jQuery.showGlobalSpinnerNode();
                	},
@@ -47,9 +52,15 @@ jQuery.extend({
 				},
         		success: function(html){
                		jQuery.hideGlobalSpinnerNode();
-					var region = '#all_' + jQuery.classType();
-					jQuery(region).html(html);
-					jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
+					if(jQuery('#bbase').length) {
+						var region = '#all_' + element.closest('div').data('type');
+						jQuery(region).html(html);
+						jQuery(region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
+					} else {
+						var region = '#all_' + jQuery.classType();
+						jQuery(region).html(html);
+						jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
+					}
           			jQuery.observePagination(); 
 					//Here we need to re-observe tab popup
 					jQuery.observeTabDisplay(region);
@@ -430,11 +441,12 @@ jQuery(function() {
 	});
 	jQuery("#search_all_radio").click();
 
-	jQuery(".tabs a").click(function() {
-		jQuery(".popup").fadeOut().removeData('item_id');
-		jQuery(".tabs a").removeClass("active");
+	jQuery('.tabs a').click(function() {
+		jQuery('.popup').fadeOut().removeData('item_id');
+		jQuery('.tabs a').removeClass("active");
 		jQuery('.songs > ul').hide();
-		jQuery("#" + jQuery(this).data('region')).show();
+		jQuery('.pagination div').hide();
+		jQuery('#' + jQuery(this).data('region') + ',#' + jQuery(this).data('region') + '_pagination').show();
 		jQuery(this).addClass("active");
 	});
 

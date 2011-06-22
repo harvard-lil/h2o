@@ -10,6 +10,14 @@
 		</p>
 		<% end -%>
 	</aside>
+	<aside class="pagination">
+		<div id="all_playlists_pagination">
+		<%#= will_paginate @playlists, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div id="all_collages_pagination" style="display:none;">
+		<%#= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+	</aside>
 	<div class="cl"></div>
 </section>
 

@@ -39,40 +39,46 @@ class BaseController < ApplicationController
   end
 
   def search
-    @playlists = Sunspot.new_search(Playlist)
-	@collages = Sunspot.new_search(Collage)
-
 	if !params.has_key?(:sort)
 	  params[:sort] = "display_name"
 	end
 
     sort_base_url = ''
-	@playlists.build do
-	  if params.has_key?(:keywords)
-	    keywords params[:keywords]
-		sort_base_url += "&keywords=#{params[:keywords]}"
-	  end
-	  with :public, true
-	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-	  order_by params[:sort].to_sym, :asc
-	end
-	@collages.build do
-	  if params.has_key?(:keywords)
-	    keywords params[:keywords]
-		sort_base_url += "&keywords=#{params[:keywords]}"
-	  end
-	  with :public, true
-	  with :active, true
-	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-
-	  # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
-	  data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
-
-	  order_by params[:sort].to_sym, :asc
+	if params.has_key?(:keywords)
+      sort_base_url += "&keywords=#{params[:keywords]}"
 	end
 
-    @collages.execute!
-	@playlists.execute!
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'playlists'
+      @playlists = Sunspot.new_search(Playlist)
+	  @playlists.build do
+	    if params.has_key?(:keywords)
+          keywords params[:keywords]
+        end
+	    with :public, true
+	    paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	    order_by params[:sort].to_sym, :asc
+	  end
+	  @playlists.execute!
+	end
+
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'collages'
+	  @collages = Sunspot.new_search(Collage)
+	  @collages.build do
+	    if params.has_key?(:keywords)
+	      keywords params[:keywords]
+	    end
+	    with :public, true
+	    with :active, true
+	    paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+
+	    # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
+	    data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
+
+	    order_by params[:sort].to_sym, :asc
+	  end
+      @collages.execute!
+	end
+
 
 	if current_user
 	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
@@ -91,6 +97,15 @@ class BaseController < ApplicationController
 			"created_at" => "BY DATE",
 			"author" => "BY AUTHOR"	}
 		)
+	respond_to do |format|
+	  format.html do
+	    if params.has_key?(:is_pagination)
+		  render :partial => "#{params[:is_pagination]}/#{params[:is_pagination]}_block"
+		else
+		  render 'search'
+		end
+	  end
+	end
   end
 
   protected

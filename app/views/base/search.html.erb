@@ -11,8 +11,12 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
+		<div id="all_playlists_pagination" data-type="playlists">
 		<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div id="all_collages_pagination" style="display:none;" data-type="collages">
 		<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
 	</aside>
 	<div class="cl"></div>
 </section>
@@ -20,8 +24,8 @@
 <section id="results">
 	<hgroup id="playlists_hgroup">
 		<ul class="tabs">
-			<li><a href="#" class="active" id="all_playlists_link">PLAYLISTS</a></li>
-			<li><a href="#" id="all_collages_link">COLLAGES</a></li>
+			<li><a href="#" class="active" data-region="all_playlists">PLAYLISTS</a></li>
+			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
 		</ul>
 		<%= render :partial => 'shared/sort' %>
 		<div class="cl"></div>

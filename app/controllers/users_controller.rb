@@ -61,6 +61,8 @@ class UsersController < ApplicationController
 	  @my_collages = []
 	  @my_playlists = []
 	end
+
+	#need to add pagination here
   end
 
   def edit
