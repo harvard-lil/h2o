@@ -57,7 +57,7 @@ class Collage < ActiveRecord::Base
     boolean :public
 	time :created_at
 	string :tag_list, :stored => true, :multiple => true
-	string :author
+	string :author, :stored => true
 
     string :annotatable, :stored => true
     string :annotations, :multiple => true
@@ -65,7 +65,7 @@ class Collage < ActiveRecord::Base
   end
 
   def author
-    self.accepted_roles.find_by_name('owner').user
+    self.accepted_roles.find_by_name('owner').user.login
   end
 
   def fork_it(new_user)

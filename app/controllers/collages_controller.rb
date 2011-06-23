@@ -108,10 +108,6 @@ class CollagesController < BaseController
 		  render 'index'
 		end
 	  end
-	  # Returning HTML with a jQuery.ajax call of dataType 
-	  # 'script' is invalid and jQuery is dying. This has
-	  # been moved to HTML call.
-      #format.js { render :partial => 'collage_list' }
       format.xml  { render :xml => @collages }
     end
   end

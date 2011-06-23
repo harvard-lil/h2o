@@ -4,11 +4,20 @@
 	
 <section id="breadcrumbs">
 	<aside class="filter">
-		<% if params[:keywords] -%>
 		<p>
-		Results for: <%= params[:keywords] %> (<%= pluralize @playlists.total, 'Playlist' %> Total, <%= pluralize @collages.total, 'Collage' %> Total)
-		</p>
+		<% if params[:keywords] -%>
+		Results for:
+		<%= params[:keywords] %> (<%= pluralize @playlists.total, 'Playlist' %>,
+		<%= pluralize @collages.total, 'Collage' %>,
+		<%= pluralize @cases.total, 'Case' %>)
+		<%= link_to "CLEAR SEARCH", search_all_path %>
+		<% else -%>
+		All materials:
+		(<%= pluralize @playlists.total, 'Playlist' %>,
+		<%= pluralize @collages.total, 'Collage' %>,
+		<%= pluralize @cases.total, 'Case' %>)
 		<% end -%>
+		</p>
 	</aside>
 	<aside class="pagination">
 		<div id="all_playlists_pagination" data-type="playlists">
@@ -16,6 +25,9 @@
 		</div>
 		<div id="all_collages_pagination" style="display:none;" data-type="collages">
 		<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div id="all_cases_pagination" style="display:none;" data-type="cases">
+		<%= will_paginate @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
 	<div class="cl"></div>
@@ -26,16 +38,20 @@
 		<ul class="tabs">
 			<li><a href="#" class="active" data-region="all_playlists">PLAYLISTS</a></li>
 			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
+			<li><a href="#" data-region="all_cases">CASES</a></li>
 		</ul>
 		<%= render :partial => 'shared/sort' %>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
 	<ul id="all_playlists" class="playlists_section">
-		<%= render :partial => 'playlists/playlists_block' %>
+		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
 	</ul>
 	<ul id="all_collages" class="collages_section" style="display:none;">
 		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
+	</ul>
+	<ul id="all_cases" class="cases_section" style="display:none;">
+		<%= render :partial => 'shared/objects/case_obj', :collection => @cases.results %>
 	</ul>
 	</article>
 </section>

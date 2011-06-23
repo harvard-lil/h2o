@@ -36,6 +36,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :case_citations
 
   map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get}
+  map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
   map.resources :collages, :collection => {:embedded_pager => :get}, :member => {:spawn_copy => :post}
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
@@ -108,8 +109,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
   map.bookmark_item "/bookmark_item/:type", :controller => :users, :action => :bookmark_item
 
-  map.search_all "/search", :controller => :base, :action => :search
-  # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
+  map.search_all "/all_materials", :controller => :base, :action => :search
   map.root :controller => "base"
 
   # See how all your routes lay out with "rake routes"

@@ -5,6 +5,7 @@ class CasesController < BaseController
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
+  before_filter :list_tags, :only => [:index, :show, :edit]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
@@ -13,6 +14,14 @@ class CasesController < BaseController
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
     allow :case_admin, :admin, :superadmin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
+  end
+
+  def list_tags
+    @case_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+		JOIN tags t ON ts.tag_id = t.id
+		WHERE taggable_type = 'Case'
+		GROUP BY ts.tag_id, t.name
+		ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   def autocomplete_tags
@@ -32,43 +41,57 @@ class CasesController < BaseController
   def index
     @cases = Sunspot.new_search(Case)
 
+	if !params.has_key?(:sort)
+	  params[:sort] = "display_name"
+	end
+
+    sort_base_url = ''
     @cases.build do
       unless params[:keywords].blank?
         keywords params[:keywords]
+        sort_base_url += "&keywords=#{params[:keywords]}"
       end
       with :public, true
       with :active, true
+
+	  if params[:tags]
+	    # figure this out (sort_base_url)
+        #sort_base_url += "&tags=#{params[:tags]}"
+		if params[:any]
+          any_of do
+            params[:tags].each { |t| with :tag_list, t }
+          end
+		else
+          params[:tags].each { |t| with :tag_list, t }
+		end
+	  end
+	  if params[:tag]
+        sort_base_url += "&tags=#{params[:tags]}"
+		with :tag_list, params[:tag]
+	  end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
       data_accessor_for(Case).include = {:tags => [], :collages => {:accepted_roles => []}, :case_citations => [], :accepted_roles => {}}
-      order_by :display_name, :asc
-    end
-
-    if params[:tags]
-
-      if params[:any] 
-        @cases.build do
-          any_of do
-            params[:tags].each do|t|
-              with :tag_list, t
-            end
-          end
-        end
-
-      else
-        @cases.build do
-          params[:tags].each do|t|
-            with :tag_list, t
-          end
-        end
-      end
-
+      order_by params[:sort].to_sym, :asc
     end
 
     @cases.execute!
+	@my_cases = current_user ? current_user.cases : []
+
+    generate_sort_list("/cases?#{sort_base_url}",
+		{	"display_name" => "DISPLAY NAME",
+			"created_at" => "BY DATE",
+			"decision_date" => "BY DECISION DATE" }
+		)
+    build_bookmarks("ItemCase")
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.js { render :partial => 'case_list' }
+      format.html do
+	    if params.has_key?(:is_pagination)
+		  render :partial => 'cases_block'
+		else
+		  render 'index'
+		end
+	  end
       format.xml  { render :xml => @cases }
     end
   end
@@ -157,8 +180,8 @@ class CasesController < BaseController
   private 
 
   def prep_resources
-    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.js','markitup/sets/html/set.js','cases']
-    add_stylesheets ['tablesorter-h2o-theme/style','/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/html/style.css','cases']
+    #add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.js','markitup/sets/html/set.js','cases']
+    #add_stylesheets ['tablesorter-h2o-theme/style','/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/html/style.css']
   end
 
   def load_case

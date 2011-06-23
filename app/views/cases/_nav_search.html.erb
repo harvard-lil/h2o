@@ -1,0 +1,36 @@
+<section id="search"> 
+	<% form_tag("/cases", :method => :get, :class => "search") do %>
+	<ul>
+		<li id="spinner">
+			<img src="/images/ui/ajax-loader.gif" alt="" />
+		</li>
+		<% if current_user && false -%>
+		<li class="btn">
+			<a href="<%= new_case_path %>" class="btn-a new-action">
+				<span>CREATE CASE</span>
+			</a>
+		</li>
+		<% end -%>
+		<li class="btn">
+			<a href="#" class="btn-a btn-tags">
+				<span>BROWSE TAGS</span>
+			</a>
+			<div class="browse-tags-popup">
+				<ul>
+					<% @case_tags.each do |tag| %>
+					<li><a href="<%#= case_tag_path(tag.name) %>" class="<%= cycle("even", "odd") %>"><strong><%= tag.name %></strong></a></li>
+					<% end -%>
+				</ul>
+				<div class="cl">&nbsp;</div>
+			</div>
+		</li>
+		<li class="field">
+			<%= text_field_tag('keywords', params[:keywords], :size => 50) %>
+		</li>
+		<li class="submit">
+			<input type="submit" class="submit" value="SEARCH" name="submit" />
+		</li>
+	</ul>
+	<% end %>
+</section>
+<div class="cl"></div>

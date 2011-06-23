@@ -28,7 +28,7 @@ class Playlist < ActiveRecord::Base
     text :description
     text :name
 	string :tag_list, :stored => true, :multiple => true
-	text :author
+	string :author, :stored => true
 
     boolean :public
 	time :created_at
@@ -42,8 +42,7 @@ class Playlist < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
 
   def author
-    owner = self.accepted_roles.find_by_name('owner')
-	owner.nil? ? nil : owner.user
+    self.accepted_roles.find_by_name('owner').user.login
   end
 
   def display_name

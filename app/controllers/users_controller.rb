@@ -46,8 +46,10 @@ class UsersController < ApplicationController
 
 	@playlists = @user.playlists
 	@collages = @user.collages
+	@cases = @user.cases
 
 	if current_user
+      @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
 	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
 	  @playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
       @playlists_i_can_edit = current_user.playlists_i_can_edit
@@ -55,11 +57,13 @@ class UsersController < ApplicationController
 	  if current_user == @current_user
 	    @my_collages = @collages
 	    @my_playlists = @playlists
+		@my_cases = @cases
 	  end
 	else
 	  @is_collage_admin = false
 	  @my_collages = []
 	  @my_playlists = []
+	  @my_cases = []
 	end
 
 	#need to add pagination here

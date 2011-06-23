@@ -4,11 +4,13 @@
 
 <section id="breadcrumbs">
 	<aside class="filter">
-		<% if params[:keywords] -%>
 		<p>
-		User has: <%= params[:keywords] %> (<%= pluralize @playlists, 'Playlist' %> Total, <%= pluralize @collages, 'Collage' %> Total)
+		User has:
+		(<%= pluralize @playlists.size, 'Playlist' %>,
+		<%= pluralize @collages.size, 'Collage' %>,
+		<%= pluralize @cases.size, 'Case' %>)
+		<%= link_to "CLEAR SEARCH", search_all_path %>
 		</p>
-		<% end -%>
 	</aside>
 	<aside class="pagination">
 		<div id="all_playlists_pagination">
@@ -16,6 +18,9 @@
 		</div>
 		<div id="all_collages_pagination" style="display:none;">
 		<%#= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div id="all_cases_pagination" style="display:none;">
+		<%#= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
 	<div class="cl"></div>
@@ -29,6 +34,9 @@
 			<% end -%>
 		    <% if @collages.any? -%>
 			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
+			<% end -%>
+		    <% if @cases.any? -%>
+			<li><a href="#" data-region="all_cases">CASES</a></li>
 			<% end -%>
 			<% if current_user == @user -%>
 			<li><a href="#" data-region="user_info">USER INFO</a></li>
@@ -45,6 +53,11 @@
 	<% if @collages.any? -%>
 	<ul id="all_collages" class="collages_section" style="display:none;">
 		<%= render :partial => 'shared/objects/collage', :collection => @collages %>
+	</ul>
+	<% end -%>
+	<% if @cases.any? -%>
+	<ul id="all_cases" class="cases_section" style="display:none;">
+		<%= render :partial => 'shared/objects/case_obj', :collection => @cases %>
 	</ul>
 	<% end -%>
 	<% if current_user == @user -%>

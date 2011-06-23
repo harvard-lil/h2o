@@ -1,26 +1,35 @@
-        <tr>
-          <td><%= link_to(case_obj.display_name, case_obj) %><br/>
-            <%= case_obj.case_citations.collect{|cite| cite.display_name}.join(',') %></td>
-          <td><%= case_obj.decision_date %></td>
-          <td class="layers"><%= raw case_obj.tags.collect{|t| "<span class=\"c#{t.id % 10}\">#{h(t.name)}</span>"}.join(', ') %></td>
-          <td>
-            <% if ! case_obj.collages.blank? %>
-              <ul>
-                <% case_obj.collages.each do |collage| %>
-                  <li><%= link_to(collage.display_name, collage) %></li>
-                <% end %>
-              </ul>
-            <% end %>
-          </td>
-          <% if current_user %>
-            <td>
-              <%= link_to('collage this', new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => 'button') %>
-              <% if @is_case_admin || @my_cases.include?(case_obj) %>
-                <%= link_to('edit', edit_case_path(case_obj), :class => 'button' ) %>
-                <% if case_obj.deleteable? %>
-                  <%= link_to('delete', case_path(case_obj), :method => :delete, :class => 'button', :confirm => 'Are you sure?' ) %>
-                <% end %>
-              <% end %>
-            </td>
-          <% end %>
-        </tr>
+<li class="listitem listitem<%= case_obj.id %>" data-itemid="<%= case_obj.id %>">
+	<% if current_user -%>
+	<div class="controls">
+		<ul>
+			<li class="link-play"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action" %></li>
+			<li class="link-add"><a data-item_id="<%= case_obj.id %>" data-bookmarktype="item_case_obj" data-type="case_objs" href="#">Add</a></li>
+		</ul>
+	</div>
+	<% end -%>
+	<details>
+		<div class="tags">
+			<ul>
+				<% case_obj.tags.each do |tag| %>
+				<li><%= link_to tag.name, case_tag_path(tag.name) %></li>
+				<% end -%>
+			</ul>
+		</div>
+		<h4>
+			<%= link_to case_obj.short_name, case_obj %>
+			<% if current_user -%>
+            <% if @is_case_admin || @my_cases.include?(case_obj) %>
+            <%= link_to "DELETE", case_path(case_obj), :class => "action delete-action" %>
+			<% end -%>
+            <% if @is_case_admin || @my_cases.include?(case_obj) %>
+            <%= link_to "EDIT", edit_case_path(case_obj), :class => "action edit-case_obj edit-action" %>
+          	<% end %>
+          	<% end %>
+		</h4>
+		<p>
+			<%= case_obj.created_at.to_s(:simpledatetime) %>
+		</p>
+		<div class="influence"></div>
+	</details>
+	<div class="cl"></div>
+</li>

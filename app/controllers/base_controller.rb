@@ -79,20 +79,38 @@ class BaseController < ApplicationController
       @collages.execute!
 	end
 
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'cases'
+	  @cases = Sunspot.new_search(Case)
+	  @cases.build do
+	    if params.has_key?(:keywords)
+	      keywords params[:keywords]
+	    end
+	    with :public, true
+	    with :active, true
+	    paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+
+	    # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
+	    #data_accessor_for(Case).include = {:tags => [], :collages => ...
+
+	    order_by params[:sort].to_sym, :asc
+	  end
+      @cases.execute!
+	end
 
 	if current_user
+      @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
 	  @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
 	  @my_collages = current_user.collages
 	  @my_playlists = current_user.playlists
+	  @my_cases = current_user.cases
 	else
-	  @is_collage_admin = false
-	  @my_collages = []
-	  @my_playlists = []
+	  @is_collage_admin = @is_case_admin = false
+	  @my_collages = @my_playlists = @my_cases = []
 	end
 
     playlist_admin_preload
 
-    generate_sort_list("/search?#{sort_base_url}",
+    generate_sort_list("/all_materials?#{sort_base_url}",
 		{	"display_name" => "DISPLAY NAME",
 			"created_at" => "BY DATE",
 			"author" => "BY AUTHOR"	}
