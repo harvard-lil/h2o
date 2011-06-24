@@ -79,7 +79,7 @@ class CasesController < BaseController
 
     generate_sort_list("/cases?#{sort_base_url}",
 		{	"display_name" => "DISPLAY NAME",
-			"created_at" => "BY DATE" }
+			"decision_date" => "DECISION DATE" }
 		)
     build_bookmarks("ItemCase")
 

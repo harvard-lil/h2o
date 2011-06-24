@@ -59,10 +59,6 @@
 #playlist .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
 #playlist .playlist .data .icon-type { float:left; display:inline;
   margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
-#playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
-#playlist .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
-#playlist .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
-#playlist .playlist .data .icon-type-itemcase { background-position: -100px 0px; }
 #playlist .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #playlist .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }

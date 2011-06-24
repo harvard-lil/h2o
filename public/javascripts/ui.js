@@ -7,6 +7,18 @@ jQuery.extend({
 	rootPath: function(){
 	  return '/';
 	},
+	observeCasesCollage: function() {
+		jQuery('.case_collages').click(function(e) {
+			e.preventDefault();
+			jQuery('#collages' + jQuery(this).data('id')).toggle();
+			jQuery(this).toggleClass('active');
+		});
+		jQuery('.hide_collages').click(function(e) {
+			e.preventDefault();
+			jQuery('#collages' + jQuery(this).data('id')).toggle();
+			jQuery(this).parent().siblings('.cases_details').find('.case_collages').removeClass('active');
+		});
+	},
 	addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
 		jQuery.ajax({
 			method: 'GET',
@@ -72,13 +84,13 @@ jQuery.extend({
 			var popup = jQuery('.popup');
 			var last_id = popup.data('item_id');
 			if(last_id) {
-				popup.removeData('item_id').removeData('item_type').fadeOut(100, function() {
+				popup.removeData('item_id').removeData('type').fadeOut(100, function() {
 					if(current_id != last_id) {
-						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('item_type', element.data('type'));
+						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('type', element.data('type'));
 					}
 				});
 			} else {
-				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('item_type', element.data('type'));
+				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('type', element.data('type'));
 			}
 			return false;
 		});
@@ -121,9 +133,10 @@ jQuery.extend({
 						jQuery(region).html(html);
 						jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
 					}
+					//Here we need to re-observe onclicks
 		  			jQuery.observePagination(); 
-					//Here we need to re-observe tab popup
 					jQuery.observeTabDisplay(region);
+					jQuery.observeCasesCollage();
 				}
 	  		});
 		});
@@ -321,8 +334,9 @@ jQuery.extend({
 			if(jQuery('.singleitem').length) {
 				item_url = 'http://' + location.host + '/' + jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
 			} else {
-				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('item_type') + '/' + jQuery('.popup').data('item_id');
+				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('type') + 's/' + jQuery('.popup').data('item_id');
 			}
+			alert(item_url);
 			var actionUrl = jQuery(this).attr('href');
 			e.preventDefault();
 			jQuery.ajax({
@@ -347,7 +361,7 @@ jQuery.extend({
 		var item_type;
 		if(jQuery('.add-popup').length) {
 			title = 'Bookmark this ' + jQuery('.add-popup').data('type');
-			item_type = jQuery('.add-popup').data('type').replace(/s$/, '');
+			item_type = jQuery('.add-popup').data('type');
 		} else {
 			title = 'Bookmark this ' + jQuery.classType().replace(/s$/, '');
 			item_type = jQuery.classType().replace(/s$/, '');
@@ -583,4 +597,5 @@ jQuery(function() {
 	jQuery.observeNewPlaylistAndItemControls();
 	jQuery.observePagination(); 
 	jQuery.observeTabDisplay('');
+	jQuery.observeCasesCollage();
 });

@@ -1,0 +1,12 @@
+<li>
+	<%= link_to collage.name, collage %><br />
+	Collaged <%= collage.created_at.to_s(:simpledatetime) %> by
+	<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+	<% if collage.children.any? -%>
+	<ul>
+		<% collage.children.each do |child| -%>
+		<%= render :partial => 'cases/ancestry', :locals => { :collage => child } %>
+		<% end -%>
+	</ul>
+	<% end -%>
+</li>

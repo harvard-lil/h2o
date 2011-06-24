@@ -20,7 +20,7 @@
 		</div>
 		<hgroup>
 			<h3>
-				<% if item.resource_item.actual_object -%>
+				<% if !item.resource_item.actual_object.nil? -%>
 				<%= link_to item.resource_item.name, item.resource_item.actual_object %>
 				<% else -%>
 				<%= link_to item.resource_item.name, item.resource_item.url %>

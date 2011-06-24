@@ -26,16 +26,23 @@
           	<% end %>
           	<% end %>
 		</h4>
-		<p>
-			<%= case_obj.created_at.to_s(:simpledatetime) %>
+		<p class="cases_details">
+			<% if !case_obj.decision_date.nil? -%>
+			<%= case_obj.decision_date %>
+			<% if case_obj.collages.any? -%> / <% end -%>
+			<% end -%>
+
+			<% if case_obj.collages.any? -%>
+			<a href="#" class="case_collages" data-id="<%= case_obj.id %>"><%= pluralize case_obj.collages.size, 'Collage' %> &raquo;</a>
+			<% end -%>
 		</p>
 		<% if case_obj.collages.any? -%>
-		<br />
-		<p>
-		<% case_obj.collages.each do |collage| -%>
-		<%= link_to collage.display_name, collage %><br />
-		<% end -%>
-		</p>
+		<div id="collages<%= case_obj.id %>" class="collages">
+			<ul id="collages<%= case_obj.id %>">
+				<%= render :partial => 'cases/ancestry', :locals => { :collage => case_obj.top_ancestor } -%>
+			</ul>
+			<a href="#" class="hide_collages" data-id="<%= case_obj.id %>">HIDE &raquo;</a>
+		</div>
 		<% end -%>
 		<div class="influence"></div>
 	</details>

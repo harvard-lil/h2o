@@ -213,7 +213,17 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #bcollages #results .sort label { color: #930102; }
 #bcases #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
-#bcollages #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
+#bcases #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
+#bcases #results .cases_details { font-size: 10px; }
+#bcases #results .case_collages { color: #669500; text-transform: uppercase; }
+#bcases #results .cases_details .active { color: #999; }
+#bcases #results .collages { display: none; padding-top: 5px; clear: both; }
+#bcases #results .collages ul { list-style: disc outside url(/images/ui/grey-list-style.jpg); margin-left: 10px; }
+#bcases #results .collages ul li ul { margin-left: 45px; list-style: disc outside url(/images/ui/grey-list-style.jpg); }
+#bcases #results .collages li { margin-top: 5px; color: #999; }
+#bcases #results .collages a { color: #669500; font-weight: bold; }
+#bcases #results .collages .hide_collages { color: #369; font-size: 10px; font-weight: normal; margin-top: 10px; display: inline-block; }
+
 
 /* Collage index */
 #results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); }
@@ -271,10 +281,14 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #my_bookmarks .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
 #my_bookmarks .playlist .data .icon-type { float:left; display:inline;
   margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
-#my_bookmarks .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemcase { background-position: -100px 0px; }
+#my_bookmarks .playlist .data .icon-type-itemcollage,
+#playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
+#my_bookmarks .playlist .data .icon-type-itemquestion,
+#playlist .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
+#my_bookmarks .playlist .data .icon-type-itemplaylist,
+#playlist .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
+#my_bookmarks .playlist .data .icon-type-itemcase,
+#playlist .playlist .data .icon-type-itemcase { background-position: -54px 0px; }
 #my_bookmarks .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #my_bookmarks .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }

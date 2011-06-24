@@ -101,6 +101,7 @@ padding-right: 10px; }
 #collage #collage-stats-popup h5 { font-size: 9px; text-transform: uppercase; 
 font-weight: bold; margin-bottom: 0px; }
 #collage #collage-stats-popup #original_name { font-size: 15px; }
+#collage #collage-stats-popup ul { list-style: disc outside url(/images/ui/grey-list-style.jpg); }
 #collage #collage-stats-popup .lineage { margin: 0px 0px 0px 27px; padding: 0px; font-size: 10px; }
 #collage #collage-stats-popup .lineage li { margin-top: 10px; }
 #collage #collage-stats-popup .lineage .current a { color: #679d2e; }
