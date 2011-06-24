@@ -19,7 +19,9 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
+		<div id="all_cases_pagination">
 		<%= will_paginate @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
 	</aside>
 	<div class="cl"></div>
 </section>

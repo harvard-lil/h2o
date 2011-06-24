@@ -2,8 +2,8 @@
 	<% if current_user -%>
 	<div class="controls">
 		<ul>
-			<li class="link-play"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action" %></li>
-			<li class="link-add"><a data-item_id="<%= case_obj.id %>" data-bookmarktype="item_case_obj" data-type="case_objs" href="#">Add</a></li>
+			<li class="link-collage"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action" %></li>
+			<li class="link-add"><a data-item_id="<%= case_obj.id %>" data-bookmarktype="item_case" data-type="case" href="#">Add</a></li>
 		</ul>
 	</div>
 	<% end -%>
@@ -29,6 +29,14 @@
 		<p>
 			<%= case_obj.created_at.to_s(:simpledatetime) %>
 		</p>
+		<% if case_obj.collages.any? -%>
+		<br />
+		<p>
+		<% case_obj.collages.each do |collage| -%>
+		<%= link_to collage.display_name, collage %><br />
+		<% end -%>
+		</p>
+		<% end -%>
 		<div class="influence"></div>
 	</details>
 	<div class="cl"></div>

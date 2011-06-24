@@ -73,27 +73,30 @@ Your annotation will start here. Please click another word to set the end point.
 		<div class="tags">
 			<ul>
    				<% @collage.tags.each do |tag| %>
-				<li><%= link_to tag.name, collage_tag_path(tag.name) %></li>
+				<li><%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %></li>
    				<% end %><br />
 			</ul>
 		</div>
 		<h5>
-			<%= @collage.created_at.to_s(:simpledatetime) %> by <a href="#"><%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %></a> |
-			<a href="#"><strong>COLLAGE STATS</strong></a>
+			<%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+			<a href="#" id="collage-stats"><strong>COLLAGE STATS</strong></a>
+			<div class="popup" id="collage-stats-popup">
+				<%= render :partial => 'collage_meta' %>
+			</div>
 		</h5>
 		<% if @collage.description.length > 100 -%>
 			<p id="description_less">
-			<%= @collage.description[1..100] %>... <a href="#" class="link-more">MORE</a>
+			<%= Collage.format_content(@collage.description[1..100]) %>... <a href="#" class="link-more">MORE</a>
 			</p>
 			<p id="description_more">
-			<%= @collage.description %> <a href="#" class="link-less">LESS</a>
+			<%= Collage.format_content(@collage.description) %> <a href="#" class="link-less">LESS</a>
 			</p>
 			<% if current_user && @collage.users.include?(current_user) -%>
 			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 			<% end -%>
 		<% else -%>
-			<p>
-				<%= @collage.description %>
+			<p id="description">
+				<%= Collage.format_content(@collage.description) %>
 				<% if current_user && @collage.users.include?(current_user) -%>
 				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 				<% end -%>
@@ -161,70 +164,3 @@ Your annotation will start here. Please click another word to set the end point.
 var is_owner = <%= current_user && @collage.can_edit? ? 1 : 0 %>;
 </script>
 <div id="annotation-form"></div>
-
-
-<% if false -%>
-<div id="tools">
-  <% cache("collage-show-layer-controls-#{@collage.id}") do %>
-    <div id="layer-tools">
-      <h3><span class="print-inline">Hidden </span>Layers</h3>
-      <div id="view-layer-list" class="layers">
-        <% @collage.layers.each do |l| %>
-          <div class="layer-control" id="layer-name-<%= l.id %>"><span class="layer-indicator" id="layer-indicator-<%= l.id %>">on</span> <span class="layer c<%= l.id % 10 %>"><%= l.name %></span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "layer-spinner-#{l.id}", :class => 'layer-spinner') %></div>
-        <% end %>
-        <div id="toggle-unlayered-text"><span class="layer-indicator" id="unlayered-text-indicator">on</span> <span class="unlayered">unlayered text</span><%= image_tag('elements/ajax-loader-horiz.gif', :id => "unlayered-spinner", :class => 'layer-spinner') %></div>
-      </div>
-    </div>
-  <% end %>
-
-  <div id="please-wait" style="display: none;">Please wait. . .</div>
-</div>
-
-Removal of Lineage from Template
-    <div class="lineage">
-      <h3 class="collapsible lineage">▶ Lineage</h3>
-      <ul class="lineage-target">
-        <% @collage.ancestors.each do|anc| %>
-          <li class="depth-<%= anc.depth %>"><%= link_to(anc,anc) %></li>
-        <% end %>
-
-        <% if @collage.parent %>
-          <% @collage.siblings.each do |sib| %>
-            <li class="depth-<%= sib.depth %>"><%= raw((@collage == sib) ? "&bull; #{h(@collage)}" : link_to(h(sib),sib)) %></li>
-          <% end %>
-        <% else %>
-            <li class="depth-<%= @collage.depth %>">&bull; <%= @collage %></li>
-        <% end %>
-
-        <% @collage.children.each do|child| %>
-          <li class="depth-<%= child.depth %>"><%= link_to(child,child) %></li>
-        <% end %>
-      </ul>
-    </div>
-Annotation Data
-    <h3 class="collapsible layer-meta">▶ Layer Meta</h3>
-    <%= render :partial => 'shared/collage_meta', :object => @collage %>
-More Annotation Data
-	<% cache("collage-annotation-print-content-#{@collage.id}") do %>
-  <div class="print-block print-annotation-list">
-    <h1>Annotations</h1>
-    <% @collage.annotations.find(:all,:include => {:accepted_roles => {:users => []}, :layers=> []}).each do |ann| %>
-      <% if ann.annotation_word_count > 0 %>
-        <div class="annotation">
-          <h2><%= ann.layers.map(&:name).join(',') %> #<%= ann.id %></h2>
-          <% unless ann.annotation.blank? %>
-            <div class="annotation"><%= Annotation.format_content(ann.annotation) %></div>
-          <% end %>
-          <div class="meta">
-            <span class="user"><span>created by</span> <%= ann.creators && ann.creators.collect{|c| c.login}.join(',') %></span>
-            <% if ann.editors %>
-              <span class="user"><span>edited by</span> <%= ann.editors.collect{|c| c.login}.join(',') %></span>
-            <% end %>
-            <span class="datetime unixtime"><%= ann.updated_at.to_s(:long) %></span>
-          </div>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
-	<% end %>
-<% end -%>

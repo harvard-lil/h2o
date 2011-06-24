@@ -1,7 +1,7 @@
-<%= render :partial => 'shared/objects/case_obj', :collection => @cases.results %>
+<%= render :partial => 'shared/objects/case_obj', :collection => @cases.is_a?(WillPaginate::Collection) ? @cases : @cases.results %>
 
 <% if params.has_key?(:is_pagination) -%>
 <div id="new_pagination" style="display:none;">
-<%= will_paginate @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+<%= will_paginate @cases.is_a?(WillPaginate::Collection) ? @cases : @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 <div>
 <% end -%>

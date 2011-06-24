@@ -64,8 +64,17 @@ class Collage < ActiveRecord::Base
     string :layer_list, :multiple => true
   end
 
+  def top_ancestor
+    current = self
+	while !current.parent.nil?
+	  current = current.parent
+	end
+	current
+  end
+
   def author
-    self.accepted_roles.find_by_name('owner').user.login
+    owner = self.accepted_roles.find_by_name('owner')
+	owner.nil? ? nil : owner.user.login.downcase
   end
 
   def fork_it(new_user)

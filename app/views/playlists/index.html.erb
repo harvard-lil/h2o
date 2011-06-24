@@ -6,7 +6,7 @@
 	<aside class="filter">
 		<% if params[:tag] -%>
 		<p>
-		Playlists tagged: <%= params[:tag] %> (<%= pluralize @playlists.total, 'Playlist' %> Total)
+		Playlists tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @playlists.total, 'Playlist' %> Total)
 		<%= link_to "CLEAR TAG", playlists_path %>
 		</p>
 		<% elsif params[:keywords] -%>
@@ -19,7 +19,9 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
+		<div id="all_playlists_pagination">
 		<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
 	</aside>
 	<div class="cl"></div>
 </section>
@@ -40,7 +42,8 @@
 	</hgroup>
 	<article class="songs">
 	<ul id="all_playlists" class="playlists_section">
-		<%= render :partial => 'playlists_block' %>
+		<%#= NOTE: For some reason, sort by author is not persisting here, but playlists retrieved are correct. %>
+		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results.sort_by { |p| p.send(params[:sort]) } %>
 	</ul>
 	<% if current_user -%>
     <% if @my_playlists.any? -%>

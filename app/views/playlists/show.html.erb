@@ -30,7 +30,7 @@
 		<div class="tags">
 			<ul>
 				<% @playlist.tags.each do |tag| -%>
-				<li><%= link_to tag.name, playlist_tag_path(tag.name) %></li>
+				<li><%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %></li>
 				<% end -%>
 			</ul>
 		</div>
@@ -72,15 +72,9 @@
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>
 
-
-<div id="container_id" style="display: none;"><%= @playlist.id %></div>
-
-<div id="dialog-item-edit" title="Edit item"></div>
-<div id="dialog-item-delete" title="Delete item"></div>
-<div id="dialog-playlist-copy" title="Copy playlist"></div>
-
-<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>
+<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
 <script type="text/javascript">
+var container_id = <%= @playlist.id %>;
 <% if current_user && (@playlist.admin? || @playlist.owner?) %>
 var owner_can_sort = true;
 <% else -%>

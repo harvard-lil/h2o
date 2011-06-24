@@ -5,22 +5,22 @@
 <section id="breadcrumbs">
 	<aside class="filter">
 		<p>
-		User has:
-		(<%= pluralize @playlists.size, 'Playlist' %>,
-		<%= pluralize @collages.size, 'Collage' %>,
-		<%= pluralize @cases.size, 'Case' %>)
+		Results for: <%= @user.login %>
+		(<%= pluralize @playlists.total_entries, 'Playlist' %>,
+		<%= pluralize @collages.total_entries, 'Collage' %>,
+		<%= pluralize @cases.total_entries, 'Case' %>)
 		<%= link_to "CLEAR SEARCH", search_all_path %>
 		</p>
 	</aside>
 	<aside class="pagination">
-		<div id="all_playlists_pagination">
-		<%#= will_paginate @playlists, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		<div id="all_playlists_pagination" data-type="playlists">
+		<%= will_paginate @playlists, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
-		<div id="all_collages_pagination" style="display:none;">
-		<%#= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		<div id="all_collages_pagination" style="display:none;" data-type="collages">
+		<%= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
-		<div id="all_cases_pagination" style="display:none;">
-		<%#= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		<div id="all_cases_pagination" style="display:none;" data-type="cases">
+		<%= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
 	<div class="cl"></div>
@@ -42,6 +42,7 @@
 			<li><a href="#" data-region="user_info">USER INFO</a></li>
 			<% end -%>
 		</ul>
+		<%= render :partial => 'shared/sort' %>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">

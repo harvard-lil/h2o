@@ -1,11 +1,5 @@
-<% if false %>
-  This partial is named "_case_form" because rails creates invalid code internally if it's named simply "case" - for the obvious reason that it's creating a broken "case" control structure in subsequently eval'd code. Stupid.
-<% end %>
-
 <div id="case-error" style="display:none;" class="error"></div>
-<% unless request.xhr? %>
-  <h1><%= (@case.new_record?) ? 'Add New case' : "Edit #{ @case}" %></h1>
-<% end %>
+<h3 style="display:none;" id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h3>
 <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
   <% form.object.case_docket_numbers.build %>
   <% form.object.case_citations.build %>

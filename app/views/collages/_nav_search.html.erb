@@ -18,7 +18,7 @@
 			<div class="browse-tags-popup">
 				<ul>
 					<% @collage_tags.each do |tag| %>
-					<li><a href="<%= collage_tag_path(tag.name) %>" class="<%= cycle("even", "odd") %>"><strong><%= tag.name %></strong></a></li>
+					<li><a href="<%= collage_tag_path(CGI.escape(tag.name)) %>" class="<%= cycle("even", "odd") %>"><strong><%= tag.name %></strong></a></li>
 					<% end -%>
 				</ul>
 				<div class="cl">&nbsp;</div>

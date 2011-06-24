@@ -48,6 +48,8 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlists-logo a { float: left; display: inline; width:157px; height:71px; background:url(/images/ui/playlists-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 #collage-logo { float: left; display: inline; }
 #collage-logo a { float: left; display: inline; width:143px; height:71px; background:url(/images/ui/collage-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
+#cases-logo { float: left; display: inline; }
+#cases-logo a { float: left; display: inline; width:112px; height:71px; background:url(/images/ui/cases-logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 
 #search { float: right; display: inline; padding:18px 14px 0 0; position:relative; }
 #search ul { list-style:none; position:relative; z-index:2; }
@@ -125,6 +127,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #results .listitem .controls ul li.link-play a { background:url(/images/ui/playlist-controls.png) -48px 0px; }
 #results .listitem .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png); }
 #results .listitem .controls ul li.link-copy a { background:url(/images/ui/playlist-controls.png) -24px 0px; }
+#results .listitem .controls ul li.link-collage a { background:url(/images/ui/playlist-controls.png) -72px 0px; }
 
 #results .listitem details { float: right; display: inline; width:902px; }
 #results .listitem details .tags { float: right; display: inline; }
@@ -203,6 +206,15 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 
 #description_more { display: none; }
 
+/* Cases Index */
+#bcases #results .sort label { color: #930102; }
+#results #cases_hgroup { border:1px solid #ff1a05; background:url(/images/ui/cases-hgroup.png); }
+#my_cases { display: none; }
+#bcollages #results .sort label { color: #930102; }
+#bcases #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
+#bcases #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
+#bcollages #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
+
 /* Collage index */
 #results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/collage-hgroup.png); }
 #my_collages { display: none; }
@@ -235,21 +247,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   -webkit-border-radius:3px; -o-border-radius:3px; 
   -ms-border-radius:3px; text-decoration:none; }
 
-.tools-popup { position:absolute; left:0; z-index:1;
-  background:#fff; border: 2px solid #666; 
-  padding: 4px 9px 10px;  display:none;
-  top: 0px; left: 0px; background: #FFF;
-  width: 230px; border: 1px solid #6D87A2; top: 25px; }
-.tools-popup h5 { font-size: 9px; line-height: 22px; }
-.tools-popup ul { padding-top: 0px; line-height: 17px; list-style: none; }
-.tools-popup ul li { padding-bottom: 3px; text-transform: uppercase; }
-.tools-popup ul li a { border-radius:3px; -moz-border-radius:3px;
--webkit-border-radius:3px; -ms-border-radius:3px; -o-border-radius:3px; 
-text-decoration: none; float: left; display: inline; margin-left: 3px; 
-font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
-color: #FFF; }
-.tools-popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
-
 #search ul li#spinner { display: none; }
 
 #my_playlists { display: none; }
@@ -277,6 +274,7 @@ color: #FFF; }
 #my_bookmarks .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
 #my_bookmarks .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
 #my_bookmarks .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
+#my_bookmarks .playlist .data .icon-type-itemcase { background-position: -100px 0px; }
 #my_bookmarks .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #my_bookmarks .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }

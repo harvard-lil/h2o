@@ -4,7 +4,6 @@ class CollagesController < BaseController
 
   before_filter :is_collage_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
-  before_filter :prep_resources
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
   before_filter :list_tags, :only => [:index, :show, :edit, :new]
 
@@ -76,7 +75,7 @@ class CollagesController < BaseController
 		sort_base_url += "&keywords=#{params[:keywords]}"
       end
 	  if params.has_key?(:tag)
-	    with :tag_list, params[:tag]
+	    with :tag_list, CGI.unescape(params[:tag])
 		sort_base_url += "&tag=#{params[:tag]}"
 	  end
       with :public, true
@@ -115,7 +114,8 @@ class CollagesController < BaseController
   # GET /collages/1
   # GET /collages/1.xml
   def show
-    add_stylesheets 'collages'
+    add_javascripts ['collages', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
+    add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     respond_to do |format|
       format.html # show.html.erb
@@ -154,12 +154,12 @@ class CollagesController < BaseController
         #flash[:notice] = 'Collage was successfully created.'
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
-	    format.json { render :json => { :id => @collage.id } }
+	    format.json { render :json => { :type => 'collages', :id => @collage.id } }
       else
         flash[:notice] = "We couldn't create that collage - " + @collage.errors.full_messages.join(',')
         format.html { render :action => "new" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :id => @collage.id } }
+	    format.json { render :json => { :type => 'collages', :id => @collage.id } }
       end
     end
   end
@@ -175,11 +175,11 @@ class CollagesController < BaseController
         flash[:notice] = 'Collage was successfully updated.'
         format.html { redirect_to(@collage) }
         format.xml  { head :ok }
-		format.json { render :json => { :id => @collage.id } }
+		format.json { render :json => { :type => 'collages', :id => @collage.id } }
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
-		format.json { render :json => { :id => @collage.id } }
+		format.json { render :json => { :type => 'collages', :id => @collage.id } }
       end
     end
   end
@@ -202,11 +202,6 @@ class CollagesController < BaseController
     if current_user
       @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
     end
-  end
-
-  def prep_resources
-    add_javascripts ['collages', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js']
-    add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css']
   end
 
   def load_collage

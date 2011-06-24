@@ -44,9 +44,27 @@ class UsersController < ApplicationController
   def show
     @user = User.find_by_id(params[:id])
 
-	@playlists = @user.playlists
-	@collages = @user.collages
-	@cases = @user.cases
+	if !params.has_key?(:sort)
+	  params[:sort] = "display_name"
+	end
+
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'playlists'
+	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	end
+
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'collages'
+	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	end
+
+    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'cases'
+ 	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	end
+
+	if !params.has_key?(:is_pagination)
+	  generate_sort_list("/users/#{@user.id}?",
+	  	{	"display_name" 	=> 'DISPLAY NAME',
+			"created_at"	=> 'BY DATE' })
+	end
 
 	if current_user
       @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
@@ -66,7 +84,15 @@ class UsersController < ApplicationController
 	  @my_cases = []
 	end
 
-	#need to add pagination here
+	respond_to do |format|
+	  format.html do
+	    if params.has_key?(:is_pagination)
+		  render :partial => "#{params[:is_pagination]}/#{params[:is_pagination]}_block"
+		else
+		  render 'show'
+		end
+	  end
+	end
   end
 
   def edit

@@ -42,7 +42,8 @@ class Playlist < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
 
   def author
-    self.accepted_roles.find_by_name('owner').user.login
+    owner = self.accepted_roles.find_by_name('owner')
+	owner.nil? ? nil : owner.user.login.downcase
   end
 
   def display_name

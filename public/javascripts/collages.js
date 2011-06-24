@@ -325,22 +325,6 @@ jQuery.extend({
     });
   },
 
-  updateCollagePreview: function(){
-    jQuery("#collage_description").observeField(5,function(){
-      jQuery.ajax({
-        cache: false,
-        type: 'POST',
-        url: jQuery.rootPath() + 'collages/description_preview',
-        data: {
-          preview: jQuery('#collage_description').val()
-        },
-        success: function(html){
-          jQuery('#collage_preview').html(html);
-        }
-      });
-    });
-  },
-
   updateAnnotationPreview: function(collageId){
     jQuery("#annotation_annotation").observeField(5,function(){
       jQuery.ajax({
@@ -454,14 +438,6 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
-  /*
-  if(jQuery('#collage_description').length > 0){
-    jQuery("#collage_description").markItUp(myTextileSettings);
-    jQuery.updateCollagePreview();
-  }
-  jQuery("#annotation_annotation").markItUp(myTextileSettings);
-  */
-
   /* Things related to page loading: what to show & hide */
   if(jQuery('.just_born').length > 0){
     // New collage. Deactivate control.
@@ -594,6 +570,18 @@ jQuery(document).ready(function(){
 			'name' : jQuery(el).data('name')
 		};
 		jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
+	});
+
+	jQuery("#collage .description .buttons ul .btn-a span").parent().click(function() { 
+		jQuery('.tools-popup').css({ 'top': 25 }).toggle();
+		jQuery(this).toggleClass("btn-a-active");
+		return false;
+	});
+
+	jQuery('#collage-stats').click(function() {
+		jQuery(this).toggleClass("active");
+		jQuery('#collage-stats-popup').toggle();
+		return false;
 	});
   }
 });

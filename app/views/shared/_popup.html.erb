@@ -2,7 +2,7 @@
 	<h4>ADD TO</h4>
 	<%= collection_select(:playlist, :id, @all_playlists, :id, :name) %>
 	<ul>
-		<li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist new-action" %></li>
+		<li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist-and-item" %></li>
 		<li><a href="#" class="bookmark-this bookmark-action">ADD BOOKMARK</a></li>
 	</ul>
 	<a href="#" class="btn new-playlist-item">ADD FILE</a>

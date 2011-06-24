@@ -133,15 +133,11 @@ class BaseController < ApplicationController
 	if current_user && current_user.bookmark_id
 	  # TODO: Update this to be linked through user / foreign key
 	  @my_bookmarks = current_user.bookmarks.inject([]) do |arr, p|
-	    logger.warn "steph: #{p.resource_item_type}"
-		logger.warn "steph: #{p.resource_item.inspect}"
 	    if p.resource_item_type == type && p.resource_item.actual_object
-		  logger.warn "steph: adding item"
 		  arr << p.resource_item.actual_object
 		end
 		arr
 	  end
 	end
-	logger.warn "steph: #{@my_bookmarks.inspect}"
   end
 end

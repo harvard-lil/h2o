@@ -4,6 +4,7 @@
   end
 -%>
 <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
+<h3 style="display:none;" id="generic_title"><%= @playlist.new_record? ? 'Add a new Playlist' : "Edit \"#{@playlist.name}\"" %></h3>
 <% semantic_form_for playlist_object do |form| %>
   <% form.inputs do %>
     <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>

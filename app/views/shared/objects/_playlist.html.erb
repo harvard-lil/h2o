@@ -11,7 +11,7 @@
 		<div class="tags">
 			<ul>
 				<% playlist.tags.each do |tag| %>
-				<li><%= link_to tag.name, playlist_tag_path(tag.name) %></li>
+				<li><%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %></li>
 				<% end -%>
 			</ul>
 		</div>

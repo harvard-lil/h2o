@@ -1,7 +1,7 @@
-<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
+<%= render :partial => 'shared/objects/playlist', :collection => @playlists.is_a?(WillPaginate::Collection) ? @playlists : @playlists.results %>
 
 <% if params.has_key?(:is_pagination) -%>
 <div id="new_pagination" style="display:none;">
-<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+<%= will_paginate @playlists.is_a?(WillPaginate::Collection) ? @playlists : @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 <div>
 <% end -%>

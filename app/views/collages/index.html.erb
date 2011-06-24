@@ -6,7 +6,7 @@
 	<aside class="filter">
 		<% if params[:tag] -%>
 		<p>
-		Collages tagged: <%= params[:tag] %> (<%= pluralize @collages.total, 'Collage' %> Total)
+		Collages tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @collages.total, 'Collage' %> Total)
 		<%= link_to "CLEAR TAG", collages_path %>
 		</p>
 		<% elsif params[:keywords] -%>
@@ -19,7 +19,9 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
+		<div id="all_collages_pagination">
 		<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
 	</aside>
 	<div class="cl"></div>
 </section>

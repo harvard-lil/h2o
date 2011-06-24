@@ -1,15 +1,12 @@
 <div style="width: 380px; float: left;">
   <div id="collage-error" style="display:none;" class="error"></div>
-  <% unless request.xhr? %>
-    <h1><%= (@collage.new_record?) ? 'Add New Collage' : "Edit \"#{@collage.display_name}\"" %></h1>
-  <% end %>
-  <h3 style="margin-bottom: 1em;">on <%#= link_to(@collage.annotatable.display_name, @collage.annotatable, :target => '_blank') %></h3>
+  <h3 style="display:none;" id="generic_title"><%= (@collage.new_record?) ? 'Add a New Collage' : "Edit \"#{@collage.display_name}\"" %></h3>
   <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
     <% form.inputs do %>
       <%= form.input :name %>
       <%= form.input :description,
         :as => :text,
-        :input_html => {:size => '40x5'},
+        :input_html => {:size => '40x5', :class => 'textile_description'},
         :required => false,
         :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
     %>
@@ -43,12 +40,10 @@
   <% end %>
 </div>
 
-<% if @collage.new_record? -%>
-<div style="width: 380px; float: right;">
+<div style="width: 380px; float: right;padding-left:50px;">
   <h3>Preview</h3>
   <div id="preview-container">
-    <div id="collage_preview"><%= (@collage.description.nil?) ? '' : Collage.format_content(@collage.description) %></div> 
+    <div id="collage_preview" class="textile_preview"><%= (@collage.description.nil?) ? '' : Collage.format_content(@collage.description) %></div> 
   </div>
 </div>
 <div class="clear"></div>
-<% end -%>

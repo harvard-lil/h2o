@@ -73,43 +73,7 @@ jQuery.extend({
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();
             var itemId = jQuery(this).attr('id').split('-')[1];
-            jQuery.ajax({
-                method: 'GET',
-                cache: false,
-                dataType: "html",
-                url: jQuery.rootPath() + 'item_' + itemController + '/new',
-                beforeSend: function(){
-               		jQuery.showGlobalSpinnerNode();
-                },
-                data: {
-                    url_string: jQuery.rootPathWithFQDN() + itemController + '/' + itemId,
-                    container_id: jQuery('#container_id').text()
-                },
-                success: function(html){
-               		jQuery.hideGlobalSpinnerNode();
-                    jQuery('#dialog-item-chooser').dialog('close');
-                    var addItemDialog = jQuery('<div id="generic-node"></div>');
-                    jQuery(addItemDialog).html(html);
-                    jQuery(addItemDialog).dialog({
-                        title: 'Add ' + itemName ,
-                        modal: true,
-                        width: 'auto',
-                        height: 'auto',
-                        position: 'top',
-                        close: function(){
-                            jQuery(addItemDialog).remove();
-                        },
-                        buttons: {
-                            Save: function(){
-								jQuery.submitGenericNode();
-                            },
-                            Close: function(){
-                                jQuery(addItemDialog).dialog('close');
-                            }
-                        }
-                    });
-                }
-            });
+			jQuery.addItemToPlaylistDialog(itemController, itemName, itemId, container_id);
         });
     },
     initKeywordSearch: function(itemName,itemController){
@@ -128,7 +92,7 @@ jQuery.extend({
                 success: function(html){
                		jQuery.hideGlobalSpinnerNode();
                     jQuery('.h2o-playlistable-' + itemName).html(html);
-                    jQuery.initPlaylistItemAddButton(itemName,itemController);
+                    jQuery.initPlaylistItemAddButton(itemName, itemController);
                     jQuery.initKeywordSearch(itemName,itemController);
                     jQuery.initPlaylistItemPagination(itemName,itemController);
                 }
@@ -152,7 +116,7 @@ jQuery.extend({
                     success: function(html){
                			jQuery.hideGlobalSpinnerNode();
                         jQuery('.h2o-playlistable-' + itemName).html(html);
-                        jQuery.initPlaylistItemAddButton(itemName,itemController);
+                        jQuery.initPlaylistItemAddButton(itemName, itemController);
                         jQuery.initKeywordSearch(itemName,itemController);
                         jQuery.initPlaylistItemPagination(itemName,itemController);
                     }
@@ -176,7 +140,7 @@ jQuery.extend({
                     success: function(html){
                			jQuery.hideGlobalSpinnerNode();
                         jQuery('.h2o-playlistable-' + itemName).html(html);
-                        jQuery.initPlaylistItemAddButton(itemName,itemController);
+                        jQuery.initPlaylistItemAddButton(itemName, itemController);
                         jQuery.initKeywordSearch(itemName,itemController);
                         jQuery.initPlaylistItemPagination(itemName,itemController);
                     }

@@ -46,7 +46,7 @@ class ItemBaseController < BaseController
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.xml  { render :xml => @item_default }
-	  format.json { render :json => { :id => @playlist.id } }
+	  format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
     end
   end
 
@@ -94,7 +94,7 @@ class ItemBaseController < BaseController
         format.js {render :text => nil}
         format.html { redirect_to(@object) }
         format.xml  { render :xml => @object, :status => :created, :location => @object }
-	    format.json { render :json => { :id => @playlist.id } }
+	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't add that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
@@ -113,7 +113,7 @@ class ItemBaseController < BaseController
         format.js { render :text => nil }
         format.html { render :text => nil }
         format.xml  { head :ok }
-	    format.json { render :json => { :id => @playlist.id } }
+	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't update that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 

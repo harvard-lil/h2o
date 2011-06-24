@@ -4,9 +4,62 @@ jQuery.extend({
   	classType: function() {
 		return jQuery('body').attr('id').replace(/^b/, '');
 	},
-    rootPath: function(){
-      return '/';
-    },
+	rootPath: function(){
+	  return '/';
+	},
+	addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
+		jQuery.ajax({
+			method: 'GET',
+			cache: false,
+			dataType: "html",
+			url: jQuery.rootPath() + 'item_' + itemController + '/new',
+			beforeSend: function(){
+		   		jQuery.showGlobalSpinnerNode();
+			},
+			data: {
+				url_string: jQuery.rootPathWithFQDN() + itemController + '/' + itemId,
+				container_id: playlistId
+			},
+			success: function(html){
+		   		jQuery.hideGlobalSpinnerNode();
+				jQuery('#dialog-item-chooser').dialog('close');
+				var addItemDialog = jQuery('<div id="generic-node"></div>');
+				jQuery(addItemDialog).html(html);
+				jQuery(addItemDialog).dialog({
+					title: 'Add ' + itemName ,
+					modal: true,
+					width: 'auto',
+					height: 'auto',
+					close: function(){
+						jQuery(addItemDialog).remove();
+					},
+					buttons: {
+						Save: function(){
+							jQuery.submitGenericNode();
+						},
+						Close: function(){
+							jQuery(addItemDialog).dialog('close');
+						}
+					}
+				});
+			}
+		});
+	},
+	observeMarkItUpFields: function() {
+		jQuery('.textile_description').observeField(5,function(){
+	  		jQuery.ajax({
+				cache: false,
+				type: 'POST',
+				url: jQuery.rootPath() + 'collages/description_preview',
+				data: {
+			  		preview: jQuery('.textile_description').val()
+				},
+	   			success: function(html){
+		  			jQuery('.textile_preview').html(html);
+				}
+	  		});
+		});
+  	},
 
 	observeTabDisplay: function(region) {
 		jQuery(region + ' .link-add a').click(function() {
@@ -29,30 +82,37 @@ jQuery.extend({
 			}
 			return false;
 		});
+		jQuery('.new-playlist-item').click(function(e) {
+			var popup = jQuery('.popup');
+			var itemController = popup.data('type');
+			var itemName = itemController.charAt(0).toUpperCase() + itemController.slice(1);
+			jQuery.addItemToPlaylistDialog(itemController + 's', itemName, popup.data('item_id'), jQuery('#playlist_id').val()); 
+			e.preventDefault();
+		});
 	},
-    observePagination: function(){
+	observePagination: function(){
 		jQuery('.pagination a').click(function(e){
-    		var element = jQuery(this); 
+			var element = jQuery(this); 
 	 		var data = { 'is_pagination' : 1 };
-			if(jQuery('#bbase').length) {
+			if(jQuery('#bbase').length || jQuery('#busers').length) {
 				data.is_pagination = element.closest('div').data('type');
 			}
 
 	  		e.preventDefault();
-      		jQuery.ajax({
-        		type: 'GET',
-        		dataType: 'html',
-                data: data,
-        		url: element.attr('href'),
-                beforeSend: function(){
-               		jQuery.showGlobalSpinnerNode();
-               	},
-               	error: function(xhr){
-               		jQuery.hideGlobalSpinnerNode();
+	  		jQuery.ajax({
+				type: 'GET',
+				dataType: 'html',
+				data: data,
+				url: element.attr('href'),
+				beforeSend: function(){
+			   		jQuery.showGlobalSpinnerNode();
+			   	},
+			   	error: function(xhr){
+			   		jQuery.hideGlobalSpinnerNode();
 				},
-        		success: function(html){
-               		jQuery.hideGlobalSpinnerNode();
-					if(jQuery('#bbase').length) {
+				success: function(html){
+			   		jQuery.hideGlobalSpinnerNode();
+					if(jQuery('#bbase').length || jQuery('#busers').length) {
 						var region = '#all_' + element.closest('div').data('type');
 						jQuery(region).html(html);
 						jQuery(region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
@@ -61,123 +121,123 @@ jQuery.extend({
 						jQuery(region).html(html);
 						jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
 					}
-          			jQuery.observePagination(); 
+		  			jQuery.observePagination(); 
 					//Here we need to re-observe tab popup
 					jQuery.observeTabDisplay(region);
-        		}
-      		});
-    	});
+				}
+	  		});
+		});
 	},
 
-    observeMetadataForm: function(){
-      jQuery('.datepicker').datepicker({
-        changeMonth: true,
-        changeYear: true,
-        yearRange: 'c-300:c',
-        dateFormat: 'yy-mm-dd'
-      });
-      jQuery('form .metadata ol').toggle();
-      jQuery('form .metadata legend').bind({
-        click: function(e){
-          e.preventDefault();
-          jQuery('form .metadata ol').toggle();
-        },
-        mouseover: function(){
-          jQuery(this).css({cursor: 'hand'});
-        },
-        mouseout: function(){
-          jQuery(this).css({cursor: 'pointer'});
-        }
-      });
-    },
+	observeMetadataForm: function(){
+	  jQuery('.datepicker').datepicker({
+		changeMonth: true,
+		changeYear: true,
+		yearRange: 'c-300:c',
+		dateFormat: 'yy-mm-dd'
+	  });
+	  jQuery('form .metadata ol').toggle();
+	  jQuery('form .metadata legend').bind({
+		click: function(e){
+		  e.preventDefault();
+		  jQuery('form .metadata ol').toggle();
+		},
+		mouseover: function(){
+		  jQuery(this).css({cursor: 'hand'});
+		},
+		mouseout: function(){
+		  jQuery(this).css({cursor: 'pointer'});
+		}
+	  });
+	},
 
-    observeMetadataDisplay: function(){
-      jQuery('.metadatum-display').click(function(e){
-          e.preventDefault();
-          jQuery(this).find('ul').toggle();
-      });
-    },
+	observeMetadataDisplay: function(){
+	  jQuery('.metadatum-display').click(function(e){
+		  e.preventDefault();
+		  jQuery(this).find('ul').toggle();
+	  });
+	},
 
-    observeTagAutofill: function(className,controllerName){
-      if(jQuery(className).length > 0){
-       jQuery(className).live('click',function(){
-         jQuery(this).tagSuggest({
-           url: jQuery.rootPath() + controllerName + '/autocomplete_tags',
-           separator: ', ',
-           delay: 500
-         });
-       });
-     }
-    },
+	observeTagAutofill: function(className,controllerName){
+	  if(jQuery(className).length > 0){
+	   jQuery(className).live('click',function(){
+		 jQuery(this).tagSuggest({
+		   url: jQuery.rootPath() + controllerName + '/autocomplete_tags',
+		   separator: ', ',
+		   delay: 500
+		 });
+	   });
+	 }
+	},
 
 	/* Only used in collages.js */
-    trim11: function(str) {
-      // courtesty of http://blog.stevenlevithan.com/archives/faster-trim-javascript
-    	var str = str.replace(/^\s+/, '');
-    	for (var i = str.length - 1; i >= 0; i--) {
-    		if (/\S/.test(str.charAt(i))) {
-    			str = str.substring(0, i + 1);
-    			break;
-    		}
-    	}
-    	return str;
-    },
+	trim11: function(str) {
+	  // courtesty of http://blog.stevenlevithan.com/archives/faster-trim-javascript
+		var str = str.replace(/^\s+/, '');
+		for (var i = str.length - 1; i >= 0; i--) {
+			if (/\S/.test(str.charAt(i))) {
+				str = str.substring(0, i + 1);
+				break;
+			}
+		}
+		return str;
+	},
 
 	/* Only used in new_playlists.js */
-    rootPathWithFQDN: function(){
-      return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
-    },
+	rootPathWithFQDN: function(){
+	  return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
+	},
 
-    observeToolbar: function(){
-      if(jQuery.cookie('tool-open') == '1'){
-        jQuery('#tools').css({right: '0px', backgroundImage: 'none'});
-      }
+	observeToolbar: function(){
+	  if(jQuery.cookie('tool-open') == '1'){
+		jQuery('#tools').css({right: '0px', backgroundImage: 'none'});
+	  }
 
-      jQuery('#tools').mouseenter(
-        function(){
-          jQuery.cookie('tool-open','1', {expires: 365});
-          jQuery(this).animate({
-            right: '0px'
-            },250,'swing'
-          );
-          jQuery(this).css({backgroundImage: 'none'});
-        }
-      );
+	  jQuery('#tools').mouseenter(
+		function(){
+		  jQuery.cookie('tool-open','1', {expires: 365});
+		  jQuery(this).animate({
+			right: '0px'
+			},250,'swing'
+		  );
+		  jQuery(this).css({backgroundImage: 'none'});
+		}
+	  );
 
-      jQuery('#hide').click(
-        function(e){
-          jQuery.cookie('tool-open','0', {expires: 365});
-          e.preventDefault();
-          jQuery('#tools').animate({
-            right: '-280px'
-          },250,'swing');
-          jQuery('#tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
-      });
-    },
+	  jQuery('#hide').click(
+		function(e){
+		  jQuery.cookie('tool-open','0', {expires: 365});
+		  e.preventDefault();
+		  jQuery('#tools').animate({
+			right: '-280px'
+		  },250,'swing');
+		  jQuery('#tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
+	  });
+	},
 
-    serializeHash: function(hashVals){
-      var vals = [];
-      for(var val in hashVals){
-        if(val != undefined){
-          vals.push(val);
-        }
-      }
-      return vals.join(',');
-    },
-    unserializeHash: function(stringVal){
-      if(stringVal && stringVal != undefined){
-        var hashVals = [];
-        var arrayVals = stringVal.split(',');
-        for(var i in arrayVals){
-          hashVals[arrayVals[i]]=1;
-        }
-        return hashVals;
-      } else {
-        return new Array();
-      }
-    },
+	serializeHash: function(hashVals){
+	  var vals = [];
+	  for(var val in hashVals){
+		if(val != undefined){
+		  vals.push(val);
+		}
+	  }
+	  return vals.join(',');
+	},
+	unserializeHash: function(stringVal){
+	  if(stringVal && stringVal != undefined){
+		var hashVals = [];
+		var arrayVals = stringVal.split(',');
+		for(var i in arrayVals){
+		  hashVals[arrayVals[i]]=1;
+		}
+		return hashVals;
+	  } else {
+		return new Array();
+	  }
+	},
 
-    showGlobalSpinnerNode: function() {
+	showGlobalSpinnerNode: function() {
 		jQuery('#spinner').show();
 	},
 	hideGlobalSpinnerNode: function() {
@@ -200,33 +260,33 @@ jQuery.extend({
 	When a user clicks "Yes", an ajax call is made to the link's href, which responds with JSON.
 	The listed item is then removed from the UI.
 	*/
-    observeDestroyControls: function(region){
+	observeDestroyControls: function(region){
 	  	jQuery(region + ' .delete-action').live('click', function(e){
 			var item_id = jQuery.getItemId(this);
-        	var destroyUrl = jQuery(this).attr('href');
-        	e.preventDefault();
-        	var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
-        	jQuery(confirmNode).dialog({
-          		modal: true,
+			var destroyUrl = jQuery(this).attr('href');
+			e.preventDefault();
+			var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
+			jQuery(confirmNode).dialog({
+		  		modal: true,
 				close: function() {
 					jQuery(confirmNode).remove();
 				},
-          		buttons: {
+		  		buttons: {
 					Yes: function() {
-              			jQuery.ajax({
-                			cache: false,
-                			type: 'POST',
-                			url: destroyUrl,
-                			dataType: 'JSON',
-                			data: {'_method': 'delete'},
-                			beforeSend: function(){
-                  				jQuery.showGlobalSpinnerNode();
-                			},
-                			error: function(xhr){
-                  				jQuery.hideGlobalSpinnerNode();
-                  				//jQuery.showMajorError(xhr); 
-                			},
-                			success: function(data){
+			  			jQuery.ajax({
+							cache: false,
+							type: 'POST',
+							url: destroyUrl,
+							dataType: 'JSON',
+							data: {'_method': 'delete'},
+							beforeSend: function(){
+				  				jQuery.showGlobalSpinnerNode();
+							},
+							error: function(xhr){
+				  				jQuery.hideGlobalSpinnerNode();
+				  				//jQuery.showMajorError(xhr); 
+							},
+							success: function(data){
 								if(data.type == 'playlist_item') {
 									jQuery('.level0').each(function(i, el) {
 										if(jQuery(el).data('itemid') == item_id) {
@@ -238,23 +298,24 @@ jQuery.extend({
 										jQuery(".listitem" + item_id).remove();
 									});
 								}
-                  				jQuery.hideGlobalSpinnerNode();
-                  				jQuery(confirmNode).remove();
+				  				jQuery.hideGlobalSpinnerNode();
+				  				jQuery(confirmNode).remove();
 							}
-              			});
-            		},
-          			No: function(){
-            			jQuery(confirmNode).remove();
-          			}
+			  			});
+					},
+		  			No: function(){
+						jQuery(confirmNode).remove();
+		  			}
 				}
-        	}).dialog('open');
+			}).dialog('open');
 		});
-    },
+	},
 
 	/*
 	Generic bookmark item, more details here.
 	*/
-    observeBookmarkControls: function(region) {
+	observeBookmarkControls: function(region) {
+		//TODO: Fix this behavior on playlists page, bookmarking listed elements doesn't work.
 	  	jQuery(region + ' .bookmark-action').live('click', function(e){
 			var item_url;
 			if(jQuery('.singleitem').length) {
@@ -262,47 +323,51 @@ jQuery.extend({
 			} else {
 				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('item_type') + '/' + jQuery('.popup').data('item_id');
 			}
-        	var actionUrl = jQuery(this).attr('href');
-			var actionText = jQuery(this).html();
-        	e.preventDefault();
+			var actionUrl = jQuery(this).attr('href');
+			e.preventDefault();
 			jQuery.ajax({
 				cache: false,
 				url: actionUrl,
 				data: { "url" : location.href },
 				beforeSend: function() {
-                  	jQuery.showGlobalSpinnerNode();
+				  	jQuery.showGlobalSpinnerNode();
 				},
 				success: function(html) {
-                  	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateBookmarkNode(actionText, html, jQuery('.popup').data('item_type').replace(/s$/, ''), item_url);
+				  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateBookmarkNode(html, item_url);
 				},
 				error: function(xhr, textStatus, errorThrown) {
-                  	jQuery.hideGlobalSpinnerNode();
+				  	jQuery.hideGlobalSpinnerNode();
 				}
 			});
 		});
 	},
-	generateBookmarkNode: function(title, html, item_type, item_url) {
-		if(jQuery.classType() == 'base') {
-			html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery('.bookmark-this').attr('href').replace(/\/bookmark_item\/item_/, '') + '</h2>');
+	generateBookmarkNode: function(html, item_url) {
+		var title;
+		var item_type;
+		if(jQuery('.add-popup').length) {
+			title = 'Bookmark this ' + jQuery('.add-popup').data('type');
+			item_type = jQuery('.add-popup').data('type').replace(/s$/, '');
 		} else {
-			html = html.replace(/<h2>.*<\/h2>/, '<h2>Bookmark this ' + jQuery.classType().replace(/s$/, '') + '</h2>');
+			title = 'Bookmark this ' + jQuery.classType().replace(/s$/, '');
+			item_type = jQuery.classType().replace(/s$/, '');
 		}
-		var newItemNode = jQuery('<div id="bookmark-node"></div>').html(html);
+		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
+		jQuery(newItemNode).find('h2').remove();
 		jQuery(newItemNode).dialog({
 			title: title,
 			modal: true,
 			width: 'auto',
 			height: 'auto',
 			open: function(event, ui) {
-				jQuery('#bookmark-node #item_' + item_type + '_url').val(item_url);
+				jQuery('#generic-node #item_' + item_type + '_url').val(item_url);
 			},
 			close: function() {
 				jQuery(newItemNode).remove();
 			},
 			buttons: {
 				Submit: function() {
-					jQuery.submitBookmarkNode();
+					jQuery.submitGenericNode();
 				},
 				Close: function() {
 					jQuery(newItemNode).remove();
@@ -310,53 +375,108 @@ jQuery.extend({
 			}
 		}).dialog('open');
 	},
-	submitBookmarkNode: function() {
-		jQuery('#bookmark-node').find('form').ajaxSubmit({
-			dataType: "JSON",
-			beforeSend: function() {
-				jQuery.showGlobalSpinnerNode();
-			},
-			success: function(data) {
-				document.location.href = jQuery.rootPath() + 'playlists/' + data.id;
-			},
-			error: function(xhr) {
-				jQuery.hideGlobalSpinnerNode();
-				//message some error
-			}
-		});
-	},
 
-
-	/* Generic HTML form elements */
-    observeGenericControls: function(region){
-	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
-			var item_id = jQuery.getItemId(this);
-        	var actionUrl = jQuery(this).attr('href');
-			var actionText = jQuery(this).html();
-        	e.preventDefault();
+	/* New Playlist and Add Item */
+	observeNewPlaylistAndItemControls: function() {
+	  	jQuery('.new-playlist-and-item').live('click', function(e){
+			var item_id = jQuery('.popup').data('item_id');
+			var actionUrl = jQuery(this).attr('href');
+			e.preventDefault();
 			jQuery.ajax({
 				cache: false,
 				url: actionUrl,
 				beforeSend: function() {
-                  	jQuery.showGlobalSpinnerNode();
+				  	jQuery.showGlobalSpinnerNode();
 				},
 				success: function(html) {
-                  	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateGenericNode(actionText, html);
+				  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateSpecialPlaylistNode(html);
 				},
 				error: function(xhr, textStatus, errorThrown) {
-                  	jQuery.hideGlobalSpinnerNode();
+				  	jQuery.hideGlobalSpinnerNode();
 				}
 			});
 		});
 	},
-	generateGenericNode: function(title, html) {
-		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
+	generateSpecialPlaylistNode: function(html) {
+		var newItemNode = jQuery('<div id="special-node"></div>').html(html);
+		var title = '';
+		if(newItemNode.find('#generic_title').length) {
+			title = newItemNode.find('#generic_title').html();
+		}
 		jQuery(newItemNode).dialog({
 			title: title,
 			modal: true,
 			width: 'auto',
 			height: 'auto',
+			open: function(event, ui) {
+				jQuery.observeMarkItUpFields();
+			},
+			close: function() {
+				jQuery(newItemNode).remove();
+			},
+			buttons: {
+				Submit: function() {
+					jQuery('#special-node').find('form').ajaxSubmit({
+						dataType: "JSON",
+						beforeSend: function() {
+							jQuery.showGlobalSpinnerNode();
+						},
+						success: function(data) {
+							jQuery(newItemNode).dialog('close');
+							var popup = jQuery('.popup');
+							var itemController = popup.data('type');
+							var itemName = itemController.charAt(0).toUpperCase() + itemController.slice(1);
+							jQuery.addItemToPlaylistDialog(itemController + 's', itemName, popup.data('item_id'), data.id);
+						},
+						error: function(xhr) {
+							jQuery.hideGlobalSpinnerNode();
+						}
+					});
+				},
+				Close: function() {
+					jQuery(newItemNode).remove();
+				}
+			}
+		}).dialog('open');
+	},
+
+	/* Generic HTML form elements */
+	observeGenericControls: function(region){
+	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
+			var item_id = jQuery.getItemId(this);
+			var actionUrl = jQuery(this).attr('href');
+			e.preventDefault();
+			jQuery.ajax({
+				cache: false,
+				url: actionUrl,
+				beforeSend: function() {
+				  	jQuery.showGlobalSpinnerNode();
+				},
+				success: function(html) {
+				  	jQuery.hideGlobalSpinnerNode();
+					jQuery.generateGenericNode(html);
+				},
+				error: function(xhr, textStatus, errorThrown) {
+				  	jQuery.hideGlobalSpinnerNode();
+				}
+			});
+		});
+	},
+	generateGenericNode: function(html) {
+		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
+		var title = '';
+		if(newItemNode.find('#generic_title').length) {
+			title = newItemNode.find('#generic_title').html();
+		}
+		jQuery(newItemNode).dialog({
+			title: title,
+			modal: true,
+			width: 'auto',
+			height: 'auto',
+			open: function(event, ui) {
+				jQuery.observeMarkItUpFields();
+			},
 			close: function() {
 				jQuery(newItemNode).remove();
 			},
@@ -377,11 +497,10 @@ jQuery.extend({
 				jQuery.showGlobalSpinnerNode();
 			},
 			success: function(data) {
-				document.location.href = jQuery.rootPath() + jQuery.classType() + '/' + data.id;
+				document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
 			},
 			error: function(xhr) {
 				jQuery.hideGlobalSpinnerNode();
-				//message some error
 			}
 		});
 	}
@@ -390,17 +509,17 @@ jQuery.extend({
 jQuery(function() {
 	
 	/* Only used in collages */
-    jQuery.fn.observeField =  function( time, callback ){
-	    return this.each(function(){
-	        var field = this, change = false;
-	        jQuery(field).keyup(function(){
-	            change = true;
-	        });
-	        setInterval(function(){
-	            if ( change ) callback.call( field );
-	            change = false;
-	        }, time * 1000);
-	    });
+	jQuery.fn.observeField =  function( time, callback ){
+		return this.each(function(){
+			var field = this, change = false;
+			jQuery(field).keyup(function(){
+				change = true;
+			});
+			setInterval(function(){
+				if ( change ) callback.call( field );
+				change = false;
+			}, time * 1000);
+		});
 	}
 
   	//Fire functions for discussions
@@ -430,12 +549,6 @@ jQuery(function() {
 		return false;
 	});
 	
-	jQuery("#collage .description .buttons ul .btn-a span").parent().click(function() { 
-		jQuery('.tools-popup').css({ 'top': 25 }).toggle();
-		jQuery(this).toggleClass("btn-a-active");
-		return false;
-	});
-
 	jQuery(".search_all input[type=radio]").click(function() {
 		jQuery(".search_all form").attr("action", "/" + jQuery(this).val());
 	});
@@ -454,7 +567,7 @@ jQuery(function() {
 		jQuery("#description_less,#description_more").toggle();
 	});
 
-    jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
+	jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
 
 	jQuery('.link-copy').click(function() {
 		jQuery(this).closest('form').submit();
@@ -467,6 +580,7 @@ jQuery(function() {
 	jQuery.observeDestroyControls('');
 	jQuery.observeGenericControls('');
 	jQuery.observeBookmarkControls('');
+	jQuery.observeNewPlaylistAndItemControls();
 	jQuery.observePagination(); 
 	jQuery.observeTabDisplay('');
 });
