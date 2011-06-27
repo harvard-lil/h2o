@@ -20,22 +20,22 @@
 #collage .description .buttons ul .btn-a span { float:left; display:inline; padding-right:14px; background:url(/images/ui/collage-hgroup-btn-arrow.png) right no-repeat; }
 #collage .description .buttons ul .btn-a-active span { background-image:url(/images/ui/collage-hgroup-btn-active.png); }
 
-#collage details { background:#e0f5bd; display:block; position:relative; padding:7px 300px 11px 74px; height:100%; z-index:1; }
-#collage details .tags { position:absolute; top:1px; right:1px; }
-#collage details .tags ul { list-style:none; font-size:10px; line-height:24px; }
-#collage details .tags ul li { float:left; display:inline;  padding-left:1px; }
-#collage details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#376100; background:#c4eb80; }
-#collage details .influence { padding-bottom:9px; }
-#collage details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
-#collage details .influence div.star-rating { background:none !important;}
-#collage details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
-#collage details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
-#collage details p { font-size:12px; line-height:18px; color:#616e5c; }
-#collage details p .link-more, 
-#collage details .edit-action,
-#collage details p .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
-#collage details p .link-less { background: url(/images/ui/pagination-divider.png) right 3px no-repeat; }
-#collage details .edit-action { padding-left: 5px; display: none; }
+#collage .details { background:#e0f5bd; display:block; position:relative; padding:7px 300px 11px 74px; height:100%; z-index:1; }
+#collage .details .tags { position:absolute; top:1px; right:1px; }
+#collage .details .tags ul { list-style:none; font-size:10px; line-height:24px; }
+#collage .details .tags ul li { float:left; display:inline;  padding-left:1px; }
+#collage .details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#376100; background:#c4eb80; }
+#collage .details .influence { padding-bottom:9px; }
+#collage .details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
+#collage .details .influence div.star-rating { background:none !important;}
+#collage .details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
+#collage .details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
+#collage .details p { font-size:12px; line-height:18px; color:#616e5c; }
+#collage .details p .link-more, 
+#collage .details .edit-action,
+#collage .details p .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
+#collage .details p .link-less { background: url(/images/ui/pagination-divider.png) right 3px no-repeat; }
+#collage .details .edit-action { padding-left: 5px; display: none; }
 
 #collage article { display:block; font-size:11px; line-height:16px;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
@@ -56,17 +56,15 @@
 
 #collage article .annotation-content { color: #6b933d; line-height: 1.5;
 display: none; padding: 0px 0px 0px 3px; font-style: italic; }
-#collage article .arrbox { font-size: 13px; color: #6b933d; }
-#collage article .ann-ellipsis { padding: 0px 5px; }
+#collage article .annotation-ellipsis { padding: 0px 5px; display: none; }
 #collage article .ann-details { display: none; }
 
 .highlight { background: #E0F5BD; }
 .annotation_start_highlight { background: #E0F5BD; }
-#tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
-  display: none; background: #c4eb80; padding: 10px; width: 200px; }
-#annotation_tip { position: absolute; top: 0px; left: 0px; z-index: 100;
-  display: none; background: #c4eb80; padding: 10px; width: 150px; text-align: center; }
 #annotation-form { display: none; }
+
+#tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
+  display: none; width: 200px; opacity: 0.8; }
 
 .tools-popup { position:absolute; left:0; z-index:1;
   background:#fff; border: 2px solid #666; 
@@ -110,3 +108,31 @@ font-size: 9px; font-weight: bold; }
 
 .textile { margin-top: 20px; }
 .markItUp { width: 500px; }
+.highlight-ffcd00 { background-color: #ffcd00; }
+.highlight-ff999a { background-color: #ff999a; }
+.highlight-bdec68 { background-color: #bdec68; }
+.control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
+.edit_highlight { background: #eef9d9; }
+.arrbox { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+.unlayered_ellipsis { padding-right: 10px; }
+
+/* Tipsy */
+.tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 100000; }
+  .tipsy-inner { background-color: #C4EB80; color: #000; max-width: 200px; padding: 10px; text-align: center; font-weight: bold; }
+  .tipsy-inner { border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  /* Uncomment for shadow */
+  /*.tipsy-inner { box-shadow: 0 0 5px #000000; -webkit-box-shadow: 0 0 5px #000000; -moz-box-shadow: 0 0 5px #000000; }*/
+  .tipsy-arrow { position: absolute; width: 0; height: 0; border: 5px solid transparent; }
+  /* Rules to colour arrows */
+  .tipsy-arrow-n { border-bottom-color: #C4EB80; }
+  .tipsy-arrow-s { border-top-color: #C4EB80; }
+  .tipsy-arrow-e { border-left-color: #C4EB80; }
+  .tipsy-arrow-w { border-right-color: #C4EB80; }
+  .tipsy-n .tipsy-arrow, .tipsy-nw .tipsy-arrow, .tipsy-ne .tipsy-arrow { top: 0; border-top: none; }
+  .tipsy-s .tipsy-arrow, .tipsy-sw .tipsy-arrow, .tipsy-se .tipsy-arrow { bottom: 0; border-bottom: none; }
+  .tipsy-n .tipsy-arrow, .tipsy-s .tipsy-arrow { left: 50%; margin-left: -5px; }
+  .tipsy-nw .tipsy-arrow, .tipsy-sw .tipsy-arrow { left: 10px; }
+  .tipsy-ne .tipsy-arrow, .tipsy-se .tipsy-arrow { right: 10px; }
+  .tipsy-e .tipsy-arrow, .tipsy-w .tipsy-arrow { top: 50%; margin-top: -5px; }
+  .tipsy-e .tipsy-arrow { right: 0; border-right: none; }
+  .tipsy-w .tipsy-arrow { left: 0; border-left: none; }

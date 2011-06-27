@@ -27,7 +27,32 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
     <% end %>
 	<%= yield %>
 	<%= render :partial => 'shared/footer' %>
+	<% if !current_user -%>
+	<div id="login-popup">
+		<div class="right">
+		<h3>Returning user log in.</h3>
+		<% form_for :user_session, :url => user_session_path do |f| -%>
+		<%= f.error_messages %>
+		<%= f.label :login %>
+		<%= f.text_field :login %>
+		<%= f.label :password %>
+		<%= f.password_field :password %>
+		<%= f.check_box :remember_me %><%= f.label :remember_me %>
+		-- forgot
+		<%= f.submit "Login" %>
+		<% end -%>
+		</div>
+		<div class="left">
+		<h3>Are you a first time user?</h3>
+		<a href="/users/new/" class="button">Sign-up Now</a>
+		<div class="border"></div>
+		<h3>Want to try it out without creating an account?</h3>
+		<%= link_to 'Participate Anonymously', url_for(:controller => '/users', :action => :create_anon), :class => 'button' %>
+		</div>
+	</div>
+	<% end -%>
 	</section>
+
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>

@@ -7,7 +7,7 @@
 		</ul>
 	</div>
 	<% end -%>
-	<details>
+	<div class="details">
 		<div class="tags">
 			<ul>
 				<% playlist.tags.each do |tag| %>
@@ -31,6 +31,6 @@
 			<%= raw playlist.owners.collect{|u| link_to(u.login, user_path(u)) }.join(',') %>
 		</p>
 		<div class="influence"></div>
-	</details>
+	</div>
 	<div class="cl"></div>
 </li>

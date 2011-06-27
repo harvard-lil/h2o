@@ -11,7 +11,7 @@
 		<li><%= link_to current_user.login, user_path(current_user) %></li>
 		<li class="last"><%= link_to "log out", user_session_path, :method => :delete %></li>
 		<% else -%>
-		<li class="last"><%= link_to "log in", crossroad_user_session_path %></li>
+		<li class="last"><%= link_to "log in", crossroad_user_session_path, :id => 'header_login' %></li>
 		<% end -%>
 	</ul>
 	<div class="cl"></div>

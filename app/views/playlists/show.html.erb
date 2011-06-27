@@ -26,7 +26,7 @@
 		<% end %>
 		<div class="cl"></div>
 	</hgroup>
-	<details>
+	<div class="details">
 		<div class="tags">
 			<ul>
 				<% @playlist.tags.each do |tag| -%>
@@ -68,7 +68,7 @@
 				<% end -%>
 			</p>
 		<% end -%>
-	</details>
+	</div>
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>
 

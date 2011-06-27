@@ -134,7 +134,7 @@ class Collage < ActiveRecord::Base
   end
 
   def annotatable_content
-    if self.layers.any?
+    #if self.layers.any?
       doc = Nokogiri::HTML.parse(self.content)
       annotation_rules = []
       self.annotations.each do|ann|
@@ -142,7 +142,9 @@ class Collage < ActiveRecord::Base
           :start => ann.annotation_start_numeral.to_i, 
           :end => ann.annotation_end_numeral.to_i, 
           :id => ann.id.to_s,
-          :layer_list => ann.layers.collect{|l| "l#{l.id}"}
+          :layer_list => ann.layers.collect{|l| "l#{l.id}"},
+          :layer_names => ann.layers.collect{ |l| l.name }.join(', '),
+		  :content => ann.formatted_annotation_content
         }
       end
 
@@ -152,8 +154,38 @@ class Collage < ActiveRecord::Base
         node_id_num = node['id'][1,node['id'].length - 1].to_i
 		classes = []
         annotation_rules.each do |r|
+		  if node_id_num == r[:start]
+		    span_node = Nokogiri::XML::Node.new('span', doc)
+			span_node['class'] = "arr control-divider annotation-control-#{r[:id]}"
+			node.add_previous_sibling(span_node)
+		  end
+		  if node_id_num == r[:end]
+		    # If node at end of annotation, adding divider, asterisk, ellipsis and annotation
+		    span_node = Nokogiri::XML::Node.new('span', doc)
+			span_node['class'] = "arr control-divider annotation-control-#{r[:id]}"
+		    link_node = Nokogiri::XML::Node.new('a', doc)
+		    link_classes = [].push('arrbox').push(r[:layer_list]).flatten
+			link_node['class'] = link_classes.join(' ')
+			link_node['title'] = r[:layer_names] 
+			link_node['id'] = "annotation-asterisk-#{r[:id]}"
+			ann_node = Nokogiri::XML::Node.new('span', doc)
+			ann_node['class'] = 'annotation-content'
+			ann_node['id'] = "annotation-content-#{r[:id]}"
+			ann_node.inner_html = r[:content]
+		    ellipsis_node = Nokogiri::XML::Node.new('a', doc)
+		    ellipsis_classes = [].push('annotation-ellipsis')
+			r[:layer_list].each { |l| ellipsis_classes.push("annotation-ellipsis-#{l}") }
+			ellipsis_node['class'] = ellipsis_classes.flatten.join(' ')
+			ellipsis_node['id'] = "annotation-ellipsis-#{r[:id]}"
+			ellipsis_node.inner_html = '[...]'
+
+			node.add_next_sibling(span_node)
+			span_node.add_next_sibling(ann_node)
+			ann_node.add_next_sibling(link_node)
+			link_node.add_next_sibling(ellipsis_node)
+		  end
           if node_id_num >= r[:start] and node_id_num <= r[:end]
-		    classes = classes.push(r[:id]).push(r[:layer_list]).flatten
+		    classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
           end
         end
 		if classes.length > 0
@@ -164,16 +196,33 @@ class Collage < ActiveRecord::Base
 		else
 		  node['class'] = "unlayered unlayered_#{unlayered_start}"
 		  if unlayered_start_node
+		    span_node = Nokogiri::XML::Node.new('span', doc)
+			span_node['class'] = 'test'
+			node.add_previous_sibling(span_node)
 		    node['class'] = "#{node['class']} unlayered_start"
 		    unlayered_start_node = false
 		  end
 		end
       end
+
+      # TODO: combine p & center selectors
+      doc.xpath('//p').each do |node|
+	    if node.children.size > 0 && node.css('.unlayered_start').size == 0 && node.children.size == node.css('.unlayered').size
+	      node['class'] = node.children.first['class']
+		end
+      end
+      doc.xpath('//center').each do |node|
+	    if node.children.size > 0 && node.css('.unlayered_start').size == 0 && node.children.size == node.css('.unlayered').size
+	      node['class'] = node.children.first['class']
+		end
+      end
+
       doc.xpath("//html/body/*").to_s
-    else
+    #else
       #No annotations / layers.
-      self.content
-    end
+	  # TODO: Add unlayered_start, unlayered, unlayered_* to all nodes here
+   #   self.content
+   # end
   end
 
   alias :to_s :display_name

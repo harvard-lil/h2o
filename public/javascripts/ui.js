@@ -7,6 +7,13 @@ jQuery.extend({
 	rootPath: function(){
 	  return '/';
 	},
+	observeLoginPanel: function() {
+		jQuery('#header_login').click(function(e) {
+			jQuery(this).toggleClass('active');
+			jQuery('#login-popup').toggle();
+			e.preventDefault();
+		});
+	},
 	observeCasesCollage: function() {
 		jQuery('.case_collages').click(function(e) {
 			e.preventDefault();
@@ -598,4 +605,5 @@ jQuery(function() {
 	jQuery.observePagination(); 
 	jQuery.observeTabDisplay('');
 	jQuery.observeCasesCollage();
+	jQuery.observeLoginPanel();
 });

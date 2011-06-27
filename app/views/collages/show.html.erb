@@ -2,11 +2,13 @@
   :url => collages_path,
   :right_search => 'collages/nav_search' } %>
 
-<div id="tooltip">
+<div id="tooltip" class="tipsy tipsy-s">
+<div class="tipsy-arrow tipsy-arrow-s"></div>
+<div class="tipsy-inner">
 Your annotation will start here. Please click another word to set the end point.
 <a href="#" id="cancel-annotation">cancel</a>
 </div>
-<div id="annotation_tip"></div>
+</div>
 
 <div id="collage">
 	<hgroup class="description">
@@ -41,11 +43,6 @@ Your annotation will start here. Please click another word to set the end point.
 								<a href="#" id="hide_show_annotations"><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
-							<li>
-								<strong>UNLAYERED TEXT</strong>
-								<a href="#" id="hide_show_unlayered"><strong>SHOW</strong></a>
-								<div class="cl">&nbsp;</div>
-							</li>
 						</ul>
 						<h5>LAYERS</h5>
 						<ul id="layers">
@@ -56,7 +53,12 @@ Your annotation will start here. Please click another word to set the end point.
 								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>
 								<div class="cl">&nbsp;</div>
 							</li>
-   							<% end %>
+   							<% end -%>
+							<li>
+								<strong>UNLAYERED</strong>
+								<a href="#" id="hide_show_unlayered" class="shown"><strong>HIDE</strong></a>
+								<div class="cl">&nbsp;</div>
+							</li>
 						</ul>
 					</div>
 				</li>
@@ -69,7 +71,7 @@ Your annotation will start here. Please click another word to set the end point.
 		</aside>
 		<div class="cl">&nbsp;</div>
 	</hgroup>
-	<details>
+	<div class="details">
 		<div class="tags">
 			<ul>
    				<% @collage.tags.each do |tag| %>
@@ -79,7 +81,7 @@ Your annotation will start here. Please click another word to set the end point.
 		</div>
 		<h5>
 			<%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
-			<a href="#" id="collage-stats"><strong>COLLAGE STATS</strong></a>
+			<a href="#" id="collage-stats" title="test"><strong>COLLAGE STATS</strong></a>
 			<div class="popup" id="collage-stats-popup">
 				<%= render :partial => 'collage_meta' %>
 			</div>
@@ -102,7 +104,7 @@ Your annotation will start here. Please click another word to set the end point.
 				<% end -%>
 			</p>
 		<% end -%>
-	</details>
+	</div>
 
 <% if ! session[:just_born].blank?
     # This is a new collage, make sure we don't hide non-annotated text because it'll be confusing.
@@ -131,6 +133,8 @@ Your annotation will start here. Please click another word to set the end point.
 %>
 
 <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+
+<% if false -%>
 <% if ! cookies['hide-non-annotated-text'].blank? && session[:just_born].blank? %>
   <style type="text/css">
     tt{
@@ -147,10 +151,11 @@ Your annotation will start here. Please click another word to set the end point.
   <% end %>
   <% unless inactive_layers.blank? %>
     <%= inactive_layers.join(',') %>{
-      display: inline;
+      display: inline-block;
   }
   <% end %>
   </style>
+  <% end -%>
 
 	<article>
 		<%= raw @collage.annotatable_content %>

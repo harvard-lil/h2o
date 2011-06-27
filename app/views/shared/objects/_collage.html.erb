@@ -9,7 +9,7 @@
   		<% end %>      
 	</div>
   	<% end %>      
-	<details>
+	<div class="details">
 		<div class="tags">
 			<ul>
 				<% collage.tags.each do |tag| %>
@@ -30,6 +30,6 @@
 		<p class="extra">
 			On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>
 		</p>
-	</details>
+	</div>
 	<div class="cl"></div>
 </li>
