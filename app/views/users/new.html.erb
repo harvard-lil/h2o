@@ -1,3 +1,7 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
+  :url => '/',
+  :right_search => 'shared/search_all' } %>
+
 <script type="text/javascript">
   jQuery(function() {
     jQuery("#user_submit").hover( function () {
@@ -23,4 +27,3 @@
     <%= oauth_register_button :value => "Register with Twitter" %><br />
   <% end %>
 <% end %>
-

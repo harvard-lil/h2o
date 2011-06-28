@@ -4,7 +4,7 @@ class CollagesController < BaseController
 
   before_filter :is_collage_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state]
   before_filter :list_tags, :only => [:index, :show, :edit, :new]
 
   caches_action :annotations
@@ -194,6 +194,13 @@ class CollagesController < BaseController
       format.xml  { head :ok }
       format.json { render :json => {} }
     end
+  end
+
+  def save_readable_state
+	@collage.update_attribute('readable_state', params[:v])
+	respond_to do |format|
+	  format.json { render :json => { :time => Time.now.to_s(:simpledatetime) } }
+	end
   end
 
   private 

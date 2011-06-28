@@ -22,6 +22,7 @@ section,aside,hgroup { display:block; }
 
 .left, .alignleft { float: left; display: inline; }
 .right, .alignright { float: right; display: inline; }
+.center { text-align: center; }
 
 #shell { width:982px; padding:0 2px; background:#fff; margin:0 auto; position:relative; display:block; }
 
@@ -77,6 +78,17 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #search .browse-tags-popup ul li { display:inline; font-size:11px; line-height:23px; }
 #search .browse-tags-popup ul li a { display:inline-block; margin:0 1px 1px 0; background:#e0e5ec; padding:0 10px; white-space:nowrap; }
 #search .browse-tags-popup ul li a.even strong { font-weight: normal; }
+#search #cases_browse { width:750px; left: -300px; }
+#search #cases_browse ul { height: 115px; overflow-y: scroll; }
+#search #cases_browse ul li span { display:inline-block; margin:0 1px 1px 0; padding:0 5px; white-space:nowrap; }
+#search #cases_browse .button { border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+-ms-border-radius: 4px; -o-border-radius: 4px; border: 1px solid #8B9EB3; color: #FFF;
+background: url(/images/ui/search-btn.png) 0px -5px; font-weight: bold; text-transform: uppercase;
+padding: 5px 10px; font-size: 11px; margin-right: 15px; }
+#search #cases_browse a { color: #999; text-transform: uppercase;
+font-weight: bold; font-size: 11px; }
+#search #cases_browse .center { margin: 5px 0px 10px 0px; }
+#search #cases_browse li input { position: relative; top: 2px; }
 
 #breadcrumbs { display:block; padding:14px 12px 7px 32px; }
 #breadcrumbs .filter { float: left; display: inline; }
@@ -214,15 +226,16 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #bcases #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
-#bcases #results .cases_details { font-size: 10px; }
-#bcases #results .case_collages { color: #669500; text-transform: uppercase; }
-#bcases #results .cases_details .active { color: #999; }
-#bcases #results .collages { display: none; padding-top: 5px; clear: both; }
-#bcases #results .collages ul { list-style: disc outside url(/images/ui/grey-list-style.jpg); margin-left: 10px; }
-#bcases #results .collages ul li ul { margin-left: 45px; list-style: disc outside url(/images/ui/grey-list-style.jpg); }
-#bcases #results .collages li { margin-top: 5px; color: #999; }
-#bcases #results .collages a { color: #669500; font-weight: bold; }
-#bcases #results .collages .hide_collages { color: #369; font-size: 10px; font-weight: normal; margin-top: 10px; display: inline-block; }
+
+#results .cases_details { font-size: 10px; }
+#results .case_collages { color: #669500; text-transform: uppercase; }
+#results .cases_details .active { color: #999; }
+#results .collages { display: none; padding-top: 5px; clear: both; }
+#results .collages ul { list-style: disc outside url(/images/ui/grey-list-style.jpg); margin-left: 10px; }
+#results .collages ul li ul { margin-left: 45px; list-style: disc outside url(/images/ui/grey-list-style.jpg); }
+#results .collages li { margin-top: 5px; color: #999; }
+#results .collages a { color: #669500; font-weight: bold; }
+#results .collages .hide_collages { color: #369; font-size: 10px; font-weight: normal; margin-top: 10px; display: inline-block; }
 
 
 /* Collage index */
@@ -281,6 +294,8 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #my_bookmarks .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
 #my_bookmarks .playlist .data .icon-type { float:left; display:inline;
   margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
+#my_bookmarks .playlist .data .icon-type-itemdefault,
+#playlist .playlist .data .icon-type-itemdefault { background-position: -72px 0px; }
 #my_bookmarks .playlist .data .icon-type-itemcollage,
 #playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
 #my_bookmarks .playlist .data .icon-type-itemquestion,
@@ -303,17 +318,24 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #my_bookmarks .listitem .delete-action { padding-left: 10px; background:
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 
+#header_login { float: right; padding: 0px 15px; }
 #header_login.active { background: #FFF; color: #000; }
+
 #login-popup { display: none; position: absolute; top: 38px; right: 0px;
-background: #FFF; z-index: 1000; width: 642px; box-shadow:#777 -4px 4px 20px;
--moz-box-shadow:#777 -4px 4px 20px; -webkit-box-shadow:#777 -4px 4px 20px;
--o-box-shadow:#777 -4px 4px 20px; -ms-box-shadow:#777 -4px 4px 20px; }
+background: #FFF; z-index: 1000; width: 642px; box-shadow:#777 -4px 10px 20px;
+-moz-box-shadow:#777 -4px 10px 20px; -webkit-box-shadow:#777 -4px 10px 20px;
+-o-box-shadow:#777 -4px 10px 20px; -ms-box-shadow:#777 -4px 10px 20px; }
 #login-popup h3 { color: #4e9ed1; font-size: 17pt; font-weight: normal; padding-bottom: 20px; }
 #login-popup .left { float: left; width: 321px; padding: 25px 0px; text-align: center; }
 #login-popup .left h3 { text-align: center; width: 100%; }
 #login-popup .right { float: right; width: 230px; padding: 25px 46px 15px 40px; border-left: 1px solid #d9d9d9; }
 #login-popup .border { border-top: 1px solid #d9d9d9; width: 100%; display: block; height: 1px; margin: 20px 0px; }
 #login-popup .button { background: url(/images/ui/grey-btn.png) repeat; border-radius: 4px;
--moz-border-radius: 4px; -webkit-border-radius: 4px; line-height: 28px; border: 1px solid #dbdbdb; 
+-moz-border-radius: 4px; -webkit-border-radius: 4px; border: 1px solid #dbdbdb; 
 color: #4e9ed1; padding: 7px 11px; }
-#login-popup label { text-transform: uppercase; }
+#login-popup label { text-transform: uppercase; font-size: 9px; font-weight: bold; }
+#login-popup input.text { margin-bottom: 15px; background: #FFF; border: 1px solid #999; padding: 2px; }
+#login-popup #forgot { display: inline-block; margin: 10px 0px 20px 0px; text-align: center; }
+#login-popup #remember { margin-bottom: 15px; }
+#login-popup #remember input { position: relative; top: 2px; margin-right: 3px; }
+#login-popup #remember label { font-weight: normal; }

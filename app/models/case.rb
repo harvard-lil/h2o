@@ -72,8 +72,8 @@ class Case < ActiveRecord::Base
 
   alias :to_s :display_name
 
-  def top_ancestor
-    self.collages.detect { |c| c.ancestry.nil? }
+  def top_ancestors
+    self.collages.select { |c| c.ancestry.nil? }
   end
 
   private

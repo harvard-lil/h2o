@@ -27,6 +27,10 @@ jQuery.extend({
 		});
 	},
 	addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
+		var url_string = jQuery.rootPathWithFQDN() + itemController + '/' + itemId;
+		if(!url_string.match(/^[0-9]+$/)) {
+			url_string = itemId;
+		}
 		jQuery.ajax({
 			method: 'GET',
 			cache: false,
@@ -36,7 +40,7 @@ jQuery.extend({
 		   		jQuery.showGlobalSpinnerNode();
 			},
 			data: {
-				url_string: jQuery.rootPathWithFQDN() + itemController + '/' + itemId,
+				url_string: url_string,
 				container_id: playlistId
 			},
 			success: function(html){
@@ -335,15 +339,13 @@ jQuery.extend({
 	Generic bookmark item, more details here.
 	*/
 	observeBookmarkControls: function(region) {
-		//TODO: Fix this behavior on playlists page, bookmarking listed elements doesn't work.
 	  	jQuery(region + ' .bookmark-action').live('click', function(e){
 			var item_url;
-			if(jQuery('.singleitem').length) {
-				item_url = 'http://' + location.host + '/' + jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
-			} else {
+			if(jQuery(this).hasClass('bookmark-popup')) {
 				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('type') + 's/' + jQuery('.popup').data('item_id');
+			} else {
+				item_url = 'http://' + location.host + '/' + jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
 			}
-			alert(item_url);
 			var actionUrl = jQuery(this).attr('href');
 			e.preventDefault();
 			jQuery.ajax({

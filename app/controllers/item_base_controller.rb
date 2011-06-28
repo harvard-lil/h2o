@@ -41,7 +41,6 @@ class ItemBaseController < BaseController
 
   # GET /item_defaults/1/edit
   def edit
-  logger.warn "steph: #{@playlist.inspect}"
     respond_to do |format|
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
       format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }

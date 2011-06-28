@@ -1,15 +1,17 @@
-<ul class="lineage">
-<% collage.children.each do |child| %>
-<li <%= raw 'class="current"' if @collage == child %>>
-    <% if @collage == child -%>
-	<span id="current_marker">Current Collage</span><br />
-	<% end -%>
-	<span class="date"><%= child.created_at.to_s(:simpledatetime) %></span> by 
-	<%= raw child.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %><br />
-	<%= link_to(child.name, child) %>
-	<%= render :partial => 'collage_children',
-      :locals => { :collage => child,
-                   :recursive_level => recursive_level + 1 } %>
-</li>
+<li <%= raw 'class="current"' if @collage == collage %>>
+<% if @collage == collage -%>
+<span id="current_marker">Current Collage</span><br />
 <% end -%>
-</ul>
+<span class="date"><%= collage.created_at.to_s(:simpledatetime) %></span> by 
+<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %><br />
+<%= link_to(collage.name, collage) %>
+<% if collage.children.size > 0 -%>
+	<ul class="lineage">
+	<% collage.children.each do |child| -%>
+	<%= render :partial => 'collage_children',
+  		:locals => { :collage => child,
+  		:recursive_level => recursive_level + 1 } %>
+	<% end -%>
+	</ul>
+<% end -%>
+</li>

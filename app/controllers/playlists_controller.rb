@@ -83,7 +83,7 @@ class PlaylistsController < BaseController
   # GET /playlists/1
   # GET /playlists/1.xml
   def show
-    add_javascripts 'new_playlists'
+    add_javascripts 'playlists'
     add_stylesheets 'playlists'
 
     @playlist.playlist_items.find(:all, :include => [:resource_item])

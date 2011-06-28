@@ -49,4 +49,7 @@ class PlaylistItem < ActiveRecord::Base
     Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:playlistable?) && m.send(:playlistable?)}.sort{|a,b|a.class_name <=> b.class_name}
   end
 
+  def object_type
+    self.resource_item_type.downcase.gsub(/^item/, '')
+  end
 end

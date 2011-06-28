@@ -42,7 +42,11 @@ class UsersController < ApplicationController
   end
   
   def show
-    @user = User.find_by_id(params[:id])
+    if params[:id] == 'create_anon'
+	  @user = @current_user
+	else
+      @user = User.find_by_id(params[:id])
+	end
 
 	if !params.has_key?(:sort)
 	  params[:sort] = "display_name"
@@ -134,8 +138,11 @@ class UsersController < ApplicationController
 
     params[:container_id] = current_user.bookmark_id
 	klass = params[:type].classify.constantize
+	logger.warn "steph: #{klass.inspect}"
+	logger.warn "steph: #{params.inspect}"
     @object = klass.new(:url => params[:url])
-	@base_model_class = klass.to_s.gsub(/Item|Controller/, '').singularize.constantize
+	@base_model_class = params[:type] == 'item_default' ? nil : klass.to_s.gsub(/Item|Controller/, '').singularize.constantize
+	logger.warn "steph: #{@base_model_class.inspect}"
 
     respond_to do |format|
       format.html { render :partial => "/shared/forms/#{params[:type]}" }

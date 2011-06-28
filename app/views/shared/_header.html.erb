@@ -6,13 +6,13 @@
 		<li><%= link_to "Collage", collages_path, { :class => params[:controller] == 'collages' ? 'active' : '' } %></li>
 		<li class="last"><%= link_to "Cases", cases_path, { :class => params[:controller] == 'cases' ? 'active' : '' } %></li>
 	</ul>
+	<% if current_user -%>
 	<ul class="right">
-		<% if current_user -%>
 		<li><%= link_to current_user.login, user_path(current_user) %></li>
-		<li class="last"><%= link_to "log out", user_session_path, :method => :delete %></li>
-		<% else -%>
-		<li class="last"><%= link_to "log in", crossroad_user_session_path, :id => 'header_login' %></li>
-		<% end -%>
+		<li class="last"><%= link_to "sign out", user_session_path, :method => :delete %></li>
 	</ul>
+	<% else -%>
+	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login' %>
+	<% end -%>
 	<div class="cl"></div>
 </nav>

@@ -9,14 +9,9 @@
   <%= link_to @collage.annotatable.name, text_block_path(@collage.annotatable), :id => 'original_name' %>
   <% end -%>
   <ul class="lineage">
-    <li <%= raw 'class="current"' if @collage.top_ancestor == @collage %>>
-		<%= @collage.top_ancestor.created_at.to_s(:simpledatetime) %> by 
-		<%= raw @collage.top_ancestor.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %><br />
-		<%= link_to(@collage.top_ancestor.name, @collage.top_ancestor) %>
-		<%= render :partial => 'collage_children',
-	  		:locals => { :collage => @collage.top_ancestor,
-	                     :recursive_level => 0 } %>
-	</li>
+	<%= render :partial => 'collage_children',
+  		:locals => { :collage => @collage.top_ancestor,
+                     :recursive_level => 0 } %>
   </ul>
 
 <% cache("collage-meta-#{@collage.id}---") do %>

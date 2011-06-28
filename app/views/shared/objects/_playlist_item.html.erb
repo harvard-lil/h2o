@@ -2,7 +2,9 @@
 	<div class="controls">
 		<ul>
 			<li class="number"><%= parent_index == '' ? "#{index + 1}" : "#{parent_index}.#{index}" %></li>
-			<li class="link-add"><a class="<%= item.id %>" href="#">+</a></li>
+			<li class="link-add">
+				<a class="<%= item.id %>" href="#" data-item_id="<%= item.resource_item_id %>" data-bookmarktype="<%= item.resource_item_type.underscore %>" data-type="<%= item.object_type %>">+</a>
+			</li>
 		</ul>
 	</div>
 	<div class="data">
@@ -20,10 +22,10 @@
 		</div>
 		<hgroup>
 			<h3>
-				<% if !item.resource_item.actual_object.nil? -%>
+				<% if item.resource_item_type != 'ItemDefault' && !item.resource_item.actual_object.nil? -%>
 				<%= link_to item.resource_item.name, item.resource_item.actual_object %>
 				<% else -%>
-				<%= link_to item.resource_item.name, item.resource_item.url %>
+				<%= link_to item.resource_item.name, item.resource_item.url, :target => 'blank' %>
 				<% end -%>
 			</h3>
 			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>

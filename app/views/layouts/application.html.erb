@@ -32,14 +32,17 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 		<div class="right">
 		<h3>Returning user log in.</h3>
 		<% form_for :user_session, :url => user_session_path do |f| -%>
-		<%= f.error_messages %>
 		<%= f.label :login %>
-		<%= f.text_field :login %>
+		<%= f.text_field :login, :class => 'text' %>
 		<%= f.label :password %>
-		<%= f.password_field :password %>
-		<%= f.check_box :remember_me %><%= f.label :remember_me %>
-		-- forgot
-		<%= f.submit "Login" %>
+		<%= f.password_field :password, :class => 'text' %>
+		<div id="remember">
+			<%= f.check_box :remember_me %><%= f.label :remember_me %>
+		</div>
+		<div class="center">
+			<%#= link_to raw('Forgot Username or Password &raquo;'), '#', :id => 'forgot' %>
+			<%= f.submit "Login", :class => 'button' %>
+		</div>
 		<% end -%>
 		</div>
 		<div class="left">
@@ -47,7 +50,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 		<a href="/users/new/" class="button">Sign-up Now</a>
 		<div class="border"></div>
 		<h3>Want to try it out without creating an account?</h3>
-		<%= link_to 'Participate Anonymously', url_for(:controller => '/users', :action => :create_anon), :class => 'button' %>
+		<%= link_to 'Participate Anonymously', anonymous_user_path, :class => 'button' %>
 		</div>
 	</div>
 	<% end -%>

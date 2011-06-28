@@ -196,9 +196,12 @@ class Collage < ActiveRecord::Base
 		else
 		  node['class'] = "unlayered unlayered_#{unlayered_start}"
 		  if unlayered_start_node
-		    span_node = Nokogiri::XML::Node.new('span', doc)
-			span_node['class'] = 'test'
-			node.add_previous_sibling(span_node)
+		    link_node = Nokogiri::XML::Node.new('a', doc)
+			link_node['class'] = 'unlayered-ellipsis'
+			link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
+			link_node['href'] = '#'
+			link_node.inner_html = '[...]'
+			node.add_previous_sibling(link_node)
 		    node['class'] = "#{node['class']} unlayered_start"
 		    unlayered_start_node = false
 		  end

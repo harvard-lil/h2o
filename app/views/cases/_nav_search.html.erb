@@ -15,14 +15,23 @@
 			<a href="#" class="btn-a btn-tags">
 				<span>BROWSE TAGS</span>
 			</a>
-			<div class="browse-tags-popup">
+			<% form_tag(cases_path, :method => :get) do %>
+			<div class="browse-tags-popup" id="cases_browse">
 				<ul>
 					<% @case_tags.each do |tag| %>
-					<li><a href="<%#= case_tag_path(tag.name) %>" class="<%= cycle("even", "odd") %>"><strong><%= tag.name %></strong></a></li>
+					<li>
+						<span><%= check_box_tag("tags[]",tag.name, ((params[:tags] && params[:tags].include?(tag.name)) ? true : false), {:class => 'tag-control', :id => "tag-control-#{tag.id}"}) %>
+						<strong><%= tag.name %></strong></span>
+					</li>
 					<% end -%>
 				</ul>
 				<div class="cl">&nbsp;</div>
+				<div class="center">
+					<input type="submit" class="button" value="Filter" />
+					<%= link_to raw('Clear &raquo;'), cases_path, :class => 'clear' %>
+				</div>
 			</div>
+			<% end -%>
 		</li>
 		<li class="field">
 			<%= text_field_tag('keywords', params[:keywords], :size => 50) %>

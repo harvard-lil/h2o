@@ -34,7 +34,7 @@ jQuery.extend({
 		}); 
 	},
     initPlaylistItemAddControls: function(){
-        jQuery('.new-playlist-item').click(function(e){
+        jQuery('.new-playlist-item-control').click(function(e){
             e.preventDefault();
             jQuery.ajax({
                 type: 'GET',
@@ -57,9 +57,9 @@ jQuery.extend({
                             jQuery(itemChooserNode).remove();
                         }
                     });
-                    jQuery("#url_review").button();
                     jQuery('#tabs').tabs();
                     jQuery.observeItemObjectLists();
+					jQuery.initAddUrlButton();
                 },
                 error: function(xhr, textStatus, errorThrown) {
                		jQuery.hideGlobalSpinnerNode();
@@ -69,6 +69,13 @@ jQuery.extend({
         });
     },
 
+    initAddUrlButton: function(itemName, itemController){
+        jQuery('#url_review').click(function(e){
+            e.preventDefault();
+            /* var itemId = jQuery(this).attr('id').split('-')[1]; */
+			jQuery.addItemToPlaylistDialog('defaults', 'URL', jQuery('#url_input').val(), container_id);
+        });
+    },
     initPlaylistItemAddButton: function(itemName, itemController){
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();

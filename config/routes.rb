@@ -38,7 +38,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get}
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
-  map.resources :collages, :collection => {:embedded_pager => :get}, :member => {:spawn_copy => :post}
+  map.resources :collages, :collection => {:embedded_pager => :get},
+    :member => {:spawn_copy => :post, :save_readable_state => :post}
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},
@@ -107,6 +108,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :account, :controller => "users"
   map.resources :users, :collection => {:create_anon => :post}
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
+  map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
   map.bookmark_item "/bookmark_item/:type", :controller => :users, :action => :bookmark_item
 
   map.search_all "/all_materials", :controller => :base, :action => :search

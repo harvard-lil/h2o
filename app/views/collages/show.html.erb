@@ -12,7 +12,7 @@ Your annotation will start here. Please click another word to set the end point.
 
 <div id="collage">
 	<hgroup class="description">
-		<h2 class="collage-id" id="collage-<%= @collage.id %>"><%= @collage.name %></h2>
+		<h2 class="collage-id singleitem" id="collage-<%= @collage.id %>" data-itemid="<%= @collage.id %>"><%= @collage.name %></h2>
 		<aside class="toolbar">
 			<ul>
 				<li><a href="#" class="link-share">Share</a></li>
@@ -29,6 +29,7 @@ Your annotation will start here. Please click another word to set the end point.
 		</aside>
 		<aside class="buttons">
 			<ul>
+				<li class="btn-li" id="autosave"></li>
 				<li class="btn-li">
 					<a href="#" class="btn-a"><span>TOOLS</span></a>
 					<div class="popup tools-popup">
@@ -106,57 +107,7 @@ Your annotation will start here. Please click another word to set the end point.
 		<% end -%>
 	</div>
 
-<% if ! session[:just_born].blank?
-    # This is a new collage, make sure we don't hide non-annotated text because it'll be confusing.
-    session[:just_born] = nil %>
-    <div class="info_block just_born">
-      <h1 class="yellow_title_med">Collage created!</h1>
-      You've created a new collage. We're showing all text, regardless of whether or not you had un-annotated text hidden before.
-    </div>
-<% end -%> 
-
-<% 
-  active_layers = []
-  inactive_layers = []
-  active_ids = []
-  inactive_ids = []
-  layer_cookies = cookies['active-layer-ids'].to_s.split(',').collect{|l| ".l#{l}"}
-  @collage.layers.each do |l|
-    if layer_cookies.include?(".l#{l.id}")
-      active_layers << ".l#{l.id}"
-      active_ids << l.id
-    else
-      inactive_layers << ".l#{l.id}"
-      inactive_ids << l.id
-    end
-  end
-%>
-
-<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
-
-<% if false -%>
-<% if ! cookies['hide-non-annotated-text'].blank? && session[:just_born].blank? %>
-  <style type="text/css">
-    tt{
-      display: none;
-    }
-  </style>
-<% end %>
-
-  <style type="text/css">
-    <% unless active_layers.blank? %>
-      <%= active_layers.join(',') %>{
-      display: none;
-    }
-  <% end %>
-  <% unless inactive_layers.blank? %>
-    <%= inactive_layers.join(',') %>{
-      display: inline-block;
-  }
-  <% end %>
-  </style>
-  <% end -%>
-
+	<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
 	<article>
 		<%= raw @collage.annotatable_content %>
 	</article>
@@ -167,5 +118,6 @@ Your annotation will start here. Please click another word to set the end point.
  
 <script type="text/javascript">
 var is_owner = <%= current_user && @collage.can_edit? ? 1 : 0 %>;
+var last_data = <%= raw @collage.readable_state || '{}' %>;
 </script>
 <div id="annotation-form"></div>

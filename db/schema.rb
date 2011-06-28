@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(:version => 20101122230916) do
     t.string   "ancestry"
     t.boolean  "public",                               :default => true
     t.boolean  "active",                               :default => true
+    t.text     "readable_state"
   end
 
   add_index "collages", ["active"], :name => "index_collages_on_active"

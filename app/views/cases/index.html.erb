@@ -4,7 +4,13 @@
 	
 <section id="breadcrumbs">
 	<aside class="filter">
-		<% if params[:tag] -%>
+		<% if params[:tags] -%>
+		<p>
+		Cases tagged: <%= params[:tags].join(', ') %> (<%= pluralize @cases.total, 'Case' %> Total)
+		<%= link_to "CLEAR TAG", cases_path %>
+		</p>
+		<% elsif params[:keywords] -%>
+		<% elsif params[:tag] -%>
 		<p>
 		Cases tagged: <%= params[:tag] %> (<%= pluralize @cases.total, 'Case' %> Total)
 		<%= link_to "CLEAR TAG", cases_path %>

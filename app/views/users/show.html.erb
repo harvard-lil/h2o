@@ -62,14 +62,14 @@
 	</ul>
 	<% end -%>
 	<% if current_user == @user -%>
-	<ul id="user_info" style="display:none;">
-      <li><b>Login:</b><%= @user.login %></li>
-      <li><b>Login count:</b><%= @user.login_count %></li>
-      <li><b>Last request at:</b><%= @user.last_request_at %></li>
-      <li><b>Last login at:</b><%= @user.last_login_at %></li>
-      <li><b>Current login at:</b><%= @user.current_login_at %></li>
-      <li><b>Last login ip:</b><%= @user.last_login_ip %></li>
-      <li><b>Current login ip:</b><%= @user.current_login_ip %></li>
+	<ul id="user_info" <%= raw 'style="display:none;"' if @playlists.any? || @collages.any? || @cases.any? %>>
+      <li><b>Login:</b> <%= @user.login %></li>
+      <li><b>Login count:</b> <%= @user.login_count %></li>
+      <li><b>Last request at:</b> <%= @user.last_request_at %></li>
+      <li><b>Last login at:</b> <%= @user.last_login_at %></li>
+      <li><b>Current login at:</b> <%= @user.current_login_at %></li>
+      <li><b>Last login ip:</b> <%= @user.last_login_ip %></li>
+      <li><b>Current login ip:</b> <%= @user.current_login_ip %></li>
       <li><%= link_to 'Edit', edit_account_path %></li>
 	</ul>
 	<% end -%>

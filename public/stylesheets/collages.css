@@ -37,9 +37,9 @@
 #collage .details p .link-less { background: url(/images/ui/pagination-divider.png) right 3px no-repeat; }
 #collage .details .edit-action { padding-left: 5px; display: none; }
 
-#collage article { display:block; font-size:11px; line-height:16px;
+#collage article { opacity: 0.0; font-size:11px; line-height:16px;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
-#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; }
+#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
 #collage article p { padding-bottom:16px; }
 #collage article p em { color:#669933; }
@@ -92,19 +92,19 @@ padding-right: 10px; }
   background:#fff; padding: 18px 40px; top: 0px; left: 0px; 
   background: #FFF; width: 890px; top: 28px; display: none;
   height: 431px; overflow-x: hidden; overflow-y: scroll; font-size: 10px; 
-  box-shadow:#777 4px 4px 6px; -moz-box-shadow:#777 4px 4px 6px; -webkit-box-shadow:#777 0px 4px 6px;
-  -o-box-shadow:#777 4px 4px 6px; -ms-box-shadow:#777 4px 4px 6px; }
+  box-shadow:#777 4px 10px 20px; -moz-box-shadow:#777 4px 10px 20px; -webkit-box-shadow:#777 0px 10px 20px;
+  -o-box-shadow:#777 4px 10px 20px; -ms-box-shadow:#777 4px 10px 20px; }
 #collage #collage-stats-popup #original_name { font-weight: bold; }
 #collage #collage-stats-popup #word_count { margin-bottom: 15px; }
 #collage #collage-stats-popup h5 { font-size: 9px; text-transform: uppercase; 
 font-weight: bold; margin-bottom: 0px; }
 #collage #collage-stats-popup #original_name { font-size: 15px; }
-#collage #collage-stats-popup ul { list-style: disc outside url(/images/ui/grey-list-style.jpg); }
 #collage #collage-stats-popup .lineage { margin: 0px 0px 0px 27px; padding: 0px; font-size: 10px; }
 #collage #collage-stats-popup .lineage li { margin-top: 10px; }
-#collage #collage-stats-popup .lineage .current a { color: #679d2e; }
+#collage #collage-stats-popup .lineage .current > a { color: #679d2e; }
 #collage #collage-stats-popup .lineage #current_marker { color: #679d2e; text-transform: uppercase;
 font-size: 9px; font-weight: bold; }
+#collage #collage-stats-popup .date { background: url(/images/ui/grey-list-style.jpg) no-repeat 0px 2px; margin-left: -10px; padding-left: 10px; }
 
 .textile { margin-top: 20px; }
 .markItUp { width: 500px; }
@@ -114,7 +114,8 @@ font-size: 9px; font-weight: bold; }
 .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .edit_highlight { background: #eef9d9; }
 .arrbox { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
-.unlayered_ellipsis { padding-right: 10px; }
+.unlayered-ellipsis { padding-right: 10px; display: none; }
+.default-hidden { color: #999; }
 
 /* Tipsy */
 .tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 100000; }

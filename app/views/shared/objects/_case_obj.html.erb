@@ -27,6 +27,8 @@
           	<% end %>
 		</h4>
 		<p class="cases_details">
+			<%= case_obj.case_citations.collect { |c| "#{c.volume} #{c.reporter.gsub(/\./, '')} #{c.page}" }.join(', ') %> /
+
 			<% if !case_obj.decision_date.nil? -%>
 			<%= case_obj.decision_date %>
 			<% if case_obj.collages.any? -%> / <% end -%>
@@ -39,7 +41,9 @@
 		<% if case_obj.collages.any? -%>
 		<div id="collages<%= case_obj.id %>" class="collages">
 			<ul id="collages<%= case_obj.id %>">
-				<%= render :partial => 'cases/ancestry', :locals => { :collage => case_obj.top_ancestor } -%>
+				<% case_obj.top_ancestors.each do |collage| -%>
+				<%= render :partial => 'cases/ancestry', :locals => { :collage => collage } -%>
+				<% end -%>
 			</ul>
 			<a href="#" class="hide_collages" data-id="<%= case_obj.id %>">HIDE &raquo;</a>
 		</div>

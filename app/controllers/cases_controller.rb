@@ -21,7 +21,7 @@ class CasesController < BaseController
 		JOIN tags t ON ts.tag_id = t.id
 		WHERE taggable_type = 'Case'
 		GROUP BY ts.tag_id, t.name
-		ORDER BY COUNT(*) DESC LIMIT 25")
+		ORDER BY COUNT(*) DESC")
   end
 
   def autocomplete_tags
