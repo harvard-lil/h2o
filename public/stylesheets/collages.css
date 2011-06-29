@@ -108,12 +108,9 @@ font-size: 9px; font-weight: bold; }
 
 .textile { margin-top: 20px; }
 .markItUp { width: 500px; }
-.highlight-ffcd00 { background-color: #ffcd00; }
-.highlight-ff999a { background-color: #ff999a; }
-.highlight-bdec68 { background-color: #bdec68; }
 .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .edit_highlight { background: #eef9d9; }
-.arrbox { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+.annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
 .unlayered-ellipsis { padding-right: 10px; display: none; }
 .default-hidden { color: #999; }
 

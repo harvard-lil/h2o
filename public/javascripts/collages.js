@@ -3,8 +3,58 @@ var new_annotation_end = '';
 var just_hidden = 0;
 var layer_info = {};
 var last_annotation = 0;
+var highlight_history = {};
 
 jQuery.extend({
+	highlightHistoryAdd: function(id, el, highlighted) {
+		var aid = jQuery(el).attr('id');
+		if(!highlight_history[aid]) {
+			highlight_history[aid] = ['ffffff'];
+		}
+		if(highlighted) {
+			highlight_history[aid].push(layer_info[id].hex);
+		} else {
+			var update = [];
+			jQuery.each(highlight_history[aid], function(i, v) {
+				if(layer_info[id].hex != v) {
+					update.push(v);
+				}
+			});
+			update.push(layer_info[id].hex);
+			highlight_history[aid] = update;
+		}
+		var last = highlight_history[aid].length - 1;
+		var layer_id = aid.replace(/^annotation-asterisk-/, '');
+		jQuery('tt.a' + layer_id).css('background', '#' + highlight_history[aid][last]);
+	},
+	highlightHistoryRemove: function(id, el, highlighted) {
+		var aid = jQuery(el).attr('id');
+		if(highlighted) {
+			highlight_history[aid].pop();
+		} else {
+			var update = [];
+			jQuery.each(highlight_history[aid], function(i, v) {
+				if(layer_info[id].hex != v) {
+					update.push(v);
+				}
+			});
+			highlight_history[aid] = update;
+		}
+		var last = highlight_history[aid].length - 1;
+		var layer_id = aid.replace(/^annotation-asterisk-/, '');
+		jQuery('tt.a' + layer_id).css('background', '#' + highlight_history[aid][last]);
+	},
+	addCommas: function(str) {
+		str += '';
+		x = str.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while(rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	},
 	recordCollageState: function(data) {
 		jQuery.ajax({
 			type: 'POST',
@@ -13,15 +63,6 @@ jQuery.extend({
 				v: data
 			},
 			url: jQuery.rootPath() + 'collages/' + jQuery('h2.collage-id').data('itemid') + '/save_readable_state',
-			beforeSend: function(){
-			/*
-				jQuery.showGlobalSpinnerNode();
-				jQuery('div.ajax-error').html('').hide(); */
-			},
-			error: function(xhr){
-				/*jQuery.hideGlobalSpinnerNode();
-				jQuery('div.ajax-error').show().append(xhr.responseText); */
-			},
 			success: function(results){
 				jQuery('#autosave').html('saved at ' + results.time).show().fadeOut(5000); 
 			}
@@ -39,7 +80,7 @@ jQuery.extend({
 			jQuery('.annotation-ellipsis').each(function(i, el) {
 				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
 			});
-			jQuery('.arrbox').each(function(i, el) {
+			jQuery('.annotation-asterisk').each(function(i, el) {
 				data['.a' + jQuery(el).attr('id').replace(/annotation-asterisk-/, '')] = jQuery(el).css('display');	
 				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');
 			});
@@ -73,7 +114,7 @@ jQuery.extend({
 				shown_words -= jQuery('tt' + i).size();
 			}
 		});
-		jQuery('#word_count').html('Showing ' + shown_words + ' words out of ' + total_words + '.');
+		jQuery('#word_count').html('Number of visible words: ' + jQuery.addCommas(shown_words) + ' out of ' + jQuery.addCommas(total_words));
 		if(last_data.edit_mode && is_owner) {
 			jQuery('#edit-show').html("READ");	
 	 		jQuery.observeWords();
@@ -135,11 +176,11 @@ jQuery.extend({
 	if(obj.layers.length > 0) {
 			jQuery('#annotation-asterisk-' + obj.id).hoverIntent({
 		 		over: function(e){
-						jQuery('.a' + obj.id).addClass('highlight-' + layer_info['l' + layer_id].hex);
+						jQuery.highlightHistoryAdd('l' + layer_id, '#annotation-asterisk-' + obj.id, true);
 					}, 
-					timeout: 2000,
+					timeout: 1000,
 					out: function(e){
-						jQuery('.a' + obj.id).removeClass('highlight-' + layer_info['l' + layer_id].hex);
+						jQuery.highlightHistoryRemove('l' + layer_id, '#annotation-asterisk-' + obj.id, true);
 					}
 			});
 	}
@@ -285,7 +326,7 @@ jQuery.extend({
 	},
 
 	initializeAnnotations: function(){
-		jQuery('.arrbox').tipsy({ gravity: 'sw', fade: true });
+		jQuery('.annotation-asterisk').tipsy({ gravity: 'sw', fade: true });
 
 		// This iterates through the annotations on this collage and emits the controls.
 		var collageId = jQuery('.collage-id').attr('id').split('-')[1];
@@ -442,7 +483,7 @@ jQuery.extend({
 		if(is_owner) {
 			jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
 			jQuery('.annotation-content').hide();
-			jQuery('.arrbox').unbind('click').click(function(e) {
+			jQuery('.annotation-asterisk').unbind('click').click(function(e) {
 				e.preventDefault();
 				var id = jQuery(this).attr('id').replace(/annotation-asterisk-/, '');
 				jQuery.annotationButton(id);
@@ -453,7 +494,7 @@ jQuery.extend({
 	unObserveWords: function() {
 		jQuery('tt').unbind('mouseover mouseout click');
 		jQuery('.ann-details').hide();
-		jQuery('.arrbox').unbind('click').click(function(e) {	
+		jQuery('.annotation-asterisk').unbind('click').click(function(e) {	
 			e.preventDefault();
 			var id = jQuery(this).attr('id').replace(/annotation-asterisk-/, '');
 			jQuery.toggleAnnotation(id);
@@ -545,13 +586,18 @@ jQuery(document).ready(function(){
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).show();
 				jQuery('.annotation-ellipsis-' + id).hide();
-				jQuery('.' + id).removeClass('highlight-' + layer_info[id].hex);
+				//jQuery('.' + id).removeClass('highlight-' + layer_info[id].hex);
+				jQuery('.annotation-asterisk.' + id).each (function(i, el) {
+					jQuery.highlightHistoryRemove(id, el, false);
+				});
 				el.removeClass('highlighted').html('HIGHLIGHT');
 			} else {
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).show();
 				jQuery('.annotation-ellipsis-' + id).hide();
-				jQuery('.' + id).addClass('highlight-' + layer_info[id].hex);
+				jQuery('.annotation-asterisk.' + id).each (function(i, el) {
+					jQuery.highlightHistoryAdd(id, el, false);
+				});
 				el.addClass('highlighted').html('UNHIGHLIGHT');
 			}
 		});

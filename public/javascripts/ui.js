@@ -171,6 +171,8 @@ jQuery.extend({
 			if(jQuery('#bbase').length || jQuery('#busers').length) {
 				data.is_ajax = element.closest('div').data('type');
 				region = '#all_' + element.closest('div').data('type');
+			} else {
+				data.is_ajax = jQuery.classType();
 			}
 			jQuery.listResults(element, data, region);
 		});

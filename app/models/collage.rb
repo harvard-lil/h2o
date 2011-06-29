@@ -164,7 +164,7 @@ class Collage < ActiveRecord::Base
 		    span_node = Nokogiri::XML::Node.new('span', doc)
 			span_node['class'] = "arr control-divider annotation-control-#{r[:id]}"
 		    link_node = Nokogiri::XML::Node.new('a', doc)
-		    link_classes = [].push('arrbox').push(r[:layer_list]).flatten
+		    link_classes = [].push('annotation-asterisk').push(r[:layer_list]).flatten
 			link_node['class'] = link_classes.join(' ')
 			link_node['title'] = r[:layer_names] 
 			link_node['id'] = "annotation-asterisk-#{r[:id]}"
