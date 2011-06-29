@@ -87,11 +87,9 @@ class CollagesController < BaseController
 
     @collages.execute!
 
-    generate_sort_list("/collages?#{sort_base_url}",
-		{	"display_name" => "DISPLAY NAME",
+    generate_sort_list({"display_name" => "DISPLAY NAME",
 			"created_at" => "BY DATE",
-			"author" => "BY AUTHOR"	}
-		)
+			"author" => "BY AUTHOR"	})
 
 	@my_collages = current_user ? current_user.collages : [] 
     build_bookmarks("ItemCollage")
@@ -99,9 +97,9 @@ class CollagesController < BaseController
     respond_to do |format|
 	  #The following is called via normal page load
 	  # and via AJAX. To differentiate what HTML is returned 
-	  # here, I've added the param :is_pagination.
+	  # here, I've added the param :is_ajax.
       format.html do
-	    if params.has_key?(:is_pagination)
+	    if params.has_key?(:is_ajax)
 		  render :partial => 'collages_block'
 		else
 		  render 'index'

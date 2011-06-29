@@ -52,21 +52,22 @@ class UsersController < ApplicationController
 	  params[:sort] = "display_name"
 	end
 
-    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'playlists'
-	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	#o.replace(o.gsub!(/\W+/, '')) --- add if remove non-word characters for sort
+
+    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'playlists'
+	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	end
 
-    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'collages'
-	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'collages'
+	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	end
 
-    if !params.has_key?(:is_pagination) || params[:is_pagination] == 'cases'
- 	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]) }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'cases'
+ 	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	end
 
-	if !params.has_key?(:is_pagination)
-	  generate_sort_list("/users/#{@user.id}?",
-	  	{	"display_name" 	=> 'DISPLAY NAME',
+	if !params.has_key?(:is_ajax)
+	  generate_sort_list({"display_name" 	=> 'DISPLAY NAME',
 			"created_at"	=> 'BY DATE' })
 	end
 
@@ -90,8 +91,8 @@ class UsersController < ApplicationController
 
 	respond_to do |format|
 	  format.html do
-	    if params.has_key?(:is_pagination)
-		  render :partial => "#{params[:is_pagination]}/#{params[:is_pagination]}_block"
+	    if params.has_key?(:is_ajax)
+		  render :partial => "#{params[:is_ajax]}/#{params[:is_ajax]}_block"
 		else
 		  render 'show'
 		end
@@ -138,11 +139,8 @@ class UsersController < ApplicationController
 
     params[:container_id] = current_user.bookmark_id
 	klass = params[:type].classify.constantize
-	logger.warn "steph: #{klass.inspect}"
-	logger.warn "steph: #{params.inspect}"
     @object = klass.new(:url => params[:url])
 	@base_model_class = params[:type] == 'item_default' ? nil : klass.to_s.gsub(/Item|Controller/, '').singularize.constantize
-	logger.warn "steph: #{@base_model_class.inspect}"
 
     respond_to do |format|
       format.html { render :partial => "/shared/forms/#{params[:type]}" }

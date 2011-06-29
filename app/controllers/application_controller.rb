@@ -81,11 +81,11 @@ class ApplicationController < ActionController::Base
 
   protected
 
-  def generate_sort_list(sort_base_url, sort_fields)
+  def generate_sort_list(sort_fields)
     @sort_list = []
 	sort_fields.each do |k, v|
 	  @sort_list.push([v, 
-	    "#{sort_base_url}&sort=#{k}".gsub(/\?&/, '?'),
+	    k,
 		(params.has_key?(:sort) && params[:sort] == k) ? true : false]
 	  )
 	end

@@ -45,18 +45,15 @@ class CasesController < BaseController
 	  params[:sort] = "display_name"
 	end
 
-    sort_base_url = ''
     @cases.build do
       unless params[:keywords].blank?
         keywords params[:keywords]
-        sort_base_url += "&keywords=#{params[:keywords]}"
       end
       with :public, true
       with :active, true
 
 	  if params[:tags]
 	    # figure this out (sort_base_url)
-        #sort_base_url += "&tags=#{params[:tags]}"
 		if params[:any]
           any_of do
             params[:tags].each { |t| with :tag_list, t }
@@ -66,7 +63,6 @@ class CasesController < BaseController
 		end
 	  end
 	  if params[:tag]
-        sort_base_url += "&tags=#{params[:tags]}"
 		with :tag_list, params[:tag]
 	  end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
@@ -77,15 +73,13 @@ class CasesController < BaseController
     @cases.execute!
 	@my_cases = current_user ? current_user.cases : []
 
-    generate_sort_list("/cases?#{sort_base_url}",
-		{	"display_name" => "DISPLAY NAME",
-			"decision_date" => "DECISION DATE" }
-		)
+    generate_sort_list({"display_name" => "DISPLAY NAME",
+			"decision_date" => "DECISION DATE" })
     build_bookmarks("ItemCase")
 
     respond_to do |format|
       format.html do
-	    if params.has_key?(:is_pagination)
+	    if params.has_key?(:is_ajax)
 		  render :partial => 'cases_block'
 		else
 		  render 'index'

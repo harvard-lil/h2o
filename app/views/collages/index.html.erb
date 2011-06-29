@@ -37,7 +37,12 @@
 			<li><a href="#" data-region="my_bookmarks">MY BOOKMARKS</a></li>
 			<% end -%>
 		</ul>
-		<%= render :partial => 'shared/sort' %>
+		<aside class="sort">
+			<div id="all_collages_sort" data-type="collages">
+				<%= render :partial => 'shared/sort' %>
+			</div>
+		</aside>
+		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
 		<ul id="all_collages" class="collage_section">

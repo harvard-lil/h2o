@@ -1,18 +1,17 @@
-  <p id="word_count">Number of total (visible?) words: <%= @collage.word_count %></p>
+<% cache("collage-meta-#{@collage.id}") do %>
+<p id="word_count">Number of total words: <%= @collage.word_count %></p>
 
-  <p>Lineage</p>
+<p>Lineage</p>
 
-  <h5>Original <%= @collage.annotatable_type %></h5>
-  <% if @collage.annotatable_type == 'Case' %>
-  <%= link_to "\"#{@collage.annotatable.short_name}\"", case_path(@collage.annotatable), :id => 'original_name' %>
-  <% else -%>
-  <%= link_to @collage.annotatable.name, text_block_path(@collage.annotatable), :id => 'original_name' %>
-  <% end -%>
-  <ul class="lineage">
-	<%= render :partial => 'collage_children',
-  		:locals => { :collage => @collage.top_ancestor,
+<h5>Original <%= @collage.annotatable_type %></h5>
+<% if @collage.annotatable_type == 'Case' %>
+<%= link_to "\"#{@collage.annotatable.short_name}\"", case_path(@collage.annotatable), :id => 'original_name' %>
+<% else -%>
+<%= link_to @collage.annotatable.name, text_block_path(@collage.annotatable), :id => 'original_name' %>
+<% end -%>
+<ul class="lineage">
+<%= render :partial => 'collage_children',
+		:locals => { :collage => @collage.top_ancestor,
                      :recursive_level => 0 } %>
-  </ul>
-
-<% cache("collage-meta-#{@collage.id}---") do %>
+</ul>
 <% end %>

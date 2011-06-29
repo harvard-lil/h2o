@@ -113,43 +113,66 @@ jQuery.extend({
 			e.preventDefault();
 		});
 	},
+	listResults: function(element, data, region) {
+	  	jQuery.ajax({
+			type: 'GET',
+			dataType: 'html',
+			data: data,
+			url: element.attr('href'),
+			beforeSend: function(){
+		   		jQuery.showGlobalSpinnerNode();
+		   	},
+		   	error: function(xhr){
+		   		jQuery.hideGlobalSpinnerNode();
+			},
+			success: function(html){
+		   		jQuery.hideGlobalSpinnerNode();
+				if(jQuery('#bbase').length || jQuery('#busers').length) {
+					jQuery(region).html(html);
+					jQuery(region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
+				} else {
+					jQuery(region).html(html);
+					jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
+				}
+				//Here we need to re-observe onclicks
+	  			jQuery.observePagination(); 
+				jQuery.observeTabDisplay(region);
+				jQuery.observeCasesCollage();
+			}
+	  	});
+	},
+	observeSort: function() {
+		jQuery('.sort select').selectbox({
+			className: "jsb", replaceInvisible: true 
+		}).change(function() {
+			var element = jQuery(this);
+			var data = {};
+			var region = '#all_' + jQuery.classType();
+			if(jQuery('#bbase').length || jQuery('#busers').length) {
+				jQuery('.songs > ul').each(function(i, el) {
+					if(jQuery(el).css('display') != 'none') {
+						region = '#' + jQuery(el).attr('id');
+						data.is_ajax = jQuery(el).attr('id').replace(/^all_/, '');
+					}
+				});
+			} else {
+				data.is_ajax = jQuery.classType();
+			}
+			data.sort = element.val();
+			jQuery.listResults(element, data, region);
+		});
+	},
 	observePagination: function(){
 		jQuery('.pagination a').click(function(e){
-			var element = jQuery(this); 
-	 		var data = { 'is_pagination' : 1 };
-			if(jQuery('#bbase').length || jQuery('#busers').length) {
-				data.is_pagination = element.closest('div').data('type');
-			}
-
 	  		e.preventDefault();
-	  		jQuery.ajax({
-				type: 'GET',
-				dataType: 'html',
-				data: data,
-				url: element.attr('href'),
-				beforeSend: function(){
-			   		jQuery.showGlobalSpinnerNode();
-			   	},
-			   	error: function(xhr){
-			   		jQuery.hideGlobalSpinnerNode();
-				},
-				success: function(html){
-			   		jQuery.hideGlobalSpinnerNode();
-					if(jQuery('#bbase').length || jQuery('#busers').length) {
-						var region = '#all_' + element.closest('div').data('type');
-						jQuery(region).html(html);
-						jQuery(region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
-					} else {
-						var region = '#all_' + jQuery.classType();
-						jQuery(region).html(html);
-						jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
-					}
-					//Here we need to re-observe onclicks
-		  			jQuery.observePagination(); 
-					jQuery.observeTabDisplay(region);
-					jQuery.observeCasesCollage();
-				}
-	  		});
+			var element = jQuery(this); 
+	 		var data = {};
+			var region = '#all_' + jQuery.classType();
+			if(jQuery('#bbase').length || jQuery('#busers').length) {
+				data.is_ajax = element.closest('div').data('type');
+				region = '#all_' + element.closest('div').data('type');
+			}
+			jQuery.listResults(element, data, region);
 		});
 	},
 
@@ -548,15 +571,6 @@ jQuery(function() {
   	//Fire functions for discussions
   	initDiscussionControls();
 
-
-	/* TODO: Move a lot of this to custom jQuery functions */
-	jQuery("#results .sort select").selectbox({
-		className: "jsb"
-	}).change(function() {
-		//TODO: Modify this to use AJAX here, similar to pagination
-		window.location = jQuery(this).val();
-	});
-	
 	jQuery("#search .btn-tags").click(function() {
 		var $p = jQuery(".browse-tags-popup");
 		
@@ -577,13 +591,17 @@ jQuery(function() {
 	});
 	jQuery("#search_all_radio").click();
 
-	jQuery('.tabs a').click(function() {
+	jQuery('.tabs a').click(function(e) {
+		var region = jQuery(this).data('region');
 		jQuery('.popup').fadeOut().removeData('item_id');
 		jQuery('.tabs a').removeClass("active");
 		jQuery('.songs > ul').hide();
-		jQuery('.pagination div').hide();
-		jQuery('#' + jQuery(this).data('region') + ',#' + jQuery(this).data('region') + '_pagination').show();
+		jQuery('.pagination > div, .sort > div').hide();
+		jQuery('#' + region +
+			',#' + region + '_pagination' +
+			',#' + region + '_sort').show();
 		jQuery(this).addClass("active");
+		e.preventDefault();
 	});
 
 	jQuery(".link-more,.link-less").click(function() {
@@ -605,6 +623,7 @@ jQuery(function() {
 	jQuery.observeBookmarkControls('');
 	jQuery.observeNewPlaylistAndItemControls();
 	jQuery.observePagination(); 
+	jQuery.observeSort();
 	jQuery.observeTabDisplay('');
 	jQuery.observeCasesCollage();
 	jQuery.observeLoginPanel();

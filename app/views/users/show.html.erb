@@ -42,7 +42,17 @@
 			<li><a href="#" data-region="user_info">USER INFO</a></li>
 			<% end -%>
 		</ul>
-		<%= render :partial => 'shared/sort' %>
+		<aside class="sort">
+			<div id="all_playlists_sort" data-type="playlists">
+				<%= render :partial => 'shared/sort' %>
+			</div>
+			<div id="all_collages_sort" style="display:none;" data-type="collages">
+				<%= render :partial => 'shared/sort' %>
+			</div>
+			<div id="all_cases_sort" style="display:none;" data-type="cases">
+				<%= render :partial => 'shared/sort' %>
+			</div>
+		</aside>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">

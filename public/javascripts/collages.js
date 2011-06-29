@@ -56,6 +56,8 @@ jQuery.extend({
 		}, 5000); 
 	},
 	loadState: function() {
+		var total_words = jQuery('tt').size();
+		var shown_words = total_words;
 		jQuery.each(last_data, function(i, e) {
 			if(i.match(/\.a/) && e != 'none') {
 				jQuery(i).css('display', 'inline');
@@ -67,14 +69,17 @@ jQuery.extend({
 			} else {
 				jQuery(i).css('display', e);
 			}
+			if((i.match(/^\.unlayered/) || i.match(/^\.a/)) && e == 'none') {
+				shown_words -= jQuery('tt' + i).size();
+			}
 		});
+		jQuery('#word_count').html('Showing ' + shown_words + ' words out of ' + total_words + '.');
 		if(last_data.edit_mode && is_owner) {
 			jQuery('#edit-show').html("READ");	
 	 		jQuery.observeWords();
-			jQuery('details .edit-action').show();
+			jQuery('.details .edit-action').show();
 			jQuery('.control-divider').css('display', 'inline-block');
 			jQuery('article tt.a').addClass('edit_highlight');
-			//jQuery('#edit-show').click();
 		} else {
 	 		jQuery.unObserveWords();
 		}
@@ -280,7 +285,7 @@ jQuery.extend({
 	},
 
 	initializeAnnotations: function(){
-	jQuery('.arrbox').tipsy({ gravity: 'sw', fade: true });
+		jQuery('.arrbox').tipsy({ gravity: 'sw', fade: true });
 
 		// This iterates through the annotations on this collage and emits the controls.
 		var collageId = jQuery('.collage-id').attr('id').split('-')[1];
@@ -557,12 +562,12 @@ jQuery(document).ready(function(){
 			if(el.html() == 'READ') {
 				el.html("EDIT");	
 		 		jQuery.unObserveWords();
-				jQuery('details .edit-action, .control-divider').hide();
+				jQuery('.details .edit-action, .control-divider').hide();
 				jQuery('article tt.a').removeClass('edit_highlight');
 			} else {
 				el.html("READ");	
 		 		jQuery.observeWords();
-				jQuery('details .edit-action').show();
+				jQuery('.details .edit-action').show();
 				jQuery('.control-divider').css('display', 'inline-block');
 				jQuery('article tt.a').addClass('edit_highlight');
 			}
