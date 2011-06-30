@@ -1,3 +1,6 @@
+var popup_item_id = 0;
+var popup_item_type = '';
+
 $.noConflict();
 
 jQuery.extend({
@@ -87,29 +90,24 @@ jQuery.extend({
 	observeTabDisplay: function(region) {
 		jQuery(region + ' .link-add a').click(function() {
 			var element = jQuery(this);
-			var position = element.offset();
-			var results_posn = jQuery('.popup').parent().offset();
-			var left = position.left - results_posn.left;
 			var current_id = element.data('item_id');
-			jQuery('.bookmark-this').attr('href', '/bookmark_item/' + element.data('bookmarktype'));
-			var popup = jQuery('.popup');
-			var last_id = popup.data('item_id');
-			if(last_id) {
-				popup.removeData('item_id').removeData('type').fadeOut(100, function() {
-					if(current_id != last_id) {
-						popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('type', element.data('type'));
-					}
-				});
+			if(popup_item_id != 0 && current_id == popup_item_id) {
+				jQuery('.popup').hide();
+				popup_item_id = 0;
 			} else {
-				popup.css({ top: position.top + 24, left: left }).fadeIn(100).data('item_id', current_id).data('type', element.data('type'));
+				popup_item_id = current_id;
+				popup_item_type = element.data('type');
+				var position = element.offset();
+				var results_posn = jQuery('.popup').parent().offset();
+				var left = position.left - results_posn.left;
+				jQuery('.popup').hide().css({ top: position.top + 24, left: left }).fadeIn(100);
 			}
+
 			return false;
 		});
 		jQuery('.new-playlist-item').click(function(e) {
-			var popup = jQuery('.popup');
-			var itemController = popup.data('type');
-			var itemName = itemController.charAt(0).toUpperCase() + itemController.slice(1);
-			jQuery.addItemToPlaylistDialog(itemController + 's', itemName, popup.data('item_id'), jQuery('#playlist_id').val()); 
+			var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
+			jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, jQuery('#playlist_id').val()); 
 			e.preventDefault();
 		});
 	},
@@ -336,17 +334,9 @@ jQuery.extend({
 				  				//jQuery.showMajorError(xhr); 
 							},
 							success: function(data){
-								if(data.type == 'playlist_item') {
-									jQuery('.level0').each(function(i, el) {
-										if(jQuery(el).data('itemid') == item_id) {
-											jQuery(el).remove();
-										}
-									});
-								} else {
-									jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
-										jQuery(".listitem" + item_id).remove();
-									});
-								}
+								jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+									jQuery(".listitem" + item_id).remove();
+								});
 				  				jQuery.hideGlobalSpinnerNode();
 				  				jQuery(confirmNode).remove();
 							}
@@ -365,24 +355,33 @@ jQuery.extend({
 	*/
 	observeBookmarkControls: function(region) {
 	  	jQuery(region + ' .bookmark-action').live('click', function(e){
-			var item_url;
+			var item_url = jQuery.rootPathWithFQDN() + 'bookmark_item/';
 			if(jQuery(this).hasClass('bookmark-popup')) {
-				item_url = 'http://' + location.host + '/' + jQuery('.popup').data('type') + 's/' + jQuery('.popup').data('item_id');
+				//This is a bit of a hack for now to work on playlist items on playlists page.
+				//It would be nice to clean it up later.
+				if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
+					item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();	
+				} else {
+					item_url += popup_item_type + '/' + popup_item_id;
+				}
 			} else {
-				item_url = 'http://' + location.host + '/' + jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
+				item_url += jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
 			}
-			var actionUrl = jQuery(this).attr('href');
+			alert(item_url);
 			e.preventDefault();
 			jQuery.ajax({
 				cache: false,
-				url: actionUrl,
-				data: { "url" : location.href },
+				url: item_url,
+				dataType: "JSON",
+				data: {
+					base_url: jQuery.rootPathWithFQDN()
+				},
 				beforeSend: function() {
 				  	jQuery.showGlobalSpinnerNode();
 				},
 				success: function(html) {
 				  	jQuery.hideGlobalSpinnerNode();
-					jQuery.generateBookmarkNode(html, item_url);
+					alert('success!!');
 				},
 				error: function(xhr, textStatus, errorThrown) {
 				  	jQuery.hideGlobalSpinnerNode();
@@ -390,44 +389,11 @@ jQuery.extend({
 			});
 		});
 	},
-	generateBookmarkNode: function(html, item_url) {
-		var title;
-		var item_type;
-		if(jQuery('.add-popup').length) {
-			title = 'Bookmark this ' + jQuery('.add-popup').data('type');
-			item_type = jQuery('.add-popup').data('type');
-		} else {
-			title = 'Bookmark this ' + jQuery.classType().replace(/s$/, '');
-			item_type = jQuery.classType().replace(/s$/, '');
-		}
-		var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
-		jQuery(newItemNode).find('h2').remove();
-		jQuery(newItemNode).dialog({
-			title: title,
-			modal: true,
-			width: 'auto',
-			height: 'auto',
-			open: function(event, ui) {
-				jQuery('#generic-node #item_' + item_type + '_url').val(item_url);
-			},
-			close: function() {
-				jQuery(newItemNode).remove();
-			},
-			buttons: {
-				Submit: function() {
-					jQuery.submitGenericNode();
-				},
-				Close: function() {
-					jQuery(newItemNode).remove();
-				}
-			}
-		}).dialog('open');
-	},
 
 	/* New Playlist and Add Item */
 	observeNewPlaylistAndItemControls: function() {
 	  	jQuery('.new-playlist-and-item').live('click', function(e){
-			var item_id = jQuery('.popup').data('item_id');
+			var item_id = popup_item_id;
 			var actionUrl = jQuery(this).attr('href');
 			e.preventDefault();
 			jQuery.ajax({
@@ -472,10 +438,8 @@ jQuery.extend({
 						},
 						success: function(data) {
 							jQuery(newItemNode).dialog('close');
-							var popup = jQuery('.popup');
-							var itemController = popup.data('type');
-							var itemName = itemController.charAt(0).toUpperCase() + itemController.slice(1);
-							jQuery.addItemToPlaylistDialog(itemController + 's', itemName, popup.data('item_id'), data.id);
+							var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
+							jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, data.id);
 						},
 						error: function(xhr) {
 							jQuery.hideGlobalSpinnerNode();
@@ -582,9 +546,8 @@ jQuery(function() {
 		return false;
 	});
 	
-	jQuery("#playlist .playlist .data .dd-open").click(function() {
+	jQuery(".playlist .data .dd-open").click(function() {
 		jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
-		
 		return false;
 	});
 	
@@ -595,7 +558,9 @@ jQuery(function() {
 
 	jQuery('.tabs a').click(function(e) {
 		var region = jQuery(this).data('region');
-		jQuery('.popup').fadeOut().removeData('item_id');
+		jQuery('.popup').hide();
+		popup_item_id = 0;
+		popup_item_type = '';
 		jQuery('.tabs a').removeClass("active");
 		jQuery('.songs > ul').hide();
 		jQuery('.pagination > div, .sort > div').hide();

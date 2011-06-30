@@ -2,28 +2,11 @@
   :url => '/',
   :right_search => 'shared/search_all' } %>
 
-<script type="text/javascript">
-  jQuery(function() {
-    jQuery("#user_submit").hover( function () {
-        jQuery(this).attr('src', '/images/elements/signin_twitter_light.png');
-      },
-      function () {
-        jQuery(this).attr('src', '/images/elements/signin_twitter_dark.png');
-      }
-    );
-  });
-</script>
-
-<h1>Register</h1>
-
-<% form_for @user, :url => account_path do |f| %>
-  <%= f.error_messages %>
-  <%= render :partial => "form", :object => f %>
-  <%= f.submit "Register" %>
-  <p>
-  <% # image_submit_tag("elements/signin_twitter_dark.png", :name => 'register_with_oauth', :id => 'user_submit') %>
-  </p>
-  <% if false %>
-    <%= oauth_register_button :value => "Register with Twitter" %><br />
-  <% end %>
-<% end %>
+<div class="standard-form">
+	<h3>Register</h3>
+	<% form_for @user, :url => account_path do |f| %>
+		<%= f.error_messages %>
+  		<%= render :partial => "form", :object => f %>
+  		<%= f.submit "Register", :class => 'button' %>
+	<% end %>
+</div>

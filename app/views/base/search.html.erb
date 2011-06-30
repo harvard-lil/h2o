@@ -42,25 +42,25 @@
 		</ul>
 		<aside class="sort">
 			<div id="all_playlists_sort" data-type="playlists">
-				<%= render :partial => 'shared/sort' %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
 			</div>
 			<div id="all_collages_sort" style="display:none;" data-type="collages">
-				<%= render :partial => 'shared/sort' %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
 			</div>
 			<div id="all_cases_sort" style="display:none;" data-type="cases">
-				<%= render :partial => 'shared/sort' %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @case_sort_list } %>
 			</div>
 		</aside>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
-	<ul id="all_playlists" class="playlists_section">
+	<ul id="all_playlists">
 		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
 	</ul>
-	<ul id="all_collages" class="collages_section" style="display:none;">
+	<ul id="all_collages" style="display:none;">
 		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
 	</ul>
-	<ul id="all_cases" class="cases_section" style="display:none;">
+	<ul id="all_cases" style="display:none;">
 		<%= render :partial => 'shared/objects/case_obj', :collection => @cases.results %>
 	</ul>
 	</article>

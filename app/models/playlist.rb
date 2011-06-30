@@ -52,4 +52,8 @@ class Playlist < ActiveRecord::Base
   end
 
   alias :to_s :display_name
+
+  def bookmark_name
+    self.name
+  end
 end

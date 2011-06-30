@@ -11,5 +11,8 @@ class ItemDefault < ActiveRecord::Base
 #    PREVIEW_CONTENT
 
   end
-  
+
+  def bookmark_name
+    self.name
+  end
 end

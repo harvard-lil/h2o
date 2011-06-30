@@ -5,7 +5,7 @@ class CasesController < BaseController
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
-  before_filter :list_tags, :only => [:index, :show, :edit]
+  before_filter :list_tags, :only => [:index, :show, :edit, :new, :create]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
@@ -73,13 +73,11 @@ class CasesController < BaseController
     @cases.execute!
 	@my_cases = current_user ? current_user.cases : []
 
-    generate_sort_list({"display_name" => "DISPLAY NAME",
-			"decision_date" => "DECISION DATE" })
     build_bookmarks("ItemCase")
 
     respond_to do |format|
       format.html do
-	    if params.has_key?(:is_ajax)
+	    if request.xhr?
 		  render :partial => 'cases_block'
 		else
 		  render 'index'
@@ -92,6 +90,8 @@ class CasesController < BaseController
   # GET /cases/1
   # GET /cases/1.xml
   def show
+    add_stylesheets 'cases'
+
     if (! @case.public || ! @case.active ) && ! @my_cases.include?(@case)
       #if not public or active and the case isn't one of mine. . .
       render :status => :not_found 

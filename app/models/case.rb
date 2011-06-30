@@ -76,6 +76,10 @@ class Case < ActiveRecord::Base
     self.collages.select { |c| c.ancestry.nil? }
   end
 
+  def bookmark_name
+    self.short_name
+  end
+
   private
 
   def date_check
@@ -83,5 +87,4 @@ class Case < ActiveRecord::Base
       errors.add(:decision_date,'cannot be in the future')
     end
   end
-
 end

@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
-  before_filter :title_select, :set_time_zone, :load_playlists
+  before_filter :title_select, :set_time_zone, :load_playlists, :set_sort_lists
 
   # add caching on this action later
   def load_playlists
@@ -79,17 +79,20 @@ class ApplicationController < ActionController::Base
     influence_record.save!
   end
 
+  def set_sort_lists
+    @case_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
+			"decision_date" => "DECISION DATE" })
+    @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
+			"created_at" => "BY DATE",
+			"author" => "BY AUTHOR"	})
+  end
+
   protected
 
   def generate_sort_list(sort_fields)
-    @sort_list = []
-	sort_fields.each do |k, v|
-	  @sort_list.push([v, 
-	    k,
-		(params.has_key?(:sort) && params[:sort] == k) ? true : false]
-	  )
-	end
-
+    sort_list = []
+	sort_fields.each { |k, v| sort_list.push([v, k, (params.has_key?(:sort) && params[:sort] == k) ? true : false]) }
+    sort_list
   end
 
   # Accepts a string or an array and emits stylesheet tags in the layout in that order.

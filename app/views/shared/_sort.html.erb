@@ -1,6 +1,6 @@
 <label>SORT:</label>
 <select>
-	<% @sort_list.each do |s| -%>
+	<% list.each do |s| -%>
 		<option value="<%= s[1] %>" <%= raw 'selected="selected"' if s[2] %>><%= s[0] %></option>
 	<% end -%>
 </select>

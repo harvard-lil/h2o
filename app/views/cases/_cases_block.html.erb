@@ -1,6 +1,6 @@
 <%= render :partial => 'shared/objects/case_obj', :collection => @cases.is_a?(WillPaginate::Collection) ? @cases : @cases.results %>
 
-<% if params.has_key?(:is_ajax) -%>
+<% if request.xhr? -%>
 <div id="new_pagination" style="display:none;">
 <%= will_paginate @cases.is_a?(WillPaginate::Collection) ? @cases : @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 <div>

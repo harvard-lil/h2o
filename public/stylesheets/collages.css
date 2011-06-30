@@ -49,8 +49,8 @@
 #collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/pagination.png) center no-repeat; }
 #collage .toolbar a { background: url(/images/ui/show_icons.png);
   display: block; width: 23px; height: 30px; text-indent: -4000px; }
-#collage .toolbar .link-share { width: 26px; }
-#collage .toolbar .link-copy { background-position: -26px 0px; width: 15px; }
+#collage .toolbar .link-share { width: 25px; }
+#collage .toolbar .link-copy { background-position: -25px 0px; width: 16px; }
 #collage .toolbar .link-bookmark { background-position: -41px 0px; width: 18px; }
 #collage .toolbar .link-print { background-position: -60px 0px; width: 22px; }
 

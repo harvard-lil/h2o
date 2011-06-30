@@ -45,23 +45,23 @@
 		</ul>
 		<aside class="sort">
 			<div id="all_cases_sort" data-type="cases">
-				<%= render :partial => 'shared/sort' %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @case_sort_list } %>
 			</div>
 		</aside>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
-	<ul id="all_cases" class="cases_section">
+	<ul id="all_cases">
 		<%= render :partial => 'cases_block' %>
 	</ul>
 	<% if current_user -%>
     <% if @my_cases.any? -%>
-	<ul id="my_cases" class="cases_section">
+	<ul id="my_cases">
 		<%= render :partial => 'shared/objects/case_obj', :collection => @my_cases %>
 	</ul>
 	<% end -%>
 	<% if @my_bookmarks.any? -%>
-	<ul id="my_bookmarks" class="cases_section">
+	<ul id="my_bookmarks">
 		<%= render :partial => 'shared/objects/case_obj', :collection => @my_bookmarks %>
 	</ul>
 	<% end -%>

@@ -1,4 +1,4 @@
-<li class="playlist listitem level<%= recursive_level %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
+<li class="playlist listitem level<%= recursive_level %> listitem<%= item.resource_item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
 	<div class="controls">
 		<ul>
 			<li class="number"><%= parent_index == '' ? "#{index + 1}" : "#{parent_index}.#{index}" %></li>
@@ -30,7 +30,7 @@
 			</h3>
 			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
 			<% if current_user && @playlist_admi || my_playlist %>
-			<%= link_to "DELETE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item" %>
+			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item" %>
 			<%= link_to "EDIT", url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => "action edit-action" %>
 			<% end -%>
 			<div class="cl"></div>

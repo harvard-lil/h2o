@@ -109,7 +109,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :users, :collection => {:create_anon => :post}
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
   map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
-  map.bookmark_item "/bookmark_item/:type", :controller => :users, :action => :bookmark_item
+  map.bookmark_item "/bookmark_item/:type/:id", :controller => :users, :action => :bookmark_item
 
   map.search_all "/all_materials", :controller => :base, :action => :search
   map.root :controller => "base"

@@ -106,9 +106,10 @@ font-weight: bold; font-size: 11px; }
   width: 7px; height: 9px; padding: 0px; margin-top: 2px; }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
-#results hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png); height:30px; line-height:30px; display:block; position:relative; z-index:2; }
-#results hgroup { border-radius:4px; -moz-border-radius:4px;
-  -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; margin-bottom: 10px; }
+#results > hgroup { border:1px solid #ff8b11; background:url(/images/ui/results-hgroup.png);
+height:30px; line-height:30px; display:block; position:relative; z-index:2;
+border-radius:4px; -moz-border-radius:4px;
+-webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; margin-bottom: 10px; }
 #results .tabs { list-style:none; float: left; display: inline; padding:4px 0 0 11px; }
 #results .tabs li { float: left; display: inline; font-weight:bold; font-size:10px; line-height:24px; padding-right:3px; }
 #results .tabs li a { float: left; display: inline; background:url(/images/ui/tabs-nav.png); color:#630; padding:0 15px 2px; position:relative; }
@@ -147,8 +148,8 @@ font-weight: bold; font-size: 11px; }
 #results .listitem .details .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
 #results .listitem .details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 #results .listitem .details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
-#results .listitem .details h4 .action { font-size: 10px; font-weight: normal; }
-#results .listitem .details h4 .delete-action { padding-left: 5px; background:
+.listitem .action { font-size: 10px; font-weight: normal; }
+.listitem .delete-action { padding-left: 5px; background:
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 #results .listitem .details p { float: left; display: inline; font-size:10px; line-height:16px; }
 #results .listitem .details p a { font-weight:bold; }
@@ -292,18 +293,13 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #my_bookmarks .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 #my_bookmarks .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
 #my_bookmarks .playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
-#my_bookmarks .playlist .data .icon-type { float:left; display:inline;
+.playlist .data .icon-type { float:left; display:inline;
   margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
-#my_bookmarks .playlist .data .icon-type-itemdefault,
-#playlist .playlist .data .icon-type-itemdefault { background-position: -72px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemcollage,
-#playlist .playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemquestion,
-#playlist .playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemplaylist,
-#playlist .playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
-#my_bookmarks .playlist .data .icon-type-itemcase,
-#playlist .playlist .data .icon-type-itemcase { background-position: -54px 0px; }
+.playlist .data .icon-type-itemdefault { background-position: -72px 0px; }
+.playlist .data .icon-type-itemcollage { background-position: 0px 0px; }
+.playlist .data .icon-type-itemquestion { background-position: -36px 0px; }
+.playlist .data .icon-type-itemplaylist { background-position: -18px 0px; }
+.playlist .data .icon-type-itemcase { background-position: -54px 0px; }
 #my_bookmarks .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #my_bookmarks .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
@@ -314,28 +310,58 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #my_bookmarks .playlists .playlists .playlists .playlists .data { padding-right:119px; }
 #my_bookmarks .playlists .full-list-link { position:absolute; top:13px; right:0; width:78px; height:24px; background:#d8dada; color:#333; text-align:center; font-size:10px; line-height:24px; font-weight:bold; }
 
-#my_bookmarks .listitem .action { font-size: 10px; font-weight: normal; }
-#my_bookmarks .listitem .delete-action { padding-left: 10px; background:
-  transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
-
 #header_login { float: right; padding: 0px 15px; }
 #header_login.active { background: #FFF; color: #000; }
 
+.standard-form { padding: 20px; }
 #login-popup { display: none; position: absolute; top: 38px; right: 0px;
 background: #FFF; z-index: 1000; width: 642px; box-shadow:#777 -4px 10px 20px;
 -moz-box-shadow:#777 -4px 10px 20px; -webkit-box-shadow:#777 -4px 10px 20px;
--o-box-shadow:#777 -4px 10px 20px; -ms-box-shadow:#777 -4px 10px 20px; }
-#login-popup h3 { color: #4e9ed1; font-size: 17pt; font-weight: normal; padding-bottom: 20px; }
-#login-popup .left { float: left; width: 321px; padding: 25px 0px; text-align: center; }
-#login-popup .left h3 { text-align: center; width: 100%; }
-#login-popup .right { float: right; width: 230px; padding: 25px 46px 15px 40px; border-left: 1px solid #d9d9d9; }
-#login-popup .border { border-top: 1px solid #d9d9d9; width: 100%; display: block; height: 1px; margin: 20px 0px; }
-#login-popup .button { background: url(/images/ui/grey-btn.png) repeat; border-radius: 4px;
+-o-box-shadow:#777 -4px 10px 20px; -ms-box-shadow:#777 -4px 10px 20px; padding: 0px; }
+.standard-form h3,
+.standard-form h2 { color: #4e9ed1; font-size: 17pt; font-weight: normal; padding-bottom: 20px; }
+.standard-form .errorExplanation { color: #4e9ed1; margin-bottom: 20px; }
+.standard-form .errorExplanation ul { margin-left: 20px; }
+.standard-form .left { float: left; width: 321px; padding: 25px 0px; text-align: center; }
+.standard-form .left h3 { text-align: center; width: 100%; }
+.standard-form .right { float: right; width: 230px; padding: 25px 46px 15px 40px; border-left: 1px solid #d9d9d9; }
+.standard-form .border { border-top: 1px solid #d9d9d9; width: 100%; display: block; height: 1px; margin: 20px 0px; }
+.standard-form .button { background: url(/images/ui/grey-btn.png) repeat; border-radius: 4px;
 -moz-border-radius: 4px; -webkit-border-radius: 4px; border: 1px solid #dbdbdb; 
 color: #4e9ed1; padding: 7px 11px; }
-#login-popup label { text-transform: uppercase; font-size: 9px; font-weight: bold; }
-#login-popup input.text { margin-bottom: 15px; background: #FFF; border: 1px solid #999; padding: 2px; }
-#login-popup #forgot { display: inline-block; margin: 10px 0px 20px 0px; text-align: center; }
-#login-popup #remember { margin-bottom: 15px; }
-#login-popup #remember input { position: relative; top: 2px; margin-right: 3px; }
-#login-popup #remember label { font-weight: normal; }
+.standard-form label { text-transform: uppercase; font-size: 9px; font-weight: bold; display: block; }
+.standard-form input.text { margin-bottom: 15px; background: #FFF; border: 1px solid #999; padding: 2px; }
+.standard-form #forgot { display: inline-block; margin: 10px 0px 20px 0px; text-align: center; }
+.standard-form .remember { margin-bottom: 15px; }
+.standard-form .remember input { position: relative; top: 2px; margin-right: 3px; }
+.standard-form .remember label { font-weight: normal; display: inline-block; }
+
+/* Playlist list items -- needed here because used on users page */
+.playlist .controls ul li.link-add a { background:url(/images/ui/playlist-controls.png);
+  float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
+.playlist .number { float:left; display:inline;  width:24px; font-size:10px;
+  line-height:20px; color:#666; font-weight:bold; text-align:center;
+  border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
+  padding-top: 2px; }
+.playlist .data { float: right; display: inline; width:550px; position:relative; 904px;  padding-right:345px; } 
+.playlist .data .dd-open { position:absolute; top:5px; left:-17px; width:17px; height:12px; background:url(/images/ui/playlist-arrow.png) center no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
+
+.playlist .data .tags { position:absolute; top:0; right:0; }
+.playlist .data .tags ul { list-style:none; float:right; display:inline; }
+.playlist .data .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
+.playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
+.playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
+.playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
+.playlist .data .icon-type { float:left; display:inline;
+  margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/small_icons.png); }
+.playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
+
+.playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
+.playlists .playlists .data { padding-right:271px; }
+.playlists .playlists .playlists { width:823px;}
+.playlists .playlists .playlists .data { padding-right:197px; }
+.playlists .playlists .playlists .playlists { width:749px; }
+.playlists .playlists .playlists .playlists .data { padding-right:119px; }
+.playlists .listitem .icon-type,
+.playlists .listitem .delete-action,
+.playlists .listitem .edit-action { line-height: 18px; }

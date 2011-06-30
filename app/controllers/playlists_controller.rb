@@ -57,17 +57,13 @@ class PlaylistsController < BaseController
 
 	@playlists.execute!
 
-    generate_sort_list({"display_name" => "DISPLAY NAME",
-			"created_at" => "BY DATE",
-			"author" => "BY AUTHOR"	})
     build_bookmarks("ItemPlaylist")
 
     @my_playlists = current_user ? current_user.playlists : []
     
     respond_to do |format|
-	  #See notes in collage respond_to regarding this is_ajax option
       format.html do
-	    if params.has_key?(:is_ajax)
+	    if request.xhr?
 		  render :partial => 'playlists_block'
 		else
 		  render 'index'

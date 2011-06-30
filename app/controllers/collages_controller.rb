@@ -11,7 +11,7 @@ class CollagesController < BaseController
 
   access_control do
     allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]    
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
   end
 
@@ -86,20 +86,14 @@ class CollagesController < BaseController
     end
 
     @collages.execute!
-
-    generate_sort_list({"display_name" => "DISPLAY NAME",
-			"created_at" => "BY DATE",
-			"author" => "BY AUTHOR"	})
-
 	@my_collages = current_user ? current_user.collages : [] 
     build_bookmarks("ItemCollage")
 
     respond_to do |format|
 	  #The following is called via normal page load
-	  # and via AJAX. To differentiate what HTML is returned 
-	  # here, I've added the param :is_ajax.
+	  # and via AJAX.
       format.html do
-	    if params.has_key?(:is_ajax)
+	    if request.xhr?
 		  render :partial => 'collages_block'
 		else
 		  render 'index'

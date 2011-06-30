@@ -6,8 +6,7 @@ var last_annotation = 0;
 var highlight_history = {};
 
 jQuery.extend({
-	highlightHistoryAdd: function(id, el, highlighted) {
-		var aid = jQuery(el).attr('id');
+	highlightHistoryAdd: function(id, aid, highlighted) {
 		if(!highlight_history[aid]) {
 			highlight_history[aid] = ['ffffff'];
 		}
@@ -24,11 +23,9 @@ jQuery.extend({
 			highlight_history[aid] = update;
 		}
 		var last = highlight_history[aid].length - 1;
-		var layer_id = aid.replace(/^annotation-asterisk-/, '');
-		jQuery('tt.a' + layer_id).css('background', '#' + highlight_history[aid][last]);
+		jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
 	},
-	highlightHistoryRemove: function(id, el, highlighted) {
-		var aid = jQuery(el).attr('id');
+	highlightHistoryRemove: function(id, aid, highlighted) {
 		if(highlighted) {
 			highlight_history[aid].pop();
 		} else {
@@ -41,8 +38,7 @@ jQuery.extend({
 			highlight_history[aid] = update;
 		}
 		var last = highlight_history[aid].length - 1;
-		var layer_id = aid.replace(/^annotation-asterisk-/, '');
-		jQuery('tt.a' + layer_id).css('background', '#' + highlight_history[aid][last]);
+		jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
 	},
 	addCommas: function(str) {
 		str += '';
@@ -81,7 +77,7 @@ jQuery.extend({
 				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
 			});
 			jQuery('.annotation-asterisk').each(function(i, el) {
-				data['.a' + jQuery(el).attr('id').replace(/annotation-asterisk-/, '')] = jQuery(el).css('display');	
+				data['.a' + jQuery(el).data('id')] = jQuery(el).css('display');	
 				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');
 			});
 			jQuery('.annotation-content').each(function(i, el) {
@@ -176,11 +172,11 @@ jQuery.extend({
 	if(obj.layers.length > 0) {
 			jQuery('#annotation-asterisk-' + obj.id).hoverIntent({
 		 		over: function(e){
-						jQuery.highlightHistoryAdd('l' + layer_id, '#annotation-asterisk-' + obj.id, true);
+						jQuery.highlightHistoryAdd('l' + layer_id, obj.id, true);
 					}, 
 					timeout: 1000,
 					out: function(e){
-						jQuery.highlightHistoryRemove('l' + layer_id, '#annotation-asterisk-' + obj.id, true);
+						jQuery.highlightHistoryRemove('l' + layer_id, obj.id, true);
 					}
 			});
 	}
@@ -483,10 +479,9 @@ jQuery.extend({
 		if(is_owner) {
 			jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
 			jQuery('.annotation-content').hide();
-			jQuery('.annotation-asterisk').unbind('click').click(function(e) {
+			jQuery('.annotation-asterisk, .control-divider').unbind('click').click(function(e) {
 				e.preventDefault();
-				var id = jQuery(this).attr('id').replace(/annotation-asterisk-/, '');
-				jQuery.annotationButton(id);
+				jQuery.annotationButton(jQuery(this).data('id'));
 			});
 		}
 	},
@@ -496,8 +491,7 @@ jQuery.extend({
 		jQuery('.ann-details').hide();
 		jQuery('.annotation-asterisk').unbind('click').click(function(e) {	
 			e.preventDefault();
-			var id = jQuery(this).attr('id').replace(/annotation-asterisk-/, '');
-			jQuery.toggleAnnotation(id);
+			jQuery.toggleAnnotation(jQuery(this).data('id'));
 		});
 	}
 
@@ -586,17 +580,16 @@ jQuery(document).ready(function(){
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).show();
 				jQuery('.annotation-ellipsis-' + id).hide();
-				//jQuery('.' + id).removeClass('highlight-' + layer_info[id].hex);
-				jQuery('.annotation-asterisk.' + id).each (function(i, el) {
-					jQuery.highlightHistoryRemove(id, el, false);
+				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
+					jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
 				});
 				el.removeClass('highlighted').html('HIGHLIGHT');
 			} else {
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).show();
 				jQuery('.annotation-ellipsis-' + id).hide();
-				jQuery('.annotation-asterisk.' + id).each (function(i, el) {
-					jQuery.highlightHistoryAdd(id, el, false);
+				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
+					jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);
 				});
 				el.addClass('highlighted').html('UNHIGHLIGHT');
 			}
@@ -625,6 +618,7 @@ jQuery(document).ready(function(){
 				'hex' : jQuery(el).data('hex'),
 				'name' : jQuery(el).data('name')
 			};
+			jQuery('a.annotation-control-' + jQuery(el).data('id')).css('background', '#' + jQuery(el).data('hex'));
 			jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
 		});
 	
@@ -640,7 +634,9 @@ jQuery(document).ready(function(){
 			return false;
 		});
 
-		jQuery.listenToRecordCollageState();
+		if(is_owner) {
+			jQuery.listenToRecordCollageState();
+		}
 		jQuery.loadState();
 	}
 });

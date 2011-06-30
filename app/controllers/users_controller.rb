@@ -54,21 +54,16 @@ class UsersController < ApplicationController
 
 	#o.replace(o.gsub!(/\W+/, '')) --- add if remove non-word characters for sort
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'playlists'
+    if !request.xhr? || params[:is_ajax] == 'playlists'
 	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	end
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'collages'
+    if !request.xhr? || params[:is_ajax] == 'collages'
 	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 	end
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'cases'
+    if !request.xhr? || params[:is_ajax] == 'cases'
  	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-	end
-
-	if !params.has_key?(:is_ajax)
-	  generate_sort_list({"display_name" 	=> 'DISPLAY NAME',
-			"created_at"	=> 'BY DATE' })
 	end
 
 	if current_user
@@ -91,7 +86,7 @@ class UsersController < ApplicationController
 
 	respond_to do |format|
 	  format.html do
-	    if params.has_key?(:is_ajax)
+	    if request.xhr?
 		  render :partial => "#{params[:is_ajax]}/#{params[:is_ajax]}_block"
 		else
 		  render 'show'
@@ -123,11 +118,7 @@ class UsersController < ApplicationController
     end
   end
 
-  # post bookmark_item/:type
-  # post bookmark_item/item_playlist
-  # post bookmark_item/item_collage
-  # this method calls the existing item_* forms to hook up to item_base_controllers new method
-  # and then redirects to the users bookmark
+  # post bookmark_item/:type/:id
   def bookmark_item
     if current_user.bookmark_id.nil?
 	  playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false })
@@ -137,13 +128,29 @@ class UsersController < ApplicationController
 	  current_user.update_attribute(:bookmark_id, playlist.id)
 	end
 
-    params[:container_id] = current_user.bookmark_id
-	klass = params[:type].classify.constantize
-    @object = klass.new(:url => params[:url])
-	@base_model_class = params[:type] == 'item_default' ? nil : klass.to_s.gsub(/Item|Controller/, '').singularize.constantize
+    begin
 
-    respond_to do |format|
-      format.html { render :partial => "/shared/forms/#{params[:type]}" }
-    end
+      base_model_klass = params[:type] == 'default' ? ItemDefault : params[:type].classify.constantize
+
+      actual_object = base_model_klass.find(params[:id])
+	  logger.warn "steph: #{base_model_klass.inspect} #{params.inspect}"
+      klass = "item_#{params[:type]}".classify.constantize
+      item = klass.new(:name => actual_object.bookmark_name,
+	    :url => params[:type] == 'default' ? actual_object.url : "#{params[:base_url]}#{params[:type].pluralize}/#{params[:id]}")
+      if params[:type] != 'default'
+	    item.actual_object = actual_object
+      end
+	  item.save
+	  
+	  playlist_item = PlaylistItem.new(:playlist_id => current_user.bookmark_id, 
+	    :resource_item_type => "item_#{params[:type]}".classify,
+	    :resource_item_id => item.id)
+	  playlist_item.save
+
+      render :json => {}
+    rescue Exception => e
+	logger.warn "#{e.inspect}"
+      render :json => {}
+	end
   end
 end

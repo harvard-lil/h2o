@@ -28,7 +28,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 	<%= yield %>
 	<%= render :partial => 'shared/footer' %>
 	<% if !current_user -%>
-	<div id="login-popup">
+	<div id="login-popup" class="standard-form">
 		<div class="right">
 		<h3>Returning user log in.</h3>
 		<% form_for :user_session, :url => user_session_path do |f| -%>
@@ -36,7 +36,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 		<%= f.text_field :login, :class => 'text' %>
 		<%= f.label :password %>
 		<%= f.password_field :password, :class => 'text' %>
-		<div id="remember">
+		<div class="remember">
 			<%= f.check_box :remember_me %><%= f.label :remember_me %>
 		</div>
 		<div class="center">

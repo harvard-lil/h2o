@@ -43,7 +43,7 @@ class BaseController < ApplicationController
 	  params[:sort] = "display_name"
 	end
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'playlists'
+    if !request.xhr? || params[:is_ajax] == 'playlists'
       @playlists = Sunspot.new_search(Playlist)
 	  @playlists.build do
 	    if params.has_key?(:keywords)
@@ -56,7 +56,7 @@ class BaseController < ApplicationController
 	  @playlists.execute!
 	end
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'collages'
+    if !request.xhr? || params[:is_ajax] == 'collages'
 	  @collages = Sunspot.new_search(Collage)
 	  @collages.build do
 	    if params.has_key?(:keywords)
@@ -74,7 +74,7 @@ class BaseController < ApplicationController
       @collages.execute!
 	end
 
-    if !params.has_key?(:is_ajax) || params[:is_ajax] == 'cases'
+    if !request.xhr? || params[:is_ajax] == 'cases'
 	  @cases = Sunspot.new_search(Case)
 	  @cases.build do
 	    if params.has_key?(:keywords)
@@ -105,12 +105,9 @@ class BaseController < ApplicationController
 
     playlist_admin_preload
 
-    generate_sort_list({"display_name" => "DISPLAY NAME",
-			"created_at" => "BY DATE",
-			"author" => "BY AUTHOR"	})
 	respond_to do |format|
 	  format.html do
-	    if params.has_key?(:is_ajax)
+	    if request.xhr?
 		  render :partial => "#{params[:is_ajax]}/#{params[:is_ajax]}_block"
 		else
 		  render 'search'

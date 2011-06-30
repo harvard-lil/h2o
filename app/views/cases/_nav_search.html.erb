@@ -4,9 +4,9 @@
 		<li id="spinner">
 			<img src="/images/ui/ajax-loader.gif" alt="" />
 		</li>
-		<% if current_user && false -%>
+		<% if current_user -%>
 		<li class="btn">
-			<a href="<%= new_case_path %>" class="btn-a new-action">
+			<a href="<%= new_case_path %>" class="btn-a">
 				<span>CREATE CASE</span>
 			</a>
 		</li>

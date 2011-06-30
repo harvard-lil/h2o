@@ -111,7 +111,9 @@ Your annotation will start here. Please click another word to set the end point.
 	<article>
 		<%= raw @collage.annotatable_content %>
 	</article>
+	<% if false -%>
 	<% cache("collage-annotatable-content-#{@collage.id}") do %>
+	<% end -%>
 	<% end -%>
 </div>
   
