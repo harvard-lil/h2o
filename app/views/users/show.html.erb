@@ -39,7 +39,7 @@
 			<li><a href="#" data-region="all_cases">CASES</a></li>
 			<% end -%>
 		    <% if @user.bookmarks.any? -%>
-			<li><a href="#" data-region="bookmarks">BOOKMARKS</a></li>
+			<li><a href="#" data-region="bookmarks" id="bookmark_tab">BOOKMARKS</a></li>
 			<% end -%>
 			<% if current_user == @user -%>
 			<li><a href="#" data-region="user_info">USER INFO</a></li>

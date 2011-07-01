@@ -10,20 +10,16 @@
 	<div class="details">
 		<div class="tags">
 			<ul>
-				<% case_obj.tags.each do |tag| %>
-				<li><%= link_to tag.name, case_tag_path(tag.name) %></li>
+				<% case_obj.tag_list.each do |tag| %>
+				<li><%= link_to tag, case_tag_path(CGI.escape(tag)) %></li>
 				<% end -%>
 			</ul>
 		</div>
 		<h4>
 			<%= link_to case_obj.short_name, case_obj %>
-			<% if current_user -%>
-            <% if @is_case_admin || @my_cases.include?(case_obj) %>
+            <% if current_user && (@is_case_admin || @my_cases.include?(case_obj)) %>
             <%= link_to "DELETE", case_path(case_obj), :class => "action delete-action" %>
-			<% end -%>
-            <% if @is_case_admin || @my_cases.include?(case_obj) %>
             <%= link_to "EDIT", edit_case_path(case_obj), :class => "action edit-case_obj edit-action" %>
-          	<% end %>
           	<% end %>
 		</h4>
 		<p class="cases_details">

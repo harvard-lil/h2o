@@ -10,12 +10,14 @@ Your annotation will start here. Please click another word to set the end point.
 </div>
 </div>
 
-<div id="collage">
+<div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
 	<hgroup class="description">
-		<h2 class="collage-id singleitem" id="collage-<%= @collage.id %>" data-itemid="<%= @collage.id %>"><%= @collage.name %></h2>
+		<h2 class="collage-id"><%= @collage.name %></h2>
 		<aside class="toolbar">
 			<ul>
+				<% if false -%>
 				<li><a href="#" class="link-share">Share</a></li>
+				<% end -%>
   				<% if current_user -%>
 				<li>
     				<% form_tag(spawn_copy_collage_path(@collage)) do %>

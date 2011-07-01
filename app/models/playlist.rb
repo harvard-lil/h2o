@@ -28,7 +28,7 @@ class Playlist < ActiveRecord::Base
     text :description
     text :name
 	string :tag_list, :stored => true, :multiple => true
-	string :author, :stored => true
+	string :author 
 
     boolean :public
 	time :created_at

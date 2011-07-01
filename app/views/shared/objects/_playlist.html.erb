@@ -10,8 +10,8 @@
 	<div class="details">
 		<div class="tags">
 			<ul>
-				<% playlist.tags.each do |tag| %>
-				<li><%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %></li>
+				<% playlist.tag_list.each do |tag| %>
+				<li><%= link_to tag, playlist_tag_path(CGI.escape(tag)) %></li>
 				<% end -%>
 			</ul>
 		</div>
@@ -34,3 +34,7 @@
 	</div>
 	<div class="cl"></div>
 </li>
+<% if false -%>
+<% cache("playlist-list-view-#{playlist.id}") do %>
+<% end -%>
+<% end -%>

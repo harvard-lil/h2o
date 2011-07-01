@@ -129,11 +129,11 @@ class UsersController < ApplicationController
 	end
 
     begin
+      raise "not logged in" if !current_user
 
       base_model_klass = params[:type] == 'default' ? ItemDefault : params[:type].classify.constantize
 
       actual_object = base_model_klass.find(params[:id])
-	  logger.warn "steph: #{base_model_klass.inspect} #{params.inspect}"
       klass = "item_#{params[:type]}".classify.constantize
       item = klass.new(:name => actual_object.bookmark_name,
 	    :url => params[:type] == 'default' ? actual_object.url : "#{params[:base_url]}#{params[:type].pluralize}/#{params[:id]}")
@@ -147,10 +147,10 @@ class UsersController < ApplicationController
 	    :resource_item_id => item.id)
 	  playlist_item.save
 
-      render :json => {}
+      render :json => { :user_id => current_user.id }
     rescue Exception => e
 	logger.warn "#{e.inspect}"
-      render :json => {}
+      render :status => 500, :json => {}
 	end
   end
 end

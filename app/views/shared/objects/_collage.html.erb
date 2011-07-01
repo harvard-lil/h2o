@@ -12,8 +12,8 @@
 	<div class="details">
 		<div class="tags">
 			<ul>
-				<% collage.tags.each do |tag| %>
-				<li><%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %></li>
+				<% collage.tag_list.each do |tag| %>
+				<li><%= link_to tag, collage_tag_path(CGI.escape(tag)) %></li>
 				<% end -%>
 			</ul>
 		</div>

@@ -150,13 +150,15 @@ class Collage < ActiveRecord::Base
 
       unlayered_start = 1
 	  unlayered_start_node = true
+      unlayered_ids = []
+
       doc.xpath('//tt').each do|node|
         node_id_num = node['id'][1,node['id'].length - 1].to_i
 		classes = []
         annotation_rules.each do |r|
 		  if node_id_num == r[:start]
 		    span_node = Nokogiri::XML::Node.new('a', doc)
-			sclasses = ["arr", "control-divider", "annotation-control-#{r[:id]}"]
+			sclasses = ["control-divider", "annotation-control-#{r[:id]}"]
 			r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
 			span_node['class'] = sclasses.join(' ')
 			span_node['data-id'] = "#{r[:id]}"
@@ -211,9 +213,16 @@ class Collage < ActiveRecord::Base
 		else
 		  node['class'] = "unlayered unlayered_#{unlayered_start}"
 		  if unlayered_start_node
+		    unlayered_ids.push(unlayered_start)
+		    control_node = Nokogiri::XML::Node.new('a', doc)
+			control_node['class'] = "unlayered-control unlayered-control-start unlayered-control-#{unlayered_start}"
+			control_node['data-id'] = "#{unlayered_start}"
+			control_node['href'] = '#'
+			node.add_previous_sibling(control_node)
 		    link_node = Nokogiri::XML::Node.new('a', doc)
 			link_node['class'] = 'unlayered-ellipsis'
 			link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
+			link_node['data-id'] = "#{unlayered_start}"
 			link_node['href'] = '#'
 			link_node.inner_html = '[...]'
 			node.add_previous_sibling(link_node)
@@ -222,6 +231,15 @@ class Collage < ActiveRecord::Base
 		  end
 		end
       end
+
+	  unlayered_ids.each do |id|
+      	node = doc.css("tt.unlayered_#{id}").last
+	    control_node = Nokogiri::XML::Node.new('a', doc)
+		control_node['class'] = "unlayered-control unlayered-control-end unlayered-control-#{id}"
+		control_node['data-id'] = "#{id}"
+		control_node['href'] = '#'
+		node.add_next_sibling(control_node)
+	  end
 
       # TODO: combine p & center selectors
       doc.xpath('//p').each do |node|
@@ -247,6 +265,16 @@ class Collage < ActiveRecord::Base
 
   def bookmark_name
     self.name
+  end
+
+  def exportable_content
+    #read readable state here 
+	data = self.content.split('</p>')
+	clean_data = []
+	data.each do |d|
+      clean_data.push(d.gsub(/<\/?[^>]*>/, ""))
+	end
+	clean_data
   end
 
   private 

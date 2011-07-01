@@ -10,6 +10,28 @@ jQuery.extend({
 	rootPath: function(){
 	  return '/';
 	},
+	initializeTabBehavior: function() {
+		jQuery('.tabs a').click(function(e) {
+			var region = jQuery(this).data('region');
+			jQuery('.popup').hide();
+			popup_item_id = 0;
+			popup_item_type = '';
+			jQuery('.tabs a').removeClass("active");
+			jQuery('.songs > ul').hide();
+			jQuery('.pagination > div, .sort > div').hide();
+			jQuery('#' + region +
+				',#' + region + '_pagination' +
+				',#' + region + '_sort').show();
+			jQuery(this).addClass("active");
+			e.preventDefault();
+		});
+		//TODO: Possibly generic-ize this later if more of this
+		//functionality is needed. For now it's only needed
+		//on bookmarks
+		if(document.location.hash == '#vbookmarks') {
+			jQuery('#bookmark_tab').click();
+		}
+	},
 	observeLoginPanel: function() {
 		jQuery('#header_login').click(function(e) {
 			jQuery(this).toggleClass('active');
@@ -294,11 +316,7 @@ jQuery.extend({
 		//empty for now
 	},
 	getItemId: function(element) {
-		if(jQuery("#results")) {
-			return jQuery(element).closest(".listitem").data("itemid");		
-		} else {
-			return jQuery(".singleitem").data("itemid");
-		}
+		return jQuery(".singleitem").data("itemid");
 	},
 
 	/* 
@@ -309,8 +327,8 @@ jQuery.extend({
 	*/
 	observeDestroyControls: function(region){
 	  	jQuery(region + ' .delete-action').live('click', function(e){
-			var item_id = jQuery.getItemId(this);
 			var destroyUrl = jQuery(this).attr('href');
+			var item_id = destroyUrl.match(/[0-9]+$/).toString();
 			e.preventDefault();
 			var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
 			jQuery(confirmNode).dialog({
@@ -356,10 +374,17 @@ jQuery.extend({
 	observeBookmarkControls: function(region) {
 	  	jQuery(region + ' .bookmark-action').live('click', function(e){
 			var item_url = jQuery.rootPathWithFQDN() + 'bookmark_item/';
-			if(jQuery(this).hasClass('bookmark-popup')) {
-				//This is a bit of a hack for now to work on playlist items on playlists page.
-				//It would be nice to clean it up later.
-				if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
+			var el = jQuery(this);
+			//TODO: It'd be nice to clean this up
+			//It handles:
+			// - bookmarking regular single item
+			// - bookmarking listed item
+			// - bookmarking playlist item (actual object)
+			// - bookmarking playlist item from bookmark list
+			if(el.hasClass('bookmark-popup')) {
+				if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').css('display') != 'none') {
+					item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();	
+				} else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
 					item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();	
 				} else {
 					item_url += popup_item_type + '/' + popup_item_id;
@@ -367,7 +392,6 @@ jQuery.extend({
 			} else {
 				item_url += jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
 			}
-			alert(item_url);
 			e.preventDefault();
 			jQuery.ajax({
 				cache: false,
@@ -379,9 +403,21 @@ jQuery.extend({
 				beforeSend: function() {
 				  	jQuery.showGlobalSpinnerNode();
 				},
-				success: function(html) {
+				success: function(data) {
 				  	jQuery.hideGlobalSpinnerNode();
-					alert('success!!');
+					var snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
+						jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
+					if(el.hasClass('bookmark-popup')) {
+						if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').css('display') != 'none') {
+							snode.insertBefore(jQuery('#bookmarks > .listitem' + popup_item_id + ' > .data hgroup .cl'));
+						} else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
+							snode.insertAfter(jQuery('.sortable > .listitem' + popup_item_id + ' > .data hgroup .icon-type'));
+						} else {
+							jQuery('.listitem' + popup_item_id + ' h4').append(snode);
+						}
+					} else {
+						jQuery('.singleitem > .description > h2').append(snode);
+					}
 				},
 				error: function(xhr, textStatus, errorThrown) {
 				  	jQuery.hideGlobalSpinnerNode();
@@ -456,7 +492,6 @@ jQuery.extend({
 	/* Generic HTML form elements */
 	observeGenericControls: function(region){
 	  	jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
-			var item_id = jQuery.getItemId(this);
 			var actionUrl = jQuery(this).attr('href');
 			e.preventDefault();
 			jQuery.ajax({
@@ -556,21 +591,6 @@ jQuery(function() {
 	});
 	jQuery("#search_all_radio").click();
 
-	jQuery('.tabs a').click(function(e) {
-		var region = jQuery(this).data('region');
-		jQuery('.popup').hide();
-		popup_item_id = 0;
-		popup_item_type = '';
-		jQuery('.tabs a').removeClass("active");
-		jQuery('.songs > ul').hide();
-		jQuery('.pagination > div, .sort > div').hide();
-		jQuery('#' + region +
-			',#' + region + '_pagination' +
-			',#' + region + '_sort').show();
-		jQuery(this).addClass("active");
-		e.preventDefault();
-	});
-
 	jQuery(".link-more,.link-less").click(function() {
 		jQuery("#description_less,#description_more").toggle();
 	});
@@ -594,4 +614,5 @@ jQuery(function() {
 	jQuery.observeTabDisplay('');
 	jQuery.observeCasesCollage();
 	jQuery.observeLoginPanel();
+	jQuery.initializeTabBehavior();
 });
