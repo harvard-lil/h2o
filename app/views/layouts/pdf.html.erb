@@ -1,1 +1,36 @@
-<%= yield %>
+<!DOCTYPE HTML>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+  <head> 
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <title></title>
+
+    <%= stylesheet_link_tag 'ui', 'jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom', 'formtastic', 'pdf' %>
+    <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
+      <%= stylesheet_link_tag ss %>
+    <% end -%>
+	<%= javascript_include_tag 'modernizr.custom.86311' %>
+  </head>
+  <body id="b<%= params[:controller] %>">
+  	<section id="shell">
+	<%= yield %>
+	</section>
+
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
+  'ui', 'jquery.cookie','jquery.form', 'jquery.validate.min','jquery.tag.suggestion',
+	'form', 'gui_controls', 'jquery.hoverIntent.minified', 'jquery.easing.1.3', 'jquery.hotkeys', :cached => 'site' %>
+
+<% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
+  <%= javascript_include_tag js %>
+<% end -%>
+
+<!--[if IE]>
+<%= javascript_include_tag 'excanvas.js' %>
+<![endif]--> 
+
+  </body>
+</html>

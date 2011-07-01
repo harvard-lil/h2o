@@ -44,22 +44,22 @@
 		<div class="cl"></div>
 		<% if !@playlist.description.nil? -%>
 		<% if @playlist.description.length > 500 -%>
-			<p id="description_less">
+			<div id="description_less">
 				<%= @playlist.description[1..500] %>... <a href="#" class="link-more">MORE</a>
-			</p>
-			<p id="description_more">
+			</div>
+			<div id="description_more">
 				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
 				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 				<% end -%>
-			</p>
+			</div>
 		<% else -%>
-			<p>
+			<div id="description">
 				<%= @playlist.description %>
 				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 				<% end -%>
-			</p>
+			</div>
 		<% end -%>
 		<% else -%>
 			<p>

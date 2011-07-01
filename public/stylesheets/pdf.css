@@ -1,0 +1,5 @@
+#collage { padding: 100px; }
+h2 { padding-bottom: 20px; }
+p { margin: 10px 0px; }
+.annotation-content { color: #6B933D; }
+.annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }

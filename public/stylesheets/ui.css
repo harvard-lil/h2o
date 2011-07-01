@@ -217,7 +217,15 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #activity_bottom { clear: both; margin: 3px 0px 2px 0px; border-top: 1px solid #d9d9d9;
   height: 1px; width: 100%; }
 
+#description,
+#description_more,
+#description_less { font-size:12px; line-height:18px; color:#616e5c; }
+.link-more, 
+.link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
 #description_more { display: none; }
+.singleitem .details .edit-action { padding-left: 5px; font-size:9px;
+text-transform:uppercase; font-weight:bold;
+background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 
 /* Cases Index */
 #bcases #results .sort label { color: #930102; }

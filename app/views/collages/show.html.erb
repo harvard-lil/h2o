@@ -26,7 +26,7 @@ Your annotation will start here. Please click another word to set the end point.
 				</li>
 				<li><%= link_to "Bookmark This Collage", bookmark_item_path("item_collage"), :class => "link-bookmark bookmark-action" %></li>
   				<% end -%>
-				<li><a href="#" class="link-print">Print</a></li>
+				<li><a href="<%= collage_path(@collage, :format => 'pdf') %>" class="link-print">Print</a></li>
 			</ul>
 		</aside>
 		<aside class="buttons">
@@ -90,22 +90,22 @@ Your annotation will start here. Please click another word to set the end point.
 			</div>
 		</h5>
 		<% if @collage.description.length > 100 -%>
-			<p id="description_less">
-			<%= Collage.format_content(@collage.description[1..100]) %>... <a href="#" class="link-more">MORE</a>
-			</p>
-			<p id="description_more">
+			<div id="description_less">
+			<%= Collage.format_content(@collage.description[0..100]) %>... <a href="#" class="link-more">MORE</a>
+			</div>
+			<div id="description_more">
 			<%= Collage.format_content(@collage.description) %> <a href="#" class="link-less">LESS</a>
-			</p>
+			</div>
 			<% if current_user && @collage.users.include?(current_user) -%>
 			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 			<% end -%>
 		<% else -%>
-			<p id="description">
+			<div id="description">
 				<%= Collage.format_content(@collage.description) %>
 				<% if current_user && @collage.users.include?(current_user) -%>
 				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 				<% end -%>
-			</p>
+			</div>
 		<% end -%>
 	</div>
 

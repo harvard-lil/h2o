@@ -1,0 +1,18 @@
+<div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
+	<article>
+		<%= raw @collage.annotatable_content %>
+	</article>
+	<% if false -%>
+	<% cache("collage-annotatable-content-#{@collage.id}") do %>
+	<% end -%>
+	<% end -%>
+	<h2 class="collage-id"><%= @collage.name %></h2>
+</div>
+
+<script type="text/javascript">
+<% if session.has_key?(:current_print) %>
+var last_data = <%= raw session[:current_print] || {} %>;
+<% else -%>
+var last_data = <%= raw @collage.readable_state || {} %>;
+<% end -%>
+</script>

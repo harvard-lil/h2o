@@ -591,8 +591,9 @@ jQuery(function() {
 	});
 	jQuery("#search_all_radio").click();
 
-	jQuery(".link-more,.link-less").click(function() {
+	jQuery(".link-more,.link-less").click(function(e) {
 		jQuery("#description_less,#description_more").toggle();
+		e.preventDefault();
 	});
 
 	jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});

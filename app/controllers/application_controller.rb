@@ -120,7 +120,6 @@ class ApplicationController < ActionController::Base
     end
 
     def require_user
-      
       unless current_user
         store_location
         flash[:notice] = "You must be logged in to access this page"

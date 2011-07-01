@@ -3,14 +3,14 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
 
   before_filter :is_collage_admin, :except => [:embedded_pager, :metadata]
-  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state]
+  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager, :export, :record_collage_print_state]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
   before_filter :list_tags, :only => [:index, :show, :edit, :new]
 
   caches_action :annotations
 
   access_control do
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager]    
+    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
   end
@@ -112,7 +112,19 @@ class CollagesController < BaseController
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @collage }
-	  format.pdf { render :pdf => "file_name" }
+	  format.pdf do
+	    logger.warn "steph: #{params.inspect}"
+	    url = request.url.gsub(/\.pdf/, '/export')
+		logger.warn "steph: #{url}"
+		require 'tempfile'
+		file = Tempfile.new('collage.pdf')
+	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+		system(cmd)
+		file.close
+		send_file file.path, :filename => "collage#{@collage.id}.pdf", :type => 'application/pdf'
+		#file.unlink
+        #session.delete(:current_print)
+	  end
     end
   end
 
@@ -188,11 +200,23 @@ class CollagesController < BaseController
     end
   end
 
+  def record_collage_print_state
+    session[:current_print] = params[:state]
+	respond_to do |format|
+	  format.json { render :json => {} }
+	end
+  end
+
   def save_readable_state
 	@collage.update_attribute('readable_state', params[:v])
 	respond_to do |format|
 	  format.json { render :json => { :time => Time.now.to_s(:simpledatetime) } }
 	end
+  end
+
+  def export
+    add_javascripts ['export_collage']
+    render :layout => 'pdf'
   end
 
   private 

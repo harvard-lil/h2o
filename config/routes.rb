@@ -39,7 +39,8 @@ ActionController::Routing::Routes.draw do |map|
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
   map.resources :collages, :collection => {:embedded_pager => :get},
-    :member => {:spawn_copy => :post, :save_readable_state => :post}
+    :member => {:spawn_copy => :post, :save_readable_state => :post,
+	            :record_collage_print_state => :post, :export => :get}
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},

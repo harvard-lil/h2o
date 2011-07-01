@@ -7,6 +7,24 @@ var highlight_history = {};
 var hover_state = {};
 
 jQuery.extend({
+	listenPrintLink: function() {
+		jQuery('.link-print').click(function(e) {
+			var el = jQuery(this);
+			jQuery.ajax({
+				type: 'POST',
+				cache: false,
+				data: {
+					id: jQuery.getItemId(),
+					state: JSON.stringify(last_data)
+				},
+				url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/record_collage_print_state',
+				success: function(results){
+					document.location = el.attr('href');
+				}
+			});
+			e.preventDefault();
+		});
+	},
 	highlightHistoryAdd: function(id, aid, highlighted) {
 		if(!highlight_history[aid]) {
 			highlight_history[aid] = ['ffffff'];
@@ -39,7 +57,6 @@ jQuery.extend({
 			});
 			highlight_history[aid] = update;
 		}
-		console.log(highlight_history[aid]);
 		var last = highlight_history[aid].length - 1;
 		jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
 	},
@@ -91,14 +108,16 @@ jQuery.extend({
 			data.edit_mode = jQuery('#edit-show').html() == 'READ' ? true : false;
 			if(JSON.stringify(data) != JSON.stringify(last_data)) {
 				last_data = data;
-				jQuery.recordCollageState(JSON.stringify(data));
+				if(is_owner) {
+					jQuery.recordCollageState(JSON.stringify(data));
+				}
 			}
-		}, 3000); 
+		}, 1000); 
 	},
 	loadState: function() {
+	console.log(last_data);
 		var total_words = jQuery('tt').size();
 		var shown_words = total_words;
-		console.log(last_data);
 		jQuery.each(last_data, function(i, e) {
 			if(i.match(/\.a/) && e != 'none') {
 				jQuery(i).css('display', 'inline');
@@ -112,7 +131,6 @@ jQuery.extend({
 					jQuery(i).css('display', 'inline');
 					//Remove unlayered collapse links here
 					var id = i.match(/\d+/).toString();
-					console.log('removing ' + id);
 					jQuery('.unlayered-control-' + id).remove();
 				}
 			} else {
@@ -144,7 +162,7 @@ jQuery.extend({
 	},
 
 	submitAnnotation: function(){
-		var collageId = jQuery('.collage-id').attr('id').split('-')[1];
+		var collageId = jQuery.getItemId();
 		jQuery('#annotation-form form').ajaxSubmit({
 			error: function(xhr){
 				jQuery.hideGlobalSpinnerNode();
@@ -215,7 +233,7 @@ jQuery.extend({
 	},
 
 	annotationButton: function(annotationId){
-		var collageId = jQuery.getItemID();
+		var collageId = jQuery.getItemId();
 		if(jQuery('#annotation-details-' + annotationId).length == 0){
 			jQuery.ajax({
 				type: 'GET',
@@ -522,7 +540,7 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
-	if(jQuery('.collage-id').length > 0){
+	if(jQuery('.singleitem').length > 0){
 		jQuery('#cancel-annotation').click(function(e){
 			e.preventDefault();
 			jQuery("#tooltip").hide();
@@ -659,9 +677,8 @@ jQuery(document).ready(function(){
 			return false;
 		});
 
-		if(is_owner) {
-			jQuery.listenToRecordCollageState();
-		}
+		jQuery.listenToRecordCollageState();
 		jQuery.loadState();
+		jQuery.listenPrintLink();
 	}
 });
