@@ -9,20 +9,25 @@ var hover_state = {};
 jQuery.extend({
 	listenPrintLink: function() {
 		jQuery('.link-print').click(function(e) {
+			e.preventDefault();
+			var data = jQuery.retrieveState();
+			data.highlights = {};
+			jQuery.each(highlight_history, function(i, v) {
+				data.highlights['.a' + i] = v[v.length - 1];
+			});
 			var el = jQuery(this);
 			jQuery.ajax({
 				type: 'POST',
 				cache: false,
 				data: {
 					id: jQuery.getItemId(),
-					state: JSON.stringify(last_data)
+					state: JSON.stringify(data)
 				},
 				url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/record_collage_print_state',
 				success: function(results){
-					document.location = el.attr('href');
+					document.location = el.attr('href') + '?state_id=' + results.id;
 				}
 			});
-			e.preventDefault();
 		});
 	},
 	highlightHistoryAdd: function(id, aid, highlighted) {
@@ -84,38 +89,39 @@ jQuery.extend({
 			}
 		});
 	},
+	retrieveState: function() {
+		var data = {};
+		jQuery('.unlayered_start').each(function(i, el) {
+			data['.unlayered_' + jQuery(el).attr('id').replace(/^t/, '')] = jQuery(el).css('display');	
+		});
+		jQuery('.unlayered-ellipsis').each(function(i, el) {
+			data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
+		});
+		jQuery('.annotation-ellipsis').each(function(i, el) {
+			data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
+		});
+		jQuery('.annotation-asterisk').each(function(i, el) {
+			data['.a' + jQuery(el).data('id')] = jQuery(el).css('display');	
+			data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');
+		});
+		jQuery('.annotation-content').each(function(i, el) {
+			if(jQuery(el).attr('id')) {
+				data['#annotation-content-' + jQuery(el).attr('id').replace(/annotation-content-/, '')] = jQuery(el).css('display');	
+			}
+		});
+		data.edit_mode = jQuery('#edit-show').html() == 'READ' ? true : false;
+		return data;
+	},
 	listenToRecordCollageState: function() {
 		setInterval(function(i) {
-			var data = {};
-			jQuery('.unlayered_start').each(function(i, el) {
-				data['.unlayered_' + jQuery(el).attr('id').replace(/^t/, '')] = jQuery(el).css('display');	
-			});
-			jQuery('.unlayered-ellipsis').each(function(i, el) {
-				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
-			});
-			jQuery('.annotation-ellipsis').each(function(i, el) {
-				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');	
-			});
-			jQuery('.annotation-asterisk').each(function(i, el) {
-				data['.a' + jQuery(el).data('id')] = jQuery(el).css('display');	
-				data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');
-			});
-			jQuery('.annotation-content').each(function(i, el) {
-				if(jQuery(el).attr('id')) {
-					data['#annotation-content-' + jQuery(el).attr('id').replace(/annotation-content-/, '')] = jQuery(el).css('display');	
-				}
-			});
-			data.edit_mode = jQuery('#edit-show').html() == 'READ' ? true : false;
+			var data = jQuery.retrieveState();	
 			if(JSON.stringify(data) != JSON.stringify(last_data)) {
 				last_data = data;
-				if(is_owner) {
-					jQuery.recordCollageState(JSON.stringify(data));
-				}
+				jQuery.recordCollageState(JSON.stringify(data));
 			}
 		}, 1000); 
 	},
 	loadState: function() {
-	console.log(last_data);
 		var total_words = jQuery('tt').size();
 		var shown_words = total_words;
 		jQuery.each(last_data, function(i, e) {
@@ -676,8 +682,10 @@ jQuery(document).ready(function(){
 			jQuery('#collage-stats-popup').toggle();
 			return false;
 		});
-
-		jQuery.listenToRecordCollageState();
+		
+		if(is_owner) {
+			jQuery.listenToRecordCollageState();
+		}
 		jQuery.loadState();
 		jQuery.listenPrintLink();
 	}

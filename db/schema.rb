@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101122230916) do
+ActiveRecord::Schema.define(:version => 20110703220613) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -108,7 +108,7 @@ ActiveRecord::Schema.define(:version => 20101122230916) do
     t.string   "ancestry"
     t.boolean  "public",                               :default => true
     t.boolean  "active",                               :default => true
-    t.text     "readable_state"
+    t.string   "readable_state",    :limit => 5120
   end
 
   add_index "collages", ["active"], :name => "index_collages_on_active"
@@ -506,6 +506,12 @@ ActiveRecord::Schema.define(:version => 20101122230916) do
   add_index "questions", ["sticky"], :name => "index_questions_on_sticky"
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
+
+  create_table "readable_states", :force => true do |t|
+    t.text     "state"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40

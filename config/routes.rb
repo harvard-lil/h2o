@@ -40,7 +40,9 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages, :collection => {:embedded_pager => :get},
     :member => {:spawn_copy => :post, :save_readable_state => :post,
-	            :record_collage_print_state => :post, :export => :get}
+	            :record_collage_print_state => :post}
+  map.export_collage "collages/:id/export", :controller => :collages, :action => :export
+  map.export_collage "collages/:id/export/:state_id", :controller => :collages, :action => :export
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},

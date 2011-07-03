@@ -1,3 +1,5 @@
+require 'tempfile'
+
 class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
@@ -113,17 +115,15 @@ class CollagesController < BaseController
       format.html # show.html.erb
       format.xml  { render :xml => @collage }
 	  format.pdf do
-	    logger.warn "steph: #{params.inspect}"
-	    url = request.url.gsub(/\.pdf/, '/export')
-		logger.warn "steph: #{url}"
-		require 'tempfile'
+	    url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
 		file = Tempfile.new('collage.pdf')
 	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
 		system(cmd)
 		file.close
 		send_file file.path, :filename => "collage#{@collage.id}.pdf", :type => 'application/pdf'
 		#file.unlink
-        #session.delete(:current_print)
+		#Removing saved state after used
+		ReadableState.delete(params[:state_id])
 	  end
     end
   end
@@ -201,10 +201,24 @@ class CollagesController < BaseController
   end
 
   def record_collage_print_state
-    session[:current_print] = params[:state]
-	respond_to do |format|
-	  format.json { render :json => {} }
+    #NOTE: Initially, recording printable collage state was
+	#attempted to be done by session, but the command line
+	#wkhtmltopdf was not loading the current user session,
+	#and therefore was unable to retrieve the current user
+	#collage readable state
+    begin
+      readable_state = ReadableState.new(:state => params[:state])
+      readable_state.save
+	  respond_to do |format|
+	    format.json { render :json => { :id => readable_state.id } }
+	  end
+    rescue Exception => e
+	  respond_to do |format|
+	    format.json { render :json => {} }
+	  end
 	end
+	
+    session[:current_print] = params[:state]
   end
 
   def save_readable_state
@@ -215,6 +229,11 @@ class CollagesController < BaseController
   end
 
   def export
+    if params[:state_id]
+      @readable_state = ReadableState.find(params[:state_id]).state
+	else
+	  @readable_state = @collage.readable_state
+	end
     add_javascripts ['export_collage']
     render :layout => 'pdf'
   end

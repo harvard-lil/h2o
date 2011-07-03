@@ -1,8 +1,19 @@
+var color_map = {
+	'ffcd00' : 'ccc',
+	'ff999a' : 'aaa',
+	'bdec68' : 'ddd' 
+};
+
+
+
 jQuery.extend({
 	loadState: function() {
-		console.log(last_data);
 		jQuery.each(last_data, function(i, e) {
-			if(i.match(/\.a/) && e != 'none') {
+			if(i == 'highlights') {
+				jQuery.each(e, function(a, h) {
+					jQuery(a).css('background-color', '#' + color_map[h]);
+				});
+			} else if(i.match(/\.a/) && e != 'none') {
 				jQuery(i).css('display', 'inline');
 			} else if(i.match(/\.unlayered/)) {
 				if(e == 'none') {

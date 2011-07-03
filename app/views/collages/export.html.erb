@@ -10,9 +10,5 @@
 </div>
 
 <script type="text/javascript">
-<% if session.has_key?(:current_print) %>
-var last_data = <%= raw session[:current_print] || {} %>;
-<% else -%>
-var last_data = <%= raw @collage.readable_state || {} %>;
-<% end -%>
+var last_data = <%= raw @readable_state || {} %>;
 </script>
