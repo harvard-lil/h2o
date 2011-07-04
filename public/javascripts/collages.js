@@ -134,7 +134,8 @@ jQuery.extend({
 					// here!
 					jQuery(i).addClass('default-hidden').css('display', 'none');
 				} else {
-					jQuery(i).css('display', 'inline');
+					jQuery('tt' + i).css('display', 'inline');
+					jQuery('p' + i + ',center' + i).css('display', 'block');
 					//Remove unlayered collapse links here
 					var id = i.match(/\d+/).toString();
 					jQuery('.unlayered-control-' + id).remove();
@@ -232,9 +233,9 @@ jQuery.extend({
 
 	toggleAnnotation: function(id) {
 		if(jQuery('#annotation-content-' + id).css('display') == 'inline') {
-			jQuery('#annotation-content-' + id).hide();
+			jQuery('#annotation-content-' + id).css('display', 'none');
 		} else {
-			jQuery('#annotation-content-' + id).css('display', 'inline');
+			jQuery('#annotation-content-' + id).css('display', 'inline-block');
 		}
 	},
 
@@ -367,21 +368,23 @@ jQuery.extend({
 		jQuery('.annotation-asterisk').tipsy({ gravity: 'sw', trigger: 'manual' });
 		jQuery('.unlayered-ellipsis').click(function(e) {
 			e.preventDefault();
-			jQuery('.unlayered_' + jQuery(this).data('id')).show();
-			jQuery('.unlayered-control-' + jQuery(this).data('id')).css('display', 'inline-block');
-			jQuery(this).hide();
+			var id = jQuery(this).data('id');
+			jQuery('tt.unlayered_' + id).css('display', 'inline');
+			jQuery('p.unlayered_' + id + ',center.unlayered_' + id).css('display', 'block');
+			jQuery('.unlayered-control-' + id).css('display', 'inline-block');
+			jQuery(this).css('display', 'none');
 		});
 		jQuery('.annotation-ellipsis').click(function(e) {
 			e.preventDefault();
 			var id = jQuery(this).data('id');
-			jQuery('article tt.a' + id + ', #annotation-control-' + id + ',#annotation-asterisk-' + id).show();
-			jQuery(this).hide();
+			jQuery('article tt.a' + id + ', #annotation-control-' + id + ',#annotation-asterisk-' + id).css('display', 'inline-block');
+			jQuery(this).css('display', 'none');
 		});
 		jQuery('.unlayered-control').click(function(e) {
 			e.preventDefault();
 			var id = jQuery(this).data('id');
-			jQuery('.unlayered_' + id + ',.unlayered-control-' + id).hide();
-			jQuery('#unlayered-ellipsis-' + id).show();
+			jQuery('.unlayered_' + id + ',.unlayered-control-' + id).css('display', 'none');
+			jQuery('#unlayered-ellipsis-' + id).css('display', 'inline-block');
 		});
 
 		// This iterates through the annotations on this collage and emits the controls.
@@ -526,7 +529,7 @@ jQuery.extend({
 
 		if(is_owner) {
 			jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
-			jQuery('.annotation-content').hide();
+			jQuery('.annotation-content').css('display', 'none');
 			jQuery('.annotation-asterisk, .control-divider').unbind('click').click(function(e) {
 				e.preventDefault();
 				jQuery.annotationButton(jQuery(this).data('id'));
@@ -536,7 +539,6 @@ jQuery.extend({
 
 	unObserveWords: function() {
 		jQuery('tt').unbind('mouseover mouseout click');
-		jQuery('.ann-details').hide();
 		jQuery('.annotation-asterisk').unbind('click').click(function(e) {	
 			e.preventDefault();
 			jQuery.toggleAnnotation(jQuery(this).data('id'));
@@ -558,13 +560,13 @@ jQuery(document).ready(function(){
 
 		jQuery('#full_text').click(function(e) {
 			e.preventDefault();
-			jQuery('article tt').show();
-			jQuery('.annotation-ellipsis').hide();
+			jQuery('article p, article center').css('display', 'block');
+			jQuery('article tt').css('display', 'inline');
+			jQuery('.annotation-ellipsis').css('display', 'none');
 			jQuery('#layers a strong').html('HIDE');
 			jQuery('#layers .shown').removeClass('shown');
-
-			jQuery('article .unlayered').show();
-			jQuery('article .unlayered-ellipsis').hide();
+			jQuery('article .unlayered-ellipsis').css('display', 'none');
+			jQuery('article .unlayered-control').css('display', 'inline-block');
 		});
 
 		jQuery('#hide_show_unlayered').click(function(e) {
@@ -573,13 +575,14 @@ jQuery(document).ready(function(){
 			var el = jQuery(this);
 			el.toggleClass('shown');
 			if(el.find('strong').html() == 'SHOW') {
-				jQuery('article .unlayered').show();
+				jQuery('article p.unlayered, article center.unlayered').css('display', 'block');
+				jQuery('article tt.unlayered').css('display', 'inline');
 				jQuery('article .unlayered-control').css('display', 'inline-block');
-				jQuery('article .unlayered-ellipsis').hide();
+				jQuery('article .unlayered-ellipsis').css('display', 'none');
 				el.find('strong').html('HIDE');
 			} else {
-				jQuery('article .unlayered, article .unlayered-control').hide();
-				jQuery('article .unlayered-ellipsis').show();
+				jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
+				jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
 				el.find('strong').html('SHOW');
 			}
 			jQuery.hideGlobalSpinnerNode();
@@ -593,10 +596,10 @@ jQuery(document).ready(function(){
 			var el = jQuery(this);
 			el.toggleClass('shown');
 			if(el.find('strong').html() == 'SHOW') {
-				jQuery('.annotation-content').show();
+				jQuery('.annotation-content').css('display', 'inline-block');
 				el.find('strong').html('HIDE');
 			} else {
-				jQuery('.annotation-content').hide();
+				jQuery('.annotation-content').css('display', 'none');
 				el.find('strong').html('SHOW');
 			}
 			jQuery.hideGlobalSpinnerNode();
@@ -611,12 +614,12 @@ jQuery(document).ready(function(){
 			//Note: Toggle here was very slow 
 			if(el.find('strong').html() == 'SHOW') {
 				el.find('strong').html('HIDE');
-				jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).show();
-				jQuery('.annotation-ellipsis-' + layer_id).hide();
+				jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'inline');
+				jQuery('.annotation-ellipsis-' + layer_id).css('display', 'none');
 			} else {
 				el.find('strong').html('SHOW');
-				jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).hide();
-				jQuery('.annotation-ellipsis-' + layer_id).show();
+				jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'none');
+				jQuery('.annotation-ellipsis-' + layer_id).css('display', 'inline');
 			}
 			jQuery.hideGlobalSpinnerNode();
 		});
@@ -627,16 +630,16 @@ jQuery(document).ready(function(){
 			var id = el.parent().data('id');
 			if(el.hasClass('highlighted')) {
 				el.siblings('.hide_show').find('strong').html('HIDE');
-				jQuery('article .' + id + ',.ann-annotation-' + id).show();
-				jQuery('.annotation-ellipsis-' + id).hide();
+				jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+				jQuery('.annotation-ellipsis-' + id).css('display', 'none');
 				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
 					jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
 				});
 				el.removeClass('highlighted').html('HIGHLIGHT');
 			} else {
 				el.siblings('.hide_show').find('strong').html('HIDE');
-				jQuery('article .' + id + ',.ann-annotation-' + id).show();
-				jQuery('.annotation-ellipsis-' + id).hide();
+				jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+				jQuery('.annotation-ellipsis-' + id).css('display', 'none');
 				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
 					jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);
 				});
@@ -650,7 +653,7 @@ jQuery(document).ready(function(){
 			if(el.html() == 'READ') {
 				el.html("EDIT");	
 		 		jQuery.unObserveWords();
-				jQuery('.details .edit-action, .control-divider').hide();
+				jQuery('.details .edit-action, .control-divider').css('display', 'none');
 				jQuery('article tt.a').removeClass('edit_highlight');
 			} else {
 				el.html("READ");	

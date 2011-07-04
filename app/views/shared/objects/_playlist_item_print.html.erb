@@ -1,0 +1,38 @@
+<li class="playlist listitem level<%= recursive_level %> listitem<%= item.resource_item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
+	<div class="controls">
+		<ul>
+			<li class="number"><%= parent_index == '' ? "#{index + 1}" : "#{parent_index}.#{index}" %></li>
+		</ul>
+	</div>
+	<div class="data">
+		<hgroup>
+			<h3>
+				<% if item.resource_item_type != 'ItemDefault' && !item.resource_item.actual_object.nil? -%>
+				<%= link_to item.resource_item.name, item.resource_item.actual_object %>
+				<% else -%>
+				<%= link_to item.resource_item.name, item.resource_item.url, :target => 'blank' %>
+				<% end -%>
+			</h3>
+			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
+			<div class="cl"></div>
+		</hgroup>
+		<p>
+			<%= PlaylistItem.format_content(item.resource_item.description) %>
+		</p>
+	</div>
+	<div class="cl"></div>
+	<% if recursive_level < 4 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>
+	<section class="playlists">
+		<ul>
+			<% item.resource_item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
+			  <%= render :partial => 'shared/objects/playlist_item_print',
+			    :locals => { :item => nested_item,
+				  :parent_index => parent_index == '' ? index + 1 : "#{parent_index}.#{index}",
+				  :index => nested_index + 1,
+				  :recursive_level => recursive_level + 1,
+				  :my_playlist => false } %>
+			<% end -%>
+		</ul>
+	</section>
+	<% end -%>
+ </li>

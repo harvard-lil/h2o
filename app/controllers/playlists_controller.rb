@@ -6,12 +6,12 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
 
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
-  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy]
-  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index]
+  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
+  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export]
   before_filter :list_tags, :only => [:index, :show, :edit]
   
   access_control do
-    allow all, :to => [:embedded_pager, :show, :index]
+    allow all, :to => [:embedded_pager, :show, :index, :export]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
@@ -86,6 +86,16 @@ class PlaylistsController < BaseController
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @playlist }
+	  format.pdf do
+	    url = request.url.gsub(/\.pdf.*/, "/export")
+		file = Tempfile.new("playlist.pdf")
+	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+		system(cmd)
+		file.close
+		send_file file.path, :filename => "playlist_#{@playlist.id}.pdf", :type => 'application/pdf'
+		#file.unlink
+		#Removing saved state after used
+	  end
     end
   end
 
@@ -343,4 +353,9 @@ class PlaylistsController < BaseController
     end  
   end
 
+  def export
+    @playlist = Playlist.find(params[:id])
+    #add_javascripts['export_collage']
+	render :layout => 'pdf'
+  end
 end

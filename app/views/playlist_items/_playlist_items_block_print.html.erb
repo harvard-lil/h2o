@@ -1,0 +1,12 @@
+<section class="playlists">
+	<ul class="sortable">
+		<% @playlist.playlist_items.each_with_index do |item, index| -%>
+		  <%= render :partial => 'shared/objects/playlist_item_print',
+		    :locals => { :item => item,
+			  :parent_index => '',
+			  :index => index,
+			  :recursive_level => 0,
+			  :my_playlist => @my_playlist } %> 
+		<% end -%>
+	</ul>
+</section>

@@ -1,5 +1,14 @@
 #collage { padding: 100px; }
-h2 { padding-bottom: 20px; }
-p { margin: 10px 0px; }
-.annotation-content { color: #6B933D; }
-.annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+#collage h2 { padding-bottom: 20px; }
+#collage p { padding-bottom: 15px; }
+#collage .annotation-content { color: #6B933D; }
+#collage .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+#collage .paragraph-numbering { position: absolute; left: 10px; }
+
+#playlist { padding: 50px; }
+#playlist .details { padding-bottom: 10px; }
+#playlist ul { list-style-type: none; }
+#playlist .playlists .playlists { display: block; }
+#playlist .playlist .data { padding-right: 300px; }
+#playlist .listitem { padding-bottom: 10px; }
+#playlist .playlist .number { border: 1px solid #E0E1E1; }

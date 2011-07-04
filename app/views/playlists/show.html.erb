@@ -12,7 +12,7 @@
 				<li><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
 				<li><%= link_to "Bookmark This Playlist", '#', :class => "link-bookmark bookmark-action" %></li>
 				<% end -%>
-				<li><a href="#" class="link-print">Print</a></li>
+				<li><%= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %></li>
 			</ul>
 		</aside>
 		<% if current_user && (@playlist.admin? || @playlist.owner?) %>

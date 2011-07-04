@@ -241,40 +241,37 @@ class Collage < ActiveRecord::Base
 		node.add_next_sibling(control_node)
 	  end
 
-      # TODO: combine p & center selectors
-      doc.xpath('//p').each do |node|
-	    if node.children.size > 0 && node.css('.unlayered_start').size == 0 && node.children.size == node.css('.unlayered').size
-	      node['class'] = node.children.first['class']
-		end
-      end
-      doc.xpath('//center').each do |node|
-	    if node.children.size > 0 && node.css('.unlayered_start').size == 0 && node.children.size == node.css('.unlayered').size
-	      node['class'] = node.children.first['class']
+	  count = 1
+      doc.xpath('//p | //center').each do |node|
+		tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
+	    if node.children.size > 0 && tt_size > 0
+		  unlayered_start_size = node.css('tt.unlayered_start').size
+		  unlayered_size = node.css("tt.unlayered").size # + node.css(".unlayered-control").size
+		  if unlayered_start_size == 0 && (tt_size == unlayered_size)
+	        node['class'] = node.xpath('tt').first['class']
+		  end
+
+          first_child = node.children.first
+
+		  if node.children.size == 1 && (first_child.name == 'b' || first_child.name == 'text')
+		    next
+		  end
+
+	      control_node = Nokogiri::XML::Node.new('span', doc)
+		  control_node['class'] = "paragraph-numbering"
+	  	  control_node.inner_html = "#{count}"
+		  first_child.add_previous_sibling(control_node)
+		  count += 1
 		end
       end
 
       doc.xpath("//html/body/*").to_s
-    #else
-      #No annotations / layers.
-	  # TODO: Add unlayered_start, unlayered, unlayered_* to all nodes here
-   #   self.content
-   # end
   end
 
   alias :to_s :display_name
 
   def bookmark_name
     self.name
-  end
-
-  def exportable_content
-    #read readable state here 
-	data = self.content.split('</p>')
-	clean_data = []
-	data.each do |d|
-      clean_data.push(d.gsub(/<\/?[^>]*>/, ""))
-	end
-	clean_data
   end
 
   private 

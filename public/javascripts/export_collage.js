@@ -22,7 +22,8 @@ jQuery.extend({
 					// here!
 					jQuery(i).addClass('default-hidden').css('display', 'none');
 				} else {
-					jQuery(i).css('display', 'inline');
+					jQuery('tt' + i).css('display', 'inline');
+					jQuery('p' + i + ', center' + i).css('display', 'block');
 					//Remove unlayered collapse links here
 					var id = i.match(/\d+/).toString();
 					jQuery('.unlayered-control-' + id).remove();
