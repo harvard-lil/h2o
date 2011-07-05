@@ -8,6 +8,7 @@
 	</div>
 	<% end -%>
 	<div class="details">
+		<% cache "case-#{case_obj.id}-tags" do -%>
 		<div class="tags">
 			<ul>
 				<% case_obj.tag_list.each do |tag| %>
@@ -15,6 +16,7 @@
 				<% end -%>
 			</ul>
 		</div>
+		<% end -%>
 		<h4>
 			<%= link_to case_obj.short_name, case_obj %>
             <% if current_user && (@is_case_admin || @my_cases.include?(case_obj)) %>
@@ -22,6 +24,7 @@
             <%= link_to "EDIT", edit_case_path(case_obj), :class => "action edit-case_obj edit-action" %>
           	<% end %>
 		</h4>
+		<% cache "case-#{case_obj.id}-index" do -%>
 		<p class="cases_details">
 			<%= case_obj.case_citations.collect { |c| "#{c.volume} #{c.reporter.gsub(/\./, '')} #{c.page}" }.join(', ') %> /
 
@@ -43,6 +46,7 @@
 			</ul>
 			<a href="#" class="hide_collages" data-id="<%= case_obj.id %>">HIDE &raquo;</a>
 		</div>
+		<% end -%>
 		<% end -%>
 		<div class="influence"></div>
 	</div>

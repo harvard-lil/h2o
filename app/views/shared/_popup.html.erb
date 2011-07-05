@@ -1,9 +1,13 @@
+<% if current_user -%>
+<% cache "user-playlists-#{current_user.id}" do -%>
 <div class="popup add-popup" data-type="<%= type %>">
 	<h4>ADD TO</h4>
-	<%= collection_select(:playlist, :id, @all_playlists, :id, :name) %>
+	<%= collection_select(:playlist, :id, current_user.playlists, :id, :name) %>
 	<ul>
 		<li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist-and-item" %></li>
 		<li><a href="#" class="bookmark-popup bookmark-this bookmark-action">ADD BOOKMARK</a></li>
 	</ul>
 	<a href="#" class="btn new-playlist-item">ADD FILE</a>
 </div>
+<% end -%>
+<% end -%>

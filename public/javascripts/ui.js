@@ -53,7 +53,7 @@ jQuery.extend({
 	},
 	addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
 		var url_string = jQuery.rootPathWithFQDN() + itemController + '/' + itemId;
-		if(!url_string.match(/^[0-9]+$/)) {
+		if(!url_string.match(/\/[0-9]+$/)) {
 			url_string = itemId;
 		}
 		jQuery.ajax({

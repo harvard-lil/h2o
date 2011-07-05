@@ -23,12 +23,7 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
-  before_filter :title_select, :set_time_zone, :load_playlists, :set_sort_lists
-
-  # add caching on this action later
-  def load_playlists
-    @all_playlists = current_user ? current_user.playlists : []
-  end
+  before_filter :title_select, :set_time_zone, :set_sort_lists
 
   #Switch to local time zone
   def set_time_zone

@@ -8,6 +8,7 @@
 	</div>
 	<% end -%>
 	<div class="details">
+		<% cache "playlist-#{playlist.id}-tags" do -%>
 		<div class="tags">
 			<ul>
 				<% playlist.tag_list.each do |tag| %>
@@ -15,6 +16,7 @@
 				<% end -%>
 			</ul>
 		</div>
+		<% end -%>
 		<h4>
 			<%= link_to playlist.name, playlist %>
 			<% if current_user -%>
@@ -26,15 +28,13 @@
           	<% end %>
           	<% end %>
 		</h4>
+		<% cache "playlist-#{playlist.id}-index" do -%>
 		<p>
 			<%= playlist.created_at.to_s(:simpledatetime) %> by
 			<%= raw playlist.owners.collect{|u| link_to(u.login, user_path(u)) }.join(',') %>
 		</p>
+		<% end -%>
 		<div class="influence"></div>
 	</div>
 	<div class="cl"></div>
 </li>
-<% if false -%>
-<% cache("playlist-list-view-#{playlist.id}") do %>
-<% end -%>
-<% end -%>

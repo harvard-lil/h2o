@@ -1,9 +1,9 @@
-#collage { padding: 100px; }
-#collage h2 { padding-bottom: 20px; }
-#collage p { padding-bottom: 15px; }
-#collage .annotation-content { color: #6B933D; }
-#collage .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
-#collage .paragraph-numbering { position: absolute; left: 10px; }
+.collage-content { padding: 100px; }
+.collage-content h2 { padding-bottom: 20px; }
+.collage-content p { padding-bottom: 15px; }
+.collage-content .annotation-content { color: #6B933D; }
+.collage-content .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+.collage-content .paragraph-numbering { position: absolute; left: 10px; }
 
 #playlist { padding: 50px; }
 #playlist .details { padding-bottom: 10px; }

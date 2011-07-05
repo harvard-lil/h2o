@@ -49,6 +49,7 @@ Your annotation will start here. Please click another word to set the end point.
 						</ul>
 						<h5>LAYERS</h5>
 						<ul id="layers">
+							<% cache("collage-#{@collage.id}-layers") do %>
    							<% @collage.layers.each do |layer| %>
 							<li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= cycle('ffcd00', 'ff999a', 'bdec68') %>">
 								<strong><%= layer.name %></strong>
@@ -56,6 +57,7 @@ Your annotation will start here. Please click another word to set the end point.
 								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>
 								<div class="cl">&nbsp;</div>
 							</li>
+   							<% end -%>
    							<% end -%>
 							<li>
 								<strong>UNLAYERED</strong>
@@ -65,7 +67,7 @@ Your annotation will start here. Please click another word to set the end point.
 						</ul>
 					</div>
 				</li>
-				<% if current_user && @collage.users.include?(current_user) -%>
+				<% if @can_edit -%>
 				<li class="btn-li">
 					<%= link_to "EDIT", '#', :class => "btn-a", :id => "edit-show" %>
 				</li>
@@ -75,19 +77,23 @@ Your annotation will start here. Please click another word to set the end point.
 		<div class="cl">&nbsp;</div>
 	</hgroup>
 	<div class="details">
+		<% cache("collage-#{@collage.id}-tags") do %>
 		<div class="tags">
 			<ul>
    				<% @collage.tags.each do |tag| %>
 				<li><%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %></li>
-   				<% end %><br />
+   				<% end %>
 			</ul>
 		</div>
+		<% end -%>
 		<h5>
 			<%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
 			<a href="#" id="collage-stats" title="test"><strong>COLLAGE STATS</strong></a>
+			<% cache("collage-#{@collage.id}-meta") do %>
 			<div class="popup" id="collage-stats-popup">
 				<%= render :partial => 'collage_meta' %>
 			</div>
+			<% end -%>
 		</h5>
 		<% if @collage.description.length > 100 -%>
 			<div id="description_less">
@@ -96,13 +102,13 @@ Your annotation will start here. Please click another word to set the end point.
 			<div id="description_more">
 			<%= Collage.format_content(@collage.description) %> <a href="#" class="link-less">LESS</a>
 			</div>
-			<% if current_user && @collage.users.include?(current_user) -%>
+			<% if @can_edit -%>
 			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 			<% end -%>
 		<% else -%>
 			<div id="description">
 				<%= Collage.format_content(@collage.description) %>
-				<% if current_user && @collage.users.include?(current_user) -%>
+				<% if @can_edit -%>
 				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action" %>
 				<% end -%>
 			</div>
@@ -110,12 +116,10 @@ Your annotation will start here. Please click another word to set the end point.
 	</div>
 
 	<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+	<% cache("collage-#{@collage.id}-annotatable-content") do %>
 	<article>
 		<%= raw @collage.annotatable_content %>
 	</article>
-	<% if false -%>
-	<% cache("collage-annotatable-content-#{@collage.id}") do %>
-	<% end -%>
 	<% end -%>
 </div>
   
@@ -123,5 +127,6 @@ Your annotation will start here. Please click another word to set the end point.
 <script type="text/javascript">
 var is_owner = <%= current_user && @collage.can_edit? ? 1 : 0 %>;
 var last_data = <%= raw @collage.readable_state || '{}' %>;
+var annotations = <%= raw @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) %>;
 </script>
 <div id="annotation-form"></div>

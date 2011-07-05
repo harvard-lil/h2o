@@ -53,7 +53,7 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
   validates_length_of     :content,         :in => 1..(5.megabytes)
 
-  searchable(:include => [:tags, :collages, :case_citations, :case_docket_numbers, :case_jurisdiction]) do
+  searchable(:include => [:tags, :collages, :case_citations]) do # TODO: Perhaps add this back in if needed on template, :case_docket_numbers, :case_jurisdiction]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -78,6 +78,14 @@ class Case < ActiveRecord::Base
 
   def bookmark_name
     self.short_name
+  end
+
+  def self.tag_list
+    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+      JOIN tags t ON ts.tag_id = t.id
+	  WHERE taggable_type = 'Case'
+	  GROUP BY ts.tag_id, t.name
+	  ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   private

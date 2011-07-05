@@ -387,33 +387,9 @@ jQuery.extend({
 			jQuery('#unlayered-ellipsis-' + id).css('display', 'inline-block');
 		});
 
-		// This iterates through the annotations on this collage and emits the controls.
-		jQuery.ajax({
-			type: 'GET',
-			url: jQuery.rootPath() + 'collages/annotations/' + jQuery.getItemId(),
-			dataType: 'json',
-			cache: false,
-			beforeSend: function(){
-				jQuery.showGlobalSpinnerNode();
-				jQuery('div.ajax-error').html('').hide();
-			},
-			success: function(json){
-				//stash for later
-				//jQuery('body').data('annotation_objects',json);
-				jQuery(json).each(function(){
-					jQuery.addAnnotationListeners(this.annotation);
-				});
-
-				jQuery.hideGlobalSpinnerNode();
-			},
-			complete: function(){
-				jQuery('#please-wait').dialog('close');
-			},
-			error: function(xhr){
-				jQuery.hideGlobalSpinnerNode();
-				jQuery('div.ajax-error').show().append(xhr.responseText);
-			}
-
+		//Removed dependency on AJAX here, reduce page requests
+		jQuery(annotations).each(function(){
+			jQuery.addAnnotationListeners(this.annotation);
 		});
 	},
 
@@ -614,7 +590,8 @@ jQuery(document).ready(function(){
 			//Note: Toggle here was very slow 
 			if(el.find('strong').html() == 'SHOW') {
 				el.find('strong').html('HIDE');
-				jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'inline');
+				jQuery('article .' + layer_id).css('display', 'inline-block');
+				jQuery('article tt.' + layer_id).css('display', 'inline');
 				jQuery('.annotation-ellipsis-' + layer_id).css('display', 'none');
 			} else {
 				el.find('strong').html('SHOW');
@@ -631,6 +608,7 @@ jQuery(document).ready(function(){
 			if(el.hasClass('highlighted')) {
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+				jQuery('article tt.' + id).css('display', 'inline');
 				jQuery('.annotation-ellipsis-' + id).css('display', 'none');
 				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
 					jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
@@ -639,6 +617,7 @@ jQuery(document).ready(function(){
 			} else {
 				el.siblings('.hide_show').find('strong').html('HIDE');
 				jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+				jQuery('article tt.' + id).css('display', 'inline');
 				jQuery('.annotation-ellipsis-' + id).css('display', 'none');
 				jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
 					jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);

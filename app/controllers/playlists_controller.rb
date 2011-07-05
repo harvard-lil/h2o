@@ -4,11 +4,12 @@ require 'uri'
 class PlaylistsController < BaseController
 
   include PlaylistUtilities
+  
+  cache_sweeper :playlist_sweeper
 
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export]
-  before_filter :list_tags, :only => [:index, :show, :edit]
   
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export]
@@ -21,14 +22,6 @@ class PlaylistsController < BaseController
 
   def embedded_pager
     super Playlist
-  end
-
-  def list_tags
-    @playlist_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-		JOIN tags t ON ts.tag_id = t.id
-		WHERE taggable_type = 'Playlist'
-		GROUP BY ts.tag_id, t.name
-		ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   # GET /playlists
@@ -354,8 +347,8 @@ class PlaylistsController < BaseController
   end
 
   def export
+    add_javascripts 'export_collage'
     @playlist = Playlist.find(params[:id])
-    #add_javascripts['export_collage']
 	render :layout => 'pdf'
   end
 end

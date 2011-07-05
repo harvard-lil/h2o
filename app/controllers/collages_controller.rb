@@ -4,25 +4,14 @@ class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
 
-  before_filter :is_collage_admin, :except => [:embedded_pager, :metadata]
-  before_filter :require_user, :except => [:layers, :annotations, :index, :show, :metadata, :description_preview, :embedded_pager, :export, :record_collage_print_state]
+  before_filter :is_collage_admin, :except => [:embedded_pager]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
-  before_filter :list_tags, :only => [:index, :show, :edit, :new]
-
-  caches_action :annotations
 
   access_control do
-    allow all, :to => [:layers, :annotations, :index, :show, :new, :create, :metadata, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state]    
+    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
-  end
-
-  def list_tags
-    @collage_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-		JOIN tags t ON ts.tag_id = t.id
-		WHERE taggable_type = 'Collage'
-		GROUP BY ts.tag_id, t.name
-		ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   def embedded_pager
@@ -52,17 +41,6 @@ class CollagesController < BaseController
     format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
   end
 
-  def annotations
-    @annotations = Annotation.find(:all, 
-                                    :conditions => ['collage_id = ?', (params[:id].blank?) ? params[:collage_id] : params[:id]],
-                                    :include => :layers,
-                                    :order => 'substring(annotation_start from 2)::INTEGER'
-                                   )
-    respond_to do |format|
-      format.json { render :json => @annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) }
-    end
-  end
-
   def index
     @collages = Sunspot.new_search(Collage)
     sort_base_url = ''
@@ -83,7 +61,6 @@ class CollagesController < BaseController
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
 	  order_by params[:sort].to_sym, :asc
     end
 
@@ -112,7 +89,10 @@ class CollagesController < BaseController
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.html do
+	    @can_edit = current_user && @collage.users.include?(current_user)
+	    render 'show'
+	  end # show.html.erb
       format.xml  { render :xml => @collage }
 	  format.pdf do
 	    url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
@@ -120,7 +100,7 @@ class CollagesController < BaseController
 	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
 		system(cmd)
 		file.close
-		send_file file.path, :filename => "collage#{@collage.id}.pdf", :type => 'application/pdf'
+		send_file file.path, :filename => "collage_#{@collage.id}.pdf", :type => 'application/pdf'
 		#file.unlink
 		#Removing saved state after used
 		ReadableState.delete(params[:state_id])
@@ -249,5 +229,4 @@ class CollagesController < BaseController
   def load_collage
     @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}, :annotations => {:layers => true}])
   end
-
 end

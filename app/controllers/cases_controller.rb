@@ -1,11 +1,12 @@
 class CasesController < BaseController
 
+  cache_sweeper :case_sweeper
+
   before_filter :prep_resources
   before_filter :my_cases, :only => [:index, :show]
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
-  before_filter :list_tags, :only => [:index, :show, :edit, :new, :create]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
@@ -14,14 +15,6 @@ class CasesController < BaseController
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
     allow :case_admin, :admin, :superadmin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
-  end
-
-  def list_tags
-    @case_tags = Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-		JOIN tags t ON ts.tag_id = t.id
-		WHERE taggable_type = 'Case'
-		GROUP BY ts.tag_id, t.name
-		ORDER BY COUNT(*) DESC")
   end
 
   def autocomplete_tags

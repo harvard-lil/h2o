@@ -46,8 +46,7 @@
 	</hgroup>
 	<article class="songs">
 	<ul id="all_playlists">
-		<%#= NOTE: For some reason, sort by author is not persisting here, but playlists retrieved are correct. %>
-		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results.sort_by { |p| p.send(params[:sort]) } %>
+		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
 	</ul>
 	<% if current_user -%>
     <% if @my_playlists.any? -%>

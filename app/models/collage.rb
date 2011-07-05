@@ -16,6 +16,14 @@ class Collage < ActiveRecord::Base
   acts_as_taggable_on :tags
   acts_as_authorization_object
 
+  def self.tag_list
+    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+      JOIN tags t ON ts.tag_id = t.id
+	  WHERE taggable_type = 'Collage'
+	  GROUP BY ts.tag_id, t.name
+	  ORDER BY COUNT(*) DESC LIMIT 25")
+  end
+
   def self.annotatable_classes
     Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 
       model_name = Pathname(file).basename.to_s
@@ -252,11 +260,6 @@ class Collage < ActiveRecord::Base
 		  end
 
           first_child = node.children.first
-
-		  if node.children.size == 1 && (first_child.name == 'b' || first_child.name == 'text')
-		    next
-		  end
-
 	      control_node = Nokogiri::XML::Node.new('span', doc)
 		  control_node['class'] = "paragraph-numbering"
 	  	  control_node.inner_html = "#{count}"

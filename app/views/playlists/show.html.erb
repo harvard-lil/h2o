@@ -27,6 +27,7 @@
 		<div class="cl"></div>
 	</hgroup>
 	<div class="details">
+		<% cache "playlist-#{@playlist.id}-tags" do -%>
 		<div class="tags">
 			<ul>
 				<% @playlist.tags.each do |tag| -%>
@@ -34,6 +35,7 @@
 				<% end -%>
 			</ul>
 		</div>
+		<% end -%>
 		<h5>
 			<%= @playlist.created_at.to_s(:simpledatetime) %>
 			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>

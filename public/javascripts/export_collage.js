@@ -8,31 +8,36 @@ var color_map = {
 
 jQuery.extend({
 	loadState: function() {
-		jQuery.each(last_data, function(i, e) {
-			if(i == 'highlights') {
-				jQuery.each(e, function(a, h) {
-					jQuery(a).css('background-color', '#' + color_map[h]);
-				});
-			} else if(i.match(/\.a/) && e != 'none') {
-				jQuery(i).css('display', 'inline');
-			} else if(i.match(/\.unlayered/)) {
-				if(e == 'none') {
-					// if unlayered text default is hidden,
-					// add wrapper nodes with arrow for collapsing text
-					// here!
-					jQuery(i).addClass('default-hidden').css('display', 'none');
+		jQuery('.collage-content').each(function(i, el) {
+			var id = jQuery(el).data('id');
+			var data = eval("collage_data_" + id);
+
+			jQuery.each(data, function(i, e) {
+				var id = jQuery(el).data('id');  //id value is lost here - not sure why
+				if(i == 'highlights') {
+					jQuery.each(e, function(a, h) {
+						jQuery('#collage' + id + ' ' + a).css('background-color', '#' + color_map[h]);
+					});
+				} else if(i.match(/\.a/) && e != 'none') {
+					jQuery('#collage' + id + ' ' + i).css('display', 'inline');
+				} else if(i.match(/\.unlayered/)) {
+					if(e == 'none') {
+						// if unlayered text default is hidden,
+						// add wrapper nodes with arrow for collapsing text
+						// here!
+						jQuery('#collage' + id + ' ' + i).addClass('default-hidden').css('display', 'none');
+					} else {
+						jQuery('#collage' + id + ' tt' + i).css('display', 'inline');
+						jQuery('#collage' + id + ' p' + i + ', center' + i).css('display', 'block');
+						//Remove unlayered collapse links here
+						var id = i.match(/\d+/).toString();
+						jQuery('.unlayered-control-' + id).remove();
+					}
 				} else {
-					jQuery('tt' + i).css('display', 'inline');
-					jQuery('p' + i + ', center' + i).css('display', 'block');
-					//Remove unlayered collapse links here
-					var id = i.match(/\d+/).toString();
-					jQuery('.unlayered-control-' + id).remove();
+					jQuery('#collage' + id + ' ' + i).css('display', e);
 				}
-			} else {
-				jQuery(i).css('display', e);
-			}
+			});
 		});
-		jQuery('article').css('opacity', 1.0);
 	}
 });
 

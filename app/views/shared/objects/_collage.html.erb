@@ -10,6 +10,7 @@
 	</div>
   	<% end %>      
 	<div class="details">
+        <% cache "collage-#{collage.id}-tags" do %>
 		<div class="tags">
 			<ul>
 				<% collage.tag_list.each do |tag| %>
@@ -17,12 +18,14 @@
 				<% end -%>
 			</ul>
 		</div>
+		<% end -%>
 		<h4><%= link_to collage.name, collage_path(collage), :class => "title" %>
 			<% if current_user && (@is_collage_admin || @my_collages.include?(collage)) %>
     		<%= link_to 'DELETE', collage, :class => "action delete-action" %>
 			<%= link_to 'EDIT', edit_collage_path(collage), :class => "action edit-action" %>
   			<% end %>
 		</h4>
+        <% cache "collage-#{collage.id}-index" do %>
 		<p>
 			<%= collage.created_at.to_s(:simpledatetime) %> by
 			<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
@@ -30,6 +33,7 @@
 		<p class="extra">
 			On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>
 		</p>
+        <% end -%>
 	</div>
 	<div class="cl"></div>
 </li>

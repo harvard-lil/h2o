@@ -1,14 +1,12 @@
-<div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
+<div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
+	<% cache("collage-#{@collage.id}-annotatable-content") do %>
 	<article>
 		<%= raw @collage.annotatable_content %>
 	</article>
-	<% if false -%>
-	<% cache("collage-annotatable-content-#{@collage.id}") do %>
-	<% end -%>
 	<% end -%>
 	<h2 class="collage-id"><%= @collage.name %></h2>
 </div>
 
 <script type="text/javascript">
-var last_data = <%= raw @readable_state || {} %>;
+var collage_data_<%= @collage.id %> = <%= raw @readable_state || {} %>;
 </script>

@@ -21,6 +21,14 @@
 		</p>
 	</div>
 	<div class="cl"></div>
+	<% if item.resource_item_type == 'ItemCollage' && !item.resource_item.actual_object.nil? -%>
+	<div class="collage-content" id="collage<%= item.resource_item.actual_object.id %>" data-id="<%= item.resource_item.actual_object.id %>">
+	<%= raw item.resource_item.actual_object.annotatable_content %>
+	</div>
+	<script type="text/javascript">
+	var collage_data_<%= item.resource_item.actual_object.id %> = <%= raw item.resource_item.actual_object.readable_state || '{}' %>;
+	</script>
+	<% end -%>
 	<% if recursive_level < 4 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>
 	<section class="playlists">
 		<ul>

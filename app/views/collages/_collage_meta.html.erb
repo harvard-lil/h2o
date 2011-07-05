@@ -1,4 +1,3 @@
-<% cache("collage-meta-#{@collage.id}") do %>
 <p id="word_count">Number of total words: <%= @collage.word_count %></p>
 
 <p>Lineage</p>
@@ -14,4 +13,3 @@
 		:locals => { :collage => @collage.top_ancestor,
                      :recursive_level => 0 } %>
 </ul>
-<% end %>
