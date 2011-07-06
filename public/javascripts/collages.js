@@ -185,7 +185,7 @@ jQuery.extend({
 			//manages the highlight state and tipsy state
 			//for annotations. The hover is required.
 			var layer_id = obj.layers[obj.layers.length - 1].id;
-			jQuery('.a' + obj.id + ',#annotation-asterisk-' + obj.id).hoverIntent({
+			jQuery('tt.a' + obj.id + ',#annotation-asterisk-' + obj.id).hoverIntent({
 				over: function(e) {
 					jQuery('#annotation-asterisk-' + obj.id).tipsy('show');
 					jQuery.highlightHistoryAdd('l' + layer_id, obj.id, true);
@@ -199,7 +199,7 @@ jQuery.extend({
 					}
 				}
 			});
-			jQuery('.a' + obj.id + ',#annotation-asterisk-' + obj.id).hover(
+			jQuery('tt.a' + obj.id + ',#annotation-asterisk-' + obj.id).hover(
 				function(e) {
 					hover_state[obj.id] = true;
 				},
@@ -211,10 +211,12 @@ jQuery.extend({
 	},
 
 	toggleAnnotation: function(id) {
-		if(jQuery('#annotation-content-' + id).css('display') == 'inline') {
+		if(jQuery('#annotation-content-' + id).css('display') == 'inline-block') {
 			jQuery('#annotation-content-' + id).css('display', 'none');
+			jQuery('#annotation-asterisk-' + id).tipsy('show');
 		} else {
 			jQuery('#annotation-content-' + id).css('display', 'inline-block');
+			jQuery('#annotation-asterisk-' + id).tipsy('show');
 		}
 	},
 
@@ -343,7 +345,7 @@ jQuery.extend({
 		}
 	},
 
-	initializeAnnotations: function(){
+	initializeAnnotationListeners: function(){
 		jQuery('.annotation-asterisk').tipsy({ gravity: 'sw', trigger: 'manual' });
 		jQuery('.unlayered-ellipsis').click(function(e) {
 			e.preventDefault();
@@ -364,11 +366,6 @@ jQuery.extend({
 			var id = jQuery(this).data('id');
 			jQuery('.unlayered_' + id + ',.unlayered-control-' + id).css('display', 'none');
 			jQuery('#unlayered-ellipsis-' + id).css('display', 'inline-block');
-		});
-
-		//Removed dependency on AJAX here, reduce page requests
-		jQuery(annotations).each(function(){
-			jQuery.addAnnotationListeners(this.annotation);
 		});
 	},
 
@@ -483,6 +480,9 @@ jQuery.extend({
 			e.preventDefault();
 			jQuery.toggleAnnotation(jQuery(this).data('id'));
 		});
+		jQuery(annotations).each(function(){
+			jQuery.addAnnotationListeners(this.annotation);
+		});
 	}
 
 });
@@ -496,7 +496,7 @@ jQuery(document).ready(function(){
 			new_annotation_end = '';
  		});
 
-		jQuery.initializeAnnotations();
+		jQuery.initializeAnnotationListeners();
 
 		jQuery('#full_text').click(function(e) {
 			e.preventDefault();
