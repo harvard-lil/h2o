@@ -118,16 +118,14 @@ class BaseController < ApplicationController
 
   protected
 
-  def build_bookmarks(type)
-	@my_bookmarks = []
+  def build_bookmarks(klass, type)
 	if current_user && current_user.bookmark_id
-	  # TODO: Update this to be linked through user / foreign key
-	  @my_bookmarks = current_user.bookmarks.inject([]) do |arr, p|
-	    if p.resource_item_type == type && p.resource_item.actual_object
-		  arr << p.resource_item.actual_object
-		end
-		arr
-	  end
+	  #This is an attempt at optimization to minimize queries hitting
+	  #database. TODO: optimize further
+	  @my_bookmarks = klass.find_by_sql("SELECT * FROM #{klass.to_s.tableize}
+	  	WHERE id IN (SELECT DISTINCT ic.actual_object_id FROM playlist_items pi
+			JOIN #{type.tableize} ic ON pi.resource_item_id = ic.id
+			WHERE pi.resource_item_type = '#{type}' AND pi.playlist_id = #{current_user.bookmark_id})")
 	end
   end
 end

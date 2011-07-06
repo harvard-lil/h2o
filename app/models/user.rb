@@ -44,7 +44,12 @@ class User < ActiveRecord::Base
   end
 
   def collages
-    self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+    #self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+	#This is an attempted optimization, as it hits the db for one request rather than 1 + number of user collages*2
+    Collage.find_by_sql("SELECT * FROM collages WHERE id IN
+		(SELECT DISTINCT authorizable_id FROM roles
+			INNER JOIN roles_users ON roles.id = roles_users.role_id
+			WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Collage')))")
   end
 
   def playlists

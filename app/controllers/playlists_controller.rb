@@ -50,7 +50,7 @@ class PlaylistsController < BaseController
 
 	@playlists.execute!
 
-    build_bookmarks("ItemPlaylist")
+    build_bookmarks(Playlist, "ItemPlaylist")
 
     @my_playlists = current_user ? current_user.playlists : []
     

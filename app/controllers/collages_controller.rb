@@ -66,7 +66,7 @@ class CollagesController < BaseController
 
     @collages.execute!
 	@my_collages = current_user ? current_user.collages : [] 
-    build_bookmarks("ItemCollage")
+    build_bookmarks(Collage, "ItemCollage")
 
     respond_to do |format|
 	  #The following is called via normal page load

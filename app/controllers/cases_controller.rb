@@ -66,7 +66,7 @@ class CasesController < BaseController
     @cases.execute!
 	@my_cases = current_user ? current_user.cases : []
 
-    build_bookmarks("ItemCase")
+    build_bookmarks(Case, "ItemCase")
 
     respond_to do |format|
       format.html do
