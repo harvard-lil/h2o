@@ -256,34 +256,6 @@ jQuery.extend({
 	rootPathWithFQDN: function(){
 	  return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
 	},
-
-	observeToolbar: function(){
-	  if(jQuery.cookie('tool-open') == '1'){
-		jQuery('#tools').css({right: '0px', backgroundImage: 'none'});
-	  }
-
-	  jQuery('#tools').mouseenter(
-		function(){
-		  jQuery.cookie('tool-open','1', {expires: 365});
-		  jQuery(this).animate({
-			right: '0px'
-			},250,'swing'
-		  );
-		  jQuery(this).css({backgroundImage: 'none'});
-		}
-	  );
-
-	  jQuery('#hide').click(
-		function(e){
-		  jQuery.cookie('tool-open','0', {expires: 365});
-		  e.preventDefault();
-		  jQuery('#tools').animate({
-			right: '-280px'
-		  },250,'swing');
-		  jQuery('#tools').css({backgroundImage: "url('/images/elements/tools-vertical.gif')"});
-	  });
-	},
-
 	serializeHash: function(hashVals){
 	  var vals = [];
 	  for(var val in hashVals){
@@ -570,7 +542,7 @@ jQuery(function() {
 	}
 
   	//Fire functions for discussions
-  	initDiscussionControls();
+  	//initDiscussionControls();
 
 	jQuery("#search .btn-tags").click(function() {
 		var $p = jQuery(".browse-tags-popup");

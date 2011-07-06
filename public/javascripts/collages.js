@@ -159,14 +159,6 @@ jQuery.extend({
 		}
 		jQuery('article').css('opacity', 1.0);
 	},
-	addLayerToCookie: function(cookieName,layerId){
-		var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
-		currentVals[layerId] = 1;
-		var cookieVal = jQuery.serializeHash(currentVals);
-		jQuery.cookie(cookieName, cookieVal, {
-			expires: 365
-		});
-	},
 
 	submitAnnotation: function(){
 		var collageId = jQuery.getItemId();
@@ -182,24 +174,11 @@ jQuery.extend({
 			},
 			success: function(response){
 				jQuery.hideGlobalSpinnerNode();
-				jQuery.cookie('layer-names', jQuery('#annotation_layer_list').val(), {
-					expires: 365
-				});
 				jQuery('#annotation-form').dialog('close');
 				document.location = jQuery.rootPath() + 'collages/' + collageId;
 			}
 		});
 	},
-
-	removeLayerFromCookie: function(cookieName,layerId){
-		var currentVals = jQuery.unserializeHash(jQuery.cookie(cookieName));
-		delete currentVals[layerId];
-		var cookieVal = jQuery.serializeHash(currentVals);
-		jQuery.cookie(cookieName,cookieVal,{
-			expires: 365
-		});
-	},
-
 	addAnnotationListeners: function(obj) {
 		if(obj.layers.length > 0) {
 			//The following hover and hoverIntent functionality
@@ -393,18 +372,6 @@ jQuery.extend({
 		});
 	},
 
-	observeLayers: function(){
-		jQuery('.layer-control').click(function(e){
-			var layerId = jQuery(this).attr('id').split('-')[2];
-			if(jQuery('#layer-checkbox-' + layerId).is(':checked')){
-				// Set the name and id of the active layers.
-				jQuery.addLayerToCookie('active-layer-ids',layerId);
-			} else {
-				jQuery.removeLayerFromCookie('active-layer-ids',layerId);
-			}
-		});
-	},
-
 	updateAnnotationPreview: function(collageId){
 		jQuery("#annotation_annotation").observeField(5,function(){
 			jQuery.ajax({
@@ -476,9 +443,6 @@ jQuery.extend({
 								}
 							});
 							jQuery.updateAnnotationPreview(collageId);
-							if(jQuery('#annotation_layer_list').val() == ''){
-								jQuery('#annotation_layer_list').val(jQuery.cookie('layer-names'));
-							}
 					},
 					error: function(xhr){
 						jQuery.hideGlobalSpinnerNode();
