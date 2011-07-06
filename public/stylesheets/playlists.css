@@ -1,5 +1,5 @@
 #playlist { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
-#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/playlist-description.png); height:30px; line-height:30px; display:block; }
+#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/hgroup.png) 0px 0px; height:30px; line-height:30px; display:block; }
 #playlist .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #playlist .description { padding-left:73px; }
 #playlist .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#fff; }
@@ -7,13 +7,6 @@
 #playlist .description .toolbar ul { list-style:none; }
 #playlist .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #f1c47e; }
 #playlist .description .toolbar ul li img { display:block; }
-
-#playlist .toolbar a { background: url(/images/ui/show_icons.png);
-  display: block; width: 23px; height: 30px; text-indent: -4000px; }
-#playlist .toolbar .link-share { width: 25px; }
-#playlist .toolbar .link-remix { background-position: -81px 0px; width: 20px; }
-#playlist .toolbar .link-bookmark { background-position: -101px 0px; width: 18px; }
-#playlist .toolbar .link-print { background-position: -60px 0px; width: 22px; }
 
 #playlist .details { background:#f8eddc; display:block; position:relative; padding:7px 300px 7px 80px; }
 #playlist .details .tags { position:absolute; top:1px; right:1px; }
