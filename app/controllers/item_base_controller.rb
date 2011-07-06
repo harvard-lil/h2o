@@ -1,5 +1,7 @@
 class ItemBaseController < BaseController
 
+  cache_sweeper :item_base_sweeper
+
   before_filter :set_model
   before_filter :load_object_and_playlist, :except => [:new, :create]
   before_filter :create_object_and_load_playlist, :only => [:new, :create]

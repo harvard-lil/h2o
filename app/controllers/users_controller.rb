@@ -145,6 +145,7 @@ class UsersController < ApplicationController
 	  playlist_item = PlaylistItem.new(:playlist_id => current_user.bookmark_id, 
 	    :resource_item_type => "item_#{params[:type]}".classify,
 	    :resource_item_id => item.id)
+	  playlist_item.accepts_role!(:owner, current_user)
 	  playlist_item.save
 
       render :json => { :user_id => current_user.id }

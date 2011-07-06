@@ -63,4 +63,21 @@ class Playlist < ActiveRecord::Base
   def bookmark_name
     self.name
   end
+
+  def parents
+    ItemPlaylist.find_all_by_actual_object_id(self.id).collect { |p| p.playlist_item.playlist_id }.uniq
+  end
+
+  def relation_ids
+    r = self.parents
+	i = 0
+	while i < r.size
+	  Playlist.find(r[i]).parents.each do |a|
+	    next if r.include?(a) 
+        r.push(a)
+      end
+	  i+=1
+	end
+	r
+  end
 end

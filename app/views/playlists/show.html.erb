@@ -15,7 +15,7 @@
 				<li><%= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %></li>
 			</ul>
 		</aside>
-		<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+		<% if @can_edit -%>
 		<aside class="buttons">
 			<ul>
     			<li class="btn-li">
@@ -51,35 +51,33 @@
 			</div>
 			<div id="description_more">
 				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
-				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+				<% if @can_edit -%>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 				<% end -%>
 			</div>
 		<% else -%>
 			<div id="description">
 				<%= @playlist.description %>
-				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+				<% if @can_edit -%>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 				<% end -%>
 			</div>
 		<% end -%>
 		<% else -%>
 			<p>
-				<% if current_user && (@playlist.admin? || @playlist.owner?) %>
+				<% if @can_edit -%>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
 				<% end -%>
 			</p>
 		<% end -%>
 	</div>
+	<% cache "playlist-block-#{@playlist.id}-#{@can_edit}" do -%>
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
+	<% end -%>
 </div>
 
 <%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
 <script type="text/javascript">
 var container_id = <%= @playlist.id %>;
-<% if current_user && (@playlist.admin? || @playlist.owner?) %>
-var owner_can_sort = true;
-<% else -%>
-var owner_can_sort = false;
-<% end -%>
+var owner_can_sort = <%= @can_edit ? "true" : "false" %>;
 </script>

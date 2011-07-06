@@ -10,6 +10,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
 	expire_fragment "collage-#{record.id}-index"
 	expire_fragment "collage-#{record.id}-tags"
 	expire_fragment "collage-#{record.id}-meta"
+	expire_fragment "collage-#{record.id}-annotations"
 	expire_fragment "case-#{record.annotatable_id}-index"
 
     #expire fragments of my ancestors, descendants, and siblings meta
@@ -24,6 +25,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
 	expire_fragment "collage-#{record.id}-index"
 	expire_fragment "collage-#{record.id}-tags"
 	expire_fragment "collage-#{record.id}-meta"
+	expire_fragment "collage-#{record.id}-annotations"
 	expire_fragment "case-#{record.annotatable_id}-index"
 
     #expire fragments of my ancestors, descendants, and siblings meta

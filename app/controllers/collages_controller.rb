@@ -65,8 +65,12 @@ class CollagesController < BaseController
     end
 
     @collages.execute!
-	@my_collages = current_user ? current_user.collages : [] 
-    build_bookmarks(Collage, "ItemCollage")
+	if current_user
+	  @my_collages = current_user.collages
+	  @my_bookmarks = current_user.bookmarks_type(Collage, ItemCollage)
+	else
+	  @my_collages = @my_bookmarks = []
+	end
 
     respond_to do |format|
 	  #The following is called via normal page load
@@ -90,7 +94,13 @@ class CollagesController < BaseController
 
     respond_to do |format|
       format.html do
-	    @can_edit = current_user && @collage.users.include?(current_user)
+	  	#NOTE: This is calling 5 queries for a user that owns the collage, totalling ~8ms (Annoying?)
+		#SELECT FROM role
+		#SELECT FROM users JOIN roles_users
+		#SELECT FROM users
+		#SELECT FROM roles
+		#SELECT FROM roles_users JOIN roles
+	    @can_edit = current_user && @collage.can_edit?
 	    render 'show'
 	  end # show.html.erb
       format.xml  { render :xml => @collage }
@@ -226,6 +236,6 @@ class CollagesController < BaseController
   end
 
   def load_collage
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}, :annotations => {:layers => true}])
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}]) #, :annotations => {:layers => true}])
   end
 end

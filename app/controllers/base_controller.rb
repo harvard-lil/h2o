@@ -115,17 +115,4 @@ class BaseController < ApplicationController
 	  end
 	end
   end
-
-  protected
-
-  def build_bookmarks(klass, type)
-	if current_user && current_user.bookmark_id
-	  #This is an attempt at optimization to minimize queries hitting
-	  #database. TODO: optimize further
-	  @my_bookmarks = klass.find_by_sql("SELECT * FROM #{klass.to_s.tableize}
-	  	WHERE id IN (SELECT DISTINCT ic.actual_object_id FROM playlist_items pi
-			JOIN #{type.tableize} ic ON pi.resource_item_id = ic.id
-			WHERE pi.resource_item_type = '#{type}' AND pi.playlist_id = #{current_user.bookmark_id})")
-	end
-  end
 end

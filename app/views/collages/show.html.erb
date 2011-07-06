@@ -125,8 +125,10 @@ Your annotation will start here. Please click another word to set the end point.
   
  
 <script type="text/javascript">
-var is_owner = <%= current_user && @collage.can_edit? ? 1 : 0 %>;
+var is_owner = <%= @can_edit ? 1 : 0 %>;
 var last_data = <%= raw @collage.readable_state || '{}' %>;
+<% cache "collage-#{@collage.id}-annotations" do %>
 var annotations = <%= raw @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) %>;
+<% end -%>
 </script>
 <div id="annotation-form"></div>

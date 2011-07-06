@@ -50,10 +50,13 @@ class PlaylistsController < BaseController
 
 	@playlists.execute!
 
-    build_bookmarks(Playlist, "ItemPlaylist")
+	if current_user
+	  @my_playlists = current_user.playlists
+	  @my_bookmarks = current_user.bookmarks_type(Playlist, ItemPlaylist)
+	else
+	  @my_playlists = @my_bookmarks = []
+	end
 
-    @my_playlists = current_user ? current_user.playlists : []
-    
     respond_to do |format|
       format.html do
 	    if request.xhr?
@@ -74,10 +77,13 @@ class PlaylistsController < BaseController
 
     @playlist.playlist_items.find(:all, :include => [:resource_item])
 
-    @my_playlist = (current_user) ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
+    @my_playlist = current_user ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.html do
+	    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+	    render 'show' # show.html.erb
+	  end
       format.xml  { render :xml => @playlist }
 	  format.pdf do
 	    url = request.url.gsub(/\.pdf.*/, "/export")

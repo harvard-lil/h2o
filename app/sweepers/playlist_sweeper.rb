@@ -9,6 +9,11 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 	expire_fragment "playlist-#{record.id}-tags"
 
 	expire_fragment "user-playlists-#{current_user.id}"
+
+	record.relation_ids.each do |p|
+	  expire_fragment "playlist-block-#{p}-true"
+	  expire_fragment "playlist-block-#{p}-false"
+	end
   end
 
   def before_destroy(record)
@@ -17,5 +22,20 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 	expire_fragment "playlist-#{record.id}-tags"
 
 	expire_fragment "user-playlists-#{current_user.id}"
+
+	record.relation_ids.each do |p|
+	  expire_fragment "playlist-block-#{p}-true"
+	  expire_fragment "playlist-block-#{p}-false"
+	end
+  end
+
+  def after_playlists_position_update
+	expire_fragment "playlist-block-#{params[:id]}-true"
+	expire_fragment "playlist-block-#{params[:id]}-false"
+
+	record.relation_ids.each do |p|
+	  expire_fragment "playlist-block-#{p}-true"
+	  expire_fragment "playlist-block-#{p}-false"
+	end
   end
 end
