@@ -1,5 +1,5 @@
 #playlist { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
-#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/hgroup.png) 0px 0px; height:30px; line-height:30px; display:block; }
+#playlist .description { border:1px solid #ff8b11; background:url(/images/ui/repeat_bg.png) 0px -200px; height:30px; line-height:30px; display:block; }
 #playlist .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #playlist .description { padding-left:73px; }
 #playlist .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#fff; }

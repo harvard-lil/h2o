@@ -1,6 +1,6 @@
 /* Collages */
 #collage { display:block; padding:11px 7px; position:relative; z-index:1; }
-#collage .description { display:block; border:1px solid #a6db31; background:url(/images/ui/hgroup.png) 0px -30px; height:30px; line-height:30px; position:relative; z-index:2; }
+#collage .description { display:block; border:1px solid #a6db31; background:url(/images/ui/repeat_bg.png) 0px -230px; height:30px; line-height:30px; position:relative; z-index:2; }
 #collage .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #collage .description { padding-left:73px; }
 #collage .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; }
@@ -12,7 +12,7 @@
 #collage .description .buttons { float:right; display:inline;  }
 #collage .description .buttons ul { list-style:none; }
 #collage .description .buttons ul .btn-li { float:left; display:inline; font-size:9px; line-height:20px; font-weight:bold; padding:4px 10px 0 0; position:relative; height:20px; }
-#collage .description .buttons ul .btn-a { float:left; display:inline; background:url(/images/ui/btn_bgs.png) 0px -73px; color:#fff; text-decoration:none; padding:0 9px; position:relative; z-index:2; }
+#collage .description .buttons ul .btn-a { float:left; display:inline; background:url(/images/ui/repeat_bg.png) 0px -73px; color:#fff; text-decoration:none; padding:0 9px; position:relative; z-index:2; }
 #collage .description .buttons ul .btn-a { border:1px solid #6d87a2; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #collage .description .buttons ul .btn-a-active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; }
 #collage .description .buttons ul .btn-a-active { -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }
@@ -40,7 +40,6 @@
 #collage article p a { color:#336699; }
 #collage article p a.hint { color:#669900; }
 #collage article p strong { font-weight:normal; color:#999; }
-#collage article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/pagination.png) center no-repeat; }
 
 #collage article .annotation-content { color: #6b933d; line-height: 1.5;
 display: none; padding: 0px 0px 0px 3px; font-style: italic; }

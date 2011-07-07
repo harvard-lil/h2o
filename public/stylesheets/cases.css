@@ -1,5 +1,5 @@
 #case { display:block; padding:11px 7px; position:relative; z-index:1; }
-#case .description { display:block; border:1px solid #FF1A05; background:url(/images/ui/hgroup.png) 0px -60px; height:30px; line-height:30px; position:relative; z-index:2; }
+#case .description { display:block; border:1px solid #FF1A05; background:url(/images/ui/repeat_bg.png) 0px -260px; height:30px; line-height:30px; position:relative; z-index:2; }
 #case .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #case .description { padding-left:73px; }
 #case .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; }
@@ -11,7 +11,7 @@
 #case .description .buttons { float:right; display:inline;  }
 #case .description .buttons ul { list-style:none; }
 #case .description .buttons ul .btn-li { float:left; display:inline; font-size:9px; line-height:20px; font-weight:bold; padding:4px 10px 0 0; position:relative; height:20px; }
-#case .description .buttons ul .btn-a { float:left; display:inline; background:url(/images/ui/btn_bgs.png) 0px -73px; color:#fff; text-decoration:none; padding:0 9px; position:relative; z-index:2; }
+#case .description .buttons ul .btn-a { float:left; display:inline; background:url(/images/ui/repeat_bg.png) 0px -73px; color:#fff; text-decoration:none; padding:0 9px; position:relative; z-index:2; }
 #case .description .buttons ul .btn-a { border:1px solid #6d87a2; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #case .description .buttons ul .btn-a-active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; }
 #case .description .buttons ul .btn-a-active { -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }
@@ -45,4 +45,3 @@
 #case article p a { color:#336699; }
 #case article p a.hint { color:#669900; }
 #case article p strong { font-weight:normal; color:#999; }
-#case article p strong del { display:inline-block; text-decoration:none; background:url(/images/ui/pagination.png) center no-repeat; }
