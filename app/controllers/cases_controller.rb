@@ -59,7 +59,6 @@ class CasesController < BaseController
 		with :tag_list, params[:tag]
 	  end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      data_accessor_for(Case).include = {:tags => [], :collages => {:accepted_roles => []}, :case_citations => [], :accepted_roles => {}}
       order_by params[:sort].to_sym, :asc
     end
 

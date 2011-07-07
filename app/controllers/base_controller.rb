@@ -66,9 +66,6 @@ class BaseController < ApplicationController
 	    with :active, true
 	    paginate :page => params[:page], :per_page => cookies[:per_page] || nil
 
-	    # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
-	    data_accessor_for(Collage).include = {:annotations => {:layers => []}, :accepted_roles => {}, :annotatable => {}}
-
 	    order_by params[:sort].to_sym, :asc
 	  end
       @collages.execute!
@@ -83,9 +80,6 @@ class BaseController < ApplicationController
 	    with :public, true
 	    with :active, true
 	    paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-
-	    # FIGURE OUT IF THE FOLLOWING LINE IS NEEDED
-	    #data_accessor_for(Case).include = {:tags => [], :collages => ...
 
 	    order_by params[:sort].to_sym, :asc
 	  end

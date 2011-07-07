@@ -7,11 +7,13 @@ class CaseSweeper < ActionController::Caching::Sweeper
 	expire_fragment "case-all-tags"
 	expire_fragment "case-#{record.id}-index"
 	expire_fragment "case-#{record.id}-tags"
+	expire_fragment "case-#{record.id}-detail"
   end
 
   def before_destroy(record)
 	expire_fragment "case-all-tags"
 	expire_fragment "case-#{record.id}-index"
 	expire_fragment "case-#{record.id}-tags"
+	expire_fragment "case-#{record.id}-detail"
   end
 end

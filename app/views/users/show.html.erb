@@ -75,7 +75,7 @@
 	</ul>
 	<% end -%>
 	<% if @user.bookmarks.any? -%>
-	<ul id="bookmarks" class="playlists" style="display:none;">
+	<ul id="bookmarks" class="playlists">
 		<% @user.bookmarks.each_with_index do |item, index| -%>
 		<%= render :partial => 'shared/objects/playlist_item',
 		  :locals => { :item => item, 

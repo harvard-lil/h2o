@@ -2,6 +2,7 @@
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
 
+<% cache "playlist-block-#{@playlist.id}-#{@can_edit ? 'editable' : 'anon'}" do -%>
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
 		<h2><%= @playlist.name %></h2>
@@ -71,13 +72,12 @@
 			</p>
 		<% end -%>
 	</div>
-	<% cache "playlist-block-#{@playlist.id}-#{@can_edit}" do -%>
 	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
-	<% end -%>
 </div>
-
-<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
 <script type="text/javascript">
 var container_id = <%= @playlist.id %>;
 var owner_can_sort = <%= @can_edit ? "true" : "false" %>;
 </script>
+<% end -%>
+
+<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>

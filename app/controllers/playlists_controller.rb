@@ -75,7 +75,7 @@ class PlaylistsController < BaseController
     add_javascripts 'playlists'
     add_stylesheets 'playlists'
 
-    @playlist.playlist_items.find(:all, :include => [:resource_item])
+    #@playlist.playlist_items.find(:all)
 
     @my_playlist = current_user ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
 

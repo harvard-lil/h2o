@@ -17,6 +17,7 @@
 		<div class="cl"></div>
 	</hgroup>
 	<div class="details">
+		<% cache "case-#{@case.id}-tags" do -%>
 		<div class="tags">
 			<ul>
 				<% @case.tags.each do |tag| -%>
@@ -24,18 +25,21 @@
 				<% end -%>
 			</ul>
 		</div>
+		<% end -%>
 		<div class="cl"></div>
-      		<p>Decision date: <%= @case.decision_date %></p>
-      		<p>Author: <%= @case.author %></p>
-      		<% unless @case.case_citations.blank? %>
-        	<p>Citations: <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
-      		<% end %>
-      		<% unless @case.case_docket_numbers.blank? %>
-       		<p>Docket Numbers: <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></p> 
-      		<% end %>
-      		<% unless @case.case_jurisdiction.blank? %>
-        	<p>Jurisdiction: <%= @case.case_jurisdiction.display_name %></p> 
-      		<% end %>
+		<% cache "case-#{@case.id}-detail" do -%>
+      	<p>Decision date: <%= @case.decision_date %></p>
+      	<p>Author: <%= @case.author %></p>
+      	<% unless @case.case_citations.blank? %>
+        <p>Citations: <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
+      	<% end %>
+      	<% unless @case.case_docket_numbers.blank? %>
+       	<p>Docket Numbers: <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></p> 
+      	<% end %>
+      	<% unless @case.case_jurisdiction.blank? %>
+        <p>Jurisdiction: <%= @case.case_jurisdiction.display_name %></p> 
+      	<% end %>
+		<% end -%>
 		<% if current_user && (@case.admin? || @case.owner?) %>
 		<%= link_to "EDIT", edit_case_path(@case), :class => "edit-action" %>
 		<% end -%>

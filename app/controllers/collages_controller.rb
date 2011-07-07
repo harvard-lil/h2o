@@ -100,7 +100,7 @@ class CollagesController < BaseController
 		#SELECT FROM users
 		#SELECT FROM roles
 		#SELECT FROM roles_users JOIN roles
-	    @can_edit = current_user && @collage.can_edit?
+	    @can_edit = current_user ? @collage.can_edit? : false
 	    render 'show'
 	  end # show.html.erb
       format.xml  { render :xml => @collage }
