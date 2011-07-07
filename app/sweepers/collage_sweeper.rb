@@ -9,13 +9,13 @@ class CollageSweeper < ActionController::Caching::Sweeper
 	expire_fragment "collage-all-tags"
 	expire_fragment "collage-#{record.id}-index"
 	expire_fragment "collage-#{record.id}-tags"
-	expire_fragment "collage-#{record.id}-meta"
 	expire_fragment "collage-#{record.id}-annotations"
 	expire_fragment "case-#{record.annotatable_id}-index"
 
     #expire fragments of my ancestors, descendants, and siblings meta
-    relations = [record.path_ids, record.descendant_ids, record.sibling_ids].flatten.uniq
-	relations.each do |rel_id|
+	relations = [record.path_ids, record.descendant_ids]
+	relations.push(record.sibling_ids) if !record.ancestry.nil?
+	relations.flatten.uniq.each do |rel_id|
 	  expire_fragment "collage-#{rel_id}-meta"
 	end
   end
@@ -24,13 +24,13 @@ class CollageSweeper < ActionController::Caching::Sweeper
 	expire_fragment "collage-all-tags"
 	expire_fragment "collage-#{record.id}-index"
 	expire_fragment "collage-#{record.id}-tags"
-	expire_fragment "collage-#{record.id}-meta"
 	expire_fragment "collage-#{record.id}-annotations"
 	expire_fragment "case-#{record.annotatable_id}-index"
 
     #expire fragments of my ancestors, descendants, and siblings meta
-    relations = [record.path_ids, record.descendant_ids, record.sibling_ids].flatten.uniq
-	relations.each do |rel_id|
+	relations = [record.path_ids, record.descendant_ids]
+	relations.push(record.sibling_ids) if !record.ancestry.nil?
+	relations.flatten.uniq.each do |rel_id|
 	  expire_fragment "collage-#{rel_id}-meta"
 	end
   end

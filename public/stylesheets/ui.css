@@ -38,7 +38,7 @@ nav ul li a:hover,
 nav ul li a.active { color:#b0bdc7; text-decoration:none; }
 nav p { float: right; display: inline; }
 
-header { display:block; height:71px; background:url(/images/ui/home_bg.jpg) 0px -39px; padding:26px 0 31px 27px; position:relative; z-index:2; }
+header { display:block; height:71px; background:url(/images/ui/home_bg.png) 0px -39px; padding:26px 0 31px 27px; position:relative; z-index:2; }
 footer { display:block; background:#455864; margin-top:58px; height:auto !important; height:330px; min-height:330px;  }
 footer { background:-moz-linear-gradient(top, #334552, #526572); background:-webkit-gradient(linear, left top, left bottom, from(#334552), to(#526572)); background: -o-linear-gradient(#334552,#526572); }
 
@@ -284,7 +284,7 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 #my_playlists { display: none; }
 
 /* Bookmark */
-#bookmarks { display: none; }
+#my_bookmarks, #bookmarks { display: none; }
 #bookmarks .playlist .data .dd-open { left: -15px; }
 
 .playlist .data .icon-type { float:left; display:inline;

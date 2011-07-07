@@ -57,17 +57,17 @@ class Collage < ActiveRecord::Base
   # TODO: Figure out why tags & annotations breaks in searchable
   searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
     text :display_name, :boost => 3.0
-    string :display_name, :stored => true
-    string :id, :stored => true
+    string :display_name #, :stored => true
+    string :id #, :stored => true
     text :description, :boost => 2.0
     text :indexable_content
     boolean :active
     boolean :public
 	time :created_at
 	string :tag_list, :stored => true, :multiple => true
-	string :author, :stored => true
+	string :author#, :stored => true
 
-    string :annotatable, :stored => true
+    string :annotatable #, :stored => true
     string :annotations, :multiple => true
     string :layer_list, :multiple => true
   end
@@ -256,6 +256,7 @@ class Collage < ActiveRecord::Base
 		  unlayered_start_size = node.css('tt.unlayered_start').size
 		  unlayered_size = node.css("tt.unlayered").size # + node.css(".unlayered-control").size
 		  if unlayered_start_size == 0 && (tt_size == unlayered_size)
+	        node.xpath('tt').first['class'] ||= ''
 	        node['class'] = node.xpath('tt').first['class']
 		  end
 
