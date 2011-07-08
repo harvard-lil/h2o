@@ -49,13 +49,12 @@ class PlaylistsController < BaseController
 	end
 
 	@playlists.execute!
-
 	if current_user
-	  @my_playlists = current_user.playlists
-	  @my_bookmarks = current_user.bookmarks_type(Playlist, ItemPlaylist)
-	else
-	  @my_playlists = @my_bookmarks = []
-	end
+      @my_playlists = current_user.playlists
+      @my_bookmarks = current_user.bookmarks_type(Playlist, ItemPlaylist)
+    else
+      @my_playlists = @my_bookmarks = []
+    end
 
     respond_to do |format|
       format.html do

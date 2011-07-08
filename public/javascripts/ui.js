@@ -369,9 +369,7 @@ jQuery.extend({
 				cache: false,
 				url: item_url,
 				dataType: "JSON",
-				data: {
-					base_url: jQuery.rootPathWithFQDN()
-				},
+				data: {},
 				beforeSend: function() {
 				  	jQuery.showGlobalSpinnerNode();
 				},

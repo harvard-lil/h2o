@@ -14,6 +14,11 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 	  expire_fragment "playlist-block-#{p}-anon"
 	  expire_fragment "playlist-block-#{p}-editable"
 	end
+
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['name', 'creator'].include?(b.name); arr }.uniq
+	users.each do |u|
+	  Rails.cache.delete("user-playlists-#{u}")
+	end
   end
 
   def before_destroy(record)
@@ -26,6 +31,11 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 	record.relation_ids.each do |p|
 	  expire_fragment "playlist-block-#{p}-anon"
 	  expire_fragment "playlist-block-#{p}-editable"
+	end
+
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['name', 'creator'].include?(b.name); arr }.uniq
+	users.each do |u|
+	  Rails.cache.delete("user-playlists-#{u}")
 	end
   end
 

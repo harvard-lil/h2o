@@ -42,46 +42,73 @@ class CollagesController < BaseController
   end
 
   def index
-    @collages = Sunspot.new_search(Collage)
-    sort_base_url = ''
-     
-	if !params.has_key?(:sort)
-	  params[:sort] = "display_name"
-	end
+    params[:page] ||= 1
 
-    @collages.build do
-      if params.has_key?(:keywords)
-        keywords params[:keywords]
-		sort_base_url += "&keywords=#{params[:keywords]}"
+    if params[:keywords]
+      collages = Sunspot.new_search(Collage)
+     
+      if !params.has_key?(:sort)
+        params[:sort] = "display_name"
       end
-	  if params.has_key?(:tag)
-	    with :tag_list, CGI.unescape(params[:tag])
-		sort_base_url += "&tag=#{params[:tag]}"
-	  end
-      with :public, true
-      with :active, true
-      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-	  order_by params[:sort].to_sym, :asc
+      collages.build do
+        if params.has_key?(:keywords)
+          keywords params[:keywords]
+        end
+        with :public, true
+        with :active, true
+        paginate :page => params[:page], :per_page => 25
+        order_by params[:sort].to_sym, :asc
+      end
+      collages.execute!
+
+      ids = collages.hits.collect { |h| h.result.id }
+      t = Collage.find(:all, :conditions => { :id => ids })
+      @collages = WillPaginate::Collection.create(params[:page], 25, collages.total) { |pager| pager.replace(t) }
+    else
+      @collages = Rails.cache.fetch("collages-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+        collages = Sunspot.new_search(Collage)
+      
+        if !params.has_key?(:sort)
+          params[:sort] = "display_name"
+        end
+
+        collages.build do
+          if params.has_key?(:tag)
+            with :tag_list, CGI.unescape(params[:tag])
+          end
+          with :public, true
+          with :active, true
+          paginate :page => params[:page], :per_page => 25
+          order_by params[:sort].to_sym, :asc
+        end
+        collages.execute!
+
+        ids = collages.hits.collect { |h| h.result.id }
+        t = Collage.find(:all, :conditions => { :id => ids })
+        { :results => t, 
+          :count => collages.total }
+      end
+      @collages = WillPaginate::Collection.create(params[:page], 25, @collages[:count]) { |pager| pager.replace(@collages[:results]) }
     end
 
-    @collages.execute!
-	if current_user
-	  @my_collages = current_user.collages
-	  @my_bookmarks = current_user.bookmarks_type(Collage, ItemCollage)
-	else
-	  @my_collages = @my_bookmarks = []
-	end
+
+    if current_user
+      @my_collages = current_user.collages
+      @my_bookmarks = current_user.bookmarks_type(Collage, ItemCollage)
+    else
+      @my_collages = @my_bookmarks = []
+    end
 
     respond_to do |format|
-	  #The following is called via normal page load
-	  # and via AJAX.
+      #The following is called via normal page load
+      # and via AJAX.
       format.html do
-	    if request.xhr?
-		  render :partial => 'collages_block'
-		else
-		  render 'index'
-		end
-	  end
+        if request.xhr?
+          render :partial => 'collages_block'
+        else
+          render 'index'
+        end
+      end
       format.xml  { render :xml => @collages }
     end
   end
@@ -94,27 +121,27 @@ class CollagesController < BaseController
 
     respond_to do |format|
       format.html do
-	  	#NOTE: This is calling 5 queries for a user that owns the collage, totalling ~8ms (Annoying?)
-		#SELECT FROM role
-		#SELECT FROM users JOIN roles_users
-		#SELECT FROM users
-		#SELECT FROM roles
-		#SELECT FROM roles_users JOIN roles
-	    @can_edit = current_user ? @collage.can_edit? : false
-	    render 'show'
-	  end # show.html.erb
+        #NOTE: This is calling 5 queries for a user that owns the collage, totalling ~8ms (Annoying?)
+        #SELECT FROM role
+        #SELECT FROM users JOIN roles_users
+        #SELECT FROM users
+        #SELECT FROM roles
+        #SELECT FROM roles_users JOIN roles
+        @can_edit = current_user ? @collage.can_edit? : false
+        render 'show'
+      end # show.html.erb
       format.xml  { render :xml => @collage }
-	  format.pdf do
-	    url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
-		file = Tempfile.new('collage.pdf')
-	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
-		system(cmd)
-		file.close
-		send_file file.path, :filename => "collage_#{@collage.id}.pdf", :type => 'application/pdf'
-		#file.unlink
-		#Removing saved state after used
-		ReadableState.delete(params[:state_id])
-	  end
+      format.pdf do
+        url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
+        file = Tempfile.new('collage.pdf')
+        cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+        system(cmd)
+        file.close
+        send_file file.path, :filename => "collage_#{@collage.id}.pdf", :type => 'application/pdf'
+        #file.unlink
+        #Removing saved state after used
+        ReadableState.delete(params[:state_id])
+      end
     end
   end
 
@@ -148,12 +175,12 @@ class CollagesController < BaseController
         #flash[:notice] = 'Collage was successfully created.'
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
-	    format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :type => 'collages', :id => @collage.id } }
       else
         flash[:notice] = "We couldn't create that collage - " + @collage.errors.full_messages.join(',')
         format.html { render :action => "new" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :type => 'collages', :id => @collage.id } }
       end
     end
   end
@@ -169,11 +196,11 @@ class CollagesController < BaseController
         flash[:notice] = 'Collage was successfully updated.'
         format.html { redirect_to(@collage) }
         format.xml  { head :ok }
-		format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :type => 'collages', :id => @collage.id } }
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
-		format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :type => 'collages', :id => @collage.id } }
       end
     end
   end
@@ -192,38 +219,38 @@ class CollagesController < BaseController
 
   def record_collage_print_state
     #NOTE: Initially, recording printable collage state was
-	#attempted to be done by session, but the command line
-	#wkhtmltopdf was not loading the current user session,
-	#and therefore was unable to retrieve the current user
-	#collage readable state
+    #attempted to be done by session, but the command line
+    #wkhtmltopdf was not loading the current user session,
+    #and therefore was unable to retrieve the current user
+    #collage readable state
     begin
       readable_state = ReadableState.new(:state => params[:state])
       readable_state.save
-	  respond_to do |format|
-	    format.json { render :json => { :id => readable_state.id } }
-	  end
+      respond_to do |format|
+        format.json { render :json => { :id => readable_state.id } }
+      end
     rescue Exception => e
-	  respond_to do |format|
-	    format.json { render :json => {} }
-	  end
-	end
-	
+      respond_to do |format|
+        format.json { render :json => {} }
+      end
+    end
+    
     session[:current_print] = params[:state]
   end
 
   def save_readable_state
-	@collage.update_attribute('readable_state', params[:v])
-	respond_to do |format|
-	  format.json { render :json => { :time => Time.now.to_s(:simpledatetime) } }
-	end
+    @collage.update_attribute('readable_state', params[:v])
+    respond_to do |format|
+      format.json { render :json => { :time => Time.now.to_s(:simpledatetime) } }
+    end
   end
 
   def export
     if params[:state_id]
       @readable_state = ReadableState.find(params[:state_id]).state
-	else
-	  @readable_state = @collage.readable_state
-	end
+    else
+      @readable_state = @collage.readable_state
+    end
     render :layout => 'pdf'
   end
 

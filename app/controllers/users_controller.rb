@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  cache_sweeper :user_sweeper
+
   before_filter :require_no_user, :only => [:new, :create]
   before_filter :require_user, :only => [:edit, :update, :bookmark_item]
   
@@ -54,16 +56,16 @@ class UsersController < ApplicationController
 
 	#o.replace(o.gsub!(/\W+/, '')) --- add if remove non-word characters for sort
 
-    if !request.xhr? || params[:is_ajax] == 'playlists'
-	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+  if !request.xhr? || params[:is_ajax] == 'playlists'
+	  @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
 	end
 
     if !request.xhr? || params[:is_ajax] == 'collages'
-	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+	  @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
 	end
 
     if !request.xhr? || params[:is_ajax] == 'cases'
- 	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+ 	  @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
 	end
 
 	if current_user
@@ -79,9 +81,7 @@ class UsersController < ApplicationController
 	  end
 	else
 	  @is_collage_admin = false
-	  @my_collages = []
-	  @my_playlists = []
-	  @my_cases = []
+	  @my_collages = @my_playlists = @my_cases = []
 	end
 
 	respond_to do |format|
@@ -136,10 +136,8 @@ class UsersController < ApplicationController
       actual_object = base_model_klass.find(params[:id])
       klass = "item_#{params[:type]}".classify.constantize
       item = klass.new(:name => actual_object.bookmark_name,
-	    :url => params[:type] == 'default' ? actual_object.url : "#{params[:base_url]}#{params[:type].pluralize}/#{params[:id]}")
-      if params[:type] != 'default'
-	    item.actual_object = actual_object
-      end
+	    :url => params[:type] == 'default' ? actual_object.url : url_for(actual_object))
+      item.actual_object = actual_object if params[:type] != 'default'
 	  item.save
 	  
 	  playlist_item = PlaylistItem.new(:playlist_id => current_user.bookmark_id, 
@@ -150,7 +148,7 @@ class UsersController < ApplicationController
 
       render :json => { :user_id => current_user.id }
     rescue Exception => e
-	logger.warn "#{e.inspect}"
+	  logger.warn "#{e.inspect}"
       render :status => 500, :json => {}
 	end
   end

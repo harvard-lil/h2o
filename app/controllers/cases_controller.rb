@@ -48,11 +48,11 @@ class CasesController < BaseController
 	  if params[:tags]
 	    # figure this out (sort_base_url)
 		if params[:any]
-          any_of do
-            params[:tags].each { |t| with :tag_list, t }
-          end
+      any_of do
+        params[:tags].each { |t| with :tag_list, t }
+      end
 		else
-          params[:tags].each { |t| with :tag_list, t }
+      params[:tags].each { |t| with :tag_list, t }
 		end
 	  end
 	  if params[:tag]
@@ -63,13 +63,12 @@ class CasesController < BaseController
     end
 
     @cases.execute!
-
-	if current_user
-	  @my_cases = current_user.cases
-	  @my_bookmarks = current_user.bookmarks_type(Case, ItemCase)
-	else
-	  @my_cases = @my_bookmarks = []
-	end
+	  if current_user
+      @my_cases = current_user.cases
+      @my_bookmarks = current_user.bookmarks_type(Case, ItemCase)
+    else
+      @my_cases = @my_bookmarks = []
+    end
 
     respond_to do |format|
       format.html do

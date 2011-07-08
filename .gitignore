@@ -4,4 +4,4 @@ log/
 solr/
 config/database.yml
 public/stylesheets/all.css
-public/stylesheets/all.js
+public/javascripts/all.js
