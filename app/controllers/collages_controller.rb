@@ -43,6 +43,7 @@ class CollagesController < BaseController
 
   def index
     params[:page] ||= 1
+    params[:sort] ||= 'display_name'
 
     if params[:keywords]
       collages = Sunspot.new_search(Collage)
@@ -61,8 +62,7 @@ class CollagesController < BaseController
       end
       collages.execute!
 
-      ids = collages.hits.collect { |h| h.result.id }
-      t = Collage.find(:all, :conditions => { :id => ids })
+      t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @collages = WillPaginate::Collection.create(params[:page], 25, collages.total) { |pager| pager.replace(t) }
     else
       @collages = Rails.cache.fetch("collages-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
@@ -83,14 +83,12 @@ class CollagesController < BaseController
         end
         collages.execute!
 
-        ids = collages.hits.collect { |h| h.result.id }
-        t = Collage.find(:all, :conditions => { :id => ids })
+        t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
         { :results => t, 
           :count => collages.total }
       end
       @collages = WillPaginate::Collection.create(params[:page], 25, @collages[:count]) { |pager| pager.replace(@collages[:results]) }
     end
-
 
     if current_user
       @my_collages = current_user.collages

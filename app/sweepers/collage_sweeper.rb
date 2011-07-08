@@ -4,18 +4,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
   observe Collage
 
   def after_save(record)
-    #Rails.cache.delete(%r{collages-search*})
-    #Rails.cache.delete(%r/collages-search*/)
-    # TODO: Figure out a better way to do this
-    tag_list = [Collage.tag_list.collect { |t| t.name }, ''].flatten
-    1.upto(Collage.count/25) do |page|
-      tag_list.each do |tag|
-        ['', 'author', 'created_at', 'display_name'].each do |sort|
-        RAILS_DEFAULT_LOGGER.warn "steph: #{page}-#{tag}-#{sort}"
-          Rails.cache.delete("collages-search-#{page}-#{tag}-#{sort}")
-        end
-      end
-    end
+    Rails.cache.delete_matched(%r{collages-search*})
 
     expire_fragment "collage-all-tags"
     expire_fragment "collage-#{record.id}-index"
@@ -37,18 +26,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
-    #Rails.cache.delete(%r{collages-search*})
-    #Rails.cache.delete(%r/collages-search*/)
-    # TODO: Figure out a better way to do this
-    tag_list = [Collage.tag_list.collect { |t| t.name }, ''].flatten
-    1.upto(Collage.count/25) do |page|
-      tag_list.each do |tag|
-        ['', 'author', 'created_at', 'display_name'].each do |sort|
-        RAILS_DEFAULT_LOGGER.warn "steph: #{page}-#{tag}-#{sort}"
-          Rails.cache.delete("collages-search-#{page}-#{tag}-#{sort}")
-        end
-      end
-    end
+    Rails.cache.delete_matched(%r{collages-search*})
 
     expire_fragment "collage-all-tags"
     expire_fragment "collage-#{record.id}-index"
