@@ -19,9 +19,9 @@ class Collage < ActiveRecord::Base
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
       JOIN tags t ON ts.tag_id = t.id
-	  WHERE taggable_type = 'Collage'
-	  GROUP BY ts.tag_id, t.name
-	  ORDER BY COUNT(*) DESC LIMIT 25")
+      WHERE taggable_type = 'Collage'
+      GROUP BY ts.tag_id, t.name
+      ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   def self.annotatable_classes
@@ -57,15 +57,15 @@ class Collage < ActiveRecord::Base
   # TODO: Figure out why tags & annotations breaks in searchable
   searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
     text :display_name, :boost => 3.0
-    string :display_name #, :stored => true
-    string :id #, :stored => true
+    string :display_name, :stored => true
+    string :id, :stored => true
     text :description, :boost => 2.0
     text :indexable_content
     boolean :active
     boolean :public
-	time :created_at
-	string :tag_list, :stored => true, :multiple => true
-	string :author#, :stored => true
+    time :created_at
+    string :tag_list, :stored => true, :multiple => true
+    string :author#, :stored => true
 
     string :annotatable #, :stored => true
     string :annotations, :multiple => true
@@ -74,15 +74,15 @@ class Collage < ActiveRecord::Base
 
   def top_ancestor
     current = self
-	while !current.parent.nil?
-	  current = current.parent
-	end
-	current
+    while !current.parent.nil?
+      current = current.parent
+    end
+    current
   end
 
   def author
     owner = self.accepted_roles.find_by_name('owner')
-	owner.nil? ? nil : owner.user.login.downcase
+    owner.nil? ? nil : owner.user.login.downcase
   end
 
   def fork_it(new_user)
@@ -152,121 +152,121 @@ class Collage < ActiveRecord::Base
           :id => ann.id.to_s,
           :layer_list => ann.layers.collect{|l| "l#{l.id}"},
           :layer_names => ann.layers.collect{ |l| l.name }.join(', '),
-		  :content => ann.formatted_annotation_content
+    	  :content => ann.formatted_annotation_content
         }
       end
 
       unlayered_start = 1
-	  unlayered_start_node = true
+      unlayered_start_node = true
       unlayered_ids = []
 
       doc.xpath('//tt').each do|node|
         node_id_num = node['id'][1,node['id'].length - 1].to_i
-		classes = []
+    	classes = []
         annotation_rules.each do |r|
-		  if node_id_num == r[:start]
-		    span_node = Nokogiri::XML::Node.new('a', doc)
-			sclasses = ["control-divider", "annotation-control-#{r[:id]}"]
-			r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
-			span_node['class'] = sclasses.join(' ')
-			span_node['data-id'] = "#{r[:id]}"
-			span_node['href'] = '#'
-			node.add_previous_sibling(span_node)
-		  end
-		  if node_id_num == r[:end]
-		    # If node at end of annotation, adding divider, asterisk, ellipsis and annotation
-		    span_node = Nokogiri::XML::Node.new('a', doc)
-			sclasses = ["arr", "control-divider", "annotation-control-#{r[:id]}"]
-			r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
-			span_node['class'] = sclasses.join(' ')
-			span_node['href'] = '#'
-			span_node['data-id'] = "#{r[:id]}"
-			node.add_next_sibling(span_node)
+    	  if node_id_num == r[:start]
+    	    span_node = Nokogiri::XML::Node.new('a', doc)
+    		sclasses = ["control-divider", "annotation-control-#{r[:id]}"]
+    		r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
+    		span_node['class'] = sclasses.join(' ')
+    		span_node['data-id'] = "#{r[:id]}"
+    		span_node['href'] = '#'
+    		node.add_previous_sibling(span_node)
+    	  end
+    	  if node_id_num == r[:end]
+    	    # If node at end of annotation, adding divider, asterisk, ellipsis and annotation
+    	    span_node = Nokogiri::XML::Node.new('a', doc)
+    		sclasses = ["arr", "control-divider", "annotation-control-#{r[:id]}"]
+    		r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
+    		span_node['class'] = sclasses.join(' ')
+    		span_node['href'] = '#'
+    		span_node['data-id'] = "#{r[:id]}"
+    		node.add_next_sibling(span_node)
 
-		    ellipsis_node = Nokogiri::XML::Node.new('a', doc)
-		    ellipsis_classes = [].push('annotation-ellipsis')
-			r[:layer_list].each { |l| ellipsis_classes.push("annotation-ellipsis-#{l}") }
-			ellipsis_node['class'] = ellipsis_classes.flatten.join(' ')
-			ellipsis_node['id'] = "annotation-ellipsis-#{r[:id]}"
-			ellipsis_node['data-id'] = "#{r[:id]}"
-			ellipsis_node.inner_html = '[...]'
+    	    ellipsis_node = Nokogiri::XML::Node.new('a', doc)
+    	    ellipsis_classes = [].push('annotation-ellipsis')
+    		r[:layer_list].each { |l| ellipsis_classes.push("annotation-ellipsis-#{l}") }
+    		ellipsis_node['class'] = ellipsis_classes.flatten.join(' ')
+    		ellipsis_node['id'] = "annotation-ellipsis-#{r[:id]}"
+    		ellipsis_node['data-id'] = "#{r[:id]}"
+    		ellipsis_node.inner_html = '[...]'
 
-			if r[:content] != ''
-		      link_node = Nokogiri::XML::Node.new('a', doc)
-		      link_classes = [].push('annotation-asterisk').push(r[:layer_list]).flatten
-			  link_node['class'] = link_classes.join(' ')
-			  link_node['title'] = r[:layer_names] 
-			  link_node['id'] = "annotation-asterisk-#{r[:id]}"
-			  link_node['data-id'] = "#{r[:id]}"
-			  ann_node = Nokogiri::XML::Node.new('span', doc)
-			  ann_node['class'] = 'annotation-content'
-			  ann_node['id'] = "annotation-content-#{r[:id]}"
-			  ann_node.inner_html = r[:content]
-			  span_node.add_next_sibling(ann_node)
-			  ann_node.add_next_sibling(link_node)
-			  link_node.add_next_sibling(ellipsis_node)
-			else 
-			  node.add_next_sibling(ellipsis_node)
-			end
-		  end
+    		if r[:content] != ''
+    	      link_node = Nokogiri::XML::Node.new('a', doc)
+    	      link_classes = [].push('annotation-asterisk').push(r[:layer_list]).flatten
+    		  link_node['class'] = link_classes.join(' ')
+    		  link_node['title'] = r[:layer_names] 
+    		  link_node['id'] = "annotation-asterisk-#{r[:id]}"
+    		  link_node['data-id'] = "#{r[:id]}"
+    		  ann_node = Nokogiri::XML::Node.new('span', doc)
+    		  ann_node['class'] = 'annotation-content'
+    		  ann_node['id'] = "annotation-content-#{r[:id]}"
+    		  ann_node.inner_html = r[:content]
+    		  span_node.add_next_sibling(ann_node)
+    		  ann_node.add_next_sibling(link_node)
+    		  link_node.add_next_sibling(ellipsis_node)
+    		else 
+    		  node.add_next_sibling(ellipsis_node)
+    		end
+    	  end
           if node_id_num >= r[:start] and node_id_num <= r[:end]
-		    classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
+    	    classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
           end
         end
-		if classes.length > 0
-		  unlayered_start = node_id_num + 1
-		  unlayered_start_node = true
-		  classes.push('a')
-		  node['class'] = classes.uniq.join(' ')
-		else
-		  node['class'] = "unlayered unlayered_#{unlayered_start}"
-		  if unlayered_start_node
-		    unlayered_ids.push(unlayered_start)
-		    control_node = Nokogiri::XML::Node.new('a', doc)
-			control_node['class'] = "unlayered-control unlayered-control-start unlayered-control-#{unlayered_start}"
-			control_node['data-id'] = "#{unlayered_start}"
-			control_node['href'] = '#'
-			node.add_previous_sibling(control_node)
-		    link_node = Nokogiri::XML::Node.new('a', doc)
-			link_node['class'] = 'unlayered-ellipsis'
-			link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
-			link_node['data-id'] = "#{unlayered_start}"
-			link_node['href'] = '#'
-			link_node.inner_html = '[...]'
-			node.add_previous_sibling(link_node)
-		    node['class'] = "#{node['class']} unlayered_start"
-		    unlayered_start_node = false
-		  end
-		end
+    	if classes.length > 0
+    	  unlayered_start = node_id_num + 1
+    	  unlayered_start_node = true
+    	  classes.push('a')
+    	  node['class'] = classes.uniq.join(' ')
+    	else
+    	  node['class'] = "unlayered unlayered_#{unlayered_start}"
+    	  if unlayered_start_node
+    	    unlayered_ids.push(unlayered_start)
+    	    control_node = Nokogiri::XML::Node.new('a', doc)
+    		control_node['class'] = "unlayered-control unlayered-control-start unlayered-control-#{unlayered_start}"
+    		control_node['data-id'] = "#{unlayered_start}"
+    		control_node['href'] = '#'
+    		node.add_previous_sibling(control_node)
+    	    link_node = Nokogiri::XML::Node.new('a', doc)
+    		link_node['class'] = 'unlayered-ellipsis'
+    		link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
+    		link_node['data-id'] = "#{unlayered_start}"
+    		link_node['href'] = '#'
+    		link_node.inner_html = '[...]'
+    		node.add_previous_sibling(link_node)
+    	    node['class'] = "#{node['class']} unlayered_start"
+    	    unlayered_start_node = false
+    	  end
+    	end
       end
 
-	  unlayered_ids.each do |id|
-      	node = doc.css("tt.unlayered_#{id}").last
-	    control_node = Nokogiri::XML::Node.new('a', doc)
-		control_node['class'] = "unlayered-control unlayered-control-end unlayered-control-#{id}"
-		control_node['data-id'] = "#{id}"
-		control_node['href'] = '#'
-		node.add_next_sibling(control_node)
-	  end
+      unlayered_ids.each do |id|
+          node = doc.css("tt.unlayered_#{id}").last
+        control_node = Nokogiri::XML::Node.new('a', doc)
+    	control_node['class'] = "unlayered-control unlayered-control-end unlayered-control-#{id}"
+    	control_node['data-id'] = "#{id}"
+    	control_node['href'] = '#'
+    	node.add_next_sibling(control_node)
+      end
 
-	  count = 1
+      count = 1
       doc.xpath('//p | //center').each do |node|
-		tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-	    if node.children.size > 0 && tt_size > 0
-		  unlayered_start_size = node.css('tt.unlayered_start').size
-		  unlayered_size = node.css("tt.unlayered").size # + node.css(".unlayered-control").size
-		  if unlayered_start_size == 0 && (tt_size == unlayered_size)
-	        node.xpath('tt').first['class'] ||= ''
-	        node['class'] = node.xpath('tt').first['class']
-		  end
+    	tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
+        if node.children.size > 0 && tt_size > 0
+    	  unlayered_start_size = node.css('tt.unlayered_start').size
+    	  unlayered_size = node.css("tt.unlayered").size # + node.css(".unlayered-control").size
+    	  if unlayered_start_size == 0 && (tt_size == unlayered_size)
+            node.xpath('tt').first['class'] ||= ''
+            node['class'] = node.xpath('tt').first['class']
+    	  end
 
           first_child = node.children.first
-	      control_node = Nokogiri::XML::Node.new('span', doc)
-		  control_node['class'] = "paragraph-numbering"
-	  	  control_node.inner_html = "#{count}"
-		  first_child.add_previous_sibling(control_node)
-		  count += 1
-		end
+          control_node = Nokogiri::XML::Node.new('span', doc)
+    	  control_node['class'] = "paragraph-numbering"
+      	  control_node.inner_html = "#{count}"
+    	  first_child.add_previous_sibling(control_node)
+    	  count += 1
+    	end
       end
 
       doc.xpath("//html/body/*").to_s
