@@ -41,48 +41,36 @@ class CollagesController < BaseController
     format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
   end
 
+  def build_search(params)
+    collages = Sunspot.new_search(Collage)
+    
+    collages.build do
+      if params.has_key?(:keywords)
+        keywords params[:keywords]
+      end
+      if params.has_key?(:tag)
+        with :tag_list, CGI.unescape(params[:tag])
+      end
+      with :public, true
+      with :active, true
+      paginate :page => params[:page], :per_page => 25
+      order_by params[:sort].to_sym, :asc
+    end
+    collages.execute!
+    collages
+  end
+
   def index
     params[:page] ||= 1
     params[:sort] ||= 'display_name'
 
     if params[:keywords]
-      collages = Sunspot.new_search(Collage)
-     
-      if !params.has_key?(:sort)
-        params[:sort] = "display_name"
-      end
-      collages.build do
-        if params.has_key?(:keywords)
-          keywords params[:keywords]
-        end
-        with :public, true
-        with :active, true
-        paginate :page => params[:page], :per_page => 25
-        order_by params[:sort].to_sym, :asc
-      end
-      collages.execute!
-
+      collages = build_search(params)
       t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @collages = WillPaginate::Collection.create(params[:page], 25, collages.total) { |pager| pager.replace(t) }
     else
       @collages = Rails.cache.fetch("collages-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
-        collages = Sunspot.new_search(Collage)
-      
-        if !params.has_key?(:sort)
-          params[:sort] = "display_name"
-        end
-
-        collages.build do
-          if params.has_key?(:tag)
-            with :tag_list, CGI.unescape(params[:tag])
-          end
-          with :public, true
-          with :active, true
-          paginate :page => params[:page], :per_page => 25
-          order_by params[:sort].to_sym, :asc
-        end
-        collages.execute!
-
+        collages = build_search(params)
         t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
         { :results => t, 
           :count => collages.total }

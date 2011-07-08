@@ -29,41 +29,55 @@ class CasesController < BaseController
     super Case
   end
 
-  # GET /cases
-  # GET /cases.xml
-  def index
-    @cases = Sunspot.new_search(Case)
-
-	if !params.has_key?(:sort)
-	  params[:sort] = "display_name"
-	end
-
-    @cases.build do
-      unless params[:keywords].blank?
+  def build_search(params)
+    cases = Sunspot.new_search(Case)
+    
+    cases.build do
+      if params.has_key?(:keywords)
         keywords params[:keywords]
+      end
+      if params[:tags]
+        if params[:any]
+          any_of do
+            params[:tags].each { |t| with :tag_list, t }
+          end
+        else
+          params[:tags].each { |t| with :tag_list, t }
+        end
+      end
+      if params[:tag]
+        with :tag_list, params[:tag]
       end
       with :public, true
       with :active, true
-
-	  if params[:tags]
-	    # figure this out (sort_base_url)
-		if params[:any]
-      any_of do
-        params[:tags].each { |t| with :tag_list, t }
-      end
-		else
-      params[:tags].each { |t| with :tag_list, t }
-		end
-	  end
-	  if params[:tag]
-		with :tag_list, params[:tag]
-	  end
-      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+      paginate :page => params[:page], :per_page => 25
       order_by params[:sort].to_sym, :asc
     end
+    cases.execute!
+    cases
+  end
 
-    @cases.execute!
-	  if current_user
+  # GET /cases
+  # GET /cases.xml
+  def index
+    params[:page] ||= 1
+    params[:sort] ||= 'display_name'
+
+    if params[:keywords]
+      cases = build_search(params)
+      t = cases.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+      @cases = WillPaginate::Collection.create(params[:page], 25, cases.total) { |pager| pager.replace(t) }
+    else
+      @cases = Rails.cache.fetch("cases-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+        cases = build_search(params)
+        t = cases.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+        { :results => t, 
+          :count => cases.total }
+      end
+      @cases = WillPaginate::Collection.create(params[:page], 25, @cases[:count]) { |pager| pager.replace(@cases[:results]) }
+    end
+
+    if current_user
       @my_cases = current_user.cases
       @my_bookmarks = current_user.bookmarks_type(Case, ItemCase)
     else
@@ -72,12 +86,12 @@ class CasesController < BaseController
 
     respond_to do |format|
       format.html do
-	    if request.xhr?
-		  render :partial => 'cases_block'
-		else
-		  render 'index'
-		end
-	  end
+        if request.xhr?
+          render :partial => 'cases_block'
+        else
+          render 'index'
+        end
+      end
       format.xml  { render :xml => @cases }
     end
   end

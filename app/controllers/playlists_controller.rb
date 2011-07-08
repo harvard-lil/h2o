@@ -24,32 +24,45 @@ class PlaylistsController < BaseController
     super Playlist
   end
 
+  def build_search(params)
+    playlists = Sunspot.new_search(Playlist)
+    
+    playlists.build do
+      if params.has_key?(:keywords)
+        keywords params[:keywords]
+      end
+      if params.has_key?(:tag)
+        with :tag_list, CGI.unescape(params[:tag])
+      end
+      with :public, true
+      paginate :page => params[:page], :per_page => 25
+      order_by params[:sort].to_sym, :asc
+    end
+    playlists.execute!
+    playlists
+  end
+
   # GET /playlists
   # GET /playlists.xml
   def index
-    @playlists = Sunspot.new_search(Playlist)
+    params[:page] ||= 1
+    params[:sort] ||= 'display_name'
 
-	if !params.has_key?(:sort)
-	  params[:sort] = "display_name"
-	end
+    if params[:keywords]
+      playlists = build_search(params)
+      t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+      @playlists = WillPaginate::Collection.create(params[:page], 25, playlists.total) { |pager| pager.replace(t) }
+    else
+      @playlists = Rails.cache.fetch("playlists-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+        playlists = build_search(params)
+        t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+        { :results => t, 
+          :count => playlists.total }
+      end
+      @playlists = WillPaginate::Collection.create(params[:page], 25, @playlists[:count]) { |pager| pager.replace(@playlists[:results]) }
+    end
 
-    sort_base_url = ''
-	@playlists.build do
-	  if params.has_key?(:keywords)
-	    keywords params[:keywords]
-        sort_base_url += "&keywords=#{params[:keywords]}"
-	  end
-	  if params.has_key?(:tag)
-	    with :tag_list, CGI.unescape(params[:tag])
-		sort_base_url += "&tag=#{params[:tag]}"
-	  end
-	  with :public, true
-	  paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-	  order_by params[:sort].to_sym, :asc
-	end
-
-	@playlists.execute!
-	if current_user
+    if current_user
       @my_playlists = current_user.playlists
       @my_bookmarks = current_user.bookmarks_type(Playlist, ItemPlaylist)
     else
@@ -58,12 +71,12 @@ class PlaylistsController < BaseController
 
     respond_to do |format|
       format.html do
-	    if request.xhr?
-		  render :partial => 'playlists_block'
-		else
-		  render 'index'
-		end
-	  end 
+        if request.xhr?
+          render :partial => 'playlists_block'
+        else
+          render 'index'
+        end
+      end 
       format.xml  { render :xml => @playlists }
     end
   end
@@ -80,20 +93,20 @@ class PlaylistsController < BaseController
 
     respond_to do |format|
       format.html do
-	    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
-	    render 'show' # show.html.erb
-	  end
+        @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+        render 'show' # show.html.erb
+      end
       format.xml  { render :xml => @playlist }
-	  format.pdf do
-	    url = request.url.gsub(/\.pdf.*/, "/export")
-		file = Tempfile.new("playlist.pdf")
-	    cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
-		system(cmd)
-		file.close
-		send_file file.path, :filename => "playlist_#{@playlist.id}.pdf", :type => 'application/pdf'
-		#file.unlink
-		#Removing saved state after used
-	  end
+      format.pdf do
+        url = request.url.gsub(/\.pdf.*/, "/export")
+        file = Tempfile.new("playlist.pdf")
+        cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+        system(cmd)
+        file.close
+        send_file file.path, :filename => "playlist_#{@playlist.id}.pdf", :type => 'application/pdf'
+        #file.unlink
+        #Removing saved state after used
+      end
     end
   end
 
@@ -131,14 +144,14 @@ class PlaylistsController < BaseController
         format.js { render :text => nil }
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
-	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
         format.js { 
           render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       end
     end
   end
@@ -155,14 +168,14 @@ class PlaylistsController < BaseController
         format.js { render :text => nil}
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
-	  	format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+          format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
         format.js {
           render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
         }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
-	  	format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+          format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       end
     end
   end
@@ -174,14 +187,14 @@ class PlaylistsController < BaseController
     @playlist.destroy
 
     respond_to do |format|
-	  format.json { render :json => {} }
+      format.json { render :json => {} }
       format.js { render :text => nil }
       format.html { redirect_to(playlists_url) }
       format.xml  { head :ok }
     end
   rescue Exception => e
     respond_to do |format|
-	  format.json { render :json => {} }
+      format.json { render :json => {} }
       format.js { render :text => "We couldn't delete that, most likely because it's already been deleted.", :status => :unprocessable_entity }
       format.html {  }
       format.xml  { render :status => :unprocessable_entity }
@@ -240,7 +253,7 @@ class PlaylistsController < BaseController
             page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"
           end
         }
-		format.json { render :json => { :type => 'playlists', :id => @playlist_copy.id } } 
+        format.json { render :json => { :type => 'playlists', :id => @playlist_copy.id } } 
         format.xml  { head :ok }
       else
         @error_output = "<div class='error ui-corner-all'>"
@@ -354,6 +367,6 @@ class PlaylistsController < BaseController
   def export
     add_javascripts 'export_collage'
     @playlist = Playlist.find(params[:id])
-	render :layout => 'pdf'
+    render :layout => 'pdf'
   end
 end
