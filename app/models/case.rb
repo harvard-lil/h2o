@@ -42,6 +42,7 @@ class Case < ActiveRecord::Base
   end
 
   alias :to_s :display_name
+  alias :name :display_name
 
   validate :date_check
 

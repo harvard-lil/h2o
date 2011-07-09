@@ -10,10 +10,8 @@ class CaseSweeper < ActionController::Caching::Sweeper
     expire_fragment "case-#{record.id}-tags"
     expire_fragment "case-#{record.id}-detail"
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['name', 'creator'].include?(b.name); arr }.uniq
-    users.each do |u|
-      Rails.cache.delete("user-cases-#{u}")
-    end
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq.push(current_user.id)
+    users.each { |u| Rails.cache.delete("user-cases-#{u}") }
   end
 
   def before_destroy(record)
@@ -23,9 +21,7 @@ class CaseSweeper < ActionController::Caching::Sweeper
     expire_fragment "case-#{record.id}-tags"
     expire_fragment "case-#{record.id}-detail"
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['name', 'creator'].include?(b.name); arr }.uniq
-    users.each do |u|
-      Rails.cache.delete("user-cases-#{u}")
-    end
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq.push(current_user.id)
+    users.each { |u| Rails.cache.delete("user-cases-#{u}") }
   end
 end

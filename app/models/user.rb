@@ -36,11 +36,11 @@ class User < ActiveRecord::Base
   end
 
   def cases
-	#This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
+    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Case.find_by_sql("SELECT * FROM cases WHERE id IN
-	#	(SELECT DISTINCT authorizable_id FROM roles
-	#		INNER JOIN roles_users ON roles.id = roles_users.role_id
-	#		WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Case')))")
+    #    (SELECT DISTINCT authorizable_id FROM roles
+    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Case')))")
     Rails.cache.fetch("user-cases-#{self.id}") do
       self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
@@ -51,35 +51,37 @@ class User < ActiveRecord::Base
   end
 
   def collages
-	#This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
+    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Collage.find_by_sql("SELECT * FROM collages WHERE id IN
-	#	(SELECT DISTINCT authorizable_id FROM roles
-	#		INNER JOIN roles_users ON roles.id = roles_users.role_id
-	#		WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Collage')))")
+    #    (SELECT DISTINCT authorizable_id FROM roles
+    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Collage')))")
     Rails.cache.fetch("user-collages-#{self.id}") do
       self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
   end
 
   def playlists
-	#This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
+    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN
-	#	(SELECT DISTINCT authorizable_id FROM roles
-	#		INNER JOIN roles_users ON roles.id = roles_users.role_id
-	#		WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Playlist')))
-	#	AND id != #{self.bookmark_id}")
+    #    (SELECT DISTINCT authorizable_id FROM roles
+    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Playlist')))
+    #    AND id != #{self.bookmark_id}")
+    logger.warn "trying to fetch: user-playlists-#{self.id}"
     Rails.cache.fetch("user-playlists-#{self.id}") do
       self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
     end
   end
 
   def playlists_i_can_edit
+    #Find out what it means to be an editor and add caching on this
     #self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => 'editor'}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}
-	#This is an attempted optimization, as it hits the db for one request rather than 1 + number of user playlists
+    #This is an attempted optimization, as it hits the db for one request rather than 1 + number of user playlists
     Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN
-		(SELECT DISTINCT authorizable_id FROM roles
-			INNER JOIN roles_users ON roles.id = roles_users.role_id
-			WHERE (roles_users.user_id = #{self.id} AND roles.name = 'editor' AND roles.authorizable_type = 'Playlist'))")
+        (SELECT DISTINCT authorizable_id FROM roles
+            INNER JOIN roles_users ON roles.id = roles_users.role_id
+            WHERE (roles_users.user_id = #{self.id} AND roles.name = 'editor' AND roles.authorizable_type = 'Playlist'))")
   end
 
   def bookmarks
@@ -87,18 +89,18 @@ class User < ActiveRecord::Base
       Rails.cache.fetch("user-bookmarks-#{self.id}") do
         Playlist.find(self.bookmark_id).playlist_items
       end
-	else
-	  []
-	end
+    else
+      []
+    end
   end
 
   def bookmarks_type(klass, item_klass)
     Rails.cache.fetch("user-bookmark-#{klass.to_s.downcase}-#{self.id}") do
-	  items = self.bookmark_id ? klass.find_by_sql("SELECT * FROM #{klass.to_s.tableize}
-	  	WHERE id IN (SELECT DISTINCT ic.actual_object_id FROM playlist_items pi
-			JOIN #{item_klass.to_s.tableize} ic ON pi.resource_item_id = ic.id
-			WHERE pi.resource_item_type = '#{item_klass.to_s}' AND pi.playlist_id = #{self.bookmark_id})") : []
-	end
+      items = self.bookmark_id ? klass.find_by_sql("SELECT * FROM #{klass.to_s.tableize}
+          WHERE id IN (SELECT DISTINCT ic.actual_object_id FROM playlist_items pi
+            JOIN #{item_klass.to_s.tableize} ic ON pi.resource_item_id = ic.id
+            WHERE pi.resource_item_type = '#{item_klass.to_s}' AND pi.playlist_id = #{self.bookmark_id})") : []
+    end
   end
 
   def get_current_assignments(rotisserie_discussion = nil)

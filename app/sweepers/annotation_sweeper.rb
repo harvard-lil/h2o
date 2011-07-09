@@ -17,10 +17,10 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
 	expire_fragment "collage-#{record.collage.id}-annotations"
   end
 
-  def after_destroy(record)
+  def before_destroy(record)
     # We are removing an annotation and must remove it from annotation decorations.
     expire_fragment "collage-#{record.collage.id}-layers"
     expire_fragment "collage-#{record.collage.id}-annotatable-content"
-	expire_fragment "collage-#{record.collage.id}-annotations"
+    expire_fragment "collage-#{record.collage.id}-annotations"
   end
 end

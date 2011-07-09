@@ -1,5 +1,4 @@
 <% if current_user -%>
-<% cache "user-playlists-#{current_user.id}" do -%>
 <div class="popup add-popup" data-type="<%= type %>">
 	<h4>ADD TO</h4>
 	<%= collection_select(:playlist, :id, current_user.playlists, :id, :name) %>
@@ -9,5 +8,4 @@
 	</ul>
 	<a href="#" class="btn new-playlist-item">ADD FILE</a>
 </div>
-<% end -%>
 <% end -%>
