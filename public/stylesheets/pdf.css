@@ -1,11 +1,12 @@
-.collage-content { padding: 100px; }
-.collage-content h2 { padding-bottom: 20px; }
+body { background: #FFF; }
+.collage-content { padding-left: 50px; font-size: 11pt; line-height: 1.0em; }
+.collage-content h2 { margin-top: 20px; padding: 20px 0px; border-top: 1px solid #d4d4d4; }
 .collage-content p { padding-bottom: 15px; }
-.collage-content .annotation-content { color: #6B933D; }
-.collage-content .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+.collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 0px 2px; }
+.collage-content .annotation-asterisk { background: url(/images/ui/app_icons.png) -97px -69px; no-repeat; display: inline-block; width: 11px; height: 11px; margin-right: 3px; }
 .collage-content .paragraph-numbering { position: absolute; left: 10px; }
 
-#playlist { padding: 50px; }
+#playlist { padding: 0px; }
 #playlist .details { padding-bottom: 10px; }
 #playlist ul { list-style-type: none; }
 #playlist .playlists .playlists { display: block; }

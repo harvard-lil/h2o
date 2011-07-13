@@ -5,6 +5,8 @@
 	</article>
 	<% end -%>
 	<h2 class="collage-id"><%= @collage.name %></h2>
+  <%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| u.login }.join(',') %>
+  <%= Collage.format_content(@collage.description) %>
 </div>
 
 <script type="text/javascript">

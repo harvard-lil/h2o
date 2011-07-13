@@ -4,8 +4,6 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   observe Playlist
 
   def after_save(record)
-
- RAILS_DEFAULT_LOGGER.warn "steph in here!!! #{current_user.id}"
     Rails.cache.delete_matched(%r{playlists-search*})
 
     expire_fragment "playlist-all-tags"
@@ -17,7 +15,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
       expire_fragment "playlist-block-#{p}-editable"
     end
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq.push(current_user.id)
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
     users.each { |u| Rails.cache.delete("user-playlists-#{u}") }
   end
 
@@ -33,7 +31,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
       expire_fragment "playlist-block-#{p}-editable"
     end
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq.push(current_user.id)
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
     users.each { |u| Rails.cache.delete("user-playlists-#{u}") }
   end
 

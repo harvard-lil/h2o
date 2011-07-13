@@ -252,12 +252,12 @@ class Collage < ActiveRecord::Base
       count = 1
       doc.xpath('//p | //center').each do |node|
     	tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-        if node.children.size > 0 && tt_size > 0
+      if node.children.size > 0 && tt_size > 0
     	  unlayered_start_size = node.css('tt.unlayered_start').size
-    	  unlayered_size = node.css("tt.unlayered").size # + node.css(".unlayered-control").size
+    	  unlayered_size = node.css("tt.unlayered").size
     	  if unlayered_start_size == 0 && (tt_size == unlayered_size)
-            node.xpath('tt').first['class'] ||= ''
-            node['class'] = node.xpath('tt').first['class']
+            node.css('tt').first['class'] ||= ''
+            node['class'] = node.css('tt').first['class']
     	  end
 
           first_child = node.children.first

@@ -339,7 +339,9 @@ color: #4e9ed1; padding: 5px 11px; }
   border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
   padding-top: 2px; }
 .playlist .data { float: right; display: inline; width:550px; position:relative; 904px;  padding-right:345px; } 
-.playlist .data .dd-open { position:absolute; top:7px; left:-17px; width:12px; height:12px; background:url(/images/ui/app_icons.png) -14px -115px no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
+.playlist .data .dd { position:absolute; top:7px; left:-17px; width:12px; height:12px; background:url(/images/ui/app_icons.png) -14px -115px no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
+#bookmarks .playlist .data .dd { left: -15px; }
+.playlist .data .dd-closed { width: 9px; background-position: 0px -110px; }
 
 .playlist .data .tags { position:absolute; top:0; right:0; }
 .playlist .data .tags ul { list-style:none; float:right; display:inline; }

@@ -7,6 +7,7 @@ class CasesController < BaseController
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_case, :only => [:show, :edit, :update, :destroy]
+  before_filter :store_location, :only => [:index, :show]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.

@@ -1,4 +1,6 @@
 class BaseController < ApplicationController
+  before_filter :store_location, :only => [:search, :index]
+
   def playlist_admin_preload
     if current_user
       @playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0

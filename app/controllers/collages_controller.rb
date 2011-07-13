@@ -7,6 +7,7 @@ class CollagesController < BaseController
   before_filter :is_collage_admin, :except => [:embedded_pager]
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
+  before_filter :store_location, :only => [:index, :show]
 
   access_control do
     allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state]    
@@ -120,10 +121,11 @@ class CollagesController < BaseController
       format.pdf do
         url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
         file = Tempfile.new('collage.pdf')
-        cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+        #-g for greyscale
+        cmd = "#{RAILS_ROOT}/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-right \"#{@collage.name}: Page [page] of [toPage]\" #{url} - > #{file.path}"
         system(cmd)
         file.close
-        send_file file.path, :filename => "collage_#{@collage.id}.pdf", :type => 'application/pdf'
+        send_file file.path, :filename => "#{@collage.name}.pdf", :type => 'application/pdf'
         #file.unlink
         #Removing saved state after used
         ReadableState.delete(params[:state_id])

@@ -25,6 +25,6 @@ class UserSessionsController < ApplicationController
   
   def destroy
     current_user_session.destroy
-    redirect_to "/"
+    redirect_back_or_default "/base"
   end
 end

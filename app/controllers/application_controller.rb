@@ -116,7 +116,6 @@ class ApplicationController < ActionController::Base
 
     def require_user
       unless current_user
-        store_location
         flash[:notice] = "You must be logged in to access this page"
         redirect_to crossroad_user_session_url
         #redirect_to new_user_session_url
@@ -126,7 +125,6 @@ class ApplicationController < ActionController::Base
 
     def require_no_user
       if current_user
-        store_location
         flash[:notice] = "You must be logged out to access this page"
         redirect_to user_path(current_user)
         return false
@@ -134,7 +132,15 @@ class ApplicationController < ActionController::Base
     end
 
     def store_location
-      session[:return_to] = request.request_uri
+      if request.request_uri.match(/\?/)
+        base, param_str = request.request_uri.split(/\?/) #[1]
+        h = CGI::parse(param_str)
+        h.delete("is_ajax")
+        h.each { |k, v| h[k] = v.first }
+        session[:return_to] = "#{base}?#{h.to_query}"
+      else
+        session[:return_to] = request.request_uri
+      end
     end
 
     def redirect_back_or_default(default)

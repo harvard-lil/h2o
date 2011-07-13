@@ -30,7 +30,9 @@ jQuery.extend({
 		//on bookmarks
 		if(document.location.hash == '#vbookmarks') {
 			jQuery('#bookmark_tab').click();
-		}
+		} else {
+      jQuery('.tabs a:first').click();
+    }
 	},
 	observeLoginPanel: function() {
 		jQuery('#header_login').click(function(e) {
@@ -551,7 +553,8 @@ jQuery(function() {
 		return false;
 	});
 	
-	jQuery(".playlist .data .dd-open").click(function() {
+	jQuery(".playlist .data .dd").click(function() {
+    jQuery(this).toggleClass('dd-closed');
 		jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
 		return false;
 	});

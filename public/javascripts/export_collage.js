@@ -1,11 +1,3 @@
-var color_map = {
-	'ffcd00' : 'ccc',
-	'ff999a' : 'aaa',
-	'bdec68' : 'ddd' 
-};
-
-
-
 jQuery.extend({
 	loadState: function() {
 		jQuery('.collage-content').each(function(i, el) {
@@ -16,7 +8,7 @@ jQuery.extend({
 				var id = jQuery(el).data('id');  //id value is lost here - not sure why
 				if(i == 'highlights') {
 					jQuery.each(e, function(a, h) {
-						jQuery('#collage' + id + ' ' + a).css('background-color', '#' + color_map[h]);
+						jQuery('#collage' + id + ' ' + a).css('background-color', '#' + h);
 					});
 				} else if(i.match(/\.a/) && e != 'none') {
 					jQuery('#collage' + id + ' ' + i).css('display', 'inline');

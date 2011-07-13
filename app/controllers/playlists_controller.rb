@@ -10,6 +10,7 @@ class PlaylistsController < BaseController
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export]
+  before_filter :store_location, :only => [:index, :show]
   
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export]
@@ -100,10 +101,11 @@ class PlaylistsController < BaseController
       format.pdf do
         url = request.url.gsub(/\.pdf.*/, "/export")
         file = Tempfile.new("playlist.pdf")
-        cmd = "#{RAILS_ROOT}/wkhtmltopdf #{url} - > #{file.path}"
+        # -g prints to greyscale
+        cmd = "#{RAILS_ROOT}/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-right \"#{@playlist.name}: Page [page] of [toPage]\" #{url} - > #{file.path}"
         system(cmd)
         file.close
-        send_file file.path, :filename => "playlist_#{@playlist.id}.pdf", :type => 'application/pdf'
+        send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
         #file.unlink
         #Removing saved state after used
       end

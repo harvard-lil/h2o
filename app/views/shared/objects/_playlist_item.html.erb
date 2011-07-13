@@ -9,7 +9,7 @@
 	</div>
 	<div class="data">
 		<% if recursive_level < 3 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>
-		<%= link_to 'Show/Hide More', '#', :class => 'dd-open' %>
+		<%= link_to 'Show/Hide More', '#', :class => 'dd dd-closed' %>
 		<% end -%>
 		<% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
 		<% type = item.resource_item.actual_object_type.downcase
