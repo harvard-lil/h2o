@@ -9,12 +9,10 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     expire_fragment "playlist-all-tags"
     expire_fragment "playlist-#{record.id}-index"
     expire_fragment "playlist-#{record.id}-tags"
-    expire_fragment "playlist-block-#{record.id}-anon"
-    expire_fragment "playlist-block-#{record.id}-editable"
+    expire_page :controller => :playlists, :action => :show, :id => record.id
 
     record.relation_ids.each do |p|
-      expire_fragment "playlist-block-#{p}-anon"
-      expire_fragment "playlist-block-#{p}-editable"
+      expire_page :controller => :playlists, :action => :show, :id => p
     end
 
     users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
@@ -31,12 +29,6 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   end
 
   def after_playlists_position_update
-    expire_fragment "playlist-block-#{params[:id]}-anon"
-    expire_fragment "playlist-block-#{params[:id]}-editable"
-
-    record.relation_ids.each do |p|
-      expire_fragment "playlist-block-#{p}-anon"
-      expire_fragment "playlist-block-#{p}-editable"
-    end
+    expire_page :controller => :playlists, :action => :show, :id => params[:id]
   end
 end

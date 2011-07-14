@@ -6,14 +6,15 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
   
   cache_sweeper :playlist_sweeper
+  caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
-  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export]
+  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level]
   before_filter :store_location, :only => [:index, :show]
   
   access_control do
-    allow all, :to => [:embedded_pager, :show, :index, :export]
+    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
@@ -24,6 +25,14 @@ class PlaylistsController < BaseController
   def embedded_pager
     super Playlist
   end
+
+  def access_level 
+    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+    respond_to do |format|
+      format.json { render :json => { :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false, :can_edit => @can_edit } }
+    end
+  end
+
 
   def build_search(params)
     playlists = Sunspot.new_search(Playlist)
@@ -91,6 +100,7 @@ class PlaylistsController < BaseController
     #@playlist.playlist_items.find(:all)
 
     @my_playlist = current_user ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
+    @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
 
     respond_to do |format|
       format.html do

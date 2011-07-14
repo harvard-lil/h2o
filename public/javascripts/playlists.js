@@ -1,6 +1,19 @@
 var dragged_element;
+var is_owner = false;
 
 jQuery.extend({
+  observeStats: function() {
+		jQuery('#playlist-stats').click(function() {
+			jQuery(this).toggleClass("active");
+      if(jQuery('#playlist-stats-popup').height() < 431) {
+        jQuery('#playlist-stats-popup').css('overflow', 'hidden');
+      } else {
+        jQuery('#playlist-stats-popup').css('height', 400);
+      }
+			jQuery('#playlist-stats-popup').slideToggle('fast');
+			return false;
+		});
+  },
   observeFontChange: function() {
     jQuery("#playlist .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
@@ -18,38 +31,40 @@ jQuery.extend({
     });
   },
 	observeDragAndDrop: function() {
-		jQuery('.sortable').sortable({
-			stop: function(event, ui) {
-				var playlist_order = jQuery('.sortable').sortable('serialize');
-				jQuery.ajax({
-					type: 'post',
-					dataType: 'json',
-					url: '/playlists/' + jQuery('#playlist').data('itemid') + '/position_update',
-					data: {
-						playlist_order: playlist_order
-					},
-                	beforeSend: function(){
-               			jQuery.showGlobalSpinnerNode();
-                	},
-					success: function(data) {
-						jQuery.each(data, function(index, value) {
-							var current_val = jQuery('#playlist_item_' + index + ' .number:first').html();
-							if(current_val != value) {
-								var posn_rep = new RegExp('^' + current_val + '');
-								jQuery('#playlist_item_' + index + ' .number').each(function(i, el) {
-									jQuery(el).html(jQuery(el).html().replace(posn_rep, value));
-								});
-							}
-						});
-					},
-					complete: function() {
-               			jQuery.hideGlobalSpinnerNode();
-					}
-				});
-			}
-		}); 
+    if(is_owner) {
+      jQuery('.sortable').sortable({
+        stop: function(event, ui) {
+          var playlist_order = jQuery('.sortable').sortable('serialize');
+          jQuery.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/playlists/' + jQuery('#playlist').data('itemid') + '/position_update',
+            data: {
+              playlist_order: playlist_order
+            },
+                    beforeSend: function(){
+                      jQuery.showGlobalSpinnerNode();
+                    },
+            success: function(data) {
+              jQuery.each(data, function(index, value) {
+                var current_val = jQuery('#playlist_item_' + index + ' .number:first').html();
+                if(current_val != value) {
+                  var posn_rep = new RegExp('^' + current_val + '');
+                  jQuery('#playlist_item_' + index + ' .number').each(function(i, el) {
+                    jQuery(el).html(jQuery(el).html().replace(posn_rep, value));
+                  });
+                }
+              });
+            },
+            complete: function() {
+                      jQuery.hideGlobalSpinnerNode();
+            }
+          });
+        }
+      });
+    }
 	},
-    initPlaylistItemAddControls: function(){
+  initPlaylistItemAddControls: function(){
         jQuery('.new-playlist-item-control').click(function(e){
             e.preventDefault();
             jQuery.ajax({
@@ -174,9 +189,8 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
+  jQuery.loadEditability();
+  jQuery.observeStats();
   jQuery.observeFontChange();
   jQuery.initPlaylistItemAddControls();
-	if(owner_can_sort) {
-		jQuery.observeDragAndDrop();
-	}
 });

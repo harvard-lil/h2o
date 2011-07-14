@@ -122,45 +122,6 @@ jQuery.extend({
 			}
 		}, 1000); 
 	},
-  loadEditability: function() {
-    jQuery.ajax({
-      type: 'GET',
-      cache: false,
-      url: editability_path,
-      dataType: "JSON",
-      beforeSend: function(){
-        jQuery.showGlobalSpinnerNode();
-      },
-      error: function(xhr){
-        jQuery.hideGlobalSpinnerNode();
-        jQuery('.requires_edit').remove();
-        jQuery('.requires_logged_in').remove();
-        jQuery('.afterload').animate({ opacity: 1.0 });
-        jQuery.hideGlobalSpinnerNode();
-		    jQuery.loadState();
-      },
-      success: function(results){
-        if(results.can_edit) {
-          jQuery('.requires_edit').animate({ opacity: 1.0 });
-          is_owner = true;
-			    jQuery.listenToRecordCollageState();
-        } else {
-          jQuery('.requires_edit').remove();
-        }
-        if(results.logged_in) {
-          var data = jQuery.parseJSON(results.logged_in);
-          jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
-          jQuery('.requires_logged_in').animate({ opacity: 1.0 });
-          jQuery('#header_login').remove();
-        } else {
-          jQuery('.requires_logged_in').remove();
-        }
-        jQuery('.afterload').animate({ opacity: 1.0 });
-        jQuery.hideGlobalSpinnerNode();
-		    jQuery.loadState();
-      }
-    });
-  },
 	loadState: function() {
 		var total_words = jQuery('tt').size();
 		var shown_words = total_words;

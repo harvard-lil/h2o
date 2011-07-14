@@ -6,9 +6,9 @@
 		<li><%= link_to "Collage", collages_path, { :class => params[:controller] == 'collages' ? 'active' : '' } %></li>
 		<li class="last"><%= link_to "Cases", cases_path, { :class => params[:controller] == 'cases' ? 'active' : '' } %></li>
 	</ul>
-	<% if params[:controller] == 'collages' && params[:action] == 'show' -%>
+	<% if ["collages#show", "playlists#show"].include?("#{params[:controller]}##{params[:action]}") -%>
 	<ul class="right requires_logged_in">
-		<li class="user_account"><%#= link_to current_user.login, user_path(current_user) %></li>
+		<li class="user_account"></li>
 		<li class="last"><%= link_to "sign out", log_out_path %></li>
 	</ul>
 	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>

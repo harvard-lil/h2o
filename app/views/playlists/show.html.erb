@@ -2,23 +2,19 @@
   :url => playlists_path,
   :right_search => 'playlists/nav_search' } %>
 
-<% cache "playlist-block-#{@playlist.id}-#{@can_edit ? 'editable' : 'anon'}" do -%>
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
 		<h2><%= @playlist.name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<li><a href="#" class="link-share">Share</a></li>
-				<% if current_user -%>
-				<li><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
-				<li><%= link_to "Bookmark This Playlist", '#', :class => "link-bookmark bookmark-action" %></li>
-				<% end -%>
+				<li class="requires_logged_in"><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
+				<li class="requires_logged_in"><%= link_to "Bookmark This Playlist", '#', :class => "link-bookmark bookmark-action" %></li>
 				<li><%= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %></li>
 			</ul>
 		</aside>
 		<aside class="buttons">
 			<ul>
-        <li class="btn-li">
+        <li class="btn-li afterload">
           <a href="#" class="btn-a" id="fonts">
             <span>Aa</span>
           </a>
@@ -31,11 +27,9 @@
             </select>
           </div>
         </li>
-		    <% if @can_edit -%>
-    			<li class="btn-li">
+    	  <li class="btn-li requires_edit">
 					<%= link_to 'ADD ITEM +', new_playlist_item_path, :class => 'btn-a new-playlist-item-control' %>
 				</li>
-		    <% end %>
 			</ul>
 		</aside>
 		<div class="cl"></div>
@@ -53,6 +47,14 @@
 		<h5>
 			<%= @playlist.created_at.to_s(:simpledatetime) %>
 			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
+			<a href="#" id="playlist-stats" title="test"><strong>PLAYLIST STATS</strong></a>
+			<div class="popup" id="playlist-stats-popup">
+        <h5>Playlists that contain this one:</h3>
+        <% @parents.each do |playlist| -%>
+          <%= playlist.created_at.to_s(:simpledatetime) %>
+          <%= link_to playlist.name, playlist %> by <%= raw playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %><br /><br />
+        <% end -%>
+			</div>
 		</h5>
 		<% if false -%>
 		<div class="influence"></div>
@@ -65,23 +67,17 @@
 			</div>
 			<div id="description_more">
 				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
-				<% if @can_edit -%>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
-				<% end -%>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
 			</div>
 		<% else -%>
 			<div id="description">
 				<%= @playlist.description %>
-				<% if @can_edit -%>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
-				<% end -%>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
 			</div>
 		<% end -%>
 		<% else -%>
 			<p>
-				<% if @can_edit -%>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action" %>
-				<% end -%>
+				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
 			</p>
 		<% end -%>
 	</div>
@@ -89,8 +85,7 @@
 </div>
 <script type="text/javascript">
 var container_id = <%= @playlist.id %>;
-var owner_can_sort = <%= @can_edit ? "true" : "false" %>;
+var editability_path = "<%= access_level_playlist_path(@playlist) %>"; 
 </script>
-<% end -%>
 
 <%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>

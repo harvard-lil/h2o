@@ -34,9 +34,9 @@
 				<% end -%>
 			</h3>
 			<a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
-			<% if @can_edit && recursive_level == 0 %>
-			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item" %>
-			<%= link_to "EDIT", url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => "action edit-action" %>
+			<% if recursive_level == 0 %>
+			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item requires_edit" %>
+			<%= link_to "EDIT", url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => "action edit-action requires_edit" %>
 			<% end -%>
 			<div class="cl"></div>
 		</hgroup>
