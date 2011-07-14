@@ -367,11 +367,13 @@ jQuery.extend({
 					});
 
 					jQuery('#annotation-tabs-' + annotationId).tabs();
-					jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
-						Close: function(){
-							jQuery(this).dialog('close');
-						}
-					});
+          if(!is_owner) {
+            jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
+              Close: function(){
+                jQuery(this).dialog('close');
+              }
+            });
+          }
 				}
 			});
 		} else {
