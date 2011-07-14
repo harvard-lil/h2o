@@ -4,7 +4,13 @@
 		<li id="spinner">
 			<img src="/images/ui/ajax-loader.gif" alt="" />
 		</li>
-		<% if current_user -%>
+		<% if params[:action] == 'show' -%>
+		<li class="btn requires_logged_in">
+			<a href="<%= new_collage_path %>" class="btn-a new-action">
+				<span>CREATE COLLAGE</span>
+			</a>
+		</li>
+		<% elsif current_user -%>
 		<li class="btn">
 			<a href="<%= new_collage_path %>" class="btn-a new-action">
 				<span>CREATE COLLAGE</span>

@@ -28,7 +28,7 @@ class CollagesController < BaseController
     @collage = Collage.find(params[:id])
     @can_edit = current_user ? @collage.can_edit? : false
     respond_to do |format|
-      format.json { render :json => { :logged_in => current_user ? true : false, :can_edit => @can_edit } }
+      format.json { render :json => { :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false, :can_edit => @can_edit } }
     end
   end
 

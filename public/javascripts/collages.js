@@ -148,7 +148,10 @@ jQuery.extend({
           jQuery('.requires_edit').remove();
         }
         if(results.logged_in) {
+          var data = jQuery.parseJSON(results.logged_in);
+          jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
           jQuery('.requires_logged_in').animate({ opacity: 1.0 });
+          jQuery('#header_login').remove();
         } else {
           jQuery('.requires_logged_in').remove();
         }

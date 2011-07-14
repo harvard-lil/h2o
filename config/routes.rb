@@ -113,6 +113,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :account, :controller => "users"
   map.resources :users, :collection => {:create_anon => :post}
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
+  map.log_out "/log_out", :controller => :user_sessions, :action => :destroy
   map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
   map.bookmark_item "/bookmark_item/:type/:id", :controller => :users, :action => :bookmark_item
 

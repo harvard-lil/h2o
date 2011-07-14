@@ -128,5 +128,6 @@ font-size: 9px; font-weight: bold; }
 
 /* Hiding while page is loading */
 #collage .description .toolbar ul li.requires_logged_in { opacity: 0.0; }
+.requires_logged_in { opacity: 0.0; }
 .requires_edit { opacity: 0.0; }
 .afterload { opacity: 0.0; }

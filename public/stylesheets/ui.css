@@ -282,7 +282,7 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
   -webkit-border-radius:3px; -o-border-radius:3px; 
   -ms-border-radius:3px; text-decoration:none; }
 
-#search ul li#spinner { display: none; }
+#search ul li#spinner { display: none; height: 30px; overflow: hidden; }
 
 #my_playlists { display: none; }
 
