@@ -70,14 +70,14 @@ class Playlist < ActiveRecord::Base
 
   def relation_ids
     r = self.parents
-	i = 0
-	while i < r.size
-	  Playlist.find(r[i]).parents.each do |a|
-	    next if r.include?(a) 
+    i = 0
+    while i < r.size
+	    Playlist.find(r[i]).parents.each do |a|
+	      next if r.include?(a) 
         r.push(a)
       end
-	  i+=1
-	end
-	r
+	    i+=1
+	  end
+	  r
   end
 end

@@ -5,6 +5,7 @@ var layer_info = {};
 var last_annotation = 0;
 var highlight_history = {};
 var hover_state = {};
+var is_owner = false;
 
 jQuery.extend({
 	listenPrintLink: function() {
@@ -121,6 +122,42 @@ jQuery.extend({
 			}
 		}, 1000); 
 	},
+  loadEditability: function() {
+    jQuery.ajax({
+      type: 'GET',
+      cache: false,
+      url: editability_path,
+      dataType: "JSON",
+      beforeSend: function(){
+        jQuery.showGlobalSpinnerNode();
+      },
+      error: function(xhr){
+        jQuery.hideGlobalSpinnerNode();
+        jQuery('.requires_edit').remove();
+        jQuery('.requires_logged_in').remove();
+        jQuery('.afterload').animate({ opacity: 1.0 });
+        jQuery.hideGlobalSpinnerNode();
+		    jQuery.loadState();
+      },
+      success: function(results){
+        if(results.can_edit) {
+          jQuery('.requires_edit').animate({ opacity: 1.0 });
+          is_owner = true;
+			    jQuery.listenToRecordCollageState();
+        } else {
+          jQuery('.requires_edit').remove();
+        }
+        if(results.logged_in) {
+          jQuery('.requires_logged_in').animate({ opacity: 1.0 });
+        } else {
+          jQuery('.requires_logged_in').remove();
+        }
+        jQuery('.afterload').animate({ opacity: 1.0 });
+        jQuery.hideGlobalSpinnerNode();
+		    jQuery.loadState();
+      }
+    });
+  },
 	loadState: function() {
 		var total_words = jQuery('tt').size();
 		var shown_words = total_words;
@@ -330,14 +367,11 @@ jQuery.extend({
 					});
 
 					jQuery('#annotation-tabs-' + annotationId).tabs();
-					// Wipe out edit buttons if not owner.
-					if(!is_owner) {
-						jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
-							Close: function(){
-								jQuery(this).dialog('close');
-							}
-						});
-					}
+					jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
+						Close: function(){
+							jQuery(this).dialog('close');
+						}
+					});
 				}
 			});
 		} else {
@@ -629,10 +663,7 @@ jQuery(document).ready(function(){
 			return false;
 		});
 		
-		if(is_owner) {
-			jQuery.listenToRecordCollageState();
-		}
-		jQuery.loadState();
 		jQuery.listenPrintLink();
+    jQuery.loadEditability();
 	}
 });

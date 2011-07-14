@@ -4,23 +4,19 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
   
   observe Annotation
 
+  def collage_clear(record)
+    expire_page :controller => :collages, :action => :show, :id => record.collage.id
+  end
+
   def after_save(record)
-    expire_fragment "collage-#{record.collage.id}-layers"
-    expire_fragment "collage-#{record.collage.id}-annotatable-content"
-	expire_fragment "collage-#{record.collage.id}-annotations"
+    collage_clear(record)
   end
 
   def after_create(record)
-    # We are adding a new annotation and must therefore regenerate annotation decorations.
-    expire_fragment "collage-#{record.collage.id}-layers"
-    expire_fragment "collage-#{record.collage.id}-annotatable-content"
-	expire_fragment "collage-#{record.collage.id}-annotations"
+    collage_clear(record)
   end
 
   def before_destroy(record)
-    # We are removing an annotation and must remove it from annotation decorations.
-    expire_fragment "collage-#{record.collage.id}-layers"
-    expire_fragment "collage-#{record.collage.id}-annotatable-content"
-    expire_fragment "collage-#{record.collage.id}-annotations"
+    collage_clear(record)
   end
 end

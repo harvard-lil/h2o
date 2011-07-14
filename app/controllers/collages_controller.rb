@@ -3,14 +3,15 @@ require 'tempfile'
 class CollagesController < BaseController
 
   cache_sweeper :collage_sweeper
+  caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
   before_filter :is_collage_admin, :except => [:embedded_pager]
-  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state, :access_level]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
   before_filter :store_location, :only => [:index, :show]
 
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state]    
+    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state, :access_level]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
   end
@@ -21,6 +22,14 @@ class CollagesController < BaseController
 
   def description_preview
     render :text => Collage.format_content(params[:preview]), :layout => false
+  end
+
+  def access_level 
+    @collage = Collage.find(params[:id])
+    @can_edit = current_user ? @collage.can_edit? : false
+    respond_to do |format|
+      format.json { render :json => { :logged_in => current_user ? true : false, :can_edit => @can_edit } }
+    end
   end
 
   def layers
@@ -38,8 +47,11 @@ class CollagesController < BaseController
     end
   rescue Exception => e
     flash[:notice] = "We couldn't copy that collage - " + e.inspect
-    format.html { render :action => "new" }
-    format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
+    logger.warn "steph: #{e.inspect}"
+    respond_to do |format|
+      format.html { render :action => "new" }
+      format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
+    end
   end
 
   def build_search(params)
@@ -107,16 +119,7 @@ class CollagesController < BaseController
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     respond_to do |format|
-      format.html do
-        #NOTE: This is calling 5 queries for a user that owns the collage, totalling ~8ms (Annoying?)
-        #SELECT FROM role
-        #SELECT FROM users JOIN roles_users
-        #SELECT FROM users
-        #SELECT FROM roles
-        #SELECT FROM roles_users JOIN roles
-        @can_edit = current_user ? @collage.can_edit? : false
-        render 'show'
-      end # show.html.erb
+      format.html { render 'show' }
       format.xml  { render :xml => @collage }
       format.pdf do
         url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")

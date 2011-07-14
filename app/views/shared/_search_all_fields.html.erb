@@ -1,0 +1,20 @@
+<li class="field">
+  <%= text_field_tag "keywords", params[:keywords], :size => 50 %>
+</li>
+<li class="submit">
+  <input type="submit" class="submit" value="SEARCH" name="submit" />
+</li>
+</ul>
+<div id="radios">
+  <p><input type="radio" name="searchtype" value="all_materials" id="search_all_radio" />All</p>
+  <p><input type="radio" name="searchtype" value="playlists" />Playlists</p>
+  <div class="cl"></div>
+  <p><input type="radio" name="searchtype" value="collages" />Collages</p>
+  <p><input type="radio" name="searchtype" value="cases" />Cases</p>
+  <% if false -%>
+  <div class="cl"></div>
+  <p><input type="radio" name="searchtype" value="question_instances" />Question Tool</p>
+  <p><input type="radio" name="searchtype" value="rotisseries" />Rotisseries</p>
+  <div class="cl"></div>
+  <% end -%>
+</div>

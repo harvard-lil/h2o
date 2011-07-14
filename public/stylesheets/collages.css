@@ -76,8 +76,8 @@ display: inline-block; margin-left: 3px; }
 #collage-stats.active strong { background: #FFF url(/images/ui/collage-hgroup-btn-active.png) right no-repeat; 
 padding-right: 10px; }
 #collage-stats-popup { position:absolute; left:0; z-index:1;
-  background:#fff; padding: 18px 40px; top: 0px; left: 0px; 
-  background: #FFF; width: 890px; top: 28px; display: none;
+  background:#fff; padding: 18px 40px; left: 0px; 
+  background: #FFF; width: 890px; top: 31px; display: none;
   height: 431px; overflow-x: hidden; overflow-y: scroll; font-size: 10px; 
   box-shadow:#777 4px 10px 20px; -moz-box-shadow:#777 4px 10px 20px; -webkit-box-shadow:#777 0px 10px 20px;
   -o-box-shadow:#777 4px 10px 20px; -ms-box-shadow:#777 4px 10px 20px; }
@@ -125,3 +125,8 @@ font-size: 9px; font-weight: bold; }
   .tipsy-e .tipsy-arrow, .tipsy-w .tipsy-arrow { top: 50%; margin-top: -5px; }
   .tipsy-e .tipsy-arrow { right: 0; border-right: none; }
   .tipsy-w .tipsy-arrow { left: 0; border-left: none; }
+
+/* Hiding while page is loading */
+#collage .description .toolbar ul li.requires_logged_in { opacity: 0.0; }
+.requires_edit { opacity: 0.0; }
+.afterload { opacity: 0.0; }

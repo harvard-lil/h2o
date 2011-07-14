@@ -26,13 +26,7 @@
 			</div>
 			<% end -%>
 		</li>
-		<li class="field">
-			<%= text_field_tag('keywords', params[:keywords], :size => 50) %>
-		</li>
-		<li class="submit">
-			<input type="submit" class="submit" value="SEARCH" name="submit" />
-		</li>
-	</ul>
+    <%= render :partial => 'shared/search_all_fields' %>
 	<% end %>
 </section>
 <div class="cl"></div>
