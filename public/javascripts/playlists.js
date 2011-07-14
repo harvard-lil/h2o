@@ -1,6 +1,22 @@
 var dragged_element;
 
 jQuery.extend({
+  observeFontChange: function() {
+    jQuery("#playlist .description .buttons ul #fonts span").parent().click(function() { 
+      jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
+      jQuery(this).toggleClass("btn-a-active");
+      return false;
+    });
+    jQuery('.font-size-popup select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    }).change(function() {
+      var element = jQuery(this);
+      jQuery('#playlist .details h5').css('font-size', element.val() + 'px');
+      jQuery('#playlist .details #description').css('font-size', (parseFloat(element.val()) + 2) + 'px');
+      jQuery('.playlist .data p').css('font-size', element.val() + 'px');
+      jQuery('.playlist .data h3').css('font-size', (parseFloat(element.val()) + 4) + 'px');
+    });
+  },
 	observeDragAndDrop: function() {
 		jQuery('.sortable').sortable({
 			stop: function(event, ui) {
@@ -158,7 +174,8 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
-    jQuery.initPlaylistItemAddControls();
+  jQuery.observeFontChange();
+  jQuery.initPlaylistItemAddControls();
 	if(owner_can_sort) {
 		jQuery.observeDragAndDrop();
 	}

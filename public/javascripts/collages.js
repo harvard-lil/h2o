@@ -656,7 +656,18 @@ jQuery(document).ready(function(){
 			jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
 		});
 	
-		jQuery("#collage .description .buttons ul .btn-a span").parent().click(function() { 
+    jQuery('.font-size-popup select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    }).change(function() {
+      var element = jQuery(this);
+      jQuery('#collage article').css('font-size', element.val() + 'px');
+    });
+		jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
+			jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
+			jQuery(this).toggleClass("btn-a-active");
+			return false;
+		});
+		jQuery("#collage .description .buttons ul #tools span").parent().click(function() { 
 			jQuery('.tools-popup').css({ 'top': 25 }).toggle();
 			jQuery(this).toggleClass("btn-a-active");
 			return false;
@@ -664,7 +675,12 @@ jQuery(document).ready(function(){
 
 		jQuery('#collage-stats').click(function() {
 			jQuery(this).toggleClass("active");
-			jQuery('#collage-stats-popup').toggle();
+      if(jQuery('#collage-stats-popup').height() < 431) {
+        jQuery('#collage-stats-popup').css('overflow', 'hidden');
+      } else {
+        jQuery('#collage-stats-popup').css('height', 400);
+      }
+			jQuery('#collage-stats-popup').slideToggle('fast');
 			return false;
 		});
 		

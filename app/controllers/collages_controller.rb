@@ -5,7 +5,6 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
-  before_filter :is_collage_admin, :except => [:embedded_pager]
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state, :access_level]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
   before_filter :store_location, :only => [:index, :show]
@@ -32,6 +31,7 @@ class CollagesController < BaseController
     end
   end
 
+  # TODO: Remove this if unused?
   def layers
     respond_to do |format|
       format.json { render :json => @collage.layers }
@@ -47,7 +47,6 @@ class CollagesController < BaseController
     end
   rescue Exception => e
     flash[:notice] = "We couldn't copy that collage - " + e.inspect
-    logger.warn "steph: #{e.inspect}"
     respond_to do |format|
       format.html { render :action => "new" }
       format.xml  { render :xml => e.inspect, :status => :unprocessable_entity }
@@ -92,9 +91,11 @@ class CollagesController < BaseController
     end
 
     if current_user
+      @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
       @my_collages = current_user.collages
       @my_bookmarks = current_user.bookmarks_type(Collage, ItemCollage)
     else
+      @is_collage_admin = false
       @my_collages = @my_bookmarks = []
     end
 
@@ -139,7 +140,15 @@ class CollagesController < BaseController
   # GET /collages/new
   # GET /collages/new.xml
   def new
+    klass = params[:annotatable_type].classify.constantize
+
     @collage = Collage.new(:annotatable_type => params[:annotatable_type], :annotatable_id => params[:annotatable_id])
+    if klass == Case
+      annotatable = klass.find(params[:annotatable_id])
+      @collage.name = annotatable.short_name
+      @collage.tag_list = annotatable.tags.select { |t| t.name }.join(', ')
+    end
+    #TODO: add more for other annotatable types
 
     respond_to do |format|
       format.html # new.html.erb
@@ -246,12 +255,6 @@ class CollagesController < BaseController
   end
 
   private 
-
-  def is_collage_admin
-    if current_user
-      @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
-    end
-  end
 
   def load_collage
     @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}]) #, :annotations => {:layers => true}])

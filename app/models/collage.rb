@@ -56,7 +56,7 @@ class Collage < ActiveRecord::Base
 
   # TODO: Figure out why tags & annotations breaks in searchable
   searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
-    text :display_name, :boost => 3.0
+    text :display_name, :stored => true, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
     text :description, :boost => 2.0

@@ -32,7 +32,13 @@ class ItemBaseController < BaseController
   end
 
   def new
-    @object.url = params[:url_string]    
+    @object.url = params[:url_string]
+    if @model_class == ItemCollage
+      #TODO: Replace with value
+      actual_item = Collage.find(3)
+      @object.name = actual_item.name
+      @object.description = actual_item.description
+    end
     
     respond_to do |format|
       format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }

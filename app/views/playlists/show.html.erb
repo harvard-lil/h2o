@@ -16,15 +16,28 @@
 				<li><%= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %></li>
 			</ul>
 		</aside>
-		<% if @can_edit -%>
 		<aside class="buttons">
 			<ul>
+        <li class="btn-li">
+          <a href="#" class="btn-a" id="fonts">
+            <span>Aa</span>
+          </a>
+					<div class="popup font-size-popup">
+            <select id="font-size">
+              <option value="10">small</option>
+              <option value="13">medium</option>
+              <option value="16">large</option>
+              <option value="19">extra-large</option>
+            </select>
+          </div>
+        </li>
+		    <% if @can_edit -%>
     			<li class="btn-li">
 					<%= link_to 'ADD ITEM +', new_playlist_item_path, :class => 'btn-a new-playlist-item-control' %>
 				</li>
+		    <% end %>
 			</ul>
 		</aside>
-		<% end %>
 		<div class="cl"></div>
 	</hgroup>
 	<div class="details">

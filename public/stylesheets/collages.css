@@ -31,7 +31,7 @@
 #collage .details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
 #collage .details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
 
-#collage article { opacity: 0.0; font-size:11px; line-height:16px;
+#collage article { opacity: 0.0; font-size:11px; line-height:1.5em;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
 #collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
@@ -52,6 +52,26 @@ display: none; padding: 0px 0px 0px 3px; font-style: italic; }
 
 #tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
   display: none; width: 200px; opacity: 0.8; }
+
+.font-size-popup { position:absolute; left:0; z-index:1;
+  background:#fff; border: 2px solid #666; 
+  padding: 10px;  display:none;
+  top: 0px; left: 0px; background: #FFF;
+  width: 113px; border: 1px solid #6D87A2; top: 25px; }
+.font-size-popup .jsb { position:relative; height:20px; z-index:1; background:#e0f5bd;
+  border:1px solid #8eb356; float: left; display: inline;
+  border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; }
+.font-size-popup .jsb { width:103px !important; }
+.font-size-popup .jsb .jsb-currentItem { display:block; font-size:9px; line-height:20px; color:#006a07; font-weight:bold;
+  padding:0 8px; background:url(/images/ui/app_icons.png) -142px -17px no-repeat; }
+.font-size-popup .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:103px; height:20px; cursor:pointer; background:url(/images/ui/transparent.gif); }
+.font-size-popup .jsb .jsb-list { position:absolute; top:20px; left:-1px; width:103px !important; background:#e0f5bd;
+border:1px solid #8eb356; overflow:auto;
+border-radius:4px; -moz-border-radius:4px;
+-webkit-border-radius:4px;  -o-border-radius:4px; display:none; }
+.font-size-popup .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#006a07; font-weight:bold; padding:0 8px; cursor:default; }
+
+#results .songs { padding: 0px; position:relative; z-index:1; }
 
 .tools-popup { position:absolute; left:0; z-index:1;
   background:#fff; border: 2px solid #666; 
@@ -77,8 +97,8 @@ display: inline-block; margin-left: 3px; }
 padding-right: 10px; }
 #collage-stats-popup { position:absolute; left:0; z-index:1;
   background:#fff; padding: 18px 40px; left: 0px; 
-  background: #FFF; width: 890px; top: 31px; display: none;
-  height: 431px; overflow-x: hidden; overflow-y: scroll; font-size: 10px; 
+  background: #FFF; width: 650px; top: 31px; display: none;
+  overflow-x: hidden; overflow-y: scroll; font-size: 10px; 
   box-shadow:#777 4px 10px 20px; -moz-box-shadow:#777 4px 10px 20px; -webkit-box-shadow:#777 0px 10px 20px;
   -o-box-shadow:#777 4px 10px 20px; -ms-box-shadow:#777 4px 10px 20px; }
 #collage #collage-stats-popup #original_name { font-weight: bold; }

@@ -219,7 +219,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 
 #description,
 #description_more,
-#description_less { font-size:12px; line-height:18px; color:#616e5c; }
+#description_less { font-size:12px; line-height:1.5em; color:#616e5c; }
 .link-more, 
 .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
 #description_more { display: none; }
@@ -351,8 +351,8 @@ color: #4e9ed1; padding: 5px 11px; }
 .playlist .data .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
 .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
-.playlist .data h3 { font-size:14px; line-height:18px; font-weight:normal; display:inline; float:left; }
-.playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
+.playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; float:left; }
+.playlist .data p { float: left; display: inline; font-size:10px; line-height:1.6em; clear:both; }
 
 .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
 .playlists .playlists .data { padding-right:271px; }

@@ -17,7 +17,7 @@
 #playlist .details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
 #playlist .details .influence div.star-rating { background:none !important;}
 #playlist .details .influence div.star-rating a {background-image:url(/images/ui/playlist-star.gif) !important; }
-#playlist .details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
+#playlist .details h5 { font-size:10px; line-height:1.8em; font-weight:normal; padding-bottom:2px; }
 #playlist .details p { font-size:12px; line-height:18px; color:#999; }
 #playlist .details p .link-more, 
 #playlist .details p .edit-action,
@@ -35,3 +35,20 @@
 #playlist > .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
 .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
+
+#playlist .description .buttons ul .btn-a-active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; }
+#playlist .description .buttons ul .btn-a-active { -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }
+#playlist .description .buttons ul .btn-a-active { -moz-border-radius-bottomright: 0px; border-bottom-right-radius: 0px; -webkit-border-bottom-right-radius: 0px;  }
+
+#playlist .description .buttons ul #fonts { z-index: 101; }
+.font-size-popup { position:absolute; left:0; z-index:100; background:#fff; 
+padding: 10px;  display:none; top: 0px; left: 0px; background: #FFF;
+width: 113px; border: 1px solid #6D87A2; top: 25px; } 
+.font-size-popup .jsb { position:relative; height:20px; z-index:1; background:#ffd5a4; border:1px solid #ed9635; float: left; display: inline; }
+.font-size-popup .jsb { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px;  }
+.font-size-popup .jsb { width:103px !important; }
+.font-size-popup .jsb .jsb-currentItem { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; background:url(/images/ui/app_icons.png) -142px -1px no-repeat; }
+.font-size-popup .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:103px; height:20px; cursor:pointer; background:url(/images/ui/transparent.gif); }
+.font-size-popup .jsb .jsb-list { position:absolute; top:20px; left:-1px; width:103px !important; background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
+.font-size-popup .jsb .jsb-list { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; display:none; }
+.font-size-popup .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; cursor:default; }

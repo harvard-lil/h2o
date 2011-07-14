@@ -15,7 +15,6 @@ class BaseController < ApplicationController
         keywords params[:keywords]
       end
       paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      #      data_accessor_for(model).include = [:tags, :collages, :case_citations]
       order_by :display_name, :asc
     end
 
