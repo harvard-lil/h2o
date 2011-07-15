@@ -35,7 +35,7 @@
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
 #collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
-#collage article p { padding-bottom:16px; }
+#collage article p { padding-bottom:16px; margin-left: 30px; }
 #collage article p em { color:#669933; }
 #collage article p a { color:#336699; }
 #collage article p a.hint { color:#669900; }
@@ -123,7 +123,7 @@ font-size: 9px; font-weight: bold; }
 .unlayered-ellipsis { padding-right: 10px; display: none; }
 .default-hidden { color: #999; }
 .unlayered-control-start { display: none; width: 3px; background-color: #999; height: 16px; margin: 0px 3px 0px 2px; position: relative; top: 2px; }
-.unlayered-control-end { display: none; width: 4px; background: url(/images/ui/collapse.png); height: 16px; width: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
+.unlayered-control-end { display: none; background: url(/images/ui/collapse.png); height: 16px; width: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .paragraph-numbering { position: absolute; left: 10px; color: #369; }
 
 /* Tipsy */
