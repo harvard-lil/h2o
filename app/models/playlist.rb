@@ -27,11 +27,11 @@ class Playlist < ActiveRecord::Base
     string :id, :stored => true
     text :description
     text :name
-	string :tag_list, :stored => true, :multiple => true
-	string :author 
+    string :tag_list, :stored => true, :multiple => true
+    string :author 
 
     boolean :public
-	time :created_at
+    time :created_at
   end
 
   #has_many :playlist_items, :order => :position
@@ -44,14 +44,14 @@ class Playlist < ActiveRecord::Base
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
       JOIN tags t ON ts.tag_id = t.id
-	  WHERE taggable_type = 'Playlist'
-	  GROUP BY ts.tag_id, t.name
-	  ORDER BY COUNT(*) DESC LIMIT 25")
+      WHERE taggable_type = 'Playlist'
+      GROUP BY ts.tag_id, t.name
+      ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   def author
     owner = self.accepted_roles.find_by_name('owner')
-	owner.nil? ? nil : owner.user.login.downcase
+    owner.nil? ? nil : owner.user.login.downcase
   end
 
   def display_name
@@ -72,12 +72,12 @@ class Playlist < ActiveRecord::Base
     r = self.parents
     i = 0
     while i < r.size
-	    Playlist.find(r[i]).parents.each do |a|
-	      next if r.include?(a) 
-        r.push(a)
-      end
-	    i+=1
-	  end
-	  r
+      Playlist.find(r[i]).parents.each do |a|
+        next if r.include?(a) 
+      r.push(a)
+    end
+      i+=1
+    end
+    r
   end
 end

@@ -58,7 +58,7 @@ jQuery.extend({
   initializeTabBehavior: function() {
     jQuery('.tabs a').click(function(e) {
       var region = jQuery(this).data('region');
-      jQuery('.popup').hide();
+      jQuery('.add-popup').hide();
       popup_item_id = 0;
       popup_item_type = '';
       jQuery('.tabs a').removeClass("active");
@@ -161,15 +161,15 @@ jQuery.extend({
       var element = jQuery(this);
       var current_id = element.data('item_id');
       if(popup_item_id != 0 && current_id == popup_item_id) {
-        jQuery('.popup').hide();
+        jQuery('.add-popup').hide();
         popup_item_id = 0;
       } else {
         popup_item_id = current_id;
         popup_item_type = element.data('type');
         var position = element.offset();
-        var results_posn = jQuery('.popup').parent().offset();
+        var results_posn = jQuery('.add-popup').parent().offset();
         var left = position.left - results_posn.left;
-        jQuery('.popup').hide().css({ top: position.top + 24, left: left }).fadeIn(100);
+        jQuery('.add-popup').hide().css({ top: position.top + 24, left: left }).fadeIn(100);
       }
 
       return false;
@@ -421,7 +421,7 @@ jQuery.extend({
             jQuery.showGlobalSpinnerNode();
         },
         success: function(data) {
-          jQuery('.popup').hide();
+          jQuery('.add-popup').hide();
           jQuery.hideGlobalSpinnerNode();
           var snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
           jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));

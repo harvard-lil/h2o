@@ -8,6 +8,7 @@ class PlaylistsController < BaseController
   cache_sweeper :playlist_sweeper
   caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
+  # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level]
@@ -152,7 +153,9 @@ class PlaylistsController < BaseController
         @playlist.accepts_role!(:owner, current_user)
         @playlist.accepts_role!(:creator, current_user)
 
-        flash[:notice] = 'Playlist was successfully created.'
+        #IMPORTANT: This reindexes the item with author set
+        @playlist.index!
+
         format.js { render :text => nil }
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }

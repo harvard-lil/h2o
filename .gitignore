@@ -6,3 +6,4 @@ config/database.yml
 public/stylesheets/all.css
 public/javascripts/all.js
 public/collages/
+public/playlists/
