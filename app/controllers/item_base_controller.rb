@@ -134,7 +134,6 @@ class ItemBaseController < BaseController
 
   def destroy
     @object = @model_class.find(params[:id])
-	logger.debug "steph: #{@object.inspect}"
     @object.destroy
 
     respond_to do |format|
