@@ -153,7 +153,8 @@ border-radius:4px; -moz-border-radius:4px;
 #results .listitem .details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 #results .listitem .details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
 .listitem .action { font-size: 10px; font-weight: normal; }
-.listitem .delete-action { padding-left: 5px; background:
+.listitem .delete-action { padding-left: 5px; }
+.listitem .delete-playlist-item { padding-left: 5px; background:
   transparent url(/images/ui/pagination-divider.png) no-repeat scroll right 1px; padding-right: 5px; }
 #results .listitem .details p { float: left; display: inline; font-size:10px; line-height:16px; }
 #results .listitem .details p a { font-weight:bold; }
@@ -226,6 +227,20 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 .singleitem .details .edit-action { padding-left: 5px; font-size:9px;
 text-transform:uppercase; font-weight:bold;
 background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
+
+/* Default */
+#results #default_hgroup { background: #96A3B3; border: 1px solid #84919A; }
+#results #default_hgroup .tabs li a { color: #000; }
+#busers #results .sort label,
+  #bbase #results .sort label { color: #000; }
+#busers #results .sort .jsb,
+  #bbase #results .sort .jsb { background: #c5cdd5; border: 1px solid #84919A; }
+#busers #results .sort .jsb .jsb-list,
+  #bbase #results .sort .jsb .jsb-list { background: #c5ccd5; border: 1px solid #84919A; }
+#busers #results .sort .jsb .jsb-list .jsb-item,
+  #bbase #results .sort .jsb .jsb-list .jsb-item { color: #000; }
+#busers #results .sort .jsb .jsb-currentItem,
+  #bbase #results .sort .jsb .jsb-currentItem { background-position: -142px -17px; color: #000; }
 
 /* Cases Index */
 #bcases #results .sort label { color: #930102; }

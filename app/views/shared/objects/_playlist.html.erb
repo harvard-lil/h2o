@@ -19,19 +19,14 @@
 		<% end -%>
 		<h4>
 			<%= link_to playlist.name, playlist %>
-			<% if current_user -%>
-          	<% if @is_playlist_admin || @my_playlists.include?(playlist) %>
-            <%= link_to "DELETE", playlist_path(playlist), :class => "action delete-action" %>
+      <% if current_user && (@is_playlist_admin || @my_playlists.include?(playlist)) %>
+      <%= link_to "DELETE", playlist_path(playlist), :class => "action delete-action" %>
 			<% end -%>
-          	<% if @is_playlist_admin || @playlists_i_can_edit.include?(playlist) || @my_playlists.include?(playlist) %>
-            <%= link_to "EDIT", edit_playlist_path(playlist), :class => "action edit-playlist edit-action" %>
-          	<% end %>
-          	<% end %>
 		</h4>
 		<% cache "playlist-#{playlist.id}-index" do -%>
 		<p>
 			<%= playlist.created_at.to_s(:simpledatetime) %> by
-			<%= raw playlist.owners.collect{|u| link_to(u.login, user_path(u)) }.join(',') %>
+			<%= raw playlist.owners.collect{|u| link_to(u.login, user_path(u)) }.join(',') if playlist.owners %>
 		</p>
 		<% end -%>
 		<div class="influence"></div>

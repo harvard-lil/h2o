@@ -395,7 +395,7 @@ jQuery.extend({
       // - bookmarking playlist item (actual object)
       // - bookmarking playlist item from bookmark list
       if(el.hasClass('bookmark-popup')) {
-        if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').css('display') != 'none') {
+        if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').hasClass('active')) {
           item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();  
         } else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
           item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();  
@@ -420,7 +420,7 @@ jQuery.extend({
           var snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
           jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
           if(el.hasClass('bookmark-popup')) {
-            if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').css('display') != 'none') {
+            if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').hasClass('active')) {
               snode.insertBefore(jQuery('#bookmarks > .listitem' + popup_item_id + ' > .data hgroup .cl'));
             } else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
               snode.insertAfter(jQuery('.sortable > .listitem' + popup_item_id + ' > .data hgroup .icon-type'));

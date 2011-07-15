@@ -22,7 +22,6 @@
 		<h4><%= link_to collage.name, collage_path(collage), :class => "title" %>
 			<% if current_user && (@is_collage_admin || @my_collages.include?(collage)) %>
     		<%= link_to 'DELETE', collage, :class => "action delete-action" %>
-			<%= link_to 'EDIT', edit_collage_path(collage), :class => "action edit-action" %>
   			<% end %>
 		</h4>
         <% cache "collage-#{collage.id}-index" do %>
