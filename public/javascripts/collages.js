@@ -529,7 +529,7 @@ jQuery(document).ready(function(){
 		});
 
 		/* TODO: Possibly add some abstraction here */
-		jQuery('#hide_show_annotations').click(function(e) {
+		jQuery('#hide_show_annotations').not('.inactive').click(function(e) {
 			e.preventDefault();
 			jQuery.showGlobalSpinnerNode();
 

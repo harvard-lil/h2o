@@ -86,6 +86,7 @@ border-radius:4px; -moz-border-radius:4px;
 text-decoration: none; float: left; display: inline; margin-left: 3px; 
 font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
 color: #FFF; }
+.tools-popup ul li a.inactive { background-color: #999; }
 .tools-popup ul li a.link-o { background:#ffcc00; color:#664d4d; }
 
 #collage-stats { padding: 5px 10px; border-radius:4px; -moz-border-radius:4px;
