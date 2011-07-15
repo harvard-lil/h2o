@@ -125,9 +125,6 @@ jQuery.extend({
           modal: true,
           width: 'auto',
           height: 'auto',
-          close: function(){
-            jQuery(addItemDialog).remove();
-          },
           buttons: {
             Save: function(){
               jQuery.submitGenericNode();
@@ -352,9 +349,6 @@ jQuery.extend({
       var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
       jQuery(confirmNode).dialog({
           modal: true,
-        close: function() {
-          jQuery(confirmNode).remove();
-        },
           buttons: {
           Yes: function() {
               jQuery.ajax({
@@ -541,9 +535,6 @@ jQuery.extend({
       height: 'auto',
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
-      },
-      close: function() {
-        jQuery(newItemNode).remove();
       },
       buttons: {
         Submit: function() {

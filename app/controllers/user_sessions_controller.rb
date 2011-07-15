@@ -1,6 +1,7 @@
 class UserSessionsController < ApplicationController
   before_filter :require_no_user, :only => [:new, :create]
   before_filter :require_user, :only => :destroy
+  protect_from_forgery :except => [:create]
   
   def new
     @user_session = UserSession.new

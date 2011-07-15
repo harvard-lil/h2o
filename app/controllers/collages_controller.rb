@@ -140,7 +140,7 @@ class CollagesController < BaseController
   # GET /collages/new
   # GET /collages/new.xml
   def new
-    klass = params[:annotatable_type].classify.constantize
+    klass = params[:annotatable_type].to_s.classify.constantize
 
     @collage = Collage.new(:annotatable_type => params[:annotatable_type], :annotatable_id => params[:annotatable_id])
     if klass == Case
