@@ -34,8 +34,8 @@ class ItemBaseController < BaseController
   def new
     @object.url = params[:url_string]
     if @model_class == ItemCollage
-      #TODO: Replace with value
-      actual_item = Collage.find(3)
+      collage_id = @object.url.match(/[0-9]+$/).to_s
+      actual_item = Collage.find(collage_id)
       @object.name = actual_item.name
       @object.description = actual_item.description
     end
