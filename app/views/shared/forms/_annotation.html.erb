@@ -1,46 +1,39 @@
-<div style="width: 380px; float: left;">
-  <div id="new-annotation-error" style="display:none;" class="error"></div>
+<div id="new-annotation-error" style="display:none;" class="error"></div>
+<% unless request.xhr? %>
+  <h1><%= (@annotation.new_record?) ? 'Add' : 'Edit' %> Annotation</h1>
+<% end %>
+<% semantic_form_for @annotation do |form| %>
+  <% form.inputs do %>
+    <% [:collage_id, :annotation_start, :annotation_end].each do |col| %>
+      <%= form.input col, :as => :hidden %>
+    <% end %>
+    <%= form.input :annotation,
+      :as => :text,
+      :input_html => {:size => '60x10'},
+      :label => false,
+      :required => false
+    %>
+    <% if @annotation.layers.any? -%>
+    <h5 id="layer_appear">APPEARS IN LAYER:</h5>
+    <% end -%>
+    <% @annotation.layers.each do |l| %>
+    <li class="layer_check">
+      <input type="checkbox" checked="checked" data-value="<%= l.name %>" />
+      <label class="<%= "l#{l.id}" %>"><%= l.name %></label>
+    </li>
+    <% end %>
+    <li id="new_layers">
+      <label>CREATE NEW LAYERS</label>
+      <input type="text" />
+    <li>
+    <%= form.input :layer_list,
+      :as => :hidden,
+      :label => false
+    %>
+  <% end %>
   <% unless request.xhr? %>
-    <h1><%= (@annotation.new_record?) ? 'Add' : 'Edit' %> Annotation</h1>
-  <% end %>
-  <% semantic_form_for @annotation do |form| %>
-    <% form.inputs do %>
-      <% [:collage_id, :annotation_start, :annotation_end].each do |col| %>
-        <%= form.input col, :as => :hidden %>
-      <% end %>
-      <%= form.input :annotation,
-        :as => :text,
-        :input_html => {:size => '60x10'},
-        :hint => 'You can use markdown in the annotation. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank'),
-        :label => 'Annotation<br/>',
-        :required => false
-      %>
-      <%= form.input :layer_list,
-        :as => :string,
-        :hint => 'Please define the layers to which this annotation belongs with a comma-separated list.',
-        :label => 'Layers',
-        :input_html => {:class => 'tagging-autofill-layers'}
-      %>
-      <% unless @annotation.collage.layers.blank? %>
-        <h3 style="margin-bottom: 10px;">Layers in use on this collage</h3>
-        <div class="layers">
-          <% @annotation.collage.layers.each do |l| %>
-            <span class="_tag_suggestion c<%= l.id %>"><%= l.name %></span>
-          <% end %>
-        </div>
-      <% end %>
-    <% end %>
-    <% unless request.xhr? %>
-      <% form.buttons do %>
-        <%= form.commit_button 'Save' %>
-      <% end %>
+    <% form.buttons do %>
+      <%= form.commit_button 'Save' %>
     <% end %>
   <% end %>
-</div>
-
-<div style="width: 380px; float: right;">
-  <h3>Preview</h3>
-  <div id="preview-container">
-    <div id="annotation_preview"><%= (@annotation.new_record?) ? '' : Annotation.format_content(@annotation.annotation) %></div> 
-  </div>
-</div>
+<% end %>

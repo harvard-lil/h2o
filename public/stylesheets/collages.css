@@ -115,8 +115,8 @@ font-size: 9px; font-weight: bold; }
 #collage #collage-stats-popup .date { background: url(/images/ui/grey-list-style.jpg) no-repeat 0px 2px; margin-left: -10px; padding-left: 10px; }
 
 .singleitem .details .edit-action { display: none; }
-.textile { margin-top: 20px; }
-.markItUp { width: 500px; }
+.markItUp { width: 100%; border: none; }
+.markItUpContainer { border: 1px solid #84919A; }
 .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .edit_highlight { background: #eef9d9; }
 .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
@@ -152,3 +152,20 @@ font-size: 9px; font-weight: bold; }
 .requires_logged_in { opacity: 0.0; }
 .requires_edit { opacity: 0.0; }
 .afterload { opacity: 0.0; }
+
+/* MarkItUp */
+form.formtastic fieldset > ol > li.text textarea.markItUpEditor { width: 100%; }
+.textile .markItUpEditor { background: #FFF url(/images/ui/bg-editor-textile.png) repeat-x; border: none; }
+.textile .markItUp .markItUpButton1 a { background-image:url(/javascripts/markitup/sets/textile/images/bold.png); }
+.textile .markItUp .markItUpButton2 a { background-image:url(/javascripts/markitup/sets/textile/images/italic.png); }
+.textile .markItUp .markItUpButton3 a { background-image:url(/javascripts/markitup/sets/textile/images/stroke.png); }
+.textile .markItUp .markItUpButton4 a { background-image:url(/javascripts/markitup/sets/textile/images/link.png); }
+
+/* Annotation Edit */
+#layer_appear { font-size: 9px; font-weight: bold; margin-bottom: 5px; }
+form.formtastic fieldset > ol > li.layer_check { clear: both; margin-bottom: 2px; }
+.layer_check input { float: left; position: relative; top: 2px; }
+form.formtastic fieldset > ol > li.layer_check label { text-align: center; margin-left: 3px; width: auto;
+padding: 3px; text-transform: uppercase; font-size: 9px; }
+form.formtastic fieldset > ol > li#new_layers { margin-top: 8px; }
+form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top: 2px; }

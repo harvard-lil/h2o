@@ -299,12 +299,24 @@ jQuery.extend({
                     jQuery.updateAnnotationPreview(collageId);
                     jQuery('#annotation-form').dialog({
                       bgiframe: true,
-                      minWidth: 950,
-                      width: 950,
+                      minWidth: 450,
+                      width: 450,
                       modal: true,
                       title: 'Edit Annotation',
+                      open: function() {
+                        jQuery(".layer_check label").each(function(i, el) {
+                          jQuery(el).css('background', '#' + layer_info[jQuery(el).attr('class')].hex);
+                        });
+                      },
                       buttons: {
                         'Save': function(){
+                          var values = new Array();
+                          jQuery(".layer_check input").each(function(i, el) {
+                            if(jQuery(el).attr('checked')) {
+                              values.push(jQuery(el).data('value'));
+                            }
+                          });
+                          jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
                           jQuery.submitAnnotation();
                         },
                         Cancel: function(){
@@ -313,7 +325,7 @@ jQuery.extend({
                         }
                       }
                     });
-                    jQuery("#annotation_annotation").markItUp(myTextileSettings);
+                    jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
 
                     /*                    jQuery(document).bind('keypress','ctrl+shift+k',
                       function(e){
@@ -405,8 +417,8 @@ jQuery.extend({
         jQuery('#annotation-form').dialog({
           bgiframe: true,
           autoOpen: false,
-          minWidth: 950,
-          width: 950,
+          minWidth: 450,
+          width: 450,
           modal: true,
           title: 'New Annotation',
           buttons: {
@@ -415,7 +427,7 @@ jQuery.extend({
             },
             'Cancel': function(){
               jQuery('#new-annotation-error').html('').hide();
-              el.dialog('close');
+              jQuery(this).dialog('close');
             }
           }
         });
@@ -436,7 +448,7 @@ jQuery.extend({
             jQuery.hideGlobalSpinnerNode();
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
-            jQuery("#annotation_annotation").markItUp(myTextileSettings);
+            jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
               jQuery('#annotation_layer_list').keypress(function(e){
                 if(e.keyCode == '13'){
                   e.preventDefault();
