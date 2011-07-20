@@ -516,13 +516,30 @@ jQuery(document).ready(function(){
 
     jQuery('#full_text').click(function(e) {
       e.preventDefault();
-      jQuery('article p, article center').css('display', 'block');
-      jQuery('article tt').css('display', 'inline');
-      jQuery('.annotation-ellipsis').css('display', 'none');
-      jQuery('#layers a strong').html('HIDE');
-      jQuery('#layers .shown').removeClass('shown');
-      jQuery('article .unlayered-ellipsis').css('display', 'none');
-      jQuery('article .unlayered-control').css('display', 'inline-block');
+      var el = jQuery(this);
+      if(el.hasClass('inactive')) {
+        return;
+      }
+      jQuery.showGlobalSpinnerNode();
+      if(el.find('strong').html() == 'SHOW') {
+        jQuery('article p, article center').css('display', 'block');
+        jQuery('article tt').css('display', 'inline');
+        jQuery('.annotation-ellipsis').css('display', 'none');
+        jQuery('#layers a strong').html('HIDE');
+        jQuery('#layers .shown').removeClass('shown');
+        jQuery('article .unlayered-ellipsis').css('display', 'none');
+        jQuery('article .unlayered-control').css('display', 'inline-block');
+        el.find('strong').html('REVERT');
+        if(jQuery('#edit-show').length && jQuery('#edit-show').html() == 'READ') {
+          el.addClass('inactive');
+        }
+      } else {
+        last_data = original_data;
+        jQuery.loadState();
+        jQuery('.unlayered-control').hide();
+        el.find('strong').html('SHOW');
+      }
+      jQuery.hideGlobalSpinnerNode();
     });
 
     jQuery('#hide_show_unlayered').click(function(e) {
@@ -609,9 +626,10 @@ jQuery(document).ready(function(){
     jQuery("#edit-show").click(function(e) {
       e.preventDefault();
       var el = jQuery(this);
-      if(el.html() == 'READ') {
-        el.html("EDIT");  
-         jQuery.unObserveWords();
+      if(el.html() == "READ") {
+        el.html("EDIT"); 
+        jQuery('#full_text').removeClass('inactive');
+        jQuery.unObserveWords();
         jQuery('.details .edit-action, .control-divider').css('display', 'none');
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden').css('color', '#999');
@@ -619,7 +637,10 @@ jQuery(document).ready(function(){
         jQuery('.unlayered-control-end').css('width', '16px');
       } else {
         el.html("READ");  
-         jQuery.observeWords();
+        jQuery.observeWords();
+        if(jQuery('#full_text strong').html() == 'REVERT') {
+          jQuery('#full_text').removeClass('inactive');
+        }
         jQuery('.details .edit-action').show();
         jQuery('.control-divider').css('display', 'inline-block');
         jQuery('article tt.a').addClass('edit_highlight');
@@ -648,6 +669,9 @@ jQuery(document).ready(function(){
     jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
       jQuery(this).toggleClass("btn-a-active");
+      if(jQuery(this).hasClass("btn-a-active")) {
+        jQuery('.font-size-popup .jsb-moreButton').click();
+      }
       return false;
     });
     jQuery("#collage .description .buttons ul #tools span").parent().click(function() { 

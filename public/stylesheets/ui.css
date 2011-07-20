@@ -72,7 +72,7 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #search ul li.sorter p { float: left; display: inline; font-size:11px; color:#666; font-weight:bold; width:175px; padding-left:20px; background:url(/images/ui/sorter-p.png) no-repeat; }
 #search ul li.field {  background:#fff url(/images/ui/app_icons.png) -110px -70px no-repeat; margin-left:15px; }
 #search ul li.field input { width:198px; height:16px; background:transparent; border:0; line-height:16px; padding:7px 10px 7px 35px; }
-#search form { padding-right: 50px; }
+#search form { padding-right: 30px; }
 #search #radios { clear: both; padding: 10px 35px 0px 20px; float: right; }
 #search #radios p { color: #666; float: left; width: 140px; margin: 0px; font-size: 9pt; }
 #search #radios p input { margin: 0px 7px 7px 0px; }

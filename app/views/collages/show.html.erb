@@ -129,6 +129,7 @@ Your annotation will start here. Please click another word to set the end point.
 <script type="text/javascript">
 var editability_path = "<%= access_level_collage_path(@collage) %>"; 
 var last_data = <%= raw @collage.readable_state || '{}' %>;
+var original_data = <%= raw @collage.readable_state || '{}' %>;
 var annotations = <%= raw @collage.annotations.to_json(:include => [:layers], :except => [:annotation, :annotated_content], :methods => [:formatted_annotation_content]) %>;
 </script>
 <div id="annotation-form"></div>

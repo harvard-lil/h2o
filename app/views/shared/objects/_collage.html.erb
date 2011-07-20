@@ -26,8 +26,11 @@
 		</h4>
         <% cache "collage-#{collage.id}-index" do %>
 		<p>
-			<%= collage.created_at.to_s(:simpledatetime) %> by
+			<%= collage.created_at.to_s(:simpledatetime) %>
+      <% if collage.creators -%>
+      by
 			<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+      <% end -%>
 		</p>
 		<p class="extra">
 			On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>
