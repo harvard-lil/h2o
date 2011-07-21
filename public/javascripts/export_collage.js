@@ -5,11 +5,13 @@ jQuery.extend({
 			var data = eval("collage_data_" + id);
 
 			jQuery.each(data, function(i, e) {
-				var id = jQuery(el).data('id');  //id value is lost here - not sure why
+				var id = jQuery(el).data('id');	//id value is lost here - not sure why
 				if(i == 'highlights') {
 					jQuery.each(e, function(a, h) {
 						jQuery('#collage' + id + ' ' + a).css('background-color', '#' + h);
 					});
+				} else if(i == 'print_data') {
+					// do nothing here
 				} else if(i.match(/\.a/) && e != 'none') {
 					jQuery('#collage' + id + ' ' + i).css('display', 'inline');
 				} else if(i.match(/\.unlayered/)) {
@@ -29,6 +31,17 @@ jQuery.extend({
 					jQuery('#collage' + id + ' ' + i).css('display', e);
 				}
 			});
+			if(data.print_data) {
+				if(data.print_data.alltext) {
+					jQuery('#collage' + id + ' .unlayered').show();
+					jQuery('#collage' + id + ' .unlayered-ellipsis').hide();
+				}
+				if(data.print_data.allannotations) {
+					jQuery('#collage' + id + ' .annotation-content').css('display', 'inline-block');
+				}
+				jQuery('.collage-content').css('font-size', data.print_data.fontsize + 'pt');
+				jQuery('body,tt').css('font-family', data.print_data.fonttype);
+			}
 		});
 	}
 });

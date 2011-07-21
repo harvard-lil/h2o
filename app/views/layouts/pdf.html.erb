@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title></title>
 
-    <%= stylesheet_link_tag 'ui', 'jquery-ui-themes/custom-theme/jquery-ui-1.8.4.custom', 'formtastic', 'pdf' %>
+    <%= stylesheet_link_tag 'ui', 'pdf' %>
     <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
       <%= stylesheet_link_tag ss %>
     <% end -%>

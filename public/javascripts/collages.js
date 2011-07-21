@@ -8,14 +8,194 @@ var hover_state = {};
 var is_owner = false;
 
 jQuery.extend({
-  listenPrintLink: function() {
-    jQuery('.link-print').click(function(e) {
+  initializeFontChange: function() {  
+    jQuery('.font-size-popup select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    }).change(function() {
+      var element = jQuery(this);
+      jQuery('#collage article').css('font-size', element.val() + 'px');
+    });
+    jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
+      jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
+      jQuery(this).toggleClass("btn-a-active");
+      if(jQuery(this).hasClass("btn-a-active")) {
+        jQuery('.font-size-popup .jsb-moreButton').click();
+      }
+      return false;
+    });
+  },
+  initializeToolListeners: function () {
+    jQuery("#collage .description .buttons ul #tools span").parent().click(function() { 
+      jQuery('.tools-popup').css({ 'top': 25 }).toggle();
+      jQuery(this).toggleClass("btn-a-active");
+      return false;
+    });
+    jQuery('#layers li').each(function(i, el) {
+      layer_info[jQuery(el).data('id')] = {
+        'hex' : jQuery(el).data('hex'),
+        'name' : jQuery(el).data('name')
+      };
+      jQuery('a.annotation-control-' + jQuery(el).data('id')).css('background', '#' + jQuery(el).data('hex'));
+      jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
+    });
+    jQuery('#full_text').click(function(e) {
+      e.preventDefault();
+      var el = jQuery(this);
+      if(el.hasClass('inactive')) {
+        return;
+      }
+      jQuery.showGlobalSpinnerNode();
+      if(el.find('strong').html() == 'SHOW') {
+        jQuery('article p, article center').css('display', 'block');
+        jQuery('article tt').css('display', 'inline');
+        jQuery('.annotation-ellipsis').css('display', 'none');
+        jQuery('#layers a strong').html('HIDE');
+        jQuery('#layers .shown').removeClass('shown');
+        jQuery('article .unlayered-ellipsis').css('display', 'none');
+        jQuery('article .unlayered-control').css('display', 'inline-block');
+        el.find('strong').html('REVERT');
+        if(jQuery('#edit-show').length && jQuery('#edit-show').html() == 'READ') {
+          el.addClass('inactive');
+        }
+      } else {
+        last_data = original_data;
+        jQuery.loadState();
+        jQuery('.unlayered-control').hide();
+        el.find('strong').html('SHOW');
+      }
+      jQuery.hideGlobalSpinnerNode();
+    });
+
+    jQuery('#hide_show_unlayered').click(function(e) {
+      e.preventDefault();
+      jQuery.showGlobalSpinnerNode();
+      var el = jQuery(this);
+      el.toggleClass('shown');
+      if(el.find('strong').html() == 'SHOW') {
+        jQuery('article p.unlayered, article center.unlayered').css('display', 'block');
+        jQuery('article tt.unlayered').css('display', 'inline');
+        jQuery('article .unlayered-control').css('display', 'inline-block');
+        jQuery('article .unlayered-ellipsis').css('display', 'none');
+        el.find('strong').html('HIDE');
+      } else {
+        jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
+        jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
+        el.find('strong').html('SHOW');
+      }
+      jQuery.hideGlobalSpinnerNode();
+    });
+
+    jQuery('#hide_show_annotations').not('.inactive').click(function(e) {
+      e.preventDefault();
+      jQuery.showGlobalSpinnerNode();
+
+      var el = jQuery(this);
+      el.toggleClass('shown');
+      if(el.find('strong').html() == 'SHOW') {
+        jQuery('.annotation-content').css('display', 'inline-block');
+        el.find('strong').html('HIDE');
+      } else {
+        jQuery('.annotation-content').css('display', 'none');
+        el.find('strong').html('SHOW');
+      }
+      jQuery.hideGlobalSpinnerNode();
+    });
+
+    jQuery('#layers .hide_show').click(function(e) {
+      e.preventDefault();
+      jQuery.showGlobalSpinnerNode();
+
+      var el = jQuery(this);
+      var layer_id = el.parent().data('id');
+      //Note: Toggle here was very slow 
+      if(el.find('strong').html() == 'SHOW') {
+        el.find('strong').html('HIDE');
+        jQuery('article .' + layer_id).css('display', 'inline-block');
+        jQuery('article tt.' + layer_id).css('display', 'inline');
+        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'none');
+      } else {
+        el.find('strong').html('SHOW');
+        jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'none');
+        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'inline');
+      }
+      jQuery.hideGlobalSpinnerNode();
+    });
+
+    jQuery('#layers .link-o').click(function(e) {
+      e.preventDefault();
+      var el = jQuery(this);
+      var id = el.parent().data('id');
+      if(el.hasClass('highlighted')) {
+        el.siblings('.hide_show').find('strong').html('HIDE');
+        jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+        jQuery('article tt.' + id).css('display', 'inline');
+        jQuery('.annotation-ellipsis-' + id).css('display', 'none');
+        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
+          jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
+        });
+        el.removeClass('highlighted').html('HIGHLIGHT');
+      } else {
+        el.siblings('.hide_show').find('strong').html('HIDE');
+        jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
+        jQuery('article tt.' + id).css('display', 'inline');
+        jQuery('.annotation-ellipsis-' + id).css('display', 'none');
+        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
+          jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);
+        });
+        el.addClass('highlighted').html('UNHIGHLIGHT');
+      }
+    });
+  
+    jQuery("#edit-show").click(function(e) {
+      e.preventDefault();
+      var el = jQuery(this);
+      if(el.html() == "READ") {
+        el.html("EDIT"); 
+        jQuery('#full_text').removeClass('inactive');
+        jQuery.unObserveWords();
+        jQuery('.details .edit-action, .control-divider').css('display', 'none');
+        jQuery('article tt.a').removeClass('edit_highlight');
+        jQuery('.default-hidden').css('color', '#999');
+        jQuery('.unlayered-control-start').css('width', '3px');
+        jQuery('.unlayered-control-end').css('width', '16px');
+      } else {
+        el.html("READ");  
+        jQuery.observeWords();
+        if(jQuery('#full_text strong').html() == 'REVERT') {
+          jQuery('#full_text').removeClass('inactive');
+        }
+        jQuery('.details .edit-action').show();
+        jQuery('.control-divider').css('display', 'inline-block');
+        jQuery('article tt.a').addClass('edit_highlight');
+        jQuery('.default-hidden').css('color', '#000');
+        jQuery('.unlayered-control-start').css('width', '0px');
+        jQuery('.unlayered-control-end').css('width', '0px');
+      }
+      el.toggleClass('editing');
+    });
+  },
+  initializePrintListeners: function() {
+    jQuery('.print-popup select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    });
+    jQuery("#collage .link-print span").parent().click(function() { 
+      jQuery('.print-popup').toggle();
+      jQuery(this).toggleClass("btn-a-active");
+      return false;
+    });
+    jQuery('.print-popup a').click(function(e) {
       e.preventDefault();
       var data = jQuery.retrieveState();
       data.highlights = {};
       jQuery.each(highlight_history, function(i, v) {
         data.highlights['.a' + i] = v[v.length - 1];
       });
+      data["print_data"] = {};
+      data.print_data["alltext"] = jQuery('#alltext').attr('checked') ? true : false;
+      data.print_data["allannotations"] = jQuery('#allannotations').attr('checked') ? true : false;
+      data.print_data["fontsize"] = jQuery('#printfontsize').val();
+      data.print_data["fonttype"] = jQuery('#printfonttype').val();
+
       var el = jQuery(this);
       jQuery.ajax({
         type: 'POST',
@@ -513,172 +693,10 @@ jQuery(document).ready(function(){
      });
 
     jQuery.initializeAnnotationListeners();
-
-    jQuery('#full_text').click(function(e) {
-      e.preventDefault();
-      var el = jQuery(this);
-      if(el.hasClass('inactive')) {
-        return;
-      }
-      jQuery.showGlobalSpinnerNode();
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('article p, article center').css('display', 'block');
-        jQuery('article tt').css('display', 'inline');
-        jQuery('.annotation-ellipsis').css('display', 'none');
-        jQuery('#layers a strong').html('HIDE');
-        jQuery('#layers .shown').removeClass('shown');
-        jQuery('article .unlayered-ellipsis').css('display', 'none');
-        jQuery('article .unlayered-control').css('display', 'inline-block');
-        el.find('strong').html('REVERT');
-        if(jQuery('#edit-show').length && jQuery('#edit-show').html() == 'READ') {
-          el.addClass('inactive');
-        }
-      } else {
-        last_data = original_data;
-        jQuery.loadState();
-        jQuery('.unlayered-control').hide();
-        el.find('strong').html('SHOW');
-      }
-      jQuery.hideGlobalSpinnerNode();
-    });
-
-    jQuery('#hide_show_unlayered').click(function(e) {
-      e.preventDefault();
-      jQuery.showGlobalSpinnerNode();
-      var el = jQuery(this);
-      el.toggleClass('shown');
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('article p.unlayered, article center.unlayered').css('display', 'block');
-        jQuery('article tt.unlayered').css('display', 'inline');
-        jQuery('article .unlayered-control').css('display', 'inline-block');
-        jQuery('article .unlayered-ellipsis').css('display', 'none');
-        el.find('strong').html('HIDE');
-      } else {
-        jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
-        jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
-        el.find('strong').html('SHOW');
-      }
-      jQuery.hideGlobalSpinnerNode();
-    });
-
-    /* TODO: Possibly add some abstraction here */
-    jQuery('#hide_show_annotations').not('.inactive').click(function(e) {
-      e.preventDefault();
-      jQuery.showGlobalSpinnerNode();
-
-      var el = jQuery(this);
-      el.toggleClass('shown');
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('.annotation-content').css('display', 'inline-block');
-        el.find('strong').html('HIDE');
-      } else {
-        jQuery('.annotation-content').css('display', 'none');
-        el.find('strong').html('SHOW');
-      }
-      jQuery.hideGlobalSpinnerNode();
-    });
-
-    jQuery('#layers .hide_show').click(function(e) {
-      e.preventDefault();
-      jQuery.showGlobalSpinnerNode();
-
-      var el = jQuery(this);
-      var layer_id = el.parent().data('id');
-      //Note: Toggle here was very slow 
-      if(el.find('strong').html() == 'SHOW') {
-        el.find('strong').html('HIDE');
-        jQuery('article .' + layer_id).css('display', 'inline-block');
-        jQuery('article tt.' + layer_id).css('display', 'inline');
-        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'none');
-      } else {
-        el.find('strong').html('SHOW');
-        jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'inline');
-      }
-      jQuery.hideGlobalSpinnerNode();
-    });
-
-    jQuery('#layers .link-o').click(function(e) {
-      e.preventDefault();
-      var el = jQuery(this);
-      var id = el.parent().data('id');
-      if(el.hasClass('highlighted')) {
-        el.siblings('.hide_show').find('strong').html('HIDE');
-        jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
-        jQuery('article tt.' + id).css('display', 'inline');
-        jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
-          jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
-        });
-        el.removeClass('highlighted').html('HIGHLIGHT');
-      } else {
-        el.siblings('.hide_show').find('strong').html('HIDE');
-        jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
-        jQuery('article tt.' + id).css('display', 'inline');
-        jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
-          jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);
-        });
-        el.addClass('highlighted').html('UNHIGHLIGHT');
-      }
-    });
-  
-    jQuery("#edit-show").click(function(e) {
-      e.preventDefault();
-      var el = jQuery(this);
-      if(el.html() == "READ") {
-        el.html("EDIT"); 
-        jQuery('#full_text').removeClass('inactive');
-        jQuery.unObserveWords();
-        jQuery('.details .edit-action, .control-divider').css('display', 'none');
-        jQuery('article tt.a').removeClass('edit_highlight');
-        jQuery('.default-hidden').css('color', '#999');
-        jQuery('.unlayered-control-start').css('width', '3px');
-        jQuery('.unlayered-control-end').css('width', '16px');
-      } else {
-        el.html("READ");  
-        jQuery.observeWords();
-        if(jQuery('#full_text strong').html() == 'REVERT') {
-          jQuery('#full_text').removeClass('inactive');
-        }
-        jQuery('.details .edit-action').show();
-        jQuery('.control-divider').css('display', 'inline-block');
-        jQuery('article tt.a').addClass('edit_highlight');
-        jQuery('.default-hidden').css('color', '#000');
-        jQuery('.unlayered-control-start').css('width', '0px');
-        jQuery('.unlayered-control-end').css('width', '0px');
-      }
-      el.toggleClass('editing');
-    });
-  
-    jQuery('#layers li').each(function(i, el) {
-      layer_info[jQuery(el).data('id')] = {
-        'hex' : jQuery(el).data('hex'),
-        'name' : jQuery(el).data('name')
-      };
-      jQuery('a.annotation-control-' + jQuery(el).data('id')).css('background', '#' + jQuery(el).data('hex'));
-      jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
-    });
-  
-    jQuery('.font-size-popup select').selectbox({
-      className: "jsb", replaceInvisible: true 
-    }).change(function() {
-      var element = jQuery(this);
-      jQuery('#collage article').css('font-size', element.val() + 'px');
-    });
-    jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
-      jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
-      jQuery(this).toggleClass("btn-a-active");
-      if(jQuery(this).hasClass("btn-a-active")) {
-        jQuery('.font-size-popup .jsb-moreButton').click();
-      }
-      return false;
-    });
-    jQuery("#collage .description .buttons ul #tools span").parent().click(function() { 
-      jQuery('.tools-popup').css({ 'top': 25 }).toggle();
-      jQuery(this).toggleClass("btn-a-active");
-      return false;
-    });
+    jQuery.loadEditability();
+    jQuery.initializeToolListeners();
+    jQuery.initializeFontChange();
+    jQuery.initializePrintListeners();
 
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
@@ -690,8 +708,5 @@ jQuery(document).ready(function(){
       jQuery('#collage-stats-popup').slideToggle('fast');
       return false;
     });
-    
-    jQuery.listenPrintLink();
-    jQuery.loadEditability();
   }
 });
