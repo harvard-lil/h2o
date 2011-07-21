@@ -65,7 +65,7 @@ jQuery.extend({
       jQuery('.songs > ul').hide();
       jQuery('.pagination > div, .sort > div').hide();
       jQuery('#' + region +
-        ',#' + region + '_pagination' +
+        ',.' + region + '_pagination' +
         ',#' + region + '_sort').show();
       jQuery(this).addClass("active");
       e.preventDefault();
@@ -190,10 +190,11 @@ jQuery.extend({
            jQuery.hideGlobalSpinnerNode();
       },
       success: function(html){
-           jQuery.hideGlobalSpinnerNode();
+        jQuery.hideGlobalSpinnerNode();
         if(jQuery('#bbase').length || jQuery('#busers').length) {
           jQuery(region).html(html);
-          jQuery(region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
+          var class_region = region.replace(/^#/, '.');
+          jQuery(class_region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
         } else {
           jQuery(region).html(html);
           jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());

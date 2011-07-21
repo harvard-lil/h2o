@@ -2,7 +2,7 @@
   :url => cases_path,
   :right_search => 'cases/nav_search' } %>
 	
-<section id="breadcrumbs">
+<section class="breadcrumbs">
 	<aside class="filter">
 		<% if params[:tags] -%>
 		<p>
@@ -25,7 +25,7 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
-		<div id="all_cases_pagination">
+		<div class="all_cases_pagination">
 		<%= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
@@ -67,6 +67,15 @@
 	<% end -%>
 	<% end -%>
 	</article>
+</section>
+
+<section class="breadcrumbs">
+	<aside class="pagination">
+		<div class="all_cases_pagination">
+		<%= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+	</aside>
+	<div class="cl"></div>
 </section>
 
 <%= render :partial => "shared/popup", :locals => { :type => "case" } %>

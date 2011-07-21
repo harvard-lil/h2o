@@ -2,7 +2,7 @@
   :url => "/",
   :right_search => 'shared/search_all' } %>
 
-<section id="breadcrumbs">
+<section class="breadcrumbs">
 	<aside class="filter">
 		<p>
 		Results for: <%= @user.login %>
@@ -13,13 +13,13 @@
 		</p>
 	</aside>
 	<aside class="pagination">
-		<div id="all_playlists_pagination" data-type="playlists">
+		<div class="all_playlists_pagination" data-type="playlists">
 		<%= will_paginate @playlists, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
-		<div id="all_collages_pagination" style="display:none;" data-type="collages">
+		<div class="all_collages_pagination" style="display:none;" data-type="collages">
 		<%= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
-		<div id="all_cases_pagination" style="display:none;" data-type="cases">
+		<div class="all_cases_pagination" style="display:none;" data-type="cases">
 		<%= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
@@ -99,6 +99,20 @@
 	</ul>
 	<% end -%>
 	</article>
+</section>
+
+<section class="breadcrumbs">
+	<aside class="pagination">
+		<div class="all_playlists_pagination" data-type="playlists">
+		<%= will_paginate @playlists, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div class="all_collages_pagination" style="display:none;" data-type="collages">
+		<%= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+		<div class="all_cases_pagination" style="display:none;" data-type="cases">
+		<%= will_paginate @cases, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+	</aside>
 </section>
 
 <%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

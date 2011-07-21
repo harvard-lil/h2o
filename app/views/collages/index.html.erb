@@ -2,7 +2,7 @@
   :url => collages_path,
   :right_search => 'collages/nav_search' } %>
 
-<section id="breadcrumbs">
+<section class="breadcrumbs">
 	<aside class="filter">
 		<% if params[:tag] -%>
 		<p>
@@ -19,7 +19,7 @@
 		<% end -%>
 	</aside>
 	<aside class="pagination">
-		<div id="all_collages_pagination">
+		<div class="all_collages_pagination">
 		<%= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
 		</div>
 	</aside>
@@ -65,6 +65,14 @@
 		</ul>
  		<% end %>
 	</article>
+</section>
+
+<section class="breadcrumbs">
+	<aside class="pagination">
+		<div class="all_collages_pagination">
+		<%= will_paginate @collages, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+		</div>
+	</aside>
 </section>
 
 <%= render :partial => "shared/popup", :locals => { :type => "collage" } %>
