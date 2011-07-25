@@ -587,6 +587,13 @@ jQuery.extend({
           title: 'New Annotation',
           buttons: {
             'Save': function(){
+              var values = new Array();
+              jQuery(".layer_check input").each(function(i, el) {
+                if(jQuery(el).attr('checked')) {
+                  values.push(jQuery(el).data('value'));
+                }
+              });
+              jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
               jQuery.submitAnnotation();
             },
             'Cancel': function(){
