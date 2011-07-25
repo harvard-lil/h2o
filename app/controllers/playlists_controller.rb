@@ -112,7 +112,7 @@ class PlaylistsController < BaseController
         url = request.url.gsub(/\.pdf.*/, "/export")
         file = Tempfile.new("playlist.pdf")
         # -g prints to greyscale
-        cmd = "#{RAILS_ROOT}/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-right \"#{@playlist.name}: Page [page] of [toPage]\" #{url} - > #{file.path}"
+        cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-right \"#{@playlist.name}: Page [page] of [toPage]\" #{url} - > #{file.path}"
         system(cmd)
         file.close
         send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'

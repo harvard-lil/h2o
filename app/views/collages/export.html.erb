@@ -1,12 +1,12 @@
 <div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
-	<% cache("collage-#{@collage.id}-annotatable-content") do %>
-	<article>
-		<%= raw @collage.annotatable_content %>
-	</article>
-	<% end -%>
-	<h2 class="collage-id"><%= @collage.name %></h2>
-  <%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| u.login }.join(',') %>
-  <%= Collage.format_content(@collage.description) %>
+  <h2 class="collage-id"><%= @collage.name %></h2>
+  <p class="info"><%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| u.login }.join(',') %></p>
+  <p class="desc"><%= Collage.format_content(@collage.description) %></p>
+  <% cache("collage-#{@collage.id}-annotatable-content") do %>
+  <article>
+    <%= raw @collage.annotatable_content %>
+  </article>
+  <% end -%>
 </div>
 
 <script type="text/javascript">
