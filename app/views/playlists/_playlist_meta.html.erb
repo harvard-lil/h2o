@@ -1,0 +1,26 @@
+<h5>
+  <%= @playlist.created_at.to_s(:simpledatetime) %>
+  by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
+  <a href="#" id="playlist-stats" title="test"><strong>PLAYLIST STATS</strong></a>
+  <div class="popup" id="playlist-stats-popup">
+    <h5>Playlist Children</h5>
+    <ul class="lineage">
+    <%= render :partial => 'playlist_children',
+      :locals => { :playlist => top_ancestor(Playlist, @playlist) } %>
+    </ul>
+    <% if @parents.any? -%>
+    <h5 class="contain_playlists">Playlists that contain this playlist</h3>
+    <ul class="lineage">
+    <% @parents.each do |playlist| -%>
+    <li>
+      <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span>
+      by <%= raw playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %><br />
+      <%= link_to playlist.name, playlist %>
+    </li>
+    <% end -%>
+    </ul>
+    <% end -%>
+    <h5 class="collage_count">Collage Word Count</h5>
+    <p>Collages in this playlist are showing <%= number_with_delimiter(@shown_words, ',') %> out of <%= number_with_delimiter(@total_words, ',') %> words.</p>
+  </div>
+</h5>

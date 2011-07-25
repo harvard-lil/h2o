@@ -98,10 +98,9 @@ class PlaylistsController < BaseController
     add_javascripts 'playlists'
     add_stylesheets 'playlists'
 
-    #@playlist.playlist_items.find(:all)
-
     @my_playlist = current_user ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
     @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
+    (@shown_words, @total_words) = @playlist.collage_word_count
 
     respond_to do |format|
       format.html do

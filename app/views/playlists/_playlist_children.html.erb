@@ -1,0 +1,16 @@
+<li <%= raw 'class="current"' if @playlist == playlist %>>
+<% if @playlist == playlist -%>
+<span id="current_marker">Current Playlist</span><br />
+<% end -%>
+<span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span> by 
+<%= raw playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(',') %><br />
+<%= link_to playlist.name, playlist %>
+<% if playlist.children.size > 0 -%>
+	<ul class="lineage">
+	<% playlist.children.each do |child| -%>
+	<%= render :partial => 'playlist_children',
+  		:locals => { :playlist => child } %>
+	<% end -%>
+	</ul>
+<% end -%>
+</li>

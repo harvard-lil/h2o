@@ -79,6 +79,8 @@ font-weight: bold; margin-bottom: 0px; }
 #playlist #playlist-stats-popup .lineage #current_marker { color: #679d2e; text-transform: uppercase;
 font-size: 9px; font-weight: bold; }
 #playlist #playlist-stats-popup .date { background: url(/images/ui/grey-list-style.jpg) no-repeat 0px 2px; margin-left: -10px; padding-left: 10px; }
+#playlist .contain_playlists,
+#playlist .collage_count { margin-top: 30px; }
 
 /* Hiding while page is loading */
 #playlist .description .toolbar ul li.requires_logged_in { opacity: 0.0; }

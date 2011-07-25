@@ -1,12 +1,11 @@
 require 'tempfile'
 
 class CollagesController < BaseController
-
   cache_sweeper :collage_sweeper
   caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state, :access_level]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :save_readable_state, :export, :record_collage_print_state]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :record_collage_print_state]
   before_filter :store_location, :only => [:index, :show]
 
   access_control do
@@ -239,7 +238,9 @@ class CollagesController < BaseController
   end
 
   def save_readable_state
-    @collage.update_attribute('readable_state', params[:v])
+    #TODO: Figure out why this is making so many DB calls for optimization
+    @collage = Collage.find(params[:id])
+    @collage.update_attributes(:readable_state => params[:readable_state], :words_shown => params[:words_shown])
     respond_to do |format|
       format.json { render :json => { :time => Time.now.to_s(:simpledatetime) } }
     end
@@ -257,6 +258,6 @@ class CollagesController < BaseController
   private 
 
   def load_collage
-    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}]) #, :annotations => {:layers => true}])
+    @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}])
   end
 end

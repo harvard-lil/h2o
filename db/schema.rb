@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110703220613) do
+ActiveRecord::Schema.define(:version => 20110725144809) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -109,6 +109,7 @@ ActiveRecord::Schema.define(:version => 20110703220613) do
     t.boolean  "public",                               :default => true
     t.boolean  "active",                               :default => true
     t.string   "readable_state",    :limit => 5242880
+    t.integer  "words_shown"
   end
 
   add_index "collages", ["active"], :name => "index_collages_on_active"

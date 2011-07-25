@@ -44,21 +44,7 @@
 			</ul>
 		</div>
 		<% end -%>
-		<h5>
-			<%= @playlist.created_at.to_s(:simpledatetime) %>
-			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
-			<a href="#" id="playlist-stats" title="test"><strong>PLAYLIST STATS</strong></a>
-			<div class="popup" id="playlist-stats-popup">
-        <h5>Playlists that contain this one:</h3>
-        <% @parents.each do |playlist| -%>
-          <%= playlist.created_at.to_s(:simpledatetime) %>
-          <%= link_to playlist.name, playlist %> by <%= raw playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %><br /><br />
-        <% end -%>
-			</div>
-		</h5>
-		<% if false -%>
-		<div class="influence"></div>
-		<% end -%>
+    <%= render :partial => 'playlist_meta' %>
 		<div class="cl"></div>
 		<% if !@playlist.description.nil? -%>
 		<% if @playlist.description.length > 500 -%>

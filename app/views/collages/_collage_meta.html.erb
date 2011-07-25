@@ -1,4 +1,4 @@
-<p id="word_count">Number of total words: <%= @collage.word_count %></p>
+<p id="word_count">Number of visible words: <%= number_with_delimiter(@collage.words_shown, ',') %> out of <%= number_with_delimiter(@collage.word_count - 1, ',') %></p>
 
 <p>Lineage</p>
 
@@ -10,6 +10,6 @@
 <% end -%>
 <ul class="lineage">
 <%= render :partial => 'collage_children',
-		:locals => { :collage => @collage.top_ancestor,
+		:locals => { :collage => top_ancestor(Collage, @collage),
                      :recursive_level => 0 } %>
 </ul>

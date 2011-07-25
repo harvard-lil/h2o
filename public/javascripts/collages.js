@@ -246,23 +246,13 @@ jQuery.extend({
     var last = highlight_history[aid].length - 1;
     jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
   },
-  addCommas: function(str) {
-    str += '';
-    x = str.split('.');
-    x1 = x[0];
-    x2 = x.length > 1 ? '.' + x[1] : '';
-    var rgx = /(\d+)(\d{3})/;
-    while(rgx.test(x1)) {
-      x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
-  },
   recordCollageState: function(data) {
     jQuery.ajax({
       type: 'POST',
       cache: false,
       data: {
-        v: data
+        readable_state: data,
+        words_shown: jQuery('#collage article tt:visible').size()
       },
       url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/save_readable_state',
       success: function(results){
@@ -303,8 +293,6 @@ jQuery.extend({
     }, 1000); 
   },
   loadState: function() {
-    var total_words = jQuery('tt').size();
-    var shown_words = total_words;
     jQuery.each(last_data, function(i, e) {
       if(i.match(/\.a/) && e != 'none') {
         jQuery(i).css('display', 'inline');
@@ -324,11 +312,7 @@ jQuery.extend({
       } else {
         jQuery(i).css('display', e);
       }
-      if((i.match(/^\.unlayered/) || i.match(/^\.a/)) && e == 'none') {
-        shown_words -= jQuery('tt' + i).size();
-      }
     });
-    jQuery('#word_count').html('Number of visible words: ' + jQuery.addCommas(shown_words) + ' out of ' + jQuery.addCommas(total_words));
     if(last_data.edit_mode && is_owner) {
       jQuery('#edit-show').html("READ");  
        jQuery.observeWords();
@@ -700,7 +684,7 @@ jQuery(document).ready(function(){
 
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
-      if(jQuery('#collage-stats-popup').height() < 431) {
+      if(jQuery('#collage-stats-popup').height() < 400) {
         jQuery('#collage-stats-popup').css('overflow', 'hidden');
       } else {
         jQuery('#collage-stats-popup').css('height', 400);

@@ -4,8 +4,10 @@ class CollageSweeper < ActionController::Caching::Sweeper
   observe Collage
 
   def collage_clear(record)
-    Rails.cache.delete_matched(%r{collages-search*})
     expire_page :controller => :collages, :action => :show, :id => record.id
+    return if params[:action] == 'save_readable_state'
+
+    Rails.cache.delete_matched(%r{collages-search*})
 
     expire_fragment "collage-all-tags"
     expire_fragment "collage-#{record.id}-index"
@@ -31,5 +33,12 @@ class CollageSweeper < ActionController::Caching::Sweeper
 
   def before_destroy(record)
     collage_clear(record)
+  end
+
+  def after_collages_save_readable_state
+    item_collages = ItemCollage.find(:all, :conditions => { :actual_object_id => 716 }, :select => :id)
+    PlaylistItem.find(:all, :conditions => { :resource_item_type => 'ItemCollage', :resource_item_id => item_collages }, :select => :playlist_id).each do |pi|
+      expire_page :controller => :playlists, :action => :show, :id => pi.playlist_id
+    end
   end
 end

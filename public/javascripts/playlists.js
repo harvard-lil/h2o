@@ -5,7 +5,7 @@ jQuery.extend({
   observeStats: function() {
 		jQuery('#playlist-stats').click(function() {
 			jQuery(this).toggleClass("active");
-      if(jQuery('#playlist-stats-popup').height() < 431) {
+      if(jQuery('#playlist-stats-popup').height() < 400) {
         jQuery('#playlist-stats-popup').css('overflow', 'hidden');
       } else {
         jQuery('#playlist-stats-popup').css('height', 400);

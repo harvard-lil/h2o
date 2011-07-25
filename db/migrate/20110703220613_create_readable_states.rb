@@ -2,8 +2,7 @@ class CreateReadableStates < ActiveRecord::Migration
   def self.up
     create_table :readable_states do |t|
       t.text :state
-
-	  t.timestamps
+      t.timestamps
     end
   end
 

@@ -74,10 +74,21 @@ class Playlist < ActiveRecord::Base
     while i < r.size
       Playlist.find(r[i]).parents.each do |a|
         next if r.include?(a) 
-      r.push(a)
-    end
+        r.push(a)
+      end
       i+=1
     end
     r
+  end
+
+  def collage_word_count
+    collages = self.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object if pi.resource_item_type == 'ItemCollage' && pi.resource_item.actual_object; arr }
+    shown_word_count = 0
+    total_word_count = 0
+    collages.each do |c|
+      shown_word_count += c.words_shown
+      total_word_count += (c.word_count-1) 
+    end
+    [shown_word_count, total_word_count]
   end
 end
