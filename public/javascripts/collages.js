@@ -669,6 +669,12 @@ jQuery.extend({
 
 jQuery(document).ready(function(){
   if(jQuery('.singleitem').length > 0){
+    var height = jQuery('.description').height();
+    if(height != 30) {
+      jQuery('.toolbar,.buttons').css({ position: 'relative', top: height - 30 });
+    }
+    jQuery('.toolbar, .buttons').css('visibility', 'visible');
+
     jQuery('#cancel-annotation').click(function(e){
       e.preventDefault();
       jQuery("#tooltip").hide();

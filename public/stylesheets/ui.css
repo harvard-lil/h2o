@@ -110,7 +110,7 @@ font-weight: bold; font-size: 11px; }
   width: 7px; height: 9px; padding: 0px; margin-top: 2px; }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
-#results > hgroup { border:1px solid #ff8b11; background:url(/images/ui/repeat_bg.png) 0px -200px;
+#results > hgroup { border:1px solid #ff8b11; background:url(/images/ui/orange_bg.png) 0px 0px;
 height:30px; line-height:30px; display:block; position:relative; z-index:2;
 border-radius:4px; -moz-border-radius:4px;
 -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; margin-bottom: 10px; }
@@ -244,14 +244,14 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 
 /* Cases Index */
 #bcases #results .sort label { color: #930102; }
-#results #cases_hgroup { border:1px solid #ff1a05; background:url(/images/ui/repeat_bg.png) 0px -260px; }
+#results #cases_hgroup { border:1px solid #ff1a05; background:url(/images/ui/red_bg.png) 0px 0px; }
 #results #cases_hgroup .tabs li a { color: #a51514; }
 #my_cases { display: none; }
 #bcases #results .sort label { color: #930102; }
 #bcases #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
-#bcases #results .sort .jsb .jsb-currentItem { background-position: -142px -31px; }
+#bcases #results .sort .jsb .jsb-currentItem { background-position: -142px -69px; }
 
 #results .cases_details { font-size: 10px; }
 #results .case_collages { color: #669500; text-transform: uppercase; }
@@ -265,7 +265,7 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 
 
 /* Collage index */
-#results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/repeat_bg.png) 0px -230px; }
+#results #collage_hgroup { border:1px solid #a6db31; background:url(/images/ui/green_bg.png) 0px 0px; }
 #results #collage_hgroup .tabs li a { color: #003100; }
 #my_collages { display: none; }
 #bcollages #results .sort label { color: #006a07; }
@@ -386,7 +386,7 @@ h2 .bookmarked { color: #FFF; }
 .singleitem .toolbar a { background: url(/images/ui/app_icons.png);
   display: block; width: 23px; height: 30px; text-indent: -4000px; }
 .singleitem .toolbar .link-share { width: 25px; background-position: 0px -39px; }
-.singleitem .toolbar .collage-this { background-position: -120px -39px; width: 18px; }
+.singleitem .toolbar .collage-this { background-position: -120px -39px; width: 14px; }
 .singleitem .toolbar .link-remix { background-position: -81px -39px; width: 20px; }
 .singleitem .toolbar .link-copy { background-position: -25px -39px; width: 16px; }
 .singleitem .toolbar .link-bookmark { background-position: -41px -39px; width: 18px; }

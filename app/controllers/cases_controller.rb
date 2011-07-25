@@ -101,6 +101,7 @@ class CasesController < BaseController
   # GET /cases/1.xml
   def show
     add_stylesheets 'cases'
+    add_javascripts 'cases'
 
     if (! @case.public || ! @case.active ) && ! @my_cases.include?(@case)
       #if not public or active and the case isn't one of mine. . .
