@@ -1,8 +1,9 @@
-<div class="h2o-playlistable-<%= playlistable_item.name %>">
+<div class="h2o-playlistable-<%= playlistable_item.name %> playlistable-list">
   <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
   <div class="playlistable-object-list-<%= playlistable_item.name %>-<%= playlistable_item.name.tableize%>">
   <% if @objects -%>
-    <table class="core_table tablesorter compact_table">
+    <%= will_paginate @objects, :previous_label => 'Prev', :next_label => 'Next' %>
+    <table cellpadding="0" cellspacing="0">
       <thead>
         <tr class="table_heading">
           <th>Name</th>
@@ -10,15 +11,16 @@
         </tr>
       </thead>
       <tbody>
-        <% @objects.hits.each do |hit| -%>
+        <% @objects.each do |hit| -%>
           <tr>
-            <td><%= link_to(hit.stored(:display_name), "##{playlistable_item.name}-#{hit.stored(:id)}") -%></td>
-            <td><button class="add-<%= playlistable_item.name %>-button" id="<%= %Q|#{playlistable_item.name}-#{hit.stored(:id)}| %>">Add</button></td>
+            <td><%= hit[1] %></td>
+            <td><button class="add-<%= playlistable_item.name %>-button" id="<%= %Q|#{playlistable_item.name}-#{hit[0]}| %>">Add</button></td>
           </tr>
         <% end %>
       </tbody>
     </table>
-    <%= will_paginate @objects.hits -%>
+    <%= will_paginate @objects, :previous_label => 'Prev', :next_label => 'Next' %>
+    <div class="cl"></div>
   <% end %>
 </div>
 </div>

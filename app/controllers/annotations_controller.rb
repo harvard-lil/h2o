@@ -2,12 +2,11 @@ class AnnotationsController < BaseController
 
   cache_sweeper :annotation_sweeper
 
-  before_filter :require_user, :except => [:show, :annotation_preview, :embedded_pager]
+  before_filter :require_user, :except => [:show, :embedded_pager]
   before_filter :load_annotation, :only => [:show, :edit, :update, :destroy, :metadata]
-  before_filter :preload_collage, :only => [:new, :create]
 
   access_control do
-    allow all, :to => [:show, :metadata, :annotation_preview, :embedded_pager]
+    allow all, :to => [:show, :metadata, :embedded_pager]
     allow :superadmin
     allow :admin
     allow :collages_admin
@@ -16,10 +15,6 @@ class AnnotationsController < BaseController
 
   def embedded_pager
     super Annotation
-  end
-
-  def annotation_preview
-    render :text => Annotation.format_content(params[:preview]), :layout => false
   end
 
   def metadata
@@ -126,9 +121,4 @@ class AnnotationsController < BaseController
     @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id], :include => [:layers])
     @collage = @annotation.collage
   end
-
-  def preload_collage
-    @collage = Collage.find(params[:collage_id] || params[:annotation][:collage_id])
-  end
-
 end

@@ -24,7 +24,11 @@ class PlaylistItem < ActiveRecord::Base
   belongs_to :playlist_item_parent, :class_name => 'PlaylistItem'
 
   def display_name
-    (resource_item.respond_to?(:title)) ? resource_item.title : resource_item.name
+    if !resource_item.nil?
+      (resource_item.respond_to?(:title)) ? resource_item.title : resource_item.name
+    else
+      ''
+    end
   end
 
   alias :to_s :display_name
@@ -40,13 +44,10 @@ class PlaylistItem < ActiveRecord::Base
     ]
 
   def self.playlistable_classes
-    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 
-      model_name = Pathname(file).basename.to_s
-      model_name = model_name[0..(model_name.length - 4)]
-      model_name.camelize.constantize
-    end
+    Dir['app/models/*.rb'].map {|f| File.basename(f, '.*').camelize.constantize }
+
     # Responds to the annotatable class method with true.
-    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:playlistable?) && m.send(:playlistable?)}.sort{|a,b|a.class_name <=> b.class_name}
+    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:playlistable?) && m.send(:playlistable?)}.sort{ |a,b| a.to_s <=> b.to_s }
   end
 
   def object_type

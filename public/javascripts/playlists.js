@@ -129,7 +129,7 @@ jQuery.extend({
                 data: {
                     keywords: jQuery('#' + itemName + '-keyword-search').val()
                 },
-                dataType: 'script',
+                dataType: 'html',
                 success: function(html){
                		jQuery.hideGlobalSpinnerNode();
                     jQuery('.h2o-playlistable-' + itemName).html(html);
@@ -146,7 +146,7 @@ jQuery.extend({
                 e.preventDefault();
                 jQuery.ajax({
                     type: 'GET',
-                    dataType: 'script',
+                    dataType: 'html',
                     beforeSend: function(){
                			jQuery.showGlobalSpinnerNode();
                     },

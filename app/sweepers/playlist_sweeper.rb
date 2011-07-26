@@ -5,16 +5,17 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 
   def playlist_clear(record)
     Rails.cache.delete_matched(%r{playlists-search*})
+    Rails.cache.delete_matched(%r{playlists-embedded-search*})
 
     expire_fragment "playlist-all-tags"
     expire_fragment "playlist-#{record.id}-index"
     expire_fragment "playlist-#{record.id}-tags"
     expire_page :controller => :playlists, :action => :show, :id => record.id
-    File.unlink("#{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf")
+    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf")
 
     record.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
-      File.unlink("#{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf")
+      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf")
     end
 
     users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
@@ -34,11 +35,11 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     record = Playlist.find(params[:id])
 
     expire_page :controller => :playlists, :action => :show, :id => record.id
-    File.unlink("#{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf")
+    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf")
 
     record.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
-      File.unlink("#{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf")
+      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf")
     end
   end
 end

@@ -9,20 +9,34 @@ class BaseController < ApplicationController
   end
 
   def embedded_pager(model = Case)
-    @objects = Sunspot.new_search(model)
-    @objects.build do
-      unless params[:keywords].blank?
+    params[:page] ||= 1
+
+    if params[:keywords]
+      obj = Sunspot.new_search(model)
+      obj.build do
         keywords params[:keywords]
+        paginate :page => params[:page], :per_page => 25 || nil
+        order_by :display_name, :asc
       end
-      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      order_by :display_name, :asc
+      obj.execute!
+      t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name)]); arr }
+      @objects = WillPaginate::Collection.create(params[:page], 25, obj.total) { |pager| pager.replace(t) } 
+    else
+      @objects = Rails.cache.fetch("#{model.to_s.tableize}-embedded-search-#{params[:page]}--display_name") do
+        obj = Sunspot.new_search(model)
+        obj.build do
+          paginate :page => params[:page], :per_page => 25 || nil
+          order_by :display_name, :asc
+        end
+        obj.execute!
+        t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name)]); arr }
+        { :results => t, :count => obj.total }
+      end
+      @objects = WillPaginate::Collection.create(params[:page], 25, @objects[:count]) { |pager| pager.replace(@objects[:results]) }
     end
 
-    @objects.execute!
     respond_to do |format|
       format.html { render :partial => 'shared/playlistable_item', :object => model }
-      format.js { render :partial => 'shared/playlistable_item', :object => model }
-      format.xml { render :xml => @objects }
     end
   end
 

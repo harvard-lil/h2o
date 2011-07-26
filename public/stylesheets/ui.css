@@ -98,15 +98,21 @@ font-weight: bold; font-size: 11px; }
 .breadcrumbs .filter { float: left; display: inline; }
 .breadcrumbs .filter p { font-size:12px; line-height:24px; color:#333; }
 .breadcrumbs .filter p a { font-size:9px; text-transform:uppercase; font-weight:bold; color:#69c; }
+
+.playlistable-list table { clear: both; width: 100%; }
+.playlistable-list table td { padding-bottom: 4px; }
+.playlistable-list .pagination { padding: 10px 0px; }
+
+/* Important: .pagination applies to embedded pagers as well as list index pages */
 .breadcrumbs .pagination { float: right; display: inline; padding:0px 6px 0 0; }
-.breadcrumbs .pagination span { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; }
-.breadcrumbs .pagination a { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; text-decoration:underline; }
-.breadcrumbs .pagination a:hover,
-.breadcrumbs .paginatio a.active { color: #999; }
-.breadcrumbs .pagination .next_page { background:none; margin-right:0;
+.pagination span { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; }
+.pagination a { float: left; display: inline; font-size:10px; line-height:13px; padding-right:7px; margin-right:7px; background:url(/images/ui/pagination-divider.png) right 3px no-repeat; font-weight:bold; text-decoration:underline; }
+.pagination a:hover,
+.paginatio a.active { color: #999; }
+.pagination .next_page { background:none; margin-right:0;
   background:url(/images/ui/app_icons.png) 0px -110px; text-indent: -4000px; width: 7px;
   height: 9px; padding: 0px; margin-top: 2px; }
-.breadcrumbs .pagination .prev_page { background:url(/images/ui/app_icons.png) -7px -110px; text-indent: -4000px; 
+.pagination .prev_page { background:url(/images/ui/app_icons.png) -7px -110px; text-indent: -4000px; 
   width: 7px; height: 9px; padding: 0px; margin-top: 2px; }
 
 #results { display:block; padding:0 12px 0 8px; position:relative; z-index:1; height:100%; }
@@ -341,7 +347,7 @@ background: #FFF; z-index: 1000; width: 642px; box-shadow:#777 -4px 10px 20px;
 .standard-form .border { border-top: 1px solid #d9d9d9; width: 100%; display: block; height: 1px; margin: 20px 0px; }
 .standard-form .button { background: url(/images/ui/repeat_bg.png) 0px -49px repeat; border-radius: 4px;
 -moz-border-radius: 4px; -webkit-border-radius: 4px; border: 1px solid #dbdbdb; 
-color: #4e9ed1; padding: 5px 11px; }
+color: #4e9ed1; padding: 4px 11px; }
 .standard-form label { text-transform: uppercase; font-size: 9px; font-weight: bold; display: block; }
 .standard-form input.text { margin-bottom: 15px; background: #FFF; border: 1px solid #999; padding: 2px; }
 .standard-form #forgot { display: inline-block; margin: 10px 0px 20px 0px; text-align: center; }

@@ -82,6 +82,12 @@ font-size: 9px; font-weight: bold; }
 #playlist .contain_playlists,
 #playlist .collage_count { margin-top: 30px; }
 
+#url_review { -moz-border-radius: 4px; border: 1px solid #8B9EB3;
+  background: url(/images/ui/repeat_bg.png) repeat scroll 0px -21px;
+  padding: 5px 10px; color: #FFF; font-weight: bold; text-decoration:none; 
+  display: inline-block; margin-top: 10px; font-size: 11px; }
+#url_review:hover { color: #797979; background-color: #FFF; }
+
 /* Hiding while page is loading */
 #playlist .description .toolbar ul li.requires_logged_in { opacity: 0.0; }
 .requires_logged_in { opacity: 0.0; }

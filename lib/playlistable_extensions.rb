@@ -14,11 +14,11 @@ module PlaylistableExtensions
         true
       end
       def playlisting_name
-        case class_name
+        case self.to_s
         when "QuestionInstance"
           "Question Tool"
         else
-          class_name.titleize
+          self.to_s.titleize
         end
       end
     end

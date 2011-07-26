@@ -460,7 +460,6 @@ jQuery.extend({
                   success: function(html){
                     jQuery.hideGlobalSpinnerNode();
                     jQuery('#annotation-form').html(html);
-                    jQuery.updateAnnotationPreview(collageId);
                     jQuery('#annotation-form').dialog({
                       bgiframe: true,
                       minWidth: 450,
@@ -549,23 +548,6 @@ jQuery.extend({
     });
   },
 
-  updateAnnotationPreview: function(collageId){
-    jQuery("#annotation_annotation").observeField(5,function(){
-      jQuery.ajax({
-        cache: false,
-        type: 'POST',
-        url: jQuery.rootPath() + 'annotations/annotation_preview',
-        data: {
-          preview: jQuery('#annotation_annotation').val(),
-          collage_id: collageId
-        },
-        success: function(html){
-          jQuery('#annotation_preview').html(html);
-        }
-      });
-    });
-  },
-
   wordEvent: function(e){
     var el = jQuery(this);
     if(e.type == 'mouseover'){
@@ -626,7 +608,6 @@ jQuery.extend({
                   jQuery.submitAnnotation();
                 }
               });
-              jQuery.updateAnnotationPreview(collageId);
           },
           error: function(xhr){
             jQuery.hideGlobalSpinnerNode();
