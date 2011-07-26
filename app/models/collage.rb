@@ -136,7 +136,11 @@ class Collage < ActiveRecord::Base
   def annotatable_content
     doc = Nokogiri::HTML.parse(self.content)
     annotation_rules = []
-    self.annotations.each do|ann|
+
+    #Note: This is for optimization
+    annotations = Annotation.find_all_by_collage_id(self.id, :include => :layers)
+
+    annotations.each do|ann|
       annotation_rules << {
         :start => ann.annotation_start_numeral.to_i, 
         :end => ann.annotation_end_numeral.to_i, 

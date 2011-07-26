@@ -39,6 +39,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
     item_collages = ItemCollage.find(:all, :conditions => { :actual_object_id => 716 }, :select => :id)
     PlaylistItem.find(:all, :conditions => { :resource_item_type => 'ItemCollage', :resource_item_id => item_collages }, :select => :playlist_id).each do |pi|
       expire_page :controller => :playlists, :action => :show, :id => pi.playlist_id
+      File.unlink("#{RAILS_ROOT}/tmp/cache/playlist_#{p.playlist_id}.pdf")
     end
   end
 end

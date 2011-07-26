@@ -1,0 +1,11 @@
+<p><%= collage.description %></p>
+<div class="collage-content" id="collage<%= collage.id %>" data-id="<%= collage.id %>">
+<% cache "collage-#{collage.id}-annotatable-content" do -%>
+<article>
+<%= raw collage.annotatable_content %>
+</article>
+<% end -%>
+</div>
+<script type="text/javascript">
+var collage_data_<%= collage.id %> = <%= raw collage.readable_state || '{}' %>;
+</script>

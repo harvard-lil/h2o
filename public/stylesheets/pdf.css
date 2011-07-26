@@ -10,10 +10,23 @@ background: url(/images/ui/asterisk.jpg) 2px 4px no-repeat; text-indent: 10px; }
 .collage-content .annotation-asterisk { display: none; }
 .collage-content .paragraph-numbering { position: absolute; left: 10px; }
 
+.playlists .collage-content article { position: relative; }
+.playlists .collage-content article .paragraph-numbering { left: -50px; }
+
 #playlist { padding: 0px; }
 #playlist .details { padding-bottom: 10px; }
 #playlist ul { list-style-type: none; }
 #playlist .playlists .playlists { display: block; }
-#playlist .playlist .data { padding-right: 300px; }
 #playlist .listitem { padding-bottom: 10px; }
 #playlist .playlist .number { border: 1px solid #E0E1E1; }
+
+.playlist p { margin-bottom: 10px; }
+.playlist h3 { margin-bottom: 10px; font-size: 18px; }
+.playlist .icon-type { float:left; display:inline;
+  margin: 0px 3px; width:18px; height:18px; background-image: url(/images/ui/app_icons.png); }
+.playlist .icon-type-itemdefault { background-position: -72px -92px; }
+.playlist .icon-type-itemcollage { background-position: 0px -92px; }
+.playlist .icon-type-itemquestion { background-position: -36px -92px; }
+.playlist .icon-type-itemplaylist { background-position: -18px -92px; }
+.playlist .icon-type-itemcase { background-position: -54px -92px; }
+.playlist .icon-type-itemannotation { background-position: -72px -92px; }

@@ -29,7 +29,9 @@
 		<div class="cl"></div>
 		<% cache "case-#{@case.id}-detail" do -%>
       	<p>Decision date: <%= @case.decision_date %></p>
+      	<% unless @case.author.blank? %>
       	<p>Author: <%= @case.author %></p>
+        <% end -%>
       	<% unless @case.case_citations.blank? %>
         <p>Citations: <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
       	<% end %>

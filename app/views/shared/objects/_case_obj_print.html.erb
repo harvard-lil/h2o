@@ -1,0 +1,15 @@
+<% cache "case-#{case_obj.id}-detail" do -%> 
+<p>Decision date: <%= case_obj.decision_date %></p>
+<% unless case_obj.author.blank? -%>
+<p>Author: <%= case_obj.author %></p>
+<% end -%>
+<% unless case_obj.case_citations.blank? -%>
+<p>Citations: <%= case_obj.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
+<% end -%>
+<% unless case_obj.case_docket_numbers.blank? -%>
+<p>Docket Numbers: <%= case_obj.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></p> 
+<% end -%>
+<% unless case_obj.case_jurisdiction.blank? -%>
+<p>Jurisdiction: <%= case_obj.case_jurisdiction.display_name %></p> 
+<% end -%>
+<% end -%>

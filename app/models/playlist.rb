@@ -86,8 +86,8 @@ class Playlist < ActiveRecord::Base
     shown_word_count = 0
     total_word_count = 0
     collages.each do |c|
-      shown_word_count += c.words_shown
-      total_word_count += (c.word_count-1) 
+      shown_word_count += c.words_shown.to_i
+      total_word_count += (c.word_count.to_i-1) 
     end
     [shown_word_count, total_word_count]
   end

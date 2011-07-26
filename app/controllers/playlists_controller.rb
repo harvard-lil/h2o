@@ -109,15 +109,17 @@ class PlaylistsController < BaseController
       end
       format.xml  { render :xml => @playlist }
       format.pdf do
-        url = request.url.gsub(/\.pdf.*/, "/export")
-        file = Tempfile.new("playlist.pdf")
-        # -g prints to greyscale
-        cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-right \"#{@playlist.name}: Page [page] of [toPage]\" #{url} - > #{file.path}"
-        system(cmd)
-        file.close
-        send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
-        #file.unlink
-        #Removing saved state after used
+        if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf")
+          send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
+        else
+          url = request.url.gsub(/\.pdf.*/, "/export")
+          file = File.new("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf", "w+")
+          # -g prints to greyscale
+          cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/footer.html #{url} - > #{file.path}"
+          system(cmd)
+          file.close
+          send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
+        end
       end
     end
   end
