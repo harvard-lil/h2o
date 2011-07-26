@@ -27,6 +27,7 @@ jQuery.extend({
       className: "jsb", replaceInvisible: true 
     }).change(function() {
       var element = jQuery(this);
+      jQuery('.icon-type').css('margin-top', (parseFloat(element.val()) - 8)/2 + 'px');
       jQuery('#playlist .details h5').css('font-size', element.val() + 'px');
       jQuery('#playlist .details #description').css('font-size', (parseFloat(element.val()) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', element.val() + 'px');

@@ -46,11 +46,11 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #logo { float: left; display: inline; padding-right:9px; }
 #logo a { float: left; display: inline; width:71px; height:71px; background:url(/images/ui/logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 #playlists-logo { float: left; display: inline; }
-#playlists-logo a { float: left; display: inline; width:157px; height:26px; background:url(/images/ui/app_icons.png) 0px -151px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 22px; }
+#playlists-logo a { float: left; display: inline; width:157px; height:26px; background:url(/images/ui/app_icons.png) 0px -151px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
 #collage-logo { float: left; display: inline; }
 #collage-logo a { float: left; display: inline; width:143px; height:32px; background:url(/images/ui/app_icons.png) 0px -210px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
 #cases-logo { float: left; display: inline; }
-#cases-logo a { float: left; display: inline; width:112px; height:30px; background:url(/images/ui/app_icons.png) 0px -177px; font-size: 0; line-height: 0; text-indent: -4000px;; margin-top: 20px; }
+#cases-logo a { float: left; display: inline; width:112px; height:30px; background:url(/images/ui/app_icons.png) 0px -177px; font-size: 0; line-height: 0; text-indent: -4000px;; margin-top: 17px; }
 
 #search { float: right; display: inline; padding:18px 14px 0 0; position:relative; }
 #search ul { list-style:none; position:relative; z-index:2; }
@@ -311,8 +311,9 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 #my_bookmarks, #bookmarks { display: none; }
 #bookmarks .playlist .data .dd-open { left: -15px; }
 
-.playlist .data .icon-type { float:left; display:inline;
-  margin-left:5px; width:18px; height:18px; background-image: url(/images/ui/app_icons.png); }
+.playlist .data .icon-type { display: inline-block;
+  margin: 1px 0px 0px 2px; width:18px;
+  height:18px; background-image: url(/images/ui/app_icons.png); top: 0px; }
 .playlist .data .icon-type-itemdefault { background-position: -72px -92px; }
 .playlist .data .icon-type-itemcollage { background-position: 0px -92px; }
 .playlist .data .icon-type-itemquestion { background-position: -36px -92px; }
@@ -373,6 +374,7 @@ color: #4e9ed1; padding: 4px 11px; }
 .playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
 .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
 .playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; float:left; }
+.playlist .data h3 a { position: relative; top: -2px; }
 .playlist .data p { float: left; display: inline; font-size:10px; line-height:1.6em; clear:both; }
 
 .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
