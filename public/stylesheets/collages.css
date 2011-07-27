@@ -43,6 +43,8 @@
 
 #collage article .annotation-content { color: #6b933d; line-height: 1.5;
 display: none; padding: 0px 0px 0px 3px; font-style: italic; }
+#collage article .annotation-content strong { font-weight: bold; }
+#collage article .annotation-content em { text-decoration: underline; }
 #collage article .annotation-ellipsis { padding: 0px 5px; display: none; }
 #collage article .ann-details { display: none; }
 
@@ -141,6 +143,7 @@ font-size: 9px; font-weight: bold; }
 .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .edit_highlight { background: #eef9d9; }
 .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
+.annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
 .unlayered-ellipsis { padding-right: 10px; display: none; }
 .default-hidden { color: #999; }
 .unlayered-control-start { display: none; width: 3px; background-color: #999; height: 16px; margin: 0px 3px 0px 2px; position: relative; top: 2px; }
@@ -178,9 +181,8 @@ font-size: 9px; font-weight: bold; }
 form.formtastic fieldset > ol > li.text textarea.markItUpEditor { width: 100%; }
 .textile .markItUpEditor { background: #FFF url(/images/ui/bg-editor-textile.png) repeat-x; border: none; }
 .textile .markItUp .markItUpButton1 a { background-image:url(/javascripts/markitup/sets/textile/images/bold.png); }
-.textile .markItUp .markItUpButton2 a { background-image:url(/javascripts/markitup/sets/textile/images/italic.png); }
-.textile .markItUp .markItUpButton3 a { background-image:url(/javascripts/markitup/sets/textile/images/stroke.png); }
-.textile .markItUp .markItUpButton4 a { background-image:url(/javascripts/markitup/sets/textile/images/link.png); }
+.textile .markItUp .markItUpButton2 a { background-image:url(/images/ui/underline.png); }
+.textile .markItUp .markItUpButton3 a { background-image:url(/javascripts/markitup/sets/textile/images/link.png); }
 
 /* Annotation Edit */
 #layer_appear { font-size: 9px; font-weight: bold; margin-bottom: 5px; }

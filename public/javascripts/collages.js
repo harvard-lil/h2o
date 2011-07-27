@@ -8,6 +8,17 @@ var hover_state = {};
 var is_owner = false;
 
 jQuery.extend({
+  addCommas: function(str) {
+    str += '';
+    x = str.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while(rgx.test(x1)) {
+      x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+  },
   initializeFontChange: function() {  
     jQuery('.font-size-popup select').selectbox({
       className: "jsb", replaceInvisible: true 
@@ -247,16 +258,18 @@ jQuery.extend({
     jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
   },
   recordCollageState: function(data) {
+    var words_shown = jQuery('#collage article tt:visible').size();
     jQuery.ajax({
       type: 'POST',
       cache: false,
       data: {
         readable_state: data,
-        words_shown: jQuery('#collage article tt:visible').size()
+        words_shown: words_shown
       },
       url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/save_readable_state',
       success: function(results){
-        jQuery('#autosave').html('saved at ' + results.time).show().fadeOut(5000); 
+        jQuery('#autosave').html('saved at ' + results.time).show().fadeOut(5000);
+        jQuery('#word_count').html('Number of visible words: ' + jQuery.addCommas(words_shown) + ' out of ' + jQuery.addCommas(jQuery('#collage article tt').size())); 
       }
     });
   },
@@ -286,6 +299,7 @@ jQuery.extend({
   listenToRecordCollageState: function() {
     setInterval(function(i) {
       var data = jQuery.retrieveState();  
+      //if(jQuery('#edit-show').html() == 'READ' && (JSON.stringify(data) != JSON.stringify(last_data))) {
       if(JSON.stringify(data) != JSON.stringify(last_data)) {
         last_data = data;
         jQuery.recordCollageState(JSON.stringify(data));
@@ -466,11 +480,6 @@ jQuery.extend({
                       width: 450,
                       modal: true,
                       title: 'Edit Annotation',
-                      open: function() {
-                        jQuery(".layer_check label").each(function(i, el) {
-                          jQuery(el).css('background', '#' + layer_info[jQuery(el).attr('class')].hex);
-                        });
-                      },
                       buttons: {
                         'Save': function(){
                           var values = new Array();

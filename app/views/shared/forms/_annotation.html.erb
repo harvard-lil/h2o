@@ -16,10 +16,10 @@
     <% if @annotation.layers.any? -%>
     <h5 id="layer_appear">APPEARS IN LAYER:</h5>
     <% end -%>
-    <% @annotation.layers.each do |l| %>
+    <% @annotation.collage.layers.each do |l| %>
     <li class="layer_check">
-      <input type="checkbox" checked="checked" data-value="<%= l.name %>" />
-      <label class="<%= "l#{l.id}" %>"><%= l.name %></label>
+      <input type="checkbox" <%= raw checked="checked" if @annotation.layers.include?(l) %> data-value="<%= l.name %>" />
+      <label style="background-color:#<%= cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>"><%= l.name %></label>
     </li>
     <% end %>
     <li id="new_layers">

@@ -257,7 +257,7 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 #bcases #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
 #bcases #results .sort .jsb .jsb-list .jsb-item { color: #930102; }
-#bcases #results .sort .jsb .jsb-currentItem { background-position: -142px -69px; }
+#bcases #results .sort .jsb .jsb-currentItem { background-position: -142px -99px; }
 
 #results .cases_details { font-size: 10px; }
 #results .case_collages { color: #669500; text-transform: uppercase; }
