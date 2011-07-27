@@ -34,7 +34,8 @@ class Annotation < ActiveRecord::Base
   end
 
   def formatted_annotation_content
-    Annotation.format_content(annotation)
+    t = Annotation.format_content(annotation)
+    t.gsub(/\n/, '').gsub(/<p>/, '').gsub(/<\/p>/, '<br /><br />').gsub(/<br \/><br \/>$/, '')
   end
 
   validates_presence_of :annotation_start, :annotation_end
