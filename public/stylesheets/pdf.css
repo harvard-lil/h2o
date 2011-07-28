@@ -19,6 +19,8 @@ background: url(/images/ui/asterisk.jpg) 2px 4px no-repeat; text-indent: 10px; }
 #playlist .playlists .playlists { display: block; }
 #playlist .listitem { padding-bottom: 10px; }
 #playlist .playlist .number { border: 1px solid #E0E1E1; }
+#playlist .description h1 { font-size: 1.5em; }
+#playlist .details h2 { font-size: 0.83em; }
 
 .playlist p { margin-bottom: 10px; }
 .playlist h3 { margin-bottom: 10px; font-size: 18px; }

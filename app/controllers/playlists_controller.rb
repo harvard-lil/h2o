@@ -115,7 +115,7 @@ class PlaylistsController < BaseController
           url = request.url.gsub(/\.pdf.*/, "/export")
           file = File.new("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf", "w+")
           # -g prints to greyscale
-          cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/footer.html #{url} - > #{file.path}"
+          cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html #{url} - > #{file.path}"
           system(cmd)
           file.close
           send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
