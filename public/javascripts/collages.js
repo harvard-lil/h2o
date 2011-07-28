@@ -6,6 +6,7 @@ var last_annotation = 0;
 var highlight_history = {};
 var hover_state = {};
 var is_owner = false;
+var annotation_position = 0;
 
 jQuery.extend({
   addCommas: function(str) {
@@ -346,16 +347,20 @@ jQuery.extend({
        jQuery.unObserveWords();
     }
     jQuery('article').css('opacity', 1.0);
-  },
+    if(jQuery.cookie('scroll_pos')) {
+      jQuery(window).scrollTop(jQuery.cookie('scroll_pos'));
+      jQuery.cookie('scroll_pos', null);
+    }
+  }, 
 
   submitAnnotation: function(){
-    var collageId = jQuery.getItemId();
     jQuery('#annotation-form form').ajaxSubmit({
       error: function(xhr){
         jQuery.hideGlobalSpinnerNode();
         jQuery('#new-annotation-error').show().append(xhr.responseText);
       },
       beforeSend: function(){
+        jQuery.cookie('scroll_pos', annotation_position);
         jQuery.showGlobalSpinnerNode();
         jQuery('div.ajax-error').html('').hide();
         jQuery('#new-annotation-error').html('').hide();
@@ -363,7 +368,7 @@ jQuery.extend({
       success: function(response){
         jQuery.hideGlobalSpinnerNode();
         jQuery('#annotation-form').dialog('close');
-        document.location = jQuery.rootPath() + 'collages/' + collageId;
+        document.location.reload(true);
       }
     });
   },
@@ -464,6 +469,7 @@ jQuery.extend({
                 }
               },
               Edit: function(){
+                annotation_position = jQuery(window).scrollTop();
                 jQuery(this).dialog('close');
                 jQuery.ajax({
                   type: 'GET',
@@ -505,18 +511,12 @@ jQuery.extend({
                     });
                     jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
 
-                    /*                    jQuery(document).bind('keypress','ctrl+shift+k',
-                      function(e){
-                      alert('pressed!');
-                      jQuery.submitAnnotation();
+                    jQuery('#annotation_layer_list').keypress(function(e){
+                      if(e.keyCode == '13'){
+                        e.preventDefault();
+                        jQuery.submitAnnotation();
                       }
-                      ); */
-                      jQuery('#annotation_layer_list').keypress(function(e){
-                        if(e.keyCode == '13'){
-                          e.preventDefault();
-                          jQuery.submitAnnotation();
-                        }
-                      });
+                    });
                   }
                 });
               }
@@ -571,6 +571,7 @@ jQuery.extend({
     if(e.type == 'mouseout'){
       el.removeClass('annotation_start_highlight');
     } else if(e.type == 'click'){
+      annotation_position = jQuery(window).scrollTop();
       e.preventDefault();
       if(new_annotation_start != '') {
         new_annotation_end = el.attr('id');
