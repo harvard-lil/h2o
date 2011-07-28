@@ -3,7 +3,7 @@
 #collage .description { display:block; border:1px solid #a6db31; background: #b1e35c url(/images/ui/green_bg.png) 0px 0px repeat-x; line-height:30px; position:relative; z-index:2; }
 #collage .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #collage .description { padding-left:73px; }
-#collage .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; width: 450px; }
+#collage .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; width: 400px; }
 #collage .description .toolbar { float:right; display:inline; visibility: hidden; }
 #collage .description .toolbar ul { list-style:none; }
 #collage .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #d5f1a6; }

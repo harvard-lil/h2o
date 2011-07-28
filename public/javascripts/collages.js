@@ -168,7 +168,12 @@ jQuery.extend({
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden').css('color', '#999');
         jQuery('.unlayered-control-start').css('width', '3px');
-        jQuery('.unlayered-control-end').css('width', '16px');
+        jQuery('.unlayered-control-end').css('width', '9px');
+
+        /* Forcing an autosave to save in READ mode */
+        var data = jQuery.retrieveState();  
+        last_data = data;
+        jQuery.recordCollageState(JSON.stringify(data), false);
       } else {
         el.html("READ");  
         jQuery.observeWords();
@@ -257,7 +262,7 @@ jQuery.extend({
     var last = highlight_history[aid].length - 1;
     jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
   },
-  recordCollageState: function(data) {
+  recordCollageState: function(data, show_message) {
     var words_shown = jQuery('#collage article tt:visible').size();
     jQuery.ajax({
       type: 'POST',
@@ -268,8 +273,10 @@ jQuery.extend({
       },
       url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/save_readable_state',
       success: function(results){
-        jQuery('#autosave').html('saved at ' + results.time).show().fadeOut(5000);
-        jQuery('#word_count').html('Number of visible words: ' + jQuery.addCommas(words_shown) + ' out of ' + jQuery.addCommas(jQuery('#collage article tt').size())); 
+        if(show_message) {
+          jQuery('#autosave').html('saved at ' + results.time).show().fadeOut(5000);
+          jQuery('#word_count').html('Number of visible words: ' + jQuery.addCommas(words_shown) + ' out of ' + jQuery.addCommas(jQuery('#collage article tt').size())); 
+        }
       }
     });
   },
@@ -299,10 +306,9 @@ jQuery.extend({
   listenToRecordCollageState: function() {
     setInterval(function(i) {
       var data = jQuery.retrieveState();  
-      //if(jQuery('#edit-show').html() == 'READ' && (JSON.stringify(data) != JSON.stringify(last_data))) {
-      if(JSON.stringify(data) != JSON.stringify(last_data)) {
+      if(jQuery('#edit-show').html() == 'READ' && (JSON.stringify(data) != JSON.stringify(last_data))) {
         last_data = data;
-        jQuery.recordCollageState(JSON.stringify(data));
+        jQuery.recordCollageState(JSON.stringify(data), true);
       }
     }, 1000); 
   },
@@ -320,8 +326,8 @@ jQuery.extend({
           jQuery('tt' + i).css('display', 'inline');
           jQuery('p' + i + ',center' + i).css('display', 'block');
           //Remove unlayered collapse links here
-          var id = i.match(/\d+/).toString();
-          jQuery('.unlayered-control-' + id).remove();
+          //var id = i.match(/\d+/).toString();
+          //jQuery('.unlayered-control-' + id).addClass('default-control-hidden');
         }
       } else {
         jQuery(i).css('display', e);
@@ -695,5 +701,9 @@ jQuery(document).ready(function(){
       jQuery('#collage-stats-popup').slideToggle('fast');
       return false;
     });
+    if(document.location.hash == '#test_fixed') {
+      jQuery('#fixed_test').css({ position: "fixed", width: 968 });
+      jQuery('#collage article').css("padding-top", (jQuery('#fixed_test').height() + 13) + 'px');
+    }
   }
 });

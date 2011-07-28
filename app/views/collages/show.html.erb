@@ -11,6 +11,7 @@ Your annotation will start here. Please click another word to set the end point.
 </div>
 
 <div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
+  <div id="fixed_test">
 	<hgroup class="description">
 		<h2 class="collage-id"><%= @collage.name %></h2>
 		<aside class="toolbar">
@@ -155,6 +156,7 @@ Your annotation will start here. Please click another word to set the end point.
 			</div>
 		<% end -%>
 	</div>
+  </div> <!-- end fixed_test -->
 
 	<div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
 	<% cache("collage-#{@collage.id}-annotatable-content") do %>
