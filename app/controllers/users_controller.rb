@@ -55,15 +55,15 @@ class UsersController < ApplicationController
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'
 
-    if !request.xhr? || params[:is_ajax] == 'playlists'
+    if !request.xhr? || params[:ajax_region] == 'playlists'
       @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
     end
 
-    if !request.xhr? || params[:is_ajax] == 'collages'
+    if !request.xhr? || params[:ajax_region] == 'collages'
       @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
     end
 
-    if !request.xhr? || params[:is_ajax] == 'cases'
+    if !request.xhr? || params[:ajax_region] == 'cases'
        @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
     end
 
@@ -86,7 +86,7 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html do
         if request.xhr?
-          render :partial => "#{params[:is_ajax]}/#{params[:is_ajax]}_block"
+          render :partial => "#{params[:ajax_region]}/#{params[:ajax_region]}_block"
         else
           render 'show'
         end

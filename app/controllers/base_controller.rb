@@ -58,7 +58,7 @@ class BaseController < ApplicationController
 	  params[:sort] = "display_name"
 	end
 
-    if !request.xhr? || params[:is_ajax] == 'playlists'
+    if !request.xhr? || params[:ajax_region] == 'playlists'
       @playlists = Sunspot.new_search(Playlist)
 	  @playlists.build do
 	    if params.has_key?(:keywords)
@@ -71,7 +71,7 @@ class BaseController < ApplicationController
 	  @playlists.execute!
 	end
 
-    if !request.xhr? || params[:is_ajax] == 'collages'
+    if !request.xhr? || params[:ajax_region] == 'collages'
 	  @collages = Sunspot.new_search(Collage)
 	  @collages.build do
 	    if params.has_key?(:keywords)
@@ -86,7 +86,7 @@ class BaseController < ApplicationController
       @collages.execute!
 	end
 
-    if !request.xhr? || params[:is_ajax] == 'cases'
+    if !request.xhr? || params[:ajax_region] == 'cases'
 	  @cases = Sunspot.new_search(Case)
 	  @cases.build do
 	    if params.has_key?(:keywords)
@@ -117,7 +117,7 @@ class BaseController < ApplicationController
 	respond_to do |format|
 	  format.html do
 	    if request.xhr?
-		  render :partial => "#{params[:is_ajax]}/#{params[:is_ajax]}_block"
+		  render :partial => "#{params[:ajax_region]}/#{params[:ajax_region]}_block"
 		else
 		  render 'search'
 		end

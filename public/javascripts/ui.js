@@ -217,11 +217,11 @@ jQuery.extend({
         jQuery('.songs > ul').each(function(i, el) {
           if(jQuery(el).css('display') != 'none') {
             region = '#' + jQuery(el).attr('id');
-            data.is_ajax = jQuery(el).attr('id').replace(/^all_/, '');
+            data.ajax_region = jQuery(el).attr('id').replace(/^all_/, '');
           }
         });
       } else {
-        data.is_ajax = jQuery.classType();
+        data.ajax_region = jQuery.classType();
       }
       data.sort = element.val();
       jQuery.listResults(element, data, region);
@@ -234,10 +234,10 @@ jQuery.extend({
        var data = {};
       var region = '#all_' + jQuery.classType();
       if(jQuery('#bbase').length || jQuery('#busers').length) {
-        data.is_ajax = element.closest('div').data('type');
+        data.ajax_region = element.closest('div').data('type');
         region = '#all_' + element.closest('div').data('type');
       } else {
-        data.is_ajax = jQuery.classType();
+        data.ajax_region = jQuery.classType();
       }
       jQuery.listResults(element, data, region);
     });

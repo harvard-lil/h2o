@@ -135,7 +135,7 @@ class ApplicationController < ActionController::Base
       if request.request_uri.match(/\?/)
         base, param_str = request.request_uri.split(/\?/) #[1]
         h = CGI::parse(param_str)
-        h.delete("is_ajax")
+        h.delete("ajax_region")
         h.each { |k, v| h[k] = v.first }
         session[:return_to] = "#{base}?#{h.to_query}"
       else
