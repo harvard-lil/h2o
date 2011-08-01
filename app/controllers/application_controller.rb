@@ -78,7 +78,7 @@ class ApplicationController < ActionController::Base
   def set_sort_lists
     @case_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
 			"decision_date" => "DECISION DATE" })
-    if params[:action] == "index"
+    if ["index", "search"].include?(params[:action])
       @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
 			"created_at" => "BY DATE",
 			"author" => "BY AUTHOR"	})

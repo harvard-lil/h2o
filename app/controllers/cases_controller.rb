@@ -47,7 +47,7 @@ class CasesController < BaseController
         end
       end
       if params[:tag]
-        with :tag_list, params[:tag]
+        with :tag_list, CGI.unescape(params[:tag])
       end
       with :public, true
       with :active, true

@@ -7,10 +7,10 @@
 		<h2><%= @case.display_name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<li><a href="#" class="link-share">Share</a></li>
+				<% if false -%><li><a href="#" class="link-share">Share</a></li><% end -%>
 				<% if current_user -%>
     			<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action' %></li>
-				<li><%= link_to "Bookmark This Case", '#', :class => 'link-bookmark bookmark-action' %></li>
+				  <li><%= link_to "Bookmark This Case", '#', :class => 'link-bookmark bookmark-action' %></li>
 				<% end -%>
 			</ul>
 		</aside>

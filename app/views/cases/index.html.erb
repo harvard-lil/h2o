@@ -12,7 +12,7 @@
 		<% elsif params[:keywords] -%>
 		<% elsif params[:tag] -%>
 		<p>
-		Cases tagged: <%= params[:tag] %> (<%= pluralize @cases.total_entries, 'Case' %> Total)
+		Cases tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @cases.total_entries, 'Case' %> Total)
 		<%= link_to "CLEAR TAG", cases_path %>
 		</p>
 		<% elsif params[:keywords] -%>

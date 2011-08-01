@@ -54,9 +54,10 @@ class BaseController < ApplicationController
   end
 
   def search
-	if !params.has_key?(:sort)
-	  params[:sort] = "display_name"
-	end
+    set_sort_lists
+	  if !params.has_key?(:sort)
+	    params[:sort] = "display_name"
+	  end
 
     if !request.xhr? || params[:ajax_region] == 'playlists'
       @playlists = Sunspot.new_search(Playlist)
