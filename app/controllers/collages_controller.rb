@@ -124,11 +124,9 @@ class CollagesController < BaseController
       format.pdf do
         url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
         file = Tempfile.new('collage.pdf')
-        #-g for greyscale
-        cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/collage_footer.html #{url} - > #{file.path}"
-        system(cmd)
+        system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/collage_footer.html #{url} - > #{file.path}")
         file.close
-        send_file file.path, :filename => "#{@collage.name}.pdf", :type => 'application/pdf'
+        send_file file.path, :filename => "#{@collage.name.gsub(/"/, '')}.pdf", :type => 'application/pdf'
         #file.unlink
         #Removing saved state after used
         ReadableState.delete(params[:state_id])

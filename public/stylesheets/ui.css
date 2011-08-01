@@ -47,8 +47,8 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #logo a { float: left; display: inline; width:71px; height:71px; background:url(/images/ui/logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
 #playlists-logo { float: left; display: inline; }
 #playlists-logo a { float: left; display: inline; width:157px; height:26px; background:url(/images/ui/app_icons.png) 0px -151px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
-#collage-logo { float: left; display: inline; }
-#collage-logo a { float: left; display: inline; width:143px; height:32px; background:url(/images/ui/app_icons.png) 0px -210px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
+.singleitem-logo { float: left; display: inline; }
+.singleitem-logo a { float: left; display: inline; width:143px; height:32px; background:url(/images/ui/app_icons.png) 0px -210px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
 #cases-logo { float: left; display: inline; }
 #cases-logo a { float: left; display: inline; width:112px; height:30px; background:url(/images/ui/app_icons.png) 0px -177px; font-size: 0; line-height: 0; text-indent: -4000px;; margin-top: 17px; }
 
@@ -401,4 +401,26 @@ h2 .bookmarked { color: #FFF; }
 .singleitem .toolbar .link-copy { background-position: -25px -39px; width: 16px; }
 .singleitem .toolbar .link-bookmark { background-position: -41px -39px; width: 18px; }
 .singleitem .toolbar .link-print { background-position: -60px -39px; width: 22px; }
+
+/* Print Container */
+.singleitem .description .toolbar ul li#print-container { position: relative; padding: 0px; }
+.singleitem .description .toolbar ul li#print-container > a { padding: 0px 8px; background-position: -167px -39px; }
+.singleitem .description .toolbar ul li .print-popup { position:absolute; left:0; z-index:2;
+  background:#fff; border: 2px solid #666; 
+  padding: 4px 9px 10px;  display:none;
+  left: -186px; background: #FFF;
+  width: 200px; border: 1px solid #6D87A2; top: 25px; }
+.singleitem .description .toolbar ul li .print-popup ul { padding-top: 0px; line-height: 17px; list-style: none; }
+.singleitem .description .toolbar ul li .print-popup ul li { padding-bottom: 3px; text-transform: uppercase; border: none; }
+.singleitem .description .toolbar ul li .print-popup ul li { padding-bottom: 3px; text-transform: uppercase; border: none; }
+.singleitem .description .toolbar ul li .print-popup ul li strong input { position: relative; top: 2px; }
+.singleitem .toolbar .print-popup ul li a { border-radius:3px; -moz-border-radius:3px;
+-webkit-border-radius:3px; -ms-border-radius:3px; -o-border-radius:3px; 
+text-decoration: none; float: left; display: inline; margin-left: 3px; 
+font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
+color: #FFF; background: url("/images/ui/repeat_bg.png") repeat scroll 0 -73px transparent;
+text-indent: 0px; width: auto; height: auto; border: 1px solid #6D87A2; }
+.singleitem .description .toolbar ul li#print-container > .btn-a-active {
+background: url(/images/ui/app_icons.png) -134px -38px; border-bottom:0;
+z-index: 100; padding: 0px 8px 1px 8px; position: relative; }
 

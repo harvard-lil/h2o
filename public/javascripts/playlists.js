@@ -2,6 +2,25 @@ var dragged_element;
 var is_owner = false;
 
 jQuery.extend({
+  initializePrintListeners: function() {
+    jQuery('.print-popup select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    });
+    jQuery("#playlist .link-print span").parent().click(function() { 
+      jQuery('.print-popup').toggle();
+      jQuery(this).toggleClass("btn-a-active");
+      return false;
+    });
+    jQuery('.print-popup a').click(function(e) {
+      e.preventDefault();
+      data = {};
+      data["text"] = jQuery('#alltext').attr('checked') ? true : false;
+      data["ann"] = jQuery('#allannotations').attr('checked') ? true : false;
+      data["size"] = jQuery('#printfontsize').val();
+      data["type"] = jQuery('#printfonttype').val();
+      document.location = jQuery(this).attr('href') + '?' + jQuery.param(data);
+    });
+  },
   observeStats: function() {
 		jQuery('#playlist-stats').click(function() {
 			jQuery(this).toggleClass("active");
@@ -202,4 +221,5 @@ jQuery(document).ready(function(){
   jQuery.observeStats();
   jQuery.observeFontChange();
   jQuery.initPlaylistItemAddControls();
+  jQuery.initializePrintListeners();
 });

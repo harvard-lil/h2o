@@ -9,7 +9,47 @@
 			<ul>
 				<li class="requires_logged_in"><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
 				<li class="requires_logged_in"><%= link_to "Bookmark This Playlist", '#', :class => "link-bookmark bookmark-action" %></li>
-				<li><%= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %></li>
+				<li id="print-container">
+          <%#= link_to 'Print', playlist_path(@playlist, :format => 'pdf'), :class => 'link-print' %>
+          <a href="#" class="link-print">
+            <span>Print</span>
+          </a>
+					<div class="popup print-popup">
+						<ul>
+							<li>
+                <strong><input type="checkbox" id="alltext" />
+								SHOW ALL TEXT</strong>
+								<div class="cl">&nbsp;</div>
+							</li>
+							<li>
+                <strong><input type="checkbox" id="allannotations" />
+								SHOW ALL ANNOTATIONS</strong>
+								<div class="cl">&nbsp;</div>
+							</li>
+							<li>
+								<strong>FONT SIZE</strong>
+                <select id="printfontsize">
+                  <option value="11">Small</option>
+                  <option value="14">Medium</option>
+                  <option value="16">Large</option>
+                  <option value="20">Extra Large</option>
+                </select>
+								<div class="cl">&nbsp;</div>
+							</li>
+							<li>
+								<strong>FONT TYPE</strong>
+                <select id="printfonttype">
+                  <option value="serif">Serif</option>
+                  <option value="sans-serif">Sans-Serif</option>
+                </select>
+								<div class="cl">&nbsp;</div>
+							</li>
+              <li>
+                <a href="<%= playlist_path(@collage, :format => 'pdf') %>" class="btn-a">DOWNLOAD</a>
+              </li>
+						</ul>
+					</div>
+        </li>
 			</ul>
 		</aside>
 		<aside class="buttons">

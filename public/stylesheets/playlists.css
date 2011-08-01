@@ -6,6 +6,7 @@
 #playlist .description .toolbar { float:right; display:inline; visibility: hidden; }
 #playlist .description .toolbar ul { list-style:none; }
 #playlist .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #f1c47e; }
+#playlist .description .toolbar ul li .print-popup ul li { padding-bottom: 3px; border: none; }
 #playlist .description .toolbar ul li img { display:block; }
 
 #playlist .details { background:#f8eddc; display:block; position:relative; padding:7px 300px 7px 80px; }
@@ -45,14 +46,17 @@
 .font-size-popup { position:absolute; left:0; z-index:100; background:#fff; 
 padding: 10px;  display:none; top: 0px; left: 0px; background: #FFF;
 width: 113px; border: 1px solid #6D87A2; top: 25px; } 
-.font-size-popup .jsb { position:relative; height:20px; z-index:1; background:#ffd5a4; border:1px solid #ed9635; float: left; display: inline; }
-.font-size-popup .jsb { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px;  }
-.font-size-popup .jsb { width:103px !important; }
-.font-size-popup .jsb .jsb-currentItem { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; background:url(/images/ui/app_icons.png) -142px -1px no-repeat; }
-.font-size-popup .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:103px; height:20px; cursor:pointer; background:url(/images/ui/transparent.gif); }
-.font-size-popup .jsb .jsb-list { position:absolute; top:20px; left:-1px; width:103px !important; background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
-.font-size-popup .jsb .jsb-list { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; display:none; }
-.font-size-popup .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; cursor:default; }
+
+.popup .jsb { position:relative; height:20px; background:#ffd5a4; border:1px solid #ed9635;
+float: left; display: inline;
+border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; width:103px !important; }
+.popup .jsb .jsb-currentItem { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; background:url(/images/ui/app_icons.png) -142px -1px no-repeat; }
+.popup .jsb .jsb-moreButton { position:absolute; top:0; left:0; width:103px; height:20px; cursor:pointer; background:url(/images/ui/transparent.gif); }
+.popup .jsb .jsb-list { position:absolute; top:20px; left:-1px; width:103px !important;
+background:#ffd5a4; border:1px solid #ed9635; overflow:auto;
+border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;-o-border-radius:4px;
+display:none; z-index: 10; }
+.popup .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#930; font-weight:bold; padding:0 8px; cursor:default; }
 
 /* Stats */
 #playlist-stats { padding: 5px 10px; border-radius:4px; -moz-border-radius:4px;

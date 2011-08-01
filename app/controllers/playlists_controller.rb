@@ -98,25 +98,23 @@ class PlaylistsController < BaseController
     add_javascripts 'playlists'
     add_stylesheets 'playlists'
 
-    @my_playlist = current_user ? current_user.playlists.include?(@playlist) || current_user.bookmark_id == @playlist.id : false
-    @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
-    (@shown_words, @total_words) = @playlist.collage_word_count
-
     respond_to do |format|
       format.html do
         @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+        @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
+        (@shown_words, @total_words) = @playlist.collage_word_count
         render 'show' # show.html.erb
       end
       format.xml  { render :xml => @playlist }
       format.pdf do
-        if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf")
-          send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
+        cgi = request.query_parameters.to_query
+        clean_cgi = CGI.escape(cgi)
+        url = request.url.gsub(/\.pdf.*/, "/export") + "?#{cgi}"
+        if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}")
+          send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
         else
-          url = request.url.gsub(/\.pdf.*/, "/export")
-          file = File.new("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf", "w+")
-          # -g prints to greyscale
-          cmd = "#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html #{url} - > #{file.path}"
-          system(cmd)
+          file = File.new("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", "w+")
+          system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html \"#{url}\" #{file.path}")
           file.close
           send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
         end

@@ -1,5 +1,5 @@
 <section class="playlists">
-	<ul class="sortable">
+	<ul>
 		<% @playlist.playlist_items.each_with_index do |item, index| -%>
 		  <%= render :partial => 'shared/objects/playlist_item_print',
 		    :locals => { :item => item,
