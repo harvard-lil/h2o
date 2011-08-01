@@ -44,6 +44,7 @@ class UsersController < ApplicationController
   end
   
   def show
+    set_sort_lists
     if params[:id] == 'create_anon'
       @user = @current_user
     else

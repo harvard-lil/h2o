@@ -23,7 +23,8 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
-  before_filter :title_select, :set_time_zone, :set_sort_lists
+  before_filter :title_select, :set_time_zone
+  before_filter :set_sort_lists, :only => :index
 
   #Switch to local time zone
   def set_time_zone
@@ -77,9 +78,14 @@ class ApplicationController < ActionController::Base
   def set_sort_lists
     @case_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
 			"decision_date" => "DECISION DATE" })
-    @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
+    if params[:action] == "index"
+      @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
 			"created_at" => "BY DATE",
 			"author" => "BY AUTHOR"	})
+    else
+      @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
+		  	"created_at" => "BY DATE"})
+    end
   end
 
   protected
