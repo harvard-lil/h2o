@@ -161,9 +161,15 @@ class Collage < ActiveRecord::Base
       annotation_rules.each do |r|
         if node_id_num == r[:start]
           span_node = Nokogiri::XML::Node.new('a', doc)
-          sclasses = ["control-divider", "annotation-control-#{r[:id]}"]
-          r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
-          span_node['class'] = sclasses.join(' ')
+          span_node['class'] = (["layered-control", "layered-control-start", "layered-control-#{r[:id]}"] +
+            r[:layer_list].map { |b| "layered-control-#{b}"}).join(' ') 
+          span_node['data-id'] = "#{r[:id]}"
+          span_node['href'] = '#'
+          node.add_previous_sibling(span_node)
+
+          span_node = Nokogiri::XML::Node.new('a', doc)
+          span_node['class'] = (["control-divider", "annotation-control-#{r[:id]}"] +
+            r[:layer_list].map { |b| "annotation-control-#{b}" }).join(' ')
           span_node['data-id'] = "#{r[:id]}"
           span_node['href'] = '#'
           node.add_previous_sibling(span_node)
@@ -171,39 +177,44 @@ class Collage < ActiveRecord::Base
         if node_id_num == r[:end]
           # If node at end of annotation, adding divider, asterisk, ellipsis and annotation
           span_node = Nokogiri::XML::Node.new('a', doc)
-          sclasses = ["arr", "control-divider", "annotation-control-#{r[:id]}"]
-          r[:layer_list].each { |l| sclasses.push("annotation-control-#{l}") }
-          span_node['class'] = sclasses.join(' ')
+          span_node['class'] = (["arr", "control-divider", "annotation-control-#{r[:id]}"] +
+            r[:layer_list].map { |b| "annotation-control-#{b}" }).join(' ')
           span_node['href'] = '#'
           span_node['data-id'] = "#{r[:id]}"
-          node.add_next_sibling(span_node)
+
+          cend_node = Nokogiri::XML::Node.new('a', doc)
+          cend_node['class'] = (["layered-control", "layered-control-end", "layered-control-#{r[:id]}"] +
+            r[:layer_list].map { |b| "layered-control-#{b}" }).join(' ')
+          cend_node['href'] = '#'
+          cend_node['data-id'] = "#{r[:id]}"
 
           ellipsis_node = Nokogiri::XML::Node.new('a', doc)
-          ellipsis_classes = [].push('annotation-ellipsis')
-          r[:layer_list].each { |l| ellipsis_classes.push("annotation-ellipsis-#{l}") }
-          ellipsis_node['class'] = ellipsis_classes.flatten.join(' ')
+          ellipsis_node['class'] = (["annotation-ellipsis"] +
+            r[:layer_list].map { |b| "annotation-ellipsis-#{b}" }).join(' ')
           ellipsis_node['id'] = "annotation-ellipsis-#{r[:id]}"
           ellipsis_node['data-id'] = "#{r[:id]}"
           ellipsis_node.inner_html = '[...]'
 
           link_node = Nokogiri::XML::Node.new('a', doc)
-          link_classes = ['annotation-asterisk', r[:layer_list]]
-          link_node['class'] = link_classes.join(' ')
+          link_node['class'] = ['annotation-asterisk', r[:layer_list]].flatten.join(' ')
           link_node['title'] = r[:layer_names] 
           link_node['id'] = "annotation-asterisk-#{r[:id]}"
           link_node['data-id'] = "#{r[:id]}"
+
           ann_node = Nokogiri::XML::Node.new('span', doc)
           ann_node['class'] = 'annotation-content'
           ann_node['id'] = "annotation-content-#{r[:id]}"
           ann_node.inner_html = r[:content]
+
+          node.add_next_sibling(ellipsis_node) 
+          ellipsis_node.add_next_sibling(cend_node)
+          cend_node.add_next_sibling(span_node)
           if r[:content] != ''
-            span_node.add_next_sibling(ellipsis_node)
-            ellipsis_node.add_next_sibling(ann_node)
+            span_node.add_next_sibling(ann_node)
             ann_node.add_next_sibling(link_node)
           else 
             link_node['class'] = "#{link_node['class']} annotation-empty"
-            node.add_next_sibling(ellipsis_node)
-            node.add_next_sibling(link_node)
+            span_node.add_next_sibling(link_node)
           end
         end
 
