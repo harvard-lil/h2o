@@ -341,11 +341,11 @@ background: #FFF; z-index: 1000; width: 642px; box-shadow:#777 -4px 10px 20px;
 -moz-box-shadow:#777 -4px 10px 20px; -webkit-box-shadow:#777 -4px 10px 20px;
 -o-box-shadow:#777 -4px 10px 20px; -ms-box-shadow:#777 -4px 10px 20px; padding: 0px; }
 .standard-form h3,
-.standard-form h2 { color: #4e9ed1; font-size: 17pt; font-weight: normal; padding-bottom: 20px; }
+.standard-form h2 { color: #4e9ed1; font-size: 16pt; font-weight: normal; padding-bottom: 20px; }
 .standard-form .errorExplanation { color: #4e9ed1; margin-bottom: 20px; }
 .standard-form .errorExplanation ul { margin-left: 20px; }
 .standard-form .left { float: left; width: 321px; padding: 25px 0px; text-align: center; }
-.standard-form .left h3 { text-align: center; width: 100%; }
+.standard-form .left h3 { text-align: center; width: 90%; padding: 0px 10px 20px 10px; }
 .standard-form .right { float: right; width: 230px; padding: 25px 46px 15px 40px; border-left: 1px solid #d9d9d9; }
 .standard-form .border { border-top: 1px solid #d9d9d9; width: 100%; display: block; height: 1px; margin: 20px 0px; }
 .standard-form .button { background: url(/images/ui/repeat_bg.png) 0px -49px repeat; border-radius: 4px;

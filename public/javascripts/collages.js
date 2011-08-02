@@ -7,6 +7,7 @@ var highlight_history = {};
 var hover_state = {};
 var is_owner = false;
 var annotation_position = 0;
+var head_offset;
 
 jQuery.extend({
   addCommas: function(str) {
@@ -702,9 +703,15 @@ jQuery(document).ready(function(){
       jQuery('#collage-stats-popup').slideToggle('fast');
       return false;
     });
-    if(document.location.hash == '#test_fixed') {
-      jQuery('#fixed_test').css({ position: "fixed", width: 968 });
-      jQuery('#collage article').css("padding-top", (jQuery('#fixed_test').height() + 13) + 'px');
-    }
+    head_offset = jQuery('#fixed_header').offset();
+    jQuery(window).scroll(function() {
+      if(jQuery(window).scrollTop() < head_offset.top) {
+        jQuery('#fixed_header').css({ position: "static", width: "auto" });
+        jQuery('#collage article').css("padding-top", '13px')
+      } else {
+        jQuery('#fixed_header').css({ position: "fixed", width: 968, top: "0px" });
+        jQuery('#collage article').css("padding-top", (jQuery('#fixed_header').height() + 30) + 'px');
+      }
+    });
   }
 });
