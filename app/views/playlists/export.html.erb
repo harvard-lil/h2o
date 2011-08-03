@@ -8,7 +8,7 @@
 			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
 		</h2>
 		<div id="description">
-			<%= @playlist.description %>
+			<%= Playlist.format_content(@playlist.description) %>
 		</div>
 	</div>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
