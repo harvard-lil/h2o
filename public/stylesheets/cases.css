@@ -2,7 +2,7 @@
 #case .description { display:block; border:1px solid #FF1A05; background: #ff4833 url(/images/ui/red_bg.png) 0px 0px repeat-x; line-height:30px; position:relative; z-index:2; }
 #case .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #case .description { padding-left:73px; }
-#case .description h2 { float:left; display:inline; font-size:15px; line-height:30px; color:#2f312e; width: 700px; }
+#case .description h2 { float:left; display:inline; font-size:15px; line-height:20px; color:#2f312e; width: 700px; padding: 5px 0px; }
 #case .description .toolbar { float:right; display:inline; visibility: hidden; }
 #case .description .toolbar ul { list-style:none; }
 #case .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #FF1A05; }
