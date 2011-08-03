@@ -98,6 +98,7 @@ color: #FFF; }
 display: inline-block; margin-left: 3px; }
 #collage-stats.active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; 
 -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px; 
+-moz-border-radius-bottomright: 0px; border-bottom-right-radius: 0px; -webkit-border-bottom-right-radius: 0px; 
 z-index: 2; position: relative; }
 #collage-stats.active strong { background: #FFF url(/images/ui/collage-hgroup-btn-active.png) right no-repeat; 
 padding-right: 10px; }

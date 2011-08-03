@@ -235,6 +235,9 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #description,
 #description_more,
 #description_less { font-size:12px; line-height:1.5em; color:#616e5c; }
+#description p,
+#description_more p,
+#description_less p { margin-bottom: 10px; }
 .link-more, 
 .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
 #description_more { display: none; }
