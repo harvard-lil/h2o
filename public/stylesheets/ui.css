@@ -49,6 +49,8 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #playlists-logo a { float: left; display: inline; width:157px; height:26px; background:url(/images/ui/app_icons.png) 0px -151px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
 .singleitem-logo { float: left; display: inline; }
 .singleitem-logo a { float: left; display: inline; width:143px; height:32px; background:url(/images/ui/app_icons.png) 0px -210px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
+#collage-logo { float: left; display: inline; }
+#collage-logo a { float: left; display: inline; width:143px; height:32px; background:url(/images/ui/app_icons.png) 0px -210px; font-size: 0; line-height: 0; text-indent: -4000px; margin-top: 20px; }
 #cases-logo { float: left; display: inline; }
 #cases-logo a { float: left; display: inline; width:112px; height:30px; background:url(/images/ui/app_icons.png) 0px -177px; font-size: 0; line-height: 0; text-indent: -4000px;; margin-top: 17px; }
 
@@ -203,7 +205,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   #home_nav #collage a { color: #95cf2b; }
     #home_nav #collage .icon_nav { background-position: 0px 0px; width: 36px; }
   #home_nav #playlist a { color: #ff9504; }
-    #home_nav #playlist .icon_nav { background-position: -110px 0px; }
+    #home_nav #playlist .icon_nav { background-position: -107px 0px; }
 
 #home_nav p { text-align: left; font-size: 10px; color: #999999; line-height: 16px; }
 #home_nav .button { font-weight: bold; border:1px solid #dbdbdb;
