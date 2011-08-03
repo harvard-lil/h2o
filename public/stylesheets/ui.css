@@ -61,13 +61,17 @@ footer { background:-moz-linear-gradient(top, #334552, #526572); background:-web
 #search ul li.btn .btn-a { float: left; display: inline; font-size:11px; line-height:28px; color:#fff; font-weight:bold; background:url(/images/ui/repeat_bg.png) 0px -21px; position:relative; z-index:2; }
 #search ul li.btn .btn-a { padding:0 11px; text-decoration:none; }
 #search ul li.btn .btn-a { border:1px solid #8b9eb3; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -ms-border-radius:4px; -o-border-radius:4px;  }
-#search ul li.btn .btn-a span { display:inline-block; padding-right:10px; background:url(/images/ui/search-btn-arrow.png) right center no-repeat; }
+#search ul li.btn .btn-a span { display:inline-block; padding-right:10px; background:url(/images/ui/search-btn-arrow.png) right -1px no-repeat; }
 #search ul li.btn .active { color:#336699; background:#fff; border:1px solid #aaafb4; border-bottom:0;  }
 #search ul li.btn .active { border-radius:0; -moz-border-radius:0; -webkit-border-radius:0; -ms-border-radius:0; -o-border-radius:0; }
 #search ul li.btn .active span {  }
+
 #search ul li.submit { padding-left:5px; }
-#search ul li.submit input { line-height:29px; padding:0 12px; font-weight:bold; color:#fff; font-size:11px; background:#647e90; border:0; cursor:pointer; height:29px;  }
-#search ul li.submit input { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -ms-border-radius:4px; -o-border-radius:4px; }
+#search ul li.submit a { line-height:28px; padding:0 12px; font-weight:bold; color:#fff; font-size:11px; background:#647e90;
+border:0; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -ms-border-radius:4px; -o-border-radius:4px; 
+display: inline-block; border: 1px solid #647e90; }
+#search ul li.submit a:hover { text-decoration: none; }
+
 #search ul li.sorter { background:#fff; margin-left:15px; padding:3px; height:24px; line-height:24px; }
 #search ul li.sorter .link-show { float: left; display: inline; width:24px; height:24px; background:url(/images/ui/sorter-show.png); font-size: 0; line-height: 0; text-indent: -4000px; }
 #search ul li.sorter .link-clear { float: left; display: inline; width:17px; background:url(/images/ui/sorter-clear.png) left center no-repeat; font-size: 0; line-height: 0; text-indent: -4000px; height:24px; }

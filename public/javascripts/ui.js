@@ -619,6 +619,10 @@ jQuery(function() {
   //jQuery('#results .song details .influence input').rating();
   //jQuery('#playlist details .influence input').rating();
 
+  jQuery('li.submit a').click(function() {
+    jQuery('form.search').submit();
+  });
+
   /* End TODO */
 
   jQuery.observeDestroyControls('');
