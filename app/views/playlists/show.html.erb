@@ -89,15 +89,15 @@
 		<% if !@playlist.description.nil? -%>
 		<% if @playlist.description.length > 500 -%>
 			<div id="description_less">
-				<%= @playlist.description[0..500] %>... <a href="#" class="link-more">MORE</a>
+				<%= Playlist.format_content(@playlist.description[0..500]) %>... <a href="#" class="link-more">MORE</a>
 			</div>
 			<div id="description_more">
-				<%= @playlist.description %> <a href="#" class="link-less">LESS</a>
+				<%= Playlist.format_content(@playlist.description) %> <a href="#" class="link-less">LESS</a>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
 			</div>
 		<% else -%>
 			<div id="description">
-				<%= @playlist.description %>
+				<%= Playlist.format_content(@playlist.description) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
 			</div>
 		<% end -%>
