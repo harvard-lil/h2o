@@ -593,6 +593,7 @@ jQuery(function() {
   
   jQuery(".playlist .data .dd").click(function() {
     jQuery(this).toggleClass('dd-closed');
+    jQuery(this).siblings('.item_description').slideToggle();
     jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
     return false;
   });
