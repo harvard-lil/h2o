@@ -51,31 +51,26 @@ jQuery.extend({
       jQuery('a.annotation-control-' + jQuery(el).data('id')).css('background', '#' + jQuery(el).data('hex'));
       jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
     });
+    jQuery('#author_edits').click(function(e) {
+      e.preventDefault();
+      if(jQuery(this).hasClass('inactive')) {
+        return;
+      }
+      last_data = original_data;
+      jQuery.loadState();
+      jQuery('.layered-control,.unlayered-control').hide();
+    });
     jQuery('#full_text').click(function(e) {
       e.preventDefault();
       var el = jQuery(this);
-      if(el.hasClass('inactive')) {
-        return;
-      }
       jQuery.showGlobalSpinnerNode();
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('article p, article center').css('display', 'block');
-        jQuery('article tt').css('display', 'inline');
-        jQuery('.annotation-ellipsis').css('display', 'none');
-        jQuery('#layers a strong').html('HIDE');
-        jQuery('#layers .shown').removeClass('shown');
-        jQuery('article .unlayered-ellipsis').css('display', 'none');
-        jQuery('article .unlayered-control').css('display', 'inline-block');
-        el.find('strong').html('REVERT');
-        if(jQuery('#edit-show').length && jQuery('#edit-show').html() == 'READ') {
-          el.addClass('inactive');
-        }
-      } else {
-        last_data = original_data;
-        jQuery.loadState();
-        jQuery('.layered-control,.unlayered-control').hide();
-        el.find('strong').html('SHOW');
-      }
+      jQuery('article p, article center').css('display', 'block');
+      jQuery('article tt').css('display', 'inline');
+      jQuery('.annotation-ellipsis').css('display', 'none');
+      jQuery('#layers a strong').html('HIDE');
+      jQuery('#layers .shown').removeClass('shown');
+      jQuery('article .unlayered-ellipsis').css('display', 'none');
+      jQuery('article .unlayered-control').css('display', 'inline-block');
       jQuery.hideGlobalSpinnerNode();
     });
 
@@ -166,13 +161,13 @@ jQuery.extend({
       var el = jQuery(this);
       if(el.html() == "READ") {
         el.html("EDIT"); 
-        jQuery('#full_text').removeClass('inactive');
         jQuery.unObserveWords();
         jQuery('.details .edit-action, .control-divider').css('display', 'none');
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden').css('color', '#999');
         jQuery('.layered-control-start,.unlayered-control-start').css('width', '3px');
         jQuery('.layered-control-end,.unlayered-control-end').css('width', '9px');
+        jQuery('#author_edits').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */
         var data = jQuery.retrieveState();  
@@ -181,9 +176,7 @@ jQuery.extend({
       } else {
         el.html("READ");  
         jQuery.observeWords();
-        if(jQuery('#full_text strong').html() == 'REVERT') {
-          jQuery('#full_text').removeClass('inactive');
-        }
+        jQuery('#author_edits').addClass('inactive');
         jQuery('.details .edit-action').show();
         jQuery('.control-divider').css('display', 'inline-block');
         jQuery('article tt.a').addClass('edit_highlight');

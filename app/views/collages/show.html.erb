@@ -94,6 +94,11 @@ Your annotation will start here. Please click another word to set the end point.
 								<div class="cl">&nbsp;</div>
 							</li>
 							<li>
+								<strong>AUTHOR'S EDITS</strong>
+								<a href="#" id="author_edits"><strong>REVERT</strong></a>
+								<div class="cl">&nbsp;</div>
+							</li>
+							<li>
 								<strong>ANNOTATIONS</strong>
 								<a href="#" id="hide_show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
