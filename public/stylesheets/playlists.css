@@ -63,7 +63,8 @@ display:none; z-index: 10; }
 -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px;
 display: inline-block; margin-left: 3px; }
 #playlist-stats.active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; 
--moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }
+-moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px; 
+position: relative; z-index: 101; }
 #playlist-stats.active strong { background: #FFF url(/images/ui/collage-hgroup-btn-active.png) right no-repeat; 
 padding-right: 10px; }
 #playlist-stats-popup { position:absolute; left:0; z-index:100;
