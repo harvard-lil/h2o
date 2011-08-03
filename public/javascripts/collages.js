@@ -165,8 +165,7 @@ jQuery.extend({
         jQuery('.details .edit-action, .control-divider').css('display', 'none');
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#666');
-        jQuery('.layered-control-start,.unlayered-control-start').css('width', '3px');
-        jQuery('.layered-control-end,.unlayered-control-end').css('width', '9px');
+        jQuery('.layered-control,.unlayered-control').css('width', '9px');
         jQuery('#author_edits').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */

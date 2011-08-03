@@ -128,9 +128,9 @@ font-size: 9px; font-weight: bold; }
 .annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
 .unlayered-ellipsis { padding-right: 10px; display: none; }
 .default-hidden { color: #666; }
-.unlayered-control-start { display: none; width: 3px; background-color: #999; height: 16px; margin: 0px 3px 0px 2px; position: relative; top: 2px; }
+.unlayered-control-start { display: none; background: url(/images/ui/fcollapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .unlayered-control-end { display: none; background: url(/images/ui/collapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
-.layered-control-start { display: none; width: 3px; background-color: #999; height: 16px; margin: 0px 3px 0px 2px; position: relative; top: 2px; }
+.layered-control-start { display: none; background: url(/images/ui/fcollapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .layered-control-end { display: none; background: url(/images/ui/collapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .paragraph-numbering { position: absolute; left: 10px; color: #369; }
 
