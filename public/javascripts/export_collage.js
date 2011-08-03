@@ -36,6 +36,8 @@ jQuery.extend({
           jQuery('.annotation-content').css('display', 'inline-block');
         }
         jQuery('.collage-content').css('font-size', data.print_data.fontsize + 'pt');
+        jQuery('.collage-content .info, .collage-content .desc').css('font-size', (parseInt(data.print_data.fontsize) + 1) + 'pt');
+        jQuery('.collage-content h2').css('font-size', (parseInt(data.print_data.fontsize) + 3) + 'pt');
         jQuery('body,tt').css('font-family', data.print_data.fonttype);
       }
 		});
@@ -55,7 +57,13 @@ jQuery.extend({
 			if(data.ann == 'true') {
 				jQuery('.annotation-content').css('display', 'inline-block');
 			}
-			jQuery('.collage-content').css('font-size', data.size + 'pt');
+      
+      /* Note: % and em is not working here as expected */
+      jQuery('body,.collage-content').css('font-size', data.size + 'pt');
+      jQuery('#playlist h3,#playlist h1').css('font-size', (parseInt(data.size) + 6) + 'pt');
+      jQuery('#playlist #description').css('font-size', (parseInt(data.size) + 2) + 'pt');
+      jQuery('#playlist .details h2').css('font-size', (parseInt(data.size) - 1) + 'pt');
+
 			jQuery('body,tt').css('font-family', data.type);
 		}
 	}
