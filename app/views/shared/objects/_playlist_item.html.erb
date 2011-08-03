@@ -40,9 +40,9 @@
 			<% end -%>
 			<div class="cl"></div>
 		</hgroup>
-		<p <%= raw 'class="item_description"' if item.resource_item_type == 'ItemPlaylist' %>>
+		<div <%= raw 'class="item_description"' if item.resource_item_type == 'ItemPlaylist' %>>
 			<%= PlaylistItem.format_content(item.resource_item.description) %>
-		</p>
+		</div>
 	</div>
 	<div class="cl"></div>
 	<% if recursive_level < 4 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>
