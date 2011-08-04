@@ -97,6 +97,7 @@ jQuery.extend({
       jQuery('#layers a').removeClass('shown');
       jQuery('article .unlayered-ellipsis').css('display', 'none');
       jQuery('article .unlayered-control').css('display', 'inline-block');
+      jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
 
