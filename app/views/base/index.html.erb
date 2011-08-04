@@ -21,7 +21,7 @@
 		<%= link_to 'Collage', collages_path %>
 		<p>A tool built with the goal of creating an entirely online law school casebook by allowing
 		a seed document to be annotated with various layers and notes.</p>
-    <% if current_user -%>
+    <% if false && current_user -%>
 		<%= link_to 'Start a Collage', new_collage_path, :class => "button new-action" %>
     <% end -%>
 		<%= link_to 'Find/Create a Collage', collages_path, :class => "button" %>
