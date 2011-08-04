@@ -10,6 +10,32 @@ var annotation_position = 0;
 var head_offset;
 
 jQuery.extend({
+  hideShowAnnotationOptions: function() {
+    var total = jQuery('.annotation-content').size();
+    var shown = jQuery('.annotation-content:visible').size();
+    if(total == shown) {
+      jQuery('#hide_annotations').show();
+      jQuery('#show_annotations').hide();
+    } else if(shown == 0) {
+      jQuery('#hide_annotations').hide();
+      jQuery('#show_annotations').show();
+    } else {
+      jQuery('#show_annotations,#hide_annotations').show();
+    }
+  },
+  hideShowUnlayeredOptions: function() {
+    var total = jQuery('.unlayered-ellipsis').size();
+    var shown = jQuery('.unlayered-ellipsis:visible').size();
+    if(total == shown) {
+      jQuery('#hide_unlayered').hide();
+      jQuery('#show_unlayered').show();
+    } else if(shown == 0) {
+      jQuery('#hide_unlayered').show();
+      jQuery('#show_unlayered').hide();
+    } else {
+      jQuery('#show_unlayered,#hide_unlayered').show();
+    }
+  },
   addCommas: function(str) {
     str += '';
     x = str.split('.');
@@ -81,6 +107,7 @@ jQuery.extend({
       jQuery('article tt.unlayered').css('display', 'inline');
       jQuery('article .unlayered-control').css('display', 'inline-block');
       jQuery('article .unlayered-ellipsis').css('display', 'none');
+      jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
     jQuery('#hide_unlayered').click(function(e) {
@@ -88,6 +115,7 @@ jQuery.extend({
       jQuery.showGlobalSpinnerNode();
       jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
       jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
+      jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
 
@@ -96,12 +124,14 @@ jQuery.extend({
       jQuery.showGlobalSpinnerNode();
       jQuery('.annotation-content').css('display', 'inline-block');
       jQuery.hideGlobalSpinnerNode();
+      jQuery.hideShowAnnotationOptions();
     });
     jQuery('#hide_annotations').not('.inactive').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('.annotation-content').css('display', 'none');
       jQuery.hideGlobalSpinnerNode();
+      jQuery.hideShowAnnotationOptions();
     });
 
     jQuery('#layers .hide_show').click(function(e) {
@@ -336,6 +366,8 @@ jQuery.extend({
       jQuery(window).scrollTop(jQuery.cookie('scroll_pos'));
       jQuery.cookie('scroll_pos', null);
     }
+    jQuery.hideShowUnlayeredOptions();
+    jQuery.hideShowAnnotationOptions();
   }, 
 
   submitAnnotation: function(){
@@ -532,6 +564,7 @@ jQuery.extend({
       jQuery('p.unlayered_' + id + ',center.unlayered_' + id).css('display', 'block');
       jQuery('.unlayered-control-' + id).css('display', 'inline-block');
       jQuery(this).css('display', 'none');
+      jQuery.hideShowUnlayeredOptions();
     });
     jQuery('.annotation-ellipsis').click(function(e) {
       e.preventDefault();
@@ -546,6 +579,7 @@ jQuery.extend({
       var id = jQuery(this).data('id');
       jQuery('.unlayered_' + id + ',.unlayered-control-' + id).css('display', 'none');
       jQuery('#unlayered-ellipsis-' + id).css('display', 'inline-block');
+      jQuery.hideShowUnlayeredOptions();
     });
     jQuery('.layered-control').click(function(e) {
       e.preventDefault();
@@ -655,6 +689,7 @@ jQuery.extend({
     jQuery('.annotation-asterisk').unbind('click').click(function(e) {  
       e.preventDefault();
       jQuery.toggleAnnotation(jQuery(this).data('id'));
+      jQuery.hideShowAnnotationOptions();
     });
     jQuery(annotations).each(function(){
       jQuery.addAnnotationListeners(this.annotation);
