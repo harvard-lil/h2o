@@ -407,7 +407,7 @@ h2 .bookmarked { color: #FFF; }
 .singleitem .toolbar a { background: url(/images/ui/app_icons.png);
   display: block; width: 23px; height: 30px; text-indent: -4000px; }
 .singleitem .toolbar .link-share { width: 25px; background-position: 0px -39px; }
-.singleitem .toolbar .collage-this { background-position: -120px -39px; width: 14px; }
+.singleitem .toolbar .collage-this { background-position: -102px -39px; width: 20px; }
 .singleitem .toolbar .link-remix { background-position: -81px -39px; width: 20px; }
 .singleitem .toolbar .link-copy { background-position: -25px -39px; width: 16px; }
 .singleitem .toolbar .link-bookmark { background-position: -41px -39px; width: 18px; }
@@ -420,7 +420,7 @@ h2 .bookmarked { color: #FFF; }
   background:#fff; border: 2px solid #666; 
   padding: 4px 9px 10px;  display:none;
   left: -186px; background: #FFF;
-  width: 200px; border: 1px solid #6D87A2; top: 25px; }
+  width: 200px; border: 1px solid #6D87A2; top: 27px; }
 .singleitem .description .toolbar ul li .print-popup ul { padding-top: 0px; line-height: 17px; list-style: none; }
 .singleitem .description .toolbar ul li .print-popup ul li { padding-bottom: 3px; text-transform: uppercase; border: none; }
 .singleitem .description .toolbar ul li .print-popup ul li { padding-bottom: 3px; text-transform: uppercase; border: none; }
@@ -432,6 +432,6 @@ font-weight: normal; padding: 0px 7px; font-size: 9px; background: #69c;
 color: #FFF; background: url("/images/ui/repeat_bg.png") repeat scroll 0 -73px transparent;
 text-indent: 0px; width: auto; height: auto; border: 1px solid #6D87A2; }
 .singleitem .description .toolbar ul li#print-container > .btn-a-active {
-background: url(/images/ui/app_icons.png) -134px -38px; border-bottom:0;
-z-index: 100; padding: 0px 8px 1px 8px; position: relative; }
+background: url(/images/ui/app_icons.png) -129px -38px; border-bottom:0;
+z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
 
