@@ -387,6 +387,7 @@ color: #4e9ed1; padding: 4px 11px; }
 .playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; float:left; }
 .playlist .data h3 a { position: relative; top: -2px; }
 .playlist .data > div { float: left; display: inline; font-size:10px; line-height:1.6em; clear:both; }
+.playlist .data > div > p { margin-bottom: 8px; }
 .playlist .data div.item_description { display: none; }
 
 .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }

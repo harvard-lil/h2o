@@ -100,7 +100,8 @@ Your annotation will start here. Please click another word to set the end point.
 							</li>
 							<li>
 								<strong>ANNOTATIONS</strong>
-								<a href="#" id="hide_show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
+								<a href="#" id="show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
+								<a href="#" id="hide_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>HIDE</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 						</ul>
@@ -115,8 +116,9 @@ Your annotation will start here. Please click another word to set the end point.
 							</li>
    						<% end -%>
 							<li>
-								<strong>UNLAYERED</strong>
-								<a href="#" id="hide_show_unlayered" class="shown"><strong>HIDE</strong></a>
+								<strong id="unlayered">UNLAYERED</strong>
+								<a href="#" id="show_unlayered"><strong>SHOW</strong></a>
+								<a href="#" id="hide_unlayered"><strong>HIDE</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 						</ul>

@@ -67,45 +67,40 @@ jQuery.extend({
       jQuery('article p, article center').css('display', 'block');
       jQuery('article tt').css('display', 'inline');
       jQuery('.annotation-ellipsis').css('display', 'none');
-      jQuery('#layers a strong').html('HIDE');
-      jQuery('#layers .shown').removeClass('shown');
+      jQuery('#layers a.hide_show strong').html('HIDE');
+      jQuery('#layers a').removeClass('shown');
       jQuery('article .unlayered-ellipsis').css('display', 'none');
       jQuery('article .unlayered-control').css('display', 'inline-block');
       jQuery.hideGlobalSpinnerNode();
     });
 
-    jQuery('#hide_show_unlayered').click(function(e) {
+    jQuery('#show_unlayered').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
-      var el = jQuery(this);
-      el.toggleClass('shown');
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('article p.unlayered, article center.unlayered').css('display', 'block');
-        jQuery('article tt.unlayered').css('display', 'inline');
-        jQuery('article .unlayered-control').css('display', 'inline-block');
-        jQuery('article .unlayered-ellipsis').css('display', 'none');
-        el.find('strong').html('HIDE');
-      } else {
-        jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
-        jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
-        el.find('strong').html('SHOW');
-      }
+      jQuery('article p.unlayered, article center.unlayered').css('display', 'block');
+      jQuery('article tt.unlayered').css('display', 'inline');
+      jQuery('article .unlayered-control').css('display', 'inline-block');
+      jQuery('article .unlayered-ellipsis').css('display', 'none');
+      jQuery.hideGlobalSpinnerNode();
+    });
+    jQuery('#hide_unlayered').click(function(e) {
+      e.preventDefault();
+      jQuery.showGlobalSpinnerNode();
+      jQuery('article .unlayered, article .unlayered-control').css('display', 'none');
+      jQuery('article .unlayered-ellipsis').css('display', 'inline-block');
       jQuery.hideGlobalSpinnerNode();
     });
 
-    jQuery('#hide_show_annotations').not('.inactive').click(function(e) {
+    jQuery('#show_annotations').not('.inactive').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
-
-      var el = jQuery(this);
-      el.toggleClass('shown');
-      if(el.find('strong').html() == 'SHOW') {
-        jQuery('.annotation-content').css('display', 'inline-block');
-        el.find('strong').html('HIDE');
-      } else {
-        jQuery('.annotation-content').css('display', 'none');
-        el.find('strong').html('SHOW');
-      }
+      jQuery('.annotation-content').css('display', 'inline-block');
+      jQuery.hideGlobalSpinnerNode();
+    });
+    jQuery('#hide_annotations').not('.inactive').click(function(e) {
+      e.preventDefault();
+      jQuery.showGlobalSpinnerNode();
+      jQuery('.annotation-content').css('display', 'none');
       jQuery.hideGlobalSpinnerNode();
     });
 
@@ -165,7 +160,7 @@ jQuery.extend({
         jQuery('.details .edit-action, .control-divider').css('display', 'none');
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#666');
-        jQuery('.layered-control,.unlayered-control').css('width', '9px');
+        jQuery('.layered-control,.unlayered-control').width(9).height(16);
         jQuery('#author_edits').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */
@@ -180,7 +175,7 @@ jQuery.extend({
         jQuery('.control-divider').css('display', 'inline-block');
         jQuery('article tt.a').addClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#000');
-        jQuery('.layered-control,.unlayered-control').css('width', '0px');
+        jQuery('.layered-control,.unlayered-control').width(0).height(0);
       }
       el.toggleClass('editing');
     });
@@ -332,7 +327,7 @@ jQuery.extend({
       jQuery('.control-divider').css('display', 'inline-block');
       jQuery('article tt.a').addClass('edit_highlight');
       jQuery('.default-hidden').css('color', '#000');
-      jQuery('.layered-control,.unlayered-control').css('width', '0px');
+      jQuery('.layered-control,.unlayered-control').width(0).height(0);
     } else {
        jQuery.unObserveWords();
     }
