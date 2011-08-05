@@ -14,7 +14,7 @@
 	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
 	<% else -%>
 	<% if current_user -%>
-	<ul class="right">
+	<ul class="right" id="logged-in">
 		<li><%= link_to current_user.login, user_path(current_user) %></li>
 		<li class="last"><%= link_to "sign out", log_out_path %></li>
 	</ul>
