@@ -177,12 +177,13 @@ jQuery.extend({
       e.preventDefault();
     });
   },
-  listResults: function(element, data, region) {
-      jQuery.ajax({
+  listResults: function(href, data, region) {
+    var page = href.match(/page=[0-9]+/, '').toString().replace(/page=/, '');
+    jQuery.ajax({
       type: 'GET',
       dataType: 'html',
       data: data,
-      url: element.attr('href'),
+      url: href,
       beforeSend: function(){
            jQuery.showGlobalSpinnerNode();
          },
@@ -190,6 +191,7 @@ jQuery.extend({
            jQuery.hideGlobalSpinnerNode();
       },
       success: function(html){
+        jQuery.address.value(href);
         jQuery.hideGlobalSpinnerNode();
         if(jQuery('#bbase').length || jQuery('#busers').length) {
           jQuery(region).html(html);
@@ -200,11 +202,11 @@ jQuery.extend({
           jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
         }
         //Here we need to re-observe onclicks
-          jQuery.observePagination(); 
+        jQuery.observePagination(); 
         jQuery.observeTabDisplay(region);
         jQuery.observeCasesCollage();
       }
-      });
+    });
   },
   observeSort: function() {
     jQuery('.sort select').selectbox({
@@ -224,14 +226,14 @@ jQuery.extend({
         data.ajax_region = jQuery.classType();
       }
       data.sort = element.val();
-      jQuery.listResults(element, data, region);
+      jQuery.listResults(element.attr('href'), data, region);
     });
   },
   observePagination: function(){
     jQuery('.pagination a').click(function(e){
-        e.preventDefault();
+      e.preventDefault();
       var element = jQuery(this); 
-       var data = {};
+      var data = {};
       var region = '#all_' + jQuery.classType();
       if(jQuery('#bbase').length || jQuery('#busers').length) {
         data.ajax_region = element.closest('div').data('type');
@@ -239,7 +241,7 @@ jQuery.extend({
       } else {
         data.ajax_region = jQuery.classType();
       }
-      jQuery.listResults(element, data, region);
+      jQuery.listResults(element.attr('href'), data, region);
     });
   },
 
@@ -636,6 +638,20 @@ jQuery(function() {
   jQuery.observeCasesCollage();
   jQuery.observeLoginPanel();
   jQuery.initializeTabBehavior();
+
+  if(document.location.hash.match('page=')) {
+    var data = {};
+    var region = '#all_' + jQuery.classType();
+    if(jQuery('#bbase').length || jQuery('#busers').length) {
+      region = '#' + jQuery('.tabs .active').data('region');
+      data.ajax_region = region.replace(/#all_/, '');
+      //Don't do yet: broken
+      //jQuery.listResults(jQuery.address.value(), data, region);
+    } else {
+      data.ajax_region = jQuery.classType();
+      jQuery.listResults(jQuery.address.value(), data, region);
+    }
+  }
 });
 // -------------------------------------------------------------------
 // markItUp!

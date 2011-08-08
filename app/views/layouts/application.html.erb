@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title></title>
 
-    <%= stylesheet_link_tag 'ui', 'jquery.ui.custom', 'formtastic' %>
+    <%= stylesheet_link_tag 'ui', 'jquery.ui.custom', 'formtastic', :cache => 'all' %>
     <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
       <%= stylesheet_link_tag ss %>
     <% end -%>
@@ -59,7 +59,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
 <%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
   'ui', 'jquery.form', 'jquery.validate.min','jquery.tag.suggestion', 'jquery.easing.1.3',
-  'jquery.cookie' %>
+  'jquery.cookie', 'jquery.address.min', :cache => 'all' %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
   <%= javascript_include_tag js %>
