@@ -50,6 +50,7 @@ ActionController::Routing::Routes.draw do |map|
 	  :delete => :get, :copy => [:get, :post], :metadata => :get,
 	  :export => :get, :access_level => :get}
   map.playlist_tag "playlists/tag/:tag", :controller => :playlists, :action => :index
+  map.notes_tag "playlists/:id/notes/:type", :controller => :playlists, :action => :notes
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
 

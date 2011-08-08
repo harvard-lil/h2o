@@ -19,7 +19,7 @@ class PlaylistsController < BaseController
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
-    allow :editor, :of => :playlist, :to => [:edit, :update]
+    allow :editor, :of => :playlist, :to => [:edit, :update, :notes]
     #    allow :user, :of => :playlist, :to => [:index, :show]
   end
 
@@ -29,10 +29,12 @@ class PlaylistsController < BaseController
 
   def access_level 
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+    notes = @playlist.playlist_items.select { |pi| !pi.public_notes }.to_json(:only => [:id, :notes])
     respond_to do |format|
       format.json { render :json => {
         :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
         :can_edit => @can_edit,
+        :notes => @can_edit ? notes : "[]",
         :playlists => current_user ? current_user.playlists.to_json(:only => [:id, :name]) : []}
       }
     end
@@ -341,25 +343,6 @@ class PlaylistsController < BaseController
     end
   end
 
-  def load_form
-    item_type = params[:item_type]
-    url_string = params[:url_string]
-    container_id = params[:container_id]
-
-    respond_to do |format|
-      format.html {
-        render :partial => 'shared/forms/' + item_type.tableize.singularize, :locals => {
-          :item_type => item_type,
-          :url_string => url_string,
-          :container_id => container_id
-        },
-        :layout => false
-      }
-      format.xml  { head :ok }
-    end
-
-  end
-
   def position_update
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
@@ -386,5 +369,13 @@ class PlaylistsController < BaseController
     add_javascripts 'export_collage'
     @playlist = Playlist.find(params[:id])
     render :layout => 'pdf'
+  end
+
+  def notes
+    value = params[:type] == 'public' ? true : false
+    @playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
+    respond_to do |format|
+      format.json {render :json => {} }
+    end
   end
 end

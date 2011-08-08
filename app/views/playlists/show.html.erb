@@ -94,16 +94,22 @@
 			<div id="description_more">
 				<%= Playlist.format_content(@playlist.description) %> <a href="#" class="link-less">LESS</a>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
+        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
+        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
 			</div>
 		<% else -%>
 			<div id="description">
 				<%= Playlist.format_content(@playlist.description) %>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
+        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
+        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
 			</div>
 		<% end -%>
 		<% else -%>
 			<p>
 				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
+        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
+        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
 			</p>
 		<% end -%>
 	</div>

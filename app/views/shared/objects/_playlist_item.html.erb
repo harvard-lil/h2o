@@ -43,6 +43,11 @@
 		<div <%= raw 'class="item_description"' if item.resource_item_type == 'ItemPlaylist' %>>
 			<%= PlaylistItem.format_content(item.resource_item.description) %>
 		</div>
+    <% if item.notes.to_s != '' && item.public_notes -%>
+		<div class="notes">
+			<b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
+		</div>
+    <% end -%>
 	</div>
 	<div class="cl"></div>
 	<% if recursive_level < 4 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>

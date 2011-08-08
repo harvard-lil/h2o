@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110725144809) do
+ActiveRecord::Schema.define(:version => 20110808202112) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -423,6 +423,8 @@ ActiveRecord::Schema.define(:version => 20110725144809) do
     t.string   "ancestry"
     t.integer  "playlist_item_parent_id"
     t.boolean  "public",                  :default => true
+    t.text     "notes"
+    t.boolean  "public_notes",            :default => true, :null => false
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"

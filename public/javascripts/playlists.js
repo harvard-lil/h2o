@@ -2,6 +2,26 @@ var dragged_element;
 var is_owner = false;
 
 jQuery.extend({
+  initializeNoteFunctionality: function() {
+    jQuery('.public-notes,.private-notes').click(function(e) {
+      jQuery.showGlobalSpinnerNode();
+      var type = jQuery(this).data('type');
+      e.preventDefault();
+      jQuery.ajax({
+        type: 'post',
+        dataType: 'json',
+        url: '/playlists/' + jQuery('#playlist').data('itemid') + '/notes/' + type,
+        success: function(results) {
+          jQuery.hideGlobalSpinnerNode();
+          if(type == 'public') {
+            jQuery('.notes b').html('Additional Notes:');
+          } else {
+            jQuery('.notes b').html('Additional Notes (private):');
+          }
+        }
+      });
+    });
+  },
   initializePrintListeners: function() {
     jQuery('.print-popup select').selectbox({
       className: "jsb", replaceInvisible: true 
@@ -222,4 +242,5 @@ jQuery(document).ready(function(){
   jQuery.observeFontChange();
   jQuery.initPlaylistItemAddControls();
   jQuery.initializePrintListeners();
+  jQuery.initializeNoteFunctionality();
 });

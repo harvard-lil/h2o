@@ -20,8 +20,12 @@
 #playlist .details p { font-size:12px; line-height:18px; color:#999; }
 #playlist .details p .link-more, 
 #playlist .details p .edit-action,
-#playlist .details p .link-less { font-size:9px; text-transform:uppercase; font-weight:bold; }
+#playlist .details p .link-less,
+#playlist .details .public-notes,
+#playlist .details .private-notes { font-size:9px; text-transform:uppercase; font-weight:bold; }
 #playlist .details p .link-less { background: url(/images/ui/pagination-divider.png) right 0px no-repeat; padding-right: 4px; }
+#playlist .details .public-notes,
+#playlist .details .private-notes { background: url(/images/ui/pagination-divider.png) left 0px no-repeat; padding-left: 5px; }
 
 #playlist .description .buttons { float:right; display:inline; visibility: hidden; }
 #playlist .description .buttons ul { list-style:none; }

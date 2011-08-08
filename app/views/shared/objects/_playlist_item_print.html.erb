@@ -8,6 +8,11 @@
 	<% end -%>
   </h3>
   <p><%= PlaylistItem.format_content(item.resource_item.description) %></p>
+  <% if item.notes.to_s != '' && item.public_notes -%>
+	<div class="notes">
+		<b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
+	</div>
+  <% end -%>
 	<div class="cl"></div>
   <% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
   <% if item.resource_item_type == 'ItemCollage' -%>

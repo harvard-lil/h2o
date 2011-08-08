@@ -42,4 +42,16 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
       system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
     end
   end
+
+  def after_playlists_notes
+    record = Playlist.find(params[:id])
+
+    expire_page :controller => :playlists, :action => :show, :id => record.id
+    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
+
+    record.relation_ids.each do |p|
+      expire_page :controller => :playlists, :action => :show, :id => p
+      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
+    end
+  end
 end

@@ -41,8 +41,7 @@ class ItemBaseController < BaseController
     end
     
     respond_to do |format|
-      format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
-      format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
+      format.html { render :partial => "shared/forms/playlist_item" }
       format.xml  { render :xml => @item_default }
     end
   end
@@ -50,10 +49,9 @@ class ItemBaseController < BaseController
   # GET /item_defaults/1/edit
   def edit
     respond_to do |format|
-      format.html { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
-      format.js { render :partial => "shared/forms/#{@model_class.name.tableize.singularize}" }
+      format.html { render :partial => "shared/forms/playlist_item" }
       format.xml  { render :xml => @item_default }
-	  format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
     end
   end
 
@@ -124,20 +122,17 @@ class ItemBaseController < BaseController
   end
 
   def update
+    params[:playlist_item][:public_notes] = params[:playlist_item][:public_notes] == 'on' ? true : false
     respond_to do |format|
-      if @object.update_attributes(params[@param_symbol])
+      if @object.update_attributes(params[@param_symbol]) && @object.playlist_item.update_attributes(params[:playlist_item])
         flash[:notice] = "#{@model_class.name.titleize} was successfully updated."
-        format.js { render :text => nil }
         format.html { render :text => nil }
         format.xml  { head :ok }
-	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+	      format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
-        format.js {
-          render :text => "We couldn't update that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
-        }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :error => @object.errors } }
+	      format.json { render :json => { :error => @object.errors } }
       end
     end
   end
