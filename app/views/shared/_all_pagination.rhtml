@@ -1,0 +1,11 @@
+<aside class="pagination">
+	<div class="all_playlists_pagination" data-type="playlists">
+	<%= will_paginate @playlists.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next', :params => { :ajax_region => 'playlists' } %>
+	</div>
+	<div class="all_collages_pagination" style="display:none;" data-type="collages">
+	<%= will_paginate @collages.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next', :params => { :ajax_region => 'collages' } %>
+	</div>
+	<div class="all_cases_pagination" style="display:none;" data-type="cases">
+	<%= will_paginate @cases.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next', :params => { :ajax_region => 'cases' } %>
+	</div>
+</aside>

@@ -191,7 +191,6 @@ jQuery.extend({
     });
   },
   listResults: function(href, data, region) {
-    var page = href.match(/page=[0-9]+/, '').toString().replace(/page=/, '');
     jQuery.ajax({
       type: 'GET',
       dataType: 'html',
@@ -239,7 +238,11 @@ jQuery.extend({
         data.ajax_region = jQuery.classType();
       }
       data.sort = element.val();
-      jQuery.listResults(element.attr('href'), data, region);
+      if(document.location.search != '') {
+        jQuery.listResults(document.location.pathname + document.location.search + "&ajax_region=" + data.ajax_region + "&sort=" + data.sort, data, region);
+      } else {
+        jQuery.listResults(document.location.pathname + "?ajax_region=" + data.ajax_region + "&sort=" + data.sort, data, region);
+      }
     });
   },
   observePagination: function(){
@@ -652,19 +655,26 @@ jQuery(function() {
   jQuery.observeLoginPanel();
   jQuery.initializeTabBehavior();
 
-  if(document.location.hash.match('page=')) {
+  if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
     var data = {};
-    var region = '#all_' + jQuery.classType();
+    var region = '';
     if(jQuery('#bbase').length || jQuery('#busers').length) {
-      region = '#' + jQuery('.tabs .active').data('region');
-      data.ajax_region = region.replace(/#all_/, '');
-      //Don't do yet: broken
-      //jQuery.listResults(jQuery.address.value(), data, region);
+      region = '#all_' + jQuery.address.value().match(/ajax_region=[a-z]+/, '').toString().replace('ajax_region=', '');
+      jQuery('.tabs a').each(function(i, el) {
+        if('#' + jQuery(el).data('region') == region) {
+          jQuery(el).click();
+        }
+      });
     } else {
-      data.ajax_region = jQuery.classType();
-      jQuery.listResults(jQuery.address.value(), data, region);
+      region = '#all_' + jQuery.classType();
     }
+    data.ajax_region = region.replace(/#all_/, '');
+    jQuery.listResults(jQuery.address.value(), data, region);
   }
+  //For Now, this is disabled. If set to true,
+  //code updates are required to work with back button
+  //on each pagination and sort
+  jQuery.address.history(false);
 });
 // -------------------------------------------------------------------
 // markItUp!
