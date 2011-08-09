@@ -53,7 +53,7 @@ class PlaylistsController < BaseController
       end
       with :public, true
       paginate :page => params[:page], :per_page => 25
-      order_by params[:sort].to_sym, :asc
+      order_by params[:sort].to_sym, params[:order].to_sym
     end
     playlists.execute!
     playlists
@@ -64,13 +64,14 @@ class PlaylistsController < BaseController
   def index
     params[:page] ||= 1
     params[:sort] ||= 'display_name'
+    params[:order] ||= 'asc'
 
     if params[:keywords]
       playlists = build_search(params)
       t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @playlists = WillPaginate::Collection.create(params[:page], 25, playlists.total) { |pager| pager.replace(t) }
     else
-      @playlists = Rails.cache.fetch("playlists-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+      @playlists = Rails.cache.fetch("playlists-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}") do 
         playlists = build_search(params)
         t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
         { :results => t, 

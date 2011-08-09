@@ -51,7 +51,7 @@ class CasesController < BaseController
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => 25
-      order_by params[:sort].to_sym, :asc
+      order_by params[:sort].to_sym, params[:order].to_sym
     end
     cases.execute!
     cases
@@ -62,13 +62,14 @@ class CasesController < BaseController
   def index
     params[:page] ||= 1
     params[:sort] ||= 'display_name'
+    params[:order] ||= 'asc'
 
     if params[:keywords]
       cases = build_search(params)
       t = cases.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @cases = WillPaginate::Collection.create(params[:page], 25, cases.total) { |pager| pager.replace(t) }
     else
-      @cases = Rails.cache.fetch("cases-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+      @cases = Rails.cache.fetch("cases-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}") do 
         cases = build_search(params)
         t = cases.hits.inject([]) { |arr, h| arr.push(h.result); arr }
         { :results => t, 

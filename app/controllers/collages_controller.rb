@@ -66,7 +66,7 @@ class CollagesController < BaseController
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => 25
-      order_by params[:sort].to_sym, :asc
+      order_by params[:sort].to_sym, params[:order].to_sym
     end
     collages.execute!
     collages
@@ -75,13 +75,15 @@ class CollagesController < BaseController
   def index
     params[:page] ||= 1
     params[:sort] ||= 'display_name'
+    params[:order] ||= 'asc'
+    logger.warn "steph: #{params.inspect}"
 
     if params[:keywords]
       collages = build_search(params)
       t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @collages = WillPaginate::Collection.create(params[:page], 25, collages.total) { |pager| pager.replace(t) }
     else
-      @collages = Rails.cache.fetch("collages-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}") do 
+      @collages = Rails.cache.fetch("collages-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}") do 
         collages = build_search(params)
         t = collages.hits.inject([]) { |arr, h| arr.push(h.result); arr }
         { :results => t, 

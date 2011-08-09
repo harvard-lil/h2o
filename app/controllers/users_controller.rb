@@ -52,20 +52,33 @@ class UsersController < ApplicationController
     end
 
     params[:sort] ||=  'display_name'
+    params[:order] ||= 'asc'
 
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'
 
     if !request.xhr? || params[:ajax_region] == 'playlists'
-      @playlists = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
+      p = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }
+      if(params[:order] == 'desc') 
+        p = p.reverse
+      end
+      @playlists = p.paginate :page => params[:page], :per_page => 25
     end
 
     if !request.xhr? || params[:ajax_region] == 'collages'
-      @collages = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
+      p = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }
+      if(params[:order] == 'desc') 
+        p = p.reverse
+      end
+      @collages = p.paginate :page => params[:page], :per_page => 25
     end
 
     if !request.xhr? || params[:ajax_region] == 'cases'
-       @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }.paginate :page => params[:page], :per_page => 25
+       @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }
+      if(params[:order] == 'desc') 
+        p = p.reverse
+      end
+       @cases = p.paginate :page => params[:page], :per_page => 25
     end
 
     if current_user

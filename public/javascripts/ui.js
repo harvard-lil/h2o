@@ -190,11 +190,10 @@ jQuery.extend({
       e.preventDefault();
     });
   },
-  listResults: function(href, data, region) {
+  listResults: function(href, region) {
     jQuery.ajax({
       type: 'GET',
       dataType: 'html',
-      data: data,
       url: href,
       beforeSend: function(){
            jQuery.showGlobalSpinnerNode();
@@ -221,43 +220,50 @@ jQuery.extend({
     });
   },
   observeSort: function() {
-    jQuery('.sort select').selectbox({
-      className: "jsb", replaceInvisible: true 
-    }).change(function() {
-      var element = jQuery(this);
+    jQuery('.sort-asc,.sort-desc').click(function(e) {
+      e.preventDefault();
       var data = {};
       var region = '#all_' + jQuery.classType();
       if(jQuery('#bbase').length || jQuery('#busers').length) {
-        jQuery('.songs > ul').each(function(i, el) {
-          if(jQuery(el).css('display') != 'none') {
-            region = '#' + jQuery(el).attr('id');
-            data.ajax_region = jQuery(el).attr('id').replace(/^all_/, '');
-          }
-        });
-      } else {
-        data.ajax_region = jQuery.classType();
+        region = '#' + jQuery('.songs > ul:visible').attr('id');
       }
-      data.sort = element.val();
+      var ajax_region = region.replace(/#all_/, '');
+      var sort = jQuery(this).parent().parent().find('select').val();
+
+      var url = document.location.pathname;
       if(document.location.search != '') {
-        jQuery.listResults(document.location.pathname + document.location.search + "&ajax_region=" + data.ajax_region + "&sort=" + data.sort, data, region);
+        url += document.location.search + "&ajax_region=" + ajax_region + "&sort=" + sort + "&order=" + jQuery(this).data('val');
       } else {
-        jQuery.listResults(document.location.pathname + "?ajax_region=" + data.ajax_region + "&sort=" + data.sort, data, region);
+        url += "?ajax_region=" + ajax_region + "&sort=" + sort + "&order=" + jQuery(this).data('val');
       }
+      jQuery.listResults(url, region);
+    });
+    jQuery('.sort select').selectbox({
+      className: "jsb", replaceInvisible: true 
+    }).change(function() {
+      var region = '#all_' + jQuery.classType();
+      if(jQuery('#bbase').length || jQuery('#busers').length) {
+        region = '#' + jQuery('.songs > ul:visible').attr('id');
+      }
+      var sort = jQuery(this).val();
+      var ajax_region = region.replace(/^#all_/, '');
+      var url = document.location.pathname;
+      if(document.location.search != '') {
+        url += document.location.search + "&ajax_region=" + ajax_region + "&sort=" + sort;
+      } else {
+        url += "?ajax_region=" + ajax_region + "&sort=" + sort;
+      }
+      jQuery.listResults(url, region);
     });
   },
   observePagination: function(){
     jQuery('.pagination a').click(function(e){
       e.preventDefault();
-      var element = jQuery(this); 
-      var data = {};
       var region = '#all_' + jQuery.classType();
       if(jQuery('#bbase').length || jQuery('#busers').length) {
-        data.ajax_region = element.closest('div').data('type');
         region = '#all_' + element.closest('div').data('type');
-      } else {
-        data.ajax_region = jQuery.classType();
       }
-      jQuery.listResults(element.attr('href'), data, region);
+      jQuery.listResults(jQuery(this).attr('href'), region);
     });
   },
 
@@ -656,8 +662,7 @@ jQuery(function() {
   jQuery.initializeTabBehavior();
 
   if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
-    var data = {};
-    var region = '';
+    var region = '#all_' + jQuery.classType();
     if(jQuery('#bbase').length || jQuery('#busers').length) {
       region = '#all_' + jQuery.address.value().match(/ajax_region=[a-z]+/, '').toString().replace('ajax_region=', '');
       jQuery('.tabs a').each(function(i, el) {
@@ -665,11 +670,8 @@ jQuery(function() {
           jQuery(el).click();
         }
       });
-    } else {
-      region = '#all_' + jQuery.classType();
     }
-    data.ajax_region = region.replace(/#all_/, '');
-    jQuery.listResults(jQuery.address.value(), data, region);
+    jQuery.listResults(jQuery.address.value(), region);
   }
   //For Now, this is disabled. If set to true,
   //code updates are required to work with back button
