@@ -95,7 +95,7 @@
       <li><b>Current login at:</b> <%= @user.current_login_at %></li>
       <li><b>Last login ip:</b> <%= @user.last_login_ip %></li>
       <li><b>Current login ip:</b> <%= @user.current_login_ip %></li>
-      <li><%= link_to 'Edit', edit_account_path %></li>
+      <li><%= link_to 'Edit', edit_user_path(@user) %></li>
 	</ul>
 	<% end -%>
 	</article>

@@ -1,9 +1,15 @@
-<h1>Edit My Account</h1>
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
+  :url => "/",
+  :right_search => 'shared/search_all' } %>
 
-<% form_for @user, :url => account_path do |f| %>
+
+<div class="standard-form">
+  <h3>Edit My Account</h3>
+<% form_for @user, :url => user_path(@user) do |f| %>
   <%= f.error_messages %>
   <%= render :partial => "form", :object => f %>
   <%= f.submit "Update" %>
 <% end %>
+</div>
 
-<br /><%= link_to "My Profile", account_path %>
+<br /><%= link_to "My Profile", user_path(@user) %>
