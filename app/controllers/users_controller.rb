@@ -74,7 +74,7 @@ class UsersController < ApplicationController
     end
 
     if !request.xhr? || params[:ajax_region] == 'cases'
-       @cases = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }
+      p = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }
       if(params[:order] == 'desc') 
         p = p.reverse
       end
