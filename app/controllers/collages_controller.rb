@@ -231,8 +231,6 @@ class CollagesController < BaseController
         format.json { render :json => {} }
       end
     end
-    
-    session[:current_print] = params[:state]
   end
 
   def save_readable_state
