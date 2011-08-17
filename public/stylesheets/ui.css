@@ -435,7 +435,7 @@ text-indent: 0px; width: auto; height: auto; border: 1px solid #6D87A2; }
 background: url(/images/ui/app_icons.png) -129px -38px; border-bottom:0;
 z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
 
-.sort_ad { display: inline; margin-left: 3px; }
+.sort_ad { display: inline; margin-left: 3px; display: none; }
 .sort_ad a { display: inline-block; height: 6px; width: 8px; }
 .sort-asc { background: url(/images/ui/app_icons.png) -15px -110px; }
 .sort-desc { background: url(/images/ui/app_icons.png) -15px -116px; }
