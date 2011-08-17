@@ -138,6 +138,7 @@ class ApplicationController < ActionController::Base
     end
 
     def store_location
+      return if params[:format] == 'pdf'
       if request.request_uri.match(/\?/)
         base, param_str = request.request_uri.split(/\?/) #[1]
         h = CGI::parse(param_str)

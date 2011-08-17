@@ -28,6 +28,7 @@ class PlaylistsController < BaseController
   end
 
   def access_level 
+    session[:return_to] = "/playlists/#{@playlist.id}"
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
     notes = @playlist.playlist_items.select { |pi| !pi.public_notes }.to_json(:only => [:id, :notes])
     respond_to do |format|
