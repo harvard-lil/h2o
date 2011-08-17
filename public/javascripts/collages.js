@@ -12,7 +12,7 @@ var head_offset;
 jQuery.extend({
   hideShowAnnotationOptions: function() {
     var total = jQuery('.annotation-content').size();
-    var shown = jQuery('.annotation-content:visible').size();
+    var shown = jQuery('.annotation-content').filter(':visible').size();
     if(total == shown) {
       jQuery('#hide_annotations').show();
       jQuery('#show_annotations').hide();
@@ -25,7 +25,7 @@ jQuery.extend({
   },
   hideShowUnlayeredOptions: function() {
     var total = jQuery('.unlayered-ellipsis').size();
-    var shown = jQuery('.unlayered-ellipsis:visible').size();
+    var shown = jQuery('.unlayered-ellipsis').filter(':visible').size();
     if(total == shown) {
       jQuery('#hide_unlayered').hide();
       jQuery('#show_unlayered').show();
@@ -284,7 +284,7 @@ jQuery.extend({
     jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
   },
   recordCollageState: function(data, show_message) {
-    var words_shown = jQuery('#collage article tt:visible').size();
+    var words_shown = jQuery('#collage article tt').filter(':visible').size();
     jQuery.ajax({
       type: 'POST',
       cache: false,
@@ -674,6 +674,7 @@ jQuery.extend({
     // align with the rights a user has to this collage, otherwise we're just wasting cpu cycles. Also
     // the controller enforces privs - so feel free to fiddle with the DOM, it won't get you anywhere.
     // jQuery('tt:visible') as a query is much less efficient - unfortunately.
+    //Note: http://api.jquery.com/visible-selector/
 
     if(is_owner) {
       jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
