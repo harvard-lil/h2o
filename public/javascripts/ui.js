@@ -301,7 +301,7 @@ jQuery.extend({
 
   /* Only used in new_playlists.js */
   rootPathWithFQDN: function(){
-    return location.protocol + '//' + location.hostname + ((location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
+    return location.protocol + '//' + location.hostname + ((location.port == '' || location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
   },
   serializeHash: function(hashVals){
     var vals = [];
