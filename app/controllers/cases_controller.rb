@@ -2,7 +2,6 @@ class CasesController < BaseController
 
   cache_sweeper :case_sweeper
 
-  before_filter :prep_resources
   before_filter :my_cases, :only => [:index, :show]
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
@@ -182,11 +181,6 @@ class CasesController < BaseController
   end
 
   private 
-
-  def prep_resources
-    #add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.js','markitup/sets/html/set.js','cases']
-    #add_stylesheets ['tablesorter-h2o-theme/style','/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/html/style.css']
-  end
 
   def load_case
     @case = Case.find((params[:id].blank?) ? params[:case_id] : params[:id])
