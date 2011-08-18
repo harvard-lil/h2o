@@ -58,6 +58,16 @@ class ItemBaseController < BaseController
   end
 
   def create
+    if controller_class_name = "ItemDefaultsController"
+      begin
+        id = params[:item_default][:url].match(/[0-9]$/)[0]
+        item = ItemDefault.find(id)
+        params[:item_default][:url] = item.url
+      rescue Exception => e
+        logger.warn('Unable to update default item url:' + e.inspect)
+      end
+    end
+
     @object.update_attributes(params[@param_symbol])
 
     @base_object = nil

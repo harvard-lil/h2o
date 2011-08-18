@@ -3,7 +3,7 @@
 		<ul>
 			<li class="number"><%= parent_index == '' ? "#{index + 1}" : "#{parent_index}.#{index}" %></li>
 			<li class="link-add">
-				<a class="<%= item.id %>" href="#" data-item_id="<%= item.resource_item_id %>" data-bookmarktype="<%= item.resource_item_type.underscore %>" data-type="<%= item.object_type %>">+</a>
+				<a class="<%= item.id %>" href="#" data-item_id="<%= item.resource_item_type != 'ItemDefault' && item.resource_item.actual_object ? item.resource_item.actual_object_id : item.resource_item_id %>" data-bookmarktype="<%= item.resource_item_type.underscore %>" data-type="<%= item.object_type %>">+</a>
 			</li>
 		</ul>
 	</div>
