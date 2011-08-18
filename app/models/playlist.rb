@@ -74,7 +74,7 @@ class Playlist < ActiveRecord::Base
       [11, 14, 16, 20].each do |size|
         ['true', 'false'].each do |text|
           ['serif', 'sans-serif'].each do |type|
-            options << "?" + CGI.escape("ann=#{ann}&size=#{size}&text=#{text}&type=#{type}")
+            options << "ann=#{ann}&size=#{size}&text=#{text}&type=#{type}"
           end
         end
       end

@@ -1,65 +1,21 @@
 namespace :h2o do
 
-  desc 'Benchmark methods'
-  task(:benchmark_annotations => :environment) do
-
-    [65,148,100,4,211,16].each do |cid|
-      Collage.benchmark('Benchmark old style annotations') do
-        1.times do
-          c = Collage.find cid
-          c.annotatable_content_old
-        end
-      end
-
-      Collage.benchmark('Benchmark new style annotations') do
-        1.times do
-          c = Collage.find cid
-          c.annotatable_content
+  desc 'Generate playlist PDFs'
+  task(:gen_playlist_pdfs => :environment) do
+    permutations = Playlist.cache_options
+    Playlist.find(:all, :conditions => ['public is true'], :order => 'updated_at desc').each do |pl|
+      permutations.each do|pm|
+        url = "http://h2odev.law.harvard.edu/playlists/#{pl.id}/export?#{pm}"
+        clean_cgi = CGI.escape(pm)
+        output_file = "#{RAILS_ROOT}/tmp/cache/playlist_#{pl.id}.pdf?#{clean_cgi}"
+        if !FileTest.exists?(output_file)
+          file = File.new(output_file, "w+")
+          system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html \"#{url}\" #{file.path}")
+          sleep 2
         end
       end
     end
-
-  end
-
-  desc 'Fix evidence cases'
-  task(:fix_evidence_cases => :environment) do
     
-    evcases = Case.tagged_with('evidence')
-
-    evcases.each do |ecase|
-      if ecase.content.scan(/<\/?p>|<br\s*\/?>|<\/?strong>|<\/?center>|<\/?b>/i).length > 0
-        #looks like it might already have HTML in it.
-#        puts ecase.content
-      else
-        #Needs to be converted.
-        ecase.collages.destroy_all
-
-        content = ecase.content
-        ecase.content = ActionController::Base.helpers.simple_format(content)
-        ecase.full_name = (ecase.full_name.blank?) ? ecase.short_name : ecase.full_name
-        puts ecase.inspect
-        ecase.save!
-      end
-    end
-  end
-
-  task(:parse_test_new => :environment) do
-    c = Case.find 5
-    doc = Nokogiri::HTML.parse(c.content)
-    doc.xpath('//*').each do |child|
-      child.children.each do|c|
-        if c.class == Nokogiri::XML::Text && ! c.content.blank?
-          text_content = c.content.split.map{|word|"<tt>" + word + ' </tt>'}.join(' ')
-          c.swap(text_content)
-        end
-      end
-    end
-    class_counter = 1
-    doc.xpath('//tt').each do |n|
-      n['id'] = "t#{class_counter}"
-      class_counter +=1
-    end
-    puts doc.xpath("//html/body/*").to_s
   end
 
   desc 'Test case import'
