@@ -16,4 +16,5 @@ Disallow: /question_instances/edit
 Disallow: /question_instances/destroy
 Disallow: /user_sessions
 Disallow: /users
+Disallow: /
 
