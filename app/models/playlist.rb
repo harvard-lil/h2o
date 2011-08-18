@@ -68,6 +68,20 @@ class Playlist < ActiveRecord::Base
     ItemPlaylist.find_all_by_actual_object_id(self.id).collect { |p| p.playlist_item.playlist_id }.uniq
   end
 
+  def self.cache_options
+    options = []
+    ['true', 'false'].each do |ann|
+      [11, 14, 16, 20].each do |size|
+        ['true', 'false'].each do |text|
+          ['serif', 'sans-serif'].each do |type|
+            options << "?" + CGI.escape("ann=#{ann}&size=#{size}&text=#{text}&type=#{type}")
+          end
+        end
+      end
+    end
+    options
+  end
+
   def relation_ids
     r = self.parents
     i = 0
