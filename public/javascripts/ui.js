@@ -49,8 +49,14 @@ jQuery.extend({
           if(is_owner) {
 			      jQuery.listenToRecordCollageState();
           }
-        } else {
-		      jQuery.observeDragAndDrop();
+        } else if(jQuery.classType() == 'playlists') {
+          jQuery('.add-popup select option').remove();
+          var playlists = jQuery.parseJSON(results.playlists); 
+          jQuery.each(playlists, function(i, el) {
+            var node = jQuery('<option>').val(el.playlist.id).text(el.playlist.name);
+            jQuery('.add-popup select').append(node);
+          });
+          jQuery.observeDragAndDrop();
         }
       }
     });

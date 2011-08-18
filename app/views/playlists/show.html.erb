@@ -114,4 +114,12 @@ var container_id = <%= @playlist.id %>;
 var editability_path = "<%= access_level_playlist_path(@playlist) %>"; 
 </script>
 
-<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
+<div class="popup add-popup" data-type="<%= type %>">
+  <h4>ADD TO</h4>
+  <%= collection_select(:playlist, :id, [], :id, :name) %>
+  <ul>
+    <li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist-and-item" %></li>
+    <li><a href="#" class="bookmark-popup bookmark-this bookmark-action">ADD BOOKMARK</a></li>
+  </ul>
+  <a href="#" class="btn new-playlist-item">ADD FILE</a>
+</div>

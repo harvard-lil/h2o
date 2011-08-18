@@ -30,7 +30,11 @@ class PlaylistsController < BaseController
   def access_level 
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
     respond_to do |format|
-      format.json { render :json => { :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false, :can_edit => @can_edit } }
+      format.json { render :json => {
+        :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
+        :can_edit => @can_edit,
+        :playlists => current_user ? current_user.playlists.to_json(:only => [:id, :name]) : []}
+      }
     end
   end
 
