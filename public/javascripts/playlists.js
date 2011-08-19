@@ -29,16 +29,36 @@ jQuery.extend({
     jQuery("#playlist .link-print span").parent().click(function() { 
       jQuery('.print-popup').toggle();
       jQuery(this).toggleClass("btn-a-active");
+      jQuery('.print-popup a').tipsy('hide');
       return false;
     });
     jQuery('.print-popup a').click(function(e) {
       e.preventDefault();
+      var el = jQuery(this);
+      el.tipsy('hide');
       data = {};
       data["text"] = jQuery('#alltext').attr('checked') ? true : false;
       data["ann"] = jQuery('#allannotations').attr('checked') ? true : false;
       data["size"] = jQuery('#printfontsize').val();
       data["type"] = jQuery('#printfonttype').val();
-      document.location = jQuery(this).attr('href') + '?' + jQuery.param(data);
+      jQuery.ajax({
+        method: 'GET',
+        cache: false,
+        url: el.data('check') + '?' + jQuery.param(data),
+        dataType: "JSON",
+        beforeSend: function(){
+          jQuery.showGlobalSpinnerNode();
+        },
+        success: function(html){
+          jQuery.hideGlobalSpinnerNode();
+          document.location = el.attr('href') + '?' + jQuery.param(data);
+        },
+        error: function(result) {
+          el.tipsy({ trigger: 'manual', fallback: "This PDF must be regenerated. Please come back later to download." });
+          el.tipsy('show');
+          jQuery.hideGlobalSpinnerNode();
+        }
+      });
     });
   },
   observeStats: function() {

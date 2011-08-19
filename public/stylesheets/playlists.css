@@ -101,3 +101,8 @@ font-size: 9px; font-weight: bold; }
 .requires_logged_in { opacity: 0.0; }
 .requires_edit { opacity: 0.0; }
 .afterload { opacity: 0.0; }
+
+/* Tipsy */
+.tipsy { margin-top: 3px; }
+.tipsy-inner { background-color: #FFD5A4; color: #000; max-width: 200px; padding: 10px; text-align: center; font-weight: bold; }
+.tipsy-arrow-n { border-bottom-color: #FFD5A4; }
