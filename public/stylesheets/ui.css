@@ -372,7 +372,7 @@ color: #4e9ed1; padding: 4px 11px; }
   float: left; display: inline; width:24px; height:23px; font-size: 0; line-height: 0; text-indent: -4000px; }
 .playlist .number { float:left; display:inline;  width:24px; font-size:10px;
   line-height:20px; color:#666; font-weight:bold; text-align:center;
-  border-bottom: 1px solid #e0e1e1; border-left: 1px solid #e0e1e1;
+  border: 1px solid #e0e1e1; border-top: none; 
   padding-top: 2px; }
 .playlist .data { float: right; display: inline; width:550px; position:relative; 904px;  padding-right:345px; } 
 .playlist .data .dd { position:absolute; top:7px; left:-17px; width:12px; height:12px; background:url(/images/ui/app_icons.png) -14px -115px no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
