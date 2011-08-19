@@ -12,7 +12,6 @@ namespace :h2o do
           puts "Generating PDF for: #{url}"
           file = File.new(output_file, "w+")
           system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html \"#{url}\" #{file.path}")
-          sleep 2
         end
       end
     end
