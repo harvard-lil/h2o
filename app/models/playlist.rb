@@ -71,7 +71,7 @@ class Playlist < ActiveRecord::Base
   def self.cache_options
     options = []
     ['true', 'false'].each do |ann|
-      [11, 14, 16, 20].each do |size|
+      [11, 14, 16].each do |size|
         ['true', 'false'].each do |text|
           ['serif', 'sans-serif'].each do |type|
             options << "ann=#{ann}&size=#{size}&text=#{text}&type=#{type}"

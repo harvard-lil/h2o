@@ -9,13 +9,13 @@ class PlaylistsController < BaseController
   caches_page :show, :if => Proc.new { |c| c.request.format.html? }
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
-  before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata]
-  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export]
-  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level]
+  before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]
+  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export, :check_export]
+  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level, :check_export]
   before_filter :store_location, :only => [:index, :show]
   
   access_control do
-    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level]
+    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
@@ -103,11 +103,11 @@ class PlaylistsController < BaseController
   # GET /playlists/1
   # GET /playlists/1.xml
   def show
-    add_javascripts 'playlists'
-    add_stylesheets 'playlists'
-
     respond_to do |format|
       format.html do
+        add_javascripts ['playlists', 'jquery.tipsy']
+        add_stylesheets 'playlists'
+
         @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
         @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
         (@shown_words, @total_words) = @playlist.collage_word_count
@@ -118,15 +118,18 @@ class PlaylistsController < BaseController
         cgi = request.query_parameters.to_query
         clean_cgi = CGI.escape(cgi)
         url = request.url.gsub(/\.pdf.*/, "/export") + "?#{cgi}"
-        if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}")
-          send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
-        else
-          file = File.new("#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", "w+")
-          system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html \"#{url}\" #{file.path}")
-          file.close
-          send_file file.path, :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
-        end
+        send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
       end
+    end
+  end
+
+  def check_export
+    cgi = request.query_parameters.delete_if { |k, v| k == "_" }.to_query
+    clean_cgi = CGI.escape(cgi)
+    if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{params[:id]}.pdf?#{clean_cgi}")
+      render :json => {}, :status => 200
+    else
+      render :json => {}, :status => 404
     end
   end
 

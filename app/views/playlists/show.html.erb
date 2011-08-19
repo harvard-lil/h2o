@@ -32,7 +32,6 @@
                   <option value="11">Small</option>
                   <option value="14">Medium</option>
                   <option value="16">Large</option>
-                  <option value="20">Extra Large</option>
                 </select>
 								<div class="cl">&nbsp;</div>
 							</li>
@@ -45,7 +44,7 @@
 								<div class="cl">&nbsp;</div>
 							</li>
               <li>
-                <a href="<%= playlist_path(@collage, :format => 'pdf') %>" class="btn-a">DOWNLOAD</a>
+                <a data-check="<%= check_export_playlist_path(@playlist) %>" href="<%= playlist_path(@playlist, :format => 'pdf') %>" class="btn-a">DOWNLOAD</a>
               </li>
 						</ul>
 					</div>
