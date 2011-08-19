@@ -13,7 +13,7 @@ background: url(/images/ui/asterisk.jpg) 2px 4px no-repeat; text-indent: 10px; }
 .playlists .collage-content article { position: relative; }
 .playlists .collage-content article .paragraph-numbering { left: -50px; }
 
-#playlist { padding: 0px; }
+#playlist { padding: 0px; width: 980px; overflow: hidden; }
 #playlist .details { padding-bottom: 10px; }
 #playlist ul { list-style-type: none; }
 #playlist .playlists .playlists { display: block; }
