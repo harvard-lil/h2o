@@ -53,7 +53,11 @@ jQuery.extend({
           var notes = jQuery.parseJSON(results.notes); 
           jQuery.each(notes, function(i, el) {
             if(el.playlist_item.notes != null) {
-              var node = jQuery('<div>').html('<b>Additional Notes (private):</b><br />' + el.playlist_item.notes).addClass('notes');
+              var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+              var node = jQuery('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
+              if(jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').length) {
+                jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').remove();
+              } 
               jQuery('#playlist_item_' + el.playlist_item.id + ' > .data').append(node);
             }
           });
