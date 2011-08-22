@@ -56,7 +56,7 @@ class ItemBaseController < BaseController
   end
 
   def create
-    if controller_class_name = "ItemDefaultsController"
+    if controller_class_name == "ItemDefaultsController"
       begin
         id = params[:item_default][:url].match(/[0-9]+$/)[0]
         item = ItemDefault.find(id)
