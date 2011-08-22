@@ -54,7 +54,7 @@ jQuery.extend({
           document.location = el.attr('href') + '?' + jQuery.param(data);
         },
         error: function(result) {
-          el.tipsy({ trigger: 'manual', fallback: "This PDF must be regenerated. Please come back later to download." });
+          el.tipsy({ trigger: 'manual', fallback: "We're building your PDF. This may take a while." });
           el.tipsy('show');
           jQuery.hideGlobalSpinnerNode();
         }
