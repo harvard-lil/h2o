@@ -54,7 +54,7 @@ jQuery.extend({
           jQuery.each(notes, function(i, el) {
             if(el.playlist_item.notes != null) {
               var node = jQuery('<div>').html('<b>Additional Notes (private):</b><br />' + el.playlist_item.notes).addClass('notes');
-              jQuery('#playlist_item_' + el.playlist_item.id + ' .data').append(node);
+              jQuery('#playlist_item_' + el.playlist_item.id + ' > .data').append(node);
             }
           });
           jQuery('.add-popup select option').remove();
