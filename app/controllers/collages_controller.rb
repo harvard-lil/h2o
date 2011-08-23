@@ -8,6 +8,8 @@ class CollagesController < BaseController
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :record_collage_print_state]
   before_filter :store_location, :only => [:index, :show]
 
+  protect_from_forgery :except => [:spawn_copy]
+
   access_control do
     allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state, :access_level]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
