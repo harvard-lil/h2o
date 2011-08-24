@@ -261,6 +261,6 @@ jQuery(document).ready(function(){
   jQuery.observeStats();
   jQuery.observeFontChange();
   jQuery.initPlaylistItemAddControls();
-  jQuery.initializePrintListeners();
+  //jQuery.initializePrintListeners();
   jQuery.initializeNoteFunctionality();
 });

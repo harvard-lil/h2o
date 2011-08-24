@@ -11,16 +11,32 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     expire_fragment "playlist-#{record.id}-index"
     expire_fragment "playlist-#{record.id}-tags"
     expire_page :controller => :playlists, :action => :show, :id => record.id
+    expire_page :controller => :playlists, :action => :export, :id => record.id
     system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
 
     record.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
+      expire_page :controller => :playlists, :action => :export, :id => p
       system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
     end
 
     users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
     users.push(current_user.id) if current_user
     users.each { |u| Rails.cache.delete("user-playlists-#{u}") }
+  end
+
+  def playlist_clear_nonsiblings(id)
+    record = Playlist.find(params[:id])
+
+    expire_page :controller => :playlists, :action => :show, :id => record.id
+    expire_page :controller => :playlists, :action => :export, :id => record.id
+    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
+
+    record.relation_ids.each do |p|
+      expire_page :controller => :playlists, :action => :show, :id => p
+      expire_page :controller => :playlists, :action => :export, :id => p
+      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
+    end
   end
 
   def after_save(record)
@@ -32,26 +48,10 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   end
 
   def after_playlists_position_update
-    record = Playlist.find(params[:id])
-
-    expire_page :controller => :playlists, :action => :show, :id => record.id
-    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
-
-    record.relation_ids.each do |p|
-      expire_page :controller => :playlists, :action => :show, :id => p
-      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
-    end
+    playlist_clear_nonsiblings(params[:id])
   end
 
   def after_playlists_notes
-    record = Playlist.find(params[:id])
-
-    expire_page :controller => :playlists, :action => :show, :id => record.id
-    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
-
-    record.relation_ids.each do |p|
-      expire_page :controller => :playlists, :action => :show, :id => p
-      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
-    end
+    playlist_clear_nonsiblings(params[:id])
   end
 end

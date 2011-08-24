@@ -253,7 +253,7 @@ class CollagesController < BaseController
     else
       @readable_state = @collage.readable_state
     end
-    render :layout => 'pdf'
+    render :layout => 'print'
   end
 
   private 

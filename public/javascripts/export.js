@@ -15,6 +15,8 @@ jQuery.extend({
           //Do Nothing until the end
 				} else if(i.match(/\.a/) && e != 'none') {
 					jQuery('#collage' + id + ' ' + i).css('display', 'inline');
+				} else if(i.match(/#annotation-content-/) && e != 'none') {
+					jQuery('#collage' + id + ' ' + i).css('display', 'block');
 				} else if(i.match(/\.unlayered/)) {
 					if(e == 'none') {
 						jQuery('#collage' + id + ' ' + i).css('display', 'none');
@@ -41,34 +43,24 @@ jQuery.extend({
         jQuery('body,tt').css('font-family', data.print_data.fonttype);
       }
 		});
-		/* Playlist */
-		if(jQuery('#playlist').length) {
-			 var data = [];
-			 var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-			 for(var i = 0; i < hashes.length; i++)
-			 {
-				 var hash = hashes[i].split('=');
-				 data[hash[0]] = hash[1];
-			}
-			if(data.text == 'true') {
-				jQuery('.unlayered').show();
-				jQuery('.unlayered-ellipsis').remove();
-			}
-			if(data.ann == 'true') {
-				jQuery('.annotation-content').css('display', 'inline-block');
-			}
-      
-      /* Note: % and em is not working here as expected */
-      jQuery('body,.collage-content').css('font-size', data.size + 'pt');
-      jQuery('#playlist h3,#playlist h1').css('font-size', (parseInt(data.size) + 6) + 'pt');
-      jQuery('#playlist #description').css('font-size', (parseInt(data.size) + 2) + 'pt');
-      jQuery('#playlist .details h2').css('font-size', (parseInt(data.size) - 1) + 'pt');
-
-			jQuery('body,tt').css('font-family', data.type);
-		}
 	}
 });
 
 jQuery(document).ready(function(){
 	jQuery.loadState();
+  jQuery('#printfonttype').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+  	jQuery('body,tt').css('font-family', jQuery(this).val());
+  });
+  jQuery('#printfontsize').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+    var size = jQuery(this).val();
+    jQuery('body,tt,.collage-content,#playlist #description').css('font-size', size + 'pt');
+    jQuery('#playlist h1').css('font-size', (parseInt(size) + 6) + 'pt');
+    jQuery('#playlist h3').css('font-size', (parseInt(size) + 3) + 'pt');
+    jQuery('#playlist .details h2').css('font-size', (parseInt(size) - 1) + 'pt');
+  });
+  jQuery('.unlayered-ellipsis').replaceWith('<span class="unlayered-ellipsis">[...]</span>');
 });

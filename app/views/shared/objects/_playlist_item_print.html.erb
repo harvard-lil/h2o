@@ -7,7 +7,7 @@
 	<%= link_to item.resource_item.name, item.resource_item.url, :target => 'blank' %>
 	<% end -%>
   </h3>
-  <p><%= PlaylistItem.format_content(item.resource_item.description) %></p>
+  <div class="item_description"><%= PlaylistItem.format_content(item.resource_item.description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
 	<div class="notes">
 		<b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
@@ -17,10 +17,12 @@
   <% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
   <% if item.resource_item_type == 'ItemCollage' -%>
     <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.resource_item.actual_object } %>
+    <div class="page-break"></div>
   <% elsif item.resource_item_type == 'ItemCase' -%>
     <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => item.resource_item.actual_object } %>
+    <div class="page-break"></div>
   <% elsif item.resource_item_type == 'ItemPlaylist' && recursive_level < 4 -%>
-    <p><%= item.resource_item.actual_object.description %></p>
+    <div class="item_description"><%= PlaylistItem.format_content(item.resource_item.actual_object.description) %></div>
     <section class="playlists">
       <ul>
         <% item.resource_item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>

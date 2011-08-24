@@ -7,6 +7,7 @@ class PlaylistsController < BaseController
   
   cache_sweeper :playlist_sweeper
   caches_page :show, :if => Proc.new { |c| c.request.format.html? }
+  caches_page :export
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]
@@ -372,9 +373,8 @@ class PlaylistsController < BaseController
   end
 
   def export
-    add_javascripts 'export_collage'
     @playlist = Playlist.find(params[:id])
-    render :layout => 'pdf'
+    render :layout => 'print'
   end
 
   def notes

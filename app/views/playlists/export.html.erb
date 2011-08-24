@@ -1,3 +1,24 @@
+<div class="popup print-popup">
+  <ul>
+    <li>
+      <strong>FONT SIZE</strong>
+      <select id="printfontsize">
+        <option value="11" selected="selected">Small</option>
+        <option value="14">Medium</option>
+        <option value="16">Large</option>
+      </select>
+      <div class="cl"></div>
+    </li>
+    <li>
+      <strong>FONT TYPE</strong>
+      <select id="printfonttype">
+        <option value="serif">Serif</option>
+        <option value="sans-serif" selected="selected">Sans-Serif</option>
+      </select>
+      <div class="cl"></div>
+    </li>
+  </ul>
+</div>
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
 		<h1><%= @playlist.name %></h1>
