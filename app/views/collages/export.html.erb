@@ -1,7 +1,7 @@
 <div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
-  <h2 class="collage-id"><%= @collage.name %></h2>
+  <h1 id="singlecollage"><%= @collage.name %></h1>
   <p class="info"><%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| u.login }.join(',') %></p>
-  <p class="desc"><%= Collage.format_content(@collage.description) %></p>
+  <p class="item_description"><%= Collage.format_content(@collage.description) %></p>
   <% cache("collage-#{@collage.id}-annotatable-content") do %>
   <article>
     <%= raw @collage.annotatable_content %>

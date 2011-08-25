@@ -6,8 +6,7 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
   
   cache_sweeper :playlist_sweeper
-  caches_page :show, :if => Proc.new { |c| c.request.format.html? }
-  caches_page :export
+  caches_page :show, :export
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]
@@ -116,12 +115,6 @@ class PlaylistsController < BaseController
         render 'show' # show.html.erb
       end
       format.xml  { render :xml => @playlist }
-      format.pdf do
-        cgi = request.query_parameters.to_query
-        clean_cgi = CGI.escape(cgi)
-        url = request.url.gsub(/\.pdf.*/, "/export") + "?#{cgi}"
-        send_file "#{RAILS_ROOT}/tmp/cache/playlist_#{@playlist.id}.pdf?#{clean_cgi}", :filename => "#{@playlist.name}.pdf", :type => 'application/pdf'
-      end
     end
   end
 

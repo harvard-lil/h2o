@@ -220,7 +220,8 @@ jQuery.extend({
       jQuery(this).toggleClass("btn-a-active");
       return false;
     });
-    jQuery('.print-popup a').click(function(e) {
+    jQuery('.print-popup a.btn-a').click(function(e) {
+      jQuery.showGlobalSpinnerNode();
       e.preventDefault();
       var data = jQuery.retrieveState();
       data.highlights = {};
@@ -230,8 +231,6 @@ jQuery.extend({
       data["print_data"] = {};
       data.print_data["alltext"] = jQuery('#alltext').attr('checked') ? true : false;
       data.print_data["allannotations"] = jQuery('#allannotations').attr('checked') ? true : false;
-      data.print_data["fontsize"] = jQuery('#printfontsize').val();
-      data.print_data["fonttype"] = jQuery('#printfonttype').val();
 
       var el = jQuery(this);
       jQuery.ajax({
@@ -243,7 +242,11 @@ jQuery.extend({
         },
         url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/record_collage_print_state',
         success: function(results){
-          document.location = el.attr('href') + '?state_id=' + results.id;
+          //jQuery('.print-popup .btn-a').attr('href', '/collages/' + jQuery.getItemId() + '/export/' + results.id);
+          //window.open('/collages/' + jQuery.getItemId() + '/export/' + results.id, '_blank');
+          window.location = "/collages/" + jQuery.getItemId() + "/export/" + results.id;
+          //var link = jQuery('<a>').attr('href', '/collages/' + jQuery.getItemId() + '/export/' + results.id)
+          //  .html('test').attr('target', '_blank').click();
         }
       });
     });

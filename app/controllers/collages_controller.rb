@@ -2,7 +2,7 @@ require 'tempfile'
 
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
-  caches_page :show, :if => Proc.new { |c| c.request.format.html? }
+  caches_page :show
 
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state, :access_level]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :record_collage_print_state]
@@ -127,16 +127,6 @@ class CollagesController < BaseController
     respond_to do |format|
       format.html { render 'show' }
       format.xml  { render :xml => @collage }
-      format.pdf do
-        url = request.url.gsub(/\.pdf.*/, "/export/#{params[:state_id]}")
-        file = Tempfile.new('collage.pdf')
-        system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/collage_footer.html #{url} - > #{file.path}")
-        file.close
-        send_file file.path, :filename => "#{@collage.name.gsub(/"/, '')}.pdf", :type => 'application/pdf'
-        #file.unlink
-        #Removing saved state after used
-        ReadableState.delete(params[:state_id])
-      end
     end
   end
 

@@ -1,24 +1,3 @@
-<div class="popup print-popup">
-  <ul>
-    <li>
-      <strong>FONT SIZE</strong>
-      <select id="printfontsize">
-        <option value="11" selected="selected">Small</option>
-        <option value="14">Medium</option>
-        <option value="16">Large</option>
-      </select>
-      <div class="cl"></div>
-    </li>
-    <li>
-      <strong>FONT TYPE</strong>
-      <select id="printfonttype">
-        <option value="serif">Serif</option>
-        <option value="sans-serif" selected="selected">Sans-Serif</option>
-      </select>
-      <div class="cl"></div>
-    </li>
-  </ul>
-</div>
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
 		<h1><%= @playlist.name %></h1>
@@ -28,7 +7,7 @@
 			<%= @playlist.created_at.to_s(:simpledatetime) %>
 			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
 		</h2>
-		<div id="description">
+		<div id="description" class="item_description">
 			<%= Playlist.format_content(@playlist.description) %>
 		</div>
 	</div>

@@ -3,8 +3,7 @@
   :right_search => 'collages/nav_search' } %>
 
 <div id="tooltip" class="tipsy tipsy-s">
-<div class="tipsy-arrow tipsy-arrow-s"></div>
-<div class="tipsy-inner">
+<div class="tipsy-arrow tipsy-arrow-s"></div> <div class="tipsy-inner">
 Your annotation will start here. Please click another word to set the end point.
 <a href="#" id="cancel-annotation">cancel</a>
 </div>
@@ -40,26 +39,8 @@ Your annotation will start here. Please click another word to set the end point.
 								SHOW ALL ANNOTATIONS</strong>
 								<div class="cl">&nbsp;</div>
 							</li>
-							<li>
-								<strong>FONT SIZE</strong>
-                <select id="printfontsize">
-                  <option value="11">Small</option>
-                  <option value="14">Medium</option>
-                  <option value="16">Large</option>
-                  <option value="20">Extra Large</option>
-                </select>
-								<div class="cl">&nbsp;</div>
-							</li>
-							<li>
-								<strong>FONT TYPE</strong>
-                <select id="printfonttype">
-                  <option value="serif">Serif</option>
-                  <option value="sans-serif">Sans-Serif</option>
-                </select>
-								<div class="cl">&nbsp;</div>
-							</li>
               <li>
-                <a href="<%= collage_path(@collage, :format => 'pdf') %>" class="btn-a">DOWNLOAD</a>
+                <a href="#" class="btn-a" target="_blank">DOWNLOAD</a>
               </li>
 						</ul>
 					</div>
