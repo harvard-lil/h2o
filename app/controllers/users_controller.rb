@@ -82,15 +82,15 @@ class UsersController < ApplicationController
     end
 
     if current_user
-      @is_case_admin = [] #current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
-      @is_collage_admin = [] #current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
-      @playlist_admin = [] #current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
-      @playlists_i_can_edit = [] #current_user.playlists_i_can_edit
+      @is_case_admin = false #current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
+      @is_collage_admin = false #current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
     
-      if current_user == @current_user
+      if current_user == @user
         @my_collages = @collages
         @my_playlists = @playlists
         @my_cases = @cases
+      else
+        @my_collages = @my_playlists = @my_cases = []
       end
     else
       @is_collage_admin = false
