@@ -265,7 +265,7 @@ jQuery.extend({
       e.preventDefault();
       var region = '#all_' + jQuery.classType();
       if(jQuery('#bbase').length || jQuery('#busers').length) {
-        region = '#all_' + element.closest('div').data('type');
+        region = '#all_' + jQuery(this).closest('div').data('type');
       }
       jQuery.listResults(jQuery(this).attr('href'), region);
     });
