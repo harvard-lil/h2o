@@ -16,8 +16,7 @@
 				<span>BROWSE TAGS</span>
 			</a>
 			<% cache("cases-all-tags") do -%>
-			<% form_tag(cases_path, :method => :get) do %>
-			<div class="browse-tags-popup" id="cases_browse">
+			<div class="browse-tags-popup" id="browse_form">
 				<ul>
 					<% Case.tag_list.each do |tag| %>
 					<li>
@@ -32,7 +31,6 @@
 					<%= link_to raw('Clear &raquo;'), cases_path, :class => 'clear' %>
 				</div>
 			</div>
-			<% end -%>
 			<% end -%>
 		</li>
     <%= render :partial => 'shared/search_all_fields' %>
