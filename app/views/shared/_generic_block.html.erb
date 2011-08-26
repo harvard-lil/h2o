@@ -1,0 +1,7 @@
+<%= render :partial => "shared/objects/#{@view}", :collection => @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.results %>
+
+<% if request.xhr? -%>
+<div id="new_pagination" style="display:none;">
+<%= will_paginate @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.hits, :container => false, :previous_label => 'Prev', :next_label => 'Next' %>
+<div>
+<% end -%>

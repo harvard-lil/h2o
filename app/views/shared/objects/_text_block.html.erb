@@ -1,0 +1,28 @@
+<li class="listitem listitem<%= text_block.id %>" data-itemid="<%= text_block.id %>">
+	<div class="details">
+    <% cache "text_block-#{text_block.id}-tags" do %>
+      <div class="tags">
+        <ul>
+          <% text_block.tag_list.each do |tag| %>
+          <li><%= link_to tag, text_block_tag_path(CGI.escape(tag)) %></li>
+          <% end -%>
+        </ul>
+      </div>
+    <% end -%>
+    <h4><%= link_to text_block.name, text_block_path(text_block), :class => "title" %>
+      <% if current_user && (@is_text_block_admin || @my_text_blocks.include?(text_block)) %>
+        <%= link_to 'DELETE', text_block, :class => "action delete-action" %>
+        <% end %>
+    </h4>
+    <% cache "text_block-#{text_block.id}-index" do %>
+    <p>
+      <%= text_block.created_at.to_s(:simpledatetime) %>
+      <% if text_block.creators -%>
+      by
+      <%= raw text_block.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+      <% end -%>
+    </p>
+    <% end -%>
+	</div>
+	<div class="cl"></div>
+</li>

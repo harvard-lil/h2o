@@ -109,7 +109,9 @@ class CollagesController < BaseController
       # and via AJAX.
       format.html do
         if request.xhr?
-          render :partial => 'collages_block'
+          @view = "collage"
+          @collection = @collages
+          render :partial => 'shared/generic_block'
         else
           render 'index'
         end

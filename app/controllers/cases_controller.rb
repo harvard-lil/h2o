@@ -88,7 +88,9 @@ class CasesController < BaseController
     respond_to do |format|
       format.html do
         if request.xhr?
-          render :partial => 'cases_block'
+          @view = "case_obj"
+          @collection = @cases
+          render :partial => 'shared/generic_block'
         else
           render 'index'
         end

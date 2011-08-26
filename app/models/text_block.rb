@@ -60,9 +60,22 @@ class TextBlock < ActiveRecord::Base
     text :description
     boolean :active
     boolean :public
+    string :author
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
   end
 
+  def author
+    owner = self.accepted_roles.find_by_name('owner')
+    owner.nil? ? nil : owner.user.login.downcase
+  end
+
+  def self.tag_list
+    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+      JOIN tags t ON ts.tag_id = t.id
+	  WHERE taggable_type = 'TextBlock'
+	  GROUP BY ts.tag_id, t.name
+	  ORDER BY COUNT(*) DESC LIMIT 25")
+  end
 end

@@ -69,6 +69,7 @@ class BaseController < ApplicationController
         order_by params[:sort].to_sym, params[:order].to_sym
       end
       @playlists.execute!
+      @collection = @playlists
     end
 
     if !request.xhr? || params[:ajax_region] == 'collages'
@@ -84,6 +85,7 @@ class BaseController < ApplicationController
         order_by params[:sort].to_sym, params[:order].to_sym
       end
       @collages.execute!
+      @collection = @collages
     end
 
     if !request.xhr? || params[:ajax_region] == 'cases'
@@ -99,6 +101,7 @@ class BaseController < ApplicationController
         order_by params[:sort].to_sym, params[:order].to_sym
       end
       @cases.execute!
+      @collection = @cases
     end
 
     if current_user
@@ -117,7 +120,8 @@ class BaseController < ApplicationController
     respond_to do |format|
       format.html do
         if request.xhr?
-          render :partial => "#{params[:ajax_region]}/#{params[:ajax_region]}_block"
+          @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize  
+          render :partial => 'shared/generic_block'
         else
           render 'search'
         end

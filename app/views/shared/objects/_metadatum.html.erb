@@ -1,12 +1,7 @@
 <div class="metadatum-display">
-  <fieldset>
-    <legend>Metadata</legend>
-    <ul style="display:none;">
-      <% Metadatum::DISPLAY_FIELDS.each do|col| %>
-        <% unless metadatum.send(col).blank? %>
-          <li class="metadata-<%= col %>"><span class="label"><%= col.to_s.titleize %>:</span><span class="data"><%= metadatum.send(col) %></span></li>
-        <% end %>
-      <% end %>
-    </ul>
-  </fieldset>
+  <% Metadatum::DISPLAY_FIELDS.each do |col| %>
+  <% unless metadatum.send(col).blank? %>
+  <p><%= col.to_s.titleize %>: <%= metadatum.send(col) %></p>
+  <% end %>
+  <% end %>
 </div>

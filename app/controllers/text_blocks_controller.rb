@@ -1,9 +1,7 @@
 class TextBlocksController < BaseController
-  before_filter :prep_resources
-  before_filter :my_text_blocks, :only => [:index, :show]
-  before_filter :is_text_block_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
   before_filter :load_text_block, :only => [:show, :edit, :update, :destroy]
+  before_filter :store_location, :only => [:index, :show]
 
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
@@ -12,6 +10,7 @@ class TextBlocksController < BaseController
   end
 
   def show
+    add_stylesheets 'text_blocks'
   end
 
   # GET /text_blocks/1/edit
@@ -41,11 +40,9 @@ class TextBlocksController < BaseController
     end
   end
 
-
   # POST /text_blocks
   # POST /text_blocks.xml
   def create
-
     unless params[:text_block][:tag_list].blank?
       params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
     end
@@ -67,48 +64,74 @@ class TextBlocksController < BaseController
     end
   end
 
-  # GET /text_blocks
-  # GET /text_blocks.xml
-  def index
-    @text_blocks = Sunspot.new_search(TextBlock)
-
-    @text_blocks.build do
-      unless params[:keywords].blank?
+  def build_search(params)
+    text_blocks = Sunspot.new_search(TextBlock)
+    
+    text_blocks.build do
+      if params.has_key?(:keywords)
         keywords params[:keywords]
+      end
+      if params[:tags]
+        if params[:any]
+          any_of do
+            params[:tags].each { |t| with :tag_list, t }
+          end
+        else
+          params[:tags].each { |t| with :tag_list, t }
+        end
+      end
+      if params[:tag]
+        with :tag_list, CGI.unescape(params[:tag])
       end
       with :public, true
       with :active, true
-      paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-      data_accessor_for(TextBlock).include = [:metadatum, :collages]
-      order_by :display_name, :asc
+      paginate :page => params[:page], :per_page => 25
+      order_by params[:sort].to_sym, params[:order].to_sym
     end
+    text_blocks.execute!
+    text_blocks
+  end
 
-    if params[:tags]
+  # GET /text_blocks
+  # GET /text_blocks.xml
+  def index
+    params[:page] ||= 1
+    params[:sort] ||= 'display_name'
+    params[:order] ||= 'asc'
 
-      if params[:any] 
-        @text_blocks.build do
-          any_of do
-            params[:tags].each do|t|
-              with :tag_list, t
-            end
-          end
-        end
-
-      else
-        @text_blocks.build do
-          params[:tags].each do|t|
-            with :tag_list, t
-          end
-        end
+    if params[:keywords]
+      text_blocks = build_search(params)
+      t = text_blocks.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+      @text_blocks = WillPaginate::Collection.create(params[:page], 25, text_blocks.total) { |pager| pager.replace(t) }
+    else
+      @text_blocks = Rails.cache.fetch("text_blocks-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}") do 
+        text_blocks = build_search(params)
+        t = text_blocks.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+        { :results => t, 
+          :count => text_blocks.total }
       end
-
+      @text_blocks = WillPaginate::Collection.create(params[:page], 25, @text_blocks[:count]) { |pager| pager.replace(@text_blocks[:results]) }
     end
 
-    @text_blocks.execute!
+    if current_user
+      @my_text_blocks = current_user.text_blocks
+      @my_bookmarks = current_user.bookmarks_type(TextBlock, ItemTextBlock)
+      @is_text_block_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
+    else
+      @my_text_blocks = @my_bookmarks = []
+      @is_text_block_admin = false
+    end
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.js { render :partial => 'text_block_list' }
+      format.html do
+        if request.xhr?
+          @view = "text_block"
+          @collection = @text_blocks
+          render :partial => 'shared/generic_block'
+        else
+          render 'index'
+        end
+      end
       format.xml  { render :xml => @text_blocks }
     end
   end
@@ -147,25 +170,7 @@ class TextBlocksController < BaseController
 
   private 
 
-  def is_text_block_admin
-    if current_user
-      @is_text_block_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
-    end
-  end
-
-  def my_text_blocks
-    if current_user
-      @my_text_blocks = current_user.text_blocks
-    end
-  end
-
   def load_text_block
     @text_block = TextBlock.find((params[:id].blank?) ? params[:text_block_id] : params[:id])
   end
-
-  def prep_resources
-    add_javascripts ['jquery.tablesorter.min','markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js','text_blocks']
-    add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/html/style.css','/javascripts/markitup/sets/textile/style.css']
-  end
-
 end

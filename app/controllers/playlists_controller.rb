@@ -92,7 +92,9 @@ class PlaylistsController < BaseController
     respond_to do |format|
       format.html do
         if request.xhr?
-          render :partial => 'playlists_block'
+          @view = "playlist"
+          @collection = @playlists
+          render :partial => 'shared/generic_block'
         else
           render 'index'
         end
@@ -286,16 +288,6 @@ class PlaylistsController < BaseController
         format.html { render :action => "new" }
         format.xml  { render :xml => @playlist_copy.errors, :status => :unprocessable_entity }
       end
-    end
-  end
-
-  def block
-    respond_to do |format|
-      format.html {
-        render :partial => 'playlists_block',
-        :layout => false
-      }
-      format.xml  { head :ok }
     end
   end
 

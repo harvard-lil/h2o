@@ -62,7 +62,7 @@ class UsersController < ApplicationController
       if(params[:order] == 'desc') 
         p = p.reverse
       end
-      @playlists = p.paginate :page => params[:page], :per_page => 25
+      @collection = @playlists = p.paginate(:page => params[:page], :per_page => 25)
     end
 
     if !request.xhr? || params[:ajax_region] == 'collages'
@@ -70,7 +70,7 @@ class UsersController < ApplicationController
       if(params[:order] == 'desc') 
         p = p.reverse
       end
-      @collages = p.paginate :page => params[:page], :per_page => 25
+      @collection = @collages = p.paginate(:page => params[:page], :per_page => 25)
     end
 
     if !request.xhr? || params[:ajax_region] == 'cases'
@@ -78,7 +78,7 @@ class UsersController < ApplicationController
       if(params[:order] == 'desc') 
         p = p.reverse
       end
-       @cases = p.paginate :page => params[:page], :per_page => 25
+      @collection = @cases = p.paginate(:page => params[:page], :per_page => 25)
     end
 
     if current_user
@@ -100,7 +100,8 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html do
         if request.xhr?
-          render :partial => "#{params[:ajax_region]}/#{params[:ajax_region]}_block"
+          @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize
+          render :partial => 'shared/generic_block'
         else
           render 'show'
         end

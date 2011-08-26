@@ -291,6 +291,17 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 #bcollages #results .sort .jsb .jsb-list { background: #e0f5bd; border: 1px solid #8eb356; }
 #bcollages #results .sort .jsb .jsb-list .jsb-item { color: #003100; }
 
+/* Text Blocks Index */
+#btext_blocks #results .sort label { color: #a51514; }
+#results #text_blocks_hgroup { border:1px solid #ff1a05; background:url(/images/ui/red_bg.png) 0px 0px; }
+#results #text_blocks_hgroup .tabs li a { color: #a51514; }
+#my_text_blocks { display: none; }
+#btext_blocks #results .sort label { color: #a51514; }
+#btext_blocks #results .sort .jsb { background: #ff9e92; border: 1px solid #ff1a05; }
+#btext_blocks #results .sort .jsb .jsb-list { background: #ff9e92; border: 1px solid #ff1a05; }
+#btext_blocks #results .sort .jsb .jsb-list .jsb-item { color: #a51514; }
+#btext_blocks #results .sort .jsb .jsb-currentItem { background-position: -142px -99px; color: #a51514; }
+
 #busers header, #buser_sessions header { height: 106px; padding-top: 30px; }
 
 /* Popup */
