@@ -21,7 +21,7 @@
 		<div class="tags">
 			<ul>
 				<% @case.tags.each do |tag| -%>
-				<li><%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %></li>
+				<li><%= link_to tag.name, case_tag_path(CGI.escape(tag.name)) %></li>
 				<% end -%>
 			</ul>
 		</div>
