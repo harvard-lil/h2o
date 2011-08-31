@@ -212,15 +212,7 @@ jQuery.extend({
     });
   },
   initializePrintListeners: function() {
-    jQuery('.print-popup select').selectbox({
-      className: "jsb", replaceInvisible: true 
-    });
-    jQuery("#collage .link-print span").parent().click(function() { 
-      jQuery('.print-popup').toggle();
-      jQuery(this).toggleClass("btn-a-active");
-      return false;
-    });
-    jQuery('.print-popup a.btn-a').click(function(e) {
+    jQuery('#print-container a').click(function(e) {
       jQuery.showGlobalSpinnerNode();
       e.preventDefault();
       var data = jQuery.retrieveState();
@@ -228,9 +220,6 @@ jQuery.extend({
       jQuery.each(highlight_history, function(i, v) {
         data.highlights['.a' + i] = v[v.length - 1];
       });
-      data["print_data"] = {};
-      data.print_data["alltext"] = jQuery('#alltext').attr('checked') ? true : false;
-      data.print_data["allannotations"] = jQuery('#allannotations').attr('checked') ? true : false;
 
       var el = jQuery(this);
       jQuery.ajax({

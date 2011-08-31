@@ -22,45 +22,6 @@ jQuery.extend({
       });
     });
   },
-  initializePrintListeners: function() {
-    jQuery('.print-popup select').selectbox({
-      className: "jsb", replaceInvisible: true 
-    });
-    jQuery("#playlist .link-print span").parent().click(function() { 
-      jQuery('.print-popup').toggle();
-      jQuery(this).toggleClass("btn-a-active");
-      jQuery('.print-popup a').tipsy('hide');
-      return false;
-    });
-    jQuery('.print-popup a').click(function(e) {
-      e.preventDefault();
-      var el = jQuery(this);
-      el.tipsy('hide');
-      data = {};
-      data["text"] = jQuery('#alltext').attr('checked') ? true : false;
-      data["ann"] = jQuery('#allannotations').attr('checked') ? true : false;
-      data["size"] = jQuery('#printfontsize').val();
-      data["type"] = jQuery('#printfonttype').val();
-      jQuery.ajax({
-        method: 'GET',
-        cache: false,
-        url: el.data('check') + '?' + jQuery.param(data),
-        dataType: "JSON",
-        beforeSend: function(){
-          jQuery.showGlobalSpinnerNode();
-        },
-        success: function(html){
-          jQuery.hideGlobalSpinnerNode();
-          document.location = el.attr('href') + '?' + jQuery.param(data);
-        },
-        error: function(result) {
-          el.tipsy({ trigger: 'manual', fallback: "We're building your PDF. This may take a while." });
-          el.tipsy('show');
-          jQuery.hideGlobalSpinnerNode();
-        }
-      });
-    });
-  },
   observeStats: function() {
 		jQuery('#playlist-stats').click(function() {
 			jQuery(this).toggleClass("active");
@@ -261,6 +222,5 @@ jQuery(document).ready(function(){
   jQuery.observeStats();
   jQuery.observeFontChange();
   jQuery.initPlaylistItemAddControls();
-  //jQuery.initializePrintListeners();
   jQuery.initializeNoteFunctionality();
 });

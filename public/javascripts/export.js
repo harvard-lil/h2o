@@ -28,31 +28,10 @@ jQuery.extend({
 		});
 
     /* Single Collage Only */
-    var hide_ellipsis = false;
-    if(jQuery('h1#singlecollage').length == 1) { 
-			var id = jQuery('.singleitem').data('id');
-			var data = eval("collage_data_" + id);
-      if(data.print_data) {
-        if(data.print_data.alltext) {
-          jQuery.rule('#collage' + id + ' .unlayered { display: inline; }').appendTo('style');
-          jQuery.rule('#collage' + id + ' p.unlayered, #collage' + id + ' center.unlayered { display: block; }').appendTo('style');
-          hide_ellipsis = true;
-        }
-        if(data.print_data.allannotations) {
-          jQuery('.annotation-content').css('display', 'inline-block');
-          //Can't use rule here because id selector above overrides class selector here
-          //jQuery.rule('#collage' + id + ' .annotation-content { display: inline-block; }').appendTo('style');
-        }
-      }
-    }
-    if(hide_ellipsis) {
-      jQuery('.unlayered-ellipsis').remove();
-    } else {
-      jQuery('.unlayered-ellipsis').each(function(e, el) {
-        var item = jQuery(el);
-        item.replaceWith('<span id="' + item.attr('id') + '" class="unlayered-ellipsis">[...]</span>');
-      });
-    }
+    jQuery('.unlayered-ellipsis').each(function(e, el) {
+      var item = jQuery(el);
+      item.replaceWith('<span id="' + item.attr('id') + '" class="unlayered-ellipsis">[...]</span>');
+    });
 	}
 });
 
