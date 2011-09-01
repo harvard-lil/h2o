@@ -7,9 +7,14 @@
 		<h2><%= @text_block.display_name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<% if current_user -%>
+				<% if false && current_user -%>
 				  <li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
 				<% end -%>
+        <li id="print-container">
+          <a href="<%= export_text_block_path(@text_block) %>" class="link-print" target="_blank">
+          <span>Print</span>
+          </a>
+        </li>
 			</ul>
 		</aside>
 		<div class="cl"></div>

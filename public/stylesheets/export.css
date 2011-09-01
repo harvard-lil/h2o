@@ -3,7 +3,7 @@ body * { line-height: 1.3em; }
 
 /* Header */
 #playlist h1 { font-size: 17pt; }
-.collage-content > h1 { margin-top: 0px; padding: 20px 0px 4px 0px; font-size: 17pt; }
+.collage-content > h1 { margin-top: 0px; padding: 0px 0px 4px 0px; font-size: 17pt; }
 
 /* Timestamp & Author */
 .collage-content .info { padding: 0px; font-size: 10pt; font-weight: bold; }
@@ -23,7 +23,9 @@ body * { line-height: 1.3em; }
 .collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 2px 5px 2px 18px; margin: 3px;
 background: url(/images/ui/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
 .collage-content .annotation-ellipsis { padding-left: 5px; }
-.collage-content .paragraph-numbering { position: absolute; left: 10px; }
+.collage-content p,
+.collage-content center { position: relative; }
+.collage-content .paragraph-numbering { position: absolute; left: -50px; }
 
 .playlists .collage-content article { position: relative; }
 .playlists .collage-content article .paragraph-numbering { left: -50px; }
@@ -45,14 +47,16 @@ background: url(/images/ui/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; w
 .playlist .icon-type-itemcase { background-position: -54px -92px; }
 .playlist .icon-type-itemannotation { background-position: -72px -92px; }
 
+/* Text Block */
+#text_block { clear: both; }
+#text_block .details { font-style: italic; margin-bottom: 20px; }
+#text_block article p { margin-bottom: 20px; }
+
 /* Print */
-#print-popup { background: url(/images/ui/app_icons.png) 0px -69px; display: inline-block; float: right; width: 24px; height: 23px; }
-.print-popup { float: right; background:#fff; 
-padding: 2px 0px 0px; background: #FFF;
-width: 160px; top: 25px; }
-.print-popup ul { padding: 0px; }
-.print-popup li { margin-bottom: 3px; text-align: right; }
-.print-popup li strong { display: inline-block; width: 50px; }
+.popup { float: right; background:#fff; padding: 2px 0px 0px; background: #FFF; width: 160px; top: 25px; }
+.popup ul { padding: 0px; }
+.popup li { margin-bottom: 3px; text-align: right; }
+.popup li strong { display: inline-block; width: 50px; }
 .popup .jsb { position:relative; height:20px; background:#ffd5a4; border:1px solid #ed9635;
 float: left; display: inline; text-align: left;
 border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px;  -o-border-radius:4px; width:103px !important; }

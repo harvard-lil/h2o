@@ -3,6 +3,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :text_blocks, :collection => {:embedded_pager => :get}
   map.text_block_tag "text_blocks/tag/:tag", :controller => :text_blocks, :action => :index
+  map.export_text_block "text_blocks/:id/export", :controller => :text_blocks, :action => :export
 
   map.resources :item_annotations
 

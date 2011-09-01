@@ -3,7 +3,7 @@
 #text_block .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
 #text_block .description { padding-left:73px; }
 #text_block .description h2 { float:left; display:inline; font-size:15px; line-height:20px; color:#2f312e; width: 700px; padding: 5px 0px; }
-#text_block .description .toolbar { float:right; display:inline; visibility: hidden; }
+#text_block .description .toolbar { float:right; display:inline; }
 #text_block .description .toolbar ul { list-style:none; }
 #text_block .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #FF1A05; }
 #text_block .description .toolbar ul li img { display:block; }

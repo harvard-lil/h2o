@@ -1,16 +1,20 @@
 class TextBlocksController < BaseController
-  before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager]
-  before_filter :load_text_block, :only => [:show, :edit, :update, :destroy]
+  before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export]
+  before_filter :load_text_block, :only => [:show, :edit, :update, :destroy, :export]
   before_filter :store_location, :only => [:index, :show]
 
   access_control do
-    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
     allow :text_block_admin, :admin, :superadmin
     allow :owner, :of => :text_block, :to => [:destroy, :edit, :update]
   end
 
   def show
     add_stylesheets 'text_blocks'
+  end
+
+  def export
+    render :layout => 'print'
   end
 
   # GET /text_blocks/1/edit
