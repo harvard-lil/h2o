@@ -212,32 +212,14 @@ jQuery.extend({
     });
   },
   initializePrintListeners: function() {
-    jQuery('#print-container a').click(function(e) {
-      jQuery.showGlobalSpinnerNode();
-      e.preventDefault();
+    jQuery('#print-container form').submit(function() {
       var data = jQuery.retrieveState();
       data.highlights = {};
       jQuery.each(highlight_history, function(i, v) {
         data.highlights['.a' + i] = v[v.length - 1];
       });
 
-      var el = jQuery(this);
-      jQuery.ajax({
-        type: 'POST',
-        cache: false,
-        data: {
-          id: jQuery.getItemId(),
-          state: JSON.stringify(data)
-        },
-        url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/record_collage_print_state',
-        success: function(results){
-          //jQuery('.print-popup .btn-a').attr('href', '/collages/' + jQuery.getItemId() + '/export/' + results.id);
-          //window.open('/collages/' + jQuery.getItemId() + '/export/' + results.id, '_blank');
-          window.location = "/collages/" + jQuery.getItemId() + "/export/" + results.id;
-          //var link = jQuery('<a>').attr('href', '/collages/' + jQuery.getItemId() + '/export/' + results.id)
-          //  .html('test').attr('target', '_blank').click();
-        }
-      });
+      jQuery('#state').val(JSON.stringify(data));
     });
   },
   highlightHistoryAdd: function(id, aid, highlighted) {

@@ -24,9 +24,10 @@ Your annotation will start here. Please click another word to set the end point.
           <%= link_to "Bookmark This Collage", bookmark_item_path("item_collage"), :class => "link-bookmark bookmark-action" %>
         </li>
 				<li id="print-container">
-          <a href="#" class="link-print">
-            <span>Print</span>
-          </a>
+          <form action="<%= export_unique_collage_path(@collage) %>" target="_blank" method="POST">
+            <input type="hidden" id="state" name="state" value="" />
+            <input type="image" src="/images/ui/print.png" />
+          </form>
         </li>
 			</ul>
 		</aside>

@@ -4,14 +4,14 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   caches_page :show
 
-  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :record_collage_print_state, :access_level]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :record_collage_print_state]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique]
   before_filter :store_location, :only => [:index, :show]
 
-  protect_from_forgery :except => [:spawn_copy]
+  protect_from_forgery :except => [:spawn_copy, :export_unique]
 
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :record_collage_print_state, :access_level]    
+    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :spawn_copy, :embedded_pager, :export, :export_unique, :access_level]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
   end
@@ -212,25 +212,6 @@ class CollagesController < BaseController
     end
   end
 
-  def record_collage_print_state
-    #NOTE: Initially, recording printable collage state was
-    #attempted to be done by session, but the command line
-    #wkhtmltopdf was not loading the current user session,
-    #and therefore was unable to retrieve the current user
-    #collage readable state
-    begin
-      readable_state = ReadableState.new(:state => params[:state])
-      readable_state.save
-      respond_to do |format|
-        format.json { render :json => { :id => readable_state.id } }
-      end
-    rescue Exception => e
-      respond_to do |format|
-        format.json { render :json => {} }
-      end
-    end
-  end
-
   def save_readable_state
     #TODO: Figure out why this is making so many DB calls for optimization
     Collage.update(params[:id], :readable_state => params[:readable_state], :words_shown => params[:words_shown])
@@ -240,12 +221,11 @@ class CollagesController < BaseController
   end
 
   def export
-    if params[:state_id]
-      @readable_state = ReadableState.find(params[:state_id]).state
-    else
-      @readable_state = @collage.readable_state
-    end
     render :layout => 'print'
+  end
+
+  def export_unique
+    render :action => 'export', :layout => 'print'
   end
 
   private 

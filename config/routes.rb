@@ -1,9 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :metadata
 
-  map.resources :text_blocks, :collection => {:embedded_pager => :get}
+  map.resources :text_blocks, :collection => {:embedded_pager => :get, :export => :get}
   map.text_block_tag "text_blocks/tag/:tag", :controller => :text_blocks, :action => :index
-  map.export_text_block "text_blocks/:id/export", :controller => :text_blocks, :action => :export
 
   map.resources :item_annotations
 
@@ -42,9 +41,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages, :collection => {:embedded_pager => :get},
     :member => {:spawn_copy => :post, :save_readable_state => :post,
-	            :record_collage_print_state => :post, :access_level => :get}
-  map.export_collage "collages/:id/export", :controller => :collages, :action => :export
-  map.export_collage_record "collages/:id/export/:state_id", :controller => :collages, :action => :export
+	            :record_collage_print_state => :post, :access_level => :get, :export => :get,
+              :export_unique => :post}
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
   map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},

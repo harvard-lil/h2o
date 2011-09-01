@@ -10,5 +10,5 @@
 </div>
 
 <script type="text/javascript">
-var collage_data_<%= @collage.id %> = <%= raw @readable_state || {} %>;
+var collage_data_<%= @collage.id %> = <%= raw params[:state] || @collage.readable_state || {} %>;
 </script>
