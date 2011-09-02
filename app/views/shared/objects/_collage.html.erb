@@ -1,3 +1,4 @@
+<% if !collage.nil? -%>
 <li class="listitem listitem<%= collage.id %>" data-itemid="<%= collage.id %>">
 	<% if current_user %>
 	<div class="controls">
@@ -39,3 +40,4 @@
 	</div>
 	<div class="cl"></div>
 </li>
+<% end -%>
