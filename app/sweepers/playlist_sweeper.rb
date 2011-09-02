@@ -12,12 +12,10 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     expire_fragment "playlist-#{record.id}-tags"
     expire_page :controller => :playlists, :action => :show, :id => record.id
     expire_page :controller => :playlists, :action => :export, :id => record.id
-    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
 
     record.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
       expire_page :controller => :playlists, :action => :export, :id => p
-      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
     end
 
     users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
@@ -30,12 +28,10 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 
     expire_page :controller => :playlists, :action => :show, :id => record.id
     expire_page :controller => :playlists, :action => :export, :id => record.id
-    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{record.id}.pdf*")
 
     record.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
       expire_page :controller => :playlists, :action => :export, :id => p
-      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
     end
   end
 

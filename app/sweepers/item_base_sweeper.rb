@@ -6,12 +6,10 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
   def clear_playlists(playlist)
     expire_page :controller => :playlists, :action => :show, :id => playlist.id
     expire_page :controller => :playlists, :action => :export, :id => playlist.id
-    system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{playlist.id}.pdf*")
 
     playlist.relation_ids.each do |p|
       expire_page :controller => :playlists, :action => :show, :id => p
       expire_page :controller => :playlists, :action => :export, :id => p
-      system("rm #{RAILS_ROOT}/tmp/cache/playlist_#{p}.pdf*")
     end
   end
 

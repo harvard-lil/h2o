@@ -81,6 +81,14 @@ namespace :h2o do
     puts "Finished cloning! New cloned playlist id: #{result.id}"
   end
 
+
+  desc 'Clear All Cache'
+  task(:clear_all_cache => :environment) do
+    system("rm -rf #{RAILS_ROOT}/tmp/cache/*")
+    system("rm #{RAILS_ROOT}/public/stylesheets/all.css")
+    system("rm #{RAILS_ROOT}/public/javascripts/all.js")
+  end
+
   desc 'Test case import'
   task(:import_cases => :environment) do
     # -i --add-xml-decl n --doctype omit --show-body-only true
