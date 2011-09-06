@@ -417,20 +417,8 @@ jQuery.extend({
       jQuery(region + ' .bookmark-action').live('click', function(e){
       var item_url = jQuery.rootPathWithFQDN() + 'bookmark_item/';
       var el = jQuery(this);
-      //TODO: It'd be nice to clean this up
-      //It handles:
-      // - bookmarking regular single item
-      // - bookmarking listed item
-      // - bookmarking playlist item (actual object)
-      // - bookmarking playlist item from bookmark list
       if(el.hasClass('bookmark-popup')) {
-        if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').hasClass('active')) {
-          item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();  
-        } else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
-          item_url += popup_item_type + '/' + jQuery('.listitem' + popup_item_id + ' > .data hgroup h3 a').attr('href').match(/[0-9]+/).toString();  
-        } else {
-          item_url += popup_item_type + '/' + popup_item_id;
-        }
+        item_url += popup_item_type + '/' + popup_item_id;
       } else {
         item_url += jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');
       }
@@ -446,18 +434,30 @@ jQuery.extend({
         success: function(data) {
           jQuery('.add-popup').hide();
           jQuery.hideGlobalSpinnerNode();
-          var snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
-          jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
+          var snode;
+          if(data.already_bookmarked) {
+            snode = jQuery('<span class="bookmarked">').html('ALREADY BOOKMARKED!').append(
+              jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
+          } else {
+            snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
+              jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
+          }
+
           if(el.hasClass('bookmark-popup')) {
             if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').hasClass('active')) {
-              snode.insertBefore(jQuery('#bookmarks > .listitem' + popup_item_id + ' > .data hgroup .cl'));
+              snode.html('ALREADY BOOKMARKED!');
+              jQuery('hgroup.' + popup_item_type + popup_item_id + ' .bookmarked').remove();
+              snode.insertBefore(jQuery('hgroup.' + popup_item_type + popup_item_id + ' .cl'));
             } else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
-              snode.insertAfter(jQuery('.sortable > .listitem' + popup_item_id + ' > .data hgroup .icon-type'));
+              jQuery('hgroup.' + popup_item_type + popup_item_id + ' .bookmarked').remove();
+              snode.insertBefore(jQuery('hgroup.' + popup_item_type + popup_item_id + ' .cl'));
             } else {
+              jQuery('.listitem' + popup_item_id + ' h4 .bookmarked').remove();
               jQuery('.listitem' + popup_item_id + ' h4').append(snode);
             }
           } else {
-            jQuery('.singleitem > .description > h2').append(snode);
+            jQuery('.singleitem > .description > h2 .bookmarked,#fixed_header > .description > h2 .bookmarked').remove();
+            jQuery('.singleitem > .description > h2,#fixed_header > .description h2').append(snode);
           }
         },
         error: function(xhr, textStatus, errorThrown) {

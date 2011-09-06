@@ -110,4 +110,11 @@ class Playlist < ActiveRecord::Base
     end
     [shown_word_count, total_word_count]
   end
+
+  def contains_item?(item)
+    actual_objects = self.playlist_items.inject([]) do |arr, pi| 
+      arr << pi.resource_item.actual_object if pi.resource_item && pi.resource_item.actual_object; arr
+    end
+    actual_objects.include?(item)
+  end
 end

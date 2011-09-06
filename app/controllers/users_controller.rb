@@ -140,6 +140,8 @@ class UsersController < ApplicationController
       playlist.accepts_role!(:owner, current_user)
       playlist.accepts_role!(:creator, current_user)
       current_user.update_attribute(:bookmark_id, playlist.id)
+    else
+      playlist = Playlist.find(current_user.bookmark_id)
     end
 
     begin
@@ -148,19 +150,24 @@ class UsersController < ApplicationController
       base_model_klass = params[:type] == 'default' ? ItemDefault : params[:type].classify.constantize
 
       actual_object = base_model_klass.find(params[:id])
-      klass = "item_#{params[:type]}".classify.constantize
-      item = klass.new(:name => actual_object.bookmark_name,
-        :url => params[:type] == 'default' ? actual_object.url : url_for(actual_object))
-      item.actual_object = actual_object if params[:type] != 'default'
-      item.save
-      
-      playlist_item = PlaylistItem.new(:playlist_id => current_user.bookmark_id, 
-        :resource_item_type => "item_#{params[:type]}".classify,
-        :resource_item_id => item.id)
-      playlist_item.accepts_role!(:owner, current_user)
-      playlist_item.save
 
-      render :json => { :user_id => current_user.id }
+      if playlist.contains_item?(actual_object)
+        render :json => { :already_bookmarked => true, :user_id => current_user.id }
+      else
+        klass = "item_#{params[:type]}".classify.constantize
+        item = klass.new(:name => actual_object.bookmark_name,
+          :url => params[:type] == 'default' ? actual_object.url : url_for(actual_object))
+        item.actual_object = actual_object if params[:type] != 'default'
+        item.save
+        
+        playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
+          :resource_item_type => "item_#{params[:type]}".classify,
+          :resource_item_id => item.id)
+        playlist_item.accepts_role!(:owner, current_user)
+        playlist_item.save
+
+        render :json => { :already_bookmarked => false, :user_id => current_user.id }
+      end
     rescue Exception => e
       logger.warn "#{e.inspect}"
       render :status => 500, :json => {}

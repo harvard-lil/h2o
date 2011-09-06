@@ -412,7 +412,7 @@ color: #4e9ed1; padding: 4px 11px; }
 .playlists .listitem .delete-action,
 .playlists .listitem .edit-action { line-height: 18px; }
 
-.bookmarked { color: #A6DB31; padding-left: 10px; font-size: 10px; }
+.bookmarked { color: #A6DB31; padding-left: 10px; font-size: 10px; font-weight: bold; }
 .bookmarked a { padding-left: 5px; }
 h2 .bookmarked { color: #FFF; }
 
