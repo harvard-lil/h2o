@@ -1,5 +1,6 @@
 class UserSession < Authlogic::Session::Base
   self.last_request_at_threshold = 1.minute
+  allow_http_basic_auth false
 
 
   def self.oauth_consumer
