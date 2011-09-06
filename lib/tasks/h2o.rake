@@ -1,5 +1,25 @@
 namespace :h2o do
 
+  task(:steph_test => :environment) do
+    require 'benchmark'
+    Benchmark.bm do |x|
+      x.report do
+        5.times do
+          Playlist.tag_list
+        end
+      end
+    end
+    Benchmark.bm do |x|
+      x.report do
+        5.times do
+          b = Playlist.all.collect { |p| p.tag_list }.flatten
+          c = b.inject({}) { |h, a| h[a] ||= 0; h[a]+=1; h }
+          c.sort_by { |k, v| v }.reverse[0..25]
+        end
+      end
+    end
+  end
+
   desc 'Generate playlist PDFs'
   task(:gen_playlist_pdfs => :environment) do
     permutations = Playlist.cache_options
@@ -87,6 +107,8 @@ namespace :h2o do
     system("rm -rf #{RAILS_ROOT}/tmp/cache/*")
     system("rm #{RAILS_ROOT}/public/stylesheets/all.css")
     system("rm #{RAILS_ROOT}/public/javascripts/all.js")
+    system("rm -rf #{RAILS_ROOT}/public/collages/*")
+    system("rm -rf #{RAILS_ROOT}/public/playlists/*")
   end
 
   desc 'Test case import'
