@@ -35,6 +35,15 @@ jQuery.extend({
 		});
   },
   observeFontChange: function() {
+    var val = jQuery.cookie('font_size');
+    if(val != null) {
+      jQuery('.font-size-popup select').val(val);
+      jQuery('.icon-type').css('margin-top', (parseFloat(val) - 8)/2 + 'px');
+      jQuery('#playlist .details h5').css('font-size', val + 'px');
+      jQuery('#playlist .details #description').css('font-size', (parseInt(val) + 2) + 'px');
+      jQuery('.playlist .data p').css('font-size', val + 'px');
+      jQuery('.playlist .data h3').css('font-size', (parseInt(val) + 4) + 'px');
+    }
     jQuery("#playlist .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
       jQuery(this).toggleClass("btn-a-active");
@@ -47,11 +56,12 @@ jQuery.extend({
       className: "jsb", replaceInvisible: true 
     }).change(function() {
       var element = jQuery(this);
+      jQuery.cookie('font_size', element.val(), { path: "/" });
       jQuery('.icon-type').css('margin-top', (parseFloat(element.val()) - 8)/2 + 'px');
       jQuery('#playlist .details h5').css('font-size', element.val() + 'px');
-      jQuery('#playlist .details #description').css('font-size', (parseFloat(element.val()) + 2) + 'px');
+      jQuery('#playlist .details #description').css('font-size', (parseInt(element.val()) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', element.val() + 'px');
-      jQuery('.playlist .data h3').css('font-size', (parseFloat(element.val()) + 4) + 'px');
+      jQuery('.playlist .data h3').css('font-size', (parseInt(element.val()) + 4) + 'px');
     });
   },
 	observeDragAndDrop: function() {

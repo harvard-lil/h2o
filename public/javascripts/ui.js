@@ -623,6 +623,11 @@ jQuery(function() {
     jQuery(this).toggleClass('dd-closed');
     jQuery(this).siblings('.item_description').slideToggle();
     jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
+    var open = new Array;
+    jQuery('.playlist .data .dd').not('.dd-closed').each(function(i, el) {
+      open.push(jQuery(el).attr('id'));
+    });  
+    jQuery.cookie('expanded', open.join('-'));
     return false;
   });
   
@@ -668,7 +673,7 @@ jQuery(function() {
   if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
     var region = '#all_' + jQuery.classType();
     if(jQuery('#bbase').length || jQuery('#busers').length) {
-      region = '#all_' + jQuery.address.value().match(/ajax_region=[a-z]+/, '').toString().replace('ajax_region=', '');
+      region = '#all_' + jQuery.address.parameter('ajax_region');
       jQuery('.tabs a').each(function(i, el) {
         if('#' + jQuery(el).data('region') == region) {
           jQuery(el).click();
@@ -677,6 +682,15 @@ jQuery(function() {
     }
     jQuery.listResults(jQuery.address.value(), region);
   }
+
+  var expanded_v = jQuery.cookie('expanded');
+  if(expanded_v != null) {
+    var expanded = expanded_v.split('-');
+    for(var i=0;i<expanded.length;i++) {
+      jQuery('#' + expanded[i]).click();
+    }
+  } 
+
   //For Now, this is disabled. If set to true,
   //code updates are required to work with back button
   //on each pagination and sort

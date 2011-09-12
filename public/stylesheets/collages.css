@@ -28,7 +28,7 @@
 #collage .details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#376100; background:#c4eb80; }
 #collage .details .influence { padding-bottom:9px; }
 #collage .details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
-#collage .details h5 { font-size:10px; line-height:18px; font-weight:normal; padding-bottom:2px; }
+#collage .details h5 { font-size:10px; line-height:1.8em; font-weight:normal; padding-bottom:2px; }
 
 #collage article { opacity: 0.0; font-size:11px; line-height:1.5em;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }

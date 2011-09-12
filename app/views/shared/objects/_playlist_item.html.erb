@@ -9,7 +9,7 @@
 	</div>
 	<div class="data">
 		<% if recursive_level < 3 && item.resource_item_type == 'ItemPlaylist' && item.resource_item.actual_object -%>
-		<%= link_to 'Show/Hide More', '#', :class => 'dd dd-closed' %>
+		<%= link_to 'Show/Hide More', '#', :class => 'dd dd-closed', :id => "dd#{item.resource_item.id}" %>
 		<% end -%>
 		<% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
 		<% type = item.resource_item.actual_object_type.downcase
@@ -27,11 +27,15 @@
 		<% end -%>
 		<hgroup class="<%= item.resource_item_type.gsub(/^Item/, '').downcase %><%= item.resource_item_type != 'ItemDefault' && item.resource_item.actual_object ? item.resource_item.actual_object_id : item.resource_item_id %>">
 		<h3>
-				<% if item.resource_item_type != 'ItemDefault' && !item.resource_item.actual_object.nil? -%>
+        <% if item.resource_item_type == 'ItemDefault' -%>
+        <%= link_to item.resource_item.name, item.resource_item.url, :target => '_blank' %>
+        <% elsif item.resource_item_type == 'ItemCollage' && !item.resource_item.actual_object.nil? -%>
+        <%= link_to item.resource_item.name, item.resource_item.actual_object, :target => '_blank' %>
+        <% elsif !item.resource_item.actual_object.nil? -%>
 				<%= link_to item.resource_item.name, item.resource_item.actual_object %>
-				<% else -%>
-				<%= link_to item.resource_item.name, item.resource_item.url, :target => 'blank' %>
-				<% end -%>
+        <% else -%>
+        <%= item.resource_item.name %>
+        <% end -%>
 		    <a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
 			</h3>
 			<% if recursive_level == 0 %>

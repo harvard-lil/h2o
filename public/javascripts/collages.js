@@ -4,7 +4,6 @@ var just_hidden = 0;
 var layer_info = {};
 var last_annotation = 0;
 var highlight_history = {};
-var hover_state = {};
 var is_owner = false;
 var annotation_position = 0;
 var head_offset;
@@ -48,11 +47,21 @@ jQuery.extend({
     return x1 + x2;
   },
   initializeFontChange: function() {  
+    var val = jQuery.cookie('font_size');
+    if(val != null) {
+      jQuery('.font-size-popup select').val(val);
+      jQuery('#collage article').css('font-size', parseInt(val) + 1 + 'px');
+      jQuery('#description_less, #description_more, #description').css('font-size', (parseInt(val) + 2) + 'px');
+      jQuery('#collage .details h5').css('font-size', parseInt(val) + 1 + 'px');
+    }
     jQuery('.font-size-popup select').selectbox({
       className: "jsb", replaceInvisible: true 
     }).change(function() {
       var element = jQuery(this);
+      jQuery.cookie('font_size', element.val(), { path: "/" });
       jQuery('#collage article').css('font-size', element.val() + 'px');
+      jQuery('#description_less, #description_more, #description').css('font-size', (parseInt(element.val()) + 1) + 'px');
+      jQuery('#collage .details h5').css('font-size', element.val() + 'px');
     });
     jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
@@ -364,44 +373,11 @@ jQuery.extend({
       }
     });
   },
-  addAnnotationListeners: function(obj) {
-    if(obj.layers.length > 0) {
-      //The following hover and hoverIntent functionality
-      //manages the highlight state and tipsy state
-      //for annotations. The hover is required.
-      var layer_id = obj.layers[obj.layers.length - 1].id;
-      jQuery('tt.a' + obj.id + ',#annotation-asterisk-' + obj.id).hoverIntent({
-        over: function(e) {
-          jQuery('#annotation-asterisk-' + obj.id).tipsy('show');
-          jQuery.highlightHistoryAdd('l' + layer_id, obj.id, true);
-        },
-        timeout: 1000,
-        out: function(e) {
-          jQuery.highlightHistoryRemove('l' + layer_id, obj.id, true);
-          //This only removes state of tipsy and highlights if no longer hovering
-          if(!hover_state[obj.id]) {
-            jQuery('#annotation-asterisk-' + obj.id).tipsy('hide');
-          }
-        }
-      });
-      jQuery('tt.a' + obj.id + ',#annotation-asterisk-' + obj.id).hover(
-        function(e) {
-          hover_state[obj.id] = true;
-        },
-        function(e) {
-          hover_state[obj.id] = false;
-        }
-      );
-    }
-  },
-
   toggleAnnotation: function(id) {
     if(jQuery('#annotation-content-' + id).css('display') == 'inline-block') {
       jQuery('#annotation-content-' + id).css('display', 'none');
-      jQuery('#annotation-asterisk-' + id).tipsy('show');
     } else {
       jQuery('#annotation-content-' + id).css('display', 'inline-block');
-      jQuery('#annotation-asterisk-' + id).tipsy('show');
     }
   },
 
@@ -666,9 +642,6 @@ jQuery.extend({
       e.preventDefault();
       jQuery.toggleAnnotation(jQuery(this).data('id'));
       jQuery.hideShowAnnotationOptions();
-    });
-    jQuery(annotations).each(function(){
-      jQuery.addAnnotationListeners(this.annotation);
     });
   }
 

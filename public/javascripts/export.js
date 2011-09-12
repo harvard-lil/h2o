@@ -10,7 +10,8 @@ jQuery.extend({
 
 				if(i == 'highlights') {
 					jQuery.each(e, function(a, h) {
-            jQuery.rule('#collage' + id + ' ' + a + ' { background-color: #' + h + ' }').appendTo('style');
+            //jQuery.rule('#collage' + id + ' ' + a + ' { background-color: #' + h + '; text-decoration: underline; }').appendTo('style');
+            jQuery.rule('#collage' + id + ' ' + a + ' { text-decoration: underline; }').appendTo('style');
 					});
 				} else if(i == 'print_data') {
           //Do Nothing until the end
