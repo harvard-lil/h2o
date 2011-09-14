@@ -41,6 +41,7 @@ jQuery.extend({
       jQuery('.icon-type').css('margin-top', (parseFloat(val) - 8)/2 + 'px');
       jQuery('#playlist .details h5').css('font-size', val + 'px');
       jQuery('#playlist .details #description').css('font-size', (parseInt(val) + 2) + 'px');
+      jQuery('#playlist .details p').css('font-size', (parseInt(val) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', val + 'px');
       jQuery('.playlist .data h3').css('font-size', (parseInt(val) + 4) + 'px');
     }
@@ -60,6 +61,7 @@ jQuery.extend({
       jQuery('.icon-type').css('margin-top', (parseFloat(element.val()) - 8)/2 + 'px');
       jQuery('#playlist .details h5').css('font-size', element.val() + 'px');
       jQuery('#playlist .details #description').css('font-size', (parseInt(element.val()) + 2) + 'px');
+      jQuery('#playlist .details p').css('font-size', (parseInt(element.val()) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', element.val() + 'px');
       jQuery('.playlist .data h3').css('font-size', (parseInt(element.val()) + 4) + 'px');
     });
