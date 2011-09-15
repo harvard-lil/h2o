@@ -4,6 +4,13 @@
 		<li id="spinner">
 			<img src="/images/ui/ajax-loader.gif" alt="" />
 		</li>
+    <% if current_user -%> 
+    <li class="btn">
+      <a href="<%= new_text_block_path %>" class="btn-a">
+        <span>CREATE TEXT BLOCK</span>
+      </a>
+    </li>
+    <% end -%>
 		<li class="btn">
 			<a href="#" class="btn-a btn-tags">
 				<span>BROWSE TAGS</span>
