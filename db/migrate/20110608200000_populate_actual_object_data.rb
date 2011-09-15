@@ -2,7 +2,7 @@ class PopulateActualObjectData < ActiveRecord::Migration
 
   def self.up
     conxn = ActiveRecord::Base.connection
-    ["annotations", "question_instances", "texts",
+    ["annotations", "question_instances", "text_blocks",
 	  "cases", "images", "questions",
 	  "collages", "playlists", "rotisserie_discussions"].each do |type|
 	  conxn.execute("UPDATE item_#{type} SET actual_object_type = '#{type.classify}'")
@@ -12,7 +12,7 @@ class PopulateActualObjectData < ActiveRecord::Migration
 
   def self.down
     conxn = ActiveRecord::Base.connection
-    ["annotations", "question_instances", "texts",
+    ["annotations", "question_instances", "text_blocks",
 	  "cases", "images", "questions",
 	  "collages", "playlists", "rotisserie_discussions"].each do |type|
 	  conxn.execute("UPDATE item_#{type} SET actual_object_type = ''")
