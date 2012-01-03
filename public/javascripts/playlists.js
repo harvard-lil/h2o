@@ -42,7 +42,9 @@ jQuery.extend({
       jQuery('#playlist .details h5').css('font-size', val + 'px');
       jQuery('#playlist .details #description').css('font-size', (parseInt(val) + 2) + 'px');
       jQuery('#playlist .details p').css('font-size', (parseInt(val) + 2) + 'px');
+      jQuery('#playlist .details #description_less').css('font-size', (parseInt(val) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', val + 'px');
+      jQuery('.playlist .data div').css('font-size', val + 'px');
       jQuery('.playlist .data h3').css('font-size', (parseInt(val) + 4) + 'px');
     }
     jQuery("#playlist .description .buttons ul #fonts span").parent().click(function() { 
@@ -62,7 +64,9 @@ jQuery.extend({
       jQuery('#playlist .details h5').css('font-size', element.val() + 'px');
       jQuery('#playlist .details #description').css('font-size', (parseInt(element.val()) + 2) + 'px');
       jQuery('#playlist .details p').css('font-size', (parseInt(element.val()) + 2) + 'px');
+      jQuery('#playlist .details #description_less').css('font-size', (parseInt(element.val()) + 2) + 'px');
       jQuery('.playlist .data p').css('font-size', element.val() + 'px');
+      jQuery('.playlist .data div').css('font-size', element.val() + 'px');
       jQuery('.playlist .data h3').css('font-size', (parseInt(element.val()) + 4) + 'px');
     });
   },
