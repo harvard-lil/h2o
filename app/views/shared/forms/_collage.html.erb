@@ -8,7 +8,7 @@
         :as => :text,
         :input_html => {:size => '40x5', :class => 'textile_description'},
         :required => false,
-        :hint => 'You can use textile markdown in the description. ' + link_to('docs', 'http://redcloth.org/textile', :target => '_blank')
+        :hint => "You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }"
     %>
 	<%= form.input :tag_list,
 	  :as => :string,
