@@ -21,14 +21,14 @@ Rails::Initializer.run do |config|
   # config.gem "sqlite3-ruby", :lib => "sqlite3"
   # config.gem "aws-s3", :lib => "aws/s3"
 
-  config.gem "authlogic", :version => '2.1.3', :source => "http://gemcutter.org"
-  config.gem "oauth", :version => '0.3.6', :source => "http://gemcutter.org"
-  config.gem "authlogic-oauth", :lib => "authlogic_oauth", :version => '1.0.8', :source => "http://gemcutter.org"
-  config.gem "authlogic_facebook", :version => '1.0.4', :source => "http://gemcutter.org"
-  config.gem "acl9", :version => '0.12.0', :source => "http://gemcutter.org"
-  config.gem "shoulda", :version => '2.10.3', :source => "http://gemcutter.org"
+  config.gem "authlogic", :version => '2.1.3'
+  config.gem "oauth", :version => '0.3.6'
+  config.gem "authlogic-oauth", :lib => "authlogic_oauth", :version => '1.0.8'
+  config.gem "authlogic_facebook", :version => '1.0.4'
+  config.gem "acl9", :version => '0.12.0'
+  config.gem "shoulda", :version => '2.10.3'
   config.gem "formtastic", :version => '1.1.0'
-  config.gem "vote_fu", :version => '0.0.11', :source => "http://gemcutter.org"
+  config.gem "vote_fu", :version => '0.0.11'
   config.gem "RedCloth", :version => '4.2.2'
   config.gem 'nokogiri', :version => '1.4.1'
   config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
