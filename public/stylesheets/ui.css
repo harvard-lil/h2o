@@ -15,6 +15,14 @@ a img { border: 0; }
 input, textarea, select { font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; }
 textarea { overflow: auto; }
 
+blockquote{
+  margin-left: 1em;
+  margin-right: 1em;
+  font-style: italic;
+  border-left: .2em solid #999;
+  padding-left: 1em;
+}
+
 section,aside,hgroup { display:block; }
 
 .cl { display: block; height: 0; font-size: 0; line-height: 0; text-indent: -4000px; clear: both; }
