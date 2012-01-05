@@ -32,7 +32,7 @@
         <% elsif item.resource_item_type == 'ItemCollage' && !item.resource_item.actual_object.nil? -%>
         <%= link_to item.resource_item.name, item.resource_item.actual_object, :target => '_blank' %>
         <% elsif !item.resource_item.actual_object.nil? -%>
-				<%= link_to item.resource_item.name, item.resource_item.actual_object %>
+				<%= link_to item.resource_item.name, item.resource_item.actual_object, :target => '_blank' %>
         <% else -%>
         <%= item.resource_item.name %>
         <% end -%>
