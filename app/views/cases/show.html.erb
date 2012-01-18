@@ -42,7 +42,7 @@
         <p>Jurisdiction: <%= @case.case_jurisdiction.display_name %></p> 
       	<% end %>
 		<% end -%>
-		<% if current_user && (@case.admin? || @case.owner?) %>
+		<% if current_user &&  (@is_case_admin || @my_cases.include?(@case)) %>
 		<%= link_to "EDIT", edit_case_path(@case), :class => "edit-action" %>
 		<% end -%>
 	</div>

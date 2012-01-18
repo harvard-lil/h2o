@@ -561,7 +561,7 @@ jQuery.extend({
       title: title,
       modal: true,
       width: 'auto',
-      height: 'auto',
+      height: 800,
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
       },

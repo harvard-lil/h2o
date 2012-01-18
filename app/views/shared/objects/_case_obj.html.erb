@@ -19,9 +19,12 @@
 		<% end -%>
 		<h4>
 			<%= link_to case_obj.short_name, case_obj %>
-      <% if current_user && (@is_case_admin || @my_cases.include?(case_obj)) %>
+      <% if current_user && case_obj.deleteable? && (@is_case_admin || @my_cases.include?(case_obj)) %>
       <%= link_to "DELETE", case_path(case_obj), :class => "action delete-action" %>
     	<% end %>
+      <% if current_user && (@is_case_admin || @my_cases.include?(case_obj)) %>
+      <%= link_to "EDIT", edit_case_path(case_obj), :class => "action edit-action" %>
+      <% end %>
 		</h4>
 		<% cache "case-#{case_obj.id}-index" do -%>
 		<p class="cases_details">

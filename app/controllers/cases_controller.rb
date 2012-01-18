@@ -158,6 +158,7 @@ class CasesController < BaseController
   # PUT /cases/1
   # PUT /cases/1.xml
   def update
+    # This is not industrial level security - a user could theoretically overwrite the case content of a case they own via URL tampering.
     unless params[:case][:tag_list].blank?
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
@@ -165,10 +166,10 @@ class CasesController < BaseController
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'
         format.html { redirect_to(cases_url) }
-        format.xml  { head :ok }
+        format.json  { render :json => {:type => 'cases', :id => @case.id} }
       else
         format.html { render :action => "edit" }
-        format.xml  { render :xml => @case.errors, :status => :unprocessable_entity }
+        format.json  { render :xml => @case.errors, :status => :unprocessable_entity }
       end
     end
   end
