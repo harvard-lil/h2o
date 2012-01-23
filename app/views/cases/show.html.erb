@@ -43,7 +43,7 @@
       	<% end %>
 		<% end -%>
 		<% if current_user &&  (@is_case_admin || @my_cases.include?(@case)) %>
-		<%= link_to "EDIT", edit_case_path(@case), :class => "edit-action" %>
+		<%= link_to "EDIT", edit_case_path(@case) %>
 		<% end -%>
 	</div>
 	<article>

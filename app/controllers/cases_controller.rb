@@ -165,7 +165,7 @@ class CasesController < BaseController
     respond_to do |format|
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'
-        format.html { redirect_to(cases_url) }
+        format.html { redirect_to(case_url(@case)) }
         format.json  { render :json => {:type => 'cases', :id => @case.id} }
       else
         format.html { render :action => "edit" }

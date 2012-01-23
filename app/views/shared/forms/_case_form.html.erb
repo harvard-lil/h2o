@@ -1,45 +1,52 @@
-<div id="case-error" style="display:none;" class="error"></div>
-<h3 style="display:none;" id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h3>
-<% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
-  <% form.object.case_docket_numbers.build %>
-  <% form.object.case_citations.build %>
-  <% form.inputs do %>
-    <%= form.input :short_name %>
-    <%= form.input :full_name %>
-    <% #FIXME - put in a date selector %>
-    <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
-    <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
-    <hr />
-    <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => ((form.object.new_record?) ? 'Please choose a jurisdiction. If it doesn\'t exist, enter it below' : 'Please choose a jurisdiction. You can edit the currently selected jurisdiction below') %>
-    <% form.semantic_fields_for :case_jurisdiction do |cj| %>
-      <%= cj.inputs :abbreviation, :name, :name => ((cj.object.new_record?) ? "New jurisdiction" : 'Edit existing jurisdiction') %>
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'cases-logo',
+  :url => cases_path,
+  :right_search => 'cases/nav_search' } %>
+
+
+  <div class="standard-form">
+    <div id="case-error" style="display:none;" class="error"></div>
+    <h3 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h3>
+    <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
+      <% form.object.case_docket_numbers.build %>
+      <% form.object.case_citations.build %>
+      <% form.inputs do %>
+        <%= form.input :short_name %>
+        <%= form.input :full_name %>
+        <% #FIXME - put in a date selector %>
+        <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
+        <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
+        <hr />
+        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => ((form.object.new_record?) ? 'Please choose a jurisdiction. If it doesn\'t exist, enter it below' : 'Please choose a jurisdiction. You can edit the currently selected jurisdiction below') %>
+        <% form.semantic_fields_for :case_jurisdiction do |cj| %>
+          <%= cj.inputs :abbreviation, :name, :name => ((cj.object.new_record?) ? "New jurisdiction" : 'Edit existing jurisdiction') %>
+        <% end %>
+        <hr />
+        <% form.semantic_fields_for :case_docket_numbers do |cd| %>
+          <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>
+        <% end %>
+        <hr />
+        <% form.semantic_fields_for :case_citations do |cd| %>
+          <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
+        <% end %>
+        <hr />
+        <% if @case.new_record? || @case.content_editable? %>
+          <%= form.input :content, 
+            :as => :text, 
+            :required => true 
+          %>
+        <% end %>
+        <%= form.input :tag_list,
+          :as => :string,
+          :hint => 'Please define the tags for this case in a comma-separated list.',
+          :label => 'Tags',
+          :input_html => {:class => 'tagging-autofill-tags'}
+        %>
+        <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+      <% end %>
+      <% unless request.xhr? %>
+        <% form.buttons do %>
+          <%= form.commit_button 'Save' %>
+        <% end %>
+      <% end %>
     <% end %>
-    <hr />
-    <% form.semantic_fields_for :case_docket_numbers do |cd| %>
-      <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>
-    <% end %>
-    <hr />
-    <% form.semantic_fields_for :case_citations do |cd| %>
-      <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
-    <% end %>
-    <hr />
-    <% if @case.new_record? || @case.content_editable? %>
-      <%= form.input :content, 
-        :as => :text, 
-        :required => true 
-      %>
-    <% end %>
-    <%= form.input :tag_list,
-        :as => :string,
-        :hint => 'Please define the tags for this case in a comma-separated list.',
-        :label => 'Tags',
-        :input_html => {:class => 'tagging-autofill-tags'}
-      %>
-      <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
-  <% end %>
-  <% unless request.xhr? %>
-    <% form.buttons do %>
-     <%= form.commit_button 'Save' %>
-    <% end %>
-  <% end %>
-<% end %>
+  </div>
