@@ -119,22 +119,22 @@ namespace :h2o do
     TidyFFI::Tidy.default_options.show_body_only = 1
     TidyFFI::Tidy.default_options.output_xhtml = true
 
-    #metadata_hash = {}
-    #FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/torts-metadata.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
-#      row_hash = row.to_hash
-#      metadata_hash[row_hash[:filename]] = row_hash
-#    end
+    metadata_hash = {}
+    FasterCSV.foreach("#{RAILS_ROOT}/tmp/cases/cases.csv", {:headers => :first_row, :header_converters => :symbol}) do |row|
+      row_hash = row.to_hash
+      metadata_hash[row_hash[:filename]] = row_hash
+    end
 
     Dir.glob("#{RAILS_ROOT}/tmp/cases/*.xml").each do |file|
       c = Case.new()
       basename = Pathname(file).basename.to_s
 #      puts file
       doc = Nokogiri::XML.parse(File.open(file))
-#      unless metadata_hash[basename].blank?
-#        c.tag_list = metadata_hash[basename][:tags]
-#      end
+      unless metadata_hash[basename].blank?
+        c.tag_list = metadata_hash[basename][:tags]
+      end
 
-      c.tag_list = 'conlaw'
+#      c.tag_list = 'testimport'
       c.current_opinion = (doc.xpath('//Case/CurrentOpinion').text == 'False') ? false : true
 
       c.short_name = doc.xpath('//Case/ShortName').text
@@ -180,6 +180,12 @@ namespace :h2o do
       tidy_content = TidyFFI::Tidy.new("#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}")
 
       c.content = tidy_content.clean
+      if c.content.blank?
+        puts
+        puts "Case: #{file} had content problems, using HTML raw"
+        puts
+        c.content = "#{doc.xpath('//Case/HeaderHtml').text} #{doc.xpath('//Case/CaseHtml').text}"
+      end
 #      puts
 #      puts "Content of #{file}, post-stripping: "
 #      puts c.content
@@ -191,6 +197,9 @@ namespace :h2o do
 #        puts "Successfully imported: #{file}"
       else 
         puts "FAILED: #{file}"
+        puts c.errors.full_messages.join("\n")
+        puts
+        puts
       end
     end
       Sunspot.commit_if_dirty
