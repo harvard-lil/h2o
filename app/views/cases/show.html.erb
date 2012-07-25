@@ -1,6 +1,6 @@
 <%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'cases-logo',
-  :url => cases_path,
-  :right_search => 'cases/nav_search' } %>
+	:url => cases_path,
+	:right_search => 'cases/nav_search' } %>
 
 <div id="case" class="singleitem" data-itemid="<%= @case.id %>">
 	<hgroup class="description">
@@ -9,9 +9,14 @@
 			<ul>
 				<% if false -%><li><a href="#" class="link-share">Share</a></li><% end -%>
 				<% if current_user -%>
-    			<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action' %></li>
-				  <li><%= link_to "Bookmark This Case", '#', :class => 'link-bookmark bookmark-action' %></li>
+					<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action' %></li>
+					<li><%= link_to "Bookmark This Case", '#', :class => 'link-bookmark bookmark-action' %></li>
 				<% end -%>
+				<li id="print-container">
+					<a href="<%= export_case_path(@case) %>" class="link-print" target="_blank">
+					<span>Print</span>
+					</a>
+				</li>
 			</ul>
 		</aside>
 		<div class="cl"></div>
@@ -28,26 +33,26 @@
 		<% end -%>
 		<div class="cl"></div>
 		<% cache "case-#{@case.id}-detail" do -%>
-      	<p>Decision date: <%= @case.decision_date %></p>
-      	<% unless @case.author.blank? %>
-      	<p>Author: <%= @case.author %></p>
-        <% end -%>
-      	<% unless @case.case_citations.blank? %>
-        <p>Citations: <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
-      	<% end %>
-      	<% unless @case.case_docket_numbers.blank? %>
-       	<p>Docket Numbers: <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></p> 
-      	<% end %>
-      	<% unless @case.case_jurisdiction.blank? %>
-        <p>Jurisdiction: <%= @case.case_jurisdiction.display_name %></p> 
-      	<% end %>
+				<p>Decision date: <%= @case.decision_date %></p>
+				<% unless @case.author.blank? %>
+				<p>Author: <%= @case.author %></p>
+				<% end -%>
+				<% unless @case.case_citations.blank? %>
+				<p>Citations: <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %></p> 
+				<% end %>
+				<% unless @case.case_docket_numbers.blank? %>
+			 	<p>Docket Numbers: <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %></p> 
+				<% end %>
+				<% unless @case.case_jurisdiction.blank? %>
+				<p>Jurisdiction: <%= @case.case_jurisdiction.display_name %></p> 
+				<% end %>
 		<% end -%>
-		<% if current_user &&  (@is_case_admin || @my_cases.include?(@case)) %>
+		<% if current_user &&	(@is_case_admin || @my_cases.include?(@case)) %>
 		<%= link_to "EDIT", edit_case_path(@case) %>
 		<% end -%>
 	</div>
 	<article>
-  		<%= raw @case.content %>
+			<%= raw @case.content %>
 	</article>
 </div>
 
