@@ -1,20 +1,21 @@
 <%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'text_blocks-logo',
-  :url => text_blocks_path,
-  :right_search => 'text_blocks/nav_search' } %>
+	:url => text_blocks_path,
+	:right_search => 'text_blocks/nav_search' } %>
 
 <div id="text_block" class="singleitem" data-itemid="<%= @text_block.id %>">
 	<hgroup class="description">
 		<h2><%= @text_block.display_name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<% if false && current_user -%>
-				  <li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
+				<% if current_user -%>
+				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'collage-this new-action' %></li>
+				<li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
 				<% end -%>
-        <li id="print-container">
-          <a href="<%= export_text_block_path(@text_block) %>" class="link-print" target="_blank">
-          <span>Print</span>
-          </a>
-        </li>
+				<li id="print-container">
+					<a href="<%= export_text_block_path(@text_block) %>" class="link-print" target="_blank">
+					<span>Print</span>
+					</a>
+				</li>
 			</ul>
 		</aside>
 		<div class="cl"></div>
@@ -31,14 +32,13 @@
 		<% end -%>
 		<div class="cl"></div>
 		<% cache "text_block-#{@text_block.id}-detail" do -%>
-      <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
+			<%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
 		<% end -%>
 		<% if current_user && (@text_block.admin? || @text_block.owner?) %>
 		<%= link_to "EDIT", edit_text_block_path(@text_block), :class => "edit-action" %>
 		<% end -%>
 	</div>
 	<article>
-  		<%= raw @text_block.content %>
+		<%= raw @text_block.content %>
 	</article>
 </div>
-

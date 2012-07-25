@@ -39,6 +39,10 @@ class TextBlock < ActiveRecord::Base
     name
   end
 
+  def bookmark_name
+    self.name
+  end
+
   #Export the content that gets annotated in a Collage - also, render the content for display.
   #As always, the content method should export valid html/XHTML.
   def content
