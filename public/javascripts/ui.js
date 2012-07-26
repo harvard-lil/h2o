@@ -661,6 +661,12 @@ jQuery(function() {
 
   /* End TODO */
 
+  //Set current AJAX sort value
+  if(document.location.hash.match('ajax_region=') || document.location.hash.match('sort=')) {
+    var sort_region = '#all_' + jQuery.address.parameter('ajax_region') + '_sort';
+    jQuery(sort_region + ' select').val(jQuery.address.parameter('sort'));
+  }
+
   jQuery.observeDestroyControls('');
   jQuery.observeGenericControls('');
   jQuery.observeBookmarkControls('');
