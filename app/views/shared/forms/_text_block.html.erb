@@ -1,6 +1,11 @@
-<div id="text_block-error" style="display:none;" class="error"></div>
+<%= render :partial => "shared/second_nav", :locals => { :nav_id => 'text_blocks-logo',
+  :url => text_blocks_path,
+  :right_search => 'text_blocks/nav_search' } %>
+
+<div class="standard-form">
+  <div id="text_block-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
-  <h1><%= (@text_block.new_record?) ? 'Add New Text Block' : %Q|Edit "#{@text_block}"| %></h1>
+  <h3><%= (@text_block.new_record?) ? 'Add New Text Block' : %Q|Edit "#{@text_block}"| %></h3>
 <% end %>
 <% semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
   <% form.inputs do %>
@@ -29,3 +34,4 @@
     <% end %>
   <% end %>
 <% end %>
+</div>

@@ -18,9 +18,12 @@
       </div>
     <% end -%>
     <h4><%= link_to text_block.name, text_block_path(text_block), :class => "title" %>
-      <% if current_user && (@is_text_block_admin || @my_text_blocks.include?(text_block)) %>
+      <% if current_user && text_block.deleteable? && (@is_text_block_admin || @my_text_blocks.include?(text_block)) %>
         <%= link_to 'DELETE', text_block, :class => "action delete-action" %>
-        <% end %>
+      <% end %>
+      <% if current_user && (@is_text_block_admin || @my_text_blocks.include?(text_block)) %>
+        <%= link_to 'EDIT', edit_text_block_path(text_block), :class => "action" %>
+      <% end %>
     </h4>
     <% cache "text_block-#{text_block.id}-index" do %>
     <p>
