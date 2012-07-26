@@ -1,0 +1,48 @@
+#bcases .defaultSkin .mceSeparator {
+  background: none; 
+}
+#bcases .defaultSkin td.mceToolbar {
+  background: #E9E9E9;
+}
+#bcases span.mce_moretag {
+  background: url(/images/ui/tinymce_icons.png);
+  background-position: -201px 0px;
+}
+#bcases span.mce_kitchen_sink {
+  background: url(/images/ui/tinymce_icons.png);
+  background-position: -260px 0px;
+}
+#bcases .defaultSkin table.mceLayout tr.mceFirst td {
+}
+#case_content_input {
+  clear: both;
+}
+
+#mce_switches {
+  margin: 10px 25px 0px;
+}
+#mce_switches a {
+  text-decoration: none;
+  height: 18px;
+  float: right;
+  padding: 4px 5px 2px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #DFDFDF #DFDFDF #CCC;
+  color: #999;
+  background-color: #F1F1F1;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-top-left-radius: 3px;
+  margin-left: 5px;
+  position: relative;
+  bottom: -1px;
+}
+#mce_switches .current {
+  background-color: #E9E9E9;
+  color: #333;
+  border-color: #CCC #CCC #E9E9E9;
+}
+

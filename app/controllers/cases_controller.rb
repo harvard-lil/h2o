@@ -125,6 +125,8 @@ class CasesController < BaseController
   def new
     @case = Case.new
     @case.case_jurisdiction = CaseJurisdiction.new
+    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_stylesheets ['new_case']
 
     respond_to do |format|
       format.html # new.html.erb
@@ -143,6 +145,9 @@ class CasesController < BaseController
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
     @case = Case.new(params[:case])
+
+    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_stylesheets ['new_case']
 
     respond_to do |format|
       if @case.save
