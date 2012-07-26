@@ -133,7 +133,7 @@ jQuery.extend({
         container_id: playlistId
       },
       success: function(html){
-           jQuery.hideGlobalSpinnerNode();
+        jQuery.hideGlobalSpinnerNode();
         jQuery('#dialog-item-chooser').dialog('close');
         var addItemDialog = jQuery('<div id="generic-node"></div>');
         jQuery(addItemDialog).html(html);
@@ -542,7 +542,7 @@ jQuery.extend({
             jQuery.showGlobalSpinnerNode();
         },
         success: function(html) {
-            jQuery.hideGlobalSpinnerNode();
+          jQuery.hideGlobalSpinnerNode();
           jQuery.generateGenericNode(html);
         },
         error: function(xhr, textStatus, errorThrown) {
@@ -582,7 +582,9 @@ jQuery.extend({
         jQuery.showGlobalSpinnerNode();
       },
       success: function(data) {
-        document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+        setTimeout(function() {
+          document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+        }, 1000);
       },
       error: function(xhr) {
         jQuery.hideGlobalSpinnerNode();
