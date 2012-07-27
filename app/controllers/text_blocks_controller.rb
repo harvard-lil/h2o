@@ -100,8 +100,6 @@ class TextBlocksController < BaseController
   # GET /text_blocks.xml
   def index
     params[:page] ||= 1
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
 
     if params[:keywords]
       text_blocks = build_search(params)

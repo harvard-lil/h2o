@@ -1,7 +1,7 @@
 <label>SORT:</label>
 <select>
-	<% list.each do |s| -%>
-		<option value="<%= s[1] %>" <%= raw 'selected="selected"' if s[1] == 'display_name' %>><%= s[0] %></option>
+	<% list.each do |k, v| -%>
+		<option value="<%= k %>" <%= raw 'selected="selected"' if v[:selected] %>><%= v[:display] %></option>
 	<% end -%>
 </select>
 <div class="sort_ad">

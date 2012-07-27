@@ -51,6 +51,7 @@ class CasesController < BaseController
       with :public, true
       with :active, true
       paginate :page => params[:page], :per_page => 25
+
       order_by params[:sort].to_sym, params[:order].to_sym
     end
     cases.execute!
@@ -61,8 +62,6 @@ class CasesController < BaseController
   # GET /cases.xml
   def index
     params[:page] ||= 1
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
 
     if params[:keywords]
       cases = build_search(params)
@@ -136,6 +135,8 @@ class CasesController < BaseController
 
   # GET /cases/1/edit
   def edit
+    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_stylesheets ['new_case']
   end
 
   # POST /cases
@@ -170,6 +171,9 @@ class CasesController < BaseController
     unless params[:case][:tag_list].blank?
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
+    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_stylesheets ['new_case']
+
     respond_to do |format|
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'

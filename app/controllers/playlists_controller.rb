@@ -55,6 +55,7 @@ class PlaylistsController < BaseController
       end
       with :public, true
       paginate :page => params[:page], :per_page => 25
+
       order_by params[:sort].to_sym, params[:order].to_sym
     end
     playlists.execute!
@@ -65,8 +66,6 @@ class PlaylistsController < BaseController
   # GET /playlists.xml
   def index
     params[:page] ||= 1
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
 
     if params[:keywords]
       playlists = build_search(params)

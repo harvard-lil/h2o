@@ -24,6 +24,7 @@ class ApplicationController < ActionController::Base
   layout :layout_switch
 
   before_filter :title_select, :set_time_zone
+  before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
 
   #Switch to local time zone
@@ -75,27 +76,60 @@ class ApplicationController < ActionController::Base
     influence_record.save!
   end
 
-  def set_sort_lists
-    @case_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
-			"decision_date" => "DECISION DATE" })
-    @text_block_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
-			"author" => "BY AUTHOR" })
-    if ["index", "search"].include?(params[:action])
-      @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
-			"created_at" => "BY DATE",
-			"author" => "BY AUTHOR"	})
+  # Note: set_sort_params should always execute before set_sort_lists
+  # to ensure proper dropdown selected
+  def set_sort_params
+    if params.has_key?(:keywords)
+      params[:sort] ||= "score"
     else
-      @generic_sort_list = generate_sort_list({"display_name" => "DISPLAY NAME",
-		  	"created_at" => "BY DATE"})
+      params[:sort] ||= "display_name"
+    end
+
+    params[:order] = (params[:sort] == "score" ? :desc : :asc)
+  end
+
+  def set_sort_lists
+    @case_sort_list = generate_sort_list({
+      "score" => { :display => "RELEVANCE", :selected => true },
+      "display_name" => { :display => "DISPLAY NAME", :selected => false },
+      "decision_date" => { :display => "DECISION DATE", :selected => false }
+    })
+    @text_block_sort_list = generate_sort_list({
+      "score" => { :display => "RELEVANCE", :selected => true },
+      "display_name" => { :display => "DISPLAY NAME", :selected => false },
+      "author" => { :display => "BY AUTHOR", :selected => false }
+    })
+    if ["index", "search"].include?(params[:action])
+      @generic_sort_list = generate_sort_list({
+        "score" => { :display => "RELEVANCE", :selected => true },
+        "display_name" => { :display => "DISPLAY NAME", :selected => false },
+        "created_at" => { :display => "BY DATE", :selected => false },
+        "author" => { :display => "BY AUTHOR", :selected => false }
+      })
+    else
+      @generic_sort_list = generate_sort_list({
+        "score" => { :display => "RELEVANCE", :selected => true },
+        "display_name" => { :display => "DISPLAY NAME", :selected => false },
+        "created_at" => { :display => "BY DATE", :selected => false }
+      })
     end
   end
 
   protected
 
   def generate_sort_list(sort_fields)
-    sort_list = []
-	sort_fields.each { |k, v| sort_list.push([v, k, (params.has_key?(:sort) && params[:sort] == k) ? true : false]) }
-    sort_list
+    if params.has_key?(:sort)
+      sort_fields.each do |k, v|
+        v[:selected] = false
+      end
+      sort_fields.each do |k, v|
+        if params[:sort] == k
+          v[:selected] = true
+        end
+      end
+    end
+
+    sort_fields
   end
 
   # Accepts a string or an array and emits stylesheet tags in the layout in that order.

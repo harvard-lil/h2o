@@ -16,7 +16,7 @@ class BaseController < ApplicationController
       obj.build do
         keywords params[:keywords]
         paginate :page => params[:page], :per_page => 25 || nil
-        order_by :display_name, :asc
+        order_by :score, :desc
       end
       obj.execute!
       t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name)]); arr }
@@ -26,6 +26,7 @@ class BaseController < ApplicationController
         obj = Sunspot.new_search(model)
         obj.build do
           paginate :page => params[:page], :per_page => 25 || nil
+
           order_by :display_name, :asc
         end
         obj.execute!
@@ -54,9 +55,8 @@ class BaseController < ApplicationController
   end
 
   def search
+    set_sort_params
     set_sort_lists
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
 
     if !request.xhr? || params[:ajax_region] == 'playlists'
       @playlists = Sunspot.new_search(Playlist)
@@ -66,6 +66,7 @@ class BaseController < ApplicationController
         end
         with :public, true
         paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+
         order_by params[:sort].to_sym, params[:order].to_sym
       end
       @playlists.execute!
@@ -97,7 +98,7 @@ class BaseController < ApplicationController
         with :public, true
         with :active, true
         paginate :page => params[:page], :per_page => cookies[:per_page] || nil
- 
+
         order_by params[:sort].to_sym, params[:order].to_sym
       end
       @cases.execute!

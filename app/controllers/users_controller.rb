@@ -44,15 +44,16 @@ class UsersController < ApplicationController
   end
   
   def show
+    params[:sort] ||= 'display_name'
+    params[:order] ||= 'asc'
+
     set_sort_lists
+
     if params[:id] == 'create_anon'
       @user = @current_user
     else
       @user = User.find_by_id(params[:id])
     end
-
-    params[:sort] ||=  'display_name'
-    params[:order] ||= 'asc'
 
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'

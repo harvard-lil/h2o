@@ -77,9 +77,6 @@ class CollagesController < BaseController
 
   def index
     params[:page] ||= 1
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
-    logger.warn "steph: #{params.inspect}"
 
     if params[:keywords]
       collages = build_search(params)
