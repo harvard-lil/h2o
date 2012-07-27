@@ -12,7 +12,7 @@ class CasesController < BaseController
   # messed up in terms of location.
 
   access_control do
-    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager]
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
     allow :case_admin, :admin, :superadmin
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
   end
