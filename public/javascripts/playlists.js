@@ -154,8 +154,12 @@ jQuery.extend({
     initPlaylistItemAddButton: function(itemName, itemController){
         jQuery('.add-' + itemName + '-button').button().click(function(e){
             e.preventDefault();
+            if(jQuery(this).hasClass('inactive')) {
+              return false;
+            }
+            jQuery(this).addClass('inactive');
             var itemId = jQuery(this).attr('id').split('-')[1];
-			jQuery.addItemToPlaylistDialog(itemController, itemName, itemId, container_id);
+            jQuery.addItemToPlaylistDialog(itemController, itemName, itemId, container_id);
         });
     },
     initKeywordSearch: function(itemName,itemController){

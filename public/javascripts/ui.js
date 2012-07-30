@@ -579,6 +579,11 @@ jQuery.extend({
   },
   submitGenericNode: function() {
     jQuery('#generic-node #error_block').html('').hide();
+    var buttons = jQuery('#generic-node').parent().find('button');
+    if(buttons.first().hasClass('inactive')) {
+      return false;
+    }
+    buttons.addClass('inactive');
     jQuery('#generic-node').find('form').ajaxSubmit({
       dataType: "JSON",
       beforeSend: function() {
@@ -588,6 +593,7 @@ jQuery.extend({
         if(data.error) {
           jQuery('#generic-node #error_block').html(data.message).show(); 
           jQuery.hideGlobalSpinnerNode();
+          buttons.removeClass('inactive');
         } else {
           setTimeout(function() {
             document.location.href = jQuery.rootPath() + data.type + '/' + data.id;

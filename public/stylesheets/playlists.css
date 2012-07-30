@@ -112,3 +112,5 @@ font-size: 9px; font-weight: bold; }
 .tipsy { margin-top: 3px; }
 .tipsy-inner { background-color: #FFD5A4; color: #000; max-width: 200px; padding: 10px; text-align: center; font-weight: bold; }
 .tipsy-arrow-n { border-bottom-color: #FFD5A4; }
+
+button.inactive { opacity: 0.5; }
