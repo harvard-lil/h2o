@@ -143,8 +143,12 @@ jQuery.extend({
     initAddUrlButton: function(itemName, itemController){
         jQuery('#url_review').click(function(e){
             e.preventDefault();
+            if(jQuery(this).hasClass('inactive')) {
+              return false;
+            }
+            jQuery(this).addClass('inactive');
             /* var itemId = jQuery(this).attr('id').split('-')[1]; */
-			jQuery.addItemToPlaylistDialog('defaults', 'URL', jQuery('#url_input').val(), container_id);
+            jQuery.addItemToPlaylistDialog('defaults', 'URL', jQuery('#url_input').val(), container_id);
         });
     },
     initPlaylistItemAddButton: function(itemName, itemController){

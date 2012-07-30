@@ -98,6 +98,9 @@ font-size: 9px; font-weight: bold; }
   padding: 5px 10px; color: #FFF; font-weight: bold; text-decoration:none; 
   display: inline-block; margin-top: 10px; font-size: 11px; }
 #url_review:hover { color: #797979; background-color: #FFF; }
+#url_review.inactive {
+  opacity: 0.5;
+}
 
 /* Hiding while page is loading */
 #playlist .description .toolbar ul li.requires_logged_in { opacity: 0.0; }
