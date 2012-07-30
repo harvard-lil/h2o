@@ -56,15 +56,16 @@ class ItemBaseController < BaseController
   end
 
   def create
-    if controller_class_name == "ItemDefaultsController"
-      begin
-        id = params[:item_default][:url].match(/[0-9]+$/)[0]
-        item = ItemDefault.find(id)
-        params[:item_default][:url] = item.url
-      rescue Exception => e
-        logger.warn('Unable to update default item url:' + e.inspect)
-      end
-    end
+    # Note: Exception is always getting triggered here, on create, because item doesn't exist ever
+    #if controller_class_name == "ItemDefaultsController"
+    #  begin
+    #    id = params[:item_default][:url].match(/[0-9]+$/)[0]
+    #    item = ItemDefault.find(id)
+    #    params[:item_default][:url] = item.url
+    #  rescue Exception => e
+    #    logger.warn('Unable to update default item url:' + e.inspect)
+    #  end
+    #end
 
     @object.update_attributes(params[@param_symbol])
 
@@ -105,18 +106,17 @@ class ItemBaseController < BaseController
           playlist_item.accepts_role!(:owner, current_user)
         end
 
-        #flash[:notice] = 'ItemDefault was successfully created.'
         format.js {render :text => nil}
         format.html { redirect_to(@object) }
-        format.xml  { render :xml => @object, :status => :created, :location => @object }
-	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+        format.xml { render :xml => @object, :status => :created, :location => @object }
+	      format.json { render :json => { :type => 'playlists', :id => @playlist.id, :error => false } }
       else
         format.js {
           render :text => "We couldn't add that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
         }
         format.html { render :action => "new" }
-        format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
-	    format.json { render :json => { :message => "We could not add that playlist item." } }
+        format.xml { render :xml => @object.errors, :status => :unprocessable_entity }
+	      format.json { render :json => { :message => "We could not add that playlist item: #{@object.errors.full_messages.join('<br />')}", :error => true } }
       end
     end
   end
