@@ -552,6 +552,7 @@ jQuery.extend({
     });
   },
   generateGenericNode: function(html) {
+    jQuery('#generic-node').remove();
     var newItemNode = jQuery('<div id="generic-node"></div>').html(html);
     var title = '';
     if(newItemNode.find('#generic_title').length) {
@@ -576,15 +577,21 @@ jQuery.extend({
     }).dialog('open');
   },
   submitGenericNode: function() {
+    jQuery('#generic-node #error_block').html('').hide();
     jQuery('#generic-node').find('form').ajaxSubmit({
       dataType: "JSON",
       beforeSend: function() {
         jQuery.showGlobalSpinnerNode();
       },
       success: function(data) {
-        setTimeout(function() {
-          document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
-        }, 1000);
+        if(data.error) {
+          jQuery('#generic-node #error_block').html(data.message).show(); 
+          jQuery.hideGlobalSpinnerNode();
+        } else {
+          setTimeout(function() {
+            document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+          }, 1000);
+        }
       },
       error: function(xhr) {
         jQuery.hideGlobalSpinnerNode();
