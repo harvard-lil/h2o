@@ -135,6 +135,7 @@ jQuery.extend({
       success: function(html){
         jQuery.hideGlobalSpinnerNode();
         jQuery('#dialog-item-chooser').dialog('close');
+        jQuery('#generic-node').remove();
         var addItemDialog = jQuery('<div id="generic-node"></div>');
         jQuery(addItemDialog).html(html);
         jQuery(addItemDialog).dialog({
