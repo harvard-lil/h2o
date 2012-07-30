@@ -1,0 +1,2 @@
+class Default
+end
