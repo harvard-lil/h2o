@@ -167,15 +167,16 @@ class CollagesController < BaseController
         @collage.accepts_role!(:owner, current_user)
         @collage.accepts_role!(:creator, current_user)
         session[:just_born] = true
-        #flash[:notice] = 'Collage was successfully created.'
+
         format.html { redirect_to(@collage) }
         format.xml  { render :xml => @collage, :status => :created, :location => @collage }
-        format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :type => 'collages', :id => @collage.id, :error => false } }
       else
         flash[:notice] = "We couldn't create that collage - " + @collage.errors.full_messages.join(',')
+
         format.html { render :action => "new" }
         format.xml  { render :xml => @collage.errors, :status => :unprocessable_entity }
-        format.json { render :json => { :type => 'collages', :id => @collage.id } }
+        format.json { render :json => { :error => true, :message => "We could not collage this item: #{@collage.errors.full_messages.join('<br />')}" } }
       end
     end
   end

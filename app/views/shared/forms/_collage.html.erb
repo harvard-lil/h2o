@@ -1,5 +1,5 @@
 <div style="width: 380px; float: left;">
-  <div id="collage-error" style="display:none;" class="error"></div>
+  <div id="error_block" style="display:none;" class="error"></div>
   <h3 style="display:none;" id="generic_title"><%= (@collage.new_record?) ? 'Add a New Collage' : "Edit \"#{@collage.display_name}\"" %></h3>
   <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
     <% form.inputs do %>
@@ -11,10 +11,11 @@
         :hint => "You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }"
     %>
 	<%= form.input :tag_list,
-	  :as => :string,
-	  :hint => 'Please define the tags for this collage in a comma-separated list.',
-	  :label => 'Tags',
-	  :input_html => { :class => 'tagging-autofill-tags' }
+    :as => :string,
+    :hint => 'Please define the tags for this collage in a comma-separated list.',
+    :label => 'Tags',
+    :input_html => { :class => 'tagging-autofill-tags' },
+    :required => false
 	%>
     <% if @collage.new_record? -%>
       <hr />
