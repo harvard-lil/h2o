@@ -433,6 +433,35 @@ h2 .bookmarked { color: #FFF; }
 .singleitem .toolbar .link-bookmark { background-position: -41px -39px; width: 18px; }
 .singleitem .toolbar .link-print { background-position: -60px -39px; width: 22px; }
 
+/* MCE */
+#mce_switches {
+  margin: 10px 25px 0px;
+}
+#mce_switches a {
+  text-decoration: none;
+  height: 18px;
+  float: right;
+  padding: 4px 5px 2px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #DFDFDF #DFDFDF #CCC;
+  color: #999;
+  background-color: #F1F1F1;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-top-left-radius: 3px;
+  margin-left: 5px;
+  position: relative;
+  bottom: -1px;
+}
+#mce_switches .current {
+  background-color: #E9E9E9;
+  color: #333;
+  border-color: #CCC #CCC #E9E9E9;
+}
+
 /* Print Container */
 .singleitem .description .toolbar ul li#print-container { position: relative; padding: 0px; }
 .singleitem .description .toolbar ul li#print-container > a { padding: 0px 8px; background-position: -167px -39px; }

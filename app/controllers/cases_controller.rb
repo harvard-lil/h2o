@@ -124,7 +124,7 @@ class CasesController < BaseController
   def new
     @case = Case.new
     @case.case_jurisdiction = CaseJurisdiction.new
-    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_case']
 
     respond_to do |format|
@@ -135,7 +135,7 @@ class CasesController < BaseController
 
   # GET /cases/1/edit
   def edit
-    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_case']
   end
 
@@ -147,7 +147,7 @@ class CasesController < BaseController
     end
     @case = Case.new(params[:case])
 
-    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_case']
 
     respond_to do |format|
@@ -155,7 +155,7 @@ class CasesController < BaseController
         @case.accepts_role!(:owner, current_user)
         @case.accepts_role!(:creator, current_user)
         flash[:notice] = 'Case was successfully created.'
-        format.html { redirect_to(cases_url) }
+        format.html { redirect_to "/cases/#{@cases.id}" }
         format.xml  { render :xml => @case, :status => :created, :location => @case }
       else
         format.html { render :action => "new" }
@@ -171,13 +171,13 @@ class CasesController < BaseController
     unless params[:case][:tag_list].blank?
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
-    add_javascripts ['tiny_mce/tiny_mce.js', 'new_case', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_case']
 
     respond_to do |format|
       if @case.update_attributes(params[:case])
         flash[:notice] = 'Case was successfully updated.'
-        format.html { redirect_to(case_url(@case)) }
+        format.html { redirect_to "/cases/#{@cases.id}" }
         format.json  { render :json => {:type => 'cases', :id => @case.id} }
       else
         format.html { render :action => "edit" }

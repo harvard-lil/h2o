@@ -19,6 +19,9 @@ class TextBlocksController < BaseController
 
   # GET /text_blocks/1/edit
   def edit
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_stylesheets ['new_text_block']
+
     if @text_block.metadatum.blank?
       @text_block.build_metadatum
     end
@@ -35,6 +38,9 @@ class TextBlocksController < BaseController
   # GET /text_blocks/new
   # GET /text_blocks/new.xml
   def new
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_stylesheets ['new_text_block']
+
     @text_block = TextBlock.new
     @text_block.build_metadatum
 
@@ -51,6 +57,9 @@ class TextBlocksController < BaseController
       params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
     end
 
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_stylesheets ['new_text_block']
+
     @text_block = TextBlock.new(params[:text_block])
 
     respond_to do |format|
@@ -58,7 +67,7 @@ class TextBlocksController < BaseController
         @text_block.accepts_role!(:owner, current_user)
         @text_block.accepts_role!(:creator, current_user)
         flash[:notice] = 'Text Block was successfully created.'
-        format.html { redirect_to(text_blocks_url) }
+        format.html { redirect_to "/text_blocks/#{@text_block.id}" }
         format.xml  { render :xml => @text_block, :status => :created, :location => @text_block }
       else
         @text_block.build_metadatum
@@ -148,10 +157,13 @@ class TextBlocksController < BaseController
     unless params[:text_block][:tag_list].blank?
       params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
     end
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_stylesheets ['new_text_block']
+
     respond_to do |format|
       if @text_block.update_attributes(params[:text_block])
         flash[:notice] = 'Text Block was successfully updated.'
-        format.html { redirect_to(text_blocks_url) }
+        format.html { redirect_to "/text_blocks/#{@text_block.id}" }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

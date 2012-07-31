@@ -12,7 +12,11 @@ var tinyMCEPreInit = {
           theme_advanced_statusbar_location:"bottom",
           theme_advanced_resizing:true,
           theme_advanced_resize_horizontal:false,
-          plugins:"tabfocus,paste,kitchen_sink,moretag"
+          plugins:"tabfocus,paste,kitchen_sink,moretag,",
+          add_form_submit_trigger: false,
+          formats: {
+            bold: { inline: 'b', 'classes': 'bold' }
+          }
         }
       } ,
 			qtInit : {

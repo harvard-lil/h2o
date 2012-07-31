@@ -12,7 +12,6 @@ var switchEditors = {
 
 		var t = this, ed = tinyMCE.get(id), wrap_id, txtarea_el, dom = tinymce.DOM;
 
-
 		wrap_id = 'case_content_input';
 		txtarea_el = dom.get(id);
 
