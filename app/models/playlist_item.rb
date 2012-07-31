@@ -38,10 +38,8 @@ class PlaylistItem < ActiveRecord::Base
     ["Youtube Video", "ItemYoutube"],
     ["Image", "ItemImage"],
     ["Text File", "ItemText"],
-    ["H2O Question Tool", "ItemQuestionInstance"],
-    ["H2O Rotisserie", "ItemRotisserieDiscussion"],
     ["H2O Playlist", "ItemPlaylist"]
-    ]
+  ]
 
   def self.playlistable_classes
     Dir['app/models/*.rb'].map {|f| File.basename(f, '.*').camelize.constantize }

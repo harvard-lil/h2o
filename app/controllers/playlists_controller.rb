@@ -292,7 +292,6 @@ class PlaylistsController < BaseController
 
   def url_check
     return_hash = Hash.new
-    #test_url = CGI.escape(params[:url_string])
     test_url = params[:url_string]
     return_hash["url_string"] = test_url
     return_hash["description_string"]
@@ -306,13 +305,7 @@ class PlaylistsController < BaseController
     return_hash["type"] = object_hash["type"]
     return_hash["body"] = object_hash["body"]
 
-    logger.warn(return_hash.inspect)
-
-    #    if return_hash["type"] == "ItemText"
-    #      return_hash["body"] = object_hash["body"]
-    #    elsif return_hash["type"] == 'ItemQuestionInstance'
-    #      return_hash["body"] = 'I am a serious body'
-    #    end
+    # logger.warn(return_hash.inspect)
 
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
