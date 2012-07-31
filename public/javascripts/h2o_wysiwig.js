@@ -13,10 +13,11 @@ var tinyMCEPreInit = {
           theme_advanced_resizing:true,
           theme_advanced_resize_horizontal:false,
           plugins:"tabfocus,paste,kitchen_sink,moretag,",
-          add_form_submit_trigger: false,
+          add_form_submit_trigger: false /*,
           formats: {
-            bold: { inline: 'b', 'classes': 'bold' }
-          }
+            bold: { inline: 'span', 'classes': 'bold' },
+            italic: { inline: 'span', 'classes': 'italic' }
+          } */
         }
       } ,
 			qtInit : {
@@ -64,5 +65,10 @@ jQuery(document).ready(function(){
         switchEditors.switchto(jQuery(this).attr('id'));
 
         return false;
+      });
+      jQuery('#text_block_submit,#case_submit').click(function() {
+        if(!jQuery('#mce_switches .html').hasClass('active')) {
+          switchEditors.switchto(jQuery('#mce_switches .html').attr('id'));
+        }
       });
 });

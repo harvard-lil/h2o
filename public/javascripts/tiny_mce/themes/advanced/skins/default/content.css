@@ -20,6 +20,7 @@ del {color:red; text-decoration:line-through}
 cite {border-bottom:1px dashed blue}
 acronym {border-bottom:1px dotted #CCC; cursor:help}
 abbr {border-bottom:1px dashed #CCC; cursor:help}
+blockquote { margin: 0px; }
 
 /* IE */
 * html body {

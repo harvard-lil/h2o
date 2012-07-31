@@ -39,7 +39,7 @@
 #text_block article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #text_block article .chorus { text-align:center; padding-bottom:16px; }
 #text_block article p { padding-bottom:16px; }
-#text_block article p em { color:#669933; }
+#text_block article p em { }
 #text_block article p a { color:#336699; }
 #text_block article p a.hint { color:#669900; }
-#text_block article p strong { font-weight:normal; color:#999; }
+#text_block article p strong { font-weight:bold; } 

@@ -39,7 +39,7 @@
 #case article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #case article .chorus { text-align:center; padding-bottom:16px; }
 #case article p { padding-bottom:16px; }
-#case article p em { color:#669933; }
+#case article p em { }
 #case article p a { color:#336699; }
 #case article p a.hint { color:#669900; }
-#case article p strong { font-weight:normal; color:#999; }
+#case article p strong { }
