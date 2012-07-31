@@ -140,7 +140,10 @@ class CollagesController < BaseController
       @collage.name = annotatable.short_name
       @collage.tag_list = annotatable.tags.select { |t| t.name }.join(', ')
     end
-    #TODO: add more for other annotatable types
+    if klass == TextBlock
+      annotatable = klass.find(params[:annotatable_id])
+      @collage.tag_list = annotatable.tags.select { |t| t.name }.join(', ')
+    end
 
     respond_to do |format|
       format.html # new.html.erb
