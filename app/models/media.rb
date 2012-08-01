@@ -1,5 +1,3 @@
-require 'playlistable_extensions'
-
 class Media < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
 

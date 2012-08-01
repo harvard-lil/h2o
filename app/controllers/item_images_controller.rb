@@ -1,3 +1,0 @@
-class ItemImagesController < ItemBaseController
-
-end

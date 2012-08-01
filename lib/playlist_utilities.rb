@@ -34,7 +34,7 @@ module PlaylistUtilities
         return_hash["type"] = "ItemPlaylist"
       end
     elsif uri.host =~ /youtube.com$/
-      return_hash["type"] = "ItemYoutube"
+      return_hash["type"] = "ItemMedia"
     else
       Net::HTTP.start(uri.host, uri.port) do |http|
         ### return_hash["result"] = http.head(url.request_uri)
@@ -45,14 +45,11 @@ module PlaylistUtilities
         when "text/html" then
           return_hash["type"] = "ItemDefault"
         when "image/jpeg" then
-          return_hash["type"] = "ItemImage"
+          return_hash["type"] = "ItemMedia"
         when "image/png" then
-          return_hash["type"] = "ItemImage"
+          return_hash["type"] = "ItemMedia"
         when "image/gif" then
-          return_hash["type"] = "ItemImage"
-        when "text/plain" then
-          return_hash["type"] = "ItemText"
-          return_hash["body"] = truncate(http.get(uri.request_uri).body, :length => 1000)
+          return_hash["type"] = "ItemMedia"
         end
       end
     end

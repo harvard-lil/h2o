@@ -1,2 +1,0 @@
-class ItemTextsController < ItemBaseController
-end
