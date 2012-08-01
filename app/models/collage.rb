@@ -5,7 +5,6 @@ require 'ancestry_extensions'
 
 class Collage < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
-  extend AncestryExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   
   include H2oModelExtensions

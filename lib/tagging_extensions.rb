@@ -13,7 +13,4 @@ module TaggingExtensions
         ORDER BY COUNT(*) DESC LIMIT 25")
     end
   end
-
-  module InstanceMethods
-  end
 end

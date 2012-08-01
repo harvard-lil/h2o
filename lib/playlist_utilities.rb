@@ -1,5 +1,4 @@
 module PlaylistUtilities
-
   require 'net/http'
   require 'uri'
 
@@ -14,13 +13,8 @@ module PlaylistUtilities
     metadata_hash = get_metadata_hash(url_string,uri)
 
     if metadata_hash["object-type"].present?
-
       object_type = metadata_hash["object-type"]
       
-      logger.warn('object type is:' + object_type)
-
-      logger.warn('Metadata hash' + metadata_hash.inspect)
-
       created_date = ''
       begin
         created_date = Time.parse(metadata_hash['created-at']).to_s(:long)
@@ -39,9 +33,6 @@ module PlaylistUtilities
       when "Playlist" then
         return_hash["type"] = "ItemPlaylist"
       end
-
-      logger.warn('type is: ' + return_hash['type'] )
-
     elsif uri.host =~ /youtube.com$/
       return_hash["type"] = "ItemYoutube"
     else
@@ -112,5 +103,4 @@ module PlaylistUtilities
   def local?
     (actual_object) ? true : false
   end
-
 end

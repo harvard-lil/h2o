@@ -1,6 +1,5 @@
 module RedclothExtensions
   module ClassMethods
-
     def format_content(*args)
       doc = RedCloth.new(args.join(' '))
       doc.sanitize_html = false
@@ -27,12 +26,6 @@ module RedclothExtensions
         :tags => WHITELISTED_TAGS, 
         :attributes => WHITELISTED_ATTRIBUTES
       )
-    end
-
-  end
-  module InstanceMethods
-    def you_win
-      true
     end
   end
 end

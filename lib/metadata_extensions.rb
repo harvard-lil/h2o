@@ -1,7 +1,5 @@
 module MetadataExtensions
-
   def self.included(model)
-
     model.class_eval do
       #instance methods
     end
@@ -13,7 +11,5 @@ module MetadataExtensions
         :allow_destroy => true,
         :reject_if => :all_blank
     end
-
   end
-
 end

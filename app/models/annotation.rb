@@ -4,7 +4,6 @@ require 'redcloth_extensions'
 require 'playlistable_extensions'
 
 class Annotation < ActiveRecord::Base
-  extend AncestryExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 

@@ -3,7 +3,6 @@ require 'redcloth_extensions'
 require 'ancestry_extensions'
 
 class Playlist < ActiveRecord::Base
-  extend AncestryExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
 

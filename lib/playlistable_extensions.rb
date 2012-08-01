@@ -1,5 +1,4 @@
 module PlaylistableExtensions
-
   def self.included(model)
     model.class_eval do
       #instance Methods

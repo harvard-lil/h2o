@@ -1,6 +1,4 @@
 module AuthUtilities
-
-  ### Pulls current user from authlogic
   def current_user
     session = UserSession.find
     current_user = session && session.user

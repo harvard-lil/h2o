@@ -3,11 +3,8 @@ require 'playlistable_extensions'
 require 'ancestry_extensions'
 
 class PlaylistItem < ActiveRecord::Base
-  extend AncestryExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
-# Unsure why we'd want the playlistable instance methods on this model. . .
-#  include PlaylistableExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
 

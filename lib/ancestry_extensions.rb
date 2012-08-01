@@ -1,8 +1,4 @@
 module AncestryExtensions
-
-  module ClassMethods
-  end
-
   module InstanceMethods
     def collapse_children
       self.children.each do|child|
@@ -11,5 +7,4 @@ module AncestryExtensions
       end
     end
   end
-
 end
