@@ -10,7 +10,5 @@ class ItemImage < ActiveRecord::Base
     PREVIEW_CONTENT
 
     return preview_content
-
   end
-
 end

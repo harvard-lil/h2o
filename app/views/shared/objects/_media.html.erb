@@ -1,0 +1,38 @@
+<li class="listitem listitem<%= media.id %>" data-itemid="<%= media.id %>">
+	<% if current_user -%>
+	<div class="controls">
+		<ul>
+			<li class="link-add"><a data-item_id="<%= media.id %>" data-bookmarktype="item_media" data-type="media" href="#">Add</a></li>
+		</ul>
+	</div>
+	<% end -%>
+	<div class="details">
+    <% cache "media-#{media.id}-tags" do %>
+      <div class="tags">
+        <ul>
+          <% media.tag_list.each do |tag| %>
+          <li><%= link_to tag, media_tag_path(CGI.escape(tag)) %></li>
+          <% end -%>
+        </ul>
+      </div>
+    <% end -%>
+    <h4><%= link_to media.name, media_path(media), :class => "title" %>
+      <% if current_user && (@is_media_admin || @my_medias.include?(media)) %>
+        <%= link_to 'DELETE', media, :class => "action delete-action" %>
+      <% end %>
+      <% if current_user && (@is_media_admin || @my_medias.include?(media)) %>
+        <%= link_to 'EDIT', edit_media_path(media), :class => "action" %>
+      <% end %>
+    </h4>
+    <% cache "media-#{media.id}-index" do %>
+    <p>
+      <%= media.created_at.to_s(:simpledatetime) %>
+      <% if media.creators -%>
+      by
+      <%= raw media.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+      <% end -%>
+    </p>
+    <% end -%>
+	</div>
+	<div class="cl"></div>
+</li>

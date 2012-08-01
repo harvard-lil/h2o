@@ -1,0 +1,37 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'medias-logo',
+	:url => medias_path,
+	:right_search => 'medias/nav_search' } %>
+
+<div id="media" class="singleitem" data-itemid="<%= @media.id %>">
+	<hgroup class="description">
+		<h2><%= @media.display_name %></h2>
+		<aside class="toolbar">
+			<ul>
+				<% if current_user -%>
+				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @media), :class => 'collage-this new-action' %></li>
+				<li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
+				<% end -%>
+			</ul>
+		</aside>
+		<div class="cl"></div>
+	</hgroup>
+	<div class="details">
+    <p>Description here?</p>
+		<% cache "media-#{@media.id}-tags" do -%>
+		<div class="tags">
+			<ul>
+				<% @media.tags.each do |tag| -%>
+				<li><%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %></li>
+				<% end -%>
+			</ul>
+		</div>
+		<% end -%>
+		<div class="cl"></div>
+		<% if current_user && (@is_media_admin || @my_medias.include?(@media)) %>
+		<%= link_to "EDIT", edit_media_path(@media) %>
+		<% end -%>
+	</div>
+	<article>
+		<%= raw @media.content %>
+	</article>
+</div>

@@ -33,14 +33,6 @@ class PlaylistItem < ActiveRecord::Base
 
   alias :to_s :display_name
 
-  ITEM_TYPES = [
-    ["Basic URL", "ItemDefault"],
-    ["Youtube Video", "ItemYoutube"],
-    ["Image", "ItemImage"],
-    ["Text File", "ItemText"],
-    ["H2O Playlist", "ItemPlaylist"]
-  ]
-
   def self.playlistable_classes
     Dir['app/models/*.rb'].map {|f| File.basename(f, '.*').camelize.constantize }
 

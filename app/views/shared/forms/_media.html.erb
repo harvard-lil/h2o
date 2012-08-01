@@ -1,0 +1,28 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'medias-logo',
+  :url => medias_path,
+  :right_search => 'medias/nav_search' } %>
+
+
+  <div class="standard-form">
+    <div id="media-error" style="display:none;" class="error"></div>
+    <h3 id="generic_title"><%= @media.new_record? ? 'Add a new media' : "Edit \"#{@media.name}\"" %></h3>
+    <% semantic_form_for(@media, :html => {:id => 'media-form'}) do |form| %>
+      <% form.inputs do %>
+        <%= form.input :name %>
+        <%= form.input :media_type, :as => :radio %>
+        <%= form.input :content %>
+        <%= form.input :tag_list,
+          :as => :string,
+          :hint => 'Please define the tags for this media in a comma-separated list.',
+          :label => 'Tags',
+          :input_html => {:class => 'tagging-autofill-tags'}
+        %>
+        <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+      <% end %>
+      <% unless request.xhr? %>
+        <% form.buttons do %>
+          <%= form.commit_button 'Save' %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>

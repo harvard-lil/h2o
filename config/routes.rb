@@ -4,30 +4,24 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :text_blocks, :collection => {:embedded_pager => :get}, :member => {:export => :get}
   map.text_block_tag "text_blocks/tag/:tag", :controller => :text_blocks, :action => :index
 
+  map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
   map.resources :item_annotations
-
   map.resources :item_collages
-
   map.resources :item_cases
-
   map.resources :item_playlists
+  map.resources :item_texts
+  map.resources :item_text_blocks
+  map.resources :item_images
+  map.resources :item_youtubes
+  map.resources :item_medias
+  map.resources :item_defaults
 
   map.resources :influences
-
-  map.resources :item_texts
-
-  map.resources :item_text_blocks
-
-  map.resources :item_images
-
-  map.resources :item_youtubes
 
   map.resources :annotations, :collection => {:embedded_pager => :get}
 
   map.resources :case_jurisdictions
-
   map.resources :case_docket_numbers
-
   map.resources :case_citations
 
   map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get, :export => :get}
@@ -46,9 +40,8 @@ ActionController::Routing::Routes.draw do |map|
   map.playlist_tag "playlists/tag/:tag", :controller => :playlists, :action => :index
   map.notes_tag "playlists/:id/notes/:type", :controller => :playlists, :action => :notes
 
-  map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
-
-  map.resources :item_defaults
+  map.resources :medias, :collection => {:embedded_pager => :get}
+  map.media_tag "media/tag/:tag", :controller => :medias, :action => :index
 
   # Commenting out all Question, Rotisserie routes to disable access
   # map.resources :item_rotisserie_discussions

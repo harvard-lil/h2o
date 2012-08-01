@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110901201017) do
+ActiveRecord::Schema.define(:version => 20120801190549) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -231,6 +231,23 @@ ActiveRecord::Schema.define(:version => 20110901201017) do
   add_index "item_images", ["actual_object_type"], :name => "index_item_images_on_actual_object_type"
   add_index "item_images", ["url"], :name => "index_item_images_on_url"
 
+  create_table "item_medias", :force => true do |t|
+    t.string   "title"
+    t.string   "name"
+    t.string   "url",                :limit => 1024
+    t.text     "description"
+    t.string   "actual_object_type"
+    t.integer  "actual_object_id"
+    t.boolean  "active",                             :default => true
+    t.boolean  "public",                             :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "item_medias", ["active"], :name => "index_item_medias_on_active"
+  add_index "item_medias", ["public"], :name => "index_item_medias_on_public"
+  add_index "item_medias", ["url"], :name => "index_item_medias_on_url"
+
   create_table "item_playlists", :force => true do |t|
     t.string   "title"
     t.string   "name",               :limit => 1024
@@ -357,6 +374,23 @@ ActiveRecord::Schema.define(:version => 20110901201017) do
 
   add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
   add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
+
+  create_table "media_types", :force => true do |t|
+    t.string   "label"
+    t.string   "slug"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "medias", :force => true do |t|
+    t.string   "name"
+    t.text     "content"
+    t.integer  "media_type_id"
+    t.boolean  "public",        :default => true
+    t.boolean  "active",        :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "metadata", :force => true do |t|
     t.string   "contributor"

@@ -8,7 +8,6 @@ class Annotation < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
-  include TaggingExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods
   include PlaylistableExtensions
   include AuthUtilities

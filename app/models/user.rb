@@ -61,6 +61,12 @@ class User < ActiveRecord::Base
     end
   end
 
+  def medias
+    Rails.cache.fetch("user-medias-#{self.id}") do
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Media', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+    end
+  end
+
   def playlists
     #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN

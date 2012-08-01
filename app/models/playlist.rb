@@ -5,10 +5,9 @@ require 'ancestry_extensions'
 class Playlist < ActiveRecord::Base
   extend AncestryExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
+  extend TaggingExtensions::ClassMethods
 
   include PlaylistableExtensions
-  include AncestryExtensions::InstanceMethods
-  include TaggingExtensions::InstanceMethods
   include AuthUtilities
 
   named_scope :public, :conditions => {:public => true, :active => true}
@@ -40,14 +39,6 @@ class Playlist < ActiveRecord::Base
 
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
-
-  def self.tag_list
-    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-      JOIN tags t ON ts.tag_id = t.id
-      WHERE taggable_type = 'Playlist'
-      GROUP BY ts.tag_id, t.name
-      ORDER BY COUNT(*) DESC LIMIT 25")
-  end
 
   def author
     owner = self.accepted_roles.find_by_name('owner')

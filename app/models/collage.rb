@@ -4,25 +4,18 @@ require 'playlistable_extensions'
 require 'ancestry_extensions'
 
 class Collage < ActiveRecord::Base
-  include H2oModelExtensions
   extend RedclothExtensions::ClassMethods
   extend AncestryExtensions::ClassMethods
+  extend TaggingExtensions::ClassMethods
+  
+  include H2oModelExtensions
   include PlaylistableExtensions
   include AncestryExtensions::InstanceMethods
-  include TaggingExtensions::InstanceMethods
   include AuthUtilities
   include MetadataExtensions
 
   acts_as_taggable_on :tags
   acts_as_authorization_object
-
-  def self.tag_list
-    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-      JOIN tags t ON ts.tag_id = t.id
-      WHERE taggable_type = 'Collage'
-      GROUP BY ts.tag_id, t.name
-      ORDER BY COUNT(*) DESC LIMIT 25")
-  end
 
   def self.annotatable_classes
     Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 

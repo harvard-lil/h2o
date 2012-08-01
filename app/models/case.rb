@@ -4,11 +4,11 @@ require 'annotatable_extensions'
 
 class Case < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
+  extend TaggingExtensions::ClassMethods
+
   include H2oModelExtensions
   include AnnotatableExtensions
-  extend TaggingExtensions::ClassMethods
   include PlaylistableExtensions
-  include TaggingExtensions::InstanceMethods
   include AuthUtilities
 
   acts_as_authorization_object
@@ -79,14 +79,6 @@ class Case < ActiveRecord::Base
 
   def bookmark_name
     self.short_name
-  end
-
-  def self.tag_list
-    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-      JOIN tags t ON ts.tag_id = t.id
-	  WHERE taggable_type = 'Case'
-	  GROUP BY ts.tag_id, t.name
-	  ORDER BY COUNT(*) DESC LIMIT 25")
   end
 
   private

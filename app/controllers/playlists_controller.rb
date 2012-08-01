@@ -312,21 +312,6 @@ class PlaylistsController < BaseController
     end
   end
 
-  def item_chooser
-    respond_to do |format|
-      format.html {
-        render :partial => 'shared/layout_components/playlist_item_chooser',
-        :locals => {
-          :url_string => params[:url_string],
-          :container_id => params[:container_id],
-          :body => params[:body]
-        },
-        :layout => false
-      }
-      format.xml  { head :ok }
-    end
-  end
-
   def position_update
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}

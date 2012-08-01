@@ -1,0 +1,2 @@
+class ItemMediasController < ItemBaseController
+end
