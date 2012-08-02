@@ -1,0 +1,43 @@
+Make sure you have a jre and postgres dev libraries installed, you'll also 
+need libxml2 (and maybe other libraries) needed to satisfy gem requirements.
+
+1) Install rvm, version 1.6.18. This is necessary because we need an older 
+version of rubygems to work with rails 2.3. The details of rvm installation are
+on the rvm website.
+  curl -L https://get.rvm.io | bash -s -- --version 1.6.18
+
+2) Install ree-1.8.7
+  rvm install ree
+
+3) Check out h2o. cd into the directory and create a gemset and rvmrc to set up the
+correct environment
+  git clone https://github.com/berkmancenter/h2o.git h2o
+  cd h2o
+  rvm use ree
+  rvm gemset create rails2
+  rvm use ree@rails2 --rvmrc
+  cd ../ && cd h2o/ 
+  # Accept the rvmrc prompt, you should now be in the correct version of ruby and 
+  # and empty gemset
+
+4) Install rails 2.3.14 and other gems needed to even get rake to work:
+  gem install rails --version=2.3.14 --no-ri --no-rdoc
+  gem install sunspot_rails --version=1.1.0
+  gem install pg
+
+5) Create the database (postgres only for now). Set up config/database.yml to connect to it.
+
+6) Install the rest of the gems, run migrations:
+  rake gems:install
+  # if you have a pg_dump, restore that into the database referenced in config/database.yml
+  rake db:migrate
+
+7) Configure solr in config/sunspot.yml. Start via:
+  rake sunspot:solr:start
+
+8) Set up passenger standalone:
+  gem install passenger
+  passenger start -p 3000
+
+and you should now be able to connect on http://localhost:3000/
+
