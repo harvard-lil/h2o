@@ -155,7 +155,7 @@ class CasesController < BaseController
         @case.accepts_role!(:owner, current_user)
         @case.accepts_role!(:creator, current_user)
         flash[:notice] = 'Case was successfully created.'
-        format.html { redirect_to "/cases/#{@cases.id}" }
+        format.html { redirect_to "/cases/#{@case.id}" }
         format.xml  { render :xml => @case, :status => :created, :location => @case }
       else
         format.html { render :action => "new" }
