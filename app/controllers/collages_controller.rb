@@ -2,20 +2,24 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   caches_page :show
 
-  before_filter :require_user, :except => [:layers, :index, :show, :embedded_pager, :export, :export_unique, :access_level]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique]
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:spawn_copy, :export_unique]
 
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :embedded_pager, :export, :export_unique, :access_level]    
+    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]    
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
   end
 
   def embedded_pager
     super Collage
+  end
+
+  def description_preview
+    render :text => Collage.format_content(params[:preview]), :layout => false
   end
 
   def access_level 
