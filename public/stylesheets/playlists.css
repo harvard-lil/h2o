@@ -93,12 +93,12 @@ font-size: 9px; font-weight: bold; }
 #playlist .contain_playlists,
 #playlist .collage_count { margin-top: 30px; }
 
-#tabs .url_form a { -moz-border-radius: 4px; border: 1px solid #8B9EB3;
+#url_review { -moz-border-radius: 4px; border: 1px solid #8B9EB3;
   background: url(/images/ui/repeat_bg.png) repeat scroll 0px -21px;
   padding: 5px 10px; color: #FFF; font-weight: bold; text-decoration:none; 
   display: inline-block; margin-top: 10px; font-size: 11px; -webkit-border-radius: 4px; }
-#tabs .url_form a:hover { color: #797979; background-color: #FFF; }
-#tabs .url_form a.inactive {
+#url_review:hover { color: #797979; background-color: #FFF; }
+#url_review.inactive {
   opacity: 0.5;
 }
 
