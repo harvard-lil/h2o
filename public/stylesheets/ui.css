@@ -17,7 +17,6 @@ textarea { overflow: auto; }
 blockquote{
   margin-left: 1em;
   margin-right: 1em;
-  font-style: italic;
   border-left: .2em solid #999;
   padding-left: 1em;
 }
