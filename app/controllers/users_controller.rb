@@ -2,8 +2,16 @@ class UsersController < ApplicationController
   cache_sweeper :user_sweeper
 
   before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => [:edit, :update, :bookmark_item]
-  
+  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :dashboard, :require_user]
+ 
+  def email_lookup
+    @users = []
+    @users << User.find_by_email_address(params[:user_lookup])
+    @users << User.find_by_login(params[:user_lookup])
+    @users = @users.compact.delete_if { |u| u.id == @current_user.id }
+    render :json => { :users => @users }
+  end
+
   def new
     @user = User.new
   end
@@ -19,7 +27,6 @@ class UsersController < ApplicationController
         render :action => :new
       end
     end
-
   end
 
   def create_anon
@@ -42,7 +49,15 @@ class UsersController < ApplicationController
       end
     end
   end
-  
+
+  def dashboard
+    redirect_to "/" if !@current_user
+
+    add_javascripts 'user_dashboard'
+    add_stylesheets 'user_dashboard'
+    @user = @current_user
+  end
+
   def show
     params[:sort] ||= 'display_name'
     params[:order] ||= 'asc'

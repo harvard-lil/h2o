@@ -115,7 +115,6 @@ jQuery.extend({
       jQuery(this).parent().siblings('.cases_details').find('.case_collages').removeClass('active');
     });
   },
-            //jQuery.addItemToPlaylistDialog('defaults', 'URL', jQuery('#url_input').val(), container_id);
   addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
     var url_string = jQuery.rootPathWithFQDN() + itemController + '/' + itemId;
     if(itemController == 'defaults') {
@@ -564,7 +563,7 @@ jQuery.extend({
       title: title,
       modal: true,
       width: 'auto',
-      height: 800,
+      height: 'auto',
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
       },

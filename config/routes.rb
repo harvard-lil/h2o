@@ -62,8 +62,12 @@ ActionController::Routing::Routes.draw do |map|
   # end
   # map.resources :question_instances, :member => {:metadata => :get}, :collection => {:embedded_pager => :get}
 
-  map.resources :users, :collection => {:create_anon => :post}
+  map.resources :users,
+    :collection => { :create_anon => :post, :email_lookup => :get },
+    :member => { :dashboard => :get }
+  map.resources :user_collections, :member => { :manage_users => :get }
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
+
   map.log_out "/log_out", :controller => :user_sessions, :action => :destroy
   map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
   map.bookmark_item "/bookmark_item/:type/:id", :controller => :users, :action => :bookmark_item

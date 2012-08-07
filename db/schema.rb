@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120801190549) do
+ActiveRecord::Schema.define(:version => 20120807154434) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -699,6 +699,19 @@ ActiveRecord::Schema.define(:version => 20120801190549) do
   add_index "text_blocks", ["mime_type"], :name => "index_text_blocks_on_mime_type"
   add_index "text_blocks", ["name"], :name => "index_text_blocks_on_name"
   add_index "text_blocks", ["updated_at"], :name => "index_text_blocks_on_updated_at"
+
+  create_table "user_collections", :force => true do |t|
+    t.integer  "owner_id"
+    t.string   "name"
+    t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "user_collections_users", :id => false, :force => true do |t|
+    t.integer "user_id"
+    t.integer "user_collection_id"
+  end
 
   create_table "users", :force => true do |t|
     t.datetime "created_at"

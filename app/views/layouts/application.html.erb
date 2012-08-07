@@ -51,7 +51,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 			<%= f.check_box :remember_me %><%= f.label :remember_me %>
 		</div>
 		<div class="center">
-			<%#= link_to raw('Forgot Username or Password &raquo;'), '#', :id => 'forgot' %>
 			<%= f.submit "Login", :class => 'button' %>
 		</div>
 		<% end -%>

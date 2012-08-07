@@ -1,0 +1,19 @@
+#manage-users-collection h4 {
+  margin-top: 10px;
+}
+
+#manage-users-collection a {
+  font-size: 10px;
+  color: #336699;
+}
+
+#manage-users-collection li a {
+  margin-left: 5px;
+}
+#manage-users-collection a.disabled {
+  opacity: 0.4;
+}
+
+#manage-users-collection .buttons {
+  margin-top: 30px;
+}
