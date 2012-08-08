@@ -1,7 +1,8 @@
 jQuery(function() {
-  jQuery('#email_lookup_submit').live('click', function(e) {
+  jQuery('#lookup_submit').live('click', function(e) {
     e.preventDefault();
     var link = jQuery(this);
+    var type = link.data('type');
     if(jQuery(this).hasClass('disabled')) {
       return false;
     }
@@ -11,7 +12,7 @@ jQuery(function() {
       url: jQuery(this).attr('href'),
       dataType: "JSON",
       data: {
-        user_lookup: jQuery('#user_lookup').val()
+        lookup: jQuery('#lookup').val()
       },
       beforeSend: function() {
         jQuery.showGlobalSpinnerNode();
@@ -20,39 +21,45 @@ jQuery(function() {
       error: function(xhr){
         jQuery.hideGlobalSpinnerNode();
         link.removeClass('disabled');
-        jQuery('#email_lookup_results li').remove();
+        jQuery('#lookup_results li').remove();
         var node = jQuery('<li>');
         node.append(jQuery('<span>Error: please try again.</span>'));
-        jQuery('#email_lookup_results').append(node);
+        jQuery('#lookup_results').append(node);
       },
       success: function(results){
-        jQuery('#email_lookup_results li').remove();
-        jQuery('#user_lookup').val('');
-        if(results.users.length == 0) {
+        jQuery('#lookup_results li').remove();
+        jQuery('#lookup').val('');
+        if(results.items.length == 0) {
           var node = jQuery('<li>');
-          node.append(jQuery('<span>Could not find any users.</span>'));
-          jQuery('#email_lookup_results').append(node);
+          node.append(jQuery('<span>Could not find any ' + type + 's.</span>'));
+          jQuery('#lookup_results').append(node);
         }
-        jQuery.each(results.users, function(i, el) {
-          var node = jQuery('<li>');
-          node.append(jQuery('<span>' + el.user.login + '(' + el.user.email_address + ')</span>'));
-          node.append(jQuery('<input type="hidden">').attr('name', 'user_collection[user_ids][]').val(el.user.id));
-          node.append(jQuery('<a>').attr('href', '#').addClass('add_user').html('ADD'));
-          jQuery('#email_lookup_results').append(node);
+        jQuery.each(results.items, function(i, el) {
+          var node = jQuery('<li class="item' + el.id + '">');
+          node.append(jQuery('<span>' + el.display + '</span>'));
+          if(jQuery('#current_list .item' + el.id).length) {
+            node.append(jQuery('<span> (already added)</span>'));
+          } else {
+            node.append(jQuery('<a data-type="' + type + '" data-id="' + el.id + '">').attr('href', '#').addClass('add_item').html('ADD'));
+          }
+          jQuery('#lookup_results').append(node);
         });
         jQuery.hideGlobalSpinnerNode();
         link.removeClass('disabled');
       }
     });
   });
-  jQuery('.remove_user').live('click', function(e) {
+  jQuery('.remove_item').live('click', function(e) {
     e.preventDefault();
     jQuery(this).parent().remove();
   });
-  jQuery('.add_user').live('click', function(e) {
+  jQuery('.add_item').live('click', function(e) {
     e.preventDefault();
-    jQuery('#user_list').append(jQuery(this).parent().clone());
-    jQuery('#user_list .add_user').removeClass('add_user').addClass('remove_user').html('REMOVE');
-    jQuery(this).parent().remove();
+    var link = jQuery(this);
+    var cloned = link.parent().clone();
+    cloned.append(jQuery('<input type="hidden">').attr('name', 'user_collection[' + link.data('type') + '_ids][]').val(link.data('id')));
+    cloned.find('.add_item').removeClass('add_item').addClass('remove_item').html('REMOVE');
+    jQuery('#current_list').append(cloned);
+    link.parent().remove();
   });
 });

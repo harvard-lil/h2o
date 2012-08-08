@@ -9,15 +9,22 @@ class Playlist < ActiveRecord::Base
   include PlaylistableExtensions
   include AuthUtilities
 
-  named_scope :public, :conditions => {:public => true, :active => true}
-
-  before_destroy :collapse_children
-  has_ancestry :orphan_strategy => :restrict
   #no sql injection here.
   acts_as_list :scope => 'ancestry = #{self.connection.quote(self.ancestry)}'
-
   acts_as_authorization_object
   acts_as_taggable_on :tags
+
+  has_ancestry :orphan_strategy => :restrict
+
+  has_many :playlist_items, :order => "playlist_items.position", :dependent => :destroy
+  has_many :roles, :as => :authorizable, :dependent => :destroy
+  has_and_belongs_to_many :user_collections
+
+  validates_presence_of :name
+  validates_length_of :name, :in => 1..250
+
+  before_destroy :collapse_children
+  named_scope :public, :conditions => {:public => true, :active => true}
 
   searchable(:include => [:tags]) do
     text :display_name
@@ -31,13 +38,6 @@ class Playlist < ActiveRecord::Base
     boolean :public
     time :created_at
   end
-
-  #has_many :playlist_items, :order => :position
-  has_many :playlist_items, :order => "playlist_items.position", :dependent => :destroy
-  has_many :roles, :as => :authorizable, :dependent => :destroy
-
-  validates_presence_of :name
-  validates_length_of :name, :in => 1..250
 
   def author
     owner = self.accepted_roles.find_by_name('owner')

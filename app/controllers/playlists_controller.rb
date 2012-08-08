@@ -11,7 +11,7 @@ class PlaylistsController < BaseController
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export, :check_export]
-  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level, :check_export]
+  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
   before_filter :store_location, :only => [:index, :show]
   
   access_control do
@@ -345,5 +345,9 @@ class PlaylistsController < BaseController
     respond_to do |format|
       format.json {render :json => {} }
     end
+  end
+
+  def playlist_lookup
+    render :json => { :items => @current_user.playlists.collect { |p| { :display => p.name, :id => p.id } } }
   end
 end

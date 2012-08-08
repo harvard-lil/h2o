@@ -33,7 +33,8 @@ ActionController::Routing::Routes.draw do |map|
               :export_unique => :post}
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
-  map.resources :playlists, :collection => {:block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get},
+  map.resources :playlists,
+    :collection => { :block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get, :playlist_lookup => :get },
     :member => {:spawn_copy => :post, :position_update => :post,
 	  :delete => :get, :copy => [:get, :post], :metadata => :get,
 	  :export => :get, :access_level => :get, :check_export => :get}
@@ -63,9 +64,9 @@ ActionController::Routing::Routes.draw do |map|
   # map.resources :question_instances, :member => {:metadata => :get}, :collection => {:embedded_pager => :get}
 
   map.resources :users,
-    :collection => { :create_anon => :post, :email_lookup => :get },
+    :collection => { :create_anon => :post, :user_lookup => :get },
     :member => { :dashboard => :get }
-  map.resources :user_collections, :member => { :manage_users => :get }
+  map.resources :user_collections, :member => { :manage_users => :get, :manage_playlists => :get }
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
 
   map.log_out "/log_out", :controller => :user_sessions, :action => :destroy

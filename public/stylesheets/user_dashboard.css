@@ -1,19 +1,24 @@
-#manage-users-collection h4 {
+#manage-users-collection h4,
+#manage-playlists-collection h4 {
   margin-top: 10px;
 }
 
-#manage-users-collection a {
+#manage-users-collection a,
+#manage-playlists-collection a {
   font-size: 10px;
   color: #336699;
 }
 
-#manage-users-collection li a {
+#manage-users-collection li a,
+#manage-playlists-collection li a {
   margin-left: 5px;
 }
-#manage-users-collection a.disabled {
+#manage-users-collection a.disabled,
+#manage-playlists-collection a.disabled, {
   opacity: 0.4;
 }
 
-#manage-users-collection .buttons {
+#manage-users-collection .buttons,
+#manage-playlists-collection .buttons {
   margin-top: 30px;
 }

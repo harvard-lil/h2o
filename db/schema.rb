@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120807154434) do
+ActiveRecord::Schema.define(:version => 20120808160123) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -484,6 +484,11 @@ ActiveRecord::Schema.define(:version => 20120807154434) do
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
   add_index "playlists", ["ancestry"], :name => "index_playlists_on_ancestry"
   add_index "playlists", ["position"], :name => "index_playlists_on_position"
+
+  create_table "playlists_user_collections", :id => false, :force => true do |t|
+    t.integer "playlist_id"
+    t.integer "user_collection_id"
+  end
 
   create_table "question_instances", :force => true do |t|
     t.string   "name",                    :limit => 250,                    :null => false

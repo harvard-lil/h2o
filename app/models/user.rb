@@ -76,7 +76,6 @@ class User < ActiveRecord::Base
     #        INNER JOIN roles_users ON roles.id = roles_users.role_id
     #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Playlist')))
     #    AND id != #{self.bookmark_id}")
-    logger.warn "trying to fetch: user-playlists-#{self.id}"
     Rails.cache.fetch("user-playlists-#{self.id}") do
       self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
     end

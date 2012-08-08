@@ -1,21 +1,21 @@
 <div>
   <div id="error_block" style="display:none;" class="error"></div>
   <% semantic_form_for(@user_collection, :html => { :id => "manage-users-collection" }) do |form| -%>
-    <h4>Users in This Collection</h4>
-    <ul id="user_list">
+    <h4 id="generic_title">Users in This Collection</h4>
+    <ul id="current_list">
       <input type="hidden" name="manage_users" value="1" />
       <% @user_collection.users.each do |user| -%>
-      <li>
+      <li class="item<%= user.id %>">
         <span><%= user.login %> (<%= user.email_address %>)</span>
         <input type="hidden" name="user_collection[user_ids][]" value="<%= user.id %>" />
-        <a href="#" class="remove_user">REMOVE</a>
+        <a href="#" class="remove_item">REMOVE</a>
       </li>
       <% end -%>
     </ul>
     <h4>User Lookup (by email or login)</h4>
-    <input type="text" id="user_lookup" />
-    <a href="<%= email_lookup_users_path %>" id="email_lookup_submit">SEARCH</a>
-    <ul id="email_lookup_results"></ul>
+    <input type="text" id="lookup" />
+    <a href="<%= user_lookup_users_path %>" data-type="user" id="lookup_submit">SEARCH</a>
+    <ul id="lookup_results"></ul>
   <% end -%>
 </div>
 <div class="clear"></div>

@@ -566,6 +566,9 @@ jQuery.extend({
       height: 'auto',
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
+        if(newItemNode.find('#manage_playlists').length) {
+          jQuery('#manage_playlists #lookup_submit').click();
+        }
       },
       buttons: {
         Submit: function() {

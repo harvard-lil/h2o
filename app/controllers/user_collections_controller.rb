@@ -1,6 +1,6 @@
 class UserCollectionsController < BaseController
   #before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
-  before_filter :load_user_collection, :only => [:edit, :manage_users, :destroy, :update]
+  before_filter :load_user_collection, :only => [:edit, :manage_users, :manage_playlists, :destroy, :update]
 
   #protect_from_forgery :except => [:spawn_copy, :export_unique]
 
@@ -32,6 +32,9 @@ class UserCollectionsController < BaseController
   end
 
   def manage_users
+  end
+
+  def manage_playlists
   end
 
   def create

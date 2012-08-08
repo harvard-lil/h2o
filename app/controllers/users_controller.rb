@@ -4,14 +4,6 @@ class UsersController < ApplicationController
   before_filter :require_no_user, :only => [:new, :create]
   before_filter :require_user, :only => [:edit, :update, :bookmark_item, :dashboard, :require_user]
  
-  def email_lookup
-    @users = []
-    @users << User.find_by_email_address(params[:user_lookup])
-    @users << User.find_by_login(params[:user_lookup])
-    @users = @users.compact.delete_if { |u| u.id == @current_user.id }
-    render :json => { :users => @users }
-  end
-
   def new
     @user = User.new
   end
@@ -188,5 +180,13 @@ class UsersController < ApplicationController
       logger.warn "#{e.inspect}"
       render :status => 500, :json => {}
     end
+  end
+
+  def user_lookup
+    @users = []
+    @users << User.find_by_email_address(params[:lookup])
+    @users << User.find_by_login(params[:lookup])
+    @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } } 
+    render :json => { :items => @users }
   end
 end
