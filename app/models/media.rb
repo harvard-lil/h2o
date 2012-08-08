@@ -1,7 +1,7 @@
 class Media < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
 
-  include PlaylistableExtensions
+  # include PlaylistableExtensions
   include AuthUtilities
 
   acts_as_authorization_object
