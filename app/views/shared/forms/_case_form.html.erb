@@ -16,10 +16,7 @@
         <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
         <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
         <hr />
-        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => ((form.object.new_record?) ? 'Please choose a jurisdiction. If it doesn\'t exist, enter it below' : 'Please choose a jurisdiction. You can edit the currently selected jurisdiction below') %>
-        <% form.semantic_fields_for :case_jurisdiction do |cj| %>
-          <%= cj.inputs :abbreviation, :name, :name => ((cj.object.new_record?) ? "New jurisdiction" : 'Edit existing jurisdiction') %>
-        <% end %>
+        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') %>
         <hr />
         <% form.semantic_fields_for :case_docket_numbers do |cd| %>
           <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>

@@ -598,9 +598,13 @@ jQuery.extend({
           jQuery.hideGlobalSpinnerNode();
           buttons.removeClass('inactive');
         } else {
-          setTimeout(function() {
-            document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
-          }, 1000);
+          if(data.custom_block) {
+            eval('jQuery.' + data.custom_block + '(data)');
+          } else {
+            setTimeout(function() {
+              document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+            }, 1000);
+          }
         }
       },
       error: function(xhr) {

@@ -29,10 +29,6 @@ class Case < ActiveRecord::Base
     :allow_destroy => true,
     :reject_if => proc { |att| att['docket_number'].blank? }
 
-  accepts_nested_attributes_for :case_jurisdiction,
-    :allow_destroy => true,
-    :reject_if => proc { |att| att['abbreviation'].blank? || att['name'].blank? }
-
   def self.select_options
     self.find(:all).collect{|c|[c.to_s,c.id]}
   end

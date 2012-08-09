@@ -124,7 +124,7 @@ class CasesController < BaseController
   def new
     @case = Case.new
     @case.case_jurisdiction = CaseJurisdiction.new
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     respond_to do |format|
@@ -135,7 +135,7 @@ class CasesController < BaseController
 
   # GET /cases/1/edit
   def edit
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
   end
 
@@ -147,7 +147,7 @@ class CasesController < BaseController
     end
     @case = Case.new(params[:case])
 
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     respond_to do |format|
@@ -171,7 +171,7 @@ class CasesController < BaseController
     unless params[:case][:tag_list].blank?
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     respond_to do |format|

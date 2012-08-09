@@ -55,9 +55,17 @@ class CaseJurisdictionsController < BaseController
         flash[:notice] = 'CaseJurisdiction was successfully created.'
         format.html { redirect_to(@case_jurisdiction) }
         format.xml  { render :xml => @case_jurisdiction, :status => :created, :location => @case_jurisdiction }
+        format.json { render :json => { :custom_block => 'case_jurisdiction_post', 
+                                        :id => @case_jurisdiction.id, 
+                                        :update => false, 
+                                        :name => @case_jurisdiction.name, 
+                                        :error => false 
+                                      } 
+                    }
       else
         format.html { render :action => "new" }
         format.xml  { render :xml => @case_jurisdiction.errors, :status => :unprocessable_entity }
+        format.json { render :json => { :error => true, :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" } }
       end
     end
   end
@@ -72,9 +80,17 @@ class CaseJurisdictionsController < BaseController
         flash[:notice] = 'CaseJurisdiction was successfully updated.'
         format.html { redirect_to(@case_jurisdiction) }
         format.xml  { head :ok }
+        format.json { render :json => { :custom_block => 'case_jurisdiction_post', 
+                                        :id => @case_jurisdiction.id, 
+                                        :update => false, 
+                                        :name => @case_jurisdiction.name, 
+                                        :error => false 
+                                      } 
+                    }
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @case_jurisdiction.errors, :status => :unprocessable_entity }
+        format.json { render :json => { :error => true, :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" } }
       end
     end
   end
