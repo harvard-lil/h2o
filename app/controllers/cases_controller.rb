@@ -202,16 +202,13 @@ class CasesController < BaseController
     @case = Case.find((params[:id].blank?) ? params[:case_id] : params[:id])
   end
 
-    def is_case_admin
-      if current_user
-        @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
-      end
-    end
+  def is_case_admin
+    @is_case_admin = current_user ? current_user.is_case_admin : false
+  end
 
-    def my_cases
-      if current_user
-        @my_cases = current_user.cases
-      end
+  def my_cases
+    if current_user
+      @my_cases = current_user.cases
     end
-
+  end
 end

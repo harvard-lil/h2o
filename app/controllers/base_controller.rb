@@ -104,7 +104,7 @@ class BaseController < ApplicationController
     end
 
     if current_user
-      @is_case_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0
+      @is_case_admin = current_user.is_case_admin
       @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
       @my_collages = current_user.collages
       @my_playlists = current_user.playlists

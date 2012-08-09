@@ -127,4 +127,8 @@ class User < ActiveRecord::Base
 
     return assignments_array
   end
+
+  def is_case_admin
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0 
+  end
 end
