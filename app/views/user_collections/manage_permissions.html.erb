@@ -14,7 +14,9 @@
       <tr>
         <td><%= user.login %></td>
         <% @permissions.each do |p| -%>
-        <td><input type="checkbox" name="permission_assignments[<%= user.id %>][]" value="<%= p.id %>" <%= 'checked="checked"' if @user_permission_map.include?("#{user.id}_#{p.id}") %> /></td>
+        <td>
+          <input type="checkbox" name="permission_assignments[<%= user.id %>][]" value="<%= p.id %>" <%= 'checked="checked"' if @user_permission_map.include?("#{user.id}_#{p.id}") %> />
+        </td>
         <% end -%>
       </tr>
       <% end -%>

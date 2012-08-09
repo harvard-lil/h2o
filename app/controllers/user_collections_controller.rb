@@ -56,16 +56,28 @@ class UserCollectionsController < BaseController
 
   def update_permissions
     begin
+      params[:permission_assignments] ||= {}
+
       arr = []
-      if params.has_key?(:permission_assignments)
-        params[:permission_assignments].each do |k, v|
-          v.each do |p|
-            arr.push({ :user_id => k.to_i, :permission_id => p.to_i })
+      # First set specific items to destroy, or don't touch unchanged items
+      @user_collection.permission_assignments.each do |pa|
+        h = { "id" => pa.id, "user_id" => pa.user_id, "permission_id" => pa.permission_id, "_destroy" => "1" }
+        if params[:permission_assignments].has_key?(pa.user_id.to_s)
+          if params[:permission_assignments][pa.user_id.to_s].include?(pa.permission_id.to_s)
+            params[:permission_assignments][pa.user_id.to_s].delete(pa.permission_id.to_s)
+            h.delete("_destroy")
           end
         end
+        arr.push(h)
       end
-      
-      PermissionAssignment.destroy(@user_collection.permission_assignments)
+
+      # Next, add new items
+      params[:permission_assignments].each do |k, v|
+        v.each do |p|
+          arr.push({ "user_id" => k, "permission_id" => p })
+        end
+      end
+
       @user_collection.attributes = { :permission_assignments_attributes => arr }
       if @user_collection.save
         render :json => { :error => false, :id => @user_collection.id, :custom_block => "updated_permissions" }
@@ -78,14 +90,25 @@ class UserCollectionsController < BaseController
   end
 
   def update
-    if params.has_key?(:manage_users) && !params.has_key?(:user_collection)
-      params[:user_collection] = { :user_ids => [] }
+    if params.has_key?(:manage_users)
+      if !params.has_key?(:user_collection)
+        params[:user_collection] = { :user_ids => [] }
+      end
+
+      # Permission Assignment Updates based on user updates
+      arr = []
+      @user_collection.permission_assignments.each do |pa|
+        h = { "id" => pa.id, "user_id" => pa.user_id, "permission_id" => pa.permission_id }
+        if !params[:user_collection][:user_ids].include?(pa.user_id)
+          h["_destroy"] = "1"
+        end
+        arr.push(h)
+      end
+      params[:user_collection][:permission_assignments_attributes] = arr
     end
 
     params[:user_collection][:owner_id] = @current_user.id
     @user_collection.attributes = params[:user_collection]
-
-    # when remove users from user_collection, delete permission assignments for users
 
     if @user_collection.save
       render :json => { :error => false, :type => "users/#{@current_user.id}", :id => "dashboard" }
