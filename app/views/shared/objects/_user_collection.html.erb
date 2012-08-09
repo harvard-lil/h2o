@@ -17,7 +17,10 @@
 			Users: <%= user_collection.users.map { |b| b.email_address }.join(', ') %><br />
 			<%= link_to 'MANAGE USERS', manage_users_user_collection_path(user_collection), :class => "action edit-action" %><br />
 			Playlists: <%= user_collection.playlists.map { |b| b.name }.join(', ') %><br />
-			<%= link_to 'MANAGE PLAYLISTS', manage_playlists_user_collection_path(user_collection), :class => "action edit-action manage-playlists" %><br />
+			<%= link_to 'MANAGE PLAYLISTS', manage_playlists_user_collection_path(user_collection), :class => "action edit-action manage-playlists" %>
+		</p>
+		<p class="extra extra<%= user_collection.id %> manage_permissions">
+			<%= link_to 'MANAGE PERMISSIONS', manage_permissions_user_collection_path(user_collection), :class => "action edit-action" %>
 		</p>
 	</div>
 	<div class="cl"></div>

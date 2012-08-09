@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120808160123) do
+ActiveRecord::Schema.define(:version => 20120809173927) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -445,6 +445,21 @@ ActiveRecord::Schema.define(:version => 20120808160123) do
   add_index "notification_trackers", ["rotisserie_discussion_id"], :name => "index_notification_trackers_on_rotisserie_discussion_id"
   add_index "notification_trackers", ["rotisserie_post_id"], :name => "index_notification_trackers_on_rotisserie_post_id"
   add_index "notification_trackers", ["user_id"], :name => "index_notification_trackers_on_user_id"
+
+  create_table "permission_assignments", :force => true do |t|
+    t.integer  "user_collection_id"
+    t.integer  "user_id"
+    t.integer  "permission_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "permissions", :force => true do |t|
+    t.string   "key"
+    t.string   "label"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "playlist_items", :force => true do |t|
     t.integer  "playlist_id"

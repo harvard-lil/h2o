@@ -24,9 +24,10 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject
   
   has_and_belongs_to_many :roles
-  has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
   has_and_belongs_to_many :user_collections
+  has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
   has_many :rotisserie_assignments
+  has_many :permission_assignments
 
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true

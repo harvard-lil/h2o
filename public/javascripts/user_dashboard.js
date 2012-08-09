@@ -1,3 +1,13 @@
+jQuery.extend({
+  updated_permissions: function(data) {
+    jQuery('.extra' + data.id).append(jQuery('<span>Updated!</span>'));
+    console.log(jQuery('.extra' + data.id));
+    jQuery.hideGlobalSpinnerNode();
+    jQuery('#generic-node').dialog('close');
+    jQuery('.extra' + data.id + ' span').fadeOut(4000, function() { jQuery(this).remove(); });
+  }
+});
+
 jQuery(function() {
   jQuery('#lookup_submit').live('click', function(e) {
     e.preventDefault();

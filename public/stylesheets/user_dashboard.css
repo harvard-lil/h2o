@@ -22,3 +22,8 @@
 #manage-playlists-collection .buttons {
   margin-top: 30px;
 }
+.manage_permissions span {
+  color: red;
+  text-transform: uppercase;
+  font-weight: bold;
+}

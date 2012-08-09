@@ -325,7 +325,6 @@ class PlaylistsController < BaseController
     respond_to do |format|
       format.js {render :json => return_hash.to_json}
     end
-
   end
 
   def load_playlist
