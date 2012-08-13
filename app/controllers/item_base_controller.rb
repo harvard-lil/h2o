@@ -9,10 +9,18 @@ class ItemBaseController < BaseController
 
   access_control do
     allow all, :to => [:show, :index]
-#    allow logged_in, :to => [:new, :create]
+
+    allow logged_in, :to => [:edit, :update], :if => :allow_update?
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
+  end
+
+  def allow_update?
+    load_object_and_playlist
+
+    current_user.can_permission_playlist("edit_notes", @playlist) || 
+      current_user.can_permission_playlist("edit_descriptions", @playlist)
   end
 
   def index
@@ -43,15 +51,6 @@ class ItemBaseController < BaseController
     respond_to do |format|
       format.html { render :partial => "shared/forms/playlist_item" }
       format.xml  { render :xml => @item_default }
-    end
-  end
-
-  # GET /item_defaults/1/edit
-  def edit
-    respond_to do |format|
-      format.html { render :partial => "shared/forms/playlist_item" }
-      format.xml  { render :xml => @item_default }
-	    format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
     end
   end
 
@@ -121,19 +120,47 @@ class ItemBaseController < BaseController
     end
   end
 
+  def edit
+    if current_user
+      @can_edit_all = current_user.has_role?(:superadmin) ||
+                      current_user.has_role?(:admin) || 
+                      current_user.has_role?(:editor, @playlist) || 
+                      current_user.has_role?(:owner, @playlist)
+      @can_edit_notes = @can_edit_all || current_user.can_permission_playlist("edit_notes", @playlist)
+      @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
+    else
+      @can_edit_all = @can_edit_notes = @can_edit_desc = false
+    end
+
+    render :partial => "shared/forms/playlist_item"
+  end
+
+
   def update
-    params[:playlist_item][:public_notes] = params[:playlist_item][:public_notes] == 'on' ? true : false
-    respond_to do |format|
-      if @object.update_attributes(params[@param_symbol]) && @object.playlist_item.update_attributes(params[:playlist_item])
-        flash[:notice] = "#{@model_class.name.titleize} was successfully updated."
-        format.html { render :text => nil }
-        format.xml  { head :ok }
-	      format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @object.errors, :status => :unprocessable_entity }
-	      format.json { render :json => { :error => @object.errors } }
-      end
+    if current_user
+      can_edit_all = current_user.has_role?(:superadmin) ||
+                      current_user.has_role?(:admin) || 
+                      current_user.has_role?(:editor, @playlist) || 
+                      current_user.has_role?(:owner, @playlist)
+      can_edit_notes = can_edit_all || current_user.can_permission_playlist("edit_notes", @playlist)
+      can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
+    else
+      can_edit_all = can_edit_notes = can_edit_desc = false
+    end
+
+    if !can_edit_desc 
+      params["item_playlist"].delete("description")
+    end
+    if !can_edit_notes
+      params.delete("playlist_item")
+    else
+      params[:playlist_item][:public_notes] = params[:playlist_item][:public_notes] == 'on' ? true : false
+    end
+
+    if @object.update_attributes(params[@param_symbol]) && @object.playlist_item.update_attributes(params[:playlist_item])
+	    render :json => { :type => 'playlists', :id => @playlist.id }
+    else
+	    render :json => { :error => @object.errors }
     end
   end
 

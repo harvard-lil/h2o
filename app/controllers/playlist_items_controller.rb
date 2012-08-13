@@ -7,11 +7,12 @@ class PlaylistItemsController < BaseController
   access_control do
     allow all, :to => [:show]
     allow logged_in, :to => [:new, :create]
+
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update]
   end
-    
+  
   def show
     @playlist_item = PlaylistItem.find(params[:id])
 

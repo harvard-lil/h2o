@@ -1,8 +1,8 @@
 <div id="playlist_item_form">
 <% if @base_model_class == Default -%>
-<h2><%= (@object.new_record?) ? "Add this to your playlist" : "Edit this in your playlist" %></h2>
+<h2 id="generic_title"><%= (@object.new_record?) ? "Add this to your playlist" : "Edit this playlist item" %></h2>
 <% else -%>
-<h2><%= (@object.new_record?) ? "Add this #{@base_model_class.to_s.singularize.downcase} to your playlist" : "Edit this #{@base_model_class.to_s.singularize.downcase} in your playlist" %></h2>
+<h2 id="generic_title"><%= (@object.new_record?) ? "Add this #{@base_model_class.to_s.singularize.downcase} to your playlist" : "Edit this playlist item" %></h2>
 <% end -%>
   <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
   <% semantic_form_for @object, :html => {:class => "case_form"} do |form| %>
@@ -10,12 +10,16 @@
       <% if @base_model_class == Default -%>
       <li><%= form.input :url,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %></li>
       <% end -%>
+      <% if @can_edit_all -%>
       <li><%= form.input :name,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %></li>
+      <% end -%>
+      <% if @can_edit_desc -%>
       <li><%= form.input :description,
         :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
         :required => false
     %></li>
-      <% if !@object.new_record? -%>
+      <% end -%>
+      <% if !@object.new_record? && @can_edit_notes -%>
       <li>
         <label for="playlist_item_notes">Notes</label>
         <textarea name="playlist_item[notes]" cols="38" rows="5" class="ui-widget-content ui-corner-all"><%= @object.playlist_item.notes.to_s %></textarea>

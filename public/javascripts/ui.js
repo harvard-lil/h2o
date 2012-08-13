@@ -2,7 +2,8 @@ var popup_item_id = 0;
 var popup_item_type = '';
 var is_owner = false;
 var permissions = {
-  can_position_update: false
+  can_position_update: false,
+  can_edit_notes: false
 };
 
 $.noConflict();
@@ -33,11 +34,16 @@ jQuery.extend({
       },
       success: function(results){
         //Global methods
-        if(results.can_edit) {
+        if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
           jQuery('.requires_edit').animate({ opacity: 1.0 });
-          is_owner = true;
+          if(results.can_edit) {
+            jQuery('.requires_remove').animate({ opacity: 1.0 });
+            is_owner = true;
+          } else {
+            jQuery('.requires_remove').remove();
+          }
         } else {
-          jQuery('.requires_edit').remove();
+          jQuery('.requires_edit, .requires_remove').remove();
         }
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);

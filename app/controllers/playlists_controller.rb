@@ -31,21 +31,26 @@ class PlaylistsController < BaseController
     if current_user
       can_edit = current_user && (@playlist.admin? || @playlist.owner?)
       can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
-      notes = can_edit ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
-      notes = notes.to_json(:only => [:id, :notes, :public_notes])
+      can_edit_notes = can_edit || current_user.can_permission_playlist("edit_notes", @playlist)
+      can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)
+      notes = can_edit_notes ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
       render :json => {
         :logged_in            => current_user.to_json(:only => [:id, :login]),
         :can_edit             => can_edit,
-        :notes                => can_edit ? notes : "[]",
+        :notes                => can_edit_notes ? notes.to_json(:only => [:id, :notes, :public_notes]) : "[]",
         :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
-        :can_position_update  => can_position_update }
+        :can_position_update  => can_position_update,
+        :can_edit_notes       => can_edit_notes,
+        :can_edit_desc        => can_edit_desc }
     else
       render :json => {
         :logged_in            => false,
         :can_edit             => false,
         :notes                => [],
         :playlists            => [],
-        :can_position_update  => false }
+        :can_position_update  => false,
+        :can_edit_notes       => false,
+        :can_edit_desc        => false }
     end
   end
 
