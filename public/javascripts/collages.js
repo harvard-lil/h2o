@@ -4,7 +4,6 @@ var just_hidden = 0;
 var layer_info = {};
 var last_annotation = 0;
 var highlight_history = {};
-var is_owner = false;
 var annotation_position = 0;
 var head_offset;
 

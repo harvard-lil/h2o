@@ -132,4 +132,16 @@ class User < ActiveRecord::Base
   def is_case_admin
     self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0 
   end
+
+  def playlists_by_permission(permission_key)
+    # TODO: Add caching, caching invalidation
+    permission = Permission.find_by_key(permission_key)
+    return [] if permission.nil?
+    self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.playlists if pa.permission == permission; arr }.flatten.uniq
+  end
+
+  def can_permission_playlist(permission_key, playlist)
+    playlists = self.playlists_by_permission(permission_key)
+    playlists.include?(playlist)
+  end
 end

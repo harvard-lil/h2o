@@ -15,12 +15,11 @@ class PlaylistsController < BaseController
   before_filter :store_location, :only => [:index, :show]
   
   access_control do
-    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export]
+    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
     allow :editor, :of => :playlist, :to => [:edit, :update, :notes]
-    #    allow :user, :of => :playlist, :to => [:index, :show]
   end
 
   def embedded_pager
@@ -29,16 +28,24 @@ class PlaylistsController < BaseController
 
   def access_level 
     session[:return_to] = "/playlists/#{@playlist.id}"
-    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
-    notes = @can_edit ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
-    notes = notes.to_json(:only => [:id, :notes, :public_notes])
-    respond_to do |format|
-      format.json { render :json => {
-        :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
-        :can_edit => @can_edit,
-        :notes => @can_edit ? notes : "[]",
-        :playlists => current_user ? current_user.playlists.to_json(:only => [:id, :name]) : []}
-      }
+    if current_user
+      can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+      can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
+      notes = can_edit ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
+      notes = notes.to_json(:only => [:id, :notes, :public_notes])
+      render :json => {
+        :logged_in            => current_user.to_json(:only => [:id, :login]),
+        :can_edit             => can_edit,
+        :notes                => can_edit ? notes : "[]",
+        :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
+        :can_position_update  => can_position_update }
+    else
+      render :json => {
+        :logged_in            => false,
+        :can_edit             => false,
+        :notes                => [],
+        :playlists            => [],
+        :can_position_update  => false }
     end
   end
 
@@ -313,18 +320,24 @@ class PlaylistsController < BaseController
   end
 
   def position_update
+    can_position_update = current_user.can_permission_playlist("position_update", @playlist)
+
+    if !can_position_update
+      # TODO: Add permissions message here
+      render :json => {}
+      return
+    end
+
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
-
+     
     playlist_order.each_index do |item_index|
       PlaylistItem.update(playlist_order[item_index], :position => item_index + 1)
     end
 
     return_hash = @playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h }
 
-    respond_to do |format|
-      format.js {render :json => return_hash.to_json}
-    end
+    render :json => return_hash.to_json
   end
 
   def load_playlist

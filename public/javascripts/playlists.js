@@ -1,5 +1,4 @@
 var dragged_element;
-var is_owner = false;
 
 jQuery.extend({
   initializeNoteFunctionality: function() {
@@ -71,7 +70,7 @@ jQuery.extend({
     });
   },
 	observeDragAndDrop: function() {
-    if(is_owner) {
+    if(permissions["can_position_update"]) {
       jQuery('.sortable').sortable({
         stop: function(event, ui) {
           var playlist_order = jQuery('.sortable').sortable('serialize');

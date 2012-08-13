@@ -1,5 +1,9 @@
 var popup_item_id = 0;
 var popup_item_type = '';
+var is_owner = false;
+var permissions = {
+  can_position_update: false
+};
 
 $.noConflict();
 
@@ -28,6 +32,7 @@ jQuery.extend({
 		    jQuery.loadState();
       },
       success: function(results){
+        //Global methods
         if(results.can_edit) {
           jQuery('.requires_edit').animate({ opacity: 1.0 });
           is_owner = true;
@@ -44,12 +49,13 @@ jQuery.extend({
         }
         jQuery('.afterload').animate({ opacity: 1.0 });
         jQuery.hideGlobalSpinnerNode();
-        if(jQuery.classType() == 'collages') {
+
+        if(jQuery.classType() == 'collages') {  //Collages only
 		      jQuery.loadState();
           if(is_owner) {
 			      jQuery.listenToRecordCollageState();
           }
-        } else if(jQuery.classType() == 'playlists') {
+        } else if(jQuery.classType() == 'playlists') {  //Playlists only
           var notes = jQuery.parseJSON(results.notes); 
           jQuery.each(notes, function(i, el) {
             if(el.playlist_item.notes != null) {
@@ -66,6 +72,9 @@ jQuery.extend({
           jQuery.each(playlists, function(i, el) {
             var node = jQuery('<option>').val(el.playlist.id).text(el.playlist.name);
             jQuery('.add-popup select').append(node);
+          });
+          jQuery.each(['can_position_update'], function(i, j) {
+            permissions[j] = results[j];
           });
           jQuery.observeDragAndDrop();
         }
