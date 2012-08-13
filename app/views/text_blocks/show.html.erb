@@ -35,7 +35,7 @@
 			<%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
 		<% end -%>
 		<% if current_user && (@text_block.admin? || @text_block.owner?) %>
-		<%= link_to "EDIT", edit_text_block_path(@text_block), :class => "edit-action" %>
+		<%= link_to "EDIT", edit_text_block_path(@text_block) %>
 		<% end -%>
 	</div>
 	<article>

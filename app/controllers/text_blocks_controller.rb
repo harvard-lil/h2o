@@ -1,4 +1,6 @@
 class TextBlocksController < BaseController
+  cache_sweeper :text_block_sweeper
+
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export]
   before_filter :load_text_block, :only => [:show, :edit, :update, :destroy, :export]
   before_filter :store_location, :only => [:index, :show]
