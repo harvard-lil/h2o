@@ -7,20 +7,24 @@
 <h3 id="generic_title"><%= @playlist.new_record? ? 'Add a new Playlist' : "Edit \"#{@playlist.name}\"" %></h3>
 <% semantic_form_for playlist_object do |form| %>
   <% form.inputs do %>
+    <% if @can_edit_all -%>
     <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
-    <li></li>
+    <% end -%>
+    <% if @can_edit_desc %>
     <%= form.input :description,
       :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
       :required => false,
       :hint => "You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }",
       :html_safe => true
     %>
+    <% end -%>
+    <% if @can_edit_all -%>
 	<%= form.input :tag_list,
 	  :as => :string,
 	  :hint => 'Please define the tags for this playlist in a comma-separated list.',
 	  :label => 'Tags',
 	  :input_html => { :class => 'tagging-autofill-tags' }
 	%>
-    <li></li>
+    <% end -%>
   <% end -%>
 <% end -%>

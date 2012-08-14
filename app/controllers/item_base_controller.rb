@@ -13,7 +13,6 @@ class ItemBaseController < BaseController
     allow logged_in, :to => [:edit, :update], :if => :allow_update?
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
-    allow :editor, :of => :playlist, :to => [:edit, :update]
   end
 
   def allow_update?
@@ -124,7 +123,6 @@ class ItemBaseController < BaseController
     if current_user
       @can_edit_all = current_user.has_role?(:superadmin) ||
                       current_user.has_role?(:admin) || 
-                      current_user.has_role?(:editor, @playlist) || 
                       current_user.has_role?(:owner, @playlist)
       @can_edit_notes = @can_edit_all || current_user.can_permission_playlist("edit_notes", @playlist)
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
@@ -140,7 +138,6 @@ class ItemBaseController < BaseController
     if current_user
       can_edit_all = current_user.has_role?(:superadmin) ||
                       current_user.has_role?(:admin) || 
-                      current_user.has_role?(:editor, @playlist) || 
                       current_user.has_role?(:owner, @playlist)
       can_edit_notes = can_edit_all || current_user.can_permission_playlist("edit_notes", @playlist)
       can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)

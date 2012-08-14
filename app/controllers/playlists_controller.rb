@@ -17,9 +17,24 @@ class PlaylistsController < BaseController
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
+
+    allow logged_in, :to => [:notes], :if => :allow_notes?
+    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
+
     allow :admin, :playlist_admin, :superadmin
     allow :owner, :of => :playlist
-    allow :editor, :of => :playlist, :to => [:edit, :update, :notes]
+  end
+
+  def allow_notes?
+    load_playlist
+
+    current_user.can_permission_playlist("edit_notes", @playlist)
+  end
+
+  def allow_edit?
+    load_playlist
+
+    current_user.can_permission_playlist("edit_descriptions", @playlist)
   end
 
   def embedded_pager
@@ -152,9 +167,15 @@ class PlaylistsController < BaseController
     end
   end
 
-  # GET /playlists/1/edit
   def edit
-    @playlist = Playlist.find(params[:id])
+    if current_user
+      @can_edit_all = current_user.has_role?(:superadmin) ||
+                      current_user.has_role?(:admin) || 
+                      current_user.has_role?(:owner, @playlist)
+      @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
+    else
+      @can_edit_all = @can_edit_desc = false
+    end
   end
 
   # POST /playlists
@@ -192,23 +213,29 @@ class PlaylistsController < BaseController
   # PUT /playlists/1
   # PUT /playlists/1.xml
   def update
-    @playlist = Playlist.find(params[:id])
+    if current_user
+      can_edit_all = current_user.has_role?(:superadmin) ||
+                      current_user.has_role?(:admin) || 
+                      current_user.has_role?(:owner, @playlist)
+      can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
+    else
+      can_edit_all = can_edit_desc = false
+    end
+    if !can_edit_all
+      params["playlist"].delete("name")  
+      params["playlist"].delete("tag_list")  
+    end
 
     respond_to do |format|
       if @playlist.update_attributes(params[:playlist])
-        @playlist.accepts_role!(:editor,current_user)
         flash[:notice] = 'Playlist was successfully updated.'
-        format.js { render :text => nil}
         format.html { redirect_to(@playlist) }
         format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
-          format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       else
-        format.js {
-          render :text => "We couldn't update that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
-        }
         format.html { render :action => "edit" }
         format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
-          format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
+        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
       end
     end
   end
@@ -359,6 +386,7 @@ class PlaylistsController < BaseController
   def notes
     value = params[:type] == 'public' ? true : false
     @playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
+
     respond_to do |format|
       format.json {render :json => {} }
     end

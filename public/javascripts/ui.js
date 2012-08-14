@@ -34,17 +34,6 @@ jQuery.extend({
       },
       success: function(results){
         //Global methods
-        if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
-          jQuery('.requires_edit').animate({ opacity: 1.0 });
-          if(results.can_edit) {
-            jQuery('.requires_remove').animate({ opacity: 1.0 });
-            is_owner = true;
-          } else {
-            jQuery('.requires_remove').remove();
-          }
-        } else {
-          jQuery('.requires_edit, .requires_remove').remove();
-        }
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);
           jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
@@ -57,11 +46,32 @@ jQuery.extend({
         jQuery.hideGlobalSpinnerNode();
 
         if(jQuery.classType() == 'collages') {  //Collages only
+          if(results.can_edit) {
+            jQuery('.requires_edit').animate({ opacity: 1.0 });
+            is_owner = true;
+          }
 		      jQuery.loadState();
           if(is_owner) {
 			      jQuery.listenToRecordCollageState();
           }
         } else if(jQuery.classType() == 'playlists') {  //Playlists only
+          if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
+            if (results.can_edit) {
+              jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 });
+              is_owner = true;
+            } else {
+              if(!results.can_edit_notes) {
+                jQuery('#description .public-notes, #description .private-notes').remove();
+              }
+              if(!results.can_edit_desc) {
+                jQuery('#description .edit-action').remove();
+              }
+              jQuery('.requires_remove').remove();
+              jQuery('.requires_edit').animate({ opacity: 1.0 });
+            }
+          } else {
+            jQuery('.requires_edit, .requires_remove').remove();
+          }
           var notes = jQuery.parseJSON(results.notes); 
           jQuery.each(notes, function(i, el) {
             if(el.playlist_item.notes != null) {

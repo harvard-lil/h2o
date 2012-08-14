@@ -6,7 +6,7 @@ class CreatePermissions < ActiveRecord::Migration
       t.timestamps
     end
 
-    [:position_update, :edit_collages, :edit_descriptions, :add_annotations, :edit_notes].each do |p|
+    [:position_update, :edit_collages, :edit_descriptions, :edit_annotations, :edit_notes].each do |p|
       Permission.create(:key => p.to_s, :label => p.to_s.titleize)
     end
   end
