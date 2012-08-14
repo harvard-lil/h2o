@@ -36,7 +36,7 @@
         <% else -%>
         <%= item.resource_item.name %>
         <% end -%>
-		    <a href="#" class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></a>
+		    <span class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></span>
 			</h3>
 			<% if recursive_level == 0 %>
 			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item requires_remove" %>

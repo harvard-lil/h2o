@@ -16,7 +16,9 @@
         </ul>
       </div>
     <% end -%>
-    <h4><%= link_to media.name, media_path(media), :class => "title" %>
+    <h4>
+      <%= link_to media.name, media_path(media), :class => "title" %>
+      <span class="media-icon-type media-icon-type-<%= media.media_type.slug %>"></span>
       <% if current_user && (@is_media_admin || @my_medias.include?(media)) %>
         <%= link_to 'DELETE', media, :class => "action delete-action" %>
       <% end %>
