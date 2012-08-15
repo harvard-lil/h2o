@@ -28,9 +28,12 @@ ActionController::Routing::Routes.draw do |map|
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
   map.resources :collages, :collection => {:embedded_pager => :get},
+    :collection => { :collage_lookup => :get },
     :member => {:spawn_copy => :post, :save_readable_state => :post,
-	            :record_collage_print_state => :post, :access_level => :get, :export => :get,
-              :export_unique => :post}
+	            :record_collage_print_state => :post, 
+              :access_level => :get, 
+              :export => :get,
+              :export_unique => :post }
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
 
   map.resources :playlists,
@@ -69,6 +72,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :user_collections, :member => { :update_permissions => :post,
                                                 :manage_users => :get,
                                                 :manage_playlists => :get,
+                                                :manage_collages => :get,
                                                 :manage_permissions => :get }
   #FIXME: Why update_permissions route not getting recognized above?
   map.update_permissions "/user_collections/:id/update_permissions", :controller => :user_collections, :action => :update_permissions

@@ -2,7 +2,7 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   caches_page :show
 
-  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique]
   before_filter :store_location, :only => [:index, :show]
 
@@ -225,6 +225,10 @@ class CollagesController < BaseController
 
   def export_unique
     render :action => 'export', :layout => 'print'
+  end
+
+  def collage_lookup
+    render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }
   end
 
   private 

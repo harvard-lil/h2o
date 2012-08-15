@@ -1,6 +1,6 @@
 class UserCollectionsController < BaseController
   #before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
-  before_filter :load_user_collection, :only => [:edit, :manage_users, :manage_playlists, :manage_permissions, :update_permissions, :destroy, :update]
+  before_filter :load_user_collection, :only => [:edit, :manage_users, :manage_playlists, :manage_collages, :manage_permissions, :update_permissions, :destroy, :update]
 
   #protect_from_forgery :except => [:spawn_copy, :export_unique]
 
@@ -37,8 +37,14 @@ class UserCollectionsController < BaseController
   def manage_playlists
   end
 
+  def manage_collages
+  end
+
   def manage_permissions
-    @permissions = Permission.all
+    @permissions = { :playlist => [], :collage => [] }
+    Permission.all.each do |p|
+      @permissions[p.permission_type.to_sym] << p
+    end
 
     @user_permission_map = @user_collection.permission_assignments.map { |pa| "#{pa.user_id}_#{pa.permission_id}" }
   end

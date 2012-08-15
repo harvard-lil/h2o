@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120809173927) do
+ActiveRecord::Schema.define(:version => 20120815140931) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -121,6 +121,16 @@ ActiveRecord::Schema.define(:version => 20120809173927) do
   add_index "collages", ["public"], :name => "index_collages_on_public"
   add_index "collages", ["updated_at"], :name => "index_collages_on_updated_at"
   add_index "collages", ["word_count"], :name => "index_collages_on_word_count"
+
+  create_table "collages_user_collections", :id => false, :force => true do |t|
+    t.integer "collage_id"
+    t.integer "user_collection_id"
+  end
+
+  create_table "collages_user_colleges", :id => false, :force => true do |t|
+    t.integer "collage_id"
+    t.integer "user_collection_id"
+  end
 
   create_table "influences", :force => true do |t|
     t.integer  "resource_id"
@@ -459,6 +469,7 @@ ActiveRecord::Schema.define(:version => 20120809173927) do
     t.string   "label"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "permission_type"
   end
 
   create_table "playlist_items", :force => true do |t|

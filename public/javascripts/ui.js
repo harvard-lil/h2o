@@ -594,6 +594,9 @@ jQuery.extend({
         if(newItemNode.find('#manage_playlists').length) {
           jQuery('#manage_playlists #lookup_submit').click();
         }
+        if(newItemNode.find('#manage_collages').length) {
+          jQuery('#manage_collages #lookup_submit').click();
+        }
       },
       buttons: {
         Submit: function() {
