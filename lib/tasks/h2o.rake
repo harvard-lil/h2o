@@ -20,6 +20,11 @@ namespace :h2o do
     end
   end
 
+  desc 'Update user karma'
+  task(:update_user_karma => :environment) do
+    User.find_in_batches { |users| users.each { |u| u.update_karma } }
+  end
+
   desc 'Generate playlist PDFs'
   task(:gen_playlist_pdfs => :environment) do
     permutations = Playlist.cache_options

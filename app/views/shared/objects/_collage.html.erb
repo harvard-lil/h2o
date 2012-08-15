@@ -25,18 +25,16 @@
     		<%= link_to 'DELETE', collage, :class => "action delete-action" %>
   			<% end %>
 		</h4>
-        <% cache "collage-#{collage.id}-index" do %>
 		<p>
 			<%= collage.created_at.to_s(:simpledatetime) %>
       <% if collage.creators -%>
       by
-			<%= raw collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+			<%= raw collage.creators.collect { |u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') %>
       <% end -%>
 		</p>
 		<p class="extra">
 			On: "<%= link_to(collage.annotatable.display_name, collage.annotatable) %>
 		</p>
-        <% end -%>
 	</div>
 	<div class="cl"></div>
 </li>

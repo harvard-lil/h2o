@@ -23,12 +23,10 @@
       <%= link_to "DELETE", playlist_path(playlist), :class => "action delete-action" %>
 			<% end -%>
 		</h4>
-		<% cache "playlist-#{playlist.id}-index" do -%>
 		<p>
 			<%= playlist.created_at.to_s(:simpledatetime) %> by
-			<%= raw playlist.owners.collect{|u| link_to(u.login, user_path(u)) }.join(',') if playlist.owners %>
+			<%= raw playlist.owners.collect{|u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') if playlist.owners %>
 		</p>
-		<% end -%>
 		<div class="influence"></div>
 	</div>
 	<div class="cl"></div>

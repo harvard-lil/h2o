@@ -25,15 +25,13 @@
         <%= link_to 'EDIT', edit_text_block_path(text_block), :class => "action" %>
       <% end %>
     </h4>
-    <% cache "text_block-#{text_block.id}-index" do %>
     <p>
       <%= text_block.created_at.to_s(:simpledatetime) %>
       <% if text_block.creators -%>
       by
-      <%= raw text_block.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+      <%= raw text_block.creators.collect { |u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') %>
       <% end -%>
     </p>
-    <% end -%>
 	</div>
 	<div class="cl"></div>
 </li>
