@@ -92,6 +92,43 @@ class User < ActiveRecord::Base
             WHERE (roles_users.user_id = #{self.id} AND roles.name = 'editor' AND roles.authorizable_type = 'Playlist'))")
   end
 
+  def user_karma
+    collaged_resources = (self.cases + self.medias + self.text_blocks).map(&:collages).flatten.compact
+    annotated_collages = Annotation.all(:conditions => ["collage_id in (?)", self.collages.map(&:id)]).select {|a| !(a.owners || []).map(&:id).include?(self.id)} 
+	forked_collages = self.collages.select { |c| c.has_children? }
+    all_incorporated_collages = ItemCollage.all(:conditions => ["actual_object_id in (?)",  self.collages.map(&:id)])
+	own_incorporated_collages = all_incorporated_collages.select {|c| (c.owners || []).map(&:id).include?(self.id) }
+	incorporated_collages = all_incorporated_collages - own_incorporated_collages
+    incorporated_playlists = ItemPlaylist.all(:conditions => ["actual_object_id in (?)",  self.playlists.map(&:id)]).select {|i| !(i.owners || []).map(&:id).include?(self.id)} 
+    
+	push_forked_playlists = []
+    forked_playlists = []
+    external_collage_hits = []
+    internal_collage_hits = []
+    
+	ratings = {:collaged_resources => 3, 
+	           :own_incorporated_collages => 3,
+	           :forked_collages => 2, 
+			   :incorporated_collages => 5, 
+	           :annotated_collages => 3, 
+			   :incorporated_playlists => 10,
+	           :push_forked_playlists => 1, 
+			   :forked_playlists => 4, 
+	           :internal_collage_hits => 1, 
+			   :external_collage_hits => 2}
+	values = {:collaged_resources => collaged_resources,
+	          :own_incorporated_collages => own_incorporated_collages,
+			  :forked_collages  => forked_collages,
+			  :incorporated_collages => incorporated_collages,
+			  :annotated_collages => annotated_collages,
+			  :incorporated_playlists => incorporated_playlists,
+			  :push_forked_playlists => push_forked_playlists,
+			  :forked_playlists => forked_playlists,
+			  :internal_collage_hits => internal_collage_hits,
+			  :external_collage_hits => external_collage_hits }
+    ratings.map {|k,v| (values[k] || []).size * v }.inject(0) {|sum, x| sum + x }
+  end
+
   def bookmarks
     if self.bookmark_id
       Rails.cache.fetch("user-bookmarks-#{self.id}") do
