@@ -44,7 +44,7 @@ class PlaylistsController < BaseController
   def access_level 
     session[:return_to] = "/playlists/#{@playlist.id}"
     if current_user
-      can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+      can_edit = @playlist.admin? || @playlist.owner?
       can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
       can_edit_notes = can_edit || current_user.can_permission_playlist("edit_notes", @playlist)
       can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)

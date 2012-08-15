@@ -196,7 +196,7 @@ jQuery.extend({
       if(el.html() == "READ") {
         el.html("EDIT"); 
         jQuery.unObserveWords();
-        jQuery('.details .edit-action, .control-divider').css('display', 'none');
+        jQuery('.control-divider').css('display', 'none');
         jQuery('article tt.a').removeClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#666');
         jQuery('.layered-control,.unlayered-control').width(9).height(16);
@@ -210,7 +210,6 @@ jQuery.extend({
         el.html("READ");  
         jQuery.observeWords();
         jQuery('#author_edits').addClass('inactive');
-        jQuery('.details .edit-action').show();
         jQuery('.control-divider').css('display', 'inline-block');
         jQuery('article tt.a').addClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#000');
@@ -333,10 +332,9 @@ jQuery.extend({
         jQuery(i).css('display', e);
       }
     });
-    if(last_data.edit_mode && is_owner) {
+    if(last_data.edit_mode && can_edit_annotations) {
       jQuery('#edit-show').html("READ");  
-       jQuery.observeWords();
-      jQuery('.details .edit-action').show();
+      jQuery.observeWords();
       jQuery('.control-divider').css('display', 'inline-block');
       jQuery('article tt.a').addClass('edit_highlight');
       jQuery('.default-hidden').css('color', '#000');
@@ -491,7 +489,7 @@ jQuery.extend({
           });
 
           jQuery('#annotation-tabs-' + annotationId).tabs();
-          if(!is_owner) {
+          if(!can_edit_annotations) {
             jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
               Close: function(){
                 jQuery(this).dialog('close');
@@ -625,7 +623,7 @@ jQuery.extend({
     // jQuery('tt:visible') as a query is much less efficient - unfortunately.
     //Note: http://api.jquery.com/visible-selector/
 
-    if(is_owner) {
+    if(can_edit_annotations) {
       jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
       jQuery('.annotation-content').css('display', 'none');
       jQuery('.annotation-asterisk, .control-divider').unbind('click').click(function(e) {

@@ -1,6 +1,7 @@
 var popup_item_id = 0;
 var popup_item_type = '';
 var is_owner = false;
+var can_edit_annotations = false;
 var permissions = {
   can_position_update: false,
   can_edit_notes: false
@@ -46,13 +47,18 @@ jQuery.extend({
         jQuery.hideGlobalSpinnerNode();
 
         if(jQuery.classType() == 'collages') {  //Collages only
-          if(results.can_edit) {
-            jQuery('.requires_edit').animate({ opacity: 1.0 });
-            is_owner = true;
-          }
 		      jQuery.loadState();
-          if(is_owner) {
+          if(results.can_edit_annotations) {
+            can_edit_annotations = true;
 			      jQuery.listenToRecordCollageState();
+            jQuery('.buttons .requires_edit').animate({ opacity: 1.0 });
+          } else {
+            jQuery('.buttons .requires_edit').remove();
+          }
+          if(results.can_edit_description) {
+            jQuery('#description .requires_edit').animate({ opacity: 1.0 });
+          } else {
+            jQuery('#description .requires_edit').remove();
           }
         } else if(jQuery.classType() == 'playlists') {  //Playlists only
           if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {

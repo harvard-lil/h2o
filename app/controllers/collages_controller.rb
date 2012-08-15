@@ -3,15 +3,24 @@ class CollagesController < BaseController
   caches_page :show
 
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level]
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:spawn_copy, :export_unique]
 
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]    
+    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
+
+    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
+
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
+  end
+
+  def allow_edit?
+    load_collage
+
+    current_user.can_permission_collage("edit_collage", @collage)
   end
 
   def embedded_pager
@@ -24,10 +33,23 @@ class CollagesController < BaseController
 
   def access_level 
     session[:return_to] = "/collages/#{params[:id]}"
-    respond_to do |format|
-      format.json { render :json => {
-        :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
-        :can_edit => current_user ? Collage.find(params[:id]).can_edit? : false }
+
+    can_edit = @collage.can_edit?
+    can_edit_description = can_edit || current_user.can_permission_collage("edit_collage", @collage)
+    can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
+    if current_user
+      render :json => {
+        :logged_in => current_user.to_json(:only => [:id, :login]),
+        :can_edit => can_edit,
+        :can_edit_description => can_edit_description,
+        :can_edit_annotations => can_edit_annotations
+      }
+    else
+      render :json => {
+        :logged_in => false,
+        :can_edit => false,
+        :can_edit_description => false,
+        :can_edit_annotations => false
       }
     end
   end

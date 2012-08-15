@@ -7,10 +7,16 @@ class AnnotationsController < BaseController
 
   access_control do
     allow all, :to => [:show, :metadata, :embedded_pager]
-    allow :superadmin
-    allow :admin
-    allow :collages_admin
+    allow :superadmin, :admin, :collages_admin
+
+    allow logged_in, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers], :if => :allow_edit?
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
+  end
+
+  def allow_edit?
+    load_annotation
+
+    current_user.can_permission_collage("edit_annotations", @collage)
   end
 
   def embedded_pager

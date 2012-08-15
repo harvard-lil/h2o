@@ -119,7 +119,7 @@ font-weight: bold; margin-bottom: 0px; }
 font-size: 9px; font-weight: bold; }
 #collage #collage-stats-popup .date { background: url(/images/ui/grey-list-style.jpg) no-repeat 0px 2px; margin-left: -10px; padding-left: 10px; }
 
-.singleitem .details .edit-action { display: none; }
+.singleitem .details .edit-action { opacity: 0.0; }
 .markItUp { width: 100%; border: none; }
 .markItUpContainer { border: 1px solid #84919A; }
 .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }

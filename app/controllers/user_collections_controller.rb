@@ -42,7 +42,7 @@ class UserCollectionsController < BaseController
 
   def manage_permissions
     @permissions = { :playlist => [], :collage => [] }
-    Permission.all.each do |p|
+    Permission.all.sort_by { |p| p.id }.each do |p|
       @permissions[p.permission_type.to_sym] << p
     end
 
