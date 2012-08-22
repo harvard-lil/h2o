@@ -16,6 +16,31 @@ jQuery.extend({
   rootPath: function(){
     return '/';
   },
+  loadEscapeListener: function() {
+    jQuery(document).keyup(function(e) {
+      if(e.keyCode == 27) {
+        if(jQuery('.btn-a-active').length) {
+          jQuery('.btn-a-active').click();
+        }
+        if(jQuery('li.btn .active').length) {
+          jQuery('li.btn .active').click();
+        }
+      }
+    });
+  },
+  loadOuterClicks: function() {
+    jQuery('html').click(function() {
+      if(jQuery('.btn-a-active').length) {
+        jQuery('.btn-a-active').click();
+      }
+      if(jQuery('li.btn .active').length) {
+        jQuery('li.btn .active').click();
+      }
+    });
+    jQuery('.browse-tags-popup, .tools-popup, .font-size-popup').click(function(event) {
+      event.stopPropagation(); 
+    });
+  },
   loadEditability: function() {
     jQuery.ajax({
       type: 'GET',
@@ -732,6 +757,8 @@ jQuery(function() {
   jQuery.observeCasesCollage();
   jQuery.observeLoginPanel();
   jQuery.initializeTabBehavior();
+  jQuery.loadEscapeListener();
+  jQuery.loadOuterClicks();
 
   if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
     var region = '#all_' + jQuery.classType();
