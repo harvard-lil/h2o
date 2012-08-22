@@ -193,6 +193,7 @@ class CasesController < BaseController
     respond_to do |format|
       format.html { redirect_to(cases_url) }
       format.xml  { head :ok }
+      format.json { render :json => {} }
     end
   end
 
