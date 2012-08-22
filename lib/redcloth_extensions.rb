@@ -24,7 +24,7 @@ module RedclothExtensions
       ActionController::Base.helpers.sanitize(
         args.join(' '),
         :tags => WHITELISTED_TAGS, 
-        :attributes => WHITELISTED_ATTRIBUTES + ["name"]
+        :attributes => WHITELISTED_ATTRIBUTES + ["style", "name"]
       )
     end
   end

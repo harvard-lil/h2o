@@ -17,7 +17,12 @@
       </div>
       <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
       %>
-      <%= form.input :mime_type, :label => 'Content Type', :as => :select, :collection =>  TextBlock.mime_type_select_options, :default => 'text/plain' %>
+      <%= form.input :mime_type,
+                     :label => 'Content Type',
+                     :as => :select,
+                     :collection => TextBlock.mime_type_select_options,
+                     :selected => 'text/html',
+                     :include_blank => false %>
     <% end %>
     <hr />
     <%= form.input :tag_list,

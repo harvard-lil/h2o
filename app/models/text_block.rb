@@ -8,16 +8,10 @@ class TextBlock < ActiveRecord::Base
   include AuthUtilities
   include MetadataExtensions
 
-  #Perhaps some day we'll support these other content types.
   MIME_TYPES = {
     'text/plain' => 'Plain text',
     'text/html' => 'HTML formatted text'
-#    'text/xml' => 'XML',
-#    'text/csv' => 'CSV',
-#    'application/json' => 'JSON',
-#    'text/css' => 'CSS',
-#    'text/javascript' => 'Javascript'
-    }
+  }
 
   acts_as_authorization_object
   acts_as_taggable_on :tags
