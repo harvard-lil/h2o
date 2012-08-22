@@ -38,6 +38,7 @@
 #collage article p em { }
 #collage article p a { color:#336699; }
 #collage article p a.hint { color:#669900; }
+#collage article h2 { margin-left: 30px; }
 #collage article p strong { }
 #collage article .grey { color: #666; }
 #collage article pre { white-space: pre-line; } 
@@ -126,7 +127,7 @@ font-size: 9px; font-weight: bold; }
 .edit_highlight { background: #eef9d9; }
 .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
 .annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
-.unlayered-ellipsis { padding-right: 10px; display: none; }
+.unlayered-ellipsis { padding-right: 10px; display: none; font-size: 11px; font-weight: normal; }
 .default-hidden { color: #666; }
 .unlayered-control-start,
 .layered-control-start { display: none; background: url(/images/ui/fcollapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
