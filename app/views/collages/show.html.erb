@@ -99,11 +99,9 @@ Your annotation will start here. Please click another word to set the end point.
 	<div class="details">
 		<% cache("collage-#{@collage.id}-tags") do %>
 		<div class="tags">
-			<ul>
-   				<% @collage.tags.each do |tag| %>
-				<li><%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %></li>
-   				<% end %>
-			</ul>
+   		<% @collage.tags.each do |tag| %>
+			<%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %>
+   		<% end %>
 		</div>
 		<% end -%>
 		<h5>

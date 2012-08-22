@@ -10,11 +10,9 @@
 	<div class="details">
 		<% cache "case-#{case_obj.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% case_obj.tag_list.each do |tag| %>
-				<li><%= link_to tag, case_tag_path(CGI.escape(tag)) %></li>
-				<% end -%>
-			</ul>
+			<% case_obj.tag_list.each do |tag| %>
+			<%= link_to tag, case_tag_path(CGI.escape(tag)) %>
+			<% end -%>
 		</div>
 		<% end -%>
 		<h4>

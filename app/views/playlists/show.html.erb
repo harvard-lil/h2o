@@ -41,11 +41,9 @@
 	<div class="details">
 		<% cache "playlist-#{@playlist.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% @playlist.tags.each do |tag| -%>
-				<li><%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %></li>
-				<% end -%>
-			</ul>
+			<% @playlist.tags.each do |tag| -%>
+			<%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %>
+			<% end -%>
 		</div>
 		<% end -%>
     <%= render :partial => 'playlist_meta' %>

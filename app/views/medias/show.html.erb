@@ -19,11 +19,9 @@
     <p>Description here?</p>
 		<% cache "media-#{@media.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% @media.tags.each do |tag| -%>
-				<li><%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %></li>
-				<% end -%>
-			</ul>
+			<% @media.tags.each do |tag| -%>
+			<%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %>
+			<% end -%>
 		</div>
 		<% end -%>
 		<div class="cl"></div>

@@ -10,11 +10,9 @@
 	<div class="details">
     <% cache "text_block-#{text_block.id}-tags" do %>
       <div class="tags">
-        <ul>
-          <% text_block.tag_list.each do |tag| %>
-          <li><%= link_to tag, text_block_tag_path(CGI.escape(tag)) %></li>
-          <% end -%>
-        </ul>
+        <% text_block.tag_list.each do |tag| %>
+        <%= link_to tag, text_block_tag_path(CGI.escape(tag)) %>
+        <% end -%>
       </div>
     <% end -%>
     <h4><%= link_to text_block.name, text_block_path(text_block), :class => "title" %>

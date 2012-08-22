@@ -10,10 +10,8 @@
 #playlist .description .toolbar ul li img { display:block; }
 
 #playlist .details { background:#f8eddc; display:block; position:relative; padding:7px 300px 7px 80px; }
-#playlist .details .tags { position:absolute; top:1px; right:1px; }
-#playlist .details .tags ul { list-style:none; font-size:10px; line-height:24px; }
-#playlist .details .tags ul li { float:left; display:inline;  padding-left:1px; }
-#playlist .details .tags ul li a { float:left; display:inline;  padding:0 5px; color:#e27020; background:#f2d09c; }
+#playlist .details .tags { position:absolute; top:1px; right:1px; text-align: right; }
+#playlist .details .tags a { display:inline-block; padding: 5px 11px; color:#e27020; background:#f2d09c; font-size: 10px; }
 #playlist .details .influence { padding-bottom:9px; }
 #playlist .details .influence label { float:left; display:inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding-right:8px; }
 #playlist .details h5 { font-size:10px; line-height:1.8em; font-weight:normal; padding-bottom:2px; }

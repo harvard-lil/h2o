@@ -10,11 +10,9 @@
 	<div class="details">
 		<% cache "playlist-#{playlist.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% playlist.tag_list.each do |tag| %>
-				<li><%= link_to tag, playlist_tag_path(CGI.escape(tag)) %></li>
-				<% end -%>
-			</ul>
+			<% playlist.tag_list.each do |tag| %>
+			<%= link_to tag, playlist_tag_path(CGI.escape(tag)) %>
+			<% end -%>
 		</div>
 		<% end -%>
 		<h4>

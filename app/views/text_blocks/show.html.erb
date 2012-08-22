@@ -23,11 +23,9 @@
 	<div class="details">
 		<% cache "text_block-#{@text_block.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% @text_block.tags.each do |tag| -%>
-				<li><%= link_to tag.name, text_block_tag_path(CGI.escape(tag.name)) %></li>
-				<% end -%>
-			</ul>
+			<% @text_block.tags.each do |tag| -%>
+			<%= link_to tag.name, text_block_tag_path(CGI.escape(tag.name)) %>
+			<% end -%>
 		</div>
 		<% end -%>
 		<div class="cl"></div>

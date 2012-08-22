@@ -17,11 +17,9 @@
 		-%>
 		<% cache "#{type}-#{ao.id}-tags" do -%>
 		<div class="tags">
-			<ul>
-				<% ao.tags.each do |tag| -%>	
-				<li><a href="<%= send "#{type}_tag_path", CGI.escape(tag.name) %>"><%= tag.name %></a></li>
-				<% end -%>
-			</ul>
+			<% ao.tags.each do |tag| -%>	
+		  <a href="<%= send "#{type}_tag_path", CGI.escape(tag.name) %>"><%= tag.name %></a>
+		  <% end -%>
 		</div>
 		<% end -%>
 		<% end -%>

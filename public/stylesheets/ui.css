@@ -174,9 +174,7 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 
 #results .listitem .details { float: right; display: inline; width:902px; }
 #results .listitem .details .tags { float: right; display: inline; }
-#results .listitem .details .tags ul { list-style:none; }
-#results .listitem .details .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
-#results .listitem .details .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
+#results .listitem .details .tags a { font-size: 10px; line-height: 23px; margin-left: 1px; background:#dbe2e9; padding:5px 11px; }
 #results .listitem .details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
 .listitem .action { font-size: 10px; font-weight: normal; }
 .listitem .delete-action { padding-left: 5px; }
@@ -423,15 +421,14 @@ color: #4e9ed1; padding: 4px 11px; }
   line-height:20px; color:#666; font-weight:bold; text-align:center;
   border: 1px solid #e0e1e1; border-top: none; 
   padding: 2px 3px 0px 3px; }
-.playlist .data { float: right; display: inline; width:550px; position:relative; 904px;  padding-right:345px; } 
+
+.playlist .data { float: right; display: inline; width:895px; position:relative; 904px; }
 .playlist .data .dd { position:absolute; top:7px; left:-17px; width:12px; height:12px; background:url(/images/ui/app_icons.png) -14px -115px no-repeat; font-size:0; line-height:0; text-indent: -4000px;  }
 #bookmarks .playlist .data .dd { left: -15px; }
 .playlist .data .dd-closed { width: 9px; background-position: 0px -110px; }
 
-.playlist .data .tags { position:absolute; top:0; right:0; }
-.playlist .data .tags ul { list-style:none; float:right; display:inline; }
-.playlist .data .tags ul li { float: left; display: inline; font-size:10px; line-height:23px; padding-left:1px; }
-.playlist .data .tags ul li a { float: left; display: inline; background:#dbe2e9; padding:0 11px; }
+.playlist .data .tags { float: right; top:0; right:0; text-align: right; }
+.playlist .data .tags a { font-size: 10px; line-height: 23px; margin-left: 1px; background:#dbe2e9; padding:5px 11px; }
 .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
 .playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; float:left; }
 .playlist .data h3 a { position: relative; top: -2px; }
