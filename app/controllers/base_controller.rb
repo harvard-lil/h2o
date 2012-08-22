@@ -43,13 +43,15 @@ class BaseController < ApplicationController
 
   def index
     tcount = Case.find_by_sql("SELECT COUNT(*) AS tcount FROM taggings")
-    @counts = {
-      :cases => Case.count,
-      :text_blocks => TextBlock.count,
-      :collages => Collage.count,
-      :annotation => Annotation.count,
-      :taggings => tcount[0]['tcount'] 
-    }
+    @highlighted_playlists = []
+    [151, 633, 570, 664].each do |p|
+      begin
+        playlist = Playlist.find(p)
+        @highlighted_playlists << playlist if playlist 
+      rescue Exception => e
+        Rails.logger.warn "Base#index Exception: #{e.inspect}"
+      end
+    end
   end
 
   def search

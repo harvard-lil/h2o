@@ -233,7 +233,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 #home_nav { clear: both; background: #FFFFFF; border-bottom: 1px solid #d9d9d9; margin-top: 3px; }
 #home_nav .panel { float: left; width: 200px; border-right: 1px solid #d9d9d9;
   padding: 7px 23px; text-align: center; height: 242px; overflow: hidden; }
-#home_nav .last { width: 200px; border-right: none; padding-right: 0px; }
+#home_nav .last { width: 460px; border-right: none; padding-right: 0px; }
 #home_nav a { display: block; text-decoration: none; font-size: 21pt; }
 #home_nav .icon_nav { background: url(/images/ui/app_icons.png); display: inline-block;
   width: 38px; height: 38px; }
@@ -245,6 +245,9 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
     #home_nav #collage .icon_nav { background-position: 0px 0px; width: 36px; }
   #home_nav #playlist a { color: #ff9504; }
     #home_nav #playlist .icon_nav { background-position: -107px 0px; }
+  #home_nav #highlighted_playlist a { color: #ff9504; }
+    #home_nav #highlighted_playlist .icon_nav { background-position: -107px 0px; }
+    #home_nav #highlighted_playlist p a { font-size: 10pt; color: #ff9504; }
 
 #home_nav p { text-align: left; font-size: 10px; color: #999999; line-height: 16px; }
 #home_nav .button { font-weight: bold; border:1px solid #dbdbdb;
