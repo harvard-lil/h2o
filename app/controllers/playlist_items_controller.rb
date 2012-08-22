@@ -1,7 +1,7 @@
 class PlaylistItemsController < BaseController
   
   before_filter :load_playlist
-  before_filter :playlist_admin_preload, :except => []
+  before_filter :playlist_admin_preload
   #TODO - Get playlist delegation and editing working properly.
 
   access_control do

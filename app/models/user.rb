@@ -82,16 +82,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def playlists_i_can_edit
-    #Find out what it means to be an editor and add caching on this
-    #self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => 'editor'}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}
-    #This is an attempted optimization, as it hits the db for one request rather than 1 + number of user playlists
-    Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN
-        (SELECT DISTINCT authorizable_id FROM roles
-            INNER JOIN roles_users ON roles.id = roles_users.role_id
-            WHERE (roles_users.user_id = #{self.id} AND roles.name = 'editor' AND roles.authorizable_type = 'Playlist'))")
-  end
-
   def update_karma
     begin
       collaged_resources = (self.cases + self.medias + self.text_blocks).map(&:collages).flatten.compact

@@ -3,8 +3,7 @@ class BaseController < ApplicationController
 
   def playlist_admin_preload
     if current_user
-      @playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
-      @playlists_i_can_edit = current_user.playlists_i_can_edit
+      @is_playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
     end
   end
 
