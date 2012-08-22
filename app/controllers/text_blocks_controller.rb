@@ -181,6 +181,7 @@ class TextBlocksController < BaseController
     respond_to do |format|
       format.html { redirect_to(text_blocks_url) }
       format.xml  { head :ok }
+      format.json { render :json => {} }
     end
   end
 
