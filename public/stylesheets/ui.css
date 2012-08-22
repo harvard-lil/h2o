@@ -247,7 +247,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
     #home_nav #playlist .icon_nav { background-position: -107px 0px; }
   #home_nav #highlighted_playlist a { color: #ff9504; }
     #home_nav #highlighted_playlist .icon_nav { background-position: -107px 0px; }
-    #home_nav #highlighted_playlist p a { font-size: 10pt; color: #ff9504; }
+    #home_nav #highlighted_playlist a { color: #ff9504; }
 
 #home_nav p { text-align: left; font-size: 10px; color: #999999; line-height: 16px; }
 #home_nav .button { font-weight: bold; border:1px solid #dbdbdb;
