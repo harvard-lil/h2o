@@ -160,6 +160,7 @@ class PlaylistsController < BaseController
   # GET /playlists/new.xml
   def new
     @playlist = Playlist.new
+    @can_edit_all = @can_edit_desc = true
 
     respond_to do |format|
       format.html # new.html.erb
