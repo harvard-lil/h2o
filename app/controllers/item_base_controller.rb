@@ -39,6 +39,9 @@ class ItemBaseController < BaseController
   end
 
   def new
+    @can_edit_all = @can_edit_desc = true
+    @can_edit_notes = false
+
     @object.url = params[:url_string]
     if @model_class == ItemCollage
       collage_id = @object.url.match(/[0-9]+$/).to_s
