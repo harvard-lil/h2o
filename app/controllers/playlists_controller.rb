@@ -6,7 +6,7 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
   
   cache_sweeper :playlist_sweeper
-  #caches_page :show, :export
+  caches_page :show, :export
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]

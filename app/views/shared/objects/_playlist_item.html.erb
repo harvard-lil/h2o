@@ -13,8 +13,7 @@
 		<% end -%>
 		<% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
 		<% type = item.resource_item.actual_object_type.downcase
-		   ao = item.resource_item.actual_object
-		-%>
+		   ao = item.resource_item.actual_object -%>
 		<% cache "#{type}-#{ao.id}-tags" do -%>
 		<div class="tags">
 			<% ao.tags.each do |tag| -%>	
@@ -40,7 +39,6 @@
 			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item requires_remove" %>
 			<%= link_to "EDIT", url_for(:controller => item.resource_item_type.tableize, :action => 'edit', :id => item.resource_item), :class => "action edit-action requires_edit" %>
 			<% end -%>
-			<div class="cl"></div>
 		</hgroup>
 		<div <%= raw 'class="item_description"' if item.resource_item_type == 'ItemPlaylist' %>>
 			<%= PlaylistItem.format_content(item.resource_item.description) %>

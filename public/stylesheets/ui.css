@@ -97,7 +97,7 @@ display: inline-block; border: 1px solid #647e90; }
 #search .browse-tags-popup { display:none; position:absolute; background:#fff; border:1px solid #aaafb4; width:343px; padding:5px 4px 4px 5px; z-index:1; top:28px; left:9px; }
 #search .browse-tags-popup ul { list-style:none; text-align:justify; }
 #search .browse-tags-popup ul li { display:inline; font-size:11px; line-height:23px; }
-#search .browse-tags-popup ul li a { display:inline-block; margin:0 1px 1px 0; background:#e0e5ec; padding:0 10px; white-space:nowrap; }
+#search .browse-tags-popup ul li a { display:inline-block; margin:0 3px 3px 0; background:#e0e5ec; padding:0 10px; white-space:nowrap; }
 #search .browse-tags-popup ul li a.even strong { font-weight: normal; }
 
 #search #browse_form { width:750px; left: -300px; }
@@ -174,7 +174,7 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 
 #results .listitem .details { float: right; display: inline; width:902px; }
 #results .listitem .details .tags { float: right; display: inline; }
-#results .listitem .details .tags a { font-size: 10px; line-height: 23px; margin-left: 1px; background:#dbe2e9; padding:5px 11px; }
+#results .listitem .details .tags a { font-size: 10px; background:#dbe2e9; padding:5px 11px; display: inline-block; }
 #results .listitem .details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }
 .listitem .action { font-size: 10px; font-weight: normal; }
 .listitem .delete-action { padding-left: 5px; }
@@ -428,11 +428,11 @@ color: #4e9ed1; padding: 4px 11px; }
 .playlist .data .dd-closed { width: 9px; background-position: 0px -110px; }
 
 .playlist .data .tags { float: right; top:0; right:0; text-align: right; }
-.playlist .data .tags a { font-size: 10px; line-height: 23px; margin-left: 1px; background:#dbe2e9; padding:5px 11px; }
+.playlist .data .tags a { font-size: 10px; margin: 0px 0px 3px 1px; background:#dbe2e9; padding:5px 11px; white-space: nowrap; display: inline-block; }
 .playlist .data .tags .link-more { font-size:8px; font-weight:bold; float:right; display:inline; padding:3px 8px; clear:both; }
-.playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; float:left; }
+.playlist .data h3 { font-size:14px; line-height:1.3em; font-weight:normal; display:inline; }
 .playlist .data h3 a { position: relative; top: -2px; }
-.playlist .data > div { float: left; display: inline; font-size:10px; line-height:1.6em; clear:both; }
+.playlist .data > div { float: left; display: inline; font-size:10px; line-height:1.6em; }
 .playlist .data > div > p { margin-bottom: 8px; }
 .playlist .data div.item_description { display: none; }
 
