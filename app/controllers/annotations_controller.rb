@@ -9,7 +9,8 @@ class AnnotationsController < BaseController
     allow all, :to => [:show, :metadata, :embedded_pager]
     allow :superadmin, :admin, :collages_admin
 
-    allow logged_in, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers], :if => :allow_edit?
+    allow logged_in, :to => [:destroy, :edit, :update, :autocomplete_layers], :if => :allow_edit?
+    allow logged_in, :to => [:create, :new]
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
   end
 
