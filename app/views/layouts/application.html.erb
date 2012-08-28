@@ -28,7 +28,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 </script>
   <% end %> 
   </head>
-  <body id="b<%= params[:controller] %>">
+  <body id="b<%= params[:controller] %>" class="b<%= "#{params[:controller]}_#{params[:action]}" %>">
   	<section id="shell">
 	<%= render :partial => 'shared/header' %>
 	<% if false -%>

@@ -46,9 +46,18 @@ nav ul li a.active { color:#b0bdc7; text-decoration:none; }
 nav p { float: right; display: inline; }
 
 header { display:block; height:90px; background:url(/images/ui/home_bg.png) 0px -39px; padding:26px 0 31px 27px; position:relative; z-index:2; }
-footer { display:block; background:#455864; margin-top:58px; height:auto !important; height:330px; min-height:330px;  }
-footer { background:-moz-linear-gradient(top, #334552, #526572); background:-webkit-gradient(linear, left top, left bottom, from(#334552), to(#526572)); background: -o-linear-gradient(#334552,#526572); }
-
+footer {
+  display:block;
+  background:#455864;
+  margin-top:58px;
+  height:auto !important;
+  height:330px;
+  min-height:330px;
+  background:-moz-linear-gradient(top, #334552, #526572);
+  background:-webkit-gradient(linear, left top, left bottom, from(#334552), to(#526572));
+  background: -o-linear-gradient(#334552,#526572);
+}
+body.bbase_index footer { margin-top: 0px; }
 
 #logo { float: left; display: inline; padding-right:9px; }
 #logo a { float: left; display: inline; width:71px; height:71px; background:url(/images/ui/logo.png); font-size: 0; line-height: 0; text-indent: -4000px;; }
@@ -254,19 +263,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   font-size:11px; line-height:24px; color:#fff;
   background:url(/images/ui/repeat_bg.png) 0px -49px; 
   z-index:2; padding:0 11px; text-decoration:none; margin-top: 10px; }
-
-#empty_panel { background: #f4f3d4; float: right; width: 485px; height: 158px;
-  margin-top: 3px; }  
-#activity_panel { background: #f4f4e8; padding: 13px 0px 20px 0px; float: left;
- width: 490px; height: 125px; margin: 3px 3px 0px 0px; }
-  #activity_panel h3 { color: #3e505d; font-weight: normal; font-size: 21pt;
-    margin: 0px 0px 20px 0px; text-align: center; }
-  #activity_panel ul { margin-left: 40px; }
-  #activity_panel li { float: left; width: 49%; font-size: 10pt; color: #666; }
-  #activity_panel a { text-decoration: none; font-weight: bold; color: #666; }
-#activity_border { width: 1px; border-left: 1px solid #d9d9d9; height: 161px; float: left; }
-#activity_bottom { clear: both; margin: 3px 0px 2px 0px; border-top: 1px solid #d9d9d9;
-  height: 1px; width: 100%; }
+#fastcase { float: right; }
 
 #description,
 #description_more,

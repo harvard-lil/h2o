@@ -657,7 +657,7 @@ jQuery(document).ready(function(){
       jQuery("#tooltip").hide();
       new_annotation_start = '';
       new_annotation_end = '';
-     });
+    });
 
     jQuery.initializeAnnotationListeners();
     jQuery.loadEditability();
@@ -684,6 +684,13 @@ jQuery(document).ready(function(){
         jQuery('#fixed_header').css({ position: "fixed", width: 968, top: "0px" });
         jQuery('#collage article').css("padding-top", (jQuery('#fixed_header').height() + 30) + 'px');
       }
+    });
+    jQuery('article sup a').click(function() {
+      var href = jQuery(this).attr('href').replace('#', '');
+      var link = jQuery('article sup a[name=' + href + ']');
+      var pos = link.offset().top;
+      jQuery(window).scrollTop(pos - 120);
+      return false;
     });
   }
 });
