@@ -34,10 +34,11 @@ class CollagesController < BaseController
   def access_level 
     session[:return_to] = "/collages/#{params[:id]}"
 
-    can_edit = @collage.can_edit?
-    can_edit_description = can_edit || current_user.can_permission_collage("edit_collage", @collage)
-    can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
     if current_user
+      can_edit = @collage.can_edit?
+      can_edit_description = can_edit || current_user.can_permission_collage("edit_collage", @collage)
+      can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
+
       render :json => {
         :logged_in => current_user.to_json(:only => [:id, :login]),
         :can_edit => can_edit,
