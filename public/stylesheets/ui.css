@@ -263,10 +263,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   font-size:11px; line-height:24px; color:#fff;
   background:url(/images/ui/repeat_bg.png) 0px -49px; 
   z-index:2; padding:0 11px; text-decoration:none; margin-top: 10px; }
-#berkman,
-#hlsl,
-#support_detail,
-#fastcase { float: right; }
+#logo_support { float: right; padding: 5px 0px; }
 
 #description,
 #description_more,
