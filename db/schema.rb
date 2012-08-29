@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120815155653) do
+ActiveRecord::Schema.define(:version => 20120828155356) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -123,11 +123,6 @@ ActiveRecord::Schema.define(:version => 20120815155653) do
   add_index "collages", ["word_count"], :name => "index_collages_on_word_count"
 
   create_table "collages_user_collections", :id => false, :force => true do |t|
-    t.integer "collage_id"
-    t.integer "user_collection_id"
-  end
-
-  create_table "collages_user_colleges", :id => false, :force => true do |t|
     t.integer "collage_id"
     t.integer "user_collection_id"
   end
@@ -496,15 +491,16 @@ ActiveRecord::Schema.define(:version => 20120815155653) do
   add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 
   create_table "playlists", :force => true do |t|
-    t.string   "title",                                         :null => false
-    t.string   "name",        :limit => 1024
+    t.string   "title",                                           :null => false
+    t.string   "name",          :limit => 1024
     t.text     "description"
-    t.boolean  "active",                      :default => true
+    t.boolean  "active",                        :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                      :default => true
+    t.boolean  "public",                        :default => true
     t.string   "ancestry"
     t.integer  "position"
+    t.integer  "counter_start",                 :default => 1,    :null => false
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"

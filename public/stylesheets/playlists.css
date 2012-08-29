@@ -41,6 +41,19 @@
 #playlist > .playlists { padding-top:1px; display:block; }
 #playlist .playlists ul { list-style:none; }
 .playlists .playlist { border-top:1px solid #e0e1e1; padding:1px 0 10px; position:relative; z-index:1; width:100%; }
+.playlists .playlists .data {
+  padding-right: 0px;
+  width: 820px;
+}
+.playlists .playlist .data .tags { width: 350px; }
+.playlists .playlists .playlists .data {
+  padding-right: 0px;
+  width: 743px;
+}
+.playlists .playlists .playlists .playlists .data {
+  padding-right: 0px;
+  width: 677px;
+}
 
 #playlist .description .buttons ul .btn-a-active { background:#fff; color:#333; border-bottom:0; padding-bottom:1px; }
 #playlist .description .buttons ul .btn-a-active { -moz-border-radius-bottomleft: 0px; border-bottom-left-radius: 0px; -webkit-border-bottom-left-radius: 0px;  }

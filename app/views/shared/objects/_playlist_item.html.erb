@@ -1,7 +1,7 @@
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.resource_item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
 	<div class="controls">
 		<ul>
-			<li class="number"><%= parent_index == '' ? "#{index + 1}" : "#{parent_index}.#{index}" %></li>
+			<li class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></li>
 			<li class="link-add requires_logged_in">
 				<a class="<%= item.id %>" href="#" data-item_id="<%= item.resource_item_type != 'ItemDefault' && item.resource_item.actual_object ? item.resource_item.actual_object_id : item.resource_item_id %>" data-bookmarktype="<%= item.resource_item_type.underscore %>" data-type="<%= item.object_type %>">+</a>
 			</li>
@@ -60,7 +60,7 @@
 			<% item.resource_item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
 			  <%= render :partial => 'shared/objects/playlist_item',
 			    :locals => { :item => nested_item,
-				  :parent_index => parent_index == '' ? index + 1 : "#{parent_index}.#{index}",
+				  :parent_index => parent_index == '' ? index : "#{parent_index}.#{index}",
 				  :index => nested_index + 1,
 				  :recursive_level => recursive_level + 1 } %>
 			<% end -%>
