@@ -27,8 +27,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get, :export => :get}
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
-  map.resources :collages, :collection => {:embedded_pager => :get},
-    :collection => { :collage_lookup => :get },
+  map.resources :collages, :collection => {:embedded_pager => :get, :collage_lookup => :get },
     :member => {:spawn_copy => :post, :save_readable_state => :post,
 	            :record_collage_print_state => :post, 
               :access_level => :get, 
