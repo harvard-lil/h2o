@@ -89,25 +89,26 @@ class ApplicationController < ActionController::Base
   end
 
   def set_sort_lists
-    @case_sort_list = generate_sort_list({
+    @sort_lists = {}
+    @sort_lists[:cases] = generate_sort_list({
       "score" => { :display => "RELEVANCE", :selected => true },
       "display_name" => { :display => "DISPLAY NAME", :selected => false },
       "decision_date" => { :display => "DECISION DATE", :selected => false }
     })
-    @text_block_sort_list = generate_sort_list({
+    @sort_lists[:text_blocks] = generate_sort_list({
       "score" => { :display => "RELEVANCE", :selected => true },
       "display_name" => { :display => "DISPLAY NAME", :selected => false },
       "author" => { :display => "BY AUTHOR", :selected => false }
     })
     if ["index", "search"].include?(params[:action])
-      @generic_sort_list = generate_sort_list({
+      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list({
         "score" => { :display => "RELEVANCE", :selected => true },
         "display_name" => { :display => "DISPLAY NAME", :selected => false },
         "created_at" => { :display => "BY DATE", :selected => false },
         "author" => { :display => "BY AUTHOR", :selected => false }
       })
     else
-      @generic_sort_list = generate_sort_list({
+      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list({
         "score" => { :display => "RELEVANCE", :selected => true },
         "display_name" => { :display => "DISPLAY NAME", :selected => false },
         "created_at" => { :display => "BY DATE", :selected => false }

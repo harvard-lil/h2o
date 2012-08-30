@@ -58,6 +58,7 @@ class TextBlock < ActiveRecord::Base
     text :description
     boolean :active
     boolean :public
+
     string :author
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true

@@ -9,7 +9,7 @@ class MediasController < BaseController
   protect_from_forgery :except => []
 
   access_control do
-    allow all, :to => [:index, :show, :addess_level, :embedded_pager, :new]
+    allow all, :to => [:index, :show, :addess_level, :embedded_pager, :new, :create]
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
     allow :admin, :collage_admin, :superadmin
   end
@@ -61,7 +61,7 @@ class MediasController < BaseController
     end
 
     if current_user
-      @is_media_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','media_admin','superadmin']}).length > 0
+      @is_media_admin = current_user.is_media_admin
       @my_medias = current_user.medias
       @my_bookmarks = [] # TODO current_user.bookmarks_type(Media, ItemMedia)
     else

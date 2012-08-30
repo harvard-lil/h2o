@@ -36,6 +36,8 @@ class Playlist < ActiveRecord::Base
     string :author 
 
     boolean :public
+    boolean :active
+
     time :created_at
   end
 

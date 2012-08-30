@@ -166,6 +166,15 @@ class User < ActiveRecord::Base
   def is_case_admin
     self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0 
   end
+  def is_text_block_admin
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
+  end
+  def is_media_admin
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','media_admin','superadmin']}).length > 0
+  end
+  def is_collage_admin
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+  end
 
   def playlists_by_permission(permission_key)
     # TODO: Add caching, caching invalidation

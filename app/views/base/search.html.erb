@@ -7,15 +7,11 @@
 		<p>
 		<% if params[:keywords] -%>
 		Results for:
-		<%= params[:keywords] %> (<%= pluralize @playlists.total, 'Playlist' %>,
-		<%= pluralize @collages.total, 'Collage' %>,
-		<%= pluralize @cases.total, 'Case' %>)
+		<%= params[:keywords] %> (<%= render :partial => "shared/all_totals" %>)
 		<%= link_to "CLEAR SEARCH", search_all_path %>
 		<% else -%>
 		All materials:
-		(<%= pluralize @playlists.total, 'Playlist' %>,
-		<%= pluralize @collages.total, 'Collage' %>,
-		<%= pluralize @cases.total, 'Case' %>)
+		(<%= render :partial => "shared/all_totals" %>)
 		<% end -%>
 		</p>
 	</aside>
@@ -26,33 +22,25 @@
 <section id="results">
 	<hgroup id="default_hgroup">
 		<ul class="tabs">
-			<li><a href="#" class="active" data-region="all_playlists">PLAYLISTS</a></li>
-			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
-			<li><a href="#" data-region="all_cases">CASES</a></li>
+      <% @types.each do |type| -%>
+			<li><a href="#" data-region="all_<%= type.to_s %>"><%= type.to_s.humanize.upcase %></a></li>
+      <% end -%>
 		</ul>
 		<aside class="sort">
-			<div id="all_playlists_sort" data-type="playlists">
-				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
+      <% @types.each do |type| -%>
+			<div id="all_<%= type.to_s %>_sort" style="display:none;" data-type="<%= type.to_s %>">
+				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[type] } %>
 			</div>
-			<div id="all_collages_sort" style="display:none;" data-type="collages">
-				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
-			</div>
-			<div id="all_cases_sort" style="display:none;" data-type="cases">
-				<%= render :partial => 'shared/sort', :locals => { :list => @case_sort_list } %>
-			</div>
+      <% end -%>
 		</aside>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
-	<ul id="all_playlists">
-		<%= render :partial => 'shared/objects/playlist', :collection => @playlists.results %>
+  <% @types.each do |type| -%>
+	<ul id="all_<%= type.to_s %>">
+		<%= render :partial => "shared/objects/#{type == :cases ? 'case_obj' : type.to_s.singularize}", :collection => @results[type].results %>
 	</ul>
-	<ul id="all_collages" style="display:none;">
-		<%= render :partial => 'shared/objects/collage', :collection => @collages.results %>
-	</ul>
-	<ul id="all_cases" style="display:none;">
-		<%= render :partial => 'shared/objects/case_obj', :collection => @cases.results %>
-	</ul>
+  <% end -%>
 	</article>
 </section>
 

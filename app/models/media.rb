@@ -25,10 +25,18 @@ class Media < ActiveRecord::Base
     boolean :public
     string :tag_list, :stored => true, :multiple => true
 
+    time :created_at
+    string :author
+
     string :media_type do
       media_type.slug
     end
 
-    # add stored media type slug here
+    # TODO: add stored media type slug here
+  end
+
+  def author
+    owner = self.accepted_roles.find_by_name('owner')
+    owner.nil? ? nil : owner.user.login.downcase
   end
 end

@@ -129,7 +129,7 @@ class TextBlocksController < BaseController
     if current_user
       @my_text_blocks = current_user.text_blocks
       @my_bookmarks = current_user.bookmarks_type(TextBlock, ItemTextBlock)
-      @is_text_block_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
+      @is_text_block_admin = current_user.is_text_block_admin
     else
       @my_text_blocks = @my_bookmarks = []
       @is_text_block_admin = false

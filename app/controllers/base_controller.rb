@@ -56,63 +56,42 @@ class BaseController < ApplicationController
   def search
     set_sort_params
     set_sort_lists
+    @results = {}
+    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
 
-    if !request.xhr? || params[:ajax_region] == 'playlists'
-      @playlists = Sunspot.new_search(Playlist)
-      @playlists.build do
-        if params.has_key?(:keywords)
-          keywords params[:keywords]
+    @types.each do |type|
+      if (request.xhr? && params[:ajax_region] == type.to_s) || !request.xhr?
+        @results[type] = Sunspot.new_search(type.to_s.classify.constantize)
+        @results[type].build do
+          if params.has_key?(:keywords)
+            keywords params[:keywords]
+          end
+          with :public, true
+          with :active, true
+          paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+  
+          order_by params[:sort].to_sym, params[:order].to_sym
         end
-        with :public, true
-        paginate :page => params[:page], :per_page => cookies[:per_page] || nil
+        @results[type].execute!
 
-        order_by params[:sort].to_sym, params[:order].to_sym
+        @collection = @results[type] if request.xhr?
       end
-      @playlists.execute!
-      @collection = @playlists
-    end
-
-    if !request.xhr? || params[:ajax_region] == 'collages'
-      @collages = Sunspot.new_search(Collage)
-      @collages.build do
-        if params.has_key?(:keywords)
-          keywords params[:keywords]
-        end
-        with :public, true
-        with :active, true
-        paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-
-        order_by params[:sort].to_sym, params[:order].to_sym
-      end
-      @collages.execute!
-      @collection = @collages
-    end
-
-    if !request.xhr? || params[:ajax_region] == 'cases'
-      @cases = Sunspot.new_search(Case)
-      @cases.build do
-        if params.has_key?(:keywords)
-          keywords params[:keywords]
-        end
-        with :public, true
-        with :active, true
-        paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-
-        order_by params[:sort].to_sym, params[:order].to_sym
-      end
-      @cases.execute!
-      @collection = @cases
     end
 
     if current_user
       @is_case_admin = current_user.is_case_admin
-      @is_collage_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+      @is_text_block_admin = current_user.is_text_block_admin
+      @is_media_admin = current_user.is_media_admin
+      @is_collage_admin = current_user.is_collage_admin
+
       @my_collages = current_user.collages
       @my_playlists = current_user.playlists
       @my_cases = current_user.cases
+      @my_text_blocks = current_user.text_blocks
+      @my_medias = current_user.medias
     else
       @is_collage_admin = @is_case_admin = false
-      @my_collages = @my_playlists = @my_cases = []
+      @my_collages = @my_playlists = @my_cases = @my_text_blocks = @my_medias = []
     end
 
     playlist_admin_preload

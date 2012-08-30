@@ -34,13 +34,13 @@
 		</ul>
 		<aside class="sort">
 			<div id="all_playlists_sort" data-type="playlists">
-				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:playlists] } %>
 			</div>
 			<div id="all_collages_sort" style="display:none;" data-type="collages">
-				<%= render :partial => 'shared/sort', :locals => { :list => @generic_sort_list } %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:collages] } %>
 			</div>
 			<div id="all_cases_sort" style="display:none;" data-type="cases">
-				<%= render :partial => 'shared/sort', :locals => { :list => @case_sort_list } %>
+				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:cases] } %>
 			</div>
 		</aside>
 		<div class="cl"></div>
