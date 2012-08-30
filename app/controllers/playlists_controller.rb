@@ -353,7 +353,7 @@ class PlaylistsController < BaseController
   end
 
   def position_update
-    can_position_update = current_user.can_permission_playlist("position_update", @playlist)
+    can_position_update = @playlist.admin? || @playlist.owner? || current_user.can_permission_playlist("position_update", @playlist)
 
     if !can_position_update
       # TODO: Add permissions message here
