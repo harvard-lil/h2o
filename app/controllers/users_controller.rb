@@ -56,6 +56,12 @@ class UsersController < ApplicationController
 
     set_sort_lists
 
+    if params["controller"] == "users" && params["action"] == "show"
+      @sort_lists.each do |k, v|
+        v.delete("score")
+      end
+    end
+
     if params[:id] == 'create_anon'
       @user = @current_user
     else
