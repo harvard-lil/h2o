@@ -16,28 +16,30 @@ jQuery.extend({
   rootPath: function(){
     return '/';
   },
+  hideVisiblePopups: function() {
+    if(jQuery('.btn-a-active').length) {
+      jQuery('.btn-a-active').click();
+    }
+    if(jQuery('li.btn .active').length) {
+      jQuery('li.btn .active').click();
+    }
+    if(jQuery('.add-popup').is(':visible')) {
+      jQuery('.add-popup').hide();
+      popup_item_id = 0;
+    }
+  },
   loadEscapeListener: function() {
     jQuery(document).keyup(function(e) {
       if(e.keyCode == 27) {
-        if(jQuery('.btn-a-active').length) {
-          jQuery('.btn-a-active').click();
-        }
-        if(jQuery('li.btn .active').length) {
-          jQuery('li.btn .active').click();
-        }
+        jQuery.hideVisiblePopups();
       }
     });
   },
   loadOuterClicks: function() {
     jQuery('html').click(function() {
-      if(jQuery('.btn-a-active').length) {
-        jQuery('.btn-a-active').click();
-      }
-      if(jQuery('li.btn .active').length) {
-        jQuery('li.btn .active').click();
-      }
+      jQuery.hideVisiblePopups();
     });
-    jQuery('.browse-tags-popup, .tools-popup, .font-size-popup').click(function(event) {
+    jQuery('.browse-tags-popup, .tools-popup, .font-size-popup, .add-popup').click(function(event) {
       event.stopPropagation(); 
     });
   },
