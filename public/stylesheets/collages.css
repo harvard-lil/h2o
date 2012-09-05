@@ -40,6 +40,11 @@
 #collage article p strong { }
 #collage article .grey { color: #666; }
 #collage article pre { white-space: pre-line; } 
+#collage article blockquote {
+  margin-left: 30px;
+  margin-right: 0px;
+  padding-left: 20px;
+}
 
 #collage article .annotation-content { color: #6b933d; line-height: 1.5;
 display: none; padding: 0px 0px 0px 3px; font-style: italic; }
