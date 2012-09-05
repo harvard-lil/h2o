@@ -40,11 +40,12 @@ class TextBlocksController < BaseController
   # GET /text_blocks/new
   # GET /text_blocks/new.xml
   def new
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
     add_stylesheets ['new_text_block']
 
     @text_block = TextBlock.new
     @text_block.build_metadatum
+    @journal_article = JournalArticle.new
 
     respond_to do |format|
       format.html # new.html.erb
@@ -52,30 +53,24 @@ class TextBlocksController < BaseController
     end
   end
 
-  # POST /text_blocks
-  # POST /text_blocks.xml
   def create
     unless params[:text_block][:tag_list].blank?
       params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
     end
 
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
-    add_stylesheets ['new_text_block']
-
     @text_block = TextBlock.new(params[:text_block])
 
-    respond_to do |format|
-      if @text_block.save
-        @text_block.accepts_role!(:owner, current_user)
-        @text_block.accepts_role!(:creator, current_user)
-        flash[:notice] = 'Text Block was successfully created.'
-        format.html { redirect_to "/text_blocks/#{@text_block.id}" }
-        format.xml  { render :xml => @text_block, :status => :created, :location => @text_block }
-      else
-        @text_block.build_metadatum
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @text_block.errors, :status => :unprocessable_entity }
-      end
+    if @text_block.save
+      @text_block.accepts_role!(:owner, current_user)
+      @text_block.accepts_role!(:creator, current_user)
+      flash[:notice] = 'Text Block was successfully created.'
+      redirect_to "/text_blocks/#{@text_block.id}"
+    else
+      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_stylesheets ['new_text_block']
+
+      @text_block.build_metadatum
+      render :action => "new"
     end
   end
 
@@ -153,24 +148,18 @@ class TextBlocksController < BaseController
     render :json => TextBlock.autocomplete_for(:tags,params[:tag])
   end
 
-  # PUT /text_blocks/1
-  # PUT /text_blocks/1.xml
   def update
     unless params[:text_block][:tag_list].blank?
       params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
     end
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
-    add_stylesheets ['new_text_block']
 
-    respond_to do |format|
-      if @text_block.update_attributes(params[:text_block])
-        flash[:notice] = 'Text Block was successfully updated.'
-        format.html { redirect_to "/text_blocks/#{@text_block.id}" }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @text_block.errors, :status => :unprocessable_entity }
-      end
+    if @text_block.update_attributes(params[:text_block])
+      flash[:notice] = 'Text Block was successfully updated.'
+      redirect_to "/text_blocks/#{@text_block.id}"
+    else
+      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_stylesheets ['new_text_block']
+      render :action => "edit"
     end
   end
 

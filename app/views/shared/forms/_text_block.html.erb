@@ -2,7 +2,12 @@
   :url => text_blocks_path,
   :right_search => 'text_blocks/nav_search' } %>
 
-<div class="standard-form">
+<div id="input_type">
+<input type="radio" name="text_block_journal_article" id="text_block_v" value="text-block" /> Text Block
+<input type="radio" name="text_block_journal_article" id="journal_article_v" value="journal-article" /> Journal Article
+</div>
+
+<div class="standard-form" id="text-block-form">
   <div id="text_block-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
   <h3><%= (@text_block.new_record?) ? 'Add New Text Block' : %Q|Edit "#{@text_block}"| %></h3>

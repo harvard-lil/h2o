@@ -1,0 +1,34 @@
+<div class="standard-form" id="journal-article-form">
+  <div id="journal_article-error" style="display:none;" class="error"></div>
+<% unless request.xhr? %>
+  <h3><%= (@journal_article.new_record?) ? 'Add New Journal Article' : %Q|Edit "#{@journal_article}"| %></h3>
+<% end %>
+<% semantic_form_for(@journal_article, :html => {:id => 'journal_article-form'}) do |form| %>
+  <% form.inputs do %>
+    <%= form.input :name %>
+    <% if @journal_article.new_record? || @journal_article.content_editable? %>
+      <div id="mce_switches">
+        <a href="#" id="journal_article_description-html" class="html">HTML</a>
+        <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
+      </div>
+      <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
+      %>
+    <% end %>
+    <hr />
+    <%= form.input :tag_list,
+      :as => :string,
+      :hint => 'Please define the tags for this text block in a comma-separated list.',
+      :label => 'Tags',
+      :input_html => {:class => 'tagging-autofill-tags'},
+      :required => false
+    %>
+    <hr />
+    <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+  <% end %>
+  <% unless request.xhr? %>
+    <% form.buttons do %>
+      <%= form.commit_button 'Save' %>
+    <% end %>
+  <% end %>
+<% end %>
+</div>

@@ -53,5 +53,4 @@ jQuery(document).ready(function(){
   jQuery.observePagination();
   jQuery.observeMetadataForm();
   jQuery.observeMetadataDisplay();
-
 });

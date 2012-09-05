@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120828155356) do
+ActiveRecord::Schema.define(:version => 20120905155517) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -379,6 +379,37 @@ ActiveRecord::Schema.define(:version => 20120828155356) do
 
   add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
   add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
+
+  create_table "journal_article_types", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "journal_articles", :force => true do |t|
+    t.string   "name",                                                            :null => false
+    t.string   "description",                :limit => 5242880,                   :null => false
+    t.date     "publish_date"
+    t.string   "subtitle"
+    t.string   "author"
+    t.string   "author_description",         :limit => 5242880,                   :null => false
+    t.string   "volume"
+    t.string   "issue"
+    t.string   "page"
+    t.string   "bluebook_citation"
+    t.integer  "journal_article_type_id"
+    t.string   "article_series_title"
+    t.string   "article_series_description"
+    t.string   "pdf_url"
+    t.string   "image"
+    t.string   "attribution"
+    t.string   "attribution_url"
+    t.string   "video_embed",                :limit => 5242880,                   :null => false
+    t.boolean  "active",                                        :default => true
+    t.boolean  "public",                                        :default => true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "media_types", :force => true do |t|
     t.string   "label"
