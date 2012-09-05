@@ -5,20 +5,44 @@
 <% end %>
 <% semantic_form_for(@journal_article, :html => {:id => 'journal_article-form'}) do |form| %>
   <% form.inputs do %>
-    <%= form.input :name %>
+    <%= form.input :name, :label => "Title" %>
     <% if @journal_article.new_record? || @journal_article.content_editable? %>
-      <div id="mce_switches">
+      <div class="mce_switches">
         <a href="#" id="journal_article_description-html" class="html">HTML</a>
         <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
       </div>
-      <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
+      <%= form.input(:description, :label => 'Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
       %>
     <% end %>
+    <%= form.input :publish_date %>
+    <%= form.input :subtitle, :required => false %>
+    <%= form.input :author %>
+    <div class="mce_switches">
+      <a href="#" id="journal_article_description-html" class="html">HTML</a>
+      <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
+    </div>
+    <%= form.input :author_description, :as => :text, :required => false %>
+    <%= form.input :volume %>
+    <%= form.input :issue %>
+    <%= form.input :page %>
+    <%= form.input :bluebook_citation %>
+    <%= form.input :journal_article_type_id %>
+    <%= form.input :article_series_title, :required => false %>
+    <%= form.input :article_series_description, :required => false %>
+    <%= form.input :pdf_url, :required => false %>
+    <%= form.input :image, :required => false %>
+    <%= form.input :attribution %>
+    <%= form.input :attribution_url, :required => false %>
+    <div class="mce_switches">
+      <a href="#" id="journal_article_description-html" class="html">HTML</a>
+      <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
+    </div>
+    <%= form.input :video_embed, :as => :text, :required => false %>
     <hr />
     <%= form.input :tag_list,
       :as => :string,
       :hint => 'Please define the tags for this text block in a comma-separated list.',
-      :label => 'Tags',
+      :label => 'Categories',
       :input_html => {:class => 'tagging-autofill-tags'},
       :required => false
     %>

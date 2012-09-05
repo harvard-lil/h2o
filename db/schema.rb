@@ -389,20 +389,20 @@ ActiveRecord::Schema.define(:version => 20120905155517) do
   create_table "journal_articles", :force => true do |t|
     t.string   "name",                                                            :null => false
     t.string   "description",                :limit => 5242880,                   :null => false
-    t.date     "publish_date"
+    t.date     "publish_date",                                                    :null => false
     t.string   "subtitle"
-    t.string   "author"
-    t.string   "author_description",         :limit => 5242880,                   :null => false
-    t.string   "volume"
-    t.string   "issue"
-    t.string   "page"
-    t.string   "bluebook_citation"
-    t.integer  "journal_article_type_id"
+    t.string   "author",                                                          :null => false
+    t.string   "author_description",         :limit => 5242880
+    t.string   "volume",                                                          :null => false
+    t.string   "issue",                                                           :null => false
+    t.string   "page",                                                            :null => false
+    t.string   "bluebook_citation",                                               :null => false
+    t.integer  "journal_article_type_id",                                         :null => false
     t.string   "article_series_title"
-    t.string   "article_series_description"
+    t.string   "article_series_description", :limit => 5242880
     t.string   "pdf_url"
     t.string   "image"
-    t.string   "attribution"
+    t.string   "attribution",                                                     :null => false
     t.string   "attribution_url"
     t.string   "video_embed",                :limit => 5242880,                   :null => false
     t.boolean  "active",                                        :default => true

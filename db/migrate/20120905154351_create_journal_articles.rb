@@ -9,26 +9,31 @@ class CreateJournalArticles < ActiveRecord::Migration
         t.text :description, :limit => 5.megabytes, :null => false
       end
 
-      t.date :publish_date
+      t.date :publish_date, :null => false
       t.string :subtitle
 
-      t.string :author
+      t.string :author, :null => false
       if connection.adapter_name.downcase == 'postgresql'
-        t.string :author_description, :limit => 5.megabytes, :null => false
+        t.string :author_description, :limit => 5.megabytes
       else
-        t.text :author_description, :limit => 5.megabytes, :null => false
+        t.text :author_description, :limit => 5.megabytes
       end
 
-      t.string :volume
-      t.string :issue
-      t.string :page
-      t.string :bluebook_citation
-      t.integer :journal_article_type_id
+      t.string :volume, :null => false
+      t.string :issue, :null => false
+      t.string :page, :null => false
+      t.string :bluebook_citation, :null => false
+      t.integer :journal_article_type_id, :null => false
       t.string :article_series_title
-      t.string :article_series_description
+      if connection.adapter_name.downcase == 'postgresql'
+        t.string :article_series_description, :limit => 5.megabytes
+      else
+        t.text :article_series_description, :limit => 5.megabytes
+      end
+
       t.string :pdf_url
       t.string :image
-      t.string :attribution
+      t.string :attribution, :null => false
       t.string :attribution_url
 
       if connection.adapter_name.downcase == 'postgresql'

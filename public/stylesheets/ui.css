@@ -458,10 +458,10 @@ h2 .bookmarked { color: #FFF; }
 .singleitem .toolbar .link-print { background-position: -60px -39px; width: 22px; }
 
 /* MCE */
-#mce_switches {
+.mce_switches {
   margin: 10px 25px 0px;
 }
-#mce_switches a {
+.mce_switches a {
   text-decoration: none;
   height: 18px;
   float: right;
@@ -480,7 +480,7 @@ h2 .bookmarked { color: #FFF; }
   position: relative;
   bottom: -1px;
 }
-#mce_switches .current {
+.mce_switches .current {
   background-color: #E9E9E9;
   color: #333;
   border-color: #CCC #CCC #E9E9E9;
