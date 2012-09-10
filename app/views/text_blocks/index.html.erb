@@ -52,17 +52,35 @@
 	</hgroup>
 	<article class="songs">
 	<ul id="all_text_blocks">
-		<%= render :partial => 'shared/objects/text_block', :collection => @text_blocks %>
+    <% @text_blocks.each do |text_block| -%>
+      <% if text_block.is_a?(TextBlock) -%>
+		    <%= render :partial => 'shared/objects/text_block', :locals => { :text_block => text_block } %>
+      <% else -%>
+		    <%= render :partial => 'shared/objects/journal_article', :locals => { :journal_article => text_block } %>
+      <% end -%>
+    <% end -%>
 	</ul>
 	<% if current_user -%>
   <% if @my_text_blocks.any? -%>
 	<ul id="my_text_blocks">
-		<%= render :partial => 'shared/objects/text_block', :collection => @my_text_blocks %>
+    <% @my_text_blocks.each do |text_block| -%>
+      <% if text_block.is_a?(TextBlock) -%>
+		    <%= render :partial => 'shared/objects/text_block', :locals => { :text_block => text_block } %>
+      <% else -%>
+		    <%= render :partial => 'shared/objects/journal_article', :locals => { :journal_article => text_block } %>
+      <% end -%>
+    <% end -%>
 	</ul>
 	<% end -%>
 	<% if @my_bookmarks.any? -%>
 	<ul id="my_bookmarks">
-		<%= render :partial => 'shared/objects/text_block', :collection => @my_bookmarks %>
+    <% @my_bookmarks.each do |text_block| -%>
+      <% if text_block.is_a?(TextBlock) -%>
+		    <%= render :partial => 'shared/objects/text_block', :locals => { :text_block => text_block } %>
+      <% else -%>
+		    <%= render :partial => 'shared/objects/journal_article', :locals => { :journal_article => text_block } %>
+      <% end -%>
+    <% end -%>
 	</ul>
 	<% end -%>
 	<% end -%>

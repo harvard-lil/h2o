@@ -23,7 +23,6 @@ class CreateJournalArticles < ActiveRecord::Migration
       t.string :issue, :null => false
       t.string :page, :null => false
       t.string :bluebook_citation, :null => false
-      t.integer :journal_article_type_id, :null => false
       t.string :article_series_title
       if connection.adapter_name.downcase == 'postgresql'
         t.string :article_series_description, :limit => 5.megabytes
@@ -37,9 +36,9 @@ class CreateJournalArticles < ActiveRecord::Migration
       t.string :attribution_url
 
       if connection.adapter_name.downcase == 'postgresql'
-        t.string :video_embed, :limit => 5.megabytes, :null => false
+        t.string :video_embed, :limit => 5.megabytes
       else
-        t.text :video_embed, :limit => 5.megabytes, :null => false
+        t.text :video_embed, :limit => 5.megabytes
       end
       
       t.boolean :active, :default => true

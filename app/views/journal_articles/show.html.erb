@@ -1,0 +1,45 @@
+<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'text_blocks-logo',
+	:url => text_blocks_path,
+	:right_search => 'text_blocks/nav_search' } %>
+
+<div id="text_block" class="singleitem" data-itemid="<%= @journal_article.id %>">
+	<hgroup class="description">
+		<h2><%= @journal_article.display_name %></h2>
+		<aside class="toolbar">
+			<ul>
+				<% if current_user -%>
+				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @journal_article), :class => 'collage-this new-action' %></li>
+				<li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
+				<% end -%>
+				<li id="print-container">
+					<a href="<%= export_journal_article_path(@journal_article) %>" class="link-print" target="_blank">
+					<span>Print</span>
+					</a>
+				</li>
+			</ul>
+		</aside>
+		<div class="cl"></div>
+	</hgroup>
+	<div class="details">
+		<% cache "journal_article-#{@journal_article.id}-tags" do -%>
+		<div class="tags">
+			<% @journal_article.tags.each do |tag| -%>
+			<%= link_to tag.name, text_block_tag_path(CGI.escape(tag.name)) %>
+			<% end -%>
+		</div>
+		<% end -%>
+		<div class="cl"></div>
+    <% @display_map.each do |f| %>
+    <% if @journal_article.send(f[:key]).present? -%>
+    <%= f[:display] %>: <%= @journal_article.send(f[:key]) %>
+    <hr />
+    <% end -%>
+    <% end -%>
+		<% if current_user && (@journal_article.admin? || @journal_article.owner?) %>
+		<%= link_to "EDIT", edit_journal_article_path(@journal_article) %>
+		<% end -%>
+	</div>
+	<article>
+		<%= raw @journal_article.description %>
+	</article>
+</div>

@@ -4,3 +4,7 @@
 #journal_article_video_embed_input {
   clear: both;
 }
+
+#input_type {
+  margin: 20px 0px 0px 20px;
+}

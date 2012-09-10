@@ -1,11 +1,13 @@
 <div class="standard-form" id="journal-article-form">
   <div id="journal_article-error" style="display:none;" class="error"></div>
 <% unless request.xhr? %>
-  <h3><%= (@journal_article.new_record?) ? 'Add New Journal Article' : %Q|Edit "#{@journal_article}"| %></h3>
+  <h3><%= (@journal_article.new_record?) ? 'Add New Journal Article' : %Q|Edit "#{@journal_article.display_name}"| %></h3>
 <% end %>
 <% semantic_form_for(@journal_article, :html => {:id => 'journal_article-form'}) do |form| %>
   <% form.inputs do %>
+    <%= form.input :author %>
     <%= form.input :name, :label => "Title" %>
+    <%= form.input :subtitle, :required => false %>
     <% if @journal_article.new_record? || @journal_article.content_editable? %>
       <div class="mce_switches">
         <a href="#" id="journal_article_description-html" class="html">HTML</a>
@@ -14,19 +16,17 @@
       <%= form.input(:description, :label => 'Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
       %>
     <% end %>
-    <%= form.input :publish_date %>
-    <%= form.input :subtitle, :required => false %>
-    <%= form.input :author %>
+    <%= form.input :publish_date, :as => :string %>
     <div class="mce_switches">
-      <a href="#" id="journal_article_description-html" class="html">HTML</a>
-      <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
+      <a href="#" id="journal_article_author_description-html" class="html">HTML</a>
+      <a href="#" id="journal_article_author_description-tmce" class="current">Visual</a>
     </div>
     <%= form.input :author_description, :as => :text, :required => false %>
     <%= form.input :volume %>
     <%= form.input :issue %>
     <%= form.input :page %>
     <%= form.input :bluebook_citation %>
-    <%= form.input :journal_article_type_id %>
+    <%= form.input :journal_article_types, :as => :check_boxes %>
     <%= form.input :article_series_title, :required => false %>
     <%= form.input :article_series_description, :required => false %>
     <%= form.input :pdf_url, :required => false %>
@@ -34,15 +34,15 @@
     <%= form.input :attribution %>
     <%= form.input :attribution_url, :required => false %>
     <div class="mce_switches">
-      <a href="#" id="journal_article_description-html" class="html">HTML</a>
-      <a href="#" id="journal_article_description-tmce" class="current">Visual</a>
+      <a href="#" id="journal_article_video_embed-html" class="html">HTML</a>
+      <a href="#" id="journal_article_video_embed-tmce" class="current">Visual</a>
     </div>
     <%= form.input :video_embed, :as => :text, :required => false %>
     <hr />
     <%= form.input :tag_list,
       :as => :string,
       :hint => 'Please define the tags for this text block in a comma-separated list.',
-      :label => 'Categories',
+      :label => 'Tags',
       :input_html => {:class => 'tagging-autofill-tags'},
       :required => false
     %>

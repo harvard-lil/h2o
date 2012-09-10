@@ -1,0 +1,35 @@
+<li class="listitem listitem<%= journal_article.id %>" data-itemid="<%= journal_article.id %>">
+	<% if current_user -%>
+	<div class="controls">
+		<ul>
+			<li class="link-collage"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => journal_article), :class => "new-action" %></li>
+			<li class="link-add"><a data-item_id="<%= journal_article.id %>" data-bookmarktype="item_journal_article" data-type="journal_article" href="#">Add</a></li>
+		</ul>
+	</div>
+	<% end -%>
+	<div class="details">
+    <% cache "journal_article-#{journal_article.id}-tags" do %>
+      <div class="tags">
+        <% journal_article.tag_list.each do |tag| %>
+        <%= link_to tag, journal_article_tag_path(CGI.escape(tag)) %>
+        <% end -%>
+      </div>
+    <% end -%>
+    <h4><%= link_to journal_article.display_name, journal_article_path(journal_article), :class => "title" %>
+      <% if current_user && journal_article.deleteable? && (@is_text_block_admin || @my_text_blocks.include?(journal_article)) %>
+        <%= link_to 'DELETE', journal_article, :class => "action delete-action" %>
+      <% end %>
+      <% if current_user && (@is_text_block_admin || @my_text_blocks.include?(journal_article)) %>
+        <%= link_to 'EDIT', edit_journal_article_path(journal_article), :class => "action" %>
+      <% end %>
+    </h4>
+    <p>
+      <%= journal_article.created_at.to_s(:simpledatetime) %>
+      <% if journal_article.creators -%>
+      by
+      <%= raw journal_article.creators.collect { |u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') %>
+      <% end -%>
+    </p>
+	</div>
+	<div class="cl"></div>
+</li>

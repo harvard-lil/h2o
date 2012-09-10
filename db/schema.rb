@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120905155517) do
+ActiveRecord::Schema.define(:version => 20120906140336) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -386,6 +386,11 @@ ActiveRecord::Schema.define(:version => 20120905155517) do
     t.datetime "updated_at"
   end
 
+  create_table "journal_article_types_journal_articles", :id => false, :force => true do |t|
+    t.integer "journal_article_id"
+    t.integer "journal_article_type_id"
+  end
+
   create_table "journal_articles", :force => true do |t|
     t.string   "name",                                                            :null => false
     t.string   "description",                :limit => 5242880,                   :null => false
@@ -397,14 +402,13 @@ ActiveRecord::Schema.define(:version => 20120905155517) do
     t.string   "issue",                                                           :null => false
     t.string   "page",                                                            :null => false
     t.string   "bluebook_citation",                                               :null => false
-    t.integer  "journal_article_type_id",                                         :null => false
     t.string   "article_series_title"
     t.string   "article_series_description", :limit => 5242880
     t.string   "pdf_url"
     t.string   "image"
     t.string   "attribution",                                                     :null => false
     t.string   "attribution_url"
-    t.string   "video_embed",                :limit => 5242880,                   :null => false
+    t.string   "video_embed",                :limit => 5242880
     t.boolean  "active",                                        :default => true
     t.boolean  "public",                                        :default => true
     t.datetime "created_at"

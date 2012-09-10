@@ -21,7 +21,7 @@ class TextBlocksController < BaseController
 
   # GET /text_blocks/1/edit
   def edit
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
 
     if @text_block.metadatum.blank?
@@ -40,7 +40,7 @@ class TextBlocksController < BaseController
   # GET /text_blocks/new
   # GET /text_blocks/new.xml
   def new
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+    add_javascripts ['new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
 
     @text_block = TextBlock.new
@@ -75,7 +75,7 @@ class TextBlocksController < BaseController
   end
 
   def build_search(params)
-    text_blocks = Sunspot.new_search(TextBlock)
+    text_blocks = Sunspot.new_search(TextBlock, JournalArticle)
     
     text_blocks.build do
       if params.has_key?(:keywords)

@@ -720,6 +720,8 @@ jQuery(function() {
   });
   if(jQuery('#radios input[value=' + jQuery.classType() + ']').length) {
     jQuery('#radios input[value=' + jQuery.classType() + ']').click();
+  } else if(jQuery.classType() == 'journal_articles') {
+    jQuery('#radios input[value=text_blocks]').click();
   } else {
     jQuery("#search_all_radio").click();
   }
