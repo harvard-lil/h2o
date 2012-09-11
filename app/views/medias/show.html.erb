@@ -8,7 +8,9 @@
 		<aside class="toolbar">
 			<ul>
 				<% if current_user -%>
-				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @media), :class => 'collage-this new-action' %></li>
+        <% if false -%>
+				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'Media', :annotatable_id => @media), :class => 'collage-this new-action' %></li>
+        <% end -%>
 				<li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
 				<% end -%>
 			</ul>
