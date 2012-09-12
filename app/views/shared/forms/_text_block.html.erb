@@ -3,7 +3,7 @@
   :right_search => 'text_blocks/nav_search' } %>
 
 <% if ['new', 'create'].include?(params[:action]) -%>
-<div id="input_type">
+<div id="input_type" style="display:none;">
 <p>Are you uploading law journal content such as an article or note?</p>
 <input type="radio" name="text_block_journal_article" id="text_block_v" value="text-block" /> No
 <input type="radio" name="text_block_journal_article" id="journal_article_v" value="journal-article" <%= 'checked="checked"' if @journal_article.errors.any? %> /> Yes
