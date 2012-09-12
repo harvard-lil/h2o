@@ -225,6 +225,9 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 #media_detail {
   margin-bottom: 0.5em;
 }
+#media_content_input abbr {
+  display: none;
+}
 #media_detail p {
   width: 74%;
   display: inline-block;
