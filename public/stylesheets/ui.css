@@ -217,6 +217,13 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
   background-position: -165px -275px;
   width: 20px;
 }
+#media_detail {
+  margin-bottom: 0.5em;
+}
+#media_detail p {
+  width: 74%;
+  display: inline-block;
+}
 
 /* jQuery.Rating Plugin CSS - http://www.fyneworks.com/jquery/star-rating/ */
 div.rating-cancel { display:none !important; }

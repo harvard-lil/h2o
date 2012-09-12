@@ -10,7 +10,12 @@
       <% form.inputs do %>
         <%= form.input :name %>
         <%= form.input :media_type, :as => :radio %>
-        <%= form.input :content %>
+        <li id="media_detail">
+          <label for="media_content">Content <abbr title="required">*</abbr></label>
+          <p>You can add media items by inserting the HTML embed code of the item in the box below. You can learn more about HTML embed code <a href="http://www.htmlcodetutorial.com/embeddedobjects/_EMBED.html" target="_blank">here</a>.</p>
+        </li>
+        <%= form.input :content,
+            :label => '' %>
         <%= form.input :tag_list,
           :as => :string,
           :hint => 'Please define the tags for this media in a comma-separated list.',
