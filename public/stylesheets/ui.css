@@ -56,6 +56,11 @@ footer {
   background:-moz-linear-gradient(top, #334552, #526572);
   background:-webkit-gradient(linear, left top, left bottom, from(#334552), to(#526572));
   background: -o-linear-gradient(#334552,#526572);
+  padding: 10px;
+  text-align: center;
+}
+footer a {
+  color: #fff;
 }
 body.bbase_index footer { margin-top: 0px; }
 

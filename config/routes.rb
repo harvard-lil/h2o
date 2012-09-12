@@ -86,6 +86,8 @@ ActionController::Routing::Routes.draw do |map|
   map.search_all "/all_materials", :controller => :base, :action => :search
   map.root :controller => "base"
 
+  map.connect '/p/:id', :controller => :pages, :action => :show
+
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action/:id.:format'
 end
