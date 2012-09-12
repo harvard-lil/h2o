@@ -105,7 +105,7 @@ Your annotation will start here. Please click another word to set the end point.
 		</div>
 		<% end -%>
 		<h5>
-			<%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+			<%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
 			<a href="#" id="collage-stats" title="test"><strong>COLLAGE STATS</strong></a>
 			<div class="popup" id="collage-stats-popup">
 				<%= render :partial => 'collage_meta' %>

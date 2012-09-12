@@ -1,6 +1,9 @@
 <%= form.label :login %><br />
 <%= form.text_field :login %><br />
 <br />
+<%= form.label :attribution %><br />
+<%= form.text_field :attribution %><br />
+<br />
 <%= form.label :password, form.object.new_record? ? nil : "Change password" %><br />
 <%= form.password_field :password %><br />
 <br />

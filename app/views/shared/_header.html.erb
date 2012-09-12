@@ -15,8 +15,7 @@
 	<% else -%>
 	<% if current_user -%>
 	<ul class="right" id="logged-in">
-		<li><%= link_to current_user.login, user_path(current_user) %></li>
-		<li><%= link_to "Dashboard", dashboard_user_path(current_user.id) %></li>
+		<li><%= link_to "Dashboard", user_path(current_user) %></li>
 		<li class="last"><%= link_to "sign out", log_out_path %></li>
 	</ul>
 	<% else -%>

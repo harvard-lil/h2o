@@ -54,7 +54,7 @@ class UserCollectionsController < BaseController
     user_collection = UserCollection.new(params[:user_collection])
 
     if user_collection.save
-      render :json => { :error => false, :type => "users/#{@current_user.id}", :id => "dashboard" }
+      render :json => { :error => false, :type => "users", :id => current_user.id }
     else
       render :json => { :error => true, :message => "#{user_collection.errors.full_messages.join(',')}" }
     end
@@ -117,7 +117,7 @@ class UserCollectionsController < BaseController
     @user_collection.attributes = params[:user_collection]
 
     if @user_collection.save
-      render :json => { :error => false, :type => "users/#{@current_user.id}", :id => "dashboard" }
+      render :json => { :error => false, :type => "users", :id => current_user.id }
     else
       render :json => { :error => true, :message => "#{@user_collection.errors.full_messages.join(',')}" }
     end

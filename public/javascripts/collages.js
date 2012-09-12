@@ -65,9 +65,6 @@ jQuery.extend({
     jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();
       jQuery(this).toggleClass("btn-a-active");
-      if(jQuery(this).hasClass("btn-a-active")) {
-        jQuery('.font-size-popup .jsb-moreButton').click();
-      }
       return false;
     });
   },

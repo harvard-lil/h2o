@@ -29,7 +29,7 @@
       <%= media.created_at.to_s(:simpledatetime) %>
       <% if media.creators -%>
       by
-      <%= raw media.creators.collect { |u| link_to(u.login, user_path(u)) }.join(',') %>
+      <%= raw media.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
       <% end -%>
     </p>
     <% end -%>

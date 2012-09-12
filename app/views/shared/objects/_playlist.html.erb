@@ -23,7 +23,7 @@
 		</h4>
 		<p>
 			<%= playlist.created_at.to_s(:simpledatetime) %> by
-			<%= raw playlist.owners.collect{|u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') if playlist.owners %>
+			<%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %>
 		</p>
 		<div class="influence"></div>
 	</div>

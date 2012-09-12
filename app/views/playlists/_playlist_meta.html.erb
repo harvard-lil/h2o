@@ -1,6 +1,6 @@
 <h5>
   <%= @playlist.created_at.to_s(:simpledatetime) %>
-  by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %></a>
+  by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></a>
   <a href="#" id="playlist-stats" title="test"><strong>PLAYLIST STATS</strong></a>
   <div class="popup" id="playlist-stats-popup">
     <h5>Playlist Children</h5>
@@ -14,7 +14,7 @@
     <% @parents.each do |playlist| -%>
     <li>
       <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span>
-      by <%= raw playlist.owners.collect { |u| link_to(u.login, user_path(u)) }.join(', ') %><br />
+      by <%= raw playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %><br />
       <%= link_to playlist.name, playlist %>
     </li>
     <% end -%>

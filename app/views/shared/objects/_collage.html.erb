@@ -27,7 +27,7 @@
 			<%= collage.created_at.to_s(:simpledatetime) %>
       <% if collage.creators -%>
       by
-			<%= raw collage.creators.collect { |u| link_to("#{u.login} (#{u.karma.to_i})", user_path(u)) }.join(',') %>
+			<%= raw collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
       <% end -%>
 		</p>
 		<p class="extra">

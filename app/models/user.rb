@@ -38,6 +38,16 @@ class User < ActiveRecord::Base
     (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
   end
 
+  def display
+    if login.match(/^anon_[a-f,\d]+/)
+      return 'anonymous'
+    elsif attribution.present?
+      return "#{attribution} (#{karma.to_i})"
+    else
+      return "#{login} (#{karma.to_i})"
+    end
+  end
+
   def cases
     #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Case.find_by_sql("SELECT * FROM cases WHERE id IN

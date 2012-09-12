@@ -36,11 +36,14 @@ jQuery.extend({
     });
   },
   loadOuterClicks: function() {
-    jQuery('html').click(function() {
-      jQuery.hideVisiblePopups();
-    });
-    jQuery('.browse-tags-popup, .tools-popup, .font-size-popup, .add-popup').click(function(event) {
-      event.stopPropagation(); 
+    jQuery('html').click(function(event) {
+      var dont_hide = jQuery('.font-size-popup,.add-popup,.tools-popup').has(event.target).length > 0 ? true : false;
+      if(jQuery(event.target).hasClass('jsb-moreButton')) {
+        dont_hide = true;
+      }
+      if(!dont_hide) {
+        jQuery.hideVisiblePopups();
+      }
     });
   },
   loadEditability: function() {

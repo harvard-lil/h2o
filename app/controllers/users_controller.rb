@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   cache_sweeper :user_sweeper
 
   before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :dashboard, :require_user]
+  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :require_user]
  
   def new
     @user = User.new
@@ -42,14 +42,6 @@ class UsersController < ApplicationController
     end
   end
 
-  def dashboard
-    redirect_to "/" if !@current_user
-
-    add_javascripts 'user_dashboard'
-    add_stylesheets 'user_dashboard'
-    @user = @current_user
-  end
-
   def show
     params[:sort] ||= 'display_name'
     params[:order] ||= 'asc'
@@ -71,44 +63,34 @@ class UsersController < ApplicationController
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'
 
-    if !request.xhr? || params[:ajax_region] == 'playlists'
-      p = @user.playlists.sort_by { |p| p.send(params[:sort]).to_s.downcase }
-      if(params[:order] == 'desc') 
-        p = p.reverse
+    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
+    @results = {}
+
+    @types.each do |type|
+      if (request.xhr? && params[:ajax_region] == type.to_s) || !request.xhr?
+        p = @user.send(type).sort_by { |p| p.send(params[:sort]).to_s.downcase }
+        if(params[:order] == 'desc') 
+          p = p.reverse
+        end
+        @results[type] = p.paginate(:page => params[:page], :per_page => 2)
+
+        @collection = @results[type] if request.xhr?
       end
-      @collection = @playlists = p.paginate(:page => params[:page], :per_page => 25)
     end
 
-    if !request.xhr? || params[:ajax_region] == 'collages'
-      p = @user.collages.sort_by { |c| c.send(params[:sort]).to_s.downcase }
-      if(params[:order] == 'desc') 
-        p = p.reverse
-      end
-      @collection = @collages = p.paginate(:page => params[:page], :per_page => 25)
+    @types.each do |type|
+      instance_variable_set "@is_#{type.to_s.singularize}_admin", false
     end
-
-    if !request.xhr? || params[:ajax_region] == 'cases'
-      p = @user.cases.sort_by { |c| c.send(params[:sort]).to_s.downcase }
-      if(params[:order] == 'desc') 
-        p = p.reverse
-      end
-      @collection = @cases = p.paginate(:page => params[:page], :per_page => 25)
-    end
-
-    if current_user
-      @is_case_admin = false 
-      @is_collage_admin = false
-    
-      if current_user == @user
-        @my_collages = @collages
-        @my_playlists = @playlists
-        @my_cases = @cases
-      else
-        @my_collages = @my_playlists = @my_cases = []
+    if current_user && current_user == @user
+      add_javascripts 'user_dashboard'
+      add_stylesheets 'user_dashboard'
+      @types.each do |type|
+        instance_variable_set "@my_#{type.to_s}", @results[type]
       end
     else
-      @is_collage_admin = false
-      @my_collages = @my_playlists = @my_cases = []
+      @types.each do |type|
+        instance_variable_set "@my_#{type.to_s}", []
+      end
     end
 
     respond_to do |format|

@@ -6,10 +6,7 @@
 	<aside class="filter">
 		<p>
 		Results for: <%= @user.login %>
-		(<%= pluralize @playlists.total_entries, 'Playlist' %>,
-		<%= pluralize @collages.total_entries, 'Collage' %>,
-		<%= pluralize @cases.total_entries, 'Case' %>)
-		<%= link_to "CLEAR SEARCH", search_all_path %>
+    (<% @types.each do |type| -%><%= pluralize @results[type].total_entries, type.to_s.singularize.humanize %><%= ', ' if type != @types.last %><% end -%>)
 		</p>
 	</aside>
   <%= render :partial => 'shared/user_pagination' %>
@@ -19,46 +16,30 @@
 <section id="results">
 	<hgroup id="default_hgroup">
 		<ul class="tabs">
-		    <% if @playlists.any? -%>
-			<li><a href="#" class="active" data-region="all_playlists">PLAYLISTS</a></li>
-			<% end -%>
-		    <% if @collages.any? -%>
-			<li><a href="#" data-region="all_collages">COLLAGES</a></li>
-			<% end -%>
-		    <% if @cases.any? -%>
-			<li><a href="#" data-region="all_cases">CASES</a></li>
-			<% end -%>
-		    <% if @user.bookmarks.any? -%>
+      <% @types.each do |type| -%>
+      <li><a href="#" data-region="all_<%= type.to_s %>"><%= type.to_s.humanize.upcase %></a></li>
+      <% end -%>
+	    <% if @user.bookmarks.any? -%>
 			<li><a href="#" data-region="bookmarks" id="bookmark_tab">BOOKMARKS</a></li>
 			<% end -%>
+      <% if current_user == @user -%>
+			<li><a href="#" data-region="user_collections">USER COLLECTIONS</a></li>
+			<li><a href="#" data-region="user_info">USER INFO</a></li>
+      <% end -%>
 		</ul>
 		<aside class="sort">
-			<div id="all_playlists_sort" data-type="playlists">
-				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:playlists] } %>
+      <% @types.each do |type| -%>
+			<div id="all_<%= type.to_s %>_sort" style="display:none;" data-type="<%= type.to_s %>">
+				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[type] } %>
 			</div>
-			<div id="all_collages_sort" style="display:none;" data-type="collages">
-				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:collages] } %>
-			</div>
-			<div id="all_cases_sort" style="display:none;" data-type="cases">
-				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:cases] } %>
-			</div>
+      <% end -%>
 		</aside>
 		<div class="cl"></div>
 	</hgroup>
 	<article class="songs">
-	<% if @playlists.any? -%>
-	<ul id="all_playlists">
-		<%= render :partial => 'shared/objects/playlist', :collection => @playlists %>
-	</ul>
-	<% end -%>
-	<% if @collages.any? -%>
-	<ul id="all_collages" style="display:none;">
-		<%= render :partial => 'shared/objects/collage', :collection => @collages %>
-	</ul>
-	<% end -%>
-	<% if @cases.any? -%>
-	<ul id="all_cases" style="display:none;">
-		<%= render :partial => 'shared/objects/case_obj', :collection => @cases %>
+  <% @types.each do |type| -%>
+	<ul id="all_<%= type.to_s %>">
+    <%= render :partial => "shared/objects/#{type == :cases ? 'case_obj' : type.to_s.singularize}", :collection => @results[type] %>
 	</ul>
 	<% end -%>
 	<% if @user.bookmarks.any? -%>
@@ -73,11 +54,38 @@
 		<% end -%>
 	</ul>
 	<% end -%>
+  <% if current_user == @user -%>
+  <ul id="user_collections">
+    <li class="listitem">
+      <div class="controls">
+        <ul>
+          <li class="link-add">
+            <a href="<%= new_user_collection_path %>" class="new-action">Add</a>
+          </li>
+        </ul>
+      </div>
+      <div class="details">
+        <h4><a href="<%= new_user_collection_path %>" class="new-action">Create a New User Collection</a></h4>
+      </div>
+      <div class="cl"></div>
+    </li>
+    <%= render :partial => "shared/objects/user_collection", :collection => @current_user.collections %>
+  </ul>
+	<ul id="user_info">
+      <li><b>Login:</b> <%= @user.login %></li>
+      <li><b>Attribution:</b> <%= @user.attribution %></li>
+      <li><b>Login count:</b> <%= @user.login_count %></li>
+      <li><b>Last request at:</b> <%= @user.last_request_at %></li>
+      <li><b>Last login at:</b> <%= @user.last_login_at %></li>
+      <li><b>Current login at:</b> <%= @user.current_login_at %></li>
+      <li><b>Last login ip:</b> <%= @user.last_login_ip %></li>
+      <li><b>Current login ip:</b> <%= @user.current_login_ip %></li>
+      <li><%= link_to 'Edit', edit_user_path(@user) %></li>
+	</ul>
+	<% end -%>
 	</article>
 </section>
 
 <section class="breadcrumbs">
-  <%= render :partial => 'shared/user_pagination' %>
+  <%#= render :partial => 'shared/user_pagination' %>
 </section>
-
-<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>
