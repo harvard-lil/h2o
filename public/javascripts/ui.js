@@ -16,6 +16,19 @@ jQuery.extend({
   rootPath: function(){
     return '/';
   },
+  observeTerms: function() {
+    if(jQuery('input#terms_check').length == 0) {
+      return false;
+    }
+    jQuery(".ui-dialog-buttonpane button:contains('Submit')").button('disable');
+    jQuery('input#terms_check').click(function() {
+      if(jQuery(this).is(':checked')) {
+        jQuery(".ui-dialog-buttonpane button:contains('Submit')").button('option', 'disabled', false);
+      } else {
+        jQuery(".ui-dialog-buttonpane button:contains('Submit')").button('disable');
+      }
+    });
+  },
   hideVisiblePopups: function() {
     if(jQuery('.btn-a-active').length) {
       jQuery('.btn-a-active').click();
@@ -564,6 +577,7 @@ jQuery.extend({
       height: 'auto',
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
+        jQuery.observeTerms();
       },
       close: function() {
         jQuery(newItemNode).remove();
@@ -633,6 +647,7 @@ jQuery.extend({
         if(newItemNode.find('#manage_collages').length) {
           jQuery('#manage_collages #lookup_submit').click();
         }
+        jQuery.observeTerms();
       },
       buttons: {
         Submit: function() {
@@ -737,7 +752,26 @@ jQuery(function() {
   jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
 
   jQuery('.link-copy').click(function() {
-    jQuery(this).closest('form').submit();
+    var form = jQuery(this).closest('form');
+    var title = jQuery(this).attr('title');
+    var addItemDialog = jQuery('<div id="generic-node"></div>').html('<p id="terms_require"><input type="checkbox" id="terms_check"> I understand and am in compliance with H2O\'s <a href="/p/terms" target="_blank">Terms of Service</a></p>');
+    jQuery(addItemDialog).dialog({
+      title: title,
+      modal: true,
+      width: 'auto',
+      height: 'auto',
+      open: function(event, ui) {
+        jQuery.observeTerms();
+      },
+      buttons: {
+        Submit: function(){
+          form.submit();
+        },
+        Cancel: function(){
+          jQuery(addItemDialog).dialog('close');
+        }
+      }
+    });
   });
   //jQuery('#results .song details .influence input').rating();
   //jQuery('#playlist details .influence input').rating();

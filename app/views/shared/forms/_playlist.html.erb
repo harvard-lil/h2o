@@ -34,5 +34,11 @@
 	    :input_html => { :class => 'tagging-autofill-tags' }
 	  %>
     <% end -%>
+    <% if @playlist.new_record? -%>
+    <li id="terms_require">
+      <input type="checkbox" id="terms_check" />
+      I understand and am in compliance with H2O's <a href="/p/terms" target="_blank">Terms of Service</a>.
+    </li>
+    <% end -%>
   <% end -%>
 <% end -%>

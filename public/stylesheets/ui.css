@@ -553,3 +553,11 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   .tipsy-e .tipsy-arrow { right: 0; border-right: none; }
   .tipsy-w .tipsy-arrow { left: 0; border-left: none; }
 
+/* Terms */
+#terms_require {
+  text-align: center;
+}
+#terms_require a {
+  color: #369;
+  text-decoration: underline;
+}

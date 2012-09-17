@@ -9,29 +9,33 @@
         :input_html => {:size => '40x5', :class => 'textile_description'},
         :required => false,
         :hint => "You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }"
-    %>
-	<%= form.input :tag_list,
-    :as => :string,
-    :hint => 'Please define the tags for this collage in a comma-separated list.',
-    :label => 'Tags',
-    :input_html => { :class => 'tagging-autofill-tags' },
-    :required => false
-	%>
-    <% if @collage.new_record? -%>
-      <hr />
-      <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
-      <hr />
-      <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
-      <%= form.input :annotatable_type,
-        :as => :hidden,
-        :required => true,
-        :label => 'I want to annotate a:'
       %>
-      <%= form.input :annotatable_id,
-        :as => :hidden,
-        :required => true
-      %>
-    <% end %>
+    	<%= form.input :tag_list,
+        :as => :string,
+        :hint => 'Please define the tags for this collage in a comma-separated list.',
+        :label => 'Tags',
+        :input_html => { :class => 'tagging-autofill-tags' },
+        :required => false
+	    %>
+      <% if @collage.new_record? -%>
+        <hr />
+        <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
+        <hr />
+        <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+        <%= form.input :annotatable_type,
+          :as => :hidden,
+          :required => true,
+          :label => 'I want to annotate a:'
+        %>
+        <%= form.input :annotatable_id,
+          :as => :hidden,
+          :required => true
+        %>
+        <li id="terms_require">
+          <input type="checkbox" id="terms_check" />
+          I understand and am in compliance with H2O's <a href="/p/terms" target="_blank">Terms of Service</a>.
+        </li>
+      <% end %>
     <% end %>
     <% unless request.xhr? %>
       <% form.buttons do %>
