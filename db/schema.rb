@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120912142954) do
+ActiveRecord::Schema.define(:version => 20120918155405) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -31,6 +31,11 @@ ActiveRecord::Schema.define(:version => 20120912142954) do
   add_index "annotations", ["annotation_end"], :name => "index_annotations_on_annotation_end"
   add_index "annotations", ["annotation_start"], :name => "index_annotations_on_annotation_start"
   add_index "annotations", ["public"], :name => "index_annotations_on_public"
+
+  create_table "brain_busters", :force => true do |t|
+    t.string "question"
+    t.string "answer"
+  end
 
   create_table "case_citations", :force => true do |t|
     t.integer  "case_id"
@@ -426,10 +431,11 @@ ActiveRecord::Schema.define(:version => 20120912142954) do
     t.string   "name"
     t.text     "content"
     t.integer  "media_type_id"
-    t.boolean  "public",        :default => true
-    t.boolean  "active",        :default => true
+    t.boolean  "public",                           :default => true
+    t.boolean  "active",                           :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "description",   :limit => 5242880
   end
 
   create_table "metadata", :force => true do |t|

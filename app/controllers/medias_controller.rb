@@ -5,6 +5,8 @@ class MediasController < BaseController
   before_filter :require_user, :except => [:index, :show, :access_level, :embedded_pager]
   before_filter :load_media, :only => [:show, :edit, :update]
   before_filter :store_location, :only => [:index, :show]
+  before_filter :create_brain_buster, :only => [:new]
+  before_filter :validate_brain_buster, :only => [:create]
 
   protect_from_forgery :except => []
 
@@ -131,6 +133,12 @@ class MediasController < BaseController
     if current_user
       @my_medias = current_user.medias
     end
+  end
+
+  def render_or_redirect_for_captcha_failure
+    @media = Media.new(params[:media])
+    create_brain_buster
+    render :action => "new"
   end
 
   private 

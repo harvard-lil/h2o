@@ -5,6 +5,9 @@ class TextBlocksController < BaseController
   before_filter :load_text_block, :only => [:show, :edit, :update, :destroy, :export]
   before_filter :store_location, :only => [:index, :show]
 
+  before_filter :create_brain_buster, :only => [:new]
+  before_filter :validate_brain_buster, :only => [:create]
+
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
     allow :text_block_admin, :admin, :superadmin
@@ -172,6 +175,17 @@ class TextBlocksController < BaseController
       format.xml  { head :ok }
       format.json { render :json => {} }
     end
+  end
+
+  def render_or_redirect_for_captcha_failure
+    add_javascripts ['new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_stylesheets ['new_text_block']
+
+    @text_block = TextBlock.new(params[:text_block])
+    @text_block.build_metadatum
+    @journal_article = JournalArticle.new
+    create_brain_buster
+    render :action => "new"
   end
 
   private 

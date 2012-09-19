@@ -18,7 +18,7 @@
 		<div class="cl"></div>
 	</hgroup>
 	<div class="details">
-    <p>Description here?</p>
+    <p><%= @media.description %></p>
 		<% cache "media-#{@media.id}-tags" do -%>
 		<div class="tags">
 			<% @media.tags.each do |tag| -%>

@@ -44,6 +44,7 @@
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
     <hr />
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+    <% if @text_block.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
   <% end %>
   <% unless request.xhr? %>
     <% form.buttons do %>
