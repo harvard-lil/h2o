@@ -220,4 +220,52 @@ namespace :h2o do
     end
   end
 
+=begin
+  desc 'Reassign owner'
+  task(:reassign_owner => :environment) do
+    # user and playlist is required
+
+    first_children = Playlist.find(671).playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+    
+    second_children = first_children.inject([]) do |barr, i|
+      if i.is_a?(Playlist)
+        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+      end
+      barr
+    end
+    
+    third_children = second_children.flatten.inject([]) do |barr, i|
+      if i.is_a?(Playlist)
+        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+      end
+      barr
+    end
+    
+    fourth_children = third_children.flatten.inject([]) do |barr, i|
+      if i.is_a?(Playlist)
+        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+      end
+      barr
+    end
+    
+    to_update = [first_children + second_children + third_children + fourth_children].flatten
+    
+    u = User.find_by_login("criminallaw")
+    to_update.each do |i|
+      if i.is_a?(Playlist)
+        next if i.owners == [u]
+        if i.owners
+          i.owners.each { |c| c.has_no_roles_for!(i) }
+        end
+        u.has_role!(:owner, i) 
+      end
+      next if i.creators == [u]
+      if i.creators
+        i.creators.each { |c| c.has_no_roles_for!(i) }
+      end
+      u.has_role!(:creator, i) 
+    end
+=end
+
+  end
 end
