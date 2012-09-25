@@ -61,6 +61,12 @@ footer {
 }
 footer a {
   color: #fff;
+  padding: 0px 10px; 
+  display: inline-block;
+  border-right: 1px solid #fff;
+}
+footer a.last {
+  border-right: 0px;
 }
 body.bbase_index footer { margin-top: 0px; }
 
