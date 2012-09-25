@@ -29,8 +29,15 @@ class User < ActiveRecord::Base
   has_many :rotisserie_assignments
   has_many :permission_assignments, :dependent => :destroy
 
+  attr_accessor :terms
+
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
+  validate :terms_validation
+  
+  def terms_validation
+    errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
+  end
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
