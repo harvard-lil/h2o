@@ -63,7 +63,12 @@ class UsersController < ApplicationController
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'
 
-    @types = [:playlists, :collages, :cases, :case_requests, :medias, :text_blocks]
+    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
+
+    if current_user && @user == current_user && @user.is_case_admin
+      @types << :case_requests
+    end
+
     @results = {}
 
     @types.each do |type|
@@ -72,7 +77,7 @@ class UsersController < ApplicationController
         if(params[:order] == 'desc') 
           p = p.reverse
         end
-        @results[type] = p.paginate(:page => params[:page], :per_page => 2)
+        @results[type] = p.paginate(:page => params[:page], :per_page => 10)
 
         @collection = @results[type] if request.xhr?
       end

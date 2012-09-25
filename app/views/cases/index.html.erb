@@ -3,6 +3,9 @@
   :right_search => 'cases/nav_search' } %>
 	
 <section class="breadcrumbs">
+  <% if flash[:notice] %>
+  <p id="case_request_notification"><%= flash[:notice] %></p>
+  <% end %>
 	<aside class="filter">
 		<% if params[:tags] -%>
 		<p>

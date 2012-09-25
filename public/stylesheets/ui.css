@@ -179,7 +179,7 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 #results .sort .jsb .jsb-list .jsb-item { display:block; font-size:9px; line-height:20px; color:#630; font-weight:bold; padding:0 8px; cursor:default; }
 
 #results .songs { padding: 0px; position:relative; z-index:1; }
-#results .songs ul { list-style:none; }
+#results .songs ul { list-style:none; clear: both; }
 #results .listitem  { border-top:1px solid #e0e1e1; padding:1px 0 13px; position:relative; z-index:1; width:100%; }
 #results .song-active  { z-index:2; }
 
@@ -315,6 +315,10 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
   #bbase #results .sort .jsb .jsb-currentItem { background-position: -142px -17px; color: #000; }
 
 /* Cases Index */
+#case_request_notification {
+  color: red;
+  padding-bottom: 10px;
+}
 #bcases #results .sort label { color: #a51514; }
 #results #cases_hgroup { border:1px solid #ff1a05; background:url(/images/ui/red_bg.png) 0px 0px; }
 #results #cases_hgroup .tabs li a { color: #a51514; }

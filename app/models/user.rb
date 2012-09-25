@@ -88,9 +88,7 @@ class User < ActiveRecord::Base
   end
 
   def case_requests
-    Rails.cache.fetch("user-case-requests-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'CaseRequest', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
-    end
+    self.is_case_admin ? CaseRequest.find_all_by_status("new") : []
   end
 
   def playlists
