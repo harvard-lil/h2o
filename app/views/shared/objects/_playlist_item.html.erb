@@ -26,14 +26,16 @@
 		<h3>
         <% if item.resource_item_type == 'ItemDefault' -%>
         <%= link_to item.resource_item.name, item.resource_item.url, :target => '_blank' %>
-        <% elsif item.resource_item_type == 'ItemCollage' && !item.resource_item.actual_object.nil? -%>
-        <%= link_to item.resource_item.name, item.resource_item.actual_object, :target => '_blank' %>
         <% elsif !item.resource_item.actual_object.nil? -%>
 				<%= link_to item.resource_item.name, item.resource_item.actual_object, :target => '_blank' %>
         <% else -%>
         <%= item.resource_item.name %>
         <% end -%>
+        <% if item.resource_item_type == 'ItemMedia' && item.resource_item.actual_object -%>
+		    <span class="media-icon-type media-icon-type-<%= item.resource_item.actual_object.media_type.slug %>"></span>
+        <% else -%>
 		    <span class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></span>
+        <% end -%>
 			</h3>
 			<% if recursive_level == 0 %>
 			<%= link_to "REMOVE", url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => item.resource_item), :class => "action delete-action delete-playlist-item requires_remove" %>

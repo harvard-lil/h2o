@@ -16,6 +16,7 @@ class Media < ActiveRecord::Base
   end
 
   searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
+    string :id, :stored => true
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     text :content, :stored => true
