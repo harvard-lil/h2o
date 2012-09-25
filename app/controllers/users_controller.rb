@@ -63,7 +63,7 @@ class UsersController < ApplicationController
     #This is added for an optimization, to avoid lookup roles / authors of each item
     params[:sort] = 'name' if params[:sort] == 'display_name'
 
-    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
+    @types = [:playlists, :collages, :cases, :case_requests, :medias, :text_blocks]
     @results = {}
 
     @types.each do |type|

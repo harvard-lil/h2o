@@ -124,15 +124,40 @@ class CasesController < BaseController
   def new
     @case = Case.new
     @case.case_jurisdiction = CaseJurisdiction.new
+    respond_for_new    
+  end
+
+  def new_from_case_request
+    case_request = CaseRequest.find(params[:case_request_id])
+    @case = Case.new
+    @case.case_request = case_request
+    @case.full_name = case_request.full_name
+    @case.decision_date = case_request.decision_date
+    @case.author = case_request.author
+    @case.case_jurisdiction = case_request.case_jurisdiction
+    case_docket_number = CaseDocketNumber.new
+    case_docket_number.docket_number = case_request.docket_number
+    @case.case_docket_numbers = []
+    @case.case_docket_numbers << case_docket_number
+    case_citation = CaseCitation.new
+    case_citation.reporter = case_request.reporter
+    case_citation.volume = case_request.volume
+    case_citation.page = case_request.page
+    @case.case_citations << case_citation
+    respond_for_new
+  end
+
+  def respond_for_new
+
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     respond_to do |format|
-      format.html # new.html.erb
+      format.html { render :template => 'cases/new'}# new.html.erb
       format.xml  { render :xml => @case }
     end
-  end
 
+  end
   # GET /cases/1/edit
   def edit
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
@@ -154,6 +179,7 @@ class CasesController < BaseController
       if @case.save
         @case.accepts_role!(:owner, current_user)
         @case.accepts_role!(:creator, current_user)
+        @case.case_request.approve! if @case.case_request
         flash[:notice] = 'Case was successfully created.'
         format.html { redirect_to "/cases/#{@case.id}" }
         format.xml  { render :xml => @case, :status => :created, :location => @case }

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120918155405) do
+ActiveRecord::Schema.define(:version => 20120924185505) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -72,6 +72,21 @@ ActiveRecord::Schema.define(:version => 20120918155405) do
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
+  create_table "case_requests", :force => true do |t|
+    t.string   "full_name",            :limit => 500,                    :null => false
+    t.date     "decision_date",                                          :null => false
+    t.string   "author",               :limit => 150,                    :null => false
+    t.integer  "case_jurisdiction_id"
+    t.string   "docket_number",        :limit => 150,                    :null => false
+    t.string   "volume",               :limit => 150,                    :null => false
+    t.string   "reporter",             :limit => 150,                    :null => false
+    t.string   "page",                 :limit => 150,                    :null => false
+    t.string   "bluebook_citation",    :limit => 150,                    :null => false
+    t.string   "status",               :limit => 150, :default => "new", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
     t.string   "short_name",           :limit => 150,                       :null => false
@@ -87,6 +102,7 @@ ActiveRecord::Schema.define(:version => 20120918155405) do
     t.datetime "updated_at"
     t.boolean  "public",                                  :default => true
     t.boolean  "active",                                  :default => true
+    t.integer  "case_request_id"
   end
 
   add_index "cases", ["active"], :name => "index_cases_on_active"

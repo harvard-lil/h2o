@@ -1,0 +1,19 @@
+<div id="case_request" class="singleitem" data-itemid="<%= @case_request.id %>">
+  <hgroup class="description">
+		 <h2>Full Name: <%= @case_request.full_name %></h2> 
+		 <div class="cl"></div>
+	</hgroup>
+	<div class="details">
+		 <p>Decision Date: <%= @case_request.decision_date %></p> 
+		 <p>Author: <%= @case_request.author %></p> 
+		 <p>Case Jurisdiction: <%= @case_request.case_jurisdiction %></p> 
+		 <p>Docket Number: <%= @case_request.docket_number %></p> 
+		 <p>Volume: <%= @case_request.volume %></p> 
+		 <p>Reporter: <%= @case_request.reporter %></p> 
+		 <p>Page: <%= @case_request.page %></p> 
+		 <p>Bluebook Citation: <%= @case_request.bluebook_citation %></p> 
+		<% if current_user &&	(@is_case_admin || @my_case_requests.include?(@case)) %>
+		<%= link_to "EDIT", edit_case_request_path(@case) %>
+		<% end -%>
+  </div>
+</div>

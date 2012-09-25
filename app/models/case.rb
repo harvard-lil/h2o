@@ -17,6 +17,7 @@ class Case < ActiveRecord::Base
 
   has_many :case_citations
   has_many :case_docket_numbers
+  belongs_to :case_request
   belongs_to :case_jurisdiction
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy

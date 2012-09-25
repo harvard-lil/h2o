@@ -87,6 +87,7 @@ class BaseController < ApplicationController
       @my_collages = current_user.collages
       @my_playlists = current_user.playlists
       @my_cases = current_user.cases
+      @my_case_requests = current_user.case_requests
       @my_text_blocks = current_user.text_blocks
       @my_medias = current_user.medias
     else

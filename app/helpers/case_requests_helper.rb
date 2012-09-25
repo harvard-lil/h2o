@@ -1,0 +1,2 @@
+module CaseRequestsHelper
+end

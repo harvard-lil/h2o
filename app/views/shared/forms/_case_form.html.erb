@@ -15,13 +15,23 @@
         <% #FIXME - put in a date selector %>
         <%= form.input :decision_date, :as => :string, :hint => 'YYYY-MM-DD format' %>
         <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
+        <% if @case.case_request %>
+        <hr/>
+        <%= form.input :case_request, :as => :select, :collection => CaseRequest.all(:order => 'created_at DESC', :conditions => "status ='new'"), :hint => "Leave blank if no case request"%>
+        <% end %>
         <hr />
         <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => (@is_case_admin ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
         <hr />
+        <% if @case.case_request %>
+          <% @case.case_docket_numbers = @case.case_docket_numbers.delete(@case.case_docket_numbers.first) %>
+        <% end %>
         <% form.semantic_fields_for :case_docket_numbers do |cd| %>
           <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>
         <% end %>
         <hr />
+        <% if @case.case_request %>
+          <% @case.case_citations = @case.case_citations.delete(@case.case_citations.first) %>
+        <% end %>
         <% form.semantic_fields_for :case_citations do |cd| %>
           <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
         <% end %>

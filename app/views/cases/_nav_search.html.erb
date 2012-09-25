@@ -4,13 +4,19 @@
 		<li id="spinner">
 			<img src="/images/ui/ajax-loader.gif" alt="" />
 		</li>
-		<% if current_user -%>
+		<% if current_user and current_user.is_case_admin -%>
 		<li class="btn">
 			<a href="<%= new_case_path %>" class="btn-a">
 				<span>CREATE CASE</span>
 			</a>
 		</li>
-		<% end -%>
+		<% elsif current_user -%>
+		<li class="btn">
+			<a href="<%= new_case_request_path %>" class="btn-a">
+				<span>CREATE CASE REQUEST</span>
+			</a>
+		</li>
+		<% end %>
 		<li class="btn">
 			<a href="#" class="btn-a btn-tags">
 				<span>BROWSE TAGS</span>

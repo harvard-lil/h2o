@@ -1,5 +1,6 @@
 class CaseJurisdiction < ActiveRecord::Base
   has_many :cases
+  has_many :case_requests
 
   validates_presence_of :abbreviation, :name
   validates_length_of :abbreviation,  :in => 1..150
