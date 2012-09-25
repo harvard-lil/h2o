@@ -62,6 +62,7 @@ class TextBlocksController < BaseController
     end
 
     @text_block = TextBlock.new(params[:text_block])
+    @journal_article = JournalArticle.new
 
     if @text_block.save
       @text_block.accepts_role!(:owner, current_user)

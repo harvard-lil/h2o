@@ -4,6 +4,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :text_blocks, :collection => {:embedded_pager => :get}, :member => {:export => :get}
   map.resources :journal_articles, :member => { :export => :get }
   map.text_block_tag "text_blocks/tag/:tag", :controller => :text_blocks, :action => :index
+  map.journal_article_tag "journal_articles/tag/:tag", :controller => :journal_articles, :action => :index
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
   map.resources :item_annotations
