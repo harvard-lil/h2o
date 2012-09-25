@@ -266,6 +266,4 @@ namespace :h2o do
       u.has_role!(:creator, i) 
     end
 =end
-
-  end
 end
