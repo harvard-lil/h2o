@@ -17,7 +17,7 @@ class CaseSweeper < ActionController::Caching::Sweeper
 
     users = Role.find(:all, :conditions => { :authorizable_type => 'Case', :authorizable_id => record.id, :name => ['owner', 'creator'] }).collect { |b| b.user }.uniq
     users.push(current_user.id) if current_user
-    users.each { |u| Rails.cache.delete("user-cases-#{u}") }
+    users.each { |u| Rails.cache.delete("user-cases-#{u.id}") }
   end
 
   def after_save(record)

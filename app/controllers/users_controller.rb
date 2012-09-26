@@ -65,9 +65,12 @@ class UsersController < ApplicationController
 
     @types = [:playlists, :collages, :cases, :medias, :text_blocks]
 
-    if current_user && @user == current_user && @user.is_case_admin
-      @types << :case_requests
-	  @types << :case_approvals
+    if current_user && @user == current_user
+      if @user.is_case_admin
+        @types += [:case_requests, :pending_cases]
+      else
+        @types << :pending_cases
+      end
     end
 
     @results = {}
@@ -98,6 +101,7 @@ class UsersController < ApplicationController
         instance_variable_set "@my_#{type.to_s}", []
       end
     end
+    add_javascripts 'users'
 
     respond_to do |format|
       format.html do

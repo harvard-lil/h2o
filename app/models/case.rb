@@ -57,7 +57,7 @@ class Case < ActiveRecord::Base
     string :id, :stored => true
     text :content
     time :decision_date 
-	time :created_at
+    time :created_at
     boolean :active
     boolean :public
     string :author, :stored => true

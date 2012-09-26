@@ -4,7 +4,7 @@
       <% md.inputs :name => 'Metadata (click to expand)' do %>
         <h2>Common</h2>
         <%= md.input :creator, :hint => 'An entity primarily responsible for making the resource- usually the author(s).', :required => false  %>
-        <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource. YYYY-MM-DD format.', :required => false, :input_html => {:class => 'datepicker'}  %>
+        <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource.', :required => false, :input_html => {:class => 'datepicker'}  %>
         <%= md.input :language, :as => 'select', :collection => LocalizedLanguageSelect.priority_languages_array([:en,:es,:fr,:de,:ru,:zh]), :hint => 'The language of the resource.', :required => false  %>
         <%= md.input :rights, :hint => 'Information about rights held in and over the resource- for instance the license it\'s published under.', :required => false  %>
 

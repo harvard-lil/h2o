@@ -62,14 +62,12 @@ class User < ActiveRecord::Base
     #        INNER JOIN roles_users ON roles.id = roles_users.role_id
     #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Case')))")
     Rails.cache.fetch("user-cases-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all { |a| a.active }.sort_by{|a| a.updated_at}
     end
   end
 
-  def case_approvals
-    Rails.cache.fetch("user-cases-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all{|a| a.active == false}.sort_by{|a| a.updated_at}
-    end
+  def pending_cases
+    self.is_case_admin ? Case.find_all_by_active(false) : self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all { |a| !a.active }.sort_by{|a| a.updated_at}
   end
 
   def text_blocks

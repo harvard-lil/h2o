@@ -1,6 +1,10 @@
 <%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
   :url => "/",
   :right_search => 'shared/search_all' } %>
+  
+<% if flash[:notice] %>
+<p id="case_edit_notification"><%= flash[:notice] %></p>
+<% end %>
 
 <section class="breadcrumbs">
 	<aside class="filter">
@@ -23,7 +27,7 @@
 			<li><a href="#" data-region="bookmarks" id="bookmark_tab">BOOKMARKS</a></li>
 			<% end -%>
       <% if current_user == @user -%>
-			<li><a href="#" data-region="user_collections">USER COLLECTIONS</a></li>
+			<li><a href="#" data-region="user_collections">COLLECTIONS</a></li>
 			<li><a href="#" data-region="user_info">USER INFO</a></li>
       <% end -%>
 		</ul>

@@ -90,7 +90,7 @@ class ApplicationController < ActionController::Base
 
   def set_sort_lists
     @sort_lists = {}
-    @sort_lists[:cases] = @sort_lists[:case_approvals] = @sort_lists[:case_requests] = generate_sort_list({
+    @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list({
       "score" => { :display => "RELEVANCE", :selected => true },
       "display_name" => { :display => "DISPLAY NAME", :selected => false },
       "decision_date" => { :display => "DECISION DATE", :selected => false }

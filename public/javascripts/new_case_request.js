@@ -36,12 +36,7 @@ function initConfirmDialog(node_data){
 }
 
 jQuery(document).ready(function() {
-  jQuery('#case_request_decision_date').datepicker({
-    changeMonth: true,
-    changeYear: true, 
-    yearRange: 'c-300:c',
-    dateFormat: 'yy-mm-dd'
-  });
+  jQuery.observeMetadataForm();
 
   jQuery('.create').click(function(){
   var confirmNode = fieldTable('<div title="New Case Request">');

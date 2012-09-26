@@ -315,10 +315,6 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
   #bbase #results .sort .jsb .jsb-currentItem { background-position: -142px -17px; color: #000; }
 
 /* Cases Index */
-#case_request_notification {
-  color: red;
-  padding-bottom: 10px;
-}
 #bcases #results .sort label { color: #a51514; }
 #results #cases_hgroup { border:1px solid #ff1a05; background:url(/images/ui/red_bg.png) 0px 0px; }
 #results #cases_hgroup .tabs li a { color: #a51514; }
@@ -570,4 +566,14 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
 #terms_require a {
   color: #369;
   text-decoration: underline;
+}
+
+/* Notifications */
+#case_request_notification {
+  color: red;
+  padding-bottom: 10px;
+}
+#case_edit_notification {
+  color: red;
+  padding: 10px 10px 0px 30px;
 }

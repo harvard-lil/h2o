@@ -1,3 +1,4 @@
+<% if list -%>
 <label>SORT:</label>
 <select>
 	<% list.each do |k, v| -%>
@@ -8,3 +9,4 @@
   <a href="#" class="sort-asc active" title="Sort Ascending" data-val="asc"></a>
   <a href="#" class="sort-desc" title="Sort Descending" data-val="desc"></a>
 </div>
+<% end -%>

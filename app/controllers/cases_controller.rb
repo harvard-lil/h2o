@@ -13,8 +13,8 @@ class CasesController < BaseController
 
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
+    allow :owner, :of => :case, :to => [:destroy, :edit, :update]
     allow :case_admin, :admin, :superadmin
-    allow :owner, :of => :case, :to => [:destroy, :edit, :update, :approve]
   end
 
   def autocomplete_tags
@@ -104,14 +104,9 @@ class CasesController < BaseController
     add_stylesheets 'cases'
     add_javascripts 'cases'
 
-    if (! @case.public || ! @case.active ) && ! @my_cases.include?(@case)
-      #if not public or active and the case isn't one of mine. . .
-      render :status => :not_found 
-    else
-      respond_to do |format|
-        format.html # show.html.erb
-        format.xml  { render :xml => @case }
-      end
+    if !@case.public || !@case.active
+      flash[:notice] = "This case is not public or active."
+      redirect_to cases_url
     end
   end
 
@@ -121,11 +116,7 @@ class CasesController < BaseController
 
   def approve
     @case.approve!
-    respond_to do |format|
-      format.html { redirect_to(cases_url) }
-      format.xml  { head :ok }
-      format.json { render :json => {} }
-    end
+    render :json => {}
   end
   
   # GET /cases/new
@@ -147,7 +138,7 @@ class CasesController < BaseController
     else
       @case.case_jurisdiction = CaseJurisdiction.new
     end
-	@case.active = true if (current_user.has_role?(:super_admin) || current_user.has_role?(:case_admin))
+
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
@@ -179,8 +170,13 @@ class CasesController < BaseController
         @case.accepts_role!(:owner, current_user)
         @case.accepts_role!(:creator, current_user)
         @case.case_request.approve! if @case.case_request
-        flash[:notice] = 'Case was successfully created.'
-        format.html { redirect_to "/cases/#{@case.id}" }
+        if @case.active
+          flash[:notice] = 'Case was successfully created.'
+          format.html { redirect_to "/cases/#{@case.id}" }
+        else
+          flash[:notice] = 'Case was successfully created. It must be approved before it is visible.'
+          format.html { redirect_to cases_url }
+        end
         format.xml  { render :xml => @case, :status => :created, :location => @case }
       else
         format.html { render :action => "new" }
@@ -201,8 +197,13 @@ class CasesController < BaseController
 
     respond_to do |format|
       if @case.update_attributes(params[:case])
-        flash[:notice] = 'Case was successfully updated.'
-        format.html { redirect_to "/cases/#{@case.id}" }
+        if @case.active
+          flash[:notice] = 'Case was successfully updated.'
+          format.html { redirect_to "/cases/#{@case.id}" }
+        else
+          flash[:notice] = 'Case was successfully updated. It must be approved before it is visible.'
+          format.html { redirect_to "/users/#{current_user.id}\#p_pending_cases" }
+        end
         format.json  { render :json => {:type => 'cases', :id => @case.id} }
       else
         format.html { render :action => "edit" }

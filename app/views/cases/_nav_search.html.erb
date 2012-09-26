@@ -12,8 +12,13 @@
 		</li>
 		<% elsif current_user -%>
 		<li class="btn">
+			<a href="<%= new_case_path %>" class="btn-a">
+				<span>CREATE CASE</span>
+			</a>
+		</li>
+		<li class="btn">
 			<a href="<%= new_case_request_path %>" class="btn-a">
-				<span>CREATE CASE REQUEST</span>
+				<span>REQUEST CASE</span>
 			</a>
 		</li>
 		<% end %>

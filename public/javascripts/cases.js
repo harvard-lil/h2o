@@ -42,4 +42,5 @@ jQuery(document).ready(function(){
       }
     });
   });
+  jQuery.observeMetadataForm();
 });

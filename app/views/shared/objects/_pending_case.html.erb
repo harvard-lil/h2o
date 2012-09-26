@@ -1,0 +1,45 @@
+<li class="listitem listitem<%= pending_case.id %>" data-itemid="<%= pending_case.id %>">
+	<div class="details">
+		<% cache "case-#{pending_case.id}-tags" do -%>
+		<div class="tags">
+			<% pending_case.tag_list.each do |tag| %>
+			<%= link_to tag, case_tag_path(CGI.escape(tag)) %>
+			<% end -%>
+		</div>
+		<% end -%>
+		<h4>
+			<%= pending_case.short_name %>
+      <%= link_to "DELETE", case_path(pending_case), :class => "action delete-action" %>
+      <%= link_to "EDIT", edit_case_path(pending_case), :class => "action" %>
+      <% if current_user.is_case_admin -%>
+	    <%= link_to "APPROVE", approve_case_path(pending_case), :class => "action approve-action" %>
+      <% end -%>
+		</h4>
+		<% cache "case-#{pending_case.id}-index" do -%>
+		<p class="cases_details">
+			<%= pending_case.case_citations.collect { |c| "#{c.volume} #{c.reporter.gsub(/\./, '')} #{c.page}" }.join(', ') %> /
+
+			<% if !pending_case.decision_date.nil? -%>
+			<%= pending_case.decision_date %>
+			<% if pending_case.collages.any? -%> / <% end -%>
+			<% end -%>
+
+			<% if pending_case.collages.any? -%>
+			<a href="#" class="case_collages" data-id="<%= pending_case.id %>"><%= pluralize pending_case.collages.size, 'Collage' %> &raquo;</a>
+			<% end -%>
+		</p>
+		<% if pending_case.collages.any? -%>
+		<div id="collages<%= pending_case.id %>" class="collages">
+			<ul id="collages<%= pending_case.id %>">
+				<% pending_case.top_ancestors.each do |collage| -%>
+				<%= render :partial => 'cases/ancestry', :locals => { :collage => collage } -%>
+				<% end -%>
+			</ul>
+			<a href="#" class="hide_collages" data-id="<%= pending_case.id %>">HIDE &raquo;</a>
+		</div>
+		<% end -%>
+		<% end -%>
+		<div class="influence"></div>
+	</div>
+	<div class="cl"></div>
+</li>

@@ -348,23 +348,23 @@ jQuery.extend({
 
   observeMetadataForm: function(){
     jQuery('.datepicker').datepicker({
-    changeMonth: true,
-    changeYear: true,
-    yearRange: 'c-300:c',
-    dateFormat: 'yy-mm-dd'
+      changeMonth: true,
+      changeYear: true,
+      yearRange: 'c-300:c',
+      dateFormat: 'yy-mm-dd'
     });
     jQuery('form .metadata ol').toggle();
     jQuery('form .metadata legend').bind({
-    click: function(e){
-      e.preventDefault();
-      jQuery('form .metadata ol').toggle();
-    },
-    mouseover: function(){
-      jQuery(this).css({cursor: 'hand'});
-    },
-    mouseout: function(){
-      jQuery(this).css({cursor: 'pointer'});
-    }
+      click: function(e){
+        e.preventDefault();
+        jQuery('form .metadata ol').toggle();
+      },
+      mouseover: function(){
+        jQuery(this).css({cursor: 'hand'});
+      },
+      mouseout: function(){
+        jQuery(this).css({cursor: 'pointer'});
+      }
     });
   },
 
