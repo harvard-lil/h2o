@@ -66,6 +66,12 @@ class User < ActiveRecord::Base
     end
   end
 
+  def case_approvals
+    Rails.cache.fetch("user-cases-#{self.id}") do
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all{|a| a.active == false}.sort_by{|a| a.updated_at}
+    end
+  end
+
   def text_blocks
     self.roles.find(:all, :conditions => {:authorizable_type => ['TextBlock', 'JournalArticle'], :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
   end

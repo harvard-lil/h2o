@@ -67,6 +67,7 @@ class UsersController < ApplicationController
 
     if current_user && @user == current_user && @user.is_case_admin
       @types << :case_requests
+	  @types << :case_approvals
     end
 
     @results = {}

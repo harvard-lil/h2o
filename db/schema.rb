@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120924185505) do
+ActiveRecord::Schema.define(:version => 20120925144619) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -89,7 +89,7 @@ ActiveRecord::Schema.define(:version => 20120924185505) do
 
   create_table "cases", :force => true do |t|
     t.boolean  "current_opinion",                         :default => true
-    t.string   "short_name",           :limit => 150,                       :null => false
+    t.string   "short_name",           :limit => 150,                        :null => false
     t.string   "full_name",            :limit => 500
     t.date     "decision_date"
     t.string   "author",               :limit => 150
@@ -97,11 +97,11 @@ ActiveRecord::Schema.define(:version => 20120924185505) do
     t.string   "party_header",         :limit => 10240
     t.string   "lawyer_header",        :limit => 2048
     t.string   "header_html",          :limit => 15360
-    t.string   "content",              :limit => 5242880,                   :null => false
+    t.string   "content",              :limit => 5242880,                    :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "public",                                  :default => true
-    t.boolean  "active",                                  :default => true
+    t.boolean  "active",                                  :default => false
     t.integer  "case_request_id"
   end
 

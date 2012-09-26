@@ -78,6 +78,10 @@ class Case < ActiveRecord::Base
     self.short_name
   end
 
+  def approve!
+    self.update_attribute('active', true)
+  end
+
   private
 
   def date_check

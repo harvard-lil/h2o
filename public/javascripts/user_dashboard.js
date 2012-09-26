@@ -71,4 +71,30 @@ jQuery(function() {
     jQuery('#current_list').append(cloned);
     link.parent().remove();
   });
+  
+  jQuery('.approve-action').live('click', function(e) {
+    e.preventDefault();
+
+    var approveUrl = jQuery(this).attr('href');
+    var item_id = approveUrl.match(/[0-9]+/).toString();
+    jQuery.ajax({
+		cache: false,
+		type: 'POST',
+		url: approveUrl,
+		dataType: 'JSON',
+		data: {},
+		beforeSend: function(){
+			jQuery.showGlobalSpinnerNode();
+		},
+	    error: function(xhr){
+			jQuery.hideGlobalSpinnerNode();
+	    },
+	    success: function(data){
+		    jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+		    jQuery(".listitem" + item_id).remove();
+		});
+        jQuery.hideGlobalSpinnerNode();
+        }
+	});
+  });
 });

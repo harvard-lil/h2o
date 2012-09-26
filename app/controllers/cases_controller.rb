@@ -5,7 +5,7 @@ class CasesController < BaseController
   before_filter :my_cases, :only => [:index, :show]
   before_filter :is_case_admin, :except => [:embedded_pager, :metadata]
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export]
-  before_filter :load_case, :only => [:show, :edit, :update, :destroy, :export]
+  before_filter :load_case, :only => [:show, :edit, :update, :destroy, :export, :approve]
   before_filter :store_location, :only => [:index, :show]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
@@ -14,7 +14,7 @@ class CasesController < BaseController
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
     allow :case_admin, :admin, :superadmin
-    allow :owner, :of => :case, :to => [:destroy, :edit, :update]
+    allow :owner, :of => :case, :to => [:destroy, :edit, :update, :approve]
   end
 
   def autocomplete_tags
@@ -119,11 +119,19 @@ class CasesController < BaseController
     render :layout => 'print'
   end
 
+  def approve
+    @case.approve!
+    respond_to do |format|
+      format.html { redirect_to(cases_url) }
+      format.xml  { head :ok }
+      format.json { render :json => {} }
+    end
+  end
+  
   # GET /cases/new
   # GET /cases/new.xml
   def new
     @case = Case.new
-
     if params.has_key?(:case_request_id)
       case_request = CaseRequest.find(params[:case_request_id])
       @case.case_request = case_request
@@ -139,7 +147,7 @@ class CasesController < BaseController
     else
       @case.case_jurisdiction = CaseJurisdiction.new
     end
-
+	@case.active = true if (current_user.has_role?(:super_admin) || current_user.has_role?(:case_admin))
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
