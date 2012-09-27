@@ -2,10 +2,6 @@ class DefectsController < ApplicationController
   
   before_filter :require_user
 
-  def new
-    @defect = Defect.new
-  end
-
   def create
     @defect = Defect.new(params[:defect])
 
