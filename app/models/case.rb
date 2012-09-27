@@ -21,6 +21,7 @@ class Case < ActiveRecord::Base
   belongs_to :case_jurisdiction
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
+  has_many :defects, :as => :reportable
 
   accepts_nested_attributes_for :case_citations, 
     :allow_destroy => true, 

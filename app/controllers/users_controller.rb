@@ -67,7 +67,7 @@ class UsersController < ApplicationController
 
     if current_user && @user == current_user
       if @user.is_case_admin
-        @types += [:case_requests, :pending_cases]
+        @types += [:case_requests, :pending_cases, :defects]
       else
         @types << :pending_cases
       end

@@ -17,6 +17,7 @@ class TextBlock < ActiveRecord::Base
 
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
+  has_many :defects, :as => :reportable
 
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
     

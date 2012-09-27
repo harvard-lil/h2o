@@ -27,6 +27,8 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
   })();
 </script>
   <% end %> 
+
+
   </head>
   <body id="b<%= params[:controller] %>" class="b<%= "#{params[:controller]}_#{params[:action]}" %>">
   	<section id="shell">
@@ -66,12 +68,12 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 	<% end -%>
 	</section>
 
-
+    <%= render :partial => 'shared/forms/defect' %>
 <%= javascript_include_tag 'jquery.min.js' %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
 <%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
   'ui', 'jquery.form', 'jquery.validate.min','jquery.tag.suggestion', 'jquery.easing.1.3',
-  'jquery.cookie', 'jquery.address.min', :cache => 'all' %>
+  'jquery.cookie', 'jquery.address.min','jquery.tabSlideOut.v1.3.js', 'show_defect', :cache = 'all'  %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
   <%= javascript_include_tag js %>
@@ -80,6 +82,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <!--[if IE]>
 <%#= javascript_include_tag 'excanvas.js' %>
 <![endif]--> 
-
+                
   </body>
 </html>

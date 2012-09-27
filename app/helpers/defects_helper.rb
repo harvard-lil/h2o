@@ -1,0 +1,2 @@
+module DefectsHelper
+end

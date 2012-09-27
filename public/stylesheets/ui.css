@@ -577,3 +577,11 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   color: red;
   padding: 10px 10px 0px 30px;
 }
+/* Defect tab slideout */
+.slide-out-div {
+  padding: 20px;
+  width: 600px;
+  background: #ccc;
+  border: 1px solid #29216d;
+  z-index: 10000;
+}      

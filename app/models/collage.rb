@@ -38,6 +38,7 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at', :dependent => :destroy
   has_and_belongs_to_many :user_collections   # dependent => destroy
+  has_many :defects, :as => :reportable
 
   # Create the content we're going to annotate. This is a might bit inefficient, mainly because
   # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing

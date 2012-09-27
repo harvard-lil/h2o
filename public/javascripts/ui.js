@@ -851,3 +851,41 @@ var h2oTextileSettings = {
     {name:'Link', openWith:'"', closeWith:'([![Title]!])":[![Link:!:http://]!]', placeHolder:'Your text to link here...' }
   ]
 }
+
+
+jQuery(function(){
+		jQuery('.slide-out-div').tabSlideOut({
+            tabHandle: '.handle',                     //class of the element that will become your tab
+            pathToTabImage: '/images/ui/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
+            imageHeight: '122px',                     //height of tab image           //Optionally can be set using css
+            imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
+            tabLocation: 'left',                      //side of screen where tab lives, top, right, bottom, or left
+            speed: 500,                               //speed of animation
+            action: 'click',                          //options: 'click' or 'hover', action to trigger animation
+            topPos: '300px',                          //position from the top/ use if tabLocation is left or right
+            leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
+            fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
+        });
+  jQuery('#defect_submit').click(function(e) {
+    e.preventDefault();
+	jQuery('#defect-form').ajaxSubmit({
+	  beforeSend: function(){
+	    jQuery.showGlobalSpinnerNode();
+		jQuery('#user-feedback-error').hide().html('');
+		jQuery('#user-feedback-success').hide().html('');
+	  },
+      success: function(response){
+        jQuery.hideGlobalSpinnerNode();
+		//jQuery('defect_description_input').value('');
+		jQuery('#user-feedback-success').show().html('Defect saved.<br/><br/>');
+		jQuery('#defect_description_input').val(' ');
+      },
+      error: function(xhr){
+	    jQuery.hideGlobalSpinnerNode();
+        jQuery('#user-feedback-error').show().html(xhr.responseText);
+	  }
+	});
+  });
+
+
+ });

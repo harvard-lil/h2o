@@ -95,6 +95,10 @@ class User < ActiveRecord::Base
     self.is_case_admin ? CaseRequest.find_all_by_status("new") : []
   end
 
+  def defects
+    self.is_case_admin ? Defect.all : []
+  end
+
   def playlists
     #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
     #Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN

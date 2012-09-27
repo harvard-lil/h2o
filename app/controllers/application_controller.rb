@@ -108,7 +108,7 @@ class ApplicationController < ActionController::Base
         "author" => { :display => "BY AUTHOR", :selected => false }
       })
     else
-      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list({
+      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list({
         "score" => { :display => "RELEVANCE", :selected => true },
         "display_name" => { :display => "DISPLAY NAME", :selected => false },
         "created_at" => { :display => "BY DATE", :selected => false }

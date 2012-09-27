@@ -1,0 +1,20 @@
+<li class="listitem listitem<%= defect.id %>" data-itemid="<%= defect.id %>">
+	<div class="details">
+    <h4>
+      <%= link_to defect.display_name, defect_path(defect), :class => "title" %>
+      <% if current_user && (@is_defect_admin || @my_defects.include?(defect)) %>
+        <%= link_to 'DELETE', defect, :class => "action delete-action" %>
+      <% end %>
+      <% if current_user && (@is_defect_admin || @my_defects.include?(defect)) %>
+        <%= link_to 'SHOW DETAIL', defect, :class => "action show-action" %>
+      <% end %>
+    </h4>
+	</div>
+	<div class="cl"></div>
+    <div class="show-defect" style="display:none">
+
+      <h4><%= link_to defect.display_name, send("#{defect.reportable_type.underscore}_path", defect.reportable), :class => "title" %></h4>
+      <h4>Reported By: <%= defect.reporter.email_address %></h4><br/><br/>
+      <p><%= defect.description %></p>
+    </div>
+</li>

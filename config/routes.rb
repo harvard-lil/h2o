@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :defects
+
   map.resources :metadata
 
   map.resources :text_blocks, :collection => {:embedded_pager => :get}, :member => {:export => :get}

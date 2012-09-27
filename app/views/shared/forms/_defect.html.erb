@@ -1,0 +1,27 @@
+			<% ['case', 'text_block', 'collage'].each do |variable_name|
+			     @reportable = instance_variable_get("@#{variable_name}") 
+			     break if @reportable		
+			   end %>
+               <% if @reportable %>              
+
+		<div class="slide-out-div">
+		   <a class="handle" href="http://link-for-non-js-users.html">Content</a>
+			<div class="standard-form">
+              <div id="user-feedback-success" style="display:none;" class="success"></div> 
+			  <div id="user-feedback-error" style="display:none;" class="error"></div>
+			  <% @defect = Defect.new %>
+			  <% semantic_form_for(@defect, :html => {:id => 'defect-form'}) do |form| %>
+			    <% form.inputs do %>
+				        <%= form.input :description, :as => :text, :input_html => {:rows => 10}  %>
+						<%= form.input :reportable_id, :as => :hidden, :value => @reportable.id %>
+						<%= form.input :reportable_type, :as => :hidden, :value => @reportable.class.to_s %>
+						<%= form.input :user_id, :as => :hidden, :value => current_user.id  %>
+
+			   <% end %>
+						<% form.buttons do %>
+						  <%= form.commit_button 'Save' %>
+						<% end %>
+			  <% end %>
+			</div>
+		</div>
+            <% end %>
