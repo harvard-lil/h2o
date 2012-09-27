@@ -584,4 +584,19 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   background: #ccc;
   border: 1px solid #29216d;
   z-index: 10000;
-}      
+}
+#user-feedback-instruction {
+  margin-bottom: 20px;
+  font-style: italic;
+}
+#user-feedback-success {
+  font-style: italic;
+  display: none;
+  color: red; 
+  margin-bottom: 15px;
+}
+#user-feedback-error {
+  display: none;
+  color: red; 
+  margin-bottom: 15px;
+}

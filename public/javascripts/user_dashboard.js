@@ -8,6 +8,15 @@ jQuery.extend({
 });
 
 jQuery(function() {
+  jQuery('.show-action').click(function(e) {
+    e.preventDefault(); 
+    var html = jQuery(this).parentsUntil('#all_content_errors').find('.show-content_error').html();
+    var error_node = jQuery('<div id="#generic-node"></div>').html(html);
+    jQuery(error_node).dialog({
+      width:600,
+      height:400
+    });
+  });
   jQuery('#lookup_submit').live('click', function(e) {
     e.preventDefault();
     var link = jQuery(this);

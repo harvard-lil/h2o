@@ -1,0 +1,20 @@
+<li class="listitem listitem<%= content_error.id %>" data-itemid="<%= content_error.id %>">
+	<div class="details">
+    <h4>
+      <%= content_error.display_name %>
+      <% if current_user && (@is_content_error_admin || @my_content_errors.include?(content_error)) %>
+        <%= link_to 'DELETE', content_error, :class => "action delete-action" %>
+      <% end %>
+      <% if current_user && (@is_content_error_admin || @my_content_errors.include?(content_error)) %>
+        <%= link_to 'SHOW DETAIL', content_error, :class => "action show-action" %>
+      <% end %>
+    </h4>
+    Reported by <%= raw content_error.reportable.creators.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+  </div>
+	<div class="cl"></div>
+  <div class="show-content_error" style="display:none">
+    <h4><%= link_to content_error.display_name, send("#{content_error.reportable_type.underscore}_path", content_error.reportable), :class => "title" %></h4>
+    <h4>Reported By: <%= content_error.reporter.email_address %></h4><br/><br/>
+    <p><%= content_error.description %></p>
+  </div>
+</li>

@@ -16,6 +16,52 @@ jQuery.extend({
   rootPath: function(){
     return '/';
   },
+  loadSlideOutTabBehavior: function() {
+    jQuery('.slide-out-div').tabSlideOut({
+      tabHandle: '.handle',                     //class of the element that will become your tab
+      pathToTabImage: '/images/ui/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
+      imageHeight: '122px',                     //height of tab image           //Optionally can be set using css
+      imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
+      tabLocation: 'left',                      //side of screen where tab lives, top, right, bottom, or left
+      speed: 500,                               //speed of animation
+      action: 'click',                          //options: 'click' or 'hover', action to trigger animation
+      topPos: '300px',                          //position from the top/ use if tabLocation is left or right
+      leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
+      fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
+      //TODO: on open hide errors
+    });
+    jQuery('#defect_submit').click(function(e) {
+      e.preventDefault();
+      jQuery('#defect-form').ajaxSubmit({
+        dataType: "JSON",
+        beforeSend: function(){
+          jQuery.showGlobalSpinnerNode();
+          jQuery('#user-feedback-success, #user-feedback-error').hide().html('');
+        },
+        success: function(response){
+          jQuery.hideGlobalSpinnerNode();
+          console.log(response);
+          if(response.error) {
+            jQuery('#user-feedback-error').show().html(response.message);
+          } else {
+            jQuery.hideGlobalSpinnerNode();
+            jQuery('#user-feedback-success').show().html('Thanks for your feedback. Panel will close shortly.');
+            jQuery('#defect_description').val(' ');
+            setTimeout(function() {
+              jQuery('.handle').click();
+              setTimeout(function() {
+                jQuery('#user-feedback-success, #user-feedback-error').hide().html('');
+              }, 500);
+            }, 1000);
+          }
+        },
+        error: function(data){
+          jQuery.hideGlobalSpinnerNode();
+          jQuery('#user-feedback-error').show().html('Sorry. We could not process your error. Please try again.');
+        }
+      });
+    });
+  },
   observeTerms: function() {
     if(jQuery('input#terms_check').length == 0) {
       return false;
@@ -800,6 +846,7 @@ jQuery(function() {
   jQuery.initializeTabBehavior();
   jQuery.loadEscapeListener();
   jQuery.loadOuterClicks();
+  jQuery.loadSlideOutTabBehavior();
 
   if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
     var region = '#all_' + jQuery.classType();
@@ -852,40 +899,3 @@ var h2oTextileSettings = {
   ]
 }
 
-
-jQuery(function(){
-		jQuery('.slide-out-div').tabSlideOut({
-            tabHandle: '.handle',                     //class of the element that will become your tab
-            pathToTabImage: '/images/ui/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
-            imageHeight: '122px',                     //height of tab image           //Optionally can be set using css
-            imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
-            tabLocation: 'left',                      //side of screen where tab lives, top, right, bottom, or left
-            speed: 500,                               //speed of animation
-            action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-            topPos: '300px',                          //position from the top/ use if tabLocation is left or right
-            leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
-            fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
-        });
-  jQuery('#defect_submit').click(function(e) {
-    e.preventDefault();
-	jQuery('#defect-form').ajaxSubmit({
-	  beforeSend: function(){
-	    jQuery.showGlobalSpinnerNode();
-		jQuery('#user-feedback-error').hide().html('');
-		jQuery('#user-feedback-success').hide().html('');
-	  },
-      success: function(response){
-        jQuery.hideGlobalSpinnerNode();
-		//jQuery('defect_description_input').value('');
-		jQuery('#user-feedback-success').show().html('Defect saved.<br/><br/>');
-		jQuery('#defect_description_input').val(' ');
-      },
-      error: function(xhr){
-	    jQuery.hideGlobalSpinnerNode();
-        jQuery('#user-feedback-error').show().html(xhr.responseText);
-	  }
-	});
-  });
-
-
- });

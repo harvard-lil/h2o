@@ -95,8 +95,8 @@ class User < ActiveRecord::Base
     self.is_case_admin ? CaseRequest.find_all_by_status("new") : []
   end
 
-  def defects
-    self.is_case_admin ? Defect.all : []
+  def content_errors
+    self.is_admin ? Defect.all : []
   end
 
   def playlists
@@ -192,6 +192,9 @@ class User < ActiveRecord::Base
     return assignments_array
   end
 
+  def is_admin
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','superadmin']}).length > 0 
+  end
   def is_case_admin
     self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0 
   end
