@@ -205,6 +205,8 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 #results .listitem .details .influence { float: left; display: inline;  }
 #results .listitem .details .influence label { float: left; display: inline; font-size:9px; line-height:16px; color:#666; font-weight:bold; padding:0 7px; }
 #results .listitem .details .extra { display: block; clear: both; padding-top: 8px; }
+#results #all_content_errors p { float: none; display: block; margin-bottom: 5px; }
+#results #all_content_errors p.error { font-size: 12px; }
 
 /* Media Icons */
 .media-icon-type {
@@ -599,4 +601,20 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   display: none;
   color: red; 
   margin-bottom: 15px;
+}
+.slide-out-div #defect_submit {
+  border: 1px solid #6D87A2;
+  border-radius:4px;
+  -moz-border-radius:4px;
+  -webkit-border-radius:4px;
+  -ms-border-radius:4px;
+  -o-border-radius:4px;
+  background: url(/images/ui/repeat_bg.png) 0px -73px;
+  padding: 5px 9px;
+  color: #FFF;
+  margin-left: 25%;
+  font-weight: bold;
+  font-size: 9px;
+  line-height: 20px;
+  text-decoration: none;
 }

@@ -8,7 +8,7 @@ class DefectsController < ApplicationController
     if @defect.save
       render :json => { :error => false }
     else
-      render :json => { :error => true, :message => "We couldn't add that defect. Sorry!<br/><br/>#{@defect.errors.full_messages.join('<br/><br/>')}" }
+      render :json => { :error => true, :message => "We couldn't record that error. A description of the error is required." }
     end
   end
 

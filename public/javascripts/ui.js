@@ -19,9 +19,9 @@ jQuery.extend({
   loadSlideOutTabBehavior: function() {
     jQuery('.slide-out-div').tabSlideOut({
       tabHandle: '.handle',                     //class of the element that will become your tab
-      pathToTabImage: '/images/ui/contact_tab.gif', //path to the image for the tab //Optionally can be set using css
-      imageHeight: '122px',                     //height of tab image           //Optionally can be set using css
-      imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
+      pathToTabImage: '/images/ui/report_error.png', //path to the image for the tab //Optionally can be set using css
+      imageHeight: '189px',                     //height of tab image           //Optionally can be set using css
+      imageWidth: '31px',                       //width of tab image            //Optionally can be set using css
       tabLocation: 'left',                      //side of screen where tab lives, top, right, bottom, or left
       speed: 500,                               //speed of animation
       action: 'click',                          //options: 'click' or 'hover', action to trigger animation
@@ -52,7 +52,7 @@ jQuery.extend({
               setTimeout(function() {
                 jQuery('#user-feedback-success, #user-feedback-error').hide().html('');
               }, 500);
-            }, 1000);
+            }, 2000);
           }
         },
         error: function(data){
