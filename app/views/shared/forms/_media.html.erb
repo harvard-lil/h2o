@@ -21,7 +21,8 @@
           :as => :string,
           :hint => 'Please define the tags for this media in a comma-separated list.',
           :label => 'Tags',
-          :input_html => {:class => 'tagging-autofill-tags'}
+          :input_html => {:class => 'tagging-autofill-tags'},
+          :required => false
         %>
         <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
         <% if @media.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
