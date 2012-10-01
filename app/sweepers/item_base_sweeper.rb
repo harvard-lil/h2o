@@ -1,7 +1,7 @@
 require 'sweeper_helper'
 class ItemBaseSweeper < ActionController::Caching::Sweeper
   include SweeperHelper
-  observe ItemCollage, ItemCase, ItemPlaylist, ItemAnnotation, ItemQuestion, ItemQuestionInstance, ItemTextBlock, ItemDefault
+  observe ItemCollage, ItemCase, ItemPlaylist, ItemAnnotation, ItemQuestion, ItemQuestionInstance, ItemTextBlock, ItemDefault, ItemMedia
 
   def clear_playlists(playlist)
     expire_page :controller => :playlists, :action => :show, :id => playlist.id
