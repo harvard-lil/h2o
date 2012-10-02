@@ -71,7 +71,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
 <%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
   'ui', 'jquery.form', 'jquery.validate.min','jquery.tag.suggestion', 'jquery.easing.1.3',
-  'jquery.cookie', 'jquery.address.min','jquery.tabSlideOut.v1.3.js', :cache => 'all'  %>
+  'jquery.cookie', 'jquery.address.min','jquery.tabSlideOut.v1.3.js' %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
   <%= javascript_include_tag js %>

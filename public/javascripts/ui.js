@@ -6,6 +6,7 @@ var permissions = {
   can_position_update: false,
   can_edit_notes: false
 };
+var access_results;
 
 $.noConflict();
 
@@ -110,6 +111,7 @@ jQuery.extend({
       },
       success: function(results){
         //Global methods
+        access_results = results;
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);
           jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
@@ -170,9 +172,6 @@ jQuery.extend({
           jQuery.each(playlists, function(i, el) {
             var node = jQuery('<option>').val(el.playlist.id).text(el.playlist.name);
             jQuery('.add-popup select').append(node);
-          });
-          jQuery.each(['can_position_update'], function(i, j) {
-            permissions[j] = results[j];
           });
           jQuery.observeDragAndDrop();
         }
@@ -279,7 +278,7 @@ jQuery.extend({
     },
 
   observeTabDisplay: function(region) {
-    jQuery(region + ' .link-add a').click(function() {
+    jQuery(region + ' .link-add a').live('click', function() {
       var element = jQuery(this);
       var current_id = element.data('item_id');
       if(popup_item_id != 0 && current_id == popup_item_id) {
@@ -752,7 +751,7 @@ jQuery(function() {
     return false;
   });
   
-  jQuery(".playlist .data .dd").click(function() {
+  jQuery(".playlist .data .dd").live('click', function() {
     jQuery(this).toggleClass('dd-closed');
     jQuery(this).siblings('.item_description').slideToggle();
     jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();

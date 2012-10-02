@@ -1,3 +1,5 @@
-
-<%= link_to 'Edit', edit_playlist_item_path(@playlist_item) %> |
-<%= link_to 'Back', playlist_items_path %>
+<%= render :partial => 'shared/objects/playlist_item',
+  :locals => { :item => @playlist_item,
+	:parent_index => '',
+	:index => params[:playlist_index],
+	:recursive_level => 0 } %>

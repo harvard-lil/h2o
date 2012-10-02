@@ -15,11 +15,7 @@ class PlaylistItemsController < BaseController
   
   def show
     @playlist_item = PlaylistItem.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @playlist_item }
-    end
+    @playlist = @playlist_item.playlist
   end
 
   def new

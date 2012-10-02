@@ -1,6 +1,33 @@
 var dragged_element;
 
 jQuery.extend({
+  new_playlist_item: function(data) {
+    if(jQuery.getItemId() == data.id) {
+      jQuery.hideGlobalSpinnerNode();
+      jQuery('#generic-node').dialog('close');
+      jQuery.ajax({
+        type: 'get',
+        url: '/playlist_items/' + data.playlist_item_id,
+        data: {
+          playlist_index: jQuery('ul.sortable').children().length + 1
+        },
+        success: function(response) {
+          var el = jQuery('<div>').html(response);
+          jQuery('ul.sortable').append(el);
+          jQuery('.requires_edit,.requires_remove,.requires_logged_in').animate({ opacity: 1.0 });
+        }, 
+        error: function() {
+          setTimeout(function() {
+            document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+          }, 1000); 
+        }
+      });
+    } else {
+      setTimeout(function() {
+        document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+      }, 1000);
+    }
+  },
   initializeNoteFunctionality: function() {
     jQuery('.public-notes,.private-notes').click(function(e) {
       jQuery.showGlobalSpinnerNode();
@@ -70,7 +97,7 @@ jQuery.extend({
     });
   },
 	observeDragAndDrop: function() {
-    if(permissions["can_position_update"]) {
+    if(access_results.can_position_update) {
       jQuery('.sortable').sortable({
         stop: function(event, ui) {
           var playlist_order = jQuery('.sortable').sortable('serialize');

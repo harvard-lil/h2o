@@ -96,29 +96,19 @@ class ItemBaseController < BaseController
         end
     end
 
-    respond_to do |format|
-      if @object.save
-        @object.accepts_role!(:owner, current_user)
+    if @object.save
+      @object.accepts_role!(:owner, current_user)
 
-        playlist_item = PlaylistItem.new(:playlist => @playlist)
-        playlist_item.resource_item = @object
+      playlist_item = PlaylistItem.new(:playlist => @playlist)
+      playlist_item.resource_item = @object
 
-        if playlist_item.save!
-          playlist_item.accepts_role!(:owner, current_user)
-        end
-
-        format.js {render :text => nil}
-        format.html { redirect_to(@object) }
-        format.xml { render :xml => @object, :status => :created, :location => @object }
-	      format.json { render :json => { :type => 'playlists', :id => @playlist.id, :error => false } }
-      else
-        format.js {
-          render :text => "We couldn't add that playlist item. Sorry!<br/>#{@object.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
-        }
-        format.html { render :action => "new" }
-        format.xml { render :xml => @object.errors, :status => :unprocessable_entity }
-	      format.json { render :json => { :message => "We could not add that playlist item: #{@object.errors.full_messages.join('<br />')}", :error => true } }
+      if playlist_item.save!
+        playlist_item.accepts_role!(:owner, current_user)
       end
+
+	    render :json => { :type => 'playlists', :playlist_item_id => @object.id, :id => @playlist.id, :error => false, :custom_block => 'new_playlist_item' }
+    else
+	    render :json => { :message => "We could not add that playlist item: #{@object.errors.full_messages.join('<br />')}", :error => true }
     end
   end
 
