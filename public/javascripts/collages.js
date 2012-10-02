@@ -349,6 +349,8 @@ jQuery.extend({
   }, 
 
   submitAnnotation: function(){
+    var filtered = jQuery('#annotation_annotation').val().replace(/"/g, '&quot;');
+    jQuery('#annotation_annotation').val(filtered);
     jQuery('#annotation-form form').ajaxSubmit({
       error: function(xhr){
         jQuery.hideGlobalSpinnerNode();
@@ -471,6 +473,8 @@ jQuery.extend({
                         }
                       }
                     });
+                    var filtered = jQuery('#annotation_annotation').val().replace(/&quot;/g, '"');
+                    jQuery('#annotation_annotation').val(filtered);
                     jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
 
                     jQuery('#annotation_layer_list').keypress(function(e){
