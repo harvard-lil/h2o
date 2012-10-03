@@ -17,6 +17,9 @@
 <%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %><br />
 <br />
 <% if form.object.new_record? -%>
+<ul class="user_captcha">
+<%= render :partial => 'shared/forms/captcha' %>
+</ul>
 <%= form.check_box :terms %>
 I certify that I have read and agree to the <a href="/p/terms" target="_blank">Terms of Service</a>.
 <br /><br />

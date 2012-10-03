@@ -184,6 +184,7 @@ class TextBlocksController < BaseController
 
     @text_block = TextBlock.new(params[:text_block])
     @text_block.build_metadatum
+    @text_block.valid?
     @journal_article = JournalArticle.new
     create_brain_buster
     render :action => "new"

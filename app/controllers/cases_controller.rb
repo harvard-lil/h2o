@@ -1,5 +1,4 @@
 class CasesController < BaseController
-
   cache_sweeper :case_sweeper
 
   before_filter :my_cases, :only => [:index, :show]

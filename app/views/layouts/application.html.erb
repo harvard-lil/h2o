@@ -81,5 +81,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%#= javascript_include_tag 'excanvas.js' %>
 <![endif]--> 
 
+<% flash.delete(:error) %>
   </body>
 </html>

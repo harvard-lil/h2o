@@ -618,3 +618,7 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   line-height: 20px;
   text-decoration: none;
 }
+
+/* Users */
+ul.user_captcha { list-style-type: none; margin-bottom: 10px; }
+ul.user_captcha > li p.inline-errors { display: none; }

@@ -3,9 +3,19 @@ class UsersController < ApplicationController
 
   before_filter :require_no_user, :only => [:new, :create]
   before_filter :require_user, :only => [:edit, :update, :bookmark_item, :require_user]
+  before_filter :create_brain_buster, :only => [:new]
+  before_filter :validate_brain_buster, :only => [:create]
  
   def new
     @user = User.new
+  end
+
+  def render_or_redirect_for_captcha_failure
+    @user = User.new(params[:user])
+    @user.valid?
+    @user.errors.add_to_base("Your captcha answer failed - please try again.")
+    create_brain_buster
+    render :action => "new"
   end
   
   def create

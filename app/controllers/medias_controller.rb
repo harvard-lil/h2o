@@ -137,6 +137,7 @@ class MediasController < BaseController
 
   def render_or_redirect_for_captcha_failure
     @media = Media.new(params[:media])
+    @media.valid?
     create_brain_buster
     render :action => "new"
   end
