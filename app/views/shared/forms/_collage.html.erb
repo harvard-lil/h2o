@@ -17,6 +17,7 @@
         :input_html => { :class => 'tagging-autofill-tags' },
         :required => false
 	    %>
+      <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
       <% if @collage.new_record? -%>
         <hr />
         <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>

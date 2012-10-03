@@ -145,9 +145,9 @@ jQuery.extend({
             jQuery('.buttons .requires_edit').remove();
           }
           if(results.can_edit_description) {
-            jQuery('#description .requires_edit').animate({ opacity: 1.0 });
+            jQuery('.collage_edit').animate({ opacity: 1.0 });
           } else {
-            jQuery('#description .requires_edit').remove();
+            jQuery('.collage_edit').remove();
           }
         } else if(jQuery.classType() == 'playlists') {  //Playlists only
           if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {

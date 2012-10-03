@@ -34,6 +34,7 @@
 	    :input_html => { :class => 'tagging-autofill-tags' }
 	  %>
     <% end -%>
+    <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
     <% if @playlist.new_record? -%>
     <li id="terms_require">
       <input type="checkbox" id="terms_check" />

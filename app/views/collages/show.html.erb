@@ -118,11 +118,11 @@ Your annotation will start here. Please click another word to set the end point.
 			<div id="description_more">
 			<%= Collage.format_content(@collage.description) %> <a href="#" class="link-less">LESS</a>
 			</div>
-			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action requires_edit" %>
+			<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit" %>
 		<% else -%>
 			<div id="description">
 				<%= Collage.format_content(@collage.description) %>
-				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action requires_edit" %>
+				<%= link_to "EDIT", edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit" %>
 			</div>
 		<% end -%>
 	</div>
