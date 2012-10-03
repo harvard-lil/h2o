@@ -40,7 +40,6 @@ jQuery.extend({
         },
         success: function(response){
           jQuery.hideGlobalSpinnerNode();
-          console.log(response);
           if(response.error) {
             jQuery('#user-feedback-error').show().html(response.message);
           } else {
@@ -127,6 +126,7 @@ jQuery.extend({
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);
           jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
+          jQuery('#defect_user_id').val(data.user.id);
           jQuery('.requires_logged_in').animate({ opacity: 1.0 });
           jQuery('#header_login').remove();
         } else {
