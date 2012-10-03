@@ -6,7 +6,9 @@
         <%= md.input :creator, :hint => 'An entity primarily responsible for making the resource- usually the author(s).', :required => false  %>
         <%= md.input :date, :as => :string, :hint => 'A point or period of time associated with an event in the lifecycle of the resource.', :required => false, :input_html => {:class => 'datepicker'}  %>
         <%= md.input :language, :as => 'select', :collection => LocalizedLanguageSelect.priority_languages_array([:en,:es,:fr,:de,:ru,:zh]), :hint => 'The language of the resource.', :required => false  %>
+        <% if !form.object.is_a?(TextBlock) -%>
         <%= md.input :rights, :hint => 'Information about rights held in and over the resource- for instance the license it\'s published under.', :required => false  %>
+        <% end -%>
 
         <h2>Less common</h2>
         <%= md.input :contributor, :hint => 'An entity responsible for making contributions to the resource.', :required => false %>
