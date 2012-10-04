@@ -399,6 +399,7 @@ background: url(/images/ui/pagination-divider.png) left 0px no-repeat; }
 .playlist .data .icon-type-itemplaylist { background-position: -18px -92px; }
 .playlist .data .icon-type-itemcase { background-position: -54px -92px; }
 .playlist .data .icon-type-itemannotation { background-position: -72px -92px; }
+.playlist .data .icon-type-itemtextblock { background-position: -91px -92px; }
 #my_bookmarks .playlist .data p { float: left; display: inline; font-size:10px; line-height:16px; clear:both; }
 
 #my_bookmarks .playlists .playlists { display:none; padding-left:74px; padding-top:10px; position:relative; width:894px; }
