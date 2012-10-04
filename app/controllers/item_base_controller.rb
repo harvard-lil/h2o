@@ -57,17 +57,6 @@ class ItemBaseController < BaseController
   end
 
   def create
-    # Note: Exception is always getting triggered here, on create, because item doesn't exist ever
-    #if controller_class_name == "ItemDefaultsController"
-    #  begin
-    #    id = params[:item_default][:url].match(/[0-9]+$/)[0]
-    #    item = ItemDefault.find(id)
-    #    params[:item_default][:url] = item.url
-    #  rescue Exception => e
-    #    logger.warn('Unable to update default item url:' + e.inspect)
-    #  end
-    #end
-
     @object.update_attributes(params[@param_symbol])
 
     @base_object = nil
@@ -87,9 +76,6 @@ class ItemBaseController < BaseController
         if params[@param_symbol][:url] == url_for(@base_object)
           #This looks like it's a local object we can link directly to.
           @object.actual_object = @base_object
-        else
-          # Not local. Do nothing.
-
         end
         rescue Exception => e
           logger.warn('oopsy.' + e.inspect)
@@ -106,7 +92,7 @@ class ItemBaseController < BaseController
         playlist_item.accepts_role!(:owner, current_user)
       end
 
-	    render :json => { :type => 'playlists', :playlist_item_id => @object.id, :id => @playlist.id, :error => false, :custom_block => 'new_playlist_item' }
+	    render :json => { :type => 'playlists', :playlist_item_id => playlist_item.id, :id => @playlist.id, :error => false, :custom_block => 'new_playlist_item' }
     else
 	    render :json => { :message => "We could not add that playlist item: #{@object.errors.full_messages.join('<br />')}", :error => true }
     end
