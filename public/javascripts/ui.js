@@ -66,7 +66,7 @@ jQuery.extend({
       return false;
     }
     jQuery(".ui-dialog-buttonpane button:contains('Submit')").button('disable');
-    jQuery('input#terms_check').click(function() {
+      jQuery('input#terms_check').click(function() {
       if(jQuery(this).is(':checked')) {
         jQuery(".ui-dialog-buttonpane button:contains('Submit')").button('option', 'disabled', false);
       } else {
@@ -623,7 +623,6 @@ jQuery.extend({
       height: 'auto',
       open: function(event, ui) {
         jQuery.observeMarkItUpFields();
-        jQuery.observeTerms();
       },
       close: function() {
         jQuery(newItemNode).remove();
@@ -693,7 +692,6 @@ jQuery.extend({
         if(newItemNode.find('#manage_collages').length) {
           jQuery('#manage_collages #lookup_submit').click();
         }
-        jQuery.observeTerms();
       },
       buttons: {
         Submit: function() {
