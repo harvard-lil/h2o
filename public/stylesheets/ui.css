@@ -562,6 +562,13 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
   .tipsy-w .tipsy-arrow { left: 0; border-left: none; }
 
 /* Terms */
+#public_active_terms {
+  font-style: italic;
+  margin-bottom: 8px;
+}
+#public_active_terms a {
+ text-decoration: underline;
+}
 #terms_require {
   text-align: center;
 }
