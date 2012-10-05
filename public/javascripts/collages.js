@@ -329,7 +329,7 @@ jQuery.extend({
         jQuery(i).css('display', e);
       }
     });
-    if(last_data.edit_mode && can_edit_annotations) {
+    if(last_data.edit_mode && access_results.can_edit_annotations) {
       jQuery('#edit-show').html("READ");  
       jQuery.observeWords();
       jQuery('.control-divider').css('display', 'inline-block');
@@ -490,7 +490,7 @@ jQuery.extend({
           });
 
           jQuery('#annotation-tabs-' + annotationId).tabs();
-          if(!can_edit_annotations) {
+          if(!access_results.can_edit_annotations) {
             jQuery('#annotation-details-' + annotationId).dialog('option','buttons',{
               Close: function(){
                 jQuery(this).dialog('close');
@@ -624,7 +624,7 @@ jQuery.extend({
     // jQuery('tt:visible') as a query is much less efficient - unfortunately.
     //Note: http://api.jquery.com/visible-selector/
 
-    if(can_edit_annotations) {
+    if(access_results.can_edit_annotations) {
       jQuery('tt').unbind('mouseover mouseout click').bind('mouseover mouseout click', jQuery.wordEvent);
       jQuery('.annotation-content').css('display', 'none');
       jQuery('.annotation-asterisk, .control-divider').unbind('click').click(function(e) {

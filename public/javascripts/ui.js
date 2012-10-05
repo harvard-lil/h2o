@@ -1,11 +1,11 @@
 var popup_item_id = 0;
 var popup_item_type = '';
 var is_owner = false;
-var can_edit_annotations = false;
 var permissions = {
   can_position_update: false,
   can_edit_notes: false
 };
+var last_data;
 var access_results;
 
 $.noConflict();
@@ -125,9 +125,9 @@ jQuery.extend({
         jQuery.hideGlobalSpinnerNode();
 
         if(jQuery.classType() == 'collages') {  //Collages only
+          last_data = jQuery.parseJSON(results.readable_state);
 		      jQuery.loadState();
           if(results.can_edit_annotations) {
-            can_edit_annotations = true;
 			      jQuery.listenToRecordCollageState();
             jQuery('.buttons .requires_edit').animate({ opacity: 1.0 });
           } else {

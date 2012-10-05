@@ -43,7 +43,8 @@ class CollagesController < BaseController
         :logged_in => current_user.to_json(:only => [:id, :login]),
         :can_edit => can_edit,
         :can_edit_description => can_edit_description,
-        :can_edit_annotations => can_edit_annotations
+        :can_edit_annotations => can_edit_annotations,
+        :readable_state => @collage.readable_state
       }
     else
       render :json => {
