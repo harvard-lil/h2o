@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120926154820) do
+ActiveRecord::Schema.define(:version => 20121005144035) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -146,6 +146,14 @@ ActiveRecord::Schema.define(:version => 20120926154820) do
   create_table "collages_user_collections", :id => false, :force => true do |t|
     t.integer "collage_id"
     t.integer "user_collection_id"
+  end
+
+  create_table "color_mappings", :force => true do |t|
+    t.integer  "collage_id"
+    t.integer  "tag_id"
+    t.string   "hex"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "defects", :force => true do |t|

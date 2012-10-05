@@ -13,4 +13,17 @@ module TaggingExtensions
         ORDER BY COUNT(*) DESC LIMIT 25")
     end
   end
+
+  module InstanceMethods
+    def deleteable_tags
+      Tag.find_by_sql("SELECT tag_id AS id FROM
+        (SELECT tag_id, COUNT(*)
+          FROM annotations a
+          JOIN taggings t ON a.id = t.taggable_id
+          WHERE t.taggable_type = 'Annotation'
+          AND a.collage_id = '#{self.id}'
+          GROUP BY tag_id) b
+        WHERE b.count = 1").collect { |t| t.id }
+    end
+  end
 end

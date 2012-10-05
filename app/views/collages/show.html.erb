@@ -73,7 +73,7 @@ Your annotation will start here. Please click another word to set the end point.
 						<h5>LAYERS</h5>
 						<ul id="layers">
    					  <% @collage.layers.each do |layer| %>
-							<li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
+							<li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map[layer.name] ? @color_map[layer.name] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
 								<strong><%= layer.name %></strong>
 								<a href="#" class="hide_show shown"><strong>HIDE</strong></a>
 								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>

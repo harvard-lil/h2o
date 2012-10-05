@@ -162,6 +162,21 @@ padding: 3px; text-transform: uppercase; font-size: 9px; }
 form.formtastic fieldset > ol > li#new_layers { margin-top: 8px; }
 form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top: 2px; }
 
+#add_new_layer {
+  display: block;
+  clear: both;
+  font-size: 9px;
+  padding-bottom: 5px;
+}
+.new_layer {
+  padding: 10px 0px; 
+  border-top: 1px solid #ccc;
+  font-size: 9px;
+}
+.remove_layer {
+  font-size: 9px;
+}
+
 #collage_tag_list_input .inline-hints,
 #collage_description_input .inline-hints {
   margin-left: 0px;

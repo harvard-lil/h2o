@@ -49,7 +49,14 @@ class AnnotationsController < BaseController
   # GET /annotations/new
   # GET /annotations/new.xml
   def new
-    @annotation = Annotation.new
+    @annotation = Annotation.new(:collage_id => params[:collage_id])
+    
+    @color_map = {}
+    @annotation.collage.layers.each do |layer|
+      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      @color_map[layer.name] = map.hex if map
+    end
+
     [:annotation_start, :annotation_end].each do |p|
       @annotation[p] = params[p]
     end
@@ -60,62 +67,74 @@ class AnnotationsController < BaseController
 
   # GET /annotations/1/edit
   def edit
+    @color_map = {}
+    @annotation.collage.layers.each do |layer|
+      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      @color_map[layer.name] = map.hex if map
+    end
   end
 
   # POST /annotations
   # POST /annotations.xml
   def create
-    unless params[:annotation][:layer_list].blank?
-      params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
-    end
+    filter_layer_list
+
     @annotation = Annotation.new(params[:annotation])
 
-    respond_to do |format|
-      if @annotation.save
-        @annotation.accepts_role!(:owner, current_user)
-        @annotation.accepts_role!(:editor, current_user)
-        @annotation.accepts_role!(:creator, current_user)
-        #force loading
-        @layer_count = @annotation.layers.count
-        #flash[:notice] = 'Annotation was successfully created.'
-        format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
-        format.html { redirect_to(@annotation) }
-        format.xml  { render :xml => @annotation, :status => :created, :location => @annotation }
-      else
-        format.json { render :text => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity }
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @annotation.errors, :status => :unprocessable_entity }
-      end
+    if @annotation.save
+      @annotation.accepts_role!(:owner, current_user)
+      @annotation.accepts_role!(:editor, current_user)
+      @annotation.accepts_role!(:creator, current_user)
+
+      create_color_mappings
+
+      render :json =>  @annotation.to_json(:include => [:layers])
+    else
+      render :text => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
     end
   end
 
   # PUT /annotations/1
   # PUT /annotations/1.xml
   def update
-    unless params[:annotation][:layer_list].blank?
-      params[:annotation][:layer_list] = params[:annotation][:layer_list].downcase
-    end
-    respond_to do |format|
-      @annotation.attributes = params[:annotation]
-      #Track this editor.
-      if @annotation.save
-        @annotation.accepts_role!(:editor,current_user)
-        #flash[:notice] = 'Annotation was successfully updated.'
-        format.json { render :json =>  @annotation.to_json(:include => [:layers]) }
-        format.html { redirect_to(@annotation) }
-        format.xml  { head :ok }
-      else
-        format.json { render :text => "We couldn't update that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity }
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @annotation.errors, :status => :unprocessable_entity }
+    filter_layer_list
+
+    current_layers = @annotation.layers
+
+    @annotation.attributes = params[:annotation]
+    if @annotation.save
+      @annotation.accepts_role!(:editor,current_user)
+
+      #Destroys color mappings for deleted layers that are deletable
+      @annotation.reload
+      updated_layers = @annotation.layers
+      current_layers.each do |layer|
+        if !updated_layers.include?(layer) && !@annotation.collage.layers.include?(layer)
+          to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+          ColorMapping.destroy(to_delete) if to_delete
+        end
       end
+
+      create_color_mappings
+
+      render :json =>  @annotation.to_json(:include => [:layers])
+    else
+      render :text => "We couldn't update that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
     end
   end
 
   # DELETE /annotations/1
   # DELETE /annotations/1.xml
   def destroy
+    deleteable_tags = @annotation.collage.deleteable_tags
+    @annotation.layers.each do |layer|
+      if deleteable_tags.include?(layer.id)
+        to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+        ColorMapping.destroy(to_delete) if to_delete
+      end
+    end
     @annotation.destroy
+
     render :text => "We've deleted that item."
   rescue Exception => e
     logger.warn("Could not delete annotation: #{e.inspect}")
@@ -127,5 +146,29 @@ class AnnotationsController < BaseController
   def load_annotation
     @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id], :include => [:layers])
     @collage = @annotation.collage
+  end
+
+  def filter_layer_list
+    layer_list = []
+    if params.has_key?(:new_layer_list)
+      params[:new_layer_list].each do |new_layer|
+        new_layer["layer"].downcase!
+      end
+      layer_list << params[:new_layer_list].map { |c| c["layer"] }
+    end
+    if params.has_key?(:existing_layer_list)
+      layer_list << params[:existing_layer_list]
+    end
+    params[:annotation][:layer_list] = layer_list.join(', ')
+  end
+
+  def create_color_mappings
+    if params.has_key?(:new_layer_list)
+      params[:new_layer_list].each do |new_layer|
+        tag = @annotation.layers.detect { |l| l.name == new_layer["layer"] }
+        ColorMapping.create(:collage_id => @annotation.collage_id, :tag_id => tag.id, :hex => new_layer["hex"])
+      end
+    end
+    Rails.logger.warn "stephie here!!"
   end
 end

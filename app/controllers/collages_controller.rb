@@ -145,6 +145,12 @@ class CollagesController < BaseController
     add_javascripts ['collages', 'jquery.hoverIntent.minified', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.tipsy']
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
+    @color_map = {}
+    @collage.layers.each do |layer|
+      map = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      @color_map[layer.name] = map.hex if map
+    end
+
     respond_to do |format|
       format.html { render 'show' }
       format.xml  { render :xml => @collage }

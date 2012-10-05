@@ -12,6 +12,7 @@ class Collage < ActiveRecord::Base
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
   include MetadataExtensions
+  include TaggingExtensions::InstanceMethods
 
   acts_as_taggable_on :tags
   acts_as_authorization_object
@@ -39,6 +40,7 @@ class Collage < ActiveRecord::Base
   has_many :annotations, :order => 'created_at', :dependent => :destroy
   has_and_belongs_to_many :user_collections   # dependent => destroy
   has_many :defects, :as => :reportable
+  has_many :color_mappings
 
   # Create the content we're going to annotate. This is a might bit inefficient, mainly because
   # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing

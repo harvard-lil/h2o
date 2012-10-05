@@ -8,6 +8,17 @@ var annotation_position = 0;
 var head_offset;
 
 jQuery.extend({
+  initializeLayerColorMapping: function() {
+    jQuery('#add_new_layer').live('click', function() {
+      var new_layer = jQuery('<div class="new_layer">LAYER: <input type="text" name="new_layer_list[]layer]" />HEX: <input type="text" name="new_layer_list[][hex]" /><a href="#" class="remove_layer">- REMOVE</a></div>');
+      jQuery('#new_layers').append(new_layer);
+      return false;
+    });
+    jQuery('.remove_layer').live('click', function() {
+      jQuery(this).parent().remove();
+      return false;
+    });
+  },
   hideShowAnnotationOptions: function() {
     var total = jQuery('.annotation-content').size();
     var shown = jQuery('.annotation-content').filter(':visible').size();
@@ -464,7 +475,6 @@ jQuery.extend({
                               values.push(jQuery(el).data('value'));
                             }
                           });
-                          jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
                           jQuery.submitAnnotation();
                         },
                         Cancel: function(){
@@ -476,13 +486,6 @@ jQuery.extend({
                     var filtered = jQuery('#annotation_annotation').val().replace(/&quot;/g, '"');
                     jQuery('#annotation_annotation').val(filtered);
                     jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
-
-                    jQuery('#annotation_layer_list').keypress(function(e){
-                      if(e.keyCode == '13'){
-                        e.preventDefault();
-                        jQuery.submitAnnotation();
-                      }
-                    });
                   }
                 });
               }
@@ -566,7 +569,6 @@ jQuery.extend({
                   values.push(jQuery(el).data('value'));
                 }
               });
-              jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
               jQuery.submitAnnotation();
             },
             'Cancel': function(){
@@ -593,12 +595,6 @@ jQuery.extend({
             jQuery('#annotation-form').html(html);
             jQuery('#annotation-form').dialog('open');
             jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
-              jQuery('#annotation_layer_list').keypress(function(e){
-                if(e.keyCode == '13'){
-                  e.preventDefault();
-                  jQuery.submitAnnotation();
-                }
-              });
           },
           error: function(xhr){
             jQuery.hideGlobalSpinnerNode();
@@ -665,6 +661,7 @@ jQuery(document).ready(function(){
     jQuery.initializeToolListeners();
     jQuery.initializeFontChange();
     jQuery.initializePrintListeners();
+    jQuery.initializeLayerColorMapping();
 
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
