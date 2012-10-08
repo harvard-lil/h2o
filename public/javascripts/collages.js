@@ -6,6 +6,7 @@ var last_annotation = 0;
 var highlight_history = {};
 var annotation_position = 0;
 var head_offset;
+var heatmap;
 
 jQuery.extend({
   initializeLayerColorMapping: function() {
@@ -17,6 +18,48 @@ jQuery.extend({
     jQuery('.remove_layer').live('click', function() {
       jQuery(this).parent().remove();
       return false;
+    });
+  },
+  initializeHeatmap: function() {
+    jQuery('#hide_heatmap').hide();
+    jQuery('#show_heatmap').click(function() {
+      if(jQuery(this).hasClass('inactive')) {
+        return false;
+      }
+      jQuery.ajax({
+        type: 'GET',
+        cache: false,
+        dataType: 'JSON',
+        url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/heatmap',
+        beforeSend: function(){
+          jQuery.showGlobalSpinnerNode();
+        },
+        success: function(data){
+          jQuery('.tools-popup .highlighted').click();
+          //jQuery.highlightHistoryClear();
+          heatmap = data.heatmap;
+          jQuery.each(heatmap, function(i, e) {
+            jQuery('tt#' + i).css('background-color', '#' + e);
+            jQuery('#hide_heatmap').show();
+            jQuery('#show_heatmap').hide();
+          });
+          jQuery.hideGlobalSpinnerNode();
+        },
+        error: function() {
+          jQuery.hideGlobalSpinnerNode();
+        }
+      });
+    });
+    jQuery('#hide_heatmap').click(function() {
+      if(jQuery(this).hasClass('inactive')) {
+        return false;
+      }
+      jQuery.each(heatmap, function(i, e) {
+        //jQuery.highlightHistoryClear();
+        jQuery('tt#' + i).css('background-color', '#ffffff');
+        jQuery('#show_heatmap').show();
+        jQuery('#hide_heatmap').hide();
+      });
     });
   },
   hideShowAnnotationOptions: function() {
@@ -177,13 +220,16 @@ jQuery.extend({
       e.preventDefault();
       var el = jQuery(this);
       var id = el.parent().data('id');
+      if(jQuery('#hide_heatmap').is(':visible')) {
+        jQuery('#hide_heatmap').click();
+      }
       if(el.hasClass('highlighted')) {
         el.siblings('.hide_show').find('strong').html('HIDE');
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
         jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
-          jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false);
+          jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false)
         });
         el.removeClass('highlighted').html('HIGHLIGHT');
       } else {
@@ -209,6 +255,7 @@ jQuery.extend({
         jQuery('.default-hidden,article tt.grey').css('color', '#666');
         jQuery('.layered-control,.unlayered-control').width(9).height(16);
         jQuery('#author_edits').removeClass('inactive');
+        jQuery('#show_heatmap, #hide_heatmap').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */
         var data = jQuery.retrieveState();  
@@ -222,6 +269,7 @@ jQuery.extend({
         jQuery('article tt.a').addClass('edit_highlight');
         jQuery('.default-hidden,article tt.grey').css('color', '#000');
         jQuery('.layered-control,.unlayered-control').width(0).height(0);
+        jQuery('#show_heatmap, #hide_heatmap').addClass('inactive');
       }
       el.toggleClass('editing');
     });
@@ -236,6 +284,9 @@ jQuery.extend({
 
       jQuery('#state').val(JSON.stringify(data));
     });
+  },
+  highlightHistoryClear: function() {
+    highlight_history = {};
   },
   highlightHistoryAdd: function(id, aid, highlighted) {
     if(!highlight_history[aid]) {
@@ -347,6 +398,7 @@ jQuery.extend({
       jQuery('article tt.a').addClass('edit_highlight');
       jQuery('.default-hidden').css('color', '#000');
       jQuery('.layered-control,.unlayered-control').width(0).height(0);
+      jQuery('#hide_heatmap, #show_heatmap').addClass('inactive');
     } else {
        jQuery.unObserveWords();
     }
@@ -662,6 +714,7 @@ jQuery(document).ready(function(){
     jQuery.initializeFontChange();
     jQuery.initializePrintListeners();
     jQuery.initializeLayerColorMapping();
+    jQuery.initializeHeatmap();
 
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");

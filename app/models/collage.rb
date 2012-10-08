@@ -6,6 +6,7 @@ require 'ancestry_extensions'
 class Collage < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
+  extend HeatmapExtensions::ClassMethods
   
   include H2oModelExtensions
   include PlaylistableExtensions
@@ -13,6 +14,7 @@ class Collage < ActiveRecord::Base
   include AuthUtilities
   include MetadataExtensions
   include TaggingExtensions::InstanceMethods
+  include HeatmapExtensions::InstanceMethods
 
   acts_as_taggable_on :tags
   acts_as_authorization_object

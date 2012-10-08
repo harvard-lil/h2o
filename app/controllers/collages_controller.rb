@@ -2,8 +2,8 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   caches_page :show
 
-  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup]
-  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level]
+  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
+  before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:spawn_copy, :export_unique]
@@ -54,6 +54,10 @@ class CollagesController < BaseController
         :can_edit_annotations => false
       }
     end
+  end
+
+  def heatmap
+    render :json => { :heatmap => @collage.heatmap }
   end
 
   # TODO: Remove this if unused?

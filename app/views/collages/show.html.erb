@@ -69,6 +69,12 @@ Your annotation will start here. Please click another word to set the end point.
 								<a href="#" id="hide_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>HIDE</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
+              <li>
+								<strong>HEATMAP</strong>
+								<a href="#" id="show_heatmap" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
+								<a href="#" id="hide_heatmap" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>HIDE</strong></a>
+								<div class="cl">&nbsp;</div>
+              </li>
 						</ul>
 						<h5>LAYERS</h5>
 						<ul id="layers">
