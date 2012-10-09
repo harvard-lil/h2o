@@ -30,7 +30,9 @@
 
 #collage article { opacity: 0.0; font-size:11px; line-height:1.5em;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
-#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
+#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; position: relative; z-index: 2 }
+#collage article .special_highlight { position: absolute; }
+#collage article .special_highlight tt { width: 100%; height: 100%; display: block; position: absolute; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
 #collage article p { padding-bottom:16px; margin-left: 30px; }
 #collage article p em { }
@@ -175,6 +177,11 @@ form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top
 }
 .remove_layer {
   font-size: 9px;
+}
+.hexes a {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
 }
 
 #collage_tag_list_input .inline-hints,

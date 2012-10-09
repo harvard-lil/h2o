@@ -9,9 +9,27 @@ var head_offset;
 var heatmap;
 
 jQuery.extend({
+  getHexes: function() {
+    var blah = jQuery('<div class="hexes"></div>');
+    jQuery.each(color_map, function(i, el) {
+      blah.append(jQuery('<a href="#"></a>').css('background', '#' + el)); 
+    });
+    return blah;
+  },
   initializeLayerColorMapping: function() {
+    jQuery('.hexes a').live('click', function() {
+      alert('here!');
+      //Set hidden hex to background color
+      //Set this as active  (with outline)
+      return false;
+    });
     jQuery('#add_new_layer').live('click', function() {
-      var new_layer = jQuery('<div class="new_layer">LAYER: <input type="text" name="new_layer_list[]layer]" />HEX: <input type="text" name="new_layer_list[][hex]" /><a href="#" class="remove_layer">- REMOVE</a></div>');
+      var new_layer = jQuery('<div class="new_layer">LAYER: <input type="text" name="new_layer_list[]layer]" />HEX:<input type="hidden" name="new_layer_list[][hex]" /><a href="#" class="remove_layer">- REMOVE</a></div>');
+      console.log(jQuery.getHexes());
+      //new_layer.find('.hexes').append(jQuery.getHexes());
+      var blah = jQuery.getHexes();
+      //new_layer.append(blah);
+      blah.insertBefore(new_layer.find('.remove_layer'));
       jQuery('#new_layers').append(new_layer);
       return false;
     });
@@ -715,6 +733,42 @@ jQuery(document).ready(function(){
     jQuery.initializePrintListeners();
     jQuery.initializeLayerColorMapping();
     jQuery.initializeHeatmap();
+       
+       /*
+    if(jQuery.getItemId() == "1952") {
+      jQuery.each(jQuery('tt'), function(i, el) {
+        var blah = jQuery(el);
+        var position = blah.position();
+        var node = jQuery('<div></div>').addClass(blah.attr('id')).addClass('special_highlight').css({ height: blah.height(), width: blah.width(), top: position.top, left: position.left, 'z-index': 1 });
+        jQuery('article').append(node);
+      });
+      //for(
+      for(var i=5;i<10;i++) {
+        var node = jQuery('<tt></tt>').css({ background: '#fe2a2a', 'opacity' : 0.25 });
+        jQuery('div.t' + i).append(node);
+      }
+      for(var i=8;i<12;i++) {
+        var node = jQuery('<tt></tt>').css({ background: '#000aff', 'opacity' : 0.25 });
+        jQuery('div.t' + i).append(node);
+      }
+      for(var i=8;i<20;i++) {
+        var node = jQuery('<tt></tt>').css({ background: '#e4fd00', 'opacity' : 0.25 });
+        jQuery('div.t' + i).append(node);
+      }
+      for(var i=15;i<25;i++) {
+        var node = jQuery('<tt></tt>').css({ background: '#00ff6b', 'opacity' : 0.25 });
+        jQuery('div.t' + i).append(node);
+      }
+      var max_children = 0;
+      jQuery.each(jQuery('div.special_highlight'), function(i, el) {
+        if(jQuery(el).children().size() > max_children) {
+          max_children = jQuery(el).children().size();
+        }
+      });
+      var blah = 0.70/max_children;
+      jQuery('div.special_highlight tt').css({ 'opacity' : blah });
+    }
+  */
 
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
