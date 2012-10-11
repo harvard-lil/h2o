@@ -19,7 +19,7 @@
     <% @annotation.collage.layers.each do |l| %>
     <li class="layer_check">
       <input type="checkbox" name="existing_layer_list[]" <%= raw checked="checked" if @annotation.layers.include?(l) %> value="<%= l.name %>" />
-      <label style="background-color:#<%= @color_map[l.name] ? @color_map[l.name] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>"><%= l.name %></label>
+      <label data-value="<%= @color_map[l.name] ? @color_map[l.name] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>" style="background-color:#<%= @color_map[l.name] ? @color_map[l.name] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>"><%= l.name %></label>
     </li>
     <% end %>
     <li id="new_layers">

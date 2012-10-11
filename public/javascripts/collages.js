@@ -9,27 +9,43 @@ var head_offset;
 var heatmap;
 
 jQuery.extend({
-  getHexes: function() {
-    var blah = jQuery('<div class="hexes"></div>');
-    jQuery.each(color_map, function(i, el) {
-      blah.append(jQuery('<a href="#"></a>').css('background', '#' + el)); 
+  scaleOpacity: function() {
+    var max_children = 0;
+    jQuery.each(jQuery('div.special_highlight'), function(i, el) {
+      if(jQuery(el).children().size() > max_children) {
+        max_children = jQuery(el).children().size();
+      }
     });
-    return blah;
+    jQuery('div.special_highlight tt').css({ 'opacity' : 0.70/max_children });
+  },
+  getHexes: function() {
+    var hexes = jQuery('<div class="hexes"></div>');
+    jQuery.each(color_map, function(i, el) {
+      var node = jQuery('<a href="#"></a>').data('value', el).css('background', '#' + el);
+      if(jQuery(".layer_check [data-value='" + el + "']").length) {
+        node.addClass('inactive');
+      }
+      hexes.append(node);
+    });
+    if(hexes.find('a').length == hexes.find('a.inactive').length) {
+      hexes.find('a.inactive').removeClass('inactive');
+    }
+    return hexes;
   },
   initializeLayerColorMapping: function() {
     jQuery('.hexes a').live('click', function() {
-      alert('here!');
-      //Set hidden hex to background color
-      //Set this as active  (with outline)
+      if(jQuery(this).hasClass('inactive')) {
+        return false;
+      }
+      jQuery(this).parent().siblings('.hex_input').find('input').val(jQuery(this).data('value'));
+      jQuery(this).siblings('a.active').removeClass('active');
+      jQuery(this).addClass('active');
       return false;
     });
     jQuery('#add_new_layer').live('click', function() {
-      var new_layer = jQuery('<div class="new_layer">LAYER: <input type="text" name="new_layer_list[]layer]" />HEX:<input type="hidden" name="new_layer_list[][hex]" /><a href="#" class="remove_layer">- REMOVE</a></div>');
-      console.log(jQuery.getHexes());
-      //new_layer.find('.hexes').append(jQuery.getHexes());
-      var blah = jQuery.getHexes();
-      //new_layer.append(blah);
-      blah.insertBefore(new_layer.find('.remove_layer'));
+      var new_layer = jQuery('<div class="new_layer"><p>LAYER: <input type="text" name="new_layer_list[]layer]" /></p><p class="hex_input">HEX:<input type="hidden" name="new_layer_list[][hex]" /></p><a href="#" class="remove_layer">- REMOVE</a></div>');
+      var hexes = jQuery.getHexes();
+      hexes.insertBefore(new_layer.find('.remove_layer'));
       jQuery('#new_layers').append(new_layer);
       return false;
     });
@@ -54,7 +70,6 @@ jQuery.extend({
         },
         success: function(data){
           jQuery('.tools-popup .highlighted').click();
-          //jQuery.highlightHistoryClear();
           heatmap = data.heatmap;
           jQuery.each(heatmap, function(i, e) {
             jQuery('tt#' + i).css('background-color', '#' + e);
@@ -73,7 +88,6 @@ jQuery.extend({
         return false;
       }
       jQuery.each(heatmap, function(i, e) {
-        //jQuery.highlightHistoryClear();
         jQuery('tt#' + i).css('background-color', '#ffffff');
         jQuery('#show_heatmap').show();
         jQuery('#hide_heatmap').hide();
@@ -246,20 +260,22 @@ jQuery.extend({
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
-          jQuery.highlightHistoryRemove(id, jQuery(el).data('id'), false)
-        });
+        jQuery('.special_highlight tt.' + id).remove();
         el.removeClass('highlighted').html('HIGHLIGHT');
       } else {
         el.siblings('.hide_show').find('strong').html('HIDE');
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + id).each (function(i, el) {
-          jQuery.highlightHistoryAdd(id, jQuery(el).data('id'), false);
+
+        var hex = '#' + layer_info[id].hex;
+        jQuery.each(jQuery('tt.' + id), function(i, el) {
+          var node = jQuery('<tt></tt>').css({ background: hex, 'opacity' : 0.25 }).addClass(id);
+          jQuery('div.' + jQuery(el).attr('id')).append(node);
         });
         el.addClass('highlighted').html('UNHIGHLIGHT');
       }
+      jQuery.scaleOpacity();
     });
   
     jQuery("#edit-show").click(function(e) {
@@ -302,44 +318,6 @@ jQuery.extend({
 
       jQuery('#state').val(JSON.stringify(data));
     });
-  },
-  highlightHistoryClear: function() {
-    highlight_history = {};
-  },
-  highlightHistoryAdd: function(id, aid, highlighted) {
-    if(!highlight_history[aid]) {
-      highlight_history[aid] = ['ffffff'];
-    }
-
-    if(highlighted) {
-      highlight_history[aid].push(layer_info[id].hex);
-    } else {
-      var update = [];
-      jQuery.each(highlight_history[aid], function(i, v) {
-        if(layer_info[id].hex != v) {
-          update.push(v);
-        }
-      });
-      update.push(layer_info[id].hex);
-      highlight_history[aid] = update;
-    }
-    var last = highlight_history[aid].length - 1;
-    jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
-  },
-  highlightHistoryRemove: function(id, aid, highlighted) {
-    if(highlighted) {
-      highlight_history[aid].pop();
-    } else {
-      var update = [];
-      jQuery.each(highlight_history[aid], function(i, v) {
-        if(layer_info[id].hex != v) {
-          update.push(v);
-        }
-      });
-      highlight_history[aid] = update;
-    }
-    var last = highlight_history[aid].length - 1;
-    jQuery('tt.a' + aid).css('background', '#' + highlight_history[aid][last]);
   },
   recordCollageState: function(data, show_message) {
     var words_shown = jQuery('#collage article tt').filter(':visible').size();
@@ -733,43 +711,15 @@ jQuery(document).ready(function(){
     jQuery.initializePrintListeners();
     jQuery.initializeLayerColorMapping();
     jQuery.initializeHeatmap();
+     
+    //Initializing background div for each tt
+    jQuery.each(jQuery('tt'), function(i, el) {
+      var node = jQuery(el);
+      var position = node.position();
+      var node = jQuery('<div></div>').addClass(node.attr('id')).addClass('special_highlight').css({ height: node.height(), width: node.width(), top: position.top, left: position.left, 'z-index': 1 });
+      jQuery('article').append(node);
+    });
        
-       /*
-    if(jQuery.getItemId() == "1952") {
-      jQuery.each(jQuery('tt'), function(i, el) {
-        var blah = jQuery(el);
-        var position = blah.position();
-        var node = jQuery('<div></div>').addClass(blah.attr('id')).addClass('special_highlight').css({ height: blah.height(), width: blah.width(), top: position.top, left: position.left, 'z-index': 1 });
-        jQuery('article').append(node);
-      });
-      //for(
-      for(var i=5;i<10;i++) {
-        var node = jQuery('<tt></tt>').css({ background: '#fe2a2a', 'opacity' : 0.25 });
-        jQuery('div.t' + i).append(node);
-      }
-      for(var i=8;i<12;i++) {
-        var node = jQuery('<tt></tt>').css({ background: '#000aff', 'opacity' : 0.25 });
-        jQuery('div.t' + i).append(node);
-      }
-      for(var i=8;i<20;i++) {
-        var node = jQuery('<tt></tt>').css({ background: '#e4fd00', 'opacity' : 0.25 });
-        jQuery('div.t' + i).append(node);
-      }
-      for(var i=15;i<25;i++) {
-        var node = jQuery('<tt></tt>').css({ background: '#00ff6b', 'opacity' : 0.25 });
-        jQuery('div.t' + i).append(node);
-      }
-      var max_children = 0;
-      jQuery.each(jQuery('div.special_highlight'), function(i, el) {
-        if(jQuery(el).children().size() > max_children) {
-          max_children = jQuery(el).children().size();
-        }
-      });
-      var blah = 0.70/max_children;
-      jQuery('div.special_highlight tt').css({ 'opacity' : blah });
-    }
-  */
-
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
       if(jQuery('#collage-stats-popup').height() < 400) {

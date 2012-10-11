@@ -180,8 +180,16 @@ form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top
 }
 .hexes a {
   display: inline-block;
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
+  margin-right: 2px;
+  border: 2px solid #FFF;
+}
+.hexes a.active {
+  border: 2px solid #000;
+}
+.hexes a.inactive {
+  opacity: 0.25;
 }
 
 #collage_tag_list_input .inline-hints,
