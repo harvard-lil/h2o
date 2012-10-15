@@ -311,9 +311,10 @@ jQuery.extend({
   initializePrintListeners: function() {
     jQuery('#print-container form').submit(function() {
       var data = jQuery.retrieveState();
+  
       data.highlights = {};
-      jQuery.each(highlight_history, function(i, v) {
-        data.highlights['.a' + i] = v[v.length - 1];
+      jQuery.each(jQuery('.special_highlight tt'), function(i, el) {
+        data.highlights[jQuery(el).attr('class')] = layer_info[jQuery(el).attr('class')].hex;
       });
 
       jQuery('#state').val(JSON.stringify(data));
