@@ -252,7 +252,7 @@ namespace :h2o do
     
     u = User.find_by_login("criminallaw")
     to_update.each do |i|
-      if i.is_a?(Playlist)
+      if [Playlist,Collage].include?(i.class)
         next if i.owners == [u]
         if i.owners
           i.owners.each { |c| c.has_no_roles_for!(i) }
