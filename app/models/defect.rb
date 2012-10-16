@@ -8,6 +8,6 @@ class Defect < ActiveRecord::Base
   end
 
   def display_name
-    self.reportable.name
+    self.reportable.nil? ? "#{self.reportable_id}: No longer exists" : self.reportable.name
   end
 end
