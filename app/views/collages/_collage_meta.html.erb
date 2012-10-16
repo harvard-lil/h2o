@@ -5,6 +5,12 @@
 <h5>Original <%= @collage.annotatable_type %></h5>
 <% if @collage.annotatable_type == 'Case' %>
 <%= link_to "\"#{@collage.annotatable.short_name}\"", case_path(@collage.annotatable), :id => 'original_name' %>
+<% if @collage.annotatable.decision_date -%>
+<br />Decision date: <%= @collage.annotatable.decision_date %>
+<% end -%>
+<% if @collage.annotatable.case_jurisdiction -%>
+<br />Jurisdiction: <%= @collage.annotatable.case_jurisdiction.display_name %>
+<% end -%>
 <% else -%>
 <%= link_to @collage.annotatable.name, text_block_path(@collage.annotatable), :id => 'original_name' %>
 <% end -%>
