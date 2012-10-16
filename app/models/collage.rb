@@ -234,14 +234,22 @@ class Collage < ActiveRecord::Base
           control_node['class'] = "unlayered-control unlayered-control-start unlayered-control-#{unlayered_start}"
           control_node['data-id'] = "#{unlayered_start}"
           control_node['href'] = '#'
+          if node.parent.name == "a"
+          node.parent.add_previous_sibling(control_node)
+          else
           node.add_previous_sibling(control_node)
+          end
           link_node = Nokogiri::XML::Node.new('a', doc)
           link_node['class'] = 'unlayered-ellipsis'
           link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
           link_node['data-id'] = "#{unlayered_start}"
           link_node['href'] = '#'
           link_node.inner_html = '[...]'
+          if node.parent.name == "a"
+          node.parent.add_previous_sibling(link_node)
+          else
           node.add_previous_sibling(link_node)
+          end
           node['class'] = "#{node['class']} unlayered_start"
           unlayered_start_node = false
         end
