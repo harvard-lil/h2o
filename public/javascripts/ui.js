@@ -73,6 +73,12 @@ jQuery.extend({
       jQuery('.add-popup').hide();
       popup_item_id = 0;
     }
+    if(jQuery('#collage-stats-popup').is(':visible')) {
+      jQuery('#collage-stats').click();
+    }
+    if(jQuery('#playlist-stats-popup').is(':visible')) {
+      jQuery('#playlist-stats').click();
+    }
   },
   loadEscapeListener: function() {
     jQuery(document).keyup(function(e) {
@@ -83,7 +89,7 @@ jQuery.extend({
   },
   loadOuterClicks: function() {
     jQuery('html').click(function(event) {
-      var dont_hide = jQuery('.font-size-popup,.add-popup,.tools-popup').has(event.target).length > 0 ? true : false;
+      var dont_hide = jQuery('.font-size-popup,.add-popup,.tools-popup,#collage-stats-popup,#playlist-stats-popup').has(event.target).length > 0 ? true : false;
       if(jQuery(event.target).hasClass('jsb-moreButton')) {
         dont_hide = true;
       }

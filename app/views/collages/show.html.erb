@@ -116,6 +116,15 @@ Your annotation will start here. Please click another word to set the end point.
 			<div class="popup" id="collage-stats-popup">
 				<%= render :partial => 'collage_meta' %>
 			</div>
+			<% if @collage.annotatable_type == 'Case' %>
+			<br />Original Case: <%= link_to "\"#{@collage.annotatable.short_name}\"", case_path(@collage.annotatable), :id => 'original_name' %>
+			<% if @collage.annotatable.decision_date -%>
+			<br />Decision date: <%= @collage.annotatable.decision_date %>
+			<% end -%>
+			<% if @collage.annotatable.case_jurisdiction -%>
+			<br />Jurisdiction: <%= @collage.annotatable.case_jurisdiction.display_name %>
+			<% end -%>
+			<% end -%>
 		</h5>
 		<% if @collage.description.length > 100 -%>
 			<div id="description_less">

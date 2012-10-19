@@ -1,7 +1,7 @@
 <h5>
   <%= @playlist.created_at.to_s(:simpledatetime) %>
   by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></a>
-  <a href="#" id="playlist-stats" title="test"><strong>PLAYLIST STATS</strong></a>
+  <a href="#" id="playlist-stats" title="Playlist Stats"><strong>PLAYLIST STATS</strong></a>
   <div class="popup" id="playlist-stats-popup">
     <h5>Playlist Children</h5>
     <ul class="lineage">
