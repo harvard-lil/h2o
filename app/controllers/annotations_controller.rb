@@ -169,6 +169,5 @@ class AnnotationsController < BaseController
         ColorMapping.create(:collage_id => @annotation.collage_id, :tag_id => tag.id, :hex => new_layer["hex"])
       end
     end
-    Rails.logger.warn "stephie here!!"
   end
 end

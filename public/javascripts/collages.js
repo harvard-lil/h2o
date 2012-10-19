@@ -11,12 +11,12 @@ var heatmap;
 jQuery.extend({
   scaleOpacity: function() {
     var max_children = 0;
-    jQuery.each(jQuery('div.special_highlight'), function(i, el) {
+    jQuery.each(jQuery('.special_highlight'), function(i, el) {
       if(jQuery(el).children().size() > max_children) {
         max_children = jQuery(el).children().size();
       }
     });
-    jQuery('div.special_highlight tt').css({ 'opacity' : 0.70/max_children });
+    jQuery('.special_highlight tt').css({ 'opacity' : 0.50/max_children });
   },
   getHexes: function() {
     var hexes = jQuery('<div class="hexes"></div>');
@@ -260,7 +260,7 @@ jQuery.extend({
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('.special_highlight tt.' + id).remove();
+        jQuery('tt.' + id + ' .special_highlight tt').remove();
         el.removeClass('highlighted').html('HIGHLIGHT');
       } else {
         el.siblings('.hide_show').find('strong').html('HIDE');
@@ -269,9 +269,11 @@ jQuery.extend({
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
 
         var hex = '#' + layer_info[id].hex;
-        jQuery.each(jQuery('tt.' + id), function(i, el) {
+        jQuery.each(jQuery('tt.' + id + ' .special_highlight'), function(i, el) {
           var node = jQuery('<tt></tt>').css({ background: hex, 'opacity' : 0.25 }).addClass(id);
-          jQuery('div.' + jQuery(el).attr('id')).append(node);
+          jQuery(el).append(node);
+          //if in read mode only
+          jQuery(el).show();
         });
         el.addClass('highlighted').html('UNHIGHLIGHT');
       }
@@ -290,6 +292,7 @@ jQuery.extend({
         jQuery('.layered-control,.unlayered-control').width(9).height(16);
         jQuery('#author_edits').removeClass('inactive');
         jQuery('#show_heatmap, #hide_heatmap').removeClass('inactive');
+        jQuery('.special_highlight').show();
 
         /* Forcing an autosave to save in READ mode */
         var data = jQuery.retrieveState();  
@@ -304,6 +307,7 @@ jQuery.extend({
         jQuery('.default-hidden,article tt.grey').css('color', '#000');
         jQuery('.layered-control,.unlayered-control').width(0).height(0);
         jQuery('#show_heatmap, #hide_heatmap').addClass('inactive');
+        jQuery('.special_highlight').hide();
       }
       el.toggleClass('editing');
     });
@@ -717,8 +721,8 @@ jQuery(document).ready(function(){
     jQuery.each(jQuery('tt'), function(i, el) {
       var node = jQuery(el);
       var position = node.position();
-      var node = jQuery('<div></div>').addClass(node.attr('id')).addClass('special_highlight').css({ height: node.height(), width: node.width(), top: position.top, left: position.left, 'z-index': 1 });
-      jQuery('article').append(node);
+      var child_node = jQuery('<tt></tt>').addClass('special_highlight').css({ width: node.width(), height: node.height() });
+      node.prepend(child_node);
     });
        
     jQuery('#collage-stats').click(function() {
@@ -736,9 +740,11 @@ jQuery(document).ready(function(){
       if(jQuery(window).scrollTop() < head_offset.top) {
         jQuery('#fixed_header').css({ position: "static", width: "auto" });
         jQuery('#collage article').css("padding-top", '13px')
+        //jQuery('.special_highlight').removeClass('highlight_shift');
       } else {
         jQuery('#fixed_header').css({ position: "fixed", width: 968, top: "0px" });
         jQuery('#collage article').css("padding-top", (jQuery('#fixed_header').height() + 30) + 'px');
+        //jQuery('.special_highlight').addClass('highlight_shift');
       }
     });
     jQuery('article sup a').click(function() {
