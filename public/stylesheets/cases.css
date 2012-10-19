@@ -41,3 +41,7 @@
 #case article p a { color:#336699; }
 #case article p a.hint { color:#669900; }
 #case article p strong { }
+#case article h1, 
+#case article h2, 
+#case article h3, 
+#case article h4 { margin-bottom: 1.0em; }
