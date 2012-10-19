@@ -51,7 +51,8 @@ class CollagesController < BaseController
         :logged_in => false,
         :can_edit => false,
         :can_edit_description => false,
-        :can_edit_annotations => false
+        :can_edit_annotations => false,
+        :readable_state => {}.to_json
       }
     end
   end
