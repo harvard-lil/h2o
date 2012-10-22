@@ -29,6 +29,7 @@ class CaseRequestsController < ApplicationController
 
   def destroy
     @case_request.destroy
+    Notifier.deliver_case_request_notify_rejected(@case_request)
     respond_to do |format|
       format.html { redirect_to(cases_url) }
       format.xml  { head :ok }

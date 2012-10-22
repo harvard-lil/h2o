@@ -185,4 +185,48 @@ class Notifier < ActionMailer::Base
 
   end
 
+  def case_notify_updated(updated_case)
+    
+    recipients updated_case.users.map(&:email_address).uniq
+    subject "Case Updated"
+    from "noreply@berkmancenter.org"
+    body  :case => updated_case
+    content_type "text/html"
+  end
+
+  def case_notify_approved(approved_case)
+    
+    recipients approved_case.users.map(&:email_address).uniq
+    subject approved_case.case_request ? "Case Request Approved" : "Case Approved"
+    from "noreply@berkmancenter.org"
+    body  :case => approved_case
+    content_type "text/html"
+  end
+
+  def case_request_notify_updated(case_request)
+    
+    recipients case_request.users.map(&:email_address).uniq
+    subject "Case Request Updated"
+    from "noreply@berkmancenter.org"
+    body  :case_request => case_request
+    content_type "text/html"
+  end
+
+  def case_request_notify_rejected(case_request)
+    
+    recipients case_request.users.map(&:email_address).uniq
+    subject "Case Request Not Accepted"
+    from "noreply@berkmancenter.org"
+    body  :case_request => case_request
+    content_type "text/html"
+  end
+
+  def case_notify_rejected(rejected_case)
+    
+    recipients rejected_case.users.map(&:email_address).uniq
+    subject "Case Not Accepted"
+    from "noreply@berkmancenter.org"
+    body  :case => rejected_case
+    content_type "text/html"
+  end
 end
