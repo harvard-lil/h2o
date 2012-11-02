@@ -22,7 +22,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :influences
 
-  map.resources :annotations, :collection => {:embedded_pager => :get}
+  map.resources :annotations, :collection => {:embedded_pager => :get, :choose => :get}
 
   map.resources :case_jurisdictions
   map.resources :case_docket_numbers
@@ -41,6 +41,7 @@ ActionController::Routing::Routes.draw do |map|
               :export_unique => :post,
               :heatmap => :get }
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index
+  map.resources :collage_links, :collection => {:embedded_pager => :get}
 
   map.resources :playlists,
     :collection => { :block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get, :playlist_lookup => :get },

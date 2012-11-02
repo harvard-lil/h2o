@@ -44,6 +44,7 @@ class Collage < ActiveRecord::Base
   has_many :defects, :as => :reportable
   has_many :color_mappings
 
+  has_many :collage_links, :foreign_key => "host_collage_id"
   # Create the content we're going to annotate. This is a might bit inefficient, mainly because
   # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing
   # the creation of a contentless collage, though.
@@ -148,7 +149,13 @@ class Collage < ActiveRecord::Base
         :content => ann.formatted_annotation_content
       }
     end
-
+    collage_rules = []
+    collage_links.each do |cl|
+      collage_rules << {
+        :start => cl.start_number,
+        :end => cl.end_number
+      } 
+    end
     unlayered_start = 1
     unlayered_start_node = true
     unlayered_ids = []
@@ -219,8 +226,13 @@ class Collage < ActiveRecord::Base
         if node_id_num >= r[:start] and node_id_num <= r[:end]
           classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
         end
+      
+        collage_rules.each do |clr|
+          if (clr[:start]..clr[:end]).include?(node_id_num)
+            classes << 'blue'
+          end
+        end
       end
-
       if classes.length > 0
         unlayered_start = node_id_num + 1
         unlayered_start_node = true

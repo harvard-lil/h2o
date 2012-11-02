@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121005144035) do
+ActiveRecord::Schema.define(:version => 20121031145323) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -115,6 +115,15 @@ ActiveRecord::Schema.define(:version => 20121005144035) do
   add_index "cases", ["public"], :name => "index_cases_on_public"
   add_index "cases", ["short_name"], :name => "index_cases_on_short_name"
   add_index "cases", ["updated_at"], :name => "index_cases_on_updated_at"
+
+  create_table "collage_links", :force => true do |t|
+    t.integer  "host_collage_id",   :null => false
+    t.integer  "linked_collage_id", :null => false
+    t.string   "link_text_start",   :null => false
+    t.string   "link_text_end",     :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "collages", :force => true do |t|
     t.string   "annotatable_type"

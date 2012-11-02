@@ -200,3 +200,6 @@ form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top
 #collage_public_input label {
   padding-left: 0px; 
 }
+.blue{
+  color: blue;
+}

@@ -2,11 +2,11 @@ class AnnotationsController < BaseController
 
   cache_sweeper :annotation_sweeper
 
-  before_filter :require_user, :except => [:show, :embedded_pager]
+  before_filter :require_user, :except => [:show, :embedded_pager, :choose]
   before_filter :load_annotation, :only => [:show, :edit, :update, :destroy, :metadata]
 
   access_control do
-    allow all, :to => [:show, :metadata, :embedded_pager]
+    allow all, :to => [:show, :metadata, :embedded_pager, :choose]
     allow :superadmin, :admin, :collages_admin
 
     allow logged_in, :to => [:destroy, :edit, :update, :autocomplete_layers], :if => :allow_edit?
@@ -22,6 +22,12 @@ class AnnotationsController < BaseController
 
   def embedded_pager
     super Annotation
+  end
+
+  def choose
+    @annotation_start = params[:annotation_start]
+    @annotation_end = params[:annotation_end]
+    @collage_id = params[:collage_id]
   end
 
   def metadata

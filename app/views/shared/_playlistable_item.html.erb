@@ -1,3 +1,6 @@
+<input type="hidden" value="<%= @link_start %>" name="link_start"/>
+<input type="hidden" value="<%= @link_end %>" name="link_end"/>
+<input type="hidden" value="<%= @host_collage %>" name="host_collage"/>
 <div class="h2o-playlistable-<%= playlistable_item.name %> playlistable-list">
   <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
   <div class="playlistable-object-list-<%= playlistable_item.name %>-<%= playlistable_item.name.tableize%>">
