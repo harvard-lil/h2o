@@ -303,7 +303,10 @@ class Collage < ActiveRecord::Base
       doc.xpath('//*').each do |child|
         child.children.each do|c|
           if c.class == Nokogiri::XML::Text && ! c.content.blank?
-            text_content = c.content.split.map{|word|"<tt>" + word + ' </tt> '}.join(' ')
+            text_content = c.content.scan(/\S*\s*/).delete_if(&:empty?).map do |word|
+              "<tt>" + word + '</tt> '
+            end.join(' ')
+
             c.swap(text_content)
           end
         end
