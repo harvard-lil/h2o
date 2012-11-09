@@ -594,6 +594,42 @@ jQuery.extend({
       jQuery('#annotation-ellipsis-' + id).css('display', 'inline-block');
     });
   },
+  initializeAnnotationOrCollage: function(){
+    jQuery('#annotation-form').dialog({
+      bgiframe: true,
+      autoOpen: false,
+      minWidth: 450,
+      width: 450,
+      modal: true,
+      title: '',
+      buttons: {
+        'Save': function(){
+          jQuery(this).dialog('close');
+          var abstract_type = jQuery('input[name=abstract_type]:checked').val(); 
+	      var new_annotation_start = jQuery('input[name=annotation_start]').val();
+	      var new_annotation_end = jQuery('input[name=annotation_end]').val();
+	      var collageId = jQuery('input[name=collage_id]').val();
+
+          if (abstract_type == 'annotation'){
+	        jQuery.openAnnotationDialog('annotations/new', {
+		      collage_id: collageId,
+			  annotation_start: new_annotation_start,
+			  annotation_end: new_annotation_end});
+          }
+      	  else{
+	        jQuery.openCollageLinkDialog('collage_links/embedded_pager', {
+		      collage_id: collageId,
+		      link_start: new_annotation_start,
+			  link_end: new_annotation_end});
+      	  }
+        },
+        'Cancel': function(){
+          jQuery('#new-annotation-error').html('').hide();
+          jQuery(this).dialog('close');
+        }
+     }
+    }); 
+  },
 
   wordEvent: function(e){
     var el = jQuery(this);
@@ -608,73 +644,45 @@ jQuery.extend({
       if(new_annotation_start != '') {
         new_annotation_end = el.attr('id');
         var collageId = jQuery.getItemId();
-        jQuery('#annotation-form').dialog({
-          bgiframe: true,
+		    jQuery("#annotation_or_collage_link").dialog({
+		      bgiframe: true,
           autoOpen: false,
           minWidth: 450,
-          width: 450,
-          modal: true,
-          title: '',
-          buttons: {
-            'Save': function(){
-/* From merge
-              var values = new Array();
-              jQuery(".layer_check input").each(function(i, el) {
-                if(jQuery(el).attr('checked')) {
-                  values.push(jQuery(el).data('value'));
+		      width: 450,
+		      modal: true,
+		      title: '',
+            buttons: {
+            'Ok': function(){
+      		    jQuery(this).dialog('close');
+        		    var abstract_type = jQuery('input[name=abstract_type]:checked').val(); 
+  	            var new_annotation_start = jQuery('input[name=annotation_start]').val();
+  	            var new_annotation_end = jQuery('input[name=annotation_end]').val();
+  	            var collageId = jQuery('input[name=collage_id]').val();
+
+                if (abstract_type == 'annotation'){
+	                jQuery.openAnnotationDialog('annotations/new', {
+  				          collage_id: collageId,
+  			            annotation_start: new_annotation_start,
+  				          annotation_end: new_annotation_end
+				          });
+      		      }
+      		      else{
+	    		        jQuery.openCollageLinkDialog('collage_links/embedded_pager', {
+				            collage_id: collageId,
+			              link_start: new_annotation_start,
+			              link_end: new_annotation_end}
+			            );
                 }
-              });
-              jQuery.submitAnnotation();
-End */
-              jQuery(this).dialog('close');
-              var abstract_type = jQuery('input[name=abstract_type]:checked').val(); 
-
-              var new_annotation_start = jQuery('input[name=annotation_start]').val();
- 			        var new_annotation_end = jQuery('input[name=annotation_end]').val();
-			        var collageId = jQuery('input[name=collage_id]').val();
-
-              if (abstract_type == 'annotation'){
-			          jQuery.openAnnotationDialog('annotations/new', {collage_id: collageId,
-					             annotation_start: new_annotation_start,
-										   annotation_end: new_annotation_end});
-              }
-              else{
-			          jQuery.openCollageLinkDialog('collage_links/embedded_pager', {collage_id: collageId,
-					        link_start: new_annotation_start,
-					        link_end: new_annotation_end });
-              }
-            },
-            'Cancel': function(){
-              jQuery('#new-annotation-error').html('').hide();
-              jQuery(this).dialog('close');
-            }
-          }
+             },
+             'Cancel': function(){
+                jQuery(this).dialog('close');
+             }
+           }
         });
-        jQuery.ajax({
-          type: 'GET',
-          url: jQuery.rootPath() + 'annotations/choose',
-          data: {
-            collage_id: collageId,
-            annotation_start: new_annotation_start,
-            annotation_end: new_annotation_end
-          },
-          cache: false,
-          beforeSend: function(){
-            jQuery.showGlobalSpinnerNode();
-            jQuery('div.ajax-error').html('').hide();
-          },
-          success: function(html){
-            jQuery.hideGlobalSpinnerNode();
-            jQuery('#annotation-form').html(html);
-            jQuery('#annotation-form').dialog('open');
-            jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
-          },
-          error: function(xhr){
-            jQuery.hideGlobalSpinnerNode();
-            jQuery('div.ajax-error').show().append(xhr.responseText);
-          }
-        });
-
+        jQuery('input[name=annotation_start]').val(new_annotation_start);
+		    jQuery('input[name=annotation_end]').val(new_annotation_end);
+		    jQuery('input[name=collage_id]').val(collageId);
+		    jQuery("#annotation_or_collage_link").dialog("open");
         jQuery("#tooltip").fadeOut();
         new_annotation_start = '';
         new_annotation_end = '';
@@ -725,25 +733,24 @@ End */
         success: function(html){
           jQuery.hideGlobalSpinnerNode();
           jQuery('#annotation-form').html(html);
-		  jQuery('#annotation-form').dialog({
-				buttons: {
-                        'Ok': function(){
-                          var values = new Array();
-                          jQuery(".layer_check input").each(function(i, el) {
-                            if(jQuery(el).attr('checked')) {
-                              values.push(jQuery(el).data('value'));
-                            }
-                          });
-                          jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
-                          jQuery.submitAnnotation();
-                        },
-                        Cancel: function(){
-                          jQuery('#new-annotation-error').html('').hide();
-                          jQuery(this).dialog('close');
-                        }
-                      }
-        });
-
+		      jQuery('#annotation-form').dialog({
+		        buttons: {
+              'Ok': function(){
+                var values = new Array();
+                  jQuery(".layer_check input").each(function(i, el) {
+  	                if(jQuery(el).attr('checked')) {
+  	                  values.push(jQuery(el).data('value'));
+  	                }
+                  });
+                  jQuery('#annotation_layer_list').val(jQuery('#new_layers input').val() + ',' + values.join(','));
+                  jQuery.submitAnnotation();
+              },
+              'Cancel': function(){
+                jQuery('#new-annotation-error').html('').hide();
+                jQuery(this).dialog('close');
+              }
+            }
+          });
           jQuery('#annotation-form').dialog('open');
           jQuery("#annotation_annotation").markItUp(h2oTextileSettings);
             jQuery('#annotation_layer_list').keypress(function(e){
@@ -761,82 +768,83 @@ End */
   }, //end anntotation dialog
 
   initPlaylistItemAddButton: function(){
-      jQuery('.add-Collage-button').button().click(function(e){
-          e.preventDefault();
-		  var link_start = jQuery('input[name=link_start]').val();
-		  var link_end = jQuery('input[name=link_end]').val();
-		  var host_collage = jQuery('input[name=host_collage]').val();
-            var itemId = jQuery(this).attr('id').split('-')[1];
-			jQuery.submitCollageLink(itemId, link_start, link_end, host_collage);
-      });
+    jQuery('.add-Collage-button').button().click(function(e){
+      e.preventDefault();
+  	  var link_start = jQuery('input[name=link_start]').val();
+  	  var link_end = jQuery('input[name=link_end]').val();
+  	  var host_collage = jQuery('input[name=host_collage]').val();
+      var itemId = jQuery(this).attr('id').split('-')[1];
+  		jQuery.submitCollageLink(itemId, link_start, link_end, host_collage);
+    });
   },
 
   initKeywordSearch: function(){
-      jQuery('.Collage-button').button().click(function(e){
-          e.preventDefault();
-          jQuery.ajax({
-              method: 'GET',
-              url: jQuery.rootPath() + 'collages/embedded_pager',
-              beforeSend: function(){
-             		jQuery.showGlobalSpinnerNode();
-              },
-              data: {
-                  keywords: jQuery('#Collage-keyword-search').val()
-              },
-              dataType: 'html',
-              success: function(html){
-             	  jQuery.hideGlobalSpinnerNode();
-                  jQuery('.h2o-playlistable-Collage').html(html);
-                  jQuery.initPlaylistItemAddButton();
-                  jQuery.initKeywordSearch();
-                  jQuery.initPlaylistItemPagination();
-              },
+    jQuery('.Collage-button').button().click(function(e){
+      e.preventDefault();
+      jQuery.ajax({
+        method: 'GET',
+        url: jQuery.rootPath() + 'collages/embedded_pager',
+        beforeSend: function(){
+       		jQuery.showGlobalSpinnerNode();
+        },
+        data: {
+            keywords: jQuery('#Collage-keyword-search').val()
+        },
+        dataType: 'html',
+        success: function(html){
+       	  jQuery.hideGlobalSpinnerNode();
+          jQuery('.h2o-playlistable-Collage').html(html);
+          jQuery.initPlaylistItemAddButton();
+          jQuery.initKeywordSearch();
+          jQuery.initPlaylistItemPagination();
+        },
 			  error: function(xhr){
-				alert('error');
-		        jQuery.hideGlobalSpinnerNode();
-		        jQuery('#new-annotation-error').show().append(xhr.responseText);
-		      }
-          });
+	        jQuery.hideGlobalSpinnerNode();
+	        jQuery('#new-annotation-error').show().append(xhr.responseText);
+	      }
       });
+    });
   },
+  
   initPlaylistItemPagination: function(){
-      jQuery('.h2o-playlistable-Collage .pagination a').click(
-          function(e){
-              e.preventDefault();
-              jQuery.ajax({
-                  type: 'GET',
-                  dataType: 'html',
-                  beforeSend: function(){
-             			jQuery.showGlobalSpinnerNode();
-                  },
-                  data: {
-                      keywords: jQuery('#Collage-keyword-search').val()
-                  },
-                  url: jQuery(this).attr('href'),
-                  success: function(html){
-             			jQuery.hideGlobalSpinnerNode();
-                      jQuery('.h2o-playlistable-Collage').html(html);
-                      jQuery.initPlaylistItemAddButton();
-                      jQuery.initKeywordSearch();
-                      jQuery.initPlaylistItemPagination();
-                  }
-              });
-          });
+    jQuery('.h2o-playlistable-Collage .pagination a').click(
+    function(e){
+      e.preventDefault();
+      jQuery.ajax({
+        type: 'GET',
+        dataType: 'html',
+        beforeSend: function(){
+     			jQuery.showGlobalSpinnerNode();
+        },
+        data: {
+          keywords: jQuery('#Collage-keyword-search').val()
+        },
+        url: jQuery(this).attr('href'),
+        success: function(html){
+     			jQuery.hideGlobalSpinnerNode();
+          jQuery('.h2o-playlistable-Collage').html(html);
+          jQuery.initPlaylistItemAddButton();
+          jQuery.initKeywordSearch();
+          jQuery.initPlaylistItemPagination();
+        }
+      });
+    });
   },
 
   submitCollageLink: function(linked_collage, link_start, link_end, host_collage){
-	 jQuery.ajax({
+	  jQuery.ajax({
       type: 'POST',
       cache: false,
       data: {collage_link: {
-		linked_collage_id: linked_collage,
-		host_collage_id: host_collage,
-		link_text_start: link_start,
-		link_text_end: link_end
-      }},
+		    linked_collage_id: linked_collage,
+		    host_collage_id: host_collage,
+		    link_text_start: link_start,
+    		link_text_end: link_end
+        }
+      },
       url: jQuery.rootPath() + 'collage_links/create',
       success: function(results){
-	    jQuery.hideGlobalSpinnerNode();
+  	    jQuery.hideGlobalSpinnerNode();
         jQuery('#annotation-form').dialog('close');
         document.location.reload(true);    
       }
@@ -844,8 +852,8 @@ End */
   },
 
   openCollageLinkDialog: function(url_path, data){
-	jQuery.ajax({
-	  type: 'GET',
+  	jQuery.ajax({
+  	  type: 'GET',
       url: jQuery.rootPath() + url_path,
       cache: false,
       beforeSend: function(){
@@ -855,19 +863,22 @@ End */
       dataType: 'html',
       success: function(html){
 	      jQuery.hideGlobalSpinnerNode();
-	       
-          jQuery('#annotation-form').html(html);
-		  jQuery.initPlaylistItemAddButton();
-		  jQuery.initKeywordSearch();
-          jQuery.initPlaylistItemPagination();
-		  jQuery('#annotation-form').dialog('open');
-
-		
+        jQuery('#annotation-form').html(html);
+        jQuery('#annotation-form').dialog({
+				autoOpen: false,
+          width: 500,
+  				minWidth: 500,
+  				title: '',
+  				bgiframe: true,
+  				modal: true
+        });
+  		  jQuery.initPlaylistItemAddButton();
+  		  jQuery.initKeywordSearch();
+        jQuery.initPlaylistItemPagination();
+  		  jQuery('#annotation-form').dialog('open');
       }
-	});
-
+	  });
   }
- 
 });
 
 jQuery(document).ready(function(){

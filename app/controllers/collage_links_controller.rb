@@ -1,5 +1,5 @@
 class CollageLinksController < BaseController
-
+  cache_sweeper :collage_link_sweeper
   def embedded_pager
     @link_start = params[:link_start]
     @link_end   = params[:link_end]

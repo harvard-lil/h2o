@@ -159,3 +159,4 @@ var annotations = <%= raw @collage.annotations.to_json(:include => [:layers], :e
 var color_map = <%= raw Collage.color_map.to_json %>;
 </script>
 <div id="annotation-form"></div>
+<%= render :partial => 'shared/forms/annotation_or_collage_link.html.erb' %>

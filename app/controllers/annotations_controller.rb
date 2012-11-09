@@ -24,12 +24,6 @@ class AnnotationsController < BaseController
     super Annotation
   end
 
-  def choose
-    @annotation_start = params[:annotation_start]
-    @annotation_end = params[:annotation_end]
-    @collage_id = params[:collage_id]
-  end
-
   def metadata
     @annotation[:object_type] = @annotation.class.to_s
     @annotation[:child_object_name] = 'annotation'

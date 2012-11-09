@@ -229,7 +229,7 @@ class Collage < ActiveRecord::Base
       
         collage_rules.each do |clr|
           if (clr[:start]..clr[:end]).include?(node_id_num)
-            classes << 'blue'
+            classes << 'collage_linked'
           end
         end
       end

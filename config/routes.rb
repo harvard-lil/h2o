@@ -22,7 +22,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :influences
 
-  map.resources :annotations, :collection => {:embedded_pager => :get, :choose => :get}
+  map.resources :annotations, :collection => {:embedded_pager => :get}
 
   map.resources :case_jurisdictions
   map.resources :case_docket_numbers
