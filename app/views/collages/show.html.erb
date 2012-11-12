@@ -17,13 +17,13 @@ Your annotation will start here. Please click another word to set the end point.
 			<ul>
 				<li class="requires_logged_in">
     			<% form_tag(spawn_copy_collage_path(@collage)) do %>
-					<a class="link-copy">Copy</a>
+                                       <a class="tooltip link-copy" id="copy-collage" title="Make a Copy of <%= @collage.name %>">Copy</a>
     			<% end %>
 				</li>
 				<li class="requires_logged_in">
-          <%= link_to "Bookmark This Collage", bookmark_item_path("item_collage"), :class => "link-bookmark bookmark-action" %>
+          <%= link_to "Bookmark This Collage", bookmark_item_path("item_collage"), :class => "link-bookmark bookmark-action tooltip", :title => "Bookmark #{@collage.name}", :id=> 'bookmark-collage' %>
         </li>
-				<li id="print-container">
+                               <li id="print-container" class="tooltip"  title="Print <%= @collage.name %>">
           <form action="<%= export_unique_collage_path(@collage) %>" target="_blank" method="POST">
             <input type="hidden" id="state" name="state" value="" />
             <input type="image" src="/images/ui/print.png" />
@@ -34,7 +34,7 @@ Your annotation will start here. Please click another word to set the end point.
 		<aside class="buttons">
 			<ul>
 				<li class="btn-li" id="autosave"></li>
-        <li class="btn-li afterload">
+        <li class="tooltip btn-li afterload" title="Change the size of the text" id="change-font">
           <a href="#" class="btn-a" id="fonts">
             <span>Aa</span>
           </a>
@@ -55,18 +55,18 @@ Your annotation will start here. Please click another word to set the end point.
 						<ul>
 							<li>
 								<strong>FULL TEXT</strong>
-								<a href="#" id="full_text"><strong>SHOW</strong></a>
+                                                               <a href="#" class="tooltip" title="Show the entire text of <%= @collage.name %>" id="full_text"><strong>SHOW</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 							<li>
 								<strong>AUTHOR'S EDITS</strong>
-								<a href="#" id="author_edits"><strong>REVERT</strong></a>
+                                                               <a href="#" class="tooltip" title="Show <%= @collage.author %>'s version of the collage" id="author_edits"><strong>REVERT</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 							<li>
 								<strong>ANNOTATIONS</strong>
-								<a href="#" id="show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
-								<a href="#" id="hide_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>HIDE</strong></a>
+                                                               <a href="#" title="View all annotations" class="tooltip" id="show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>SHOW</strong></a>
+                                                               <a href="#" title="Hide all annotations" class="tooltip" id="hide_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>><strong>HIDE</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
               <li>
@@ -81,15 +81,15 @@ Your annotation will start here. Please click another word to set the end point.
    					  <% @collage.layers.each do |layer| %>
 							<li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map[layer.name] ? @color_map[layer.name] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
 								<strong><%= layer.name %></strong>
-								<a href="#" class="hide_show shown"><strong>HIDE</strong></a>
-								<a href="#" class="link-o unhighlighted">HIGHLIGHT</a>
+                                                               <a href="#" class="hide_show shown tooltip" title="Hide the <%= layer.name %> layer" ><strong>HIDE</strong></a>
+                                                               <a href="#" title="Highlight the <%= layer.name %> Layer" class="tooltip link-o unhighlighted">HIGHLIGHT</a>
 								<div class="cl">&nbsp;</div>
 							</li>
    						<% end -%>
 							<li>
 								<strong id="unlayered">UNLAYERED</strong>
-								<a href="#" id="show_unlayered"><strong>SHOW</strong></a>
-								<a href="#" id="hide_unlayered"><strong>HIDE</strong></a>
+								<a href="#" id="show_unlayered" class="tooltip"  title="Show All Unlayered"><strong>SHOW</strong></a>
+								<a href="#" id="hide_unlayered" class="tooltip"  title="Hide All Unlayered"><strong>HIDE</strong></a>
 								<div class="cl">&nbsp;</div>
 							</li>
 						</ul>

@@ -103,6 +103,7 @@ class CollagesController < BaseController
   end
 
   def index
+    add_javascripts ['jquery.tipsy', 'tooltips']
     params[:page] ||= 1
 
     if params[:keywords]

@@ -882,6 +882,7 @@ jQuery.extend({
 });
 
 jQuery(document).ready(function(){
+  jQuery('.tooltip').tipsy();
   if(jQuery('.singleitem').length > 0){
     var height = jQuery('.description').height();
     if(height != 30) {
