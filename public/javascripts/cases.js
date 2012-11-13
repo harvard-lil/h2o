@@ -43,4 +43,24 @@ jQuery(document).ready(function(){
     });
   });
   jQuery.observeMetadataForm();
+
+  jQuery('form a.add_child').click(function() {
+    var assoc   = jQuery(this).attr('data-association');
+    var content = jQuery('#' + assoc + '_fields_template').html();
+    var regexp  = new RegExp('new_' + assoc, 'g');
+    var new_id  = new Date().getTime();
+        
+    jQuery(this).parent().before(content.replace(regexp, new_id));    
+    return false;
+  });
+  
+  jQuery('form a.remove_child').live('click', function() {
+    var hidden_field = jQuery(this).prev('input[type=hidden]')[0];
+    if(hidden_field) {
+      hidden_field.value = '1';
+    }
+    jQuery(this).parents('.fields').hide();
+    return false;
+  });
+
 });

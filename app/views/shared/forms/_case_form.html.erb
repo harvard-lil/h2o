@@ -25,8 +25,10 @@
           <% @case.case_docket_numbers = @case.case_docket_numbers.delete(@case.case_docket_numbers.first) %>
         <% end %>
         <% form.semantic_fields_for :case_docket_numbers do |cd| %>
-          <%= cd.inputs :docket_number, :name => ((cd.object.new_record?) ? "Add docket number" : 'Edit existing docket number') %>
+          <%= render :partial => 'shared/forms/case_docket_number', :locals => {:f => cd} %>
         <% end %>
+        <p><%= add_child_link "ADD ADDITIONAL CASE DOCKET NUMBER", :case_docket_numbers %></p>
+        <%= h(new_child_fields_template(form, :case_docket_numbers, :partial => 'shared/forms/case_docket_number'))%>
         <hr />
         <% if @case.case_request %>
           <% @case.case_citations = @case.case_citations.delete(@case.case_citations.first) %>
