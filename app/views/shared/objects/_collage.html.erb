@@ -3,10 +3,11 @@
 	<% if current_user %>
 	<div class="controls">
   		<% form_tag(spawn_copy_collage_path(collage)) do %>
-		<ul>
-          <li class="link-copy tooltip" title="Copy Collage <%= collage.name %>" id='copy-collage'><a href="#">Copy</a></li>
-          <li class="link-add tooltip" title='Add <%= collage.name %> to one of your Playlists' id="add-to-playlist"><a data-item_id="<%= collage.id %>" data-bookmarktype="item_collage" data-type="collage" href="#">Add</a></li>
-		</ul>
+      <ul>
+        <li class="link-copy tooltip" title="Copy Collage <%= collage.name %>" id='copy-collage'><a href="#">Copy</a></li>
+        <li class="link-add tooltip" title='Add <%= collage.name %> to one of your Playlists' id="add-to-playlist"><a data-item_id="<%= collage.id %>" data-bookmarktype="item_collage" data-type="collage" href="#">Add</a></li>
+        <li class="link-bookmark"><a href="#" data-itemid="<%= collage.id %>" data-type="collage" class="singleitem bookmark-this bookmark-action bookmark-link">ADD BOOKMARK</a></li>
+      </ul>
   		<% end %>      
 	</div>
   	<% end %>      
