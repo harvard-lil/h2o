@@ -9,6 +9,7 @@
 #collage .description .toolbar ul li { float:left; display:inline; padding:0 8px; border-left:1px solid #d5f1a6; }
 #collage .description .toolbar ul li img { display:block; }
 .singleitem .description .toolbar ul li#print-container { padding: 3px 8px 0px 8px; height: 23px; overflow: hidden; }
+#fixed_header { z-index: 3; }
 
 #collage .description .buttons { float:right; display:inline; visibility: hidden; }
 #collage .description .buttons ul { list-style:none; }

@@ -147,6 +147,10 @@ jQuery.extend({
       jQuery('#collage article').css('font-size', element.val() + 'px');
       jQuery('#description_less, #description_more, #description').css('font-size', (parseInt(element.val()) + 1) + 'px');
       jQuery('#collage .details h5').css('font-size', element.val() + 'px');
+      jQuery('.special_highlight').each(function(i, el) {
+        jQuery(el).height(jQuery(el).parent().height() + 2);
+        jQuery(el).width(jQuery(el).parent().width());
+      });
     });
     jQuery("#collage .description .buttons ul #fonts span").parent().click(function() { 
       jQuery('.font-size-popup').css({ 'top': 25 }).toggle();

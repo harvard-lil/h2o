@@ -193,7 +193,7 @@ background:#ffd5a4; border:1px solid #ed9635; overflow:auto; }
 #results .listitem .controls ul li.link-collage a { background:url(/images/ui/app_icons.png) -72px -69px; }
 #results .listitem .controls ul li.link-bookmark a { background:url(/images/ui/app_icons.png) 0px -69px; }
 
-#results .listitem .details { float: right; display: inline; width:902px; }
+#results .listitem .details { float: right; display: inline; width:875px; }
 #results .listitem .details .tags { float: right; display: inline; }
 #results .listitem .details .tags a { font-size: 10px; background:#dbe2e9; padding:5px 11px; display: inline-block; }
 #results .listitem .details h4 { font-size:14px; line-height:18px; padding-bottom:4px; color: #336699; }

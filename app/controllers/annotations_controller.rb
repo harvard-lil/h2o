@@ -81,6 +81,11 @@ class AnnotationsController < BaseController
 
     @annotation = Annotation.new(params[:annotation])
 
+    if params.has_key?(:new_layer_list) && (params[:new_layer_list].first[:hex] == "" || params[:new_layer_list].first[:layer] == "")
+      render :text => "Please enter a layer name and select a hex.", :status => :unprocessable_entity
+      return
+    end
+
     if @annotation.save
       @annotation.accepts_role!(:owner, current_user)
       @annotation.accepts_role!(:editor, current_user)
