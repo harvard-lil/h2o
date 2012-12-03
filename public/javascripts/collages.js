@@ -264,7 +264,7 @@ jQuery.extend({
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
-        jQuery('tt.' + id + ' .special_highlight tt').remove();
+        jQuery('tt.' + id + ' .special_highlight tt.' + id).remove();
         el.removeClass('highlighted').html('HIGHLIGHT');
       } else {
         el.siblings('.hide_show').find('strong').html('HIDE');
