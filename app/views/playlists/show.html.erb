@@ -7,10 +7,10 @@
 		<h2><%= @playlist.name %></h2>
 		<aside class="toolbar">
 			<ul>
-				<li class="requires_logged_in"><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "link-remix remix-action" %></li>
-				<li class="requires_logged_in"><%= link_to "Bookmark This Playlist", '#', :class => "link-bookmark bookmark-action" %></li>
+        <li class="requires_logged_in"><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "tooltip link-remix remix-action", :title => "Remix #{@playlist.name}" %></li>
+        <li class="requires_logged_in"><%= link_to "Bookmark This Playlist", '#', :class => "tooltip link-bookmark bookmark-action", :title => "Bookmark #{@playlist.name}" %></li>
 				<li id="print-container">
-          <a href="<%= export_playlist_path(@playlist) %>" class="link-print" target="_blank">
+        <a href="<%= export_playlist_path(@playlist) %>" class="tooltip link-print" target="_blank" title="Print <%= @playlist.name %>">
             <span>Print</span>
           </a>
         </li>
