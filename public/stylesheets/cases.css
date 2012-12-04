@@ -45,3 +45,4 @@
 #case article h2, 
 #case article h3, 
 #case article h4 { margin-bottom: 1.0em; }
+#case article blockquote p { margin-left: 0px; margin-bottom: 16px; padding-bottom: 0px}
