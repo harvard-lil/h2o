@@ -153,7 +153,8 @@ class Collage < ActiveRecord::Base
     collage_links.each do |cl|
       collage_rules << {
         :start => cl.start_number,
-        :end => cl.end_number
+        :end => cl.end_number,
+        :href => "/collages/#{cl.linked_collage.id}"
       } 
     end
     unlayered_start = 1
@@ -227,12 +228,28 @@ class Collage < ActiveRecord::Base
           classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
         end
       
+        #add collage links
         collage_rules.each do |clr|
-          if (clr[:start]..clr[:end]).include?(node_id_num)
-            classes << 'collage_linked'
+          if ((clr[:start] == node_id_num) and (clr[:end] > clr[:start])) || 
+             ((clr[:end] == node_id_num) and (clr[:end] < clr[:start]))
+            node_count = (clr[:end] - clr[:start])  
+            node_count = node_count.abs
+            node_count = node_count + 1
+            collage_link_node = Nokogiri::XML::Node.new('a',doc)
+            link_nodes = []
+            current_node = node
+            node_count.times do
+              link_nodes << current_node
+              current_node = current_node.next_sibling
+            end
+            collage_link_node['href'] = clr[:href] 
+            collage_link_node = node.add_previous_sibling collage_link_node
+            link_nodes.each{|n| n.parent=collage_link_node}
           end
         end
+        
       end
+
       if classes.length > 0
         unlayered_start = node_id_num + 1
         unlayered_start_node = true
@@ -297,7 +314,7 @@ class Collage < ActiveRecord::Base
       end
     end
 
-    doc.xpath("//html/body/*").to_s
+    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 
   alias :to_s :display_name
