@@ -227,27 +227,27 @@ class Collage < ActiveRecord::Base
         if node_id_num >= r[:start] and node_id_num <= r[:end]
           classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
         end
-      
-        #add collage links
-        collage_rules.each do |clr|
-          if ((clr[:start] == node_id_num) and (clr[:end] > clr[:start])) || 
-             ((clr[:end] == node_id_num) and (clr[:end] < clr[:start]))
-            node_count = (clr[:end] - clr[:start])  
-            node_count = node_count.abs
-            node_count = node_count + 1
-            collage_link_node = Nokogiri::XML::Node.new('a',doc)
-            link_nodes = []
-            current_node = node
-            node_count.times do
-              link_nodes << current_node
-              current_node = current_node.next_sibling
-            end
-            collage_link_node['href'] = clr[:href] 
-            collage_link_node = node.add_previous_sibling collage_link_node
-            link_nodes.each{|n| n.parent=collage_link_node}
+              
+      end
+
+      #add collage links
+      collage_rules.each do |clr|
+        if ((clr[:start] == node_id_num) and (clr[:end] > clr[:start])) || 
+           ((clr[:end] == node_id_num) and (clr[:end] < clr[:start]))
+          node_count = (clr[:end] - clr[:start])  
+          node_count = node_count.abs
+          node_count = node_count + 1
+          collage_link_node = Nokogiri::XML::Node.new('a',doc)
+          link_nodes = []
+          current_node = node
+          node_count.times do
+            link_nodes << current_node
+            current_node = current_node.next_sibling
           end
+          collage_link_node['href'] = clr[:href] 
+          collage_link_node = node.add_previous_sibling collage_link_node
+          link_nodes.each{|n| n.parent=collage_link_node}
         end
-        
       end
 
       if classes.length > 0
