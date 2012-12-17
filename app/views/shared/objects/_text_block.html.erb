@@ -4,7 +4,6 @@
 		<ul>
 			<li class="link-collage"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => text_block), :class => "new-action" %></li>
 			<li class="link-add"><a data-item_id="<%= text_block.id %>" data-bookmarktype="item_text_block" data-type="text_block" href="#">Add</a></li>
-            <li class="link-bookmark"><a href="#" data-itemid="<%= text_block.id %>" data-type="text_block" class="singleitem bookmark-this bookmark-action bookmark-link">ADD BOOKMARK</a></li>
 		</ul>
 	</div>
 	<% end -%>
