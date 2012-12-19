@@ -26,10 +26,10 @@ background: url(/images/ui/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; w
 .collage-content p,
 .collage-content center { position: relative; }
 .collage-content .paragraph-numbering { position: absolute; left: -50px; }
-.collage-content blockquote .paragraph-numbering { left: -80px; }
+.collage-content blockquote { padding-left: 30px; margin-left: 30px; }
+.collage-content blockquote .paragraph-numbering { left: -110px; }
 
 .playlists .collage-content article { position: relative; }
-.playlists .collage-content article .paragraph-numbering { left: -50px; }
 
 #playlist { padding: 0px; width: 980px; overflow: hidden; }
 #playlist ul { list-style-type: none; }
