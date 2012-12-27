@@ -63,4 +63,37 @@ jQuery(document).ready(function(){
     jQuery('.print_border span').css('border-top-width', (size + 2) + 'pt');
     jQuery.rule('#playlist .details h2, .collage-content .info { font-size: ' + (size - 1) + 'pt; }').appendTo('style');
   });
+  jQuery('#printtitle').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+    var choice = jQuery(this).val();
+    if (choice == 'yes') {
+      jQuery('h1').show();
+    }
+    else {
+      jQuery('h1').hide();
+    }
+  });
+  jQuery('#printdetails').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+    var choice = jQuery(this).val();
+    if (choice == 'yes') {
+      jQuery('.details').show();
+    }
+    else {
+      jQuery('.details').hide();
+    }
+  });
+  jQuery('#printparagraphnumbers').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+    var choice = jQuery(this).val();
+    if (choice == 'yes') {
+      jQuery('.paragraph-numbering').show();
+    }
+    else {
+      jQuery('.paragraph-numbering').hide();
+    }
+  });
 });

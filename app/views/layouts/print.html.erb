@@ -36,6 +36,32 @@
             </select>
             <div class="cl"></div>
           </li>
+          <li>
+            <strong>PRINT TITLE</strong>
+            <select id="printtitle">
+              <option value="yes" selected="selected">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <div class="cl"></div>
+          </li>
+          <li>
+            <strong>PRINT DETAILS</strong>
+            <select id="printdetails">
+              <option value="yes" selected="selected">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <div class="cl"></div>
+          </li>
+          <% if params[:controller] == "collages" or params[:controller] =="playlists" %>
+          <li>
+            <strong>PRINT PARAGRAPH NUMBERS</strong>
+            <select id="printparagraphnumbers">
+              <option value="yes" selected="selected">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <div class="cl"></div>
+          </li>
+        <% end %>
         </ul>
       </div>
       <%= yield %>
