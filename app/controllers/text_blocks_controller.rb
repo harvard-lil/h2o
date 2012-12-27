@@ -7,7 +7,7 @@ class TextBlocksController < BaseController
 
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
-
+  before_filter :restrict_if_private, :only => [:show, :edit, :update, :destroy, :embedded_pager, :export]
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
     allow :text_block_admin, :admin, :superadmin

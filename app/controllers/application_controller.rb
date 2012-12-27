@@ -201,4 +201,18 @@ class ApplicationController < ActionController::Base
       logger.warn("Couldn't update question instance id: #{@UPDATE_QUESTION_INSTANCE_TIME.id} because #{e.inspect}")
     end
 
+    def restrict_if_private
+      artifact = instance_variable_get("@#{controller_name.singularize.downcase}")
+      if !artifact.public? and not current_user
+        flash[:notice] = "You do not have access to this content."
+        redirect_to crossroad_user_session_url
+        return false
+      elsif !artifact.public? and current_user and not (artifact.admin? ||     artifact.owner?)
+        flash[:notice] = "You do not have access to this content."
+        redirect_to crossroad_user_session_url
+        return false
+      else
+        return true
+      end
+    end
 end
