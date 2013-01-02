@@ -477,10 +477,10 @@ h2 .bookmarked { color: #FFF; }
   display: block; width: 23px; height: 30px; text-indent: -4000px; }
 .singleitem .toolbar .link-share { width: 25px; background-position: 0px -39px; }
 .singleitem .toolbar .collage-this { background-position: -102px -39px; width: 20px; }
-.singleitem .toolbar .link-remix { background-position: -81px -39px; width: 20px; }
-.singleitem .toolbar .link-copy { background-position: -25px -39px; width: 16px; }
-.singleitem .toolbar .link-bookmark { background-position: -41px -39px; width: 18px; }
-.singleitem .toolbar .link-print { background-position: -60px -39px; width: 22px; }
+.singleitem .toolbar .link-remix { background-position: -81px -38px; width: 20px; }
+.singleitem .toolbar .link-copy { background-position: -25px -38px; width: 16px; }
+.singleitem .toolbar .link-bookmark { background-position: -41px -38px; width: 18px; }
+.singleitem .toolbar .link-print { background-position: -60px -38px; width: 22px; }
 
 /* MCE */
 .mce_switches {
