@@ -9,6 +9,7 @@
     <% semantic_form_for(@media, :html => {:id => 'media-form'}) do |form| %>
       <% form.inputs do %>
         <%= form.input :name %>
+        <%= form.input :public %>
         <%= form.input :description, :as => :text, :required => false  %>
         <%= form.input :media_type, :as => :radio %>
         <li id="media_detail">

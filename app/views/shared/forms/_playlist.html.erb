@@ -9,6 +9,7 @@
   <% form.inputs do %>
     <% if @can_edit_all -%>
     <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+    <%= form.input :public %>
     <%= form.input :counter_start, :as => :string %>
     <% end -%>
     <% if @can_edit_desc %>

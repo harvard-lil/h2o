@@ -207,7 +207,7 @@ class ApplicationController < ActionController::Base
         flash[:notice] = "You do not have access to this content."
         redirect_to crossroad_user_session_url
         return false
-      elsif !artifact.public? and current_user and not (artifact.admin? ||     artifact.owner?)
+      elsif !artifact.public? and current_user and not (artifact.admin? ||     artifact.owner? || current_user.has_role?('superadmin'))
         flash[:notice] = "You do not have access to this content."
         redirect_to crossroad_user_session_url
         return false
