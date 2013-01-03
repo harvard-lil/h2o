@@ -7,7 +7,7 @@ class MediasController < BaseController
   before_filter :store_location, :only => [:index, :show]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
-  before_filter :restrict_if_private, :only => [:show, :edit, :update, :new]
+  before_filter :restrict_if_private, :only => [:show, :edit, :update]
   protect_from_forgery :except => []
 
   access_control do
@@ -92,6 +92,7 @@ class MediasController < BaseController
   end
 
   def new
+    add_javascripts ['new_text_block']
     @media = Media.new
   end
 
@@ -112,6 +113,7 @@ class MediasController < BaseController
   end
 
   def edit
+    add_javascripts ['new_text_block']
   end
 
   def update

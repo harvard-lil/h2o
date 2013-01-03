@@ -6,7 +6,7 @@ class CollagesController < BaseController
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:spawn_copy, :export_unique]
-  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap, :new]
+  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
   caches_action :show
   access_control do
     allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
