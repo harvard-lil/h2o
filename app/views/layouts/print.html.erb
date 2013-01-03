@@ -18,51 +18,48 @@
   <body id="b<%= params[:controller] %>">
   	<section id="shell">
       <div class="popup">
-        <ul>
-          <li>
-            <strong>FONT SIZE</strong>
-            <select id="printfontsize">
-              <option value="11" selected="selected">Small</option>
-              <option value="14">Medium</option>
-              <option value="16">Large</option>
-            </select>
-            <div class="cl"></div>
-          </li>
-          <li>
-            <strong>FONT TYPE</strong>
-            <select id="printfonttype">
-              <option value="serif">Serif</option>
-              <option value="sans-serif" selected="selected">Sans-Serif</option>
-            </select>
-            <div class="cl"></div>
-          </li>
-          <li>
-            <strong>PRINT TITLE</strong>
-            <select id="printtitle">
-              <option value="yes" selected="selected">Yes</option>
-              <option value="no">No</option>
-            </select>
-            <div class="cl"></div>
-          </li>
-          <li>
-            <strong>PRINT DETAILS</strong>
-            <select id="printdetails">
-              <option value="yes" selected="selected">Yes</option>
-              <option value="no">No</option>
-            </select>
-            <div class="cl"></div>
-          </li>
-          <% if params[:controller] == "collages" or params[:controller] =="playlists" %>
-          <li>
-            <strong>PRINT PARAGRAPH NUMBERS</strong>
-            <select id="printparagraphnumbers">
-              <option value="yes" selected="selected">Yes</option>
-              <option value="no">No</option>
-            </select>
-            <div class="cl"></div>
-          </li>
-        <% end %>
-        </ul>
+        <div id="print-options">
+          <ul>
+            <li>
+              <strong>FONT SIZE</strong>
+              <select id="printfontsize">
+                <option value="11" selected="selected">Small</option>
+                <option value="14">Medium</option>
+                <option value="16">Large</option>
+              </select>
+            </li>
+            <li>
+              <strong>FONT TYPE</strong>
+              <select id="printfonttype">
+                <option value="serif">Serif</option>
+                <option value="sans-serif" selected="selected">Sans-Serif</option>
+              </select>
+            </li>
+            <li>
+              <strong>PRINT TITLE(S)</strong>
+              <select id="printtitle">
+                <option value="yes" selected="selected">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </li>
+            <li>
+              <strong>PRINT CREATE AND DATE DETAILS</strong>
+              <select id="printdetails">
+                <option value="yes" selected="selected">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </li>
+            <% if params[:controller] == "collages" or params[:controller] =="playlists" %>
+            <li>
+              <strong>PRINT PARAGRAPH NUMBERS</strong>
+              <select id="printparagraphnumbers">
+                <option value="yes" selected="selected">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </li>
+          <% end %>
+          </ul>
+        </div>
       </div>
       <%= yield %>
     </section>

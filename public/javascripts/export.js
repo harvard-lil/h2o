@@ -69,9 +69,11 @@ jQuery(document).ready(function(){
     var choice = jQuery(this).val();
     if (choice == 'yes') {
       jQuery('h1').show();
+      jQuery('.playlists h3').show();
     }
     else {
       jQuery('h1').hide();
+      jQuery('.playlists h3').hide();
     }
   });
   jQuery('#printdetails').selectbox({
@@ -91,9 +93,11 @@ jQuery(document).ready(function(){
     var choice = jQuery(this).val();
     if (choice == 'yes') {
       jQuery('.paragraph-numbering').show();
+      jQuery('.collage-content').css('padding-left', '50px');
     }
     else {
       jQuery('.paragraph-numbering').hide();
+      jQuery('.collage-content').css('padding-left', '0px');
     }
   });
 });
