@@ -115,7 +115,7 @@ class CasesController < BaseController
 
   def approve
     @case.approve!
-    Notifier.deliver_case_notify_approved(@case)
+    #Notifier.deliver_case_notify_approved(@case)
     render :json => {}
   end
   
@@ -171,7 +171,7 @@ class CasesController < BaseController
         @case.accepts_role!(:creator, current_user)
         @case.case_request.approve! if @case.case_request
         if @case.active
-          Notifier.deliver_case_notify_approved(@case)
+          #Notifier.deliver_case_notify_approved(@case)
           flash[:notice] = 'Case was successfully created.'
           format.html { redirect_to "/cases/#{@case.id}" }
         else
@@ -199,7 +199,7 @@ class CasesController < BaseController
     respond_to do |format|
       if @case.update_attributes(params[:case])
         if @case.active
-          Notifier.deliver_case_notify_updated(@case)
+          #Notifier.deliver_case_notify_updated(@case)
           flash[:notice] = 'Case was successfully updated.'
           format.html { redirect_to "/cases/#{@case.id}" }
         else
@@ -217,7 +217,7 @@ class CasesController < BaseController
   # DELETE /cases/1
   # DELETE /cases/1.xml
   def destroy
-    Notifier.deliver_case_notify_rejected(@case)
+    #Notifier.deliver_case_notify_rejected(@case)
     @case.destroy
     respond_to do |format|
       format.html { redirect_to(cases_url) }
