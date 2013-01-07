@@ -4,6 +4,7 @@
   <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
     <% form.inputs do %>
       <%= form.input :name %>
+      <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
       <%= form.input :description,
         :as => :text,
         :input_html => {:size => '40x5', :class => 'textile_description'},
