@@ -317,6 +317,18 @@ class Collage < ActiveRecord::Base
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 
+  def printable_content
+    self.strip_footnote_links
+  end
+  
+  def strip_footnote_links
+    doc = Nokogiri::HTML.parse(self.annotatable_content)
+    doc.css("a").each do |li|
+      li.replace(Nokogiri::XML::Text.new(li.inner_html, li.document)) if li['href'] =~ /#r/
+    end
+    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
+  end
+
   alias :to_s :display_name
 
   def bookmark_name

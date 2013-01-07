@@ -6,7 +6,7 @@
 </div>
   <% cache("collage-#{@collage.id}-annotatable-content") do %>
   <article>
-    <%= raw @collage.annotatable_content %>
+    <%= raw @collage.printable_content %>
   </article>
   <% end -%>
 </div>
