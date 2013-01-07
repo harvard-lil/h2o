@@ -27,6 +27,14 @@ class ApplicationController < ActionController::Base
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
 
+  #Add ability to make page caching conditional
+  #to support only caching public items
+  def self.caches_page(*actions)
+    return unless perform_caching
+    options = actions.extract_options!
+    after_filter(:only => actions) { |c| c.cache_page if options[:if].nil? or options[:if].call(c) }
+  end
+
   #Switch to local time zone
   def set_time_zone
     if current_user && ! current_user.tz_name.blank?

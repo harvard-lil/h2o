@@ -12,8 +12,8 @@ class PlaylistsController < BaseController
   before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :export, :check_export]
   before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
   before_filter :store_location, :only => [:index, :show]
-#  before_filter :restrict_if_private, :except => [:metadata, :embedded_pager, :index, :destroy, :export, :check_export, :new]
-  caches_action :show, :export
+  before_filter :restrict_if_private, :except => [:metadata, :embedded_pager, :index, :new, :create]
+  caches_page :show, :export, :if => Proc.new{|c| c.instance_variable_get('@playlist').public?}
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
     allow logged_in, :to => [:new, :create, :copy, :spawn_copy]

@@ -1,13 +1,13 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
-
+  
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
   before_filter :load_collage, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:spawn_copy, :export_unique]
-#  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
-  caches_action :show
+  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
+  caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
   access_control do
     allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
 
