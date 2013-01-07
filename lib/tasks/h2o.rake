@@ -225,7 +225,9 @@ namespace :h2o do
   task(:reassign_owner => :environment) do
     # user and playlist is required
 
-    first_children = Playlist.find(671).playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+    p = Playlist.find(548)
+
+    first_children = p.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
     
     second_children = first_children.inject([]) do |barr, i|
       if i.is_a?(Playlist)
@@ -236,7 +238,7 @@ namespace :h2o do
     
     third_children = second_children.flatten.inject([]) do |barr, i|
       if i.is_a?(Playlist)
-        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
+        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object if pi.resource_item.respond_to?(:actual_object); arr }.flatten
       end
       barr
     end
@@ -248,9 +250,9 @@ namespace :h2o do
       barr
     end
     
-    to_update = [first_children + second_children + third_children + fourth_children].flatten
+    to_update = [[p] + first_children + second_children + third_children + fourth_children].flatten
     
-    u = User.find_by_login("criminallaw")
+    u = User.find_by_login("ProfDavidPost")
     to_update.each do |i|
       if [Playlist,Collage].include?(i.class)
         next if i.owners == [u]
