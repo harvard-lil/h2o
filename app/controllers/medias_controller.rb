@@ -92,7 +92,7 @@ class MediasController < BaseController
   end
 
   def new
-    add_javascripts ['new_text_block']
+    add_javascripts ['visibility_selector']
     @media = Media.new
   end
 
@@ -113,7 +113,7 @@ class MediasController < BaseController
   end
 
   def edit
-    add_javascripts ['new_text_block']
+    add_javascripts ['visibility_selector']
   end
 
   def update

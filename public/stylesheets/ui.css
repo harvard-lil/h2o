@@ -631,3 +631,6 @@ z-index: 100; padding: 0px 8px 0px 8px; position: relative; }
 /* Users */
 ul.user_captcha { list-style-type: none; margin-bottom: 10px; }
 ul.user_captcha > li p.inline-errors { display: none; }
+
+/* Visibility Selector */
+#terms_require p{width: 300px; text-align:left}
