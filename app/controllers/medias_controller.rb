@@ -3,7 +3,7 @@ class MediasController < BaseController
   #caches_page :show
 
   before_filter :require_user, :except => [:index, :show, :access_level, :embedded_pager]
-  before_filter :load_media, :only => [:show, :edit, :update]
+  before_filter :load_media, :only => [:show, :edit, :update, :destroy]
   before_filter :store_location, :only => [:index, :show]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
@@ -137,6 +137,17 @@ class MediasController < BaseController
     end
   end
 
+  # DELETE /medias/1
+  # DELETE /medias/1.xml
+  def destroy
+    @media.destroy
+    respond_to do |format|
+      format.html { redirect_to(medias_url) }
+      format.xml  { head :ok }
+      format.json { render :json => {} }
+    end
+  end
+ 
   def render_or_redirect_for_captcha_failure
     @media = Media.new(params[:media])
     @media.valid?
