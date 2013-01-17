@@ -27,7 +27,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :case_jurisdictions
   map.resources :case_docket_numbers
   map.resources :case_citations
-
+  
   map.resources :case_requests
   map.resources :cases, :collection => {:embedded_pager => :get}, :member => {:metadata => :get, :export => :get, :approve => :post}
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
@@ -84,7 +84,7 @@ ActionController::Routing::Routes.draw do |map|
   map.update_permissions "/user_collections/:id/update_permissions", :controller => :user_collections, :action => :update_permissions
 
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
-
+  map.resources :password_resets
   map.log_out "/log_out", :controller => :user_sessions, :action => :destroy
   map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
   map.bookmark_item "/bookmark_item/:type/:id", :controller => :users, :action => :bookmark_item

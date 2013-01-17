@@ -231,4 +231,9 @@ class User < ActiveRecord::Base
     collages = self.collages_by_permission(permission_key)
     collages.include?(collage)
   end
+
+  def deliver_password_reset_instructions!
+    reset_perishable_token!
+    Notifier.deliver_password_reset_instructions(self)
+  end
 end
