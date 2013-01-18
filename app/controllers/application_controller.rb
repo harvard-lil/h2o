@@ -211,6 +211,7 @@ class ApplicationController < ActionController::Base
 
     def restrict_if_private
       artifact = instance_variable_get("@#{controller_name.singularize.downcase}")
+      return true if artifact.nil?
       if !artifact.public? and not current_user
         flash[:notice] = "You do not have access to this content."
         redirect_to crossroad_user_session_url
