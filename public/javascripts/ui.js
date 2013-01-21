@@ -737,7 +737,15 @@ jQuery.extend({
             eval('jQuery.' + data.custom_block + '(data)');
           } else {
             setTimeout(function() {
-              document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+              var redirect_to = jQuery.rootPath() + data.type + '/' + data.id;
+              var use_new_tab = jQuery.cookie('use_new_tab');
+              if(use_new_tab == 'true'){
+                window.open(redirect_to, '_blank');
+              }
+              else{
+                document.location.href = redirect_to;
+              }
+                
             }, 1000);
           }
         }

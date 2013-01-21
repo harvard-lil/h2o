@@ -9,6 +9,7 @@
 	<% if ["collages#show", "playlists#show"].include?("#{params[:controller]}##{params[:action]}") -%>
 	<ul class="right requires_logged_in">
 		<li class="user_account"></li>
+		<li><%= link_to "Settings", settings_path %></li>
 		<li class="last"><%= link_to "sign out", log_out_path %></li>
 	</ul>
 	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
@@ -16,6 +17,7 @@
 	<% if current_user -%>
 	<ul class="right" id="logged-in">
 		<li><%= link_to "Dashboard", user_path(current_user) %></li>
+		<li><%= link_to "Settings", settings_path %></li>
 		<li class="last"><%= link_to "sign out", log_out_path %></li>
 	</ul>
 	<% else -%>

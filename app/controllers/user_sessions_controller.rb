@@ -12,6 +12,8 @@ class UserSessionsController < ApplicationController
     @user_session = UserSession.new(params[:user_session])
     @user_session.save do |result|
       if result
+        user = User.find_by_login(@user_session.login)
+        apply_user_preferences!(user)
         if request.xhr?
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false

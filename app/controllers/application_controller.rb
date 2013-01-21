@@ -152,6 +152,12 @@ class ApplicationController < ActionController::Base
     @javascripts = [] if ! defined?(@javascripts)
     @javascripts << new_javascripts
   end
+  
+  def apply_user_preferences!(user)
+    cookies[:font_size] = user.default_font_size
+    cookies[:use_new_tab] = 'true' if user.tab_open_new_items?
+  end
+  
 
   private
 
