@@ -7,7 +7,7 @@ class SettingsController < ApplicationController
   
   def update
     if @user.update_attributes(params[:user])
-      @user.apply_preferences
+      apply_user_preferences!(@user)
       flash[:notice] = "Settings updated!"
       redirect_to settings_path
     else

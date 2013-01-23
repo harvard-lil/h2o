@@ -463,6 +463,10 @@ jQuery.extend({
       jQuery.cookie('scroll_pos', null);
     }
     jQuery.hideShowUnlayeredOptions();
+    var show_annotations = jQuery.cookie('show_annotations');
+    if(show_annotations == 'true'){
+      jQuery('.annotation-content').css('display', 'inline-block');
+    }
     jQuery.hideShowAnnotationOptions();
   }, 
 
