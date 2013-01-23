@@ -43,7 +43,7 @@ class BaseController < ApplicationController
   def index
     tcount = Case.find_by_sql("SELECT COUNT(*) AS tcount FROM taggings")
     @highlighted_playlists = []
-    [151, 633, 570, 664].each do |p|
+    [945, 671, 911, 986].each do |p|
       begin
         playlist = Playlist.find(p)
         @highlighted_playlists << playlist if playlist 

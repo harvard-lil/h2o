@@ -22,8 +22,8 @@
 	</div>
 	<div class="panel last" id="highlighted_playlist">
     <%= link_to '', playlists_path, {:id => "highlighted_playlists", :class => "icon_nav"} %>
-		<%= link_to 'Highlighted Playlists', playlists_path %>
-    <p>A selection of playlists spanning intellectual domains.</p>
+		<%= link_to 'Courses', playlists_path %>
+    <p style="text-align:center;">Harvard Law School Spring 2013 Courses.</p>
     <% @highlighted_playlists.each do |p| -%>
       <%= link_to p.name, playlist_url(p), :class => "button" %><br />
     <% end -%>
