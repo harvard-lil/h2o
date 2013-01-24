@@ -43,10 +43,11 @@ class BaseController < ApplicationController
   def index
     tcount = Case.find_by_sql("SELECT COUNT(*) AS tcount FROM taggings")
     @highlighted_playlists = []
+    map = { "945" => "Copyright", "671" => "Criminal Law", "911" => "Music and Digital Media", "986" => "Torts" }
     [945, 671, 911, 986].each do |p|
       begin
         playlist = Playlist.find(p)
-        @highlighted_playlists << playlist if playlist 
+        @highlighted_playlists << { :title => map[p.to_s], :playlist => playlist } if playlist 
       rescue Exception => e
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end

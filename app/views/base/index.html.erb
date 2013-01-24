@@ -24,8 +24,8 @@
     <%= link_to '', playlists_path, {:id => "highlighted_playlists", :class => "icon_nav"} %>
 		<%= link_to 'Courses', playlists_path %>
     <p style="text-align:center;">Harvard Law School Spring 2013 Courses.</p>
-    <% @highlighted_playlists.each do |p| -%>
-      <%= link_to p.name, playlist_url(p), :class => "button" %><br />
+    <% @highlighted_playlists.each do |v| -%>
+      <%= link_to v[:title], playlist_url(v[:playlist]), :class => "button" %><br />
     <% end -%>
 	</div>
 	<div class="cl"></div>
