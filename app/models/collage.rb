@@ -132,200 +132,36 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
-  def annotatable_content
+  def editable_content
     doc = Nokogiri::HTML.parse(self.content)
-    annotation_rules = []
 
-    #Note: This is for optimization
-    annotations = Annotation.find_all_by_collage_id(self.id, :include => :layers)
-
-    annotations.each do|ann|
-      annotation_rules << {
-        :start => ann.annotation_start_numeral.to_i, 
-        :end => ann.annotation_end_numeral.to_i, 
-        :id => ann.id.to_s,
-        :layer_list => ann.layers.collect{|l| "l#{l.id}"},
-        :layer_names => ann.layers.collect{ |l| l.name }.join(', '),
-        :content => ann.formatted_annotation_content
-      }
+    # Footnote markup
+    doc.css("a").each do |li|
+      if li['href'] =~ /^#/
+        li['class'] = 'footnote'
+      end
     end
-    collage_rules = []
-    collage_links.each do |cl|
-      collage_rules << {
-        :start => cl.start_number,
-        :end => cl.end_number,
-        :href => "/collages/#{cl.linked_collage.id}"
-      } 
-    end
-    unlayered_start = 1
-    unlayered_start_node = true
-    unlayered_ids = []
 
+    # data-id markup
+    x = 1
     doc.xpath('//tt').each do |node|
-      node_id_num = node['id'][1,node['id'].length - 1].to_i
-      classes = []
-      annotation_rules.each do |r|
-        if node_id_num == r[:start]
-          span_node = Nokogiri::XML::Node.new('a', doc)
-          span_node['class'] = (["layered-control", "layered-control-start", "layered-control-#{r[:id]}"] +
-            r[:layer_list].map { |b| "layered-control-#{b}"}).join(' ') 
-          span_node['data-id'] = "#{r[:id]}"
-          span_node['href'] = '#'
-          node.add_previous_sibling(span_node)
-
-          span_node = Nokogiri::XML::Node.new('a', doc)
-          span_node['class'] = (["control-divider", "annotation-control-#{r[:id]}"] +
-            r[:layer_list].map { |b| "annotation-control-#{b}" }).join(' ')
-          span_node['data-id'] = "#{r[:id]}"
-          span_node['href'] = '#'
-          node.add_previous_sibling(span_node)
-        end
-        if node_id_num == r[:end]
-          # If node at end of annotation, adding divider, asterisk, ellipsis and annotation
-          span_node = Nokogiri::XML::Node.new('a', doc)
-          span_node['class'] = (["arr", "control-divider", "annotation-control-#{r[:id]}"] +
-            r[:layer_list].map { |b| "annotation-control-#{b}" }).join(' ')
-          span_node['href'] = '#'
-          span_node['data-id'] = "#{r[:id]}"
-
-          cend_node = Nokogiri::XML::Node.new('a', doc)
-          cend_node['class'] = (["layered-control", "layered-control-end", "layered-control-#{r[:id]}"] +
-            r[:layer_list].map { |b| "layered-control-#{b}" }).join(' ')
-          cend_node['href'] = '#'
-          cend_node['data-id'] = "#{r[:id]}"
-
-          ellipsis_node = Nokogiri::XML::Node.new('a', doc)
-          ellipsis_node['class'] = (["annotation-ellipsis"] +
-            r[:layer_list].map { |b| "annotation-ellipsis-#{b}" }).join(' ')
-          ellipsis_node['id'] = "annotation-ellipsis-#{r[:id]}"
-          ellipsis_node['data-id'] = "#{r[:id]}"
-          ellipsis_node.inner_html = '[...]'
-
-          link_node = Nokogiri::XML::Node.new('a', doc)
-          link_node['class'] = ['annotation-asterisk', r[:layer_list]].flatten.join(' ')
-          link_node['title'] = r[:layer_names] 
-          link_node['id'] = "annotation-asterisk-#{r[:id]}"
-          link_node['data-id'] = "#{r[:id]}"
-
-          ann_node = Nokogiri::XML::Node.new('span', doc)
-          ann_node['class'] = 'annotation-content'
-          ann_node['id'] = "annotation-content-#{r[:id]}"
-          ann_node.inner_html = r[:content]
-
-          node.add_next_sibling(ellipsis_node) 
-          ellipsis_node.add_next_sibling(cend_node)
-          cend_node.add_next_sibling(span_node)
-          if r[:content] != ''
-            span_node.add_next_sibling(ann_node)
-            ann_node.add_next_sibling(link_node)
-          else 
-            link_node['class'] = "#{link_node['class']} annotation-empty"
-            span_node.add_next_sibling(link_node)
-          end
-        end
-
-        if node_id_num >= r[:start] and node_id_num <= r[:end]
-          classes = classes.push('a' + r[:id]).push(r[:layer_list]).flatten
-        end
-              
-      end
-
-      #add collage links
-      collage_rules.each do |clr|
-        if ((clr[:start] == node_id_num) and (clr[:end] > clr[:start])) || 
-           ((clr[:end] == node_id_num) and (clr[:end] < clr[:start]))
-          node_count = (clr[:end] - clr[:start])  
-          node_count = node_count.abs
-          node_count = node_count + 1
-          collage_link_node = Nokogiri::XML::Node.new('a',doc)
-          link_nodes = []
-          current_node = node
-          node_count.times do
-            link_nodes << current_node
-            current_node = current_node.next_sibling
-          end
-          collage_link_node['href'] = clr[:href] 
-          collage_link_node = node.add_previous_sibling collage_link_node
-          link_nodes.each{|n| n.parent=collage_link_node}
-        end
-      end
-
-      if classes.length > 0
-        unlayered_start = node_id_num + 1
-        unlayered_start_node = true
-        classes.push('a')
-        node['class'] = classes.uniq.join(' ')
-      else
-        node['class'] = "unlayered unlayered_#{unlayered_start}"
-        if unlayered_start_node
-          unlayered_ids.push(unlayered_start)
-          control_node = Nokogiri::XML::Node.new('a', doc)
-          control_node['class'] = "unlayered-control unlayered-control-start unlayered-control-#{unlayered_start}"
-          control_node['data-id'] = "#{unlayered_start}"
-          control_node['href'] = '#'
-          if node.parent.name == "a"
-          node.parent.add_previous_sibling(control_node)
-          else
-          node.add_previous_sibling(control_node)
-          end
-          link_node = Nokogiri::XML::Node.new('a', doc)
-          link_node['class'] = 'unlayered-ellipsis'
-          link_node['id'] = "unlayered-ellipsis-#{unlayered_start}"
-          link_node['data-id'] = "#{unlayered_start}"
-          link_node['href'] = '#'
-          link_node.inner_html = '[...]'
-          if node.parent.name == "a"
-          node.parent.add_previous_sibling(link_node)
-          else
-          node.add_previous_sibling(link_node)
-          end
-          node['class'] = "#{node['class']} unlayered_start"
-          unlayered_start_node = false
-        end
-      end
-    end
-
-    unlayered_ids.each do |id|
-      node = doc.css("tt.unlayered_#{id}").last
-      control_node = Nokogiri::XML::Node.new('a', doc)
-      control_node['class'] = "unlayered-control unlayered-control-end unlayered-control-#{id}"
-      control_node['data-id'] = "#{id}"
-      control_node['href'] = '#'
-      node.add_next_sibling(control_node)
+      node['data-id'] = x.to_s
+      x+=1
     end
 
     count = 1
     doc.xpath('//p | //center').each do |node|
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-      if node.children.size > 0 && tt_size > 0
-        unlayered_start_size = node.css('tt.unlayered_start').size
-        unlayered_size = node.css("tt.unlayered").size
-        if unlayered_start_size == 0 && (tt_size == unlayered_size)
-          node.css('tt').first['class'] ||= ''
-          node['class'] = node.css('tt').first['class']
-        end
-
+      if node.children.size > 0 && tt_size > 0 
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('span', doc)
         control_node['class'] = "paragraph-numbering"
         control_node.inner_html = "#{count}"
         first_child.add_previous_sibling(control_node)
         count += 1
-      end
-    end
+      end 
+    end 
 
-    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
-  end
-
-  def printable_content
-    self.strip_footnote_links
-  end
-  
-  def strip_footnote_links
-    doc = Nokogiri::HTML.parse(self.annotatable_content)
-    doc.css("a").each do |li|
-      li.replace(Nokogiri::XML::Text.new(li.inner_html, li.document)) if li['href'] =~ /#r/
-    end
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 

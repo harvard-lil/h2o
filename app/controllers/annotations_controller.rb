@@ -93,7 +93,13 @@ class AnnotationsController < BaseController
 
       create_color_mappings
 
-      render :json =>  @annotation.to_json(:include => [:layers])
+      color_map = {}
+      @annotation.collage.layers.each do |layer|
+        map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+        color_map[layer.id] = map.hex if map
+      end
+
+      render :json => { :annotation => @annotation.to_json(:include => [:layers]), :color_map => color_map.to_json, :type => "create" }
     else
       render :text => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
     end
@@ -122,7 +128,13 @@ class AnnotationsController < BaseController
 
       create_color_mappings
 
-      render :json =>  @annotation.to_json(:include => [:layers])
+      color_map = {}
+      @annotation.collage.layers.each do |layer|
+        map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+        color_map[layer.id] = map.hex if map
+      end
+
+      render :json => { :annotation => @annotation.to_json(:include => [:layers]), :color_map => color_map.to_json, :type => "update" }
     else
       render :text => "We couldn't update that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
     end

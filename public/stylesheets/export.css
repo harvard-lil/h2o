@@ -1,9 +1,10 @@
-body, tt { background: #FFF; font-family: sans-serif; font-size: 11pt; color: #000; }
-body * { line-height: 1.3em; }
+body, tt { background: #FFF; font-family: sans-serif; font-size: 11pt; color: #000; border-bottom: 2px solid #FFF; }
+body * { line-height: 1.4em; }
 
 /* Header */
 #playlist h1 { font-size: 17pt; }
 .collage-content > h1 { margin-top: 0px; padding: 0px 0px 4px 0px; font-size: 17pt; }
+.no_visible_children { display: none; }
 
 /* Timestamp & Author */
 .collage-content .info { padding: 0px; font-size: 10pt; font-weight: bold; }

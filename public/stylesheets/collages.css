@@ -30,11 +30,9 @@
 #collage .details h5 { font-size:10px; line-height:1.8em; font-weight:normal; padding-bottom:2px; }
 #collage .details .clear { clear: both; }
 
-#collage article { opacity: 0.0; font-size:11px; line-height:1.5em;
+#collage article { opacity: 1.0; font-size:11px; line-height:1.5em;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
-#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; z-index: 2 }
-#collage article .special_highlight { position: absolute; padding-top: 2px; display: none; }
-#collage article .special_highlight tt { width: 100%; height: 100%; display: block; position: absolute; }
+#collage article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; z-index: 2; }
 #collage article .chorus { text-align:center; padding-bottom:16px; }
 #collage article p { padding-bottom:16px; margin-left: 30px; }
 #collage article p em { }
@@ -58,11 +56,10 @@
 display: none; padding: 0px 0px 0px 3px; font-style: italic; }
 #collage article .annotation-content strong { font-weight: bold; }
 #collage article .annotation-content em { text-decoration: underline; }
-#collage article .annotation-ellipsis { padding: 0px 5px; display: none; }
+#collage article .annotation-ellipsis { padding: 0px 5px; display: none; color: #336699; }
 #collage article .ann-details { display: none; }
 
 .highlight { background: #E0F5BD; }
-.annotation_start_highlight { background: #E0F5BD; }
 #annotation-form { display: none; }
 
 #tooltip { position: absolute; top: 0px; left: 0px; z-index: 100;
@@ -134,16 +131,52 @@ font-size: 9px; font-weight: bold; }
 .singleitem .details .edit-action { opacity: 0.0; }
 .markItUp { width: 100%; border: none; }
 .markItUpContainer { border: 1px solid #84919A; }
-.control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
-.edit_highlight { background: #eef9d9; }
+
+#collage article .no_visible_children { display: none; }
+
+/* Hover */
+#collage article .control-divider:hover,
+#collage article .layered-control:hover,
+#collage article .annotation-ellipsis:hover,
+#collage article .annotation-asterisk:hover,
+#collage article .unlayered-control:hover,
+#collage article .unlayered-ellipsis:hover {
+  cursor: pointer;
+}
+
+/* Edit Mode Toggles */
+#collage article.edit_mode tt:hover { background: #E0F58D; }
+#collage article tt.a { background: none;}
+#collage article.edit_mode tt.a { background:#eef9d9; }
+#collage article .control-divider { display: none; width: 4px; background-color: #6b933d; height: 16px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
+#collage article.edit_mode .control-divider { display: inline-block; }
+#collage article.edit_mode .edit_highlight { background: #EEF9D9; }
+#collage article.edit_mode .special_highlight { visibiility: hidden; }
+#collage article .layered-control,
+#collage article .unlayered-control { width: 9px; height: 16px; }
+#collage article.edit_mode .layered-control,
+#collage article.edit_mode .unlayered-control { width: 9px; height: 16px; }
+#collage article .default-hidden,
+#collage article tt.grey { color: #666; }
+#collage article.edit_mode .default-hidden,
+#collage article.edit_mode tt.grey { color: #000; }
+
+#collage article.hide_unlayered tt { display: none; }
+#collage article.hide_unlayered tt.a { display: inline; }
+#collage article.hide_unlayered .unlayered-control { display: none; }
+#collage article.hide_unlayered .unlayered-ellipsis { display: inline-block; }
+#collage article.show_unlayered tt { display: inline; }
+#collage article.show_unlayered .unlayered-control { display: inline-block; }
+#collage article.show_unlayered .unlayered-ellipsis { display: none; }
+/* End Edit mode toggles */
+
 .annotation-asterisk { background: url(/images/ui/asterisk.jpg) no-repeat; display: inline-block; width: 14px; height: 17px; }
 .annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
-.unlayered-ellipsis { padding-right: 10px; display: none; font-size: 11px; font-weight: normal; }
-.default-hidden { color: #666; }
+.unlayered-ellipsis { padding-right: 10px; display: none; font-size: 11px; font-weight: normal; color: #336699; font-style: normal; }
 .unlayered-control-start,
-.layered-control-start { display: none; background: url(/images/ui/fcollapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
+.layered-control-start { display: none; background: url(/images/ui/fcollapse.png) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .unlayered-control-end,
-.layered-control-end { display: none; background: url(/images/ui/collapse.png); height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
+.layered-control-end { display: none; background: url(/images/ui/collapse.png) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .paragraph-numbering { position: absolute; left: 10px; color: #369; }
 
 /* Hiding while page is loading */
@@ -206,4 +239,11 @@ form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top
 }
 .collage_linked{
   color: blue;
+}
+
+#collage_linking {
+  opacity: 0.6;
+}
+#collage_linking small {
+  display: block;
 }

@@ -148,7 +148,7 @@ class CollagesController < BaseController
   # GET /collages/1
   # GET /collages/1.xml
   def show
-    add_javascripts ['collages', 'jquery.hoverIntent.minified', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.tipsy']
+    add_javascripts ['collages', 'jquery.hoverIntent.minified', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.tipsy', 'mustache', 'jquery.xcolor']
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     @color_map = {}

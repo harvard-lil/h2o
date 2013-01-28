@@ -1,48 +1,79 @@
-jQuery.extend({
-	loadState: function() {
-    jQuery('tt').prepend($('<span>').addClass('print_border'));
+var all_tts;
 
+jQuery.extend({
+  printMarkupAnnotation: function(annotation) {
+    var annotation_start = parseInt(annotation.annotation_start.replace(/^t/, ''));
+    var annotation_end = parseInt(annotation.annotation_end.replace(/^t/, ''));
+    var els = all_tts.slice(annotation_start - 1, annotation_end);
+
+    els.addClass('a a' + annotation.id);
+    jQuery.each(annotation.layers, function(i, layer) {
+      els.addClass('l' + layer.id);
+    });
+
+    if(annotation.annotation != '') {
+      jQuery('<span id="annotation-content-' + annotation.id + '" class="annotation-content">' + annotation.annotation + '</span>').insertAfter(els.last());
+    }
+  },
+	loadState: function() {
 		jQuery('.collage-content').each(function(i, el) {
 			var id = jQuery(el).data('id');
+      var annotations = eval("annotations_" + id);
+      all_tts = jQuery('#collage' + id + ' article tt');
+      jQuery.each(annotations, function(i, el) {
+        jQuery.printMarkupAnnotation(jQuery.parseJSON(el).annotation);
+      });
 			var data = eval("collage_data_" + id);
-      var line_height = $('tt:first').css('line-height');
 
 			jQuery.each(data, function(i, e) {
-        //id value is lost here - not sure why
-				var id = jQuery(el).data('id');	
-
 				if(i == 'highlights') {
-					jQuery.each(e, function(a, h) {
-            jQuery('#collage' + id + ' .' + a + ' .print_border').append(jQuery('<span>').css({ 'border-top': line_height + ' solid #' + h }));
+					jQuery.each(e, function(a, hex) {
+            jQuery.each(jQuery('tt.' + a), function(i, el) {
+              var current = jQuery(el);
+              var highlight_colors = current.data('highlight_colors');
+              if(highlight_colors) {
+                highlight_colors.push(hex);
+              } else {
+                highlight_colors = new Array(hex);
+              }
+              var current_hex = '#FFFFFF';
+              var opacity = 0.6 / highlight_colors.length;
+              jQuery.each(highlight_colors, function(i, color) {
+                var color_combine = jQuery.xcolor.opacity(current_hex, color, opacity);
+                current_hex = color_combine.getHex();
+              });
+              current.css('border-bottom', '2px solid ' + current_hex);
+              current.data('highlight_colors', highlight_colors);
+            });
 					});
-				} else if(i == 'print_data') {
-          //Do Nothing until the end
-				} else if(i.match(/\.a/) && e != 'none') {
-          jQuery.rule('#collage' + id + ' ' + i + ' { display: inline; }').appendTo('style');
-				} else if(i.match(/#annotation-content-/) && e != 'none') {
-          jQuery.rule('#collage' + id + ' ' + i + ' { display: block; }').appendTo('style');
-				} else if(i.match(/\.unlayered/) && e != 'none') {
-          jQuery.rule('#collage' + id + ' ' + i + ' { display: inline; }').appendTo('style');
-          jQuery.rule('#collage' + id + ' p' + i + ', #collage' + id + ' center' + i + ' { display: block; }').appendTo('style');
-				} else {
-          jQuery.rule('#collage' + id + ' ' + i + ' { display: ' + e + '; }').appendTo('style');
-				}
+        } else if(i == 'annotations') {
+					jQuery.each(e, function(a, h) {
+            jQuery('#' + a).css('display', 'block');
+					});
+        } else if(i.match(/#unlayered-ellipsis/)) {
+          var pos_id = parseInt(i.replace(/#unlayered-ellipsis-/, '')) - 1;
+          var elements = all_tts.slice(pos_id);
+          var next_highlighted = elements.filter('.a:first');
+          var unlayered_elements;
+          if(next_highlighted.size()) {
+            unlayered_elements = elements.slice(0, next_highlighted.data('id') - pos_id - 1);
+          } else {
+            unlayered_elements = elements;
+          }
+          jQuery('<span class="ellipsis">[...] </span>').insertBefore(unlayered_elements.first());
+          unlayered_elements.hide();
+        } else if(i.match(/#annotation-ellipsis/)) {
+          var annotation_id = i.replace(/#annotation-ellipsis-/, '');
+          var elements = jQuery('tt.a' + annotation_id);
+          jQuery('<span class="ellipsis">[...] </span>').insertBefore(elements.first());
+          elements.hide();
+				} 
 			});
 
-      var max_children = 0;
-      jQuery.each(jQuery('#collage' + id + ' .print_border'), function(i, el) {
-        if(jQuery(el).children().size() > max_children) {
-          max_children = jQuery(el).children().size();
-        }   
-      }); 
-      jQuery('#collage' + id + ' .print_border span').css({ 'opacity' : 0.50/max_children }); 
+      jQuery.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
+        jQuery('#collage' + id + ' article ' + selector + ':not(:has(.ellipsis:visible)):not(:has(tt:visible))').addClass('no_visible_children');
+      });
 		});
-
-    /* Single Collage Only */
-    jQuery('.unlayered-ellipsis').each(function(e, el) {
-      var item = jQuery(el);
-      item.replaceWith('<span id="' + item.attr('id') + '" class="unlayered-ellipsis">[...]</span>');
-    });
 	}
 });
 
@@ -60,7 +91,6 @@ jQuery(document).ready(function(){
     jQuery.rule('body, tt, .paragraph-numbering, #playlist .item_description, .collage-content .item_description { font-size: ' + size + 'pt; }').appendTo('style');
     jQuery.rule('#playlist h1, .collage-content > h1 { font-size: ' + (size + 6) + 'pt; }').appendTo('style');
     jQuery.rule('#playlist h3 { font-size:' + (size + 3) + 'pt; }').appendTo('style');
-    jQuery('.print_border span').css('border-top-width', (size + 2) + 'pt');
     jQuery.rule('#playlist .details h2, .collage-content .info { font-size: ' + (size - 1) + 'pt; }').appendTo('style');
   });
   jQuery('#printtitle').selectbox({
