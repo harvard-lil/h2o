@@ -238,4 +238,13 @@ class Notifier < ActionMailer::Base
     sent_on       Time.now
     body          :edit_password_reset_url => edit_password_reset_url(user.perishable_token)
   end
+  
+  def logins(users)
+
+    recipients users.map(&:email_address).uniq
+    subject    "Logins"
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+    body       :new_password_reset_url => new_password_reset_url, :users => users
+  end
 end
