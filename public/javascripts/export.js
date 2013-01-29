@@ -26,8 +26,23 @@ jQuery.extend({
 			var data = eval("collage_data_" + id);
 
 			jQuery.each(data, function(i, e) {
-				if(i == 'highlights') {
-					jQuery.each(e, function(a, hex) {
+        if(i == 'load_heatmap') {
+          jQuery.ajax({
+            type: 'GET',
+            cache: false,
+            dataType: 'JSON',
+            url: '/collages/' + id + '/heatmap',
+            success: function(data){
+					    jQuery.each(data.heatmap.data, function(i, e) {
+					      var opacity = e / (data.heatmap.max+1);
+					      var color_combine = jQuery.xcolor.opacity('#FFFFFF', '#FE2A2A', opacity);
+					      var hex = color_combine.getHex();
+					      jQuery('tt#' + i).css('border-bottom', '2px solid ' + hex);
+					    });
+            },
+          });
+        } else if(i == 'highlights') {
+          jQuery.each(e, function(a, hex) {
             jQuery.each(jQuery('tt.' + a), function(i, el) {
               var current = jQuery(el);
               var highlight_colors = current.data('highlight_colors');

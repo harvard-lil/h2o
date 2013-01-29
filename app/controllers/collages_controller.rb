@@ -9,7 +9,7 @@ class CollagesController < BaseController
   before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :spawn_copy, :export, :export_unique, :access_level, :heatmap]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
+    allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :heatmap]
 
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
 

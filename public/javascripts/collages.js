@@ -387,6 +387,9 @@ jQuery.extend({
       jQuery.each(jQuery('.link-o.highlighted'), function(i, el) {
         data.highlights[jQuery(el).parent().data('id')] = jQuery(el).parent().data('hex');
       });
+      if(jQuery('a#hide_heatmap:visible:not(.inactive)')) {
+        data.load_heatmap = true;
+      }
       data.annotations = {};
       jQuery.each(jQuery('.annotation-content:visible'), function(i, el) {
         data.annotations[jQuery(el).attr('id')] = true;
