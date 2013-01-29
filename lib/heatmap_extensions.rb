@@ -33,6 +33,7 @@ module HeatmapExtensions
       raw_data = {}
       self.annotatable.collages.each do |collage|
         collage.annotations.each do |annotation|
+          next if annotation.layers.empty?
           a_start = annotation.annotation_start.gsub(/^t/, '').to_i 
           a_end = annotation.annotation_end.gsub(/^t/, '').to_i
           (a_start..a_end).each do |i|
@@ -41,12 +42,14 @@ module HeatmapExtensions
           end
         end
       end
-      raw_data
-      color_map = Collage.color_map
+      #raw_data # Need to scale
+      #No colors
+      #color_map = Collage.color_map
       max = raw_data.values.max.to_f
-      scale_data = {}
-      raw_data.each { |k, v| scale_data[k] = color_map[((v.to_f/max)*22).to_i - 1] }
-      scale_data
+      #scale_data = {}
+      #raw_data.each { |k, v| scale_data[k] = color_map[((v.to_f/max)*22).to_i - 1] }
+      #scale_data
+      { :data => raw_data, :max => max }
     end
   end
 end

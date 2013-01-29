@@ -247,3 +247,6 @@ form.formtastic fieldset > ol > li#new_layers label { font-size: 9px; margin-top
 #collage_linking small {
   display: block;
 }
+
+/* Heatmap */
+#collage article tt a.heatmap_tip { position: absolute; left: 50%; bottom: 0px; }

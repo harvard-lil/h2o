@@ -70,44 +70,78 @@ jQuery.extend({
       return false;
     });
   },
+  removeHeatmapHighlights: function() {
+    jQuery.each(heatmap.data, function(i, e) {
+      jQuery('tt#' + i + '.heatmapped').css('background-color', '#FFFFFF').removeClass('heatmapped');
+    });
+  },
+  applyHeatmapHighlights: function() {
+    jQuery.each(heatmap.data, function(i, e) {
+      var opacity = e / (heatmap.max+1);
+      var color_combine = jQuery.xcolor.opacity('#FFFFFF', '#FE2A2A', opacity);
+      var hex = color_combine.getHex();
+      jQuery('tt#' + i).css('background-color', hex).addClass('heatmapped').data('collage_count', e);
+    });
+  },
   initializeHeatmap: function() {
+    jQuery('tt.heatmapped').live('mouseover', function(e) {
+      var el = jQuery(this);
+      el.css('position', 'relative');
+      var heatmap_tip = jQuery('<a>')
+        .addClass('heatmap_tip')
+        .attr('title', 'Layered in ' + el.data('collage_count') + ' Collage(s)')
+        .tipsy({ trigger: 'manual' });
+      el.prepend(heatmap_tip);
+      heatmap_tip.tipsy("show");
+    }).live('mouseout', function(e) {
+      var el = jQuery(this);
+      el.css('position', 'static');
+      el.find('a.heatmap_tip').tipsy("hide");
+      el.find('a.heatmap_tip').remove();
+    });
     jQuery('#hide_heatmap').hide();
-    jQuery('#show_heatmap').click(function() {
+    jQuery('#show_heatmap').click(function(e) {
+      e.preventDefault();
       if(jQuery(this).hasClass('inactive')) {
         return false;
       }
-      jQuery.ajax({
-        type: 'GET',
-        cache: false,
-        dataType: 'JSON',
-        url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/heatmap',
-        beforeSend: function(){
-          jQuery.showGlobalSpinnerNode();
-        },
-        success: function(data){
-          jQuery('.tools-popup .highlighted').click();
-          heatmap = data.heatmap;
-          jQuery.each(heatmap, function(i, e) {
-            jQuery('tt#' + i).css('background-color', '#' + e);
+      if(heatmap === undefined) {
+        jQuery.ajax({
+          type: 'GET',
+          cache: false,
+          dataType: 'JSON',
+          url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/heatmap',
+          beforeSend: function(){
+            jQuery.showGlobalSpinnerNode();
+          },
+          success: function(data){
+            jQuery('.tools-popup .highlighted').click();
+            heatmap = data.heatmap;
+            jQuery.applyHeatmapHighlights();
             jQuery('#hide_heatmap').show();
             jQuery('#show_heatmap').hide();
-          });
-          jQuery.hideGlobalSpinnerNode();
-        },
-        error: function() {
-          jQuery.hideGlobalSpinnerNode();
-        }
-      });
+            jQuery.hideGlobalSpinnerNode();
+          },
+          error: function() {
+            jQuery.hideGlobalSpinnerNode();
+          }
+        });
+      } else {
+        jQuery('.tools-popup .highlighted').click();
+        jQuery.applyHeatmapHighlights();
+        jQuery('#hide_heatmap').show();
+        jQuery('#show_heatmap').hide();
+        jQuery.hideGlobalSpinnerNode();
+      }
     });
-    jQuery('#hide_heatmap').click(function() {
+    jQuery('#hide_heatmap').click(function(e) {
+      e.preventDefault();
       if(jQuery(this).hasClass('inactive')) {
         return false;
       }
-      jQuery.each(heatmap, function(i, e) {
-        jQuery('tt#' + i).css('background-color', '#ffffff');
-        jQuery('#show_heatmap').show();
-        jQuery('#hide_heatmap').hide();
-      });
+      jQuery.removeHeatmapHighlights();
+      jQuery('#show_heatmap').show();
+      jQuery('#hide_heatmap').hide();
     });
   },
   hideShowAnnotationOptions: function() {
@@ -335,7 +369,12 @@ jQuery.extend({
       } else {
         el.html("READ");  
         jQuery.toggleEditMode(true);
+        if(jQuery('#hide_heatmap:visible').size()) {
+          jQuery.removeHeatmapHighlights();
+        }
         jQuery('#author_edits').addClass('inactive');
+        jQuery('#show_heatmap').show();
+        jQuery('#hide_heatmap').hide();
         jQuery('#show_heatmap, #hide_heatmap').addClass('inactive');
       }
     });
@@ -418,6 +457,7 @@ jQuery.extend({
       jQuery('.default-hidden').css('color', '#000');
       jQuery('#hide_heatmap, #show_heatmap').addClass('inactive');
     } else {
+      jQuery('#show_heatmap, #hide_heatmap').removeClass('inactive');
       jQuery.toggleEditMode(false);
     }
     if(jQuery.cookie('scroll_pos')) {
