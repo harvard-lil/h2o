@@ -250,9 +250,10 @@ jQuery.extend({
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('#collage article').removeClass('show_unlayered').addClass('hide_unlayered');
-      unlayered_tts.attr('style', '');
-      jQuery('#collage article .unlayered-ellipsis, #collage article .unlayered-control').attr('style', '');
-      jQuery.resetParentDisplay();
+      jQuery('#collage article .unlayered-control-start').click();
+      if(jQuery('.unlayered-control-end.unlayered-control-1').size()) {
+        jQuery('.unlayered-control-end.unlayered-control-1').click();
+      }
       jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
@@ -278,18 +279,12 @@ jQuery.extend({
 
       var el = jQuery(this);
       var layer_id = el.parent().data('id');
-      //Note: Toggle here was very slow 
       if(el.find('strong').html() == 'SHOW') {
         el.find('strong').html('HIDE');
-        jQuery('article .' + layer_id).css('display', 'inline-block');
-        jQuery('article tt.' + layer_id).css('display', 'inline').addClass('grey');
-        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'none');
-        jQuery('.layered-control-' + layer_id).css('display', 'inline-block');
+        jQuery('.annotation-ellipsis-' + layer_id).click();
       } else {
         el.find('strong').html('SHOW');
-        jQuery('article .' + layer_id + ',.ann-annotation-' + layer_id).css('display', 'none');
-        jQuery('.annotation-ellipsis-' + layer_id).css('display', 'inline');
-        jQuery('.layered-control-' + layer_id).hide();
+        jQuery('.layered-control-start.layered-control-' + layer_id).click();
       }
       jQuery.hideGlobalSpinnerNode();
     });
@@ -805,16 +800,9 @@ jQuery.extend({
     clean_collage_links["c" + collage_link.id] = collage_link;
   },
   resetParentDisplay: function(els) {
-    if(els) {
-      var parents = els.parentsUntil('#collage article');
-      parents.filter('.no_visible_children').removeClass('no_visible_children');
-      parents.filter(':not(:has(.unlayered-ellipsis:visible)):not(:has(tt:visible))').addClass('no_visible_children');
-    } else {
-      jQuery('.no_visible_children').removeClass('no_visible_children');
-      jQuery.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
-        jQuery('#collage article ' + selector + ':not(:has(.unlayered-ellipsis:visible)):not(:has(tt:visible))').addClass('no_visible_children');
-      });
-    }
+    var parents = els.parentsUntil('#collage article');
+    parents.removeClass('no_visible_children');
+    parents.filter(':not(:has(.layered-control,.control-divider,.unlayered-ellipsis:visible,tt:visible))').addClass('no_visible_children');
   },
   submitAnnotation: function(){
     var filtered = jQuery('#annotation_annotation').val().replace(/"/g, '&quot;');
@@ -1026,6 +1014,7 @@ jQuery.extend({
       jQuery('article tt.a' + id).css('display', 'inline').addClass('grey');
       jQuery(this).css('display', 'none');
       jQuery('.layered-control-' + id).css('display', 'inline-block');
+      jQuery.resetParentDisplay(jQuery('#collage article tt.a' + id));
     });
     jQuery('.unlayered-control').live('click', function(e) {
       e.preventDefault();
@@ -1052,6 +1041,7 @@ jQuery.extend({
       var id = jQuery(this).data('id');
       jQuery('tt.a' + id + ',.layered-control-' + id).css('display', 'none');
       jQuery('#annotation-ellipsis-' + id).css('display', 'inline-block');
+      jQuery.resetParentDisplay(jQuery('tt.a' + id));
     });
   },
   initializeAnnotationOrCollage: function(){
@@ -1413,10 +1403,10 @@ jQuery(document).ready(function(){
 
 var annotation_start_template = '\
 <span class="control-divider annotation-control-{{annotation_id}}{{#layers}} annotation-control-l{{id}}{{/layers}}" data-id="{{annotation_id}}" href="#"></span>\
-<span class="layered-control layered-control-start layered-control-{{annotation_id}}{{#layers}} layered-control-l{{id}}{{/layers}}" data-id="{{annotation_id}}" href="#"></span>';
+<span class="layered-control layered-control-start layered-control-{{annotation_id}}{{#layers}} layered-control-l{{id}}{{/layers}}" data-id="{{annotation_id}}" href="#"></span>\
+<span class="annotation-ellipsis annotation-ellipsis{{#layers}} annotation-ellipsis-l{{id}}{{/layers}}" id="annotation-ellipsis-{{annotation_id}}" data-id="{{annotation_id}}">[...]</span>';
 
 var annotation_end_template = '\
-<span class="annotation-ellipsis annotation-ellipsis{{#layers}} annotation-ellipsis-l{{id}}{{/layers}}" id="annotation-ellipsis-{{annotation_id}}" data-id="{{annotation_id}}">[...]</span>\
 <span class="layered-control layered-control-end layered-control-{{annotation_id}}{{#layers}} layered-control-l{{id}}{{/layers}}" href="#" data-id="{{annotation_id}}"></span>\
 <span class="arr control-divider annotation-control-{{annotation_id}}{{#layers}} annotation-control-l{{id}}{{/layers}}" href="#" data-id="{{annotation_id}}"></span>\
 {{#show_annotation}}\
