@@ -99,6 +99,11 @@ class Collage < ActiveRecord::Base
       end
       new_annotation.save
     end
+    self.color_mappings.each do |color_mapping|
+      color_mapping = color_mapping.clone
+      color_mapping.collage_id = collage_copy.id
+      color_mapping.save
+    end
     collage_copy
   end
 

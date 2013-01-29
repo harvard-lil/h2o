@@ -11,6 +11,7 @@ var clean_annotations = {};
 var clean_collage_links = {};
 var all_tts;
 var unlayered_tts;
+var update_unlayered_end = 0;
 
 jQuery.extend({
   mustache: function(template, data, partial, stream) {
@@ -196,12 +197,9 @@ jQuery.extend({
       e.preventDefault();
       var el = jQuery(this);
       jQuery.showGlobalSpinnerNode();
-      all_tts.attr('style', '');
-      jQuery('.no_visible_children').removeClass('no_visible_children');
-      jQuery('.unlayered-ellipsis, .annotation-ellipsis').css('display', 'none');
-      jQuery('article .unlayered-control').css('display', 'inline-block');
+      jQuery('.unlayered-ellipsis:visible,.annotation-ellipsis:visible').click();
       jQuery('#layers a.hide_show strong').html('HIDE');
-      jQuery('#layers a').removeClass('shown');
+      jQuery('#layers a.shown').removeClass('shown');
       jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
@@ -209,10 +207,8 @@ jQuery.extend({
     jQuery('#show_unlayered').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
+      jQuery('.unlayered-ellipsis:visible').click();
       jQuery('#collage article').removeClass('hide_unlayered').addClass('show_unlayered');
-      unlayered_tts.attr('style', '');
-      jQuery.resetParentDisplay();
-      jQuery('#collage article .unlayered-control, #collage article .unlayered-ellipsis').attr('style', '');
       jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
@@ -467,6 +463,30 @@ jQuery.extend({
         };
       }
     });
+
+    //Rehighlight elements
+    jQuery.each(els, function(i, c) {
+      var current = jQuery(c);
+      var highlight_colors = new Array();
+      jQuery.each(jQuery('#layers li'), function(i, el) {
+        if(jQuery(el).find('a.highlighted').size() && current.hasClass(jQuery(el).data('id'))) {
+          highlight_colors.push(layer_color_map[jQuery(el).data('name')]);
+        }
+      });
+      if(highlight_colors.length > 0) {
+        var current_hex = '#FFFFFF';
+        var opacity = 0.4 / highlight_colors.length;
+        jQuery.each(highlight_colors, function(i, color) {
+          var color_combine = jQuery.xcolor.opacity(current_hex, color, opacity);
+          current_hex = color_combine.getHex();
+        });
+        current.css('background', current_hex);
+        current.data('highlight_colors', highlight_colors);
+      } else {
+        current.attr('style', 'display:inline;');
+      }
+    });
+
     jQuery('#layers li').each(function(i, el) {
       jQuery.each(annotation.layers, function(j, layer) {
         if(jQuery(el).data('id') == 'l' + layer.id) {
@@ -567,7 +587,6 @@ jQuery.extend({
     unlayered_tts = jQuery('#collage article tt:not(.a)');
   },
   markupAnnotation: function(annotation, layer_color_map, page_load) {
-  console.log(annotation);
     var annotation_start = parseInt(annotation.annotation_start.replace(/^t/, ''));
     var annotation_end = parseInt(annotation.annotation_end.replace(/^t/, ''));
     var els = all_tts.slice(annotation_start - 1, annotation_end);
@@ -619,6 +638,7 @@ jQuery.extend({
     jQuery(jQuery.mustache(annotation_end_template, data)).insertAfter(jQuery('tt#t' + annotation_end));
 
     //Handle Unlayered Controls
+    update_unlayered_end = 0;
     jQuery.removeUnlayeredControls(els);
     els.removeClass('border_annotation_start border_annotation_end');
     if(!jQuery('tt#t' + (annotation_start - 1)).hasClass('a')) {
@@ -630,7 +650,6 @@ jQuery.extend({
     //Weird edge case where layers are highlighted next to eachother
     if(jQuery('.unlayered-control-start.unlayered-control-' + annotation_start).size()) {
       jQuery('.unlayered-control-start.unlayered-control-' + annotation_start).remove();
-      console.log('steph here!! ' + annotation_start);
       jQuery('#unlayered-ellipsis-' + annotation_start).remove();
       if(jQuery('.unlayered-control-end.unlayered-control-' + annotation_start).size()) {
         var el = jQuery('.unlayered-control-end.unlayered-control-' + annotation_start);
@@ -643,6 +662,15 @@ jQuery.extend({
           .data('id', new_unlayered_end_id);
       }
     }
+    //Another edge case
+    if(update_unlayered_end != 0 && els.last().is('.border_annotation_end')) {
+      var next_id = els.last().data('id') + 1;
+      jQuery('.unlayered-control-' + update_unlayered_end)
+        .removeClass('unlayered-control-' + update_unlayered_end)
+        .addClass('unlayered-control-' + next_id)
+        .data('id', next_id);
+    }
+
     if(jQuery('.unlayered-position-' + annotation_end).size()) {
       jQuery('.unlayered-position-' + annotation_end).remove();
     }
@@ -671,6 +699,7 @@ jQuery.extend({
       var next_tt = jQuery('tt#t' + next_id);
       jQuery('.unlayered-control-start.unlayered-control-' + next_id).remove();
       jQuery('#unlayered-ellipsis-' + next_id).remove();
+      update_unlayered_end = next_id;
     });
   },
   addUnlayeredControls: function(els) {
@@ -928,7 +957,6 @@ jQuery.extend({
     });
   },
   initializeAnnotationListeners: function(){
-    jQuery('.annotation-asterisk').tipsy({ gravity: 'sw', trigger: 'manual' });
     jQuery('.unlayered-ellipsis').live('click', function(e) {
       e.preventDefault();
       var id = jQuery(this).data('id');
@@ -1350,12 +1378,12 @@ var annotation_end_template = '\
 <span class="arr control-divider annotation-control-{{annotation_id}}{{#layers}} annotation-control-l{{id}}{{/layers}}" href="#" data-id="{{annotation_id}}"></span>\
 {{#show_annotation}}\
 <span class="annotation-content" id="annotation-content-{{annotation_id}}">{{annotation_content}}</span>\
-<span class="annotation-asterisk{{#layers}} l{{id}}{{/layers}}" title="test" id="annotation-asterisk-{{annotation_id}}" data-id="{{annotation_id}}"></span>\
+<span class="annotation-asterisk{{#layers}} l{{id}}{{/layers}}" id="annotation-asterisk-{{annotation_id}}" data-id="{{annotation_id}}"></span>\
 {{/show_annotation}}';
 
 var annotation_template = '\
 <span class="annotation-content" id="annotation-content-{{annotation_id}}">{{annotation_content}}</span>\
-<span class="annotation-asterisk{{#layers}} l{{id}}{{/layers}}" title="test" id="annotation-asterisk-{{annotation_id}}" data-id="{{annotation_id}}"></span>';
+<span class="annotation-asterisk{{#layers}} l{{id}}{{/layers}}" id="annotation-asterisk-{{annotation_id}}" data-id="{{annotation_id}}"></span>';
 
 var unlayered_start_template = '\
 <span class="unlayered-control unlayered-control-start unlayered-control-{{unlayered_start_id}}" data-id="{{unlayered_start_id}}" href="#"></span>\
