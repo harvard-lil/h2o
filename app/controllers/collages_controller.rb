@@ -52,7 +52,7 @@ class CollagesController < BaseController
         :can_edit => false,
         :can_edit_description => false,
         :can_edit_annotations => false,
-        :readable_state => {}.to_json
+        :readable_state => @collage.readable_state || { :edit_mode => false }.to_json
       }
     end
   end
