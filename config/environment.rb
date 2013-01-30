@@ -45,6 +45,9 @@ Rails::Initializer.run do |config|
 
   config.active_record.colorize_logging = false
 
+  # set log rotation
+  config.logger = Logger.new(config.log_path, 25, 2097152)
+
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
   # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
