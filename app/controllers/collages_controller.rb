@@ -103,6 +103,8 @@ class CollagesController < BaseController
   end
 
   def index
+    @page_title = "Collages | H2O Classroom Tools"
+
     add_javascripts ['jquery.tipsy', 'tooltips']
     params[:page] ||= 1
 
@@ -271,5 +273,6 @@ class CollagesController < BaseController
 
   def load_collage
     @collage = Collage.find((params[:id].blank?) ? params[:collage_id] : params[:id], :include => [:accepted_roles => {:users => true}])
+    @page_title = @collage.name
   end
 end

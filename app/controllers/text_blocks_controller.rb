@@ -109,6 +109,8 @@ class TextBlocksController < BaseController
   # GET /text_blocks
   # GET /text_blocks.xml
   def index
+    @page_title = "Text Blocks | H2O Classroom Tools"
+
     params[:page] ||= 1
 
     if params[:keywords]
@@ -194,5 +196,6 @@ class TextBlocksController < BaseController
 
   def load_text_block
     @text_block = TextBlock.find((params[:id].blank?) ? params[:text_block_id] : params[:id])
+    @page_title = @text_block.name
   end
 end

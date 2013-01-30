@@ -46,6 +46,8 @@ class MediasController < BaseController
   end
 
   def index
+    @page_title = "Media Items | H2O Classroom Tools"
+
     params[:page] ||= 1
 
     if params[:keywords]
@@ -159,5 +161,6 @@ class MediasController < BaseController
 
   def load_media
     @media = Media.find((params[:id].blank?) ? params[:media_id] : params[:id], :include => [:accepted_roles => {:users => true}])
+    @page_title = @media.name
   end
 end

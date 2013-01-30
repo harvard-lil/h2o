@@ -92,6 +92,8 @@ class PlaylistsController < BaseController
   # GET /playlists
   # GET /playlists.xml
   def index
+    @page_title = "Playlists | H2O Classroom Tools"
+
     params[:page] ||= 1
 
     if params[:keywords]
@@ -376,6 +378,7 @@ class PlaylistsController < BaseController
   def load_playlist
     unless params[:id].nil?
       @playlist = Playlist.find(params[:id])
+      @page_title = @playlist.name
     end  
   end
 

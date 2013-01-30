@@ -4,7 +4,7 @@
   <head> 
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Cache-Control" content="must-revalidate" />
-    <title></title>
+    <title><%= @page_title || "H2O Classroom Tools" %></title>
 
     <%= stylesheet_link_tag 'ui', 'jquery.ui.custom', 'formtastic', :cache => 'all' %>
     <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>

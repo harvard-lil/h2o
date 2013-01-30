@@ -60,6 +60,8 @@ class CasesController < BaseController
   # GET /cases
   # GET /cases.xml
   def index
+    @page_title = "Cases | H2O Classroom Tools"
+
     params[:page] ||= 1
 
     if params[:keywords]
@@ -230,6 +232,7 @@ class CasesController < BaseController
 
   def load_case
     @case = Case.find((params[:id].blank?) ? params[:case_id] : params[:id])
+    @page_title = @case.name
   end
 
   def is_case_admin
