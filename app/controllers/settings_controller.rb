@@ -2,6 +2,7 @@ class SettingsController < ApplicationController
   before_filter :load_user
   
   def index
+    @page_title = "Settings | H2O Classroom Tools"
     update if request.put?
   end
   

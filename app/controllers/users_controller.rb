@@ -76,6 +76,7 @@ class UsersController < ApplicationController
     @types = [:playlists, :collages, :cases, :medias, :text_blocks]
 
     if current_user && @user == current_user
+      @page_title = "Dashboard | H2O Classroom Tools"
       if @user.is_case_admin
         @types += [:case_requests, :pending_cases]
       else
@@ -84,6 +85,8 @@ class UsersController < ApplicationController
       if @user.is_admin
         @types += [:content_errors]
       end
+    else
+      @page_title = "User #{@user.display} | H2O Classroom Tools"
     end
 
     @results = {}
@@ -129,6 +132,7 @@ class UsersController < ApplicationController
   end
 
   def edit
+    @page_title = "User Edit | H2O Classroom Tools"
     @user = @current_user
   end
 
