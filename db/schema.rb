@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121031145323) do
+ActiveRecord::Schema.define(:version => 20130118154403) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -829,8 +829,8 @@ ActiveRecord::Schema.define(:version => 20121031145323) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                :null => false
-    t.integer  "login_count",       :default => 0, :null => false
+    t.string   "persistence_token",                       :null => false
+    t.integer  "login_count",              :default => 0, :null => false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -843,6 +843,10 @@ ActiveRecord::Schema.define(:version => 20121031145323) do
     t.integer  "bookmark_id"
     t.integer  "karma"
     t.string   "attribution"
+    t.string   "perishable_token"
+    t.boolean  "default_show_annotations"
+    t.boolean  "tab_open_new_items"
+    t.string   "default_font_size"
   end
 
   add_index "users", ["email_address"], :name => "index_users_on_email_address"
