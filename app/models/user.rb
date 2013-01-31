@@ -236,4 +236,20 @@ class User < ActiveRecord::Base
     reset_perishable_token!
     Notifier.deliver_password_reset_instructions(self)
   end
+  
+  def default_font_size
+    @default_font_size || self.large_font_size
+  end
+  
+  def tab_open_new_items
+    @tab_open_new_items || false
+  end
+  
+  def default_show_annotations
+    @default_show_annotations || false
+  end
+  
+  def large_font_size
+    16
+  end
 end
