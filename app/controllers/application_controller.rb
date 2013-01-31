@@ -154,9 +154,11 @@ class ApplicationController < ActionController::Base
   end
   
   def apply_user_preferences!(user)
-    cookies[:font_size] = user.default_font_size
-    cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
-    cookies[:show_annotations] = (user.default_show_annotations? ? 'true' : 'false') 
+    if user
+      cookies[:font_size] = user.default_font_size
+      cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
+      cookies[:show_annotations] = (user.default_show_annotations? ? 'true' : 'false') 
+    end
   end
   
 
