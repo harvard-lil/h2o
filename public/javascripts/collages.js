@@ -382,9 +382,11 @@ jQuery.extend({
       jQuery.each(jQuery('.link-o.highlighted'), function(i, el) {
         data.highlights[jQuery(el).parent().data('id')] = jQuery(el).parent().data('hex');
       });
-      if(jQuery('a#hide_heatmap:visible:not(.inactive)')) {
+      //Note: is:visible not working here
+      if(jQuery('a#hide_heatmap').css('display') == 'block' && !jQuery('a#hide_heatmap:first').is('.inactive')) {
         data.load_heatmap = true;
       }
+      console.log(data);
       data.annotations = {};
       jQuery.each(jQuery('.annotation-content:visible'), function(i, el) {
         data.annotations[jQuery(el).attr('id')] = true;
