@@ -82,6 +82,14 @@ class Case < ActiveRecord::Base
   def approve!
     self.update_attribute('active', true)
   end
+  
+  def self.to_tsv(options = {})
+    res = ''
+    Case.all.each do |case_obj|
+      FasterCSV.generate(res, :col_sep => "\t") {|csv| csv << [case_obj.short_name, case_obj.case_citations.first.to_s]}
+    end
+    res
+  end
 
   private
 

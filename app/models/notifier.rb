@@ -247,4 +247,15 @@ class Notifier < ActionMailer::Base
     sent_on    Time.now
     body       :new_password_reset_url => new_password_reset_url, :users => users
   end
+  
+  def cases_list
+    recipients ['tim@powerupdev.com, dlewis@cyber.law.harvard.edu']
+    subject    "List of All Cases #{Time.now.to_s(:simpledate)}"
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+    attachment :content_type => 'text/tab-separated-values',
+               :body => Case.to_tsv,
+               :filename => "cases_list_#{Time.now.strftime("%Y%m%d%H%M")}"
+  end
+  
 end
