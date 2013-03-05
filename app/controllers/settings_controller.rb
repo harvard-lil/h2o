@@ -1,6 +1,6 @@
 class SettingsController < ApplicationController
   before_filter :load_user
-  
+  before_filter :require_user
   def index
     @page_title = "Settings | H2O Classroom Tools"
     update if request.put?
