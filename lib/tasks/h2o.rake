@@ -268,4 +268,9 @@ namespace :h2o do
       u.has_role!(:creator, i) 
     end
 =end
+
+  desc 'Send cases list email'
+  task(:send_cases_list_email => :environment) do
+    Notifier.deliver_cases_list
+  end
 end
