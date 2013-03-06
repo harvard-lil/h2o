@@ -67,7 +67,7 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 
-  config.action_mailer.default_url_options = { :host => 'localhost', :port => 3000 }
+  
 
 end
 
