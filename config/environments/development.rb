@@ -23,4 +23,4 @@ config.action_controller.perform_caching             = true
 config.action_mailer.raise_delivery_errors = false
 
 config.action_mailer.delivery_method = :sendmail
-config.action_mailer.default_url_options = { :host => 'http://murk.law.harvard.edu', :port => '8002'}
+config.action_mailer.default_url_options = { :host => 'murk.law.harvard.edu', :port => '8002'}
