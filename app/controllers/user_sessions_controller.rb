@@ -26,7 +26,8 @@ class UserSessionsController < ApplicationController
     end
   end
   
-  def destroy
+  def destroy   
+    cookies[:font_size] = nil
     current_user_session.destroy
     redirect_back_or_default "/base"
   end

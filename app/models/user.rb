@@ -238,7 +238,7 @@ class User < ActiveRecord::Base
   end
   
   def default_font_size
-    @default_font_size || self.large_font_size
+    attributes['default_font_size'] || self.large_font_size
   end
   
   def tab_open_new_items
