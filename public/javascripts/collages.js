@@ -183,6 +183,9 @@ jQuery.extend({
   },
   initializeFontChange: function() {
     var val = jQuery.cookie('font_size');
+    if (val == null){
+      val = 16;
+    }
     if(val != null) {
       jQuery('.font-size-popup select').val(val);
       jQuery('#collage article').css('font-size', parseInt(val) + 1 + 'px');
