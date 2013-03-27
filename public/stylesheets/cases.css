@@ -32,7 +32,7 @@
 #case .details p .link-less { background: url(/images/ui/pagination-divider.png) right 3px no-repeat; }
 /* #case .details .edit-action { padding-left: 5px; display: none; } */
 
-#case article { font-size:11px; line-height:16px;
+#case article { font-size:11px; line-height:1.5em;
   color:#000; padding:13px 9px 0 35px; height:100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
 #case article tt { font-family: Verdana, Arial, Helvetica, sans-serif; display: inline; }
 #case article .chorus { text-align:center; padding-bottom:16px; }
