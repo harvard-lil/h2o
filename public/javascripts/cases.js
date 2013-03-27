@@ -8,7 +8,19 @@ jQuery.extend({
     }
     jQuery.hideGlobalSpinnerNode();
     jQuery('#generic-node').dialog('close');
-  }
+  },
+  initializeFontChange: function() {
+    var val = jQuery.cookie('font_size');
+    if (val == null){
+      val = 16;
+    }
+    if(val != null) {
+      jQuery('.font-size-popup select').val(val);
+      jQuery('#case article').css('font-size', parseInt(val) + 1 + 'px');
+      jQuery('#description_less, #description_more, #description').css('font-size', (parseInt(val) + 2) + 'px');
+      jQuery('#case .details h5').css('font-size', parseInt(val) + 1 + 'px');
+    }
+  }      
 });
 
 jQuery(document).ready(function(){
@@ -62,5 +74,5 @@ jQuery(document).ready(function(){
     jQuery(this).parents('.fields').hide();
     return false;
   });
-
+  jQuery.initializeFontChange();
 });
