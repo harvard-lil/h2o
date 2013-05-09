@@ -79,12 +79,12 @@ jQuery.extend({
           }
           jQuery('<span class="ellipsis">[...] </span>').insertBefore(unlayered_elements.first());
           unlayered_elements.hide();
-        } else if(i.match(/#annotation-ellipsis/)) {
+        } else if(i.match(/#annotation-ellipsis/) && e != 'none') {
           var annotation_id = i.replace(/#annotation-ellipsis-/, '');
           var elements = jQuery('tt.a' + annotation_id);
           jQuery('<span class="ellipsis">[...] </span>').insertBefore(elements.first());
           elements.hide();
-        } 
+        }
       });
 
       jQuery.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
@@ -97,12 +97,12 @@ jQuery.extend({
 jQuery(document).ready(function(){
   jQuery.loadState();
   jQuery('#printfonttype').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     jQuery.rule('body, tt { font-family: ' + jQuery(this).val() + '; }').appendTo('style');
   });
   jQuery('#printfontsize').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     var size = parseInt(jQuery(this).val());
     jQuery.rule('body, tt, .paragraph-numbering, #playlist .item_description, .collage-content .item_description { font-size: ' + size + 'pt; }').appendTo('style');
@@ -111,7 +111,7 @@ jQuery(document).ready(function(){
     jQuery.rule('#playlist .details h2, .collage-content .info { font-size: ' + (size - 1) + 'pt; }').appendTo('style');
   });
   jQuery('#printtitle').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     var choice = jQuery(this).val();
     if (choice == 'yes') {
@@ -124,7 +124,7 @@ jQuery(document).ready(function(){
     }
   });
   jQuery('#printdetails').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     var choice = jQuery(this).val();
     if (choice == 'yes') {
@@ -135,7 +135,7 @@ jQuery(document).ready(function(){
     }
   });
   jQuery('#printparagraphnumbers').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     var choice = jQuery(this).val();
     if (choice == 'yes') {
@@ -148,7 +148,7 @@ jQuery(document).ready(function(){
     }
   });
   jQuery('#printhighlights').selectbox({
-    className: "jsb", replaceInvisible: true 
+    className: "jsb", replaceInvisible: true
   }).change(function() {
     var choice = jQuery(this).val();
     if (choice == 'yes') {
