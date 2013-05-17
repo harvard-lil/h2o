@@ -20,38 +20,38 @@ namespace :h2o do
     end
   end
 
-  desc 'Update user karma'
-  task(:update_user_karma => :environment) do
-    User.find_in_batches { |users| users.each { |u| u.update_karma } }
-  end
-
-  desc 'Generate playlist PDFs'
-  task(:gen_playlist_pdfs => :environment) do
-    permutations = Playlist.cache_options
-    Playlist.find(:all, :conditions => ['public is true'], :order => 'updated_at desc').each do |pl|
-      permutations.each do|pm|
-        url = "http://h2odev.law.harvard.edu/playlists/#{pl.id}/export?#{pm}"
-        clean_cgi = CGI.escape(pm)
-        output_file = "#{RAILS_ROOT}/tmp/cache/playlist_#{pl.id}.pdf?#{clean_cgi}"
-        if !FileTest.exists?(output_file)
-          puts "Generating PDF for: #{url}"
-          file = File.new(output_file, "w+")
-          system("#{RAILS_ROOT}/pdf/wkhtmltopdf -B 25.4 -L 25.4 -R 25.4 -T 25.4 --footer-html #{RAILS_ROOT}/pdf/playlist_footer.html \"#{url}\" #{file.path}")
+  desc 'Update item karma'
+  task(:update_karma => :environment) do
+    User.find_in_batches do |users| 
+      users.each do |u|
+       Rails.cache.delete("user-barcode-#{u.id}")
+       u.update_karma
+      end
+    end
+    # Cache does not need to be cleared for playlists
+    # and collages, because it is cleared in sweepers
+    [Playlist, Collage, TextBlock, Media, Case, Default].each do |model|
+      model.find_in_batches do |items|
+        items.each do |i|
+          i.update_karma
         end
       end
     end
   end
- 
+
   def deep_clone(playlist, creator, indent)
-    cloned_playlist = playlist.clone
+    cloned_playlist = playlist.clone    
+    cloned_playlist.save!
     cloned_playlist.accepts_role!(:owner, creator)
     cloned_playlist.accepts_role!(:creator, creator)
     cloned_playlist.tag_list = playlist.tag_list
 
     playlist.playlist_items.each do |pi|
-      cloned_playlist_item = pi.clone
+      cloned_playlist_item = pi.clone 
+      cloned_playlist_item.save!
       cloned_playlist_item.accepts_role!(:owner, creator)
       cloned_resource_item = pi.resource_item.clone
+      cloned_resource_item.save!
       cloned_resource_item.accepts_role!(:owner, creator)
       if pi.resource_item.actual_object
         if pi.resource_item_type == 'ItemPlaylist'
@@ -60,6 +60,7 @@ namespace :h2o do
         else
           puts "#{indent}cloning item: #{pi.resource_item.actual_object}"
           cloned_object = pi.resource_item.actual_object.clone
+          cloned_object.save!
           cloned_object.accepts_role!(:owner, creator)
           cloned_object.accepts_role!(:creator, creator)
           cloned_object.tag_list = pi.resource_item.actual_object.tag_list
@@ -89,16 +90,16 @@ namespace :h2o do
       cloned_playlist_item.playlist_id = cloned_playlist.id
       cloned_playlist_item.save
     end
-
-    cloned_playlist.save
+    
+   cloned_playlist.save
 
     return cloned_playlist
   end
-
+ 
   desc 'Deep Playlist Copy'
   task(:deep_playlist_copy => :environment) do
-    p = Playlist.find(ENV['playlist_id'])
-    u = User.find(ENV['user_id'])
+    p = Playlist.find(1304)
+    u = User.find(534)
     if(p.nil? || u.nil?)
       puts "You must enter a valid playlist and user id to clone."
     end

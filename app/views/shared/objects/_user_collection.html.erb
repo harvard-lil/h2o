@@ -7,8 +7,8 @@
 	<div class="details">
 		<h4>
 			<%= link_to user_collection.name, user_collection_path(user_collection), :class => "title" %>
-			<%= link_to 'EDIT', edit_user_collection_path(user_collection), :class => "action edit-action" %>
-			<%= link_to 'DELETE', user_collection, :class => "action delete-action" %>
+			<%= link_to 'EDIT', edit_user_collection_path(user_collection), :class => "icon icon-edit tooltip" %>
+			<%= link_to 'DELETE', user_collection, :class => "icon icon-delete tooltip" %>
 		</h4>
 		<p>
       <%= user_collection.description %>
@@ -25,6 +25,6 @@
 			<%= link_to 'MANAGE PERMISSIONS', manage_permissions_user_collection_path(user_collection), :class => "action edit-action" %>
 		</p>
 	</div>
-	<div class="cl"></div>
+	<div class="clear"></div>
 </li>
 <% end -%>

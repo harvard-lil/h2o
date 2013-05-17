@@ -1,3 +1,2 @@
 class ItemDefaultsController < ItemBaseController
-
 end

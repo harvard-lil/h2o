@@ -18,17 +18,26 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
       playlist = Playlist.find(params[:container_id])
       clear_playlists(playlist)
     end
+    if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
+    end
   end
 
   def after_update(record)
     if record && record.playlist_item
       clear_playlists(record.playlist_item.playlist)
     end
+    if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
+    end
   end
 
   def before_destroy(record)
     if record && record.playlist_item
       clear_playlists(record.playlist_item.playlist)
+    end
+    if record && [ItemPlaylist, ItemCollage].include?(record.class) && record.actual_object
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
     end
   end
 end

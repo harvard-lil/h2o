@@ -5,11 +5,5 @@ class ItemDefault < ActiveRecord::Base
 
   has_one :playlist_item, :as => :resource_item, :dependent => :destroy
   validates_presence_of :name
-
-  def preview(size_indicator = "S")
-  end
-
-  def bookmark_name
-    self.name
-  end
+  belongs_to :actual_object, :polymorphic => true
 end

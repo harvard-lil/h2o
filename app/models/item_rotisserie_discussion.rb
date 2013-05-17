@@ -11,9 +11,7 @@ class ItemRotisserieDiscussion < ActiveRecord::Base
     metadata_hash = get_metadata_hash(self.url)
 
     preview_content = <<-PREVIEW_CONTENT
-       <a href='#{self.url}' target='_blank' class='item_default_link'>
-       <img src='/images/elements/cog.png' style='border: none;' /></a>
-
+       <a href='#{self.url}' target='_blank' class='item_default_link'>Rotisserie</a>
     PREVIEW_CONTENT
 
     preview_content += "<p>\n"

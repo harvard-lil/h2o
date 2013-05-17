@@ -1,34 +1,107 @@
-#manage-users-collection h4,
-#manage-playlists-collection h4,
-#manage-collages-collection h4 {
-  margin-top: 10px;
+#results .panel {
+  width: 300px;
+  float: left;
+  margin-top: 25px;
+  background: #FFF;
+}
+#results .special_panel {
+  width: 100%;
+  float: none;
+}
+#results #bookshelf_panel {
+  width: 780px;
+  margin-right: 10px;
+}
+#results #settings_panel,
+#results #collections_panel {
+  margin-top: 5px;
+}
+#results .panel .header {
+  background: #d5d5d5;
+  padding: 20px 10px 2px 10px;
+  position: relative;
+}
+#results .panel .header h3 {
+  font-weight: normal;
+  padding: 8px 0px 0px 0px;
+  display: inline-block;
+  font-size: 21pt;
+}
+#results .panel .header span {
+  margin-left: 3px;
+}
+#results #profile_panel .header a,
+#results #settings_panel .header a {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+#results .clear {
+  clear: both;
 }
 
-#manage-users-collection a,
-#manage-playlists-collection a,
-#manage-collages-collection a {
-  font-size: 10px;
-  color: #336699;
+.fixed_link {
+  width: 40px;
+  height: 40px;
+  padding: 3px;
+  background: #d5d5d5;
+  text-align: center;
+  text-indent: 0px;
+}
+#activities_toggle {
+}
+#bookshelf_toggle {
+  top: 240px;
+}
+#bookshelf_toggle span {
+  position: relative;
+  top: 2px;
+}
+#profile_toggle {
+  top: 288px;
+}
+#profile_toggle span {
+  position: relative;
+  top: 3px;
+}
+#settings_toggle {
+  top: 336px;
+}
+#settings_toggle span {
+  position: relative;
+  top: 2px;
 }
 
-#manage-users-collection li a,
-#manage-playlists-collection li a,
-#manage-collages-collection li a {
-  margin-left: 5px;
+ul.user_list li {
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
 }
-#manage-users-collection a.disabled,
-#manage-playlists-collection a.disabled,
-#manage-collages-collection a.disabled {
-  opacity: 0.4;
-}
-
-#manage-users-collection .buttons,
-#manage-playlists-collection .buttons,
-#manage-collages-collection .buttons {
-  margin-top: 30px;
-}
-.manage_permissions span {
-  color: red;
-  text-transform: uppercase;
+ul.user_list li a.item {
+  text-decoration: none;
   font-weight: bold;
+}
+
+#results li.listitem .details {
+  width: 360px;
+}
+#results .special_panel li.listitem .details {
+  width: 85%;
+}
+#results #bookmarks_panel li.listitem .details {
+  width: 400px;
+}
+#results #bookmarks_panel .bookmark-action {
+  display: none;
+}
+#results .sort,
+#results .special_sort {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+}
+#results .pagination,
+#results .special_pagination {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }

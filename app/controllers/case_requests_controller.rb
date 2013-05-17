@@ -1,7 +1,7 @@
 class CaseRequestsController < ApplicationController
 
   before_filter :require_user
-  before_filter :load_case_request, :only => [:destroy]
+  before_filter :load_single_resource, :only => [:destroy]
 
   def new
     add_javascripts ['new_case_request']
@@ -35,14 +35,5 @@ class CaseRequestsController < ApplicationController
       format.xml  { head :ok }
       format.json { render :json => {} }
     end
-  end
-  private
-
-  def load_case_request
-    @case_request = CaseRequest.find(params[:id])
-  end
-
-  def is_case_admin
-    @is_case_admin = current_user ? current_user.is_case_admin : false
   end
 end

@@ -1,6 +1,6 @@
 class JournalArticlesController < BaseController
   before_filter :require_user, :except => [:show, :export]
-  before_filter :load_journal_article, :only => [:update, :destroy, :show, :export, :edit]
+  before_filter :load_single_resource, :only => [:update, :destroy, :show, :export, :edit]
 
   access_control do
     allow all, :to => [:create, :show, :export]
@@ -80,11 +80,5 @@ class JournalArticlesController < BaseController
       format.xml  { head :ok }
       format.json { render :json => {} }
     end
-  end
-
-  private 
-
-  def load_journal_article
-    @journal_article = JournalArticle.find((params[:id].blank?) ? params[:journal_article_id] : params[:id])
   end
 end

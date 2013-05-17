@@ -1,9 +1,5 @@
 module H2oModelExtensions
   def self.included(model)
-    model.class_eval do
-      # Instance methods go here.
-    end
-
     model.instance_eval do
       #Class methods go here.
       # Validate text and string column lengths automatically, and for existence.

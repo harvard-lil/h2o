@@ -1,52 +1,24 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
-  :url => "/",
-  :right_search => 'shared/search_all' } %>
-	
-<section class="breadcrumbs">
-	<aside class="filter">
-		<p>
-		<% if params[:keywords] -%>
-		Results for:
-		<%= params[:keywords] %> (<%= render :partial => "shared/all_totals" %>)
-		<%= link_to "CLEAR SEARCH", search_all_path %>
-		<% else -%>
-		All materials:
-		(<%= render :partial => "shared/all_totals" %>)
-		<% end -%>
-		</p>
-	</aside>
-  <%= render :partial => 'shared/all_pagination' %>
-	<div class="cl"></div>
-</section>
-
-<section id="results">
-	<hgroup id="default_hgroup">
-		<ul class="tabs">
-      <% @types.each do |type| -%>
-			<li><a href="#" data-region="all_<%= type.to_s %>"><%= type.to_s.humanize.upcase %></a></li>
-      <% end -%>
-		</ul>
-		<aside class="sort">
-      <% @types.each do |type| -%>
-			<div id="all_<%= type.to_s %>_sort" style="display:none;" data-type="<%= type.to_s %>">
-				<%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[type] } %>
-			</div>
-      <% end -%>
-		</aside>
-		<div class="cl"></div>
-	</hgroup>
-	<article class="songs">
-  <% @types.each do |type| -%>
-	<ul id="all_<%= type.to_s %>">
-		<%= render :partial => "shared/objects/#{type == :cases ? 'case_obj' : type.to_s.singularize}", :collection => @results[type].results %>
-	</ul>
-  <% end -%>
-	</article>
-</section>
-
-<section class="breadcrumbs">
-  <%= render :partial => 'shared/all_pagination' %>
-	<div class="cl"></div>
+<section id="results" class="multiitems">
+  <aside class="sort">
+    <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %> 
+  </aside>
+  <div class="search_details">
+    <% if params[:keywords] -%>
+    <h1>
+    Search Results: <b><%= params[:keywords] %></b>
+    </h1>
+    <% end -%>
+    <%= pluralize @results.total, "Result" %>
+    <aside class="pagination standard_pagination">
+    <%= will_paginate @results.hits, :container => false, :previous_label => '', :next_label => '' %>
+    </aside>
+  </div>
+  <ul id="results_set">
+    <% @results.results.each do |hit| -%>
+		<%= render :partial => "shared/objects/#{hit.class == Case ? 'case_obj' : hit.class.to_s.downcase}",
+               :locals => { (hit.class == Case ? :case_obj : hit.class.to_s.downcase.to_sym) => hit } %>
+    <% end %>
+  </ul>
 </section>
 
 <%= render :partial => "shared/popup", :locals => { :type => "collage" } %>

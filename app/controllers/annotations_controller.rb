@@ -3,7 +3,7 @@ class AnnotationsController < BaseController
   cache_sweeper :annotation_sweeper
 
   before_filter :require_user, :except => [:show, :embedded_pager, :choose]
-  before_filter :load_annotation, :only => [:show, :edit, :update, :destroy, :metadata]
+  before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :metadata]
 
   access_control do
     allow all, :to => [:show, :metadata, :embedded_pager, :choose]
@@ -15,7 +15,7 @@ class AnnotationsController < BaseController
   end
 
   def allow_edit?
-    load_annotation
+    load_single_resource
 
     current_user.can_permission_collage("edit_annotations", @collage)
   end
@@ -42,6 +42,11 @@ class AnnotationsController < BaseController
   # GET /annotations/1
   # GET /annotations/1.xml
   def show
+    @color_map = {}
+    @annotation.collage.layers.each do |layer|
+      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      @color_map[layer.name] = map.hex if map
+    end
     @editors = @annotation.editors
     @original_creators = @annotation.accepted_roles.find(:all, :conditions => {:name => "original_creator"})
   end
@@ -146,7 +151,7 @@ class AnnotationsController < BaseController
     deleteable_tags = @annotation.collage.deleteable_tags
     @annotation.layers.each do |layer|
       if deleteable_tags.include?(layer.id)
-        to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+        to_delete = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
         ColorMapping.destroy(to_delete) if to_delete
       end
     end
@@ -159,11 +164,6 @@ class AnnotationsController < BaseController
   end
 
   private
-
-  def load_annotation
-    @annotation = Annotation.find((params[:id].blank?) ? params[:annotation_id] : params[:id], :include => [:layers])
-    @collage = @annotation.collage
-  end
 
   def filter_layer_list
     layer_list = []

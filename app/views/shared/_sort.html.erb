@@ -1,12 +1,7 @@
 <% if list -%>
-<label>SORT:</label>
 <select>
 	<% list.each do |k, v| -%>
 		<option value="<%= k %>" <%= raw 'selected="selected"' if v[:selected] %>><%= v[:display] %></option>
 	<% end -%>
 </select>
-<div class="sort_ad">
-  <a href="#" class="sort-asc active" title="Sort Ascending" data-val="asc"></a>
-  <a href="#" class="sort-desc" title="Sort Descending" data-val="desc"></a>
-</div>
 <% end -%>

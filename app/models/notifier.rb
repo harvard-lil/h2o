@@ -240,7 +240,6 @@ class Notifier < ActionMailer::Base
   end
   
   def logins(users)
-
     recipients users.map(&:email_address).uniq
     subject    "Logins"
     from       "noreply@berkmancenter.org"
@@ -257,5 +256,11 @@ class Notifier < ActionMailer::Base
                :body => Case.to_tsv,
                :filename => "cases_list_#{Time.now.strftime("%Y%m%d%H%M")}"
   end
-  
+
+  def playlist_push_completed(user, playlist)
+    recipients [user.email_address]
+    subject    "Push of Playlist #{playlist.name} completed"
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+  end
 end

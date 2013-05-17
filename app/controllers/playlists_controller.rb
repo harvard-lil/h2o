@@ -6,17 +6,17 @@ class PlaylistsController < BaseController
   include PlaylistUtilities
   
   cache_sweeper :playlist_sweeper
+  caches_page :show, :export, :if => Proc.new{|c| c.instance_variable_get('@playlist').public?}
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
-  before_filter :playlist_admin_preload, :except => [:embedded_pager, :metadata, :check_export]
-  before_filter :load_playlist, :except => [:metadata, :embedded_pager, :index, :destroy, :check_export]
-  before_filter :require_user, :except => [:metadata, :embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
+  before_filter :load_single_resource, :except => [:embedded_pager, :index, :destroy, :check_export]
+  before_filter :require_user, :except => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
   before_filter :store_location, :only => [:index, :show]
-  before_filter :restrict_if_private, :except => [:metadata, :embedded_pager, :index, :new, :create, :destroy]
-  caches_page :show, :export, :if => Proc.new{|c| c.instance_variable_get('@playlist').public?}
+  before_filter :restrict_if_private, :except => [:embedded_pager, :index, :new, :create, :destroy]
+
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
-    allow logged_in, :to => [:new, :create, :copy, :spawn_copy]
+    allow logged_in, :to => [:new, :create, :copy, :prepare_copy]
 
     allow logged_in, :to => [:notes], :if => :allow_notes?
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
@@ -26,13 +26,13 @@ class PlaylistsController < BaseController
   end
 
   def allow_notes?
-    load_playlist
+    load_single_resource
 
     current_user.can_permission_playlist("edit_notes", @playlist)
   end
 
   def allow_edit?
-    load_playlist
+    load_single_resource
 
     current_user.can_permission_playlist("edit_descriptions", @playlist)
   end
@@ -69,83 +69,20 @@ class PlaylistsController < BaseController
     end
   end
 
-
-  def build_search(params)
-    playlists = Sunspot.new_search(Playlist)
-    
-    playlists.build do
-      if params.has_key?(:keywords)
-        keywords params[:keywords]
-      end
-      if params.has_key?(:tag)
-        with :tag_list, CGI.unescape(params[:tag])
-      end
-      with :public, true
-      paginate :page => params[:page], :per_page => 25
-
-      order_by params[:sort].to_sym, params[:order].to_sym
-    end
-    playlists.execute!
-    playlists
-  end
-
-  # GET /playlists
-  # GET /playlists.xml
   def index
-    @page_title = "Playlists | H2O Classroom Tools"
-
-    params[:page] ||= 1
-
-    if params[:keywords]
-      playlists = build_search(params)
-      t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
-      @playlists = WillPaginate::Collection.create(params[:page], 25, playlists.total) { |pager| pager.replace(t) }
-    else
-      @playlists = Rails.cache.fetch("playlists-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}") do 
-        playlists = build_search(params)
-        t = playlists.hits.inject([]) { |arr, h| arr.push(h.result); arr }
-        { :results => t, 
-          :count => playlists.total }
-      end
-      @playlists = WillPaginate::Collection.create(params[:page], 25, @playlists[:count]) { |pager| pager.replace(@playlists[:results]) }
-    end
-
-    if current_user
-      @my_playlists = current_user.playlists
-      @my_bookmarks = current_user.bookmarks_type(Playlist, ItemPlaylist)
-    else
-      @my_playlists = @my_bookmarks = []
-    end
-
-    respond_to do |format|
-      format.html do
-        if request.xhr?
-          @view = "playlist"
-          @collection = @playlists
-          render :partial => 'shared/generic_block'
-        else
-          render 'index'
-        end
-      end 
-      format.xml  { render :xml => @playlists }
-    end
+    common_index Playlist
   end
 
   # GET /playlists/1
-  # GET /playlists/1.xml
   def show
-    respond_to do |format|
-      format.html do
-        add_javascripts ['playlists', 'jquery.tipsy']
-        add_stylesheets 'playlists'
+    add_javascripts ['playlists', 'jquery.tipsy', 'jquery.nestable']
+    add_stylesheets ['playlists']
 
-        @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
-        @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
-        (@shown_words, @total_words) = @playlist.collage_word_count
-        render 'show' # show.html.erb
-      end
-      format.xml  { render :xml => @playlist }
-    end
+    @owner = @playlist.owners.first
+    @author_playlists = @playlist.owners.first.playlists.paginate(:page => 1, :per_page => 5)
+    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+    @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
+    (@shown_words, @total_words) = @playlist.collage_word_count
   end
 
   def check_export
@@ -159,15 +96,9 @@ class PlaylistsController < BaseController
   end
 
   # GET /playlists/new
-  # GET /playlists/new.xml
   def new
     @playlist = Playlist.new
     @can_edit_all = @can_edit_desc = true
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @playlist }
-    end
   end
 
   def edit
@@ -182,39 +113,27 @@ class PlaylistsController < BaseController
   end
 
   # POST /playlists
-  # POST /playlists.xml
   def create
     @playlist = Playlist.new(params[:playlist])
 
     @playlist.title = @playlist.name.downcase.gsub(" ", "_") unless @playlist.title.present?
 
-    respond_to do |format|
-      if @playlist.save
+    if @playlist.save
 
-        # If save then assign role as owner to object
-        @playlist.accepts_role!(:owner, current_user)
-        @playlist.accepts_role!(:creator, current_user)
+      # If save then assign role as owner to object
+      @playlist.accepts_role!(:owner, current_user)
+      @playlist.accepts_role!(:creator, current_user)
 
-        #IMPORTANT: This reindexes the item with author set
-        @playlist.index!
+      #IMPORTANT: This reindexes the item with author set
+      @playlist.index!
 
-        format.js { render :text => nil }
-        format.html { redirect_to(@playlist) }
-        format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
-        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
-      else
-        format.js { 
-          render :text => "We couldn't add that playlist. Sorry!<br/>#{@playlist.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity 
-        }
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
-        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
-      end
+      render :json => { :type => 'playlists', :id => @playlist.id }
+    else
+      render :json => { :type => 'playlists', :id => @playlist.id }
     end
   end
 
   # PUT /playlists/1
-  # PUT /playlists/1.xml
   def update
     if current_user
       can_edit_all = current_user.has_role?(:superadmin) ||
@@ -229,59 +148,46 @@ class PlaylistsController < BaseController
       params["playlist"].delete("tag_list")  
     end
 
-    respond_to do |format|
-      if @playlist.update_attributes(params[:playlist])
-        flash[:notice] = 'Playlist was successfully updated.'
-        format.html { redirect_to(@playlist) }
-        format.xml  { render :xml => @playlist, :status => :created, :location => @playlist }
-        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @playlist.errors, :status => :unprocessable_entity }
-        format.json { render :json => { :type => 'playlists', :id => @playlist.id } }
-      end
+    if @playlist.update_attributes(params[:playlist])
+      render :json => { :type => 'playlists', :id => @playlist.id }
+    else
+      render :json => { :type => 'playlists', :id => @playlist.id }
     end
   end
 
   # DELETE /playlists/1
-  # DELETE /playlists/1.xml
   def destroy
     @playlist = Playlist.find(params[:id])
     @playlist.destroy
 
-    respond_to do |format|
-      format.json { render :json => {} }
-      format.js { render :text => nil }
-      format.html { redirect_to(playlists_url) }
-      format.xml  { head :ok }
-    end
+    render :json => { :success => true }
   rescue Exception => e
-    respond_to do |format|
-      format.json { render :json => {} }
-      format.js { render :text => "We couldn't delete that, most likely because it's already been deleted.", :status => :unprocessable_entity }
-      format.html {  }
-      format.xml  { render :status => :unprocessable_entity }
+    render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
+  end
+
+  def push   
+    if request.get?
+      @playlist = Playlist.find(params[:id])    
+      @collections = current_user.collections
+    else    
+      @collection = UserCollection.find(params[:user_collection_id])
+      @playlist = Playlist.find(params[:id])
+      @playlist_pusher = PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
+      @playlist_pusher.delay.push!
+      respond_to do |format|
+        format.json { render :json => {:custom_block => 'push_playlist'} }
+        format.js { render :text => nil }
+        format.html { redirect_to(playlists_url) }
+        format.xml  { head :ok }
+      end      
     end
+  end
+  
+  def prepare_copy
+    @playlist = Playlist.find(params[:id])
   end
 
   def copy
-    @playlist = Playlist.find(params[:id])
-  end
-
-  def metadata
-    @playlist = Playlist.find(params[:id])
-
-    @playlist[:object_type] = @playlist.class.to_s
-    @playlist[:child_object_name] = 'playlist_item'
-    @playlist[:child_object_plural] = 'playlist_items'
-    @playlist[:child_object_count] = @playlist.playlist_items.length
-    @playlist[:child_object_type] = 'PlaylistItem'
-    @playlist[:child_object_ids] = @playlist.playlist_items.collect(&:id).compact
-    @playlist[:title] = @playlist.name
-    render :xml => @playlist.to_xml(:skip_types => true)
-  end
-
-  def spawn_copy
     @playlist = Playlist.find(params[:id])  
     @playlist_copy = Playlist.new(params[:playlist])
     @playlist_copy.parent = @playlist
@@ -290,45 +196,29 @@ class PlaylistsController < BaseController
       @playlist_copy.title = params[:playlist][:name] 
     end
 
-    respond_to do |format|
-      if @playlist_copy.save
-        @playlist_copy.accepts_role!(:owner, current_user)
-        @playlist.creators && @playlist.creators.each do|c|
-          @playlist_copy.accepts_role!(:original_creator,c)
-        end
-        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
-          new_item = item.clone
-          new_item.resource_item = item.resource_item.clone
-          item.creators && item.creators.each do|c|
-            new_item.accepts_role!(:original_creator,c)
-          end
-          new_item.accepts_role!(:owner, current_user)
-          new_item.playlist_item_parent = item
-          new_item
-        }
-
-        create_influence(@playlist, @playlist_copy)
-        flash[:notice] = "Your copy is below. Cheers!"
-
-        format.html {
-          #This is because the post is an ajax submit. . . 
-          render :update do |page|
-            page << "window.location.replace('#{polymorphic_path(@playlist_copy)}');"
-          end
-        }
-        format.json { render :json => { :type => 'playlists', :id => @playlist_copy.id } } 
-        format.xml  { head :ok }
-      else
-        @error_output = "<div class='error ui-corner-all'>"
-        @playlist_copy.errors.each{ |attr,msg|
-          @error_output += "#{attr} #{msg}<br />"
-        }
-        @error_output += "</div>"
-
-        format.js {render :text => @error_output, :status => :unprocessable_entity}
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @playlist_copy.errors, :status => :unprocessable_entity }
+    if @playlist_copy.save
+      @playlist_copy.accepts_role!(:owner, current_user)
+      @playlist.creators && @playlist.creators.each do|c|
+        @playlist_copy.accepts_role!(:original_creator,c)
       end
+      @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
+        new_item = item.clone
+        new_item.resource_item = item.resource_item.clone
+        item.creators && item.creators.each do|c|
+          new_item.accepts_role!(:original_creator,c)
+        end
+        new_item.save!
+        new_item.accepts_role!(:owner, current_user)
+        new_item.playlist_item_parent = item
+        new_item
+      }
+
+      create_influence(@playlist, @playlist_copy)
+      flash[:notice] = "Your copy is below. Cheers!"
+
+      render :json => { :type => 'playlists', :id => @playlist_copy.id } 
+    else
+      render :json => { :type => 'playlists', :id => @playlist_copy.id }, :status => :unprocessable_entity 
     end
   end
 
@@ -347,11 +237,7 @@ class PlaylistsController < BaseController
     return_hash["type"] = object_hash["type"]
     return_hash["body"] = object_hash["body"]
 
-    # logger.warn(return_hash.inspect)
-
-    respond_to do |format|
-      format.js {render :json => return_hash.to_json}
-    end
+    render :json => return_hash.to_json
   end
 
   def position_update
@@ -375,13 +261,6 @@ class PlaylistsController < BaseController
     render :json => return_hash.to_json
   end
 
-  def load_playlist
-    unless params[:id].nil?
-      @playlist = Playlist.find(params[:id])
-      @page_title = @playlist.name
-    end  
-  end
-
   def export
     render :layout => 'print'
   end
@@ -390,9 +269,7 @@ class PlaylistsController < BaseController
     value = params[:type] == 'public' ? true : false
     @playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
 
-    respond_to do |format|
-      format.json {render :json => {} }
-    end
+    render :json => {} 
   end
 
   def playlist_lookup

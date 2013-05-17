@@ -2,14 +2,6 @@ class UserCollectionsController < BaseController
   #before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
   before_filter :load_user_collection, :only => [:edit, :manage_users, :manage_playlists, :manage_collages, :manage_permissions, :update_permissions, :destroy, :update]
 
-  #protect_from_forgery :except => [:spawn_copy, :export_unique]
-
-  #access_control do
-  #  allow all, :to => [:layers, :index, :show, :new, :create, :spawn_copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level]    
-  #  allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
-  #  allow :admin, :collage_admin, :superadmin
-  #end
-
   def load_user_collection
     @user_collection = UserCollection.find(params[:id])
   end

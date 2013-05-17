@@ -1,7 +1,0 @@
-<aside class="pagination">
-  <% @types.each do |type| -%>
-	<div class="all_<%= type.to_s %>_pagination" data-type="<%= type.to_s %>">
-	<%= will_paginate @results[type].hits, :container => false, :previous_label => 'Prev', :next_label => 'Next', :params => { :ajax_region => type.to_s } %>
-	</div>
-  <% end -%>
-</aside>

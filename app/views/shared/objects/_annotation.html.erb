@@ -1,50 +1,56 @@
-<div class="annotation-details" id="annotation-details-<%= @annotation.id %>">
-  <div id="annotation-tabs-<%= @annotation.id %>">
-    <ul>
-      <li><a href="#annotation-info-<%= @annotation.id %>">Annotation info</a></li>
-      <li><a href="#lineage-info-<%= @annotation.id %>">Lineage</a></li>
-    </ul>
-    <div id="annotation-info-<%= @annotation.id %>">
-      <div class="meta">
-        <span class="user"><span>Created by</span> <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>.</span>
-        <% if @editors %>
-          <span class="user"><span>Edited by</span> <%= @editors.collect{|c| c.login}.join(',') %>.</span>
-        <% end %>
-        <span class="datetime unixtime"><%= @annotation.updated_at.to_s(:long) %></span>
-        <div class="layers">Layers: <%= raw(@annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ')) %></div>
-        <div class="counts">Counts: <%= (! @annotation.annotation_word_count.blank?) ? "#{@annotation.annotation_word_count} word(s) annotating #{@annotation.word_count} words" : "Annotating #{@annotation.word_count} word(s)" %></div>
-      </div>
-      <% unless @annotation.annotation.blank? %>
-        <h3>Annotation</h3>
-        <div class="annotation-content">
-          <%= raw @annotation.formatted_annotation_content %>
-        </div>
-        <div class="spacer_block"></div>
-      <% end %>
-      <h3>Annotated Content</h3>
-      <div class="annotated-content">
-        <%= raw @annotation.annotated_content %>
-      </div>
-    </div>
-    <div id="lineage-info-<%= @annotation.id %>">
-      <h3>Direct Contributors to this annotation:</h3>
-      <ul>
-        <% @annotation.editors && @annotation.editors.each do |editor| %>
-          <li><%= editor.to_s %></li>
-        <% end %>
-      </ul>
-      <% unless @original_creators.blank? %>
-        <h3>Based on an annotation created by:</h3>
-        <ul>
-          <% @original_creators.each do |role| %>
-            <li><%= role.user %></li>
-          <% end %>
-        </ul>
-      <% end %>
-      <h3>Lineage</h3>
-      <ul class="lineage">
-        <%= raw([@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? h(ann) : link_to(h(ann),collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ')) %>
-      </ul>
-    </div>
+<table class="tabs" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td><a href="#" id="annotation-info" class="current">Annotation Information</a></td>
+<td><a style="display:none;" id="edit_annotation_link" href="#">Edit</a></td>
+</tr></table>
+</div>
+<div class="annotation-info tab_panel">
+  <div class="meta stats_panel">
+    <p>
+      <label>Last Updated:</label>
+      <%= @annotation.updated_at.strftime("%B %d, %Y") %>
+    </p>
+    <p>
+      <label>Created by:</label>
+      <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>
+    </p>
+    <% if @annotation.editors.present? -%>
+    <p>
+      <label>Contributors:</label>
+      <%= @annotation.editors && @annotation.editors.collect{|c| c.login}.join(',') %>
+    </p>
+    <% end -%>
+    <% if false && !@original_creators.blank? %>
+    <p>
+      <label>Based on an annotation created by:</label>
+      <%= @original_creators.collect { |c| c.user }.join(', ') %>
+    </p>
+    <% end %>
+    <p>
+      <label>Layers:</label>
+      <%= raw(@annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ')) %>
+    </p>
+    <p>
+      <label>Counts:</label>
+      <%= (! @annotation.annotation_word_count.blank?) ? "#{@annotation.annotation_word_count} word(s) annotating #{@annotation.word_count} words" : "Annotating #{@annotation.word_count} word(s)" %>
+    </p>
   </div>
+  <% unless @annotation.annotation.blank? %>
+    <h4>Annotation</h4>
+    <div class="annotation-content">
+      <%= raw @annotation.formatted_annotation_content %>
+    </div>
+  <% end %>
+  <h4>Annotated Content</h4>
+  <div class="annotated-content">
+    <%= raw @annotation.annotated_content %>
+  </div>
+  <% if false -%>
+  <h4>Lineage</h4>
+  <ul class="lineage">
+    <%= raw([@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? h(ann) : link_to(h(ann),collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ')) %>
+  </ul>
+  <% end -%>
+</div>
+<div class="edit_annotation_link tab_panel" style="display:none;">
+  <%= render :partial => 'shared/forms/annotation' %>
 </div>

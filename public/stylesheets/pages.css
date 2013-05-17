@@ -1,9 +1,0 @@
-#page { display:block; padding:11px 7px; position:relative; z-index:1; height:100%; }
-#page .description { border:1px solid #ff8b11; background: #ffa63f url(/images/ui/orange_bg.png) 0px 0px repeat-x; line-height:30px; display:block; }
-#page .description { border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -o-border-radius:4px; -ms-border-radius:4px; }
-#page .description { padding-left:27px; }
-#page .description h2 { display:inline; font-size:15px; line-height:20px; color:#fff; width: 600px; padding: 5px 0px; }
-
-#page .content {
-  padding: 20px 27px;
-}

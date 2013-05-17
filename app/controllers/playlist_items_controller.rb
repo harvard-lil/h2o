@@ -1,7 +1,6 @@
 class PlaylistItemsController < BaseController
   
   before_filter :load_playlist
-  before_filter :playlist_admin_preload
   #TODO - Get playlist delegation and editing working properly.
 
   access_control do
@@ -14,8 +13,15 @@ class PlaylistItemsController < BaseController
   end
   
   def show
-    @playlist_item = PlaylistItem.find(params[:id])
-    @playlist = @playlist_item.playlist
+    playlist_item = PlaylistItem.find(params[:id])
+    render :partial => 'shared/objects/playlist_item',
+      :locals => { :item => playlist_item,
+      :resource_item => playlist_item.resource_item,
+      :actual_object => playlist_item.resource_item.actual_object,
+      :parent_index => '', 
+      :index => params[:playlist_index],
+      :recursive_level => 0,
+      :last => false }
   end
 
   def new

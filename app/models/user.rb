@@ -19,6 +19,9 @@
 #
 
 class User < ActiveRecord::Base
+  include StandardModelExtensions::InstanceMethods
+  include ActionController::UrlWriter
+
   acts_as_voter
   acts_as_authentic 
   acts_as_authorization_subject
@@ -34,13 +37,57 @@ class User < ActiveRecord::Base
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
+    
+  RATINGS = {
+    :playlist_created => 5,
+    :collage_created => 3,
+    :media_created => 1,
+    :text_block_created => 1,
+    :case_created => 1,
+    :user_case_collaged => 3,
+    :user_media_collaged => 3,
+    :user_text_block_collaged => 3,
+    :user_playlist_bookmarked => 1,
+    :user_collage_bookmarked => 1,
+    :user_case_bookmarked => 1,
+    :user_media_bookmarked => 1,
+    :user_text_block_bookmarked => 1,
+    :user_playlist_added => 3,
+    :user_collage_added => 5,
+    :user_case_added => 1,
+    :user_media_added => 2,
+    :user_text_block_added => 2,
+    :user_collage_remix => 2,
+    :user_playlist_remix => 2
+  }
+  RATINGS_DISPLAY = { :playlist_created => "Playlist Created",
+    :collage_created => "Collage Created",
+    :media_created => "Media Created",
+    :text_block_created => "Text Block Created",
+    :case_created => "Case Created",
+    :user_case_collaged => "Case Collaged",
+    :user_media_collaged => "Media Collaged",
+    :user_text_block_collaged => "Text Block Collaged",
+    :user_playlist_bookmarked => "Playlist Bookmarked",
+    :user_collage_bookmarked => "Collage Bookmarked",
+    :user_case_bookmarked => "Case Bookmarked",
+    :user_media_bookmarked => "Media Bookmarked",
+    :user_text_block_bookmarked => "Text Block Bookmarked",
+    :user_playlist_added => "Playlist Added",
+    :user_collage_added => "Collage Added",
+    :user_case_added => "Case Added",
+    :user_media_added => "Media Added",
+    :user_text_block_added => "Text Block Added",
+    :user_collage_remix => "Collage Remixed",
+    :user_playlist_remix => "Playlist Remixed"
+  }
   
   def terms_validation
     errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
   end
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
-
+  
   def to_s
     (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
   end
@@ -54,6 +101,16 @@ class User < ActiveRecord::Base
       return "#{login} (#{karma.to_i})"
     end
   end
+  def simple_display
+    if login.match(/^anon_[a-f,\d]+/)
+      return 'anonymous'
+    elsif attribution.present?
+      return attribution
+    else
+      return login
+    end
+  end
+
 
   def cases
     #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
@@ -73,6 +130,7 @@ class User < ActiveRecord::Base
   def text_blocks
     self.roles.find(:all, :conditions => {:authorizable_type => ['TextBlock', 'JournalArticle'], :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
   end
+  alias :textblocks :text_blocks
 
   def collages
     #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
@@ -88,6 +146,11 @@ class User < ActiveRecord::Base
   def medias
     Rails.cache.fetch("user-medias-#{self.id}") do
       self.roles.find(:all, :conditions => {:authorizable_type => 'Media', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+    end
+  end
+  def defaults
+    Rails.cache.fetch("user-defaults-#{self.id}") do
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Default', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
   end
 
@@ -111,50 +174,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def update_karma
-    begin
-      collaged_resources = (self.cases + self.medias + self.text_blocks).map(&:collages).flatten.compact
-      annotated_collages = Annotation.all(:conditions => ["collage_id in (?)", self.collages.map(&:id)]).select {|a| !(a.owners || []).map(&:id).include?(self.id)} 
-      forked_collages = self.collages.select { |c| c.has_children? }
-      all_incorporated_collages = ItemCollage.all(:conditions => ["actual_object_id in (?)",  self.collages.map(&:id)])
-      own_incorporated_collages = all_incorporated_collages.select {|c| (c.owners || []).map(&:id).include?(self.id) }
-      incorporated_collages = all_incorporated_collages - own_incorporated_collages
-      incorporated_playlists = ItemPlaylist.all(:conditions => ["actual_object_id in (?)",  self.playlists.map(&:id)]).select {|i| !(i.owners || []).map(&:id).include?(self.id)} 
-      
-      push_forked_playlists = forked_playlists = external_collage_hits = internal_collage_hits = []
-      
-      ratings = {
-        :collaged_resources => 3, 
-        :own_incorporated_collages => 3,
-        :forked_collages => 2, 
-        :incorporated_collages => 5, 
-        :annotated_collages => 3, 
-        :incorporated_playlists => 10,
-        :push_forked_playlists => 1, 
-        :forked_playlists => 4, 
-        :internal_collage_hits => 1, 
-        :external_collage_hits => 2
-      }
-      values = {
-        :collaged_resources => collaged_resources,
-        :own_incorporated_collages => own_incorporated_collages,
-        :forked_collages  => forked_collages,
-        :incorporated_collages => incorporated_collages,
-        :annotated_collages => annotated_collages,
-        :incorporated_playlists => incorporated_playlists,
-        :push_forked_playlists => push_forked_playlists,
-        :forked_playlists => forked_playlists,
-        :internal_collage_hits => internal_collage_hits,
-        :external_collage_hits => external_collage_hits 
-      }
-      value = ratings.map {|k,v| (values[k] || []).size * v }.inject(0) {|sum, x| sum + x }
-  
-      self.update_attribute(:karma, value)
-    rescue Exception => e
-      Rails.logger.warn "Could not update karma for #{self.inspect} with #{e.inspect}"
-    end
-  end
-
   def bookmarks
     if self.bookmark_id
       Rails.cache.fetch("user-bookmarks-#{self.id}") do
@@ -163,6 +182,14 @@ class User < ActiveRecord::Base
     else
       []
     end
+  end
+
+  def bookmarks_map
+    map = {}
+    self.bookmarks.each do |i|
+      map["listitem_#{i.resource_item_type.tableize.singularize.gsub('item_', '')}#{i.resource_item.actual_object_id}"] = 1
+    end
+    map
   end
 
   def bookmarks_type(klass, item_klass)
@@ -251,5 +278,83 @@ class User < ActiveRecord::Base
   
   def large_font_size
     16
+  end
+  
+  def save_version?
+    (self.changed - self.non_versioned_columns).any?
+  end
+  
+  def barcode
+    Rails.cache.fetch("user-barcode-#{self.id}") do
+      barcode_elements = []
+  
+      ["collages", "playlists", "medias", "text_blocks", "cases"].each do |type|
+        single_type = type.singularize
+        created_type = "#{single_type}_created"
+        item_klass = "Item#{type.singularize.camelize}".constantize
+        type_title = "#{single_type.capitalize}"
+  
+        # Base Created
+        self.send(type).each do |item|
+          barcode_elements << { :type => created_type,
+                                :date => item.created_at, 
+                                :title => "#{item.class} created: #{item.name}",
+                                :link => self.send("#{item.class.to_s.tableize.singularize}_path", item.id) }
+        end
+
+        # Base Collaged
+        if ["cases", "text_blocks"].include?(type)
+          collaged_type = "user_#{type.singularize}_collaged"
+          self.send(type).each do |item|
+            item.collages.each do |collage|
+              next if collage.nil? || collage.owners.nil?
+              next if collage.owners.include?(self)
+              barcode_elements << { :type => collaged_type,
+                                    :date => collage.created_at, 
+                                    :title => "#{item.class} #{item.name} collaged to #{collage.name}",
+                                    :link => collage_path(collage.id) }
+          
+            end
+          end
+        end
+  
+        # Bookmarked, or Incorporated
+        incorporated_items = item_klass.all(:conditions => ["actual_object_id in (?)",  self.send(type.to_s).map(&:id)]) 
+        incorporated_items.each do |ii|
+          next if ii.playlist_item.nil?
+          next if ii.playlist_item.playlist.nil?
+          playlist = ii.playlist_item.playlist
+          next if playlist.owners.include?(self)
+          if playlist.name == "Your Bookmarks"
+            barcode_elements << { :type => "user_#{single_type}_bookmarked",
+                                  :date => ii.playlist_item.created_at, 
+                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.owners.first.display}",
+                                  :link => user_path(playlist.owners.first) }
+          else
+            barcode_elements << { :type => "user_#{single_type}_added",
+                                  :date => ii.playlist_item.created_at, 
+                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
+                                  :link => playlist_path(playlist.id) }
+          end
+        end
+  
+        # Remix
+        if ["collages", "playlists"].include?(type)
+          self.send(type.to_s).each do |item|
+            item.children.each do |child|
+              next if child.nil?
+              next if child.owners.nil?
+              next if child.owners.include?(self)
+              barcode_elements << { :type => "user_#{single_type}_remix",
+                                    :date => child.created_at, 
+                                    :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
+                                    :link => self.send("#{single_type}_path", item.id) }
+            end
+          end
+        end
+      end
+  
+      barcode_elements.sort_by { |a| a[:date] }
+    end
   end
 end

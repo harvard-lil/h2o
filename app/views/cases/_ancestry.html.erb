@@ -1,12 +1,16 @@
 <li>
-	<%= link_to collage.name, collage %><br />
+  <% if collage.copy? %>
+	  <%= link_to "#{collage.name} (VERSION #{collage.version})", collage_version_path(collage, collage.version) %><br />
+	<% else %>
+	  <%= link_to collage.name, collage_path(collage) %><br />  
+	<% end %>
 	Collaged <%= collage.created_at.to_s(:simpledatetime) %> by
 	<%= raw collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
-	<% if collage.children.any? -%>
-	<ul>
-		<% collage.children.each do |child| -%>
-		<%= render :partial => 'cases/ancestry', :locals => { :collage => child } %>
-		<% end -%>
-	</ul>
-	<% end -%>
+    <% if collage.children.any? -%>
+           <ul>
+              <% collage.children.each do |child| -%>
+                <%= render :partial => 'cases/ancestry', :locals => { :collage => child } %>
+              <% end -%>
+           </ul>
+    <% end -%>
 </li>

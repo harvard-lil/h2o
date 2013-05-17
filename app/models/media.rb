@@ -1,8 +1,15 @@
 class Media < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
 
-  include PlaylistableExtensions
+  include StandardModelExtensions::InstanceMethods
   include AuthUtilities
+  
+  include ActionController::UrlWriter
+    
+  RATINGS = {
+    :bookmark => 1,
+    :add => 3
+  }
 
   acts_as_authorization_object
   
@@ -21,6 +28,7 @@ class Media < ActiveRecord::Base
     string :display_name, :stored => true
     text :content, :stored => true
     string :content
+    integer :karma
 
     boolean :active
     boolean :public
@@ -36,8 +44,9 @@ class Media < ActiveRecord::Base
     # TODO: add stored media type slug here
   end
 
-  def author
-    owner = self.accepted_roles.find_by_name('owner')
-    owner.nil? ? nil : owner.user.login.downcase
+  def barcode
+    Rails.cache.fetch("media-barcode-#{self.id}") do
+      self.barcode_bookmarked_added.sort_by { |a| a[:date] }
+    end
   end
 end

@@ -8,8 +8,6 @@ class ApplicationController < ActionController::Base
   #Comment out the line below if you want to see the normal rails errors in normal development.
   alias :rescue_action_locally :rescue_action_in_public if Rails.env == 'development'
 
-  #self.error_layout = 'errors'
-
   self.exception_notifiable_verbose = true #SEN uses logger.info, so won't be verbose in production
   self.exception_notifiable_silent_exceptions = [Acl9::AccessDenied, MethodDisabled, ActionController::RoutingError ]
 
@@ -28,6 +26,8 @@ class ApplicationController < ActionController::Base
   before_filter :set_sort_lists, :only => :index
   before_filter :initialize_case         
   before_filter :set_default_font_size
+     
+  
   #Add ability to make page caching conditional
   #to support only caching public items
   def self.caches_page(*actions)
@@ -99,37 +99,124 @@ class ApplicationController < ActionController::Base
     if params.has_key?(:keywords)
       params[:sort] ||= "score"
     else
-      params[:sort] ||= "display_name"
+      params[:sort] ||= "karma"
     end
 
-    params[:order] = (params[:sort] == "score" ? :desc : :asc)
+    params[:order] = (["score", "karma"].include?(params[:sort]) ? :desc : :asc)
   end
 
   def set_sort_lists
     @sort_lists = {}
-    @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list({
-      "score" => { :display => "RELEVANCE", :selected => true },
-      "display_name" => { :display => "DISPLAY NAME", :selected => false },
-      "decision_date" => { :display => "DECISION DATE", :selected => false }
-    })
-    @sort_lists[:text_blocks] = generate_sort_list({
-      "score" => { :display => "RELEVANCE", :selected => true },
-      "display_name" => { :display => "DISPLAY NAME", :selected => false },
-      "author" => { :display => "BY AUTHOR", :selected => false }
-    })
+    base_sort = {
+      "score" => { :display => "SORT BY RELEVANCE", :selected => true },
+      "karma" => { :display => "SORT BY INFLUENCE", :selected => false },
+      "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false }
+    }
+    @sort_lists[:all] = generate_sort_list(base_sort.merge({
+      "decision_date" => { :display => "SORT BY DECISION DATE (IF APPLIES)", :selected => false },
+      "created_at" => { :display => "SORT BY DATE CREATED", :selected => false },
+      "author" => { :display => "SORT BY AUTHOR", :selected => false }
+    }))
+    @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list(base_sort.merge({
+      "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
+    }))
+    @sort_lists[:text_blocks] = generate_sort_list(base_sort.merge({
+      "author" => { :display => "SORT BY AUTHOR", :selected => false }
+    }))
     if ["index", "search"].include?(params[:action])
-      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list({
-        "score" => { :display => "RELEVANCE", :selected => true },
-        "display_name" => { :display => "DISPLAY NAME", :selected => false },
-        "created_at" => { :display => "BY DATE", :selected => false },
-        "author" => { :display => "BY AUTHOR", :selected => false }
-      })
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list(base_sort.merge({
+        "created_at" => { :display => "SORT BY DATE", :selected => false },
+        "author" => { :display => "SORT BY AUTHOR", :selected => false }
+      }))
     else
-      @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list({
-        "score" => { :display => "RELEVANCE", :selected => true },
-        "display_name" => { :display => "DISPLAY NAME", :selected => false },
-        "created_at" => { :display => "BY DATE", :selected => false }
-      })
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
+        "created_at" => { :display => "SORT BY DATE", :selected => false }
+      }))
+    end
+  end
+ 
+  def common_index(model)
+    set_belongings model
+
+    @page_title = "#{model.to_s.pluralize} | H2O Classroom Tools"
+    @page_title = "Media Items | H2O Classroom Tools" if model == Media
+    @page_title = "Links | H2O Classroom Tools" if model == Default
+    @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
+    @model = model
+
+    params[:page] ||= 1
+
+    if params[:keywords]
+      items = build_search(model, params)
+      t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+      @collection = WillPaginate::Collection.create(params[:page], 25, items.total) { |pager| pager.replace(t) }
+    else
+      cache_key = "#{model.to_s.tableize}-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}"
+      if model == Media && params.has_key?("media_type")
+        cache_key = "#{cache_key}-#{params[:media_type]}"
+      end
+      results = Rails.cache.fetch(cache_key) do
+        items = build_search(model, params)
+        t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+        { :results => t, 
+          :count => items.total }
+      end
+      @collection = WillPaginate::Collection.create(params[:page], 25, results[:count]) { |pager| pager.replace(results[:results]) }
+    end
+
+    if request.xhr?
+      render :partial => 'shared/generic_block'
+    else
+      render 'shared/list_index'
+    end
+  end
+
+  def build_search(model, params)
+    items = (model == TextBlock ? Sunspot.new_search(TextBlock, JournalArticle) : Sunspot.new_search(model))
+    
+    items.build do
+      if params.has_key?(:keywords)
+        keywords params[:keywords]
+      end
+      if params.has_key?(:tags)
+        if params.has_key?(:any)
+          any_of do
+            params[:tags].each { |t| with :tag_list, t }
+          end
+        else
+          params[:tags].each { |t| with :tag_list, t }
+        end
+      end
+      if params.has_key?(:tag)
+        with :tag_list, CGI.unescape(params[:tag])
+      end
+      if params.has_key?(:media_type)
+        with :media_type, params[:media_type]
+      end
+      with :public, true
+      with :active, true
+      paginate :page => params[:page], :per_page => 25
+      order_by params[:sort].to_sym, params[:order].to_sym
+    end
+
+    items.execute!
+    items
+  end
+
+  def set_belongings(model)
+    @my_belongings ||= {}
+    @is_admin ||= {}
+
+    if current_user
+      admin_method = "is_#{model.to_s.downcase}_admin"
+      @is_admin[model.to_s.downcase.to_sym] = current_user.respond_to?(admin_method) ? current_user.send(admin_method) : false
+      @my_belongings[model.to_s.tableize.to_sym] = current_user.send(model.to_s.tableize.to_s)
+    else
+      @is_admin[model.to_s.downcase] = false
+      @my_belongings[model.to_s.downcase] = []
+    end
+    if model == TextBlock
+      @my_belongings[:textblocks] = @my_belongings[:text_blocks]
     end
   end
 
@@ -170,7 +257,6 @@ class ApplicationController < ActionController::Base
     end
   end
   
-
   private
 
     def current_user_session

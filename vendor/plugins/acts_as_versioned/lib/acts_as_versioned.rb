@@ -165,8 +165,10 @@ module ActiveRecord #:nodoc:
         #     self.non_versioned_columns << 'comments_count'
         #   end
         # 
-        REJECTED_ASSOCIATIONS = [:versions, :tag, :taggables, :taggings, :tagging, :taggable, :tags,
-                                 :tag_taggings, :base_tags, :playlist, :playlists, :playlist_item, :playlist_items]
+
+        REJECTED_ASSOCIATIONS = [:versions, :tag, :layer_taggings, :taggables, :taggings, :tagging, :taggable, :tags,
+                                 :tag_taggings, :base_tags, :playlist, :playlists, :playlist_item, :playlist_items,
+                                 :users, :user, :roles_users, :role, :roles, :accepted_roles, :user_collections, :defects]
         def acts_as_versioned(options = {}, &extension)
           
   
@@ -415,21 +417,23 @@ module ActiveRecord #:nodoc:
             self.class_eval(class_methods)
             
             define_method("update_#{association.options[:join_table]}_versions") do
-              self.send(association.name).each do |obj|              
-                sql = "SELECT * FROM #{association.options[:join_table]}_versions 
-                       WHERE #{association.primary_key_name} = #{self.id}
-                       AND   #{association.association_foreign_key} = #{obj.id}
-                       AND   #{association.primary_key_name.gsub("_id", '')}_version = #{self.version}
-                       AND   #{association.association_foreign_key.gsub("_id", '')}_version = #{obj.version};"
+              if self.save_version?
+                self.send(association.name).each do |obj|              
+                  sql = "SELECT * FROM #{association.options[:join_table]}_versions 
+                         WHERE #{association.primary_key_name} = #{self.id}
+                         AND   #{association.association_foreign_key} = #{obj.id}
+                         AND   #{association.primary_key_name.gsub("_id", '')}_version = #{self.version}
+                         AND   #{association.association_foreign_key.gsub("_id", '')}_version = #{obj.version};"
                        
-                result = self.connection.execute(sql)
-                row_count = result.respond_to?(:num_rows) ? result.num_rows : result.num_tuples
-                if row_count == 0 
-                  sql = "INSERT INTO #{association.options[:join_table]}_versions 
-                         (#{association.primary_key_name}, #{association.association_foreign_key}, #{association.primary_key_name.gsub("_id", '')}_version, #{association.association_foreign_key.gsub("_id", '')}_version) 
-                         VALUES 
-                         ( #{self.id},#{obj.id}, #{self.version}, #{obj.version});"
-                  self.connection.execute(sql)
+                  result = self.connection.execute(sql)
+                  row_count = result.respond_to?(:num_rows) ? result.num_rows : result.num_tuples
+                  if row_count == 0 
+                    sql = "INSERT INTO #{association.options[:join_table]}_versions 
+                           (#{association.primary_key_name}, #{association.association_foreign_key}, #{association.primary_key_name.gsub("_id", '')}_version, #{association.association_foreign_key.gsub("_id", '')}_version) 
+                           VALUES 
+                           ( #{self.id},#{obj.id}, #{self.version}, #{obj.version});"
+                    self.connection.execute(sql)
+                  end
                 end
               end
             end
@@ -490,20 +494,20 @@ module ActiveRecord #:nodoc:
             else
               parent_klass = self.to_s.underscore
             end                  
-              
 
             class_methods =  <<-CLASS_METHODS
             
             before_validation :update_#{parent_klass}_version_number
-            def update_#{parent_klass}_version_number
-              if self.#{parent_klass}
-                  self.#{parent_klass}.reload 
-                  if self.#{parent_klass}.respond_to?(:version)
-                    self.#{parent_klass}_version = self.#{parent_klass}.version
-                  end
+            unless self.instance_methods.include?("update_#{parent_klass}_version_number")
+              def update_#{parent_klass}_version_number
+                if self.#{parent_klass}
+                    self.#{parent_klass}.reload 
+                    if self.#{parent_klass}.respond_to?(:version)
+                      self.#{parent_klass}_version = self.#{parent_klass}.version
+                    end
+                end
               end
             end
-
             CLASS_METHODS
             association.klass.class_eval(class_methods)
 
@@ -525,7 +529,8 @@ module ActiveRecord #:nodoc:
             begin
               klass = association.klass
               unless klass.respond_to?(:create_versioned_table)
-                association.klass.acts_as_versioned
+                puts self.name if klass.name == "User"
+                klass.acts_as_versioned
               end
             rescue NameError
             end

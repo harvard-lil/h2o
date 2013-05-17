@@ -1,5 +1,4 @@
 require 'redcloth_extensions'
-require 'playlistable_extensions'
 require 'ancestry_extensions'
 
 class PlaylistItem < ActiveRecord::Base
@@ -28,16 +27,9 @@ class PlaylistItem < ActiveRecord::Base
     end
   end
 
+  def clean_type
+    resource_item_type.downcase.gsub(/^item/, '')
+  end
+
   alias :to_s :display_name
-
-  def self.playlistable_classes
-    Dir['app/models/*.rb'].map {|f| File.basename(f, '.*').camelize.constantize }
-
-    # Responds to the annotatable class method with true.
-    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:playlistable?) && m.send(:playlistable?)}.sort{ |a,b| a.to_s <=> b.to_s }
-  end
-
-  def object_type
-    self.resource_item_type.downcase.gsub(/^item/, '')
-  end
 end

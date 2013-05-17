@@ -1,0 +1,12 @@
+<% @author_playlists.each do |v| -%>
+<%= link_to v.name, playlist_url(v) %>
+<% end -%>
+<%= will_paginate @author_playlists,
+    :class => "load_more_pagination", 
+    :params => {
+      :type => "author_playlists", 
+      :controller => :partial_results,
+      :action => nil
+    }, 
+    :next_label => 'Load More'
+%>

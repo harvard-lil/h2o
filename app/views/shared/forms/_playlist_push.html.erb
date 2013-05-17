@@ -1,0 +1,7 @@
+
+<div id="error_block"></div>
+<% form_tag(push_playlist_path(@playlist)) do  %>  
+  <%= label_tag "Push playlist to collection: "%>
+  <%= select_tag 'user_collection_id', options_from_collection_for_select(@collections, "id", "name")%>
+  
+<% end %>

@@ -7,6 +7,63 @@ var permissions = {
 };
 var last_data;
 var access_results;
+var panel_offset;
+var panel_width;
+var min_tick_width = 10;
+
+var font_map = {
+  'goudy' : 'sorts-mill-goudy',
+  'leitura' : 'leitura-news',
+  'garamond' : 'adobe-garamond-pro',
+  'futura' : 'futura-pt',
+  'dagny' : 'ff-dagny-web-pro',
+  'proxima' : 'proxima-nova',
+  'verdana' : 'Verdana'
+};
+var base_font_sizes = {
+  'goudy' : {
+    'small' : 14,
+    'medium' : 18,
+    'large' : 22,
+    'xlarge' : 26
+  },
+  'leitura' : {
+    'small' : 13,
+    'medium' : 17,
+    'large' : 21,
+    'xlarge' : 25
+  },
+  'garamond' : {
+    'small' : 16,
+    'medium' : 20,
+    'large' : 24,
+    'xlarge' : 28
+  },
+  'futura' : {
+    'small' : 16,
+    'medium' : 20,
+    'large' : 24,
+    'xlarge' : 28
+  },
+  'dagny' : {
+    'small' : 14,
+    'medium' : 18,
+    'large' : 22,
+    'xlarge' : 26
+  },
+  'proxima' : {
+    'small' : 14,
+    'medium' : 18,
+    'large' : 22,
+    'xlarge' : 26
+  },
+  'verdana' : {
+    'small' : 11,
+    'medium' : 15,
+    'large' : 19,
+    'xlarge' : 23
+  }
+};
 
 $.noConflict();
 
@@ -17,16 +74,402 @@ jQuery.extend({
   rootPath: function(){
     return '/';
   },
-  loadSlideOutTabBehavior: function() {
+  mustache: function(template, data, partial, stream) {
+    if(Mustache && template && data) {
+      return Mustache.to_html(template, data, partial, stream);
+    }
+  },
+  adjustTooltipPosition: function() {
+    if(jQuery('#cancel-annotation').size()) {
+      var el = jQuery('#' + jQuery('#cancel-annotation').data('id'));
+      el.find('a.annotation_tip').tipsy("hide");
+      el.find('a.annotation_tip').tipsy("show");
+    }
+  },
+  setFixedLinkPosition: function() {
+    if(jQuery('.singleitem').size()) {
+      var top_offset = jQuery('.singleitem').offset().top;
+      jQuery('.fixed_link').each(function(i, el) {
+        jQuery(el).css('top', top_offset);
+        top_offset += jQuery(el).height() + 2;
+      });
+      jQuery('#fixed_links').fadeIn();
+      if(jQuery('.slide-out-div').size()) {
+        jQuery.loadSlideOutTabBehavior(top_offset);
+      }
+    }
+  },
+  observeQuickCollage: function() {
+    jQuery('#quick_collage').live('click', function(e) {
+      e.preventDefault();
+      var href = jQuery(this).attr('href');
+      jQuery.ajax({
+        type: 'GET',
+        dataType: 'html',
+        url: href,
+        beforeSend: function(){
+          jQuery.showGlobalSpinnerNode();
+        },
+        error: function(xhr){
+          jQuery.hideGlobalSpinnerNode();
+        },
+        success: function(html){
+          jQuery.hideGlobalSpinnerNode();
+          jQuery('#quick_collage_node').remove();
+          var quickCollageDialog = jQuery('<div id="quick_collage_node"></div>');
+          jQuery(quickCollageDialog).html(html);
+          jQuery(quickCollageDialog).find('.barcode_outer,.read-action,.link-add,.bookmark-action,.edit-external,.icon-delete').remove();
+          jQuery(quickCollageDialog).dialog({
+            title: 'Create a Collage',
+            modal: true,
+            width: '700',
+            height: 'auto'
+          });
+          jQuery.observeResultsHover('#quick_collage_node');
+          jQuery('#quick_collage_node .sort select').selectbox({
+            className: "jsb", replaceInvisible: true 
+          }).change(function() {
+            var url = '/quick_collage?ajax=1&sort=' + jQuery(this).val();
+            if(jQuery('#quick_collage_keyword').val() != '') {
+              url += '&keywords=' + jQuery('#quick_collage_keyword').val();
+            }
+            jQuery.listCollageResults(url);
+          });
+        }
+      });
+    });
+    jQuery('#quick_collage_node #quick_collage_search').live('click', function(e) {
+      e.preventDefault();
+      var url = '/quick_collage?ajax=1&sort=' + jQuery('#quick_collage_node .sort select').val();
+      if(jQuery('#quick_collage_keyword').val() != '') {
+        url += '&keywords=' + jQuery('#quick_collage_keyword').val();
+      }
+      jQuery.listCollageResults(url);
+    });
+    jQuery('#collage_pagination a').live('click', function(e) {
+      e.preventDefault();
+      jQuery.listCollageResults(jQuery(this).attr('href'));
+    });
+  },
+  listCollageResults: function(href) {
+    jQuery.ajax({
+      type: 'GET',
+      dataType: 'html',
+      url: href,
+      beforeSend: function(){
+           jQuery.showGlobalSpinnerNode();
+         },
+         error: function(xhr){
+           jQuery.hideGlobalSpinnerNode();
+      },
+      success: function(html){
+        jQuery.hideGlobalSpinnerNode();
+        jQuery('#quick_collage_node #results_set').hide().html(html);
+        jQuery('#quick_collage_node #results_set').find('.barcode_outer,.read-action,.link-add,.bookmark-action,.edit-external,.icon-delete').remove();
+        jQuery('#quick_collage_node #results_set').show();
+        jQuery('#collage_pagination').html(jQuery('#quick_collage_node #new_pagination').html());
+        jQuery('#new_pagination').remove();
+        jQuery.observeResultsHover('#quick_collage_node');
+      }
+    });
+  },
+  resetFontSizeOptions: function() {
+    var selected_font = jQuery('#fontface a.active').data('value');
+    jQuery('#fontsize a').each(function(i, el) {
+      jQuery(el).css({ 'font-family' : font_map[selected_font], 'font-size': base_font_sizes[selected_font][jQuery(el).data('value')] + 'px' });
+    });
+  },
+  observeFontChange: function() {
+    jQuery('#fontface a').each(function(i, el) {
+      jQuery(el).css({ 'font-family': font_map[jQuery(el).data('value')], 'font-size' : base_font_sizes[jQuery(el).data('value')].small + 'px' });
+    });
+    jQuery.resetFontSizeOptions();
+    jQuery('#fixed_font').click(function(e) {
+      e.preventDefault();
+      if(jQuery(this).hasClass('active')) {
+        jQuery('#font-popup').hide();
+        jQuery(this).removeClass('active');
+      } else {
+        jQuery(this).addClass('active');
+        jQuery('#font-popup').css('top', jQuery(this).position().top).show();
+      }
+    });
+    jQuery('#fontsize a:not(.active)').live('click', function(e) {
+      e.preventDefault();
+      jQuery('#fontsize a.active').removeClass('active');
+      jQuery(this).addClass('active');
+      jQuery.setFont();
+    });
+    jQuery('#fontface a:not(.active)').live('click', function(e) {
+      e.preventDefault();
+      jQuery('#fontface a.active').removeClass('active');
+      jQuery(this).addClass('active');
+      jQuery.setFont();
+      jQuery.resetFontSizeOptions();
+    });
+    //var val = jQuery.cookie('font_size');
+    //jQuery.cookie('font_size', element.val(), { path: "/" });
+  },
+  setPlaylistFontHierarchy: function(base_font_size) {
+    jQuery.rule('.playlist a.title { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('style');
+    jQuery.rule('.playlist .playlist a.title { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    jQuery.rule('.playlist .playlist .playlist a.title { font-size: ' + base_font_size*1.0 + 'px; }').appendTo('style');
+    jQuery.rule('.playlist .playlist .playlist .playlist a.title { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
+    jQuery.rule('.playlist .playlist .playlist .playlist .playlist a.title { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+  },
+  setFont: function() {
+    jQuery('.btn-a-active').click();
+    var font_size = jQuery('#fontsize a.active').data('value');
+    var font_face = jQuery('#fontface a.active').data('value');
+    var base_font_size = base_font_sizes[font_face][font_size];
+    if(font_face == 'verdana') {
+      jQuery.rule("body .main_wrapper .singleitem article *, body .main_wrapper .singleitem div.playlists *, .singleitem article tt { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('style');
+    } else {
+      jQuery.rule("body .main_wrapper .singleitem article *, body .main_wrapper .singleitem div.playlists *, .singleitem article tt { font-family: '" + font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('style');
+    }
+    jQuery.rule('.main_wrapper .singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+    jQuery.setPlaylistFontHierarchy(base_font_size);
+    jQuery.adjustTooltipPosition();
+  },
+  observeResultsHover: function(region) {
+    jQuery(region + ' #results .listitem').hoverIntent(function() {
+      jQuery(this).addClass('hover');
+      jQuery(this).find('.icon').addClass('hover');
+    }, function() {
+      jQuery(this).removeClass('hover');
+      jQuery(this).find('.icon').removeClass('hover');
+    });
+  },
+  initializeTooltips: function() {
+    jQuery('.tooltip').tipsy({ gravity: 's', live: true, opacity: 1.0 });
+    jQuery('.left-tooltip').tipsy({ gravity: 'e', live: true, opacity: 1.0 });
+    jQuery('.nav-tooltip').tipsy({ gravity: 'n', live: true, opacity: 1.0 });
+  },
+  observeHomePageToggle: function() {
+    jQuery('#featured_playlists .item, #featured_users .item').hoverIntent(function() {
+      jQuery(this).find('.additional_details').slideDown(500);
+    }, function() {
+      jQuery(this).find('.additional_details').slideUp(200);
+    });
+  },
+  observeTabDisplay: function() {
+    jQuery(' .link-add a, a.link-add').live('click', function() {
+      var element = jQuery(this);
+      var current_id = element.data('item_id');
+      if(jQuery('.singleitem').size()) {
+        element.parentsUntil('.listitem').last().parent().addClass('adding-item');
+      }
+      jQuery('.with_popup').removeClass('with_popup');
+      if(popup_item_id != 0 && current_id == popup_item_id) {
+        jQuery('.add-popup').hide();
+        popup_item_id = 0;
+      } else {
+        popup_item_id = current_id;
+        popup_item_type = element.data('type');
+        if(jQuery('.singleitem').size()) {
+          jQuery('.add-popup').hide().css({ top: 110, left: '747px' }).fadeIn(100);
+        } else {
+          var listitem_element = jQuery('#listitem_' + popup_item_type + popup_item_id);
+          listitem_element.addClass('with_popup');
+          var position = listitem_element.offset();
+          jQuery('.add-popup').hide().css({ top: position.top - 47, left: listitem_element.width() + position.left - 298 }).fadeIn(100);
+        }
+      }
+
+      return false;
+    });
+    jQuery('.new-playlist-item').live('click', function(e) {
+      var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
+      if(itemName == 'Default') {
+        itemName = 'Link';
+      }
+      jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, jQuery('#playlist_id').val()); 
+      e.preventDefault();
+    });
+  },
+  observeCreatePopup: function() {
+    jQuery('#create_all:not(.active)').live('click', function(e) {
+      e.preventDefault();
+      jQuery('#create_all_popup').show();
+      jQuery(this).addClass('active');
+    });
+    jQuery('#create_all.active').live('click', function(e) {
+      e.preventDefault();
+      jQuery('#create_all_popup').hide();
+      jQuery(this).removeClass('active');
+    });
+    jQuery('#create_all_popup a').hover(function(e) {
+      jQuery(this).find('span').addClass('hover');
+    }, function(e) {
+      jQuery(this).find('span').removeClass('hover');
+    });
+  },
+  observeLoadMorePagination: function() {
+    jQuery('.load_more_pagination a').live('click', function(e) {
+      e.preventDefault();
+      var current = jQuery(this);
+      jQuery.ajax({
+        method: 'GET',
+        url: current.attr('href'),
+        beforeSend: function(){
+           jQuery.showGlobalSpinnerNode();
+        },
+        dataType: 'html',
+        success: function(html){
+          jQuery.hideGlobalSpinnerNode();
+          current.parent().parent().append(jQuery(html));
+          current.parent().remove();
+          jQuery.initializeBarcodes();
+        }
+      });
+    });
+  },
+  initializeBarcodes: function() {
+    jQuery('.barcode a').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0 });
+    jQuery('.barcode a').mouseover(function() {
+      jQuery(this).tipsy('show');
+      jQuery('.tipsy').addClass(jQuery(this).attr('class'));
+    }).mouseout(function() {
+      jQuery(this).tipsy('hide');
+    });
+    jQuery.each(jQuery('.barcode:not(.adjusted)'), function(i, el) {
+      var current = jQuery(el);
+      current.addClass('adjusted');
+      var barcode_width = current.width();
+      if(current.data('karma')*3 > barcode_width) {
+        current.find('.barcode_wrapper').css({ left: '0px', width: current.data('karma') * 3 + current.data('ticks') });
+      } else {
+        current.find('.barcode_wrapper').css({ padding: '0px' });
+        current.find('.overflow').hide();
+        if(jQuery('#playlist.singleitem').size() && current.parent().hasClass('additional_details')) {
+          current.width(current.data('karma') * 3 + current.data('ticks') + 5);
+        }
+      }
+    });
+    jQuery('.barcode').animate({ opacity: 1.0 });
+
+    //TODO: Clean this up a bit to be more precise
+    jQuery('span.right_overflow:not(.inactive)').live('click', function() {
+      var current = jQuery(this);
+      var wrapper = current.siblings('.barcode_wrapper');
+      var min_left_position = -1*(wrapper.width() + 27 - current.parent().width());
+      var standard_shift = -1*(current.parent().width() - 27);
+      var position = parseInt(jQuery(this).siblings('.barcode_wrapper').css('left').replace('px', ''));
+      if(position + standard_shift < min_left_position) {
+        wrapper.animate({ left: min_left_position });
+        current.addClass('inactive');
+      } else {
+        wrapper.animate({ left: position + standard_shift });
+      }
+      current.siblings('.left_overflow').removeClass('inactive');
+    });
+    jQuery('span.left_overflow:not(.inactive)').live('click', function() {
+      var current = jQuery(this);
+      var wrapper = current.siblings('.barcode_wrapper');
+      var standard_shift = -1*(current.parent().width() - 21);
+      var position = parseInt(jQuery(this).siblings('.barcode_wrapper').css('left').replace('px', ''));
+      if(position - standard_shift > 0) {
+        wrapper.animate({ left: 0 });
+        current.addClass('inactive');
+      } else {
+        wrapper.animate({ left: position - standard_shift });
+      }
+      current.siblings('.right_overflow').removeClass('inactive');
+    });
+  },
+  resetRightPanelThreshold: function() {
+    if(jQuery('#collapse_toggle').size()) {
+      var threshold = jQuery('.right_panel:visible').offset().top + jQuery('.right_panel:visible').height();
+      jQuery('#collapse_toggle').data('threshold', threshold);
+    }
+  },
+  initializeRightPanelScroll: function() {
+    if(jQuery('.right_panel').size()) {
+      jQuery(window).scroll(function() {
+        if(jQuery('body').hasClass('adjusting_now') || jQuery('#edit_toggle').hasClass('edit_mode')) {
+          return false;
+        }
+        if(jQuery('#collapse_toggle').data('threshold') < jQuery(window).scrollTop()) {
+          if(jQuery('.right_panel:visible').size()) {
+            jQuery('body').addClass('adjusting_now');
+            jQuery('#collapse_toggle').addClass('special_hide');
+            var scroll_position = jQuery(window).scrollTop();
+            jQuery('.right_panel:visible').addClass('visible_before_hide').fadeOut(200, function() {
+              jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
+                jQuery.adjustTooltipPosition();
+                jQuery(window).scrollTop(scroll_position);
+                jQuery('body').removeClass('adjusting_now');
+              });
+            });
+          } else if(!jQuery('#collapse_toggle').hasClass('special_hide')) {
+            jQuery('#collapse_toggle').addClass('hide_via_scroll');
+            jQuery.adjustTooltipPosition();
+          }
+        } else if(jQuery('#collapse_toggle.special_hide').size() && jQuery(window).scrollTop() == 0) {
+          jQuery('#collapse_toggle').removeClass('special_hide');
+          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
+            jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').fadeIn(200);
+            jQuery.adjustTooltipPosition();
+          });
+        } else if(jQuery('#collapse_toggle.hide_via_scroll').size() && jQuery('#collapse_toggle').data('threshold') > jQuery(window).scrollTop()) {
+          jQuery('#collapse_toggle').removeClass('hide_via_scroll');
+          jQuery.adjustTooltipPosition();
+        }
+      });
+    }
+  },
+  observeViewerToggle: function() {
+    jQuery('#collapse_toggle').click(function(e) {
+      e.preventDefault();
+      var el = jQuery(this);
+      if(el.hasClass('expanded')) {
+        el.removeClass('expanded');
+        if(jQuery('#edit_toggle').size() && jQuery('#edit_toggle').hasClass('edit_mode')) {
+          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
+            jQuery('#edit_item').fadeIn(200);
+          });
+        } else {
+          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
+            jQuery('#stats').fadeIn(200);
+          });
+        }
+      } else {
+        el.addClass('expanded');
+        if(jQuery('#edit_toggle').size() && jQuery('#edit_toggle').hasClass('edit_mode')) {
+          jQuery('#edit_item').fadeOut(200, function() {
+            jQuery('.singleitem').animate({ width: "100%" }, 100);
+          });
+        } else {
+          jQuery('#stats').fadeOut(200, function() {
+            jQuery('.singleitem').animate({ width: "100%" }, 100);
+          });
+        }
+      }
+    });
+    jQuery('.right_panel_close').click(function(e) {
+      e.preventDefault();
+      jQuery('#collapse_toggle').click(); 
+    }).hover(function() {
+      jQuery('.right_panel').css('opacity', 0.5);
+    }, function() {
+      jQuery('.right_panel').css('opacity', 1.0);
+    });
+  },
+  loadSlideOutTabBehavior: function(top_offset) {
     jQuery('.slide-out-div').tabSlideOut({
       tabHandle: '.handle',                     //class of the element that will become your tab
-      pathToTabImage: '/images/ui/report_error.png', //path to the image for the tab //Optionally can be set using css
-      imageHeight: '189px',                     //height of tab image           //Optionally can be set using css
-      imageWidth: '31px',                       //width of tab image            //Optionally can be set using css
-      tabLocation: 'left',                      //side of screen where tab lives, top, right, bottom, or left
+      pathToTabImage: '/images/report_error.png', //path to the image for the tab //Optionally can be set using css
+      imageHeight: '135px',                     //height of tab image           //Optionally can be set using css
+      imageWidth: '28px',                       //width of tab image            //Optionally can be set using css
+      tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
       speed: 500,                               //speed of animation
       action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-      topPos: '300px',                          //position from the top/ use if tabLocation is left or right
+      topPos: top_offset + 'px',                          //position from the top/ use if tabLocation is left or right
       leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
       fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
       //TODO: on open hide errors
@@ -41,6 +484,7 @@ jQuery.extend({
         },
         success: function(response){
           jQuery.hideGlobalSpinnerNode();
+          jQuery('.slide-out-div').css('height', jQuery('.slide-out-div').height() + 30);
           if(response.error) {
             jQuery('#user-feedback-error').show().html(response.message);
           } else {
@@ -57,6 +501,7 @@ jQuery.extend({
         },
         error: function(data){
           jQuery.hideGlobalSpinnerNode();
+          jQuery('.slide-out-div').css('height', jQuery('.slide-out-div').height() + 30);
           jQuery('#user-feedback-error').show().html('Sorry. We could not process your error. Please try again.');
         }
       });
@@ -69,16 +514,28 @@ jQuery.extend({
     if(jQuery('li.btn .active').length) {
       jQuery('li.btn .active').click();
     }
+    if(jQuery('#font-popup').is(':visible')) {
+      jQuery('#fixed_font').click();
+    }
+    if(jQuery('#create_all_popup').is(':visible')) {
+      jQuery('#create_all_popup').hide();
+      jQuery('#create_all').removeClass('active');
+    }
     if(jQuery('.add-popup').is(':visible')) {
+      jQuery('.with_popup').removeClass('with_popup');
       jQuery('.add-popup').hide();
       popup_item_id = 0;
     }
-    if(jQuery('#collage-stats-popup').is(':visible')) {
-      jQuery('#collage-stats').click();
+    if(jQuery('.ui-dialog').is(':visible')) {
+      jQuery('.ui-dialog .ui-dialog-content').dialog('close');
     }
-    if(jQuery('#playlist-stats-popup').is(':visible')) {
-      jQuery('#playlist-stats').click();
-    }
+  },
+  loadPopupCloseListener: function() {
+    jQuery('.close-popup').live('click', function(e) {
+      e.preventDefault();
+      jQuery('.with_popup').removeClass('with_popup');
+      jQuery.hideVisiblePopups();
+    });
   },
   loadEscapeListener: function() {
     jQuery(document).keyup(function(e) {
@@ -89,14 +546,22 @@ jQuery.extend({
   },
   loadOuterClicks: function() {
     jQuery('html').click(function(event) {
-      var dont_hide = jQuery('.font-size-popup,.add-popup,.tools-popup,#collage-stats-popup,#playlist-stats-popup').has(event.target).length > 0 ? true : false;
-      if(jQuery(event.target).hasClass('jsb-moreButton')) {
+      var dont_hide = jQuery('.add-popup,#login-popup,.text-popup,.layers-popup,#font-popup,.ui-dialog').has(event.target).length > 0 ? true : false;
+      if(jQuery(event.target).hasClass('dont_hide')) {
         dont_hide = true;
       }
+      //if(jQuery(event.target).hasClass('jsb-moreButton')) {
+      //  dont_hide = true;
+      //}
       if(!dont_hide) {
         jQuery.hideVisiblePopups();
       }
     });
+  },
+  loadGenericEditability: function() {
+    if(jQuery('a#logged-in').size()) {
+      jQuery('.requires_logged_in').animate({ opacity: 1.0 });
+    }
   },
   loadEditability: function() {
     jQuery.ajax({
@@ -113,14 +578,14 @@ jQuery.extend({
         jQuery('.requires_logged_in').remove();
         jQuery('.afterload').animate({ opacity: 1.0 });
         jQuery.hideGlobalSpinnerNode();
-		    jQuery.loadState();
+        jQuery.loadState();
       },
       success: function(results){
         //Global methods
         access_results = results;
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);
-          jQuery('.requires_logged_in .user_account').append(jQuery('<a>').html(data.user.login).attr('href', "/users/" + data.user.id));
+          jQuery('#user_account').append(jQuery('<a>').html(data.user.login + ' Dashboard').attr('href', "/users/" + data.user.id));
           jQuery('#defect_user_id').val(data.user.id);
           jQuery('.requires_logged_in').animate({ opacity: 1.0 });
           jQuery('#header_login').remove();
@@ -132,17 +597,17 @@ jQuery.extend({
 
         if(jQuery.classType() == 'collages') {  //Collages only
           last_data = jQuery.parseJSON(results.readable_state);
-		      jQuery.loadState();
+          jQuery.loadState();
           if(results.can_edit_annotations) {
-			      jQuery.listenToRecordCollageState();
-            jQuery('.buttons .requires_edit').animate({ opacity: 1.0 });
+            jQuery.listenToRecordCollageState();
+            jQuery('.requires_edit').animate({ opacity: 1.0 });
           } else {
-            jQuery('.buttons .requires_edit').remove();
+            jQuery('.requires_edit').remove();
           }
           if(results.can_edit_description) {
-            jQuery('.collage_edit').animate({ opacity: 1.0 });
+            jQuery('.edit-action').animate({ opacity: 1.0 });
           } else {
-            jQuery('.collage_edit').remove();
+            jQuery('.edit-action').remove();
           }
         } else if(jQuery.classType() == 'playlists') {  //Playlists only
           if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
@@ -154,7 +619,7 @@ jQuery.extend({
                 jQuery('#description .public-notes, #description .private-notes').remove();
               }
               if(!results.can_edit_desc) {
-                jQuery('#description .edit-action').remove();
+                jQuery('#description .icon-edit').remove();
               }
               jQuery('.requires_remove').remove();
               jQuery('.requires_edit').animate({ opacity: 1.0 });
@@ -162,7 +627,7 @@ jQuery.extend({
           } else {
             jQuery('.requires_edit, .requires_remove').remove();
           }
-          var notes = jQuery.parseJSON(results.notes); 
+          var notes = jQuery.parseJSON(results.notes) || new Array() 
           jQuery.each(notes, function(i, el) {
             if(el.playlist_item.notes != null) {
               var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
@@ -174,17 +639,17 @@ jQuery.extend({
             }
           });
           jQuery('.add-popup select option').remove();
-          var playlists = jQuery.parseJSON(results.playlists); 
+          var playlists = jQuery.parseJSON(results.playlists) || new Array(); 
           jQuery.each(playlists, function(i, el) {
             var node = jQuery('<option>').val(el.playlist.id).text(el.playlist.name);
             jQuery('.add-popup select').append(node);
           });
-          jQuery.observeDragAndDrop();
         }
+        jQuery.setFixedLinkPosition();
       }
     });
   },
-  initializeTabBehavior: function() {
+  observeTabBehavior: function() {
     jQuery('.tabs a').click(function(e) {
       var region = jQuery(this).data('region');
       jQuery('.add-popup').hide();
@@ -209,29 +674,30 @@ jQuery.extend({
     }
   },
   observeLoginPanel: function() {
-    jQuery('#header_login').click(function(e) {
-      jQuery(this).toggleClass('active');
-      jQuery('#login-popup').toggle();
+    jQuery('#header_login').live('click', function(e) {
       e.preventDefault();
+      jQuery('#login-popup').dialog({
+        title: '',
+        modal: true,
+        width: 700,
+        height: 'auto'
+      });
     });
   },
-  observeCasesCollage: function() {
-    jQuery('.case_collages').click(function(e) {
+  observeCasesVersions: function() {
+    jQuery('.case_versions').live('click', function(e) {
       e.preventDefault();
-      jQuery('#collages' + jQuery(this).data('id')).toggle();
+      jQuery('#versions' + jQuery(this).data('id')).toggle();
       jQuery(this).toggleClass('active');
     });
-    jQuery('.hide_collages').click(function(e) {
+    jQuery('.hide_versions').live('click', function(e) {
       e.preventDefault();
-      jQuery('#collages' + jQuery(this).data('id')).toggle();
-      jQuery(this).parent().siblings('.cases_details').find('.case_collages').removeClass('active');
+      jQuery('#versions' + jQuery(this).data('id')).toggle();
+      jQuery(this).parent().siblings('.versions_details').find('.case_versions').removeClass('active');
     });
   },
   addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
     var url_string = jQuery.rootPathWithFQDN() + itemController + '/' + itemId;
-    if(itemController == 'defaults') {
-      url_string = itemId;
-    }
     jQuery.ajax({
       method: 'GET',
       cache: false,
@@ -250,8 +716,9 @@ jQuery.extend({
         jQuery('#generic-node').remove();
         var addItemDialog = jQuery('<div id="generic-node"></div>');
         jQuery(addItemDialog).html(html);
+        jQuery(addItemDialog).find('#playlist_item_submit,#playlist_item_cancel').remove();
         jQuery(addItemDialog).dialog({
-          title: 'Add ' + itemName ,
+          title: 'Add this ' + itemName + ' to Your Playlist',
           modal: true,
           width: 'auto',
           height: 'auto',
@@ -281,33 +748,8 @@ jQuery.extend({
         }
         });
     });
-    },
-
-  observeTabDisplay: function(region) {
-    jQuery(region + ' .link-add a').live('click', function() {
-      var element = jQuery(this);
-      var current_id = element.data('item_id');
-      if(popup_item_id != 0 && current_id == popup_item_id) {
-        jQuery('.add-popup').hide();
-        popup_item_id = 0;
-      } else {
-        popup_item_id = current_id;
-        popup_item_type = element.data('type');
-        var position = element.offset();
-        var results_posn = jQuery('.add-popup').parent().offset();
-        var left = position.left - results_posn.left;
-        jQuery('.add-popup').hide().css({ top: position.top + 24, left: left }).fadeIn(100);
-      }
-
-      return false;
-    });
-    jQuery('.new-playlist-item').click(function(e) {
-      var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
-      jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, jQuery('#playlist_id').val()); 
-      e.preventDefault();
-    });
   },
-  listResults: function(href, region) {
+  listResults: function(href) {
     jQuery.ajax({
       type: 'GET',
       dataType: 'html',
@@ -319,68 +761,38 @@ jQuery.extend({
            jQuery.hideGlobalSpinnerNode();
       },
       success: function(html){
-        jQuery.address.value(href);
         jQuery.hideGlobalSpinnerNode();
-        if(jQuery('#bbase').length || jQuery('#busers').length) {
-          jQuery(region).html(html);
-          var class_region = region.replace(/^#/, '.');
-          jQuery(class_region + '_pagination').html(jQuery(region + ' #new_pagination').html()); 
+        if(href.match('collage_links')) { //TODO: Find out a more elegant way to represent this logic
+          jQuery('#link_edit .dynamic').html(html).show();    
         } else {
-          jQuery(region).html(html);
-          jQuery('.pagination').html(jQuery(region + ' #new_pagination').html());
+          jQuery.address.value(href);
+          jQuery('#results_set').html(html);
+          jQuery('.standard_pagination').html(jQuery('#new_pagination').html());
+          jQuery('#new_pagination').remove();
+          jQuery.initializeBarcodes();
+          jQuery.observeResultsHover('');
         }
-        //Here we need to re-observe onclicks
-        jQuery.observePagination(); 
-        jQuery.observeTabDisplay(region);
-        jQuery.observeCasesCollage();
       }
     });
   },
   observeSort: function() {
-    jQuery('.sort-asc,.sort-desc').click(function(e) {
-      e.preventDefault();
-      var data = {};
-      var region = '#all_' + jQuery.classType();
-      if(jQuery('#bbase').length || jQuery('#busers').length) {
-        region = '#' + jQuery('.songs > ul:visible').attr('id');
-      }
-      var ajax_region = region.replace(/#all_/, '');
-      var sort = jQuery(this).parent().parent().find('select').val();
-
-      var url = document.location.pathname;
-      if(document.location.search != '') {
-        url += document.location.search + "&ajax_region=" + ajax_region + "&sort=" + sort + "&order=" + jQuery(this).data('val');
-      } else {
-        url += "?ajax_region=" + ajax_region + "&sort=" + sort + "&order=" + jQuery(this).data('val');
-      }
-      jQuery.listResults(url, region);
-    });
     jQuery('.sort select').selectbox({
       className: "jsb", replaceInvisible: true 
     }).change(function() {
-      var region = '#all_' + jQuery.classType();
-      if(jQuery('#bbase').length || jQuery('#busers').length) {
-        region = '#' + jQuery('.songs > ul:visible').attr('id');
-      }
       var sort = jQuery(this).val();
-      var ajax_region = region.replace(/^#all_/, '');
       var url = document.location.pathname;
       if(document.location.search != '') {
-        url += document.location.search + "&ajax_region=" + ajax_region + "&sort=" + sort;
+        url += document.location.search + "&sort=" + sort;
       } else {
-        url += "?ajax_region=" + ajax_region + "&sort=" + sort;
+        url += "?sort=" + sort;
       }
-      jQuery.listResults(url, region);
+      jQuery.listResults(url);
     });
   },
   observePagination: function(){
-    jQuery('.pagination a').click(function(e){
+    jQuery('.standard_pagination a').live('click', function(e){
       e.preventDefault();
-      var region = '#all_' + jQuery.classType();
-      if(jQuery('#bbase').length || jQuery('#busers').length) {
-        region = '#all_' + jQuery(this).closest('div').data('type');
-      }
-      jQuery.listResults(jQuery(this).attr('href'), region);
+      jQuery.listResults(jQuery(this).attr('href'));
     });
   },
 
@@ -485,46 +897,51 @@ jQuery.extend({
   },
 
   /* 
-  This is a generic UI function that applies to all elements with the "delete-action" class.
+  This is a generic UI function that applies to all elements with the "icon-delete" class.
   With this, a dialog box is generated that asks the user if they want to delete the item (Yes, No).
   When a user clicks "Yes", an ajax call is made to the link's href, which responds with JSON.
   The listed item is then removed from the UI.
   */
   observeDestroyControls: function(region){
-      jQuery(region + ' .delete-action').live('click', function(e){
+    jQuery(region + ' .icon-delete').live('click', function(e){
+      e.preventDefault();
+      if(jQuery(this).parent().hasClass('delete-playlist-item')) {
+        return;
+      }
       var destroyUrl = jQuery(this).attr('href');
       var item_id = destroyUrl.match(/[0-9]+$/).toString();
-      e.preventDefault();
       var confirmNode = jQuery('<div><p>Are you sure you want to delete this item?</p></div>');
       jQuery(confirmNode).dialog({
-          modal: true,
-          buttons: {
+        modal: true,
+        buttons: {
           Yes: function() {
-              jQuery.ajax({
+            jQuery.ajax({
               cache: false,
               type: 'POST',
               url: destroyUrl,
               dataType: 'JSON',
               data: {'_method': 'delete'},
-              beforeSend: function(){
-                  jQuery.showGlobalSpinnerNode();
+              beforeSend: function() {
+                jQuery.showGlobalSpinnerNode();
               },
               error: function(xhr){
-                  jQuery.hideGlobalSpinnerNode();
-                  //jQuery.showMajorError(xhr); 
+                jQuery.hideGlobalSpinnerNode();
               },
               success: function(data){
-                jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+                jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 200, function() {
                   jQuery(".listitem" + item_id).remove();
+                  if(jQuery('#playlist').size()) {
+                    jQuery.update_positions(data.position_data);
+                  }
                 });
-                  jQuery.hideGlobalSpinnerNode();
-                  jQuery(confirmNode).remove();
+                jQuery.hideGlobalSpinnerNode();
+                jQuery(confirmNode).remove();
               }
-              });
+            });
           },
-            No: function(){
+          No: function(){
             jQuery(confirmNode).remove();
-            }
+          }
         }
       }).dialog('open');
     });
@@ -533,16 +950,25 @@ jQuery.extend({
   /*
   Generic bookmark item, more details here.
   */
-  observeBookmarkControls: function(region) {
-      jQuery(region + ' .bookmark-action').live('click', function(e){
+  observeBookmarkControls: function() {
+    if(jQuery('.singleitem').size()) {
+      var key = 'listitem_' + jQuery.classType().replace(/s$/, '') + jQuery('.singleitem').data('itemid');
+      if(user_bookmarks[key]) {
+        jQuery('.bookmark-action').addClass('inactive').html('<span class="icon icon-favorite-large"></span>').attr('title', 'Bookmarked');
+        jQuery('.bookmark-action .icon').css('opacity', 0.3);
+      }
+    } else {
+      jQuery.each(user_bookmarks, function(i, j) {
+        jQuery('#' + i + ' .bookmark-action').addClass('inactive').html('<span class="icon icon-favorite-large"></span>BOOKMARKED');
+      });
+    }
+
+    jQuery('.bookmark-action:not(.inactive)').live('click', function(e){
       var item_url = jQuery.rootPathWithFQDN() + 'bookmark_item/';
       var el = jQuery(this);
-	  if(el.hasClass('bookmark-popup')) {
-        item_url += popup_item_type + '/' + popup_item_id;
-      } else if (el.hasClass('bookmark-link')){       
-        item_url += el.data('type') + '/' + el.data('itemid');
-      } else {        
-		item_url += jQuery.classType() + '/' + jQuery('.singleitem').data('itemid');  
+      item_url += el.data('type') + '/' + el.data('itemid');
+      if (el.hasClass('link-bookmark')) {
+        jQuery('#listitem_' + el.data('type') + el.data('itemid')).addClass('with_popup');
       }
       e.preventDefault();
       jQuery.ajax({
@@ -551,127 +977,48 @@ jQuery.extend({
         dataType: "JSON",
         data: {},
         beforeSend: function() {
-            jQuery.showGlobalSpinnerNode();
+          jQuery.showGlobalSpinnerNode();
         },
         success: function(data) {
           jQuery('.add-popup').hide();
           jQuery.hideGlobalSpinnerNode();
+
           var snode;
-          if(data.already_bookmarked) {
-            snode = jQuery('<span class="bookmarked">').html('ALREADY BOOKMARKED!').append(
-              jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
-          } else {
-            snode = jQuery('<span class="bookmarked">').html('BOOKMARKED!').append(
-              jQuery('<a>').attr('href', jQuery.rootPathWithFQDN() + 'users/' + data.user_id + '#vbookmarks').html('VIEW BOOKMARKS'));
-          }
-
-          if(el.hasClass('bookmark-popup') || el.hasClass('bookmark-link')) {
-            if(jQuery.classType() == 'users' && jQuery('#bookmark_tab').hasClass('active')) {
-              snode.html('ALREADY BOOKMARKED!');
-              jQuery('hgroup.' + popup_item_type + popup_item_id + ' .bookmarked').remove();
-              snode.insertBefore(jQuery('hgroup.' + popup_item_type + popup_item_id + ' .cl'));
-            } else if(jQuery.classType() == 'playlists' && jQuery('.singleitem').size() && popup_item_type != 'default') {
-              jQuery('hgroup.' + popup_item_type + popup_item_id + ' .bookmarked').remove();
-              snode.insertBefore(jQuery('hgroup.' + popup_item_type + popup_item_id + ' .cl'));
-			} else if (el.hasClass('bookmark-link')){
-		      jQuery('.listitem' + el.data('itemid') + ' h4 .bookmarked').remove();
-			  jQuery('.listitem' + el.data('itemid') + ' h4').append(snode);
+          if(!data.already_bookmarked) {
+            if (el.hasClass('link-bookmark')) {
+              el.addClass('inactive').html('<span class="icon icon-favorite-large"></span>BOOKMARKED');
+              setTimeout(function() {
+                jQuery('#listitem_' + el.data('type') + el.data('itemid')).removeClass('with_popup');
+              }, 500);
             } else {
-              jQuery('.listitem' + popup_item_id + ' h4 .bookmarked').remove();
-              jQuery('.listitem' + popup_item_id + ' h4').append(snode);
+              el.addClass('inactive').html('<span class="icon icon-favorite-large"></span>').attr('title', 'Bookmarked');
+              el.find('.icon').css('opacity', 0.3);
             }
-          } else {
-            jQuery('.singleitem > .description > h2 .bookmarked,#fixed_header > .description > h2 .bookmarked').remove();
-            jQuery('.singleitem > .description > h2,#fixed_header > .description h2').append(snode);
           }
         },
         error: function(xhr, textStatus, errorThrown) {
-            jQuery.hideGlobalSpinnerNode();
+          jQuery.hideGlobalSpinnerNode();
         }
       });
     });
   },
-
-  /* New Playlist and Add Item */
-  observeNewPlaylistAndItemControls: function() {
-      jQuery('.new-playlist-and-item').live('click', function(e){
-      var item_id = popup_item_id;
-      var actionUrl = jQuery(this).attr('href');
-      e.preventDefault();
-      jQuery.ajax({
-        cache: false,
-        url: actionUrl,
-        beforeSend: function() {
-            jQuery.showGlobalSpinnerNode();
-        },
-        success: function(html) {
-            jQuery.hideGlobalSpinnerNode();
-          jQuery.generateSpecialPlaylistNode(html);
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            jQuery.hideGlobalSpinnerNode();
-        }
-      });
-    });
-  },
-  generateSpecialPlaylistNode: function(html) {
-    var newItemNode = jQuery('<div id="special-node"></div>').html(html);
-    var title = '';
-    if(newItemNode.find('#generic_title').length) {
-      title = newItemNode.find('#generic_title').html();
-    }
-    jQuery(newItemNode).dialog({
-      title: title,
-      modal: true,
-      width: 'auto',
-      height: 'auto',
-      open: function(event, ui) {
-        jQuery.observeMarkItUpFields();
-      },
-      close: function() {
-        jQuery(newItemNode).remove();
-      },
-      buttons: {
-        Submit: function() {
-          jQuery('#special-node').find('form').ajaxSubmit({
-            dataType: "JSON",
-            beforeSend: function() {
-              jQuery.showGlobalSpinnerNode();
-            },
-            success: function(data) {
-              jQuery(newItemNode).dialog('close');
-              var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
-              jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, data.id);
-            },
-            error: function(xhr) {
-              jQuery.hideGlobalSpinnerNode();
-            }
-          });
-        },
-        Close: function() {
-          jQuery(newItemNode).remove();
-        }
-      }
-    }).dialog('open');
-  },
-
   /* Generic HTML form elements */
   observeGenericControls: function(region){
-      jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action').live('click', function(e){
+    jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action,' + region + '.push-action').live('click', function(e){
       var actionUrl = jQuery(this).attr('href');
       e.preventDefault();
       jQuery.ajax({
         cache: false,
         url: actionUrl,
         beforeSend: function() {
-            jQuery.showGlobalSpinnerNode();
+          jQuery.showGlobalSpinnerNode();
         },
         success: function(html) {
           jQuery.hideGlobalSpinnerNode();
           jQuery.generateGenericNode(html);
         },
         error: function(xhr, textStatus, errorThrown) {
-            jQuery.hideGlobalSpinnerNode();
+          jQuery.hideGlobalSpinnerNode();
         }
       });
     });
@@ -752,13 +1099,20 @@ jQuery.extend({
       },
       error: function(xhr) {
         jQuery.hideGlobalSpinnerNode();
-      }
+      },
     });
+  },
+  push_playlist: function(data) {
+    jQuery.hideGlobalSpinnerNode();
+    jQuery('#generic-node').dialog('close');
+    jQuery('.main_wrapper').prepend(jQuery('<p>').attr('id', 'notice').html("Playlist is being pushed.  May take several minutes to complete. You'll receive an email when the push is completed."));
+    window.scrollTo(0, 0);
   }
+
 });
 
 jQuery(function() {
-  
+
   /* Only used in collages */
   jQuery.fn.observeField =  function( time, callback ){
     return this.each(function(){
@@ -773,40 +1127,14 @@ jQuery(function() {
     });
   }
 
-    //Fire functions for discussions
-    //initDiscussionControls();
-
-  jQuery("#search .btn-tags").click(function() {
-    var $p = jQuery(".browse-tags-popup");
-    
-    $p.toggle();
-    jQuery(this).toggleClass("active");
-    
-    return false;
+  jQuery('#search_button').live('click', function(e) {
+    e.preventDefault();
+    jQuery("#search form").attr("action", "/" + jQuery('select#search_all').val());
+    jQuery('#search form').submit();
   });
-  
-  jQuery(".playlist .data .dd").live('click', function() {
-    jQuery(this).toggleClass('dd-closed');
-    jQuery(this).siblings('.item_description').slideToggle();
-    jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
-    var open = new Array;
-    jQuery('.playlist .data .dd').not('.dd-closed').each(function(i, el) {
-      open.push(jQuery(el).attr('id'));
-    });  
-    jQuery.cookie('expanded', open.join('-'));
-    return false;
+  jQuery('select#search_all').selectbox({
+    className: "jsb", replaceInvisible: true 
   });
-  
-  jQuery("#search input[type=radio]").click(function() {
-    jQuery("#search form").attr("action", "/" + jQuery(this).val());
-  });
-  if(jQuery('#radios input[value=' + jQuery.classType() + ']').length) {
-    jQuery('#radios input[value=' + jQuery.classType() + ']').click();
-  } else if(jQuery.classType() == 'journal_articles') {
-    jQuery('#radios input[value=text_blocks]').click();
-  } else {
-    jQuery("#search_all_radio").click();
-  }
 
   jQuery(".link-more,.link-less").click(function(e) {
     jQuery("#description_less,#description_more").toggle();
@@ -814,12 +1142,6 @@ jQuery(function() {
   });
 
   jQuery('.item_drag_handle').button({icons: {primary: 'ui-icon-arrowthick-2-n-s'}});
-
-  jQuery('.link-copy').click(function() {
-    jQuery(this).closest('form').submit();
-  });
-  //jQuery('#results .song details .influence input').rating();
-  //jQuery('#playlist details .influence input').rating();
 
   jQuery('li.submit a').click(function() {
     jQuery('form.search').submit();
@@ -833,40 +1155,41 @@ jQuery(function() {
     jQuery(sort_region + ' select').val(jQuery.address.parameter('sort'));
   }
 
+  jQuery.loadGenericEditability();
+  jQuery.initializeBarcodes();
   jQuery.observeDestroyControls('');
   jQuery.observeGenericControls('');
-  jQuery.observeBookmarkControls('');
-  jQuery.observeNewPlaylistAndItemControls();
+  jQuery.observeBookmarkControls();
   jQuery.observePagination(); 
   jQuery.observeSort();
-  jQuery.observeTabDisplay('');
-  jQuery.observeCasesCollage();
+  //jQuery.observeCasesCollage();
+  jQuery.observeCasesVersions();
+  jQuery.observeTabDisplay();
   jQuery.observeLoginPanel();
-  jQuery.initializeTabBehavior();
+  jQuery.observeResultsHover('');
+  jQuery.observeTabBehavior();
   jQuery.loadEscapeListener();
+  jQuery.loadPopupCloseListener();
   jQuery.loadOuterClicks();
-  jQuery.loadSlideOutTabBehavior();
+  jQuery.observeViewerToggle();
+  jQuery.observeLoadMorePagination();
+  jQuery.initializeTooltips();
+  jQuery.observeCreatePopup();
+  jQuery.observeHomePageToggle();
+  jQuery.observeFontChange();
+  jQuery.observeMetadataForm();
+  jQuery.observeMetadataDisplay();
+  jQuery.observeQuickCollage();
+  jQuery.initializeRightPanelScroll();
+  jQuery.resetRightPanelThreshold();
 
-  if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
-    var region = '#all_' + jQuery.classType();
-    if(jQuery('#bbase').length || jQuery('#busers').length) {
-      region = '#all_' + jQuery.address.parameter('ajax_region');
-      jQuery('.tabs a').each(function(i, el) {
-        if('#' + jQuery(el).data('region') == region) {
-          jQuery(el).click();
-        }
-      });
-    }
-    jQuery.listResults(jQuery.address.value(), region);
+  if(jQuery.classType() != 'collages' && jQuery.classType() != 'playlists') {
+    jQuery.setFixedLinkPosition();
   }
 
-  var expanded_v = jQuery.cookie('expanded');
-  if(expanded_v != null) {
-    var expanded = expanded_v.split('-');
-    for(var i=0;i<expanded.length;i++) {
-      jQuery('#' + expanded[i]).click();
-    }
-  } 
+  if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
+    jQuery.listResults(jQuery.address.value());
+  }
 
   //For Now, this is disabled. If set to true,
   //code updates are required to work with back button
@@ -887,9 +1210,9 @@ jQuery(function() {
 // -------------------------------------------------------------------
 var h2oTextileSettings = {
   nameSpace: 'textile',
-  previewParserPath:	'/base/preview_textile_content',
+  previewParserPath:  '/base/preview_textile_content',
   previewAutoRefresh: true,
-  onShiftEnter:		{keepDefault:false, replaceWith:'\n\n'},
+  onShiftEnter:    {keepDefault:false, replaceWith:'\n\n'},
   markupSet: [
     {name:'Bold', key:'B', closeWith:'*', openWith:'*'},
     {name:'Underline', key:'U', closeWith:'_', openWith:'_'},

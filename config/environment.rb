@@ -14,7 +14,7 @@ Rails::Initializer.run do |config|
   # -- all .rb files in that directory are automatically loaded.
 
   # Add additional load paths for your own custom dirs
-  config.autoload_paths += %W( #{RAILS_ROOT}/app/sweepers )
+  config.autoload_paths += %W( #{RAILS_ROOT}/app/sweepers lib/case_parser)
 
   # Specify gems that this application depends on and have them installed with rake gems:install
   # config.gem "bj"
@@ -27,6 +27,7 @@ Rails::Initializer.run do |config|
   config.gem "authlogic_facebook", :version => '1.0.4'
   config.gem "acl9", :version => '0.12.0'
   config.gem "shoulda", :version => '2.10.3'
+  config.gem 'factory_girl', :version => '2.6.4'
   config.gem "formtastic", :version => '1.1.0'
   config.gem "vote_fu", :version => '0.0.11'
   config.gem "RedCloth", :version => '4.2.2'
@@ -42,6 +43,10 @@ Rails::Initializer.run do |config|
   config.gem 'super_exception_notifier', :lib => "exception_notification", :version => '3.0.13'
   #erubis is needed to satisfy requirements for rails_xss plugin
   config.gem 'erubis', :version => '2.6.6'
+  config.gem 'daemons', :version => '1.0.10'
+  config.gem "delayed_job", :version => "2.0.4"
+  config.gem "ar-extensions", :version => "0.9.5"
+  config.gem 'nokogiri'
 
   config.active_record.colorize_logging = false
 
@@ -67,7 +72,7 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 
-  
+
 
 end
 

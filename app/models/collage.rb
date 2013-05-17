@@ -1,20 +1,29 @@
-require 'tagging_extensions'
-require 'redcloth_extensions'
-require 'playlistable_extensions'
-require 'ancestry_extensions'
-
 class Collage < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   extend HeatmapExtensions::ClassMethods
   
   include H2oModelExtensions
-  include PlaylistableExtensions
+  include StandardModelExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
   include MetadataExtensions
   include TaggingExtensions::InstanceMethods
   include HeatmapExtensions::InstanceMethods
+  
+  include ActionController::UrlWriter
+    
+  RATINGS = {
+    :remix => 5,
+    :bookmark => 1,
+    :add => 3
+  }
+  RATINGS_DISPLAY = {
+    :remix => "Remixed",
+    :bookmark => "Bookmarked",
+    :add => "Added to"
+  }
+
 
   acts_as_taggable_on :tags
   acts_as_authorization_object
@@ -45,6 +54,7 @@ class Collage < ActiveRecord::Base
   has_many :color_mappings
 
   has_many :collage_links, :foreign_key => "host_collage_id"
+  has_many :parent_collage_links, :class_name =>  "CollageLink", :foreign_key => "linked_collage_id"
   # Create the content we're going to annotate. This is a might bit inefficient, mainly because
   # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing
   # the creation of a contentless collage, though.
@@ -65,20 +75,16 @@ class Collage < ActiveRecord::Base
     time :created_at
     string :tag_list, :stored => true, :multiple => true
     string :author
+    integer :karma
 
     string :annotatable #, :stored => true
     string :annotations, :multiple => true
     string :layer_list, :multiple => true
   end
 
-  def author
-    owner = self.accepted_roles.find_by_name('owner')
-    owner.nil? ? nil : owner.user.login.downcase
-  end
-
   def fork_it(new_user)
     collage_copy = self.clone
-    collage_copy.name = "#{self.name} copy"
+    collage_copy.name = self.root.name
     collage_copy.created_at = Time.now
     collage_copy.parent = self
     collage_copy.accepts_role!(:owner, new_user)
@@ -105,6 +111,28 @@ class Collage < ActiveRecord::Base
       color_mapping.save
     end
     collage_copy
+  end
+
+  def color_map
+    h = {}
+    self.layers.each do |layer|
+      map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      h["l#{layer.id}"] = map.hex if map
+    end
+    h
+  end
+
+  def barcode
+    Rails.cache.fetch("collage-barcode-#{self.id}") do
+      barcode_elements = self.barcode_bookmarked_added
+      self.children.each do |child|
+        barcode_elements << { :type => "remix", 
+                              :date => child.created_at, 
+                              :title => "Remixed to Collage #{child.name}",
+                              :link => collage_path(child.id) }
+      end
+      barcode_elements.sort_by { |a| a[:date] }
+    end
   end
 
   def can_edit?
@@ -159,6 +187,34 @@ class Collage < ActiveRecord::Base
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
       if node.children.size > 0 && tt_size > 0 
         first_child = node.children.first
+        control_node = Nokogiri::XML::Node.new('a', doc)
+        control_node['id'] = "paragraph#{count}"
+        control_node['href'] = "#p#{count}"
+        control_node['class'] = "paragraph-numbering"
+        control_node.inner_html = "#{count}"
+        first_child.add_previous_sibling(control_node)
+        count += 1
+      end 
+    end 
+
+    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
+  end
+  
+  def printable_content
+    doc = Nokogiri::HTML.parse(self.content)
+
+    x = 1
+    doc.xpath('//tt').each do |node|
+      node['class'] = node['id']
+      node['id'] = ''
+      x+=1
+    end
+
+    count = 1
+    doc.xpath('//p | //center').each do |node|
+      tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
+      if node.children.size > 0 && tt_size > 0 
+        first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('span', doc)
         control_node['class'] = "paragraph-numbering"
         control_node.inner_html = "#{count}"
@@ -169,12 +225,27 @@ class Collage < ActiveRecord::Base
 
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
-
-  alias :to_s :display_name
-
-  def bookmark_name
-    self.name
+  
+  def current?
+    !self.outdated?
   end
+  
+  def outdated?
+    self.annotatable.version > self.annotatable_version
+  end
+  
+  def update_annotatable_version_number
+    if self.new_record?
+      if self.annotatable
+        self.annotatable.reload 
+        if self.annotatable.respond_to?(:version)
+          self.annotatable_version = self.annotatable.version
+        end
+      end      
+    end
+  end
+  
+  alias :to_s :display_name
 
   private 
 

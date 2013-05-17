@@ -1,0 +1,6 @@
+<% @highlighted[klass.to_s.downcase.to_sym].each do |u| -%>
+<div class="user item"><div class="item_wrapper">
+  <%= link_to u.display_name, self.send("#{klass.to_s.tableize.singularize}_path", u) %>
+  <%= render :partial => "shared/barcode", :locals => { :object => u } %>
+</div></div>
+<% end -%>

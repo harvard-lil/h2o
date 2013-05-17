@@ -1,0 +1,13 @@
+<div class="standard-form">
+  <h1><%= @default.new_record? ? "Add a new Link" : "Edit #{@default.name} Link" %></h1>
+  <% semantic_form_for(@default, :html => { :id => 'default-form' }) do |form| -%>
+    <% form.inputs do %>
+      <%= form.input :name %>
+      <%= form.input :url %>
+      <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 10 } %>
+    <% end -%>
+    <% form.buttons do -%>
+    <%= form.commit_button 'SAVE' %>
+    <% end -%>
+  <% end -%>
+</div>

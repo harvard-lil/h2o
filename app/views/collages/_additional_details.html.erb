@@ -1,0 +1,20 @@
+<div class="additional_details">
+  <p>
+    <%= collage.created_at.to_s(:simpledatetime) %> by
+    <%= raw collage.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if collage.owners %>
+    <% cache "collage-#{collage.id}-tags" do -%>
+    <% if collage.tag_list.any? -%>
+    | <%= raw collage.tag_list.collect { |tag| link_to(tag, collage_tag_path(CGI.escape(tag))) }.join(', ') %>
+    <% end -%>
+    <% end -%>
+  </p>
+  <span class="requires_logged_in">
+  <%#= link_to "", copy_collage_path(collage), :class => "tooltip link-remix remix-action", :title => "Remix #{collage.name}" %>
+  <%= link_to "", '#', "data-item_id" => collage.id, "data-type" => "collage", :class => 'link-add tooltip', :title => "Add to a collage" %>
+  <%= link_to "", '#', :class => "tooltip link-bookmark bookmark-action", :title => "Bookmark #{collage.name}" %>
+  </span>
+  <%= render :partial => "shared/barcode", :locals => { :object => collage } %>
+  <div class="actual_description">
+  <%= Collage.format_content(collage.description) %>
+  </div>
+</div>

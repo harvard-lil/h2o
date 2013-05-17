@@ -1,0 +1,35 @@
+<section id="results" class="multiitems">
+  <aside class="sort">
+	  <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[@model.to_s.tableize.to_sym] } %>
+  </aside>
+  <div class="search_details">
+	  <aside class="pagination standard_pagination">
+		  <%= will_paginate @collection, :container => false, :previous_label => '', :next_label => '' %>
+	  </aside>
+		<% if params[:tag] -%>
+		<p>
+		<%= @model.to_s %> tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @collection.total_entries, @model.to_s %> Total)
+		<%= link_to "CLEAR TAG", self.send("#{@model.to_s.tableize}_path") %>
+		</p>
+		<% elsif params[:keywords] -%>
+    <h1>
+    Search Results: <b><%= params[:keywords] %></b>
+    </h1>
+		<p>
+    (<%= pluralize @collection.total_entries, @model.to_s %> Total)
+		</p>
+		<% else -%>
+		<%= @collection.total_entries %> <%= @model.to_s %> Total
+		<% end -%>
+  </div>
+  <ul id="results_set">
+		<%= render :partial => "shared/objects/#{@model == Case ? 'case_obj' : @model.to_s.downcase}", :collection => @collection %>
+  </ul>
+  <div class="search_details bottom">
+	  <aside class="pagination standard_pagination">
+		  <%= will_paginate @collection, :container => false, :previous_label => '', :next_label => '' %>
+	  </aside>
+  </div>
+</div>
+
+<%= render :partial => "shared/popup", :locals => { :type => (@model == Case ? 'case_obj' : @model.to_s.tableize.singularize) } %>

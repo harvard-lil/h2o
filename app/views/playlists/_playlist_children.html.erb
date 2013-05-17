@@ -4,7 +4,7 @@
 <% end -%>
 <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span> by 
 <%= raw playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %><br />
-<%= link_to playlist.name, playlist %>
+<%= link_to raw(playlist.name), playlist %>
 <% if playlist.children.size > 0 -%>
 	<ul class="lineage">
 	<% playlist.children.each do |child| -%>

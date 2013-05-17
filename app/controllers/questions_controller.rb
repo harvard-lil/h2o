@@ -2,10 +2,8 @@ class QuestionsController < BaseController
 
   cache_sweeper :question_sweeper
 
-  before_filter :prep_resources, :except => [:embedded_pager]
-
   before_filter :require_user, :except => [:replies,:embedded_pager]
-  before_filter :load_question, :only => [:destroy, :toggle_sticky]
+  before_filter :load_single_resource, :only => [:destroy, :toggle_sticky]
 
   after_filter :update_question_instance_time
 
@@ -62,7 +60,6 @@ class QuestionsController < BaseController
   # GET /questions/new
   # GET /questions/new.xml
   def new
-    add_stylesheets ["formtastic","forms"]
     @question = Question.new
     begin
       @question.parent_id = params[:question][:parent_id] || nil
@@ -72,16 +69,9 @@ class QuestionsController < BaseController
     end
   end
 
-  # GET /questions/1/edit
-#  def edit
-#    add_stylesheets ["formtastic","forms"]
-#    @question = Question.find(params[:id])
-#  end
-
   # POST /questions
   # POST /questions.xml
   def create
-    add_stylesheets ["formtastic","forms"]
     @question = Question.new(params[:question])
     @question.parent_id = (@question.parent_id == 0) ? nil : @question.parent_id
     respond_to do |format|
@@ -109,24 +99,6 @@ class QuestionsController < BaseController
       end
     end
   end
-
-  # PUT /questions/1
-  # PUT /questions/1.xml
-#  def update
-#    add_stylesheets ["formtastic","forms"]
-#    @question = Question.find(params[:id])
-#    @UPDATE_QUESTION_INSTANCE_TIME = @question.question_instance
-#    respond_to do |format|
-#      if @question.update_attributes(params[:question])
-#        flash[:notice] = 'Question was successfully updated.'
-#        format.html { redirect_to(@question) }
-#        format.xml  { head :ok }
-#      else
-#        format.html { render :action => "edit" }
-#        format.xml  { render :xml => @question.errors, :status => :unprocessable_entity }
-#      end
-#    end
-#  end
 
   # DELETE /questions/1
   # DELETE /questions/1.xml
@@ -165,14 +137,4 @@ class QuestionsController < BaseController
     render :text => "We're sorry, we couldn't record that vote. You might've already voted for this item.", 
       :status => :unprocessable_entity
   end
-
-  def prep_resources
-
-  end
-
-  def load_question
-    @question = Question.find(params[:id])
-    @question_instance = @question.question_instance
-  end
-
 end

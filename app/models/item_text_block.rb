@@ -13,7 +13,7 @@ class ItemTextBlock < ActiveRecord::Base
 
     preview_content = <<-PREVIEW_CONTENT
        <a href='#{self.url}' target='_blank' class='item_default_link'>
-       <img src='/images/elements/text_large.png' style='border: none;' /></a>
+       <img src='/images/text_large.png' style='border: none;' /></a>
 
     PREVIEW_CONTENT
 

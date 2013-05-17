@@ -1,5 +1,6 @@
 var all_tts;
 var stored_heatmap = {};
+var loaded_heatmaps = false;
 
 jQuery.extend({
   printMarkupAnnotation: function(annotation) {
@@ -16,6 +17,27 @@ jQuery.extend({
       jQuery('<span id="annotation-content-' + annotation.id + '" class="annotation-content">' + annotation.annotation + '</span>').insertAfter(els.last());
     }
   },
+  displayHeatmap: function(collage_id) {
+    jQuery.each(stored_heatmap["collage" + collage_id].data, function(i, e) {
+      var opacity = e / (stored_heatmap["collage" + collage_id].max + 1);
+      var color_combine = jQuery.xcolor.opacity('#FFFFFF', '#FE2A2A', opacity);
+      var hex = color_combine.getHex();
+      jQuery('#collage' + collage_id + ' tt.' + i).css('border-bottom', '2px solid ' + hex);
+    });
+  },
+  loadHeatmap: function(collage_id) {
+    jQuery.ajax({
+      type: 'GET',
+      cache: false,
+      dataType: 'JSON',
+      url: '/collages/' + collage_id + '/heatmap',
+      success: function(data){
+        stored_heatmap["collage" + collage_id] = data.heatmap;
+        jQuery.displayHeatmap(collage_id);
+        loaded_heatmaps = true;
+      },
+    });
+  },
   loadState: function() {
     jQuery('.collage-content').each(function(i, el) {
       var id = jQuery(el).data('id');
@@ -28,41 +50,14 @@ jQuery.extend({
 
       jQuery.each(data, function(i, e) {
         if(i == 'load_heatmap') {
-          jQuery.ajax({
-            type: 'GET',
-            cache: false,
-            dataType: 'JSON',
-            url: '/collages/' + id + '/heatmap',
-            success: function(data){
-              stored_heatmap["collage" + id] = data.heatmap;
-              jQuery.each(data.heatmap.data, function(i, e) {
-                var opacity = e / (data.heatmap.max+1);
-                var color_combine = jQuery.xcolor.opacity('#FFFFFF', '#FE2A2A', opacity);
-                var hex = color_combine.getHex();
-                jQuery('tt#' + i).css('border-bottom', '2px solid ' + hex);
-              });
-            },
-          });
+          jQuery.loadHeatmap(id);
+          jQuery('#printheatmap').val('yes');
+          jQuery('#printhighlights option:first').remove();
+          jQuery('#printhighlights').val('none');
         } else if(i == 'highlights') {
-          jQuery.each(e, function(a, hex) {
-            jQuery.each(jQuery('tt.' + a), function(i, el) {
-              var current = jQuery(el);
-              var highlight_colors = current.data('highlight_colors');
-              if(highlight_colors) {
-                highlight_colors.push(hex);
-              } else {
-                highlight_colors = new Array(hex);
-              }
-              var current_hex = '#FFFFFF';
-              var opacity = 0.6 / highlight_colors.length;
-              jQuery.each(highlight_colors, function(i, color) {
-                var color_combine = jQuery.xcolor.opacity(current_hex, color, opacity);
-                current_hex = color_combine.getHex();
-              });
-              current.css('border-bottom', '2px solid ' + current_hex);
-              current.data('highlight_colors', highlight_colors);
-            });
-          });
+          jQuery('#printhighlights').val('original');
+          jQuery('#printheatmap').val('no');
+          jQuery.highlightCollage(id, e);
         } else if(i == 'annotations') {
           jQuery.each(e, function(a, h) {
             jQuery('#' + a).css('display', 'block');
@@ -88,18 +83,45 @@ jQuery.extend({
       });
 
       jQuery.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
-        jQuery('#collage' + id + ' article ' + selector + ':not(:has(.ellipsis:visible)):not(:has(tt:visible))').addClass('no_visible_children');
+        jQuery('#collage' + id + ' article ' + selector + ':not(:has(.ellipsis:visible)):not(:has(tt:visible)):not(.paragraph-numbering)').addClass('no_visible_children');
+      });
+    });
+  },
+  highlightCollage: function(collage_id, highlights) {
+    jQuery('#collage' + collage_id + ' tt').css('border-bottom', '2px solid #FFFFFF');
+    jQuery.each(highlights, function(a, hex) {
+      jQuery.each(jQuery('#collage' + collage_id + ' tt.' + a), function(i, el) {
+        var current = jQuery(el);
+        var highlight_colors = current.data('highlight_colors');
+        if(highlight_colors) {
+          highlight_colors.push(hex);
+        } else {
+          highlight_colors = new Array(hex);
+        }
+        var current_hex = '#FFFFFF';
+        var opacity = 0.6 / highlight_colors.length;
+        jQuery.each(highlight_colors, function(i, color) {
+          var color_combine = jQuery.xcolor.opacity(current_hex, color, opacity);
+          current_hex = color_combine.getHex();
+        });
+        current.css('border-bottom', '2px solid ' + current_hex);
+        current.data('highlight_colors', highlight_colors);
       });
     });
   }
 });
 
 jQuery(document).ready(function(){
+  if(jQuery('#playlist').size()) {
+    jQuery('#printhighlights option:first').remove();
+    jQuery('#printhighlights').val('none');
+    jQuery('#printheatmap').val('no');
+  }
   jQuery.loadState();
   jQuery('#printfonttype').selectbox({
     className: "jsb", replaceInvisible: true
   }).change(function() {
-    jQuery.rule('body, tt { font-family: ' + jQuery(this).val() + '; }').appendTo('style');
+    jQuery.rule('body, .singleitem article tt { font-family: ' + jQuery(this).val() + '; }').appendTo('style');
   });
   jQuery('#printfontsize').selectbox({
     className: "jsb", replaceInvisible: true
@@ -151,43 +173,47 @@ jQuery(document).ready(function(){
     className: "jsb", replaceInvisible: true
   }).change(function() {
     var choice = jQuery(this).val();
-    if (choice == 'yes') {
+    if(jQuery('#printheatmap').val() == 'yes') {
+      jQuery('#printheatmap').val('no');
+      jQuery('#heatmap_options .jsb-currentItem').html('No');
+    }
+    if(choice == 'original') {
       jQuery('.collage-content').each(function(i, el) {
         var id = jQuery(el).data('id');
         var data = eval("collage_data_" + id);
-
-        jQuery.each(data, function(i, e) {
-          if(i == 'load_heatmap') {
-            //stored_heatmap["collage" + id] = data.heatmap.data;
-            jQuery.each(stored_heatmap["collage" + id].data, function(i, e) {
-              var opacity = e / (stored_heatmap["collage" + id].max + 1);
-              var color_combine = jQuery.xcolor.opacity('#FFFFFF', '#FE2A2A', opacity);
-              var hex = color_combine.getHex();
-              jQuery('tt#' + i).css('border-bottom', '2px solid ' + hex);
-            });
-          } else if(i == "highlights") {
-            jQuery.each(jQuery('tt.a'), function(i, el) {
-              var current = jQuery(el);
-              var highlight_colors = current.data('highlight_colors');
-              if(highlight_colors) {
-                var current_hex = '#FFFFFF';
-                var opacity = 0.6 / highlight_colors.length;
-                jQuery.each(highlight_colors, function(i, color) {
-                  var color_combine = jQuery.xcolor.opacity(current_hex, color, opacity);
-                  current_hex = color_combine.getHex();
-                });
-                current.css('border-bottom', '2px solid ' + current_hex);
-              }
-          });
-        } else if(i == 'annotations') {
-          jQuery.each(e, function(a, h) {
-            jQuery('#' + a).css('display', 'block');
-          });
-          }
-        });
+        jQuery.highlightCollage(id, data.highlights);
       });
+    } else if(choice == 'all') {
+      jQuery('.collage-content').each(function(i, el) {
+        var id = jQuery(el).data('id');
+        var data = eval("color_map_" + id);
+        jQuery.highlightCollage(id, data);
+      });
+    } else {
+      jQuery('tt').css('border-bottom', '2px solid #FFFFFF');
     }
-    else {
+  });
+  jQuery('#printheatmap').selectbox({
+    className: "jsb", replaceInvisible: true 
+  }).change(function() {
+    var choice = jQuery(this).val();
+    if(jQuery('#printhighlights').val() == 'original' || jQuery('#printhighlights').val() == 'all') {
+      jQuery('#printhighlights').val('none');
+      jQuery('#highlight_options .jsb-currentItem').html('None');
+    }
+    if(choice == 'yes') {
+      if(loaded_heatmaps) {
+        jQuery('.collage-content').each(function(i, el) {
+          var id = jQuery(el).data('id');
+          jQuery.displayHeatmap(id);
+        });
+      } else {
+        jQuery('.collage-content').each(function(i, el) {
+          var id = jQuery(el).data('id');
+          jQuery.loadHeatmap(id);
+        });
+      }
+    } else {
       jQuery('tt').css('border-bottom', '2px solid #FFFFFF');
     }
   });

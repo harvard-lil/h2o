@@ -10,17 +10,17 @@
 	<div class="details">
     <% cache "journal_article-#{journal_article.id}-tags" do %>
       <div class="tags">
-        <% journal_article.tag_list.each do |tag| %>
-        <%= link_to tag, journal_article_tag_path(CGI.escape(tag)) %>
+        <% if journal_article.tag_list.any? -%>
+        | <%= raw journal_article.tag_list.collect { |tag| link_to(tag, journal_article_tag_path(CGI.escape(tag))) }.join(', ') %>
         <% end -%>
       </div>
     <% end -%>
     <h4><%= link_to journal_article.display_name, journal_article_path(journal_article), :class => "title" %>
-      <% if current_user && journal_article.deleteable? && (@is_text_block_admin || @my_text_blocks.include?(journal_article)) %>
-        <%= link_to 'DELETE', journal_article, :class => "action delete-action" %>
+      <% if current_user && journal_article.deleteable? && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(journal_article)) %>
+        <%= link_to 'DELETE', journal_article, :class => "icon icon-delete tooltip" %>
       <% end %>
-      <% if current_user && (@is_text_block_admin || @my_text_blocks.include?(journal_article)) %>
-        <%= link_to 'EDIT', edit_journal_article_path(journal_article), :class => "action" %>
+      <% if current_user && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(journal_article)) %>
+        <%= link_to 'EDIT', edit_journal_article_path(journal_article), :class => "icon icon-edit" %>
       <% end %>
     </h4>
     <p>
@@ -31,5 +31,5 @@
       <% end -%>
     </p>
 	</div>
-	<div class="cl"></div>
+	<div class="clear"></div>
 </li>

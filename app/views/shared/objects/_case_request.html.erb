@@ -2,7 +2,7 @@
 	<div class="details">
 		<h4>
 			<%= case_request.full_name %>
-      <%= link_to "DELETE", case_request_path(case_request), :class => "action delete-action" %>
+      <%= link_to "DELETE", case_request_path(case_request), :class => "icon icon-delete tooltip" %>
       <%= link_to "CREATE CASE FROM THIS REQUEST", new_case_path(:case_request_id => case_request.id), :class => "action" %>
 		</h4>
 		
@@ -12,5 +12,5 @@
       <% end -%>
 		</p>
 	</div>
-  <div class="cl"></div>
+  <div class="clear"></div>
 </li>

@@ -1,13 +1,23 @@
-require 'tagging_extensions'
-require 'redcloth_extensions'
-require 'ancestry_extensions'
-
 class Playlist < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
 
-  include PlaylistableExtensions
+  include StandardModelExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include AuthUtilities
+
+  include ActionController::UrlWriter
+    
+  RATINGS = {
+    :remix => 5,
+    :bookmark => 1,
+    :add => 3
+  }
+  RATINGS_DISPLAY = {
+    :remix => "Remixed",
+    :bookmark => "Bookmarked",
+    :add => "Added to another playlist"
+  }
 
   #no sql injection here.
   acts_as_list :scope => 'ancestry = #{self.connection.quote(self.ancestry)}'
@@ -34,16 +44,12 @@ class Playlist < ActiveRecord::Base
     text :name
     string :tag_list, :stored => true, :multiple => true
     string :author 
+    integer :karma
 
     boolean :public
     boolean :active
 
     time :created_at
-  end
-
-  def author
-    owner = self.accepted_roles.find_by_name('owner')
-    owner.nil? ? nil : owner.user.login.downcase
   end
 
   def display_name
@@ -52,26 +58,21 @@ class Playlist < ActiveRecord::Base
   end
   alias :to_s :display_name
 
-  def bookmark_name
-    self.name
-  end
-
   def parents
     ItemPlaylist.find_all_by_actual_object_id(self.id).collect { |p| p.playlist_item.playlist_id }.uniq
   end
 
-  def self.cache_options
-    options = []
-    ['true', 'false'].each do |ann|
-      [11, 14, 16].each do |size|
-        ['true', 'false'].each do |text|
-          ['serif', 'sans-serif'].each do |type|
-            options << "ann=#{ann}&size=#{size}&text=#{text}&type=#{type}"
-          end
-        end
+  def barcode
+    Rails.cache.fetch("playlist-barcode-#{self.id}") do
+      barcode_elements = self.barcode_bookmarked_added
+      self.children.each do |child|
+        barcode_elements << { :type => "remix",
+                              :date => child.created_at, 
+                              :title => "Remixed to Playlist #{child.name}",
+                              :link => playlist_path(child.id) }
       end
+      barcode_elements.sort_by { |a| a[:date] }
     end
-    options
   end
 
   def relation_ids
@@ -79,12 +80,25 @@ class Playlist < ActiveRecord::Base
     i = 0
     while i < r.size
       Playlist.find(r[i]).parents.each do |a|
-        next if r.include?(a) 
+        next if r.include?(a)
         r.push(a)
       end
       i+=1
     end
     r
+  end
+
+  def actual_objects
+    self.playlist_items.map(&:resource_item).map(&:actual_object)
+  end
+
+
+  def child_playlists
+    self.actual_objects.find_all{|ao| ao.class == Playlist}
+    #arr = []
+    #recursive_playlists(self){|x| arr << x}
+    #arr = arr - [self]
+    #arr
   end
 
   def collage_word_count
@@ -93,7 +107,7 @@ class Playlist < ActiveRecord::Base
     self.playlist_items.each do |pi|
       if pi.resource_item_type == 'ItemCollage' && pi.resource_item.actual_object
         shown_word_count += pi.resource_item.actual_object.words_shown.to_i
-        total_word_count += (pi.resource_item.actual_object.word_count.to_i-1) 
+        total_word_count += (pi.resource_item.actual_object.word_count.to_i-1)
       elsif pi.resource_item_type == 'ItemPlaylist' && pi.resource_item.actual_object
         res = pi.resource_item.actual_object.collage_word_count
         shown_word_count += res[0]
@@ -105,8 +119,36 @@ class Playlist < ActiveRecord::Base
 
   def contains_item?(item)
     actual_objects = self.playlist_items.inject([]) do |arr, pi| 
-      arr << pi.resource_item.actual_object if pi.resource_item && pi.resource_item.actual_object; arr
+      arr << pi.resource_item.actual_object if pi.resource_item && pi.resource_item.actual_object;
+      arr
     end
     actual_objects.include?(item)
+  end
+
+  def push!(options = {})
+    if options[:recipient]
+      push_to_recipient!(options[:recipient])
+    elsif options[:recipients]
+      options[:recipients].each do |r|
+        push_to_recipient!(r)
+      end
+    else
+      false
+    end
+  end
+
+  private
+
+  def recursive_playlists(playlist)
+    yield playlist
+    playlist.actual_objects.find_all{|ao| ao.is_a?(Playlist)}.each do |child|
+      recursive_playlists(child){|x| yield x}
+    end
+  end
+
+  def reset_positions
+    self.playlist_items.each_with_index do |pi, index|
+      pi.update_attribute(:position, self.counter_start + index)
+    end
   end
 end

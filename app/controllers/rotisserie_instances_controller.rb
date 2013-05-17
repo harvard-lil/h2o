@@ -1,6 +1,6 @@
 class RotisserieInstancesController < ApplicationController
 
-  before_filter :require_user, :load_rotisserie
+  before_filter :require_user, :load_single_resource
   
   access_control do
     allow logged_in, :to => [:index, :new, :create]
@@ -128,12 +128,6 @@ class RotisserieInstancesController < ApplicationController
     end
   end
   
-  def load_rotisserie
-    unless params[:id].nil?
-      @rotisserie_instance = RotisserieInstance.find(params[:id])
-    end  
-  end
-
   def add_member
     @rotisserie_instance = RotisserieInstance.find(params[:id])
     @rotisserie_instance.accepts_role!(:user, current_user)
@@ -150,7 +144,6 @@ class RotisserieInstancesController < ApplicationController
   end
 
   def invite
-    add_javascripts 'rotisserie'
     @rotisserie_instance = RotisserieInstance.find(params[:id])
   end
 

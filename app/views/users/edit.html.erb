@@ -1,15 +1,10 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
-  :url => "/",
-  :right_search => 'shared/search_all' } %>
-
-
 <div class="standard-form">
-  <h3>Edit My Account</h3>
-<% form_for @user, :url => user_path(@user) do |f| %>
+  <h1>Edit My Account</h1>
+<% form_for @user, :url => user_path(@user), :html => { :class => "formtastic" } do |f| %>
   <%= f.error_messages %>
   <%= render :partial => "form", :object => f %>
+  <div style="text-align:center;width:100%;">
   <%= f.submit "Update" %>
+  </div>
 <% end %>
 </div>
-
-<br /><%= link_to "My Profile", user_path(@user) %>

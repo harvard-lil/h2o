@@ -1,0 +1,19 @@
+<span id="results">
+		<p><a href="#" class="case_versions" data-id="<%= obj.id %>"><%= pluralize(obj.versions.count, "Version")%>  &raquo;</a></p>
+    <div id="versions<%= obj.id %>" class="versions">
+      <ul id="versions<% obj.id %>">
+      <% obj.versions.each do |obj_version| %>
+      <% version_text = "Version #{obj_version.version} #{obj.version == obj_version.version ? "(Currently Viewing)" : ""}" %>
+      <% if obj.version == obj_version.version %>
+      <li><strong><%= version_text %></strong>
+      <% else %>
+      <li><%= link_to version_text, path_to_object_or_object_version(:obj => obj, :obj_version => obj_version) %>
+      <% end %>
+        </br>
+          edited on <%= obj_version.updated_at.to_s(:simpledatetime) %>
+        </li>
+    <% end %>
+      </ul>
+      	<a href="#" class="hide_versions" data-id="<%= obj.id %>">HIDE &raquo;</a>
+    </div>
+</span>

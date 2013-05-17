@@ -13,7 +13,11 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     expire_page :controller => :playlists, :action => :show, :id => record.id
     expire_page :controller => :playlists, :action => :export, :id => record.id
 
+    record.path_ids.each do |parent_id|
+      Rails.cache.delete("playlist-barcode-#{parent_id}")
+    end
     record.relation_ids.each do |p|
+      Rails.cache.delete("playliste-barcode-#{p}")
       expire_page :controller => :playlists, :action => :show, :id => p
       expire_page :controller => :playlists, :action => :export, :id => p
     end

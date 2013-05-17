@@ -1,11 +1,6 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'medias-logo',
-  :url => medias_path,
-  :right_search => 'medias/nav_search' } %>
-
-
   <div class="standard-form">
     <div id="media-error" style="display:none;" class="error"></div>
-    <h3 id="generic_title"><%= @media.new_record? ? 'Add a new media' : "Edit \"#{@media.name}\"" %></h3>
+    <h1 id="generic_title"><%= @media.new_record? ? 'Add a new media' : "Edit \"#{@media.name}\"" %></h1>
     <% semantic_form_for(@media, :html => {:id => 'media-form'}) do |form| %>
       <% form.inputs do %>
         <%= form.input :name %>
@@ -14,7 +9,7 @@
         <%= form.input :media_type, :as => :radio %>
         <li id="media_detail">
           <label for="media_content">Content <abbr title="required">*</abbr></label>
-          <p>You can add media items by inserting the HTML embed code of the item in the box below. You can learn more about HTML embed code <a href="http://www.htmlcodetutorial.com/embeddedobjects/_EMBED.html" target="_blank">here</a>.</p>
+          <p style="clear:both;display:block;">You can add media items by inserting the HTML embed code of the item in the box below. You can learn more about HTML embed code <a href="http://www.htmlcodetutorial.com/embeddedobjects/_EMBED.html" target="_blank">here</a>.</p>
         </li>
         <%= form.input :content,
             :label => '' %>
@@ -29,10 +24,8 @@
         <% if @media.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
       <% end %>
 
-      <% unless request.xhr? %>
-        <% form.buttons do %>
-          <%= form.commit_button 'Save' %>
-        <% end %>
+      <% form.buttons do %>
+        <%= form.commit_button 'SAVE' %>
       <% end %>
     <% end %>
   </div>

@@ -1,0 +1,43 @@
+<p>
+  <label>Last Updated:</label>
+  <%= @case.updated_at.strftime("%B %d, %Y") %>
+</p>
+
+<% cache "case-#{@case.id}-tags" do -%>
+<p>
+  <label>Tags:</label>
+  <% @case.tags.each do |tag| -%>
+  <%= link_to tag.name, case_tag_path(CGI.escape(tag.name)) %>
+  <% end -%>
+</p>
+<% end -%>
+<% cache "case-#{@case.id}-detail" do -%>
+<p>
+  <label>Decision date:</label>
+  <%= @case.decision_date %>
+</p>
+<% unless @case.author.blank? %>
+<p>
+  <label>Author:</label>
+  <%= @case.author %>
+</p>
+<% end -%>
+<% unless @case.case_citations.blank? %>
+<p>
+  <label>Citations:</label>
+  <%= @case.case_citations.collect{|cc| cc.display_name}.join(', ') %>
+</p> 
+<% end %>
+<% unless @case.case_docket_numbers.blank? %>
+<p>
+  <label>Docket Numbers:</label>
+  <%= @case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %>
+</p> 
+<% end %>
+<% unless @case.case_jurisdiction.blank? %>
+<p>
+  <label>Jurisdiction:</label>
+  <%= @case.case_jurisdiction.display_name %>
+</p> 
+<% end %>
+<% end -%>

@@ -1,26 +1,62 @@
-<%= form.label :login %><br />
-<%= form.text_field :login %><br />
-<br />
-<%= form.label :attribution %><br />
-<%= form.text_field :attribution %><br />
-<br />
-<%= form.label :password, form.object.new_record? ? nil : "Change password" %><br />
-<%= form.password_field :password %><br />
-<br />
-<%= form.label :password_confirmation %><br />
-<%= form.password_field :password_confirmation %><br />
-<br />
-<%= form.label :email_address %><br />
-<%= form.text_field :email_address %><br />
-<br />
-<%= form.label :tz_name, "Timezone" %><br />
-<%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %><br />
-<br />
-<% if form.object.new_record? -%>
-<ul class="user_captcha">
-<%= render :partial => 'shared/forms/captcha' %>
-</ul>
-<%= form.check_box :terms %>
-I certify that I have read and agree to the <a href="/p/terms" target="_blank">Terms of Service</a>.
-<br /><br />
-<% end -%>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td valign="top">
+      <%= form.label :login %>
+      <%= form.text_field :login %><br />
+      <br />
+      <%= form.label :password, form.object.new_record? ? nil : "Change password" %>
+      <%= form.password_field :password %><br />
+      <br />
+      <%= form.label :password_confirmation %>
+      <%= form.password_field :password_confirmation %><br />
+      <br />
+      <%= form.label :email_address %>
+      <%= form.text_field :email_address %><br />
+      <br />
+      <%= form.label :tz_name, "Timezone" %>
+      <%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %>
+      <% if form.object.new_record? -%>
+      <br /><br />
+      <ul class="user_captcha">
+      <%= render :partial => 'shared/forms/captcha' %>
+      </ul>
+      <% end -%>
+    </td>
+    <td valign="top">
+      <%= form.label :attribution %>
+      <%= form.text_field :attribution %><br />
+      <br />
+      <%= form.label :title %>
+      <%= form.text_field :title %>
+      <br /><br />
+      <%= form.label :url %>
+      <%= form.text_field :url %>
+      <br /><br />
+      <%= form.label :affiliation %>
+      <%= form.text_field :affiliation %>
+      <br /><br />
+      <%= form.label :description %>
+      <%= form.text_area :description, :rows => 5 %>
+      <br /><br />
+    </td>
+    <td valign="top">
+      <%= form.check_box :tab_open_new_items %>
+      Open new collages, media, texts, playlists, etc. in a new tab?
+      <br /><br />
+      <%= form.check_box :default_show_annotations %>
+      Show annotations on collages by default?
+      <br /><br />
+      <%= form.label :default_font_size %>
+      <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %><br />
+      <br />
+    </td>
+  </tr>
+  <% if form.object.new_record? -%>
+  <tr>
+    <td colspan="3" align="center" style="padding:10px 0px;">
+      <%= form.check_box :terms %>
+      I certify that I have read and agree to the <a href="/p/terms" target="_blank">Terms of Service</a>.
+    </td>
+  </tr>
+  <% end -%>
+</table>

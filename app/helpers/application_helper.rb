@@ -29,4 +29,15 @@ module ApplicationHelper
       item
     end
   end
+
+  def path_to_object_or_object_version(options = {})
+    obj = options[:obj].original || options[:obj]
+    obj_version = options[:obj_version]
+
+    if obj.version == obj_version.version
+      self.send("#{obj.class.to_s.downcase}_path", obj)
+    else
+      self.send("#{obj.class.to_s.downcase}_version_path", obj, obj_version.version)
+    end
+  end
 end

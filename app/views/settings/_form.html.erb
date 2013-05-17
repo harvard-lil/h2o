@@ -1,9 +1,0 @@
-<%= form.check_box :tab_open_new_items %>
-Open new collages, media, text blocks, playlists, etc. in a new tab?
-<br /><br />
-<%= form.check_box :default_show_annotations %>
-Show annotations on collages by default?
-<br /><br />
-<%= form.label :default_font_size %><br />
-<%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %><br />
-<br />

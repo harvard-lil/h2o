@@ -20,9 +20,6 @@
 	    %>
       <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
       <% if @collage.new_record? -%>
-        <hr />
-        <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
-        <hr />
         <%= form.input :annotatable_type,
           :as => :hidden,
           :required => true,
@@ -32,11 +29,6 @@
           :as => :hidden,
           :required => true
         %>
-      <% end %>
-    <% end %>
-    <% unless request.xhr? %>
-      <% form.buttons do %>
-        <%= form.commit_button 'Save' %>
       <% end %>
     <% end %>
   <% end %>

@@ -2,9 +2,8 @@
 <% if @collage == collage -%>
 <span id="current_marker">Current Collage</span><br />
 <% end -%>
-<span class="date"><%= collage.created_at.to_s(:simpledatetime) %></span> by 
+<%= link_to "#{collage.created_at.to_s(:simpledatetime)} by", collage %>
 <%= raw collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %><br />
-<%= link_to(collage.name, collage) %>
 <% if collage.children.size > 0 -%>
 	<ul class="lineage">
 	<% collage.children.each do |child| -%>

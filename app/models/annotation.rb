@@ -1,14 +1,8 @@
-require 'tagging_extensions'
-require 'ancestry_extensions'
-require 'redcloth_extensions'
-require 'playlistable_extensions'
-
 class Annotation < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
   include AncestryExtensions::InstanceMethods
-  include PlaylistableExtensions
   include AuthUtilities
 
   acts_as_voteable
@@ -45,6 +39,7 @@ class Annotation < ActiveRecord::Base
     "On \"#{self.collage.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
   end
 
+  alias :name :display_name
   alias :to_s :display_name
 
   def annotation_start_numeral

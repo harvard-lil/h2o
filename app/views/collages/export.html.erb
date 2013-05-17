@@ -14,4 +14,5 @@
 <script type="text/javascript">
 var collage_data_<%= @collage.id %> = <%= raw params[:state] || @collage.readable_state || {} %>;
 var annotations_<%= @collage.id %> = <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>;
+var color_map_<%= @collage.id %> = <%= raw @collage.color_map.to_json %>;
 </script>

@@ -1,0 +1,15 @@
+<p>
+  <label>Last Updated:</label>
+  <%= @media.updated_at.strftime("%B %d, %Y") %>
+</p>
+
+<% cache "media-#{@media.id}-tags" do -%>
+<% if @media.tags.any? -%>
+<p>
+  <label>Tags:</label>
+  <% @media.tags.each do |tag| -%>
+  <%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %>
+  <% end -%>
+</p>
+<% end -%>
+<% end -%>

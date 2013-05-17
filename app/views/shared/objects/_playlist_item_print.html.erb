@@ -1,6 +1,6 @@
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.resource_item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
   <h3>
-  <div class="icon-type icon-type-<%= item.resource_item_type.downcase %>"></div>
+  <span class="icon icon-<%= item.resource_item_type == "ItemMedia" ? "media-#{item.resource_item.actual_object.media_type.slug}" : item.clean_type %>"></span>
 	<% if item.resource_item_type != 'ItemDefault' && !item.resource_item.actual_object.nil? -%>
 	<%= link_to item.resource_item.name, item.resource_item.actual_object %>
 	<% else -%>
@@ -13,7 +13,7 @@
 		<b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
 	</div>
   <% end -%>
-	<div class="cl"></div>
+	<div class="clear"></div>
   <% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
   <% if item.resource_item_type == 'ItemCollage' -%>
     <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.resource_item.actual_object } %>

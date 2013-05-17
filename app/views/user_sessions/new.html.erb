@@ -1,7 +1,3 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
-  :url => "/",
-  :right_search => 'shared/search_all' } %>
-
 <div class="standard-form">
   <% form_for @user_session, :url => user_session_path do |f| %>
     <%= f.error_messages %>

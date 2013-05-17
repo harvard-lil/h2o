@@ -1,0 +1,38 @@
+<li class="listitem listitem<%= default.id %>" id="listitem_default<%= default.id %>" data-itemid="<%= default.id %>">
+  <a href="#" class="tooltip list-icon icon icon-default" title="Link"></a>
+	<div class="details">
+    <h4>
+      <%= link_to default.name, default.url, :class => "title", :target => "_blank" %>
+      <% if current_user && (@is_admin[:default] || @my_belongings[:defaults].include?(default)) %>
+        <%= link_to 'DELETE', default, :class => "icon icon-delete tooltip", :title => "Delete" %>
+      <% end %>
+      <% if current_user && (@is_admin[:default] || @my_belongings[:defaults].include?(default)) %>
+        <%= link_to 'EDIT', edit_default_path(default), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
+      <% end %>
+    </h4>
+    <% cache "default-#{default.id}-index" do %>
+    <p>
+      <%= default.created_at.to_s(:simpledatetime) %>
+      <% if default.creators -%>
+      added by
+      <%= raw default.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
+      <% end -%>
+    </p>
+    <% end -%>
+	</div>
+  <div class="right_details">
+  <div class="barcode_outer">
+    <%= render :partial => "shared/barcode", :locals => { :object => default } %>
+  </div>
+	<% if current_user -%>
+	<div class="controls">
+    <a data-item_id="<%= default.id %>" data-bookmarktype="item_default" data-type="default" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
+    <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
+      :class => "link-bookmark bookmark-action", 
+      "data-itemid" => default.id,
+      "data-type" => "default" %>
+	</div>
+	<% end -%>
+  </div>
+	<div class="clear"></div>
+</li>

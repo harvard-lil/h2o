@@ -1,11 +1,6 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'cases-logo',
-  :url => cases_path,
-  :right_search => 'cases/nav_search' } %>
-
-
   <div class="standard-form">
     <div id="case-error" style="display:none;" class="error"></div>
-    <h3 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h3>
+    <h1 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h1>
     <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
       <% form.object.case_docket_numbers.build %>
       <% form.object.case_citations.build %>
@@ -15,28 +10,24 @@
         <%= form.input :decision_date, :as => :string, :input_html => { :class => "datepicker" } %>
         <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
         <% if @case.case_request %>
-        <hr/>
         <%= form.input :case_request, :as => :select, :collection => CaseRequest.all(:order => 'created_at DESC', :conditions => "status ='new'"), :hint => "Leave blank if no case request"%>
         <% end %>
-        <hr />
-        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => (@is_case_admin ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
-        <hr />
+        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => (current_user.is_case_admin ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
         <% if @case.case_request %>
           <% @case.case_docket_numbers = @case.case_docket_numbers.delete(@case.case_docket_numbers.first) %>
         <% end %>
         <% form.semantic_fields_for :case_docket_numbers do |cd| %>
           <%= render :partial => 'shared/forms/case_docket_number', :locals => {:f => cd} %>
         <% end %>
-        <p><%= add_child_link "ADD ADDITIONAL CASE DOCKET NUMBER", :case_docket_numbers %></p>
+        <li id="case_new_case_docket_link"><%= add_child_link "ADD ADDITIONAL CASE DOCKET NUMBER", :case_docket_numbers %></li>
         <%= new_child_fields_template(form, :case_docket_numbers, :partial => 'shared/forms/case_docket_number')%>
-        <hr />
         <% if @case.case_request %>
           <% @case.case_citations = @case.case_citations.delete(@case.case_citations.first) %>
         <% end %>
         <% form.semantic_fields_for :case_citations do |cd| %>
           <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
         <% end %>
-        <hr />
+        <% if @case.new_record? || @case.content_editable? %>
           <div class="mce_switches">
             <a href="#" id="case_content-html" class="html">HTML</a>
             <a href="#" id="case_content-tmce" class="current">Visual</a>
@@ -45,6 +36,7 @@
             :as => :text, 
             :required => true 
           %>
+        <% end -%>
         <%= form.input :tag_list,
           :as => :string,
           :hint => 'Please define the tags for this case in a comma-separated list.',
@@ -57,7 +49,7 @@
       <% end %>
       <% unless request.xhr? %>
         <% form.buttons do %>
-          <%= form.commit_button 'Save' %>
+          <%= form.commit_button 'SAVE' %>
         <% end %>
       <% end %>
     <% end %>

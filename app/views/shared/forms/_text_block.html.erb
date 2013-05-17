@@ -1,7 +1,3 @@
-<%= render :partial => "shared/second_nav", :locals => { :nav_id => 'text_blocks-logo',
-  :url => text_blocks_path,
-  :right_search => 'text_blocks/nav_search' } %>
-
 <% if ['new', 'create'].include?(params[:action]) -%>
 <div id="input_type" style="display:none;">
 <p>Are you uploading law journal content such as an article or note?</p>
@@ -12,9 +8,7 @@
 
 <div class="standard-form" id="text-block-form">
   <div id="text_block-error" style="display:none;" class="error"></div>
-<% unless request.xhr? %>
-  <h3><%= (@text_block.new_record?) ? 'Add New Text Block' : %Q|Edit "#{@text_block}"| %></h3>
-<% end %>
+  <h1><%= (@text_block.new_record?) ? 'Add New Text' : %Q|Edit "#{@text_block}"| %></h1>
 <% semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
   <% form.inputs do %>
     <%= form.input :name %>
@@ -24,7 +18,7 @@
         <a href="#" id="text_block_description-html" class="html">HTML</a>
         <a href="#" id="text_block_description-tmce" class="current">Visual</a>
       </div>
-      <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text block. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('elements/preview.png')} in the toolbar to preview.|) )
+      <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('preview.png')} in the toolbar to preview.|) )
       %>
       <%= form.input :mime_type,
                      :label => 'Content Type',
@@ -33,24 +27,19 @@
                      :selected => 'text/html',
                      :include_blank => false %>
     <% end %>
-    <hr />
     <%= form.input :tag_list,
       :as => :string,
-      :hint => 'Please define the tags for this text block in a comma-separated list.',
+      :hint => 'Please define the tags for this text in a comma-separated list.',
       :label => 'Tags',
       :input_html => {:class => 'tagging-autofill-tags'},
       :required => false
     %>
-    <hr />
-      <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
-    <hr />
+    <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
     <% if @text_block.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
   <% end %>
-  <% unless request.xhr? %>
-    <% form.buttons do %>
-      <%= form.commit_button 'Save' %>
-    <% end %>
+  <% form.buttons do %>
+    <%= form.commit_button 'SAVE' %>
   <% end %>
 <% end %>
 </div>

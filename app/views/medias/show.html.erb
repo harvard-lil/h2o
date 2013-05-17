@@ -1,37 +1,40 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'medias-logo',
-	:url => medias_path,
-	:right_search => 'medias/nav_search' } %>
+<div id="fixed_links">
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
+</div>
+
+<aside id="singleitem_barcode_toolbar">
+  <%= render :partial => "shared/barcode", :locals => { :object => @media } %>
+  <% if current_user -%>
+  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @media.id, "data-type" => "media", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@media.name}", "data-type" => "media", "data-itemid" => @media.id %>
+  <% end -%>
+</aside>
 
 <div id="media" class="singleitem" data-itemid="<%= @media.id %>">
-	<hgroup class="description">
-		<h2><%= @media.display_name %></h2>
-		<aside class="toolbar">
-			<ul>
-				<% if current_user -%>
-        <% if false -%>
-				<li><%= link_to "Collage This", new_collage_path(:annotatable_type => 'Media', :annotatable_id => @media), :class => 'collage-this new-action' %></li>
-        <% end -%>
-				<li><%= link_to "Bookmark This Text Block", '#', :class => 'link-bookmark bookmark-action' %></li>
-				<% end -%>
-			</ul>
-		</aside>
-		<div class="cl"></div>
-	</hgroup>
-	<div class="details">
+  <div id="main_details">
+	  <h1><%= @media.display_name %></h1>
+  </div>
+  <div id="description">
     <p><%= @media.description %></p>
-		<% cache "media-#{@media.id}-tags" do -%>
-		<div class="tags">
-			<% @media.tags.each do |tag| -%>
-			<%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %>
-			<% end -%>
-		</div>
-		<% end -%>
-		<div class="cl"></div>
-		<% if current_user && (@is_media_admin || @my_medias.include?(@media)) %>
-		<%= link_to "EDIT", edit_media_path(@media) %>
-		<% end -%>
-	</div>
+    <% if current_user && (current_user.is_media_admin || current_user.medias.include?(@media)) %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT MEDIA INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external" %>
+    <% end -%>
+  </div>
 	<article>
 		<%= raw @media.content %>
 	</article>
 </div>
+
+<div id="stats" class="right_panel">
+  <a href="#" class="right_panel_close"></a>
+  <h3 class="info">Media Information<span class="icon icon-panel"></span></h3>
+  <div class="stats_panel">
+    <%= render :partial => "meta" %>
+  </div>
+  <h3>Author Stats</h3>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @media.owners.first } %>
+</div>
+
+<div class="clear"></div>
+
+<%= render :partial => "shared/popup", :locals => { :type => "media" } %>

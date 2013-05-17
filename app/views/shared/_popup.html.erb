@@ -1,11 +1,12 @@
 <% if current_user -%>
 <div class="popup add-popup" data-type="<%= type %>">
-	<h4>ADD TO</h4>
+	<h4>Add item to...</h4>
+  <a href="#" class="close-popup"></a>
+  <div class="select-wrapper">
 	<%= collection_select(:playlist, :id, current_user.playlists, :id, :name) %>
-	<ul>
-		<li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist-and-item" %></li>
-		<li><a href="#" class="bookmark-popup bookmark-this bookmark-action">ADD BOOKMARK</a></li>
-	</ul>
-	<a href="#" class="btn new-playlist-item">ADD FILE</a>
+  </div>
+  <div class="btn-wrapper">
+	<a href="#" class="btn new-playlist-item">SAVE</a>
+  </div>
 </div>
 <% end -%>

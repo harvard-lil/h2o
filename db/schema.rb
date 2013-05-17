@@ -9,7 +9,27 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130118154403) do
+ActiveRecord::Schema.define(:version => 20130510002119) do
+
+  create_table "annotation_versions", :force => true do |t|
+    t.integer  "annotation_id"
+    t.integer  "version"
+    t.integer  "collage_id"
+    t.string   "annotation",            :limit => 10240
+    t.string   "annotation_start"
+    t.string   "annotation_end"
+    t.integer  "word_count"
+    t.string   "annotated_content",     :limit => 1048576
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "ancestry"
+    t.boolean  "public",                                   :default => true
+    t.boolean  "active",                                   :default => true
+    t.integer  "annotation_word_count"
+    t.integer  "collage_version"
+  end
+
+  add_index "annotation_versions", ["annotation_id"], :name => "index_annotation_versions_on_annotation_id"
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -24,6 +44,9 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.boolean  "public",                                   :default => true
     t.boolean  "active",                                   :default => true
     t.integer  "annotation_word_count"
+    t.integer  "collage_version"
+    t.integer  "version"
+    t.integer  "pushed_from_id"
   end
 
   add_index "annotations", ["active"], :name => "index_annotations_on_active"
@@ -37,13 +60,29 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string "answer"
   end
 
-  create_table "case_citations", :force => true do |t|
+  create_table "case_citation_versions", :force => true do |t|
+    t.integer  "case_citation_id"
+    t.integer  "version"
     t.integer  "case_id"
-    t.string   "volume",     :limit => 200, :null => false
-    t.string   "reporter",   :limit => 200, :null => false
-    t.string   "page",       :limit => 200, :null => false
+    t.string   "volume",           :limit => 200
+    t.string   "reporter",         :limit => 200
+    t.string   "page",             :limit => 200
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "case_version"
+  end
+
+  add_index "case_citation_versions", ["case_citation_id"], :name => "index_case_citation_versions_on_case_citation_id"
+
+  create_table "case_citations", :force => true do |t|
+    t.integer  "case_id"
+    t.string   "volume",       :limit => 200, :null => false
+    t.string   "reporter",     :limit => 200, :null => false
+    t.string   "page",         :limit => 200, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "case_version"
+    t.integer  "version"
   end
 
   add_index "case_citations", ["case_id"], :name => "index_case_citations_on_case_id"
@@ -51,15 +90,41 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "case_citations", ["reporter"], :name => "index_case_citations_on_reporter"
   add_index "case_citations", ["volume"], :name => "index_case_citations_on_volume"
 
+  create_table "case_docket_number_versions", :force => true do |t|
+    t.integer  "case_docket_number_id"
+    t.integer  "version"
+    t.integer  "case_id"
+    t.string   "docket_number",         :limit => 200
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "case_version"
+  end
+
+  add_index "case_docket_number_versions", ["case_docket_number_id"], :name => "index_case_docket_number_versions_on_case_docket_number_id"
+
   create_table "case_docket_numbers", :force => true do |t|
     t.integer  "case_id"
     t.string   "docket_number", :limit => 200, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "case_version"
+    t.integer  "version"
   end
 
   add_index "case_docket_numbers", ["case_id"], :name => "index_case_docket_numbers_on_case_id"
   add_index "case_docket_numbers", ["docket_number"], :name => "index_case_docket_numbers_on_docket_number"
+
+  create_table "case_jurisdiction_versions", :force => true do |t|
+    t.integer  "case_jurisdiction_id"
+    t.integer  "version"
+    t.string   "abbreviation",         :limit => 150
+    t.string   "name",                 :limit => 500
+    t.text     "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "case_jurisdiction_versions", ["case_jurisdiction_id"], :name => "index_case_jurisdiction_versions_on_case_jurisdiction_id"
 
   create_table "case_jurisdictions", :force => true do |t|
     t.string   "abbreviation", :limit => 150
@@ -67,42 +132,95 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "version"
   end
 
   add_index "case_jurisdictions", ["abbreviation"], :name => "index_case_jurisdictions_on_abbreviation"
   add_index "case_jurisdictions", ["name"], :name => "index_case_jurisdictions_on_name"
 
-  create_table "case_requests", :force => true do |t|
-    t.string   "full_name",            :limit => 500,                    :null => false
-    t.date     "decision_date",                                          :null => false
-    t.string   "author",               :limit => 150,                    :null => false
+  create_table "case_request_versions", :force => true do |t|
+    t.integer  "case_request_id"
+    t.integer  "version"
+    t.string   "full_name",                 :limit => 500
+    t.date     "decision_date"
+    t.string   "author",                    :limit => 150
     t.integer  "case_jurisdiction_id"
-    t.string   "docket_number",        :limit => 150,                    :null => false
-    t.string   "volume",               :limit => 150,                    :null => false
-    t.string   "reporter",             :limit => 150,                    :null => false
-    t.string   "page",                 :limit => 150,                    :null => false
-    t.string   "bluebook_citation",    :limit => 150,                    :null => false
-    t.string   "status",               :limit => 150, :default => "new", :null => false
+    t.string   "docket_number",             :limit => 150
+    t.string   "volume",                    :limit => 150
+    t.string   "reporter",                  :limit => 150
+    t.string   "page",                      :limit => 150
+    t.string   "bluebook_citation",         :limit => 150
+    t.string   "status",                    :limit => 150, :default => "new"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "case_jurisdiction_version"
   end
 
-  create_table "cases", :force => true do |t|
-    t.boolean  "current_opinion",                         :default => true
-    t.string   "short_name",           :limit => 150,                        :null => false
-    t.string   "full_name",            :limit => 500
-    t.date     "decision_date"
-    t.string   "author",               :limit => 150
+  add_index "case_request_versions", ["case_request_id"], :name => "index_case_request_versions_on_case_request_id"
+
+  create_table "case_requests", :force => true do |t|
+    t.string   "full_name",                 :limit => 500,                    :null => false
+    t.date     "decision_date",                                               :null => false
+    t.string   "author",                    :limit => 150,                    :null => false
     t.integer  "case_jurisdiction_id"
-    t.string   "party_header",         :limit => 10240
-    t.string   "lawyer_header",        :limit => 2048
-    t.string   "header_html",          :limit => 15360
-    t.string   "content",              :limit => 5242880,                    :null => false
+    t.string   "docket_number",             :limit => 150,                    :null => false
+    t.string   "volume",                    :limit => 150,                    :null => false
+    t.string   "reporter",                  :limit => 150,                    :null => false
+    t.string   "page",                      :limit => 150,                    :null => false
+    t.string   "bluebook_citation",         :limit => 150,                    :null => false
+    t.string   "status",                    :limit => 150, :default => "new", :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                                  :default => true
-    t.boolean  "active",                                  :default => false
+    t.integer  "case_jurisdiction_version"
+    t.integer  "version"
+  end
+
+  create_table "case_versions", :force => true do |t|
+    t.integer  "case_id"
+    t.integer  "version"
+    t.boolean  "current_opinion",                              :default => true
+    t.string   "short_name",                :limit => 150
+    t.string   "full_name",                 :limit => 500
+    t.date     "decision_date"
+    t.string   "author",                    :limit => 150
+    t.integer  "case_jurisdiction_id"
+    t.string   "party_header",              :limit => 10240
+    t.string   "lawyer_header",             :limit => 2048
+    t.string   "header_html",               :limit => 15360
+    t.string   "content",                   :limit => 5242880
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "public",                                       :default => true
+    t.boolean  "active",                                       :default => false
     t.integer  "case_request_id"
+    t.integer  "karma"
+    t.integer  "case_jurisdiction_version"
+    t.integer  "case_request_version"
+  end
+
+  add_index "case_versions", ["case_id"], :name => "index_case_versions_on_case_id"
+
+  create_table "cases", :force => true do |t|
+    t.boolean  "current_opinion",                              :default => true
+    t.string   "short_name",                :limit => 150,                        :null => false
+    t.string   "full_name",                 :limit => 500
+    t.date     "decision_date"
+    t.string   "author",                    :limit => 150
+    t.integer  "case_jurisdiction_id"
+    t.string   "party_header",              :limit => 10240
+    t.string   "lawyer_header",             :limit => 2048
+    t.string   "header_html",               :limit => 15360
+    t.string   "content",                   :limit => 5242880,                    :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "public",                                       :default => true
+    t.boolean  "active",                                       :default => false
+    t.integer  "case_request_id"
+    t.integer  "case_jurisdiction_version"
+    t.integer  "case_request_version"
+    t.integer  "version"
+    t.integer  "karma"
+    t.integer  "pushed_from_id"
   end
 
   add_index "cases", ["active"], :name => "index_cases_on_active"
@@ -116,30 +234,76 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "cases", ["short_name"], :name => "index_cases_on_short_name"
   add_index "cases", ["updated_at"], :name => "index_cases_on_updated_at"
 
-  create_table "collage_links", :force => true do |t|
-    t.integer  "host_collage_id",   :null => false
-    t.integer  "linked_collage_id", :null => false
-    t.string   "link_text_start",   :null => false
-    t.string   "link_text_end",     :null => false
+  create_table "collage_link_versions", :force => true do |t|
+    t.integer  "collage_link_id"
+    t.integer  "version"
+    t.integer  "host_collage_id"
+    t.integer  "linked_collage_id"
+    t.string   "link_text_start"
+    t.string   "link_text_end"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "host_collage_version"
+    t.integer  "linked_collage_version"
+    t.integer  "pushed_from_id"
   end
+
+  add_index "collage_link_versions", ["collage_link_id"], :name => "index_collage_link_versions_on_collage_link_id"
+
+  create_table "collage_links", :force => true do |t|
+    t.integer  "host_collage_id",        :null => false
+    t.integer  "linked_collage_id",      :null => false
+    t.string   "link_text_start",        :null => false
+    t.string   "link_text_end",          :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "host_collage_version"
+    t.integer  "linked_collage_version"
+    t.integer  "version"
+  end
+
+  create_table "collage_versions", :force => true do |t|
+    t.integer  "collage_id"
+    t.integer  "version"
+    t.string   "annotatable_type"
+    t.integer  "annotatable_id"
+    t.string   "name",                :limit => 250
+    t.string   "description",         :limit => 5120
+    t.string   "content",             :limit => 5242880
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "word_count"
+    t.string   "indexable_content",   :limit => 5242880
+    t.string   "ancestry"
+    t.boolean  "public",                                 :default => true
+    t.boolean  "active",                                 :default => true
+    t.string   "readable_state",      :limit => 5242880
+    t.integer  "words_shown"
+    t.integer  "karma"
+    t.integer  "annotatable_version"
+  end
+
+  add_index "collage_versions", ["collage_id"], :name => "index_collage_versions_on_collage_id"
 
   create_table "collages", :force => true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name",              :limit => 250,                       :null => false
-    t.string   "description",       :limit => 5120
-    t.string   "content",           :limit => 5242880,                   :null => false
+    t.string   "name",                :limit => 250,                       :null => false
+    t.string   "description",         :limit => 5120
+    t.string   "content",             :limit => 5242880,                   :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "word_count"
-    t.string   "indexable_content", :limit => 5242880
+    t.string   "indexable_content",   :limit => 5242880
     t.string   "ancestry"
-    t.boolean  "public",                               :default => true
-    t.boolean  "active",                               :default => true
-    t.string   "readable_state",    :limit => 5242880
+    t.boolean  "public",                                 :default => true
+    t.boolean  "active",                                 :default => true
+    t.string   "readable_state",      :limit => 5242880
     t.integer  "words_shown"
+    t.integer  "annotatable_version"
+    t.integer  "version"
+    t.integer  "karma"
+    t.integer  "pushed_from_id"
   end
 
   add_index "collages", ["active"], :name => "index_collages_on_active"
@@ -155,12 +319,48 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   create_table "collages_user_collections", :id => false, :force => true do |t|
     t.integer "collage_id"
     t.integer "user_collection_id"
+    t.integer "collage_version"
   end
+
+  create_table "collages_user_collections_versions", :id => false, :force => true do |t|
+    t.integer "collage_id"
+    t.integer "user_collection_id"
+    t.integer "collage_version"
+  end
+
+  create_table "color_mapping_versions", :force => true do |t|
+    t.integer  "color_mapping_id"
+    t.integer  "version"
+    t.integer  "collage_id"
+    t.integer  "tag_id"
+    t.string   "hex"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "colllage_version"
+    t.integer  "tag_version"
+  end
+
+  add_index "color_mapping_versions", ["color_mapping_id"], :name => "index_color_mapping_versions_on_color_mapping_id"
 
   create_table "color_mappings", :force => true do |t|
     t.integer  "collage_id"
     t.integer  "tag_id"
     t.string   "hex"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "colllage_version"
+    t.integer  "tag_version"
+    t.integer  "version"
+  end
+
+  create_table "defaults", :force => true do |t|
+    t.string   "name",        :limit => 1024
+    t.string   "title"
+    t.string   "url"
+    t.string   "description", :limit => 5242880
+    t.boolean  "active",                         :default => true
+    t.boolean  "public",                         :default => true
+    t.integer  "karma"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -173,6 +373,21 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "influences", :force => true do |t|
     t.integer  "resource_id"
@@ -205,6 +420,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_annotations", ["active"], :name => "index_item_annotations_on_active"
@@ -224,6 +440,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_cases", ["active"], :name => "index_item_cases_on_active"
@@ -243,6 +460,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_collages", ["active"], :name => "index_item_collages_on_active"
@@ -253,13 +471,16 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
 
   create_table "item_defaults", :force => true do |t|
     t.string   "title"
-    t.string   "name",        :limit => 1024
-    t.string   "url",         :limit => 1024
+    t.string   "name",               :limit => 1024
+    t.string   "url",                :limit => 1024
     t.text     "description"
-    t.boolean  "active",                      :default => true
+    t.boolean  "active",                             :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                      :default => true
+    t.boolean  "public",                             :default => true
+    t.integer  "pushed_from_id"
+    t.string   "actual_object_type"
+    t.integer  "actual_object_id"
   end
 
   add_index "item_defaults", ["active"], :name => "index_item_defaults_on_active"
@@ -294,6 +515,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.boolean  "public",                             :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_medias", ["active"], :name => "index_item_medias_on_active"
@@ -311,6 +533,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_playlists", ["active"], :name => "index_item_playlists_on_active"
@@ -330,6 +553,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_question_instances", ["active"], :name => "index_item_question_instances_on_active"
@@ -349,6 +573,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_questions", ["active"], :name => "index_item_questions_on_active"
@@ -368,6 +593,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_rotisserie_discussions", ["active"], :name => "index_item_rotisserie_discussions_on_active"
@@ -387,6 +613,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.integer  "actual_object_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "pushed_from_id"
   end
 
   add_index "item_text_blocks", ["active"], :name => "index_item_text_blocks_on_active"
@@ -473,11 +700,13 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string   "name"
     t.text     "content"
     t.integer  "media_type_id"
-    t.boolean  "public",                           :default => true
-    t.boolean  "active",                           :default => true
+    t.boolean  "public",                            :default => true
+    t.boolean  "active",                            :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "description",   :limit => 5242880
+    t.string   "description",    :limit => 5242880
+    t.integer  "karma"
+    t.integer  "pushed_from_id"
   end
 
   create_table "metadata", :force => true do |t|
@@ -485,25 +714,54 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string   "coverage"
     t.string   "creator"
     t.date     "date"
-    t.string   "description",       :limit => 5242880
+    t.string   "description",          :limit => 5242880
     t.string   "format"
     t.string   "identifier"
-    t.string   "language",                             :default => "en"
+    t.string   "language",                                :default => "en"
     t.string   "publisher"
     t.string   "relation"
     t.string   "rights"
     t.string   "source"
     t.string   "subject"
     t.string   "title"
-    t.string   "dc_type",                              :default => "Text"
+    t.string   "dc_type",                                 :default => "Text"
     t.string   "classifiable_type"
     t.integer  "classifiable_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "classifiable_version"
+    t.integer  "version"
   end
 
   add_index "metadata", ["classifiable_id"], :name => "index_metadata_on_classifiable_id"
   add_index "metadata", ["classifiable_type"], :name => "index_metadata_on_classifiable_type"
+
+  create_table "metadatum_versions", :force => true do |t|
+    t.integer  "metadatum_id"
+    t.integer  "version"
+    t.string   "contributor"
+    t.string   "coverage"
+    t.string   "creator"
+    t.date     "date"
+    t.string   "description",          :limit => 5242880
+    t.string   "format"
+    t.string   "identifier"
+    t.string   "language",                                :default => "en"
+    t.string   "publisher"
+    t.string   "relation"
+    t.string   "rights"
+    t.string   "source"
+    t.string   "subject"
+    t.string   "title"
+    t.string   "dc_type",                                 :default => "Text"
+    t.string   "classifiable_type"
+    t.integer  "classifiable_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "classifiable_version"
+  end
+
+  add_index "metadatum_versions", ["metadatum_id"], :name => "index_metadatum_versions_on_metadatum_id"
 
   create_table "notification_invites", :force => true do |t|
     t.integer  "user_id"
@@ -550,6 +808,14 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string   "permission_type"
   end
 
+  create_table "playlist_clone_queues", :force => true do |t|
+    t.integer  "playlist_id"
+    t.integer  "user_id"
+    t.boolean  "running",     :default => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "playlist_items", :force => true do |t|
     t.integer  "playlist_id"
     t.integer  "resource_item_id"
@@ -563,6 +829,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.boolean  "public",                  :default => true
     t.text     "notes"
     t.boolean  "public_notes",            :default => true, :null => false
+    t.integer  "pushed_from_id"
   end
 
   add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
@@ -574,16 +841,18 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 
   create_table "playlists", :force => true do |t|
-    t.string   "title",                                           :null => false
-    t.string   "name",          :limit => 1024
+    t.string   "title",                                            :null => false
+    t.string   "name",           :limit => 1024
     t.text     "description"
-    t.boolean  "active",                        :default => true
+    t.boolean  "active",                         :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                        :default => true
+    t.boolean  "public",                         :default => true
     t.string   "ancestry"
     t.integer  "position"
-    t.integer  "counter_start",                 :default => 1,    :null => false
+    t.integer  "counter_start",                  :default => 1,    :null => false
+    t.integer  "karma"
+    t.integer  "pushed_from_id"
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
@@ -612,6 +881,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.boolean  "public",                                  :default => true
     t.boolean  "active",                                  :default => true
+    t.integer  "pushed_from_id"
   end
 
   add_index "question_instances", ["active"], :name => "index_question_instances_on_active"
@@ -642,6 +912,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "updated_at"
     t.boolean  "public",                                :default => true
     t.boolean  "active",                                :default => true
+    t.integer  "pushed_from_id"
   end
 
   add_index "questions", ["active"], :name => "index_questions_on_active"
@@ -704,6 +975,7 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "public",                                :default => true
+    t.integer  "pushed_from_id"
   end
 
   add_index "rotisserie_discussions", ["active"], :name => "index_rotisserie_discussions_on_active"
@@ -761,6 +1033,14 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "rotisserie_trackers", ["rotisserie_post_id"], :name => "index_rotisserie_trackers_on_rotisserie_post_id"
   add_index "rotisserie_trackers", ["user_id"], :name => "index_rotisserie_trackers_on_user_id"
 
+  create_table "session_assignments", :force => true do |t|
+    t.integer  "playlist_id"
+    t.integer  "session_number"
+    t.integer  "playlist_item_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false
     t.text     "data"
@@ -796,13 +1076,15 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "tags", ["name"], :name => "index_tags_on_name"
 
   create_table "text_blocks", :force => true do |t|
-    t.string   "name",                                                     :null => false
-    t.string   "description", :limit => 5242880,                           :null => false
-    t.string   "mime_type",   :limit => 50,      :default => "text/plain"
-    t.boolean  "active",                         :default => true
-    t.boolean  "public",                         :default => true
+    t.string   "name",                                                        :null => false
+    t.string   "description",    :limit => 5242880,                           :null => false
+    t.string   "mime_type",      :limit => 50,      :default => "text/plain"
+    t.boolean  "active",                            :default => true
+    t.boolean  "public",                            :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "karma"
+    t.integer  "pushed_from_id"
   end
 
   add_index "text_blocks", ["created_at"], :name => "index_text_blocks_on_created_at"
@@ -829,8 +1111,8 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                       :null => false
-    t.integer  "login_count",              :default => 0, :null => false
+    t.string   "persistence_token",                          :null => false
+    t.integer  "login_count",              :default => 0,    :null => false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -846,7 +1128,11 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
     t.string   "perishable_token"
     t.boolean  "default_show_annotations"
     t.boolean  "tab_open_new_items"
-    t.string   "default_font_size"
+    t.string   "default_font_size",        :default => "16"
+    t.string   "title"
+    t.string   "affiliation"
+    t.string   "url"
+    t.text     "description"
   end
 
   add_index "users", ["email_address"], :name => "index_users_on_email_address"
@@ -856,14 +1142,33 @@ ActiveRecord::Schema.define(:version => 20130118154403) do
   add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
   add_index "users", ["tz_name"], :name => "index_users_on_tz_name"
 
-  create_table "votes", :force => true do |t|
-    t.boolean  "vote",          :default => false
+  create_table "vote_versions", :force => true do |t|
+    t.integer  "vote_id"
+    t.integer  "version"
+    t.boolean  "vote",             :default => false
     t.integer  "voteable_id"
     t.string   "voteable_type"
     t.integer  "voter_id"
     t.string   "voter_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "voteable_version"
+    t.integer  "voter_version"
+  end
+
+  add_index "vote_versions", ["vote_id"], :name => "index_vote_versions_on_vote_id"
+
+  create_table "votes", :force => true do |t|
+    t.boolean  "vote",             :default => false
+    t.integer  "voteable_id"
+    t.string   "voteable_type"
+    t.integer  "voter_id"
+    t.string   "voter_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "voteable_version"
+    t.integer  "voter_version"
+    t.integer  "version"
   end
 
   add_index "votes", ["voteable_id", "voteable_type"], :name => "fk_voteables"

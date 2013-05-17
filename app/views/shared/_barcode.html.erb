@@ -1,0 +1,12 @@
+<% if object.karma? -%>
+<div class="barcode" data-karma="<%= object.karma || 0 %>" data-ticks="<%= object.barcode.size || 0 %>">
+  <span class="left_overflow overflow inactive"></span>
+  <span class="right_overflow overflow"></span>
+  <div class="barcode_wrapper">
+    <% object.barcode.each do |item| %>
+    <a href="<%= item[:link] || '#' %>" target="_blank" class="<%= item[:type] %>" title="<%= raw item[:title] %>"></a>
+    <% end -%>
+    <div class="clear"></div>
+  </div>
+</div>
+<% end -%>

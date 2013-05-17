@@ -53,81 +53,95 @@ class UsersController < ApplicationController
   end
 
   def show
-    params[:sort] ||= 'display_name'
-    params[:order] ||= 'asc'
-
+    set_sort_params
     set_sort_lists
+    params[:page] ||= 1
 
-    if params["controller"] == "users" && params["action"] == "show"
-      @sort_lists.each do |k, v|
-        v.delete("score")
-      end
+    @user = params[:id] == 'create_anon' ? @current_user : User.find_by_id(params[:id])
+    author_filter = @user.login.downcase
+
+    [Playlist, Collage, Case, Media, TextBlock, Default].each do |model|
+      set_belongings model
     end
 
-    if params[:id] == 'create_anon'
-      @user = @current_user
-    else
-      @user = User.find_by_id(params[:id])
-    end
+    if request.xhr?
+      if params.has_key?("ajax_region")
+	      p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
+	      if(params[:order] == 'desc') 
+	        p = p.reverse
+	      end
+	      @collection = p.paginate(:page => params[:page], :per_page => 10)
+        @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize
 
-    #This is added for an optimization, to avoid lookup roles / authors of each item
-    params[:sort] = 'name' if params[:sort] == 'display_name'
-
-    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
-
-    if current_user && @user == current_user
-      @page_title = "Dashboard | H2O Classroom Tools"
-      if @user.is_case_admin
-        @types += [:case_requests, :pending_cases]
-      else
-        @types << :pending_cases
-      end
-      if @user.is_admin
-        @types += [:content_errors]
-      end
-    else
-      @page_title = "User #{@user.display} | H2O Classroom Tools"
-    end
-
-    @results = {}
-
-    @types.each do |type|
-      if (request.xhr? && params[:ajax_region] == type.to_s) || !request.xhr?
-        p = @user.send(type).sort_by { |p| p.send(params[:sort]).to_s.downcase }
-        if(params[:order] == 'desc') 
-          p = p.reverse
-        end
-        @results[type] = p.paginate(:page => params[:page], :per_page => 10)
-
-        @collection = @results[type] if request.xhr?
-      end
-    end
-
-    @types.each do |type|
-      instance_variable_set "@is_#{type.to_s.singularize}_admin", false
-    end
-    if current_user && current_user == @user
-      add_javascripts 'user_dashboard'
-      add_stylesheets 'user_dashboard'
-      @types.each do |type|
-        instance_variable_set "@my_#{type.to_s}", @results[type]
-      end
-    else
-      @types.each do |type|
-        instance_variable_set "@my_#{type.to_s}", []
-      end
-    end
-    add_javascripts 'users'
-
-    respond_to do |format|
-      format.html do
-        if request.xhr?
-          @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize
-          render :partial => 'shared/generic_block'
+        if params[:ajax_region] == "bookmarks"
+          render :partial => 'shared/bookmarks_block'
         else
-          render 'show'
+          render :partial => 'shared/generic_block'
+        end
+      else
+        @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock)
+        @results.build do
+          paginate :page => params[:page], :per_page => 10 
+          with :author, author_filter
+          with :public, true
+          with :active, true
+
+          order_by params[:sort].to_sym, params[:order].to_sym
+        end
+        @results.execute!
+        render :partial => 'base/search_ajax'
+      end
+    else
+      @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock)
+      @bookshelf.build do
+        paginate :page => params[:page], :per_page => 10 
+        with :author, author_filter
+        with :public, true
+        with :active, true
+
+        order_by params[:sort].to_sym, params[:order].to_sym
+      end
+      @bookshelf.execute!
+
+      set_sort_lists
+      if params["controller"] == "users" && params["action"] == "show"
+        @sort_lists.each do |k, v|
+          v.delete("score")
         end
       end
+
+	    @types = []
+	    if current_user && @user == current_user
+	      @page_title = "Dashboard | H2O Classroom Tools"
+
+	      @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
+
+	      if @user.is_case_admin
+	        @types += [:case_requests, :pending_cases]
+	        @my_belongings[:case_requests] = current_user.case_requests
+	      else
+	        @types << :pending_cases
+	      end
+	      if @user.is_admin
+	        @types += [:content_errors]
+	      end
+	    else
+	      @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
+	    end
+
+	    add_javascripts 'user_dashboard'
+	    add_stylesheets 'user_dashboard'
+
+	    @results = {}
+	    @types.each do |type|
+	      p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+
+	      if(params[:order] == 'desc') 
+	        p = p.reverse
+	      end
+	      @results[type] = p.paginate(:page => params[:page], :per_page => 10)
+	    end
+      render 'show'
     end
   end
 
@@ -170,24 +184,32 @@ class UsersController < ApplicationController
     begin
       raise "not logged in" if !current_user
 
-      base_model_klass = params[:type] == 'default' ? ItemDefault : params[:type].classify.constantize
+      klass = nil
+      if params[:type] == 'media'
+        klass = Media
+      else
+        klass = params[:type].classify.constantize
+      end
 
-      actual_object = base_model_klass.find(params[:id])
+      actual_object = klass.find(params[:id])
 
       if playlist.contains_item?(actual_object)
         render :json => { :already_bookmarked => true, :user_id => current_user.id }
       else
-        klass = "item_#{params[:type]}".classify.constantize
-        item = klass.new(:name => actual_object.bookmark_name,
-          :url => params[:type] == 'default' ? actual_object.url : url_for(actual_object))
-        item.actual_object = actual_object if params[:type] != 'default'
+        item_klass = "Item#{klass.to_s}".constantize
+
+        item = item_klass.new(:name => actual_object.respond_to?(:name) ? actual_object.name : actual_object.bookmark_name,
+          :url => url_for(actual_object))
+        item.actual_object = actual_object
         item.save
-        
+
         playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
-          :resource_item_type => "item_#{params[:type]}".classify,
+          :resource_item_type => item_klass.to_s,
           :resource_item_id => item.id)
         playlist_item.accepts_role!(:owner, current_user)
         playlist_item.save
+
+        Rails.logger.warn "stephie: #{playlist_item.inspect}"
 
         render :json => { :already_bookmarked => false, :user_id => current_user.id }
       end

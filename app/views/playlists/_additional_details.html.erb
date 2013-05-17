@@ -1,0 +1,20 @@
+<div class="additional_details">
+  <p>
+    <%= playlist.created_at.to_s(:simpledatetime) %> by
+    <%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %>
+    <% cache "playlist-#{playlist.id}-tags" do -%>
+    <% if playlist.tag_list.any? -%>
+    | <%= raw playlist.tag_list.collect { |tag| link_to(tag, playlist_tag_path(CGI.escape(tag))) }.join(', ') %>
+    <% end -%>
+    <% end -%>
+  </p>
+  <span class="requires_logged_in">
+  <%= link_to "", prepare_copy_playlist_path(playlist), :class => "tooltip link-remix remix-action", :title => "Remix #{playlist.name}" %>
+  <%= link_to "", '#', "data-item_id" => playlist.id, "data-type" => "playlist", :class => 'link-add tooltip', :title => "Add to a Playlist" %>
+  <%= link_to "", '#', :class => "tooltip link-bookmark bookmark-action", :title => "Bookmark #{playlist.name}" %>
+  </span>
+  <%= render :partial => "shared/barcode", :locals => { :object => playlist } %>
+  <div class="actual_description">
+  <%= Playlist.format_content(playlist.description) %>
+  </div>
+</div>

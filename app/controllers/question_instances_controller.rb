@@ -6,7 +6,7 @@ class QuestionInstancesController < BaseController
 
   before_filter :require_user, :except => [:index, :last_updated_questions, :updated, :show, :metadata, :embedded_pager]
   before_filter :prep_resources, :except => [:index, :metadata, :embedded_pager]
-  before_filter :load_question_instance, :only => [:destroy, :edit, :update, :metadata]
+  before_filter :load_single_resource, :only => [:destroy, :edit, :update, :metadata]
 
   after_filter :update_question_instance_time
 
@@ -38,11 +38,6 @@ class QuestionInstancesController < BaseController
   # GET /question_instances
   # GET /question_instances.xml
   def index
-    add_stylesheets 'question_instances'
-    add_stylesheets "tablesorter-blue-theme/style"
-    add_javascripts 'question_instances_index'
-    add_javascripts "jquery.tablesorter.min"
-
     @question_instances = QuestionInstance.find(:all, :include => [:questions], :order => :id)
   end
 
@@ -79,19 +74,16 @@ class QuestionInstancesController < BaseController
   # GET /question_instances/new
   # GET /question_instances/new.xml
   def new
-    add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.new
   end
 
   # GET /question_instances/1/edit
   def edit
-    add_stylesheets ["formtastic","forms"]
   end
 
   # POST /question_instances
   # POST /question_instances.xml
   def create
-    add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.new(params[:question_instance])
     respond_to do |format|
       if @question_instance.save
@@ -122,7 +114,6 @@ class QuestionInstancesController < BaseController
   # PUT /question_instances/1
   # PUT /question_instances/1.xml
   def update
-    add_stylesheets ["formtastic","forms"]
     @question_instance = QuestionInstance.find(params[:id])
 
     respond_to do |format|
@@ -147,14 +138,8 @@ class QuestionInstancesController < BaseController
 
   private
 
-  def load_question_instance
-    @question_instance = QuestionInstance.find(params[:id] || params[:question_instance_id])
-  end
-
   def prep_resources
     @logo_title = 'Question Tool'
-    add_stylesheets 'question_instances'
-    add_javascripts 'question_instances'
   end
 
 end

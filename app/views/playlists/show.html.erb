@@ -1,93 +1,83 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'playlists-logo',
-  :url => playlists_path,
-  :right_search => 'playlists/nav_search' } %>
+<div id="fixed_links">
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
+<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Toggle Edit Mode">Edit/View</a>
+<a href="<%= export_playlist_path(@playlist) %>" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @playlist.name %>">Print</a>
+<a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
+</div>
+
+<aside id="singleitem_barcode_toolbar">
+  <%= render :partial => "shared/barcode", :locals => { :object => @playlist } %>
+  <%= link_to raw('<span class="icon icon-remix-large"></span>'), prepare_copy_playlist_path(@playlist), :class => "tooltip link-remix remix-action requires_logged_in", :title => "Remix #{@playlist.name}" %>
+  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @playlist.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@playlist.name}", "data-type" => "playlist", "data-itemid" => @playlist.id %>
+</aside>
 
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
-	<hgroup class="description">
-		<h2><%= @playlist.name %></h2>
-		<aside class="toolbar">
-			<ul>
-        <li class="requires_logged_in"><%= link_to "Remix Playlist", copy_playlist_path(@playlist), :class => "tooltip link-remix remix-action", :title => "Remix #{@playlist.name}" %></li>
-        <li class="requires_logged_in"><%= link_to "Bookmark This Playlist", '#', :class => "tooltip link-bookmark bookmark-action", :title => "Bookmark #{@playlist.name}" %></li>
-				<li id="print-container">
-        <a href="<%= export_playlist_path(@playlist) %>" class="tooltip link-print" target="_blank" title="Print <%= @playlist.name %>">
-            <span>Print</span>
-          </a>
-        </li>
-			</ul>
-		</aside>
-		<aside class="buttons">
-			<ul>
-        <li class="btn-li afterload">
-          <a href="#" class="btn-a tooltip" id="fonts" title="Change the size of the text">
-            <span>Aa</span>
-          </a>
-					<div class="popup font-size-popup">
-            <select id="font-size">
-              <option value="10">small</option>
-              <option value="13">medium</option>
-              <option value="16">large</option>
-              <option value="19">extra-large</option>
-            </select>
-          </div>
-        </li>
-    	  <li class="btn-li requires_edit">
-					<%= link_to 'ADD ITEM +', new_playlist_item_path, :class => 'btn-a new-playlist-item-control' %>
-				</li>
-			</ul>
-		</aside>
-		<div class="cl"></div>
-	</hgroup>
-	<div class="details">
-		<% cache "playlist-#{@playlist.id}-tags" do -%>
-		<div class="tags">
-			<% @playlist.tags.each do |tag| -%>
-			<%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %>
-			<% end -%>
-		</div>
-		<% end -%>
-    <%= render :partial => 'playlist_meta' %>
-		<div class="cl"></div>
-		<% if !@playlist.description.nil? -%>
-		<% if @playlist.description.length > 500 -%>
-			<div id="description_less">
-				<%= Playlist.format_content(@playlist.description[0..500]) %>... <a href="#" class="link-more">MORE</a>
-			</div>
-			<div id="description_more">
-				<%= Playlist.format_content(@playlist.description) %> <a href="#" class="link-less">LESS</a>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
-        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
-        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
-			</div>
-		<% else -%>
-			<div id="description">
-				<%= Playlist.format_content(@playlist.description) %>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
-        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
-        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
-			</div>
-		<% end -%>
-		<% else -%>
-			<p>
-				<%= link_to "EDIT", edit_playlist_path(@playlist), :class => "edit-action requires_edit" %>
-        <a href="#" class="public-notes requires_edit" data-type="public">MAKE NOTES PUBLIC</a>
-        <a href="#" class="private-notes requires_edit" data-type="private">MAKE NOTES PRIVATE</a>
-			</p>
-		<% end -%>
-	</div>
-	<%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
+  <div id="main_details">
+	  <h1 class="scale1-5"><span><%= raw @playlist.name %></span></h1>
+	  <h3 class="scale1-5"><span>by </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></h3>
+  </div>
+  <div id="description" class="scale1-1">
+    <%= Playlist.format_content(@playlist.description) %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
+    <a href="#" class="public-notes requires_edit scale0-8" data-type="public"><span class="icon icon-setup"></span>MAKE NOTES PUBLIC</a>
+    <a href="#" class="private-notes requires_edit scale0-8" data-type="private"><span class="icon icon-setup"></span>MAKE NOTES PRIVATE</a>
+  </div>
+  <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => @playlist} %>
 </div>
+
+<div id="stats" class="right_panel">
+  <a href="#" class="right_panel_close"></a>
+  <h3 class="info">Playlist Information<span class="icon icon-panel"></span></h3>
+  <div class="stats_panel">
+  <%= render :partial => 'meta' %>
+  </div>
+  <h3>Author Stats</h3>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @playlist.owners.first } %>
+  <h3>Other Playlists by <%= @playlist.owners.first.simple_display %></h3>
+  <div class="stats_panel" id="author_playlists">
+  <%= render :partial => "partial_results/author_playlists" %>
+  </div>
+</div>
+
+<div id="edit_item" class="requires_edit right_panel">
+  <a href="#" class="right_panel_close"></a>
+  <table class="tabs" width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td width="50%"><a id="find_items" class="current" href="#">Find Items</a></td>
+    <td></td>
+  </tr></table>
+  <div id="find_items" class="tab_panel new_item">
+	  <p class="instruction">
+	    Drag and drop items to move within the playlist.
+	    Or search to find new items, then drag and drop items from this list onto your playlist.
+	    Note, you may only drop items into this playlist. To edit nested playlists, click on the playlist title and edit on that playlist page.
+	  </p>
+	  <div id="search_wrapper_outer">
+	    <a id="add_item_search" href="#">SEARCH</a>
+	    <div id="select_wrapper">
+	    <select id="add_item_select">
+	      <option value="base">all</option>
+	      <option value="cases">cases</option>
+	      <option value="collages">collages</option>
+	      <option value="medias">medias</option>
+	      <option value="playlists">playlists</option>
+	      <option value="text_blocks">texts</option>
+	      <option value="defaults">links</option>
+	    </select>
+	    </div>
+	    <div id="search_wrapper">
+	    <input id="add_item_term" />
+	    </div>
+	  </div>
+  </div>
+  <div id="add_item_results"></div>
+</div>
+
+<div class="clear"></div>
+
 <script type="text/javascript">
 var container_id = <%= @playlist.id %>;
 var editability_path = "<%= access_level_playlist_path(@playlist) %>"; 
 </script>
 
-<div class="popup add-popup" data-type="<%= type %>">
-  <h4>ADD TO</h4>
-  <%= collection_select(:playlist, :id, [], :id, :name) %>
-  <ul>
-    <li><%= link_to "CREATE NEW PLAYLIST", new_playlist_path, :class => "new-playlist-and-item" %></li>
-    <li><a href="#" class="bookmark-popup bookmark-this bookmark-action">ADD BOOKMARK</a></li>
-  </ul>
-  <a href="#" class="btn new-playlist-item">ADD FILE</a>
-</div>
+<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>

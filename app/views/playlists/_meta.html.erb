@@ -1,0 +1,37 @@
+<p>
+  <label>Last Updated:</label>
+  <span id="autosave"><%= @playlist.updated_at.strftime("%B %d, %Y") %></span>
+</p>
+<% if false -%>
+<p>
+  <%= number_with_delimiter(@shown_words, ',') %> layered,  <%= number_with_delimiter(@total_words - @shown_words, ',') %> unlayered
+</p>
+<% end -%>
+<% if @playlist.tags.any? -%>
+<p>
+  <label>Tags:</label>
+  <% @playlist.tags.each do |tag| -%>
+  <%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %>
+  <% end -%>
+</p>
+<% end -%>
+
+<% if false -%>
+<p><label>Playlist Children</label></p>
+<ul class="lineage">
+<%= render :partial => 'playlist_children',
+  :locals => { :playlist => top_ancestor(Playlist, @playlist) } %>
+</ul>
+<% if @parents.any? -%>
+<p><label>Playlists that contain this playlist</label></p>
+<ul class="lineage">
+<% @parents.each do |playlist| -%>
+<li>
+  <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span>
+  by <%= raw playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %><br />
+  <%= link_to playlist.name, playlist %>
+</li>
+<% end -%>
+</ul>
+<% end -%>
+<% end -%>

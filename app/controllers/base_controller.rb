@@ -1,111 +1,163 @@
 class BaseController < ApplicationController
   before_filter :store_location, :only => [:search, :index]
 
-  def playlist_admin_preload
-    if current_user
-      @is_playlist_admin = current_user.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','playlist_admin','superadmin']}).length > 0
-    end
-  end
-
-  def embedded_pager(model = Case)
+  def embedded_pager(model = nil)
     params[:page] ||= 1
 
-    if params[:keywords]
-      obj = Sunspot.new_search(model)
-      obj.build do
+    if params[:keywords].present?
+      @objects = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
+      @objects.build do
         keywords params[:keywords]
-        paginate :page => params[:page], :per_page => 25 || nil
+        paginate :page => params[:page], :per_page => 10 || nil
+
+        with :public, true
+        with :active, true
+
         order_by :score, :desc
       end
-      obj.execute!
-      t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name)]); arr }
-      @objects = WillPaginate::Collection.create(params[:page], 25, obj.total) { |pager| pager.replace(t) } 
+      @objects.execute!
     else
-      @objects = Rails.cache.fetch("#{model.to_s.tableize}-embedded-search-#{params[:page]}--display_name-asc") do
-        obj = Sunspot.new_search(model)
+      cache_key = model.present? ? "#{model.to_s.tableize}-embedded-search-#{params[:page]}--karma-asc" :
+        "embedded-search-#{params[:page]}--karma-asc"
+      @objects = Rails.cache.fetch(cache_key) do
+        obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
         obj.build do
-          paginate :page => params[:page], :per_page => 25 || nil
+          paginate :page => params[:page], :per_page => 10 || nil
 
-          order_by :display_name, :asc
+          with :public, true
+          with :active, true
+
+          order_by :karma, :desc
         end
         obj.execute!
-        t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name)]); arr }
-        { :results => t, :count => obj.total }
+        obj
       end
-      @objects = WillPaginate::Collection.create(params[:page], 25, @objects[:count]) { |pager| pager.replace(@objects[:results]) }
     end
 
-    respond_to do |format|
-      format.html { render :partial => 'shared/playlistable_item', :object => model }
+    render :partial => 'shared/playlistable_item'
+  end
+
+  def partial_results
+    per_page = 5
+    params[:page] ||= 1
+
+    if params[:type] == "playlists"
+      playlists = []
+      map = { "945" => "Copyright", "671" => "Criminal Law", "911" => "Music and Digital Media", "986" => "Torts" }
+      [945, 671, 911, 986].each do |p|
+        begin
+          playlist = Playlist.find(p)
+          playlists << { :title => map[p.to_s], :playlist => playlist, :user => playlist.owners.first } if playlist 
+        rescue Exception => e
+          Rails.logger.warn "Base#index Exception: #{e.inspect}"
+        end
+      end
+      @highlighted_playlists = playlists.paginate(:page => params[:page], :per_page => per_page)
+    elsif params[:type] == "users"
+      @highlighted_users = User.find(:all, :conditions => "karma > 150 AND karma < 250", :order => "karma DESC").paginate(:page => params[:page], :per_page => per_page)
+    elsif params[:type] == "author_playlists"
+      @author_playlists = Playlist.find(params[:id]).owners.first.playlists.paginate(:page => params[:page], :per_page => per_page)
     end
+        
+    render :partial => "partial_results/#{params[:type]}"
   end
 
   def index
-    tcount = Case.find_by_sql("SELECT COUNT(*) AS tcount FROM taggings")
-    @highlighted_playlists = []
-    map = { "945" => "Copyright", "671" => "Criminal Law", "911" => "Music and Digital Media", "986" => "Torts" }
-    [945, 671, 911, 986].each do |p|
+    per_page = 8
+
+    @highlighted = { :playlist => [], :user => [], :collage => [], :media => [], :textblock => [], :case => [] }
+    [986, 671].each do |p|
       begin
         playlist = Playlist.find(p)
-        @highlighted_playlists << { :title => map[p.to_s], :playlist => playlist } if playlist 
+        @highlighted[:playlist] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
       rescue Exception => e
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
     end
+
+    Playlist.find(:all, :conditions => "karma IS NOT NULL AND id NOT IN (986, 671)", :order => "karma DESC", :limit => 3).each do |playlist|
+      @highlighted[:playlist] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first }
+    end
+
+    [387, 267].each do |u|
+      begin
+        user = User.find(u)
+        @highlighted[:user] << user
+      rescue Exception => e
+        Rails.logger.warn "Base#index Exception: #{e.inspect}"
+      end
+    end
+    
+    User.find(:all, :conditions => "karma IS NOT NULL AND id NOT IN (387, 267)", :order => "karma DESC", :limit => 3).each do |user|
+      @highlighted[:user] << user
+    end
+
+    [Collage, Media, TextBlock, Case].each do |klass|
+      klass.find(:all, :conditions => "karma IS NOT NULL", :order => "karma DESC", :limit => 5).each do |user|
+        @highlighted[klass.to_s.downcase.to_sym] << user
+      end
+    end
+  end
+
+  def common_search(models)
+    set_sort_params
+    set_sort_lists
+    params[:page] ||= 1
+    params[:per_page] ||= 25
+
+    @results = Sunspot.new_search(models)
+    @results.build do
+      if params.has_key?(:keywords)
+        keywords params[:keywords]
+      end
+      keywords params[:keywords]
+      with :public, true
+      with :active, true
+      order_by :score, :desc
+      paginate :page => params[:page], :per_page => params[:per_page]
+
+      order_by params[:sort].to_sym, params[:order].to_sym
+    end
+    @results.execute!
+    models.each do |model|
+      set_belongings model
+    end
+
   end
 
   def search
-    set_sort_params
-    set_sort_lists
-    @results = {}
-    @types = [:playlists, :collages, :cases, :medias, :text_blocks]
+    common_search [Playlist, Collage, Media, TextBlock, Case, Default]
 
-    @types.each do |type|
-      if (request.xhr? && params[:ajax_region] == type.to_s) || !request.xhr?
-        @results[type] = Sunspot.new_search(type.to_s.classify.constantize)
-        @results[type].build do
-          if params.has_key?(:keywords)
-            keywords params[:keywords]
-          end
-          with :public, true
-          with :active, true
-          paginate :page => params[:page], :per_page => cookies[:per_page] || nil
-  
-          order_by params[:sort].to_sym, params[:order].to_sym
-        end
-        @results[type].execute!
-
-        @collection = @results[type] if request.xhr?
-      end
-    end
-
-    if current_user
-      @is_case_admin = current_user.is_case_admin
-      @is_text_block_admin = current_user.is_text_block_admin
-      @is_media_admin = current_user.is_media_admin
-      @is_collage_admin = current_user.is_collage_admin
-
-      @my_collages = current_user.collages
-      @my_playlists = current_user.playlists
-      @my_cases = current_user.cases
-      @my_case_requests = current_user.case_requests
-      @my_text_blocks = current_user.text_blocks
-      @my_medias = current_user.medias
+    if request.xhr?
+      render :partial => 'base/search_ajax' 
     else
-      @is_collage_admin = @is_case_admin = false
-      @my_collages = @my_playlists = @my_cases = @my_text_blocks = @my_medias = []
+      render 'search'
     end
+  end
 
-    playlist_admin_preload
+  def quick_collage
+    params[:per_page] = 5
+    common_search [TextBlock, Case, Collage]
 
-    respond_to do |format|
-      format.html do
-        if request.xhr?
-          @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize  
-          render :partial => 'shared/generic_block'
-        else
-          render 'search'
-        end
+    if params.has_key?(:ajax)
+      render :partial => 'base/search_ajax' 
+    else
+      render :partial => 'base/quick_collage'
+    end
+  end
+
+  def error
+    redirect_to root_url
+  end
+
+  def load_single_resource
+    if params[:id].present?
+      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      item = model.find(params[:id])
+      if item.present?
+        @single_resource = item
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
+        @page_title = item.name
       end
     end
   end

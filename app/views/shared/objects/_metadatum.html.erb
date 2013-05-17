@@ -1,7 +1,8 @@
-<div class="metadatum-display">
-  <% Metadatum::DISPLAY_FIELDS.each do |col| %>
-  <% unless metadatum.send(col).blank? %>
-    <p id="<%= col.to_s.underscore.downcase %>"><%= col.to_s.titleize %>: <%= metadatum.send(col) %></p>
-  <% end %>
-  <% end %>
-</div>
+<% Metadatum::DISPLAY_FIELDS.each do |col| %>
+<% unless metadatum.send(col).blank? %>
+<p>
+<label><%= col.to_s.titleize %>:</label>
+<span><%= metadatum.send(col) %></span>
+</p>
+<% end %>
+<% end %>

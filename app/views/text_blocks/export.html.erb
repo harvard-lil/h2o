@@ -1,7 +1,7 @@
 <div id="text_block" class="singleitem" data-itemid="<%= @text_block.id %>">
   <h1><%= @text_block.display_name %></h1>
 	<div class="details">
-		<div class="cl"></div>
+		<div class="clear"></div>
 		<% cache "text_block-#{@text_block.id}-detail" do -%>
       <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
 		<% end -%>

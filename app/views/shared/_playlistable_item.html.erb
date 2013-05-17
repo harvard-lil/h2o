@@ -1,30 +1,20 @@
-<input type="hidden" value="<%= @link_start %>" name="link_start"/>
-<input type="hidden" value="<%= @link_end %>" name="link_end"/>
-<input type="hidden" value="<%= @host_collage %>" name="host_collage"/>
-<div class="h2o-playlistable-<%= playlistable_item.name %> playlistable-list">
-  <p><strong>Keywords:</strong> <%= text_field_tag :keywords, params[:keywords], :id => "#{playlistable_item.name}-keyword-search" %><button class="<%= playlistable_item.name%>-button">Go</button></p>
-  <div class="playlistable-object-list-<%= playlistable_item.name %>-<%= playlistable_item.name.tableize%>">
-  <% if @objects -%>
-    <%= will_paginate @objects, :previous_label => 'Prev', :next_label => 'Next' %>
-    <table cellpadding="0" cellspacing="0">
-      <thead>
-        <tr class="table_heading">
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @objects.each do |hit| -%>
-          <tr>
-            <td><%= hit[1] %></td>
-            <td><button class="add-<%= playlistable_item.name %>-button" id="<%= %Q|#{playlistable_item.name}-#{hit[0]}| %>">Add</button></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-    <%= will_paginate @objects, :previous_label => 'Prev', :next_label => 'Next' %>
-    <div class="cl"></div>
-  <% end %>
+<% if @objects -%>
+<h3><%= pluralize @objects.total, "Result" %> <span>(Drag and drop items)</span></h3>
+<%= will_paginate @objects.hits, :previous_label => 'Prev', :next_label => 'Next' %>
+<div id="nestable2">
+  <ol class="dd-list">
+    <% @objects.results.each_with_index do |hit, i| -%>
+    <li class="listing dd-item" data-index="<%= i %>" data-type="<%= hit.class.to_s.tableize %>" data-id="<%= hit.id %>" data-drop="new_item" id="listing_<%= hit.class.to_s.tableize %>_<%= hit.id %>">
+      <div class="dd-handle">
+      <a class="tooltip icon icon-<%= hit.class == Media ? "media-#{hit.media_type.slug}" : hit.class.to_s.downcase %>" title="<%= hit.class == Media ? hit.media_type.label : hit.class %>"></a>
+      <h4><%= hit.display_name %></h4>
+      <div class="listing_barcode">
+        <%= render :partial => "shared/barcode", :locals => { :object => hit } %>
+      </div>
+      </div>
+    </li>
+    <% end %>
+  </ol>
 </div>
-</div>
-<div class="clear"></div>
+<%= will_paginate @objects.hits, :previous_label => 'Prev', :next_label => 'Next' %>
+<% end %>

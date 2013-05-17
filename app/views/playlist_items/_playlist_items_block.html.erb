@@ -1,11 +1,14 @@
-<section class="playlists">
-	<ul class="sortable">
+<div class="playlists dd">
+	<ol class="dd-list <%= 'dd-empty' if @playlist.playlist_items.empty? %>">
 		<% @playlist.playlist_items.each_with_index do |item, index| -%>
 		  <%= render :partial => 'shared/objects/playlist_item',
 		    :locals => { :item => item,
+        :resource_item => item.resource_item,
+        :actual_object => item.resource_item.actual_object,
 			  :parent_index => '',
 			  :index => index + @playlist.counter_start,
-			  :recursive_level => 0 } %>
+			  :recursive_level => 0,
+        :last => (item == @playlist.playlist_items.last) } %>
 		<% end -%>
-	</ul>
-</section>
+	</ol>
+</div>

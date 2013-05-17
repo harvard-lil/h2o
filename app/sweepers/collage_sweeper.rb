@@ -5,7 +5,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
 
   def collage_clear(record)
     expire_page :controller => :collages, :action => :show, :id => record.id
-    return if params[:action] == 'save_readable_state'
+    return if params && params[:action] == 'save_readable_state'
 
     Rails.cache.delete_matched(%r{collages-search*})
     Rails.cache.delete_matched(%r{collages-embedded-search*})
@@ -19,6 +19,10 @@ class CollageSweeper < ActionController::Caching::Sweeper
     #expire fragments of my ancestors, descendants, and siblings meta
     relations = [record.path_ids, record.descendant_ids]
     relations.push(record.sibling_ids) if !record.ancestry.nil?
+
+    record.path_ids.each do |parent_id|
+      Rails.cache.delete("collage-barcode-#{parent_id}")
+    end
     relations.flatten.uniq.each do |rel_id|
       expire_page :controller => :collages, :action => :show, :id => rel_id
     end
@@ -26,6 +30,10 @@ class CollageSweeper < ActionController::Caching::Sweeper
     users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && ['owner', 'creator'].include?(b.name); arr }.uniq
     users.push(current_user.id) if current_user
     users.each { |u| Rails.cache.delete("user-collages-#{u}") }
+  end
+
+  def after_create(record)
+    Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.annotatable_id}")
   end
 
   def after_save(record)

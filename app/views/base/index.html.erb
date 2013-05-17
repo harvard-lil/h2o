@@ -1,55 +1,45 @@
-<%= render :partial => 'shared/second_nav', :locals => { :nav_id => 'homepage-logo',
-  :url => "/",
-  :right_search => 'shared/search_all' } %>
-
-<div id="home_nav">
-	<div class="panel" id="collage">
-        <%= link_to '', collages_path, :class => "icon_nav" %>
-		<%= link_to 'Collages', collages_path %>
-		<p>A tool built with the goal of creating an entirely online law school casebook by allowing
-		a seed document to be annotated with various layers and notes.</p>
-    <% if false && current_user -%>
-		<%= link_to 'Start a Collage', new_collage_path, :class => "button new-action" %>
-    <% end -%>
-		<%= link_to 'Find/Create a Collage', collages_path, :class => "button" %>
-	</div>
-	<div class="panel" id="playlist">
-    <%= link_to '', playlists_path, {:id => "playlists", :class => "icon_nav"} %>
-		<%= link_to 'Playlists', playlists_path %>
-		<p>A platform for collections of online content that are easily shared and remixed, and are
-		ideal for use as an online course syllabus.</p>
-		<%= link_to 'Build a Playlist', new_playlist_path, :class => "button new-action" %>
-	</div>
-	<div class="panel last" id="highlighted_playlist">
-    <%= link_to '', playlists_path, {:id => "highlighted_playlists", :class => "icon_nav"} %>
-		<%= link_to 'Courses', playlists_path %>
-    <p style="text-align:center;">Harvard Law School Spring 2013 Courses.</p>
-    <% @highlighted_playlists.each do |v| -%>
-      <%= link_to v[:title], playlist_url(v[:playlist]), :class => "button" %><br />
-    <% end -%>
-	</div>
-	<div class="cl"></div>
+<div id="home_index">
+	<div class="panel" id="description">
+    <h1>Welcome to H2O, a suite of online classroom tools</h2>
+    <h2>Develop, remix, and share online textbooks, casebooks, and modules filled with edited cases, texts, audio, images, videos, and PDFs under a <a href="/p/terms">Creative Commons license</a>.</h2>
+    <div id="links">
+      <% if current_user -%>
+      <%= link_to "DASHBOARD", user_path(current_user), :class => "button" %>
+      <% else -%>
+      <a href="/users/new" class="button">GET STARTED</a>
+      <% end -%>
+      <a href="/p/about" class="button">ABOUT</a>
+      <a href="http://h2odev.law.harvard.edu/blog/" class="button">BLOG</a>
+      <a href="/p/terms" class="button">TERMS</a>
+      <a href="/p/contact_us" class="button">CONTACT</a>
+    </div>
+  </div>
+  <div class="panel featured_panel" id="featured_playlists">
+    <h3><%= link_to "Playlists", playlists_path %></h3>
+    <%= render :partial => "partial_results/playlists" %>
+  </div>
+  <div class="panel featured_panel" id="featured_users">
+    <h3>Users<span></span></h3>
+    <%= render :partial => "partial_results/users" %>
+  </div>
+	<div class="clear"></div>
+  <div class="panel featured_panel" id="featured_collages">
+    <h3><%= link_to 'Collages', collages_path %></h3>
+    <%= render :partial => "partial_results/generic", :locals => { :klass => Collage } %>
+  </div>
+  <div class="panel featured_panel" id="featured_medias">
+    <h3><%= link_to 'Media Items', medias_path %></h3>
+    <%= render :partial => "partial_results/generic", :locals => { :klass => Media } %>
+  </div>
+  <div class="panel featured_panel" id="featured_texts">
+    <h3><%= link_to 'Texts', text_blocks_path %></h3>
+    <%= render :partial => "partial_results/generic", :locals => { :klass => TextBlock } %>
+  </div>
+  <div class="panel featured_panel" id="featured_cases">
+    <h3><%= link_to 'Cases', cases_path %></h3>
+    <%= render :partial => "partial_results/generic", :locals => { :klass => Case } %>
+  </div>
+	<div class="clear"></div>
 </div>
-<table id="logo_support" cellpadding="0" cellspacing="0">
-  <tr>
-    <td valign="middle">
-      <a id="berkman" target="_blank" href="http://cyber.law.harvard.edu/"><img src="/images/ui/berkman.jpg" alt="Berkman" /></a>
-    </td>
-    <td valign="middle">
-      <a id="hlsl" target="_blank" href="http://www.law.harvard.edu/library/"><img src="/images/ui/hlsl.png" alt="HLSL" /></a>
-    </td>
-    <td valign="middle">
-      <span id="support_detail">Supported by</span>
-    </td>
-    <td valign="middle">
-      <a id="liblab" target="_blank" href="http://osc.hul.harvard.edu/liblab">Harvard Library Lab</a>
-    </td>
-    <td valign="middle">
-      <a id="hilt" target="_blank" href="http://hilt.harvard.edu/"><img src="/images/ui/hilt.png" alt="Hilt" /></a>
-    </td>
-    <td valign="middle">
-      <a id="fastcase" target="_blank" href="http://www.fastcase.com/"><img src="/images/ui/fastcase.gif" alt="Fastcase" /></a>
-    </td>
-  </tr>
-</table>
-<div class="cl"></div>
+
+<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
