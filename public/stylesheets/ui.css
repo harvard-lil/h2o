@@ -1131,7 +1131,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
 #singleitem_barcode_toolbar a.bookmark-action {
   display: inline-block;
   margin: 0px 0px 0px 10px;
-  height: 15px;
+  height: 25px;
 }
 #singleitem_barcode_toolbar a#heatmap_toggle.inactive,
 #singleitem_barcode_toolbar a#heatmap_toggle.disabled {

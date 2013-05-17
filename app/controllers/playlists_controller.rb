@@ -213,7 +213,10 @@ class PlaylistsController < BaseController
         new_item
       }
 
-      create_influence(@playlist, @playlist_copy)
+      # NOTE: Commenting this out because it's broken
+      # Not sure if Influence is even used in app post redesign
+      # create_influence(@playlist, @playlist_copy)
+
       flash[:notice] = "Your copy is below. Cheers!"
 
       render :json => { :type => 'playlists', :id => @playlist_copy.id } 
