@@ -39,7 +39,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
     <%= render :partial => "shared/nav" %>
     <div class="wrapper main_wrapper">
 
-    <% if flash[:notice] %>
+    <% if flash[:notice] && !(@single_resource && [Collage, Playlist].include?(@single_resource.class) && params[:action] == 'show') %>
     <p id="notice"><%= flash[:notice] %></p>
     <% end -%>
 
