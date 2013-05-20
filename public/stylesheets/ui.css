@@ -1121,7 +1121,6 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width: 319px;
   display: inline-block;
   margin-right: 10px;
-  top: 5px;
 }
 #singleitem_barcode_toolbar a.link-add,
 #singleitem_barcode_toolbar a.remix-action,
