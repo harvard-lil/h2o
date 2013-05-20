@@ -38,7 +38,7 @@ Rails::Initializer.run do |config|
   config.gem 'ancestry', :version => '1.2.0'
   config.gem 'will_paginate', :version => '2.3.14'
   config.gem 'tidy_ffi', :version => '0.1.3'
-#  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
+  config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
   config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
   config.gem 'super_exception_notifier', :lib => "exception_notification", :version => '3.0.13'
   #erubis is needed to satisfy requirements for rails_xss plugin
