@@ -60,6 +60,8 @@ class UsersController < ApplicationController
     @user = params[:id] == 'create_anon' ? @current_user : User.find_by_id(params[:id])
     author_filter = @user.login.downcase
 
+    public_filtering = !current_user || @user != current_user
+
     [Playlist, Collage, Case, Media, TextBlock, Default].each do |model|
       set_belongings model
     end
@@ -79,12 +81,15 @@ class UsersController < ApplicationController
           render :partial => 'shared/generic_block'
         end
       else
-        @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock)
+        @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
         @results.build do
           paginate :page => params[:page], :per_page => 10 
           with :author, author_filter
-          with :public, true
-          with :active, true
+
+          if public_filtering
+            with :public, true
+            with :active, true
+          end
 
           order_by params[:sort].to_sym, params[:order].to_sym
         end
@@ -92,12 +97,15 @@ class UsersController < ApplicationController
         render :partial => 'base/search_ajax'
       end
     else
-      @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock)
+      @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
       @bookshelf.build do
         paginate :page => params[:page], :per_page => 10 
         with :author, author_filter
-        with :public, true
-        with :active, true
+          
+        if public_filtering
+          with :public, true
+          with :active, true
+        end
 
         order_by params[:sort].to_sym, params[:order].to_sym
       end
@@ -208,8 +216,6 @@ class UsersController < ApplicationController
           :resource_item_id => item.id)
         playlist_item.accepts_role!(:owner, current_user)
         playlist_item.save
-
-        Rails.logger.warn "stephie: #{playlist_item.inspect}"
 
         render :json => { :already_bookmarked => false, :user_id => current_user.id }
       end
