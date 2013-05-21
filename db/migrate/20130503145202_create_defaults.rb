@@ -15,7 +15,7 @@ class CreateDefaults < ActiveRecord::Migration
     add_column :item_defaults, :actual_object_id, :integer
 
     ItemDefault.all.each do |i|
-      link = Default.new(:name => i.name, :title => i.title, :url => i.url, :description => i.description, :created_at => i.created_at)
+      link = Default.new(:name => i.name, :title => 'N/A', :url => i.url, :description => i.description, :created_at => i.created_at)
       link.accepts_role!(:owner, i.owners.first) if i.owners.present?
       link.accepts_role!(:creator, i.owners.first) if i.owners.present?
       if link.save

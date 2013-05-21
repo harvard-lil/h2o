@@ -1,6 +1,6 @@
 namespace :h2o do
 
-  task(:steph_test => :environment) do
+  task(:benchmark_test => :environment) do
     require 'benchmark'
     Benchmark.bm do |x|
       x.report do
@@ -20,21 +20,24 @@ namespace :h2o do
     end
   end
 
-  desc 'Update item karma'
-  task(:update_karma => :environment) do
-    User.find_in_batches do |users| 
-      users.each do |u|
-       Rails.cache.delete("user-barcode-#{u.id}")
-       u.update_karma
+  def update_karma_by_model(model, batch_size)
+    model.find_in_batches(:batch_size => batch_size) do |items|
+      items.each do |i|
+        i.update_karma
       end
     end
-    # Cache does not need to be cleared for playlists
-    # and collages, because it is cleared in sweepers
-    [Playlist, Collage, TextBlock, Media, Case, Default].each do |model|
-      model.find_in_batches do |items|
-        items.each do |i|
-          i.update_karma
-        end
+  end
+
+  desc 'Update item karma'
+  task(:update_karma => :environment) do
+    batch_size = ENV.has_key?('batch_size') ? ENV['batch_size'].to_i : 10
+
+    if ENV.has_key?('model')
+      update_karma_by_model(ENV['model'].constantize, batch_size)  
+    else
+      Rails.cache.delete_matched(%r{user-barcode-*})
+      [User, Playlist, Collage, TextBlock, Media, Case, Default].each do |model|
+        update_karma_by_model(model, batch_size)
       end
     end
   end

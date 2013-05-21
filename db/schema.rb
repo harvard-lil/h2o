@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130510002119) do
+ActiveRecord::Schema.define(:version => 20130521134745) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -355,7 +355,7 @@ ActiveRecord::Schema.define(:version => 20130510002119) do
 
   create_table "defaults", :force => true do |t|
     t.string   "name",        :limit => 1024
-    t.string   "title"
+    t.string   "title",       :limit => 1024
     t.string   "url"
     t.string   "description", :limit => 5242880
     t.boolean  "active",                         :default => true

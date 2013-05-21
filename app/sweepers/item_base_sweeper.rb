@@ -4,12 +4,14 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
   observe ItemCollage, ItemCase, ItemPlaylist, ItemAnnotation, ItemQuestion, ItemQuestionInstance, ItemTextBlock, ItemDefault, ItemMedia
 
   def clear_playlists(playlist)
-    expire_page :controller => :playlists, :action => :show, :id => playlist.id
-    expire_page :controller => :playlists, :action => :export, :id => playlist.id
+    if playlist.present?
+      expire_page :controller => :playlists, :action => :show, :id => playlist.id
+      expire_page :controller => :playlists, :action => :export, :id => playlist.id
 
-    playlist.relation_ids.each do |p|
-      expire_page :controller => :playlists, :action => :show, :id => p
-      expire_page :controller => :playlists, :action => :export, :id => p
+      playlist.relation_ids.each do |p|
+        expire_page :controller => :playlists, :action => :show, :id => p
+        expire_page :controller => :playlists, :action => :export, :id => p
+      end
     end
   end
 
