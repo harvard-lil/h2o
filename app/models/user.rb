@@ -357,4 +357,9 @@ class User < ActiveRecord::Base
       barcode_elements.sort_by { |a| a[:date] }
     end
   end
+  
+  def update_karma
+    value = self.barcode.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+    self.update_attribute(:karma, value)
+  end
 end

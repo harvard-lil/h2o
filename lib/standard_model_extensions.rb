@@ -13,12 +13,6 @@ module StandardModelExtensions
       self.barcode.inject({}) { |h, b| h[b[:type].to_sym] ||= 0; h[b[:type].to_sym] += 1; h }
     end
 
-    def update_karma
-      value = self.barcode.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-
-      self.update_attribute(:karma, value)
-    end
-
     def barcode_bookmarked_added
       elements = []
       item_klass = "Item#{self.class}".constantize

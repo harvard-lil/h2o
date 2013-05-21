@@ -20,24 +20,12 @@ namespace :h2o do
     end
   end
 
-  def update_karma_by_model(model, batch_size)
-    model.find_in_batches(:batch_size => batch_size) do |items|
+  desc 'Update item karma'
+  task(:update_user_karma => :environment) do
+    Rails.cache.delete_matched(%r{user-barcode-*})
+    User.find_in_batches(:batch_size => 20) do |items|
       items.each do |i|
         i.update_karma
-      end
-    end
-  end
-
-  desc 'Update item karma'
-  task(:update_karma => :environment) do
-    batch_size = ENV.has_key?('batch_size') ? ENV['batch_size'].to_i : 10
-
-    if ENV.has_key?('model')
-      update_karma_by_model(ENV['model'].constantize, batch_size)  
-    else
-      Rails.cache.delete_matched(%r{user-barcode-*})
-      [User, Playlist, Collage, TextBlock, Media, Case, Default].each do |model|
-        update_karma_by_model(model, batch_size)
       end
     end
   end

@@ -86,6 +86,10 @@ class TextBlock < ActiveRecord::Base
                               :title => "Collaged to #{collage.name}",
                               :link => collage_path(collage.id) }
       end
+
+      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+      self.update_attribute(:karma, value)
+
       barcode_elements.sort_by { |a| a[:date] }
     end
   end
