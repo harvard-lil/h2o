@@ -2,7 +2,6 @@ class Case < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
 
-  include H2oModelExtensions
   include StandardModelExtensions::InstanceMethods
   include AnnotatableExtensions
   include AuthUtilities
@@ -48,12 +47,12 @@ class Case < ActiveRecord::Base
   validate :date_check
 
   validates_presence_of   :short_name,      :content
-  validates_length_of     :short_name,      :in => 1..150
-  validates_length_of     :full_name,       :in => 1..500,            :allow_blank => true
-  validates_length_of     :party_header,    :in => 1..(10.kilobytes), :allow_blank => true
-  validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes),  :allow_blank => true
-  validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true
-  validates_length_of     :content,         :in => 1..(5.megabytes)
+  validates_length_of     :short_name,      :in => 1..150, :allow_blank => true, :allow_nil => true
+  validates_length_of     :full_name,       :in => 1..500,            :allow_blank => true, :allow_nil => true
+  validates_length_of     :party_header,    :in => 1..(10.kilobytes), :allow_blank => true, :allow_nil => true
+  validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes),  :allow_blank => true, :allow_nil => true
+  validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
+  validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
   searchable(:include => [:tags, :collages, :case_citations]) do # TODO: Perhaps add this back in if needed on template, :case_docket_numbers, :case_jurisdiction]) do
     text :display_name, :boost => 3.0
@@ -88,12 +87,15 @@ class Case < ActiveRecord::Base
     self.update_attribute('active', true)
   end
 
-  def self.create_from_xml_upload(file)
+  def self.new_from_xml_upload(file)
     cxp = CaseXmlParser.new(file)
     new_case = cxp.xml_to_case_attributes
-    new_case[:case_jurisdiction_id] = CaseJurisdiction.find_by_name(new_case[:jurisdiction].gsub('.', '')).id
+    cj = CaseJurisdiction.find_by_name(new_case[:jurisdiction].gsub('.', ''))
+    if cj
+      new_case[:case_jurisdiction_id] = cj.id
+    end
     new_case.delete(:jurisdiction)
-    Case.create(new_case)
+    Case.new(new_case)
   end
 
   def self.to_tsv(options = {})

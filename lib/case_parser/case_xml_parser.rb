@@ -1,9 +1,6 @@
 require 'rubygems'
 require 'nokogiri'
 
-#cp = CaseParser.new(file)
-#Case.create!(cp.xml_to_case_attributes)
-#Case.create(CaseParser.xml_to_case_attributes_hash(File))
 class CaseXmlParser
   def initialize(file)
     @doc = Nokogiri::XML(file)
@@ -14,6 +11,9 @@ class CaseXmlParser
      :full_name => @doc.css('ShortName').text,
      :author => @doc.css('Author').text,
      :decision_date => @doc.css('DecisionDate').text,
+     :lawyer_header => @doc.css('LawyerHeader').text,
+     :party_header => @doc.css('PartyHeader').text,
+     :header_html => @doc.css('HeaderHtml').text,
      :content => extract_content,
      :jurisdiction => @doc.css('Jurisdiction CourtName').text,
      :case_docket_numbers_attributes => extract_case_docket_numbers_from_doc,

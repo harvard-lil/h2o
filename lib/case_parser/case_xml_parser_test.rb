@@ -35,6 +35,18 @@ class TestCaseXmlParser <  Test::Unit::TestCase
     assert_equal '2012-08-22', @cp.xml_to_case_attributes[:decision_date]
   end
 
+  def test_should_return_party_header
+    assert_match 'Appellants, v. BABY GIRL', @cp.xml_to_case_attributes[:party_header]
+  end
+
+  def test_should_return_lawyer_header
+    assert_match 'Lesley Ann Sasser and Shannon Phillips Jones', @cp.xml_to_case_attributes[:lawyer_header]
+  end
+
+  def test_should_return_header_html
+    assert_match 'BABY GIRL, a minor child under the age of fourteen years', @cp.xml_to_case_attributes[:header_html]
+  end
+
   def test_should_return_content
     assert @cp.xml_to_case_attributes[:content].include?('Mark D. Fiddler')
   end

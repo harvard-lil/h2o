@@ -81,14 +81,16 @@ class CasesController < BaseController
       add_stylesheets ['new_case']
 
       respond_to do |format|
-        format.html { render :template => 'cases/upload'}# new.html.erb
+        format.html { render :template => 'cases/upload'}
         format.xml  { render :xml => @case }
       end
     else
-      if @case = Case.create_from_xml_upload(params[:file])
+      @case = Case.new_from_xml_upload(params[:file])
+      if @case.save
         handle_successful_save
       else
-        format.html { render :action => "upload" }
+        flash[:notice] = @case.errors.full_messages.join(", ")
+        render :template => "cases/upload"
       end
     end
   end
