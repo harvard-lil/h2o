@@ -32,4 +32,20 @@ class PlaylistItem < ActiveRecord::Base
   end
 
   alias :to_s :display_name
+
+  def render_dropdown
+    return false if resource_item_type == "ItemTextBlock"
+
+    return true if resource_item_type == "ItemPlaylist"
+
+    if resource_item.actual_object.respond_to?(:description)
+      return true if resource_item.actual_object.description.present?
+
+      return true if resource_item.description != '' && resource_item.description != resource_item.actual_object.description
+    end
+
+    return true if self.notes.to_s != '' && self.public_notes 
+    
+    false
+  end
 end

@@ -1,6 +1,6 @@
 <li class="<%= "dd-item" if recursive_level == 0 %> playlist listitem level<%= recursive_level %> listitem<%= resource_item.id %> <%= 'last' if last %>" id="playlist_item_<%= item.id %>" data-id="<%= item.id %>" data-itemid="<%= resource_item.id %>">
   <div class="wrapper">
-  <% if (actual_object.class.respond_to?(:format_content) && actual_object.respond_to?(:description) && actual_object.description.present? && !actual_object.is_a?(TextBlock)) || (actual_object.is_a?(Playlist)) -%>
+  <% if item.render_dropdown -%>
   <%= link_to 'Show/Hide More', '#', :class => 'rr rr-closed', :id => "rr#{resource_item.id}" %>
   <% end -%>
   <div class="inner-wrapper <%= "dd-handle" if recursive_level == 0 %>">
@@ -28,14 +28,23 @@
 		    <% end -%>
       </td>
     </tr></table>
-    <% if item.notes.to_s != '' && item.public_notes -%>
-    <div class="notes">
-      <b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
-    </div>
-    <% end -%>
-    <% if actual_object.class.respond_to?(:format_content) && actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) -%>
+    <% if item.render_dropdown -%>
     <div class="additional_details">
-      <%= actual_object.class.format_content(actual_object.description) %>
+	    <% if actual_object.respond_to?(:description) && actual_object.description != resource_item.description -%>
+	    <div class="resource_item_desc">
+	      <%= PlaylistItem.format_content(resource_item.description) %>
+	    </div>
+	    <% end -%>
+	    <% if item.notes.to_s != '' && item.public_notes -%>
+	    <div class="notes">
+	      <b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
+	    </div>
+	    <% end -%>
+	    <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) -%>
+	    <div class="actual_obj_desc">
+	      <%= PlaylistItem.format_content(actual_object.description) %>
+	    </div>
+	    <% end -%>
     </div>
     <% end -%>
   </div>
