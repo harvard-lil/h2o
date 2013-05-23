@@ -1,4 +1,3 @@
-require 'dropbox_sdk'
 class CasesController < BaseController
   cache_sweeper :case_sweeper
 
