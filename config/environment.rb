@@ -46,7 +46,8 @@ Rails::Initializer.run do |config|
   config.gem 'daemons', :version => '1.0.10'
   config.gem "delayed_job", :version => "2.0.4"
   config.gem "ar-extensions", :version => "0.9.5"
-  config.gem 'nokogiri'
+  config.gem 'nokogiri', :version => '1.4.1'
+  #config.gem 'dropbox-sdk', :version => '1.5.1'
 
   config.active_record.colorize_logging = false
 

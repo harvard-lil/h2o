@@ -31,7 +31,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :case_citations
 
   map.resources :case_requests
-  map.resources :cases, :collection => {:embedded_pager => :get, :upload => [:get, :post]}, :member => {:metadata => :get, :export => :get, :approve => :post} do |case_obj|
+  map.resources :cases, :collection => {:embedded_pager => :get, :bulk_upload => [:get, :post], :upload => [:get, :post], :authorize => [:get, :post]}, :member => {:metadata => :get, :export => :get, :approve => :post} do |case_obj|
     case_obj.resources :versions
   end
   map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index

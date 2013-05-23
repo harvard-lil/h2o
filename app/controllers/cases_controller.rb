@@ -1,3 +1,4 @@
+require 'dropbox_sdk'
 class CasesController < BaseController
   cache_sweeper :case_sweeper
 
@@ -51,7 +52,7 @@ class CasesController < BaseController
     Notifier.deliver_case_notify_approved(@case)
     render :json => {}
   end
-  
+
   # GET /cases/new
   def new
     @case = Case.new
@@ -64,7 +65,7 @@ class CasesController < BaseController
       end
       case_docket_number = CaseDocketNumber.new(:docket_number => case_request.docket_number)
       @case.case_docket_numbers = [case_docket_number]
-      @case.case_citations << CaseCitation.new(:reporter => case_request.reporter, 
+      @case.case_citations << CaseCitation.new(:reporter => case_request.reporter,
                                                :volume => case_request.volume,
                                                :page => case_request.page)
     else
@@ -74,7 +75,7 @@ class CasesController < BaseController
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
   end
-  
+
   def upload
     if request.get?
       add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
@@ -85,7 +86,7 @@ class CasesController < BaseController
         format.xml  { render :xml => @case }
       end
     else
-      @case = Case.new_from_xml_upload(params[:file])
+      @case = Case.new_from_xml_file(params[:file])
       if @case.save
         handle_successful_save
       else
@@ -94,7 +95,60 @@ class CasesController < BaseController
       end
     end
   end
-  
+
+  def bulk_upload
+    if request.get?
+      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+      add_stylesheets ['new_case']
+
+      return redirect_to(:action => 'authorize') unless session[:dropbox_session]
+
+
+      dbsession = DropboxSession.deserialize(session[:dropbox_session])
+      client = DropboxClient.new(dbsession, DROPBOXCONFIG[:access_type]) #raise an exception if session not authorized
+      @info = client.account_info # look up account information
+
+      path = params[:path] || '/'
+
+      @entry = client.metadata(path)
+
+      respond_to do |format|
+        format.html { render :template => 'cases/bulk_upload'}
+        format.xml  { render :xml => @case }
+      end
+    else
+      dbsession = DropboxSession.deserialize(session[:dropbox_session])
+      File.open('dbsession.txt', 'w') {|f| f.write(dbsession.serialize) }
+      #client = DropboxClient.new(dbsession, DROPBOXCONFIG[:access_type]) #raise an exception if session not authorized
+      #Case.import_from_dropbox(client)
+      #@case = Case.new_from_xml_upload(params[:file])
+      #if @case.save
+        #handle_successful_save
+      #else
+        #flash[:notice] = @case.errors.full_messages.join(", ")
+        render :template => "cases/upload"
+      #end
+    end
+  end
+
+  def authorize
+    if not params[:oauth_token] then
+        dbsession = DropboxSession.new(DROPBOXCONFIG[:app_key], DROPBOXCONFIG[:app_secret])
+
+        session[:dropbox_session] = dbsession.serialize #serialize and save this DropboxSession
+
+        #pass to get_authorize_url a callback url that will return the user here
+        redirect_to dbsession.get_authorize_url url_for(:action => 'authorize')
+    else
+        # the user has returned from Dropbox
+        dbsession = DropboxSession.deserialize(session[:dropbox_session])
+        dbsession.get_access_token  #we've been authorized, so now request an access_token
+        session[:dropbox_session] = dbsession.serialize
+
+        redirect_to :action => 'bulk_upload'
+    end
+  end
+
   # GET /cases/1/edit
   def edit
     add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
@@ -160,8 +214,8 @@ class CasesController < BaseController
     render :json => {}
   end
 
-  private 
-  
+  private
+
   def handle_successful_save
     @case.accepts_role!(:owner, current_user)
     @case.accepts_role!(:creator, current_user)
