@@ -1,3 +1,5 @@
+require 'dropbox_sdk'
+
 class Case < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
@@ -87,7 +89,30 @@ class Case < ActiveRecord::Base
     self.update_attribute('active', true)
   end
 
-  def self.new_from_xml_upload(file)
+  def self.import_all_from_dropbox
+    dh2o = DropboxH2o.new
+    paths_to_import = dh2o.import_file_paths - Case.already_imported_paths
+
+    paths_to_import.each do |path|
+      file_contents = dh2o.get_file(path)
+      new_case = Case.new_from_xml_file(file_contents)
+      new_case.dropbox_filepath = path
+      if new_case.save
+        puts "saved file woot!"
+      else
+        puts "file didn't save"
+        dh2o.copy_to_failed_dir(path)
+        dh2o.write_error(path, new_case.errors.full_messages)
+      end
+    end
+  end
+
+  def self.already_imported_paths
+    pg_result = ActiveRecord::Base.connection.execute("SELECT DISTINCT c.dropbox_filepath FROM cases c;")
+    pg_result.values.compact.flatten
+  end
+
+  def self.new_from_xml_file(file)
     cxp = CaseXmlParser.new(file)
     new_case = cxp.xml_to_case_attributes
     cj = CaseJurisdiction.find_by_name(new_case[:jurisdiction].gsub('.', ''))
@@ -97,6 +122,7 @@ class Case < ActiveRecord::Base
     new_case.delete(:jurisdiction)
     Case.new(new_case)
   end
+
 
   def self.to_tsv(options = {})
     res = ''
