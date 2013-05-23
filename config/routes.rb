@@ -92,6 +92,8 @@ ActionController::Routing::Routes.draw do |map|
   map.update_permissions "/user_collections/:id/update_permissions", :controller => :user_collections, :action => :update_permissions
 
   map.resource :user_session, :collection => {:crossroad => [:get,:post]}
+  # map.resource :dropbox_session, :collection => {:create => [:get, :post]}
+  map.connect '/dropbox_session', :controller => :dropbox_sessions, :action => :create
   map.resources :password_resets
   map.resources :login_notifiers
   map.log_out "/log_out", :controller => :user_sessions, :action => :destroy

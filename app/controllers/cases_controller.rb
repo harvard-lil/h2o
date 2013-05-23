@@ -101,7 +101,7 @@ class CasesController < BaseController
       add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
       add_stylesheets ['new_case']
 
-      return redirect_to(:action => 'authorize') unless session[:dropbox_session]
+      return redirect_to(:controller => 'dropbox_sessions', :action => 'create') unless session[:dropbox_session]
 
 
       dbsession = DropboxSession.deserialize(session[:dropbox_session])
@@ -117,8 +117,8 @@ class CasesController < BaseController
         format.xml  { render :xml => @case }
       end
     else
-      dbsession = DropboxSession.deserialize(session[:dropbox_session])
-      File.open('dbsession.txt', 'w') {|f| f.write(dbsession.serialize) }
+      # dbsession = DropboxSession.deserialize(session[:dropbox_session])
+      # File.open('dbsession.txt', 'w') {|f| f.write(dbsession.serialize) }
       #client = DropboxClient.new(dbsession, DROPBOXCONFIG[:access_type]) #raise an exception if session not authorized
       #Case.import_from_dropbox(client)
       #@case = Case.new_from_xml_upload(params[:file])
@@ -131,23 +131,7 @@ class CasesController < BaseController
     end
   end
 
-  def authorize
-    if not params[:oauth_token] then
-        dbsession = DropboxSession.new(DROPBOXCONFIG[:app_key], DROPBOXCONFIG[:app_secret])
 
-        session[:dropbox_session] = dbsession.serialize #serialize and save this DropboxSession
-
-        #pass to get_authorize_url a callback url that will return the user here
-        redirect_to dbsession.get_authorize_url url_for(:action => 'authorize')
-    else
-        # the user has returned from Dropbox
-        dbsession = DropboxSession.deserialize(session[:dropbox_session])
-        dbsession.get_access_token  #we've been authorized, so now request an access_token
-        session[:dropbox_session] = dbsession.serialize
-
-        redirect_to :action => 'bulk_upload'
-    end
-  end
 
   # GET /cases/1/edit
   def edit
