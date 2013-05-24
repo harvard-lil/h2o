@@ -1,6 +1,6 @@
 class Notifier < ActionMailer::Base
   include AuthUtilities
-  
+
   helper :application
 
   @controller = RotisserieDiscussion
@@ -45,7 +45,7 @@ class Notifier < ActionMailer::Base
     users = rotisserie_discussion.users
 
     if users.length > 0 then users = users.all(:conditions => "email_address IS NOT NULL") end
-    
+
     rotisserie_discussion_id = rotisserie_discussion.id
 
     users.each do |user|
@@ -186,7 +186,7 @@ class Notifier < ActionMailer::Base
   end
 
   def case_notify_updated(updated_case)
-    
+
     recipients updated_case.users.map(&:email_address).uniq
     subject "Case Updated"
     from "noreply@berkmancenter.org"
@@ -195,7 +195,7 @@ class Notifier < ActionMailer::Base
   end
 
   def case_notify_approved(approved_case)
-    
+
     recipients approved_case.users.map(&:email_address).uniq
     subject approved_case.case_request ? "Case Request Approved" : "Case Approved"
     from "noreply@berkmancenter.org"
@@ -204,7 +204,7 @@ class Notifier < ActionMailer::Base
   end
 
   def case_request_notify_updated(case_request)
-    
+
     recipients case_request.users.map(&:email_address).uniq
     subject "Case Request Updated"
     from "noreply@berkmancenter.org"
@@ -213,7 +213,7 @@ class Notifier < ActionMailer::Base
   end
 
   def case_request_notify_rejected(case_request)
-    
+
     recipients case_request.users.map(&:email_address).uniq
     subject "Case Request Not Accepted"
     from "noreply@berkmancenter.org"
@@ -222,23 +222,23 @@ class Notifier < ActionMailer::Base
   end
 
   def case_notify_rejected(rejected_case)
-    
+
     recipients rejected_case.users.map(&:email_address).uniq
     subject "Case Not Accepted"
     from "noreply@berkmancenter.org"
     body  :case => rejected_case
     content_type "text/html"
   end
-  
+
   def password_reset_instructions(user)
-    
+
     subject       "Password Reset Instructions"
     from          "noreply@berkmancenter.org"
     recipients    user.email_address
     sent_on       Time.now
     body          :edit_password_reset_url => edit_password_reset_url(user.perishable_token)
   end
-  
+
   def logins(users)
     recipients users.map(&:email_address).uniq
     subject    "Logins"
@@ -246,7 +246,7 @@ class Notifier < ActionMailer::Base
     sent_on    Time.now
     body       :new_password_reset_url => new_password_reset_url, :users => users
   end
-  
+
   def cases_list
     recipients ['h2o@cyber.law.harvard.edu']
     subject    "List of All Cases #{Time.now.to_s(:simpledate)}"

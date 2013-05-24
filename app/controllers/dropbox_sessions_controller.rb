@@ -15,7 +15,7 @@ class DropboxSessionsController < ApplicationController
         dbsession.get_access_token  #we've been authorized, so now request an access_token
         session[:dropbox_session] = dbsession.serialize
 
-        redirect_to :controller => :cases, :action => 'bulk_upload'
+        redirect_to :controller => :bulk_uploads, :action => :new
     end
   end
 end

@@ -1,0 +1,11 @@
+
+<h2>Bulk upload cases</h2><br/><br/>
+<h3>These files were found in your H2o Dropbox folder and will be uploaded:</h3><br/>
+<ul>
+<% @files_to_import.each do |file| %>
+  <li><%= file.gsub("/", "") %></li>
+<% end %>
+</ul>
+<br/>
+<br/>
+  <%= button_to "UPLOAD!", :controller => 'bulk_uploads', :action => 'create' %>

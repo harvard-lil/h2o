@@ -1,6 +1,0 @@
-<ul>
-<% @entry['contents'].each do |file| %>
-  <li><%= file['path'].gsub("/", "") %></li>
-<% end %>
-</ul>
-  <%= button_to "pdf", :action => 'bulk_upload' %>
