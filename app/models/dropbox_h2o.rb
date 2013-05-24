@@ -1,18 +1,23 @@
 class DropboxH2o
-  FAILED_DIR_FILE_PATH = '/failed'
-  def initialize
-    new_session = DropboxSession.deserialize(File.read('dbsession.txt'))
+  
+  def initialize(dropbox_session)
+    new_session = DropboxSession.deserialize(dropbox_session)
     @client = DropboxClient.new(new_session, DROPBOXCONFIG[:access_type])
   end
-
-  def copy_to_failed_dir(file_path)
-    @client.file_copy(file_path, "#{FAILED_DIR_FILE_PATH}#{file_path}")
+  
+  def self.test
+    f = File.read('dbsession.txt')
+    @dh2o = DropboxH2o.new(f)
+    Import.destroy_all
+    @dh2o.import(Case)
   end
 
-  def import_file_paths
-    res = @client.metadata('/')['contents'].map{|entry| entry['path']}
-    res = res - excluded_file_paths
-    res
+  def copy_to_dir(dir, file_path)
+    @client.file_copy(file_path, "#{dir}#{file_path}")
+  end
+
+  def file_paths
+    @client.metadata('/')['contents'].map{|entry| entry['path']}
   end
 
   def get_file(file_path)
@@ -22,10 +27,21 @@ class DropboxH2o
   def write_error(path, error_messages)
     del =DropboxErrorLog.new(@client)
     del.write(path, error_messages)
+  end 
+  
+  def importer
+    @importer = DropboxImporter.new(self) unless defined?(@importer)
+    @importer
   end
 
-  def excluded_file_paths
-    [FAILED_DIR_FILE_PATH, DropboxErrorLog::ERROR_LOG_PATH]
-  end
+  def respond_to_missing?(method_name, include_private=false); importer.respond_to?(method_name, include_private); end if RUBY_VERSION >= "1.9"
+  def respond_to?(method_name, include_private=false); importer.respond_to?(method_name, include_private) || super; end if RUBY_VERSION < "1.9"
+   
+  private
 
+  def method_missing(method_name, *args, &block)
+    return super unless importer.respond_to?(method_name)
+    importer.send(method_name, *args, &block)
+  end
+ 
 end
