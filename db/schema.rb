@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130523003854) do
+ActiveRecord::Schema.define(:version => 20130524022640) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -59,6 +59,12 @@ ActiveRecord::Schema.define(:version => 20130523003854) do
   create_table "brain_busters", :force => true do |t|
     t.string "question"
     t.string "answer"
+  end
+
+  create_table "bulk_uploads", :force => true do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "has_errors"
   end
 
   create_table "case_citation_versions", :force => true do |t|
@@ -359,7 +365,7 @@ ActiveRecord::Schema.define(:version => 20130523003854) do
 
   create_table "defaults", :force => true do |t|
     t.string   "name",        :limit => 1024
-    t.string   "title",                                            :null => false
+    t.string   "title",       :limit => 1024
     t.string   "url",                                              :null => false
     t.string   "description", :limit => 5242880
     t.boolean  "active",                         :default => true
@@ -410,6 +416,15 @@ ActiveRecord::Schema.define(:version => 20130523003854) do
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
+  create_table "imports", :force => true do |t|
+    t.integer  "bulk_upload_id"
+    t.integer  "actual_object_id"
+    t.string   "actual_object_type"
+    t.string   "dropbox_filepath"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "influences", :force => true do |t|
     t.integer  "resource_id"

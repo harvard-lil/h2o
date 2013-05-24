@@ -58,7 +58,7 @@ ActionController::Routing::Routes.draw do |map|
   map.notes_tag "playlists/:id/notes/:type", :controller => :playlists, :action => :notes
 
   map.resources :defaults, :collection => {:embedded_pager => :get}
-
+  map.resources :bulk_uploads
   map.resources :medias, :collection => {:embedded_pager => :get}
   map.media_tag "media/tag/:tag", :controller => :medias, :action => :index
 
