@@ -5,9 +5,8 @@ class DropboxSessionsController < ApplicationController
     if not params[:oauth_token] then
         dbsession = DropboxSession.new(DROPBOXCONFIG[:app_key], DROPBOXCONFIG[:app_secret])
 
-        session[:dropbox_session] = dbsession.serialize #serialize and save this DropboxSession
+        session[:dropbox_session] = dbsession.serialize 
 
-        #pass to get_authorize_url a callback url that will return the user here
         redirect_to dbsession.get_authorize_url url_for(:action => 'create')
     else
         # the user has returned from Dropbox
