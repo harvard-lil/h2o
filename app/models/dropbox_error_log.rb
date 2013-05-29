@@ -17,7 +17,6 @@ class DropboxErrorLog
     true
   end
 
-
   def get_or_initialize
       @error_log = Tempfile.new(ERROR_LOG_NAME)
     begin

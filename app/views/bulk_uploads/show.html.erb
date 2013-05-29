@@ -1,10 +1,10 @@
+<% if @bulk_upload.delayed_job %>
+  <h2>Bulk upload running...</h2>
+<% else %>
 <h2>Bulk upload completed <%= @bulk_upload.has_errors? ? "with" : "without any"%> errors</h2>
-<h3>Files imported: </h3>
-<table>
-<tr><td>File</td><td>Created Case</td></tr>
-<% @bulk_upload.imports.each do |import| %>
-<tr>
-<td><%= import.dropbox_filepath.gsub("/", "").ljust(150) %></td> <td><%= link_to import.actual_object.full_name, case_path(import.actual_object) %></td>
-</tr>
 <% end %>
-</table>
+<% if @bulk_upload.imports.any? %>
+  <%= render :partial => 'files_imported' %>
+<% else %>
+<h3>No files imported yet.</h3>
+<% end %>
