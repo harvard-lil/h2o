@@ -12,6 +12,11 @@ class DropboxH2o
     @dh2o.import(Case)
   end
 
+  def self.do_import(klass, dbsession, bulk_upload)
+    @dh2o = DropboxH2o.new(dbsession)
+    @dh2o.import(klass, bulk_upload)
+  end
+
   def copy_to_dir(dir, file_path)
     @client.file_copy(file_path, "#{dir}#{file_path}")
   end
