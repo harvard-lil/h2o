@@ -8,7 +8,7 @@
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @playlist } %>
   <%= link_to raw('<span class="icon icon-remix-large"></span>'), prepare_copy_playlist_path(@playlist), :class => "tooltip link-remix remix-action requires_logged_in", :title => "Remix #{@playlist.name}" %>
-  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @playlist.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @playlist.id, "data-type" => "playlist", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@playlist.name}", "data-type" => "playlist", "data-itemid" => @playlist.id %>
 </aside>
 
