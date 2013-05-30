@@ -141,18 +141,18 @@ class Playlist < ActiveRecord::Base
     end
   end
 
+  def reset_positions
+    self.playlist_items.each_with_index do |pi, index|
+      pi.update_attribute(:position, self.counter_start + index)
+    end
+  end
+
   private
 
   def recursive_playlists(playlist)
     yield playlist
     playlist.actual_objects.find_all{|ao| ao.is_a?(Playlist)}.each do |child|
       recursive_playlists(child){|x| yield x}
-    end
-  end
-
-  def reset_positions
-    self.playlist_items.each_with_index do |pi, index|
-      pi.update_attribute(:position, self.counter_start + index)
     end
   end
 end
