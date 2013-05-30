@@ -5,15 +5,15 @@ class DropboxImporter
   
   def initialize(dh2o)
     @dh2o = dh2o
-    @bulk_upload = BulkUpload.create!
   end
     
   def paths_to_import
     @dh2o.file_paths - Import.completed_paths(@klass)
   end
   
-  def import(klass)
+  def import(klass, bulk_upload)
     @klass = klass
+    @bulk_upload = bulk_upload
     paths_to_import.each do |path|
       import!(path)
     end
