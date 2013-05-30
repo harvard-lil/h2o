@@ -1,7 +1,7 @@
 ExceptionNotification::Notifier.configure_exception_notifier do |config|
   config[:app_name]                 = "[H2O-Rails]"
   config[:sender_address]           = "h2o+errors@cyber.law.harvard.edu"
-  config[:exception_recipients]     = ['djcp+errors@cyber.law.harvard.edu','steph@endpoint.com', 'tim@endpoint.com']
+  config[:exception_recipients]     = ['dlewis@cyber.law.harvard.edu','steph@endpoint.com', 'tim@endpoint.com']
 
   # In a local environment only use this gem to render, never email
   #defaults to false - meaning by default it sends email.  Setting true will cause it to only render the error pages, and NOT email.
