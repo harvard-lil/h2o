@@ -10,60 +10,8 @@ var access_results;
 var panel_offset;
 var panel_width;
 var min_tick_width = 10;
-
-var font_map = {
-  'goudy' : 'sorts-mill-goudy',
-  'leitura' : 'leitura-news',
-  'garamond' : 'adobe-garamond-pro',
-  'futura' : 'futura-pt',
-  'dagny' : 'ff-dagny-web-pro',
-  'proxima' : 'proxima-nova',
-  'verdana' : 'Verdana'
-};
-var base_font_sizes = {
-  'goudy' : {
-    'small' : 14,
-    'medium' : 18,
-    'large' : 22,
-    'xlarge' : 26
-  },
-  'leitura' : {
-    'small' : 13,
-    'medium' : 17,
-    'large' : 21,
-    'xlarge' : 25
-  },
-  'garamond' : {
-    'small' : 16,
-    'medium' : 20,
-    'large' : 24,
-    'xlarge' : 28
-  },
-  'futura' : {
-    'small' : 16,
-    'medium' : 20,
-    'large' : 24,
-    'xlarge' : 28
-  },
-  'dagny' : {
-    'small' : 14,
-    'medium' : 18,
-    'large' : 22,
-    'xlarge' : 26
-  },
-  'proxima' : {
-    'small' : 14,
-    'medium' : 18,
-    'large' : 22,
-    'xlarge' : 26
-  },
-  'verdana' : {
-    'small' : 11,
-    'medium' : 15,
-    'large' : 19,
-    'xlarge' : 23
-  }
-};
+var item_offset_top;
+var right_offset;
 
 $.noConflict();
 
@@ -77,6 +25,14 @@ jQuery.extend({
   mustache: function(template, data, partial, stream) {
     if(Mustache && template && data) {
       return Mustache.to_html(template, data, partial, stream);
+    }
+  },
+  observeDefaultPrintListener: function() {
+    if(jQuery.classType() != 'collages') {
+      jQuery('#fixed_print').click(function(e) {
+        var url = jQuery(this).attr('href');
+        jQuery(this).attr('href', url + '#fontface=' + jQuery('#fontface a.active').data('value') + '-fontsize=' + jQuery('#fontsize a.active').data('value')); 
+      });
     }
   },
   adjustTooltipPosition: function() {
@@ -271,13 +227,19 @@ jQuery.extend({
       } else {
         popup_item_id = current_id;
         popup_item_type = element.data('type');
-        if(jQuery('.singleitem').size()) {
-          jQuery('.add-popup').hide().css({ top: 110, left: '747px' }).fadeIn(100);
+        var addItemNode = jQuery(jQuery.mustache(add_popup_template, { "playlists": user_playlists }));
+        jQuery(addItemNode).dialog({
+          title: 'Add item to...',
+          modal: true,
+          width: 'auto',
+          height: 'auto',
+        }).dialog('open');
+        if(jQuery('.singleitem').size() || jQuery.classType() == 'base') {
+          //jQuery('.add-popup').hide().css({ top: '50%', left: '50%' }).fadeIn(100);
         } else {
-          var listitem_element = jQuery('#listitem_' + popup_item_type + popup_item_id);
+          /* var listitem_element = jQuery('#listitem_' + popup_item_type + popup_item_id);
           listitem_element.addClass('with_popup');
-          var position = listitem_element.offset();
-          jQuery('.add-popup').hide().css({ top: position.top - 47, left: listitem_element.width() + position.left - 298 }).fadeIn(100);
+          var position = listitem_element.offset(); */
         }
       }
 
@@ -388,38 +350,55 @@ jQuery.extend({
       jQuery('#collapse_toggle').data('threshold', threshold);
     }
   },
+  adjustEditItemPositioning: function() {
+    if(jQuery(window).scrollTop() < item_offset_top) {
+      jQuery('#edit_item').css({ position: "relative", right: "0px" });
+    } else {
+      jQuery('#edit_item').css({ position: "fixed", right: right_offset, top: "0px" });
+    }
+    return false;
+  },
+  checkForPanelAdjust: function() {
+    if(jQuery('body').hasClass('adjusting_now')) {
+      return false;
+    }
+    if(jQuery('#edit_toggle').hasClass('edit_mode')) {
+      jQuery.adjustEditItemPositioning();
+      return false;
+    }
+    if(jQuery('#collapse_toggle').data('threshold') < jQuery(window).scrollTop()) {
+      if(jQuery('.right_panel:visible').size()) {
+        jQuery('body').addClass('adjusting_now');
+        jQuery('#collapse_toggle').addClass('special_hide');
+        var scroll_position = jQuery(window).scrollTop();
+        jQuery('.right_panel:visible').addClass('visible_before_hide').fadeOut(200, function() {
+          jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
+            jQuery.adjustTooltipPosition();
+            jQuery(window).scrollTop(scroll_position);
+            jQuery('body').removeClass('adjusting_now');
+          });
+        });
+      } else if(!jQuery('#collapse_toggle').hasClass('special_hide')) {
+        jQuery('#collapse_toggle').addClass('hide_via_scroll');
+        jQuery.adjustTooltipPosition();
+      }
+    } else if(jQuery('#collapse_toggle.special_hide').size() && jQuery(window).scrollTop() == 0) {
+      jQuery('#collapse_toggle').removeClass('special_hide');
+      jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
+        jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').fadeIn(200);
+        jQuery.adjustTooltipPosition();
+      });
+    } else if(jQuery('#collapse_toggle.hide_via_scroll').size() && jQuery('#collapse_toggle').data('threshold') > jQuery(window).scrollTop()) {
+      jQuery('#collapse_toggle').removeClass('hide_via_scroll');
+      jQuery.adjustTooltipPosition();
+    }
+  },
   initializeRightPanelScroll: function() {
     if(jQuery('.right_panel').size()) {
+      item_offset_top = jQuery('.singleitem').offset().top;
+      right_offset = (jQuery('body').width() - jQuery('.main_wrapper').width()) / 2
       jQuery(window).scroll(function() {
-        if(jQuery('body').hasClass('adjusting_now') || jQuery('#edit_toggle').hasClass('edit_mode')) {
-          return false;
-        }
-        if(jQuery('#collapse_toggle').data('threshold') < jQuery(window).scrollTop()) {
-          if(jQuery('.right_panel:visible').size()) {
-            jQuery('body').addClass('adjusting_now');
-            jQuery('#collapse_toggle').addClass('special_hide');
-            var scroll_position = jQuery(window).scrollTop();
-            jQuery('.right_panel:visible').addClass('visible_before_hide').fadeOut(200, function() {
-              jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
-                jQuery.adjustTooltipPosition();
-                jQuery(window).scrollTop(scroll_position);
-                jQuery('body').removeClass('adjusting_now');
-              });
-            });
-          } else if(!jQuery('#collapse_toggle').hasClass('special_hide')) {
-            jQuery('#collapse_toggle').addClass('hide_via_scroll');
-            jQuery.adjustTooltipPosition();
-          }
-        } else if(jQuery('#collapse_toggle.special_hide').size() && jQuery(window).scrollTop() == 0) {
-          jQuery('#collapse_toggle').removeClass('special_hide');
-          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
-            jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').fadeIn(200);
-            jQuery.adjustTooltipPosition();
-          });
-        } else if(jQuery('#collapse_toggle.hide_via_scroll').size() && jQuery('#collapse_toggle').data('threshold') > jQuery(window).scrollTop()) {
-          jQuery('#collapse_toggle').removeClass('hide_via_scroll');
-          jQuery.adjustTooltipPosition();
-        }
+        jQuery.checkForPanelAdjust();
       });
     }
   },
@@ -589,6 +568,15 @@ jQuery.extend({
           jQuery('#defect_user_id').val(data.user.id);
           jQuery('.requires_logged_in').animate({ opacity: 1.0 });
           jQuery('#header_login').remove();
+          if(jQuery.classType() == 'base') {
+            jQuery('#base_dashboard').attr('href', "/users/" + data.user.id);
+            jQuery('#get_started').remove();
+            user_bookmarks = jQuery.parseJSON(results.bookmarks);
+            jQuery.each(user_bookmarks, function(i, j) {
+              jQuery('#' + i + ' .bookmark-action').addClass('inactive').html('<span class="icon icon-favorite"></span>BOOKMARKED');
+            });
+          }
+          user_playlists = jQuery.parseJSON(results.playlists) || new Array();
         } else {
           jQuery('.requires_logged_in').remove();
         }
@@ -639,11 +627,6 @@ jQuery.extend({
             }
           });
           jQuery('.add-popup select option').remove();
-          var playlists = jQuery.parseJSON(results.playlists) || new Array(); 
-          jQuery.each(playlists, function(i, el) {
-            var node = jQuery('<option>').val(el.playlist.id).text(el.playlist.name);
-            jQuery('.add-popup select').append(node);
-          });
         }
         jQuery.setFixedLinkPosition();
       }
@@ -878,9 +861,11 @@ jQuery.extend({
 
   showGlobalSpinnerNode: function() {
     jQuery('#spinner').show();
+    jQuery('body').css('cursor', 'progress');
   },
   hideGlobalSpinnerNode: function() {
     jQuery('#spinner').hide();
+    jQuery('body').css('cursor', 'auto');
   },
   showMajorError: function(xhr) {
     //empty for now
@@ -985,7 +970,9 @@ jQuery.extend({
 
           var snode;
           if(!data.already_bookmarked) {
-            if (el.hasClass('link-bookmark')) {
+            if(jQuery.classType() == 'base') {
+              el.addClass('inactive').html('<span class="icon icon-favorite"></span>BOOKMARKED');
+            } else if (el.hasClass('link-bookmark')) {
               el.addClass('inactive').html('<span class="icon icon-favorite-large"></span>BOOKMARKED');
               setTimeout(function() {
                 jQuery('#listitem_' + el.data('type') + el.data('itemid')).removeClass('with_popup');
@@ -1182,6 +1169,11 @@ jQuery(function() {
   jQuery.observeQuickCollage();
   jQuery.initializeRightPanelScroll();
   jQuery.resetRightPanelThreshold();
+  jQuery.observeDefaultPrintListener();
+
+  if(jQuery('body').hasClass('bbase_index')) {
+    jQuery.loadEditability();
+  }
 
   if(jQuery.classType() != 'collages' && jQuery.classType() != 'playlists') {
     jQuery.setFixedLinkPosition();
@@ -1221,3 +1213,13 @@ var h2oTextileSettings = {
   ]
 }
 
+var add_popup_template = '\
+<div class="popup add-popup">\
+  <div class="select-wrapper"><select id="playlist_id">\
+  {{#playlists}}\
+  {{#playlist}}\
+  <option value="{{id}}">{{name}}</option>\
+  {{/playlist}}\
+  {{/playlists}}\
+  </select></div>\
+  <div class="btn-wrapper"><a href="#" class="button new-playlist-item">SAVE</a></div></div>';

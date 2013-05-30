@@ -1,4 +1,4 @@
-<% if !current_user || ["collages#show", "playlists#show"].include?("#{params[:controller]}##{params[:action]}") -%>
+<% if !current_user || @page_cache -%>
 <div id="login-popup" class="standard-form popup">
 <div class="right">
 <h3>Returning user log in.</h3>

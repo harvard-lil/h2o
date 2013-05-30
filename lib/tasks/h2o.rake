@@ -104,6 +104,11 @@ namespace :h2o do
     system("rm -rf #{RAILS_ROOT}/public/playlists/*")
   end
 
+  desc 'Clear Homepage Cache'
+  task(:clear_homepage_cache => :environment) do
+    system("rm -rf #{RAILS_ROOT}/public/index.html")
+  end
+  
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
     system("rm -rf #{RAILS_ROOT}/tmp/cache/*")
@@ -111,6 +116,7 @@ namespace :h2o do
     system("rm #{RAILS_ROOT}/public/javascripts/all.js")
     system("rm -rf #{RAILS_ROOT}/public/collages/*")
     system("rm -rf #{RAILS_ROOT}/public/playlists/*")
+    system("rm -rf #{RAILS_ROOT}/public/index.html")
   end
 
   desc 'Test case import'

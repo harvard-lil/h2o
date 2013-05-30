@@ -24,10 +24,9 @@ class ApplicationController < ActionController::Base
   before_filter :title_select, :set_time_zone
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
-  before_filter :initialize_case         
   before_filter :set_default_font_size
-     
-  
+  before_filter :set_page_cache_indicator
+ 
   #Add ability to make page caching conditional
   #to support only caching public items
   def self.caches_page(*actions)
@@ -49,10 +48,11 @@ class ApplicationController < ActionController::Base
     large_font_size = 16
     cookies[:font_size] = large_font_size if cookies[:font_size].blank?
   end
-  
-  def initialize_case
-    Case.new
+
+  def set_page_cache_indicator
+    @page_cache = false
   end
+  
   # Switches to nil layout for ajax calls.
   def layout_switch
     (request.xhr?) ? nil : :application

@@ -75,6 +75,7 @@ class PlaylistsController < BaseController
 
   # GET /playlists/1
   def show
+    @page_cache = true
     add_javascripts ['playlists', 'jquery.tipsy', 'jquery.nestable']
     add_stylesheets ['playlists']
 

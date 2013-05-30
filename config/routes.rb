@@ -101,6 +101,7 @@ ActionController::Routing::Routes.draw do |map|
   map.search_all "/all_materials", :controller => :base, :action => :search
   map.quick_collage "/quick_collage", :controller => :base, :action => :quick_collage
   map.root :controller => "base"
+  map.connect "/base_access_level", :controller => :base, :action => :access_level
   map.partial_results "/partial_results", :controller => :base, :action => :partial_results
   map.partial_results_show "/partial_results/:dummy/:id", :controller => :base, :action => :partial_results
 

@@ -343,13 +343,6 @@
 
 /* Hiding while page is loading */
 button.inactive { opacity: 0.5; }
-#playlist .description .toolbar ul li.requires_logged_in,
-.requires_logged_in,
-.requires_edit,
-.requires_remove,
-.afterload {
-  opacity: 0.0;
-}
 
 .singleitem .toolbar #deep-copy-playlist { background: yellow; }
 #print-container {

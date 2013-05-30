@@ -1,9 +1,9 @@
 <header>
   <div class="wrapper">
 	  <nav>
-	  	<% if ["collages#show", "playlists#show"].include?("#{params[:controller]}##{params[:action]}") -%>
+	  	<% if @page_cache -%>
       <span id="user_account"></span>
-      <%= link_to "sign out", log_out_path, :class => "requires_logged_in" %>
+      <%= link_to "sign out", log_out_path, :class => 'requires_logged_in' %>
 	  	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
 	  	<% else -%>
 	  	<% if current_user -%>

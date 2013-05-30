@@ -170,14 +170,6 @@
 .layered-control-end { display: none; background: url(/images/collapse.png) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .paragraph-numbering { position: absolute; left: 30px; color: #369; text-decoration: none; }
 
-/* Hiding while page is loading */
-.singleitem .details .edit-action,
-.requires_logged_in,
-.requires_edit,
-.afterload {
-  opacity: 0.0;
-}
-
 /* MarkItUp */
 /*
 .markItUp { width: 100%; border: none; }
@@ -381,6 +373,10 @@ form.formtastic fieldset > ol > li.layer_check input {
 .annotation-info,
 .edit_annotation_link {
   padding: 10px;
+}
+.annotation-info {
+  height: 400px;
+  overflow-y: scroll;
 }
 .annotation-info .stats_panel {
   padding: 10px 0px;

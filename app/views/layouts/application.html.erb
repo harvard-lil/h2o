@@ -39,7 +39,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
     <%= render :partial => "shared/nav" %>
     <div class="wrapper main_wrapper">
 
-    <% if flash[:notice] && !(@single_resource && [Collage, Playlist].include?(@single_resource.class) && params[:action] == 'show') %>
+    <% if flash[:notice] && !@page_cache %>
     <p id="notice"><%= flash[:notice] %></p>
     <% end -%>
 
@@ -56,7 +56,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= render :partial => "shared/font_selectors" %>
 <%= javascript_include_tag 'jquery.min.js' %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
-<%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
+<%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
   'ui', 'jquery.form', 'jquery.cookie', 'jquery.address.min','jquery.tabSlideOut.v1.3.js',
   'jquery.rule.min', 'jquery.tipsy', 'jquery.hoverIntent', 'mustache', :cache => 'all' %>
 
@@ -72,10 +72,12 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <% flash.delete(:notice) %>
 
 <script type="text/javascript">
-  <% if current_user -%>
+  <% if current_user && !@page_cache -%>
   var user_bookmarks = <%= raw(current_user.bookmarks_map.to_json) %>;
+  var user_playlists = <%= raw(current_user.playlists.to_json(:only => [:id, :name])) %>
   <% else -%>
   var user_bookmarks = {};
+  var user_playlists = new Array();
   <% end -%>
 </script>
 

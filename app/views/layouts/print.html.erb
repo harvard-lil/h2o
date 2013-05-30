@@ -8,28 +8,14 @@
 
     <%= stylesheet_link_tag 'ui', 'icons', 'export', :media => "all" %>
     <%= stylesheet_link_tag 'print', :media => "print" %>
-    <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
-      <%= stylesheet_link_tag ss %>
-    <% end -%>
 	  <%= javascript_include_tag 'modernizr.custom.86311' %>
-    <%#= This is needed for jQuery.rule plugin %>
-    <style type="text/css" rel="stylesheet"></style>
+    <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body id="b<%= params[:controller] %>">
     <div class="wrapper">
   	<section id="shell">
       <div id="print-options">
-        <strong>FONT SIZE</strong>
-        <select id="printfontsize">
-          <option value="11" selected="selected">Small</option>
-          <option value="14">Medium</option>
-          <option value="16">Large</option>
-        </select>
-        <strong>FONT TYPE</strong>
-        <select id="printfonttype">
-          <option value="serif">Serif</option>
-          <option value="sans-serif" selected="selected">Sans-Serif</option>
-        </select>
         <strong>PRINT TITLE(S)</strong>
         <select id="printtitle">
           <option value="yes" selected="selected">Yes</option>
@@ -61,6 +47,24 @@
             <option value="no" selected="selected">No</option>
           </select>
         </div>
+        <span id="fontface_span">
+        <strong>FONT FACE</strong>
+        <select id="fontface">
+          <option value="leitura">Leitura</option>
+          <option value="garamond">Garamond</option>
+          <option value="futura">Futura</option>
+          <option value="verdana">Verdana</option>
+          <option value="proxima">Proxima Nova</option>
+          <option value="dagny" selected="selected">Dagny Web</option>
+        </select>
+        </span>
+        <strong>FONT SIZE</strong>
+        <select id="fontsize">
+          <option value="small" selected="selected">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="xlarge">X-Large</option>
+        </select>
       <% end %>
       </div>
       <%= yield %>
@@ -69,6 +73,6 @@
 
     <%= javascript_include_tag 'jquery.min.js' %>
     <%= javascript_include_tag 'jquery-ui.min.js' %>
-    <%= javascript_include_tag 'jquery.selectbox-0.6.1.pack', 'export', 'jquery.rule.min', 'jquery.xcolor' %>
+    <%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'export', 'jquery.rule.min', 'jquery.xcolor' %>
   </body>
 </html>

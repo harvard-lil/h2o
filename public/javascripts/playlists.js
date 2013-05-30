@@ -16,12 +16,15 @@ jQuery.extend({
         jQuery('#playlist .dd .icon').removeClass('hover');
         if(jQuery('#collapse_toggle').hasClass('expanded')) {
           jQuery('#edit_item').fadeOut(200, function() {
-            jQuery('.singleitem').animate({ width: "100%" }, 100);
+            jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
+              jQuery.checkForPanelAdjust();
+            });
           });
         } else {
           jQuery('#edit_item').fadeOut(200, function() {
             jQuery('#stats').fadeIn(200, function() {
               jQuery.resetRightPanelThreshold();
+              jQuery.checkForPanelAdjust();
             });
           });
         }
@@ -45,6 +48,7 @@ jQuery.extend({
           });
         }
         jQuery.observeDragAndDrop();
+        jQuery.checkForPanelAdjust();
       }
     });
   },

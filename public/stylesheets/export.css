@@ -73,11 +73,10 @@ background: url(/images/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; widt
 /* Print */
 #print-options {
   margin-top: 15px; 
-  padding-bottom: 125px;
+  padding-bottom: 25px;
 }
 #print-options .jsb {
   display: inline-block;
-  width: 130px;
   float: none;
   border: 1px solid #666;
   border-radius:4px; 
@@ -85,6 +84,9 @@ background: url(/images/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; widt
   -webkit-border-radius:4px;
   -o-border-radius:4px;
   margin: 0px 10px 5px 0px;
+}
+#fontface_span .jsb {
+  width: 110px !important;
 }
 #print-options strong {
   display: inline-block;
@@ -98,7 +100,7 @@ background: url(/images/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; widt
 }
 #print-options #create_date {
   font-size: 9px;
-  width: 170px;
+  width: 173px;
 }
 
 .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }

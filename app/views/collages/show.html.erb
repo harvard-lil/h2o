@@ -114,8 +114,6 @@
 
 <div class="clear"></div>
   
-<%= render :partial => "shared/popup", :locals => { :type => "collage" } %>
- 
 <script type="text/javascript">
 var editability_path = "<%= access_level_collage_path(@collage) %>"; 
 var original_data = <%= raw @collage.readable_state || '{}' %>;

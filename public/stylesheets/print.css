@@ -1,2 +1,4 @@
 .popup, .playlist .icon-type { display: none; }
 .page-break { page-break-after: always; }
+
+#print-options { display: none; }

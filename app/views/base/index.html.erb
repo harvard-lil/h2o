@@ -3,15 +3,12 @@
     <h1>Welcome to H2O, a suite of online classroom tools</h2>
     <h2>Develop, remix, and share online textbooks, casebooks, and modules filled with edited cases, texts, audio, images, videos, and PDFs under a <a href="/p/terms">Creative Commons license</a>.</h2>
     <div id="links">
-      <% if current_user -%>
-      <%= link_to "DASHBOARD", user_path(current_user), :class => "button" %>
-      <% else -%>
-      <a href="/users/new" class="button">GET STARTED</a>
-      <% end -%>
-      <a href="/p/about" class="button">ABOUT</a>
-      <a href="http://h2odev.law.harvard.edu/blog/" class="button">BLOG</a>
-      <a href="/p/terms" class="button">TERMS</a>
-      <a href="/p/contact_us" class="button">CONTACT</a>
+      <%= link_to "DASHBOARD", '#', :class => "button requires_logged_in", :id => "base_dashboard" %>
+      <a href="/users/new" class="button afterload" id="get_started">GET STARTED</a>
+      <a href="/p/about" class="button afterload">ABOUT</a>
+      <a href="http://h2odev.law.harvard.edu/blog/" class="button afterload">BLOG</a>
+      <a href="/p/terms" class="button afterload">TERMS</a>
+      <a href="/p/contact_us" class="button afterload">CONTACT</a>
     </div>
   </div>
   <div class="panel featured_panel" id="featured_playlists">
@@ -42,4 +39,6 @@
 	<div class="clear"></div>
 </div>
 
-<%= render :partial => "shared/popup", :locals => { :type => "playlist" } %>
+<script type="text/javascript">
+var editability_path = "/base_access_level";
+</script>

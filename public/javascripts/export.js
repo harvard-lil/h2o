@@ -3,6 +3,23 @@ var stored_heatmap = {};
 var loaded_heatmaps = false;
 
 jQuery.extend({
+  setFontPrint: function() {
+    var font_size = jQuery('#fontsize').val();
+    var font_face = jQuery('#fontface').val();
+    var base_font_size = base_font_sizes[font_face][font_size];
+    console.log(base_font_size);
+    if(font_face == 'verdana') {
+      jQuery.rule("body .singleitem *, body .singleitem article tt { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('style');
+    } else {
+      jQuery.rule("body .singleitem *, body .singleitem article tt { font-family: '" + font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('style');
+    }
+    jQuery.rule('.singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('style');
+    jQuery.rule('.singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('style');
+    jQuery.rule('.singleitem *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('style');
+    jQuery.rule('.singleitem *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    jQuery.rule('.singleitem *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
+    jQuery.rule('.singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+  },
   printMarkupAnnotation: function(annotation) {
     var annotation_start = parseInt(annotation.annotation_start.replace(/^t/, ''));
     var annotation_end = parseInt(annotation.annotation_end.replace(/^t/, ''));
@@ -62,6 +79,10 @@ jQuery.extend({
           jQuery.each(e, function(a, h) {
             jQuery('#' + a).css('display', 'block');
           });
+        } else if(i == 'font_face') {
+          jQuery('#fontface').val(e);
+        } else if(i == 'font_size') {
+          jQuery('#fontsize').val(e);
         } else if(i.match(/#unlayered-ellipsis/)) {
           var pos_id = parseInt(i.replace(/#unlayered-ellipsis-/, '')) - 1;
           var elements = all_tts.slice(pos_id);
@@ -86,6 +107,16 @@ jQuery.extend({
         jQuery('#collage' + id + ' article ' + selector + ':not(:has(.ellipsis:visible)):not(:has(tt:visible)):not(.paragraph-numbering)').addClass('no_visible_children');
       });
     });
+    if(document.location.hash.match('fontface')) {
+      var vals = document.location.hash.replace('#', '').split('-');
+      for(var i in vals) {
+        var font_values = vals[i].split('=');
+        if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
+          jQuery('#' + font_values[0]).val(font_values[1]);
+        }
+      }
+    }
+    jQuery.setFontPrint();
   },
   highlightCollage: function(collage_id, highlights) {
     jQuery('#collage' + collage_id + ' tt').css('border-bottom', '2px solid #FFFFFF');
@@ -118,19 +149,15 @@ jQuery(document).ready(function(){
     jQuery('#printheatmap').val('no');
   }
   jQuery.loadState();
-  jQuery('#printfonttype').selectbox({
+  jQuery('#fontface').selectbox({
     className: "jsb", replaceInvisible: true
   }).change(function() {
-    jQuery.rule('body, .singleitem article tt { font-family: ' + jQuery(this).val() + '; }').appendTo('style');
+    jQuery.setFontPrint();
   });
-  jQuery('#printfontsize').selectbox({
+  jQuery('#fontsize').selectbox({
     className: "jsb", replaceInvisible: true
   }).change(function() {
-    var size = parseInt(jQuery(this).val());
-    jQuery.rule('body, tt, .paragraph-numbering, #playlist .item_description, .collage-content .item_description { font-size: ' + size + 'pt; }').appendTo('style');
-    jQuery.rule('#playlist h1, .collage-content > h1 { font-size: ' + (size + 6) + 'pt; }').appendTo('style');
-    jQuery.rule('#playlist h3 { font-size:' + (size + 3) + 'pt; }').appendTo('style');
-    jQuery.rule('#playlist .details h2, .collage-content .info { font-size: ' + (size - 1) + 'pt; }').appendTo('style');
+    jQuery.setFontPrint();
   });
   jQuery('#printtitle').selectbox({
     className: "jsb", replaceInvisible: true

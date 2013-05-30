@@ -1,5 +1,6 @@
 class BaseController < ApplicationController
   before_filter :store_location, :only => [:search, :index]
+  caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
 
   def embedded_pager(model = nil)
     params[:page] ||= 1
@@ -8,7 +9,7 @@ class BaseController < ApplicationController
       @objects = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
       @objects.build do
         keywords params[:keywords]
-        paginate :page => params[:page], :per_page => 10 || nil
+        paginate :page => params[:page], :per_page => 5 || nil
 
         with :public, true
         with :active, true
@@ -22,7 +23,7 @@ class BaseController < ApplicationController
       @objects = Rails.cache.fetch(cache_key) do
         obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
         obj.build do
-          paginate :page => params[:page], :per_page => 10 || nil
+          paginate :page => params[:page], :per_page => 5 || nil
 
           with :public, true
           with :active, true
@@ -62,7 +63,25 @@ class BaseController < ApplicationController
     render :partial => "partial_results/#{params[:type]}"
   end
 
+  def access_level
+    if current_user
+      render :json => {
+        :logged_in => current_user.to_json(:only => [:id, :login]),
+        :playlists => current_user.playlists.to_json(:only => [:id, :name]),
+        :bookmarks => current_user.bookmarks_map.to_json
+      }
+    else
+      render :json => {
+        :logged_in => false,
+        :playlists => [],
+        :bookmarks => []
+      }
+    end
+  end
+
   def index
+    @page_cache = true
+
     per_page = 8
 
     @highlighted = { :playlist => [], :user => [], :collage => [], :media => [], :textblock => [], :case => [] }

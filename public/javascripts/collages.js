@@ -49,12 +49,15 @@ jQuery.extend({
         el.removeClass('edit_mode');
         if(jQuery('#collapse_toggle').hasClass('expanded')) {
           jQuery('#edit_item').fadeOut(200, function() {
-            jQuery('.singleitem').animate({ width: "100%" }, 100);
+            jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
+              jQuery.checkForPanelAdjust();
+            });
           });
         } else {
           jQuery('#edit_item').fadeOut(200, function() {
             jQuery('#stats').fadeIn(200, function() {
               jQuery.resetRightPanelThreshold();
+              jQuery.checkForPanelAdjust();
             });
           });
         }
@@ -68,9 +71,9 @@ jQuery.extend({
         jQuery.recordCollageState(JSON.stringify(data), false);
       } else {
         el.addClass('edit_mode');
-        if(jQuery('#collapse_toggle').hasClass('expanded')) {
+        if(jQuery('#collapse_toggle').hasClass('expanded') || jQuery('#collapse_toggle').hasClass('special_hide')) {
           jQuery('#collapse_toggle').removeClass('expanded');
-          jQuery('.singleitem').animate({ width: "70%" }, 100, 'swing', function() {
+          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
             jQuery('#edit_item').fadeIn(200, function() {
               jQuery.resetRightPanelThreshold();
             });
@@ -88,6 +91,7 @@ jQuery.extend({
         }
         jQuery('#author_edits').addClass('inactive');
         jQuery('#heatmap_toggle').removeClass('disabled').addClass('inactive');
+        jQuery.checkForPanelAdjust();
       }
     });
   },
@@ -423,6 +427,8 @@ jQuery.extend({
         data.annotations[jQuery(el).attr('id')] = true;
       });
 
+      data.font_size = jQuery('#fontsize a.active').data('value');
+      data.font_face = jQuery('#fontface a.active').data('value');
       jQuery('#state').val(JSON.stringify(data));
     });
   },
@@ -494,6 +500,7 @@ jQuery.extend({
     } else {
       jQuery('#heatmap_toggle').removeClass('inactive');
       jQuery.toggleEditMode(false);
+      jQuery.checkForPanelAdjust();
     }
     if(jQuery.cookie('scroll_pos')) {
       jQuery(window).scrollTop(jQuery.cookie('scroll_pos'));
@@ -928,20 +935,6 @@ jQuery.extend({
     all_tts = jQuery('#collage article tt');
     var data = { "unlayered_start_id" : 1, "unlayered_end_id" : 1 };
   },
-  observeHeaderAdjust: function() {
-    /*
-    head_offset = jQuery('#fixed_header').offset();
-    jQuery(window).scroll(function() {
-      if(jQuery(window).scrollTop() < head_offset.top) {
-        jQuery('#fixed_header').css({ position: "static", width: "auto" });
-        jQuery('#collage article').css("padding-top", '13px')
-      } else {
-        jQuery('#fixed_header').css({ position: "fixed", width: 968, top: "0px" });
-        jQuery('#collage article').css("padding-top", (jQuery('#fixed_header').height() + 30) + 'px');
-      }
-    });
-    */
-  },
   observeStatsListener: function() {
     jQuery('#collage-stats').click(function() {
       jQuery(this).toggleClass("active");
@@ -1105,6 +1098,9 @@ jQuery.extend({
       jQuery(this).addClass('current');
       tabs_table.siblings('.tab_panel').hide();
       jQuery('#edit_item div.' + jQuery(this).attr('id')).show();
+    });
+    jQuery('#edit_item .tabs a.current').live('click', function(e) {
+      e.preventDefault();
     });
     jQuery('#annotation_submit').live('click', function(e) {
       e.preventDefault();
@@ -1316,7 +1312,6 @@ jQuery(document).ready(function(){
     jQuery.observeAnnotationEditListeners();
   
     jQuery.observeStatsListener();
-    jQuery.observeHeaderAdjust();
 
     /* Collage Search */
     jQuery.initKeywordSearch();

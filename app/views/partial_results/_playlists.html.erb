@@ -1,5 +1,5 @@
 <% @highlighted[:playlist].each do |v| -%>
-<div class="playlist item"><div class="item_wrapper">
+<div class="playlist item" id="listitem_playlist<%= v[:playlist].id %>"><div class="item_wrapper">
   <%= link_to "#{v[:title]} (#{v[:playlist].karma})", playlist_url(v[:playlist]), :class => "item_link" %>
   <%= link_to v[:user].attribution || v[:user].login, user_path(v[:user]), :class => "author" %>
   <% if v[:user].affiliation.present? -%>
@@ -7,14 +7,12 @@
   <% end -%>
   <%= render :partial => "shared/barcode", :locals => { :object => v[:playlist] } %>
   <div class="additional_details">
-    <% if current_user -%>
-    <%= link_to raw('<span class="icon icon-remix"></span>REMIX'), prepare_copy_playlist_path(v[:playlist]), :class => "link-remix remix-action" %>
-    <a data-item_id="<%= v[:playlist].id %>" data-bookmarktype="item_playlist" data-type="playlist" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
+    <%= link_to raw('<span class="icon icon-remix"></span>REMIX'), prepare_copy_playlist_path(v[:playlist]), :class => "link-remix remix-action requires_logged_in" %>
+    <a data-item_id="<%= v[:playlist].id %>" data-bookmarktype="item_playlist" data-type="playlist" href="#" class="link-add requires_logged_in"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
-      :class => "link-bookmark bookmark-action", 
+      :class => "link-bookmark bookmark-action requires_logged_in", 
       "data-itemid" => v[:playlist].id,
       "data-type" => "playlist" %>
-    <% end -%>
     <%= link_to raw('<span class="icon icon-read"></span>READ'), playlist_url(v[:playlist]) %>
   </div>
 </div></div>

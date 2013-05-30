@@ -719,35 +719,6 @@ body#bpages .main_wrapper {
 }
 
 /* Popup */
-.add-popup {
-  position:absolute;
-  z-index:10; 
-  background:#fff; 
-  border: 1px solid #666; 
-  padding: 4px 9px 10px;  
-  display:none;
-  top: 0px; 
-  right: 10px;
-  background: #FFF;
-  width: 300px;
-}
-.popup h4 {
-  font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
-  font-size:14px;
-  padding-bottom:11px;
-  float: left;
-  width: 200px;
-  line-height: 28px;
-}
-.popup .close-popup {
-  width: 15px;
-  height: 15px;
-  display: block;
-  float: right;
-  background: url(/images/icons.png) -356px -112px;
-  width: 16px;
-  height: 17px;
-}
 .popup select {
   width:230px;
   background: #FFF;
@@ -764,15 +735,6 @@ body#bpages .main_wrapper {
 }
 .popup .btn-wrapper {
   text-align: center;
-}
-.popup .btn {
-  background: #036290; 
-  color: #FFF; 
-  font-weight: bold;
-  padding: 5px 10px;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 11px;
 }
 
 #my_playlists { display: none; }
@@ -1173,7 +1135,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   background: #FFF;
   opacity: 0.0;
   margin-top: 5px;
-  width: 28%;
+  width: 305px;
   display: none;
   position: relative;
   margin-left: 31px;
@@ -1315,15 +1277,22 @@ ul.user_captcha > li p.inline-errors { display: none; }
   height:100%;
   background: #FFF;
 }
+#page * {
+  font-size: 18px;
+  font-family: 'ff-dagny-web-pro', Verdana, Arial, Helvetica, Sans-Serif;
+}
 #page a {
   color: #036290;
 }
 #page h1,
 #page p {
   margin-bottom: 10px;
-  font-family: 'ff-dagny-web-pro', Verdana, Arial, Helvetica, Sans-Serif;
+}
+#page h1 {
+  font-size: 22px;
 }
 #page h3 {
+  font-size: 22px;
   margin: 20px 0px 5px 0px;
 }
 #page p {
@@ -1500,3 +1469,10 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 #results .versions a { color: #669500; font-weight: bold; }
 #results .versions .hide_versions { color: #369; font-size: 10px; font-weight: normal; margin-top: 10px; display: inline-block; }
 
+#playlist .description .toolbar ul li.requires_logged_in,
+.requires_logged_in,
+.requires_edit,
+.requires_remove,
+.afterload {
+  opacity: 0.0;
+}
