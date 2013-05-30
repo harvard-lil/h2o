@@ -1034,7 +1034,7 @@ jQuery.extend({
           var text = '';
           jQuery.each(els, function(i, el) {
             var current = jQuery(el);
-            text += current.html();
+            //text += current.html();
             if(current.parent().is('a')) {
               linking = true;
             }
