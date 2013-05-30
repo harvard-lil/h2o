@@ -17,7 +17,7 @@
   <div id="main_details">
     <h1 class="scale1-5"><%= @text_block.display_name %></h1>
   </div>
-  <% if current_user && (current_user.is_text_block_admin || self.text_blocks.include?(@text_block)) %>
+  <% if current_user && (current_user.is_text_block_admin || current_user.text_blocks.include?(@text_block)) %>
   <div id="description" class="scale1-1">
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT TEXT BLOCK INFORMATION<span class="icon icon-arrow"></span>'), edit_text_block_path(@text_block), :class => "edit-external scale0-8" %>
   </div>
