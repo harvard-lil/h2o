@@ -263,4 +263,12 @@ class Notifier < ActionMailer::Base
     from       "noreply@berkmancenter.org"
     sent_on    Time.now
   end
+
+  def bulk_upload_completed(user, bulk_upload)
+    recipients [user.email_address]
+    subject    "Bulk Upload completed"
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+    body       :bulk_upload => bulk_upload, :bulk_upload_url => bulk_upload_url(bulk_upload)
+  end
 end

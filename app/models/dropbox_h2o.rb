@@ -1,10 +1,10 @@
 class DropboxH2o
-  
+
   def initialize(dropbox_session)
     new_session = DropboxSession.deserialize(dropbox_session)
     @client = DropboxClient.new(new_session, DROPBOXCONFIG[:access_type])
   end
-  
+
   def self.test
     f = File.read('dbsession.txt')
     @dh2o = DropboxH2o.new(f)
@@ -12,9 +12,10 @@ class DropboxH2o
     @dh2o.import(Case)
   end
 
-  def self.do_import(klass, dbsession, bulk_upload)
+  def self.do_import(klass, dbsession, bulk_upload, user)
     @dh2o = DropboxH2o.new(dbsession)
     @dh2o.import(klass, bulk_upload)
+    Notifier.deliver_bulk_upload_completed(user, bulk_upload)
   end
 
   def copy_to_dir(dir, file_path)
@@ -32,8 +33,8 @@ class DropboxH2o
   def write_error(path, error_messages)
     del =DropboxErrorLog.new(@client)
     del.write(path, error_messages)
-  end 
-  
+  end
+
   def importer
     @importer = DropboxImporter.new(self) unless defined?(@importer)
     @importer
@@ -41,12 +42,12 @@ class DropboxH2o
 
   def respond_to_missing?(method_name, include_private=false); importer.respond_to?(method_name, include_private); end if RUBY_VERSION >= "1.9"
   def respond_to?(method_name, include_private=false); importer.respond_to?(method_name, include_private) || super; end if RUBY_VERSION < "1.9"
-   
+
   private
 
   def method_missing(method_name, *args, &block)
     return super unless importer.respond_to?(method_name)
     importer.send(method_name, *args, &block)
   end
- 
+
 end

@@ -14,9 +14,10 @@ class BulkUploadsController < ApplicationController
 
   def create
     bulk_upload = BulkUpload.create!
-    delayed_job = DropboxH2o.delay.do_import(Case, 
+    delayed_job = DropboxH2o.delay.do_import(Case,
                                              current_dropbox_session,
-                                             bulk_upload)
+                                             bulk_upload,
+                                             current_user)
     bulk_upload.update_attribute('delayed_job_id', delayed_job.id)
     flash[:notice] = "Download started. You will receive an email when it's finished.  You can also refresh this page to check progress."
     redirect_to bulk_upload_path(bulk_upload)
