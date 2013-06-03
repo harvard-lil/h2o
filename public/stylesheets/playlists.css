@@ -377,14 +377,21 @@ button.inactive { opacity: 0.5; }
   font-weight: bold;
   display:inline;
   text-decoration: none;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 .playlist .wrapper a.hover_link {
 color: #036290;
 }
+.playlist .wrapper span.creator_details {
+  display: block;
+}
+#playlist #main_details .creator_details {
+  display: inline-block;
+  width: 100%;
+}
 .playlist .wrapper a.author_link,
 .dd-dragel .wrapper a.author_link {
   text-decoration: none;
-  padding-left: 5px;
 }
 .playlist .wrapper a.action {
   padding-left: 5px;

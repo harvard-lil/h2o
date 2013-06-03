@@ -38,6 +38,8 @@ class PlaylistItem < ActiveRecord::Base
 
     return true if resource_item_type == "ItemPlaylist"
 
+    return true if resource_item_type == "ItemCollage"
+
     if resource_item.actual_object.respond_to?(:description)
       return true if resource_item.actual_object.description.present?
 

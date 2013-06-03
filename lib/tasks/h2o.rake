@@ -103,6 +103,12 @@ namespace :h2o do
     system("rm -rf #{RAILS_ROOT}/public/collages/*")
     system("rm -rf #{RAILS_ROOT}/public/playlists/*")
   end
+  
+  desc 'Clear UI Caches'
+  task(:clear_ui_cache => :environment) do
+    system("rm -rf #{RAILS_ROOT}/public/stylesheets/all.css")
+    system("rm -rf #{RAILS_ROOT}/public/javascripts/all.js")
+  end
 
   desc 'Clear Homepage Cache'
   task(:clear_homepage_cache => :environment) do
@@ -112,11 +118,9 @@ namespace :h2o do
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
     system("rm -rf #{RAILS_ROOT}/tmp/cache/*")
-    system("rm #{RAILS_ROOT}/public/stylesheets/all.css")
-    system("rm #{RAILS_ROOT}/public/javascripts/all.js")
-    system("rm -rf #{RAILS_ROOT}/public/collages/*")
-    system("rm -rf #{RAILS_ROOT}/public/playlists/*")
-    system("rm -rf #{RAILS_ROOT}/public/index.html")
+    Rake::Task["h2o:clear_ui_cache"].execute
+    Rake::Task["h2o:clear_page_cache"].execute
+    Rake::Task["h2o:clear_homepage_cache"].execute
   end
 
   desc 'Test case import'

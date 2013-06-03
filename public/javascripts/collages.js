@@ -885,11 +885,10 @@ jQuery.extend({
         jQuery('#edit_item div.dynamic').html('').hide();
         if(response.type == "update") {
           jQuery.editAnnotationMarkup(annotation.annotation, color_map);
-          jQuery('#edit_item').append(jQuery('<div>').attr('id', 'status_message').html('Annotation Updated'));
         } else {
           jQuery.markupAnnotation(annotation.annotation, color_map, false);
-          jQuery('#edit_item').append(jQuery('<div>').attr('id', 'status_message').html('Annotation Created'));
         }
+        jQuery('#edit_item').append(jQuery('<div>').attr('id', 'status_message').html('Collage Edited'));
       }
     });
   },

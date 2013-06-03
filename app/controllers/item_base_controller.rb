@@ -34,12 +34,17 @@ class ItemBaseController < BaseController
     @can_edit_notes = false
 
     @object.url = params[:url_string]
-    if [ItemCollage, ItemDefault].include?(@model_class)
+    if [ItemCollage, ItemDefault, ItemPlaylist].include?(@model_class)
       item_id = @object.url.match(/[0-9]+$/).to_s
       actual_item = @base_model_class.find(item_id)
       @url_display = actual_item.url if @base_model_class == Default
       @object.name = actual_item.name
       @object.description = actual_item.description
+    end
+    if [ItemPlaylist].include?(@model_class)
+      item_id = @object.url.match(/[0-9]+$/).to_s
+      actual_item = @base_model_class.find(item_id)
+      @object.name = actual_item.root.name
     end
     
     render :partial => "shared/forms/playlist_item"

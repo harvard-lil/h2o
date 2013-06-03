@@ -19,7 +19,6 @@
 		    <% elsif actual_object.present? -%>
 		    <%= link_to resource_item.name, actual_object, :target => '_blank', :class => "title" %>
 		    <% end -%>
-        <%= raw actual_object.owners.collect{|u| link_to(u.simple_display, user_path(u), :class => "author_link") }.join(',') if actual_object.present? && actual_object.owners %>
 		    <% if recursive_level == 0 %>
 		    <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => resource_item),
 		      :class => "action delete-playlist-item requires_remove" %>
@@ -30,6 +29,17 @@
     </tr></table>
     <% if item.render_dropdown -%>
     <div class="additional_details">
+      <% if actual_object.present? && [Playlist, Collage].include?(actual_object.class) -%>
+      <span class="creator_details">
+        Original Creator: <%= raw actual_object.root.owners.collect{|u| link_to(u.simple_display, user_path(u), :class => "author_link") }.join(',') %>
+      </span>
+      <% if actual_object.root != actual_object -%>
+      <span class="creator_details">
+      Current Version: <%= raw actual_object.owners.collect{|u| link_to(u.simple_display, user_path(u), :class => "author_link") }.join(',') %>
+      </span>
+      <% end -%>
+      <% end -%>
+
 	    <% if actual_object.respond_to?(:description) && actual_object.description != resource_item.description -%>
 	    <div class="resource_item_desc">
 	      <%= PlaylistItem.format_content(resource_item.description) %>

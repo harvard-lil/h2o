@@ -115,7 +115,13 @@ jQuery.extend({
 				jQuery('#pagination_' + region).html(jQuery('#new_pagination').html());
 				jQuery('#new_pagination').remove();
 				jQuery.initializeBarcodes();
-				jQuery.observeResultsHover();
+				jQuery('#results_' + region + ' .listitem').hoverIntent(function() {
+				jQuery(this).addClass('hover');
+				jQuery(this).find('.icon').addClass('hover');
+				}, function() {
+					jQuery(this).removeClass('hover');
+					jQuery(this).find('.icon').removeClass('hover');
+				});
 			}
 		});
 	},

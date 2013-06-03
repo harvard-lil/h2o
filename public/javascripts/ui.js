@@ -367,7 +367,7 @@ jQuery.extend({
       return false;
     }
     if(jQuery('#collapse_toggle').data('threshold') < jQuery(window).scrollTop()) {
-      if(jQuery('.right_panel:visible').size()) {
+      if(jQuery('.right_panel:visible').size() && jQuery.classType() == 'playlists') {
         jQuery('body').addClass('adjusting_now');
         jQuery('#collapse_toggle').addClass('special_hide');
         var scroll_position = jQuery(window).scrollTop();

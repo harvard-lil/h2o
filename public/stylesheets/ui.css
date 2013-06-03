@@ -45,7 +45,7 @@ p {
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 h1, h2, h3, h4, h5 {
-  font-family: 'adobe-garamond-pro', Serif; 
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
 }
 textarea { 
   overflow: auto;
@@ -153,10 +153,12 @@ footer #supporters {
   border-right: 1px dotted #909090;
   height: 166px;
   width: 164px;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 footer #supporters a {
   margin-bottom: 8px;
   display: block;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 footer #sponsors {
   border-right: 1px dotted #909090;
@@ -186,6 +188,7 @@ footer #footer_links {
   width: 650px;
 }
 footer #footer_links a {
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
   text-transform: uppercase;
   color: #fff;
   padding: 0px 8px; 
@@ -559,6 +562,7 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 }
 #home_index #description #links a {
   margin-right: 10px;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 #home_index #featured_users {
   padding-right: 0px;
@@ -580,7 +584,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   margin-top: 25px;
   background: #d5d5d5;
   padding: 20px 10px 2px 10px;
-  font-family: Georgia, serif;
   font-size: 21pt;
   font-weight: normal;
 }
@@ -612,6 +615,9 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   margin-top: 3px;
   padding: 5px 10px 10px 10px;
 } 
+#home_index .featured_panel div.item * {
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
+}
 #home_index .featured_panel div.item div.item_wrapper {
   opacity: 0.7;
 }
@@ -625,7 +631,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 }
 #home_index .featured_panel div.item a.item_link,
 #home_index .featured_panel div.item a.user {
-  font-family: 'adobe-garamond-pro', Serif; 
   display: inline-block;
   line-height: 20px;
   padding: 5px 10px 0px 0px;
@@ -877,6 +882,7 @@ h2 .bookmarked { color: #FFF; }
   position: absolute; 
   padding: 5px; 
   z-index: 100000;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 .tipsy-n {
   font-size: 15px;
@@ -1140,6 +1146,9 @@ ul.user_captcha > li p.inline-errors { display: none; }
   position: relative;
   margin-left: 31px;
 }
+.right_panel * {
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
+}
 .right_panel_close {
   display: block;
   position: absolute;
@@ -1155,7 +1164,6 @@ ul.user_captcha > li p.inline-errors { display: none; }
   color: #000;
   padding: 5px 10px;
   margin: 2px;
-  font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
 }
 .right_panel h3.info {
   background-color: #909090;
@@ -1279,7 +1287,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 #page * {
   font-size: 18px;
-  font-family: 'ff-dagny-web-pro', Verdana, Arial, Helvetica, Sans-Serif;
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
 #page a {
   color: #036290;
@@ -1475,4 +1483,8 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 .requires_remove,
 .afterload {
   opacity: 0.0;
+}
+
+.ui-dialog * {
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }

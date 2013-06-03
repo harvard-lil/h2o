@@ -14,8 +14,19 @@
 
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
   <div id="main_details">
-	  <h1 class="scale1-5"><span><%= raw @playlist.name %></span></h1>
-	  <h3 class="scale1-5"><span>by </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></h3>
+    <h1 class="scale1-5"><span><%= raw @playlist.name %></span></h1>
+    <h3 class="scale1-5">
+      <% if @playlist.root != @playlist -%>
+      <span class="creator_details">
+        <span>Original Creator: </span><%= raw @playlist.root.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      </span>
+      <span class="creator_details">
+        <span>Current Version: </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      </span>
+      <% else -%>
+      <span>by </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      <% end -%>
+    </h3>
   </div>
   <div id="description" class="scale1-1">
     <%= Playlist.format_content(@playlist.description) %>
@@ -47,28 +58,28 @@
     <td></td>
   </tr></table>
   <div id="find_items" class="tab_panel new_item">
-	  <p class="instruction">
-	    Drag and drop items to move within the playlist.
-	    Or search to find new items, then drag and drop items from this list onto your playlist.
-	    Note, you may only drop items into this playlist. To edit nested playlists, click on the playlist title and edit on that playlist page.
-	  </p>
-	  <div id="search_wrapper_outer">
-	    <a id="add_item_search" href="#">SEARCH</a>
-	    <div id="select_wrapper">
-	    <select id="add_item_select">
-	      <option value="base">all</option>
-	      <option value="cases">cases</option>
-	      <option value="collages">collages</option>
-	      <option value="medias">medias</option>
-	      <option value="playlists">playlists</option>
-	      <option value="text_blocks">texts</option>
-	      <option value="defaults">links</option>
-	    </select>
-	    </div>
-	    <div id="search_wrapper">
-	    <input id="add_item_term" />
-	    </div>
-	  </div>
+    <p class="instruction">
+      Drag and drop items to move within the playlist.
+      Or search to find new items, then drag and drop items from this list onto your playlist.
+      Note, you may only drop items into this playlist. To edit nested playlists, click on the playlist title and edit on that playlist page.
+    </p>
+    <div id="search_wrapper_outer">
+      <a id="add_item_search" href="#">SEARCH</a>
+      <div id="select_wrapper">
+      <select id="add_item_select">
+        <option value="base">all</option>
+        <option value="cases">cases</option>
+        <option value="collages">collages</option>
+        <option value="medias">medias</option>
+        <option value="playlists">playlists</option>
+        <option value="text_blocks">texts</option>
+        <option value="defaults">links</option>
+      </select>
+      </div>
+      <div id="search_wrapper">
+      <input id="add_item_term" />
+      </div>
+    </div>
   </div>
   <div id="add_item_results"></div>
 </div>

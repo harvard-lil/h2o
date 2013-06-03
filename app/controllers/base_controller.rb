@@ -81,6 +81,7 @@ class BaseController < ApplicationController
 
   def index
     @page_cache = true
+    @page_title = 'H2O Classroom Tools'
 
     per_page = 8
 
