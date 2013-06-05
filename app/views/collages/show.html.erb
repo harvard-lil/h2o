@@ -10,7 +10,7 @@
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @collage } %>
-  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"></a>
+  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"></span></a>
   <a href="<%= copy_collage_path(@collage) %>" class="tooltip link-copy requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>">
     <span class="icon icon-remix-large"></span>
   </a>
@@ -88,7 +88,7 @@
 </div>
 <div id="edit_item" class="requires_edit right_panel">
   <a href="#" class="right_panel_close"></a>
-  <table class="tabs" width="100%" cellpadding="0" cellspacing="0"><tr>
+  <table class="tabs" width="100%"><tr>
     <td width="50%"><a id="new_annotation" class="current" href="#">Edit</a></td>
     <td><a id="new_link" href="#">Link</a></td>
   </tr></table>

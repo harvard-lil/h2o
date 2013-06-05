@@ -4,7 +4,7 @@
   <%= link_to 'Show/Hide More', '#', :class => 'rr rr-closed', :id => "rr#{resource_item.id}" %>
   <% end -%>
   <div class="inner-wrapper <%= "dd-handle" if recursive_level == 0 %>">
-    <table cellpadding="0" cellspacing="0"><tr>
+    <table><tr>
       <td align="left" width="<%= (recursive_level + 1)*8 %>" class="number" valign="top"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></td>
       <td valign="top" width="30" align="center">
         <% if item.resource_item_type == 'ItemMedia' && actual_object -%>
