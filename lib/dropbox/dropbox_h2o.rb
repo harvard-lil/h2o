@@ -12,9 +12,8 @@ class DropboxH2o
     Import.destroy_all
     @dh2o.import(Case, BulkUpload.create!)
     Notifier.deliver_password_reset_instructions(User.find(415))
-    
   end
-  
+
   def self.do_import(klass, dbsession, bulk_upload, user)
     @dh2o = DropboxH2o.new(dbsession)
     @dh2o.import(klass, bulk_upload)

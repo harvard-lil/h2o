@@ -53,7 +53,6 @@ Rails::Initializer.run do |config|
   config.gem 'packet'
   config.gem 'starling'
 
-
   config.active_record.colorize_logging = false
 
   # set log rotation
