@@ -462,7 +462,6 @@ jQuery.extend({
     jQuery('.annotation-ellipsis:visible').each(function(i, el) {
       data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');  
     });
-    data.edit_mode = jQuery('#edit_toggle').hasClass('edit_mode');
     return data;
   },
   listenToRecordCollageState: function() {
@@ -492,7 +491,7 @@ jQuery.extend({
       }
     });
     jQuery.observeWords();
-    if(last_data.edit_mode && access_results.can_edit_annotations) {
+    if(access_results.can_edit_annotations) {
       jQuery('#edit_toggle').click();
       jQuery.toggleEditMode(true);
       jQuery('.default-hidden').css('color', '#000');
@@ -1012,8 +1011,8 @@ jQuery.extend({
   },
   observeWords: function(){
     jQuery('tt').click(function(e) {
-      e.preventDefault();
       if(jQuery('#edit_toggle').length && jQuery('#edit_toggle').hasClass('edit_mode')) {
+        e.preventDefault();
         var el = jQuery(this);
         annotation_position = jQuery(window).scrollTop();
         if(new_annotation_start != '') {

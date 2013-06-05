@@ -83,7 +83,6 @@ class PlaylistsController < BaseController
     @author_playlists = @playlist.owners.first.playlists.paginate(:page => 1, :per_page => 5)
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
     @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
-    (@shown_words, @total_words) = @playlist.collage_word_count
   end
 
   def check_export

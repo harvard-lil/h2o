@@ -385,10 +385,6 @@ color: #036290;
 .playlist .wrapper span.creator_details {
   display: block;
 }
-#playlist #main_details .creator_details {
-  display: inline-block;
-  width: 100%;
-}
 .playlist .wrapper a.author_link,
 .dd-dragel .wrapper a.author_link {
   text-decoration: none;

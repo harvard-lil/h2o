@@ -54,11 +54,12 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <% end -%>
 
 <%= render :partial => "shared/font_selectors" %>
+
 <%= javascript_include_tag 'jquery.min.js' %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
 <%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
-  'ui', 'jquery.form', 'jquery.cookie', 'jquery.address.min','jquery.tabSlideOut.v1.3.js',
-  'jquery.rule.min', 'jquery.tipsy', 'jquery.hoverIntent', 'mustache', RAILS_ENV == 'development' ? {} : { :cache => 'all' } %>
+  'jquery.form', 'jquery.cookie', 'jquery.tabSlideOut.v1.3.js',
+  'jquery.rule.min', 'jquery.tipsy', 'jquery.hoverIntent', 'mustache', 'ui', 'jquery.address.min', RAILS_ENV == 'development' ? {} : { :cache => 'all' } %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
   <%= javascript_include_tag js %>

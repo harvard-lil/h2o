@@ -187,14 +187,14 @@ class Collage < ActiveRecord::Base
     end
 
     count = 1
-    doc.xpath('//p | //center').each do |node|
+    doc.xpath('//p | //center | //h2[not(ancestor::center)]').each do |node|
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
       if node.children.size > 0 && tt_size > 0 
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
         control_node['id'] = "paragraph#{count}"
         control_node['href'] = "#p#{count}"
-        control_node['class'] = "paragraph-numbering"
+        control_node['class'] = "paragraph-numbering scale0-9"
         control_node.inner_html = "#{count}"
         first_child.add_previous_sibling(control_node)
         count += 1

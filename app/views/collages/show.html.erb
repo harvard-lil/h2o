@@ -21,9 +21,17 @@
 <div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @collage.name %></h1>
-    <h3>
-      <span class="scale1-5">by </span>
-      <%= raw @collage.owners.collect { |u| link_to(u.display, user_path(u), :class => "scale1-5") }.join(', ') %>
+    <h3 class="scale1-5 <%= @collage.root != @collage ? 'with_creators' : '' %>">
+      <% if @collage.root != @collage -%>
+      <span class="creator_details">
+        <span>Original Creator: </span><%= raw @collage.root.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      </span>
+      <span class="creator_details">
+        <span>Current Version: </span><%= raw @collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      </span>
+      <% else -%>
+      <span>by </span><%= raw @collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      <% end -%>
     </h3>
     <aside id="buttons">
       <a href="#" class="btn-a afterload dont_hide" id="text-tools">TEXT</a>
@@ -96,8 +104,9 @@
   </div>
   <div id="link_edit" class="tab_panel new_link" style="display:none;">
     <p class="instruction">
-      To create an annotation, click at the beginning and end of text that you would like
-      to highlight, search for a collage to link to, and click "Select" to assign the link.
+      To create a link to another collage in H2O, click at the beginning and end of text
+      that you would like to link, search for a collage to link to, and click "Select"
+      to assign the link.
     </p>
     <div id="search_wrapper_outer">
       <a id="link_search" href="#">SEARCH</a>

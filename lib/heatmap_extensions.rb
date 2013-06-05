@@ -13,7 +13,6 @@ module HeatmapExtensions
         '00ffdb',
         '00ffa3',
         '00ff6b',
-        '00ff33',
         '05ff00',
         '73fd00',
         'abfd00',
