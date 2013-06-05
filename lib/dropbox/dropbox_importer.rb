@@ -6,7 +6,7 @@ class DropboxImporter
   def initialize(dh2o)
     @dh2o = dh2o
   end
-
+  
   def paths_to_import
     @dh2o.file_paths - paths_already_imported
   end
