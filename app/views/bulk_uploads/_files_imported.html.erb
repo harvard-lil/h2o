@@ -3,7 +3,7 @@
 <tr><td>File</td><td>Created Case</td></tr>
 <% @bulk_upload.imports.each do |import| %>
 <tr>
-<td><%= import.dropbox_filepath.gsub("/", "").ljust(150) %></td> <td><%= link_to import.actual_object.full_name, case_path(import.actual_object) %></td>
+<td><%= import.dropbox_filepath.gsub("/", "").ljust(150) %></td> <td><%= link_to import.actual_object.full_name, edit_case_path(import.actual_object) %></td>
 </tr>
 <% end %>
 </table>
