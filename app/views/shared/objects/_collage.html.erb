@@ -9,16 +9,15 @@
         <% end %>
     </h4>
     <p>
-      <%= collage.created_at.to_s(:simpledatetime) %>
-      <% if collage.creators -%>
-      by
-      <%= raw collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
+      <% if collage.root != collage -%>
+      Original Creator: <%= raw collage.root.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if collage.root.owners %> |
+      Current Version: <%= raw collage.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if collage.owners %> |
+      <% else -%>
+      <%= raw collage.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if collage.owners %> |
       <% end -%>
-      <% cache "collage-#{collage.id}-tags" do %>
-      <% if collage.tag_list.any? -%>
-      | <%= raw collage.tag_list.collect { |tag| link_to(tag, collage_tag_path(CGI.escape(tag))) }.join(', ') %>
-      <% end -%>
-      <% end -%>
+      <%= number_with_delimiter(collage.words_shown, :delimiter => ',') %> Words |
+      <%= collage.updated_at.strftime("%m/%d/%Y") %>
+      <% if false -%>Taught at [school] (if it hasn't been taught anywhere, don't display this field) <% end -%>
     </p>
   </div>
 

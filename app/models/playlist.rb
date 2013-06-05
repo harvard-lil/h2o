@@ -106,19 +106,21 @@ class Playlist < ActiveRecord::Base
   end
 
   def collage_word_count
-    shown_word_count = 0
-    total_word_count = 0
-    self.playlist_items.each do |pi|
-      if pi.resource_item_type == 'ItemCollage' && pi.resource_item.actual_object
-        shown_word_count += pi.resource_item.actual_object.words_shown.to_i
-        total_word_count += (pi.resource_item.actual_object.word_count.to_i-1)
-      elsif pi.resource_item_type == 'ItemPlaylist' && pi.resource_item.actual_object
-        res = pi.resource_item.actual_object.collage_word_count
-        shown_word_count += res[0]
-        total_word_count += res[1]
-      end
+    Rails.cache.fetch("playlist-wordcount-#{self.id}") do
+	    shown_word_count = 0
+	    total_word_count = 0
+	    self.playlist_items.each do |pi|
+	      if pi.resource_item_type == 'ItemCollage' && pi.resource_item.actual_object
+	        shown_word_count += pi.resource_item.actual_object.words_shown.to_i
+	        total_word_count += (pi.resource_item.actual_object.word_count.to_i-1)
+	      elsif pi.resource_item_type == 'ItemPlaylist' && pi.resource_item.actual_object
+	        res = pi.resource_item.actual_object.collage_word_count
+	        shown_word_count += res[0]
+	        total_word_count += res[1]
+	      end
+	    end
+	    [shown_word_count, total_word_count]
     end
-    [shown_word_count, total_word_count]
   end
 
   def contains_item?(item)

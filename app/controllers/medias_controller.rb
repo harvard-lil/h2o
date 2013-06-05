@@ -1,6 +1,5 @@
 class MediasController < BaseController
   cache_sweeper :media_sweeper
-  #caches_page :show
 
   before_filter :require_user, :except => [:index, :show, :access_level, :embedded_pager]
   before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy]

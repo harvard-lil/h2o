@@ -8,7 +8,7 @@ ActionController::Routing::Routes.draw do |map|
   map.text_block_tag "text_blocks/tag/:tag", :controller => :text_blocks, :action => :index
   map.journal_article_tag "journal_articles/tag/:tag", :controller => :journal_articles, :action => :index
 
-  map.resources :playlist_items, :collection => {:block => :get}, :member => {:delete => :get }
+  map.resources :playlist_items, :collection => {:block => :get}, :member => { :delete => :get }
   map.resources :item_annotations
   map.resources :item_collages
   map.resources :item_cases
@@ -99,6 +99,7 @@ ActionController::Routing::Routes.draw do |map|
   map.log_out "/log_out", :controller => :user_sessions, :action => :destroy
   map.anonymous_user "/create_anon", :controller => :users, :action => :create_anon
   map.bookmark_item "/bookmark_item/:type/:id", :controller => :users, :action => :bookmark_item
+  map.delete_bookmark_item "/delete_bookmark_item/:type/:id", :controller => :users, :action => :delete_bookmark_item
 
   map.search_all "/all_materials", :controller => :base, :action => :search
   map.quick_collage "/quick_collage", :controller => :base, :action => :quick_collage

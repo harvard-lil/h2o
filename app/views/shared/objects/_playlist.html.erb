@@ -8,13 +8,15 @@
       <% end -%>
     </h4>
     <p>
-      <%= playlist.created_at.to_s(:simpledatetime) %> by
-      <%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %>
-      <% cache "playlist-#{playlist.id}-tags" do -%>
-      <% if playlist.tag_list.any? -%>
-      | <%= raw playlist.tag_list.collect { |tag| link_to(tag, playlist_tag_path(CGI.escape(tag))) }.join(', ') %>
+      <% if playlist.root != playlist -%>
+      Original Creator: <%= raw playlist.root.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.root.owners %> |
+      Current Version: <%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %> |
+      <% else -%>
+      <%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %> |
       <% end -%>
-      <% end -%>
+      <%= number_with_delimiter(playlist.collage_word_count[0], :delimiter => ',') %> Words |
+      <%= playlist.updated_at.strftime("%m/%d/%Y") %>
+      <% if false -%>Taught at [school] (if it hasn't been taught anywhere, don't display this field) <% end -%>
     </p>
   </div>
 

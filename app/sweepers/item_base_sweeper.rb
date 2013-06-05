@@ -7,6 +7,7 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     if playlist.present?
       expire_page :controller => :playlists, :action => :show, :id => playlist.id
       expire_page :controller => :playlists, :action => :export, :id => playlist.id
+      Rails.cache.delete("playlist-wordcount-#{playlist.id}")
 
       playlist.relation_ids.each do |p|
         expire_page :controller => :playlists, :action => :show, :id => p

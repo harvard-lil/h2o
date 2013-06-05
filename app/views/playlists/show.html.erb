@@ -15,7 +15,7 @@
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><span><%= raw @playlist.name %></span></h1>
-    <h3 class="scale1-5">
+    <h3 class="scale1-5 <%= @playlist.root != @playlist ? 'with_creators' : '' %>">
       <% if @playlist.root != @playlist -%>
       <span class="creator_details">
         <span>Original Creator: </span><%= raw @playlist.root.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
@@ -30,7 +30,7 @@
   </div>
   <div id="description" class="scale1-1">
     <%= Playlist.format_content(@playlist.description) %>
-    <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@playlist), :class => "edit-action requires_edit collage_edit scale0-8" %>
     <a href="#" class="public-notes requires_edit scale0-8" data-type="public"><span class="icon icon-setup"></span>MAKE NOTES PUBLIC</a>
     <a href="#" class="private-notes requires_edit scale0-8" data-type="private"><span class="icon icon-setup"></span>MAKE NOTES PRIVATE</a>
   </div>

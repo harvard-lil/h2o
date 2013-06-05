@@ -601,6 +601,7 @@ jQuery.extend({
           if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
             if (results.can_edit) {
               jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 });
+              jQuery('#edit_toggle').click();
               is_owner = true;
             } else {
               if(!results.can_edit_notes) {
@@ -647,14 +648,6 @@ jQuery.extend({
       jQuery(this).addClass("active");
       e.preventDefault();
     });
-    //TODO: Possibly generic-ize this later if more of this
-    //functionality is needed. For now it's only needed
-    //on bookmarks
-    if(document.location.hash == '#vbookmarks') {
-      jQuery('#bookmark_tab').click();
-    } else {
-      jQuery('.tabs a:first').click();
-    }
   },
   observeLoginPanel: function() {
     jQuery('#header_login').live('click', function(e) {
@@ -832,33 +825,9 @@ jQuery.extend({
     }
     return str;
   },
-
-  /* Only used in new_playlists.js */
   rootPathWithFQDN: function(){
     return location.protocol + '//' + location.hostname + ((location.port == '' || location.port == 80 || location.port == 443) ? '' : ':' + location.port) + '/';
   },
-  serializeHash: function(hashVals){
-    var vals = [];
-    for(var val in hashVals){
-    if(val != undefined){
-      vals.push(val);
-    }
-    }
-    return vals.join(',');
-  },
-  unserializeHash: function(stringVal){
-    if(stringVal && stringVal != undefined){
-    var hashVals = [];
-    var arrayVals = stringVal.split(',');
-    for(var i in arrayVals){
-      hashVals[arrayVals[i]]=1;
-    }
-    return hashVals;
-    } else {
-    return new Array();
-    }
-  },
-
   showGlobalSpinnerNode: function() {
     jQuery('#spinner').show();
     jQuery('body').css('cursor', 'progress');
@@ -1099,7 +1068,6 @@ jQuery.extend({
 });
 
 jQuery(function() {
-
   /* Only used in collages */
   jQuery.fn.observeField =  function( time, callback ){
     return this.each(function(){
@@ -1136,10 +1104,18 @@ jQuery(function() {
 
   /* End TODO */
 
-  //Set current AJAX sort value
-  if(document.location.hash.match('ajax_region=') || document.location.hash.match('sort=')) {
-    var sort_region = '#all_' + jQuery.address.parameter('ajax_region') + '_sort';
-    jQuery(sort_region + ' select').val(jQuery.address.parameter('sort'));
+  if(document.location.hash.match('ajax_region=')) {
+    var region = jQuery('#results_' + jQuery.address.parameter('ajax_region')).parent();
+    region.find('.special_sort select').val(jQuery.address.parameter('sort'));
+    var url = document.location.hash.replace(/^#/, '');
+    jQuery.listResultsSpecial(url, jQuery.address.parameter('ajax_region'));
+    jQuery('html, body').animate({
+      scrollTop: region.offset().top
+    }, 100);
+  } else if(document.location.hash.match('sort=')) {
+    jQuery('#results .sort select').val(jQuery.address.parameter('sort'));
+    var url = document.location.hash.replace(/^#/, '');
+    jQuery.listResults(url);
   }
 
   jQuery.loadGenericEditability();
@@ -1177,10 +1153,6 @@ jQuery(function() {
 
   if(jQuery.classType() != 'collages' && jQuery.classType() != 'playlists') {
     jQuery.setFixedLinkPosition();
-  }
-
-  if(document.location.hash.match('ajax_region=') || document.location.hash.match('page=')) {
-    jQuery.listResults(jQuery.address.value());
   }
 
   //For Now, this is disabled. If set to true,

@@ -19,12 +19,6 @@
       <%= @annotation.editors && @annotation.editors.collect{|c| c.login}.join(',') %>
     </p>
     <% end -%>
-    <% if false && !@original_creators.blank? %>
-    <p>
-      <label>Based on an annotation created by:</label>
-      <%= @original_creators.collect { |c| c.user }.join(', ') %>
-    </p>
-    <% end %>
     <p>
       <label>Layers:</label>
       <%= raw(@annotation.layers.collect{|l|"<span class='c#{l.id % 10}'>#{l.name}</span>"}.join(' ')) %>

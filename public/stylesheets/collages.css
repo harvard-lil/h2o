@@ -168,7 +168,7 @@
 .layered-control-start { display: none; background: url(/images/fcollapse.png) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
 .unlayered-control-end,
 .layered-control-end { display: none; background: url(/images/collapse.png) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 0px; position: relative; top: 2px; }
-.paragraph-numbering { position: absolute; left: 30px; color: #369; text-decoration: none; }
+.paragraph-numbering { position: absolute; left: 30px; color: #369; text-decoration: none; font-weight: normal; font-size: 13px; }
 
 /* MarkItUp */
 /*
@@ -251,6 +251,8 @@ form.formtastic fieldset > ol > li.text textarea.markItUpEditor { width: 100%; }
   background: #FFF;
   padding: 10px;
   display: none;
+  max-height: 470px;
+  overflow-y: auto;
 }
 #link_edit .dynamic {
   background: #FFF;
@@ -267,7 +269,7 @@ form.formtastic fieldset > ol > li.layer_check {
   float: left;
   margin-bottom: 5px;
   clear: left;
-  width: 47%;
+  width: 30%;
 }
 form.formtastic fieldset > ol > li.layer_check label {
   width: auto;
@@ -282,9 +284,10 @@ form.formtastic fieldset > ol > li.layer_check input {
 }
 #new_layers {
   float: right;
-  width: 47%;
-  padding-left: 5%;
+  width: 64%;
+  padding-left: 5px;
   border-left: 1px solid #ccc;
+  margin-bottom: 5px;
 }
 #new_layers #add_new_layer {
   font-weight: bold;
