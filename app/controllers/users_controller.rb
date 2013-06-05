@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   cache_sweeper :user_sweeper
 
   before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :require_user]
+  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :delete_bookmark_item, :require_user]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
  
@@ -179,6 +179,21 @@ class UsersController < ApplicationController
     else
       render :action => :edit
     end
+  end
+
+  # post delete_bookmark_item/:type/:id
+  def delete_bookmark_item
+    if current_user.bookmark_id.nil?
+      render :json => { :success => false, :message => "Error." }
+      return
+    end
+
+    playlist = Playlist.find(current_user.bookmark_id)
+
+    playlist_item_to_delete = playlist.playlist_items.detect { |pi| pi.resource_item_type == "Item#{params[:type].capitalize}" && pi.resource_item.actual_object_id == params[:id].to_i }
+    playlist_item_to_delete.destroy
+
+    render :json => { :success => true }
   end
 
   # post bookmark_item/:type/:id

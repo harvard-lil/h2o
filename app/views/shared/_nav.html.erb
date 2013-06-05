@@ -17,7 +17,7 @@
 	  </nav>
     <nav id="object_types" class="light_hover">
       <%= link_to raw('<span class="icon icon-playlist"></span>'), playlists_path, { :title => "Playlists", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-collage"></span'), collages_path, { :title => "Collages", :class => "nav-tooltip" } %>
+      <%= link_to raw('<span class="icon icon-collage"></span>'), collages_path, { :title => "Collages", :class => "nav-tooltip" } %>
       <%= link_to raw('<span class="icon icon-case"></span>'), cases_path, { :title => "Cases", :class => "nav-tooltip" } %>
       <%= link_to raw('<span class="icon icon-textblock"></span>'), text_blocks_path, { :title => "Texts", :class => "nav-tooltip" } %>
       <%= link_to raw('<span class="icon icon-media-image"></span>'), "/medias?media_type=image", { :title => "Images", :class => "nav-tooltip" } %>
@@ -29,7 +29,7 @@
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
 	  <section id="search">
 	  <% form_tag(url_for, :method => :get, :class => "search") do -%>
-	  <table cellpadding="0" cellspacing="0" width="100%">
+	  <table width="100%">
 	    <tr>
 	      <td id="spinner" valign="middle">
 	  		  <img src="/images/ajax-loader.gif" alt="" />
