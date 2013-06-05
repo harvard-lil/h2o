@@ -49,8 +49,6 @@ Rails::Initializer.run do |config|
   config.gem 'nokogiri', :version => '1.4.1'
   #config.gem 'dropbox-sdk', :version => '1.5.1'
   # config.gem 'memcache'
-  config.gem 'chronic'
-  config.gem 'packet'
   config.gem 'starling'
 
   config.active_record.colorize_logging = false
