@@ -14,7 +14,7 @@ Rails::Initializer.run do |config|
   # -- all .rb files in that directory are automatically loaded.
 
   # Add additional load paths for your own custom dirs
-  config.autoload_paths += %W( #{RAILS_ROOT}/app/sweepers lib/case_parser)
+  config.autoload_paths += %W( #{RAILS_ROOT}/app/sweepers)
 
   # Specify gems that this application depends on and have them installed with rake gems:install
   # config.gem "bj"
@@ -48,6 +48,11 @@ Rails::Initializer.run do |config|
   config.gem "ar-extensions", :version => "0.9.5"
   config.gem 'nokogiri', :version => '1.4.1'
   #config.gem 'dropbox-sdk', :version => '1.5.1'
+  # config.gem 'memcache'
+  config.gem 'chronic'
+  config.gem 'packet'
+  config.gem 'starling'
+
 
   config.active_record.colorize_logging = false
 
@@ -73,6 +78,9 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 
+  config.after_initialize do
+    Workling::Remote.dispatcher = Workling::Remote::Runners::StarlingRunner.new
+  end
 
 
 end

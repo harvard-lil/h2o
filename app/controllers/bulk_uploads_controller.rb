@@ -14,11 +14,12 @@ class BulkUploadsController < ApplicationController
 
   def create
     bulk_upload = BulkUpload.create!
-    delayed_job = DropboxH2o.delay.do_import(Case,
-                                             current_dropbox_session,
-                                             bulk_upload,
-                                             current_user)
-    bulk_upload.update_attribute('delayed_job_id', delayed_job.id)
+    f = File.read('/Users/timcase/Sites/h2o/dbsession.txt')
+    BulkUploadsWorker.async_send_import(:dropbox_session => f, :user_id => 415, :bulk_upload_id => bulk_upload.id)
+    # delayed_job = DropboxH2o.delay.do_import(current_dropbox_session,
+    #                                          bulk_upload,
+    #                                          current_user)
+    # bulk_upload.update_attribute('delayed_job_id', delayed_job.id)
     flash[:notice] = "Download started. You will receive an email when it's finished.  You can also refresh this page to check progress."
     redirect_to bulk_upload_path(bulk_upload)
   end

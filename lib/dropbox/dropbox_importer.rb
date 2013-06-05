@@ -6,15 +6,21 @@ class DropboxImporter
   def initialize(dh2o)
     @dh2o = dh2o
   end
+  
+  def rebel_one(marker)
+    BulkUpload.create!(:delayed_job_id => marker)
+  end
+  
     
   def paths_to_import
     @dh2o.file_paths - Import.completed_paths(@klass)
   end
   
   def import(klass, bulk_upload)
+    
     @klass = klass
     @bulk_upload = bulk_upload
-    paths_to_import.each do |path|
+    paths_to_import.each do |path|      
       import!(path)
     end
     self.bulk_upload
@@ -31,7 +37,11 @@ class DropboxImporter
   
   def build_instance(path)
     file_contents = @dh2o.get_file(path)
-    new_instance = @klass.new_from_xml_file(file_contents)
+    begin
+      new_instance = @klass.new_from_xml_file(file_contents)
+    rescue Exception => e
+      Import.create!(:dropbox_filepath => e.message)
+    end
     new_instance
   end
   

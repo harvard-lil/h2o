@@ -6,12 +6,15 @@ class DropboxH2o
   end
 
   def self.test
-    f = File.read('dbsession.txt')
+    Notifier.deliver_bulk_upload_completed(User.find(415), BulkUpload.create!)
+    f = File.read('/Users/timcase/Sites/h2o/dbsession.txt')
     @dh2o = DropboxH2o.new(f)
     Import.destroy_all
-    @dh2o.import(Case)
+    @dh2o.import(Case, BulkUpload.create!)
+    Notifier.deliver_password_reset_instructions(User.find(415))
+    
   end
-
+  
   def self.do_import(klass, dbsession, bulk_upload, user)
     @dh2o = DropboxH2o.new(dbsession)
     @dh2o.import(klass, bulk_upload)

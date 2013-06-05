@@ -1,8 +1,4 @@
-<% if @bulk_upload.delayed_job %>
-  <h2>Bulk upload running...</h2>
-<% else %>
-<h2>Bulk upload completed <%= @bulk_upload.has_errors? ? "with" : "without any"%> errors</h2>
-<% end %>
+
 <% if @bulk_upload.imports.any? %>
   <%= render :partial => 'files_imported' %>
 <% else %>
