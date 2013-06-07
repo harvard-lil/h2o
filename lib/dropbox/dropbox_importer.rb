@@ -6,20 +6,20 @@ class DropboxImporter
   def initialize(dh2o)
     @dh2o = dh2o
   end
-  
+
   def paths_to_import
     @dh2o.file_paths - paths_already_imported
   end
 
   def paths_of_dupes
-    @paths_already_imported ||= (@dh2o.file_paths - self.paths_to_import)
+    @paths_of_dupes ||= (@dh2o.file_paths - self.paths_to_import)
   end
 
   def import(klass, bulk_upload)
-    
+
     @klass = klass
     @bulk_upload = bulk_upload
-    paths_to_import.each do |path|      
+    paths_to_import.each do |path|
       import!(path)
     end
     handle_dupes
@@ -93,7 +93,6 @@ class DropboxImporter
 
   def paths_already_imported
     @paths_already_imported ||= Import.completed_paths(@klass)
-    puts @klass.inspect
     @paths_already_imported
   end
 end
