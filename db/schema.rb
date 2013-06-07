@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130524022640) do
+ActiveRecord::Schema.define(:version => 20130606214257) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "has_errors"
+    t.integer  "delayed_job_id"
   end
 
   create_table "case_citation_versions", :force => true do |t|
@@ -228,7 +229,6 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.integer  "version"
     t.integer  "pushed_from_id"
     t.integer  "karma"
-    t.string   "dropbox_filepath"
   end
 
   add_index "cases", ["active"], :name => "index_cases_on_active"
@@ -328,7 +328,6 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.integer "collage_id"
     t.integer "user_collection_id"
     t.integer "collage_version"
-    t.integer "user_collection_version"
   end
 
   create_table "collages_user_collections_versions", :id => false, :force => true do |t|
@@ -384,22 +383,19 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "reportable_version"
     t.integer  "reporter_version"
+    t.integer  "reportable_version"
   end
 
   add_index "defect_versions", ["defect_id"], :name => "index_defect_versions_on_defect_id"
 
   create_table "defects", :force => true do |t|
-    t.text     "description",        :null => false
-    t.integer  "reportable_id",      :null => false
-    t.string   "reportable_type",    :null => false
-    t.integer  "user_id",            :null => false
+    t.text     "description",     :null => false
+    t.integer  "reportable_id",   :null => false
+    t.string   "reportable_type", :null => false
+    t.integer  "user_id",         :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "reportable_version"
-    t.integer  "reporter_version"
-    t.integer  "version"
   end
 
   create_table "delayed_jobs", :force => true do |t|
@@ -424,6 +420,7 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.string   "dropbox_filepath"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "status"
   end
 
   create_table "influences", :force => true do |t|
@@ -891,7 +888,6 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
   create_table "playlists_user_collections", :id => false, :force => true do |t|
     t.integer "playlist_id"
     t.integer "user_collection_id"
-    t.integer "user_collection_version"
   end
 
   create_table "playlists_user_collections_versions", :id => false, :force => true do |t|
@@ -975,13 +971,11 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
   add_index "role_versions", ["role_id"], :name => "index_role_versions_on_role_id"
 
   create_table "roles", :force => true do |t|
-    t.string   "name",                 :limit => 40
-    t.string   "authorizable_type",    :limit => 40
+    t.string   "name",              :limit => 40
+    t.string   "authorizable_type", :limit => 40
     t.integer  "authorizable_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "authorizable_version"
-    t.integer  "version"
   end
 
   add_index "roles", ["authorizable_id"], :name => "index_roles_on_authorizable_id"
@@ -993,8 +987,6 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_version"
-    t.integer  "role_version"
   end
 
   add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
@@ -1165,15 +1157,11 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "owner_version"
-    t.integer  "version"
   end
 
   create_table "user_collections_users", :id => false, :force => true do |t|
     t.integer "user_id"
     t.integer "user_collection_id"
-    t.integer "user_version"
-    t.integer "user_collection_version"
   end
 
   create_table "user_collections_users_versions", :id => false, :force => true do |t|
@@ -1237,7 +1225,6 @@ ActiveRecord::Schema.define(:version => 20130524022640) do
     t.boolean  "default_show_annotations"
     t.boolean  "tab_open_new_items"
     t.string   "default_font_size",        :default => "16"
-    t.integer  "version"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"
