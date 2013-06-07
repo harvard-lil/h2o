@@ -232,6 +232,21 @@ namespace :h2o do
     Notifier.deliver_cases_list
   end
 
+  desc 'make two accounts case admins' 
+  task(:make_two_accounts_case_admins => :environment) do
+
+    ['eellis', 'awenner'].each do |login|
+      u = User.find_by_login(login)
+      if u
+        u.has_role!(:case_admin)
+        puts "#{login} was granted case_admin"
+      else
+        puts "#{login} needs a user account, create a user account for #{login}, and run this task again" 
+      end
+    end
+
+  end
+
   desc 'Assign cases to user h2ocases' 
   task(:assign_cases_to_h2ocases => :environment) do
     user = User.find_by_login('h2ocases')
