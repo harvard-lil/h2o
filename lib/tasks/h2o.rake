@@ -280,4 +280,27 @@ namespace :h2o do
   task(:send_cases_list_email => :environment) do
     Notifier.deliver_cases_list
   end
+
+  desc 'Assign cases to user h2ocases' 
+  task(:assign_cases_to_h2ocases) do
+    user = User.find_by_login('h2ocases')
+    if user.nil?
+      user = User.new(:login => 'h2ocases', 
+                      :email_address => 'h2ocases@cyber.law.harvard.edu', 
+                      :password => 'PDy7Q<wDzQiD@K=d6dGs', 
+                      :password_confirmation => 'PDy7Q<wDzQiD@K=d6dGs')
+      user.save(false)
+    end
+
+    cases = Case.all
+    cases.each{|c| c.accepted_roles.delete_all}
+    cases.each do |c|
+      c.accepted_roles.delete_all
+      c.accepts_role!(:owner, user)
+      c.accepts_role!(:creator, user)
+      puts "finished case"
+    end
+    return true
+
+  end
 end
