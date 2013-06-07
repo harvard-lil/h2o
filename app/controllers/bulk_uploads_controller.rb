@@ -23,13 +23,21 @@ class BulkUploadsController < ApplicationController
 
   def require_dropbox_session
     unless current_dropbox_session
-      redirect_to(:controller => 'dropbox_sessions', :action => 'create')
+      redirect_to_dropbox_sessions
       false
     end
   end
 
   def initialize_dropbox_client
-    @dh2o = DropboxH2o.new(current_dropbox_session)
+    begin
+      @dh2o = DropboxH2o.new(current_dropbox_session)
+    rescue DropboxAuthError
+      redirect_to_dropbox_sessions
+    end
+  end
+
+  def redirect_to_dropbox_sessions
+    redirect_to(:controller => 'dropbox_sessions', :action => 'create')
   end
 
   def current_dropbox_session
