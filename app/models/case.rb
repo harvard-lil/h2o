@@ -75,6 +75,8 @@ class Case < ActiveRecord::Base
     string :case_jurisdiction, :stored => true, :multiple => true
   end
 
+  after_create :assign_to_h2ocases
+
   alias :to_s :display_name
 
   def top_ancestors
@@ -131,6 +133,12 @@ class Case < ActiveRecord::Base
   end
 
   private
+  def assign_to_h2ocases
+    h2ocases = User.find_by_login('h2ocases')
+
+    self.accepts_role!(:owner, h2ocases)
+    self.accepts_role!(:creator, h2ocases)
+  end
 
   def date_check
     if ! self.decision_date.blank? && self.decision_date > Date.today

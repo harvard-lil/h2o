@@ -113,8 +113,6 @@ class CasesController < BaseController
 
     if @case.save
       handle_successful_save
-      @case.accepts_role!(:owner, current_user)
-      @case.accepts_role!(:creator, current_user)
       @case.case_request.approve! if @case.case_request
       if @case.active
         Notifier.deliver_case_notify_approved(@case)
@@ -163,8 +161,6 @@ class CasesController < BaseController
   private
 
   def handle_successful_save
-    @case.accepts_role!(:owner, current_user)
-    @case.accepts_role!(:creator, current_user)
     @case.case_request.approve! if @case.case_request
     if @case.active
       Notifier.deliver_case_notify_approved(@case)
