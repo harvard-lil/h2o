@@ -76,7 +76,7 @@ class Case < ActiveRecord::Base
   end
 
   alias :to_s :display_name
-    
+
   def top_ancestors
     self.collages.select { |c| c.ancestry.nil? }
   end
@@ -88,7 +88,7 @@ class Case < ActiveRecord::Base
   def approve!
     self.update_attribute('active', true)
   end
-  
+
   def self.new_from_xml_file(file)
     cxp = CaseXmlParser.new(file)
     new_case = cxp.xml_to_case_attributes

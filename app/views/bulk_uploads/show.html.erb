@@ -1,6 +1,13 @@
-<% if @bulk_upload.imports.any? %>
-  <%= render :partial => 'files_imported' %>
-<% else %>
-<h3>No files imported yet.</h3>
-<% end %>
+<br/><br/><div>
+  <h3>Successful Imports</h3>
+  <%= render :partial => 'files_imported', :locals => {:files_imported => @bulk_upload.successful_imports} %> 
+</div><br/>
+<div>
+  <h3>Duplicates not imported</h3>
+  <%= render :partial => 'files_imported', :locals => {:files_imported => @bulk_upload.dupe_imports} %> 
+</div><br/>
+<div>
+  <h3>Files with errors not imported</h3>
+  <%= render :partial => 'files_imported', :locals => {:files_imported => @bulk_upload.error_imports} %> 
+</div><br/>
 

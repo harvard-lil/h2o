@@ -1,16 +1,8 @@
 class BulkUpload < ActiveRecord::Base
   has_many :imports
-  
-  def delayed_job
-      @delayed_job ||= find_delayed_job
-  end
-  
-  private
-  def find_delayed_job
-    begin
-      Delayed::Job.find(self.delayed_job_id)
-    rescue ActiveRecord::RecordNotFound
-      nil
-    end
-  end
+  has_many :error_imports, :conditions => "imports.status = 'Errored'", :class_name => "Import"
+  has_many :dupe_imports, :conditions => "imports.status = 'Dupe Detected'", :class_name => "Import"
+  has_many :successful_imports, :conditions => "imports.status = 'Object Created'", :class_name => "Import"
+
+
 end
