@@ -282,7 +282,7 @@ namespace :h2o do
   end
 
   desc 'Assign cases to user h2ocases' 
-  task(:assign_cases_to_h2ocases) do
+  task(:assign_cases_to_h2ocases => :environment) do
     user = User.find_by_login('h2ocases')
     if user.nil?
       user = User.new(:login => 'h2ocases', 
@@ -300,7 +300,6 @@ namespace :h2o do
       c.accepts_role!(:creator, user)
       puts "finished case"
     end
-    return true
 
   end
 end
