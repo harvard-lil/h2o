@@ -227,55 +227,6 @@ namespace :h2o do
     end
   end
 
-=begin
-  desc 'Reassign owner'
-  task(:reassign_owner => :environment) do
-    # user and playlist is required
-
-    p = Playlist.find(548)
-
-    first_children = p.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
-    
-    second_children = first_children.inject([]) do |barr, i|
-      if i.is_a?(Playlist)
-        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
-      end
-      barr
-    end
-    
-    third_children = second_children.flatten.inject([]) do |barr, i|
-      if i.is_a?(Playlist)
-        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object if pi.resource_item.respond_to?(:actual_object); arr }.flatten
-      end
-      barr
-    end
-    
-    fourth_children = third_children.flatten.inject([]) do |barr, i|
-      if i.is_a?(Playlist)
-        barr << i.playlist_items.inject([]) { |arr, pi| arr << pi.resource_item.actual_object; arr }.flatten
-      end
-      barr
-    end
-    
-    to_update = [[p] + first_children + second_children + third_children + fourth_children].flatten
-    
-    u = User.find_by_login("ProfDavidPost")
-    to_update.each do |i|
-      if [Playlist,Collage].include?(i.class)
-        next if i.owners == [u]
-        if i.owners
-          i.owners.each { |c| c.has_no_roles_for!(i) }
-        end
-        u.has_role!(:owner, i) 
-      end
-      next if i.creators == [u]
-      if i.creators
-        i.creators.each { |c| c.has_no_roles_for!(i) }
-      end
-      u.has_role!(:creator, i) 
-    end
-=end
-
   desc 'Send cases list email'
   task(:send_cases_list_email => :environment) do
     Notifier.deliver_cases_list
@@ -298,7 +249,7 @@ namespace :h2o do
       c.accepted_roles.delete_all
       c.accepts_role!(:owner, user)
       c.accepts_role!(:creator, user)
-      puts "finished case"
+      puts "case #{c.id} assigned to h2ocases"
     end
 
   end
