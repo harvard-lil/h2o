@@ -1,3 +1,5 @@
+.rvmrc
+.DS_Store
 *.swp
 tmp/
 log/
