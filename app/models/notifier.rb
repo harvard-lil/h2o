@@ -1,5 +1,6 @@
 class Notifier < ActionMailer::Base
   include AuthUtilities
+  include Authorship
 
   helper :application
 

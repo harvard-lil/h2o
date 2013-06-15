@@ -3,16 +3,17 @@ class Media < ActiveRecord::Base
 
   include StandardModelExtensions::InstanceMethods
   include AuthUtilities
-  
+  include Authorship
+
   include ActionController::UrlWriter
-    
+
   RATINGS = {
     :bookmark => 1,
     :add => 3
   }
 
   acts_as_authorization_object
-  
+
   acts_as_taggable_on :tags
 
   belongs_to :media_type

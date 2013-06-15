@@ -5,6 +5,7 @@ class Default < ActiveRecord::Base
   include H2oModelExtensions
   include StandardModelExtensions::InstanceMethods
   include AuthUtilities
+  include Authorship
 
   include ActionController::UrlWriter
 
@@ -23,7 +24,7 @@ class Default < ActiveRecord::Base
     text :url
     text :description
     integer :karma
-    string :author 
+    string :author
 
     boolean :public
     boolean :active

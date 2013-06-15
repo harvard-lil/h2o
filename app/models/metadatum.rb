@@ -1,6 +1,7 @@
 class Metadatum < ActiveRecord::Base
   include H2oModelExtensions
   include AuthUtilities
+  include Authorship
   belongs_to :classifiable, :polymorphic => true
 
   # From http://dublincore.org/documents/dces/
@@ -9,10 +10,10 @@ class Metadatum < ActiveRecord::Base
 
   # From http://dublincore.org/documents/dcmi-type-vocabulary/
   DCMI_TYPE = {
-    'Collection' => 'Collection', 
-    'Dataset' => 'Dataset', 
-    'Event' => 'Event',  
-    'Image' => 'Image', 
+    'Collection' => 'Collection',
+    'Dataset' => 'Dataset',
+    'Event' => 'Event',
+    'Image' => 'Image',
     'InteractiveResource' => 'Interactive Resource',
     'MovingImage' => 'Video',
     'PhysicalObject' => 'Physical Object',
@@ -27,7 +28,7 @@ class Metadatum < ActiveRecord::Base
   end
 
   private
-  
+
   validate do |rec|
     columns = rec.class.columns.collect{|c|c.name}
     valid = false

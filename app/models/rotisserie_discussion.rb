@@ -1,7 +1,8 @@
 class RotisserieDiscussion < ActiveRecord::Base
-  
+
   include RotisserieUtilities
   include AuthUtilities
+  include Authorship
 
   acts_as_authorization_object
 
@@ -54,7 +55,7 @@ class RotisserieDiscussion < ActiveRecord::Base
   def author?
     return role_users(self.id, self.class, "owner").first == current_user
   end
-  
+
   def author
      role_users(self.id, self.class, "owner").first
   end
@@ -92,7 +93,7 @@ class RotisserieDiscussion < ActiveRecord::Base
   end
 
   def notifiable?
-    
+
     round = self.current_round
     tracked_round = 0
     last_tracker = NotificationTracker.last(:conditions => {:rotisserie_discussion_id => self.id})

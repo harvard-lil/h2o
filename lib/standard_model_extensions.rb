@@ -1,13 +1,5 @@
 module StandardModelExtensions
   module InstanceMethods
-    def author
-      if self.is_a?(User)
-        nil
-      else
-        owner = self.accepted_roles.find_by_name('owner')
-        owner.nil? ? nil : owner.user.login.downcase
-      end
-    end
 
     def barcode_breakdown
       self.barcode.inject({}) { |h, b| h[b[:type].to_sym] ||= 0; h[b[:type].to_sym] += 1; h }
@@ -22,13 +14,13 @@ module StandardModelExtensions
         playlist = item.playlist_item.playlist
         if playlist.name == "Your Bookmarks"
           playlist_owner = playlist.accepted_roles.find_by_name('owner')
-          elements << { :type => "bookmark", 
-                                :date => item.created_at, 
+          elements << { :type => "bookmark",
+                                :date => item.created_at,
                                 :title => "Bookmarked by #{playlist_owner.user.display}",
                                 :link => user_path(playlist_owner.user) }
         else
-          elements << { :type => "add", 
-                                :date => item.created_at, 
+          elements << { :type => "add",
+                                :date => item.created_at,
                                 :title => "Added to playlist #{playlist.name}",
                                 :link => playlist_path(playlist.id) }
         end

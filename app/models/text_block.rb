@@ -5,8 +5,9 @@ class TextBlock < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include AnnotatableExtensions
   include AuthUtilities
+  include Authorship
   include MetadataExtensions
-  
+
   include ActionController::UrlWriter
 
   MIME_TYPES = {
@@ -27,7 +28,7 @@ class TextBlock < ActiveRecord::Base
   has_many :defects, :as => :reportable
 
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
-    
+
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
       JOIN tags t ON ts.tag_id = t.id
@@ -82,7 +83,7 @@ class TextBlock < ActiveRecord::Base
       barcode_elements = self.barcode_bookmarked_added
       self.collages.each do |collage|
         barcode_elements << { :type => "collaged",
-                              :date => collage.created_at, 
+                              :date => collage.created_at,
                               :title => "Collaged to #{collage.name}",
                               :link => collage_path(collage.id) }
       end

@@ -2,17 +2,18 @@ class Collage < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   extend TaggingExtensions::ClassMethods
   extend HeatmapExtensions::ClassMethods
-  
+
   include H2oModelExtensions
   include StandardModelExtensions::InstanceMethods
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
+  include Authorship
   include MetadataExtensions
   include TaggingExtensions::InstanceMethods
   include HeatmapExtensions::InstanceMethods
-  
+
   include ActionController::UrlWriter
-    
+
   RATINGS = {
     :remix => 5,
     :bookmark => 1,
@@ -29,7 +30,7 @@ class Collage < ActiveRecord::Base
   acts_as_authorization_object
 
   def self.annotatable_classes
-    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file| 
+    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file|
       model_name = Pathname(file).basename.to_s
       model_name = model_name[0..(model_name.length - 4)]
       model_name.camelize.constantize
@@ -45,7 +46,7 @@ class Collage < ActiveRecord::Base
   acts_as_voteable
 
   before_destroy :collapse_children
-  has_ancestry :orphan_strategy => :restrict 
+  has_ancestry :orphan_strategy => :restrict
 
   belongs_to :annotatable, :polymorphic => true
   has_many :annotations, :order => 'created_at', :dependent => :destroy
@@ -127,8 +128,8 @@ class Collage < ActiveRecord::Base
     Rails.cache.fetch("collage-barcode-#{self.id}") do
       barcode_elements = self.barcode_bookmarked_added
       self.children.each do |child|
-        barcode_elements << { :type => "remix", 
-                              :date => child.created_at, 
+        barcode_elements << { :type => "remix",
+                              :date => child.created_at,
                               :title => "Remixed to Collage #{child.name}",
                               :link => collage_path(child.id) }
       end
@@ -190,7 +191,7 @@ class Collage < ActiveRecord::Base
     count = 1
     doc.xpath('//p | //center | //h2[not(ancestor::center)]').each do |node|
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-      if node.children.size > 0 && tt_size > 0 
+      if node.children.size > 0 && tt_size > 0
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
         control_node['id'] = "paragraph#{count}"
@@ -199,12 +200,12 @@ class Collage < ActiveRecord::Base
         control_node.inner_html = "#{count}"
         first_child.add_previous_sibling(control_node)
         count += 1
-      end 
-    end 
+      end
+    end
 
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
-  
+
   def printable_content
     doc = Nokogiri::HTML.parse(self.content)
 
@@ -218,41 +219,41 @@ class Collage < ActiveRecord::Base
     count = 1
     doc.xpath('//p | //center').each do |node|
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-      if node.children.size > 0 && tt_size > 0 
+      if node.children.size > 0 && tt_size > 0
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('span', doc)
         control_node['class'] = "paragraph-numbering"
         control_node.inner_html = "#{count}"
         first_child.add_previous_sibling(control_node)
         count += 1
-      end 
-    end 
+      end
+    end
 
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
-  
+
   def current?
     !self.outdated?
   end
-  
+
   def outdated?
     self.annotatable.version > self.annotatable_version
   end
-  
+
   def update_annotatable_version_number
     if self.new_record?
       if self.annotatable
-        self.annotatable.reload 
+        self.annotatable.reload
         if self.annotatable.respond_to?(:version)
           self.annotatable_version = self.annotatable.version
         end
-      end      
+      end
     end
   end
-  
+
   alias :to_s :display_name
 
-  private 
+  private
 
   def prepare_content
     if self.content.blank?

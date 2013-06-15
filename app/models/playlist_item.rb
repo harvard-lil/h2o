@@ -6,12 +6,13 @@ class PlaylistItem < ActiveRecord::Base
 
   include AncestryExtensions::InstanceMethods
   include AuthUtilities
+  include Authorship
 
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
 
   acts_as_authorization_object
-  acts_as_list :scope => :playlist 
+  acts_as_list :scope => :playlist
   belongs_to :playlist
 
   belongs_to :resource_item, :polymorphic => true, :dependent => :destroy
@@ -46,8 +47,8 @@ class PlaylistItem < ActiveRecord::Base
       return true if resource_item.description != '' && resource_item.description != resource_item.actual_object.description
     end
 
-    return true if self.notes.to_s != '' && self.public_notes 
-    
+    return true if self.notes.to_s != '' && self.public_notes
+
     false
   end
 end

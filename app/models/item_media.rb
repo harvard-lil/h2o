@@ -1,5 +1,6 @@
 class ItemMedia < ActiveRecord::Base
   include AuthUtilities
+  include Authorship
   include PlaylistUtilities
 
   acts_as_authorization_object

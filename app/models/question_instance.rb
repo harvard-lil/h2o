@@ -3,6 +3,7 @@ require 'redcloth_extensions'
 class QuestionInstance < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   include AuthUtilities
+  include Authorship
   acts_as_authorization_object
 
   FEATURED_QUESTION_COUNTS = [[2,2],[4,4],[6,6],[8,8],[10,10]]

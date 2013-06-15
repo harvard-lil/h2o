@@ -3,6 +3,7 @@ require 'redcloth_extensions'
 class Question < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
   include AuthUtilities
+  include Authorship
 
   acts_as_authorization_object
 
@@ -63,7 +64,7 @@ class Question < ActiveRecord::Base
   after_destroy :update_root_question
 
   validates_presence_of :user_id, :question, :question_instance_id
-  validates_length_of :question, 
+  validates_length_of :question,
     :maximum => 10000
 
   validates_numericality_of :parent_id, :children_count, :ancestors_count, :descendants_count, :position, :allow_nil => true
