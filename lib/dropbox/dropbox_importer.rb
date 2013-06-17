@@ -16,21 +16,27 @@ class DropboxImporter
   end
 
   def import(klass, bulk_upload)
-
+    puts "dropbox_importer.rb (19): Import message received with KLASS: #{klass.inspect} BULK_UPLOAD: #{bulk_upload.inspect}\n"
     @klass = klass
     @bulk_upload = bulk_upload
     paths_to_import.each do |path|
+      puts "dropbox_importer.rb (23): Import for #{path} started\n"
       import!(path)
+      puts "dropbox_importer.rb (25): Import for #{path} finished\n"
     end
     handle_dupes
     self.bulk_upload
   end
 
   def import!(path)
+    puts "dropbox_importer.rb (32): import! message received with PATH: #{path.inspect}\n"
     new_instance = build_instance(path)
+    puts "dropbox_importer.rb (34): new instance built for #{path.inspect}\n"
     if new_instance.save
+      puts "dropbox_importer.rb (36): new instance saved successfully\n"
       handle_import_success(path, new_instance)
     else
+      puts "dropbox_importer.rb (39): new instance save failed\n"
       handle_import_error(path, new_instance)
     end
   end
@@ -46,6 +52,7 @@ class DropboxImporter
   end
 
   def handle_import_success(path, new_instance)
+    puts "dropbox_importer.rb (55): handle_import_success message received PATH: #{path.inspect} NEWINSTANCE: #{new_instance.inspect}\n"
     puts "saved file woot!"
     record_import(:bulk_upload => self.bulk_upload,
                   :actual_object => new_instance,
@@ -54,6 +61,7 @@ class DropboxImporter
   end
 
   def handle_import_error(path, new_instance)
+    puts "dropbox_importer.rb (64): handle_import_error message received PATH: #{path.inspect} NEWINSTANCE: #{new_instance.inspect}\n"
     puts "file didn't save"
     self.bulk_upload.update_attribute('has_errors', true)
     @dh2o.copy_to_failed_dir(path)

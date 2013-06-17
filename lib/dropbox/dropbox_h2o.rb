@@ -14,9 +14,13 @@ class DropboxH2o
   end
   
   def self.do_import(klass, dbsession, bulk_upload, user)
+    puts "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}\n"
     @dh2o = DropboxH2o.new(dbsession)
+    puts "dropbox_h2o.rb (19): new DropboxH2o created\n"
     @dh2o.import(klass, bulk_upload)
+    puts "dropbox_h2o.rb (21): import finished\n"
     Notifier.deliver_bulk_upload_completed(user, bulk_upload)
+    puts "dropbox_h2o.rb (23): notifier email sent\n"
   end
 
   def copy_to_dir(dir, file_path)
