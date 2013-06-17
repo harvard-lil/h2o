@@ -13,6 +13,9 @@ var min_tick_width = 10;
 var item_offset_top;
 var right_offset;
 
+var scife_fn_clicked = function() {
+};
+
 $.noConflict();
 
 jQuery.extend({
