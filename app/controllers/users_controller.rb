@@ -24,7 +24,7 @@ class UsersController < ApplicationController
     @user.save do |result|
       if result
         flash[:notice] = "Account registered!"
-        redirect_back_or_default "/base"
+        redirect_back_or_default "/"
       else
         render :action => :new
       end
@@ -122,20 +122,41 @@ class UsersController < ApplicationController
         end
       end
 
-	    @types = []
+	    @types = {
+	      :private_playlists_by_permission => {
+          :display => false,
+          :header => "Private Playlists",
+          :partial => "playlist"
+        },
+	      :pending_cases => {
+          :display => false,
+          :header => "Pending Cases",
+          :partial => "pending_case"
+        },
+	      :case_requests => {
+          :display => false,
+          :header => "Case Requests",
+          :partial => "case_request"
+        },
+	      :content_errors => {
+          :display => false,
+          :header => "Content Errors",
+          :partial => "content_error"
+        }
+      }
 	    if current_user && @user == current_user
 	      @page_title = "Dashboard | H2O Classroom Tools"
 
 	      @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
+        @types[:private_playlists_by_permission][:display] = true
+        @types[:pending_cases][:display] = true
 	      if @user.is_case_admin
-	        @types += [:case_requests, :pending_cases]
+	        @types[:case_requests][:display] = true
 	        @my_belongings[:case_requests] = current_user.case_requests
-	      else
-	        @types << :pending_cases
 	      end
 	      if @user.is_admin
-	        @types += [:content_errors]
+	        @types[:content_errors][:display] = true
 	      end
 	    else
 	      @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
@@ -144,14 +165,14 @@ class UsersController < ApplicationController
 	    add_javascripts 'user_dashboard'
 	    add_stylesheets 'user_dashboard'
 
-	    @results = {}
-	    @types.each do |type|
+	    @types.each do |type, v|
+        next if !v[:display]
 	      p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
 
 	      if(params[:order] == 'desc') 
 	        p = p.reverse
 	      end
-	      @results[type] = p.paginate(:page => params[:page], :per_page => 10)
+	      v[:results] = p.paginate(:page => params[:page], :per_page => 10)
 	    end
       render 'show'
     end

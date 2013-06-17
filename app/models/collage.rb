@@ -276,6 +276,7 @@ class Collage < ActiveRecord::Base
         indexable_content << n.text.strip
       end
       self.word_count = class_counter
+      self.words_shown = class_counter
       self.indexable_content = indexable_content.join(' ')
       self.content = doc.xpath("//html/body/*").to_s
     end

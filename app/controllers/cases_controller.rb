@@ -1,15 +1,16 @@
 class CasesController < BaseController
   cache_sweeper :case_sweeper
 
-  before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export]
-  before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :export, :approve]
+  caches_page :show
+  before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export, :access_level]
+  before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :export, :approve, :access_level]
   before_filter :store_location, :only => [:index, :show]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
 
   access_control do
-    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
+    allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export, :access_level]
     allow :owner, :of => :case, :to => [:destroy, :edit, :update]
     allow :case_admin, :admin, :superadmin
   end
@@ -33,12 +34,37 @@ class CasesController < BaseController
 
   # GET /cases/1
   def show
+    @page_cache = true
+
     add_javascripts 'cases'
     set_belongings Case
 
     if !@case.public || !@case.active
       flash[:notice] = "This case is not public or active."
       redirect_to cases_url
+    end
+  end
+
+  def access_level
+    session[:return_to] = "/cases/#{params[:id]}"
+
+    if current_user
+      render :json => {
+        :logged_in => current_user.to_json(:only => [:id, :login]),
+        :can_edit => @case.can_edit?,
+        :playlists => current_user.playlists.to_json(:only => [:id, :name]),
+        :bookmarks => current_user.bookmarks_map.to_json,
+        :custom_block => 'case_afterload',
+        :anonymous => current_user.has_role?(:nonauthenticated)
+      }
+    else
+      render :json => {
+        :logged_in => false,
+        :can_edit => false,
+        :playlists => [],
+        :bookmarks => [],
+        :custom_block => 'case_afterload'
+      }
     end
   end
 

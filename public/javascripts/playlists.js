@@ -5,6 +5,38 @@ var dropped_original_position;
 var items_dd_handles;
 
 jQuery.extend({
+  playlist_afterload: function(results) {
+    if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
+      if (results.can_edit) {
+        jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 });
+        jQuery('#edit_toggle').click();
+        is_owner = true;
+      } else {
+        if(!results.can_edit_notes) {
+          jQuery('#description .public-notes, #description .private-notes').remove();
+        }
+        if(!results.can_edit_desc) {
+          jQuery('#description .icon-edit').remove();
+        }
+        jQuery('.requires_remove').remove();
+        jQuery('.requires_edit').animate({ opacity: 1.0 });
+      }
+    } else {
+      jQuery('.requires_edit, .requires_remove').remove();
+    }
+    var notes = jQuery.parseJSON(results.notes) || new Array() 
+    jQuery.each(notes, function(i, el) {
+      if(el.playlist_item.notes != null) {
+        var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+        var node = jQuery('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
+        if(jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').length) {
+          jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').remove();
+        } 
+        jQuery('#playlist_item_' + el.playlist_item.id + ' > .data').append(node);
+      }
+    });
+    jQuery('.add-popup select option').remove();
+  },
   observeViewerToggleEdit: function() {
     jQuery('#edit_toggle').click(function(e) {
       e.preventDefault();
@@ -12,40 +44,33 @@ jQuery.extend({
       var el = jQuery(this);
       if(jQuery(this).hasClass('edit_mode')) {
         el.removeClass('edit_mode');
+        jQuery('body').removeClass('playlist_edit_mode');
         jQuery('#playlist .dd').removeClass('playlists-edit-mode');
         jQuery('#playlist .dd .icon').removeClass('hover');
         if(jQuery('#collapse_toggle').hasClass('expanded')) {
-          jQuery('#edit_item').fadeOut(200, function() {
-            jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
-              jQuery.checkForPanelAdjust();
-            });
-          });
+          jQuery('#edit_item').hide();
+          jQuery('.singleitem').addClass('expanded_singleitem');
         } else {
-          jQuery('#edit_item').fadeOut(200, function() {
-            jQuery('#stats').fadeIn(200, function() {
-              jQuery.resetRightPanelThreshold();
-              jQuery.checkForPanelAdjust();
-            });
-          });
+          jQuery('#edit_item').hide();
+          jQuery('#stats').show();
+          jQuery.resetRightPanelThreshold();
+          jQuery.checkForPanelAdjust();
         }
         jQuery.unObserveDragAndDrop();
       } else {
         el.addClass('edit_mode');
+        jQuery('body').addClass('playlist_edit_mode');
         jQuery('#playlist .dd').addClass('playlists-edit-mode');
         jQuery('#playlist .dd .icon').addClass('hover');
         if(jQuery('#collapse_toggle').hasClass('expanded')) {
           jQuery('#collapse_toggle').removeClass('expanded');
-          jQuery('.singleitem').animate({ width: "70%" }, 100, 'swing', function() {
-            jQuery('#edit_item').fadeIn(200, function() {
-              jQuery.resetRightPanelThreshold();
-            });
-          });
+          jQuery('.singleitem').removeClass('expanded_singleitem');
+          jQuery('#edit_item').show();
+          jQuery.resetRightPanelThreshold();
         } else {
-          jQuery('#stats').fadeOut(200, function() {
-            jQuery('#edit_item').fadeIn(200, function() {
-              jQuery.resetRightPanelThreshold();
-            });
-          });
+          jQuery('#stats').hide();
+          jQuery('#edit_item').show();
+          jQuery.resetRightPanelThreshold();
         }
         jQuery.observeDragAndDrop();
         jQuery.checkForPanelAdjust();
@@ -74,14 +99,10 @@ jQuery.extend({
   observePlaylistExpansion: function() {
     jQuery(".playlist .rr").live('click', function() {
       jQuery(this).toggleClass('rr-closed');
-      jQuery(this).siblings('.inner-wrapper').find('.additional_details').slideToggle();
-      jQuery(this).parents(".playlist:eq(0)").find(".playlists:eq(0)").slideToggle();
-      var open = new Array;
-      jQuery('.playlist .data .rr').not('.rr-closed').each(function(i, el) {
-        open.push(jQuery(el).attr('id'));
-      });  
-      jQuery.cookie('expanded', open.join('-'));
-      jQuery(this).parent().parent().toggleClass('expanded');
+      var playlist = jQuery(this).parents(".playlist:eq(0)");
+      playlist.find('> .wrapper > .inner-wrapper > .additional_details').slideToggle();
+      playlist.find('.playlists:eq(0)').slideToggle();
+      playlist.toggleClass('expanded');
       return false;
     });
   },
@@ -141,8 +162,8 @@ jQuery.extend({
       jQuery(this).remove();
     });
     jQuery.each(jQuery.parseJSON(data.item), function(i, item) {
-      jQuery('.listitem' + item.id + ' a.title').html(item.name);
-      jQuery('.listitem' + item.id + ' .item_description').html(item.description);
+      jQuery('.listitem' + item.id + ' > .wrapper a.title').html(item.name);
+      jQuery('.listitem' + item.id + ' > .wrapper .item_description').html(item.description);
     });
   },
   renderNewPlaylistItem: function(data) {
@@ -418,7 +439,6 @@ jQuery(document).ready(function(){
   jQuery.setPlaylistFontHierarchy(14);
 
   jQuery('.toolbar, .buttons').css('visibility', 'visible');
-  jQuery.loadEditability();
   jQuery.observeStats();
   jQuery.observeNoteFunctionality();
 

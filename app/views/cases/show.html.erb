@@ -6,22 +6,18 @@
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @case } %>
-  <% if current_user -%>
-  <%= link_to raw('<span class="icon icon-tocollage-large"></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action tooltip', :title => "Collage This" %>
+  <%= link_to raw('<span class="icon icon-tocollage-large"></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action tooltip requires_logged_in', :title => "Collage This" %>
   <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @case.id, "data-type" => "case", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@case.name}", "data-type" => "case", "data-itemid" => @case.id %>
-  <% end -%>
 </aside>
 
 <div id="case" class="singleitem" data-itemid="<%= @case.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @case.display_name %></h1>
   </div>
-  <% if current_user && (current_user.is_case_admin || current_user.cases.include?(@case)) %>
   <div id="description" class="scale1-1">
-    <%= link_to raw('<span class="icon icon-edit"></span>EDIT CASE INFORMATION<span class="icon icon-arrow"></span>'), edit_case_path(@case), :class => "edit-external scale0-8" %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT CASE INFORMATION<span class="icon icon-arrow"></span>'), edit_case_path(@case), :class => "edit-external scale0-8 requires_edit" %>
   </div>
-  <% end -%>
   <article>
     <%= raw @case.content %>
   </article>
@@ -38,3 +34,7 @@
 </div>
 
 <div class="clear"></div>
+
+<script type="text/javascript">
+var editability_path = "<%= access_level_case_path(@case) %>";
+</script>

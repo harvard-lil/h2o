@@ -1,23 +1,25 @@
 <li class="<%= "dd-item" if recursive_level == 0 %> playlist listitem level<%= recursive_level %> listitem<%= resource_item.id %> <%= 'last' if last %>" id="playlist_item_<%= item.id %>" data-id="<%= item.id %>" data-itemid="<%= resource_item.id %>">
   <div class="wrapper">
-  <% if item.render_dropdown -%>
-  <%= link_to 'Show/Hide More', '#', :class => 'rr rr-closed', :id => "rr#{resource_item.id}" %>
-  <% end -%>
   <div class="inner-wrapper <%= "dd-handle" if recursive_level == 0 %>">
     <table><tr>
-      <td align="left" width="<%= (recursive_level + 1)*8 %>" class="number" valign="top"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></td>
-      <td valign="top" width="30" align="center">
+      <td class="width_<%= (recursive_level + 1)*11 %> number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></td>
+      <td class="icon-cell">
         <% if item.resource_item_type == 'ItemMedia' && actual_object -%>
         <a href="#" class="tooltip icon icon-media-<%= actual_object.media_type.slug %>" title="<%= actual_object.media_type.label %>"></a>
         <% else -%>
         <a href="#" class="tooltip icon icon-<%= item.clean_type %>" title="<%= actual_object.is_a?(Default) ? "Link" : actual_object.class %>"></a>
         <% end -%>
       </td>
-      <td valign="top">
+      <td class="rr-cell">
+        <% if item.render_dropdown -%>
+        <%= link_to 'Show/Hide More', '#', :class => 'rr rr-closed', :id => "rr#{resource_item.id}" %>
+        <% end -%>
+      </td>
+      <td class="title-cell">
 		    <% if item.resource_item_type == 'ItemDefault' -%>
 		    <%= link_to resource_item.name, actual_object.url, :target => '_blank', :class => "title" %>
 		    <% elsif actual_object.present? -%>
-		    <%= link_to resource_item.name, actual_object, :target => '_blank', :class => "title" %>
+		    <%= link_to raw(resource_item.name), actual_object, :target => '_blank', :class => "title" %>
 		    <% end -%>
 		    <% if recursive_level == 0 %>
 		    <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => item.resource_item_type.tableize, :action => 'destroy', :id => resource_item),

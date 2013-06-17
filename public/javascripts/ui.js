@@ -258,15 +258,11 @@ jQuery.extend({
     });
   },
   observeCreatePopup: function() {
-    jQuery('#create_all:not(.active)').live('click', function(e) {
+    jQuery('#create_all').live('click', function(e) {
       e.preventDefault();
-      jQuery('#create_all_popup').show();
-      jQuery(this).addClass('active');
-    });
-    jQuery('#create_all.active').live('click', function(e) {
-      e.preventDefault();
-      jQuery('#create_all_popup').hide();
-      jQuery(this).removeClass('active');
+      jQuery('#create_all_popup').css({ left: jQuery('#create_all').position().left, top: jQuery('#create_all').offset().top - 8 });
+      jQuery('#create_all_popup').toggle();
+      jQuery(this).toggleClass('active');
     });
     jQuery('#create_all_popup a').hover(function(e) {
       jQuery(this).find('span').addClass('hover');
@@ -374,23 +370,20 @@ jQuery.extend({
         jQuery('body').addClass('adjusting_now');
         jQuery('#collapse_toggle').addClass('special_hide');
         var scroll_position = jQuery(window).scrollTop();
-        jQuery('.right_panel:visible').addClass('visible_before_hide').fadeOut(200, function() {
-          jQuery('.singleitem').animate({ width: "100%" }, 100, function() {
-            jQuery.adjustTooltipPosition();
-            jQuery(window).scrollTop(scroll_position);
-            jQuery('body').removeClass('adjusting_now');
-          });
-        });
+        jQuery('.right_panel:visible').addClass('visible_before_hide').remove();
+        jQuery('.singleitem').addClass('expanded_singleitem');
+        jQuery.adjustTooltipPosition();
+        jQuery(window).scrollTop(scroll_position);
+        jQuery('body').removeClass('adjusting_now');
       } else if(!jQuery('#collapse_toggle').hasClass('special_hide')) {
         jQuery('#collapse_toggle').addClass('hide_via_scroll');
         jQuery.adjustTooltipPosition();
       }
     } else if(jQuery('#collapse_toggle.special_hide').size() && jQuery(window).scrollTop() == 0) {
       jQuery('#collapse_toggle').removeClass('special_hide');
-      jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
-        jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').fadeIn(200);
-        jQuery.adjustTooltipPosition();
-      });
+      jQuery('.singleitem').removeClass('expanded_singleitem');
+      jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').show();
+      jQuery.adjustTooltipPosition();
     } else if(jQuery('#collapse_toggle.hide_via_scroll').size() && jQuery('#collapse_toggle').data('threshold') > jQuery(window).scrollTop()) {
       jQuery('#collapse_toggle').removeClass('hide_via_scroll');
       jQuery.adjustTooltipPosition();
@@ -411,26 +404,20 @@ jQuery.extend({
       var el = jQuery(this);
       if(el.hasClass('expanded')) {
         el.removeClass('expanded');
+        jQuery('.singleitem').removeClass('expanded_singleitem');
         if(jQuery('#edit_toggle').size() && jQuery('#edit_toggle').hasClass('edit_mode')) {
-          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
-            jQuery('#edit_item').fadeIn(200);
-          });
+          jQuery('#edit_item').show();
         } else {
-          jQuery('.singleitem').animate({ width: "747px" }, 100, 'swing', function() {
-            jQuery('#stats').fadeIn(200);
-          });
+          jQuery('#stats').show();
         }
       } else {
         el.addClass('expanded');
         if(jQuery('#edit_toggle').size() && jQuery('#edit_toggle').hasClass('edit_mode')) {
-          jQuery('#edit_item').fadeOut(200, function() {
-            jQuery('.singleitem').animate({ width: "100%" }, 100);
-          });
+          jQuery('#edit_item').hide();
         } else {
-          jQuery('#stats').fadeOut(200, function() {
-            jQuery('.singleitem').animate({ width: "100%" }, 100);
-          });
+          jQuery('#stats').hide();
         }
+        jQuery('.singleitem').addClass('expanded_singleitem');
       }
     });
     jQuery('.right_panel_close').click(function(e) {
@@ -511,6 +498,7 @@ jQuery.extend({
     if(jQuery('.ui-dialog').is(':visible')) {
       jQuery('.ui-dialog .ui-dialog-content').dialog('close');
     }
+    return true;
   },
   loadPopupCloseListener: function() {
     jQuery('.close-popup').live('click', function(e) {
@@ -528,13 +516,10 @@ jQuery.extend({
   },
   loadOuterClicks: function() {
     jQuery('html').click(function(event) {
-      var dont_hide = jQuery('.add-popup,#login-popup,.text-popup,.layers-popup,#font-popup,.ui-dialog').has(event.target).length > 0 ? true : false;
+      var dont_hide = jQuery('.add-popup,#login-popup,.text-popup,.layers-popup,#font-popup,.ui-dialog,#create_nav').has(event.target).length > 0 ? true : false;
       if(jQuery(event.target).hasClass('dont_hide')) {
         dont_hide = true;
       }
-      //if(jQuery(event.target).hasClass('jsb-moreButton')) {
-      //  dont_hide = true;
-      //}
       if(!dont_hide) {
         jQuery.hideVisiblePopups();
       }
@@ -567,6 +552,12 @@ jQuery.extend({
         access_results = results;
         if(results.logged_in) {
           var data = jQuery.parseJSON(results.logged_in);
+          if(results.anonymous) {
+            data.user.login = 'ANONYMOUS';
+            jQuery('.requires_non_anonymous').remove(); 
+          } else {
+            jQuery('.requires_non_anonymous').animate({ opacity: 1.0 });
+          }
           jQuery('#user_account').append(jQuery('<a>').html(data.user.login + ' Dashboard').attr('href', "/users/" + data.user.id));
           jQuery('#defect_user_id').val(data.user.id);
           jQuery('.requires_logged_in').animate({ opacity: 1.0 });
@@ -574,63 +565,18 @@ jQuery.extend({
           if(jQuery.classType() == 'base') {
             jQuery('#base_dashboard').attr('href', "/users/" + data.user.id);
             jQuery('#get_started').remove();
-            user_bookmarks = jQuery.parseJSON(results.bookmarks);
-            jQuery.each(user_bookmarks, function(i, j) {
-              jQuery('#' + i + ' .bookmark-action').addClass('inactive').html('<span class="icon icon-favorite"></span>BOOKMARKED');
-            });
           }
           user_playlists = jQuery.parseJSON(results.playlists) || new Array();
+          user_bookmarks = jQuery.parseJSON(results.bookmarks) || new Array();
+          jQuery.updateExistingBookmarks();
         } else {
-          jQuery('.requires_logged_in').remove();
+          jQuery('.requires_logged_in, .requires_non_anonymous').remove();
         }
         jQuery('.afterload').animate({ opacity: 1.0 });
         jQuery.hideGlobalSpinnerNode();
 
-        if(jQuery.classType() == 'collages') {  //Collages only
-          last_data = jQuery.parseJSON(results.readable_state);
-          jQuery.loadState();
-          if(results.can_edit_annotations) {
-            jQuery.listenToRecordCollageState();
-            jQuery('.requires_edit').animate({ opacity: 1.0 });
-          } else {
-            jQuery('.requires_edit').remove();
-          }
-          if(results.can_edit_description) {
-            jQuery('.edit-action').animate({ opacity: 1.0 });
-          } else {
-            jQuery('.edit-action').remove();
-          }
-        } else if(jQuery.classType() == 'playlists') {  //Playlists only
-          if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
-            if (results.can_edit) {
-              jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 });
-              jQuery('#edit_toggle').click();
-              is_owner = true;
-            } else {
-              if(!results.can_edit_notes) {
-                jQuery('#description .public-notes, #description .private-notes').remove();
-              }
-              if(!results.can_edit_desc) {
-                jQuery('#description .icon-edit').remove();
-              }
-              jQuery('.requires_remove').remove();
-              jQuery('.requires_edit').animate({ opacity: 1.0 });
-            }
-          } else {
-            jQuery('.requires_edit, .requires_remove').remove();
-          }
-          var notes = jQuery.parseJSON(results.notes) || new Array() 
-          jQuery.each(notes, function(i, el) {
-            if(el.playlist_item.notes != null) {
-              var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
-              var node = jQuery('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
-              if(jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').length) {
-                jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').remove();
-              } 
-              jQuery('#playlist_item_' + el.playlist_item.id + ' > .data').append(node);
-            }
-          });
-          jQuery('.add-popup select option').remove();
+        if(results.custom_block) {
+          eval('jQuery.' + results.custom_block + '(results)');
         }
         jQuery.setFixedLinkPosition();
       }
@@ -907,26 +853,25 @@ jQuery.extend({
   /*
   Generic bookmark item, more details here.
   */
-  observeBookmarkControls: function() {
+  updateExistingBookmarks: function() {
     if(jQuery('.singleitem').size()) {
       var key = 'listitem_' + jQuery.classType().replace(/s$/, '') + jQuery('.singleitem').data('itemid');
       if(user_bookmarks[key]) {
-        jQuery('.bookmark-action').addClass('inactive').html('<span class="icon icon-favorite-large"></span>').attr('title', 'Bookmarked');
-        jQuery('.bookmark-action .icon').css('opacity', 0.3);
+        var el = jQuery('.bookmark-action');
+        el.removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark-large"></span>');
+        el.attr('title', el.attr('title').replace(/^Bookmark/, 'Un-Bookmark'));
       }
     } else {
       jQuery.each(user_bookmarks, function(i, j) {
-        jQuery('#' + i + ' .bookmark-action').addClass('inactive').html('<span class="icon icon-favorite-large"></span>BOOKMARKED');
+        jQuery('#' + i + ' .bookmark-action').removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark"></span>UN-BOOKMARK');
       });
     }
-
-    jQuery('.bookmark-action:not(.inactive)').live('click', function(e){
+  },
+  observeBookmarkControls: function() {
+    jQuery('.bookmark-action').live('click', function(e){
       var item_url = jQuery.rootPathWithFQDN() + 'bookmark_item/';
       var el = jQuery(this);
       item_url += el.data('type') + '/' + el.data('itemid');
-      if (el.hasClass('link-bookmark')) {
-        jQuery('#listitem_' + el.data('type') + el.data('itemid')).addClass('with_popup');
-      }
       e.preventDefault();
       jQuery.ajax({
         cache: false,
@@ -940,19 +885,43 @@ jQuery.extend({
           jQuery('.add-popup').hide();
           jQuery.hideGlobalSpinnerNode();
 
-          var snode;
-          if(!data.already_bookmarked) {
-            if(jQuery.classType() == 'base') {
-              el.addClass('inactive').html('<span class="icon icon-favorite"></span>BOOKMARKED');
-            } else if (el.hasClass('link-bookmark')) {
-              el.addClass('inactive').html('<span class="icon icon-favorite-large"></span>BOOKMARKED');
-              setTimeout(function() {
-                jQuery('#listitem_' + el.data('type') + el.data('itemid')).removeClass('with_popup');
-              }, 500);
-            } else {
-              el.addClass('inactive').html('<span class="icon icon-favorite-large"></span>').attr('title', 'Bookmarked');
-              el.find('.icon').css('opacity', 0.3);
-            }
+          if(jQuery('.singleitem').size()) {
+            el.removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark-large"></span>');
+            el.attr('original-title', el.attr('original-title').replace(/^Bookmark/, 'Un-Bookmark'));
+          } else {
+            el.removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark"></span>UN-BOOKMARK');
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          jQuery.hideGlobalSpinnerNode();
+        }
+      });
+    });
+    jQuery('.delete-bookmark-action').live('click', function(e){
+      var el = jQuery(this);
+      var item_url = jQuery.rootPathWithFQDN() + 'delete_bookmark_item/' + el.data('type') + '/' + el.data('itemid');
+
+      e.preventDefault();
+      jQuery.ajax({
+        cache: false,
+        url: item_url,
+        dataType: "JSON",
+        data: {},
+        beforeSend: function() {
+          jQuery.showGlobalSpinnerNode();
+        },
+        success: function(data) {
+          jQuery.hideGlobalSpinnerNode();
+          if(jQuery('body').hasClass('busers_show')) {
+            var listitem = jQuery(el).parentsUntil('#results_bookmarks').last();
+            listitem.slideUp(200, function() {
+              jQuery(this).remove();
+            });
+          } else if(jQuery('.singleitem').size()) {
+            el.removeClass('delete-bookmark-action link-delete-bookmark').addClass('bookmark-action link-bookmark').html('<span class="icon icon-favorite-large"></span>');
+            el.attr('original-title', el.attr('original-title').replace(/^Un-Bookmark/, 'Bookmark'));
+          } else {
+            el.removeClass('delete-bookmark-action link-delete-bookmark').addClass('bookmark-action link-bookmark').html('<span class="icon icon-bookmark"></span>BOOKMARK');
           }
         },
         error: function(xhr, textStatus, errorThrown) {
@@ -1150,8 +1119,10 @@ jQuery(function() {
   jQuery.resetRightPanelThreshold();
   jQuery.observeDefaultPrintListener();
 
-  if(jQuery('body').hasClass('bbase_index')) {
+  if(jQuery('body').hasClass('cached_page')) {
     jQuery.loadEditability();
+  } else {
+    jQuery.updateExistingBookmarks();
   }
 
   if(jQuery.classType() != 'collages' && jQuery.classType() != 'playlists') {

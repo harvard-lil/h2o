@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
     flash[:notice] = "You do not have access to this content."
     #redirect_to playlists_path
     
-    redirect_back_or_default "/base"
+    redirect_back_or_default "/"
   end
 
   def create_influence(original_object, spawned_object)
@@ -151,16 +151,9 @@ class ApplicationController < ActionController::Base
       t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
       @collection = WillPaginate::Collection.create(params[:page], 25, items.total) { |pager| pager.replace(t) }
     else
-      cache_key = "#{model.to_s.tableize}-search-#{params[:page]}-#{params[:tag]}-#{params[:sort]}-#{params[:order]}"
-      if model == Media && params.has_key?("media_type")
-        cache_key = "#{cache_key}-#{params[:media_type]}"
-      end
-      results = Rails.cache.fetch(cache_key) do
-        items = build_search(model, params)
-        t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
-        { :results => t, 
-          :count => items.total }
-      end
+      items = build_search(model, params)
+      t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
+      results = { :results => t, :count => items.total }
       @collection = WillPaginate::Collection.create(params[:page], 25, results[:count]) { |pager| pager.replace(results[:results]) }
     end
 
@@ -193,8 +186,18 @@ class ApplicationController < ActionController::Base
       if params.has_key?(:media_type)
         with :media_type, params[:media_type]
       end
-      with :public, true
+
+      if model == Playlist && current_user
+        any_of do
+          with :users_by_permission, current_user.login
+          with :public, true
+        end
+      else
+        with :public, true
+      end
+
       with :active, true
+
       paginate :page => params[:page], :per_page => 25
       order_by params[:sort].to_sym, params[:order].to_sym
     end

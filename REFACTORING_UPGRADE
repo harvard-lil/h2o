@@ -1,0 +1,4 @@
+* Remove layer of connection from playlists => playlist_items => item_playlist => actual_object
+* Remove / combine active & public (they are the same thing), except active indicates case acceptance
+* Upgrade to Rails 4
+* Remove / combine owner & creator

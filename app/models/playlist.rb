@@ -28,7 +28,7 @@ class Playlist < ActiveRecord::Base
 
   has_many :playlist_items, :order => "playlist_items.position", :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
-  has_and_belongs_to_many :user_collections   # dependent => destroy
+  has_and_belongs_to_many :user_collections #, :dependent => :destroy
 
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
@@ -45,6 +45,7 @@ class Playlist < ActiveRecord::Base
     string :tag_list, :stored => true, :multiple => true
     string :author 
     integer :karma
+    string :users_by_permission, :stored => true, :multiple => true
 
     boolean :public
     boolean :active
@@ -147,6 +148,17 @@ class Playlist < ActiveRecord::Base
     self.playlist_items.each_with_index do |pi, index|
       pi.update_attribute(:position, self.counter_start + index)
     end
+  end
+
+  def users_by_permission
+    if self.name == "Your Bookmarks" || self.public
+      return []
+    end
+
+    # TODO: Figure out a better way to do this logic, or cache, and sweep
+    p = Permission.find_by_key("view_private")
+    pas = self.user_collections.collect { |uc| uc.permission_assignments }.flatten.select { |pr| pr.permission_id = p.id }
+    ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + self.owners.collect { |u| u.login } ).flatten.uniq
   end
 
   private

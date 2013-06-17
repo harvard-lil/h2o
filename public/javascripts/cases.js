@@ -1,4 +1,11 @@
 jQuery.extend({
+  case_afterload: function(results) {
+    if(results.can_edit) {
+      jQuery('.requires_edit').animate({ opacity: 1.0 });
+    } else {
+      jQuery('.requires_edit').remove();
+    }
+  },
   case_jurisdiction_post: function(data) {
     if(data.update) {
       jQuery('#case_case_jurisdiction_id option[value=' + data.id + ']').html(data.name);

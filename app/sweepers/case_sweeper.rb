@@ -7,7 +7,8 @@ class CaseSweeper < ActionController::Caching::Sweeper
     Rails.cache.delete_matched(%r{cases-search*})
     Rails.cache.delete_matched(%r{cases-embedded-search*})
 
-    expire_fragment "case-all-tags"
+    expire_page :controller => :cases, :action => :show, :id => record.id
+
     expire_fragment "case-#{record.id}-index"
     expire_fragment "case-#{record.id}-tags"
     expire_fragment "case-#{record.id}-detail"

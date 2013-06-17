@@ -90,7 +90,10 @@ class Case < ActiveRecord::Base
   def approve!
     self.update_attribute('active', true)
   end
-
+  def can_edit?
+    return self.owner? || self.admin? || current_user.has_role?(:case_admin) || current_user.has_role?(:superadmin)
+  end
+  
   def self.new_from_xml_file(file)
     cxp = CaseXmlParser.new(file)
     new_case = cxp.xml_to_case_attributes

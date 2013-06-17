@@ -89,25 +89,18 @@
 <div id="edit_item" class="requires_edit right_panel">
   <a href="#" class="right_panel_close"></a>
   <table class="tabs" width="100%"><tr>
-    <td width="50%"><a id="new_annotation" class="current" href="#">Edit</a></td>
-    <td><a id="new_link" href="#">Link</a></td>
+    <td width="50%">
+      <a id="new_annotation" class="current tooltip" href="#" title='To create a layer (to show or hide a portion of text) and/or to create an annotation, click the word at the beginning and the word at the end of text that you would like to edit. Then create or select a layer, pick a color to highlight, and/or add your annotation in this right panel. Click "Save" to submit your edit.'>Edit</a>
+    </td>
+    <td>
+      <a id="new_link" href="#" title='To create a link to another collage in H2O, click at the beginning and end of text that you would like to link, search for a collage to link to, and click "Select" to assign the link.' class="tooltip">Link</a>
+    </td>
   </tr></table>
   <div id="annotation_edit" class="tab_panel new_annotation">
-    <p class="instruction">
-      To create a layer (to show or hide a portion of text) and/or to 
-      create an annotation, click the word at the beginning and the 
-      word at the end of text that you would like to edit. Then create 
-      or select a layer, pick a color to highlight, and/or add your 
-      annotation in this right panel. Click "Save" to submit your edit.
       <div class="dynamic"></div>
     </p>
   </div>
   <div id="link_edit" class="tab_panel new_link" style="display:none;">
-    <p class="instruction">
-      To create a link to another collage in H2O, click at the beginning and end of text
-      that you would like to link, search for a collage to link to, and click "Select"
-      to assign the link.
-    </p>
     <div id="search_wrapper_outer">
       <a id="link_search" href="#">SEARCH</a>
 	    <div id="search_wrapper">

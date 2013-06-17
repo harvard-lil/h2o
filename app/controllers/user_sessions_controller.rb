@@ -18,7 +18,7 @@ class UserSessionsController < ApplicationController
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false
         else
-          redirect_back_or_default "/base"
+          redirect_back_or_default "/"
         end
       else
         render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity
@@ -29,6 +29,6 @@ class UserSessionsController < ApplicationController
   def destroy   
     cookies[:font_size] = nil
     current_user_session.destroy
-    redirect_back_or_default "/base"
+    redirect_back_or_default "/"
   end
 end

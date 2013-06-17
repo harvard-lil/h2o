@@ -1,0 +1,41 @@
+/* Mobile Styles */
+@media only screen and (min-width: 240px) and (max-width: 655px) {
+  .wrapper {
+    width: 98%;
+    max-width: auto;
+  }
+  .singleitem {
+    width: 58%;
+  }
+  .right_panel {
+    width: 35%;
+  }
+  .playlist_edit_mode .singleitem {
+    width: 47%;
+  }
+  .playlist_edit_mode #edit_item {
+    width: 46%;
+  }
+  .playlist_edit_mode .expanded_singleitem,
+  .expanded_singleitem {
+    width: 100%;
+  }
+
+  /* Index */
+  #home_index #description {
+    margin-top: 20px;
+    width: 100%;
+  }
+  #home_index #description h1 {
+    font-size: 20pt;
+    padding-bottom: 10px;
+    line-height: 26pt;
+  }
+  #home_index #description h2 {
+    font-size: 15pt;
+    line-height: 25pt;
+  }
+  #home_index #description #links {
+    padding: 10px 0px 10px;
+  }
+}

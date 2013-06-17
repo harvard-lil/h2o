@@ -39,21 +39,24 @@ class CollagesController < BaseController
       can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
 
       render :json => {
-        :logged_in => current_user.to_json(:only => [:id, :login]),
-        :can_edit => can_edit,
+        :logged_in            => current_user.to_json(:only => [:id, :login]),
+        :can_edit             => can_edit,
         :can_edit_description => can_edit_description,
         :can_edit_annotations => can_edit_annotations,
         :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
-        :readable_state => @collage.readable_state || { :edit_mode => false }.to_json
+        :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
+        :bookmarks            => current_user.bookmarks_map.to_json,
+        :custom_block         => 'collage_afterload'
       }
     else
       render :json => {
-        :logged_in => false,
-        :can_edit => false,
+        :logged_in            => false,
+        :can_edit             => false,
         :can_edit_description => false,
         :can_edit_annotations => false,
         :playlists            => [],
-        :readable_state => @collage.readable_state || { :edit_mode => false }.to_json
+        :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
+        :custom_block         => 'collage_afterload'
       }
     end
   end

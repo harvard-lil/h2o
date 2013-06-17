@@ -1,11 +1,11 @@
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 	<hgroup class="description">
-		<h1><%= raw @playlist.name %></h1>
+		<h1 class="scale1-5"><%= raw @playlist.name %></h1>
 	</hgroup>
 	<div class="details">
-		<h2>
+		<h2 class="scale0-8">
 			<%= @playlist.created_at.to_s(:simpledatetime) %>
-			by <a href="#"><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></a>
+			by <a href="#" class="scale0-8"><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></a>
 		</h2>
 		<div id="description" class="item_description">
 			<%= Playlist.format_content(@playlist.description) %>

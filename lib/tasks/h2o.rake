@@ -98,10 +98,16 @@ namespace :h2o do
     puts "Finished cloning! New cloned playlist id: #{result.id}"
   end
 
+  desc 'Clear Static Page Caches'
+  task(:clear_static_page_cache => :environment) do
+    system("rm -rf #{RAILS_ROOT}/public/p/*")
+  end
+  
   desc 'Clear Page Caches'
   task(:clear_page_cache => :environment) do
     system("rm -rf #{RAILS_ROOT}/public/collages/*")
     system("rm -rf #{RAILS_ROOT}/public/playlists/*")
+    system("rm -rf #{RAILS_ROOT}/public/cases/*")
   end
   
   desc 'Clear UI Caches'

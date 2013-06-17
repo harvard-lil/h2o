@@ -36,6 +36,13 @@ a {
 /*  text-decoration: none; */
   cursor:pointer;
 }
+table { 
+  border-spacing: 0px;
+  border-collapse: collapse;
+}
+td {
+  text-align: left;
+}
 a:hover { text-decoration: underline; }
 a img { border: 0; }
 ul, ol {
@@ -100,7 +107,7 @@ form.formtastic input.button {
 
 header nav { 
   float: right; 
-  width: 50%;
+  width: 39%;
   text-align: right;
   padding: 5px 0px;
 }
@@ -125,6 +132,7 @@ header nav a.active {
 header nav#object_types {
   text-align: left;
   float: left;
+  width: 60%;
 }
 header nav#object_types a {
   margin-right: 20px;
@@ -221,6 +229,12 @@ body.bbase_index footer { margin-top: 0px; }
   text-indent: -4000px;
 }
 
+header #search table {
+  width: 100%;
+}
+header #search table td {
+  vertical-align: middle;
+}
 #search { 
   float: right; 
   display: inline; 
@@ -230,6 +244,10 @@ body.bbase_index footer { margin-top: 0px; }
 }
 #search #search_button {
   line-height: 22px;
+}
+#search #case_request_button {
+  line-height: 22px;
+  margin-right: 12px;
 }
 #search td.search {
   background: #FFF;
@@ -282,9 +300,7 @@ body.bbase_index footer { margin-top: 0px; }
   display: none;
   position: absolute;
   padding: 10px;
-  top: 38px;
   z-index: 2;
-  right: 0px;
   width: 200px;
 }
 #create_all_popup div.left {
@@ -351,6 +367,12 @@ body.bbase_index footer { margin-top: 0px; }
 .paginatio a.active {
 color: #999;
 }
+#edit_item {
+  background: none;
+}
+.playlist_edit_mode #edit_item {
+  width: 514px;
+}
 #edit_item .pagination {
   background: #c2c2c2;
   padding: 10px;
@@ -359,6 +381,11 @@ color: #999;
 #edit_item .pagination span,
 #edit_item .pagination a {
   margin-right: 7px;
+}
+#edit_item .instruction {
+  padding: 0px 10px 10px 10px;
+  font-style: italic;
+  line-height: 1.6em;
 }
 
 #results {
@@ -400,7 +427,7 @@ color: #999;
 }
 #results li.listitem .details {
   display: inline-block;
-  width: 650px;
+  width: 640px;
   padding: 0px 25px 0px 10px;
 }
 #results li.listitem a {
@@ -1062,7 +1089,6 @@ ul.user_captcha > li p.inline-errors { display: none; }
   border: 1px solid #fff;
 }
 
-
 .singleitem {
   display:block;
   margin-top: 5px;
@@ -1070,6 +1096,13 @@ ul.user_captcha > li p.inline-errors { display: none; }
   height:100%;
   float: left;
   width: 747px;
+}
+.playlist_edit_mode .singleitem {
+  width: 536px;
+}
+.playlist_edit_mode .expanded_singleitem,
+.expanded_singleitem {
+  width: 100%;
 }
 .singleitem h1,
 .singleitem h3 {
@@ -1360,7 +1393,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   color: #5590cc;
 }
 .link-delete-bookmark {
-  color: #818181;
+  color: #323232;
 }
 .link-collage {
  color: #669999;
@@ -1434,6 +1467,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 
 /* Common Edit Item */
 .tabs {
+  width: 100%;
 }
 .tabs a {
   display: block;
@@ -1442,17 +1476,11 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   padding: 5px 0px;
   text-indent: 10px;
   font-weight: bold;
-  background: #FFF;
-}
-.tabs a.current {
   background: #d5d5d5;
 }
-#edit_item .instruction {
-  padding: 10px;
-  font-style: italic;
-  line-height: 1.6em;
+.tabs a.current {
+  background: #FFF;
 }
-
 
 #buser_sessions .standard-form {
   padding: 20px;
@@ -1495,6 +1523,9 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 .requires_edit,
 .requires_remove,
 .afterload {
+  opacity: 0.0;
+}
+.bcases_show .requires_non_anonymous {
   opacity: 0.0;
 }
 

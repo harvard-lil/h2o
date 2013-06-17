@@ -35,7 +35,7 @@ class UserCollectionsController < BaseController
   def manage_permissions
     @permissions = { :playlist => [], :collage => [] }
     Permission.all.sort_by { |p| p.id }.each do |p|
-      @permissions[p.permission_type.to_sym] << p
+      @permissions[p.permission_type.to_sym] << p if p.permission_type
     end
 
     @user_permission_map = @user_collection.permission_assignments.map { |pa| "#{pa.user_id}_#{pa.permission_id}" }

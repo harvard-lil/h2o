@@ -56,7 +56,10 @@ class PlaylistsController < BaseController
         :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
         :can_position_update  => can_position_update,
         :can_edit_notes       => can_edit_notes,
-        :can_edit_desc        => can_edit_desc }
+        :bookmarks            => current_user.bookmarks_map.to_json,
+        :custom_block         => 'playlist_afterload',
+        :can_edit_desc        => can_edit_desc
+      }
     else
       render :json => {
         :logged_in            => false,
@@ -65,7 +68,9 @@ class PlaylistsController < BaseController
         :playlists            => [],
         :can_position_update  => false,
         :can_edit_notes       => false,
-        :can_edit_desc        => false }
+        :custom_block         => 'playlist_afterload',
+        :can_edit_desc        => false 
+      }
     end
   end
 

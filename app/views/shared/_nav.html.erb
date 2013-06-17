@@ -1,74 +1,81 @@
 <header>
-  <div class="wrapper">
-	  <nav>
-	  	<% if @page_cache -%>
-      <span id="user_account"></span>
-      <%= link_to "sign out", log_out_path, :class => 'requires_logged_in' %>
-	  	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
-	  	<% else -%>
-	  	<% if current_user -%>
-      <%= link_to "#{current_user.simple_display} Dashboard", user_path(current_user), :id => "logged-in" %>
-      <%= link_to "sign out", log_out_path %>
-	  	<% else -%>
-	  	<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => "dont_hide" %>
-	  	<% end -%>
-	  	<% end -%>
-	  	<div class="clear"></div>
-	  </nav>
-    <nav id="object_types" class="light_hover">
-      <%= link_to raw('<span class="icon icon-playlist"></span>'), playlists_path, { :title => "Playlists", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-collage"></span>'), collages_path, { :title => "Collages", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-case"></span>'), cases_path, { :title => "Cases", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-textblock"></span>'), text_blocks_path, { :title => "Texts", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-media-image"></span>'), "/medias?media_type=image", { :title => "Images", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-media-audio"></span>'), "/medias?media_type=audio", { :title => "Audio", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-media-pdf"></span>'), "/medias?media_type=pdf", { :title => "PDFs", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-media-video"></span>'), "/medias?media_type=video", { :title => "Videos", :class => "nav-tooltip" } %>
-      <%= link_to raw('<span class="icon icon-default"></span>'), defaults_path, { :title => "Links", :class => "nav-tooltip" } %>
-    </nav>
+	<div class="wrapper">
+		<nav>
+			<% if @page_cache -%>
+			<span id="user_account"></span>
+			<%= link_to "sign out", log_out_path, :class => 'requires_logged_in' %>
+			<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
+			<% else -%>
+			<% if current_user -%>
+			<%= link_to "#{current_user.simple_display} Dashboard", user_path(current_user), :id => "logged-in" %>
+			<%= link_to "sign out", log_out_path %>
+			<% else -%>
+			<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => "dont_hide" %>
+			<% end -%>
+			<% end -%>
+			<div class="clear"></div>
+		</nav>
+		<nav id="object_types" class="light_hover">
+			<%= link_to raw('<span class="icon icon-playlist"></span>'), playlists_path, { :title => "Playlists", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-collage"></span>'), collages_path, { :title => "Collages", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-case"></span>'), cases_path, { :title => "Cases", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-textblock"></span>'), text_blocks_path, { :title => "Texts", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-media-image"></span>'), "/medias?media_type=image", { :title => "Images", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-media-audio"></span>'), "/medias?media_type=audio", { :title => "Audio", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-media-pdf"></span>'), "/medias?media_type=pdf", { :title => "PDFs", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-media-video"></span>'), "/medias?media_type=video", { :title => "Videos", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-default"></span>'), defaults_path, { :title => "Links", :class => "nav-tooltip" } %>
+		</nav>
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
-	  <section id="search">
-	  <% form_tag(url_for, :method => :get, :class => "search") do -%>
-	  <table width="100%">
-	    <tr>
-	      <td id="spinner" valign="middle">
-	  		  <img src="/images/ajax-loader.gif" alt="" />
-	      </td>
-	      <td valign="middle" class="field search">
-	        <%= text_field_tag "keywords", params[:keywords], :size => 50 %>
-	      </td>
-	      <td valign="middle" class="search">
-	        <select id="search_all">
-	          <option value="all_materials">all</option>
-	          <% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links" }.each do |k, v| -%>
-	          <option value="<%= k %>" <%= raw 'selected="selected"' if params[:controller] == k %>><%= v %></option>
-	          <% end -%>
-	        </select>
-	      </td>
-	      <td valign="middle">
-	        <a href="#" id="search_button" class="button">SEARCH</a>
-	      </td>
-	      <td id="create_nav" class="requires_logged_in" valign="middle">
-	        <a href="#" id="create_all">CREATE<span></span></a>
-	      </td>
-	  </table>
-	  <% end -%>
-	  <div class="popup" id="create_all_popup">
-	    <div class="left">
-	    <%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %> 
-	    <%= link_to raw('<span class="icon icon-collage"></span>Collage'), quick_collage_path, :id => 'quick_collage' %>
-	    <%= link_to raw('<span class="icon icon-case"></span>Case'), new_case_path %>
-	    <%= link_to raw('<span class="icon icon-textblock"></span>Text'), new_text_block_path %>
-	    <%= link_to raw('<span class="icon icon-media-pdf"></span>PDF'), new_media_path, :class => "last" %> 
-	    </div>
-	    <div class="right">
-	    <%= link_to raw('<span class="icon icon-media-audio"></span>Audio'), new_media_path %> 
-	    <%= link_to raw('<span class="icon icon-media-image"></span>Image'), new_media_path %> 
-	    <%= link_to raw('<span class="icon icon-media-video"></span>Video'), new_media_path %>
-	    <%= link_to raw('<span class="icon icon-default"></span>Link'), new_default_path, :class => "last" %>
-	    </div>
-	  </div>
-	  </section>
-    <div class="clear"></div>
-  </div>
+		<section id="search">
+		<% form_tag(url_for, :method => :get, :class => "search") do -%>
+		<table>
+			<tr>
+				<td id="spinner">
+					<img src="/images/ajax-loader.gif" alt="" />
+				</td>
+				<% if params[:controller] == 'cases' && (@page_cache || (current_user && !current_user.has_role?(:nonauthenticated))) -%>
+				<td class="requires_non_anonymous">
+				<%= link_to "REQUEST CASE", new_case_request_path, :id => 'case_request_button', :class => 'requires-non-anonymous button' %>
+				</td>
+				<% end -%>
+				<td class="field search">
+					<%= text_field_tag "keywords", params[:keywords], :size => 50 %>
+				</td>
+				<td class="search">
+					<select id="search_all">
+						<option value="all_materials">all</option>
+						<% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links" }.each do |k, v| -%>
+						<option value="<%= k %>" <%= raw 'selected="selected"' if params[:controller] == k %>><%= v %></option>
+						<% end -%>
+					</select>
+				</td>
+				<td>
+					<a href="#" id="search_button" class="button">SEARCH</a>
+				</td>
+				<% if @page_cache || current_user -%>
+				<td id="create_nav" class="requires_logged_in">
+					<a href="#" id="create_all">CREATE<span></span></a>
+				</td>
+				<% end -%>
+			</tr>
+		</table>
+		<% end -%>
+		<div class="popup" id="create_all_popup">
+			<div class="left">
+			<%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %> 
+			<%= link_to raw('<span class="icon icon-collage"></span>Collage'), quick_collage_path, :id => 'quick_collage' %>
+			<%= link_to raw('<span class="icon icon-textblock"></span>Text'), new_text_block_path %>
+			<%= link_to raw('<span class="icon icon-media-pdf"></span>PDF'), new_media_path, :class => "last" %> 
+			</div>
+			<div class="right">
+			<%= link_to raw('<span class="icon icon-media-audio"></span>Audio'), new_media_path %> 
+			<%= link_to raw('<span class="icon icon-media-image"></span>Image'), new_media_path %> 
+			<%= link_to raw('<span class="icon icon-media-video"></span>Video'), new_media_path %>
+			<%= link_to raw('<span class="icon icon-default"></span>Link'), new_default_path, :class => "last" %>
+			</div>
+		</div>
+		</section>
+		<div class="clear"></div>
+	</div>
 </header>

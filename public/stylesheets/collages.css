@@ -245,7 +245,7 @@ form.formtastic fieldset > ol > li.text textarea.markItUpEditor { width: 100%; }
 }
 #annotation_edit,
 #link_edit {
-  background: #d5d5d5; 
+  background: #FFF;
 }
 #annotation_edit .dynamic {
   background: #FFF;
@@ -332,16 +332,17 @@ form.formtastic fieldset > ol > li.layer_check input {
   text-decoration: none;
 }
 #link_edit #search_wrapper_outer {
-  padding: 0px 10px 10px 10px;
+  padding: 10px 10px 10px 10px;
   height: 28px;
   display: none;
 }
 #link_edit #search_wrapper {
   background: #FFF;
   padding-right: 90px;
+  border: 1px solid #d5d5d5;
 }
 #link_edit #collage-keyword-search {
-  padding: 5px;
+  padding: 4px;
   border: none;
   width: 160px;
 }

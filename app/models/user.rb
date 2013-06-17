@@ -238,13 +238,16 @@ class User < ActiveRecord::Base
   def playlists_by_permission(permission_key)
     # TODO: Add caching, caching invalidation
     permission = Permission.find_by_key(permission_key)
+    Rails.logger.warn "stephie: #{permission.inspect}"
     return [] if permission.nil?
+    Rails.logger.warn "stephie: #{self.permission_assignments.inspect}"
     self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.playlists if pa.permission == permission; arr }.flatten.uniq
   end
 
   def can_permission_playlist(permission_key, playlist)
     playlists = self.playlists_by_permission(permission_key)
-    playlists.include?(playlist)
+    #playlists.include?(playlist)
+    false
   end
 
   def collages_by_permission(permission_key)
@@ -361,5 +364,12 @@ class User < ActiveRecord::Base
   def update_karma
     value = self.barcode.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
     self.update_attribute(:karma, value)
+  end
+
+  def private_playlists_by_permission
+    p = Permission.find_by_key("view_private")
+    pas = self.permission_assignments.select { |pa| pa.permission_id == p.id }
+    playlists = pas.collect { |pa| pa.user_collection.playlists }.flatten.uniq
+    playlists.select { |playlist| !playlist.public }
   end
 end
