@@ -100,7 +100,6 @@ class DropboxImporter
   end
 
   def paths_already_imported
-    @paths_already_imported ||= Import.completed_paths(@klass)
-    @paths_already_imported
+    Import.completed_paths(@klass)
   end
 end
