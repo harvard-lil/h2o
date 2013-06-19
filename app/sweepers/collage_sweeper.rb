@@ -27,9 +27,14 @@ class CollageSweeper < ActionController::Caching::Sweeper
       expire_page :controller => :collages, :action => :show, :id => rel_id
     end
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && ['owner', 'creator'].include?(b.name); arr }.uniq
-    users.push(current_user.id) if current_user
-    users.each { |u| Rails.cache.delete("user-collages-#{u}") }
+    begin
+      users = (record.owners + record.creators).uniq.collect { |u| u.id }
+      users.each { |u| Rails.cache.delete("user-collages-#{u}") }
+      if record.changed.include?("public")
+        users.each { |u| Rails.cache.delete("user-barcode-#{u}") }
+      end
+    rescue Exception => e
+    end
   end
 
   def after_create(record)

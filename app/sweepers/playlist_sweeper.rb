@@ -25,9 +25,14 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
       expire_page :controller => :playlists, :action => :export, :id => p
     end
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if ['owner', 'creator'].include?(b.name); arr }.uniq
-    users.push(current_user.id) if current_user
-    users.each { |u| Rails.cache.delete("user-playlists-#{u}") }
+    begin
+      users = (record.owners + record.creators).uniq.collect { |u| u.id }
+      users.each { |u| Rails.cache.delete("user-playlists-#{u}") }
+      if record.changed.include?("public")
+        users.each { |u| Rails.cache.delete("user-barcode-#{u}") }
+      end
+    rescue Exception => e
+    end
   end
 
   def playlist_clear_nonsiblings(id)

@@ -82,11 +82,12 @@ class Collage < ActiveRecord::Base
     string :layer_list, :multiple => true
   end
 
-  def fork_it(new_user)
+  def fork_it(new_user) #, public_val)
     collage_copy = self.clone
     collage_copy.name = self.root.name
     collage_copy.created_at = Time.now
     collage_copy.parent = self
+    #collage_copy.public = public_val
     collage_copy.accepts_role!(:owner, new_user)
     collage_copy.accepts_role!(:creator, new_user)
     self.creators.each do|c|

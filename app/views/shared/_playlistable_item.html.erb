@@ -1,5 +1,10 @@
 <% if @objects -%>
-<h3><%= pluralize @objects.total, "Result" %> <span>(Drag and drop items)</span></h3>
+<h3>
+  <%= pluralize @objects.total, "Result" %> <span class="dr">(Drag and drop items)</span>
+  <aside class="sort">
+	  <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[@list_key] } %>
+  </aside>
+</h3>
 <%= will_paginate @objects.hits, :previous_label => 'Prev', :next_label => 'Next' %>
 <div id="nestable2">
   <ol class="dd-list">

@@ -290,15 +290,20 @@ class User < ActiveRecord::Base
   def barcode
     Rails.cache.fetch("user-barcode-#{self.id}") do
       barcode_elements = []
-  
-      ["collages", "playlists", "medias", "text_blocks", "cases"].each do |type|
+
+      item_types = ["collages", "playlists", "medias", "text_blocks"]
+      item_types << "cases" if self.login == "h2ocases"
+
+      item_types.each do |type|
         single_type = type.singularize
         created_type = "#{single_type}_created"
         item_klass = "Item#{type.singularize.camelize}".constantize
         type_title = "#{single_type.capitalize}"
+
+        public_items = self.send(type).select { |i| i.public }
   
         # Base Created
-        self.send(type).each do |item|
+        public_items.each do |item|
           barcode_elements << { :type => created_type,
                                 :date => item.created_at, 
                                 :title => "#{item.class} created: #{item.name}",
@@ -308,7 +313,7 @@ class User < ActiveRecord::Base
         # Base Collaged
         if ["cases", "text_blocks"].include?(type)
           collaged_type = "user_#{type.singularize}_collaged"
-          self.send(type).each do |item|
+          public_items.each do |item|
             item.collages.each do |collage|
               next if collage.nil? || collage.owners.nil?
               next if collage.owners.include?(self)
@@ -322,7 +327,7 @@ class User < ActiveRecord::Base
         end
   
         # Bookmarked, or Incorporated
-        incorporated_items = item_klass.all(:conditions => ["actual_object_id in (?)",  self.send(type.to_s).map(&:id)]) 
+        incorporated_items = item_klass.all(:conditions => ["actual_object_id in (?)",  public_items.map(&:id)]) 
         incorporated_items.each do |ii|
           next if ii.playlist_item.nil?
           next if ii.playlist_item.playlist.nil?
@@ -343,7 +348,7 @@ class User < ActiveRecord::Base
   
         # Remix
         if ["collages", "playlists"].include?(type)
-          self.send(type.to_s).each do |item|
+          public_items.each do |item|
             item.children.each do |child|
               next if child.nil?
               next if child.owners.nil?

@@ -28,7 +28,7 @@
 		</nav>
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
 		<section id="search">
-		<% form_tag(url_for, :method => :get, :class => "search") do -%>
+		<% form_tag("/all_materials", :method => :get, :class => "search") do -%>
 		<table>
 			<tr>
 				<td id="spinner">

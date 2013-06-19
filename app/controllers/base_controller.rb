@@ -3,6 +3,9 @@ class BaseController < ApplicationController
   caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
 
   def embedded_pager(model = nil)
+    set_sort_params
+    set_sort_lists
+    @list_key = model.present? ? model.to_s.tableize.to_sym : :all
     params[:page] ||= 1
 
     if params[:keywords].present?
@@ -14,7 +17,7 @@ class BaseController < ApplicationController
         with :public, true
         with :active, true
 
-        order_by :score, :desc
+        order_by params[:sort].to_sym, params[:order].to_sym
       end
       @objects.execute!
     else
@@ -28,7 +31,7 @@ class BaseController < ApplicationController
           with :public, true
           with :active, true
 
-          order_by :karma, :desc
+          order_by params[:sort].to_sym, params[:order].to_sym
         end
         obj.execute!
         obj

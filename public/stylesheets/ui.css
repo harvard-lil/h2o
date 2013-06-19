@@ -1314,7 +1314,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
 .singleitem article h1, 
 .singleitem article h2, 
 .singleitem article h3, 
-.singleitem article h4 { margin-bottom: 1.0em; }
+.singleitem article h4 { margin-bottom: 0.5em; }
 .singleitem article blockquote p {
   margin-left: 0px;
   margin-bottom: 16px;

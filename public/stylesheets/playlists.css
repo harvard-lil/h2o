@@ -196,10 +196,10 @@
 }
 #edit_item #search_wrapper {
   background: #FFF;
-  padding-right: 120px;
+  padding-right: 180px;
 }
 #edit_item #add_item_term {
-  width: 95px;
+  width: 100%;
   border: none;
   padding: 6px;
   height: 18px;
@@ -227,10 +227,24 @@
   background: #333;
   padding: 10px;
 }
-#edit_item #add_item_results h3 span {
+#edit_item #add_item_results h3 span.dr {
   font-style: italic;
   font-weight: normal;
   padding-left: 10px;
+}
+#edit_item #add_item_results .sort {
+  float: right;
+  position: relative;
+  top: -2px;
+}
+#edit_item #add_item_results .sort .jsb {
+  width: 150px !important;
+}
+#edit_item #add_item_results .sort .jsb .jsb-list {
+  width: 150px !important;
+}
+#edit_item #add_item_results .sort .jsb .jsb-moreButton {
+  width: 150px;
 }
 #edit_item #add_item_results li.listing {
   border-top:1px solid #e0e1e1; 

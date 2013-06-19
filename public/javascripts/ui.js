@@ -30,6 +30,36 @@ jQuery.extend({
       return Mustache.to_html(template, data, partial, stream);
     }
   },
+  observeLinkCopy: function() {
+    jQuery('.link-copy').live('click', function(e) {
+      e.preventDefault();
+      var url = jQuery(this).attr('href');
+      jQuery('#generic-node').remove();
+      var addItemDialog = jQuery('<div id="generic-node"></div>');
+      var html = '<form class="formtastic"><fieldset class="inputs"><ol><li id="collage_public_input" class="boolean required"><label for="playlist_public"><input type="hidden" value="0" name="playlist[public]"><input type="checkbox" value="1" name="playlist[public]" id="playlist_public" class="privacy_toggle" checked="checked">Public<abbr title="required">*</abbr></label></li></ol></fieldset></form>';
+      jQuery(addItemDialog).html(html);
+      jQuery(addItemDialog).dialog({
+        title: 'Remix Collage',
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+        buttons: {
+          Continue: function(){
+            document.location.href = url + '?public=' + jQuery('#generic-node input').is(':checked');
+          },
+          Cancel: function(){
+            jQuery(addItemDialog).dialog('close');
+          }
+        }
+      });
+    });
+  },
+  adjustArticleHeaderSizes: function() {
+    jQuery('article h1').addClass('scale1-4');
+    jQuery('article h2').addClass('scale1-3');
+    jQuery('article h3').addClass('scale1-2');
+    jQuery('article h4').addClass('scale1-1');
+  },
   observeDefaultPrintListener: function() {
     if(jQuery.classType() != 'collages') {
       jQuery('#fixed_print').click(function(e) {
@@ -189,6 +219,7 @@ jQuery.extend({
     jQuery.rule('.main_wrapper .singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('style');
     jQuery.rule('.main_wrapper .singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('style');
     jQuery.rule('.main_wrapper .singleitem *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('style');
+    jQuery.rule('.main_wrapper .singleitem *.scale1-2 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
     jQuery.rule('.main_wrapper .singleitem *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
     jQuery.rule('.main_wrapper .singleitem *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
     jQuery.rule('.main_wrapper .singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
@@ -545,7 +576,6 @@ jQuery.extend({
         jQuery('.requires_logged_in').remove();
         jQuery('.afterload').animate({ opacity: 1.0 });
         jQuery.hideGlobalSpinnerNode();
-        jQuery.loadState();
       },
       success: function(results){
         //Global methods
@@ -1040,6 +1070,18 @@ jQuery.extend({
 });
 
 jQuery(function() {
+  //Keep this early to adjust font sizes early
+  jQuery.adjustArticleHeaderSizes();
+
+  jQuery('#search_button').live('click', function(e) {
+    e.preventDefault();
+    jQuery("#search form").attr("action", "/" + jQuery('select#search_all').val());
+    jQuery('#search form').submit();
+  });
+  jQuery('select#search_all').selectbox({
+    className: "jsb", replaceInvisible: true 
+  });
+
   /* Only used in collages */
   jQuery.fn.observeField =  function( time, callback ){
     return this.each(function(){
@@ -1054,15 +1096,6 @@ jQuery(function() {
     });
   }
 
-  jQuery('#search_button').live('click', function(e) {
-    e.preventDefault();
-    jQuery("#search form").attr("action", "/" + jQuery('select#search_all').val());
-    jQuery('#search form').submit();
-  });
-  jQuery('select#search_all').selectbox({
-    className: "jsb", replaceInvisible: true 
-  });
-
   jQuery(".link-more,.link-less").click(function(e) {
     jQuery("#description_less,#description_more").toggle();
     e.preventDefault();
@@ -1073,8 +1106,6 @@ jQuery(function() {
   jQuery('li.submit a').click(function() {
     jQuery('form.search').submit();
   });
-
-  /* End TODO */
 
   if(document.location.hash.match('ajax_region=')) {
     var region = jQuery('#results_' + jQuery.address.parameter('ajax_region')).parent();
@@ -1118,6 +1149,8 @@ jQuery(function() {
   jQuery.initializeRightPanelScroll();
   jQuery.resetRightPanelThreshold();
   jQuery.observeDefaultPrintListener();
+  //TODO: Activate when complete
+  //jQuery.observeLinkCopy();
 
   if(jQuery('body').hasClass('cached_page')) {
     jQuery.loadEditability();

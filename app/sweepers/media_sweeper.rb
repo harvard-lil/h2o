@@ -14,9 +14,14 @@ class MediaSweeper < ActionController::Caching::Sweeper
     expire_fragment "media-#{record.id}-tags"
     expire_fragment "media-#{record.id}-annotatable-content"
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && ['owner', 'creator'].include?(b.name); arr }.uniq
-    users.push(current_user.id) if current_user
-    users.each { |u| Rails.cache.delete("user-medias-#{u}") }
+    begin
+      users = (record.owners + record.creators).uniq.collect { |u| u.id }
+      users.each { |u| Rails.cache.delete("user-medias-#{u}") }
+      if record.changed.include?("public")
+        users.each { |u| Rails.cache.delete("user-barcode-#{u}") }
+      end
+    rescue Exception => e
+    end
   end
 
   def after_save(record)

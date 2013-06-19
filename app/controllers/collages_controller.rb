@@ -71,7 +71,7 @@ class CollagesController < BaseController
   end
 
   def copy
-    @collage_copy = @collage.fork_it(current_user)
+    @collage_copy = @collage.fork_it(current_user) #, params[:public] || @collage.public)
     flash[:notice] = %Q|We've copied "#{@collage_copy.parent}" for you. Please find your copy below.|
     redirect_to(@collage_copy)
   rescue Exception => e

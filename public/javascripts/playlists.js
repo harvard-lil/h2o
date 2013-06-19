@@ -163,7 +163,11 @@ jQuery.extend({
     });
     jQuery.each(jQuery.parseJSON(data.item), function(i, item) {
       jQuery('.listitem' + item.id + ' > .wrapper a.title').html(item.name);
-      jQuery('.listitem' + item.id + ' > .wrapper .item_description').html(item.description);
+      jQuery('.listitem' + item.id + ' > .wrapper .resource_item_desc').html(item.description);
+      // use case for description update
+      // resource_item_desc exists and changes
+      // resource item_desc doesn't exist, and description updated
+      // resoure item desc exists, and description is set to blank
     });
   },
   renderNewPlaylistItem: function(data) {
@@ -398,7 +402,8 @@ jQuery.extend({
            jQuery.showGlobalSpinnerNode();
         },
         data: {
-          keywords: jQuery('#add_item_term').val()
+          keywords: jQuery('#add_item_term').val(),
+          sort: jQuery('#add_item_results .sort select').val() 
         },
         dataType: 'html',
         success: function(html){
@@ -407,6 +412,11 @@ jQuery.extend({
           jQuery.toggleHeaderPagination();
           jQuery('div#nestable2').nestable({ group: 1, maxDepth: 1 });
           jQuery.initializeBarcodes();
+          jQuery('#add_item_results .sort select').selectbox({
+            className: "jsb", replaceInvisible: true 
+          }).change(function() {
+            jQuery('#add_item_search').click(); 
+          });
         }
       });
     });
@@ -429,6 +439,11 @@ jQuery.extend({
           jQuery('#add_item_results').html(html);
           jQuery.toggleHeaderPagination();
           jQuery('div#nestable2').nestable({ group: 1, maxDepth: 1 });
+          jQuery('#add_item_results .sort select').selectbox({
+            className: "jsb", replaceInvisible: true 
+          }).change(function() {
+            jQuery('#add_item_search').click(); 
+          });
         }
       });
     });
