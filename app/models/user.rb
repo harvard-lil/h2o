@@ -238,16 +238,13 @@ class User < ActiveRecord::Base
   def playlists_by_permission(permission_key)
     # TODO: Add caching, caching invalidation
     permission = Permission.find_by_key(permission_key)
-    Rails.logger.warn "stephie: #{permission.inspect}"
     return [] if permission.nil?
-    Rails.logger.warn "stephie: #{self.permission_assignments.inspect}"
     self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.playlists if pa.permission == permission; arr }.flatten.uniq
   end
 
   def can_permission_playlist(permission_key, playlist)
     playlists = self.playlists_by_permission(permission_key)
-    #playlists.include?(playlist)
-    false
+    playlists.include?(playlist)
   end
 
   def collages_by_permission(permission_key)
