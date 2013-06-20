@@ -1532,3 +1532,6 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 .ui-dialog * {
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
+#results .listitem .controls a.link-delete-bookmark {
+  display: none !important;
+}
