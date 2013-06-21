@@ -6,14 +6,14 @@ class Import < ActiveRecord::Base
     if self.status == "Object Created"
       self.actual_object
     else
-      Import.find(:first, 
-                  :conditions => "imports.dropbox_filepath = '#{self.dropbox_filepath}' 
-                                  AND status = 'Object Created'").actual_object
+      Import.find(:first,
+                  :conditions => ["imports.dropbox_filepath = ?
+                                  AND status = 'Object Created'", self.dropbox_filepath]).actual_object
     end
   end
 
   def self.completed_paths(klass)
-    imports = Import.find :all, :conditions => ["actual_object_type = ? AND status = ?", 
+    imports = Import.find :all, :conditions => ["actual_object_type = ? AND status = ?",
                                                 klass.to_s, 'Object Created']
     imports = imports.map(&:dropbox_filepath).uniq.compact.flatten
     imports
