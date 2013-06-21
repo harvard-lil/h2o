@@ -8,7 +8,7 @@ class CaseXmlParser
 
   def xml_to_case_attributes
     {:short_name => @doc.css('ShortName').text,
-     :full_name => @doc.css('ShortName').text,
+     :full_name => @doc.css('FullName').text,
      :author => @doc.css('Author').text,
      :decision_date => @doc.css('DecisionDate').text,
      :lawyer_header => @doc.css('LawyerHeader').text,
