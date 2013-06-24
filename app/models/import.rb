@@ -1,6 +1,12 @@
 class Import < ActiveRecord::Base
   belongs_to :bulk_upload
   belongs_to :actual_object, :polymorphic => true
+  
+  def full_name
+    unless self.created_object.nil?
+      self.created_object.full_name
+    end
+  end
 
   def created_object
     if self.status == "Object Created"
