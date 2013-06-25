@@ -93,7 +93,7 @@ class Case < ActiveRecord::Base
   def can_edit?
     return self.owner? || self.admin? || current_user.has_role?(:case_admin) || current_user.has_role?(:superadmin)
   end
-  
+
   def self.new_from_xml_file(file)
     cxp = CaseXmlParser.new(file)
     new_case = cxp.xml_to_case_attributes
@@ -108,10 +108,15 @@ class Case < ActiveRecord::Base
 
   def self.to_tsv(options = {})
     res = ''
-    Case.all.each do |case_obj|
+    Case.newly_added.each do |case_obj|
       FasterCSV.generate(res, :col_sep => "\t") {|csv| csv << [case_obj.short_name, case_obj.case_citations.first.to_s]}
+      case_obj.update_attribute(:sent_in_cases_list, true)
     end
     res
+  end
+
+  def self.newly_added
+    self.find(:all, :conditions => "sent_in_cases_list = false or sent_in_cases_list IS NULL")
   end
 
   def current_collage
