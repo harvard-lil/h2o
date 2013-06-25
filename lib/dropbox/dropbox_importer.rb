@@ -7,13 +7,6 @@ class DropboxImporter
     @dh2o = dh2o
   end
 
-  def paths_to_import
-    @dh2o.file_paths - paths_already_imported
-  end
-
-  def paths_of_dupes
-    @paths_of_dupes ||= (@dh2o.file_paths - self.paths_to_import)
-  end
 
   def import(klass, bulk_upload)
     puts "dropbox_importer.rb (19): Import message received with KLASS: #{klass.inspect} BULK_UPLOAD: #{bulk_upload.inspect}\n"
@@ -99,7 +92,15 @@ class DropboxImporter
     Import.create!(options)
   end
 
+  def paths_to_import
+    @paths_to_import ||= (@dh2o.file_paths - paths_already_imported)
+  end
+
+  def paths_of_dupes
+    @paths_of_dupes ||= (@dh2o.file_paths - self.paths_to_import)
+  end
+
   def paths_already_imported
-    Import.completed_paths(@klass)
+    @paths_already_imported ||= Import.completed_paths(@klass)
   end
 end
