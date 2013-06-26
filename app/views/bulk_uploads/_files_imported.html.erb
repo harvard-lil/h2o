@@ -1,8 +1,17 @@
-<table>
-<tr><td></td><td></td></tr>
-<% files_imported.each do |import| %>
-<tr>
-  <td><%= import.dropbox_filepath.gsub("/", "").ljust(150) %></td> <td><% if import.status != "Errored" && import.created_object %><%= link_to import.full_name, case_path(import.created_object) %><% end %></td>
-</tr>
-<% end %>
-</table>
+<div id="bulk_upload_report">
+  <table>
+  <% files_imported.each do |import| %>
+  <tr>
+    <td>
+      <%= import.dropbox_filepath.gsub("/", "").ljust(150) %>
+    </td> 
+    <td>
+        <%= link_to import.short_name, case_path(import.created_object) %>
+    </td>
+    <td>
+        <%= import.active? ? "active" : "not active" %>
+    </td>
+  </tr>
+  <% end %>
+  </table>
+</div>
