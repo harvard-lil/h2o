@@ -140,15 +140,6 @@ class CasesController < BaseController
 
     if @case.save
       handle_successful_save
-      @case.case_request.approve! if @case.case_request
-      if @case.active
-        Notifier.deliver_case_notify_approved(@case)
-        flash[:notice] = 'Case was successfully created.'
-        redirect_to "/cases/#{@case.id}"
-      else
-        flash[:notice] = 'Case was successfully created. It must be approved before it is visible.'
-        redirect_to cases_url
-      end
     else
       render :action => "new"
     end
