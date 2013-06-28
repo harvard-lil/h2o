@@ -109,7 +109,13 @@ class Case < ActiveRecord::Base
   def self.to_tsv(options = {})
     res = ''
     Case.newly_added.each do |case_obj|
-      FasterCSV.generate(res, :col_sep => "\t") {|csv| csv << [case_obj.short_name, case_obj.case_citations.first.to_s]}
+      FasterCSV.generate(res, :col_sep => "\t") do |csv| 
+        csv << [case_obj.short_name, 
+                case_obj.case_citations.first.to_s,
+                "http://h2odev.law.harvard.edu/cases/#{case_obj.id}"
+                ]
+      end
+
       case_obj.update_attribute(:sent_in_cases_list, true)
     end
     res
