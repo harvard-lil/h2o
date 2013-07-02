@@ -105,23 +105,17 @@ class Case < ActiveRecord::Base
     Case.new(new_case)
   end
 
-
-  def self.to_tsv(options = {})
-    res = ''
-    Case.newly_added.each do |case_obj|
-      FasterCSV.generate(res, :col_sep => "\t") do |csv| 
-        csv << [case_obj.short_name, 
-                case_obj.case_citations.first.to_s,
-                "http://h2odev.law.harvard.edu/cases/#{case_obj.id}"
-                ]
-      end
-
-      case_obj.update_attribute(:sent_in_cases_list, true)
-    end
-    res
+  def to_tsv
+    [self.short_name,
+     self.case_citations.first.to_s,
+     "http://h2odev.law.harvard.edu/cases/#{self.id}"]
   end
 
-  def self.newly_added
+  def self.since_date_and_not_active(options = {})
+    self.find(:all, :conditions => ["active = false AND created_at > ?", options[:date]])
+  end
+
+  def self.newly_added(options = {})
     self.find(:all, :conditions => "sent_in_cases_list = false or sent_in_cases_list IS NULL")
   end
 
