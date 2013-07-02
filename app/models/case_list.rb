@@ -9,7 +9,7 @@ class CaseList
 
   def self.deliver_since_date_and_not_active(date)
     query_method = Proc.new{|arg_date| Case.since_date_and_not_active(arg_date)}
-    delivered_mail, query_results = CaseList.generate(query_method, :since_date => date)
+    delivered_mail, query_results = CaseList.generate(query_method, :date => date)
     delivered_mail
   end
 
