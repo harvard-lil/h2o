@@ -249,7 +249,7 @@ class Notifier < ActionMailer::Base
   end
 
   def cases_list(cases_list)
-    recipients ['h2o@cyber.law.harvard.edu']
+    recipients ['h2o@cyber.law.harvard.edu', 'tim@endpoint.com', 'awenner@cyber.law.harvard.edu']
     subject    "List of All Cases #{Time.now.to_s(:simpledate)}"
     from       "noreply@berkmancenter.org"
     sent_on    Time.now

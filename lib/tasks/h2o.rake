@@ -235,7 +235,7 @@ namespace :h2o do
 
   desc 'Send cases list email'
   task(:send_cases_list_email => :environment) do
-    Notifier.deliver_cases_list
+    CaseList.deliver_newly_added
   end
 
   desc 'make two accounts case admins' 
