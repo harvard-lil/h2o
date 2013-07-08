@@ -4,6 +4,7 @@
 tmp/
 log/
 solr/
+locals/
 config/database.yml
 public/stylesheets/all.css
 public/javascripts/all.js
