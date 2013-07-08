@@ -115,10 +115,6 @@ class Case < ActiveRecord::Base
     self.find(:all, :conditions => ["active = false AND created_at > ?", options[:date]])
   end
 
-  def self.newly_added(options = {})
-    self.find(:all, :conditions => "sent_in_cases_list = false or sent_in_cases_list IS NULL")
-  end
-
   def current_collage
     self.collages.detect{|collage| collage.current?}
   end
