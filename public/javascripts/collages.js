@@ -413,7 +413,7 @@ jQuery.extend({
     });
   },
   observePrintListeners: function() {
-    jQuery('#fixed_print').click(function(e) {
+    jQuery('#fixed_print,#quickbar_print').click(function(e) {
       e.preventDefault();
       jQuery('#collage_print').submit();
     });
@@ -467,6 +467,9 @@ jQuery.extend({
       data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');  
     });
     jQuery('.annotation-ellipsis:visible').each(function(i, el) {
+      data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');  
+    });
+    jQuery('span.annotation-content:visible').each(function(i, el) {
       data['#' + jQuery(el).attr('id')] = jQuery(el).css('display');  
     });
     return data;
@@ -783,6 +786,7 @@ jQuery.extend({
 
     if(!page_load) {
       unlayered_tts = jQuery('#collage article tt:not(.a)');
+      jQuery('#annotation-content-' + annotation.id).css('display', 'inline-block');
     }
     jQuery.updateAnnotationCount();
   },
@@ -1091,9 +1095,9 @@ jQuery.extend({
       }
     });
     //if(jQuery('#edit-show').length && jQuery('#edit-show').html() == 'READ') {
-    if(access_results.can_edit_annotations) {
-      jQuery('.annotation-content').css('display', 'none');
-    }
+    //if(access_results.can_edit_annotations) {
+      //jQuery('.annotation-content').css('display', 'none');
+    //}
   },
   observeAnnotationEditListeners: function() {
     jQuery('#edit_item .tabs a:not(.current)').live('click', function(e) {
@@ -1165,14 +1169,21 @@ jQuery.extend({
       });
     });
 
-    jQuery('.annotation-asterisk, .control-divider').live('click', function(e) {
+    jQuery('.control-divider').live('click', function(e) {
       e.preventDefault();
       if(jQuery('#edit_toggle').length && jQuery('#edit_toggle').hasClass('edit_mode')) {
         jQuery.annotationButton(jQuery(this).data('id'));
-        jQuery('#annotation-content-' + jQuery(this).data('id')).css('display', 'inline-block');
-      } else {
-        jQuery.toggleAnnotation(jQuery(this).data('id'));
-        jQuery.hideShowAnnotationOptions();
+      }
+    });
+    jQuery('.annotation-asterisk').live('click', function(e) {
+      e.preventDefault();
+      var annotation_id = jQuery(this).data('id');
+      jQuery.toggleAnnotation(annotation_id);
+      jQuery.hideShowAnnotationOptions();
+      if(jQuery('#edit_toggle').length && jQuery('#edit_toggle').hasClass('edit_mode')) {
+        if(!jQuery('#delete_annotation').length || jQuery('#delete_annotation').data('id') != annotation_id) {
+          jQuery.annotationButton(annotation_id);
+        }
       }
     });
   },

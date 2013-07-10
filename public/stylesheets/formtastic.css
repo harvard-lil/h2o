@@ -25,7 +25,7 @@ form.formtastic fieldset.buttons li { padding-right:0.5em; }
 
 /* INPUT LIs
 --------------------------------------------------------------------------------------------------*/
-form.formtastic fieldset > ol > li { margin-bottom:1.5em; }
+form.formtastic fieldset > ol > li { margin-bottom:1.0em; }
 form.formtastic fieldset > ol > li { overflow:auto; } /* clearing contained floats */
 
 form.formtastic fieldset > ol > li.required { }

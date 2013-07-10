@@ -3,7 +3,7 @@
 <input type="hidden" value="<%= params[:host_collage] %>" name="host_collage" />
 <input type="hidden" value="<%= params[:text] %>" name="text" />
 <% if @objects -%>
-<%= will_paginate @objects, :previous_label => '', :next_label => '' %>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <table width="95%" id="collage_link_list">
   <% @objects.each do |hit| -%>
   <tr>
@@ -12,5 +12,5 @@
   </tr>
   <% end %>
 </table>
-<%= will_paginate @objects, :previous_label => '', :next_label => '' %>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <% end %>

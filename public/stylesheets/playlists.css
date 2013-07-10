@@ -72,7 +72,7 @@
 .playlists li.listing-with-form #playlist_item_form,
 .playlists li.listing-with-edit-form #playlist_item_form,
 .playlists li.listing-with-delete-form #playlist_item_form {
-  padding: 0px 0px 10px 35px;
+  padding: 0px 0px 10px 67px;
 }
 #playlist_item_form #playlist_item_submit, 
 #playlist_item_form #playlist_item_cancel,
@@ -144,13 +144,15 @@
   text-indent: -4000px;
   display: block;
   padding: 5px;
-  opacity: 0.5;
-}
-.playlist .rr:hover {
-  opacity: 1.0;
 }
 .playlist .wrapper .rr-closed {
   background-position: -159px -62px;
+}
+.playlist .wrapper .rr.hover_link {
+  background-position: -159px -83px;
+}
+.playlist .wrapper .rr-closed.hover_link {
+  background-position: -160px -108px;
 }
 
 #playlist .buttons ul .btn-a-active { 

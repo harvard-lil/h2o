@@ -38,8 +38,12 @@
 
                 var tp;
                 switch (gravity.charAt(0)) {
+                    //CUSTOM H2O: Special modification for navigation tips (gravity "p")
+                    case 'p':
+                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2 - title.length - 1}; 
+                        break;
                     case 'n':
-                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2 - title.length - 1}; //STEPH: Special modification for navigation tips
+                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
                         break;
                     case 's':
                         tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};

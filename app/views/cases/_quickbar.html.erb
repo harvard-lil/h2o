@@ -1,0 +1,25 @@
+<div id="quickbar">
+  <div class="wrapper">
+    <div id="quickbar_left">
+      <a href="/" id="quickbar_logo"><img src="/images/h20-logo.png" alt="H2O" /></a>
+      <span id="quickbar_title">
+        <%= @case.display_name %>
+      </span>
+      <span class="quickbar_extra">
+      | <%= @case.case_citations.first.display_name %>
+      </span>
+      <% if @case.decision_date.present? -%>
+      <span class="quickbar_extra">
+      | <%= @case.decision_date.strftime("%B %d, %Y") %>
+      </span>
+      <% end -%>
+    </div>
+    <div id="quickbar_right">
+      <a href="<%= export_case_path(@case) %>" class="icon icon-black-print" id="quickbar_print" title="Print <%= @case.name %>"><span>Print</span></a>
+      <%= link_to raw('<span class="icon icon-black-favorite"><span>Bookmark Case</span></span>'), '#', :class => "bookmark-action requires_logged_in", :title => "Bookmark #{@case.name}", "data-type" => "case", "data-itemid" => @case.id %>
+      <a href="#" class="icon icon-black-font" id="quickbar_font" title="Change the size of the text"><span>Font Settings</span></a>
+      <%= link_to raw('<span class="icon icon-tocollage-black"><span>Collage This</span></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action requires_logged_in', :title => "Collage This" %>
+    </div>
+    <div class="clear"></div>
+  </div>
+</div>

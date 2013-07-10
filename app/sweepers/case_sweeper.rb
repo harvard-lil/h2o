@@ -4,22 +4,25 @@ class CaseSweeper < ActionController::Caching::Sweeper
   observe Case
 
   def clear_case(record)
-    Rails.cache.delete_matched(%r{cases-search*})
-    Rails.cache.delete_matched(%r{cases-embedded-search*})
-
-    expire_page :controller => :cases, :action => :show, :id => record.id
-
-    expire_fragment "case-#{record.id}-index"
-    expire_fragment "case-#{record.id}-tags"
-    expire_fragment "case-#{record.id}-detail"
-
     begin
-      users = (record.owners + record.creators).uniq.collect { |u| u.id }
-      users.each { |u| Rails.cache.delete("user-cases-#{u}") }
+      Rails.cache.delete_matched(%r{cases-search*})
+      Rails.cache.delete_matched(%r{cases-embedded-search*})
+  
+      expire_page :controller => :cases, :action => :show, :id => record.id
+  
+      expire_fragment "case-#{record.id}-index"
+      expire_fragment "case-#{record.id}-tags"
+      expire_fragment "case-#{record.id}-detail"
+
+      users = (record.owners + record.creators).uniq
       if record.changed.include?("public")
-        users.each { |u| Rails.cache.delete("user-barcode-#{u}") }
+        users.each do |u|
+          Rails.cache.delete("user-barcode-#{u.id}")
+        end
       end
+      users.each { |u| Rails.cache.delete("user-cases-#{u.id}") }
     rescue Exception => e
+      Rails.logger.warn "Case sweeper error: #{e.inspect}"
     end
   end
 

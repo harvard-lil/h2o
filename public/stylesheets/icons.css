@@ -6,6 +6,9 @@
   background-image: url(/images/icons.png); 
   text-indent: -4000px;
 }
+.icon span {
+  display: none;
+}
 .icon-default,
 .icon-itemdefault {
   background-position: -578px -154px;
@@ -201,6 +204,31 @@
 }
 .icon-approve {
   background-position: -58px -107px;
+}
+.icon-black-print {
+  background-position: -235px -152px;
+  width: 19px;
+  height: 21px;
+}
+.icon-black-remix {
+  background-position: -351px -155px;
+  width: 21px;
+  height: 21px;
+}
+.icon-black-font {
+  background-position: -200px -150px;
+  width: 25px;
+  height: 23px;
+}
+.icon-black-favorite {
+  background-position: -200px -114px;
+  width: 26px;
+  height: 26px;
+}
+.icon-tocollage-black {
+  background-position: -669px -70px;
+  width: 23px;
+  height: 25px;
 }
 
 .light_hover .icon-playlist:hover {

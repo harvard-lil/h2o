@@ -8,15 +8,15 @@
         <% end -%>
       </div>
     <% end -%>
-    <h4>
+    <h3>
       <%= link_to media.name, media_path(media), :class => "title" %>
       <% if current_user && (@is_admin[:media] || @my_belongings[:medias].include?(media)) %>
-        <%= link_to 'DELETE', media, :class => "icon icon-delete tooltip", :title => "Delete" %>
+        <%= link_to 'DELETE', media, :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "media", "data-id" => media.id %>
       <% end %>
       <% if current_user && (@is_admin[:media] || @my_belongings[:medias].include?(media)) %>
         <%= link_to 'EDIT', edit_media_path(media), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
-    </h4>
+    </h3>
     <% cache "media-#{media.id}-index" do %>
     <p>
       <%= media.created_at.to_s(:simpledatetime) %>

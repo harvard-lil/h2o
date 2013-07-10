@@ -1,12 +1,12 @@
 <li class="listitem listitem<%= playlist.id %>" id="listitem_playlist<%= playlist.id %>" data-itemid="<%= playlist.id %>">
-  <a href="#" class="tooltip list-icon icon icon-playlist" title="Playlist"></a>
+  <a href="#" class="tooltip list-icon icon icon-playlist" title="Playlist">Playlist</a>
   <div class="details">
-    <h4>
+    <h3>
       <%= link_to raw(playlist.name), playlist %>
       <% if current_user && (@is_admin[:playlist] || @my_belongings[:playlists].include?(playlist)) %>
-      <%= link_to "DELETE", playlist_path(playlist), :class => "icon icon-delete tooltip", :title => "Delete" %>
+      <%= link_to "DELETE", playlist_path(playlist), :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "playlist", "data-id" => playlist.id %>
       <% end -%>
-    </h4>
+    </h3>
     <p>
       <% if playlist.root != playlist -%>
       Original Creator: <%= raw playlist.root.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.root.owners %> |
@@ -15,7 +15,7 @@
       <%= raw playlist.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if playlist.owners %> |
       <% end -%>
       <%= number_with_delimiter(playlist.collage_word_count[0], :delimiter => ',') %> Words |
-      <%= playlist.updated_at.strftime("%m/%d/%Y") %>
+      <%= playlist.updated_at.strftime("%B %d, %Y") %>
       <% if false -%>Taught at [school] (if it hasn't been taught anywhere, don't display this field) <% end -%>
     </p>
   </div>

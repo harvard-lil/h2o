@@ -14,7 +14,7 @@
         <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
       </aside>
       <aside class="pagination standard_pagination">
-        <%= will_paginate @bookshelf.hits, :container => false, :previous_label => '', :next_label => '' %>
+        <%= will_paginate @bookshelf.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
       </aside>
     </div>
     <ul id="results_set">
@@ -98,7 +98,7 @@
 	  <div class="header">
 	    <h3>Bookmarks</h3>
       <aside class="pagination users_pagination" id="pagination_bookmarks" data-region="bookmarks">
-        <%= will_paginate @paginated_bookmarks, :container => false, :previous_label => '', :next_label => '', :params => { :ajax_region => "bookmarks" } %>
+        <%= will_paginate @paginated_bookmarks, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax_region => "bookmarks" } %>
       </aside>
 	  </div>
 		<ul id="results_bookmarks" class="playlists">
@@ -122,7 +122,7 @@
         <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[type] } %>
       </aside>
       <aside class="pagination users_pagination" id="pagination_<%= type.to_s %>" data-region="<%= type %>">
-        <%= will_paginate v[:results], :container => false, :previous_label => '', :next_label => '', :params => { :ajax_region => "#{type.to_s}" } %>
+        <%= will_paginate v[:results], :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax_region => "#{type.to_s}" } %>
       </aside>
 	  </div>
 		<ul id="results_<%= type.to_s %>">

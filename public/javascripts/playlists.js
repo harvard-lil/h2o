@@ -79,7 +79,7 @@ jQuery.extend({
   },
   observeAdditionalDetailsExpansion: function() {
     jQuery('.listitem .wrapper').hoverIntent(function() {
-      jQuery(this).find('a.title,a.author_link').addClass('hover_link');
+      jQuery(this).find('a.title,a.author_link,a.rr').addClass('hover_link');
       if(!jQuery(this).parent().hasClass('adding-item')) {
         if(jQuery('.adding-item').size()) {
           jQuery('.add-popup').hide();
@@ -90,7 +90,7 @@ jQuery.extend({
         }
       }
     }, function() {
-      jQuery(this).find('a.title,a.author_link').removeClass('hover_link');
+      jQuery(this).find('a.title,a.author_link,a.rr').removeClass('hover_link');
       if(!jQuery('div.dd').hasClass('playlists-edit-mode') && !jQuery(this).parent().hasClass('expanded') && !jQuery(this).parent().hasClass('adding-item')) {
         jQuery(this).find('.icon').removeClass('hover');
       }
@@ -157,18 +157,61 @@ jQuery.extend({
       });
     });
   },
-  renderEditPlaylistItem: function(data) {
+  renderEditPlaylistItem: function(item) {
 	  jQuery('#playlist_item_form').slideUp(200, function() {
       jQuery(this).remove();
     });
-    jQuery.each(jQuery.parseJSON(data.item), function(i, item) {
-      jQuery('.listitem' + item.id + ' > .wrapper a.title').html(item.name);
-      jQuery('.listitem' + item.id + ' > .wrapper .resource_item_desc').html(item.description);
-      // use case for description update
-      // resource_item_desc exists and changes
-      // resource item_desc doesn't exist, and description updated
-      // resoure item desc exists, and description is set to blank
-    });
+    var listitem_wrapper = jQuery('.listitem' + item.id + ' > .wrapper');
+    listitem_wrapper.find('a.title').html(item.name);
+
+    //Description changes
+    var resource_item_desc = listitem_wrapper.find('.resource_item_desc');
+    if(resource_item_desc.size() == 0 && item.description != '') {
+      var new_item = jQuery('<div>').attr('class', 'resource_item_desc').html(item.description);
+      if(listitem_wrapper.find('.additional_details').size() == 0) {
+        listitem_wrapper.find('.rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
+        var add_details = jQuery('<div>').addClass('additional_details');
+        add_details.append(new_item);
+        add_details.insertAfter(listitem_wrapper.find('table'));
+      } else {
+        if(listitem_wrapper.find('.creator_details').size()) {
+          new_item.insertAfter(listitem_wrapper.find('.creator_details'));
+        } else {
+          listitem_wrapper.find('.additional_details').prepend(new_item);
+        }
+      }
+    } else if(resource_item_desc.size() && item.description == '') {
+      resource_item_desc.remove();
+    } else if(resource_item_desc.size() && item.description != '') {
+      resource_item_desc.html(item.description);
+    }
+
+    //Notes changes
+    var notes_item = listitem_wrapper.find('.notes');
+    if(notes_item.size() == 0 && item.notes != '') {
+      var new_item = jQuery('<div>').attr('class', 'notes').html(item.notes);
+      if(listitem_wrapper.find('.additional_details').size() == 0) {
+        listitem_wrapper.find('.rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
+        var add_details = jQuery('<div>').addClass('additional_details');
+        add_details.append(new_item);
+        add_details.insertAfter(listitem_wrapper.find('table'));
+      } else {
+        if(listitem_wrapper.find('.actual_obj_desc').size()) {
+          new_item.insertBefore(listitem_wrapper.find('.actual_obj_desc'));
+        } else {
+          listitem_wrapper.find('.additional_details').append(new_item);
+        }
+      }
+    } else if(notes_item.size() && item.notes == '') {
+      notes_item.remove();
+    } else if(notes_item.size() && item.notes != '') {
+      notes_item.html(item.notes);
+    }
+
+    if(listitem_wrapper.find('.additional_details *').size() == 0) {
+      listitem_wrapper.find('.rr').remove();
+      listitem_wrapper.find('.additional_details').remove();
+    }
   },
   renderNewPlaylistItem: function(data) {
     jQuery.ajax({

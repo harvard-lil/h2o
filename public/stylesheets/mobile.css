@@ -5,21 +5,63 @@
     max-width: auto;
   }
   .singleitem {
-    width: 58%;
+    width: 100%;
   }
   .right_panel {
-    width: 35%;
+    width: 100%;
   }
   .playlist_edit_mode .singleitem {
-    width: 47%;
+    width: 100%;
   }
   .playlist_edit_mode #edit_item {
-    width: 46%;
+    width: 100%;
   }
   .playlist_edit_mode .expanded_singleitem,
   .expanded_singleitem {
     width: 100%;
   }
+
+  #edit_item.fixed_position {
+    position: static;
+  }
+  .right_panel_close {
+    display: none;
+  }
+  #search {
+    padding-top: 0px;
+    position: static;
+    float: none;
+  }
+  #search input[type=text] {
+    width: 100px;
+  }
+  #logo {
+    width: 100%;
+    text-align: center;
+  }
+  #logo a {
+    float: none;
+    display: inline-block;
+  }
+  #fixed_links {
+    visibility: hidden;
+    /*
+    position: fixed;
+    top: 0px;
+    height: 29px;
+    background: #747474;
+    text-align: center;
+    width: 100%;
+    margin-left: -4px;
+    padding: 3px;
+    */
+  }
+  /*
+  .fixed_link {
+    position: static;
+    display: inline-block;
+  }
+  */
 
   /* Index */
   #home_index #description {
@@ -37,5 +79,19 @@
   }
   #home_index #description #links {
     padding: 10px 0px 10px;
+  }
+
+  #quickbar_left #quickbar_title,
+  #quickbar_left #quickbar_author {
+    display: block;
+  }
+  #quickbar_left #quickbar_author {
+    padding-bottom: 3px;
+  }
+  #quickbar_left #quickbar_author span {
+    display: none;
+  }
+  #quickbar_left .quickbar_extra {
+    display: none;
   }
 }

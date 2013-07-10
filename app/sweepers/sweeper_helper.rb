@@ -1,5 +1,9 @@
 module SweeperHelper
 
+  def test_method
+    Rails.logger.warn "stephie: inside test method"
+  end
+
   def expire_question_instance(record)
     #no sort order specified, so the sort order is "null"
     expire_fragment("question-instance-index-#{record.id}-false-null")
@@ -26,5 +30,4 @@ module SweeperHelper
       expire_fragment("question-reply-detail-view-#{question_id}")
     end
   end
-
 end

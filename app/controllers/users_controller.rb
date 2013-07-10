@@ -211,10 +211,12 @@ class UsersController < ApplicationController
 
     playlist = Playlist.find(current_user.bookmark_id)
 
-    playlist_item_to_delete = playlist.playlist_items.detect { |pi| pi.resource_item_type == "Item#{params[:type].capitalize}" && pi.resource_item.actual_object_id == params[:id].to_i }
-    playlist_item_to_delete.destroy
-
-    render :json => { :success => true }
+    playlist_item_to_delete = playlist.playlist_items.detect { |pi| pi.resource_item_type == "Item#{params[:type].classify}" && pi.resource_item.actual_object_id == params[:id].to_i }
+    if playlist_item_to_delete && playlist_item_to_delete.destroy
+      render :json => { :success => true }
+    else
+      render :json => { :success => false }
+    end
   end
 
   # post bookmark_item/:type/:id

@@ -192,15 +192,6 @@ class User < ActiveRecord::Base
     map
   end
 
-  def bookmarks_type(klass, item_klass)
-    Rails.cache.fetch("user-bookmark-#{klass.to_s.downcase}-#{self.id}") do
-      items = self.bookmark_id ? klass.find_by_sql("SELECT * FROM #{klass.to_s.tableize}
-          WHERE id IN (SELECT DISTINCT ic.actual_object_id FROM playlist_items pi
-            JOIN #{item_klass.to_s.tableize} ic ON pi.resource_item_id = ic.id
-            WHERE pi.resource_item_type = '#{item_klass.to_s}' AND pi.playlist_id = #{self.bookmark_id})") : []
-    end
-  end
-
   def get_current_assignments(rotisserie_discussion = nil)
     assignments_array = Array.new()
 

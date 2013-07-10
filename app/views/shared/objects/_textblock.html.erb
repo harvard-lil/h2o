@@ -1,15 +1,15 @@
 <li class="listitem listitem<%= textblock.id %>" id="listitem_text_block<%= textblock.id %>" data-itemid="<%= textblock.id %>">
   <a href="#" class="tooltip list-icon icon icon-textblock" title="Text"></a>
 	<div class="details">
-    <h4>
+    <h3>
       <%= link_to textblock.name, text_block_path(textblock), :class => "title" %>
       <% if current_user && textblock.deleteable? && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(textblock)) %>
-        <%= link_to 'DELETE', textblock, :class => "icon icon-delete tooltip", :title => "Delete" %>
+        <%= link_to 'DELETE', textblock, :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "text_block", "data-id" => textblock.id %>
       <% end %>
       <% if current_user && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(textblock)) %>
         <%= link_to 'EDIT', edit_text_block_path(textblock), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
-    </h4>
+    </h3>
     <p>
       <%= textblock.created_at.to_s(:simpledatetime) %>
       <% if textblock.creators -%>

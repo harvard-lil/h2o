@@ -1,18 +1,18 @@
 <li class="listitem listitem<%= case_obj.id %>" id="listitem_case<%= case_obj.id %>" data-itemid="<%= case_obj.id %>">
   <a href="#" class="tooltip list-icon icon icon-case" title="Case"></a>
   <div class="details">
-    <h4>
+    <h3>
       <%= link_to case_obj.short_name, case_obj %>
       <% if current_user && case_obj.deleteable? && (@is_admin[:case] || @my_belongings[:cases].include?(case_obj)) %>
-      <%= link_to "DELETE", case_path(case_obj), :class => "icon icon-delete tooltip", :title => "Delete" %>
+      <%= link_to "DELETE", case_path(case_obj), :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "case", "data-id" => case_obj.id %>
       <% end %>
       <% if current_user && (@is_admin[:case] || @my_belongings[:cases].include?(case_obj)) %>
       <%= link_to "EDIT", edit_case_path(case_obj), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
-    </h4>
+    </h3>
     <% cache "case-#{case_obj.id}-index" do -%>
     <p class="cases_details">
-      <%= case_obj.case_citations.collect { |c| "#{c.volume} #{c.reporter.gsub(/\./, '')} #{c.page}" }.join(', ') %> /
+      <%= case_obj.case_citations.collect { |c| c.display_name }.join(', ') %> /
 
       <% if !case_obj.decision_date.nil? -%>
       <%= case_obj.decision_date %>

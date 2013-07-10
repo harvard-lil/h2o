@@ -52,7 +52,7 @@
 	      <b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
 	    </div>
 	    <% end -%>
-	    <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) -%>
+	    <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) && actual_object.description != '' -%>
 	    <div class="actual_obj_desc">
 	      <%= PlaylistItem.format_content(actual_object.description) %>
 	    </div>

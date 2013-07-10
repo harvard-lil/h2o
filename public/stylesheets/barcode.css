@@ -14,13 +14,15 @@
 .barcode a {
   background-color: #999;
   opacity: 0.7;
-  text-indent: -4000px;
   display: block;
   float: left;
   height: 14px;
   width: 0px;
   margin-left: 1px;
   width: 5px;
+}
+.barcode a span {
+  display: none;
 }
 .barcode span.overflow {
   position: absolute;

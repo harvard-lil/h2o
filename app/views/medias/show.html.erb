@@ -1,15 +1,13 @@
 <div id="fixed_links">
 <a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
-<% if false -%>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
-<% end -%>
 </div>
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @media } %>
   <% if current_user -%>
-  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @media.id, "data-type" => "media", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
-  <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@media.name}", "data-type" => "media", "data-itemid" => @media.id %>
+  <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @media.id, "data-type" => "media", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Media</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@media.name}", "data-type" => "media", "data-itemid" => @media.id %>
   <% end -%>
 </aside>
 
@@ -17,7 +15,7 @@
   <div id="main_details">
 	  <h1><%= @media.display_name %></h1>
   </div>
-  <div id="description">
+  <div id="description" class="scale1-1">
     <p><%= @media.description %></p>
     <% if current_user && (current_user.is_media_admin || current_user.medias.include?(@media)) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT MEDIA INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external" %>
@@ -29,7 +27,7 @@
 </div>
 
 <div id="stats" class="right_panel">
-  <a href="#" class="right_panel_close"></a>
+  <a href="#" class="right_panel_close">Close</a>
   <h3 class="info">Media Information<span class="icon icon-panel"></span></h3>
   <div class="stats_panel">
     <%= render :partial => "meta" %>

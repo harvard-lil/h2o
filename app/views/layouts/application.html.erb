@@ -1,7 +1,8 @@
 <!DOCTYPE HTML>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-  <head> 
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <title><%= raw(@page_title) || "H2O Classroom Tools" %></title>
 
@@ -35,6 +36,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
 <body id="b<%= params[:controller] %>" class="b<%= "#{params[:controller]}_#{params[:action]}" %> action_<%= params[:action] %> <%= @page_cache ? 'cached_page' : '' %>">
 	<section id="shell">
+    <%= render :partial => "shared/quickbar" %>
     <%= render :partial => "shared/nav" %>
     <div class="wrapper main_wrapper">
 
@@ -72,9 +74,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <% flash.delete(:notice) %>
 
 <script type="text/javascript">
-  <% if @page_cache && @single_resource.nil? -%>
-  var editability_path = "/base_access_level";
-  <% end -%>
+  var editability_path = '<%= @editability_path || '' %>';
   <% if current_user && !@page_cache -%>
   var user_bookmarks = <%= raw(current_user.bookmarks_map.to_json) %>;
   var user_playlists = <%= raw(current_user.playlists.to_json(:only => [:id, :name])) %>

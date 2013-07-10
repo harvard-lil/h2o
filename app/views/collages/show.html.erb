@@ -1,21 +1,21 @@
+<form action="<%= export_unique_collage_path(@collage) %>" target="_blank" method="POST" id="collage_print">
+<input type="hidden" id="state" name="state" value="" />
+</form>
 <div id="fixed_links">
 <a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
 <a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Toggle Edit Mode">Edit/View</a>
 <a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @collage.name %>">Print</a>
-<form action="<%= export_unique_collage_path(@collage) %>" target="_blank" method="POST" id="collage_print">
-<input type="hidden" id="state" name="state" value="" />
-</form>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @collage } %>
-  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"></span></a>
-  <a href="<%= copy_collage_path(@collage) %>" class="tooltip link-copy requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>">
-    <span class="icon icon-remix-large"></span>
+  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"><span>Show/Hide Heatmap</span></span></a>
+  <a href="<%= prepare_copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>">
+    <span class="icon icon-remix-large"><span>Remix Collage</span></span>
   </a>
-  <%= link_to raw('<span class="icon icon-add-large"></span>'), '#', "data-item_id" => @collage.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
-  <%= link_to raw('<span class="icon icon-favorite-large"></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
+  <%= link_to raw('<span class="icon icon-add-large"><span>Add To Playlist</span></span>'), '#', "data-item_id" => @collage.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Collage</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
 </aside>
 
 <div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
@@ -75,7 +75,7 @@
 </div>
 
 <div id="stats" class="right_panel">
-  <a href="#" class="right_panel_close"></a>
+  <a href="#" class="right_panel_close">Close</a>
   <h3 class="info">Collage Information<span class="icon icon-panel"></span></h3>
   <div class="stats_panel">
     <%= render :partial => 'meta' %>

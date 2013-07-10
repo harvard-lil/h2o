@@ -1,0 +1,3 @@
+<% if @single_resource && [Case, TextBlock, Collage].include?(@single_resource.class) -%>
+<%= render :partial => "#{@single_resource.class.to_s.tableize}/quickbar" %>
+<% end -%>

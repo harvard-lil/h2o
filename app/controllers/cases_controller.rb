@@ -36,6 +36,7 @@ class CasesController < BaseController
   # GET /cases/1
   def show
     @page_cache = true
+    @editability_path = access_level_case_path(@case)
 
     add_javascripts 'cases'
     set_belongings Case

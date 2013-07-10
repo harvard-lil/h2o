@@ -85,6 +85,7 @@ class BaseController < ApplicationController
 
   def index
     @page_cache = true
+    @editability_path = '/base_access_level'
     @page_title = 'H2O Classroom Tools'
 
     per_page = 8

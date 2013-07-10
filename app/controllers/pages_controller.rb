@@ -3,6 +3,7 @@ class PagesController < ApplicationController
 
   def show
     @page_cache = true
+    @editability_path = '/base_access_level'
     if FileTest.exists?("#{Rails.root}/app/views/pages/#{params[:id]}.html.erb")
       @page_title = params[:id].capitalize + " | H2O Classroom Tools" 
       render params[:id]

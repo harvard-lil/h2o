@@ -15,7 +15,7 @@
     <% end -%>
     <%= pluralize @results.total, "Result" %>
     <aside class="pagination" id="collage_pagination">
-    <%= will_paginate @results.hits, :container => false, :previous_label => '', :next_label => '', :params => { :ajax => 1 } %>
+    <%= will_paginate @results.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax => 1 } %>
     </aside>
   </div>
   <ul id="results_set">

@@ -5,14 +5,14 @@ class CollagesController < BaseController
   before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
   before_filter :store_location, :only => [:index, :show]
 
-  protect_from_forgery :except => [:copy, :export_unique]
-  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
+  protect_from_forgery :except => [:export_unique]
+  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :prepare_copy, :export, :export_unique, :access_level, :heatmap]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
 
   access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :copy, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :heatmap]
+    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :heatmap]
 
-    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
+    allow logged_in, :to => [:edit, :update, :copy, :prepare_copy], :if => :allow_edit?
 
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
@@ -70,13 +70,21 @@ class CollagesController < BaseController
     render :json => @collage.layers
   end
 
+  def prepare_copy
+    @collage = Collage.find(params[:id])
+  end
+
   def copy
-    @collage_copy = @collage.fork_it(current_user) #, params[:public] || @collage.public)
-    flash[:notice] = %Q|We've copied "#{@collage_copy.parent}" for you. Please find your copy below.|
-    redirect_to(@collage_copy)
+    @collage_copy = @collage.fork_it(current_user, params[:collage])
+
+    if @collage_copy.id.nil?
+      render :json => { :error => true, :message => "#{@collage_copy.errors.full_messages.join(',')}" }
+      return
+    end
+
+    render :json => { :type => 'collages', :id => @collage_copy.id }
   rescue Exception => e
-    flash[:notice] = "We couldn't copy that collage - " + e.inspect
-    render :action => "new"
+    render :json => { :error => true, :message => "Could not process. Please try again." }, :status => :unprocessable_entity
   end
 
   def index
@@ -85,7 +93,8 @@ class CollagesController < BaseController
 
   # GET /collages/1
   def show
-    @page_cache = true
+    @page_cache = true if @collage.public?
+    @editability_path = access_level_collage_path(@collage)
     add_javascripts ['collages', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.xcolor']
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 

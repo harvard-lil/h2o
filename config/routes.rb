@@ -38,6 +38,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages, :collection => {:embedded_pager => :get, :collage_lookup => :get },
     :member => { :copy => [:get, :post],
+              :prepare_copy => :get,
               :save_readable_state => :post,
 	            :record_collage_print_state => :post,
               :access_level => :get,

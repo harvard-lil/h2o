@@ -15,14 +15,14 @@
         <% end -%>
       </div>
     <% end -%>
-    <h4><%= link_to journal_article.display_name, journal_article_path(journal_article), :class => "title" %>
+    <h3><%= link_to journal_article.display_name, journal_article_path(journal_article), :class => "title" %>
       <% if current_user && journal_article.deleteable? && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(journal_article)) %>
-        <%= link_to 'DELETE', journal_article, :class => "icon icon-delete tooltip" %>
+        <%= link_to 'DELETE', journal_article, :class => "icon icon-delete tooltip", "data-type" => "journal_article", "data-id" => journal_article.id %>
       <% end %>
       <% if current_user && (@is_admin[:textblock] || @my_belongings[:textblocks].include?(journal_article)) %>
         <%= link_to 'EDIT', edit_journal_article_path(journal_article), :class => "icon icon-edit" %>
       <% end %>
-    </h4>
+    </h3>
     <p>
       <%= journal_article.created_at.to_s(:simpledatetime) %>
       <% if journal_article.creators -%>

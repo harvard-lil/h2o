@@ -138,7 +138,7 @@ class ItemBaseController < BaseController
     end
 
     if @object.update_attributes(params[@param_symbol]) && @object.playlist_item.update_attributes(params[:playlist_item])
-	    render :json => { :type => 'playlists', :item => @object.to_json(:only => [:id, :name, :description]) }
+	    render :json => { :type => 'playlists', :id => @object.id, :name => @object.name, :description => @object.description, :notes => @object.playlist_item.notes }
     else
 	    render :json => { :error => @object.errors }
     end

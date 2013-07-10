@@ -4,7 +4,7 @@
   <span class="right_overflow overflow"></span>
   <div class="barcode_wrapper">
     <% object.barcode.each do |item| %>
-    <a href="<%= item[:link] || '#' %>" target="_blank" class="<%= item[:type] %>" title="<%= item[:title] %>"></a>
+    <a href="<%= item[:link] || '#' %>" target="_blank" class="<%= item[:type] %>" title="<%= item[:title] %>"><span><%= item[:title] %></span></a>
     <% end -%>
     <div class="clear"></div>
   </div>

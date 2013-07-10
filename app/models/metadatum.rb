@@ -6,7 +6,7 @@ class Metadatum < ActiveRecord::Base
 
   # From http://dublincore.org/documents/dces/
 
-  DISPLAY_FIELDS = [:contributor, :coverage, :creator, :date, :description, :format, :identifier, :language, :publisher, :relation, :rights, :source, :subject, :title, :dc_type]
+  DISPLAY_FIELDS = [:contributor, :coverage, :creator, :date, :description, :format, :identifier, :publisher, :relation, :rights, :subject, :source, :title]
 
   # From http://dublincore.org/documents/dcmi-type-vocabulary/
   DCMI_TYPE = {
