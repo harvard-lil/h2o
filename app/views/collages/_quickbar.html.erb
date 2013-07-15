@@ -6,9 +6,11 @@
         <%= @collage.name %>
       </span>
       <% if @collage.annotatable.is_a?(Case) %>
+      <% if @collage.annotatable.case_citations.any? -%>
       <span class="quickbar_extra">
       | <%= @collage.annotatable.case_citations.first.display_name %>
       </span>
+      <% end -%>
       <% if @collage.annotatable.decision_date.present? -%>
       <span class="quickbar_extra">
       | <%= @collage.annotatable.decision_date.strftime("%B %d, %Y") %>
