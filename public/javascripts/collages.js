@@ -816,7 +816,13 @@ jQuery.extend({
           unlayered_end_id = last_annotation.data('id') + 1;
         }
         var data = { "unlayered_end_id" : unlayered_end_id, "position" : previous_id };
-        jQuery(jQuery.mustache(unlayered_end_template, data)).insertAfter(previous_tt);
+        if(previous_tt.parent().hasClass('footnote') && previous_tt.parent().parent().is('sup')) {
+          jQuery(jQuery.mustache(unlayered_end_template, data)).insertAfter(previous_tt.parent().parent());
+        } else if(previous_tt.parent().hasClass('footnote')) {
+          jQuery(jQuery.mustache(unlayered_end_template, data)).insertAfter(previous_tt.parent());
+        } else {
+          jQuery(jQuery.mustache(unlayered_end_template, data)).insertAfter(previous_tt);
+        }
         if(jQuery('.unlayered-control-end.unlayered-control-' + unlayered_end_id).size() == 2) {
           var last = jQuery('.unlayered-control-end.unlayered-control-' + unlayered_end_id + ':last');
           var renumber_tt_id = last.data('position') - 1;
@@ -838,7 +844,13 @@ jQuery.extend({
       var next_tt = jQuery('tt#t' + next_id);
       if(!next_tt.hasClass('a') && !next_tt.prev().is('.unlayered-ellipsis')) {
         var data = { "unlayered_start_id" : next_id };
-        jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt);
+        if(next_tt.parent().hasClass('footnote') && next_tt.parent().parent().is('sup')) {
+          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt.parent().parent());
+        } else if(next_tt.parent().hasClass('footnote')) {
+          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt.parent());
+        } else {
+          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt);
+        }
       }
     });
   },
