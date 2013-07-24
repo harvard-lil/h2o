@@ -68,8 +68,7 @@ class CasesController < BaseController
   end
 
   def approve
-    @case.approve!
-    Notifier.deliver_case_notify_approved(@case)
+    approve_case! @case
     render :json => {}
   end
 
@@ -133,6 +132,7 @@ class CasesController < BaseController
     add_stylesheets ['new_case']
 
     if @case.save
+      approve_case! @case if params[:commit][/APPROVE/]
       handle_successful_save
     else
       render :action => "new"
@@ -150,6 +150,7 @@ class CasesController < BaseController
 
     @case.updated_at = Time.now #<=This ensures that version is incremented when docket numbers or citations are only updated
     if @case.update_attributes(params[:case])
+      approve_case! @case if params[:commit][/APPROVE/]
       if @case.active
         Notifier.deliver_case_notify_updated(@case)
         flash[:notice] = 'Case was successfully updated.'
@@ -171,6 +172,10 @@ class CasesController < BaseController
   end
 
   private
+  def approve_case!(_case)
+    _case.approve!
+    Notifier.deliver_case_notify_approved(_case)
+  end
 
   def handle_successful_save
     @case.case_request.approve! if @case.case_request
