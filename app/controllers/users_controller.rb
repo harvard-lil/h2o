@@ -81,7 +81,7 @@ class UsersController < ApplicationController
         if params[:ajax_region] == "bookmarks"
           render :partial => 'shared/bookmarks_block'
         else
-          render :partial => 'shared/generic_block'
+          render :partial => 'shared/generic_collection_block'
         end
       else
         @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
