@@ -33,18 +33,21 @@ class UsersController < ApplicationController
 
   def create_anon
     password = ActiveSupport::SecureRandom.random_bytes(10)
-    @user = User.new(:login => "anon_#{ActiveSupport::SecureRandom.hex(13)}",
+    user = User.new(:login => "anon_#{ActiveSupport::SecureRandom.hex(13)}",
       :password => password,
       :password_confirmation => password)
-    @user.has_role! :nonauthenticated
-    @user.save do |result|
+    user.has_role! :nonauthenticated
+    user.save do |result|
       if result
+        apply_user_preferences(user)
+        cookies[:anonymous_user] = true
+        cookies[:display_name] = "ANONYMOUS"
         if request.xhr?
           #text doesn't matter, it's the return code that does
           render :text => (session[:return_to] || '/')
         else
           flash[:notice] = "Account registered!"
-          redirect_back_or_default user_path(@user)
+          redirect_back_or_default user_path(user)
         end
       else
         render :action => :create_anon, :status => :unprocessable_entity
@@ -91,12 +94,17 @@ class UsersController < ApplicationController
             with :active, true
           end
 
+          if params.has_key?(:keywords)
+            keywords params[:keywords]
+          end
+
           order_by params[:sort].to_sym, params[:order].to_sym
         end
         @results.execute!
         render :partial => 'base/search_ajax'
       end
     else
+      params[:sort] = 'updated_at'
       bookmarks_id = @user.bookmark_id
       @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
       @bookshelf.build do
@@ -108,6 +116,10 @@ class UsersController < ApplicationController
           with :active, true
         end
 
+        if params.has_key?(:keywords)
+          keywords params[:keywords]
+        end
+
         #TODO: This is buggy, limit this filter to type playlist
         without :id, bookmarks_id
 
@@ -116,6 +128,9 @@ class UsersController < ApplicationController
       @bookshelf.execute!
 
       set_sort_lists
+      @sort_lists[:all]["updated_at"] = @sort_lists[:all]["created_at"]
+      @sort_lists[:all]["updated_at"][:display] = "SORT BY DATE UPDATED"
+      @sort_lists[:all].delete "created_at"
       if params["controller"] == "users" && params["action"] == "show"
         @sort_lists.each do |k, v|
           v.delete("score")
@@ -212,6 +227,7 @@ class UsersController < ApplicationController
     playlist = Playlist.find(current_user.bookmark_id)
 
     playlist_item_to_delete = playlist.playlist_items.detect { |pi| pi.resource_item_type == "Item#{params[:type].classify}" && pi.resource_item.actual_object_id == params[:id].to_i }
+      
     if playlist_item_to_delete && playlist_item_to_delete.destroy
       render :json => { :success => true }
     else
@@ -225,7 +241,6 @@ class UsersController < ApplicationController
       playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false })
       playlist.save
       playlist.accepts_role!(:owner, current_user)
-      playlist.accepts_role!(:creator, current_user)
       current_user.update_attribute(:bookmark_id, playlist.id)
     else
       playlist = Playlist.find(current_user.bookmark_id)
@@ -256,7 +271,6 @@ class UsersController < ApplicationController
         playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
           :resource_item_type => item_klass.to_s,
           :resource_item_id => item.id)
-        playlist_item.accepts_role!(:owner, current_user)
         playlist_item.save
 
         render :json => { :already_bookmarked => false, :user_id => current_user.id }

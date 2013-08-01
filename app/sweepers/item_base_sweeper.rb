@@ -23,6 +23,7 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     end
     if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
       Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.actual_object.id}")
     end
   end
 
@@ -32,6 +33,7 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     end
     if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
       Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.actual_object.id}")
     end
   end
 
@@ -41,6 +43,7 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     end
     if record && [ItemPlaylist, ItemCollage].include?(record.class) && record.actual_object
       Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
+      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.actual_object.id}")
     end
   end
 end

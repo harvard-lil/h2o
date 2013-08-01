@@ -4,15 +4,9 @@ require 'ancestry_extensions'
 class PlaylistItem < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
 
-  include AncestryExtensions::InstanceMethods
-  include AuthUtilities
-  include Authorship
-
-  before_destroy :collapse_children
-  has_ancestry :orphan_strategy => :restrict
-
-  acts_as_authorization_object
+  # TODO: Investigate acts_as_list conditional, to skip on bookmarked items, or investigate if needed
   acts_as_list :scope => :playlist
+
   belongs_to :playlist
 
   belongs_to :resource_item, :polymorphic => true, :dependent => :destroy

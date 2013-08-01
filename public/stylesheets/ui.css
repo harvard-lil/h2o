@@ -465,6 +465,9 @@ color: #999;
 #results li.listitem h3 .icon {
   visibility: hidden;
 }
+#results li.listitem .controls .push-action {
+  display: none;
+}
 #results li.listitem .details h3 .read-action {
   text-indent: 0px;
   font-size: 11px;
@@ -747,12 +750,14 @@ body#bpages .main_wrapper {
 }
 
 .singleitem #description .edit-action,
+.singleitem #description .delete-action,
 .singleitem #description .edit-external {
   font-weight:bold;
   text-decoration: none;
-  display: block;
+  display: inline-block;
 }
 .singleitem #description .edit-action span.icon-edit,
+.singleitem #description .delete-action span.icon-delete,
 .singleitem #description .edit-external span.icon-edit {
   padding-left: 5px;
   position: relative;
@@ -1555,6 +1560,9 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 }
 #generic_item_form #generic_item_delete {
   margin-right: 10px;
+}
+.singleitem #description #generic_item_form {
+  padding-left: 0px;
 }
 
 /* quickbar */

@@ -5,7 +5,7 @@
 	  <%= link_to collage.name, collage_path(collage) %><br />  
 	<% end %>
 	Collaged <%= collage.created_at.to_s(:simpledatetime) %> by
-	<%= raw collage.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
+	<%= raw collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
     <% if collage.children.any? -%>
            <ul>
               <% collage.children.each do |child| -%>

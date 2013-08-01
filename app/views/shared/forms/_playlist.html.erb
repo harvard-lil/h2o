@@ -33,6 +33,18 @@
 	    :label => 'Tags',
 	    :input_html => { :class => 'tagging-autofill-tags' }
 	  %>
+    <%#= form.input :location_id,
+      :as => :select,
+      :collection => Location.all(:order => 'name'),
+      :label => 'Where Taught',
+      :required => false
+    %>
+    <%#= form.input :when_taught,
+      :as => :string,
+      :label => 'When Taught',
+      :hint => "Please enter a year, multiple years (comma delimited), a year range, a month or months, semester (e.g. fall, spring), quarter (e.g. fall, winter, spring, summer). Please enter 'other' if none of these apply.",
+      :required => false
+    %>
     <% end -%>
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
   <% end -%>

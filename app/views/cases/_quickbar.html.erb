@@ -5,9 +5,11 @@
       <span id="quickbar_title">
         <%= @case.display_name %>
       </span>
+      <% if @case.case_citations.any? -%>
       <span class="quickbar_extra">
       | <%= @case.case_citations.first.display_name %>
       </span>
+      <% end -%>
       <% if @case.decision_date.present? -%>
       <span class="quickbar_extra">
       | <%= @case.decision_date.strftime("%B %d, %Y") %>

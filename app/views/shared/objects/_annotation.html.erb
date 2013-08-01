@@ -11,7 +11,7 @@
     </p>
     <p>
       <label>Created by:</label>
-      <%= @annotation.creators && @annotation.creators.collect{|c| c.login}.join(',') %>
+      <%= @annotation.ownersl && @annotation.owners.collect{|c| c.login}.join(',') %>
     </p>
     <% if @annotation.editors.present? -%>
     <p>

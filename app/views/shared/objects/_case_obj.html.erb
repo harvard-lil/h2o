@@ -1,16 +1,10 @@
+<% cache "case-list-object-#{hit.stored(:id)}" do %>
 <li class="listitem listitem<%= case_obj.id %>" id="listitem_case<%= case_obj.id %>" data-itemid="<%= case_obj.id %>">
   <a href="#" class="tooltip list-icon icon icon-case" title="Case"></a>
   <div class="details">
     <h3>
       <%= link_to case_obj.short_name, case_obj %>
-      <% if current_user && case_obj.deleteable? && (@is_admin[:case] || @my_belongings[:cases].include?(case_obj)) %>
-      <%= link_to "DELETE", case_path(case_obj), :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "case", "data-id" => case_obj.id %>
-      <% end %>
-      <% if current_user && (@is_admin[:case] || @my_belongings[:cases].include?(case_obj)) %>
-      <%= link_to "EDIT", edit_case_path(case_obj), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
-      <% end %>
     </h3>
-    <% cache "case-#{case_obj.id}-index" do -%>
     <p class="cases_details">
       <%= case_obj.case_citations.collect { |c| c.display_name }.join(', ') %> /
 
@@ -18,19 +12,12 @@
       <%= case_obj.decision_date %>
       <% if case_obj.collages.any? -%> / <% end -%>
       <% end -%>
-      <% cache "case-#{case_obj.id}-tags" do -%>
-      <% if case_obj.tag_list.any? -%>
-      | <%= raw case_obj.tag_list.collect { |tag| link_to(tag, case_tag_path(CGI.escape(tag))) }.join(', ') %>
-      <% end -%>
-      <% end -%>
     </p>
-    <% end -%>
   </div>
   <div class="right_details">
   <div class="barcode_outer">
     <%= render :partial => "shared/barcode", :locals => { :object => case_obj } %>
   </div>
-  <% if current_user -%>
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), case_obj, :class => "action read-action" %>
     <%= link_to raw('<span class="icon icon-collage-this"></span>COLLAGE THIS'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action link-collage" %>
@@ -40,7 +27,7 @@
       "data-itemid" => case_obj.id,
       "data-type" => "case" %>
   </div>
-  <% end -%>
   </div>
   <div class="clear"></div>
 </li>
+<% end -%>

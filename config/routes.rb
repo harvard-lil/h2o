@@ -38,7 +38,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :collages, :collection => {:embedded_pager => :get, :collage_lookup => :get },
     :member => { :copy => [:get, :post],
-              :prepare_copy => :get,
               :save_readable_state => :post,
 	            :record_collage_print_state => :post,
               :access_level => :get,
@@ -52,7 +51,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :playlists,
     :collection => { :block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get, :playlist_lookup => :get },
-    :member => {:prepare_copy => :get, :position_update => :post,
+    :member => {:position_update => :post,
 	  :delete => :get, :copy => [:get, :post], :push => [:get, :post] ,:metadata => :get,
 	  :export => :get, :access_level => :get, :check_export => :get}
   map.playlist_tag "playlists/tag/:tag", :controller => :playlists, :action => :index
@@ -105,7 +104,6 @@ ActionController::Routing::Routes.draw do |map|
   map.search_all "/all_materials", :controller => :base, :action => :search
   map.quick_collage "/quick_collage", :controller => :base, :action => :quick_collage
   map.root :controller => "base"
-  map.connect "/base_access_level", :controller => :base, :action => :access_level
   map.partial_results "/partial_results", :controller => :base, :action => :partial_results
   map.partial_results_show "/partial_results/:dummy/:id", :controller => :base, :action => :partial_results
 

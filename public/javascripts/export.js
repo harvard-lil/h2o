@@ -184,6 +184,17 @@ jQuery(document).ready(function(){
       jQuery('.details').hide();
     }
   });
+  jQuery('#printfontdetails').selectbox({
+    className: "jsb", replaceInvisible: true
+  }).change(function() {
+    var choice = jQuery(this).val();
+    if (choice == 'yes') {
+      jQuery('.fontdetails').show();
+    }
+    else {
+      jQuery('.fontdetails').hide();
+    }
+  });
   jQuery('#printparagraphnumbers').selectbox({
     className: "jsb", replaceInvisible: true
   }).change(function() {

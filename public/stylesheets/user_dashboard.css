@@ -105,3 +105,26 @@ ul.user_list li a.item {
   bottom: 10px;
   right: 10px;
 }
+
+#user_content_filter {
+  float: right;
+  margin-top: 20px;
+}
+
+#user_keywords {
+  border: none;
+  padding: 5px 9px 5px 25px;
+  background: #FFF url(/images/search.png) no-repeat 4px 1px;
+  line-height: 20px;
+}
+
+#search_user_content {
+  cursor: pointer;
+  color: #fff;
+  font-weight: bold;
+  background: #036290;
+  text-decoration: none;
+  display: inline-block;
+  padding: 7px 10px;
+  border: none;
+}

@@ -9,10 +9,9 @@ class DefaultSweeper < ActionController::Caching::Sweeper
     Rails.cache.delete_matched(%r{defaults-search*})
     Rails.cache.delete_matched(%r{defaults-embedded-search*})
 
-    expire_fragment "default-all-tags"
     expire_fragment "default-#{record.id}-index"
 
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && ['owner', 'creator'].include?(b.name); arr }.uniq
+    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && b.name == 'owner'; arr }.uniq
     users.push(current_user.id) if current_user
     users.each { |u| Rails.cache.delete("user-defaults-#{u}") }
   end

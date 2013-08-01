@@ -24,7 +24,6 @@ class ApplicationController < ActionController::Base
   before_filter :title_select, :set_time_zone
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
-  before_filter :set_default_font_size
   before_filter :set_page_cache_indicator
  
   #Add ability to make page caching conditional
@@ -44,11 +43,6 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  def set_default_font_size
-    large_font_size = 16
-    cookies[:font_size] = large_font_size if cookies[:font_size].blank?
-  end
-
   def set_page_cache_indicator
     @page_cache = false
   end
@@ -143,19 +137,13 @@ class ApplicationController < ActionController::Base
     @page_title = "Links | H2O Classroom Tools" if model == Default
     @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
     @model = model
+    @partial = @model.to_s.downcase
+    @partial = "case_obj" if @model == Case
+    @model_sym = @partial.to_sym
 
     params[:page] ||= 1
 
-    if params[:keywords]
-      items = build_search(model, params)
-      t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
-      @collection = WillPaginate::Collection.create(params[:page], 25, items.total) { |pager| pager.replace(t) }
-    else
-      items = build_search(model, params)
-      t = items.hits.inject([]) { |arr, h| arr.push(h.result); arr }
-      results = { :results => t, :count => items.total }
-      @collection = WillPaginate::Collection.create(params[:page], 25, results[:count]) { |pager| pager.replace(results[:results]) }
-    end
+    @collection = build_search(model, params)
 
     if request.xhr?
       render :partial => 'shared/generic_block'
@@ -198,7 +186,7 @@ class ApplicationController < ActionController::Base
 
       with :active, true
 
-      paginate :page => params[:page], :per_page => 25
+      paginate :page => params[:page], :per_page => 20
       order_by params[:sort].to_sym, params[:order].to_sym
     end
 
@@ -252,11 +240,22 @@ class ApplicationController < ActionController::Base
     @javascripts << new_javascripts
   end
                            
-  def apply_user_preferences!(user)
+  def apply_user_preferences(user)
     if user
       cookies[:font_size] = user.default_font_size
       cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
       cookies[:show_annotations] = (user.default_show_annotations? ? 'true' : 'false') 
+      cookies[:display_name] = user.simple_display
+      cookies[:user_id] = user.id
+      cookies[:anonymous_user] = false
+      cookies[:bookmarks] = user.bookmarks_map.to_json
+      cookies[:playlists] = user.playlists.to_json(:only => [:id, :name])
+    end
+  end
+  def destroy_user_preferences(user)
+    [:font_size, :use_new_tab, :show_annotations, :display_name,
+     :user_id, :anonymous_user, :bookmarks, :playlists].each do |attr|
+      cookies.delete(attr)
     end
   end
   

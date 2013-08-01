@@ -13,7 +13,7 @@ class UserSessionsController < ApplicationController
     @user_session.save do |result|
       if result
         user = User.find_by_login(@user_session.login)
-        apply_user_preferences!(user)
+        apply_user_preferences(user)
         if request.xhr?
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false
@@ -26,8 +26,8 @@ class UserSessionsController < ApplicationController
     end
   end
   
-  def destroy   
-    cookies[:font_size] = nil
+  def destroy
+    destroy_user_preferences(current_user)
     current_user_session.destroy
     redirect_back_or_default "/"
   end

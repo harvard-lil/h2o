@@ -10,15 +10,13 @@
         <%= link_to 'EDIT', edit_default_path(default), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
     </h3>
-    <% cache "default-#{default.id}-index" do %>
     <p>
-      <%= default.created_at.to_s(:simpledatetime) %>
-      <% if default.creators -%>
+      <%= item_date_stamp default %>
+      <% if default.owners -%>
       added by
-      <%= raw default.creators.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
+      <%= raw default.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
       <% end -%>
     </p>
-    <% end -%>
 	</div>
   <div class="right_details">
   <div class="barcode_outer">

@@ -18,7 +18,8 @@ class ItemBaseController < BaseController
   def allow_update?
     load_object_and_playlist
 
-    current_user.can_permission_playlist("edit_notes", @playlist) || 
+    current_user.has_role?(:owner, @playlist) ||
+      current_user.can_permission_playlist("edit_notes", @playlist) || 
       current_user.can_permission_playlist("edit_descriptions", @playlist)
   end
 
@@ -30,6 +31,8 @@ class ItemBaseController < BaseController
   end
 
   def new
+    # TODO: Add restriction here to prohibit non-owners, non-admins
+
     @can_edit_all = @can_edit_desc = true
     @can_edit_notes = false
 
@@ -51,6 +54,8 @@ class ItemBaseController < BaseController
   end
 
   def create
+    # TODO: Add restriction here to prohibit non-owners, non-admins
+
     @object.update_attributes(params[@param_symbol])
 
     @base_object = nil
@@ -78,8 +83,6 @@ class ItemBaseController < BaseController
     end
 
     if @object.save
-      @object.accepts_role!(:owner, current_user)
-
       playlist_item = PlaylistItem.new(:playlist => @playlist)
       playlist_item.resource_item = @object
 
@@ -94,10 +97,17 @@ class ItemBaseController < BaseController
             pi.update_attribute(:position, pi.position + 1)
           end
         end
-        playlist_item.accepts_role!(:owner, current_user)
       end
 
-	    render :json => { :type => 'playlists', :playlist_item_id => playlist_item.id, :id => @playlist.id, :error => false, :position_data => position_data }
+	    render :json => { :type => 'playlists', 
+                        :playlist_item_id => playlist_item.id, 
+                        :id => @playlist.id, 
+                        :error => false, 
+                        :position_data => position_data,
+                        :total_count => @playlist.playlist_items.count,
+                        :public_count => @playlist.public_count,
+                        :private_count => @playlist.private_count
+                      }
     else
 	    render :json => { :message => "We could not add that playlist item: #{@object.errors.full_messages.join('<br />')}", :error => true }
     end
@@ -138,7 +148,16 @@ class ItemBaseController < BaseController
     end
 
     if @object.update_attributes(params[@param_symbol]) && @object.playlist_item.update_attributes(params[:playlist_item])
-	    render :json => { :type => 'playlists', :id => @object.id, :name => @object.name, :description => @object.description, :notes => @object.playlist_item.notes }
+	    render :json => { :type => 'playlists', 
+                        :id => @object.id, 
+                        :name => @object.name, 
+                        :description => @object.description,
+                        :public_notes => @object.playlist_item.public_notes,
+                        :notes => @object.playlist_item.notes,
+                        :total_count => @object.playlist_item.playlist.playlist_items.count,
+                        :public_count => @object.playlist_item.playlist.public_count,
+                        :private_count => @object.playlist_item.playlist.private_count
+                      }
     else
 	    render :json => { :error => @object.errors }
     end
@@ -148,7 +167,12 @@ class ItemBaseController < BaseController
     @model_class.find(params[:id]).destroy
     @playlist.reset_positions
 
-	  render :json => { :type => 'playlist_item', :position_data => @playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h } }
+	  render :json => { :type => 'playlist_item', 
+                      :position_data => @playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h },
+                      :total_count => @object.playlist_item.playlist.playlist_items.count,
+                      :public_count => @object.playlist_item.playlist.public_count,
+                      :private_count => @object.playlist_item.playlist.private_count
+                    }
   end
 
   private

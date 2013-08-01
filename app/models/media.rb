@@ -4,7 +4,7 @@ class Media < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include AuthUtilities
   include Authorship
-
+  include KarmaRounding
   include ActionController::UrlWriter
 
   RATINGS = {
@@ -36,7 +36,10 @@ class Media < ActiveRecord::Base
     string :tag_list, :stored => true, :multiple => true
 
     time :created_at
+    time :updated_at
     string :author
+    string :author_display, :stored => true
+    integer :author_id, :stored => true
 
     string :media_type do
       media_type.slug

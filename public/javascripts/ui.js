@@ -12,7 +12,7 @@ var panel_width;
 var min_tick_width = 10;
 var item_offset_top;
 var right_offset;
-
+var user_playlists = {};
 var scife_fn_clicked = function() {
 };
 
@@ -29,6 +29,12 @@ jQuery.extend({
     if(Mustache && template && data) {
       return Mustache.to_html(template, data, partial, stream);
     }
+  },
+  setListLinkVisibility: function() {
+    if(jQuery.cookie('user_id') == null) {
+      jQuery('.controls').remove();
+    }
+    // TODO: Lookup owned playlists & remove Push link if not owned
   },
   adjustArticleHeaderSizes: function() {
     jQuery('article h1').addClass('scale1-4');
@@ -257,13 +263,6 @@ jQuery.extend({
           width: 'auto',
           height: 'auto',
         }).dialog('open');
-        if(jQuery('.singleitem').size() || jQuery.classType() == 'base') {
-          //jQuery('.add-popup').hide().css({ top: '50%', left: '50%' }).fadeIn(100);
-        } else {
-          /* var listitem_element = jQuery('#listitem_' + popup_item_type + popup_item_id);
-          listitem_element.addClass('with_popup');
-          var position = listitem_element.offset(); */
-        }
       }
 
       return false;
@@ -563,12 +562,39 @@ jQuery.extend({
       }
     });
   },
-  loadGenericEditability: function() {
-    if(jQuery('a#logged-in').size()) {
-      jQuery('.requires_logged_in').animate({ opacity: 1.0 });
-    }
-  },
   loadEditability: function() {
+    if(jQuery.cookie('user_id') == null) {
+      //lack of cookies indicate user not logged in. Skipping
+      jQuery('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous').remove();
+      jQuery('.afterload').css('opacity', 1.0);
+      jQuery.setFixedLinkPosition();
+      if(jQuery('.singleitem').size() && jQuery.classType() == 'collages') {
+        access_results = { 'can_edit_annotations' : false };
+        last_data = original_data;
+        jQuery.loadState();
+      }
+      return;
+    } else {
+      if(eval(jQuery.cookie('anonymous_user'))) {
+        jQuery('.requires_non_anonymous').remove(); 
+      } else {
+        jQuery('.requires_non_anonymous').animate({ opacity: 1.0 });
+      }
+      jQuery('#user_account').append(jQuery('<a>').html(jQuery.cookie('display_name').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + jQuery.cookie('user_id')));
+      jQuery('#defect_user_id').val(jQuery.cookie('user_id'));
+      jQuery('.requires_logged_in').animate({ opacity: 1.0 });
+      jQuery('#header_login').remove();
+      if(jQuery.classType() == 'base') {
+        jQuery('#base_dashboard').attr('href', "/users/" + jQuery.cookie('user_id'));
+        jQuery('#get_started').remove();
+      }
+    }
+
+    if(editability_path == '') {
+      jQuery('.afterload').animate({ opacity: 1.0 });
+      return;
+    }
+
     jQuery.ajax({
       type: 'GET',
       cache: false,
@@ -585,30 +611,7 @@ jQuery.extend({
         jQuery.hideGlobalSpinnerNode();
       },
       success: function(results){
-        //Global methods
         access_results = results;
-        if(results.logged_in) {
-          var data = jQuery.parseJSON(results.logged_in);
-          if(results.anonymous) {
-            data.user.login = 'ANONYMOUS';
-            jQuery('.requires_non_anonymous').remove(); 
-          } else {
-            jQuery('.requires_non_anonymous').animate({ opacity: 1.0 });
-          }
-          jQuery('#user_account').append(jQuery('<a>').html(data.user.login + ' Dashboard').attr('href', "/users/" + data.user.id));
-          jQuery('#defect_user_id').val(data.user.id);
-          jQuery('.requires_logged_in').animate({ opacity: 1.0 });
-          jQuery('#header_login').remove();
-          if(jQuery.classType() == 'base') {
-            jQuery('#base_dashboard').attr('href', "/users/" + data.user.id);
-            jQuery('#get_started').remove();
-          }
-          user_playlists = jQuery.parseJSON(results.playlists) || new Array();
-          user_bookmarks = jQuery.parseJSON(results.bookmarks) || new Array();
-          jQuery.updateExistingBookmarks();
-        } else {
-          jQuery('.requires_logged_in, .requires_non_anonymous').remove();
-        }
         jQuery('.afterload').animate({ opacity: 1.0 });
         jQuery.hideGlobalSpinnerNode();
 
@@ -843,9 +846,8 @@ jQuery.extend({
   The listed item is then removed from the UI.
   */
   observeDestroyControls: function(region){
-    //generic_item_delete
-    //generic_item_cancel
     jQuery('#generic_item_cancel').live('click', function(e) {
+      e.preventDefault();
       jQuery('#generic_item_form').slideUp(200, function() {
         jQuery(this).remove();
       });
@@ -854,6 +856,7 @@ jQuery.extend({
       e.preventDefault();
       var destroyUrl = jQuery(this).attr('href');
       var listing = jQuery(this).parent().parent();
+      var type = jQuery(this).data('type');
       jQuery.ajax({
         cache: false,
         type: 'POST',
@@ -867,33 +870,41 @@ jQuery.extend({
           jQuery.hideGlobalSpinnerNode();
         },
         success: function(data){
-          listing.slideUp(200, function(e) {
-            listing.remove();
-          });
-          jQuery.hideGlobalSpinnerNode();
+          if(jQuery('.singleitem').length) {
+            document.location.href = "/" + type + "s";
+          } else {
+            listing.slideUp(200, function(e) {
+              listing.remove();
+            });
+            jQuery.hideGlobalSpinnerNode();
+          }
         }
       });
     });
-    jQuery(region + ' .icon-delete').live('click', function(e){
-    // hide any existing forms
+    jQuery(region + ' .icon-delete,' + region + '.delete-action').live('click', function(e){
+      // hide any existing forms
       e.preventDefault();
+	    var type = jQuery(this).data('type');
       var destroyUrl = jQuery(this).attr('href');
       var item_id = jQuery(this).data('id');
-      var type = jQuery(this).data('type');
-      var listing = jQuery('#listitem_' + type + item_id);
+      var listing;
 
-      if(listing.find('#generic_item_form').size()) {
-        return;
-      }
-      jQuery('#generic_item_form').slideUp(200, function() {
-        jQuery(this).remove();
-      });
+      if(jQuery('.singleitem').length && jQuery('.singleitem #description').has(jQuery(this)).length > 0) {
+        listing = jQuery('#description');
+      } else {
+        listing = jQuery(this).parentsUntil('ul').last();
+	      if(listing.find('#generic_item_form').size()) {
+	        return;
+	      }
+	      jQuery('#generic_item_form').slideUp(200, function() {
+	        jQuery(this).remove();
+	      });
+      }	
 
-      var data = { "url" : destroyUrl };
-      var content = jQuery(jQuery.mustache(delete_item_template, data)).css('display', 'none');
-      content.appendTo(listing);
-      content.slideDown(200);
-
+	    var data = { "url" : destroyUrl, "type" : type };
+	    var content = jQuery(jQuery.mustache(delete_item_template, data)).css('display', 'none');
+	    content.appendTo(listing);
+	    content.slideDown(200);
     });
   },
 
@@ -901,17 +912,20 @@ jQuery.extend({
   Generic bookmark item, more details here.
   */
   updateExistingBookmarks: function() {
-    if(jQuery('.singleitem').size()) {
-      var key = 'listitem_' + jQuery.classType().replace(/s$/, '') + jQuery('.singleitem').data('itemid');
-      if(user_bookmarks[key]) {
-        var el = jQuery('.bookmark-action');
-        el.removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark-large"></span>');
-        jQuery('.delete-bookmark-action').attr('original-title', el.attr('original-title').replace(/^Bookmark/, 'Un-Bookmark'));
-      }
-    } else {
-      jQuery.each(user_bookmarks, function(i, j) {
-        jQuery('#' + i + ' .bookmark-action').removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark"></span>UN-BOOKMARK');
-      });
+    if(jQuery.cookie('bookmarks') != null) {
+      var bookmarks = jQuery.parseJSON(jQuery.cookie('bookmarks'));
+	    if(jQuery('.singleitem').size()) {
+	      var key = jQuery.classType().replace(/s$/, '') + jQuery('.singleitem').data('itemid');
+	      if(jQuery.inArray(key, bookmarks) != -1) {
+	        var el = jQuery('.bookmark-action');
+	        el.removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark-large"></span>');
+	        jQuery('.delete-bookmark-action').attr('title', el.attr('title').replace(/^Bookmark/, 'Un-Bookmark'));
+	      }
+	    } else {
+	      jQuery.each(bookmarks, function(i, j) {
+	        jQuery('#listitem_' + j + ' .bookmark-action').removeClass('bookmark-action link-bookmark').addClass('delete-bookmark-action link-delete-bookmark').html('<span class="icon icon-delete-bookmark"></span>UN-BOOKMARK');
+	      });
+	    }
     }
   },
   observeBookmarkControls: function() {
@@ -931,6 +945,10 @@ jQuery.extend({
         success: function(data) {
           jQuery('.add-popup').hide();
           jQuery.hideGlobalSpinnerNode();
+   
+          var bookmarks = jQuery.parseJSON(jQuery.cookie('bookmarks'));
+          bookmarks.push(el.data('type') + el.data('itemid'));
+          jQuery.cookie('bookmarks', JSON.stringify(bookmarks), { path: '/' });
 
           if(jQuery('.singleitem').size()) {
             jQuery('.bookmark-action')
@@ -962,6 +980,11 @@ jQuery.extend({
         },
         success: function(data) {
           jQuery.hideGlobalSpinnerNode();
+   
+          var bookmarks = jQuery.parseJSON(jQuery.cookie('bookmarks'));
+          bookmarks.splice(jQuery.inArray(el.data('type') + el.data('itemid'), bookmarks), 1);
+          jQuery.cookie('bookmarks', JSON.stringify(bookmarks), { path: '/' });
+
           if(jQuery('body').hasClass('busers_show') && jQuery('#results_bookmarks').has(el).length > 0) {
             var listitem = el.parentsUntil('#results_bookmarks').last();
             listitem.slideUp(200, function() {
@@ -983,9 +1006,19 @@ jQuery.extend({
       });
     });
   },
+  observeRemixControls: function(region) {
+    jQuery('.remix-action').live('click', function(e) {
+      e.preventDefault();
+      var link = jQuery(this);
+      var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
+      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
+      var html = jQuery.mustache(remix_item_template, data);
+      jQuery.generateGenericNode(html);
+    });
+  },
   /* Generic HTML form elements */
   observeGenericControls: function(region){
-    jQuery(region + ' .remix-action,' + region + ' .edit-action,' + region + ' .new-action,' + region + '.push-action').live('click', function(e){
+    jQuery(region + ' .edit-action,' + region + ' .new-action,' + region + '.push-action').live('click', function(e){
       var actionUrl = jQuery(this).attr('href');
       e.preventDefault();
       jQuery.ajax({
@@ -1043,6 +1076,18 @@ jQuery.extend({
       }
     }).dialog('open');
   },
+  initiailizeUserPlaylists: function() {
+    if(jQuery.cookie('playlists') == null) {
+      return;
+    }
+    user_playlists = jQuery.parseJSON(jQuery.cookie('playlists'));
+    jQuery.each(user_playlists, function(i, j) {
+      j.playlist.name = j.playlist.name.replace(/\+/g, ' ');
+      jQuery('#listitem_playlist' + j.playlist.id + ' .push-action').addClass('mark-for-keep');
+    });
+    jQuery('.push-action:not(.mark-for-keep)').remove();
+    jQuery('.push-action').show();
+  },
   submitGenericNode: function() {
     jQuery('#generic-node #error_block').html('').hide();
     var buttons = jQuery('#generic-node').parent().find('button');
@@ -1093,6 +1138,10 @@ jQuery.extend({
 });
 
 jQuery(function() {
+  jQuery.loadEditability();
+  jQuery.updateExistingBookmarks();
+  jQuery.initiailizeUserPlaylists();
+
   //Keep this early to adjust font sizes early
   jQuery.adjustArticleHeaderSizes();
 
@@ -1144,10 +1193,10 @@ jQuery(function() {
     jQuery.listResults(url);
   }
 
-  jQuery.loadGenericEditability();
   jQuery.initializeBarcodes();
   jQuery.observeDestroyControls('');
   jQuery.observeGenericControls('');
+  jQuery.observeRemixControls('');
   jQuery.observeBookmarkControls();
   jQuery.observePagination(); 
   jQuery.observeSort();
@@ -1173,10 +1222,8 @@ jQuery(function() {
   jQuery.resetRightPanelThreshold();
   jQuery.observeDefaultPrintListener();
 
-  //Note: Do this before loadEditability, so bookmarks can be marked
-  jQuery.updateExistingBookmarks();
-  if(editability_path != '') {
-    jQuery.loadEditability();
+  if(jQuery('body').hasClass('action_index')) {
+    jQuery.setListLinkVisibility();
   }
 
   if(jQuery.classType() != 'collages' && jQuery.classType() != 'playlists') {
@@ -1227,7 +1274,31 @@ var add_popup_template = '\
 var delete_item_template = '\
 <div id="generic_item_form" class="delete">\
 <p>Are you sure you want to delete this item?</p>\
-<a href="{{url}}" id="generic_item_delete" class="button">YES</a>\
+<a href="{{url}}" data-type="{{type}}" id="generic_item_delete" class="button">YES</a>\
 <a href="#" id="generic_item_cancel" class="button">NO</a>\
 </div>\
 ';
+
+var remix_item_template = '\
+<h3 id="generic_title">Remix {{node_title}}</h3>\
+<div id="error_block"></div>\
+<form action="{{copy_url}}" class="{{type}}_form formtastic formtastic {{type}}" method="post">\
+<fieldset class="inputs">\
+<ol>\
+<li class="string required" id="{{type}}_name_input">\
+<label for="{{type}}_name">Name<abbr title="required">*</abbr></label>\
+<input class="ui-widget-content ui-corner-all" id="{{type}}_name" maxlength="250" name="{{type}}[name]" size="50" type="text" value="{{title}}">\
+</li>\
+<li class="boolean required" id="{{type}}_public_input">\
+<label for="{{type}}_public">\
+<input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="collage[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
+</li>\
+<li class="text optional" id="{{type}}_description_input">\
+<label for="{{type}}_description">Description</label>\
+<textarea class="ui-widget-content ui-corner-all" cols="40" id="{{type}}_description" name="{{type}}[description]" rows="5"></textarea>\
+</li>\
+</ol></fieldset>\
+</form>\
+';
+
+

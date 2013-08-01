@@ -11,11 +11,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
       Rails.cache.delete_matched(%r{collages-search*})
       Rails.cache.delete_matched(%r{collages-embedded-search*})
   
-      expire_fragment "collage-all-tags"
-      expire_fragment "collage-#{record.id}-index"
-      expire_fragment "collage-#{record.id}-tags"
-      expire_fragment "collage-#{record.id}-annotatable-content"
-      expire_fragment "case-#{record.annotatable_id}-index"
+      expire_fragment "collage-list-object-#{record.id}"
   
       #expire fragments of my ancestors, descendants, and siblings meta
       relations = [record.path_ids, record.descendant_ids]
@@ -23,12 +19,13 @@ class CollageSweeper < ActionController::Caching::Sweeper
   
       record.path_ids.each do |parent_id|
         Rails.cache.delete("collage-barcode-#{parent_id}")
+        Rails.cache.delete("collage-barcode-html-#{parent_id}")
       end
       relations.flatten.uniq.each do |rel_id|
         expire_page :controller => :collages, :action => :show, :id => rel_id
       end
 
-      users = (record.owners + record.creators).uniq
+      users = record.owners
       if record.changed.include?("public")
         users.each do |u|
           #TODO: Move this into SweeperHelper, but right now doesn't call
@@ -46,6 +43,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
 
   def after_create(record)
     Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.annotatable_id}")
+    Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.annotatable_id}")
   end
 
   def after_save(record)

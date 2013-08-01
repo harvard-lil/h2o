@@ -7,7 +7,7 @@ class TextBlock < ActiveRecord::Base
   include AuthUtilities
   include Authorship
   include MetadataExtensions
-
+  include KarmaRounding
   include ActionController::UrlWriter
 
   MIME_TYPES = {
@@ -73,9 +73,12 @@ class TextBlock < ActiveRecord::Base
     integer :karma
 
     string :author
+    string :author_display, :stored => true
+    integer :author_id, :stored => true
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
+    time :updated_at
   end
 
   def barcode

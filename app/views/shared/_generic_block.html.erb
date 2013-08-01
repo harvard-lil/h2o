@@ -1,4 +1,6 @@
-<%= render :partial => "shared/objects/#{@view}", :collection => @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.results %>
+<% @collection.each_hit_with_result do |hit, result| -%>
+  <%= render :partial => "shared/objects/#{@partial}", :locals => { @model_sym => result, :hit => hit } %>
+<% end -%>
 
 <div id="new_pagination" style="display:none;">
 <%= will_paginate @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>

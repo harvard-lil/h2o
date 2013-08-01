@@ -140,11 +140,29 @@ jQuery.extend({
 			var region = jQuery(this).parent().data('region');
 			jQuery.listResultsSpecial(href, region);
 		});
-	}
+	},
+  observeKeywordsSearch: function() {
+    jQuery('#search_user_content').click(function(e){
+      var phrase = jQuery('#user_keywords').val();
+      var href = window.location.href;
+      var url = href + '?keywords=' + phrase;
+      jQuery.showGlobalSpinnerNode();
+      window.location.hash = phrase;
+      jQuery('#results_set').load(url, function() { 
+        jQuery.hideGlobalSpinnerNode(); 
+        jQuery('.pagination').html('');
+      });
+    });
+    if(window.location.hash != ""){
+      jQuery('#user_keywords').val(window.location.hash.substring(1,100000));
+      jQuery('#search_user_content').click();
+    }
+  }
 });
 
 jQuery(function() {
 	jQuery.observeCaseApproval();
 	jQuery.observeCollectionActions();
 	jQuery.observeSpecialPagination();
+	jQuery.observeKeywordsSearch();
 });

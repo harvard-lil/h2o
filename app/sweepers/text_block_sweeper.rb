@@ -8,12 +8,11 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
       Rails.cache.delete_matched(%r{text_blocks-search*})
       Rails.cache.delete_matched(%r{text_blocks-embedded-search*})
   
-      expire_fragment "text_block-all-tags"
-      expire_fragment "text_block-#{record.id}-index"
       expire_fragment "text_block-#{record.id}-tags"
       expire_fragment "text_block-#{record.id}-detail"
+      expire_fragment "textblock-list-object-#{record.id}"
 
-      users = (record.owners + record.creators).uniq
+      users = record.owners
       if record.changed.include?("public")
         users.each do |u|
           #TODO: Move this into SweeperHelper, but right now doesn't call

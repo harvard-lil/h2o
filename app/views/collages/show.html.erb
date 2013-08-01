@@ -11,7 +11,7 @@
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @collage } %>
   <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"><span>Show/Hide Heatmap</span></span></a>
-  <a href="<%= prepare_copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>">
+  <a href="<%= copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>">
     <span class="icon icon-remix-large"><span>Remix Collage</span></span>
   </a>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add To Playlist</span></span>'), '#', "data-item_id" => @collage.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
@@ -64,6 +64,7 @@
   <div id="description" class="scale1-1">
     <%= Collage.format_content(@collage.description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT COLLAGE INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
   </div>
 
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>

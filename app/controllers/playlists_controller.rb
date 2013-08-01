@@ -16,7 +16,7 @@ class PlaylistsController < BaseController
 
   access_control do
     allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
-    allow logged_in, :to => [:new, :create, :copy, :prepare_copy]
+    allow logged_in, :to => [:new, :create, :copy]
 
     allow logged_in, :to => [:notes], :if => :allow_notes?
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
@@ -50,22 +50,17 @@ class PlaylistsController < BaseController
       can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)
       notes = can_edit_notes ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
       render :json => {
-        :logged_in            => current_user.to_json(:only => [:id, :login]),
         :can_edit             => can_edit,
         :notes                => can_edit_notes ? notes.to_json(:only => [:id, :notes, :public_notes]) : "[]",
-        :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
         :can_position_update  => can_position_update,
         :can_edit_notes       => can_edit_notes,
-        :bookmarks            => current_user.bookmarks_map.to_json,
         :custom_block         => 'playlist_afterload',
         :can_edit_desc        => can_edit_desc
       }
     else
       render :json => {
-        :logged_in            => false,
         :can_edit             => false,
         :notes                => [],
-        :playlists            => [],
         :can_position_update  => false,
         :can_edit_notes       => false,
         :custom_block         => 'playlist_afterload',
@@ -85,10 +80,10 @@ class PlaylistsController < BaseController
     add_javascripts ['playlists', 'jquery.tipsy', 'jquery.nestable']
     add_stylesheets ['playlists']
 
+
     @owner = @playlist.owners.first
-    @author_playlists = @playlist.owners.first.playlists.paginate(:page => 1, :per_page => 5)
+    @author_playlists = @owner.playlists.paginate(:page => 1, :per_page => 5)
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
-    @parents = Playlist.find(:all, :conditions => { :id => @playlist.relation_ids })
   end
 
   def check_export
@@ -128,7 +123,6 @@ class PlaylistsController < BaseController
 
       # If save then assign role as owner to object
       @playlist.accepts_role!(:owner, current_user)
-      @playlist.accepts_role!(:creator, current_user)
 
       #IMPORTANT: This reindexes the item with author set
       @playlist.index!
@@ -152,12 +146,14 @@ class PlaylistsController < BaseController
     if !can_edit_all
       params["playlist"].delete("name")  
       params["playlist"].delete("tag_list")  
+      params["playlist"].delete("when_taught")
+      params["playlist"].delete("location_id")
     end
 
     if @playlist.update_attributes(params[:playlist])
       render :json => { :type => 'playlists', :id => @playlist.id }
     else
-      render :json => { :type => 'playlists', :id => @playlist.id }
+      render :json => { :type => 'playlists', :id => @playlist.id, :error => true, :message => "#{@playlist.errors.full_messages.join(', ')}" }
     end
   end
 
@@ -189,41 +185,24 @@ class PlaylistsController < BaseController
     end
   end
   
-  def prepare_copy
-    @playlist = Playlist.find(params[:id])
-  end
-
   def copy
-    @playlist = Playlist.find(params[:id])  
+    @playlist = Playlist.find(params[:id], :include => :playlist_items)  
     @playlist_copy = Playlist.new(params[:playlist])
     @playlist_copy.parent = @playlist
-
-    if @playlist_copy.title.blank?
-      @playlist_copy.title = params[:playlist][:name] 
-    end
+    @playlist_copy.karma = 0
+    @playlist_copy.title = params[:playlist][:name]
 
     if @playlist_copy.save
+      # Note: Building empty playlist barcode to reduce cache lookup, optimize
+      Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}") { [] }
+
       @playlist_copy.accepts_role!(:owner, current_user)
-      @playlist.creators && @playlist.creators.each do|c|
-        @playlist_copy.accepts_role!(:original_creator,c)
-      end
       @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
         new_item = item.clone
         new_item.resource_item = item.resource_item.clone
-        item.creators && item.creators.each do|c|
-          new_item.accepts_role!(:original_creator,c)
-        end
         new_item.save!
-        new_item.accepts_role!(:owner, current_user)
-        new_item.playlist_item_parent = item
         new_item
       }
-
-      # NOTE: Commenting this out because it's broken
-      # Not sure if Influence is even used in app post redesign
-      # create_influence(@playlist, @playlist_copy)
-
-      flash[:notice] = "Your copy is below. Cheers!"
 
       render :json => { :type => 'playlists', :id => @playlist_copy.id } 
     else
@@ -278,7 +257,10 @@ class PlaylistsController < BaseController
     value = params[:type] == 'public' ? true : false
     @playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
 
-    render :json => {} 
+    render :json => {  :total_count => @playlist.playlist_items.count,
+                       :public_count => @playlist.public_count,
+                       :private_count => @playlist.private_count
+                     }
   end
 
   def playlist_lookup

@@ -203,8 +203,6 @@ class PlaylistPusher
    def create_playlist_items!
      if self.created_resource_items.any?
        @playlist_item_ids = execute!(self.build_playlist_items_sql)
-       playlist_items = PlaylistItem.find(@playlist_item_ids )
-       self.create_role_stack!(playlist_items, ['owner'])
      end
      true
    end
@@ -259,7 +257,7 @@ class PlaylistPusher
   end
 
 
-  def create_role_stack!(objects, role_names = ['owner', 'creator'])
+  def create_role_stack!(objects, role_names = ['owner'])
     user_ids = self.user_ids
     # object_ids = objects.map(&:id)
     # object_type = objects.first.class.to_s
