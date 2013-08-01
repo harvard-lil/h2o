@@ -1,15 +1,17 @@
 <div id="results">
-  <div id="user_content_filter">
-    <input id="user_keywords" name="keywords" size="50" type="text">
-    <button id="search_user_content">Search</button>
-  </div>
   <div id="bookshelf_panel" class="panel">
     <div class="header">
       <h3><%= @user == current_user ? "My" : "#{@user.simple_display}'s" %> Workshop</h3>
       <span class="icon icon-bookshelf"></span>
-      <aside class="sort">
-        <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
-      </aside>
+      <div class="bookshelf_setup">
+        <div id="user_content_filter">
+          <input id="user_keywords" name="keywords" size="50" type="text">
+          <button id="search_user_content">Search</button>
+        </div>
+        <aside class="sort">
+          <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
+        </aside>
+      </div>
       <aside class="pagination standard_pagination">
         <%= will_paginate @bookshelf.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
       </aside>

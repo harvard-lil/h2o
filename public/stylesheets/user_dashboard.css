@@ -106,9 +106,18 @@ ul.user_list li a.item {
   right: 10px;
 }
 
-#user_content_filter {
+.bookshelf_setup {
   float: right;
-  margin-top: 20px;
+}
+
+.bookshelf_setup .sort {
+  position: static !important;
+}
+
+#user_content_filter {
+  float: left;
+  margin: 5px 0px;
+  margin-right: 3px;
 }
 
 #user_keywords {
@@ -116,6 +125,8 @@ ul.user_list li a.item {
   padding: 5px 9px 5px 25px;
   background: #FFF url(/images/search.png) no-repeat 4px 1px;
   line-height: 20px;
+  width: 150px;
+  margin-right: -2px;
 }
 
 #search_user_content {
