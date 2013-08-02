@@ -249,7 +249,7 @@ class ApplicationController < ActionController::Base
       cookies[:user_id] = user.id
       cookies[:anonymous_user] = false
       cookies[:bookmarks] = user.bookmarks_map.to_json
-      cookies[:playlists] = user.playlists.to_json(:only => [:id, :name])
+      cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.to_json(:only => [:id, :name]) 
     end
   end
   def destroy_user_preferences(user)

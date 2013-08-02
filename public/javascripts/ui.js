@@ -1080,7 +1080,18 @@ jQuery.extend({
     if(jQuery.cookie('playlists') == null) {
       return;
     }
-    user_playlists = jQuery.parseJSON(jQuery.cookie('playlists'));
+    if(jQuery.cookie('playlists') == 'force_lookup') {
+      jQuery.ajax({
+        type: 'GET',
+        dataType: 'json',
+        url: '/users/' + jQuery.cookie('user_id') + '/playlists',
+        success: function(data) {
+          user_playlists = jQuery.parseJSON(data.playlists);
+        }
+      });
+    } else {
+      user_playlists = jQuery.parseJSON(jQuery.cookie('playlists'));
+    }
     jQuery.each(user_playlists, function(i, j) {
       j.playlist.name = j.playlist.name.replace(/\+/g, ' ');
       jQuery('#listitem_playlist' + j.playlist.id + ' .push-action').addClass('mark-for-keep');

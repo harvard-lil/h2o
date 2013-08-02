@@ -288,4 +288,8 @@ class UsersController < ApplicationController
     @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } } 
     render :json => { :items => @users }
   end
+
+  def playlists
+    render :json => { :playlists => User.find(params[:id]).playlists.to_json(:only => [:id, :name]) } 
+  end
 end

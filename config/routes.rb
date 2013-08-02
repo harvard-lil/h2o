@@ -82,7 +82,8 @@ ActionController::Routing::Routes.draw do |map|
   # map.resources :question_instances, :member => {:metadata => :get}, :collection => {:embedded_pager => :get}
 
   map.resources :users,
-    :collection => { :create_anon => :post, :user_lookup => :get }
+    :collection => { :create_anon => :post, :user_lookup => :get },
+    :member => { :playlists => :get }
   map.resources :user_collections, :member => { :update_permissions => :post,
                                                 :manage_users => :get,
                                                 :manage_playlists => :get,
