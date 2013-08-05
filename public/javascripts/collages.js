@@ -1352,6 +1352,13 @@ jQuery(document).ready(function(){
     jQuery.updateWordCount();
 
     jQuery.slideToParagraph();
+
+    //Must be after onclicks initiated
+    if(jQuery.cookie('user_id') == null) {
+      access_results = { 'can_edit_annotations' : false };
+      last_data = original_data;
+      jQuery.loadState();
+    }
   }
 });
 

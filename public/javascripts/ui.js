@@ -568,11 +568,6 @@ jQuery.extend({
       jQuery('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous').remove();
       jQuery('.afterload').css('opacity', 1.0);
       jQuery.setFixedLinkPosition();
-      if(jQuery('.singleitem').size() && jQuery.classType() == 'collages') {
-        access_results = { 'can_edit_annotations' : false };
-        last_data = original_data;
-        jQuery.loadState();
-      }
       return;
     } else {
       if(eval(jQuery.cookie('anonymous_user'))) {
