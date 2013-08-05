@@ -377,6 +377,9 @@ jQuery.extend({
     return false;
   },
   adjustQuickbarDisplay: function() {
+    if(jQuery.classType() == 'playlists') {
+      return;
+    }
     if(jQuery('#quickbar').is(':visible') && jQuery(window).scrollTop() < item_offset_top + 15) {
       jQuery('#quickbar').fadeOut(200);
       jQuery('#font-popup').fadeOut(200);
@@ -408,16 +411,20 @@ jQuery.extend({
         jQuery.adjustTooltipPosition();
         jQuery(window).scrollTop(scroll_position);
         jQuery('body').removeClass('adjusting_now');
+        console.log('steph here 1');
       } else if(!jQuery('#collapse_toggle').hasClass('special_hide')) {
         jQuery('#collapse_toggle').addClass('hide_via_scroll');
         jQuery.adjustTooltipPosition();
+        console.log('steph here 2');
       }
     } else if(jQuery('#collapse_toggle.special_hide').size() && jQuery(window).scrollTop() == 0) {
+      console.log('steph here 3');
       jQuery('#collapse_toggle').removeClass('special_hide');
       jQuery('.singleitem').removeClass('expanded_singleitem');
       jQuery('.right_panel.visible_before_hide').removeClass('visible_before_hide').show();
       jQuery.adjustTooltipPosition();
     } else if(jQuery('#collapse_toggle.hide_via_scroll').size() && jQuery('#collapse_toggle').data('threshold') > jQuery(window).scrollTop()) {
+      console.log('steph here 4');
       jQuery('#collapse_toggle').removeClass('hide_via_scroll');
       jQuery.adjustTooltipPosition();
     } 
