@@ -93,7 +93,11 @@ class ApplicationController < ActionController::Base
     if params.has_key?(:keywords)
       params[:sort] ||= "score"
     else
-      params[:sort] ||= "karma"
+      if params[:controller] == "users" && params[:sort].nil?
+        params[:sort] ||= "updated_at"
+      else
+        params[:sort] ||= "karma"
+      end
     end
 
     params[:order] = (["score", "karma"].include?(params[:sort]) ? :desc : :asc)

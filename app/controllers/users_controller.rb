@@ -104,7 +104,6 @@ class UsersController < ApplicationController
         render :partial => 'base/search_ajax'
       end
     else
-      params[:sort] = 'updated_at'
       bookmarks_id = @user.bookmark_id
       @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
       @bookshelf.build do
@@ -131,6 +130,9 @@ class UsersController < ApplicationController
       @sort_lists[:all]["updated_at"] = @sort_lists[:all]["created_at"]
       @sort_lists[:all]["updated_at"][:display] = "SORT BY DATE UPDATED"
       @sort_lists[:all].delete "created_at"
+      if params[:sort]
+        @sort_lists[:all]["updated_at"][:selected] = true
+      end
       if params["controller"] == "users" && params["action"] == "show"
         @sort_lists.each do |k, v|
           v.delete("score")
