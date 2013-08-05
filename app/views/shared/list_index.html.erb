@@ -8,7 +8,7 @@
 	  </aside>
 		<h2>
 		<% if params[:tag] -%>
-		<%= @model.to_s %> tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @collection.total_entries, @model.to_s %> Total)
+		<%= @model.to_s %> tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @collection.results.total_entries, @model.to_s %> Total)
 		<%= link_to "CLEAR TAG", self.send("#{@model.to_s.tableize}_path") %>
 		<% elsif params[:keywords] -%>
     Search Results: <b><%= params[:keywords] %></b>
