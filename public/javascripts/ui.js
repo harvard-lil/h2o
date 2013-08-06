@@ -877,6 +877,10 @@ jQuery.extend({
       });
     });
     jQuery(region + ' .icon-delete,' + region + '.delete-action').live('click', function(e){
+      if(jQuery(this).parent().hasClass('delete-playlist-item')) {
+        return;
+      }
+
       // hide any existing forms
       e.preventDefault();
 	    var type = jQuery(this).data('type');
