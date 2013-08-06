@@ -377,9 +377,6 @@ jQuery.extend({
     return false;
   },
   adjustQuickbarDisplay: function() {
-    if(jQuery.classType() == 'playlists') {
-      return;
-    }
     if(jQuery('#quickbar').is(':visible') && jQuery(window).scrollTop() < item_offset_top + 15) {
       jQuery('#quickbar').fadeOut(200);
       jQuery('#font-popup').fadeOut(200);
