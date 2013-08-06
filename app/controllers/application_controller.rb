@@ -159,7 +159,7 @@ class ApplicationController < ActionController::Base
       if params.has_key?(:keywords)
         keywords params[:keywords]
       end
-      if params.has_key?(:tags)
+      if params.has_key?(:tags) && model != Case
         if params.has_key?(:any)
           any_of do
             params[:tags].each { |t| with :tag_list, t }
@@ -168,7 +168,7 @@ class ApplicationController < ActionController::Base
           params[:tags].each { |t| with :tag_list, t }
         end
       end
-      if params.has_key?(:tag)
+      if params.has_key?(:tag) && model != Case
         with :tag_list, CGI.unescape(params[:tag])
       end
       if params.has_key?(:media_type)
