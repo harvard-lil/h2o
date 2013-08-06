@@ -5,7 +5,7 @@ class CaseCitation < ActiveRecord::Base
   validates_length_of     :volume, :reporter, :page,  :in => 1..200
 
   def display_name
-    "#{self.volume} #{self.reporter.gsub(/\./, '')} #{self.page}"
+    "#{self.volume} #{self.reporter.to_s.gsub(/\./, '')} #{self.page}"
   end
 
   alias :to_s :display_name

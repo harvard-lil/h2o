@@ -7,7 +7,6 @@ jQuery.extend({
     var font_size = jQuery('#fontsize').val();
     var font_face = jQuery('#fontface').val();
     var base_font_size = base_font_sizes[font_face][font_size];
-    console.log(base_font_size);
     if(font_face == 'verdana') {
       jQuery.rule("body .singleitem *, body .singleitem article tt { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('style');
     } else {

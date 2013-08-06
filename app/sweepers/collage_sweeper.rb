@@ -19,7 +19,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
   
       record.path_ids.each do |parent_id|
         Rails.cache.delete("collage-barcode-#{parent_id}")
-        Rails.cache.delete("collage-barcode-html-#{parent_id}")
+        Rails.cache.delete("views/collage-barcode-html-#{parent_id}")
       end
       relations.flatten.uniq.each do |rel_id|
         expire_page :controller => :collages, :action => :show, :id => rel_id
@@ -43,7 +43,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
 
   def after_create(record)
     Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.annotatable_id}")
-    Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.annotatable_id}")
+    Rails.cache.delete("views/#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.annotatable_id}")
   end
 
   def after_save(record)
