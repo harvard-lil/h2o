@@ -100,7 +100,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    params[:order] = (["score", "karma"].include?(params[:sort]) ? :desc : :asc)
+    params[:order] = (["score", "karma", "updated_at"].include?(params[:sort]) ? :desc : :asc)
   end
 
   def set_sort_lists
