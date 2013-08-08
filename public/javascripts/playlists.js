@@ -8,18 +8,22 @@ jQuery.extend({
   playlist_afterload: function(results) {
     if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
       if (results.can_edit) {
-        jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 });
+        jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
+          jQuery('#description .inactive').css('opacity', 0.4);
+        });
         jQuery('#edit_toggle').click();
         is_owner = true;
       } else {
         if(!results.can_edit_notes) {
-          jQuery('#description .public-notes, #description .private-notes').remove();
+          jQuery('#description #public-notes, #description #private-notes').remove();
         }
         if(!results.can_edit_desc) {
           jQuery('#description .icon-edit').remove();
         }
         jQuery('.requires_remove').remove();
-        jQuery('.requires_edit').animate({ opacity: 1.0 });
+        jQuery('.requires_edit').animate({ opacity: 1.0 }, 400, 'swing', function() {
+          jQuery('#description .inactive').css('opacity', 0.4);
+        });
       }
     } else {
       jQuery('.requires_edit, .requires_remove').remove();
@@ -29,10 +33,12 @@ jQuery.extend({
       if(el.playlist_item.notes != null) {
         var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
         var node = jQuery('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
-        if(jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').length) {
-          jQuery('#playlist_item_' + el.playlist_item.id + ' > .data .notes').remove();
-        } 
-        jQuery('#playlist_item_' + el.playlist_item.id + ' > .data').append(node);
+        if(!jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .additional_details').length) {
+          jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper').append(jQuery('<div>').addClass('additional_details'));
+          jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + el.playlist_item.id + '">Show/Hide More</a>'));
+        }
+        jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details .notes').remove();
+        jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details').append(node);
       }
     });
     jQuery('.add-popup select option').remove();
@@ -157,6 +163,20 @@ jQuery.extend({
       });
     });
   },
+  renderPublicPlaylistBehavior: function(data) {
+    jQuery('#public-notes span.count span').html(data.public_count + "/" + data.total_count);
+    jQuery('#private-notes span.count span').html(data.private_count + "/" + data.total_count);
+    if(data.public_count == data.total_count) {
+      jQuery('#public-notes').addClass('inactive').css('opacity', 0.4);
+    } else {
+      jQuery('#public-notes').removeClass('inactive').css('opacity', 1.0);
+    }
+    if(data.private_count == data.total_count) {
+      jQuery('#private-notes').addClass('inactive').css('opacity', 0.4);
+    } else {
+      jQuery('#private-notes').removeClass('inactive').css('opacity', 1.0);
+    }
+  },
   renderEditPlaylistItem: function(item) {
 	  jQuery('#playlist_item_form').slideUp(200, function() {
       jQuery(this).remove();
@@ -189,7 +209,8 @@ jQuery.extend({
     //Notes changes
     var notes_item = listitem_wrapper.find('.notes');
     if(notes_item.size() == 0 && item.notes != '') {
-      var new_item = jQuery('<div>').attr('class', 'notes').html(item.notes);
+      var notes_title = item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      var new_item = jQuery('<div>').attr('class', 'notes').html('<b>' + notes_title + ':</b><br />' + item.notes);
       if(listitem_wrapper.find('.additional_details').size() == 0) {
         listitem_wrapper.find('.rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
         var add_details = jQuery('<div>').addClass('additional_details');
@@ -205,7 +226,8 @@ jQuery.extend({
     } else if(notes_item.size() && item.notes == '') {
       notes_item.remove();
     } else if(notes_item.size() && item.notes != '') {
-      notes_item.html(item.notes);
+      var notes_title = item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      notes_item.html('<b>' + notes_title + ':</b><br />' + item.notes);
     }
 
     if(listitem_wrapper.find('.additional_details *').size() == 0) {
@@ -230,16 +252,20 @@ jQuery.extend({
     });
   },
   observeNoteFunctionality: function() {
-    jQuery('.public-notes,.private-notes').click(function(e) {
+    jQuery('#public-notes,#private-notes').click(function(e) {
+      e.preventDefault();
+      if(jQuery(this).hasClass('inactive')) {
+        return;
+      }
       jQuery.showGlobalSpinnerNode();
       var type = jQuery(this).data('type');
-      e.preventDefault();
       jQuery.ajax({
         type: 'post',
         dataType: 'json',
         url: '/playlists/' + jQuery('#playlist').data('itemid') + '/notes/' + type,
         success: function(results) {
           jQuery.hideGlobalSpinnerNode();
+          jQuery.renderPublicPlaylistBehavior(results);
           if(type == 'public') {
             jQuery('.notes b').html('Additional Notes:');
           } else {
@@ -298,6 +324,7 @@ jQuery.extend({
           jQuery.hideGlobalSpinnerNode();
         },
         success: function(data) {
+          jQuery.renderPublicPlaylistBehavior(data);
 	        jQuery('.listing-with-delete-form').slideUp(200, function() {
             jQuery(this).remove();
           });
@@ -320,8 +347,10 @@ jQuery.extend({
             jQuery('#error_block').html(data.message).show();
           } else {
             if(form.hasClass('new')) {
+              jQuery.renderPublicPlaylistBehavior(data);
               jQuery.renderNewPlaylistItem(data);
             } else {
+              jQuery.renderPublicPlaylistBehavior(data);
               jQuery.renderEditPlaylistItem(data);
             }
           }

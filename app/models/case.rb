@@ -7,6 +7,8 @@ class Case < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include AnnotatableExtensions
   include AuthUtilities
+  include Authorship
+  include KarmaRounding
 
   include ActionController::UrlWriter
 
@@ -56,19 +58,22 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
   validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
-  searchable(:include => [:tags, :collages, :case_citations]) do # TODO: Perhaps add this back in if needed on template, :case_docket_numbers, :case_jurisdiction]) do
+  searchable(:include => [:collages, :case_citations]) do # TODO: Perhaps add this back in if needed on template, :case_docket_numbers, :case_jurisdiction]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
     text :content
     time :decision_date
     time :created_at
+    time :updated_at
     boolean :active
     boolean :public
     integer :karma
 
     string :author
-    string :tag_list, :stored => true, :multiple => true
+    string :author_display, :stored => true
+    integer :author_id, :stored => true
+    # string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :case_citations, :stored => true, :multiple => true
     string :case_docket_numbers, :stored => true, :multiple => true
@@ -149,7 +154,6 @@ class Case < ActiveRecord::Base
     h2ocases = User.find_by_login('h2ocases')
 
     self.accepts_role!(:owner, h2ocases)
-    self.accepts_role!(:creator, h2ocases)
   end
 
   def date_check

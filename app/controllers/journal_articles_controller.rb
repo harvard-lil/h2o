@@ -45,7 +45,6 @@ class JournalArticlesController < BaseController
 
     if @journal_article.save
       @journal_article.accepts_role!(:owner, current_user)
-      @journal_article.accepts_role!(:creator, current_user)
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/journal_articles/#{@journal_article.id}"
     else

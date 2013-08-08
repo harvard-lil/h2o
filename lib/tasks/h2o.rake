@@ -30,30 +30,28 @@ namespace :h2o do
     end
   end
 
-  def deep_clone(playlist, creator, indent)
+  def deep_clone(playlist, owner, indent)
     cloned_playlist = playlist.clone    
     cloned_playlist.save!
-    cloned_playlist.accepts_role!(:owner, creator)
-    cloned_playlist.accepts_role!(:creator, creator)
+    cloned_playlist.accepts_role!(:owner, owner)
     cloned_playlist.tag_list = playlist.tag_list
 
     playlist.playlist_items.each do |pi|
       cloned_playlist_item = pi.clone 
       cloned_playlist_item.save!
-      cloned_playlist_item.accepts_role!(:owner, creator)
+      cloned_playlist_item.accepts_role!(:owner, owner)
       cloned_resource_item = pi.resource_item.clone
       cloned_resource_item.save!
-      cloned_resource_item.accepts_role!(:owner, creator)
+      cloned_resource_item.accepts_role!(:owner, owner)
       if pi.resource_item.actual_object
         if pi.resource_item_type == 'ItemPlaylist'
           puts "#{indent}cloning playlist: #{pi.resource_item.actual_object}"
-          cloned_object = deep_clone(pi.resource_item.actual_object, creator, "#{indent}\t")
+          cloned_object = deep_clone(pi.resource_item.actual_object, owner, "#{indent}\t")
         else
           puts "#{indent}cloning item: #{pi.resource_item.actual_object}"
           cloned_object = pi.resource_item.actual_object.clone
           cloned_object.save!
-          cloned_object.accepts_role!(:owner, creator)
-          cloned_object.accepts_role!(:creator, creator)
+          cloned_object.accepts_role!(:owner, owner)
           cloned_object.tag_list = pi.resource_item.actual_object.tag_list
           cloned_object.save
           if pi.resource_item_type == 'ItemCollage'
@@ -269,7 +267,6 @@ namespace :h2o do
     cases.each do |c|
       c.accepted_roles.delete_all
       c.accepts_role!(:owner, user)
-      c.accepts_role!(:creator, user)
       puts "case #{c.id} assigned to h2ocases"
     end
 

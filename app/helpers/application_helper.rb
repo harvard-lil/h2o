@@ -40,4 +40,12 @@ module ApplicationHelper
       self.send("#{obj.class.to_s.downcase}_version_path", obj, obj_version.version)
     end
   end
+
+  def item_date_stamp(item)
+     if params[:controller] == 'users'
+      item.updated_at
+    else
+      item.created_at
+    end.strftime("%m/%d/%Y")
+  end
 end

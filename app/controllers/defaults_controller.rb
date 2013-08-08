@@ -29,7 +29,6 @@ class DefaultsController < BaseController
     @default = Default.new(params[:default])
     if @default.save
       @default.accepts_role!(:owner, current_user)
-      @default.accepts_role!(:creator, current_user)
       flash[:notice] = 'Link was successfully created.'
       redirect_to defaults_path
     else

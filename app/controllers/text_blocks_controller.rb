@@ -59,7 +59,6 @@ class TextBlocksController < BaseController
 
     if @text_block.save
       @text_block.accepts_role!(:owner, current_user)
-      @text_block.accepts_role!(:creator, current_user)
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/text_blocks/#{@text_block.id}"
     else

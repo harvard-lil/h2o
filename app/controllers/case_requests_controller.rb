@@ -18,7 +18,6 @@ class CaseRequestsController < ApplicationController
     respond_to do |format|
       if @case_request.save
         @case_request.accepts_role!(:owner, current_user)
-        @case_request.accepts_role!(:creator, current_user)
         flash[:notice] = 'Case Request was successfully created.'
         format.html { redirect_to cases_path }
       else

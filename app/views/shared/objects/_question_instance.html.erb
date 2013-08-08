@@ -1,7 +1,7 @@
             <tr>
               <td><%= link_to question_instance.name, question_instance %></td>
               <td><%= question_instance.question_count %></td>
-              <td><%= question_instance.created_at %></td>
+              <td><%= item_date_stamp question_instance %></td>
               <td>
                 <% if current_user && current_user.has_role?(:owner, question_instance) %>
                   <%= link_to 'Edit', edit_question_instance_path(question_instance), :class=> "question-instance-control", :id => "edit-question-instance-#{question_instance.id}" %>

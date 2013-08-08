@@ -6,6 +6,7 @@ class Default < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include AuthUtilities
   include Authorship
+  include KarmaRounding
 
   include ActionController::UrlWriter
 
@@ -30,6 +31,7 @@ class Default < ActiveRecord::Base
     boolean :active
 
     time :created_at
+    time :updated_at
   end
 
   def display_name

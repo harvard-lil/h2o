@@ -1,26 +1,25 @@
-<% if false -%>
-<a href="#" class="fixed_link" id="activities_toggle"><span class="icon icon-activities"></span></a>
-<a href="#" class="fixed_link" id="bookshelf_toggle"><span class="icon icon-bookshelf"></span></a>
-<a href="#" class="fixed_link" id="profile_toggle"><span class="icon icon-profile"></span></a>
-<a href="#" class="fixed_link" id="settings_toggle"><span class="icon icon-settings"></span></a>
-<% end -%>
-
 <div id="results">
   <div id="bookshelf_panel" class="panel">
     <div class="header">
       <h3><%= @user == current_user ? "My" : "#{@user.simple_display}'s" %> Workshop</h3>
       <span class="icon icon-bookshelf"></span>
-      <aside class="sort">
-        <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
-      </aside>
+      <div class="bookshelf_setup">
+        <div id="user_content_filter">
+          <input id="user_keywords" name="keywords" size="50" type="text">
+          <button id="search_user_content">Search</button>
+        </div>
+        <aside class="sort">
+          <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
+        </aside>
+      </div>
       <aside class="pagination standard_pagination">
         <%= will_paginate @bookshelf.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
       </aside>
     </div>
     <ul id="results_set">
-      <% @bookshelf.results.each do |hit| -%>
-      <%= render :partial => "shared/objects/#{hit.class == Case ? 'case_obj' : hit.class.to_s.downcase}",
-                 :locals => { (hit.class == Case ? :case_obj : hit.class.to_s.downcase.to_sym) => hit } %>
+      <% @bookshelf.each_hit_with_result do |hit, result| -%>
+      <%= render :partial => "shared/objects/#{result.class == Case ? 'case_obj' : result.class.to_s.downcase}",
+                 :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
       <% end -%>
     </ul>
   </div>
@@ -106,7 +105,7 @@
       <% item = bookmark.resource_item.actual_object %>
       <% if item.present? -%>
       <%= render :partial => "shared/objects/#{item.class == Case ? 'case_obj' : item.class.to_s.downcase}",
-                 :locals => { (item.class == Case ? :case_obj : item.class.to_s.downcase.to_sym) => item } %>
+                 :locals => { :hit => item, (item.class == Case ? :case_obj : item.class.to_s.downcase.to_sym) => item } %>
 			<% end -%>
 			<% end -%>
 		</ul>
@@ -126,7 +125,10 @@
       </aside>
 	  </div>
 		<ul id="results_<%= type.to_s %>">
-	    <%= render :partial => "shared/objects/#{v[:partial]}", :collection => v[:results] %>
+			<% v[:results].each do |item| -%>
+      <%= render :partial => "shared/objects/#{v[:partial]}",
+                 :locals => { :hit => item, v[:partial].to_sym => item } %>
+			<% end -%>
 		</ul>
 	</div>
 	<% end -%>

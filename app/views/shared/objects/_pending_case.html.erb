@@ -9,7 +9,6 @@
       <%= link_to "APPROVE", approve_case_path(pending_case), :class => "icon icon-approve action approve-action tooltip", :title => "Approve" %>
       <% end -%>
     </h3>
-    <% cache "case-#{pending_case.id}-index" do -%>
     <p class="cases_details">
       <%= pending_case.case_citations.collect { |c| c.display_name }.join(', ') %> /
 
@@ -17,13 +16,7 @@
       <%= pending_case.decision_date %>
       <% if pending_case.collages.any? -%> / <% end -%>
       <% end -%>
-      <% cache "case-#{pending_case.id}-tags" do -%>
-      <% if pending_case.tag_list.any? -%>
-      | <%= raw pending_case.tag_list.collect { |tag| link_to(tag, case_tag_path(CGI.escape(tag))) }.join(', ') %>
-      <% end -%>
-      <% end -%>
     </p>
-    <% end -%>
     <div class="influence"></div>
   </div>
   <div class="clear"></div>

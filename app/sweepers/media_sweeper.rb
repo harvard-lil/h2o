@@ -10,12 +10,10 @@ class MediaSweeper < ActionController::Caching::Sweeper
       Rails.cache.delete_matched(%r{medias-search*})
       Rails.cache.delete_matched(%r{medias-embedded-search*})
   
-      expire_fragment "media-all-tags"
-      expire_fragment "media-#{record.id}-index"
       expire_fragment "media-#{record.id}-tags"
-      expire_fragment "media-#{record.id}-annotatable-content"
+      expire_fragment "media-list-object-#{record.id}"
 
-      users = (record.owners + record.creators).uniq
+      users = record.owners
       if record.changed.include?("public")
         users.each do |u|
           #TODO: Move this into SweeperHelper, but right now doesn't call

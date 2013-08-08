@@ -1,5 +1,8 @@
 module StandardModelExtensions
   module InstanceMethods
+    def stored(field)
+      self.send(field)
+    end
 
     def barcode_breakdown
       self.barcode.inject({}) { |h, b| h[b[:type].to_sym] ||= 0; h[b[:type].to_sym] += 1; h }

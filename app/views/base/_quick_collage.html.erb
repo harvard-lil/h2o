@@ -19,9 +19,9 @@
     </aside>
   </div>
   <ul id="results_set">
-    <% @results.results.each do |hit| -%>
-		<%= render :partial => "shared/objects/#{hit.class == Case ? 'case_obj' : hit.class.to_s.downcase}",
-               :locals => { (hit.class == Case ? :case_obj : hit.class.to_s.downcase.to_sym) => hit } %>
+    <% @results.each_hit_with_result do |hit, result| -%>
+		<%= render :partial => "shared/objects/#{result.class == Case ? 'case_obj' : result.class.to_s.downcase}",
+               :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
     <% end %>
   </ul>
 </section>

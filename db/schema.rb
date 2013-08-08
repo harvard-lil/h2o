@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130624233739) do
+ActiveRecord::Schema.define(:version => 20130717165027) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -27,7 +27,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.boolean  "active",                                   :default => true
     t.integer  "annotation_word_count"
     t.integer  "collage_version"
-    t.integer  "pushed_from_id"
   end
 
   add_index "annotation_versions", ["annotation_id"], :name => "index_annotation_versions_on_annotation_id"
@@ -192,11 +191,9 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.boolean  "public",                                       :default => true
     t.boolean  "active",                                       :default => false
     t.integer  "case_request_id"
+    t.integer  "karma"
     t.integer  "case_jurisdiction_version"
     t.integer  "case_request_version"
-    t.integer  "pushed_from_id"
-    t.integer  "karma"
-    t.string   "dropbox_filepath"
   end
 
   add_index "case_versions", ["case_id"], :name => "index_case_versions_on_case_id"
@@ -275,9 +272,8 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.boolean  "active",                                 :default => true
     t.string   "readable_state",      :limit => 5242880
     t.integer  "words_shown"
-    t.integer  "annotatable_version"
-    t.integer  "pushed_from_id"
     t.integer  "karma"
+    t.integer  "annotatable_version"
   end
 
   add_index "collage_versions", ["collage_id"], :name => "index_collage_versions_on_collage_id"
@@ -320,7 +316,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.integer "collage_id"
     t.integer "user_collection_id"
     t.integer "collage_version"
-    t.integer "user_collection_version"
   end
 
   create_table "color_mapping_versions", :force => true do |t|
@@ -331,8 +326,8 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.string   "hex"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "tag_version"
     t.integer  "colllage_version"
+    t.integer  "tag_version"
   end
 
   add_index "color_mapping_versions", ["color_mapping_id"], :name => "index_color_mapping_versions_on_color_mapping_id"
@@ -356,21 +351,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "defect_versions", :force => true do |t|
-    t.integer  "defect_id"
-    t.integer  "version"
-    t.text     "description"
-    t.integer  "reportable_id"
-    t.string   "reportable_type"
-    t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "reporter_version"
-    t.integer  "reportable_version"
-  end
-
-  add_index "defect_versions", ["defect_id"], :name => "index_defect_versions_on_defect_id"
 
   create_table "defects", :force => true do |t|
     t.text     "description",     :null => false
@@ -706,6 +686,12 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.datetime "updated_at"
   end
 
+  create_table "locations", :force => true do |t|
+    t.string   "name",       :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "media_types", :force => true do |t|
     t.string   "label"
     t.string   "slug"
@@ -823,6 +809,14 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.string   "permission_type"
   end
 
+  create_table "playlist_clone_queues", :force => true do |t|
+    t.integer  "playlist_id"
+    t.integer  "user_id"
+    t.boolean  "running",     :default => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "playlist_items", :force => true do |t|
     t.integer  "playlist_id"
     t.integer  "resource_item_id"
@@ -860,6 +854,8 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.integer  "counter_start",                  :default => 1,    :null => false
     t.integer  "karma"
     t.integer  "pushed_from_id"
+    t.integer  "location_id"
+    t.string   "when_taught"
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
@@ -869,12 +865,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
   create_table "playlists_user_collections", :id => false, :force => true do |t|
     t.integer "playlist_id"
     t.integer "user_collection_id"
-  end
-
-  create_table "playlists_user_collections_versions", :id => false, :force => true do |t|
-    t.integer "playlist_id"
-    t.integer "user_collection_id"
-    t.integer "user_collection_version"
   end
 
   create_table "question_instances", :force => true do |t|
@@ -938,19 +928,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
   add_index "questions", ["updated_at"], :name => "index_questions_on_updated_at"
   add_index "questions", ["user_id"], :name => "index_questions_on_user_id"
 
-  create_table "role_versions", :force => true do |t|
-    t.integer  "role_id"
-    t.integer  "version"
-    t.string   "name",                 :limit => 40
-    t.string   "authorizable_type",    :limit => 40
-    t.integer  "authorizable_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "authorizable_version"
-  end
-
-  add_index "role_versions", ["role_id"], :name => "index_role_versions_on_role_id"
-
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40
@@ -972,15 +949,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
 
   add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
   add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
-
-  create_table "roles_users_versions", :id => false, :force => true do |t|
-    t.integer  "user_id"
-    t.integer  "role_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "user_version"
-    t.integer  "role_version"
-  end
 
   create_table "rotisserie_assignments", :force => true do |t|
     t.integer  "user_id"
@@ -1068,6 +1036,14 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
   add_index "rotisserie_trackers", ["rotisserie_post_id"], :name => "index_rotisserie_trackers_on_rotisserie_post_id"
   add_index "rotisserie_trackers", ["user_id"], :name => "index_rotisserie_trackers_on_user_id"
 
+  create_table "session_assignments", :force => true do |t|
+    t.integer  "playlist_id"
+    t.integer  "session_number"
+    t.integer  "playlist_item_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false
     t.text     "data"
@@ -1119,19 +1095,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
   add_index "text_blocks", ["name"], :name => "index_text_blocks_on_name"
   add_index "text_blocks", ["updated_at"], :name => "index_text_blocks_on_updated_at"
 
-  create_table "user_collection_versions", :force => true do |t|
-    t.integer  "user_collection_id"
-    t.integer  "version"
-    t.integer  "owner_id"
-    t.string   "name"
-    t.string   "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "owner_version"
-  end
-
-  add_index "user_collection_versions", ["user_collection_id"], :name => "index_user_collection_versions_on_user_collection_id"
-
   create_table "user_collections", :force => true do |t|
     t.integer  "owner_id"
     t.string   "name"
@@ -1144,43 +1107,6 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.integer "user_id"
     t.integer "user_collection_id"
   end
-
-  create_table "user_collections_users_versions", :id => false, :force => true do |t|
-    t.integer "user_id"
-    t.integer "user_collection_id"
-    t.integer "user_version"
-    t.integer "user_collection_version"
-  end
-
-  create_table "user_versions", :force => true do |t|
-    t.integer  "user_id"
-    t.integer  "version"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "login"
-    t.string   "crypted_password"
-    t.string   "password_salt"
-    t.string   "persistence_token"
-    t.integer  "login_count",              :default => 0
-    t.datetime "last_request_at"
-    t.datetime "last_login_at"
-    t.datetime "current_login_at"
-    t.string   "last_login_ip"
-    t.string   "current_login_ip"
-    t.string   "oauth_token"
-    t.string   "oauth_secret"
-    t.string   "email_address"
-    t.string   "tz_name"
-    t.integer  "bookmark_id"
-    t.integer  "karma"
-    t.string   "attribution"
-    t.string   "perishable_token"
-    t.boolean  "default_show_annotations"
-    t.boolean  "tab_open_new_items"
-    t.string   "default_font_size"
-  end
-
-  add_index "user_versions", ["user_id"], :name => "index_user_versions_on_user_id"
 
   create_table "users", :force => true do |t|
     t.datetime "created_at"
@@ -1229,8 +1155,8 @@ ActiveRecord::Schema.define(:version => 20130624233739) do
     t.string   "voter_type"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "voter_version"
     t.integer  "voteable_version"
+    t.integer  "voter_version"
   end
 
   add_index "vote_versions", ["vote_id"], :name => "index_vote_versions_on_vote_id"

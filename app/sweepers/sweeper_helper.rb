@@ -1,7 +1,7 @@
 module SweeperHelper
 
   def test_method
-    Rails.logger.warn "stephie: inside test method"
+    Rails.logger.warn "inside test method"
   end
 
   def expire_question_instance(record)

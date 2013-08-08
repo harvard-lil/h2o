@@ -11,23 +11,3 @@
   <% end -%>
 </p>
 <% end -%>
-
-<% if false -%>
-<p><label>Playlist Children</label></p>
-<ul class="lineage">
-<%= render :partial => 'playlist_children',
-  :locals => { :playlist => top_ancestor(Playlist, @playlist) } %>
-</ul>
-<% if @parents.any? -%>
-<p><label>Playlists that contain this playlist</label></p>
-<ul class="lineage">
-<% @parents.each do |playlist| -%>
-<li>
-  <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span>
-  by <%= raw playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %><br />
-  <%= link_to playlist.name, playlist %>
-</li>
-<% end -%>
-</ul>
-<% end -%>
-<% end -%>

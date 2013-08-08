@@ -52,19 +52,12 @@ class CasesController < BaseController
 
     if current_user
       render :json => {
-        :logged_in => current_user.to_json(:only => [:id, :login]),
         :can_edit => @case.can_edit?,
-        :playlists => current_user.playlists.to_json(:only => [:id, :name]),
-        :bookmarks => current_user.bookmarks_map.to_json,
-        :custom_block => 'case_afterload',
-        :anonymous => current_user.has_role?(:nonauthenticated)
+        :custom_block => 'case_afterload'
       }
     else
       render :json => {
-        :logged_in => false,
         :can_edit => false,
-        :playlists => [],
-        :bookmarks => [],
         :custom_block => 'case_afterload'
       }
     end

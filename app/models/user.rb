@@ -21,6 +21,7 @@
 class User < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include ActionController::UrlWriter
+  include KarmaRounding
 
   acts_as_voter
   acts_as_authentic 
@@ -96,9 +97,9 @@ class User < ActiveRecord::Base
     if login.match(/^anon_[a-f,\d]+/)
       return 'anonymous'
     elsif attribution.present?
-      return "#{attribution} (#{karma.to_i})"
+      return "#{attribution} #{karma_display.blank? ? '' : "(#{karma_display})"}"
     else
-      return "#{login} (#{karma.to_i})"
+      return "#{login} #{karma_display.blank? ? '' : "(#{karma_display})"}"
     end
   end
   def simple_display
@@ -117,18 +118,18 @@ class User < ActiveRecord::Base
     #Case.find_by_sql("SELECT * FROM cases WHERE id IN
     #    (SELECT DISTINCT authorizable_id FROM roles
     #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Case')))")
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Case')))")
     Rails.cache.fetch("user-cases-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all { |a| a.active }.sort_by{|a| a.updated_at}
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner']}).collect(&:authorizable).uniq.compact.find_all { |a| a.active }.sort_by{|a| a.updated_at}
     end
   end
 
   def pending_cases
-    self.is_case_admin ? Case.find_all_by_active(false) : self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.find_all { |a| !a.active }.sort_by{|a| a.updated_at}
+    self.is_case_admin ? Case.find_all_by_active(false) : self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner']}).collect(&:authorizable).uniq.compact.find_all { |a| !a.active }.sort_by{|a| a.updated_at}
   end
 
   def text_blocks
-    self.roles.find(:all, :conditions => {:authorizable_type => ['TextBlock', 'JournalArticle'], :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+    self.roles.find(:all, :conditions => {:authorizable_type => ['TextBlock', 'JournalArticle'], :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
   end
   alias :textblocks :text_blocks
 
@@ -137,20 +138,20 @@ class User < ActiveRecord::Base
     #Collage.find_by_sql("SELECT * FROM collages WHERE id IN
     #    (SELECT DISTINCT authorizable_id FROM roles
     #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Collage')))")
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Collage')))")
     Rails.cache.fetch("user-collages-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
   end
 
   def medias
     Rails.cache.fetch("user-medias-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Media', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Media', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
   end
   def defaults
     Rails.cache.fetch("user-defaults-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Default', :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
+      self.roles.find(:all, :conditions => {:authorizable_type => 'Default', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
     end
   end
 
@@ -167,17 +168,17 @@ class User < ActiveRecord::Base
     #Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN
     #    (SELECT DISTINCT authorizable_id FROM roles
     #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner','creator') AND roles.authorizable_type = 'Playlist')))
+    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Playlist')))
     #    AND id != #{self.bookmark_id}")
     Rails.cache.fetch("user-playlists-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner','creator']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
+      self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
     end
   end
 
   def bookmarks
     if self.bookmark_id
       Rails.cache.fetch("user-bookmarks-#{self.id}") do
-        Playlist.find(self.bookmark_id).playlist_items
+        Playlist.find(self.bookmark_id, :include => :playlist_items).playlist_items
       end
     else
       []
@@ -185,11 +186,13 @@ class User < ActiveRecord::Base
   end
 
   def bookmarks_map
-    map = {}
-    self.bookmarks.each do |i|
-      map["listitem_#{i.resource_item_type.tableize.singularize.gsub('item_', '')}#{i.resource_item.actual_object_id}"] = 1 if (i.resource_item && i.resource_item.actual_object)
+    Rails.cache.fetch("user-bookmarks-map-#{self.id}") do
+      map = []
+      self.bookmarks.each do |i|
+        map << "#{i.resource_item_type.tableize.singularize.gsub('item_', '')}#{i.resource_item.actual_object_id}" if (i.resource_item && i.resource_item.actual_object)
+      end
+      map
     end
-    map
   end
 
   def get_current_assignments(rotisserie_discussion = nil)

@@ -16,13 +16,25 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     end
   end
 
+  def actual_object_clear(actual_object)
+    begin
+
+      if actual_object.present?
+        Rails.cache.delete("#{actual_object.class.to_s.downcase}-barcode-#{actual_object.id}")
+        Rails.cache.delete("views/#{actual_object.class.to_s.downcase}-barcode-html-#{actual_object.id}")
+        if [Playlist, Collage, Case].include?(actual_object.class)
+          expire_page :controller => actual_object.class.to_s.tableize.to_sym, :action => :show, :id => actual_object.id
+        end
+      end
+    rescue Exception => e
+      Rails.logger.warn "Item base sweeper error: #{e.inspect}"
+    end
+  end
+
   def after_create(record)
     if params && params.has_key?(:container_id)
       playlist = Playlist.find(params[:container_id])
       clear_playlists(playlist)
-    end
-    if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
-      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
     end
   end
 
@@ -30,17 +42,15 @@ class ItemBaseSweeper < ActionController::Caching::Sweeper
     if record && record.playlist_item
       clear_playlists(record.playlist_item.playlist)
     end
-    if record && [ItemPlaylist, ItemCollage, ItemMedia, ItemTextBlock, ItemCase].include?(record.class) && record.actual_object
-      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
-    end
+
+    actual_object_clear(record.actual_object)
   end
 
   def before_destroy(record)
     if record && record.playlist_item
       clear_playlists(record.playlist_item.playlist)
     end
-    if record && [ItemPlaylist, ItemCollage].include?(record.class) && record.actual_object
-      Rails.cache.delete("#{record.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.actual_object.id}")
-    end
+
+    actual_object_clear(record.actual_object)
   end
 end

@@ -12,6 +12,7 @@ a {
 }
 .singleitem article {
   padding-left: 0px;
+  margin-top: 20px;
 }
 .singleitem .details {
   background: none;
@@ -100,3 +101,9 @@ background: url(/images/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; widt
 
 .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }
 .print_border span { width: 100%; display: block; position: absolute; bottom: 0px; opacity: 0.0; }
+
+.fontdetails {
+  font-weight: bold;
+  font-size: 12px !important;
+  margin-top: -20px;
+}

@@ -47,6 +47,8 @@
             <option value="no" selected="selected">No</option>
           </select>
         </div>
+        <% end %>
+        <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
         <span id="fontface_span">
         <strong>FONT FACE</strong>
         <select id="fontface">
@@ -58,6 +60,7 @@
           <option value="dagny" selected="selected">Dagny Web</option>
         </select>
         </span>
+        <% if ["cases", "text_blocks"].include?(params[:controller]) %> <br /> <% end %>
         <strong>FONT SIZE</strong>
         <select id="fontsize">
           <option value="small" selected="selected">Small</option>

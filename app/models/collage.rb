@@ -11,7 +11,7 @@ class Collage < ActiveRecord::Base
   include MetadataExtensions
   include TaggingExtensions::InstanceMethods
   include HeatmapExtensions::InstanceMethods
-
+  include KarmaRounding
   include ActionController::UrlWriter
 
   RATINGS = {
@@ -65,22 +65,27 @@ class Collage < ActiveRecord::Base
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
   # TODO: Figure out why tags & annotations breaks in searchable
-  searchable(:include => [:tags]) do #, :annotations => {:layers => true}]) do
+  searchable do #(:include => [:tags]) do #, :annotations => {:layers => true}]) do
     text :display_name, :stored => true, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
     text :description, :boost => 2.0
-    text :indexable_content
+    #text :indexable_content
     boolean :active
     boolean :public
     time :created_at
+    time :updated_at
     string :tag_list, :stored => true, :multiple => true
     string :author
+    string :author_display, :stored => true
+    integer :author_id, :stored => true
+    string :root_author_display, :stored => true
+    integer :root_author_id, :stored => true
     integer :karma
 
-    string :annotatable #, :stored => true
-    string :annotations, :multiple => true
-    string :layer_list, :multiple => true
+    #string :annotatable #, :stored => true
+    #string :annotations, :multiple => true
+    #string :layer_list, :multiple => true
   end
 
   def fork_it(new_user, params)
@@ -91,21 +96,12 @@ class Collage < ActiveRecord::Base
     collage_copy.public = params[:public]
     collage_copy.description = params[:description]
     collage_copy.accepts_role!(:owner, new_user)
-    collage_copy.accepts_role!(:creator, new_user)
-    self.creators.each do|c|
-      collage_copy.accepts_role!(:original_creator,c)
-    end
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy
       #copy tags
       new_annotation.layer_list = annotation.layer_list
-      new_annotation.accepts_role!(:creator, new_user)
       new_annotation.accepts_role!(:owner, new_user)
-      new_annotation.parent = annotation
-      annotation.creators.each do|c|
-        new_annotation.accepts_role!(:original_creator, c)
-      end
       new_annotation.save
     end
     self.color_mappings.each do |color_mapping|
@@ -147,7 +143,7 @@ class Collage < ActiveRecord::Base
   end
 
   def display_name
-    "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.creators.blank?) ? '' : ' by ' + self.creators.collect{|u| u.login}.join(',')}"
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.owners.blank?) ? '' : ' by ' + self.owners.collect{|u| u.login}.join(',')}"
   end
 
   def layers

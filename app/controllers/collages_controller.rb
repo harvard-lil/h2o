@@ -5,14 +5,15 @@ class CollagesController < BaseController
   before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
   before_filter :store_location, :only => [:index, :show]
 
-  protect_from_forgery :except => [:export_unique]
-  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :prepare_copy, :export, :export_unique, :access_level, :heatmap]
+  protect_from_forgery :except => [:export_unique] #, :copy]
+  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
 
   access_control do
     allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :heatmap]
 
-    allow logged_in, :to => [:edit, :update, :copy, :prepare_copy], :if => :allow_edit?
+    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
+    allow logged_in, :to => :copy
 
     allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
     allow :admin, :collage_admin, :superadmin
@@ -39,22 +40,17 @@ class CollagesController < BaseController
       can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
 
       render :json => {
-        :logged_in            => current_user.to_json(:only => [:id, :login]),
         :can_edit             => can_edit,
         :can_edit_description => can_edit_description,
         :can_edit_annotations => can_edit_annotations,
-        :playlists            => current_user.playlists.to_json(:only => [:id, :name]),
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
-        :bookmarks            => current_user.bookmarks_map.to_json,
         :custom_block         => 'collage_afterload'
       }
     else
       render :json => {
-        :logged_in            => false,
         :can_edit             => false,
         :can_edit_description => false,
         :can_edit_annotations => false,
-        :playlists            => [],
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
         :custom_block         => 'collage_afterload'
       }
@@ -68,10 +64,6 @@ class CollagesController < BaseController
   # TODO: Remove this if unused?
   def layers
     render :json => @collage.layers
-  end
-
-  def prepare_copy
-    @collage = Collage.find(params[:id])
   end
 
   def copy
@@ -130,7 +122,6 @@ class CollagesController < BaseController
     @collage = Collage.new(params[:collage])
     if @collage.save
       @collage.accepts_role!(:owner, current_user)
-      @collage.accepts_role!(:creator, current_user)
 
       render :json => { :type => 'collages', :id => @collage.id, :error => false }
     else

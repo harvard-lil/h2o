@@ -8,8 +8,6 @@ class Annotation < ActiveRecord::Base
   acts_as_voteable
 
   acts_as_taggable_on :layers
-  before_destroy :collapse_children
-  has_ancestry :orphan_strategy => :restrict
   acts_as_authorization_object
 
   before_create :create_annotation_caches

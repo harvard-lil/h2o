@@ -18,7 +18,8 @@
   <div id="description" class="scale1-1">
     <p><%= @media.description %></p>
     <% if current_user && (current_user.is_media_admin || current_user.medias.include?(@media)) %>
-    <%= link_to raw('<span class="icon icon-edit"></span>EDIT MEDIA INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external" %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT MEDIA INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE MEDIA<span class="icon icon-arrow"></span>'), @media, "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
     <% end -%>
   </div>
 	<article>

@@ -43,7 +43,6 @@ class MediasController < BaseController
 
     if @media.save
       @media.accepts_role!(:owner, current_user)
-      @media.accepts_role!(:creator, current_user)
       flash[:notice] = 'media was successfully created.'
       redirect_to "/medias/#{@media.id}"
     else

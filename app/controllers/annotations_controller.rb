@@ -48,7 +48,6 @@ class AnnotationsController < BaseController
       @color_map[layer.name] = map.hex if map
     end
     @editors = @annotation.editors
-    @original_creators = @annotation.accepted_roles.find(:all, :conditions => {:name => "original_creator"})
   end
 
   # GET /annotations/new
@@ -94,7 +93,6 @@ class AnnotationsController < BaseController
     if @annotation.save
       @annotation.accepts_role!(:owner, current_user)
       @annotation.accepts_role!(:editor, current_user)
-      @annotation.accepts_role!(:creator, current_user)
 
       create_color_mappings
 

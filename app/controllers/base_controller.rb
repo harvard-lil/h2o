@@ -66,26 +66,8 @@ class BaseController < ApplicationController
     render :partial => "partial_results/#{params[:type]}"
   end
 
-  def access_level
-    if current_user
-      render :json => {
-        :logged_in => current_user.to_json(:only => [:id, :login]),
-        :playlists => current_user.playlists.to_json(:only => [:id, :name]),
-        :bookmarks => current_user.bookmarks_map.to_json,
-        :anonymous => current_user.has_role?(:nonauthenticated)
-      }
-    else
-      render :json => {
-        :logged_in => false,
-        :playlists => [],
-        :bookmarks => []
-      }
-    end
-  end
-
   def index
     @page_cache = true
-    @editability_path = '/base_access_level'
     @page_title = 'H2O Classroom Tools'
 
     per_page = 8
@@ -128,7 +110,7 @@ class BaseController < ApplicationController
     set_sort_params
     set_sort_lists
     params[:page] ||= 1
-    params[:per_page] ||= 25
+    params[:per_page] ||= 20
 
     @results = Sunspot.new_search(models)
     @results.build do
@@ -147,7 +129,6 @@ class BaseController < ApplicationController
     models.each do |model|
       set_belongings model
     end
-
   end
 
   def search
@@ -178,7 +159,7 @@ class BaseController < ApplicationController
   def load_single_resource
     if params[:id].present?
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
-      item = model.find(params[:id])
+      item = (model == Playlist && params[:action] == "show") ? model.find(params[:id], :include => :playlist_items) : model.find(params[:id])
       if item.present?
         @single_resource = item
         instance_variable_set "@#{model.to_s.tableize.singularize}", item

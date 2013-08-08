@@ -449,19 +449,32 @@ color: #036290;
 .playlists-edit-mode .listitem .number {
   opacity: 1.0;
 }
-#description a.public-notes,
-#description a.private-notes {
+#description a#public-notes,
+#description a#private-notes {
   font-weight: bold;
   text-decoration: none;
   display: inline-block;
-  padding-top: 6px;
 }
-#description a.public-notes span,
-#description a.private-notes span {
+#description a#public-notes span,
+#description a#private-notes span {
  padding-right: 3px;
  position: relative;
  top: 4px;
 }
-#description a.public-notes {
+#description #public_private_instruction {
+  margin: 10px 0px 0px 0px;
+  padding: 0px;
+}
+#description a#public-notes span.count,
+#description a#private-notes span.count {
+  padding-left: 5px;
+}
+#description a#public-notes span.count,
+#description a#private-notes span.count,
+#description a#public-notes span.count span,
+#description a#private-notes span.count span {
+  top: 0px;
+}
+#description a#public-notes {
   padding-right: 10px;
 }
