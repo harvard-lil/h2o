@@ -108,7 +108,7 @@ class Case < ActiveRecord::Base
   def to_tsv
     [self.short_name,
      self.case_citations.first.to_s,
-     "http://h2odev.law.harvard.edu/cases/#{self.id}"]
+     "http://#{host_and_port}/cases/#{self.id}"]
   end
 
   def self.since_date_and_not_active(options = {})
@@ -137,6 +137,14 @@ class Case < ActiveRecord::Base
   end
 
   private
+  
+  def host_and_port
+    host = ActionMailer::Base.default_url_options[:host]
+    port = ActionMailer::Base.default_url_options[:port]
+    port = port.blank? ? '' : ":#{port}"
+    "#{host}#{port}"
+  end
+  
   def assign_to_h2ocases
     h2ocases = User.find_by_login('h2ocases')
 

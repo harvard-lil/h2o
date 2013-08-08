@@ -26,5 +26,5 @@ config.cache_store = :file_store, "#{RAILS_ROOT}/tmp/cache"
 
 # Enable threaded mode
 # config.threadsafe!
-config.action_mailer.default_url_options = { :host => 'h2odev.law.harvard.edu'}
+config.action_mailer.default_url_options = { :host => 'h2o.law.harvard.edu'}
 config.action_mailer.delivery_method = :sendmail
