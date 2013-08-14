@@ -12,7 +12,7 @@ var panel_width;
 var min_tick_width = 10;
 var item_offset_top;
 var right_offset;
-var user_playlists = {};
+var user_playlists;
 var scife_fn_clicked = function() {
 };
 
@@ -243,19 +243,23 @@ jQuery.extend({
     });
   },
   observeTabDisplay: function() {
+    jQuery('.ui-dialog-titlebar-close').live('click', function() {
+      popup_item_id = 0;
+    });
     jQuery(' .link-add a, a.link-add').live('click', function() {
       var element = jQuery(this);
       var current_id = element.data('item_id');
       if(jQuery('.singleitem').size()) {
         element.parentsUntil('.listitem').last().parent().addClass('adding-item');
       }
-      jQuery('.with_popup').removeClass('with_popup');
       if(popup_item_id != 0 && current_id == popup_item_id) {
         jQuery('.add-popup').hide();
         popup_item_id = 0;
       } else {
         popup_item_id = current_id;
         popup_item_type = element.data('type');
+        console.log(popup_item_id);
+        console.log(popup_item_type);
         var addItemNode = jQuery(jQuery.mustache(add_popup_template, { "playlists": user_playlists }));
         jQuery(addItemNode).dialog({
           title: 'Add item to...',
@@ -268,11 +272,7 @@ jQuery.extend({
       return false;
     });
     jQuery('.new-playlist-item').live('click', function(e) {
-      var itemName = popup_item_type.charAt(0).toUpperCase() + popup_item_type.slice(1);
-      if(itemName == 'Default') {
-        itemName = 'Link';
-      }
-      jQuery.addItemToPlaylistDialog(popup_item_type + 's', itemName, popup_item_id, jQuery('#playlist_id').val()); 
+      jQuery.addItemToPlaylistDialog(popup_item_type, popup_item_id, jQuery('#playlist_id').val()); 
       e.preventDefault();
     });
   },
@@ -528,7 +528,6 @@ jQuery.extend({
       jQuery('#create_all').removeClass('active');
     }
     if(jQuery('.add-popup').is(':visible')) {
-      jQuery('.with_popup').removeClass('with_popup');
       jQuery('.add-popup').hide();
       popup_item_id = 0;
     }
@@ -536,13 +535,6 @@ jQuery.extend({
       jQuery('.ui-dialog .ui-dialog-content').dialog('close');
     }
     return true;
-  },
-  loadPopupCloseListener: function() {
-    jQuery('.close-popup').live('click', function(e) {
-      e.preventDefault();
-      jQuery('.with_popup').removeClass('with_popup');
-      jQuery.hideVisiblePopups();
-    });
   },
   loadEscapeListener: function() {
     jQuery(document).keyup(function(e) {
@@ -656,19 +648,21 @@ jQuery.extend({
       jQuery(this).parent().siblings('.versions_details').find('.case_versions').removeClass('active');
     });
   },
-  addItemToPlaylistDialog: function(itemController, itemName, itemId, playlistId) {
-    var url_string = jQuery.rootPathWithFQDN() + itemController + '/' + itemId;
+  addItemToPlaylistDialog: function(klass, item_id, playlist_id) {
+    var url = jQuery.rootPathWithFQDN() + klass + 's/' + item_id;
     jQuery.ajax({
       method: 'GET',
       cache: false,
       dataType: "html",
-      url: jQuery.rootPath() + 'item_' + itemController + '/new',
+      url: jQuery.rootPath() + 'playlist_items/new',
       beforeSend: function(){
            jQuery.showGlobalSpinnerNode();
       },
       data: {
-        url_string: url_string,
-        container_id: playlistId
+        klass: klass,
+        id: item_id,
+        url: url,
+        playlist_id: playlist_id
       },
       success: function(html){
         jQuery.hideGlobalSpinnerNode();
@@ -678,7 +672,7 @@ jQuery.extend({
         jQuery(addItemDialog).html(html);
         jQuery(addItemDialog).find('#playlist_item_submit,#playlist_item_cancel').remove();
         jQuery(addItemDialog).dialog({
-          title: 'Add this ' + itemName + ' to Your Playlist',
+          title: 'Add to your playlist',
           modal: true,
           width: 'auto',
           height: 'auto',
@@ -865,6 +859,15 @@ jQuery.extend({
           jQuery.hideGlobalSpinnerNode();
         },
         success: function(data){
+          if(jQuery.classType() == 'playlists' && (jQuery.cookie('playlists') != 'force_lookup' || user_playlists.length < 12)) {
+            var user_new_playlists = []; 
+            jQuery.each(user_playlists, function(i, j) {
+              if(j.playlist.id != data.id) {
+                user_new_playlists.push(j);
+              }
+            });
+            jQuery.cookie('playlists', JSON.stringify(user_new_playlists), { path: '/' });
+          }
           if(jQuery('.singleitem').length) {
             document.location.href = "/" + type + "s";
           } else {
@@ -1076,7 +1079,7 @@ jQuery.extend({
     }).dialog('open');
   },
   initiailizeUserPlaylists: function() {
-    if(jQuery.cookie('playlists') == null) {
+    if(jQuery.cookie('playlists') == null || jQuery.cookie('user_id') == null) {
       return;
     }
     if(jQuery.cookie('playlists') == 'force_lookup') {
@@ -1086,15 +1089,19 @@ jQuery.extend({
         url: '/users/' + jQuery.cookie('user_id') + '/playlists',
         success: function(data) {
           user_playlists = jQuery.parseJSON(data.playlists);
+          jQuery.each(user_playlists, function(i, j) {
+            j.playlist.name = j.playlist.name.replace(/\+/g, ' ');
+            jQuery('#listitem_playlist' + j.playlist.id + ' .push-action').addClass('mark-for-keep');
+          });
         }
       });
     } else {
       user_playlists = jQuery.parseJSON(jQuery.cookie('playlists'));
+      jQuery.each(user_playlists, function(i, j) {
+        j.playlist.name = j.playlist.name.replace(/\+/g, ' ');
+        jQuery('#listitem_playlist' + j.playlist.id + ' .push-action').addClass('mark-for-keep');
+      });
     }
-    jQuery.each(user_playlists, function(i, j) {
-      j.playlist.name = j.playlist.name.replace(/\+/g, ' ');
-      jQuery('#listitem_playlist' + j.playlist.id + ' .push-action').addClass('mark-for-keep');
-    });
     jQuery('.push-action:not(.mark-for-keep)').remove();
     jQuery('.push-action').show();
   },
@@ -1119,6 +1126,14 @@ jQuery.extend({
           if(data.custom_block) {
             eval('jQuery.' + data.custom_block + '(data)');
           } else {
+            if(data.modify_playlists_cookie) {
+              if(user_playlists.length < 10) {
+                user_playlists.push({ "playlist" : { "id" : data.id, "name" : data.name } });
+                jQuery.cookie('playlists', JSON.stringify(user_playlists), { path: '/' });
+              } else {
+                jQuery.cookie('playlists', 'force_lookup');
+              }
+            }
             setTimeout(function() {
               var redirect_to = jQuery.rootPath() + data.type + '/' + data.id;
               var use_new_tab = jQuery.cookie('use_new_tab');
@@ -1128,7 +1143,6 @@ jQuery.extend({
               else{
                 document.location.href = redirect_to;
               }
-                
             }, 1000);
           }
         }
@@ -1217,7 +1231,6 @@ jQuery(function() {
   jQuery.observeResultsHover('');
   jQuery.observeTabBehavior();
   jQuery.loadEscapeListener();
-  jQuery.loadPopupCloseListener();
   jQuery.loadOuterClicks();
   jQuery.observeViewerToggle();
   jQuery.observeLoadMorePagination();

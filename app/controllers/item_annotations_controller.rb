@@ -1,2 +1,0 @@
-class ItemAnnotationsController < ItemBaseController
-end

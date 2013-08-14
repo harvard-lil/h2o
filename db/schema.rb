@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130717165027) do
+ActiveRecord::Schema.define(:version => 20130807155111) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -253,6 +253,7 @@ ActiveRecord::Schema.define(:version => 20130717165027) do
     t.string   "link_text_end",     :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "pushed_from_id"
   end
 
   create_table "collage_versions", :force => true do |t|
@@ -341,15 +342,16 @@ ActiveRecord::Schema.define(:version => 20130717165027) do
   end
 
   create_table "defaults", :force => true do |t|
-    t.string   "name",        :limit => 1024
-    t.string   "title",       :limit => 1024
-    t.string   "url",                                              :null => false
-    t.string   "description", :limit => 5242880
-    t.boolean  "active",                         :default => true
-    t.boolean  "public",                         :default => true
+    t.string   "name",           :limit => 1024
+    t.string   "title",          :limit => 1024
+    t.string   "url",                                                 :null => false
+    t.string   "description",    :limit => 5242880
+    t.boolean  "active",                            :default => true
+    t.boolean  "public",                            :default => true
     t.integer  "karma"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "pushed_from_id"
   end
 
   create_table "defects", :force => true do |t|
@@ -405,251 +407,6 @@ ActiveRecord::Schema.define(:version => 20130717165027) do
   add_index "influences", ["parent_id"], :name => "index_influences_on_parent_id"
   add_index "influences", ["resource_id"], :name => "index_influences_on_resource_id"
   add_index "influences", ["resource_type"], :name => "index_influences_on_resource_type"
-
-  create_table "item_annotations", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_annotations", ["active"], :name => "index_item_annotations_on_active"
-  add_index "item_annotations", ["actual_object_id"], :name => "index_item_annotations_on_actual_object_id"
-  add_index "item_annotations", ["actual_object_type"], :name => "index_item_annotations_on_actual_object_type"
-  add_index "item_annotations", ["public"], :name => "index_item_annotations_on_public"
-  add_index "item_annotations", ["url"], :name => "index_item_annotations_on_url"
-
-  create_table "item_cases", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_cases", ["active"], :name => "index_item_cases_on_active"
-  add_index "item_cases", ["actual_object_id"], :name => "index_item_cases_on_actual_object_id"
-  add_index "item_cases", ["actual_object_type"], :name => "index_item_cases_on_actual_object_type"
-  add_index "item_cases", ["public"], :name => "index_item_cases_on_public"
-  add_index "item_cases", ["url"], :name => "index_item_cases_on_url"
-
-  create_table "item_collages", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_collages", ["active"], :name => "index_item_collages_on_active"
-  add_index "item_collages", ["actual_object_id"], :name => "index_item_collages_on_actual_object_id"
-  add_index "item_collages", ["actual_object_type"], :name => "index_item_collages_on_actual_object_type"
-  add_index "item_collages", ["public"], :name => "index_item_collages_on_public"
-  add_index "item_collages", ["url"], :name => "index_item_collages_on_url"
-
-  create_table "item_defaults", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "public",                             :default => true
-    t.integer  "pushed_from_id"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-  end
-
-  add_index "item_defaults", ["active"], :name => "index_item_defaults_on_active"
-  add_index "item_defaults", ["url"], :name => "index_item_defaults_on_url"
-
-  create_table "item_images", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "public",                             :default => true
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-  end
-
-  add_index "item_images", ["active"], :name => "index_item_images_on_active"
-  add_index "item_images", ["actual_object_id"], :name => "index_item_images_on_actual_object_id"
-  add_index "item_images", ["actual_object_type"], :name => "index_item_images_on_actual_object_type"
-  add_index "item_images", ["url"], :name => "index_item_images_on_url"
-
-  create_table "item_medias", :force => true do |t|
-    t.string   "title"
-    t.string   "name"
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_medias", ["active"], :name => "index_item_medias_on_active"
-  add_index "item_medias", ["public"], :name => "index_item_medias_on_public"
-  add_index "item_medias", ["url"], :name => "index_item_medias_on_url"
-
-  create_table "item_playlists", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_playlists", ["active"], :name => "index_item_playlists_on_active"
-  add_index "item_playlists", ["actual_object_id"], :name => "index_item_playlists_on_actual_object_id"
-  add_index "item_playlists", ["actual_object_type"], :name => "index_item_playlists_on_actual_object_type"
-  add_index "item_playlists", ["public"], :name => "index_item_playlists_on_public"
-  add_index "item_playlists", ["url"], :name => "index_item_playlists_on_url"
-
-  create_table "item_question_instances", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_question_instances", ["active"], :name => "index_item_question_instances_on_active"
-  add_index "item_question_instances", ["actual_object_id"], :name => "index_item_question_instances_on_actual_object_id"
-  add_index "item_question_instances", ["actual_object_type"], :name => "index_item_question_instances_on_actual_object_type"
-  add_index "item_question_instances", ["public"], :name => "index_item_question_instances_on_public"
-  add_index "item_question_instances", ["url"], :name => "index_item_question_instances_on_url"
-
-  create_table "item_questions", :force => true do |t|
-    t.string   "title"
-    t.string   "name"
-    t.string   "url"
-    t.text     "description"
-    t.boolean  "active"
-    t.boolean  "public"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_questions", ["active"], :name => "index_item_questions_on_active"
-  add_index "item_questions", ["actual_object_id"], :name => "index_item_questions_on_actual_object_id"
-  add_index "item_questions", ["actual_object_type"], :name => "index_item_questions_on_actual_object_type"
-  add_index "item_questions", ["public"], :name => "index_item_questions_on_public"
-  add_index "item_questions", ["url"], :name => "index_item_questions_on_url"
-
-  create_table "item_rotisserie_discussions", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_rotisserie_discussions", ["active"], :name => "index_item_rotisserie_discussions_on_active"
-  add_index "item_rotisserie_discussions", ["actual_object_id"], :name => "index_item_rotisserie_discussions_on_actual_object_id"
-  add_index "item_rotisserie_discussions", ["actual_object_type"], :name => "index_item_rotisserie_discussions_on_actual_object_type"
-  add_index "item_rotisserie_discussions", ["public"], :name => "index_item_rotisserie_discussions_on_public"
-  add_index "item_rotisserie_discussions", ["url"], :name => "index_item_rotisserie_discussions_on_url"
-
-  create_table "item_text_blocks", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.boolean  "public",                             :default => true
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "pushed_from_id"
-  end
-
-  add_index "item_text_blocks", ["active"], :name => "index_item_text_blocks_on_active"
-  add_index "item_text_blocks", ["actual_object_id"], :name => "index_item_text_blocks_on_actual_object_id"
-  add_index "item_text_blocks", ["actual_object_type"], :name => "index_item_text_blocks_on_actual_object_type"
-  add_index "item_text_blocks", ["public"], :name => "index_item_text_blocks_on_public"
-  add_index "item_text_blocks", ["url"], :name => "index_item_text_blocks_on_url"
-
-  create_table "item_texts", :force => true do |t|
-    t.string   "title"
-    t.string   "name",               :limit => 1024
-    t.string   "url",                :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                             :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "public",                             :default => true
-    t.string   "actual_object_type"
-    t.integer  "actual_object_id"
-  end
-
-  add_index "item_texts", ["active"], :name => "index_item_texts_on_active"
-  add_index "item_texts", ["actual_object_id"], :name => "index_item_texts_on_actual_object_id"
-  add_index "item_texts", ["actual_object_type"], :name => "index_item_texts_on_actual_object_type"
-  add_index "item_texts", ["url"], :name => "index_item_texts_on_url"
-
-  create_table "item_youtubes", :force => true do |t|
-    t.string   "title"
-    t.string   "name",        :limit => 1024
-    t.string   "url",         :limit => 1024
-    t.text     "description"
-    t.boolean  "active",                      :default => true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean  "public",                      :default => true
-  end
-
-  add_index "item_youtubes", ["active"], :name => "index_item_youtubes_on_active"
-  add_index "item_youtubes", ["url"], :name => "index_item_youtubes_on_url"
 
   create_table "journal_article_types", :force => true do |t|
     t.string   "name"
@@ -819,27 +576,20 @@ ActiveRecord::Schema.define(:version => 20130717165027) do
 
   create_table "playlist_items", :force => true do |t|
     t.integer  "playlist_id"
-    t.integer  "resource_item_id"
-    t.string   "resource_item_type"
-    t.boolean  "active",                  :default => true
     t.integer  "position"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "ancestry"
-    t.integer  "playlist_item_parent_id"
-    t.boolean  "public",                  :default => true
     t.text     "notes"
-    t.boolean  "public_notes",            :default => true, :null => false
+    t.boolean  "public_notes",                       :default => true, :null => false
     t.integer  "pushed_from_id"
+    t.string   "name",               :limit => 1024
+    t.string   "url",                :limit => 1024
+    t.text     "description"
+    t.string   "actual_object_type"
+    t.integer  "actual_object_id"
   end
 
-  add_index "playlist_items", ["active"], :name => "index_playlist_items_on_active"
-  add_index "playlist_items", ["ancestry"], :name => "index_playlist_items_on_ancestry"
-  add_index "playlist_items", ["playlist_item_parent_id"], :name => "index_playlist_items_on_playlist_item_parent_id"
   add_index "playlist_items", ["position"], :name => "index_playlist_items_on_position"
-  add_index "playlist_items", ["public"], :name => "index_playlist_items_on_public"
-  add_index "playlist_items", ["resource_item_id"], :name => "index_playlist_items_on_resource_item_id"
-  add_index "playlist_items", ["resource_item_type"], :name => "index_playlist_items_on_resource_item_type"
 
   create_table "playlists", :force => true do |t|
     t.string   "title",                                            :null => false

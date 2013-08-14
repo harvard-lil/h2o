@@ -9,22 +9,10 @@ ActionController::Routing::Routes.draw do |map|
   map.journal_article_tag "journal_articles/tag/:tag", :controller => :journal_articles, :action => :index
 
   map.resources :playlist_items, :collection => {:block => :get}, :member => { :delete => :get }
-  map.resources :item_annotations
-  map.resources :item_collages
-  map.resources :item_cases
-  map.resources :item_playlists
-  map.resources :item_texts
-  map.resources :item_text_blocks
-  map.resources :item_images
-  map.resources :item_youtubes
-  map.resources :item_medias
-  map.resources :item_defaults, :collection => { :embedded_pager => :get }
 
   map.resources :influences
 
   map.resources :annotations, :collection => {:embedded_pager => :get}
-
-  map.add_link_to_playlist "/add_link_to_playlist", :controller => :item_defaults, :action => :add_link_to_playlist, :via => :post
 
   map.resources :case_jurisdictions
   map.resources :case_docket_numbers
@@ -34,7 +22,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :cases, :collection => { :embedded_pager => :get, :bulk_upload => [:get, :post], :upload => [:get, :post], :authorize => [:get, :post]}, :member => {:metadata => :get, :export => :get, :approve => :post, :access_level => :get } do |case_obj|
     case_obj.resources :versions
   end
-  map.case_tag "cases/tag/:tag", :controller => :cases, :action => :index
 
   map.resources :collages, :collection => {:embedded_pager => :get, :collage_lookup => :get },
     :member => { :copy => [:get, :post],
@@ -63,9 +50,6 @@ ActionController::Routing::Routes.draw do |map|
   map.media_tag "media/tag/:tag", :controller => :medias, :action => :index
 
   # Commenting out all Question, Rotisserie routes to disable access
-  # map.resources :item_rotisserie_discussions
-  # map.resources :item_questions
-  # map.resources :item_question_instances
   # map.resources :rotisserie_trackers
   # map.resources :rotisserie_assignments
   # map.resources :rotisserie_posts, :collection => {:block => :get}, :member => {:delete => :get }

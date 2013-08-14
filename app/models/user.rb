@@ -187,11 +187,7 @@ class User < ActiveRecord::Base
 
   def bookmarks_map
     Rails.cache.fetch("user-bookmarks-map-#{self.id}") do
-      map = []
-      self.bookmarks.each do |i|
-        map << "#{i.resource_item_type.tableize.singularize.gsub('item_', '')}#{i.resource_item.actual_object_id}" if (i.resource_item && i.resource_item.actual_object)
-      end
-      map
+      self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
     end
   end
 
@@ -288,7 +284,6 @@ class User < ActiveRecord::Base
       item_types.each do |type|
         single_type = type.singularize
         created_type = "#{single_type}_created"
-        item_klass = "Item#{type.singularize.camelize}".constantize
         type_title = "#{single_type.capitalize}"
 
         public_items = self.send(type).select { |i| i.public }
@@ -318,20 +313,19 @@ class User < ActiveRecord::Base
         end
   
         # Bookmarked, or Incorporated
-        incorporated_items = item_klass.all(:conditions => ["actual_object_id in (?)",  public_items.map(&:id)]) 
+        incorporated_items = PlaylistItem.all(:conditions => { :actual_object_id => public_items.map(&:id), :actual_object_type => type_title })
         incorporated_items.each do |ii|
-          next if ii.playlist_item.nil?
-          next if ii.playlist_item.playlist.nil?
-          playlist = ii.playlist_item.playlist
+          next if ii.playlist.nil?
+          playlist = ii.playlist
           next if playlist.owners.include?(self)
           if playlist.name == "Your Bookmarks"
             barcode_elements << { :type => "user_#{single_type}_bookmarked",
-                                  :date => ii.playlist_item.created_at, 
+                                  :date => ii.created_at, 
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.owners.first.display}",
                                   :link => user_path(playlist.owners.first) }
           else
             barcode_elements << { :type => "user_#{single_type}_added",
-                                  :date => ii.playlist_item.created_at, 
+                                  :date => ii.created_at, 
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
                                   :link => playlist_path(playlist.id) }
           end

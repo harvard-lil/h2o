@@ -1,44 +1,27 @@
 require 'redcloth_extensions'
-require 'ancestry_extensions'
 
 class PlaylistItem < ActiveRecord::Base
   extend RedclothExtensions::ClassMethods
 
-  # TODO: Investigate acts_as_list conditional, to skip on bookmarked items, or investigate if needed
-  acts_as_list :scope => :playlist
-
+  validates_presence_of :name
   belongs_to :playlist
-
-  belongs_to :resource_item, :polymorphic => true, :dependent => :destroy
-
-  #This is a self-referential relationship, renamed so as to not conflict with methods exported by ancestry.
-  belongs_to :playlist_item_parent, :class_name => 'PlaylistItem'
-
-  def display_name
-    if !resource_item.nil?
-      (resource_item.respond_to?(:title)) ? resource_item.title : resource_item.name
-    else
-      ''
-    end
-  end
+  belongs_to :actual_object, :polymorphic => true 
 
   def clean_type
-    resource_item_type.downcase.gsub(/^item/, '')
+    actual_object_type.downcase
   end
 
-  alias :to_s :display_name
-
   def render_dropdown
-    return false if resource_item_type == "ItemTextBlock"
+    return false if actual_object_type == "TextBlock"
 
-    return true if resource_item_type == "ItemPlaylist"
+    return true if actual_object_type == "Playlist"
 
-    return true if resource_item_type == "ItemCollage"
+    return true if actual_object_type == "Collage"
 
-    if resource_item.actual_object.respond_to?(:description)
-      return true if resource_item.actual_object.description.present?
+    if self.actual_object.respond_to?(:description)
+      return true if self.actual_object.description.present?
 
-      return true if resource_item.description != '' && resource_item.description != resource_item.actual_object.description
+      return true if self.description != '' && self.description != self.actual_object.description
     end
 
     return true if self.notes.to_s != '' && self.public_notes

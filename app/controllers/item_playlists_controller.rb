@@ -1,2 +1,0 @@
-class ItemPlaylistsController < ItemBaseController
-end

@@ -102,7 +102,7 @@
 	  </div>
 		<ul id="results_bookmarks" class="playlists">
 			<% @paginated_bookmarks.each do |bookmark| -%>
-      <% item = bookmark.resource_item.actual_object %>
+      <% item = bookmark.actual_object %>
       <% if item.present? -%>
       <%= render :partial => "shared/objects/#{item.class == Case ? 'case_obj' : item.class.to_s.downcase}",
                  :locals => { :hit => item, (item.class == Case ? :case_obj : item.class.to_s.downcase.to_sym) => item } %>

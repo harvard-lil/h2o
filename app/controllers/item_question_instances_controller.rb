@@ -1,2 +1,0 @@
-class ItemQuestionInstancesController < ItemBaseController
-end

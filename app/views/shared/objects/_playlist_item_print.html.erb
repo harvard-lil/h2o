@@ -1,13 +1,13 @@
-<li class="playlist listitem level<%= recursive_level %> listitem<%= item.resource_item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.resource_item.id %>">
+<li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
   <h3 class="scale1-3">
-  <span class="icon icon-<%= item.resource_item_type == "ItemMedia" ? "media-#{item.resource_item.actual_object.media_type.slug}" : item.clean_type %>"></span>
-	<% if item.resource_item_type != 'ItemDefault' && !item.resource_item.actual_object.nil? -%>
-	<%= link_to item.resource_item.name, item.resource_item.actual_object %>
+  <span class="icon icon-<%= item.actual_object_type == "Media" ? "media-#{item.actual_object.media_type.slug}" : item.clean_type %>"></span>
+	<% if item.actual_object_type != 'Default' && !item.actual_object.nil? -%>
+	<%= link_to item.name, item.actual_object %>
 	<% else -%>
-	<%= link_to item.resource_item.name, item.resource_item.url, :target => 'blank' %>
+	<%= link_to item.name, item.url, :target => 'blank' %>
 	<% end -%>
   </h3>
-  <div class="item_description scale0-8"><%= PlaylistItem.format_content(item.resource_item.description) %></div>
+  <div class="item_description scale0-8"><%= PlaylistItem.format_content(item.description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
 	<div class="notes scale0-8">
 		<b class="scale0-8">Additional Notes:</b>
@@ -15,18 +15,18 @@
 	</div>
   <% end -%>
 	<div class="clear"></div>
-  <% if ['ItemCollage', 'ItemCase', 'ItemPlaylist'].include?(item.resource_item_type) && !item.resource_item.actual_object.nil? -%>
-  <% if item.resource_item_type == 'ItemCollage' -%>
-    <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.resource_item.actual_object } %>
+  <% if ['Collage', 'Case', 'Playlist'].include?(item.actual_object_type) && !item.actual_object.nil? -%>
+  <% if item.actual_object_type == 'Collage' -%>
+    <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.actual_object } %>
     <div class="page-break"></div>
-  <% elsif item.resource_item_type == 'ItemCase' -%>
-    <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => item.resource_item.actual_object } %>
+  <% elsif item.actual_object_type == 'Case' -%>
+    <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => item.actual_object } %>
     <div class="page-break"></div>
-  <% elsif item.resource_item_type == 'ItemPlaylist' && recursive_level < 4 -%>
-    <div class="item_description"><%= PlaylistItem.format_content(item.resource_item.actual_object.description) %></div>
+  <% elsif item.actual_object_type == 'Playlist' && recursive_level < 4 -%>
+    <div class="item_description"><%= PlaylistItem.format_content(item.actual_object.description) %></div>
     <section class="playlists">
       <ul>
-        <% item.resource_item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
+        <% item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item_print',
             :locals => { :item => nested_item,
             :parent_index => parent_index == '' ? index + 1 : "#{parent_index}.#{index}",

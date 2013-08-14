@@ -3,8 +3,7 @@
 		<% @playlist.playlist_items.each_with_index do |item, index| -%>
 		  <%= render :partial => 'shared/objects/playlist_item',
 		    :locals => { :item => item,
-        :resource_item => item.resource_item,
-        :actual_object => item.resource_item.actual_object,
+        :actual_object => item.actual_object,
 			  :parent_index => '',
 			  :index => index + @playlist.counter_start,
 			  :recursive_level => 0,

@@ -10,11 +10,9 @@ module StandardModelExtensions
 
     def barcode_bookmarked_added
       elements = []
-      item_klass = "Item#{self.class}".constantize
-      item_klass.find_all_by_actual_object_id(self.id).each do |item|
-        next if item.playlist_item.nil?
-        next if item.playlist_item.playlist.nil?
-        playlist = item.playlist_item.playlist
+      PlaylistItem.find_all_by_actual_object_id(self.id).each do |item|
+        next if item.playlist.nil?
+        playlist = item.playlist
         if playlist.name == "Your Bookmarks"
           playlist_owner = playlist.accepted_roles.find_by_name('owner')
           elements << { :type => "bookmark",

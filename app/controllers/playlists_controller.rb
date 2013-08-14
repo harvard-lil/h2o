@@ -127,7 +127,7 @@ class PlaylistsController < BaseController
       #IMPORTANT: This reindexes the item with author set
       @playlist.index!
 
-      render :json => { :type => 'playlists', :id => @playlist.id }
+      render :json => { :type => 'playlists', :id => @playlist.id, :modify_playlists_cookie => true, :name => @playlist.name }
     else
       render :json => { :type => 'playlists', :id => @playlist.id }
     end
@@ -162,7 +162,7 @@ class PlaylistsController < BaseController
     @playlist = Playlist.find(params[:id])
     @playlist.destroy
 
-    render :json => { :success => true }
+    render :json => { :success => true, :id => params[:id].to_i }
   rescue Exception => e
     render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
   end
@@ -199,12 +199,11 @@ class PlaylistsController < BaseController
       @playlist_copy.accepts_role!(:owner, current_user)
       @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
         new_item = item.clone
-        new_item.resource_item = item.resource_item.clone
         new_item.save!
         new_item
       }
 
-      render :json => { :type => 'playlists', :id => @playlist_copy.id } 
+      render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
     else
       render :json => { :type => 'playlists', :id => @playlist_copy.id }, :status => :unprocessable_entity 
     end

@@ -3,7 +3,7 @@
 	<div class="controls">
 		<ul>
 			<li class="link-collage"><%= link_to 'Collage This', new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => journal_article), :class => "new-action" %></li>
-			<li class="link-add"><a data-item_id="<%= journal_article.id %>" data-bookmarktype="item_journal_article" data-type="journal_article" href="#">Add</a></li>
+			<li class="link-add"><a data-item_id="<%= journal_article.id %>" data-type="journal_article" href="#">Add</a></li>
 		</ul>
 	</div>
 	<% end -%>

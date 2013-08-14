@@ -1,8 +1,8 @@
-<div id="playlist_item_form" class="<%= @object.new_record? ? 'new' : 'edit' %>" >
+<div id="playlist_item_form" class="<%= @playlist_item.new_record? ? 'new' : 'edit' %>" >
   <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
-  <% semantic_form_for @object, :html => { :class => (@object.new_record? ? 'new' : 'edit') } do |form| %>
+  <% semantic_form_for @playlist_item, :html => { :class => (@playlist_item.new_record? ? 'new' : 'edit') } do |form| %>
     <% form.inputs do %>
-      <% if @base_model_class == Default -%>
+      <% if @actual_object.class == Default -%>
       <li>
         <label>Url</label>
         <span style="clear:both;"><%= @url_display %></span>
@@ -16,19 +16,21 @@
         :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
         :required => false %>
       <% end -%>
-      <% if !@object.new_record? && @can_edit_notes -%>
+      <% if !@playlist_item.new_record? && @can_edit_notes -%>
       <li class="text">
         <label for="playlist_item_notes">Notes</label>
-        <textarea name="playlist_item[notes]" cols="38" rows="5" class="ui-widget-content ui-corner-all"><%= @object.playlist_item.notes.to_s %></textarea>
+        <textarea name="playlist_item[notes]" cols="38" rows="5" class="ui-widget-content ui-corner-all"><%= @playlist_item.notes.to_s %></textarea>
       </li>
       <li>
         <label for="playlist_item_notes">Are Notes Public?</label>
-        <input type="checkbox" name="playlist_item[public_notes]" <%= raw 'checked="checked"' if @object.playlist_item.public_notes %> />
+        <input type="checkbox" name="playlist_item[public_notes]" <%= raw 'checked="checked"' if @playlist_item.public_notes %> />
       </li>
       <% end -%>
       <%= form.input(:url, :as => :hidden) %>
-      <%= hidden_field_tag 'container_id', params[:container_id] %>
-      <%= hidden_field_tag 'position', params[:position] %>
+      <%= form.input(:playlist_id, :as => :hidden) %>
+      <%= form.input(:position, :as => :hidden) %>
+      <%= form.input(:actual_object_type, :as => :hidden) %>
+      <%= form.input(:actual_object_id, :as => :hidden) %>
     <% end -%>
     <a href="#" id="playlist_item_submit">SUBMIT</a>
     <a href="#" id="playlist_item_cancel">CANCEL</a>

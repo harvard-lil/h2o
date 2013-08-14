@@ -55,8 +55,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
   end
 
   def after_collages_save_readable_state
-    item_collages = ItemCollage.find(:all, :conditions => { :actual_object_id => params[:id] }, :select => :id)
-    PlaylistItem.find(:all, :conditions => { :resource_item_type => 'ItemCollage', :resource_item_id => item_collages }, :select => :playlist_id).each do |pi|
+    PlaylistItem.find(:all, :conditions => { :actual_object_type => 'Collage', :actual_object_id => params[:id] }, :select => :playlist_id).each do |pi|
       expire_page :controller => :playlists, :action => :show, :id => pi.playlist_id
       expire_page :controller => :playlists, :action => :export, :id => pi.playlist_id
     end

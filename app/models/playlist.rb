@@ -98,7 +98,7 @@ class Playlist < ActiveRecord::Base
   alias :to_s :display_name
 
   def parents
-    ItemPlaylist.find_all_by_actual_object_id(self.id).collect { |p| p.playlist_item.playlist_id }.uniq
+    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist_id }.uniq
   end
 
   def barcode
@@ -132,7 +132,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def actual_objects
-    self.playlist_items.map(&:resource_item).map(&:actual_object)
+    self.playlist_items.map(&:actual_object)
   end
 
 
@@ -149,11 +149,11 @@ class Playlist < ActiveRecord::Base
 	    shown_word_count = 0
 	    total_word_count = 0
 	    self.playlist_items.each do |pi|
-	      if pi.resource_item_type == 'ItemCollage' && pi.resource_item.actual_object
-	        shown_word_count += pi.resource_item.actual_object.words_shown.to_i
-	        total_word_count += (pi.resource_item.actual_object.word_count.to_i-1)
-	      elsif pi.resource_item_type == 'ItemPlaylist' && pi.resource_item.actual_object && pi.resource_item.actual_object != self
-	        res = pi.resource_item.actual_object.collage_word_count
+	      if pi.actual_object_type == 'Collage' && pi.actual_object
+	        shown_word_count += pi.actual_object.words_shown.to_i
+	        total_word_count += (pi.actual_object.word_count.to_i-1)
+	      elsif pi.actual_object_type == 'Playlist' && pi.actual_object && pi.actual_object != self
+	        res = pi.actual_object.collage_word_count
 	        shown_word_count += res[0]
 	        total_word_count += res[1]
 	      end
@@ -162,12 +162,8 @@ class Playlist < ActiveRecord::Base
     end
   end
 
-  def contains_item?(item)
-    actual_objects = self.playlist_items.inject([]) do |arr, pi|
-      arr << pi.resource_item.actual_object if pi.resource_item && pi.resource_item.actual_object;
-      arr
-    end
-    actual_objects.include?(item)
+  def contains_item?(item_key)
+    self.playlist_items.map { |pi| "#{pi.actual_object_type}#{pi.actual_object_id}" }.include?(item_key)
   end
 
   def push!(options = {})

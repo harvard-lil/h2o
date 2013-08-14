@@ -3,7 +3,9 @@
   <%= @text_block.updated_at.strftime("%B %d, %Y") %>
 </p>
 
+<% if @text_block.metadatum -%>
 <%= render :partial => "shared/objects/metadatum", :object => @text_block.metadatum %>
+<% end -%>
 
 <% cache "text_block-#{@text_block.id}-tags" do -%>
 <% if @text_block.tags.any? -%>

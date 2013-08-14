@@ -1,3 +1,0 @@
-class ItemRotisserieDiscussionsController < ItemBaseController
-
-end

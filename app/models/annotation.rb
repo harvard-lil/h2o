@@ -15,14 +15,6 @@ class Annotation < ActiveRecord::Base
 
   belongs_to :collage
 
-  searchable do
-    text :display_name, :boost => 2.0
-    string :display_name, :stored => true
-    string :id, :stored => true
-    text :annotation
-    string :layer_list, :multiple => true
-  end
-
   def formatted_annotation_content
     t = Annotation.format_content(annotation)
     t.gsub(/\n/, '').gsub(/<p>/, '').gsub(/<\/p>/, '<br /><br />').gsub(/<br \/><br \/>$/, '')

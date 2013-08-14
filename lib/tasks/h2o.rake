@@ -30,70 +30,15 @@ namespace :h2o do
     end
   end
 
-  def deep_clone(playlist, owner, indent)
-    cloned_playlist = playlist.clone    
-    cloned_playlist.save!
-    cloned_playlist.accepts_role!(:owner, owner)
-    cloned_playlist.tag_list = playlist.tag_list
-
-    playlist.playlist_items.each do |pi|
-      cloned_playlist_item = pi.clone 
-      cloned_playlist_item.save!
-      cloned_playlist_item.accepts_role!(:owner, owner)
-      cloned_resource_item = pi.resource_item.clone
-      cloned_resource_item.save!
-      cloned_resource_item.accepts_role!(:owner, owner)
-      if pi.resource_item.actual_object
-        if pi.resource_item_type == 'ItemPlaylist'
-          puts "#{indent}cloning playlist: #{pi.resource_item.actual_object}"
-          cloned_object = deep_clone(pi.resource_item.actual_object, owner, "#{indent}\t")
-        else
-          puts "#{indent}cloning item: #{pi.resource_item.actual_object}"
-          cloned_object = pi.resource_item.actual_object.clone
-          cloned_object.save!
-          cloned_object.accepts_role!(:owner, owner)
-          cloned_object.tag_list = pi.resource_item.actual_object.tag_list
-          cloned_object.save
-          if pi.resource_item_type == 'ItemCollage'
-            pi.resource_item.actual_object.annotations.each do |annotation|
-              cloned_annotation = annotation.clone
-              cloned_annotation.collage_id = cloned_object.id
-              cloned_annotation.save
-              #cloned_annotation.tag_list = annotation.tag_list
-              #Assigning tag_list doesn't work for annotations
-              #So, work directly with taggings array of objects
-              annotation.taggings.each do |tagging|
-                cloned_tagging = tagging.clone
-                cloned_tagging.update_attribute(:taggable_id, cloned_annotation.id)
-              end
-            end
-            puts "#{indent}*cloned annotations"
-          end
-        end
-        cloned_resource_item.actual_object_id = cloned_object.id
-        cloned_resource_item.url = cloned_resource_item.url.gsub(/[0-9]+$/, cloned_object.id.to_s)
-      end
-      cloned_resource_item.save
-      cloned_playlist_item.position = pi.position
-      cloned_playlist_item.resource_item_id = cloned_resource_item.id
-      cloned_playlist_item.playlist_id = cloned_playlist.id
-      cloned_playlist_item.save
-    end
-    
-   cloned_playlist.save
-
-    return cloned_playlist
-  end
- 
   desc 'Deep Playlist Copy'
   task(:deep_playlist_copy => :environment) do
-    p = Playlist.find(1304)
-    u = User.find(534)
-    if(p.nil? || u.nil?)
-      puts "You must enter a valid playlist and user id to clone."
-    end
-    result = deep_clone(p, u, "\t")
-    puts "Finished cloning! New cloned playlist id: #{result.id}"
+    #p = Playlist.find(1304)
+    #u = User.find(534)
+    #if(p.nil? || u.nil?)
+    #  puts "You must enter a valid playlist and user id to clone."
+    #end
+    #pp = PlaylistPusher.new(:playlist_id => [p.id], :user_ids => [u.id])
+    #pp.push!
   end
 
   desc 'Clear Static Page Caches'

@@ -224,9 +224,7 @@ class UsersController < ApplicationController
       return
     end
 
-    playlist = Playlist.find(current_user.bookmark_id)
-
-    playlist_item_to_delete = playlist.playlist_items.detect { |pi| pi.resource_item_type == "Item#{params[:type].classify}" && pi.resource_item.actual_object_id == params[:id].to_i }
+    playlist_item_to_delete = PlaylistItem.find_by_playlist_id_and_actual_object_type_and_actual_object_id(current_user.bookmark_id, params[:type].classify, params[:id].to_i) 
       
     if playlist_item_to_delete && playlist_item_to_delete.destroy
       render :json => { :success => true }
@@ -249,28 +247,17 @@ class UsersController < ApplicationController
     begin
       raise "not logged in" if !current_user
 
-      klass = nil
-      if params[:type] == 'media'
-        klass = Media
-      else
-        klass = params[:type].classify.constantize
-      end
+      klass = params[:type] == 'media' ? Media : params[:type].classify.constantize
 
-      actual_object = klass.find(params[:id])
-
-      if playlist.contains_item?(actual_object)
+      if playlist.contains_item?("#{klass.to_s}#{params[:id]}")
         render :json => { :already_bookmarked => true, :user_id => current_user.id }
       else
-        item_klass = "Item#{klass.to_s}".constantize
-
-        item = item_klass.new(:name => actual_object.respond_to?(:name) ? actual_object.name : actual_object.bookmark_name,
-          :url => url_for(actual_object))
-        item.actual_object = actual_object
-        item.save
-
+        actual_object = klass.find(params[:id])
         playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
-          :resource_item_type => item_klass.to_s,
-          :resource_item_id => item.id)
+          :actual_object_type => actual_object.class.to_s,
+          :actual_object_id => actual_object.id,
+          :position => playlist.playlist_items.count,
+          :name => actual_object.name)
         playlist_item.save
 
         render :json => { :already_bookmarked => false, :user_id => current_user.id }

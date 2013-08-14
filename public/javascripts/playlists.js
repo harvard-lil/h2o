@@ -185,9 +185,9 @@ jQuery.extend({
     listitem_wrapper.find('a.title').html(item.name);
 
     //Description changes
-    var resource_item_desc = listitem_wrapper.find('.resource_item_desc');
-    if(resource_item_desc.size() == 0 && item.description != '') {
-      var new_item = jQuery('<div>').attr('class', 'resource_item_desc').html(item.description);
+    var item_desc = listitem_wrapper.find('.item_desc');
+    if(item_desc.size() == 0 && item.description != '') {
+      var new_item = jQuery('<div>').attr('class', 'item_desc').html(item.description);
       if(listitem_wrapper.find('.additional_details').size() == 0) {
         listitem_wrapper.find('.rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
         var add_details = jQuery('<div>').addClass('additional_details');
@@ -200,10 +200,10 @@ jQuery.extend({
           listitem_wrapper.find('.additional_details').prepend(new_item);
         }
       }
-    } else if(resource_item_desc.size() && item.description == '') {
-      resource_item_desc.remove();
-    } else if(resource_item_desc.size() && item.description != '') {
-      resource_item_desc.html(item.description);
+    } else if(item_desc.size() && item.description == '') {
+      item_desc.remove();
+    } else if(item_desc.size() && item.description != '') {
+      item_desc.html(item.description);
     }
 
     //Notes changes
@@ -246,7 +246,7 @@ jQuery.extend({
       }, 
       error: function() {
         setTimeout(function() {
-          document.location.href = jQuery.rootPath() + data.type + '/' + data.id;
+          document.location.href = jQuery.rootPath() + data.type + '/' + data.playlist_id;
         }, 1000); 
       }
     });
@@ -411,7 +411,7 @@ jQuery.extend({
             }
           });
         } else {
-			    var url_string = jQuery.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
+			    var url = jQuery.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
           var listing_el = jQuery('#listing_' + new_item.type + '_' + new_item.id);
 
           dropped_item = listing_el;
@@ -420,13 +420,15 @@ jQuery.extend({
 			      method: 'GET',
 			      cache: false,
 			      dataType: "html",
-			      url: jQuery.rootPath() + 'item_' + new_item.type + '/new',
+			      url: jQuery.rootPath() + 'playlist_items/new',
 			      beforeSend: function(){
 			           jQuery.showGlobalSpinnerNode();
 			      },
 			      data: {
-			        url_string: url_string,
-			        container_id: container_id,
+              klass: new_item.type,
+              id: new_item.id,
+			        url: url,
+			        playlist_id: playlist_id,
               position: jQuery('.playlists ol.dd-list .dd-item').index(listing_el) + 1
 			      },
 			      success: function(html){

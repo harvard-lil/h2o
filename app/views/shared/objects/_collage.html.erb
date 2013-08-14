@@ -29,7 +29,7 @@
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), collage, :class => "action read-action" %>
     <a href="<%= copy_collage_path(collage) %>" class="remix-action link-copy" data-type="collage" data-title="<%= collage.name %>"><span class="icon icon-remix"></span>REMIX</a>
-    <a data-item_id="<%= collage.id %>" data-bookmarktype="item_collage" data-type="collage" class="link-add" href="#"><span class="icon icon-add"></span>ADD</a>
+    <a data-item_id="<%= collage.id %>" data-type="collage" class="link-add" href="#"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
       :class => "link-bookmark bookmark-action", 
       "data-itemid" => collage.id,

@@ -26,7 +26,7 @@
   </div>
 	<div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), media, :class => "action read-action" %>
-    <a data-item_id="<%= media.id %>" data-bookmarktype="item_media" data-type="media" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
+    <a data-item_id="<%= media.id %>" data-type="media" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
       :class => "link-bookmark bookmark-action", 
       "data-itemid" => media.id,
