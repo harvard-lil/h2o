@@ -39,7 +39,7 @@ class Default < ActiveRecord::Base
   end
 
   def barcode
-    Rails.cache.fetch("itemdefault-barcode-#{self.id}") do
+    Rails.cache.fetch("default-barcode-#{self.id}") do
       barcode_elements = self.barcode_bookmarked_added.sort_by { |a| a[:date] }
 
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
