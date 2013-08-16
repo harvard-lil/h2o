@@ -16,10 +16,14 @@
         <% end -%>
       </td>
       <td class="title-cell">
+        <% if actual_object.present? -%>
 		    <% if item.actual_object_type == 'Default' -%>
 		    <%= link_to item.name, actual_object.url, :target => '_blank', :class => "title" %>
-		    <% elsif actual_object.present? -%>
+		    <% else -%>
 		    <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title" %>
+		    <% end -%>
+        <% else -%>
+        <%= item.name %>
 		    <% end -%>
 		    <% if recursive_level == 0 %>
 		    <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => 'playlist_items', :action => 'destroy', :id => item),
