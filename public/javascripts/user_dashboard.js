@@ -143,20 +143,14 @@ jQuery.extend({
 	},
   observeKeywordsSearch: function() {
     jQuery('#search_user_content').click(function(e){
-      var phrase = jQuery('#user_keywords').val();
-      var href = window.location.href;
-      var url = href + '?keywords=' + phrase;
+      var url = document.location.pathname + '?keywords=' + jQuery('#user_keywords').val() + '&sort=' + jQuery('.bookshelf_setup .sort select').val();
       jQuery.showGlobalSpinnerNode();
-      window.location.hash = phrase;
+      jQuery.address.value(url);
       jQuery('#results_set').load(url, function() { 
         jQuery.hideGlobalSpinnerNode(); 
         jQuery('.pagination').html('');
       });
     });
-    if(window.location.hash != ""){
-      jQuery('#user_keywords').val(window.location.hash.substring(1,100000));
-      jQuery('#search_user_content').click();
-    }
   }
 });
 

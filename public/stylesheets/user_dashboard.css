@@ -118,15 +118,7 @@ ul.user_list li a.item {
   float: left;
   margin: 5px 0px;
   margin-right: 3px;
-}
-
-#user_keywords {
-  border: none;
-  padding: 5px 9px 5px 25px;
-  background: #FFF url(/images/search.png) no-repeat 4px 1px;
-  line-height: 20px;
-  width: 150px;
-  margin-right: -2px;
+  background: #FFF;
 }
 
 #search_user_content {
@@ -136,6 +128,7 @@ ul.user_list li a.item {
   background: #036290;
   text-decoration: none;
   display: inline-block;
-  padding: 7px 10px;
+  padding: 3px 7px 4px;
   border: none;
+  font-size: 14px;
 }

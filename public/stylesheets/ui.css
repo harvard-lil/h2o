@@ -259,6 +259,7 @@ header #search table td {
 #search #spinner img {
   display: block;
 }
+#user_keywords,
 #search input[type=text] {
   border: none;
   padding: 5px 9px 5px 25px;

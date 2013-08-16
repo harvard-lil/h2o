@@ -128,14 +128,14 @@ class UsersController < ApplicationController
 
       set_sort_lists
       @sort_lists[:all]["updated_at"] = @sort_lists[:all]["created_at"]
-      @sort_lists[:all]["updated_at"][:display] = "SORT BY DATE UPDATED"
+      @sort_lists[:all]["updated_at"][:display] = "SORT BY MOST RECENT ACTIVITY"
       @sort_lists[:all].delete "created_at"
       if params[:sort]
         @sort_lists[:all]["updated_at"][:selected] = true
       end
       if params["controller"] == "users" && params["action"] == "show"
         @sort_lists.each do |k, v|
-          v.delete("score")
+          v.delete("author")
         end
       end
 

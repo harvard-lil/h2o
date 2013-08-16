@@ -740,6 +740,9 @@ jQuery.extend({
       } else {
         url += "?sort=" + sort;
       }
+      if(jQuery('#user_keywords').length) {
+        url += '&keywords=' + jQuery('#user_keywords').val();
+      }
       jQuery.listResults(url);
     });
   },
