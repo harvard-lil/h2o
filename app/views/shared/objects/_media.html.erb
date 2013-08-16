@@ -1,5 +1,5 @@
 <% cache "media-list-object-#{hit.stored(:id)}" do %>
-<li class="listitem listitem<%= media.id %>" id="listitem_media<%= media.id %>" data-itemid="<%= media.id %>">
+<li class="listitem listitem<%= media.id %>" id="listitem_media<%= media.id %>" data-itemid="<%= media.id %>" data-type="media">
   <a href="#" class="tooltip list-icon icon icon-media-<%= media.media_type.slug %>" title="<%= media.media_type.label %>"></a>
 	<div class="details">
     <% cache "media-#{media.id}-tags" do %>

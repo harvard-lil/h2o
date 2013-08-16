@@ -725,6 +725,9 @@ jQuery.extend({
           jQuery('#new_pagination').remove();
           jQuery.initializeBarcodes();
           jQuery.observeResultsHover('');
+          if(jQuery('.busers_show').length) {
+            jQuery.renderDeleteFunctionality();
+          }
         }
       }
     });

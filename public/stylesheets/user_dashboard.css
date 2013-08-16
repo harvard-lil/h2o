@@ -12,6 +12,9 @@
   width: 780px;
   margin-right: 10px;
 }
+#results #bookshelf_panel li.listitem h3 .icon-delete {
+  visibility: visible;
+}
 #results #settings_panel,
 #results #collections_panel {
   margin-top: 5px;
