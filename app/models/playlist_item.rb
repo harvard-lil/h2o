@@ -8,7 +8,7 @@ class PlaylistItem < ActiveRecord::Base
   belongs_to :actual_object, :polymorphic => true 
 
   def clean_type
-    actual_object_type.downcase
+    actual_object_type.to_s.downcase
   end
 
   def render_dropdown
