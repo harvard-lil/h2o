@@ -7,8 +7,8 @@
     <% semantic_form_for(Defect.new, :html => {:id => 'defect-form'}) do |form| %>
       <% form.inputs do %>
         <%= form.input :description, :as => :text, :input_html => {:rows => 5 }, :label => "Describe Error"  %>
-        <%= form.input :single_resource_id, :as => :hidden, :value => @single_resource.id %>
-        <%= form.input :single_resource_type, :as => :hidden, :value => @single_resource.class.to_s %>
+        <%= form.input :reportable_id, :as => :hidden, :value => @single_resource.id %>
+        <%= form.input :reportable_type, :as => :hidden, :value => @single_resource.class.to_s %>
         <%= form.input :user_id, :as => :hidden, :value => current_user ? current_user.id : '' %>
       <% end %>
       <a id="defect_submit" href="#" class="button">SAVE</a>

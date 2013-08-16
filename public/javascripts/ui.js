@@ -15,6 +15,7 @@ var right_offset;
 var user_playlists;
 var scife_fn_clicked = function() {
 };
+var page_load = true;
 
 $.noConflict();
 
@@ -65,8 +66,9 @@ jQuery.extend({
         top_offset += jQuery(el).height() + 2;
       });
       jQuery('#fixed_links').fadeIn();
-      if(jQuery('.slide-out-div').size()) {
+      if(jQuery('.slide-out-div').size() && page_load) {
         jQuery.loadSlideOutTabBehavior(top_offset);
+        page_load = false;
       }
     }
   },

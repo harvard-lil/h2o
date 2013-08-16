@@ -14,6 +14,8 @@
 }
 #results #bookshelf_panel li.listitem h3 .icon-delete {
   visibility: visible;
+  position: relative;
+  top: 3px;
 }
 #results #settings_panel,
 #results #collections_panel {
