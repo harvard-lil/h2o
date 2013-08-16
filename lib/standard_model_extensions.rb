@@ -10,7 +10,7 @@ module StandardModelExtensions
 
     def barcode_bookmarked_added
       elements = []
-      PlaylistItem.find_all_by_actual_object_id(self.id).each do |item|
+      PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, self.class.to_s).each do |item|
         next if item.playlist.nil?
         playlist = item.playlist
         if playlist.name == "Your Bookmarks"
