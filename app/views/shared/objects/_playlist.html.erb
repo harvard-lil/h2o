@@ -3,7 +3,7 @@
   <a href="#" class="tooltip list-icon icon icon-playlist" title="Playlist">Playlist</a>
   <div class="details">
     <h3>
-      <%= link_to raw(playlist.name), playlist %>
+      <%= link_to raw(playlist.name), playlist, :class => "title" %>
     </h3>
     <p>
       <% if hit.stored(:author_id).present? -%>
