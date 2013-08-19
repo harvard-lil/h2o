@@ -4,9 +4,6 @@
     <h3>
       <%= link_to default.name, default.url, :class => "title", :target => "_blank" %>
       <% if current_user && (@is_admin[:default] || @my_belongings[:defaults].include?(default)) %>
-        <%= link_to 'DELETE', default, :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "default", "data-id" => default.id %>
-      <% end %>
-      <% if current_user && (@is_admin[:default] || @my_belongings[:defaults].include?(default)) %>
         <%= link_to 'EDIT', edit_default_path(default), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
     </h3>
