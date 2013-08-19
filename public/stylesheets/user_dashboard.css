@@ -104,15 +104,15 @@ ul.user_list li a.item {
   top: 0px;
   right: 10px;
 }
-#results .pagination,
 #results .special_pagination {
   position: absolute;
   bottom: 10px;
   right: 10px;
 }
-
 .bookshelf_setup {
-  float: right;
+  position: absolute;
+  top: 5px;
+  right: 6px;
 }
 
 .bookshelf_setup .sort {
@@ -127,6 +127,7 @@ ul.user_list li a.item {
 }
 
 #search_user_content {
+  font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
   cursor: pointer;
   color: #fff;
   font-weight: bold;

@@ -265,7 +265,7 @@ header #search table td {
   padding: 5px 9px 5px 25px;
   width: 150px;
   background: #FFF url(/images/search.png) no-repeat 4px 1px;
-  line-height: 20px;
+  line-height: 18px;
 }
 #create_nav {
   opacity: 0.0;
@@ -363,6 +363,7 @@ header #search table td {
   text-indent: -10000px; 
   width: 6px;
   height: 11px;
+  margin-right: 0px;
 }
 .pagination a:hover,
 .paginatio a.active {
