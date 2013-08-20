@@ -2,3 +2,13 @@
 .page-break { page-break-after: always; }
 
 #print-options { display: none; }
+
+.collage-content .paragraph-numbering {
+  left: -35px;
+}
+.unlayered-control, .collage-content {
+  padding-left: 35px;
+}
+.wrapper {
+  margin-right: 35px;
+}
