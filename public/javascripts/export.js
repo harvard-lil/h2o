@@ -66,7 +66,6 @@ jQuery.extend({
       var data = eval("collage_data_" + id);
 
       jQuery.each(data, function(i, e) {
-      console.log(i + ' and ' + e);
         if(i == 'load_heatmap') {
           jQuery.loadHeatmap(id);
           jQuery('#printheatmap').val('yes');

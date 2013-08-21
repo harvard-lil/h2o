@@ -260,8 +260,6 @@ jQuery.extend({
       } else {
         popup_item_id = current_id;
         popup_item_type = element.data('type');
-        console.log(popup_item_id);
-        console.log(popup_item_type);
         var addItemNode = jQuery(jQuery.mustache(add_popup_template, { "playlists": user_playlists }));
         jQuery(addItemNode).dialog({
           title: 'Add item to...',
