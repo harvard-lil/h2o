@@ -487,7 +487,9 @@ jQuery.extend({
       } else if(i.match(/#annotation-ellipsis/)) {
         jQuery(i).css('display', 'inline');
         var annotation_id = i.replace(/#annotation-ellipsis-/, '');
-        jQuery('tt.a' + annotation_id).css('display', 'none');
+        var subset = jQuery('tt.a' + annotation_id);
+        subset.css('display', 'none');
+        jQuery.resetParentDisplay(subset);
       } else if(i.match(/^\.a/)) { //Backwards compatibility update
         jQuery(i).css('display', 'inline');
         var annotation_id = i.replace(/^\.a/, '');
@@ -727,7 +729,11 @@ jQuery.extend({
       show_annotation: (annotation.annotation == '' ? false : true)
     };
 
-    jQuery(jQuery.mustache(annotation_start_template, data)).insertBefore(jQuery('tt#t' + annotation_start)); 
+    if(jQuery('tt#t' + annotation_start).parent().hasClass('footnote')) {
+      jQuery(jQuery.mustache(annotation_start_template, data)).insertBefore(jQuery('tt#t' + annotation_start).parent()); 
+    } else {
+      jQuery(jQuery.mustache(annotation_start_template, data)).insertBefore(jQuery('tt#t' + annotation_start)); 
+    }
     jQuery(jQuery.mustache(annotation_end_template, data)).insertAfter(jQuery('tt#t' + annotation_end));
 
     //Important: to allow for HTML in annotation markup
