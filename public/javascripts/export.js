@@ -66,6 +66,7 @@ jQuery.extend({
       var data = eval("collage_data_" + id);
 
       jQuery.each(data, function(i, e) {
+      console.log(i + ' and ' + e);
         if(i == 'load_heatmap') {
           jQuery.loadHeatmap(id);
           jQuery('#printheatmap').val('yes');
@@ -75,10 +76,6 @@ jQuery.extend({
           jQuery('#printhighlights').val('original');
           jQuery('#printheatmap').val('no');
           jQuery.highlightCollage(id, e);
-        } else if(i == 'annotations') {
-          jQuery.each(e, function(a, h) {
-            jQuery('#' + a).css('display', 'block');
-          });
         } else if(i == 'font_face') {
           jQuery('#fontface').val(e);
         } else if(i == 'font_size') {
@@ -100,6 +97,8 @@ jQuery.extend({
           var elements = jQuery('tt.a' + annotation_id);
           jQuery('<span class="ellipsis">[...] </span>').insertBefore(elements.first());
           elements.hide();
+        } else if(i.match(/#annotation-content/) && e == 'inline-block') {
+          jQuery(i).css('display', 'block');
         }
       });
 

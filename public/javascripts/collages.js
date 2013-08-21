@@ -429,10 +429,6 @@ jQuery.extend({
       if(jQuery('a#hide_heatmap').css('display') == 'block' && !jQuery('a#hide_heatmap:first').is('.inactive')) {
         data.load_heatmap = true;
       }
-      data.annotations = {};
-      jQuery.each(jQuery('.annotation-content:visible'), function(i, el) {
-        data.annotations[jQuery(el).attr('id')] = true;
-      });
 
       data.font_size = jQuery('#fontsize a.active').data('value');
       data.font_face = jQuery('#fontface a.active').data('value');

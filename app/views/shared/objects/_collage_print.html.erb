@@ -1,8 +1,8 @@
 <div class="item_description scale0-9"><%= collage.description %></div>
 <div class="collage-content" id="collage<%= collage.id %>" data-id="<%= collage.id %>">
-<% cache "collage-#{collage.id}-printable-content" do -%>
+<% cache "collage-#{collage.id}-editable-content" do -%>
 <article>
-<%= raw collage.printable_content %>
+<%= raw collage.editable_content %>
 </article>
 <% end -%>
 </div>

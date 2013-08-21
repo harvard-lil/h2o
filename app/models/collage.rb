@@ -203,32 +203,6 @@ class Collage < ActiveRecord::Base
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 
-  def printable_content
-    doc = Nokogiri::HTML.parse(self.content)
-
-    x = 1
-    doc.xpath('//tt').each do |node|
-      node['class'] = node['id']
-      node['id'] = ''
-      x+=1
-    end
-
-    count = 1
-    doc.xpath('//p | //center').each do |node|
-      tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
-      if node.children.size > 0 && tt_size > 0
-        first_child = node.children.first
-        control_node = Nokogiri::XML::Node.new('span', doc)
-        control_node['class'] = "paragraph-numbering"
-        control_node.inner_html = "#{count}"
-        first_child.add_previous_sibling(control_node)
-        count += 1
-      end
-    end
-
-    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
-  end
-
   def current?
     !self.outdated?
   end

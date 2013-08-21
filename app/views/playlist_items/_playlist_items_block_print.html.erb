@@ -4,7 +4,7 @@
 		  <%= render :partial => 'shared/objects/playlist_item_print',
 		    :locals => { :item => item,
 			  :parent_index => '',
-			  :index => index,
+			  :index => index + @playlist.counter_start,
 			  :recursive_level => 0 } %>
 		<% end -%>
 	</ul>
