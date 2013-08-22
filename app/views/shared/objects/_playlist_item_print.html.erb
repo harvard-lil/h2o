@@ -30,7 +30,7 @@
         <% item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item_print',
             :locals => { :item => nested_item,
-            :parent_index => parent_index == '' ? index + 1 : "#{parent_index}.#{index}",
+            :parent_index => parent_index == '' ? index : "#{parent_index}.#{index}",
             :index => nested_index + 1,
             :recursive_level => recursive_level + 1 } %>
         <% end -%>
