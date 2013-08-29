@@ -484,7 +484,7 @@ jQuery.extend({
       if(i.match(/#unlayered-ellipsis/)) {
         var id = i.replace(/#unlayered-ellipsis-/, '');
         jQuery('.unlayered-control-' + id + ':first').click();
-      } else if(i.match(/#annotation-ellipsis/)) {
+      } else if(i.match(/#annotation-ellipsis/) && e != 'none') {
         jQuery(i).css('display', 'inline');
         var annotation_id = i.replace(/#annotation-ellipsis-/, '');
         var subset = jQuery('tt.a' + annotation_id);
