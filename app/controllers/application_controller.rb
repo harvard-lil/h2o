@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
+  before_filter :fix_cookies
   before_filter :redirect_bad_format, :title_select, :set_time_zone
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
@@ -249,7 +250,16 @@ class ApplicationController < ActionController::Base
     @javascripts = [] if ! defined?(@javascripts)
     @javascripts << new_javascripts
   end
-                           
+      
+  # TODO: This handles the scenario where users with remember_me are auto logged in,
+  # but cookies are not defined for them when auto logged in
+  # Note: Can be moved to after auto login filter if one exists
+  def fix_cookies
+    if current_user.present? && cookies[:user_id].nil?
+      apply_user_preferences(current_user)
+    end
+  end
+
   def apply_user_preferences(user)
     if user
       cookies[:font_size] = user.default_font_size
