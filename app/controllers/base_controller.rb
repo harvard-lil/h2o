@@ -132,6 +132,8 @@ class BaseController < ApplicationController
   end
 
   def search
+    params[:keywords] = CGI::escapeHTML(params[:keywords])
+
     common_search [Playlist, Collage, Media, TextBlock, Case, Default]
 
     if request.xhr?
@@ -153,7 +155,7 @@ class BaseController < ApplicationController
   end
 
   def error
-    redirect_to root_url
+    redirect_to root_url, :status => 301
   end
 
   def load_single_resource

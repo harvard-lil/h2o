@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
 
   layout :layout_switch
 
-  before_filter :title_select, :set_time_zone
+  before_filter :redirect_bad_format, :title_select, :set_time_zone
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
   before_filter :set_page_cache_indicator
@@ -32,6 +32,12 @@ class ApplicationController < ActionController::Base
     return unless perform_caching
     options = actions.extract_options!
     after_filter(:only => actions) { |c| c.cache_page if options[:if].nil? or options[:if].call(c) }
+  end
+
+  def redirect_bad_format
+    if params[:format] == "php"
+      redirect_to root_url, :status => 301
+    end
   end
 
   #Switch to local time zone
