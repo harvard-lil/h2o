@@ -16,8 +16,10 @@
 	</div>
   <% end -%>
 	<div class="clear"></div>
-  <% if ['Collage', 'Case', 'Playlist'].include?(item.actual_object_type) && !item.actual_object.nil? -%>
-  <% if item.actual_object_type == 'Collage' -%>
+  <% if item.actual_object_type == 'TextBlock' -%>
+    <%= render :partial => 'shared/objects/textblock_print', :locals => { :text_block => item.actual_object } %>
+    <div class="page-break"></div>
+  <% elsif item.actual_object_type == 'Collage' -%>
     <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.actual_object } %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Case' -%>
@@ -36,6 +38,5 @@
         <% end -%>
       </ul>
     </section>
-  <% end -%>
   <% end -%>
 </li>
