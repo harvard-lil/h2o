@@ -1,4 +1,4 @@
-<div class="item_description scale0-9"><%= collage.description %></div>
+<div class="item_description scale0-9"><%= raw collage.description %></div>
 <div class="collage-content" id="collage<%= collage.id %>" data-id="<%= collage.id %>">
 <% cache "collage-#{collage.id}-editable-content" do -%>
 <article>
