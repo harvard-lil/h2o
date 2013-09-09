@@ -603,13 +603,14 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   margin-right: 10px;
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
-#home_index #featured_users {
+#home_index #highlighted_playlists {
   padding-right: 0px;
 }
-#home_index #featured_cases {
+#home_index #featured_cases,
+#home_index #featured_media_image {
   padding-right: 0px;
 }
-#home_index #featured_playlists {
+#home_index #fall2013_playlists {
   margin-bottom: 15px;
 }
 #home_index .panel .barcode_wrapper,
@@ -639,7 +640,8 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   width: 25px;
   margin-left: 10px;
 }
-#home_index #featured_playlists h3 span {
+#home_index #fal2013_playlists h3 span,
+#home_index #highlighted_playlists h3 span {
   background: url(/images/icons.png) -630px -111px no-repeat;
   border: none;
   position: relative;

@@ -94,4 +94,17 @@
   #quickbar_left .quickbar_extra {
     display: none;
   }
+
+  #home_index #fall2013_playlists,
+  #home_index #highlighted_playlists,
+  #home_index #featured_users,
+  #home_index #featured_collages,
+  #home_index #featured_medias,
+  #home_index #featured_texts,
+  #home_index #featured_cases {
+    margin: 0px;
+    float: none;
+    width: 99%;
+    clear: both;
+  }
 }

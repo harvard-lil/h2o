@@ -1,0 +1,6 @@
+<% @highlighted["media_#{type}".to_sym].each do |item| -%>
+<div class="user item"><div class="item_wrapper">
+  <%= link_to item.display_name, media_path(item) %>
+  <%= render :partial => "shared/barcode", :locals => { :object => item } %>
+</div></div>
+<% end -%>

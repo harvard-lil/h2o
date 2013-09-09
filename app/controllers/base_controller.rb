@@ -72,21 +72,35 @@ class BaseController < ApplicationController
 
     per_page = 8
 
-    @highlighted = { :playlist => [], :user => [], :collage => [], :media => [], :textblock => [], :case => [] }
-    [986, 671].each do |p|
+    @highlighted = { :fall2013 => [], 
+                     :highlighted => [], 
+                     :user => [], 
+                     :collage => [], 
+                     :media_image => [], 
+                     :media_pdf => [], 
+                     :media_audio => [], 
+                     :media_video => [], 
+                     :textblock => [], 
+                     :case => [],
+                     :default => []
+                   }
+    [1374, 1995, 1324, 1162, 711, 1923, 1889, 1844, 1510].each do |p|
       begin
         playlist = Playlist.find(p)
-        @highlighted[:playlist] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
+        @highlighted[:fall2013] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
       rescue Exception => e
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
     end
-
-    Playlist.find(:all, :conditions => "karma IS NOT NULL AND id NOT IN (986, 671)", :order => "karma DESC", :limit => 3).each do |playlist|
-      @highlighted[:playlist] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first }
+    [986, 671, 852, 1943, 911, 633, 66, 626].each do |p|
+      begin
+        playlist = Playlist.find(p)
+        @highlighted[:highlighted] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
+      rescue Exception => e
+        Rails.logger.warn "Base#index Exception: #{e.inspect}"
+      end
     end
-
-    [387, 267].each do |u|
+    [571, 529, 496, 595, 267, 387, 392, 684, 140].each do |u|
       begin
         user = User.find(u)
         @highlighted[:user] << user
@@ -94,14 +108,18 @@ class BaseController < ApplicationController
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
     end
-    
-    User.find(:all, :conditions => "karma IS NOT NULL AND id NOT IN (387, 267)", :order => "karma DESC", :limit => 3).each do |user|
-      @highlighted[:user] << user
-    end
 
-    [Collage, Media, TextBlock, Case].each do |klass|
-      klass.find(:all, :conditions => "karma IS NOT NULL", :order => "karma DESC", :limit => 5).each do |user|
-        @highlighted[klass.to_s.downcase.to_sym] << user
+    [Collage, Default, TextBlock, Case].each do |klass|
+      klass.find(:all, :conditions => "karma IS NOT NULL", :order => "karma DESC", :limit => 5).each do |item|
+        @highlighted[klass.to_s.downcase.to_sym] << item
+      end
+    end
+    @media_map = {}
+    ["Audio", "PDF", "Image", "Video"].each do |media_label|
+      mt = MediaType.find_by_label(media_label)
+      @media_map[mt.slug] = "#{media_label}s"
+      Media.find(:all, :conditions => "karma IS NOT NULL AND media_type_id = #{mt.id}", :order => "karma DESC", :limit => 5).each do |item|
+        @highlighted["media_#{mt.slug}".to_sym] << item
       end
     end
   end
