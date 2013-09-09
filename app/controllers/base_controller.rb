@@ -119,7 +119,7 @@ class BaseController < ApplicationController
     @media_map = {}
     ["Audio", "PDF", "Image", "Video"].each do |media_label|
       mt = MediaType.find_by_label(media_label)
-      @media_map[mt.slug] = "#{media_label}s"
+      @media_map[mt.slug] = media_label == "Audio" ? "Audio" : "#{media_label}s"
       Media.find(:all, :conditions => "karma IS NOT NULL AND media_type_id = #{mt.id}", :order => "karma DESC", :limit => 5).each do |item|
         @highlighted["media_#{mt.slug}".to_sym] << item
       end
