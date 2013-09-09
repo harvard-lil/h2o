@@ -216,4 +216,15 @@ namespace :h2o do
     end
 
   end
+  
+  desc "Reassigned defaults to charlesfried"
+  task(:assign_defaults_to_charlesfried => :environment) do
+    charlesfried = User.find_by_login('charlesfried')
+    759.upto(810) do |n|
+      d = Default.find(n)
+      d.accepted_roles.find_by_name('owner').users.clear
+      d.accepted_roles.find_by_name('owner').users << charlesfried
+    end
+    puts "task successfuly finished"
+  end
 end
