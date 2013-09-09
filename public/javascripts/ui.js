@@ -237,12 +237,19 @@ jQuery.extend({
     jQuery('.nav-tooltip').tipsy({ gravity: 'p', opacity: 1.0 });
     jQuery('#quickbar_right a').tipsy({ gravity: 'n', opacity: 1.0 });
   },
-  observeHomePageToggle: function() {
-    jQuery('#featured_playlists .item, #featured_users .item').hoverIntent(function() {
-      jQuery(this).find('.additional_details').slideDown(500);
-    }, function() {
-      jQuery(this).find('.additional_details').slideUp(200);
-    });
+  observeHomePageBehavior: function() {
+    if(jQuery('body#bbase').size()) {
+      jQuery('#featured_playlists .item, #featured_users .item').hoverIntent(function() {
+        jQuery(this).find('.additional_details').slideDown(500);
+      }, function() {
+        jQuery(this).find('.additional_details').slideUp(200);
+      });
+      jQuery('#masonry_collection').masonry({
+        itemSelector: '.panel',
+        gutter: 20,
+        columnWidth: 258
+      });
+    }
   },
   observeTabDisplay: function() {
     jQuery('.ui-dialog-titlebar-close').live('click', function() {
@@ -1242,7 +1249,6 @@ jQuery(function() {
   jQuery.observeLoadMorePagination();
   jQuery.initializeTooltips();
   jQuery.observeCreatePopup();
-  jQuery.observeHomePageToggle();
   jQuery.observeFontChange();
   jQuery.observeMetadataForm();
   jQuery.observeMetadataDisplay();
@@ -1263,6 +1269,7 @@ jQuery(function() {
   //code updates are required to work with back button
   //on each pagination and sort
   jQuery.address.history(false);
+  jQuery.observeHomePageBehavior();
 });
 // -------------------------------------------------------------------
 // markItUp!

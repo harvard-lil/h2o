@@ -1,50 +1,50 @@
 <div id="home_index">
-	<div class="panel" id="description">
-    <h1>Welcome to H2O, a suite of online classroom tools</h2>
-    <h2>Develop, remix, and share online textbooks, casebooks, and modules filled with edited cases, texts, audio, images, videos, and PDFs under a <a href="/p/terms">Creative Commons license</a>.</h2>
-    <div id="links">
-      <%= link_to "DASHBOARD", '#', :class => "button requires_logged_in", :id => "base_dashboard" %>
-      <a href="/users/new" class="button afterload" id="get_started">GET STARTED</a>
-      <a href="/p/about" class="button afterload">ABOUT</a>
-      <a href="/blog" class="button afterload">BLOG</a>
-      <a href="/p/terms" class="button afterload">TERMS</a>
-      <a href="/p/contact_us" class="button afterload">CONTACT</a>
+  <div id="masonry_collection">
+		<div class="panel" id="description">
+	    <h1>Welcome to H2O, a suite of online classroom tools</h2>
+	    <h2>Develop, remix, and share online textbooks, casebooks, and modules filled with edited cases, texts, audio, images, videos, and PDFs under a <a href="/p/terms">Creative Commons license</a>.</h2>
+	    <div id="links">
+	      <%= link_to "DASHBOARD", '#', :class => "button requires_logged_in", :id => "base_dashboard" %>
+	      <a href="/users/new" class="button afterload" id="get_started">GET STARTED</a>
+	      <a href="/p/about" class="button afterload">ABOUT</a>
+	      <a href="/blog" class="button afterload">BLOG</a>
+	      <a href="/p/terms" class="button afterload">TERMS</a>
+	      <a href="/p/contact_us" class="button afterload">CONTACT</a>
+	    </div>
+	  </div>
+    <div class="panel featured_panel" id="fall2013_playlists">
+      <h3><%= link_to "Fall 2013 Playlists", playlists_path %></h3>
+      <%= render :partial => "partial_results/playlists", :locals => { :playlists => @highlighted[:fall2013] } %>
     </div>
+    <div class="panel featured_panel" id="highlighted_playlists">
+      <h3><%= link_to "Highlighted Playlists", playlists_path %></h3>
+      <%= render :partial => "partial_results/playlists", :locals => { :playlists => @highlighted[:highlighted] } %>
+    </div>
+	  <div class="panel featured_panel" id="featured_users">
+	    <h3>Users<span></span></h3>
+	    <%= render :partial => "partial_results/users" %>
+	  </div>
+	  <div class="panel featured_panel" id="featured_collages">
+	    <h3><%= link_to 'Collages', collages_path %></h3>
+	    <%= render :partial => "partial_results/generic", :locals => { :klass => Collage } %>
+	  </div>
+	  <div class="panel featured_panel" id="featured_texts">
+	    <h3><%= link_to 'Texts', text_blocks_path %></h3>
+	    <%= render :partial => "partial_results/generic", :locals => { :klass => TextBlock } %>
+	  </div>
+	  <div class="panel featured_panel" id="featured_cases">
+	    <h3><%= link_to 'Cases', cases_path %></h3>
+	    <%= render :partial => "partial_results/generic", :locals => { :klass => Case } %>
+	  </div>
+	  <% @media_map.each do |k, v| -%>
+	  <div class="panel featured_panel" id="featured_media_<%= k %>">
+	    <h3><%= link_to v, "/medias?media_type=#{k}" %></h3>
+	    <%= render :partial => "partial_results/media", :locals => { :type => k } %>
+	  </div>
+	  <% end -%>
+	  <div class="panel featured_panel" id="featured_defaults">
+	    <h3><%= link_to 'Links', defaults_path %></h3>
+	    <%= render :partial => "partial_results/default" %>
+	  </div>
   </div>
-  <div class="panel featured_panel" id="fall2013_playlists">
-    <h3><%= link_to "Fall 2013 Playlists", playlists_path %></h3>
-    <%= render :partial => "partial_results/playlists", :locals => { :playlists => @highlighted[:fall2013] } %>
-  </div>
-  <div class="panel featured_panel" id="highlighted_playlists">
-    <h3><%= link_to "Highlighted Playlists", playlists_path %></h3>
-    <%= render :partial => "partial_results/playlists", :locals => { :playlists => @highlighted[:highlighted] } %>
-  </div>
-  <div class="panel featured_panel" id="featured_users">
-    <h3>Users<span></span></h3>
-    <%= render :partial => "partial_results/users" %>
-  </div>
-  <div class="panel featured_panel" id="featured_collages">
-    <h3><%= link_to 'Collages', collages_path %></h3>
-    <%= render :partial => "partial_results/generic", :locals => { :klass => Collage } %>
-  </div>
-  <div class="panel featured_panel" id="featured_texts">
-    <h3><%= link_to 'Texts', text_blocks_path %></h3>
-    <%= render :partial => "partial_results/generic", :locals => { :klass => TextBlock } %>
-  </div>
-  <div class="panel featured_panel" id="featured_cases">
-    <h3><%= link_to 'Cases', cases_path %></h3>
-    <%= render :partial => "partial_results/generic", :locals => { :klass => Case } %>
-  </div>
-	<div class="clear"></div>
-  <% @media_map.each do |k, v| -%>
-  <div class="panel featured_panel" id="featured_media_<%= k %>">
-    <h3><%= link_to v, "/medias?media_type=#{k}" %></h3>
-    <%= render :partial => "partial_results/media", :locals => { :type => k } %>
-  </div>
-  <% end -%>
-  <div class="panel featured_panel" id="featured_defaults">
-    <h3><%= link_to 'Links', defaults_path %></h3>
-    <%= render :partial => "partial_results/default" %>
-  </div>
-	<div class="clear"></div>
 </div>

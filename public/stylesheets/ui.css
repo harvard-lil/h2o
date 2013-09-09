@@ -575,15 +575,16 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
 /* END jQuery.Rating Plugin CSS */
 
 /* Home Page */
-#home_index .panel {
-  float: left;
-  width: 258px;
-  padding-right: 20px;
+#masonry_collection {
+  padding-top: 20px;
 }
-#home_index #description {
-  width: 530px;
-  padding-right: 25px;
-  margin-top: 55px;
+#home_index #masonry_collection .panel {
+  width: 258px;
+  margin-bottom: 20px;
+}
+#home_index #masonry_collection #description {
+  margin-top: 15px;
+  width: 500px;
 }
 #home_index #description h1 {
   font-size: 28pt;
@@ -597,21 +598,11 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
 }
 #home_index #description #links {
-  padding: 35px 0px 45px 0px;
+  padding: 15px 0px 15px 0px;
 }
 #home_index #description #links a {
   margin-right: 10px;
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
-}
-#home_index #highlighted_playlists {
-  padding-right: 0px;
-}
-#home_index #featured_cases,
-#home_index #featured_media_image {
-  padding-right: 0px;
-}
-#home_index #fall2013_playlists {
-  margin-bottom: 15px;
 }
 #home_index .panel .barcode_wrapper,
 .stats_panel .barcode_wrapper,
@@ -623,7 +614,6 @@ div.star-rating{background:transparent!important;overflow:hidden!important}
   overflow-y: hidden;
 }
 #home_index .featured_panel h3 {
-  margin-top: 25px;
   background: #d5d5d5;
   padding: 20px 10px 2px 10px;
   font-size: 21pt;

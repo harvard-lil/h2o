@@ -67,6 +67,8 @@ class BaseController < ApplicationController
   end
 
   def index
+    add_javascripts 'masonry.min'
+
     @page_cache = true
     @page_title = 'H2O Classroom Tools'
 
