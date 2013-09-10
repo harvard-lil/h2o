@@ -286,7 +286,7 @@ jQuery.extend({
   observeCreatePopup: function() {
     jQuery('#create_all').live('click', function(e) {
       e.preventDefault();
-      jQuery('#create_all_popup').css({ left: jQuery('#create_all').position().left, top: jQuery('#create_all').offset().top - 8 });
+      jQuery('#create_all_popup').css({ left: jQuery('#create_all').position().left - 95, top: jQuery('#create_all').offset().top - 8 });
       jQuery('#create_all_popup').toggle();
       jQuery(this).toggleClass('active');
     });
