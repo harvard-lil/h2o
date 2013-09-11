@@ -2,7 +2,6 @@ class Annotation < ActiveRecord::Base
   extend TaggingExtensions::ClassMethods
   extend RedclothExtensions::ClassMethods
 
-  include AncestryExtensions::InstanceMethods
   include AuthUtilities
 
   acts_as_voteable

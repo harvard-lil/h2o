@@ -21,15 +21,6 @@ module ApplicationHelper
     CGI::unescapeHTML(res)
   end
   
-  def top_ancestor(klass, item)
-    if !item.ancestry.nil?
-      parent_id = item.ancestry.split('/').first
-      klass.find(parent_id)
-    else
-      item
-    end
-  end
-
   def path_to_object_or_object_version(options = {})
     obj = options[:obj].original || options[:obj]
     obj_version = options[:obj_version]

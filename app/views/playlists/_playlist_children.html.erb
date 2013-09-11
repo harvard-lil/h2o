@@ -5,9 +5,9 @@
 <span class="date"><%= playlist.created_at.to_s(:simpledatetime) %></span> by 
 <%= raw playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %><br />
 <%= link_to raw(playlist.name), playlist %>
-<% if playlist.children.size > 0 -%>
+<% if playlist.public_children.size > 0 -%>
 	<ul class="lineage">
-	<% playlist.children.each do |child| -%>
+	<% playlist.public_children.each do |child| -%>
 	<%= render :partial => 'playlist_children',
   		:locals => { :playlist => child } %>
 	<% end -%>

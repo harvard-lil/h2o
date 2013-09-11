@@ -38,12 +38,6 @@
   <div class="annotated-content">
     <%= raw @annotation.annotated_content %>
   </div>
-  <% if false -%>
-  <h4>Lineage</h4>
-  <ul class="lineage">
-    <%= raw([@annotation.path,@annotation.children].flatten.map{|ann| "<li class=\"depth-#{ann.depth}\">#{(ann == @annotation) ? h(ann) : link_to(h(ann),collage_path(ann.collage.id, :anchor => ann.id), :title => 'Click to see the original annotation in context.')}</li>"}.join(' ')) %>
-  </ul>
-  <% end -%>
 </div>
 <div class="edit_annotation_link tab_panel" style="display:none;">
   <%= render :partial => 'shared/forms/annotation' %>

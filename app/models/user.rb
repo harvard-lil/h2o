@@ -334,7 +334,7 @@ class User < ActiveRecord::Base
         # Remix
         if ["collages", "playlists"].include?(type)
           public_items.each do |item|
-            item.children.each do |child|
+            item.public_children.each do |child|
               next if child.nil?
               next if child.owners.nil?
               next if child.owners.include?(self)

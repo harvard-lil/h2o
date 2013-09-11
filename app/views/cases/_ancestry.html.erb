@@ -6,9 +6,9 @@
 	<% end %>
 	Collaged <%= collage.created_at.to_s(:simpledatetime) %> by
 	<%= raw collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
-    <% if collage.children.any? -%>
+    <% if collage.public_children.any? -%>
            <ul>
-              <% collage.children.each do |child| -%>
+              <% collage.public_children.each do |child| -%>
                 <%= render :partial => 'cases/ancestry', :locals => { :collage => child } %>
               <% end -%>
            </ul>

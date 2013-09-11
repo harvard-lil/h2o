@@ -6,5 +6,8 @@ module AncestryExtensions
         child.save
       end
     end
+    def public_children
+      self.children.select { |c| c.public }
+    end
   end
 end

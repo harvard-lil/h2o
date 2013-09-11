@@ -84,10 +84,6 @@ class Case < ActiveRecord::Base
 
   alias :to_s :display_name
 
-  def top_ancestors
-    self.collages.select { |c| c.ancestry.nil? }
-  end
-
   def bookmark_name
     self.short_name
   end

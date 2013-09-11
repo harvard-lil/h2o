@@ -124,7 +124,7 @@ class Collage < ActiveRecord::Base
   def barcode
     Rails.cache.fetch("collage-barcode-#{self.id}") do
       barcode_elements = self.barcode_bookmarked_added
-      self.children.each do |child|
+      self.public_children.each do |child|
         barcode_elements << { :type => "remix",
                               :date => child.created_at,
                               :title => "Remixed to Collage #{child.name}",

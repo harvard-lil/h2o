@@ -36,7 +36,7 @@
   <label>Lineage of:</label> <%= @collage.name %>
 <ul class="lineage">
 <%= render :partial => 'collages/collage_children',
-		:locals => { :collage => top_ancestor(Collage, @collage),
+		:locals => { :collage => @collage.root,
                      :recursive_level => 0 } %>
 </ul>
 </div>
