@@ -7,8 +7,7 @@ jQuery.extend({
                             .attr('title', 'Delete')
                             .html('DELETE')
                             .data('type', jQuery(el).data('type'))
-                            .data('id', jQuery(el).data('id'))
-                            .attr('href', jQuery(el).find('a.title').attr('href'));
+                            .attr('href', '/' + jQuery(el).data('type') + 's/' + jQuery(el).data('itemid'));
         jQuery(el).find('.details h3').append(delete_link);
       });
     }

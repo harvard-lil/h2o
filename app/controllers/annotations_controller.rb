@@ -48,6 +48,10 @@ class AnnotationsController < BaseController
       @color_map[layer.name] = map.hex if map
     end
     @editors = @annotation.editors
+
+    @required_layer = @annotation.collage.layers.detect { |l| l.name.downcase == "required" }
+    @other_layers = @required_layer.present? ? @annotation.collage.layers.select { |t| t.id != @required_layer.id } : @annotation.collage.layers
+    @color_list = Collage.color_list
   end
 
   # GET /annotations/new
@@ -60,6 +64,10 @@ class AnnotationsController < BaseController
       map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
       @color_map[layer.name] = map.hex if map
     end
+
+    @required_layer = @annotation.collage.layers.detect { |l| l.name.downcase == "required" }
+    @other_layers = @required_layer.present? ? @annotation.collage.layers.select { |t| t.id != @required_layer.id } : @annotation.collage.layers
+    @color_list = Collage.color_list
 
     [:annotation_start, :annotation_end].each do |p|
       @annotation[p] = params[p]

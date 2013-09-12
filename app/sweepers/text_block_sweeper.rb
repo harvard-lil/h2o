@@ -33,6 +33,7 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists(record.playlist_items)
     clear_text_block(record)
   end
 end

@@ -151,6 +151,7 @@ class PlaylistPusher
         tn = ao.class.table_name
         mapped_term = ao.is_a?(CollageLink) ? :host_collage_id : :collage_id
         collage_id = options[:collage_map][ao.send(mapped_term).to_s]
+        # TODO: Set cloned for annotations created to true
         sql = "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id, mapped_term => collage_id}).join(', ')} FROM #{tn}, users
                WHERE #{tn}.id = #{ao.id} AND users.id IN (#{self.user_ids.join(", ")}); "
         arr << sql

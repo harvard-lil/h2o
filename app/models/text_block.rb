@@ -24,8 +24,9 @@ class TextBlock < ActiveRecord::Base
   acts_as_taggable_on :tags
 
   has_many :annotations, :through => :collages
-  has_many :collages, :as => :annotatable, :dependent => :destroy
+  has_many :collages, :as => :annotatable
   has_many :defects, :as => :reportable
+  has_many :playlist_items, :as => :actual_object, :dependent => :destroy
 
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
 

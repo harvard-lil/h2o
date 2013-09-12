@@ -28,7 +28,8 @@ class PlaylistItemsController < BaseController
     @can_edit_all = @can_edit_desc = true
     @can_edit_notes = false
 
-    @actual_object = params[:klass].classify.constantize.find(params[:id])
+    klass = params[:klass] == "media" ? Media : params[:klass].classify.constantize
+    @actual_object = klass.find(params[:id])
     @playlist_item = PlaylistItem.new({ :url => params[:url], 
                                  :playlist_id => params[:playlist_id], 
                                  :position => params[:position], 

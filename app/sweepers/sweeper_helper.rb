@@ -1,7 +1,12 @@
 module SweeperHelper
 
-  def test_method
-    Rails.logger.warn "inside test method"
+  def clear_playlists(playlist_items)
+    playlist_ids = playlist_items.collect { |pi| pi.playlist_id }
+    playlist_ids.each do |pid|
+      expire_page :controller => :playlists, :action => :show, :id => pid
+      expire_page :controller => :playlists, :action => :export, :id => pid
+      Rails.cache.delete("playlist-wordcount-#{pid}")
+    end
   end
 
   def expire_question_instance(record)

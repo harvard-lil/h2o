@@ -102,7 +102,11 @@ jQuery.extend({
       });
 
       jQuery.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
-        jQuery('#collage' + id + ' article ' + selector + ':not(:has(.ellipsis:visible)):not(:has(tt:visible)):not(.paragraph-numbering)').addClass('no_visible_children');
+        var set = jQuery('#collage' + id + ' article ' + selector);
+        set = set.filter(':not(:has(tt:visible))');
+        set = set.filter(':not(:has(.ellipsis:visible))');
+        set = set.filter(':not(.paragraph-numbering)');
+        set.addClass('no_visible_children');
       });
     });
     if(document.location.hash.match('fontface')) {

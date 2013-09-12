@@ -17,6 +17,7 @@ class Default < ActiveRecord::Base
 
   acts_as_authorization_object
   acts_as_taggable_on :tags
+  has_many :playlist_items, :as => :actual_object
 
   searchable do
     text :display_name  #name

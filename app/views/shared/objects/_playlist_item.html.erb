@@ -1,5 +1,5 @@
 <li class="<%= "dd-item" if recursive_level == 0 %> playlist listitem level<%= recursive_level %> listitem<%= item.id %> <%= 'last' if last %>" id="playlist_item_<%= item.id %>" data-id="<%= item.id %>" data-itemid="<%= item.id %>">
-  <div class="wrapper">
+  <div class="wrapper <%= "missing_item" if actual_object.nil? %>">
   <div class="inner-wrapper <%= "dd-handle" if recursive_level == 0 %>">
     <table><tr>
       <td class="width_<%= (recursive_level + 1)*11 %> number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></td>
@@ -7,7 +7,7 @@
         <% if item.actual_object_type == 'Media' && actual_object -%>
         <a href="#" class="tooltip icon icon-media-<%= actual_object.media_type.slug %>" title="<%= actual_object.media_type.label %>"></a>
         <% else -%>
-        <a href="#" class="tooltip icon icon-<%= item.clean_type %>" title="<%= actual_object.is_a?(Default) ? "Link" : actual_object.class %>"></a>
+        <a href="#" class="<%= "tooltip" if actual_object.present? %> icon icon-<%= item.clean_type %>" title="<%= actual_object.is_a?(Default) ? "Link" : actual_object.class %>"></a>
         <% end -%>
       </td>
       <td class="rr-cell">
@@ -23,7 +23,7 @@
 		    <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title" %>
 		    <% end -%>
         <% else -%>
-        <%= item.name %>
+        <%= item.name %> <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
 		    <% end -%>
 		    <% if recursive_level == 0 %>
 		    <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => 'playlist_items', :action => 'destroy', :id => item),

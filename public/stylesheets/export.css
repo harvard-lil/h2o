@@ -45,11 +45,13 @@ a {
 background: url(/images/asterisk.jpg) 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
 .collage-content .annotation-ellipsis { padding-left: 5px; }
 .collage-content p,
-.collage-content center { position: relative; }
+.collage-content center,
+.collage-content h2 { position: relative; }
 .collage-content .paragraph-numbering {
   position: absolute; 
   left: -50px;
   text-decoration: none;
+  font-weight: normal;
 }
 .collage-content blockquote { padding-left: 30px; margin-left: 30px; }
 .collage-content blockquote .paragraph-numbering { left: -113px; }

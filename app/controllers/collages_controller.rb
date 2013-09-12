@@ -2,7 +2,7 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
-  before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
+  before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap, :delete_inherited_annotations]
   before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:export_unique] #, :copy]
@@ -15,7 +15,7 @@ class CollagesController < BaseController
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
     allow logged_in, :to => :copy
 
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state]
+    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state, :delete_inherited_annotations]
     allow :admin, :collage_admin, :superadmin
   end
 
@@ -25,6 +25,15 @@ class CollagesController < BaseController
 
   def embedded_pager
     super Collage
+  end
+
+  def delete_inherited_annotations
+    annotations_to_delete = @collage.annotations.select { |a| a.cloned == true }
+    Annotation.destroy(annotations_to_delete)
+
+    render :json => {
+      :deleted => annotations_to_delete.to_json(:only => [:id])
+    }
   end
 
   def description_preview

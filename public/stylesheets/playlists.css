@@ -478,3 +478,6 @@ color: #036290;
 #description a#public-notes {
   padding-right: 10px;
 }
+span.missing_item {
+  opacity: 0.6;  
+}

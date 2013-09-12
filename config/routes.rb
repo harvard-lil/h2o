@@ -30,7 +30,8 @@ ActionController::Routing::Routes.draw do |map|
               :access_level => :get,
               :export => :get,
               :export_unique => :post,
-              :heatmap => :get } do |collage|
+              :heatmap => :get,
+              :delete_inherited_annotations => :get } do |collage|
     collage.resources :versions
   end
   map.collage_tag "collages/tag/:tag", :controller => :collages, :action => :index

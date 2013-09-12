@@ -53,6 +53,7 @@ class Collage < ActiveRecord::Base
   has_and_belongs_to_many :user_collections   # dependent => destroy
   has_many :defects, :as => :reportable
   has_many :color_mappings
+  has_many :playlist_items, :as => :actual_object
 
   has_many :collage_links, :foreign_key => "host_collage_id"
   has_many :parent_collage_links, :class_name =>  "CollageLink", :foreign_key => "linked_collage_id"
@@ -99,6 +100,7 @@ class Collage < ActiveRecord::Base
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy
+      new_annotation.cloned = true
       #copy tags
       new_annotation.layer_list = annotation.layer_list
       new_annotation.accepts_role!(:owner, new_user)
@@ -118,6 +120,8 @@ class Collage < ActiveRecord::Base
       map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
       h["l#{layer.id}"] = map.hex if map
     end
+    #hardcoding required layer as dark red
+    h["l46"] = '6b0000'
     h
   end
 
@@ -186,7 +190,7 @@ class Collage < ActiveRecord::Base
     end
 
     count = 1
-    doc.xpath('//p | //center | //h2[not(ancestor::center)]').each do |node|
+    doc.xpath('//p[not(ancestor::center)] | //center | //h2[not(ancestor::center)]').each do |node|
       tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
       if node.children.size > 0 && tt_size > 0
         first_child = node.children.first

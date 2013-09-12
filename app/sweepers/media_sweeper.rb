@@ -34,6 +34,7 @@ class MediaSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists(record.playlist_items)
     media_clear(record)
   end
 end

@@ -11,9 +11,6 @@
 #collage article h4 {
   margin-left: 15px;
 }
-#collage article .grey { 
-  color: #666;
-}
 #collage article pre {
   white-space: pre-line;
 }
@@ -82,40 +79,43 @@
   line-height: 17px;
   font-size: 11px;
 }
-.singleitem .layers-popup {
-  width: 200px;
-}
 .singleitem .popup ul li {
-  padding-bottom: 5px;
   text-transform: uppercase;
 }
-.singleitem .popup ul li a,
-.singleitem .popup a { 
+.singleitem .text-layers-popup {
+  width: 200px;
+  padding-left: 12px;
+  left: -124px;
+}
+.singleitem .text-layers-popup a {
   text-decoration: none; 
-  display: block;
   font-weight: normal; 
   color: #FFF;
-}
-.singleitem .text-popup a {
-  margin: 0.5em 0px;
+  display: inline-block;
+  margin: 2px 0px;
   font-size: 11px;
+}
+.singleitem #main_details .text-layers-popup h5 {
+  margin: 18px 0px 2px 0px;
+  font-weight: bold;
+  line-height: 1.0em;
+}
+.singleitem #main_details .text-layers-popup h5.first {
+  margin-top: 0px;
+}
+.singleitem #main_details .text-layers-popup span.indicator {
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  margin-left: 5px;
+  position: relative;
+  top: 2px;
 }
 .singleitem .popup ul li a.inactive {
   opacity: 0.5;
-}
-.singleitem .popup ul li a.link-o {
-  background:#ffcc00;
-}
-.singleitem .popup #layers strong {
-  font-style: italic;
-  padding: 5px 10px 5px 0px;
-}
-.singleitem .popup ul#layers li a {
-  display: inline-block;
-  padding: 5px;
-}
-.singleitem .popup ul#layers li#unlayered_li a {
-  padding: 10px 0px 0px 0px;
 }
 #print-container {
   display: inline-block;
@@ -148,9 +148,7 @@
 #collage article.edit_mode .layered-control,
 #collage article.edit_mode .unlayered-control { width: 9px; height: 16px; }
 #collage article .default-hidden,
-#collage article tt.grey { color: #666; }
 #collage article.edit_mode .default-hidden,
-#collage article.edit_mode tt.grey { color: #000; }
 
 #collage article.hide_unlayered tt { display: none; }
 #collage article.hide_unlayered tt.a { display: inline; }
@@ -419,4 +417,17 @@ form.formtastic fieldset > ol > li.layer_check input {
 }
 .singleitem #buttons #text-tools {
   margin-right: 10px;
+}
+
+#quickbar_tools {
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  padding: 5px 9px;
+  position: relative;
+  top: -5px;
+}
+#quickbar_tools.active {
+  background: #333333;
+  color: #FFF;
 }

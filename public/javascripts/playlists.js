@@ -84,7 +84,7 @@ jQuery.extend({
     });
   },
   observeAdditionalDetailsExpansion: function() {
-    jQuery('.listitem .wrapper').hoverIntent(function() {
+    jQuery('.listitem .wrapper:not(.missing_item)').hoverIntent(function() {
       jQuery(this).find('a.title,a.author_link,a.rr').addClass('hover_link');
       if(!jQuery(this).parent().hasClass('adding-item')) {
         if(jQuery('.adding-item').size()) {

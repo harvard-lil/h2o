@@ -385,15 +385,17 @@ jQuery.extend({
   },
   adjustQuickbarDisplay: function() {
     if(jQuery('#quickbar').is(':visible') && jQuery(window).scrollTop() < item_offset_top + 15) {
+      jQuery('#font-popup,.text-layers-popup').fadeOut(100);
       jQuery('#quickbar').fadeOut(200);
-      jQuery('#font-popup').fadeOut(200);
-      jQuery('#quickbar_font').removeClass('active');
+      jQuery('#quickbar_font,#quickbar_tools').removeClass('active');
+      jQuery('#text-layer-tools').removeClass('btn-a-active');
       jQuery('#fixed_font,#fixed_print').fadeIn(200);
     } else if(!jQuery('#quickbar').is(':visible') && jQuery(window).scrollTop() > item_offset_top + 15) {
+      jQuery('#font-popup,.text-layers-popup').fadeOut(100);
       jQuery('#quickbar').fadeIn(200);
-      jQuery('#font-popup').fadeOut(200);
       jQuery('#fixed_font').removeClass('active');
       jQuery('#fixed_font,#fixed_print').fadeOut(200);
+      jQuery('#text-layer-tools').removeClass('btn-a-active');
     }
   },
   checkForPanelAdjust: function() {
@@ -523,6 +525,9 @@ jQuery.extend({
     if(jQuery('li.btn .active').length) {
       jQuery('li.btn .active').click();
     }
+    if(jQuery('.text-layers-popup').is(':visible') && jQuery('#quickbar').is(':visible')) {
+      jQuery('#quickbar_tools').click();
+    } 
     if(jQuery('#font-popup').is(':visible')) {
       if(jQuery('#font-popup').hasClass('quickbar')) {
         jQuery('#quickbar_font').click();
@@ -552,7 +557,7 @@ jQuery.extend({
   },
   loadOuterClicks: function() {
     jQuery('html').click(function(event) {
-      var dont_hide = jQuery('.add-popup,#login-popup,.text-popup,.layers-popup,#font-popup,.ui-dialog,#create_nav,#quickbar_right').has(event.target).length > 0 ? true : false;
+      var dont_hide = jQuery('.add-popup,#login-popup,.text-layers-popup,#font-popup,.ui-dialog,#create_nav,#quickbar_right').has(event.target).length > 0 ? true : false;
       if(jQuery(event.target).hasClass('dont_hide')) {
         dont_hide = true;
       }
@@ -901,7 +906,6 @@ jQuery.extend({
       e.preventDefault();
 	    var type = jQuery(this).data('type');
       var destroyUrl = jQuery(this).attr('href');
-      var item_id = jQuery(this).data('id');
       var listing;
 
       if(jQuery('.singleitem').length && jQuery('.singleitem #description').has(jQuery(this)).length > 0) {

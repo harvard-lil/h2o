@@ -34,29 +34,56 @@
       <% end -%>
     </h3>
     <aside id="buttons">
-      <a href="#" class="btn-a afterload dont_hide" id="text-tools">TEXT</a>
-      <div class="popup text-popup">
-        <a href="#" class="tooltip" title="Show the entire text of <%= @collage.name %>" id="full_text">SHOW FULL TEXT</a>
-        <a href="#" class="tooltip" title="Show <%= @collage.author %>'s version of the collage" id="author_edits">SHOW AUTHOR'S LAYERS</a>
-        <a href="#" title="View all annotations" class="tooltip" id="show_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>SHOW ANNOTATIONS</a>
-        <a href="#" title="Hide all annotations" class="tooltip" id="hide_annotations" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>HIDE ANNOTATIONS</a>
-      </div>
-      <a href="#" class="btn-a afterload dont_hide" id="layer-tools">LAYERS</a>
-      <div class="popup layers-popup">
+      <a href="#" class="btn-a afterload dont_hide" id="text-layer-tools">SHOW/HIDE</a>
+      <div class="popup text-layers-popup">
+        <h5 class="first">TEXT</h5>
+        <ul>
+          <li>
+            <a href="#" class="tooltip" title="Show the entire text of <%= @collage.name %>" id="full_text">SHOW FULL TEXT</a>
+          </li>
+          <li id="show_unlayered">
+            <a href="#" class="tooltip" title="Show All Unlayered">SHOW ALL UNLAYERED</a>
+          </li>
+          <li id="hide_unlayered">
+            <a href="#" class="tooltip"  title="Hide All Unlayered">HIDE ALL UNLAYERED</a>
+          </li>
+        </ul>
         <ul id="layers">
            <% @collage.layers.each do |layer| %>
           <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
-            <strong><%= layer.name %></strong>
-            <a href="#" class="hide_show shown tooltip" title="Hide the <%= layer.name %> layer" >HIDE</a>
-            <a href="#" title="Highlight the <%= layer.name %> Layer" class="tooltip link-o">HIGHLIGHT</a>
-            <div class="clear"></div>
+            <a href="#" class="l<%= layer.id %> hide_show shown tooltip" title="Hide the <%= layer.name %> layer" >HIDE "<%= layer.name %>"</a>
           </li>
            <% end -%>
-          <li id="unlayered_li">
-            <a href="#" id="show_unlayered" class="tooltip"  title="Show All Unlayered">SHOW UNLAYERED</a>
-            <a href="#" id="hide_unlayered" class="tooltip"  title="Hide All Unlayered">HIDE UNLAYERED</a>
+        </ul>
+        <ul>
+          <li><a href="#" class="tooltip" title="Show <%= @collage.author %>'s version of the collage" id="author_edits">SHOW <%= @collage.owners.first.simple_display %>'S TEXT EDITS</a></li>
+        </li>
+
+        <h5>ANNOTATIONS</h5>
+        <ul>
+          <li id="show_annotations">
+            <a href="#" title="View all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>SHOW ALL ANNOTATIONS</a>
+          </li>
+          <li id="hide_annotations">
+            <a href="#" title="Hide all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>CONTRACT ALL ANNOTATIONS</a>
           </li>
         </ul>
+
+        <h5>HIGHLIGHTS</h5>
+        <ul id="layers_highlights">
+           <% @collage.layers.each do |layer| %>
+          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
+            <a href="#" title="Highlight the <%= layer.name %> Layer" class="l<%= layer.id %> tooltip link-o">HIGHLIGHT "<%= layer.name %>" <span class="indicator" style="background-color:#<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933',     'cc99cc') %>"></span></a>
+          </li>
+           <% end -%>
+        </ul>
+
+        <% if @collage.annotations.detect { |a| a.cloned == true } %>
+        <h5 id="inherited_h">ACTIONS</h5>
+        <span id="inherited_span" class="requires_edit">
+          <a href="#" id="delete_inherited_annotations" class="tooltip" title="Delete Inherited Layers and Annotations from remix">DELETE INHERITED LAYERS</a>
+        </span>
+        <% end -%>
       </div>
     </aside>
     <div class="clear"></div>
@@ -122,6 +149,6 @@ var editability_path = "<%= access_level_collage_path(@collage) %>";
 var original_data = <%= raw @collage.readable_state || '{}' %>;
 var annotations = <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>;
 var collage_links = <%= raw @collage.collage_links.inject({}) { |h, a| h["c#{a.id}"] =  a; h }.to_json %>;
-var color_map = <%= raw Collage.color_map.to_json %>;
+var color_list = <%= raw Collage.color_list.to_json %>;
 var layer_color_map = <%= raw @color_map.to_json %>;
 </script>

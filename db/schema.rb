@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130807155111) do
+ActiveRecord::Schema.define(:version => 20130815182024) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(:version => 20130807155111) do
     t.boolean  "active",                                   :default => true
     t.integer  "annotation_word_count"
     t.integer  "pushed_from_id"
+    t.boolean  "cloned",                                   :default => false, :null => false
   end
 
   add_index "annotations", ["active"], :name => "index_annotations_on_active"

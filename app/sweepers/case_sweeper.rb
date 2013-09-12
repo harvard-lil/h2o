@@ -29,6 +29,7 @@ class CaseSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists(record.playlist_items)
     clear_case(record)
   end
 end

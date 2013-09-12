@@ -1,28 +1,28 @@
 module HeatmapExtensions
   module ClassMethods
-    def color_map
+    def color_list
       [
-        'ff0080',
-        '9e00ff',
-        '6600ff',
-        '2e00ff',
-        '000aff',
-        '0042ff',
-        '007aff',
-        '00b3ff',
-        '00ffdb',
-        '00ffa3',
-        '00ff6b',
-        '05ff00',
-        '73fd00',
-        'abfd00',
-        'e4fd00',
-        'ffee00',
-        'feb62a',
-        'fdac12',
-        'fe872a',
-        'ff3800',
-        'fe2a2a'
+        { :hex => 'ff0080', :text => '#000000' },
+        { :hex => '9e00ff', :text => '#FFFFFF' },
+        { :hex => '6600ff', :text => '#FFFFFF' },
+        { :hex => '2e00ff', :text => '#FFFFFF' },
+        { :hex => '000aff', :text => '#FFFFFF' },
+        { :hex => '0042ff', :text => '#FFFFFF' },
+        { :hex => '007aff', :text => '#FFFFFF' },
+        { :hex => '00b3ff', :text => '#000000' },
+        { :hex => '00ffdb', :text => '#000000' },
+        { :hex => '00ffa3', :text => '#000000' },
+        { :hex => '00ff6b', :text => '#000000' },
+        { :hex => '05ff00', :text => '#000000' },
+        { :hex => '73fd00', :text => '#000000' },
+        { :hex => 'abfd00', :text => '#000000' },
+        { :hex => 'e4fd00', :text => '#000000' },
+        { :hex => 'ffee00', :text => '#000000' },
+        { :hex => 'feb62a', :text => '#000000' },
+        { :hex => 'fdac12', :text => '#000000' },
+        { :hex => 'fe872a', :text => '#000000' },
+        { :hex => 'ff3800', :text => '#000000' },
+        { :hex => 'fe2a2a', :text => '#000000' }
       ]
     end
   end

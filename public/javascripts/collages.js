@@ -14,6 +14,35 @@ var unlayered_tts;
 var update_unlayered_end = 0;
 
 jQuery.extend({
+  observeDeleteInheritedAnnotations: function () {
+    jQuery('#delete_inherited_annotations').live('click', function(e) {
+      e.preventDefault();
+      jQuery.ajax({
+        type: 'GET',
+        cache: false,
+        dataType: 'JSON',
+        url: jQuery.rootPath() + 'collages/' + jQuery.getItemId() + '/delete_inherited_annotations',
+        beforeSend: function(){
+          jQuery.showGlobalSpinnerNode();
+        },
+        success: function(data){
+          jQuery('.unlayered-ellipsis:visible').click();
+          jQuery('#collage article').removeClass('hide_unlayered').addClass('show_unlayered');
+          jQuery.hideShowUnlayeredOptions();
+          var deleted_annotations = jQuery.parseJSON(data.deleted);
+          jQuery.each(deleted_annotations, function(i, a) {
+            jQuery.deleteAnnotationMarkup(clean_annotations["a" + a.annotation.id]);
+          });
+          jQuery('#inherited_h,#inherited_span').remove();
+          jQuery('.unlayered-control').hide();
+          jQuery.hideGlobalSpinnerNode();
+        },
+        error: function() {
+          jQuery.hideGlobalSpinnerNode();
+        }
+      });
+    });
+  },
   collage_afterload: function(results) {
     last_data = jQuery.parseJSON(results.readable_state);
     jQuery.loadState();
@@ -45,7 +74,7 @@ jQuery.extend({
     });
   },
   updateLayerCount: function() {
-    jQuery('#stats_layer_size').html(jQuery('#layers li:not(#unlayered_li)').size());
+    jQuery('#stats_layer_size').html(jQuery('#layers li').size());
   },
   updateAnnotationCount: function() {
     var count = 0;
@@ -73,7 +102,6 @@ jQuery.extend({
           jQuery.checkForPanelAdjust();
         }
         jQuery.toggleEditMode(false);
-        jQuery('#author_edits').removeClass('inactive');
         jQuery('#heatmap_toggle').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */
@@ -96,7 +124,6 @@ jQuery.extend({
         if(jQuery('#hide_heatmap:visible').size()) {
           jQuery.removeHeatmapHighlights();
         }
-        jQuery('#author_edits').addClass('inactive');
         jQuery('#heatmap_toggle').removeClass('disabled').addClass('inactive');
         jQuery.checkForPanelAdjust();
       }
@@ -119,9 +146,9 @@ jQuery.extend({
   },
   getHexes: function() {
     var hexes = jQuery('<div class="hexes"></div>');
-    jQuery.each(color_map, function(i, el) {
-      var node = jQuery('<a href="#"></a>').data('value', el).css('background', '#' + el);
-      if(jQuery(".layer_check [data-value='" + el + "']").length) {
+    jQuery.each(color_list, function(i, item) {
+      var node = jQuery('<a href="#"></a>').data('value', item.hex).css({ 'background' : '#' + item.hex });
+      if(jQuery(".layer_check [data-value='" + item.hex + "']").length) {
         node.addClass('inactive');
       }
       hexes.append(node);
@@ -221,8 +248,8 @@ jQuery.extend({
     });
   },
   hideShowAnnotationOptions: function() {
-    var total = jQuery('.annotation-content').size();
-    var shown = jQuery('.annotation-content').filter(':visible').size();
+    var total = jQuery('span.annotation-content').size();
+    var shown = jQuery('span.annotation-content').filter(':visible').size();
     if(total == shown) {
       jQuery('#hide_annotations').show();
       jQuery('#show_annotations').hide();
@@ -258,21 +285,29 @@ jQuery.extend({
     return x1 + x2;
   },
   observeToolListeners: function () {
-    jQuery("#collage #buttons a.btn-a:not(.btn-a-active)").live('click', function() {
-      if(jQuery(this).siblings('.btn-a-active').size()) {
-        var sibling = jQuery(this).siblings('.btn-a-active');
-        sibling.click();
-      }
+    jQuery("#collage #buttons a.btn-a:not(.btn-a-active)").live('click', function(e) {
+      e.preventDefault();
       var top_pos = jQuery(this).position().top + jQuery(this).height() + 10;
-      var left_pos = jQuery(this).position().left;
-      jQuery(this).next('.popup').css({ top: top_pos, left: left_pos }).show();
+      var left_pos = jQuery(this).width() - 208;
+      jQuery('.text-layers-popup').css({ position: 'absolute', top: top_pos, left: left_pos, "z-index": 1 }).fadeIn(200);
       jQuery(this).addClass("btn-a-active");
-      return false;
     });
-    jQuery("#collage #buttons a.btn-a-active").live('click', function() {
-      jQuery(this).next('.popup').hide();
+    jQuery("#collage #buttons a.btn-a-active").live('click', function(e) {
+      e.preventDefault();
+      jQuery('.text-layers-popup').fadeOut(200);
       jQuery(this).removeClass("btn-a-active");
-      return false;
+    });
+    jQuery('#quickbar_tools:not(.active)').live('click', function(e) {
+      e.preventDefault();
+      var top_pos = jQuery(this).position().top + jQuery(this).height() + 8;
+      var left_pos = jQuery(this).position().left - 198 + jQuery(this).width();
+      jQuery('.text-layers-popup').css({ position: 'fixed', top: top_pos, left: left_pos, "z-index": 5 }).fadeIn(200);
+      jQuery(this).addClass('active');
+    });
+    jQuery('#quickbar_tools.active').live('click', function(e) {
+      e.preventDefault();
+      jQuery('.text-layers-popup').fadeOut(200);
+      jQuery(this).removeClass('active');
     });
     jQuery('#layers li').each(function(i, el) {
       layer_info[jQuery(el).data('id')] = {
@@ -280,29 +315,28 @@ jQuery.extend({
         'name' : jQuery(el).data('name')
       };
       jQuery('span.annotation-control-' + jQuery(el).data('id')).css('background', '#' + jQuery(el).data('hex'));
-      jQuery(el).find('.link-o').css('background', '#' + jQuery(el).data('hex'));
     });
     jQuery('#author_edits').click(function(e) {
       e.preventDefault();
-      if(jQuery(this).hasClass('inactive')) {
-        return;
-      }
       last_data = original_data;
       jQuery.loadState();
-      jQuery('.layered-control,.unlayered-control').hide();
     });
     jQuery('#full_text').click(function(e) {
       e.preventDefault();
       var el = jQuery(this);
       jQuery.showGlobalSpinnerNode();
       jQuery('.unlayered-ellipsis:visible,.annotation-ellipsis:visible').click();
-      jQuery('#layers a.hide_show').html('HIDE');
+
+      jQuery.each(jQuery('#layers a.hide_show'), function(i, el) {
+        jQuery(el).html('HIDE "' + jQuery(el).parent().data('name') + '"');
+      });
+
       jQuery('#layers a.shown').removeClass('shown');
       jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
 
-    jQuery('#show_unlayered').click(function(e) {
+    jQuery('#show_unlayered a').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('.unlayered-ellipsis:visible').click();
@@ -310,7 +344,7 @@ jQuery.extend({
       jQuery.hideShowUnlayeredOptions();
       jQuery.hideGlobalSpinnerNode();
     });
-    jQuery('#hide_unlayered').click(function(e) {
+    jQuery('#hide_unlayered a').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('#collage article').removeClass('show_unlayered').addClass('hide_unlayered');
@@ -322,14 +356,14 @@ jQuery.extend({
       jQuery.hideGlobalSpinnerNode();
     });
 
-    jQuery('#show_annotations').not('.inactive').click(function(e) {
+    jQuery('#show_annotations a').not('.inactive').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('.annotation-content').css('display', 'inline-block');
       jQuery.hideGlobalSpinnerNode();
       jQuery.hideShowAnnotationOptions();
     });
-    jQuery('#hide_annotations').not('.inactive').click(function(e) {
+    jQuery('#hide_annotations a').not('.inactive').click(function(e) {
       e.preventDefault();
       jQuery.showGlobalSpinnerNode();
       jQuery('.annotation-content').css('display', 'none');
@@ -343,25 +377,33 @@ jQuery.extend({
 
       var el = jQuery(this);
       var layer_id = el.parent().data('id');
-      if(el.html() == 'SHOW') {
-        el.html('HIDE');
+      var layer_name = el.parent().data('name');
+      if(el.html().match("SHOW ")) {
+        el.html('HIDE "' + layer_name + '"');
         jQuery('.annotation-ellipsis-' + layer_id).click();
       } else {
-        el.html('SHOW');
+        el.html('SHOW "' + layer_name + '"');
         jQuery('.layered-control-start.layered-control-' + layer_id).click();
       }
       jQuery.hideGlobalSpinnerNode();
     });
 
-    jQuery('#layers .link-o').live('click', function(e) {
+    jQuery('#layers_highlights .link-o').live('click', function(e) {
       e.preventDefault();
       var el = jQuery(this);
       var id = el.parent().data('id');
+      var layer_name = el.parent().data('name');
+      var indicator_hex = jQuery(this).find('.indicator').css('background-color');
+
       if(jQuery('#hide_heatmap').is(':visible')) {
         jQuery('#hide_heatmap').click();
       }
+
+      if(jQuery('#layers a.' + id).html().match("SHOW")) {
+        jQuery('#layers a.' + id).click();
+      }
       if(el.hasClass('highlighted')) {
-        el.siblings('.hide_show').html('HIDE');
+
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
@@ -383,9 +425,8 @@ jQuery.extend({
           }
           current.data('highlight_colors', highlight_colors);
         });
-        el.removeClass('highlighted').html('HIGHLIGHT');
+        el.removeClass('highlighted').html('HIGHLIGHT "' + layer_name + '"<span class="indicator" style="background-color:' + indicator_hex + '"></span>');
       } else {
-        el.siblings('.hide_show').html('HIDE');
         jQuery('article .' + id + ',.ann-annotation-' + id).css('display', 'inline-block');
         jQuery('article tt.' + id).css('display', 'inline');
         jQuery('.annotation-ellipsis-' + id).css('display', 'none');
@@ -408,7 +449,7 @@ jQuery.extend({
           current.css('background', current_hex);
           current.data('highlight_colors', highlight_colors);
         });
-        el.addClass('highlighted').html('UNHIGHLIGHT');
+        el.addClass('highlighted').html('UNHIGHLIGHT "' + layer_name + '"<span class="indicator" style="background-color:' + indicator_hex + '"></span>');
       }
     });
   },
@@ -547,8 +588,12 @@ jQuery.extend({
       jQuery('#annotation-asterisk-' + annotation.id).addClass('l' + layer.id);
       if(!jQuery("#layers li[data-id='l" + layer.id + "']").length) {
         layer.hex = color_map[layer.id];
-        var new_node = jQuery(jQuery.mustache(layer_tools_template, layer));
-        new_node.insertBefore(jQuery('#unlayered_li'));
+
+        var new_node = jQuery(jQuery.mustache(layer_tools_visibility, layer));
+        new_node.appendTo(jQuery('#layers'));
+        var new_node2 = jQuery(jQuery.mustache(layer_tools_highlights, layer));
+        new_node2.appendTo(jQuery('#layers_highlights'));
+
         layer_info['l' + layer.id] = {
           'hex' : color_map[layer.id],
           'name' : layer.name
@@ -644,6 +689,7 @@ jQuery.extend({
       });
       if(jQuery('tt.l' + layer.id).not(els).length == 0) {
         jQuery("#layers li[data-id='l" + layer.id + "']").remove();
+        jQuery("#layers_highlights li[data-id='l" + layer.id + "']").remove();
         delete layer_info['l' + layer.id];
       }
     });
@@ -664,7 +710,7 @@ jQuery.extend({
     if(!jQuery('tt#t' + annotation_end).hasClass('a')) {
       jQuery('tt#t' + annotation_end).removeClass('border_annotation_end');
     }
-    for(var i = annotation_start + 1; i <= annotation_end; i++) {
+    for(var i = annotation_start + 1; i <= annotation_end + 1; i++) {
       if(jQuery('tt#t' + i).hasClass('a') && !jQuery('tt#t' + (i - 1)).hasClass('a')) {
         jQuery('tt#t' + i).addClass('border_annotation_start');
       }
@@ -673,6 +719,21 @@ jQuery.extend({
       }
     }
     jQuery.addUnlayeredControls(els);
+
+    //Edge case where annotation on first tt is deleted
+    if(!jQuery('tt#t1').is('.a') && jQuery('#unlayered-ellipsis-1').size() == 0) {
+      jQuery('<a class="unlayered-ellipsis" id="unlayered-ellipsis-1" data-id="1" href="#">[...]</a>').css('display', 'none').insertBefore(jQuery('tt#t1'));
+      if(jQuery('tt#t' + update_unlayered_end).is('.a')) {
+        var data = { "unlayered_end_id" : 1, "position" : update_unlayered_end - 1 };
+        jQuery(jQuery.mustache(unlayered_end_template, data)).insertAfter(jQuery('tt#t' + (update_unlayered_end - 1)));
+      } else {
+        var node_to_modify = jQuery('.unlayered-control-' + update_unlayered_end);
+        node_to_modify.removeClass('.unlayered-control-' + update_unlayered_end).addClass('unlayered-control-1').data('id', 1);
+        subset = all_tts.slice(0, node_to_modify.data('position'));
+        subset.css('display', 'inline');
+        jQuery.hideShowUnlayeredOptions();
+      }
+    }
 
     //Delete from data
     delete annotations["a" + annotation.id];
@@ -692,8 +753,12 @@ jQuery.extend({
       els.addClass('l' + layer.id);
       if(!jQuery("#layers li[data-id='l" + layer.id + "']").size()) {
         layer.hex = layer_color_map[layer.id];
-        var new_node = jQuery(jQuery.mustache(layer_tools_template, layer));
-        new_node.insertBefore(jQuery('#unlayered_li'));
+
+        var new_node = jQuery(jQuery.mustache(layer_tools_visibility, layer));
+        new_node.appendTo(jQuery('#layers'));
+        var new_node2 = jQuery(jQuery.mustache(layer_tools_highlights, layer));
+        new_node2.appendTo(jQuery('#layers_highlights'));
+
         layer_info['l' + layer.id] = {
           'hex' : layer_color_map[layer.id],
           'name' : layer.name
@@ -772,6 +837,9 @@ jQuery.extend({
         .addClass('unlayered-control-' + next_id)
         .data('id', next_id);
     }
+    if(annotation_start == 1 && jQuery('#unlayered-ellipsis-1').size() == 1) {
+      jQuery('#unlayered-ellipsis-1').remove();
+    }
 
     if(jQuery('.unlayered-position-' + annotation_end).size()) {
       jQuery('.unlayered-position-' + annotation_end).remove();
@@ -793,9 +861,11 @@ jQuery.extend({
     jQuery.updateAnnotationCount();
   },
   removeUnlayeredControls: function(els) {
+    var removed_border_start = 0;
     jQuery(els.filter('.border_annotation_start')).each(function(i, el) {
       var previous_id = jQuery(el).data('id') - 1;
       var previous_tt = jQuery('tt#t' + previous_id);
+      removed_border_start = jQuery('.unlayered-control-end.unlayered-position-' + previous_id).data('id');
       jQuery('.unlayered-control-end.unlayered-position-' + previous_id).remove();
     }); 
     jQuery(els.filter('.border_annotation_end')).each(function(i, el) {
@@ -805,6 +875,12 @@ jQuery.extend({
       jQuery('#unlayered-ellipsis-' + next_id).remove();
       update_unlayered_end = next_id;
     });
+    if(removed_border_start != 0 && update_unlayered_end != 0) {
+      jQuery('.unlayered-control-' + update_unlayered_end)
+        .removeClass('unlayered-control-' + update_unlayered_end)
+        .addClass('unlayered-control-' + removed_border_start)
+        .data('id', removed_border_start);
+    }
   },
   addUnlayeredControls: function(els) {
     jQuery(els.filter('.border_annotation_start')).each(function(i, el) {
@@ -846,12 +922,13 @@ jQuery.extend({
       var next_tt = jQuery('tt#t' + next_id);
       if(!next_tt.hasClass('a') && !next_tt.prev().is('.unlayered-ellipsis')) {
         var data = { "unlayered_start_id" : next_id };
+        var new_node = jQuery(jQuery.mustache(unlayered_start_template, data));
         if(next_tt.parent().hasClass('footnote') && next_tt.parent().parent().is('sup')) {
-          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt.parent().parent());
+          new_node.insertBefore(next_tt.parent().parent());
         } else if(next_tt.parent().hasClass('footnote')) {
-          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt.parent());
+          new_node.insertBefore(next_tt.parent());
         } else {
-          jQuery(jQuery.mustache(unlayered_start_template, data)).insertBefore(next_tt);
+          new_node.insertBefore(next_tt);
         }
       }
     });
@@ -994,10 +1071,11 @@ jQuery.extend({
       e.preventDefault();
       var id = jQuery(this).data('id');
       jQuery('#annotation-control-' + id + ',#annotation-asterisk-' + id).css('display', 'inline-block');
-      jQuery('article tt.a' + id).css('display', 'inline').addClass('grey');
       jQuery(this).css('display', 'none');
       jQuery('.layered-control-' + id).css('display', 'inline-block');
-      jQuery.resetParentDisplay(jQuery('#collage article tt.a' + id));
+      var subset = jQuery('#collage article tt.a' + id);
+      subset.css('display', 'inline');
+      jQuery.resetParentDisplay(subset);
     });
     jQuery('.unlayered-control').live('click', function(e) {
       e.preventDefault();
@@ -1354,6 +1432,7 @@ jQuery(document).ready(function(){
     jQuery.updateWordCount();
 
     jQuery.slideToParagraph();
+    jQuery.observeDeleteInheritedAnnotations();
 
     //Must be after onclicks initiated
     if(jQuery.cookie('user_id') == null) {
@@ -1388,10 +1467,12 @@ var unlayered_start_template = '\
 var unlayered_end_template = '\
 <span class="unlayered-control unlayered-control-end unlayered-control-{{unlayered_end_id}} unlayered-position-{{position}}" data-position="{{position}}" data-id="{{unlayered_end_id}}" href="#"></span>';
 
-var layer_tools_template = '\
+var layer_tools_visibility = '\
 <li data-hex="{{hex}}" data-name="{{name}}" data-id="l{{id}}">\
-<strong>{{name}}</strong>\
-<a class="hide_show shown tooltip" href="#" original-title="Hide the {{name}} layer">HIDE</a>\
-<a class="tooltip link-o" href="#" original-title="Highlight the {{name}} Layer" style="background: #{{hex}};">HIGHLIGHT</a>\
-<div class="cl">&nbsp;</div>\
+<a class="hide_show shown tooltip l{{id}}" href="#" original-title="Hide the {{name}} layer">HIDE "{{name}}"</a>\
+</li>';
+
+var layer_tools_highlights = '\
+<li data-hex="{{hex}}" data-name="{{name}}" data-id="l{{id}}">\
+<a class="tooltip link-o l{{id}}" href="#" original-title="Highlight the {{name}} Layer">HIGHLIGHT "{{name}}" <span style="background:#{{hex}}" class="indicator"></span></a>\
 </li>';

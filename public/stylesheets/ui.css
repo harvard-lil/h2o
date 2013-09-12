@@ -1564,14 +1564,14 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   position: fixed;
   top: 0px;
   width: 100%;
-  z-index: 1;
+  z-index: 2;
   background: transparent url(/images/quickbar.png) bottom repeat-x;
   padding: 5px 0px;
   display: none;
 }
 #quickbar_left {
   float: left;
-  width: 78%;
+  width: 74%;
 }
 #quickbar_left #quickbar_title {
   font-size: 17px;
@@ -1582,7 +1582,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 #quickbar_right {
   float: right;
   text-align: right;
-  width: 20%;
+  width: 25%;
 }
 #quickbar_logo {
   display: block;

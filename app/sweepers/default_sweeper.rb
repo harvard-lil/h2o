@@ -21,6 +21,7 @@ class DefaultSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists(record.playlist_items)
     default_clear(record)
   end
 end

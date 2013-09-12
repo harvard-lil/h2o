@@ -51,6 +51,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists(record.playlist_items)
     collage_clear(record)
   end
 

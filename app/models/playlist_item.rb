@@ -16,7 +16,7 @@ class PlaylistItem < ActiveRecord::Base
 
     return true if actual_object_type == "Playlist"
 
-    return true if actual_object_type == "Collage"
+    return true if actual_object_type == "Collage" && self.actual_object.present?
 
     if self.actual_object.respond_to?(:description)
       return true if self.actual_object.description.present?

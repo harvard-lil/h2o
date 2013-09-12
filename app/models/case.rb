@@ -29,6 +29,8 @@ class Case < ActiveRecord::Base
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
   has_many :defects, :as => :reportable
+  has_many :playlist_items, :as => :actual_object
+
   accepts_nested_attributes_for :case_citations,
     :allow_destroy => true,
     :reject_if => proc { |att| att['volume'].blank? || att['reporter'].blank? || att['page'].blank? }

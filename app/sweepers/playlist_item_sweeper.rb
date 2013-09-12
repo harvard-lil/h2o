@@ -3,14 +3,6 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   include SweeperHelper
   observe PlaylistItem
 
-  def clear_playlists(playlist)
-    if playlist.present?
-      expire_page :controller => :playlists, :action => :show, :id => playlist.id
-      expire_page :controller => :playlists, :action => :export, :id => playlist.id
-      Rails.cache.delete("playlist-wordcount-#{playlist.id}")
-    end
-  end
-
   def actual_object_clear(actual_object)
     begin
 
@@ -27,16 +19,16 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   end
 
   def after_create(record)
-    clear_playlists(record.playlist)
+    clear_playlists([record])
     actual_object_clear(record.actual_object)
   end
 
   def after_update(record)
-    clear_playlists(record.playlist)
+    clear_playlists([record])
   end
 
   def before_destroy(record)
-    clear_playlists(record.playlist)
+    clear_playlists([record])
     actual_object_clear(record.actual_object)
   end
 end
