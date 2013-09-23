@@ -278,7 +278,11 @@ class ApplicationController < ActionController::Base
       cookies.delete(attr)
     end
   end
-  
+ 
+  def verbose
+    Rails.logger.warn "ApplicationController#verbose hit"
+  end
+
   private
 
     def current_user_session
