@@ -43,7 +43,7 @@ class Collage < ActiveRecord::Base
     self.annotatable_classes.collect{|c| [c.model_name]}
   end
 
-  acts_as_voteable
+  #acts_as_voteable
 
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict

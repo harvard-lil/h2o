@@ -54,7 +54,7 @@ class Question < ActiveRecord::Base
 
   POSSIBLE_SORTS_FOR_SELECT = POSSIBLE_SORTS.keys.sort{|a,b|POSSIBLE_SORTS[a][:display_sort_order] <=> POSSIBLE_SORTS[b][:display_sort_order]}.collect{|s| [POSSIBLE_SORTS[s][:name],s]}
 
-  acts_as_voteable
+  #acts_as_voteable
   acts_as_category :scope => :question_instance
   attr_accessible :question_instance_id, :question, :parent_id
   belongs_to :question_instance

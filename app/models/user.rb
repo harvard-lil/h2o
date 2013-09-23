@@ -23,7 +23,7 @@ class User < ActiveRecord::Base
   include ActionController::UrlWriter
   include KarmaRounding
 
-  acts_as_voter
+  #acts_as_voter
   acts_as_authentic 
   acts_as_authorization_subject
   

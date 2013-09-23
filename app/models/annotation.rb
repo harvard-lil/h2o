@@ -4,7 +4,7 @@ class Annotation < ActiveRecord::Base
 
   include AuthUtilities
 
-  acts_as_voteable
+  #acts_as_voteable
 
   acts_as_taggable_on :layers
   acts_as_authorization_object
