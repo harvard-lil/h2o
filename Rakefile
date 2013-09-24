@@ -2,12 +2,11 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
-
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
-require 'sunspot/rails/tasks'
+require 'vendor/plugins/sunspot_rails-1.1.0/lib/sunspot/rails/tasks'
 
 require 'tasks/rails'
                        
