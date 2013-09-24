@@ -7,7 +7,6 @@ RAILS_GEM_VERSION = '2.3.18' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
-
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence over those specified here.
   # Application configuration should go into files in config/initializers
@@ -17,39 +16,38 @@ Rails::Initializer.run do |config|
   config.autoload_paths += %W( #{RAILS_ROOT}/app/sweepers)
 
   # Specify gems that this application depends on and have them installed with rake gems:install
-  # config.gem "bj"
-  # config.gem "sqlite3-ruby", :lib => "sqlite3"
-  # config.gem "aws-s3", :lib => "aws/s3"
-
   config.gem "authlogic", :version => '2.1.3'
   config.gem "oauth", :version => '0.3.6'
   config.gem "authlogic-oauth", :lib => "authlogic_oauth", :version => '1.0.8'
-  config.gem "authlogic_facebook", :version => '1.0.4'
   config.gem "acl9", :version => '0.12.0'
   config.gem "shoulda", :version => '2.10.3'
   config.gem 'factory_girl', :version => '2.6.4'
   config.gem "formtastic", :version => '1.1.0'
-  config.gem "vote_fu", :version => '0.0.11'
   config.gem "RedCloth", :version => '4.2.2'
-  config.gem 'nokogiri', :version => '1.4.1'
-  config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
   config.gem 'acts-as-taggable-on', :version => '2.0.6'
   config.gem 'fastercsv', :version => '1.5.3'
   config.gem 'ancestry', :version => '1.2.0'
   config.gem 'will_paginate', :version => '2.3.14'
   config.gem 'tidy_ffi', :version => '0.1.3'
   config.gem 'sunspot', :lib => 'sunspot', :version => '1.1.0'
-  config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
   config.gem 'super_exception_notifier', :lib => "exception_notification", :version => '3.0.13'
   #erubis is needed to satisfy requirements for rails_xss plugin
   config.gem 'erubis', :version => '2.6.6'
   config.gem 'daemons', :version => '1.0.10'
   config.gem "delayed_job", :version => "2.0.4"
-  config.gem "ar-extensions", :version => "0.9.5"
   config.gem 'nokogiri', :version => '1.4.1'
-  #config.gem 'dropbox-sdk', :version => '1.5.1'
-  # config.gem 'memcache'
   config.gem 'starling'
+  config.gem 'rdoc'
+
+  #2013.09.23 Removed b/c appears to be unused:
+  #config.gem 'youtube-g', :version => '0.5.0', :lib => 'youtube_g'
+  #config.gem "ar-extensions", :version => "0.9.5"
+  #config.gem "authlogic_facebook", :version => '1.0.4'
+  #config.gem "vote_fu", :version => '0.0.11'
+ 
+  #special configuration
+  #config.gem 'sunspot_rails', :lib => 'sunspot/rails', :version => '1.1.0'
+  #config.gem 'dropbox-sdk', :version => '1.5.1'
 
   config.active_record.colorize_logging = false
 
@@ -78,7 +76,6 @@ Rails::Initializer.run do |config|
   config.after_initialize do
     Workling::Remote.dispatcher = Workling::Remote::Runners::StarlingRunner.new
   end
-
 
 end
 
