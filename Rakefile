@@ -4,7 +4,7 @@
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+#require 'rake/rdoctask'
 
 require 'vendor/plugins/sunspot_rails-1.1.0/lib/sunspot/rails/tasks'
 
