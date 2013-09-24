@@ -153,6 +153,9 @@ class BaseController < ApplicationController
 
   def search
     params[:keywords] = CGI::escapeHTML(params[:keywords])
+    if params.has_key?(:keywords) && params[:keywords].length > 50
+      params[:keywords] = params[:keywords][0..49]
+    end
 
     common_search [Playlist, Collage, Media, TextBlock, Case, Default]
 
