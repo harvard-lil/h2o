@@ -2,7 +2,6 @@
 .DS_Store
 *.swp
 tmp/
-log/
 solr/
 locals/
 config/database.yml
@@ -14,3 +13,5 @@ public/cases/
 public/index.html
 public/base.html
 public/p/
+log/.nfs*
+log/*.log
