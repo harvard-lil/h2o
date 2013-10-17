@@ -4,8 +4,10 @@ class JournalArticlesController < BaseController
 
   access_control do
     allow all, :to => [:create, :show, :export]
+    
+    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
+    
     allow :journal_article_admin, :admin, :superadmin
-    allow :owner, :of => :journal_article, :to => [:destroy, :edit, :update]
   end
 
   def show
@@ -42,9 +44,9 @@ class JournalArticlesController < BaseController
     end
 
     @journal_article = JournalArticle.new(params[:journal_article])
+    @journal_article.user = current_user
 
     if @journal_article.save
-      @journal_article.accepts_role!(:owner, current_user)
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/journal_articles/#{@journal_article.id}"
     else

@@ -110,7 +110,9 @@ jQuery.extend({
       link.parent().remove();
     });
   },
-  listResultsSpecial: function(url, region) {
+  listResultsSpecial: function(url, region, store_address) {
+    list_results_url = url;
+
     jQuery.ajax({
       type: 'GET',
       dataType: 'html',
@@ -122,7 +124,9 @@ jQuery.extend({
            jQuery.hideGlobalSpinnerNode();
       },
       success: function(html){
-        jQuery.address.value(url);
+        if(store_address) {
+          jQuery.address.value(url);
+        }
         jQuery.hideGlobalSpinnerNode();
         jQuery('#results_' + region).html(html);
         jQuery('#pagination_' + region).html(jQuery('#new_pagination').html());
@@ -145,13 +149,13 @@ jQuery.extend({
       var sort = jQuery(this).val();
       var region = jQuery(this).parent().parent().data('region');
       var url = document.location.pathname + '?ajax_region=' + region + '&sort=' + sort;
-      jQuery.listResultsSpecial(url, region);
+      jQuery.listResultsSpecial(url, region, true);
     });
     jQuery('.users_pagination a').live('click', function(e) {
       e.preventDefault();
       var href = jQuery(this).attr('href');
       var region = jQuery(this).parent().data('region');
-      jQuery.listResultsSpecial(href, region);
+      jQuery.listResultsSpecial(href, region, true);
     });
   },
   observeKeywordsSearch: function() {

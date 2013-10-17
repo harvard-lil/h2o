@@ -425,7 +425,7 @@ form.formtastic fieldset > ol > li.layer_check input {
   display: inline-block;
   padding: 5px 9px;
   position: relative;
-  top: -5px;
+  top: -7px;
 }
 #quickbar_tools.active {
   background: #333333;

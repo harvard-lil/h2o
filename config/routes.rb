@@ -40,12 +40,12 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :playlists,
     :collection => { :block => :get, :url_check => :post, :load_form => :post, :embedded_pager => :get, :playlist_lookup => :get },
     :member => {:position_update => :post,
-	  :delete => :get, :copy => [:get, :post], :push => [:get, :post] ,:metadata => :get,
+	  :delete => :get, :copy => [:get, :post], :deep_copy => [:get, :post], :push => [:get, :post] ,:metadata => :get,
 	  :export => :get, :access_level => :get, :check_export => :get}
   map.playlist_tag "playlists/tag/:tag", :controller => :playlists, :action => :index
   map.notes_tag "playlists/:id/notes/:type", :controller => :playlists, :action => :notes
 
-  map.resources :defaults, :collection => {:embedded_pager => :get}
+  map.resources :defaults, :collection => {:embedded_pager => :get}, :as => :links
   map.resources :bulk_uploads
   map.resources :medias, :collection => {:embedded_pager => :get}
   map.media_tag "media/tag/:tag", :controller => :medias, :action => :index

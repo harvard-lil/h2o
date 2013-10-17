@@ -5,19 +5,38 @@ class PlaylistPusher
               :created_playlist_ids,
               :playlist_item_ids,
               :created_actual_objects,
-              :parent_playlist
+              :parent_playlist,
+              :email_receiver,
+              :playlist_name_override,
+              :public_private_override
   attr_accessor :original_actual_objects,
               :original_playlist_items,
-              :created_playlist_items
+              :created_playlist_items,
+              :ownership_sql,
+              :public_private_sql
 
   def initialize(options = {})
     @user_ids = options[:user_ids]
     @source_playlist_id = options[:playlist_id]
+    @email_receiver = options.has_key?(:email_receiver) ? options[:email_receiver] : 'source'
+    @ownership_sql = ''
+    @public_private_sql = ''
+    if options.has_key?(:playlist_name_override)
+      @playlist_name_override = options[:playlist_name_override]
+    end
+    if options.has_key?(:public_private_override)
+      @public_private_override = options[:public_private_override] == "1" ? true : false
+    else
+      @public_private_override = nil
+    end
   end
 
   def push!
     self.push_parent!
     self.push_children!
+
+    execute!(self.ownership_sql)
+    execute!(self.public_private_sql)
   end
 
   def push_parent!
@@ -87,14 +106,19 @@ class PlaylistPusher
 
   def notify_completed
     playlist = Playlist.find(self.source_playlist_id)
-    sent_by = playlist.accepted_roles.find_by_name("owner").user
-    Notifier.deliver_playlist_push_completed(sent_by, playlist)
+    if self.email_receiver == 'source'
+      recipient = playlist.user
+    elsif self.email_receiver == 'destination' && self.user_ids.length == 1
+      recipient = User.find(self.user_ids.first)
+    end
+    Notifier.deliver_playlist_push_completed(recipient, playlist.name, @created_playlist_ids.first)
   end
 
   def build_playlist_sql
+    source_playlist = Playlist.find(self.source_playlist_id)
     playlist_id = self.source_playlist_id
     sql = "INSERT INTO playlists (\"#{Playlist.insert_column_names.join('", "')}\") "
-    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => playlist_id, :karma => 0}).join(", ")} FROM playlists, users "
+    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => playlist_id, :karma => 0, :ancestry => (source_playlist.ancestry.nil? ? playlist_id : "#{source_playlist.ancestry}/#{playlist_id}") }).join(", ")} FROM playlists, users "
     sql += "WHERE playlists.id = #{playlist_id} AND users.id IN (#{self.user_ids.join(", ")}) "
     sql += "RETURNING *;"
   end
@@ -102,7 +126,9 @@ class PlaylistPusher
   def create_playlist!
     @created_playlist_ids = execute!(self.build_playlist_sql)
     playlist = Playlist.find(@created_playlist_ids)
-    self.create_role_stack!(playlist)
+    playlist.first.update_attribute(:name, @playlist_name_override) if @playlist_name_override
+    self.generate_ownership_sql!(playlist)
+    self.generate_public_private_sql!(playlist)
     true
   end
 
@@ -117,7 +143,8 @@ class PlaylistPusher
 
       @created_actual_objects << new_objs
       @created_actual_objects = @created_actual_objects.flatten
-      self.create_role_stack!(new_objs)
+      self.generate_ownership_sql!(new_objs)
+      self.generate_public_private_sql!(new_objs)
       self.create_collage_annotations_and_links!(new_objs) if struct.klass == Collage
 
       # TODO: Add cloning for metadatum for text blocks, which is not currently cloned
@@ -137,9 +164,10 @@ class PlaylistPusher
       structs = self.build_structs_from_objects([Annotation, CollageLink], objects, { :collage_map => collage_map })
       structs.each do |struct|
         @returned_object_ids = execute!(struct.insert_sql)
-        @created_actual_objects << struct.klass.find(@returned_object_ids)
+        @returned_objects = struct.klass.find(@returned_object_ids)
+        @created_actual_objects << @returned_objects
         @created_actual_objects = @created_actual_objects.flatten
-        self.create_role_stack!(@created_actual_objects)
+        self.generate_ownership_sql!(@returned_objects)
       end
     end
   end
@@ -158,10 +186,16 @@ class PlaylistPusher
       end
     else
       select_statements = klass_objects.inject([]) do |arr, ao|
+
         tn = ao.class.table_name
-        sql = "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id}).join(', ')} FROM #{tn}, users
+        if ["playlists", "collages"].include?(ao.class.table_name)
+          ancestry_override = ao.ancestry.nil? ? "#{ao.id}" : "#{ao.ancestry}/#{ao.id}"
+          arr << "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id, :ancestry => ancestry_override}).join(', ')} FROM #{tn}, users
                WHERE #{tn}.id = #{ao.id} AND users.id IN (#{self.user_ids.join(", ")}); "
-        arr << sql
+        else
+          arr << "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id}).join(', ')} FROM #{tn}, users
+               WHERE #{tn}.id = #{ao.id} AND users.id IN (#{self.user_ids.join(", ")}); "
+        end
       end
     end
 
@@ -228,69 +262,34 @@ class PlaylistPusher
     struct_array
   end
 
-
-  def create_role_stack!(objects, role_names = ['owner'])
-    # object_ids = objects.map(&:id)
-    # object_type = objects.first.class.to_s
-    klasses = objects.map(&:class).uniq
-    all_role_ids = []
-    klasses.each do |klass|
-      role_ids = role_names.inject([]) do |arr, role_name|
-         object_ids = objects.find_all{|ao| ao.class == klass}.map(&:id)
-         arr << self.create_role!(:object_type => klass,
-                                    :object_ids => object_ids,
-                                    :role_name => role_name)
-      end.flatten
-      all_role_ids = all_role_ids + role_ids
+  def generate_ownership_sql!(objects)
+    klass = objects.first.class.to_s.tableize
+    increments = objects.size / self.user_ids.size
+    i = 0 
+    1.upto(increments).each do |inc|
+      self.user_ids.each do |user_id|
+        self.ownership_sql << "UPDATE #{klass.tableize} SET user_id = #{user_id} WHERE id = #{objects[i].id};"
+        i+=1
+      end
     end
-    #self.create_role_versions!(all_role_ids)
-    self.create_role_users!(all_role_ids)
+
     true
   end
 
-  def build_role_users_sql!(role_ids)
-    sql = "INSERT INTO roles_users (user_id, role_id)  VALUES "
-    i = 0
-    sql += role_ids.inject([]) do |arr, role_id|
+  def generate_public_private_sql!(objects)
+    return if @public_private_override.nil?
 
-      arr << "(#{self.user_ids[i].to_s}, #{role_id})"
-      i = (i == self.user_ids.count - 1 ? 0 : i + 1)
-      arr
-    end.join(", ")
-    sql
-  end
-
-  def create_role_users!(role_ids)
-    execute!(self.build_role_users_sql!(role_ids))
-  end
-
-  def build_role_sql(options={})
-    object_type = options[:object_type]
-    object_ids = options[:object_ids]
-    role_name = options[:role_name]
-
-    sql = "INSERT INTO roles (\"name\", \"authorizable_id\", \"updated_at\", \"created_at\", \"authorizable_type\") VALUES "
-    sql += object_ids.inject([]) do |arr, item_id|
-      arr << "('#{role_name}', #{item_id}, '#{Time.now.to_formatted_s(:db)}', '#{Time.now.to_formatted_s(:db)}', '#{object_type}') "
-    end.join(", ")
-    sql += "RETURNING *;"
-  end
-
-  def create_role!(options = {})
-    execute!(self.build_role_sql(options))
-  end
-
-  def build_role_versions_sql(role_ids)
-    role_ids.inject('') do |sql, role_id|
-      sql += "INSERT INTO role_versions (#{Role::Version.insert_column_names}) "
-      sql += "SELECT roles.authorizable_version, roles.id, roles.name, roles.authorizable_id, roles.updated_at, roles.version, roles.created_at, roles.authorizable_type "
-      sql += "FROM roles "
-      sql += "WHERE roles.id = #{role_id}; "
+    klass = objects.first.class.to_s.tableize
+    increments = objects.size / self.user_ids.size
+    i = 0 
+    1.upto(increments).each do |inc|
+      self.user_ids.each do |user_id|
+        self.public_private_sql << "UPDATE #{klass.tableize} SET public = #{@public_private_override} WHERE id = #{objects[i].id};"
+        i+=1
+      end
     end
-  end
 
-  def create_role_versions!(role_ids)
-    execute!(self.build_role_versions_sql(role_ids))
+    true
   end
 
   def perform

@@ -1,5 +1,5 @@
 <div id="fixed_links">
-<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="<%= @type_label %> Info">Collapse/Expand</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
 
@@ -7,7 +7,7 @@
   <%= render :partial => "shared/barcode", :locals => { :object => @media } %>
   <% if current_user -%>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @media.id, "data-type" => "media", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
-  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Media</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@media.name}", "data-type" => "media", "data-itemid" => @media.id %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark ' + @type_label + '</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@media.name}", "data-type" => "media", "data-itemid" => @media.id %>
   <% end -%>
 </aside>
 
@@ -18,23 +18,23 @@
   <div id="description" class="scale1-1">
     <p><%= @media.description %></p>
     <% if current_user && (current_user.is_media_admin || current_user.medias.include?(@media)) %>
-    <%= link_to raw('<span class="icon icon-edit"></span>EDIT MEDIA INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external scale0-8" %>
-    <%= link_to raw('<span class="icon icon-delete"></span>DELETE MEDIA<span class="icon icon-arrow"></span>'), @media, "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT ' + @type_label.upcase + ' INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE ' + @type_label.upcase + '<span class="icon icon-arrow"></span>'), @media, "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
     <% end -%>
   </div>
 	<article>
-		<%= raw @media.content %>
+		<%= raw @media.typed_content %>
 	</article>
 </div>
 
 <div id="stats" class="right_panel">
   <a href="#" class="right_panel_close">Close</a>
-  <h3 class="info">Media Information<span class="icon icon-panel"></span></h3>
+  <h3 class="info"><%= @type_label %> Information<span class="icon icon-panel"></span></h3>
   <div class="stats_panel">
     <%= render :partial => "meta" %>
   </div>
   <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => @media.owners.first } %>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @media.user } %>
 </div>
 
 <div class="clear"></div>

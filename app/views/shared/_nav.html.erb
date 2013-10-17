@@ -25,6 +25,7 @@
 			<%= link_to raw('<span class="icon icon-media-pdf">PDFs</span>'), "/medias?media_type=pdf", { :title => "PDFs", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-media-video">Videos</span>'), "/medias?media_type=video", { :title => "Videos", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-default">Links</span>'), defaults_path, { :title => "Links", :class => "nav-tooltip" } %>
+			<%= link_to raw('<span class="icon icon-user">Users</span>'), users_path, { :title => "Users", :class => "nav-tooltip" } %>
 		</nav>
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
 		<section id="search">
@@ -45,7 +46,7 @@
 				<td class="search">
 					<select id="search_all">
 						<option value="all_materials">all</option>
-						<% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links" }.each do |k, v| -%>
+            <% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links", "users" => "Users" }.each do |k, v| -%>
 						<option value="<%= k %>" <%= raw 'selected="selected"' if params[:controller] == k %>><%= v %></option>
 						<% end -%>
 					</select>

@@ -12,8 +12,10 @@ class QuestionInstancesController < BaseController
 
   access_control do
     allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create, :metadata, :embedded_pager]
+    
+    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
+
     allow :admin
-    allow :owner, :of => :question_instance, :to => [:destroy, :edit, :update]
   end
 
   rescue_from Acl9::AccessDenied do |exception|
@@ -57,7 +59,7 @@ class QuestionInstancesController < BaseController
 
   def is_owner
     question_instance = QuestionInstance.find(params[:id])
-    render :json => current_user.has_role?(:owner, question_instance)
+    render :json => question_instance.owner?
   rescue Exception => e
     render :text => "Sorry, there's been an error", :status => :server_error
   end
@@ -85,9 +87,10 @@ class QuestionInstancesController < BaseController
   # POST /question_instances.xml
   def create
     @question_instance = QuestionInstance.new(params[:question_instance])
+    @question_instance.user = current_user
+
     respond_to do |format|
       if @question_instance.save
-        @question_instance.accepts_role!(:owner, current_user)
         @UPDATE_QUESTION_INSTANCE_TIME = @question_instance
         flash[:notice] = 'QuestionInstance was successfully created.'
         format.html { 

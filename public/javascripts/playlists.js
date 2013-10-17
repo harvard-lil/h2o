@@ -44,12 +44,12 @@ jQuery.extend({
     jQuery('.add-popup select option').remove();
   },
   observeViewerToggleEdit: function() {
-    jQuery('#edit_toggle').click(function(e) {
+    jQuery('#edit_toggle,#quickbar_edit_toggle').click(function(e) {
       e.preventDefault();
       jQuery('#edit_item #status_message').remove();
       var el = jQuery(this);
       if(jQuery(this).hasClass('edit_mode')) {
-        el.removeClass('edit_mode');
+        jQuery('#edit_toggle,#quickbar_edit_toggle').removeClass('edit_mode');
         jQuery('body').removeClass('playlist_edit_mode');
         jQuery('#playlist .dd').removeClass('playlists-edit-mode');
         jQuery('#playlist .dd .icon').removeClass('hover');
@@ -64,7 +64,7 @@ jQuery.extend({
         }
         jQuery.unObserveDragAndDrop();
       } else {
-        el.addClass('edit_mode');
+        jQuery('#edit_toggle,#quickbar_edit_toggle').addClass('edit_mode');
         jQuery('body').addClass('playlist_edit_mode');
         jQuery('#playlist .dd').addClass('playlists-edit-mode');
         jQuery('#playlist .dd .icon').addClass('hover');
@@ -109,6 +109,27 @@ jQuery.extend({
       playlist.find('> .wrapper > .inner-wrapper > .additional_details').slideToggle();
       playlist.find('.playlists:eq(0)').slideToggle();
       playlist.toggleClass('expanded');
+      return false;
+    });
+  },
+  observeMainPlaylistExpansion: function() {
+    var wedge = jQuery('#main-wedge');
+    var wedge_hover = "Click to expand all playlist items";
+    var wedge_hover_close = "Click to collapse all playlist items";
+    wedge.attr('title', wedge_hover);
+    wedge.live('click', function() {
+      if(jQuery(this).hasClass('opened')){
+        jQuery('.additional_details').slideUp();
+        jQuery('.rr').addClass('rr-closed');
+        jQuery('.listitem').removeClass('expanded');
+        jQuery('.listitem').find('.playlists:eq(0)').slideUp();
+      } else {
+        jQuery('.additional_details').slideDown();
+        jQuery('.rr-closed').removeClass('rr-closed');
+        jQuery('.listitem').addClass('expanded');
+        jQuery('.listitem').find('.playlists:eq(0)').slideDown();
+      }
+      jQuery(this).toggleClass('opened');
       return false;
     });
   },
@@ -544,6 +565,7 @@ jQuery(document).ready(function(){
   jQuery.observeDeleteNodes();
   jQuery.observePlaylistManipulation();
   jQuery.observePlaylistExpansion();
+  jQuery.observeMainPlaylistExpansion();
   jQuery.observeAdditionalDetailsExpansion();
   jQuery.observeViewerToggleEdit();
 });

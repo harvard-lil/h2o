@@ -42,11 +42,10 @@ class RotisseriePostsController < ApplicationController
   def create
     @rotisserie_post = RotisseriePost.new(params[:rotisserie_post])
     @rotisserie_post.round = @rotisserie_post.rotisserie_discussion.current_round
+    @rotisserie_post.user = current_user
 
     respond_to do |format|
       if @rotisserie_post.save
-        @rotisserie_post.accepts_role!(:owner, current_user)
-
         flash[:notice] = 'RotisseriePost was successfully created.'
         format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_post) }

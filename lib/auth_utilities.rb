@@ -10,7 +10,7 @@ module AuthUtilities
   end
 
   def owner?
-    return self.accepts_role?(:owner, current_user)
+    return self.user == current_user
   end
 
   def editor?
@@ -19,11 +19,6 @@ module AuthUtilities
 
   def user?
     return self.accepts_role?(:user, current_user)
-  end
-
-  def owners
-    owner_list = self.accepted_roles.reject{|r| r.name != 'owner'}
-    (owner_list.blank?) ? [] : owner_list.first.users.compact.uniq
   end
 
   def editors

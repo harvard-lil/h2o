@@ -53,12 +53,10 @@ class RotisserieDiscussionsController < ApplicationController
     rotisserie_params["start_date"] = full_date
 
     @rotisserie_discussion = RotisserieDiscussion.new(rotisserie_params)
+    @rotisserie_discussion.user = current_user
 
     respond_to do |format|
       if @rotisserie_discussion.save
-        @rotisserie_discussion.accepts_role!(:owner, current_user)
-        #@rotisserie_discussion.accepts_role!(:user, current_user)
-
         flash[:notice] = 'RotisserieDiscussion was successfully created.'
         format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_discussion) }
@@ -148,7 +146,7 @@ class RotisserieDiscussionsController < ApplicationController
   
   def add_member
     @rotisserie_discussion = RotisserieDiscussion.find(params[:id])
-    @rotisserie_discussion.accepts_role!(:user, current_user)
+    @rotisserie_discussion.user = current_user
     @rotisserie_discussion.rotisserie_instance.accepts_role!(:user, current_user)
     
     respond_to do |format|

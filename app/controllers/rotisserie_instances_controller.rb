@@ -4,10 +4,12 @@ class RotisserieInstancesController < ApplicationController
   
   access_control do
     allow logged_in, :to => [:index, :new, :create]
-    allow :admin
-    allow :owner, :of => :rotisserie_instance
+
+    allow logged_in, :if => :is_owner?
+    
     allow :editor, :of => :rotisserie_instance, :to => [:index, :show, :edit, :update]
     allow :user, :of => :rotisserie_instance, :to => [:index, :show]
+    allow :admin
   end
 
   # GET /rotisserie_instances
@@ -54,14 +56,10 @@ class RotisserieInstancesController < ApplicationController
   # POST /rotisserie_instances.xml
   def create
     @rotisserie_instance = RotisserieInstance.new(params[:rotisserie_instance])
-    
+    @rotisserie_instance.user = current_user
 
     respond_to do |format|
       if @rotisserie_instance.save
-
-        # If save then assign role as owner to object
-        @rotisserie_instance.accepts_role!(:owner, current_user)
-
         flash[:notice] = 'RotisserieInstance was successfully created.'
         format.js {render :text => nil}
         format.html { redirect_to(@rotisserie_instance) }

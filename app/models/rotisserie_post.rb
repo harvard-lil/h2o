@@ -8,6 +8,7 @@ class RotisseriePost < ActiveRecord::Base
   validates_uniqueness_of :title, :scope => :rotisserie_discussion_id
 
   belongs_to :rotisserie_discussion
+  belongs_to :user
   has_many :rotisserie_assignments
   has_many :rotisserie_trackers
 
@@ -28,14 +29,6 @@ class RotisseriePost < ActiveRecord::Base
     end
 
     return false
-  end
-
-  def author?
-    return role_users(self.id, self.class, "owner").first == current_user
-  end
-
-  def author
-    return role_users(self.id, self.class, "owner").first
   end
 
   def editable?

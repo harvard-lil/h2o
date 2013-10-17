@@ -25,10 +25,8 @@
     </h3>
     <p>
       <%= item_date_stamp journal_article %>
-      <% if journal_article.owners -%>
       by
-      <%= raw journal_article.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
-      <% end -%>
+      <%= link_to(journal_article.user.display, user_path(journal_article.user)) %>
     </p>
 	</div>
 	<div class="clear"></div>

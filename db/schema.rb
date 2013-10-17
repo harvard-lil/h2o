@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130815182024) do
+ActiveRecord::Schema.define(:version => 20131008171525) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.integer  "annotation_word_count"
     t.integer  "pushed_from_id"
     t.boolean  "cloned",                                   :default => false, :null => false
+    t.integer  "user_id",                                  :default => 0,     :null => false
   end
 
   add_index "annotations", ["active"], :name => "index_annotations_on_active"
@@ -172,6 +173,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.string   "status",               :limit => 150, :default => "new", :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "user_id",                             :default => 0,     :null => false
   end
 
   create_table "case_versions", :force => true do |t|
@@ -218,6 +220,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.integer  "karma"
     t.integer  "pushed_from_id"
     t.boolean  "sent_in_cases_list",                      :default => false
+    t.integer  "user_id",                                 :default => 0,     :null => false
   end
 
   add_index "cases", ["active"], :name => "index_cases_on_active"
@@ -297,6 +300,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.integer  "words_shown"
     t.integer  "karma"
     t.integer  "pushed_from_id"
+    t.integer  "user_id",                              :default => 0,    :null => false
   end
 
   add_index "collages", ["active"], :name => "index_collages_on_active"
@@ -353,6 +357,8 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "pushed_from_id"
+    t.integer  "user_id",                           :default => 0,    :null => false
+    t.string   "content_type"
   end
 
   create_table "defects", :force => true do |t|
@@ -442,6 +448,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.boolean  "public",                                        :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "user_id",                                       :default => 0,    :null => false
   end
 
   create_table "locations", :force => true do |t|
@@ -468,6 +475,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.string   "description",    :limit => 5242880
     t.integer  "karma"
     t.integer  "pushed_from_id"
+    t.integer  "user_id",                           :default => 0,    :null => false
   end
 
   create_table "metadata", :force => true do |t|
@@ -607,6 +615,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.integer  "pushed_from_id"
     t.integer  "location_id"
     t.string   "when_taught"
+    t.integer  "user_id",                        :default => 0,    :null => false
   end
 
   add_index "playlists", ["active"], :name => "index_playlists_on_active"
@@ -730,6 +739,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.datetime "updated_at"
     t.boolean  "public",                                :default => true
     t.integer  "pushed_from_id"
+    t.integer  "user_id",                               :default => 0,    :null => false
   end
 
   add_index "rotisserie_discussions", ["active"], :name => "index_rotisserie_discussions_on_active"
@@ -746,6 +756,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "public",                     :default => true
+    t.integer  "user_id",                    :default => 0,    :null => false
   end
 
   add_index "rotisserie_instances", ["title"], :name => "index_rotisserie_instances_on_title", :unique => true
@@ -766,6 +777,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "public",                                  :default => true
+    t.integer  "user_id",                                 :default => 0,    :null => false
   end
 
   add_index "rotisserie_posts", ["active"], :name => "index_rotisserie_posts_on_active"
@@ -839,6 +851,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.datetime "updated_at"
     t.integer  "karma"
     t.integer  "pushed_from_id"
+    t.integer  "user_id",                           :default => 0,            :null => false
   end
 
   add_index "text_blocks", ["created_at"], :name => "index_text_blocks_on_created_at"
@@ -865,8 +878,8 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                          :null => false
-    t.integer  "login_count",              :default => 0,    :null => false
+    t.string   "persistence_token",                           :null => false
+    t.integer  "login_count",              :default => 0,     :null => false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -880,7 +893,7 @@ ActiveRecord::Schema.define(:version => 20130815182024) do
     t.integer  "karma"
     t.string   "attribution"
     t.string   "perishable_token"
-    t.boolean  "default_show_annotations"
+    t.boolean  "default_show_annotations", :default => false, :null => false
     t.boolean  "tab_open_new_items"
     t.string   "default_font_size",        :default => "16"
     t.string   "title"

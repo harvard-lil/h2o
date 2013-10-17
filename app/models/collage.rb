@@ -49,6 +49,7 @@ class Collage < ActiveRecord::Base
   has_ancestry :orphan_strategy => :restrict
 
   belongs_to :annotatable, :polymorphic => true
+  belongs_to :user
   has_many :annotations, :order => 'created_at', :dependent => :destroy
   has_and_belongs_to_many :user_collections   # dependent => destroy
   has_many :defects, :as => :reportable
@@ -71,22 +72,19 @@ class Collage < ActiveRecord::Base
     string :display_name, :stored => true
     string :id, :stored => true
     text :description, :boost => 2.0
-    #text :indexable_content
+
     boolean :active
     boolean :public
     time :created_at
     time :updated_at
     string :tag_list, :stored => true, :multiple => true
-    string :author
-    string :author_display, :stored => true
-    integer :author_id, :stored => true
-    string :root_author_display, :stored => true
-    integer :root_author_id, :stored => true
-    integer :karma
 
-    #string :annotatable #, :stored => true
-    #string :annotations, :multiple => true
-    #string :layer_list, :multiple => true
+    string :user
+    string :user_display, :stored => true
+    integer :user_id, :stored => true
+    string :root_user_display, :stored => true
+    integer :root_user_id, :stored => true
+    integer :karma
   end
 
   def fork_it(new_user, params)
@@ -96,14 +94,14 @@ class Collage < ActiveRecord::Base
     collage_copy.parent = self
     collage_copy.public = params[:public]
     collage_copy.description = params[:description]
-    collage_copy.accepts_role!(:owner, new_user)
+    collage_copy.user = new_user
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy
       new_annotation.cloned = true
       #copy tags
       new_annotation.layer_list = annotation.layer_list
-      new_annotation.accepts_role!(:owner, new_user)
+      new_annotation.user = new_user
       new_annotation.save
     end
     self.color_mappings.each do |color_mapping|
@@ -147,7 +145,7 @@ class Collage < ActiveRecord::Base
   end
 
   def display_name
-    "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.owners.blank?) ? '' : ' by ' + self.owners.collect{|u| u.login}.join(',')}"
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end
 
   def layers

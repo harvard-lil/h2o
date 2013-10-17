@@ -14,9 +14,9 @@
     </h3>
     <p>
       <%= item_date_stamp media %>
-      <% if hit.stored(:author_id).present? -%>
+      <% if hit.stored(:user_id).present? -%>
       by
-      <%= link_to hit.stored(:author_display), "/users/#{hit.stored(:author_id)}" %>
+      <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %>
       <% end -%>
     </p>
 	</div>

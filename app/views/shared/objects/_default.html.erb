@@ -9,9 +9,9 @@
     </h3>
     <p>
       <%= item_date_stamp default %>
-      <% if default.owners -%>
+      <% if default.user -%>
       added by
-      <%= raw default.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %>
+      <%= link_to(default.user.display, user_path(default.user)) %>
       <% end -%>
     </p>
 	</div>

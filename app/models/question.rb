@@ -132,8 +132,7 @@ class Question < ActiveRecord::Base
   end
 
   def display_name
-    owners = self.accepted_roles.find_by_name('owner')
-    "\"#{self.question[0..80]}...\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "\"#{self.question[0..80]}...\",  #{self.created_at.to_s(:simpledatetime)} by " + self.user.login
   end
 
   def tags

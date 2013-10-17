@@ -1,7 +1,7 @@
 <div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
   <h1 id="singlecollage" class="scale1-5"><%= @collage.name %></h1>
   <div class="details">
-    <p class="info scale0-8"><%= @collage.created_at.to_s(:simpledatetime) %> by <%= raw @collage.owners.collect { |u| u.display }.join(',') %></p>
+    <p class="info scale0-8"><%= @collage.updated_at.strftime("%B %d, %Y") %> by <%= link_to(@collage.user.display, user_path(@collage.user)) %></p>
     <p class="item_description scale0-8"><%= Collage.format_content(@collage.description) %></p>
   </div>
   <div class="fontdetails"></div>

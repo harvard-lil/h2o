@@ -5,14 +5,15 @@
       <% form.inputs do %>
         <%= form.input :name %>
         <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
-        <%= form.input :description, :as => :text, :required => false  %>
+        <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 3 } %>
         <%= form.input :media_type, :as => :radio %>
         <li id="media_detail">
           <label for="media_content">Content <abbr title="required">*</abbr></label>
-          <p style="clear:both;display:block;">You can add media items by inserting the HTML embed code of the item in the box below. You can learn more about HTML embed code <a href="http://www.htmlcodetutorial.com/embeddedobjects/_EMBED.html" target="_blank">here</a>.</p>
+          <p style="clear:both;display:block;">You can add media items by pasting the URL or HTML embed code in the box below.</p>
         </li>
         <%= form.input :content,
-            :label => '' %>
+            :label => '',
+            :input_html => { :rows => 3 } %>
         <%= form.input :tag_list,
           :as => :string,
           :hint => 'Please define the tags for this media in a comma-separated list.',

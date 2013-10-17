@@ -7,9 +7,9 @@
     </h3>
     <p>
       <%= item_date_stamp textblock %>
-      <% if hit.stored(:author_id).present? -%>
+      <% if hit.stored(:user_id).present? -%>
       by
-      <%= link_to hit.stored(:author_display), "/users/#{hit.stored(:author_id)}" %>
+      <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %>
       <% end -%>
       <% cache "text_block-#{textblock.id}-tags" do %>
       <% if textblock.tag_list.any? -%>

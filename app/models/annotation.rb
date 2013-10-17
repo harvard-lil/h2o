@@ -13,6 +13,7 @@ class Annotation < ActiveRecord::Base
   before_save :create_annotation_word_count_cache
 
   belongs_to :collage
+  belongs_to :user
 
   def formatted_annotation_content
     t = Annotation.format_content(annotation)
@@ -24,8 +25,7 @@ class Annotation < ActiveRecord::Base
 #  validates_numericality_of :parent_id,  :allow_nil => true
 
   def display_name
-    owners = self.accepted_roles.find_by_name('owner')
-    "On \"#{self.collage.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "On \"#{self.collage.name}\",  #{self.created_at.to_s(:simpledatetime)} by " + self.user.login
   end
 
   alias :name :display_name

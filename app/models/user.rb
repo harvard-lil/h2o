@@ -32,6 +32,14 @@ class User < ActiveRecord::Base
   has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
   has_many :rotisserie_assignments
   has_many :permission_assignments, :dependent => :destroy
+  has_many :cases
+  has_many :text_blocks
+  has_many :collages
+  has_many :defaults
+  has_many :medias
+  has_many :case_requests
+  has_many :playlists
+  alias :textblocks :text_blocks
 
   attr_accessor :terms
 
@@ -88,6 +96,27 @@ class User < ActiveRecord::Base
   end
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
+
+  searchable do
+    text :login
+    text :attribution
+    text :affiliation
+    boolean :public
+    boolean :active
+    date :updated_at
+  end
+
+  def active
+    true
+  end
+
+  def public 
+    true 
+  end
+
+  def users
+    []
+  end
   
   def to_s
     (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
@@ -112,67 +141,12 @@ class User < ActiveRecord::Base
     end
   end
 
-
-  def cases
-    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
-    #Case.find_by_sql("SELECT * FROM cases WHERE id IN
-    #    (SELECT DISTINCT authorizable_id FROM roles
-    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Case')))")
-    Rails.cache.fetch("user-cases-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner']}).collect(&:authorizable).uniq.compact.find_all { |a| a.active }.sort_by{|a| a.updated_at}
-    end
-  end
-
   def pending_cases
-    self.is_case_admin ? Case.find_all_by_active(false) : self.roles.find(:all, :conditions => {:authorizable_type => 'Case', :name => ['owner']}).collect(&:authorizable).uniq.compact.find_all { |a| !a.active }.sort_by{|a| a.updated_at}
-  end
-
-  def text_blocks
-    self.roles.find(:all, :conditions => {:authorizable_type => ['TextBlock', 'JournalArticle'], :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
-  end
-  alias :textblocks :text_blocks
-
-  def collages
-    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
-    #Collage.find_by_sql("SELECT * FROM collages WHERE id IN
-    #    (SELECT DISTINCT authorizable_id FROM roles
-    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Collage')))")
-    Rails.cache.fetch("user-collages-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Collage', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
-    end
-  end
-
-  def medias
-    Rails.cache.fetch("user-medias-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Media', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
-    end
-  end
-  def defaults
-    Rails.cache.fetch("user-defaults-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => 'Default', :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.updated_at}
-    end
-  end
-
-  def case_requests
-    self.is_case_admin ? CaseRequest.find_all_by_status("new") : []
+    self.is_case_admin ? Case.find_all_by_active(false) : Case.find_all_by_user_id(self.id, :order => :updated_at)
   end
 
   def content_errors
     self.is_admin ? Defect.all : []
-  end
-
-  def playlists
-    #This is an alternate query, TBD if it's really faster, but now this is cached with Rails low level caching
-    #Playlist.find_by_sql("SELECT * FROM playlists WHERE id IN
-    #    (SELECT DISTINCT authorizable_id FROM roles
-    #        INNER JOIN roles_users ON roles.id = roles_users.role_id
-    #        WHERE (roles_users.user_id = #{self.id} AND (roles.name IN ('owner') AND roles.authorizable_type = 'Playlist')))
-    #    AND id != #{self.bookmark_id}")
-    Rails.cache.fetch("user-playlists-#{self.id}") do
-      self.roles.find(:all, :conditions => {:authorizable_type => "Playlist", :name => ['owner']}).collect(&:authorizable).uniq.compact.sort_by{|a| a.position}.select { |p| p.id != self.bookmark_id }
-    end
   end
 
   def bookmarks
@@ -262,10 +236,6 @@ class User < ActiveRecord::Base
     @tab_open_new_items || false
   end
   
-  def default_show_annotations
-    @default_show_annotations || false
-  end
-  
   def large_font_size
     16
   end
@@ -301,8 +271,7 @@ class User < ActiveRecord::Base
           collaged_type = "user_#{type.singularize}_collaged"
           public_items.each do |item|
             item.collages.each do |collage|
-              next if collage.nil? || collage.owners.nil?
-              next if collage.owners.include?(self)
+              next if collage.nil? || collage.user.nil? || collage.user == self
               barcode_elements << { :type => collaged_type,
                                     :date => collage.created_at, 
                                     :title => "#{item.class} #{item.name} collaged to #{collage.name}",
@@ -317,12 +286,12 @@ class User < ActiveRecord::Base
         incorporated_items.each do |ii|
           next if ii.playlist.nil?
           playlist = ii.playlist
-          next if playlist.owners.include?(self)
+          next if playlist.user == self
           if playlist.name == "Your Bookmarks"
             barcode_elements << { :type => "user_#{single_type}_bookmarked",
                                   :date => ii.created_at, 
-                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.owners.first.display}",
-                                  :link => user_path(playlist.owners.first) }
+                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.user.display}",
+                                  :link => user_path(playlist.user) }
           else
             barcode_elements << { :type => "user_#{single_type}_added",
                                   :date => ii.created_at, 
@@ -335,9 +304,7 @@ class User < ActiveRecord::Base
         if ["collages", "playlists"].include?(type)
           public_items.each do |item|
             item.public_children.each do |child|
-              next if child.nil?
-              next if child.owners.nil?
-              next if child.owners.include?(self)
+              next if child.nil? || child.user.nil? || child.user == self
               barcode_elements << { :type => "user_#{single_type}_remix",
                                     :date => child.created_at, 
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",

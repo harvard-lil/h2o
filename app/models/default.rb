@@ -6,8 +6,8 @@ class Default < ActiveRecord::Base
   include StandardModelExtensions::InstanceMethods
   include AuthUtilities
   include Authorship
+  include MetadataExtensions
   include KarmaRounding
-
   include ActionController::UrlWriter
 
   RATINGS = {
@@ -18,21 +18,30 @@ class Default < ActiveRecord::Base
   acts_as_authorization_object
   acts_as_taggable_on :tags
   has_many :playlist_items, :as => :actual_object
+  belongs_to :user
+  validate :url_format
 
-  searchable do
+  searchable(:include => [:metadatum, :tags]) do
     text :display_name  #name
     string :display_name, :stored => true
     string :id, :stored => true
     text :url
     text :description
     integer :karma
-    string :author
 
+    string :tag_list, :stored => true, :multiple => true
+    string :metadatum, :stored => true, :multiple => true
+
+    string :user
     boolean :public
     boolean :active
 
     time :created_at
     time :updated_at
+  end
+
+  def url_format
+    self.errors.add(:url, "URL must be an absolute path (it must contain http)") if !self.url.match(/^http/)
   end
 
   def display_name
@@ -48,5 +57,9 @@ class Default < ActiveRecord::Base
 
       barcode_elements
     end
+  end
+
+  def self.content_types_options
+    %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
 end

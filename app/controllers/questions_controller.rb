@@ -9,9 +9,10 @@ class QuestionsController < BaseController
 
   access_control do
     allow all, :to => [:replies, :vote_against, :vote_for, :new, :create, :embedded_pager]
-    allow :admin
-    allow :questions_admin
-    allow :owner, :of => :question_instance, :to => [:destroy, :toggle_sticky]
+    
+    allow logged_in, :to => [:destroy, :toggle_sticky], :if => :is_owner?
+    
+    allow :admin, :questions_admin
   end
 
   def embedded_pager

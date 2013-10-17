@@ -4,8 +4,8 @@
 	</hgroup>
 	<div class="details">
 		<h2 class="scale0-8">
-			<%= @playlist.created_at.to_s(:simpledatetime) %>
-			by <a href="#" class="scale0-8"><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %></a>
+			<%= @playlist.updated_at.strftime("%B %d, %Y") %>
+			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
 		</h2>
 		<div id="description" class="item_description">
 			<%= Playlist.format_content(@playlist.description) %>

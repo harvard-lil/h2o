@@ -16,6 +16,7 @@ var user_playlists;
 var scife_fn_clicked = function() {
 };
 var page_load = true;
+var list_results_url = '';
 
 $.noConflict();
 
@@ -36,6 +37,14 @@ jQuery.extend({
       jQuery('.controls').remove();
     }
     // TODO: Lookup owned playlists & remove Push link if not owned
+  },
+  resetSort: function(sort_value, sort) {
+    if(sort_value != sort.val()) {
+      sort.find('option:selected').removeAttr('selected');
+      var new_option = sort.find('option[value="' + sort_value + '"]');
+      new_option.attr('selected', 'selected');
+      sort.siblings('.jsb-currentItem').html(new_option.html());
+    } 
   },
   adjustArticleHeaderSizes: function() {
     jQuery('article h1').addClass('scale1-4');
@@ -238,7 +247,7 @@ jQuery.extend({
     jQuery('#quickbar_right a').tipsy({ gravity: 'n', opacity: 1.0 });
   },
   observeHomePageBehavior: function() {
-    if(jQuery('body#bbase').size()) {
+    if(jQuery('body.bbase_index').size()) {
       jQuery('#featured_playlists .item, #featured_users .item').hoverIntent(function() {
         jQuery(this).find('.additional_details').slideDown(500);
       }, function() {
@@ -389,12 +398,12 @@ jQuery.extend({
       jQuery('#quickbar').fadeOut(200);
       jQuery('#quickbar_font,#quickbar_tools').removeClass('active');
       jQuery('#text-layer-tools').removeClass('btn-a-active');
-      jQuery('#fixed_font,#fixed_print').fadeIn(200);
+      jQuery('#fixed_font,#fixed_print,#edit_toggle').fadeIn(200);
     } else if(!jQuery('#quickbar').is(':visible') && jQuery(window).scrollTop() > item_offset_top + 15) {
       jQuery('#font-popup,.text-layers-popup').fadeOut(100);
       jQuery('#quickbar').fadeIn(200);
       jQuery('#fixed_font').removeClass('active');
-      jQuery('#fixed_font,#fixed_print').fadeOut(200);
+      jQuery('#fixed_font,#fixed_print,#edit_toggle').fadeOut(200);
       jQuery('#text-layer-tools').removeClass('btn-a-active');
     }
   },
@@ -715,7 +724,9 @@ jQuery.extend({
         });
     });
   },
-  listResults: function(href) {
+  listResults: function(href, store_address) {
+    list_results_url = href;
+
     jQuery.ajax({
       type: 'GET',
       dataType: 'html',
@@ -731,7 +742,10 @@ jQuery.extend({
         if(href.match('collage_links')) { //TODO: Find out a more elegant way to represent this logic
           jQuery('#link_edit .dynamic').html(html).show();    
         } else {
-          jQuery.address.value(href);
+          if(store_address) {
+            jQuery.address.value(href);
+            jQuery.cookie('return_to', document.location.pathname + '#' + href, { path: '/' });
+          }
           jQuery('#results_set').html(html);
           jQuery('.standard_pagination').html(jQuery('#new_pagination').html());
           jQuery('#new_pagination').remove();
@@ -758,13 +772,13 @@ jQuery.extend({
       if(jQuery('#user_keywords').length) {
         url += '&keywords=' + jQuery('#user_keywords').val();
       }
-      jQuery.listResults(url);
+      jQuery.listResults(url, true);
     });
   },
   observePagination: function(){
     jQuery('.standard_pagination a').live('click', function(e){
       e.preventDefault();
-      jQuery.listResults(jQuery(this).attr('href'));
+      jQuery.listResults(jQuery(this).attr('href'), true);
     });
   },
 
@@ -1026,6 +1040,17 @@ jQuery.extend({
     });
   },
   observeRemixControls: function(region) {
+    jQuery('.remix-option-action').live('click', function(e) {
+      e.preventDefault();
+      var link = jQuery(this);
+      var data = { "copy_url" : link.attr('href'), "deep_copy_url": link.attr('href').replace(/copy/, 'deep_copy'), "type" : link.data('type'), "title" : link.data('title') }; 
+      jQuery(jQuery.mustache(remix_option_template, data)).dialog({
+        title: 'Playlist Remix Options',
+        modal: true,
+        width: 'auto',
+        height: 'auto'
+      }).dialog('open');
+    });
     jQuery('.remix-action').live('click', function(e) {
       e.preventDefault();
       var link = jQuery(this);
@@ -1034,6 +1059,20 @@ jQuery.extend({
       var html = jQuery.mustache(remix_item_template, data);
       jQuery.generateGenericNode(html);
     });
+    jQuery('.deep-remix-action').live('click', function(e) {
+      e.preventDefault();
+      var link = jQuery(this);
+      var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
+      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
+      var html = jQuery.mustache(deep_remix_item_template, data);
+      jQuery.generateGenericNode(html);
+    });
+  },
+  deep_remix_response: function(data) {
+    jQuery('#generic-node').dialog('close');
+    var response = jQuery('<p class="deep-remix-response">The system is remixing the playlist and every item in the playlist. You will be emailed when the process has completed.</p>');
+    jQuery('.deep-remix-action').replaceWith(response); 
+    jQuery.hideGlobalSpinnerNode();
   },
   /* Generic HTML form elements */
   observeGenericControls: function(region){
@@ -1179,6 +1218,8 @@ jQuery.extend({
 });
 
 jQuery(function() {
+  jQuery.cookie('return_to', document.location.pathname, { path: '/' });
+
   jQuery.loadEditability();
   jQuery.updateExistingBookmarks();
   jQuery.initiailizeUserPlaylists();
@@ -1186,9 +1227,11 @@ jQuery(function() {
   //Keep this early to adjust font sizes early
   jQuery.adjustArticleHeaderSizes();
 
+  jQuery('#search form').on('submit', function() { 
+    jQuery("#search form").attr("action", "/" + jQuery('select#search_all').val());
+  });
   jQuery('#search_button').live('click', function(e) {
     e.preventDefault();
-    jQuery("#search form").attr("action", "/" + jQuery('select#search_all').val());
     jQuery('#search form').submit();
   });
   jQuery('select#search_all').selectbox({
@@ -1231,7 +1274,7 @@ jQuery(function() {
   } else if(document.location.hash.match('sort=')) {
     jQuery('#results .sort select').val(jQuery.address.parameter('sort'));
     var url = document.location.hash.replace(/^#/, '');
-    jQuery.listResults(url);
+    jQuery.listResults(url, false);
   }
 
   jQuery.initializeBarcodes();
@@ -1269,10 +1312,44 @@ jQuery(function() {
     jQuery.setFixedLinkPosition();
   }
 
-  //For Now, this is disabled. If set to true,
-  //code updates are required to work with back button
-  //on each pagination and sort
-  jQuery.address.history(false);
+  jQuery.address.externalChange(function(event) {
+    if(jQuery('#results_set').size() && list_results_url != '') {
+      if(event.value == '/') {
+        if(list_results_url.match('ajax_region')) {
+          var region = list_results_url.match(/ajax_region=[a-z_]*/).toString().replace(/ajax_region=/, '');
+          var sort = jQuery('.special_sort[data-region=' + region + '] select');
+          jQuery.resetSort('karma', sort);
+          jQuery.listResultsSpecial(document.location.pathname + '?ajax_region=' + region + '&order=desc&page=1&sort=karma', region, false);
+        } else {
+          var sort = jQuery('.sort');
+          jQuery.resetSort('karma', sort);
+          jQuery('#user_keywords').val(keyword_value);
+          if(list_results_url.match('media_type=')) {
+            var media_type = list_results_url.match(/media_type=[a-z]*/).toString().replace(/media_type=/, '');
+            jQuery.listResults(document.location.pathname + '?media_type=' + media_type + '&order=desc&page=1&sort=karma', false);
+          } else {
+            jQuery.listResults(document.location.pathname + '?order=desc&page=1&sort=karma', false);
+          }
+        }
+      } else if(event.value.match('ajax_region')) {
+        var sort_value = jQuery.address.parameter('sort');
+        var region = jQuery.address.parameter('ajax_region');
+        var sort = jQuery('.special_sort[data-region=' + region + '] select');
+        jQuery.resetSort(sort_value, sort);
+        jQuery.listResultsSpecial(event.value, region, false);
+      } else {
+        if(event.value.match(/^\/users/)) {
+          var keyword_value = jQuery.address.parameter('keywords');
+          jQuery('#user_keywords').val(keyword_value);
+        }
+        var sort_value = jQuery.address.parameter('sort');
+        var sort = jQuery('.sort');
+        jQuery.resetSort(sort_value, sort);
+        jQuery.listResults(event.value, false);
+      }
+    }
+  });
+
   jQuery.observeHomePageBehavior();
 });
 // -------------------------------------------------------------------
@@ -1319,6 +1396,12 @@ var delete_item_template = '\
 </div>\
 ';
 
+var remix_option_template = '\
+<div id="playlist_remix_options">\
+<a href="{{deep_copy_url}}" class="button deep-remix-action" data-type="playlist" data-title="{{title}}">Your own version of EVERY item in this playlist</a>\
+<a href="{{copy_url}}" class="button remix-action" data-type="playlist" data-title="{{title}}">Your own version of the top-level only of the playlist</a>\
+</div>';
+
 var remix_item_template = '\
 <h3 id="generic_title">Remix {{node_title}}</h3>\
 <div id="error_block"></div>\
@@ -1331,7 +1414,7 @@ var remix_item_template = '\
 </li>\
 <li class="boolean required" id="{{type}}_public_input">\
 <label for="{{type}}_public">\
-<input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="collage[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
+<input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="playlist[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
 </li>\
 <li class="text optional" id="{{type}}_description_input">\
 <label for="{{type}}_description">Description</label>\
@@ -1341,4 +1424,21 @@ var remix_item_template = '\
 </form>\
 ';
 
-
+var deep_remix_item_template = '\
+<h3 id="generic_title">Remix {{node_title}}</h3>\
+<div id="error_block"></div>\
+<form action="{{copy_url}}" class="{{type}}_form formtastic formtastic {{type}}" method="post">\
+<fieldset class="inputs">\
+<ol>\
+<li class="string required" id="{{type}}_name_input">\
+<label for="{{type}}_name">Name<abbr title="required">*</abbr></label>\
+<input class="ui-widget-content ui-corner-all" id="{{type}}_name" maxlength="250" name="{{type}}[name]" size="50" type="text" value="{{title}}">\
+</li>\
+<li class="boolean required" id="{{type}}_public_input">\
+<label for="{{type}}_public">\
+<input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="playlist[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
+<small>This applies to EVERY item created.</small>\
+</li>\
+</ol></fieldset>\
+</form>\
+';

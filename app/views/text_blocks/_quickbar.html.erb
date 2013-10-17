@@ -6,7 +6,7 @@
         <%= @text_block.name %>
       </span>
       <span id="quickbar_author">
-      <span>| </span><%= raw @text_block.owners.collect{|u| link_to(u.display, user_path(u)) }.join(',') if @text_block.owners %>
+      <span>| </span><%= raw link_to(@text_block.user.display, user_path(@text_block.user)) %>
       </span>
       <span class="quickbar_extra">
       | <%= @text_block.created_at.strftime("%B %d, %Y") %>

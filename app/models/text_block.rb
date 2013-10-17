@@ -27,6 +27,7 @@ class TextBlock < ActiveRecord::Base
   has_many :collages, :as => :annotatable
   has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object, :dependent => :destroy
+  belongs_to :user
 
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
 
@@ -73,9 +74,10 @@ class TextBlock < ActiveRecord::Base
     boolean :public
     integer :karma
 
-    string :author
-    string :author_display, :stored => true
-    integer :author_id, :stored => true
+    string :user
+    string :user_display, :stored => true
+    integer :user_id, :stored => true
+
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true

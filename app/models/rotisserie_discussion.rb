@@ -10,6 +10,7 @@ class RotisserieDiscussion < ActiveRecord::Base
   validates_uniqueness_of :title, :scope => :rotisserie_instance_id
 
   belongs_to :rotisserie_instance
+  belongs_to :user
   has_many :rotisserie_posts
   has_many :rotisserie_assignments
   has_many :rotisserie_trackers
@@ -26,7 +27,7 @@ class RotisserieDiscussion < ActiveRecord::Base
   def answered_discussion?
     posts = self.rotisserie_posts.find(:all, :conditions => {:ancestors_count => 0})
     posts.each do |post|
-      return true if post.accepts_role?(:owner, current_user)
+      return true if post.user == current_user
     end
 
     return false
@@ -50,14 +51,6 @@ class RotisserieDiscussion < ActiveRecord::Base
   ### Convert
   def new_round?
       return current_round > get_last_round
-  end
-
-  def author?
-    return role_users(self.id, self.class, "owner").first == current_user
-  end
-
-  def author
-     role_users(self.id, self.class, "owner").first
   end
 
   def users

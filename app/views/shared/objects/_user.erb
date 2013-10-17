@@ -1,0 +1,26 @@
+<li class="listitem listitem<%= user.id %>" id="listitem_collage<%= user.id %>" data-itemid="<%= user.id %>">
+  <a href="#" class="tooltip list-icon icon icon-user" title="User"></a>
+  <div class="details">
+    <h3>
+      <%= link_to user.simple_display, user_path(user), :class => "title" %>
+      <% if current_user && (@is_admin[:user] || @my_belongings[:users].include?(user)) %>
+      <%= link_to 'DELETE', user, :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "user", "data-id" => user.id %>
+      <% end %>
+    </h3>
+    <p>
+    </p>
+  </div>
+
+  <div class="right_details">
+  <div class="barcode_outer">
+    <%= render :partial => "shared/barcode", :locals => { :object => user } %>
+  </div>
+  <% if current_user %>
+  <div class="controls">
+    <%= link_to raw('<span class="icon icon-read"></span>READ'), user, :class => "action read-action" %>
+  </div>
+  <% end %>
+  </div>
+  <div class="clear"></div>
+</li>
+

@@ -8,7 +8,6 @@ class QuestionInstance < ActiveRecord::Base
 
   FEATURED_QUESTION_COUNTS = [[2,2],[4,4],[6,6],[8,8],[10,10]]
 
-#  belongs_to :project
   belongs_to :user
   has_many :questions, :order => :position, :dependent => :destroy
   acts_as_category :scope => :project
@@ -48,8 +47,7 @@ class QuestionInstance < ActiveRecord::Base
   end
 
   def display_name
-    owners = self.accepted_roles.find_by_name('owner')
-    "#{self.name}, #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "#{self.name}, #{self.created_at.to_s(:simpledatetime)} by " + self.user.login
   end
 
   # Only used if there's significant tampering.

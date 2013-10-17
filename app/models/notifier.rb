@@ -258,11 +258,12 @@ class Notifier < ActionMailer::Base
                :filename => "cases_list_#{Time.now.strftime("%Y%m%d%H%M")}"
   end
 
-  def playlist_push_completed(user, playlist)
+  def playlist_push_completed(user, playlist_name, new_playlist_id)
     recipients [user.email_address]
-    subject    "Push of Playlist #{playlist.name} completed"
+    subject    "Push of Playlist #{playlist_name} completed"
     from       "noreply@berkmancenter.org"
     sent_on    Time.now
+    body       :playlist_id => new_playlist_id
   end
 
   def bulk_upload_completed(user, bulk_upload)

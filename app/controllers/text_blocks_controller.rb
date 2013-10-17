@@ -3,15 +3,16 @@ class TextBlocksController < BaseController
 
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export]
   before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :export]
-  before_filter :store_location, :only => [:index, :show]
 
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
   before_filter :restrict_if_private, :only => [:show, :edit, :update, :destroy, :embedded_pager, :export]
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create, :embedded_pager, :export]
+    
+    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
+    
     allow :text_block_admin, :admin, :superadmin
-    allow :owner, :of => :text_block, :to => [:destroy, :edit, :update]
   end
 
   def show
@@ -55,10 +56,10 @@ class TextBlocksController < BaseController
     end
 
     @text_block = TextBlock.new(params[:text_block])
+    @text_block.user = current_user
     @journal_article = JournalArticle.new
 
     if @text_block.save
-      @text_block.accepts_role!(:owner, current_user)
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/text_blocks/#{@text_block.id}"
     else

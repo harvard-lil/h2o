@@ -14,12 +14,11 @@ module StandardModelExtensions
         next if item.playlist.nil?
         playlist = item.playlist
         if playlist.name == "Your Bookmarks"
-          playlist_owner = playlist.accepted_roles.find_by_name('owner')
           elements << { :type => "bookmark",
                                 :date => item.created_at,
-                                :title => "Bookmarked by #{playlist_owner.user.display}",
-                                :link => user_path(playlist_owner.user) }
-        else
+                                :title => "Bookmarked by #{playlist.user.display}",
+                                :link => user_path(playlist.user) }
+        elsif playlist.public
           elements << { :type => "add",
                                 :date => item.created_at,
                                 :title => "Added to playlist #{playlist.name}",

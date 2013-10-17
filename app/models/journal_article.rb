@@ -12,6 +12,7 @@ class JournalArticle < ActiveRecord::Base
 
   has_and_belongs_to_many :journal_article_types
   has_many :collages, :as => :annotatable, :dependent => :destroy
+  belongs_to :user
 
   validates_presence_of :name, :description, :publish_date, :author,
     :volume, :issue, :page, :bluebook_citation, :attribution
@@ -26,7 +27,6 @@ class JournalArticle < ActiveRecord::Base
     boolean :active
     boolean :public
 
-    #string :author
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
   end

@@ -26,6 +26,7 @@ class Case < ActiveRecord::Base
   has_many :case_docket_numbers
   belongs_to :case_request
   belongs_to :case_jurisdiction
+  belongs_to :user
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
   has_many :defects, :as => :reportable
@@ -72,9 +73,9 @@ class Case < ActiveRecord::Base
     boolean :public
     integer :karma
 
-    string :author
-    string :author_display, :stored => true
-    integer :author_id, :stored => true
+    string :user
+    string :user_display, :stored => true
+    integer :user_id, :stored => true
     # string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :case_citations, :stored => true, :multiple => true
@@ -150,8 +151,7 @@ class Case < ActiveRecord::Base
   
   def assign_to_h2ocases
     h2ocases = User.find_by_login('h2ocases')
-
-    self.accepts_role!(:owner, h2ocases)
+    self.user = h2ocases
   end
 
   def date_check

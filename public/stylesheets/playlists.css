@@ -10,6 +10,9 @@
 .dd-dragel ul {
   background: #fff;
 }
+#playlist #main_details {
+  padding-right: 30px; /* making some room for the wedge */
+}
 .playlists .playlist { 
   position:relative;
   width:100%;
@@ -479,5 +482,23 @@ color: #036290;
   padding-right: 10px;
 }
 span.missing_item {
-  opacity: 0.6;  
+  opacity: 0.6; 
+}
+#main-wedge {
+  background: url(/images/icons.png);
+  background-position: -162px -66px;
+  height: 12px;
+  width: 12px;
+  background-repeat: no-repeat;
+  display: block;
+  overflow: hidden;
+  color: transparent;
+  position: absolute;
+  right: 12px;
+  top: 20px;
+}
+
+#main-wedge.opened {
+  background-position: -162px -43px;
+  top: 22px;
 }

@@ -3,7 +3,6 @@ class CollagesController < BaseController
   
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
   before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap, :delete_inherited_annotations]
-  before_filter :store_location, :only => [:index, :show]
 
   protect_from_forgery :except => [:export_unique] #, :copy]
   before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
@@ -15,7 +14,8 @@ class CollagesController < BaseController
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
     allow logged_in, :to => :copy
 
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :save_readable_state, :delete_inherited_annotations]
+    allow logged_in, :to => [:destroy, :edit, :update, :save_readable_state, :delete_inherited_annotations], :if => :is_owner?
+
     allow :admin, :collage_admin, :superadmin
   end
 
@@ -41,8 +41,6 @@ class CollagesController < BaseController
   end
 
   def access_level 
-    session[:return_to] = "/collages/#{params[:id]}"
-
     if current_user
       can_edit = @collage.can_edit?
       can_edit_description = can_edit || current_user.can_permission_collage("edit_collage", @collage)
@@ -129,9 +127,9 @@ class CollagesController < BaseController
   # POST /collages
   def create
     @collage = Collage.new(params[:collage])
-    if @collage.save
-      @collage.accepts_role!(:owner, current_user)
+    @collage.user = current_user
 
+    if @collage.save
       render :json => { :type => 'collages', :id => @collage.id, :error => false }
     else
       render :json => { :error => true, :message => "We could not collage this item: #{@collage.errors.full_messages.join('<br />')}" }

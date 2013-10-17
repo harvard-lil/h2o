@@ -2,8 +2,8 @@
 <input type="hidden" id="state" name="state" value="" />
 </form>
 <div id="fixed_links">
-<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
-<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Toggle Edit Mode">Edit/View</a>
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Collage Info">Collapse/Expand</a>
+<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
 <a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @collage.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
@@ -24,13 +24,13 @@
     <h3 class="scale1-5 <%= @collage.root != @collage ? 'with_creators' : '' %>">
       <% if @collage.root != @collage -%>
       <span class="creator_details">
-        <span>Original Creator: </span><%= raw @collage.root.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+        <span>Original Creator: </span><%= link_to(@collage.root.user.display, user_path(@collage.root.user)) %>
       </span>
       <span class="creator_details">
-        <span>Current Version: </span><%= raw @collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+        <span>Current Version: </span><%= link_to(@collage.user.display, user_path(@collage.user), :id => "author-link", "data-author_id" => @collage.user.id) %>
       </span>
       <% else -%>
-      <span>by </span><%= raw @collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      <span>by </span><%= link_to(@collage.user.display, user_path(@collage.user), :id => "author-link", "data-author_id" => @collage.user.id) %>
       <% end -%>
     </h3>
     <aside id="buttons">
@@ -56,7 +56,7 @@
            <% end -%>
         </ul>
         <ul>
-          <li><a href="#" class="tooltip" title="Show <%= @collage.author %>'s version of the collage" id="author_edits">SHOW <%= @collage.owners.first.simple_display %>'S TEXT EDITS</a></li>
+          <li><a href="#" class="tooltip" title="Show <%= @collage.user.login %>'s version of the collage" id="author_edits">SHOW <%= @collage.user.simple_display %>'S TEXT EDITS</a></li>
         </li>
 
         <h5>ANNOTATIONS</h5>
@@ -109,7 +109,7 @@
     <%= render :partial => 'meta' %>
   </div>
   <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => @collage.owners.first } %>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
   <% if false -%>
   <h3>Related Collages</h3>
   <% end -%>

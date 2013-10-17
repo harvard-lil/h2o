@@ -11,18 +11,18 @@ class PlaylistsController < BaseController
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
   before_filter :load_single_resource, :except => [:embedded_pager, :index, :destroy, :check_export]
   before_filter :require_user, :except => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
-  before_filter :store_location, :only => [:index, :show]
   before_filter :restrict_if_private, :except => [:embedded_pager, :index, :new, :create, :destroy]
 
   access_control do
-    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :position_update]
-    allow logged_in, :to => [:new, :create, :copy]
+    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export]
 
+    allow logged_in, :to => [:new, :create, :copy, :deep_copy]
     allow logged_in, :to => [:notes], :if => :allow_notes?
     allow logged_in, :to => [:edit, :update], :if => :allow_edit?
 
+    allow logged_in, :if => :is_owner?
+
     allow :admin, :playlist_admin, :superadmin
-    allow :owner, :of => :playlist
   end
 
   def allow_notes?
@@ -42,7 +42,6 @@ class PlaylistsController < BaseController
   end
 
   def access_level 
-    session[:return_to] = "/playlists/#{@playlist.id}"
     if current_user
       can_edit = @playlist.admin? || @playlist.owner?
       can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
@@ -81,8 +80,7 @@ class PlaylistsController < BaseController
     add_stylesheets ['playlists']
 
 
-    @owner = @playlist.owners.first
-    @author_playlists = @owner.playlists.paginate(:page => 1, :per_page => 5)
+    @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
     @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
   end
 
@@ -106,7 +104,7 @@ class PlaylistsController < BaseController
     if current_user
       @can_edit_all = current_user.has_role?(:superadmin) ||
                       current_user.has_role?(:admin) || 
-                      current_user.has_role?(:owner, @playlist)
+                      @playlist.owner?
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
     else
       @can_edit_all = @can_edit_desc = false
@@ -118,12 +116,9 @@ class PlaylistsController < BaseController
     @playlist = Playlist.new(params[:playlist])
 
     @playlist.title = @playlist.name.downcase.gsub(" ", "_") unless @playlist.title.present?
+    @playlist.user = current_user
 
     if @playlist.save
-
-      # If save then assign role as owner to object
-      @playlist.accepts_role!(:owner, current_user)
-
       #IMPORTANT: This reindexes the item with author set
       @playlist.index!
 
@@ -137,8 +132,8 @@ class PlaylistsController < BaseController
   def update
     if current_user
       can_edit_all = current_user.has_role?(:superadmin) ||
-                      current_user.has_role?(:admin) || 
-                      current_user.has_role?(:owner, @playlist)
+                     current_user.has_role?(:admin) || 
+                     @playlist.owner?
       can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
     else
       can_edit_all = can_edit_desc = false
@@ -167,7 +162,7 @@ class PlaylistsController < BaseController
     render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
   end
 
-  def push   
+  def push  
     if request.get?
       @playlist = Playlist.find(params[:id])    
       @collections = current_user.collections
@@ -184,19 +179,30 @@ class PlaylistsController < BaseController
       end      
     end
   end
-  
+ 
+  def deep_copy
+    @playlist_pusher = PlaylistPusher.new(:playlist_id => params[:id], 
+                                          :user_ids => [current_user.id], 
+                                          :email_receiver => 'destination',
+                                          :playlist_name_override => params[:playlist][:name],
+                                          :public_private_override => params[:playlist][:public])
+    @playlist_pusher.delay.push!
+
+    render :json => { :custom_block => "deep_remix_response" }
+  end
+
   def copy
     @playlist = Playlist.find(params[:id], :include => :playlist_items)  
     @playlist_copy = Playlist.new(params[:playlist])
     @playlist_copy.parent = @playlist
     @playlist_copy.karma = 0
     @playlist_copy.title = params[:playlist][:name]
+    @playlist_copy.user = current_user
 
     if @playlist_copy.save
       # Note: Building empty playlist barcode to reduce cache lookup, optimize
       Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}") { [] }
 
-      @playlist_copy.accepts_role!(:owner, current_user)
       @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
         new_item = item.clone
         new_item.save!
@@ -228,14 +234,6 @@ class PlaylistsController < BaseController
   end
 
   def position_update
-    can_position_update = @playlist.admin? || @playlist.owner? || current_user.can_permission_playlist("position_update", @playlist)
-
-    if !can_position_update
-      # TODO: Add permissions message here
-      render :json => {}
-      return
-    end
-
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
      

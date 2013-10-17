@@ -1047,6 +1047,23 @@ ul.user_captcha > li p.inline-errors { display: none; }
 #edit_toggle {
   background-position: -416px -14px;
 }
+#quickbar_edit_toggle {
+  background-position: -387px -111px;
+  display: inline-block;
+  width: 17px;
+  height: 21px;
+  padding-right: 8px;
+  background-image: url(/images/icons.png);
+}
+#quickbar_edit_toggle.edit_mode {
+  background-position: -701px -120px;
+  width: 25px;
+  height: 18px;
+  padding-right: 0px;
+}
+#quickbar_edit_toggle span {
+  display: none;
+}
 #fixed_print {
   background-position: -318px -57px;
 }
@@ -1571,7 +1588,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 }
 #quickbar_left {
   float: left;
-  width: 74%;
+  width: 70%;
 }
 #quickbar_left #quickbar_title {
   font-size: 17px;
@@ -1582,7 +1599,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 #quickbar_right {
   float: right;
   text-align: right;
-  width: 25%;
+  width: 29%;
 }
 #quickbar_logo {
   display: block;
@@ -1605,3 +1622,15 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 #quickbar_right .icon-favorite-large {
   background-position: -200px -114px;
 }
+
+#playlist_remix_options .deep-remix-action,
+#playlist_remix_options .remix-action {
+  display: block;
+  margin-top: 20px;
+}
+#playlist_remix_options p.deep-remix-response {
+  width: 340px;
+  margin-top: 20px;
+  color: red;
+}
+

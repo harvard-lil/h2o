@@ -10,8 +10,4 @@ module RotisserieUtilities
 
     return round
   end
-
-  def role_users(object_id, object_class, object_role)
-    Role.first(:conditions => {:name => object_role, :authorizable_type => object_class.to_s, :authorizable_id => object_id}).users
-  end
 end

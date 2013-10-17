@@ -19,4 +19,9 @@
                :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
     <% end %>
   </ul>
+  <div class="search_details bottom">
+    <aside class="pagination standard_pagination">
+    <%= will_paginate @results.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
+    </aside>
+  </div>
 </section>

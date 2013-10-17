@@ -4,13 +4,22 @@ class PlaylistItemsController < BaseController
   
   access_control do
     allow all, :to => [:show]
-    allow logged_in, :to => [:new, :create]
+
+    allow logged_in, :if => :is_playlist_owner?
 
     allow :admin, :playlist_admin, :superadmin
-    allow :owner, :of => :playlist
-    allow :editor, :of => :playlist, :to => [:edit, :update]
   end
-  
+ 
+  def is_playlist_owner?
+    if params.has_key?(:playlist_id)
+      Playlist.find(params[:playlist_id]).owner?
+    elsif params.has_key?(:playlist_item)
+      Playlist.find(params[:playlist_item][:playlist_id]).owner?
+    elsif params.has_key?(:id)
+      PlaylistItem.find(params[:id]).playlist.owner?
+    end
+  end
+
   def show
     playlist_item = PlaylistItem.find(params[:id])
     render :partial => 'shared/objects/playlist_item',
@@ -57,6 +66,7 @@ class PlaylistItemsController < BaseController
 
     position_data = {}
     if playlist_item.save
+      playlist_item.playlist.save
       position_data[playlist_item.id.to_s] = playlist_item.position
 
       playlist_item.playlist.playlist_items.each_with_index do |pi, index|
@@ -88,7 +98,7 @@ class PlaylistItemsController < BaseController
     if current_user
       @can_edit_all = current_user.has_role?(:superadmin) ||
                       current_user.has_role?(:admin) || 
-                      current_user.has_role?(:owner, playlist)
+                      playlist.owner?
       @can_edit_notes = @can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
     else
@@ -104,8 +114,8 @@ class PlaylistItemsController < BaseController
 
     if current_user
       can_edit_all = current_user.has_role?(:superadmin) ||
-                      current_user.has_role?(:admin) || 
-                      current_user.has_role?(:owner, playlist)
+                     current_user.has_role?(:admin) || 
+                     playlist.owner?
       can_edit_notes = can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
       can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
     else
@@ -124,6 +134,7 @@ class PlaylistItemsController < BaseController
     end
 
     if playlist_item.update_attributes(params[:playlist_item])
+      playlist_item.playlist.save
 	    render :json => { :type => 'playlists', 
                         :id => playlist_item.id, 
                         :name => playlist_item.name, 
@@ -143,6 +154,7 @@ class PlaylistItemsController < BaseController
     playlist_item = PlaylistItem.find(params[:id])
     playlist = playlist_item.playlist
     if playlist_item.destroy
+      playlist_item.playlist.save
       playlist.reset_positions
 	    render :json => { :type => 'playlist_item', 
                         :position_data => playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h },

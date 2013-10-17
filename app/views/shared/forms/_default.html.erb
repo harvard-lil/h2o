@@ -4,7 +4,18 @@
     <% form.inputs do %>
       <%= form.input :name %>
       <%= form.input :url %>
+      <li class="mce_switches_row">
+        <div class="mce_switches">
+          <a href="#" id="default_description-html" class="html">HTML</a>
+          <a href="#" id="default_description-tmce" class="current">Visual</a>
+        </div>
+      </li>
       <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 10 } %>
+      <%= form.input :content_type, :as => :select, :include_blank => false, :collection => Default.content_types_options %>
+      <%= form.input :tag_list %>
+      <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
+      <% if @default.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
+      <p>&nbsp;</p>
     <% end -%>
     <% form.buttons do -%>
     <%= form.commit_button 'SAVE' %>

@@ -258,3 +258,10 @@
 .light_hover .icon-default:hover {
   background-position: -193px -218px;
 }
+
+.icon-user {
+  background-position: -365px -197px;
+}
+.light_hover .icon-user:hover {
+  background-position: -391px -197px;
+}

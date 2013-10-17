@@ -16,8 +16,25 @@ class Media < ActiveRecord::Base
   acts_as_taggable_on :tags
 
   belongs_to :media_type
+  belongs_to :user
   validates_presence_of :name, :media_type_id, :content
   has_many :playlist_items, :as => :actual_object
+
+  def is_pdf?
+    self.media_type.slug == 'pdf'
+  end
+
+  def typed_content
+    self.is_pdf? ? self.pdf_content : self.content
+  end
+
+  def pdf_content
+    self.has_html? ? self.content : "<iframe src='#{self.content.strip}' width='100%' height='100%'></iframe>"
+  end
+
+  def has_html?
+    self.content =~ /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/imx
+  end
 
   def display_name
     self.name
@@ -37,9 +54,9 @@ class Media < ActiveRecord::Base
 
     time :created_at
     time :updated_at
-    string :author
-    string :author_display, :stored => true
-    integer :author_id, :stored => true
+    string :user
+    string :user_display, :stored => true
+    integer :user_id, :stored => true
 
     string :media_type do
       media_type.slug

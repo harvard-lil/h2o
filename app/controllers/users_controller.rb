@@ -10,6 +10,10 @@ class UsersController < ApplicationController
     @user = User.new
   end
 
+  def index
+    common_index User    
+  end
+
   def render_or_redirect_for_captcha_failure
     @user = User.new(params[:user])
     @user.valid?
@@ -44,7 +48,7 @@ class UsersController < ApplicationController
         cookies[:display_name] = "ANONYMOUS"
         if request.xhr?
           #text doesn't matter, it's the return code that does
-          render :text => (session[:return_to] || '/')
+          render :text => '/'
         else
           flash[:notice] = "Account registered!"
           redirect_back_or_default user_path(user)
@@ -61,7 +65,7 @@ class UsersController < ApplicationController
     params[:page] ||= 1
 
     @user = params[:id] == 'create_anon' ? @current_user : User.find_by_id(params[:id])
-    author_filter = @user.login.downcase
+    user_id_filter = @user.id
 
     public_filtering = !current_user || @user != current_user
 
@@ -87,7 +91,7 @@ class UsersController < ApplicationController
         @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
         @results.build do
           paginate :page => params[:page], :per_page => 10 
-          with :author, author_filter
+          with :user_id, user_id_filter
 
           if public_filtering
             with :public, true
@@ -108,7 +112,7 @@ class UsersController < ApplicationController
       @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
       @bookshelf.build do
         paginate :page => params[:page], :per_page => 10 
-        with :author, author_filter
+        with :user_id, user_id_filter
           
         if public_filtering
           with :public, true
@@ -135,7 +139,7 @@ class UsersController < ApplicationController
       end
       if params["controller"] == "users" && params["action"] == "show"
         @sort_lists.each do |k, v|
-          v.delete("author")
+          v.delete("user")
         end
       end
 
@@ -211,7 +215,9 @@ class UsersController < ApplicationController
   
   def update
     @user = @current_user # makes our views "cleaner" and more consistent
+
     if @user.update_attributes(params[:user])
+      cookies[:show_annotations] = @user.default_show_annotations
       flash[:notice] = "Account updated!"
       redirect_to user_path(@user)
     else
@@ -238,9 +244,8 @@ class UsersController < ApplicationController
   # post bookmark_item/:type/:id
   def bookmark_item
     if current_user.bookmark_id.nil?
-      playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false })
+      playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false, :user_id => current_user.id })
       playlist.save
-      playlist.accepts_role!(:owner, current_user)
       current_user.update_attribute(:bookmark_id, playlist.id)
     else
       playlist = Playlist.find(current_user.bookmark_id)
@@ -279,6 +284,6 @@ class UsersController < ApplicationController
   end
 
   def playlists
-    render :json => { :playlists => User.find(params[:id]).playlists.to_json(:only => [:id, :name]) } 
+    render :json => { :playlists => User.find(params[:id]).playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) } 
   end
 end

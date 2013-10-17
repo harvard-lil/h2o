@@ -16,6 +16,7 @@ class CaseRequest < ActiveRecord::Base
 
   has_one :case
   belongs_to :case_jurisdiction
+  belongs_to :user
 
   def display_name
     self.full_name

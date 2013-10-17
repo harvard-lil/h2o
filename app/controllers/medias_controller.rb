@@ -3,7 +3,6 @@ class MediasController < BaseController
 
   before_filter :require_user, :except => [:index, :show, :access_level, :embedded_pager]
   before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy]
-  before_filter :store_location, :only => [:index, :show]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
   before_filter :restrict_if_private, :only => [:show, :edit, :update]
@@ -11,12 +10,13 @@ class MediasController < BaseController
 
   access_control do
     allow all, :to => [:index, :show, :addess_level, :embedded_pager, :new, :create]
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update]
+    
+    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
+    
     allow :admin, :collage_admin, :superadmin
   end
 
   def access_level 
-    session[:return_to] = "/medias/#{params[:id]}"
     render :json => {
       :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
       :can_edit => current_user ? Media.find(params[:id]).can_edit? : false }
@@ -40,9 +40,9 @@ class MediasController < BaseController
       params[:media][:tag_list] = params[:media][:tag_list].downcase
     end
     @media = Media.new(params[:media])
+    @media.user = current_user
 
     if @media.save
-      @media.accepts_role!(:owner, current_user)
       flash[:notice] = 'media was successfully created.'
       redirect_to "/medias/#{@media.id}"
     else
@@ -69,6 +69,7 @@ class MediasController < BaseController
 
   def show
     set_belongings(Media)
+    @type_label = @media.media_type.label
   end
 
   # DELETE /medias/1

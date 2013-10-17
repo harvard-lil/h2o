@@ -14,10 +14,10 @@ class CaseRequestsController < ApplicationController
 
   def create
     @case_request = CaseRequest.new(params[:case_request])
+    @case_request.user = current_user
     
     respond_to do |format|
       if @case_request.save
-        @case_request.accepts_role!(:owner, current_user)
         flash[:notice] = 'Case Request was successfully created.'
         format.html { redirect_to cases_path }
       else

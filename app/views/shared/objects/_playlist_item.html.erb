@@ -37,11 +37,11 @@
     <div class="additional_details">
       <% if actual_object.present? && [Playlist, Collage].include?(actual_object.class) -%>
       <span class="creator_details">
-        Original Creator: <%= raw actual_object.root.owners.collect{|u| link_to(u.simple_display, user_path(u), :class => "author_link") }.join(',') %>
+        Original Creator: <%= link_to(actual_object.root.user.simple_display, user_path(actual_object.root.user), :class => "author_link") %>
       </span>
       <% if actual_object.root != actual_object -%>
       <span class="creator_details">
-      Current Version: <%= raw actual_object.owners.collect{|u| link_to(u.simple_display, user_path(u), :class => "author_link") }.join(',') %>
+      Current Version: <%= link_to(actual_object.user.simple_display, user_path(actual_object.user), :class => "author_link") %>
       </span>
       <% end -%>
       <% end -%>

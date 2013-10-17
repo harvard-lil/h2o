@@ -1,13 +1,13 @@
 <div id="fixed_links">
-<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Toggle Right Panel">Collapse/Expand</a>
-<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Toggle Edit Mode">Edit/View</a>
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Playlist Info">Collapse/Expand</a>
+<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
 <a href="<%= export_playlist_path(@playlist) %>" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @playlist.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @playlist } %>
-  <%= link_to raw('<span class="icon icon-remix-large"><span>Remix Playlist</span></span>'), copy_playlist_path(@playlist), :class => "tooltip link-remix remix-action requires_logged_in", :title => "Remix #{@playlist.name}", "data-type" => "playlist", "data-title" => @playlist.name %>
+  <%= link_to raw('<span class="icon icon-remix-large"><span>Remix Playlist</span></span>'), copy_playlist_path(@playlist), :class => "tooltip link-remix remix-option-action requires_logged_in", :title => "Remix #{@playlist.name}", "data-type" => "playlist", "data-title" => @playlist.name %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @playlist.id, "data-type" => "playlist", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Playlist</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@playlist.name}", "data-type" => "playlist", "data-itemid" => @playlist.id %>
 </aside>
@@ -18,14 +18,15 @@
     <h3 class="scale1-5 <%= @playlist.root != @playlist ? 'with_creators' : '' %>">
       <% if @playlist.root != @playlist -%>
       <span class="creator_details">
-        <span>Original Creator: </span><%= raw @playlist.root.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+        <span>Original Creator: </span><%= raw link_to(@playlist.root.user.display, user_path(@playlist.root.user)) %>
       </span>
       <span class="creator_details">
-        <span>Current Version: </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+        <span>Current Version: </span><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
       </span>
       <% else -%>
-      <span>by </span><%= raw @playlist.owners.collect { |u| link_to(u.display, user_path(u)) }.join(', ') %>
+      <span>by </span><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
       <% end -%>
+      <a href="#" id="main-wedge">Show/Hide</a>
     </h3>
   </div>
   <div id="description" class="scale1-1">
@@ -46,8 +47,8 @@
   <%= render :partial => 'meta' %>
   </div>
   <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => @playlist.owners.first } %>
-  <h3>Other Playlists by <%= @playlist.owners.first.simple_display %></h3>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @playlist.user } %>
+  <h3>Other Playlists by <%= @playlist.user.simple_display %></h3>
   <div class="stats_panel" id="author_playlists">
   <%= render :partial => "partial_results/author_playlists" %>
   </div>

@@ -1,5 +1,4 @@
 class BaseController < ApplicationController
-  before_filter :store_location, :only => [:search, :index]
   caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
 
   def embedded_pager(model = nil)
@@ -51,7 +50,7 @@ class BaseController < ApplicationController
       [945, 671, 911, 986].each do |p|
         begin
           playlist = Playlist.find(p)
-          playlists << { :title => map[p.to_s], :playlist => playlist, :user => playlist.owners.first } if playlist 
+          playlists << { :title => map[p.to_s], :playlist => playlist, :user => playlist.user } if playlist 
         rescue Exception => e
           Rails.logger.warn "Base#index Exception: #{e.inspect}"
         end
@@ -60,7 +59,7 @@ class BaseController < ApplicationController
     elsif params[:type] == "users"
       @highlighted_users = User.find(:all, :conditions => "karma > 150 AND karma < 250", :order => "karma DESC").paginate(:page => params[:page], :per_page => per_page)
     elsif params[:type] == "author_playlists"
-      @author_playlists = Playlist.find(params[:id]).owners.first.playlists.paginate(:page => params[:page], :per_page => per_page)
+      @author_playlists = Playlist.find(params[:id]).user.playlists.paginate(:page => params[:page], :per_page => per_page)
     end
         
     render :partial => "partial_results/#{params[:type]}"
@@ -89,15 +88,15 @@ class BaseController < ApplicationController
     [1374, 1995, 1324, 1162, 711, 1923, 1889, 1844, 1510].each do |p|
       begin
         playlist = Playlist.find(p)
-        @highlighted[:fall2013] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
+        @highlighted[:fall2013] << { :title => playlist.name, :playlist => playlist, :user => playlist.user } if playlist 
       rescue Exception => e
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
     end
-    [986, 671, 852, 1943, 911, 633, 66, 626].each do |p|
+    [986, 671, 945, 1943, 911, 633, 66, 626].each do |p|
       begin
         playlist = Playlist.find(p)
-        @highlighted[:highlighted] << { :title => playlist.name, :playlist => playlist, :user => playlist.owners.first } if playlist 
+        @highlighted[:highlighted] << { :title => playlist.name, :playlist => playlist, :user => playlist.user } if playlist 
       rescue Exception => e
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
@@ -112,7 +111,7 @@ class BaseController < ApplicationController
     end
 
     [Collage, Default, TextBlock, Case].each do |klass|
-      klass.find(:all, :conditions => "karma IS NOT NULL", :order => "karma DESC", :limit => 5).each do |item|
+      klass.find(:all, :conditions => "public IS TRUE AND karma IS NOT NULL", :order => "karma DESC", :limit => 5).each do |item|
         @highlighted[klass.to_s.downcase.to_sym] << item
       end
     end
@@ -120,7 +119,7 @@ class BaseController < ApplicationController
     ["Audio", "PDF", "Image", "Video"].each do |media_label|
       mt = MediaType.find_by_label(media_label)
       @media_map[mt.slug] = media_label == "Audio" ? "Audio" : "#{media_label}s"
-      Media.find(:all, :conditions => "karma IS NOT NULL AND media_type_id = #{mt.id}", :order => "karma DESC", :limit => 5).each do |item|
+      Media.find(:all, :conditions => "public IS TRUE AND media_type_id = #{mt.id}", :order => "karma DESC", :limit => 5).each do |item|
         @highlighted["media_#{mt.slug}".to_sym] << item
       end
     end
@@ -192,4 +191,11 @@ class BaseController < ApplicationController
       end
     end
   end
+
+  def is_owner?
+    load_single_resource
+
+    @single_resource.present? && @single_resource.owner?
+  end
+
 end

@@ -11,7 +11,8 @@ class AnnotationsController < BaseController
 
     allow logged_in, :to => [:destroy, :edit, :update, :autocomplete_layers], :if => :allow_edit?
     allow logged_in, :to => [:create, :new]
-    allow :owner, :of => :collage, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers]
+
+    allow logged_in, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers], :if => :is_owner?
   end
 
   def allow_edit?
@@ -92,6 +93,7 @@ class AnnotationsController < BaseController
     filter_layer_list
 
     @annotation = Annotation.new(params[:annotation])
+    @annotation.user = current_user
 
     if params.has_key?(:new_layer_list) && (params[:new_layer_list].first[:hex] == "" || params[:new_layer_list].first[:layer] == "")
       render :text => "Please enter a layer name and select a hex.", :status => :unprocessable_entity
@@ -99,7 +101,6 @@ class AnnotationsController < BaseController
     end
 
     if @annotation.save
-      @annotation.accepts_role!(:owner, current_user)
       @annotation.accepts_role!(:editor, current_user)
 
       create_color_mappings

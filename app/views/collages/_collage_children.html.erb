@@ -3,7 +3,7 @@
 <span id="current_marker">Current Collage</span><br />
 <% end -%>
 <%= link_to "#{collage.created_at.to_s(:simpledatetime)} by", collage %>
-<%= raw collage.owners.collect { |u| link_to(u.display, user_path(u)) }.join(',') %><br />
+<%= link_to(collage.user.display, user_path(collage.user)) %><br />
 <% if collage.public_children.size > 0 -%>
 	<ul class="lineage">
 	<% collage.public_children.each do |child| -%>

@@ -207,11 +207,9 @@ namespace :h2o do
       user.save(false)
     end
 
-    cases = Case.all
-    cases.each{|c| c.accepted_roles.delete_all}
+    cases = Case.find(:all, :conditions => "user_id != #{user.id}")
     cases.each do |c|
-      c.accepted_roles.delete_all
-      c.accepts_role!(:owner, user)
+      c.update_attribute(:user_id, user.id)
       puts "case #{c.id} assigned to h2ocases"
     end
 
@@ -221,9 +219,7 @@ namespace :h2o do
   task(:assign_defaults_to_charlesfried => :environment) do
     charlesfried = User.find_by_login('charlesfried')
     759.upto(810) do |n|
-      d = Default.find(n)
-      d.accepted_roles.find_by_name('owner').users.clear
-      d.accepted_roles.find_by_name('owner').users << charlesfried
+      Default.find(n).update_attribute(:user_id, charlesfried.id)
     end
     puts "task successfuly finished"
   end

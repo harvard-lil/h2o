@@ -1,0 +1,17 @@
+<div id="default" class="singleitem" data-itemid="<%= @default.id %>">
+  <div id="main_details">
+    <h1 class="scale1-5"><%= @default.name %></h1>
+  </div>
+  <% if current_user && (current_user.defaults.include?(@default)) %>
+  <div id="description" class="scale1-1">
+    <%= raw @default.description %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT LINK INFORMATION<span class="icon icon-arrow"></span>'), edit_default_path(@default), :class => "edit-external scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE LINK<span class="icon icon-arrow"></span>'), @default, "data-type" => "text_block", "data-id" => @default.id, :class => "delete-action scale0-8" %>
+  </div>
+  <% end -%>
+  <article>
+    <a href="<%= @default.url %>" target="_blank"><%= @default.url %></a>
+  </article>
+</div>
+
+<div class="clear"></div>

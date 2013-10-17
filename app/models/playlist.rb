@@ -31,6 +31,7 @@ class Playlist < ActiveRecord::Base
   has_many :roles, :as => :authorizable, :dependent => :destroy
   has_and_belongs_to_many :user_collections #, :dependent => :destroy
   belongs_to :location
+  belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
 
   validates_presence_of :name
@@ -77,11 +78,11 @@ class Playlist < ActiveRecord::Base
     text :description
     text :name
     string :tag_list, :stored => true, :multiple => true
-    string :author
-    string :author_display, :stored => true
-    integer :author_id, :stored => true
-    string :root_author_display, :stored => true
-    integer :root_author_id, :stored => true
+    string :user
+    string :user_display, :stored => true
+    integer :user_id, :stored => true
+    string :root_user_display, :stored => true
+    integer :root_user_id, :stored => true
     integer :karma
     string :users_by_permission, :stored => true, :multiple => true
 
@@ -93,8 +94,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def display_name
-    owners = self.accepted_roles.find_by_name('owner')
-    "\"#{self.name}\",  #{self.created_at.to_s(:simpledatetime)} #{(owners.blank?) ? '' : ' by ' + owners.users.collect{|u| u.login}.join(',')}"
+    "\"#{self.name}\",  #{self.created_at.to_s(:simpledatetime)}  by " + self.user.login
   end
   alias :to_s :display_name
 
@@ -205,7 +205,7 @@ class Playlist < ActiveRecord::Base
     # TODO: Figure out a better way to do this logic, or cache, and sweep
     p = Permission.find_by_key("view_private")
     pas = self.user_collections.collect { |uc| uc.permission_assignments }.flatten.select { |pr| pr.permission_id = p.id }
-    ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + self.owners.collect { |u| u.login } ).flatten.uniq
+    ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
   end
 
   private

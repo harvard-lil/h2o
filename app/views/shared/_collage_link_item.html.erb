@@ -2,15 +2,16 @@
 <input type="hidden" value="<%= params[:link_end] %>" name="link_end" />
 <input type="hidden" value="<%= params[:host_collage] %>" name="host_collage" />
 <input type="hidden" value="<%= params[:text] %>" name="text" />
+
 <% if @objects -%>
-<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
 <table width="95%" id="collage_link_list">
-  <% @objects.each do |hit| -%>
+  <% @objects.results.each do |hit| -%>
   <tr>
-    <td valign="top"><button class="add-collage-button" id="collage-<%= hit[0] %>">SELECT</button></td>
-    <td class="title"><%= hit[1] %></td>
+    <td valign="top"><button class="add-collage-button" id="collage-<%= hit.id %>">SELECT</button></td>
+    <td class="title"><%= hit.display_name %></td>
   </tr>
   <% end %>
 </table>
-<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
 <% end %>

@@ -10,13 +10,12 @@ class DefaultSweeper < ActionController::Caching::Sweeper
     Rails.cache.delete_matched(%r{defaults-embedded-search*})
 
     expire_fragment "default-#{record.id}-index"
-
-    users = record.accepted_roles.inject([]) { |arr, b| arr.push(b.user.id) if b.user && b.name == 'owner'; arr }.uniq
-    users.push(current_user.id) if current_user
-    users.each { |u| Rails.cache.delete("user-defaults-#{u}") }
   end
 
   def after_save(record)
+    # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
+    return if params && params[:action] == "embedded_pager"
+
     default_clear(record)
   end
 

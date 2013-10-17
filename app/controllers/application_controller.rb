@@ -107,8 +107,10 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    params[:order] = (["score", "karma", "updated_at"].include?(params[:sort]) ? :desc : :asc)
+    params[:order] = (["score", "karma", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
   end
+
+  def verbose; true; end
 
   def set_sort_lists
     @sort_lists = {}
@@ -120,18 +122,18 @@ class ApplicationController < ActionController::Base
     @sort_lists[:all] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE (IF APPLIES)", :selected => false },
       "created_at" => { :display => "SORT BY DATE CREATED", :selected => false },
-      "author" => { :display => "SORT BY AUTHOR", :selected => false }
+      "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
     @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
     }))
     @sort_lists[:text_blocks] = generate_sort_list(base_sort.merge({
-      "author" => { :display => "SORT BY AUTHOR", :selected => false }
+      "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
     if ["index", "search"].include?(params[:action])
       @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false },
-        "author" => { :display => "SORT BY AUTHOR", :selected => false }
+        "user" => { :display => "SORT BY AUTHOR", :selected => false }
       }))
     else
       @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
@@ -144,10 +146,23 @@ class ApplicationController < ActionController::Base
     set_belongings model
 
     @page_title = "#{model.to_s.pluralize} | H2O Classroom Tools"
-    @page_title = "Media Items | H2O Classroom Tools" if model == Media
-    @page_title = "Links | H2O Classroom Tools" if model == Default
-    @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
     @model = model
+    @label = model.to_s
+    if model == Media
+      @label = "Audio Items" if params[:media_type] == "audio"
+      @label = "PDFs" if params[:media_type] == "pdf"
+      @label = "Images" if params[:media_type] == "image"
+      @label = "Videos" if params[:media_type] == "video"
+      @page_title = "#{@label} | H2O Classroom Tools"
+    elsif model == Default
+      @label = "Links"
+      @page_title = "Links | H2O Classroom Tools"
+    elsif model == TextBlock
+      @label = "Texts"
+      @page_title = "Texts | H2O Classroom Tools"
+    end
+    @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
+
     @partial = @model.to_s.downcase
     @partial = "case_obj" if @model == Case
     @model_sym = @partial.to_sym
@@ -155,6 +170,20 @@ class ApplicationController < ActionController::Base
     params[:page] ||= 1
 
     @collection = build_search(model, params)
+
+    if @collection.results.total_entries <= 20 && @label == "Media"
+      media_types = {}
+      @collection.results.each do |hit|
+        media_types[hit.media_type.label] = 1
+      end
+      if media_types.keys.length == 1
+        @label = media_types.keys.first
+        @label = "Audio Item" if @label == "Audio"
+        @label = "#{@label}s" if @collection.results.total_entries != 1
+        @page_title = "#{@label} | H2O Classroom Tools"
+      end
+    end
+
 
     if request.xhr?
       render :partial => 'shared/generic_block'
@@ -264,12 +293,12 @@ class ApplicationController < ActionController::Base
     if user
       cookies[:font_size] = user.default_font_size
       cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
-      cookies[:show_annotations] = (user.default_show_annotations? ? 'true' : 'false') 
+      cookies[:show_annotations] = user.default_show_annotations
       cookies[:display_name] = user.simple_display
       cookies[:user_id] = user.id
       cookies[:anonymous_user] = false
       cookies[:bookmarks] = user.bookmarks_map.to_json
-      cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.to_json(:only => [:id, :name]) 
+      cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) 
     end
   end
   def destroy_user_preferences(user)
@@ -312,22 +341,8 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    def store_location
-      return if params[:format] == 'pdf'
-      if request.request_uri.match(/\?/)
-        base, param_str = request.request_uri.split(/\?/) #[1]
-        h = CGI::parse(param_str)
-        h.delete("ajax_region")
-        h.each { |k, v| h[k] = v.first }
-        session[:return_to] = "#{base}?#{h.to_query}"
-      else
-        session[:return_to] = request.request_uri
-      end
-    end
-
     def redirect_back_or_default(default)
-      redirect_to(session[:return_to] || default)
-      session[:return_to] = nil
+      redirect_to(cookies[:return_to] || default)
     end
 
     def update_question_instance_time

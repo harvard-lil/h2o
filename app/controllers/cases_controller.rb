@@ -4,7 +4,6 @@ class CasesController < BaseController
   caches_page :show
   before_filter :require_user, :except => [:index, :show, :metadata, :embedded_pager, :export, :access_level]
   before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :export, :approve, :access_level]
-  before_filter :store_location, :only => [:index, :show]
 
   # Only admin can edit cases - they must remain pretty much immutable, otherwise annotations could get
   # messed up in terms of location.
@@ -12,7 +11,9 @@ class CasesController < BaseController
   access_control do
     allow all, :to => [:show, :index, :metadata, :autocomplete_tags, :new, :create,
                        :embedded_pager, :export, :access_level, :upload]
-    allow :owner, :of => :case, :to => [:destroy, :edit, :update]
+
+    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
+
     allow :case_admin, :admin, :superadmin
   end
 
@@ -48,8 +49,6 @@ class CasesController < BaseController
   end
 
   def access_level
-    session[:return_to] = "/cases/#{params[:id]}"
-
     if current_user
       render :json => {
         :can_edit => @case.can_edit?,

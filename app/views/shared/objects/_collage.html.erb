@@ -6,12 +6,12 @@
       <%= link_to collage.name, collage_path(collage), :class => "title" %>
     </h3>
     <p>
-      <% if hit.stored(:author_id).present? -%>
-      <% if hit.stored(:root_author_id).present? && hit.stored(:root_author_id) != hit.stored(:author_id) -%>
-      Original Creator: <%= link_to hit.stored(:root_author_display), "/users/#{hit.stored(:root_author_id)}" %> |
-      Current Version: <%= link_to hit.stored(:author_display), "/users/#{hit.stored(:author_id)}" %> |
+      <% if hit.stored(:user_id).present? -%>
+      <% if hit.stored(:root_user_id).present? && hit.stored(:root_user_id) != hit.stored(:user_id) -%>
+      Original Creator: <%= link_to hit.stored(:root_user_display), "/users/#{hit.stored(:root_user_id)}" %> |
+      Current Version: <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %> |
       <% else -%>
-      <%= link_to hit.stored(:author_display), "/users/#{hit.stored(:author_id)}" %> |
+      <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %> |
       <% end -%>
       <% end -%>
       <% if collage.words_shown.present? -%>
