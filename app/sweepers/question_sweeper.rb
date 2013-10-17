@@ -2,7 +2,7 @@ require 'sweeper_helper'
 class QuestionSweeper < ActionController::Caching::Sweeper
   include SweeperHelper
 
-  observe Question, Vote
+  observe Question #, Vote
 
   def after_save(record)
     expire_question((record.is_a?(Question)) ? record : record.voteable)

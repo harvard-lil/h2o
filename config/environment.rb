@@ -36,6 +36,7 @@ Rails::Initializer.run do |config|
   config.gem 'daemons', :version => '1.0.10'
   config.gem "delayed_job", :version => "2.0.4"
   config.gem 'nokogiri', :version => '1.4.1'
+  config.gem 'will_paginate', :version => '2.3.14'
   config.gem 'starling'
   config.gem 'rdoc'
 
