@@ -486,8 +486,6 @@ jQuery.extend({
     });
   },
   recordCollageState: function(data, show_message) {
-  return;
-
     var words_shown = jQuery('#collage article tt').filter(':visible').size();
     jQuery.ajax({
       type: 'POST',
