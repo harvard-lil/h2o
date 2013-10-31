@@ -12,11 +12,13 @@ class PlaylistItem < ActiveRecord::Base
   end
 
   def render_dropdown
+    return false if self.actual_object.nil?
+
     return false if actual_object_type == "TextBlock"
 
     return true if actual_object_type == "Playlist"
 
-    return true if actual_object_type == "Collage" && self.actual_object.present?
+    return true if actual_object_type == "Collage"
 
     if self.actual_object.respond_to?(:description)
       return true if self.actual_object.description.present?

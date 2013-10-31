@@ -13,7 +13,7 @@ class MediasController < BaseController
     
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
     
-    allow :admin, :collage_admin, :superadmin
+    allow :superadmin
   end
 
   def access_level 

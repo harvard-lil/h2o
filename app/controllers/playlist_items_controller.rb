@@ -7,7 +7,7 @@ class PlaylistItemsController < BaseController
 
     allow logged_in, :if => :is_playlist_owner?
 
-    allow :admin, :playlist_admin, :superadmin
+    allow :superadmin
   end
  
   def is_playlist_owner?
@@ -96,9 +96,7 @@ class PlaylistItemsController < BaseController
     playlist = @playlist_item.playlist
 
     if current_user
-      @can_edit_all = current_user.has_role?(:superadmin) ||
-                      current_user.has_role?(:admin) || 
-                      playlist.owner?
+      @can_edit_all = current_user.has_role?(:superadmin) || playlist.owner?
       @can_edit_notes = @can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
     else
@@ -113,9 +111,7 @@ class PlaylistItemsController < BaseController
     playlist = playlist_item.playlist
 
     if current_user
-      can_edit_all = current_user.has_role?(:superadmin) ||
-                     current_user.has_role?(:admin) || 
-                     playlist.owner?
+      can_edit_all = current_user.has_role?(:superadmin) || playlist.owner?
       can_edit_notes = can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
       can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
     else

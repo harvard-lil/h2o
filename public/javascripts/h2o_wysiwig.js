@@ -2,17 +2,14 @@ var tinyMCEPreInit = {
 			mceInit : {
         'content':{
           mode: "textareas",
-          theme:"advanced",
-          theme_advanced_buttons1:"bold,italic,strikethrough,|,bullist,numlist,blockquote,|,justifyleft,justifycenter,justifyright,|,link,unlink,|,kitchen_sink",
-          theme_advanced_buttons2:"formatselect,underline,justifyfull,forecolor,|,pastetext,pasteword,removeformat,|,charmap,|,outdent,indent,|,undo,redo,help",
-          theme_advanced_buttons3:"",
-          theme_advanced_buttons4:"",
+          menubar: false,
+          toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | formatselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo help | fullscreen",
           theme_advanced_toolbar_location:"top",
           theme_advanced_toolbar_align:"left",
           theme_advanced_statusbar_location:"bottom",
           theme_advanced_resizing:true,
           theme_advanced_resize_horizontal:false,
-          plugins:"tabfocus,paste,kitchen_sink,moretag,",
+          plugins:"fullscreen,link,charmap,textcolor",
           add_form_submit_trigger: false
         }
       } ,

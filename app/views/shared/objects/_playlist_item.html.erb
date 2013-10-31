@@ -1,4 +1,4 @@
-<li class="<%= "dd-item" if recursive_level == 0 %> playlist listitem level<%= recursive_level %> listitem<%= item.id %> <%= 'last' if last %>" id="playlist_item_<%= item.id %>" data-id="<%= item.id %>" data-itemid="<%= item.id %>">
+<li class="<%= "dd-item" if recursive_level == 0 %> playlist listitem level<%= recursive_level %> listitem<%= item.id %> <%= 'last' if last %>" id="playlist_item_<%= item.id %>" data-id="<%= item.id %>" data-itemid="<%= item.id %>" data-user_id="<%= actual_object.present? ? actual_object.user_id : 'n/a' %>">
   <div class="wrapper <%= "missing_item" if actual_object.nil? %>">
   <div class="inner-wrapper <%= "dd-handle" if recursive_level == 0 %>">
     <table><tr>
@@ -16,21 +16,19 @@
         <% end -%>
       </td>
       <td class="title-cell">
-        <% if actual_object.present? -%>
-		    <% if item.actual_object_type == 'Default' -%>
-		    <%= link_to item.name, actual_object.url, :target => '_blank', :class => "title" %>
-		    <% else -%>
-		    <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title" %>
-		    <% end -%>
+        <% if actual_object.present? && item.actual_object_type == 'Default' -%>
+        <%= link_to item.name, actual_object.url, :target => '_blank', :class => "title #{"private" if !actual_object.public}" %>
+        <% elsif actual_object.present? -%>
+        <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title #{"private" if !actual_object.public}" %>
         <% else -%>
         <%= item.name %> <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
-		    <% end -%>
-		    <% if recursive_level == 0 %>
-		    <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => 'playlist_items', :action => 'destroy', :id => item),
-		      :class => "action delete-playlist-item requires_remove" %>
-		    <%= link_to raw('<span class="icon icon-edit"></span>'), url_for(:controller => 'playlist_items', :action => 'edit', :id => item), 
-		      :class => "action edit-playlist-item requires_edit" %>
-		    <% end -%>
+        <% end -%>
+        <% if recursive_level == 0 %>
+        <%= link_to raw('<span class="icon icon-delete"></span>'), url_for(:controller => 'playlist_items', :action => 'destroy', :id => item),
+          :class => "action delete-playlist-item requires_remove" %>
+        <%= link_to raw('<span class="icon icon-edit"></span>'), url_for(:controller => 'playlist_items', :action => 'edit', :id => item), 
+          :class => "action edit-playlist-item requires_edit" %>
+        <% end -%>
       </td>
     </tr></table>
     <% if item.render_dropdown -%>
@@ -46,21 +44,21 @@
       <% end -%>
       <% end -%>
 
-	    <% if actual_object.respond_to?(:description) && actual_object.description != item.description -%>
-	    <div class="item_desc">
-	      <%= PlaylistItem.format_content(item.description) %>
-	    </div>
-	    <% end -%>
-	    <% if item.notes.to_s != '' && item.public_notes -%>
-	    <div class="notes">
-	      <b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
-	    </div>
-	    <% end -%>
-	    <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) && actual_object.description != '' -%>
-	    <div class="actual_obj_desc">
-	      <%= PlaylistItem.format_content(actual_object.description) %>
-	    </div>
-	    <% end -%>
+      <% if actual_object.respond_to?(:description) && actual_object.description != item.description -%>
+      <div class="item_desc">
+        <%= PlaylistItem.format_content(item.description) %>
+      </div>
+      <% end -%>
+      <% if item.notes.to_s != '' && item.public_notes -%>
+      <div class="notes">
+        <b>Additional Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
+      </div>
+      <% end -%>
+      <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) && actual_object.description != '' -%>
+      <div class="actual_obj_desc">
+        <%= PlaylistItem.format_content(actual_object.description) %>
+      </div>
+      <% end -%>
     </div>
     <% end -%>
   </div>

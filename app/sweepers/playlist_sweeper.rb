@@ -14,7 +14,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
       expire_page :controller => :playlists, :action => :export, :id => record.id
       Rails.cache.delete("playlist-wordcount-#{record.id}")
   
-      record.path_ids.each do |parent_id|
+      record.ancestor_ids.each do |parent_id|
         Rails.cache.delete("playlist-wordcount-#{parent_id}")
         Rails.cache.delete("playlist-barcode-#{parent_id}")
         Rails.cache.delete("views/playlist-barcode-html-#{parent_id}")
@@ -56,7 +56,10 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   end
 
   def after_update(record)
+    return true if record.changed.include?("karma")
+
     playlist_clear(record, false)
+    notify_private(record)
   end
 
   def before_destroy(record)

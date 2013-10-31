@@ -58,8 +58,9 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
 <%= javascript_include_tag 'jquery.min.js' %>
 <%= javascript_include_tag 'jquery-ui.min.js' %>
+<script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
 <%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack', 'modernizr.custom.86311',
-  'jquery.form', 'jquery.cookie', 'jquery.tabSlideOut.v1.3.js',
+  'jquery.form', 'jquery.cookie', 'jquery.tabSlideOut.v1.3.js', 'moretag', 'spellchecker/plugin.js',
   'jquery.rule.min', 'jquery.tipsy', 'jquery.hoverIntent', 'mustache', 'ui', 'jquery.address.min', RAILS_ENV == 'development' ? {} : { :cache => 'all' } %>
 
 <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>

@@ -12,7 +12,7 @@ class TextBlocksController < BaseController
     
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
     
-    allow :text_block_admin, :admin, :superadmin
+    allow :superadmin
   end
 
   def show
@@ -24,7 +24,7 @@ class TextBlocksController < BaseController
 
   # GET /text_blocks/1/edit
   def edit
-    add_javascripts ['visibility_selector', 'new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'new_text_block', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
 
     if @text_block.metadatum.blank?
@@ -42,7 +42,7 @@ class TextBlocksController < BaseController
 
   # GET /text_blocks/new
   def new
-    add_javascripts ['visibility_selector', 'new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'new_text_block', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
 
     @text_block = TextBlock.new
@@ -63,7 +63,7 @@ class TextBlocksController < BaseController
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/text_blocks/#{@text_block.id}"
     else
-      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_javascripts ['h2o_wysiwig', 'switch_editor', 'new_text_block']
       add_stylesheets ['new_text_block']
 
       @text_block.build_metadatum
@@ -89,7 +89,7 @@ class TextBlocksController < BaseController
       flash[:notice] = 'Text Block was successfully updated.'
       redirect_to "/text_blocks/#{@text_block.id}"
     else
-      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_javascripts ['h2o_wysiwig', 'switch_editor', 'new_text_block']
       add_stylesheets ['new_text_block']
       render :action => "edit"
     end
@@ -102,7 +102,7 @@ class TextBlocksController < BaseController
   end
 
   def render_or_redirect_for_captcha_failure
-    add_javascripts ['new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['new_text_block', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
 
     @text_block = TextBlock.new(params[:text_block])

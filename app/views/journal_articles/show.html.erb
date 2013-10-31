@@ -31,7 +31,7 @@
     <hr />
     <% end -%>
     <% end -%>
-		<% if current_user && (@journal_article.admin? || @journal_article.owner?) %>
+		<% if current_user && (current_user.has_role?(:superadmin) || @journal_article.owner?) %>
 		<%= link_to "EDIT", edit_journal_article_path(@journal_article) %>
 		<% end -%>
 	</div>

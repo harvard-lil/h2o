@@ -13,7 +13,7 @@
 }
 .barcode a {
   background-color: #999;
-  opacity: 0.7;
+  opacity: 0.9;
   display: block;
   float: left;
   height: 14px;
@@ -61,7 +61,7 @@
   background-color: #ff6600;
 }
 .playlist_created .tipsy-inner {
-  background-color: #ff6600;
+  border: 5px solid #ff6600;
 }
 .playlist_created .tipsy-arrow-s {
   border-top-color: #ff6600;
@@ -72,7 +72,7 @@
   background-color: #ffff33;
 }
 .collage_created .tipsy-inner {
-  background-color: #ffff33;
+  border: 5px solid #ffff33;
 }
 .collage_created .tipsy-arrow-s {
   border-top-color: #ffff33;
@@ -83,7 +83,7 @@
   background-color: #cc3366;
 }
 .media_created .tipsy-inner {
-  background-color: #cc3366;
+  border: 5px solid #cc3366;
 }
 .media_created .tipsy-arrow-s {
   border-top-color: #cc3366;
@@ -94,7 +94,7 @@
   background-color: #cccc33;
 }
 .case_created .tipsy-inner {
-  background-color: #cccc33;
+  border: 5px solid #cccc33;
 }
 .case_created .tipsy-arrow-s {
   border-top-color: #cccc33;
@@ -105,7 +105,7 @@
   background-color: #ff9933;
 }
 .text_block_created .tipsy-inner {
-  background-color: #ff9933;
+  border: 5px solid #ff9933;
 }
 .text_block_created .tipsy-arrow-s {
   border-top-color: #ff9933;
@@ -116,7 +116,7 @@
   background-color: #669999;
 }
 .user_case_collaged .tipsy-inner {
-  background-color: #669999;
+  border: 5px solid #669999;
 }
 .user_case_collaged .tipsy-arrow-s {
   border-top-color: #669999;
@@ -127,7 +127,7 @@
   background-color: #ff9933;
 }
 .user_media_collaged .tipsy-inner {
-  background-color: #ff9933;
+  border: 5px solid #ff9933;
 }
 .user_media_collaged .tipsy-arrow-s {
   border-top-color: #ff9933;
@@ -138,7 +138,7 @@
   background-color: #663366;
 }
 .user_text_block_collaged .tipsy-inner {
-  background-color: #663366;
+  border: 5px solid #663366;
 }
 .user_text_block_collaged .tipsy-arrow-s {
   border-top-color: #663366;
@@ -149,7 +149,7 @@
   background-color: #66ccff;
 }
 .user_playlist_bookmarked .tipsy-inner {
-  background-color: #66ccff;
+  border: 5px solid #66ccff;
 }
 .user_playlist_bookmarked .tipsy-arrow-s {
   border-top-color: #66ccff;
@@ -160,7 +160,7 @@
   background-color: #0099cc;
 }
 .user_collage_bookmarked .tipsy-inner {
-  background-color: #0099cc;
+  border: 5px solid #0099cc;
 }
 .user_collage_bookmarked .tipsy-arrow-s {
   border-top-color: #0099cc;
@@ -171,7 +171,7 @@
   background-color: #66ccff;
 }
 .user_case_bookmarked .tipsy-inner {
-  background-color: #66ccff;
+  border: 5px solid #66ccff;
 }
 .user_case_bookmarked .tipsy-arrow-s {
   border-top-color: #66ccff;
@@ -182,7 +182,7 @@
   background-color: #003366;
 }
 .user_media_bookmarked .tipsy-inner {
-  background-color: #003366;
+  border: 5px solid #003366;
 }
 .user_media_bookmarked .tipsy-arrow-s {
   border-top-color: #003366;
@@ -193,7 +193,7 @@
   background-color: #000033;
 }
 .user_text_block_bookmarked .tipsy-inner {
-  background-color: #000033;
+  border: 5px solid #000033;
 }
 .user_text_block_bookmarked .tipsy-arrow-s {
   border-top-color: #000033;
@@ -204,7 +204,7 @@
   background-color: #99ff33;
 }
 .user_playlist_added .tipsy-inner {
-  background-color: #99ff33;
+  border: 5px solid #99ff33;
 }
 .user_playlist_added .tipsy-arrow-s {
   border-top-color: #99ff33;
@@ -215,7 +215,7 @@
   background-color: #669900;
 }
 .user_collage_added .tipsy-inner {
-  background-color: #669900;
+  border: 5px solid #669900;
 }
 .user_collage_added .tipsy-arrow-s {
   border-top-color: #669900;
@@ -226,7 +226,7 @@
   width: 3px;
 }
 .user_case_added .tipsy-inner {
-  background-color: #339966;
+  border: 5px solid #339966;
 }
 .user_case_added .tipsy-arrow-s {
   border-top-color: #339966;
@@ -237,7 +237,7 @@
   background-color: #006600;
 }
 .user_media_added .tipsy-inner {
-  background-color: #006600;
+  border: 5px solid #006600;
 }
 .user_media_added .tipsy-arrow-s {
   border-top-color: #006600;
@@ -248,7 +248,7 @@
   width: 6px;
 }
 .user_text_block_added .tipsy-inner {
-  background-color: #003300;
+  border: 5px solid #003300;
 }
 .user_text_block_added .tipsy-arrow-s {
   border-top-color: #003300;
@@ -259,10 +259,21 @@
   width: 6px;
 }
 .user_collage_remix .tipsy-inner {
-  background-color: #ff3300;
+  border: 5px solid #ff3300;
 }
 .user_collage_remix .tipsy-arrow-s {
   border-top-color: #ff3300;
+}
+
+.barcode a.user_default_remix {
+  background-color: #339999;
+  width: 2px;
+}
+.user_default_remix .tipsy-inner {
+  border: 5px solid #339999;
+}
+.user_default_remix .tipsy-arrow-s {
+  border-top-color: #339999;
 }
 
 .barcode a.user_playlist_remix {
@@ -270,7 +281,7 @@
   width: 6px;
 }
 .user_playlist_remix .tipsy-inner {
-  background-color: #660000;
+  border: 5px solid #660000;
 }
 .user_playlist_remix .tipsy-arrow-s {
   border-top-color: #660000;
@@ -285,7 +296,17 @@
   border-top-color: #ef3c24;
 }
 .remix .tipsy-inner {
+  border: 5px solid #ef3c24;
+}
+.barcode a.default_remix {
+  width: 3px;
   background-color: #ef3c24;
+}
+.default_remix .tipsy-arrow-s { 
+  border-top-color: #ef3c24;
+}
+.default_remix .tipsy-inner {
+  border: 5px solid #ef3c24;
 }
 
 .barcode a.bookmark {
@@ -297,7 +318,7 @@
   border-top-color: #5590cc;
 }
 .bookmark .tipsy-inner {
-  background-color: #5590cc;
+  border: 5px solid #5590cc;
 }
 
 .barcode a.add {
@@ -308,7 +329,7 @@
   border-top-color: #99ca3c;
 }
 .add .tipsy-inner {
-  background-color: #99ca3c;
+  border: 5px solid #99ca3c;
 }
 
 .barcode a.collaged {
@@ -319,5 +340,5 @@
   border-top-color: #669999;
 }
 .collaged .tipsy-inner {
-  background-color: #669999;
+  border: 5px solid #669999;
 }

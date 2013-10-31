@@ -108,7 +108,7 @@ class UsersController < ApplicationController
         render :partial => 'base/search_ajax'
       end
     else
-      bookmarks_id = @user.bookmark_id
+      bookmarks_id = @user.bookmark_id || 0
       @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
       @bookshelf.build do
         paginate :page => params[:page], :per_page => 10 

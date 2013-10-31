@@ -4,20 +4,20 @@ class CollageSweeper < ActionController::Caching::Sweeper
   observe Collage
 
   def collage_clear(record)
-      begin
+    begin
       expire_page :controller => :collages, :action => :show, :id => record.id
       return if params && params[:action] == 'save_readable_state'
  
       Rails.cache.delete_matched(%r{collages-search*})
       Rails.cache.delete_matched(%r{collages-embedded-search*})
-  
+
       expire_fragment "collage-list-object-#{record.id}"
-  
+
       #expire fragments of my ancestors, descendants, and siblings meta
-      relations = [record.path_ids, record.descendant_ids]
-      relations.push(record.sibling_ids) if !record.ancestry.nil?
-  
-      record.path_ids.each do |parent_id|
+      relations = [record.ancestor_ids, record.descendant_ids]
+      relations.push(record.sibling_ids.select { |i| i != record.id }) if record.parent.present?
+
+      record.ancestor_ids.each do |parent_id|
         Rails.cache.delete("collage-barcode-#{parent_id}")
         Rails.cache.delete("views/collage-barcode-html-#{parent_id}")
       end
@@ -44,9 +44,12 @@ class CollageSweeper < ActionController::Caching::Sweeper
 
   def after_save(record)
     # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
-    return if params && params[:action] == "embedded_pager"
+    return true if params && params[:action] == "embedded_pager"
+
+    return true if record.changed.include?("karma")
 
     collage_clear(record)
+    notify_private(record)
   end
 
   def before_destroy(record)

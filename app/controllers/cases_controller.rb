@@ -14,7 +14,7 @@ class CasesController < BaseController
 
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
 
-    allow :case_admin, :admin, :superadmin
+    allow :case_admin, :superadmin
   end
 
   def autocomplete_tags
@@ -90,13 +90,13 @@ class CasesController < BaseController
       @case.case_jurisdiction = CaseJurisdiction.new
     end
 
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+    add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
   end
 
   def upload
     if request.get?
-      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+      add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
       add_stylesheets ['new_case']
 
       respond_to do |format|
@@ -116,7 +116,7 @@ class CasesController < BaseController
 
   # GET /cases/1/edit
   def edit
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+    add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
   end
 
@@ -127,7 +127,7 @@ class CasesController < BaseController
     end
     @case = Case.new(params[:case])
 
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+    add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     if @case.save
@@ -144,7 +144,7 @@ class CasesController < BaseController
     unless params[:case][:tag_list].blank?
       params[:case][:tag_list] = params[:case][:tag_list].downcase
     end
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+    add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
 
     @case.updated_at = Time.now #<=This ensures that version is incremented when docket numbers or citations are only updated

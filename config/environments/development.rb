@@ -7,8 +7,6 @@ config.cache_classes = false
 #config.cache_store = :mem_cache_store, "127.0.0.1:11211"
 #config.cache_store = :mem_cache_store
 config.cache_store = :file_store, "#{RAILS_ROOT}/tmp/cache"
-#config.cache_store = :file_store, "/tmp/steph-test"
-#config.cache_store = :file_store, "/var/tmp/steph-test"
 
 # Log error messages when you accidentally call methods on nil.
 config.whiny_nils = true
@@ -23,4 +21,4 @@ config.action_controller.perform_caching             = true
 config.action_mailer.raise_delivery_errors = false
 
 config.action_mailer.delivery_method = :sendmail
-config.action_mailer.default_url_options = { :host => 'murk.law.harvard.edu', :port => '8003'}
+config.action_mailer.default_url_options = { :host => 'murk.law.harvard.edu', :port => '8000'}

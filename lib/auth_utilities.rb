@@ -5,8 +5,8 @@ module AuthUtilities
     return current_user
   end
 
-  def admin?
-    return self.accepts_role?(:admin, current_user)
+  def superadmin?
+    return current_user && current_user.has_role?(:superadmin)
   end
 
   def owner?

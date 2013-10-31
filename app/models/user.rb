@@ -67,7 +67,8 @@ class User < ActiveRecord::Base
     :user_media_added => 2,
     :user_text_block_added => 2,
     :user_collage_remix => 2,
-    :user_playlist_remix => 2
+    :user_playlist_remix => 2,
+    :user_default_remix => 1
   }
   RATINGS_DISPLAY = { :playlist_created => "Playlist Created",
     :collage_created => "Collage Created",
@@ -88,7 +89,8 @@ class User < ActiveRecord::Base
     :user_media_added => "Media Added",
     :user_text_block_added => "Text Block Added",
     :user_collage_remix => "Collage Remixed",
-    :user_playlist_remix => "Playlist Remixed"
+    :user_playlist_remix => "Playlist Remixed",
+    :user_default_remix => "Link Remixed"
   }
   
   def terms_validation
@@ -184,19 +186,19 @@ class User < ActiveRecord::Base
   end
 
   def is_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','superadmin']}).length > 0 
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0 
   end
   def is_case_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','case_admin','superadmin']}).length > 0 
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['case_admin','superadmin']}).length > 0 
   end
   def is_text_block_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','text_block_admin','superadmin']}).length > 0
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
   end
   def is_media_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','media_admin','superadmin']}).length > 0
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
   end
   def is_collage_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['admin','collage_admin','superadmin']}).length > 0
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
   end
 
   def playlists_by_permission(permission_key)
@@ -308,9 +310,19 @@ class User < ActiveRecord::Base
               barcode_elements << { :type => "user_#{single_type}_remix",
                                     :date => child.created_at, 
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                    :link => self.send("#{single_type}_path", item.id) }
+                                    :link => self.send("#{single_type}_path", child.id) }
             end
           end
+        end
+      end
+
+      self.defaults.each do |item|
+        item.public_children.each do |child|
+          next if child.nil? || child.user.nil? || child.user == self
+          barcode_elements << { :type => "user_default_remix",
+                                :date => child.created_at, 
+                                :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
+                                :link => default_path(child.id) }
         end
       end
   

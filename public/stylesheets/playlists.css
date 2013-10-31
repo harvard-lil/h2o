@@ -426,6 +426,10 @@ button.inactive { opacity: 0.5; }
   text-decoration: none;
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
+.playlist .wrapper a.title.private,
+.dd-dragel .wrapper a.title.private {
+  font-weight: normal;
+}
 .playlist .wrapper a.hover_link {
 color: #036290;
 }
@@ -465,7 +469,7 @@ color: #036290;
  top: 4px;
 }
 #description #public_private_instruction {
-  margin: 10px 0px 0px 0px;
+  margin: 15px 0px 0px 0px;
   padding: 0px;
 }
 #description a#public-notes span.count,
@@ -481,8 +485,13 @@ color: #036290;
 #description a#public-notes {
   padding-right: 10px;
 }
-span.missing_item {
+span.missing_item,
+span.private_item {
   opacity: 0.6; 
+}
+.singleitem #description p#private_detail {
+  margin: 15px 0px 0px 0px;
+  padding: 0px;
 }
 #main-wedge {
   background: url(/images/icons.png);

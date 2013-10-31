@@ -7,7 +7,7 @@ class JournalArticlesController < BaseController
     
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
     
-    allow :journal_article_admin, :admin, :superadmin
+    allow :superadmin
   end
 
   def show
@@ -34,7 +34,7 @@ class JournalArticlesController < BaseController
   end
 
   def edit
-    add_javascripts ['new_text_block', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['new_text_block', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_text_block']
   end
 
@@ -50,7 +50,7 @@ class JournalArticlesController < BaseController
       flash[:notice] = 'Text Block was successfully created.'
       redirect_to "/journal_articles/#{@journal_article.id}"
     else
-      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_javascripts ['h2o_wysiwig', 'switch_editor', 'new_text_block']
       add_stylesheets ['new_text_block']
 
       @text_block = TextBlock.new
@@ -68,7 +68,7 @@ class JournalArticlesController < BaseController
       flash[:notice] = 'Text Block was successfully updated.'
       redirect_to "/journal_articles/#{@journal_article.id}"
     else
-      add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'new_text_block']
+      add_javascripts ['h2o_wysiwig', 'switch_editor', 'new_text_block']
       add_stylesheets ['new_text_block']
       render :action => "edit"
     end

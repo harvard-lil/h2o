@@ -180,47 +180,4 @@ namespace :h2o do
   task(:send_cases_list_email => :environment) do
     CaseList.deliver_newly_added
   end
-
-  desc 'make two accounts case admins' 
-  task(:make_two_accounts_case_admins => :environment) do
-
-    ['eellis', 'awenner'].each do |login|
-      u = User.find_by_login(login)
-      if u
-        u.has_role!(:case_admin)
-        puts "#{login} was granted case_admin"
-      else
-        puts "#{login} needs a user account, create a user account for #{login}, and run this task again" 
-      end
-    end
-
-  end
-
-  desc 'Assign cases to user h2ocases' 
-  task(:assign_cases_to_h2ocases => :environment) do
-    user = User.find_by_login('h2ocases')
-    if user.nil?
-      user = User.new(:login => 'h2ocases', 
-                      :email_address => 'h2ocases@cyber.law.harvard.edu', 
-                      :password => 'PDy7Q<wDzQiD@K=d6dGs', 
-                      :password_confirmation => 'PDy7Q<wDzQiD@K=d6dGs')
-      user.save(false)
-    end
-
-    cases = Case.find(:all, :conditions => "user_id != #{user.id}")
-    cases.each do |c|
-      c.update_attribute(:user_id, user.id)
-      puts "case #{c.id} assigned to h2ocases"
-    end
-
-  end
-  
-  desc "Reassigned defaults to charlesfried"
-  task(:assign_defaults_to_charlesfried => :environment) do
-    charlesfried = User.find_by_login('charlesfried')
-    759.upto(810) do |n|
-      Default.find(n).update_attribute(:user_id, charlesfried.id)
-    end
-    puts "task successfuly finished"
-  end
 end

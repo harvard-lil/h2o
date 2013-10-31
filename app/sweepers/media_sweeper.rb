@@ -30,6 +30,7 @@ class MediaSweeper < ActionController::Caching::Sweeper
     return if params && params[:action] == "embedded_pager"
 
     media_clear(record)
+    notify_private(record)
   end
 
   def before_destroy(record)

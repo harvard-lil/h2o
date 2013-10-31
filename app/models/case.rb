@@ -95,7 +95,7 @@ class Case < ActiveRecord::Base
     self.update_attribute('active', true)
   end
   def can_edit?
-    return self.owner? || self.admin? || current_user.has_role?(:case_admin) || current_user.has_role?(:superadmin)
+    return current_user.has_role?(:superadmin) || current_user.has_role?(:case_admin) || self.owner?
   end
 
   def self.new_from_xml_file(file)

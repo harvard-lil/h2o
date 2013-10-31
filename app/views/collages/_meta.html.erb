@@ -24,6 +24,7 @@
   <span id="stats_layer_size"><%= @collage.layers.size %></span>
 </p>
 
+<% if @collage.annotatable.present? -%>
 <p><label>Original Item:</label>
 <% if @collage.annotatable_type == 'Case' %>
 <%= link_to "\"#{@collage.annotatable.short_name}\"", case_path(@collage.annotatable), :id => 'original_name' %>
@@ -31,6 +32,7 @@
 <%= link_to @collage.annotatable.name, text_block_path(@collage.annotatable), :id => 'original_name' %>
 <% end -%>
 </p>
+<% end -%>
 
 <div id="singleitem_lineage">
   <label>Lineage of:</label> <%= @collage.name %>

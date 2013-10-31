@@ -9,7 +9,7 @@ class RotisserieInstancesController < ApplicationController
     
     allow :editor, :of => :rotisserie_instance, :to => [:index, :show, :edit, :update]
     allow :user, :of => :rotisserie_instance, :to => [:index, :show]
-    allow :admin
+    allow :superadmin
   end
 
   # GET /rotisserie_instances

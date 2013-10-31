@@ -7,7 +7,7 @@ class AnnotationsController < BaseController
 
   access_control do
     allow all, :to => [:show, :metadata, :embedded_pager, :choose]
-    allow :superadmin, :admin, :collages_admin
+    allow :superadmin
 
     allow logged_in, :to => [:destroy, :edit, :update, :autocomplete_layers], :if => :allow_edit?
     allow logged_in, :to => [:create, :new]

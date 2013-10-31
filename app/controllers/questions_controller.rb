@@ -12,7 +12,7 @@ class QuestionsController < BaseController
     
     allow logged_in, :to => [:destroy, :toggle_sticky], :if => :is_owner?
     
-    allow :admin, :questions_admin
+    allow :superadmin
   end
 
   def embedded_pager

@@ -3,7 +3,7 @@ class CaseJurisdictionsController < BaseController
   before_filter :require_user, :except => [:index, :show]
   
   access_control do
-    allow :case_admin, :admin, :superadmin
+    allow :case_admin, :superadmin
     allow all, :to => [:show, :index]
   end
 

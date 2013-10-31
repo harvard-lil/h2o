@@ -14,8 +14,6 @@ class QuestionInstancesController < BaseController
     allow all, :to => [:index, :updated, :last_updated_questions, :is_owner, :show, :new, :create, :metadata, :embedded_pager]
     
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
-
-    allow :admin
   end
 
   rescue_from Acl9::AccessDenied do |exception|

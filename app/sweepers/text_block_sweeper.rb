@@ -29,10 +29,12 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
     return if params && params[:action] == "embedded_pager"
 
     clear_text_block(record)
+    notify_private(record)
   end
 
   def before_destroy(record)
     clear_playlists(record.playlist_items)
     clear_text_block(record)
+    #notify_destroy(record)
   end
 end

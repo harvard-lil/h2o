@@ -109,6 +109,7 @@ class Collage < ActiveRecord::Base
       color_mapping.collage_id = collage_copy.id
       color_mapping.save
     end
+    collage_copy.save
     collage_copy
   end
 
@@ -141,7 +142,7 @@ class Collage < ActiveRecord::Base
   end
 
   def can_edit?
-    return self.owner? || self.admin? || current_user.has_role?(:collages_admin) || current_user.has_role?(:superadmin)
+    return current_user.has_role?(:superadmin) || self.owner?
   end
 
   def display_name

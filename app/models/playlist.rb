@@ -136,13 +136,8 @@ class Playlist < ActiveRecord::Base
     self.playlist_items.map(&:actual_object)
   end
 
-
   def child_playlists
-    self.actual_objects.find_all{|ao| ao.class == Playlist}
-    #arr = []
-    #recursive_playlists(self){|x| arr << x}
-    #arr = arr - [self]
-    #arr
+    self.actual_objects.find_all{ |ao| ao.class == Playlist }
   end
 
   def collage_word_count
@@ -195,6 +190,25 @@ class Playlist < ActiveRecord::Base
 
   def total_count
     self.playlist_items.count
+  end
+
+  def nested_private_resources
+    results = []
+    self.playlist_items.each do |item|
+      if item.actual_object && !item.actual_object.public
+        results << item.actual_object
+      end
+      if item.actual_object_type == "Playlist" && item.actual_object
+        results << item.actual_object.nested_private_resources
+      end
+    end
+    return results.flatten
+  end
+
+  def toggle_nested_private
+    self.nested_private_resources.select { |i| i.user_id == self.user_id }.each do |item|
+      item.update_attribute(:public, true)
+    end
   end
 
   def users_by_permission

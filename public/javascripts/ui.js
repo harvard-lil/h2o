@@ -326,10 +326,10 @@ jQuery.extend({
     });
   },
   initializeBarcodes: function() {
-    jQuery('.barcode a').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0 });
+    jQuery('.barcode a').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0, offset: 10 });
     jQuery('.barcode a').mouseover(function() {
       jQuery(this).tipsy('show');
-      jQuery('.tipsy').addClass(jQuery(this).attr('class'));
+      jQuery('.tipsy').addClass(jQuery(this).attr('class') + ' tipsy-barcode');
     }).mouseout(function() {
       jQuery(this).tipsy('hide');
     });
@@ -581,6 +581,9 @@ jQuery.extend({
       jQuery('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous').remove();
       jQuery('.afterload').css('opacity', 1.0);
       jQuery.setFixedLinkPosition();
+      if(jQuery('body').hasClass('bplaylists_show')) {
+        jQuery.playlist_mark_private('', false);
+      }
       return;
     } else {
       if(eval(jQuery.cookie('anonymous_user'))) {
@@ -1055,6 +1058,9 @@ jQuery.extend({
       e.preventDefault();
       var link = jQuery(this);
       var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
+      if(node_title == 'Default') {
+        node_title = 'Link';
+      }
       var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
       var html = jQuery.mustache(remix_item_template, data);
       jQuery.generateGenericNode(html);

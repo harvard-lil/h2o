@@ -35,4 +35,24 @@ module SweeperHelper
       expire_fragment("question-reply-detail-view-#{question_id}")
     end
   end
+
+  def notify_private(record)
+    if record.changed.include?("public") && record.public == false
+      record.barcode.each do |barcode_tick|
+        if barcode_tick[:title].match(/^Added to playlist/)
+          playlist_id = barcode_tick[:link].gsub("/playlists/", '')
+          playlist = Playlist.find(playlist_id)
+          if playlist.user != record.user
+            Notifier.deliver_item_made_private(playlist, record)
+          end
+        end
+      end
+    end
+  end
+
+  def notify_destroy(record)
+    record.collages.each do |collage|
+      Notifier.deliver_item_destroyed(collage, record)
+    end
+  end
 end

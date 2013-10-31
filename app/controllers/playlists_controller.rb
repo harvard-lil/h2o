@@ -9,7 +9,7 @@ class PlaylistsController < BaseController
   caches_page :show, :export, :if => Proc.new{|c| c.instance_variable_get('@playlist').public?}
 
   # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
-  before_filter :load_single_resource, :except => [:embedded_pager, :index, :destroy, :check_export]
+  before_filter :load_single_resource, :except => [:embedded_pager, :index, :destroy, :check_export, :toggle_nested_private]
   before_filter :require_user, :except => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
   before_filter :restrict_if_private, :except => [:embedded_pager, :index, :new, :create, :destroy]
 
@@ -22,7 +22,7 @@ class PlaylistsController < BaseController
 
     allow logged_in, :if => :is_owner?
 
-    allow :admin, :playlist_admin, :superadmin
+    allow :superadmin
   end
 
   def allow_notes?
@@ -43,18 +43,27 @@ class PlaylistsController < BaseController
 
   def access_level 
     if current_user
-      can_edit = @playlist.admin? || @playlist.owner?
+      can_edit = current_user.has_role?(:superadmin) || @playlist.owner?
       can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
       can_edit_notes = can_edit || current_user.can_permission_playlist("edit_notes", @playlist)
       can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)
       notes = can_edit_notes ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
+      nested_private_count_owned = 0
+      nested_private_count_nonowned = 0
+      if can_edit
+        nested_private_resources = @playlist.nested_private_resources
+        nested_private_count_owned = nested_private_resources.select { |i| i.user_id == @playlist.user_id }.count
+        nested_private_count_nonowned = nested_private_resources.count - nested_private_count_owned
+      end
       render :json => {
-        :can_edit             => can_edit,
-        :notes                => can_edit_notes ? notes.to_json(:only => [:id, :notes, :public_notes]) : "[]",
-        :can_position_update  => can_position_update,
-        :can_edit_notes       => can_edit_notes,
-        :custom_block         => 'playlist_afterload',
-        :can_edit_desc        => can_edit_desc
+        :can_edit                       => can_edit,
+        :notes                          => can_edit_notes ? notes.to_json(:only => [:id, :notes, :public_notes]) : "[]",
+        :can_position_update            => can_position_update,
+        :can_edit_notes                 => can_edit_notes,
+        :custom_block                   => 'playlist_afterload',
+        :can_edit_desc                  => can_edit_desc,
+        :nested_private_count_owned     => nested_private_count_owned,
+        :nested_private_count_nonowned  => nested_private_count_nonowned
       }
     else
       render :json => {
@@ -81,7 +90,7 @@ class PlaylistsController < BaseController
 
 
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
-    @can_edit = current_user && (@playlist.admin? || @playlist.owner?)
+    @can_edit = current_user && (current_user.has_role?(:superadmin) || @playlist.owner?)
   end
 
   def check_export
@@ -102,9 +111,7 @@ class PlaylistsController < BaseController
 
   def edit
     if current_user
-      @can_edit_all = current_user.has_role?(:superadmin) ||
-                      current_user.has_role?(:admin) || 
-                      @playlist.owner?
+      @can_edit_all = current_user.has_role?(:superadmin) || @playlist.owner?
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
     else
       @can_edit_all = @can_edit_desc = false
@@ -131,9 +138,7 @@ class PlaylistsController < BaseController
   # PUT /playlists/1
   def update
     if current_user
-      can_edit_all = current_user.has_role?(:superadmin) ||
-                     current_user.has_role?(:admin) || 
-                     @playlist.owner?
+      can_edit_all = current_user.has_role?(:superadmin) || @playlist.owner?
       can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
     else
       can_edit_all = can_edit_desc = false
@@ -264,4 +269,9 @@ class PlaylistsController < BaseController
     render :json => { :items => @current_user.playlists.collect { |p| { :display => p.name, :id => p.id } } }
   end
 
+  def toggle_nested_private
+    @playlist.toggle_nested_private
+
+    render :json => { :updated_count => @playlist.nested_private_resources.count }
+  end
 end

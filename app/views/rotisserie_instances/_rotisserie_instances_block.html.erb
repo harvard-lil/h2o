@@ -14,14 +14,14 @@
       <tr>
         <td><%= link_to rotisserie_instance.title, rotisserie_instance %></td>
         <td>
-          <% if rotisserie_instance.admin? || rotisserie_instance.owner? || rotisserie_instance.editor? %>
+          <% if rotisserie_instance.superadmin? || rotisserie_instance.owner? || rotisserie_instance.editor? %>
           <button id="button-instance-edit-<%= rotisserie_instance.id %>" name="button-instance-edit" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_edit.png" %>
           </button>
           <% end %>
         </td>
         <td>
-          <% if rotisserie_instance.admin? || rotisserie_instance.owner? %>
+          <% if rotisserie_instance.superadmin? || rotisserie_instance.owner? %>
           <button id="button-instance-delete-<%= rotisserie_instance.id %>" name="button-instance-delete" class="ui-button ui-state-default ui-corner-all">
             <%= image_tag "/images/icons/application_form_delete.png" %>
           </button>

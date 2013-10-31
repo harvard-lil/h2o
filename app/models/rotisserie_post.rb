@@ -32,7 +32,6 @@ class RotisseriePost < ActiveRecord::Base
   end
 
   def editable?
-    #return (current_user.admin?(self.discussion.group.facebook_group(current_user))  || self.author?(current_user)) && !self.initial_round_completed?
     return (self.author? && !self.initial_round_completed? && self.rotisserie_discussion.open?) || self.rotisserie_discussion.author?
   end
 
@@ -46,7 +45,6 @@ class RotisseriePost < ActiveRecord::Base
   end
 
   def viewable?
-    #return (current_user.admin?(self.discussion.group.facebook_group(current_user)) || self.user_id == current_user.id || self.display?)
     return (self.author == current_user) || self.display?
   end
 

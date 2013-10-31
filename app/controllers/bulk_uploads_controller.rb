@@ -45,7 +45,7 @@ class BulkUploadsController < ApplicationController
   end
 
   def add_assets
-    add_javascripts ['tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor', 'cases']
+    add_javascripts ['h2o_wysiwig', 'switch_editor', 'cases']
     add_stylesheets ['new_case']
   end
 end

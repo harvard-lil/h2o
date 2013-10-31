@@ -273,4 +273,20 @@ class Notifier < ActionMailer::Base
     sent_on    Time.now
     body       :bulk_upload => bulk_upload, :bulk_upload_url => bulk_upload_url(bulk_upload)
   end
+
+  def item_made_private(playlist, record)
+    recipients [playlist.user.email_address]
+    subject    "Playlist Item Made Private"
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+    body       :playlist => playlist, :record => record
+  end
+
+  def item_destroyed(collage, record)
+    recipients [collage.user.email_address]
+    subject    record.is_a?(TextBlock) ? "Text Deleted" : "Case Deleted" 
+    from       "noreply@berkmancenter.org"
+    sent_on    Time.now
+    body       :collage => collage, :record => record
+  end
 end

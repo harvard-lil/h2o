@@ -41,9 +41,11 @@
 				</td>
 				<% end -%>
 				<td class="field search">
+          <label for="keywords" class="hidden-label">Keywords</label>
 					<%= text_field_tag "keywords", params[:keywords], :size => 50 %>
 				</td>
 				<td class="search">
+          <label for="search_all" class="hidden-label">Search All</label>
 					<select id="search_all">
 						<option value="all_materials">all</option>
             <% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links", "users" => "Users" }.each do |k, v| -%>

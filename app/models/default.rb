@@ -4,6 +4,7 @@ class Default < ActiveRecord::Base
 
   include H2oModelExtensions
   include StandardModelExtensions::InstanceMethods
+  include AncestryExtensions::InstanceMethods
   include AuthUtilities
   include Authorship
   include MetadataExtensions
@@ -12,7 +13,8 @@ class Default < ActiveRecord::Base
 
   RATINGS = {
     :bookmark => 1,
-    :add => 3
+    :add => 3,
+    :default_remix => 1
   }
 
   acts_as_authorization_object
@@ -20,6 +22,7 @@ class Default < ActiveRecord::Base
   has_many :playlist_items, :as => :actual_object
   belongs_to :user
   validate :url_format
+  has_ancestry :orphan_strategy => :restrict
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name  #name
@@ -50,12 +53,19 @@ class Default < ActiveRecord::Base
 
   def barcode
     Rails.cache.fetch("default-barcode-#{self.id}") do
-      barcode_elements = self.barcode_bookmarked_added.sort_by { |a| a[:date] }
+      barcode_elements = self.barcode_bookmarked_added
 
+      self.public_children.each do |child|
+        barcode_elements << { :type => "default_remix",
+                              :date => child.created_at,
+                              :title => "Remixed to Link #{child.name}",
+                              :link => default_path(child.id) }
+      end
+      
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
       self.update_attribute(:karma, value)
 
-      barcode_elements
+      barcode_elements.sort_by { |a| a[:date] }
     end
   end
 

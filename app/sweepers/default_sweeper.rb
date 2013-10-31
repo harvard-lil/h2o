@@ -9,6 +9,11 @@ class DefaultSweeper < ActionController::Caching::Sweeper
     Rails.cache.delete_matched(%r{defaults-search*})
     Rails.cache.delete_matched(%r{defaults-embedded-search*})
 
+    record.ancestor_ids.each do |parent_id|
+      Rails.cache.delete("default-barcode-#{parent_id}")
+      Rails.cache.delete("views/default-barcode-html-#{parent_id}")
+    end
+
     expire_fragment "default-#{record.id}-index"
   end
 

@@ -16,7 +16,7 @@ class CollagesController < BaseController
 
     allow logged_in, :to => [:destroy, :edit, :update, :save_readable_state, :delete_inherited_annotations], :if => :is_owner?
 
-    allow :admin, :collage_admin, :superadmin
+    allow :superadmin
   end
 
   def allow_edit?

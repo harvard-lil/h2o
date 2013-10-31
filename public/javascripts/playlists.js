@@ -5,15 +5,84 @@ var dropped_original_position;
 var items_dd_handles;
 
 jQuery.extend({
+  playlist_mark_private: function(user_id, can_edit) {
+    jQuery.each(jQuery('.private'), function(i, link) {
+      var listitem = jQuery(link).parentsUntil('.listitem').last().parent();
+      if(user_id != listitem.data('user_id')) {
+        listitem.find('.additional_details,section.playlists').remove();
+        if(!can_edit) {
+          listitem.find('.rr').remove();
+        }
+        var new_html = jQuery(link).html() + ' <span class="private_item">[This resource is private.]</span>';
+        jQuery(link).replaceWith(new_html);
+      }
+    });
+    if(can_edit) {
+      jQuery('a.private').removeClass('private');
+    }
+  },
   playlist_afterload: function(results) {
     if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
       if (results.can_edit) {
+        jQuery.playlist_mark_private(jQuery.cookie('user_id'), true);
         jQuery('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
           jQuery('#description .inactive').css('opacity', 0.4);
         });
         jQuery('#edit_toggle').click();
         is_owner = true;
+
+        if(results.nested_private_count_nonowned > 0 || results.nested_private_count_owned > 0) {
+          var data = {
+            "owned" : results.nested_private_count_owned,
+            "nonowned" : results.nested_private_count_nonowned,
+            "url" : '/playlists/' + jQuery('#playlist').data('itemid') + '/toggle_nested_private'
+          };
+          if(results.nested_private_count_owned == 0) {
+            var content = jQuery(jQuery.mustache(nested_notification, data)).css('display', 'none');
+            content.appendTo(jQuery('#description'));
+            content.slideDown();
+          } else {
+            var content = jQuery(jQuery.mustache(set_nested_owned_private_resources_public, data)).css('display', 'none');
+            content.appendTo(jQuery('#description'));
+            content.slideDown();
+      
+            jQuery('#nested_public').live('click', function(e) {
+              e.preventDefault();
+              var creator = jQuery('#main_details h3 a:first').html().replace(/ \(.*/, '');
+              var node = jQuery('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
+              jQuery(node).dialog({
+                title: 'Set Nested Resources to Public',
+                width: 'auto',
+                height: 'auto',
+                buttons: {
+                  Yes: function() {
+                    jQuery.ajax({
+                      type: 'post',
+                      dataType: 'json',
+                      url: '/playlists/' + jQuery('#playlist').data('itemid') + '/toggle_nested_private',
+                      beforeSend: function(){
+                        jQuery.showGlobalSpinnerNode();
+                      },
+                      success: function(data) {
+                        jQuery('#nested_public').remove();
+                        jQuery('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users.').css('color', 'red');
+                        jQuery(node).dialog('close');
+                      },
+                      complete: function() {
+                        jQuery.hideGlobalSpinnerNode();
+                      }
+                    });
+                  },
+                  No: function() {
+                    jQuery(node).dialog('close');
+                  }
+                }
+              });
+            });
+          }
+        }
       } else {
+        jQuery.playlist_mark_private(jQuery.cookie('user_id'), false);
         if(!results.can_edit_notes) {
           jQuery('#description #public-notes, #description #private-notes').remove();
         }
@@ -26,6 +95,7 @@ jQuery.extend({
         });
       }
     } else {
+      jQuery.playlist_mark_private(jQuery.cookie('user_id'), false);
       jQuery('.requires_edit, .requires_remove').remove();
     }
     var notes = jQuery.parseJSON(results.notes) || new Array() 
@@ -35,7 +105,9 @@ jQuery.extend({
         var node = jQuery('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
         if(!jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .additional_details').length) {
           jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper').append(jQuery('<div>').addClass('additional_details'));
-          jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + el.playlist_item.id + '">Show/Hide More</a>'));
+          if(jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell .rr').size() == 0) {
+            jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell').append(jQuery('<a href="#" class="rr rr-closed" id="rr' + el.playlist_item.id + '">Show/Hide More</a>'));
+          }
         }
         jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details .notes').remove();
         jQuery('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details').append(node);
@@ -576,4 +648,12 @@ var delete_playlist_item_template = '\
 <a href="{{url}}" id="playlist_item_delete">YES</a>\
 <a href="#" id="playlist_item_cancel">NO</a>\
 </div>\
+';
+
+var nested_notification = '\
+<p id="private_detail">This playlist contains {{nonowned}} private nested resource item(s) owned by other users.</p>\
+';
+var set_nested_owned_private_resources_public = '\
+<p id="private_detail">This playlist contains {{owned}} private nested resource item(s) owned by you, and {{nonowned}} private nested resource item(s) owned by other users.</p>\
+<a href="{{url}}" id="nested_public" class="button">Set nested item(s) owned by you to public</a>\
 ';

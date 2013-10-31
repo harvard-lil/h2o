@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131008171525) do
+ActiveRecord::Schema.define(:version => 20131024153740) do
 
   create_table "annotation_versions", :force => true do |t|
     t.integer  "annotation_id"
@@ -357,8 +357,9 @@ ActiveRecord::Schema.define(:version => 20131008171525) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                           :default => 0,    :null => false
     t.string   "content_type"
+    t.integer  "user_id",                           :default => 0,    :null => false
+    t.string   "ancestry"
   end
 
   create_table "defects", :force => true do |t|

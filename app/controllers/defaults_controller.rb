@@ -1,7 +1,7 @@
 class DefaultsController < BaseController
   cache_sweeper :default_sweeper
 
-  before_filter :load_single_resource, :only => [:edit, :update, :destroy, :show]
+  before_filter :load_single_resource, :only => [:edit, :update, :destroy, :show, :copy]
   before_filter :require_user, :except => [:index, :embedded_pager, :show]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
@@ -9,13 +9,27 @@ class DefaultsController < BaseController
   access_control do
     allow all, :to => [:index, :show, :embedded_pager, :new, :create]
 
+    allow logged_in, :to => [:copy]
+
     allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
 
-    allow :admin, :superadmin
+    allow :superadmin
   end
 
   def show
+  end
 
+  def copy
+    default_copy = @default.clone
+    default_copy.parent = @default
+    default_copy.karma = 0
+    default_copy.user = current_user
+
+    if default_copy.save
+      render :json => { :type => 'links', :id => default_copy.id }
+    else
+      render :json => { :type => 'links' }, :status => :unprocessable_entity
+    end
   end
 
   def index
@@ -27,7 +41,7 @@ class DefaultsController < BaseController
   end
 
   def new
-    add_javascripts ['visibility_selector', 'new_default', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     @default = Default.new
@@ -35,7 +49,7 @@ class DefaultsController < BaseController
   end
 
   def render_or_redirect_for_captcha_failure
-    add_javascripts ['visibility_selector', 'new_default', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     @default = Default.new(params[:default])
@@ -46,7 +60,7 @@ class DefaultsController < BaseController
   end
 
   def edit
-    add_javascripts ['visibility_selector', 'new_default', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     if @default.metadatum.blank?
@@ -66,7 +80,7 @@ class DefaultsController < BaseController
       flash[:notice] = 'Link was successfully created.'
       redirect_to edit_default_path(@default)
     else
-      add_javascripts ['visibility_selector', 'new_default', 'tiny_mce/tiny_mce.js', 'h2o_wysiwig', 'switch_editor']
+      add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
       add_stylesheets ['new_default']
 
       @default.build_metadatum
