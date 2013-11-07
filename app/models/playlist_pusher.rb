@@ -79,14 +79,13 @@ class PlaylistPusher
   end
 
   def build_playlist_sql(source_playlist)
-    source_playlist = Playlist.find(self.source_playlist_id)
     @barcode_clear_users << source_playlist.user
 
-    playlist_id = self.source_playlist_id
     sql = "INSERT INTO playlists (\"#{Playlist.insert_column_names.join('", "')}\") "
-    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => playlist_id, :karma => 0, :ancestry => (source_playlist.ancestry.nil? ? playlist_id : "#{source_playlist.ancestry}/#{playlist_id}") }).join(", ")} FROM playlists, users "
-    sql += "WHERE playlists.id = #{playlist_id} AND users.id IN (#{self.user_ids.join(", ")}) "
+    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => source_playlist.id, :karma => 0, :ancestry => (source_playlist.ancestry.nil? ? source_playlist.id : "#{source_playlist.ancestry}/#{source_playlist.id}") }).join(", ")} FROM playlists, users "
+    sql += "WHERE playlists.id = #{source_playlist.id} AND users.id IN (#{self.user_ids.join(", ")}) "
     sql += "RETURNING *;"
+    sql
   end
 
   def create_actual_object(actual_object)
