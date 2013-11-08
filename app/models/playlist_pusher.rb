@@ -73,7 +73,7 @@ class PlaylistPusher
     if self.email_receiver == 'source'
       recipient = playlist.user
     elsif self.email_receiver == 'destination' && self.user_ids.length == 1
-      recipient = new_playlists.first.user
+      recipient = User.find(self.user_ids.first)
     end
     Notifier.deliver_playlist_push_completed(recipient, playlist.name, new_playlists.first.id)
   end
