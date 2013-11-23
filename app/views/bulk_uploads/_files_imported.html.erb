@@ -11,6 +11,10 @@
     <td>
         <%= import.active? ? "active" : "not active" %>
     </td>
+    <td>
+      Edit
+      <%= link_to "#{import.short_name}", edit_case_path(import.created_object) %>
+    </td>
   </tr>
   <% end %>
   </table>
