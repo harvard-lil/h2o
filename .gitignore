@@ -14,5 +14,5 @@ public/index.html
 public/base.html
 public/p/
 log/.nfs*
-log/*.log
+log/*
 log/*.log*
