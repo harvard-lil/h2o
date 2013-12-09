@@ -24,9 +24,9 @@ class User < ActiveRecord::Base
   include KarmaRounding
 
   #acts_as_voter
-  acts_as_authentic 
+  acts_as_authentic
   acts_as_authorization_subject
-  
+
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
   has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   validates_format_of_email :email_address, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
-    
+
   RATINGS = {
     :playlist_created => 5,
     :collage_created => 3,
@@ -92,7 +92,7 @@ class User < ActiveRecord::Base
     :user_playlist_remix => "Playlist Remixed",
     :user_default_remix => "Link Remixed"
   }
-  
+
   def terms_validation
     errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
   end
@@ -112,14 +112,14 @@ class User < ActiveRecord::Base
     true
   end
 
-  def public 
-    true 
+  def public
+    true
   end
 
   def users
     []
   end
-  
+
   def to_s
     (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
   end
@@ -186,10 +186,10 @@ class User < ActiveRecord::Base
   end
 
   def is_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0 
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
   end
   def is_case_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['case_admin','superadmin']}).length > 0 
+    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['case_admin','superadmin']}).length > 0
   end
   def is_text_block_admin
     self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
@@ -229,23 +229,23 @@ class User < ActiveRecord::Base
     reset_perishable_token!
     Notifier.deliver_password_reset_instructions(self)
   end
-  
+
   def default_font_size
     attributes['default_font_size'] || self.large_font_size
   end
-  
+
   def tab_open_new_items
     @tab_open_new_items || false
   end
-  
+
   def large_font_size
     16
   end
-  
+
   def save_version?
     (self.changed - self.non_versioned_columns).any?
   end
-  
+
   def barcode
     Rails.cache.fetch("user-barcode-#{self.id}") do
       barcode_elements = []
@@ -259,11 +259,11 @@ class User < ActiveRecord::Base
         type_title = "#{single_type.capitalize}"
 
         public_items = self.send(type).select { |i| i.public }
-  
+
         # Base Created
         public_items.each do |item|
           barcode_elements << { :type => created_type,
-                                :date => item.created_at, 
+                                :date => item.created_at,
                                 :title => "#{item.class} created: #{item.name}",
                                 :link => self.send("#{item.class.to_s.tableize.singularize}_path", item.id) }
         end
@@ -275,14 +275,14 @@ class User < ActiveRecord::Base
             item.collages.each do |collage|
               next if collage.nil? || collage.user.nil? || collage.user == self
               barcode_elements << { :type => collaged_type,
-                                    :date => collage.created_at, 
+                                    :date => collage.created_at,
                                     :title => "#{item.class} #{item.name} collaged to #{collage.name}",
                                     :link => collage_path(collage.id) }
-          
+
             end
           end
         end
-  
+
         # Bookmarked, or Incorporated
         incorporated_items = PlaylistItem.all(:conditions => { :actual_object_id => public_items.map(&:id), :actual_object_type => type_title })
         incorporated_items.each do |ii|
@@ -291,24 +291,24 @@ class User < ActiveRecord::Base
           next if playlist.user == self
           if playlist.name == "Your Bookmarks"
             barcode_elements << { :type => "user_#{single_type}_bookmarked",
-                                  :date => ii.created_at, 
+                                  :date => ii.created_at,
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.user.display}",
                                   :link => user_path(playlist.user) }
           else
             barcode_elements << { :type => "user_#{single_type}_added",
-                                  :date => ii.created_at, 
+                                  :date => ii.created_at,
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
                                   :link => playlist_path(playlist.id) }
           end
         end
-  
+
         # Remix
         if ["collages", "playlists"].include?(type)
           public_items.each do |item|
             item.public_children.each do |child|
               next if child.nil? || child.user.nil? || child.user == self
               barcode_elements << { :type => "user_#{single_type}_remix",
-                                    :date => child.created_at, 
+                                    :date => child.created_at,
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
                                     :link => self.send("#{single_type}_path", child.id) }
             end
@@ -320,16 +320,16 @@ class User < ActiveRecord::Base
         item.public_children.each do |child|
           next if child.nil? || child.user.nil? || child.user == self
           barcode_elements << { :type => "user_default_remix",
-                                :date => child.created_at, 
+                                :date => child.created_at,
                                 :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
                                 :link => default_path(child.id) }
         end
       end
-  
+
       barcode_elements.sort_by { |a| a[:date] }
     end
   end
-  
+
   def update_karma
     value = self.barcode.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
     self.update_attribute(:karma, value)
@@ -341,4 +341,27 @@ class User < ActiveRecord::Base
     playlists = pas.collect { |pa| pa.user_collection.playlists }.flatten.uniq
     playlists.select { |playlist| !playlist.public }
   end
+
+  def dropbox_access_token_file_path
+    RAILS_ROOT + DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
+  end
+
+  def dropbox_access_token
+    return unless File.exists?(dropbox_access_token_file_path)
+    @dropbox_access_token ||= File.read(dropbox_access_token_file_path)
+  end
+
+  def save_dropbox_access_token(token)
+    delete_access_token_file_if_it_already_exists
+    write_token_to_new_file(token)
+  end
+
+  def delete_access_token_file_if_it_already_exists
+    FileUtils.rm_f(dropbox_access_token_file_path)
+  end
+
+  def write_token_to_new_file(token)
+    File.open(dropbox_access_token_file_path, 'w') {|f| f.write(token) }
+  end
+
 end

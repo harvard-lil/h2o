@@ -22,10 +22,16 @@ class BulkUploadsController < ApplicationController
   end
 
   def require_dropbox_session
+    try_to_load_access_token
     unless current_dropbox_session
       redirect_to_dropbox_sessions
       false
     end
+  end
+
+  def try_to_load_access_token
+    return if current_dropbox_session
+    session[:dropbox_session] = current_user.dropbox_access_token
   end
 
   def initialize_dropbox_client

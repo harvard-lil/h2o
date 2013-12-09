@@ -12,7 +12,7 @@ class DropboxH2o
     @dh2o.import(Case, BulkUpload.create!)
     Notifier.deliver_password_reset_instructions(User.find(415))
   end
-  
+
   def self.do_import(klass, dbsession, bulk_upload, user)
     puts "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}\n"
     @dh2o = DropboxH2o.new(dbsession)
