@@ -8,6 +8,10 @@ module StandardModelExtensions
       self.barcode.inject({}) { |h, b| h[b[:type].to_sym] ||= 0; h[b[:type].to_sym] += 1; h }
     end
 
+    def playlists_included_ids
+      PlaylistItem.find(:all, :conditions => { :actual_object_type => self.class.to_s, :actual_object_id => self.id }, :select => :playlist_id)
+    end
+
     def barcode_bookmarked_added
       elements = []
       PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, self.class.to_s).each do |item|

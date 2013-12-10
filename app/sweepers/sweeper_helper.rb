@@ -1,11 +1,16 @@
 module SweeperHelper
 
   def clear_playlists(playlist_items)
-    playlist_ids = playlist_items.collect { |pi| pi.playlist_id }
+    playlist_ids = playlist_items.collect { |pi| pi.playlist_id }.uniq
     playlist_ids.each do |pid|
       expire_page :controller => :playlists, :action => :show, :id => pid
       expire_page :controller => :playlists, :action => :export, :id => pid
       Rails.cache.delete("playlist-wordcount-#{pid}")
+      
+      Playlist.find(pid).playlists_included_ids.each do |pi|
+        expire_page :controller => :playlists, :action => :show, :id => pi.playlist_id
+        expire_page :controller => :playlists, :action => :export, :id => pi.playlist_id
+      end
     end
   end
 

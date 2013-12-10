@@ -12,7 +12,7 @@ var panel_width;
 var min_tick_width = 10;
 var item_offset_top;
 var right_offset;
-var user_playlists;
+var user_playlists = new Array();
 var scife_fn_clicked = function() {
 };
 var page_load = true;
