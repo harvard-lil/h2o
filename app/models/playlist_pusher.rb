@@ -58,7 +58,7 @@ class PlaylistPusher
       if playlist_item.actual_object_type == "Playlist"
         created_actual_objects << push_single_playlist(playlist_item.actual_object_id, recursive_level + 1)
       else
-        created_actual_objects << create_actual_object(playlist_item.actual_object)
+        created_actual_objects << create_actual_object(playlist_item.actual_object) if playlist_item.actual_object.present?
       end
     end
     created_actual_objects = created_actual_objects.flatten
@@ -89,7 +89,7 @@ class PlaylistPusher
   end
 
   def create_actual_object(actual_object)
-    create_sql = build_struct_from_object(actual_object)
+    create_sql = self.create_select_for_actual_object(actual_object)
     self.barcode_clear_users << actual_object.user
 
     returned_object_ids = execute!(create_sql)
@@ -155,15 +155,17 @@ class PlaylistPusher
     select_statements = []
     index = 0
     source_playlist.playlist_items.each do |original_playlist_item|
-      new_playlists.each do |new_playlist|
-        actual_object = created_actual_objects[index]
-        select_statements << "SELECT #{PlaylistItem.insert_value_names(:overrides => {:actual_object_id => actual_object.id,
+      if original_playlist_item.actual_object.present?
+        new_playlists.each do |new_playlist|
+          actual_object = created_actual_objects[index]
+          select_statements << "SELECT #{PlaylistItem.insert_value_names(:overrides => {:actual_object_id => actual_object.id,
                                                                        :actual_object_type => actual_object.class.to_s,
                                                                        :playlist_id => new_playlist.id,
                                                                        :pushed_from_id => original_playlist_item.id}).join(', ')}
                FROM playlist_items
                WHERE playlist_items.id = #{original_playlist_item.id};"
-        index+=1
+          index+=1
+        end
       end
     end
     values_sql = build_insert_values_sql(select_statements)
@@ -171,9 +173,6 @@ class PlaylistPusher
     build_insert_sql(PlaylistItem, values_sql)
   end
 
-  def build_struct_from_object(actual_object)
-    self.create_select_for_actual_object(actual_object)
-  end
   def build_structs_from_objects(klasses, actual_objects, new_collages)
     struct_array = klasses.inject([]) do |arr, klass|
       klass_objects = actual_objects.find_all{|ao| ao.class == klass}
