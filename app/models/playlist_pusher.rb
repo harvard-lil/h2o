@@ -49,7 +49,7 @@ class PlaylistPusher
     new_playlists = Playlist.find(created_playlist_ids)
     self.generate_ownership_sql!(new_playlists)
     self.generate_public_private_sql!(new_playlists)
-    self.barcode_clear_users << source_playlist.user
+    self.barcode_clear_users << source_playlist.user if source_playlist.user.present?
 
     return new_playlists if recursive_level > 4
 
@@ -79,7 +79,7 @@ class PlaylistPusher
   end
 
   def build_playlist_sql(source_playlist)
-    @barcode_clear_users << source_playlist.user
+    @barcode_clear_users << source_playlist.user if source_playlist.user.present?
 
     sql = "INSERT INTO playlists (\"#{Playlist.insert_column_names.join('", "')}\") "
     sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => source_playlist.id, :karma => 0, :ancestry => (source_playlist.ancestry.nil? ? source_playlist.id : "#{source_playlist.ancestry}/#{source_playlist.id}") }).join(", ")} FROM playlists, users "
@@ -90,7 +90,7 @@ class PlaylistPusher
 
   def create_actual_object(actual_object)
     create_sql = self.create_select_for_actual_object(actual_object)
-    self.barcode_clear_users << actual_object.user
+    self.barcode_clear_users << actual_object.user if actual_object.user.present?
 
     returned_object_ids = execute!(create_sql)
     created_actual_objects = actual_object.class.find(returned_object_ids)
