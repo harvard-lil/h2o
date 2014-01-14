@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140107204857) do
+ActiveRecord::Schema.define(:version => 20140114171709) do
 
   create_table "annotations", :force => true do |t|
     t.integer  "collage_id"
@@ -193,7 +193,7 @@ ActiveRecord::Schema.define(:version => 20140107204857) do
   create_table "defaults", :force => true do |t|
     t.string   "name",           :limit => 1024
     t.string   "title",          :limit => 1024
-    t.string   "url",                                                 :null => false
+    t.string   "url",            :limit => 1024,                      :null => false
     t.string   "description",    :limit => 5242880
     t.boolean  "active",                            :default => true
     t.boolean  "public",                            :default => true
