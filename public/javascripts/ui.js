@@ -44,6 +44,18 @@ $.extend({
       sort.siblings('.jsb-currentItem').html(new_option.html());
     } 
   },
+  observeDefaultDescriptionShow: function() {
+    $(document).delegate('.show_default_description', 'click', function(e) {
+      e.preventDefault();
+      $(this).hide();
+      $(this).next('.default_description').show();
+    });
+    $(document).delegate('.hide_default_description', 'click', function(e) {
+      e.preventDefault();
+      $(this).parent().hide();
+      $(this).parent().prev('.show_default_description').show();
+    });
+  },
   adjustArticleHeaderSizes: function() {
     $('article h1').addClass('scale1-4');
     $('article h2').addClass('scale1-3');
@@ -1317,6 +1329,7 @@ $(function() {
   $.initializeRightPanelScroll();
   $.resetRightPanelThreshold();
   $.observeDefaultPrintListener();
+  $.observeDefaultDescriptionShow();
 
   if($('body').hasClass('action_index')) {
     $.setListLinkVisibility();

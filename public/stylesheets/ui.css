@@ -442,6 +442,17 @@ color: #999;
   text-decoration: none;
   font-weight: bold;
 }
+#results li.listitem a.show_default_description,
+#results li.listitem a.hide_default_description {
+  font-weight: normal;
+  color: #036290;
+}
+#results li.listitem a.hide_default_description {
+  padding-left: 5px;
+}
+#results li.listitem p.default_description {
+  display: none;
+}
 #results li.listitem .list-icon {
   display: block;
   float: left;

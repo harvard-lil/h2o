@@ -14,6 +14,13 @@
       <%= link_to(default.user.display, user_path(default.user)) %>
       <% end -%>
     </p>
+    <% if default.description.present? -%>
+    <a href="#" class="show_default_description">(more)</a>
+    <p class="default_description">
+    <%= default.description %>
+    <a href="#" class="hide_default_description">(less)</a>
+    </p>
+    <% end -%>
 	</div>
   <div class="right_details">
   <div class="barcode_outer">
