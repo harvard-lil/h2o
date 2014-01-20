@@ -149,6 +149,9 @@ $.extend({
       var sort = $(this).val();
       var region = $(this).parent().parent().data('region');
       var url = document.location.pathname + '?ajax_region=' + region + '&sort=' + sort;
+      /*if($('#user_search_filter select').val() != 'all_materials') {
+        url += '&filter_type=' + $('#user_search_filter select').val();
+      } */
       $.listResultsSpecial(url, region, true);
     });
     $(document).delegate('.users_pagination a', 'click', function(e) {
@@ -160,15 +163,18 @@ $.extend({
   },
   observeKeywordsSearch: function() {
     $('#search_user_content').click(function(e){
-      var url = document.location.pathname + '?keywords=' + $('#user_keywords').val() + '&sort=' + $('.bookshelf_setup .sort select').val();
+      var url = document.location.pathname + '?keywords=' + $('#user_keywords').val() + '&sort=' + $('#user_sort select').val();
+      if($('#user_search_filter select').val() != 'all_materials') {
+        url += '&filter_type=' + $('#user_search_filter select').val();
+      }
       $.showGlobalSpinnerNode();
       $.address.value(url);
       $('#results_set').load(url, function() { 
         $.hideGlobalSpinnerNode(); 
         $.renderDeleteFunctionality();
-
-        //TODO: Investigate this:
-        $('.pagination').html('');
+        
+        $('.standard_pagination').html($('#new_pagination').html());
+        $('#new_pagination').remove();
       });
     });
   }

@@ -69,7 +69,8 @@ class UsersController < ApplicationController
 
     public_filtering = !current_user || @user != current_user
 
-    [Playlist, Collage, Case, Media, TextBlock, Default].each do |model|
+    models = params.has_key?(:filter_type) ? [params[:filter_type].singularize.classify.constantize] : [Playlist, Collage, Case, Media, TextBlock, Default]  
+    models.each do |model|
       set_belongings model
     end
 
@@ -88,7 +89,7 @@ class UsersController < ApplicationController
           render :partial => 'shared/generic_collection_block'
         end
       else
-        @results = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
+        @results = Sunspot.new_search(models)
         @results.build do
           paginate :page => params[:page], :per_page => 10 
           with :user_id, user_id_filter
@@ -109,7 +110,7 @@ class UsersController < ApplicationController
       end
     else
       bookmarks_id = @user.bookmark_id || 0
-      @bookshelf = Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default)
+      @bookshelf = Sunspot.new_search(models)
       @bookshelf.build do
         paginate :page => params[:page], :per_page => 10 
         with :user_id, user_id_filter

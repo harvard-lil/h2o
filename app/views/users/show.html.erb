@@ -3,18 +3,35 @@
     <div class="header">
       <h3><%= @user == current_user ? "My" : "#{@user.simple_display}'s" %> Workshop</h3>
       <span class="icon icon-bookshelf"></span>
-      <div class="bookshelf_setup">
-        <div id="user_content_filter">
-          <input id="user_keywords" name="keywords" size="50" type="text">
-          <button id="search_user_content" class="button">SEARCH</button>
-        </div>
-        <aside class="sort">
-          <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
-        </aside>
-      </div>
+      <table id="user_search" cellpadding="0" cellspacing="0">
+        <tr>
+          <td id="user_search_input">
+            <input id="user_keywords" name="keywords" size="50" type="text">
+          </td>
+          <td id="user_search_filter">
+				    <select id="search_all">
+					    <option value="all_materials">all</option>
+              <% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links" }.each do |k, v| -%>
+					    <option value="<%= k %>" <%= raw 'selected="selected"' if params[:controller] == k %>><%= v %></option>
+					    <% end -%>
+				    </select>
+          </td>
+          <td id="user_search_button">
+            <button id="search_user_content" class="button">SEARCH</button>
+          </td>
+          <td id="user_sort" align="right">
+            <aside class="sort">
+              <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
+            </aside>
+          </td>
+        </tr>
+      </table>
+      <% if @bookshelf.results.total_entries > 10 -%>
       <aside class="pagination standard_pagination">
         <%= will_paginate @bookshelf.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
       </aside>
+      <% end -%>
+      <div class="clear"></div>
     </div>
     <ul id="results_set">
       <% @bookshelf.each_hit_with_result do |hit, result| -%>
@@ -116,9 +133,12 @@
       <aside class="special_sort" data-region="<%= type %>">
         <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[type] } %>
       </aside>
+      <% if v[:results].total_entries > 10 -%>
       <aside class="pagination users_pagination" id="pagination_<%= type.to_s %>" data-region="<%= type %>">
         <%= will_paginate v[:results], :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax_region => "#{type.to_s}" } %>
       </aside>
+      <% end -%>
+      <div class="clear"></div>
 	  </div>
 		<ul id="results_<%= type.to_s %>">
 			<% v[:results].each do |item| -%>

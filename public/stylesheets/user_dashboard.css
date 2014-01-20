@@ -28,7 +28,7 @@
 }
 #results .panel .header h3 {
   font-weight: normal;
-  padding: 8px 0px 0px 0px;
+  padding: 0px;
   display: inline-block;
   font-size: 21pt;
 }
@@ -98,34 +98,32 @@ ul.user_list li a.item {
 #results #bookmarks_panel .bookmark-action {
   display: none;
 }
-#results .sort,
+table#user_search {
+  width: 100%;
+  margin: 10px 0px;
+}
+#results .sort {
+  margin: 0px;
+}
 #results .special_sort {
-  position: absolute;
-  top: 0px;
-  right: 10px;
+  margin: 0px 0px 10px 0px;
 }
-#results .special_pagination {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
+#user_keywords {
+  width: 75px;
 }
-.bookshelf_setup {
-  position: absolute;
-  top: 5px;
-  right: 6px;
+#results #user_search_filter .jsb {
+  width: 86px !important;
 }
-
-.bookshelf_setup .sort {
-  position: static !important;
+#results #user_search_filter .jsb .jsb-moreButton {
+  width: 86px;
 }
-
-#user_content_filter {
-  float: left;
-  margin: 5px 0px;
-  margin-right: 3px;
+table#user_search td#user_search_input,
+table#user_search td#user_search_filter {
   background: #FFF;
 }
-
+table#user_search td#user_search_filter {
+  width: 100px;
+}
 #search_user_content {
   font-family: 'futura-pt', Verdana, Arial, Helvetica, sans-serif; 
   cursor: pointer;
@@ -137,4 +135,10 @@ ul.user_list li a.item {
   padding: 3px 7px 4px;
   border: none;
   font-size: 14px;
+}
+#results .pagination {
+  position: static;
+  float: right;
+  margin-bottom: 10px;
+  clear: right;
 }

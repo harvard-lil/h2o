@@ -804,6 +804,9 @@ $.extend({
       }
       if($('#user_keywords').length) {
         url += '&keywords=' + $('#user_keywords').val();
+        if($('#user_search_filter select').val() != 'all_materials') {
+          url += '&filter_type=' + $('#user_search_filter select').val();
+        }
       }
       $.listResults(url, true);
     });

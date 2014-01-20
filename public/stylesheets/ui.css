@@ -1436,7 +1436,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width: 200px;
 }
 #results .jsb .jsb-currentItem {
-  background: url(/images/right-arrow.png) right 5px no-repeat;
+ /* background: url(/images/arrow-search.png) right 5px no-repeat; */
 }
 #results .jsb .jsb-list {
   width: 200px !important;
