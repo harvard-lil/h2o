@@ -286,7 +286,17 @@ $.extend({
       } else {
         popup_item_id = current_id;
         popup_item_type = element.data('type');
-        var addItemNode = $($.mustache(add_popup_template, { "playlists": user_playlists }));
+        var filtered_playlists = new Array();
+        if(popup_item_type == 'playlist') {
+          $.each(user_playlists, function(i, j) {
+            if(popup_item_id != j.playlist.id) {
+              filtered_playlists.push(j);
+            }
+          }); 
+        } else {
+          filtered_playlists = user_playlists;
+        }
+        var addItemNode = $($.mustache(add_popup_template, { "playlists": filtered_playlists }));
         $(addItemNode).dialog({
           title: 'Add item to...',
           modal: true,
