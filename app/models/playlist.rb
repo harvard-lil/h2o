@@ -94,7 +94,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def display_name
-    "\"#{self.name}\",  #{self.created_at.to_s(:simpledatetime)}  by " + self.user.login
+    "\"#{self.name}\",  #{self.created_at.to_s(:simpledatetime)}" + (self.user ? " by " + self.user.login : "")
   end
   alias :to_s :display_name
 
