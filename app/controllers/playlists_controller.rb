@@ -197,26 +197,31 @@ class PlaylistsController < BaseController
   end
 
   def copy
-    @playlist = Playlist.find(params[:id], :include => :playlist_items)  
-    @playlist_copy = Playlist.new(params[:playlist])
-    @playlist_copy.parent = @playlist
-    @playlist_copy.karma = 0
-    @playlist_copy.title = params[:playlist][:name]
-    @playlist_copy.user = current_user
-
-    if @playlist_copy.save
-      # Note: Building empty playlist barcode to reduce cache lookup, optimize
-      Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}") { [] }
-
-      @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
-        new_item = item.clone
-        new_item.save!
-        new_item
-      }
-
-      render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
-    else
-      render :json => { :type => 'playlists', :id => @playlist_copy.id }, :status => :unprocessable_entity 
+    begin
+      @playlist = Playlist.find(params[:id], :include => :playlist_items)  
+      @playlist_copy = Playlist.new(params[:playlist])
+      @playlist_copy.parent = @playlist
+      @playlist_copy.karma = 0
+      @playlist_copy.title = params[:playlist][:name]
+      @playlist_copy.user = current_user
+ 
+      if @playlist_copy.save
+        # Note: Building empty playlist barcode to reduce cache lookup, optimize
+        Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}") { [] }
+  
+        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
+          new_item = item.clone
+          new_item.save!
+          new_item
+        }
+  
+        render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
+      else
+        render :json => { :type => 'playlists'}, :status => :unprocessable_entity 
+      end
+    rescue Exception => e
+      Rails.logger.warn "Failure in playlist copy: #{e.inspect}"
+      render :json => { :type => 'playlists'}, :status => :unprocessable_entity 
     end
   end
 

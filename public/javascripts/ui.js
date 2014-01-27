@@ -1243,6 +1243,7 @@ $.extend({
         }
       },
       error: function(xhr) {
+        $('#generic-node').prepend($('<p class="error">Could not complete action. Please try again.</p>'));
         $.hideGlobalSpinnerNode();
       },
     });

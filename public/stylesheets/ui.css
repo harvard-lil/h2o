@@ -77,7 +77,7 @@ form.formtastic input.button {
   border: none;
 }
 
-#notice, #error_block {
+#notice, #error_block, .error {
   color: #A51514;
 }
 #notice {
