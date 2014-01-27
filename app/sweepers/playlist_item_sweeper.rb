@@ -5,7 +5,6 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
 
   def actual_object_clear(actual_object)
     begin
-
       if actual_object.present?
         Rails.cache.delete("#{actual_object.class.to_s.downcase}-barcode-#{actual_object.id}")
         Rails.cache.delete("views/#{actual_object.class.to_s.downcase}-barcode-html-#{actual_object.id}")
@@ -28,7 +27,6 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
-    clear_playlists([record])
     actual_object_clear(record.actual_object)
   end
 end

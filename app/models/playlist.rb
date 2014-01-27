@@ -98,10 +98,6 @@ class Playlist < ActiveRecord::Base
   end
   alias :to_s :display_name
 
-  def parents
-    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist_id }.uniq
-  end
-
   def barcode
     Rails.cache.fetch("playlist-barcode-#{self.id}") do
       barcode_elements = self.barcode_bookmarked_added
@@ -117,6 +113,10 @@ class Playlist < ActiveRecord::Base
 
       barcode_elements.sort_by { |a| a[:date] }
     end
+  end
+
+  def parents
+    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist_id }.uniq
   end
 
   def relation_ids
