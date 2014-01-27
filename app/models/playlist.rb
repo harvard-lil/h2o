@@ -116,7 +116,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def parents
-    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist_id }.uniq
+    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist }.uniq
   end
 
   def relation_ids
@@ -125,11 +125,13 @@ class Playlist < ActiveRecord::Base
     while i < r.size
       Playlist.find(r[i]).parents.each do |a|
         next if r.include?(a)
+        next if a.name == "Your Bookmarks"
         r.push(a)
       end
       i+=1
     end
-    r
+
+    r.collect { |p| p.id }
   end
 
   def actual_objects
