@@ -288,11 +288,11 @@ class ApplicationController < ActionController::Base
   # Note: Can be moved to after auto login filter if one exists
   def fix_cookies
     if current_user.present? && cookies[:user_id].nil?
-      apply_user_preferences(current_user)
+      apply_user_preferences(current_user, false)
     end
   end
 
-  def apply_user_preferences(user)
+  def apply_user_preferences(user, on_create)
     if user
       cookies[:font_size] = user.default_font_size
       cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
@@ -300,8 +300,14 @@ class ApplicationController < ActionController::Base
       cookies[:display_name] = user.simple_display
       cookies[:user_id] = user.id
       cookies[:anonymous_user] = false
-      cookies[:bookmarks] = user.bookmarks_map.to_json
-      cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) 
+
+      if on_create
+        cookies[:bookmarks] = "[]"
+        cookies[:playlists] = "[]"
+      else
+        cookies[:bookmarks] = user.bookmarks_map.to_json
+        cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) 
+      end
     end
   end
   def destroy_user_preferences(user)

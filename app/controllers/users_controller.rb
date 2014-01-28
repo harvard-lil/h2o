@@ -43,20 +43,25 @@ class UsersController < ApplicationController
     user.has_role! :nonauthenticated
     user.save do |result|
       if result
-        apply_user_preferences(user)
+        apply_user_preferences(user, true)
         cookies[:anonymous_user] = true
         cookies[:display_name] = "ANONYMOUS"
         if request.xhr?
           #text doesn't matter, it's the return code that does
           render :text => '/'
+          return
         else
           flash[:notice] = "Account registered!"
           redirect_back_or_default user_path(user)
+          return
         end
       else
         render :action => :create_anon, :status => :unprocessable_entity
+        return
       end
     end
+          
+    redirect_back_or_default "/"
   end
 
   def show
