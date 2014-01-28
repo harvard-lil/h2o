@@ -60,6 +60,9 @@ class BaseController < ApplicationController
       @highlighted_users = User.find(:all, :conditions => "karma > 150 AND karma < 250", :order => "karma DESC").paginate(:page => params[:page], :per_page => per_page)
     elsif params[:type] == "author_playlists"
       @author_playlists = Playlist.find(params[:id]).user.playlists.paginate(:page => params[:page], :per_page => per_page)
+    else
+      render :partial => "partial_results/empty"
+      return
     end
         
     render :partial => "partial_results/#{params[:type]}"
