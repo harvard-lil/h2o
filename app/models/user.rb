@@ -343,7 +343,7 @@ class User < ActiveRecord::Base
   end
 
   def dropbox_access_token_file_path
-    RAILS_ROOT + DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
+    DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
   end
 
   def dropbox_access_token
