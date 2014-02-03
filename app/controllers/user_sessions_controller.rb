@@ -3,6 +3,10 @@ class UserSessionsController < ApplicationController
   before_filter :require_user, :only => :destroy
   protect_from_forgery :except => [:create]
   
+  def show
+    redirect_to root_url, :status => 301
+  end
+  
   def new
     @user_session = UserSession.new
     render :layout => (request.xhr?) ? false : true
