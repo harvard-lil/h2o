@@ -702,7 +702,7 @@ var h2o_global = {
     });
   },
   addItemToPlaylistDialog: function(klass, item_id, playlist_id) {
-    var url = h2o_global.root_pathWithFQDN() + klass + 's/' + item_id;
+    var url = h2o_global.rootPathWithFQDN() + klass + 's/' + item_id;
     $.ajax({
       method: 'GET',
       cache: false,
@@ -1002,7 +1002,7 @@ var h2o_global = {
   },
   observeBookmarkControls: function() {
     $(document).delegate('.bookmark-action', 'click', function(e){
-      var item_url = h2o_global.root_pathWithFQDN() + 'bookmark_item/';
+      var item_url = h2o_global.rootPathWithFQDN() + 'bookmark_item/';
       var el = $(this);
       item_url += el.data('type') + '/' + el.data('itemid');
       e.preventDefault();
@@ -1039,7 +1039,7 @@ var h2o_global = {
     });
     $(document).delegate('.delete-bookmark-action', 'click', function(e){
       var el = $(this);
-      var item_url = h2o_global.root_pathWithFQDN() + 'delete_bookmark_item/' + el.data('type') + '/' + el.data('itemid');
+      var item_url = h2o_global.rootPathWithFQDN() + 'delete_bookmark_item/' + el.data('type') + '/' + el.data('itemid');
 
       e.preventDefault();
       $.ajax({
