@@ -1090,7 +1090,7 @@
         var base_css_classes = 'annotator-hl annotation-' + annotation.id + ' collage-' + annotation.collage_id;
         if(annotation.category !== undefined) {
           $.each(annotation.category, function(i, c) {
-            base_css_classes += ' ' + $.clean_layer(c);
+            base_css_classes += ' ' + collages.clean_layer(c);
           });
         }
         if(annotation.linked_collage_id !== undefined && annotation.linked_collage_id !== null && annotation.linked_collage_id != '') {
@@ -1677,7 +1677,7 @@
       });
       if (field.type === 'checkbox') {
         input[0].type = 'checkbox';
-        element.addClass('annotator-checkbox ' + $.clean_layer(field.id));
+        element.addClass('annotator-checkbox ' + collages.clean_layer(field.id));
         element.append($('<label />', {
           "for": field.id,
           html: field.label

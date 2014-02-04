@@ -8,7 +8,7 @@ var collage_id;
 var heatmap_display = false;
 //var last_data;
 
-$.extend({
+var collages = {
   clean_layer: function(layer_name) {
     return layer_name.replace(/\./, 'specialsymbol');
   },
@@ -59,7 +59,7 @@ $.extend({
       $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
     });
   }
-});
+};
 
 var export_functions = {
   init: function() {
@@ -200,11 +200,11 @@ var export_functions = {
   setFontPrint: function() {
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
-    var base_font_size = base_font_sizes[font_face][font_size];
+    var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
     if(font_face == 'verdana') {
       $.rule("body .singleitem *, body .singleitem article tt { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
     } else {
-      $.rule("body .singleitem *, body .singleitem article tt { font-family: '" + font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
+      $.rule("body .singleitem *, body .singleitem article tt { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
     }
     $.rule('.singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('#additional_styles');
     $.rule('.singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('#additional_styles');

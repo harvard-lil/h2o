@@ -1,4 +1,4 @@
-$.extend({
+var user_dashboard = {
   renderDeleteFunctionality: function() {
     if('/users/' + $.cookie('user_id') == document.location.pathname) {
       $.each($('#results_set li'), function(i, el) {
@@ -14,7 +14,7 @@ $.extend({
   },
   updated_permissions: function(data) {
     $('.extra' + data.id).append($('<span>Updated!</span>'));
-    $.hideGlobalSpinnerNode();
+    h2o_global.hideGlobalSpinnerNode();
     $('#generic-node').dialog('close');
     $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
   },
@@ -31,16 +31,16 @@ $.extend({
         dataType: 'JSON',
         data: {},
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         },
         success: function(data){
           $(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
             $(".listitem" + item_id).remove();
           });
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
@@ -62,11 +62,11 @@ $.extend({
           lookup: $('#lookup').val()
         },
         beforeSend: function() {
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
           link.addClass('disabled');
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           link.removeClass('disabled');
           $('#lookup_results li').remove();
           var node = $('<li>');
@@ -91,7 +91,7 @@ $.extend({
             }
             $('#lookup_results').append(node);
           });
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           link.removeClass('disabled');
         }
       });
@@ -118,20 +118,20 @@ $.extend({
       dataType: 'html',
       url: url,
       beforeSend: function(){
-           $.showGlobalSpinnerNode();
+           h2o_global.showGlobalSpinnerNode();
          },
          error: function(xhr){
-           $.hideGlobalSpinnerNode();
+           h2o_global.hideGlobalSpinnerNode();
       },
       success: function(html){
         if(store_address) {
           $.address.value(url);
         }
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         $('#results_' + region).html(html);
         $('#pagination_' + region).html($('#new_pagination').html());
         $('#new_pagination').remove();
-        $.initializeBarcodes();
+        h2o_global.initializeBarcodes();
         $('#results_' + region + ' .listitem').hoverIntent(function() {
         $(this).addClass('hover');
         $(this).find('.icon').addClass('hover');
@@ -152,13 +152,13 @@ $.extend({
       /*if($('#user_search_filter select').val() != 'all_materials') {
         url += '&filter_type=' + $('#user_search_filter select').val();
       } */
-      $.listResultsSpecial(url, region, true);
+      user_dashboard.listResultsSpecial(url, region, true);
     });
     $(document).delegate('.users_pagination a', 'click', function(e) {
       e.preventDefault();
       var href = $(this).attr('href');
       var region = $(this).parent().data('region');
-      $.listResultsSpecial(href, region, true);
+      user_dashboard.listResultsSpecial(href, region, true);
     });
   },
   observeKeywordsSearch: function() {
@@ -167,23 +167,23 @@ $.extend({
       if($('#user_search_filter select').val() != 'all_materials') {
         url += '&filter_type=' + $('#user_search_filter select').val();
       }
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $.address.value(url);
       $('#results_set').load(url, function() { 
-        $.hideGlobalSpinnerNode(); 
-        $.renderDeleteFunctionality();
+        h2o_global.hideGlobalSpinnerNode(); 
+        user_dashboard.renderDeleteFunctionality();
         
         $('.standard_pagination').html($('#new_pagination').html());
         $('#new_pagination').remove();
       });
     });
   }
-});
+};
 
 $(function() {
-  $.observeCaseApproval();
-  $.observeCollectionActions();
-  $.observeSpecialPagination();
-  $.observeKeywordsSearch();
-  $.renderDeleteFunctionality();
+  user_dashboard.observeCaseApproval();
+  user_dashboard.observeCollectionActions();
+  user_dashboard.observeSpecialPagination();
+  user_dashboard.observeKeywordsSearch();
+  user_dashboard.renderDeleteFunctionality();
 });

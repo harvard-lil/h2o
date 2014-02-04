@@ -13,7 +13,28 @@ var all_tts;
 var unlayered_tts;
 var update_unlayered_end = 0;
 
-$.extend({
+h2o_global.collage_afterload = function(results) {
+  last_data = original_data;
+  collages.loadState();
+  if(results.can_edit_annotations) {
+    collages.listenToRecordCollageState();
+    $('.requires_edit').animate({ opacity: 1.0 });
+  } else {
+    $('.requires_edit').remove();
+  }
+  if(results.can_edit_description) {
+    $('.edit-action').animate({ opacity: 1.0 });
+  } else {
+    $('.edit-action').remove();
+  }
+  if($.cookie('user_id') == 2053) {
+    $('.upgrade-action').show();
+  } else {
+    $('.upgrade-action').remove();
+  }
+};
+
+var collages = {
   initiate_annotator: function() {
     //dummy function for annotator version 1
   },
@@ -51,14 +72,14 @@ $.extend({
 
     var data = { annotations: {}, collage_links: {} };
     $.each(clean_annotations, function(i, annotation) {
-      var start_data = $.xPathFromSingleNode($('tt#' + annotation.annotation_start), 'start', 'div.article');
-      var end_data = $.xPathFromSingleNode($('tt#' + annotation.annotation_end), 'end', 'div.article');
+      var start_data = collages.xPathFromSingleNode($('tt#' + annotation.annotation_start), 'start', 'div.article');
+      var end_data = collages.xPathFromSingleNode($('tt#' + annotation.annotation_end), 'end', 'div.article');
       data.annotations[annotation.id] = { "xpath_start": start_data.xpath, "xpath_end" : end_data.xpath, "start_offset" : start_data.offset, "end_offset" : end_data.offset }; 
     });
     $.each(clean_collage_links, function(i, collage_link) {
       $('tt#' + collage_link.link_text_start).unwrap();
-      var start_data = $.xPathFromSingleNode($('tt#' + collage_link.link_text_start), 'start', 'div.article');
-      var end_data = $.xPathFromSingleNode($('tt#' + collage_link.link_text_end), 'end', 'div.article');
+      var start_data = collages.xPathFromSingleNode($('tt#' + collage_link.link_text_start), 'start', 'div.article');
+      var end_data = collages.xPathFromSingleNode($('tt#' + collage_link.link_text_end), 'end', 'div.article');
       data.collage_links[collage_link.id] = { "xpath_start": start_data.xpath, "xpath_end" : end_data.xpath, "start_offset" : start_data.offset, "end_offset" : end_data.offset }; 
     });
     return data;
@@ -77,10 +98,10 @@ $.extend({
             $.ajax({
               type: 'post',
               dataType: 'json',
-              data: { "data" : $.xPathFromAllAnnotations() },
-              url: '/collages/' + $.getItemId() + '/upgrade_annotator',
+              data: { "data" : collages.xPathFromAllAnnotations() },
+              url: '/collages/' + h2o_global.getItemId() + '/upgrade_annotator',
               beforeSend: function() {
-                $.showGlobalSpinnerNode();
+                h2o_global.showGlobalSpinnerNode();
               },
               success: function(data) {
                 setTimeout(function() {
@@ -88,7 +109,7 @@ $.extend({
                 }, 500);
               },
               complete: function() {
-                $.hideGlobalSpinnerNode();
+                h2o_global.hideGlobalSpinnerNode();
               }
             });
           },
@@ -106,47 +127,27 @@ $.extend({
         type: 'GET',
         cache: false,
         dataType: 'JSON',
-        url: $.rootPath() + 'collages/' + $.getItemId() + '/delete_inherited_annotations',
+        url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/delete_inherited_annotations',
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         success: function(data){
           $('.unlayered-ellipsis:visible').click();
           $('div.article').removeClass('hide_unlayered').addClass('show_unlayered');
-          $.hideShowUnlayeredOptions();
+          collages.hideShowUnlayeredOptions();
           var deleted_annotations = $.parseJSON(data.deleted);
           $.each(deleted_annotations, function(i, a) {
-            $.deleteAnnotationMarkup(clean_annotations["a" + a.annotation.id]);
+            collages.deleteAnnotationMarkup(clean_annotations["a" + a.annotation.id]);
           });
           $('#inherited_h,#inherited_span').remove();
           $('.unlayered-control').hide();
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         },
         error: function() {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
-  },
-  collage_afterload: function(results) {
-    last_data = original_data;
-    $.loadState();
-    if(results.can_edit_annotations) {
-      $.listenToRecordCollageState();
-      $('.requires_edit').animate({ opacity: 1.0 });
-    } else {
-      $('.requires_edit').remove();
-    }
-    if(results.can_edit_description) {
-      $('.edit-action').animate({ opacity: 1.0 });
-    } else {
-      $('.edit-action').remove();
-    }
-    if($.cookie('user_id') == 2053) {
-      $('.upgrade-action').show();
-    } else {
-      $('.upgrade-action').remove();
-    }
   },
   slideToParagraph: function() {
     if(document.location.hash.match(/^#p[0-9]+/)) {
@@ -184,38 +185,38 @@ $.extend({
         if($('#collapse_toggle').hasClass('expanded')) {
           $('#edit_item').hide();
           $('.singleitem').addClass('expanded_singleitem');
-          $.checkForPanelAdjust();
+          h2o_global.checkForPanelAdjust();
         } else {
           $('#edit_item').hide();
           $('#stats').show();
-          $.resetRightPanelThreshold();
-          $.checkForPanelAdjust();
+          h2o_global.resetRightPanelThreshold();
+          h2o_global.checkForPanelAdjust();
         }
-        $.toggleEditMode(false);
+        collages.toggleEditMode(false);
         $('#heatmap_toggle').removeClass('inactive');
 
         /* Forcing an autosave to save in READ mode */
-        var data = $.retrieveState();  
+        var data = collages.retrieveState();  
         last_data = data;
-        $.recordCollageState(JSON.stringify(data), false);
+        collages.recordCollageState(JSON.stringify(data), false);
       } else {
         $('#edit_toggle,#quickbar_edit_toggle').addClass('edit_mode');
         if($('#collapse_toggle').hasClass('expanded') || $('#collapse_toggle').hasClass('special_hide')) {
           $('#collapse_toggle').removeClass('expanded');
           $('.singleitem').removeClass('expanded_singleitem');
           $('#edit_item').show();
-          $.resetRightPanelThreshold();
+          h2o_global.resetRightPanelThreshold();
         } else {
           $('#stats').hide();
           $('#edit_item').show();
-          $.resetRightPanelThreshold();
+          h2o_global.resetRightPanelThreshold();
         }
-        $.toggleEditMode(true);
+        collages.toggleEditMode(true);
         if($('#hide_heatmap:visible').size()) {
-          $.removeHeatmapHighlights();
+          collages.removeHeatmapHighlights();
         }
         $('#heatmap_toggle').removeClass('disabled').addClass('inactive');
-        $.checkForPanelAdjust();
+        h2o_global.checkForPanelAdjust();
       }
     });
   },
@@ -260,7 +261,7 @@ $.extend({
     });
     $('#add_new_layer').live('click', function() {
       var new_layer = $('<div class="new_layer"><p>Enter Layer Name <input type="text" name="new_layer_list[][layer]" /></p><p class="hex_input">Choose a Color<input type="hidden" name="new_layer_list[][hex]" /></p><a href="#" class="remove_layer">Cancel &raquo;</a></div>');
-      var hexes = $.getHexes();
+      var hexes = collages.getHexes();
       hexes.insertBefore(new_layer.find('.remove_layer'));
       $('#new_layers').append(new_layer);
       return false;
@@ -306,26 +307,26 @@ $.extend({
           type: 'GET',
           cache: false,
           dataType: 'JSON',
-          url: $.rootPath() + 'collages/' + $.getItemId() + '/heatmap',
+          url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/heatmap',
           beforeSend: function(){
-            $.showGlobalSpinnerNode();
+            h2o_global.showGlobalSpinnerNode();
           },
           success: function(data){
             $('.popup .highlighted').click();
             heatmap = data.heatmap;
-            $.applyHeatmapHighlights();
+            collages.applyHeatmapHighlights();
             $('#heatmap_toggle').addClass('disabled');
-            $.hideGlobalSpinnerNode();
+            h2o_global.hideGlobalSpinnerNode();
           },
           error: function() {
-            $.hideGlobalSpinnerNode();
+            h2o_global.hideGlobalSpinnerNode();
           }
         });
       } else {
         $('.popup .highlighted').click();
-        $.applyHeatmapHighlights();
+        collages.applyHeatmapHighlights();
         $('#heatmap_toggle').addClass('disabled');
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
       }
     });
     $('#heatmap_toggle.disabled').live('click', function(e) {
@@ -333,7 +334,7 @@ $.extend({
       if($(this).hasClass('inactive')) {
         return false;
       }
-      $.removeHeatmapHighlights();
+      collages.removeHeatmapHighlights();
       $('#heatmap_toggle').removeClass('disabled');
     });
   },
@@ -373,17 +374,6 @@ $.extend({
       $('#show_unlayered,#hide_unlayered').show();
     } 
   },
-  addCommas: function(str) {
-    str += '';
-    x = str.split('.');
-    x1 = x[0];
-    x2 = x.length > 1 ? '.' + x[1] : '';
-    var rgx = /(\d+)(\d{3})/;
-    while(rgx.test(x1)) {
-      x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
-  },
   observeToolListeners: function () {
     $("#buttons a.btn-a:not(.btn-a-active)").live('click', function(e) {
       e.preventDefault();
@@ -419,12 +409,12 @@ $.extend({
     $('#author_edits').click(function(e) {
       e.preventDefault();
       last_data = original_data;
-      $.loadState();
+      collages.loadState();
     });
     $('#full_text').click(function(e) {
       e.preventDefault();
       var el = $(this);
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.unlayered-ellipsis:visible,.annotation-ellipsis:visible').click();
 
       $.each($('#layers a.hide_show'), function(i, el) {
@@ -432,48 +422,48 @@ $.extend({
       });
 
       $('#layers a.shown').removeClass('shown');
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $('#show_unlayered a').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.unlayered-ellipsis:visible').click();
       $('div.article').removeClass('hide_unlayered').addClass('show_unlayered');
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
     $('#hide_unlayered a').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('div.article').removeClass('show_unlayered').addClass('hide_unlayered');
       $('div.article .unlayered-control-start').click();
       if($('.unlayered-control-end.unlayered-control-1').size()) {
         $('.unlayered-control-end.unlayered-control-1').click();
       }
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $('#show_annotations a').not('.inactive').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.annotation-content').css('display', 'inline-block');
-      $.hideGlobalSpinnerNode();
-      $.hideShowAnnotationOptions(false);
+      h2o_global.hideGlobalSpinnerNode();
+      collages.hideShowAnnotationOptions(false);
     });
     $('#hide_annotations a').not('.inactive').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.annotation-content').css('display', 'none');
-      $.hideGlobalSpinnerNode();
-      $.hideShowAnnotationOptions(false);
+      h2o_global.hideGlobalSpinnerNode();
+      collages.hideShowAnnotationOptions(false);
     });
 
     $('#layers .hide_show').live('click', function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
 
       var el = $(this);
       var layer_id = el.parent().data('id');
@@ -485,7 +475,7 @@ $.extend({
         el.html('SHOW "' + layer_name + '"');
         $('.layered-control-start.layered-control-' + layer_id).click();
       }
-      $.hideGlobalSpinnerNode();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $('#layers_highlights .link-o').live('click', function(e) {
@@ -559,7 +549,7 @@ $.extend({
       $('#collage_print').submit();
     });
     $('form#collage_print').submit(function() {
-      var data = $.retrieveState();
+      var data = collages.retrieveState();
   
       //Note: is:visible not working here
       if($('a#hide_heatmap').css('display') == 'block' && !$('a#hide_heatmap:first').is('.inactive')) {
@@ -580,11 +570,11 @@ $.extend({
         readable_state: data,
         words_shown: words_shown
       },
-      url: $.rootPath() + 'collages/' + $.getItemId() + '/save_readable_state',
+      url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/save_readable_state',
       success: function(results){
         if(show_message) {
           $('#autosave').html('Updated at: ' + results.time);
-          $.updateWordCount();
+          collages.updateWordCount();
         }
       }
     });
@@ -614,10 +604,10 @@ $.extend({
   },
   listenToRecordCollageState: function() {
     setInterval(function(i) {
-      var data = $.retrieveState();
+      var data = collages.retrieveState();
       if($('#edit_toggle').hasClass('edit_mode') && (JSON.stringify(data) != JSON.stringify(last_data))) {
         last_data = data;
-        $.recordCollageState(JSON.stringify(data), true);
+        collages.recordCollageState(JSON.stringify(data), true);
       }
     }, 1000); 
   },
@@ -631,7 +621,7 @@ $.extend({
         var annotation_id = i.replace(/#annotation-ellipsis-/, '');
         var subset = $('tt.a' + annotation_id);
         subset.css('display', 'none');
-        $.resetParentDisplay(subset);
+        collages.resetParentDisplay(subset);
       } else if(i.match(/^\.a/)) { //Backwards compatibility update
         $(i).css('display', 'inline');
         var annotation_id = i.replace(/^\.a/, '');
@@ -644,23 +634,23 @@ $.extend({
         $(i).css('display', e);
       }
     });
-    $.observeWords();
+    collages.observeWords();
     if(access_results.can_edit_annotations) {
       $('#edit_toggle').click();
-      $.toggleEditMode(true);
+      collages.toggleEditMode(true);
       $('.default-hidden').css('color', '#000');
       $('#heatmap_toggle').addClass('inactive');
     } else {
       $('#heatmap_toggle').removeClass('inactive');
-      $.toggleEditMode(false);
-      $.checkForPanelAdjust();
+      collages.toggleEditMode(false);
+      h2o_global.checkForPanelAdjust();
     }
     if($.cookie('scroll_pos')) {
       $(window).scrollTop($.cookie('scroll_pos'));
       $.cookie('scroll_pos', null);
     }
-    $.hideShowUnlayeredOptions();
-    $.hideShowAnnotationOptions(true);
+    collages.hideShowUnlayeredOptions();
+    collages.hideShowAnnotationOptions(true);
   }, 
 
   editAnnotationMarkup: function(annotation, color_map) {
@@ -794,7 +784,7 @@ $.extend({
         delete layer_info['l' + layer.id];
       }
     });
-    $.updateLayerCount();
+    collages.updateLayerCount();
 
     //Remove annotation markup
     $('.annotation-control-' + annotation.id + ',.layered-control-' + annotation.id).remove();
@@ -804,7 +794,7 @@ $.extend({
     //Handle Unlayered Controls
     var annotation_start = parseInt(annotation.annotation_start.replace(/^t/, ''));
     var annotation_end = parseInt(annotation.annotation_end.replace(/^t/, ''));
-    $.removeUnlayeredControls(els);
+    collages.removeUnlayeredControls(els);
     if(!$('tt#t' + annotation_start).hasClass('a')) {
       $('tt#t' + annotation_start).removeClass('border_annotation_start');
     }
@@ -819,7 +809,7 @@ $.extend({
         $('tt#t' + (i - 1)).addClass('border_annotation_end');
       }
     }
-    $.addUnlayeredControls(els);
+    collages.addUnlayeredControls(els);
 
     //Edge case where annotation on first tt is deleted
     if(!$('tt#t1').is('.a') && $('#unlayered-ellipsis-1').size() == 0) {
@@ -832,14 +822,14 @@ $.extend({
         node_to_modify.removeClass('.unlayered-control-' + update_unlayered_end).addClass('unlayered-control-1').data('id', 1);
         subset = all_tts.slice(0, node_to_modify.data('position'));
         subset.css('display', 'inline');
-        $.hideShowUnlayeredOptions();
+        collages.hideShowUnlayeredOptions();
       }
     }
 
     //Delete from data
     delete annotations["a" + annotation.id];
     delete clean_annotations["a" + annotation.id];
-    $.updateAnnotationCount();
+    collages.updateAnnotationCount();
 
     unlayered_tts = $('div.article tt:not(.a)');
   },
@@ -885,7 +875,7 @@ $.extend({
         });
       }
     });
-    $.updateLayerCount();
+    collages.updateLayerCount();
 
     //Add markup
     var data = {
@@ -907,7 +897,7 @@ $.extend({
 
     //Handle Unlayered Controls
     update_unlayered_end = 0;
-    $.removeUnlayeredControls(els);
+    collages.removeUnlayeredControls(els);
     els.removeClass('border_annotation_start border_annotation_end');
     if(!$('tt#t' + (annotation_start - 1)).hasClass('a')) {
       $('tt#t' + annotation_start).addClass('border_annotation_start');
@@ -945,7 +935,7 @@ $.extend({
     if($('.unlayered-position-' + annotation_end).size()) {
       $('.unlayered-position-' + annotation_end).remove();
     }
-    $.addUnlayeredControls(els);
+    collages.addUnlayeredControls(els);
 
     //Display highlight and dividers
     $.each(annotation.layers, function(i, layer) {
@@ -959,7 +949,7 @@ $.extend({
       unlayered_tts = $('div.article tt:not(.a)');
       $('#annotation-content-' + annotation.id).css('display', 'inline-block');
     }
-    $.updateAnnotationCount();
+    collages.updateAnnotationCount();
   },
   removeUnlayeredControls: function(els) {
     var removed_border_start = 0;
@@ -1071,26 +1061,26 @@ $.extend({
 
     $('form.annotation').ajaxSubmit({
       error: function(xhr){
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         $('#new-annotation-error').show().append(xhr.responseText);
       },
       beforeSend: function(){
         $.cookie('scroll_pos', annotation_position);
-        $.showGlobalSpinnerNode();
+        h2o_global.showGlobalSpinnerNode();
         $('div.ajax-error').html('').hide();
         $('#new-annotation-error').html('').hide();
       },
       success: function(response){
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         var annotation = $.parseJSON(response.annotation);
         var color_map = $.parseJSON(response.color_map);
         $('#edit_item div.dynamic').html('').hide();
         if(response.type == "update") {
-          $.editAnnotationMarkup(annotation.annotation, color_map);
+          collages.editAnnotationMarkup(annotation.annotation, color_map);
         } else {
-          $.markupAnnotation(annotation.annotation, color_map, false);
+          collages.markupAnnotation(annotation.annotation, color_map, false);
         }
-        $.hideShowAnnotationOptions(false);
+        collages.hideShowAnnotationOptions(false);
         $('#edit_item').append($('<div>').attr('id', 'status_message').html('Collage Edited'));
       }
     });
@@ -1105,23 +1095,23 @@ $.extend({
   },
 
   annotationButton: function(annotationId){
-    var collageId = $.getItemId();
+    var collageId = h2o_global.getItemId();
     if($('#annotation-details-' + annotationId).length == 0){
       $.ajax({
         type: 'GET',
         cache: false,
-        url: $.rootPath() + 'annotations/' + annotationId,
+        url: h2o_global.root_path() + 'annotations/' + annotationId,
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
           $('div.ajax-error').html('').hide();
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('div.ajax-error').show().append(xhr.responseText);
         },
         success: function(html){
           $('#edit_item #status_message').remove();
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#annotation_edit .dynamic').css('padding', '2px 0px 0px 0px').html(html).show();
 
           if(access_results.can_edit_annotations) {
@@ -1166,8 +1156,8 @@ $.extend({
 
       $('.unlayered-control-' + id).css('display', 'inline-block');
       $(this).css('display', 'none');
-      $.resetParentDisplay(subset);
-      $.hideShowUnlayeredOptions();
+      collages.resetParentDisplay(subset);
+      collages.hideShowUnlayeredOptions();
     });
     $('.annotation-ellipsis').live('click', function(e) {
       e.preventDefault();
@@ -1177,7 +1167,7 @@ $.extend({
       $('.layered-control-' + id).css('display', 'inline-block');
       var subset = $('div.article tt.a' + id);
       subset.css('display', 'inline');
-      $.resetParentDisplay(subset);
+      collages.resetParentDisplay(subset);
     });
     $('.unlayered-control').live('click', function(e) {
       e.preventDefault();
@@ -1196,15 +1186,15 @@ $.extend({
 
       $('.unlayered-control-' + id).css('display', 'none');
       $('#unlayered-ellipsis-' + id).css('display', 'inline-block');
-      $.resetParentDisplay(subset);
-      $.hideShowUnlayeredOptions();
+      collages.resetParentDisplay(subset);
+      collages.hideShowUnlayeredOptions();
     });
     $('.layered-control').live('click', function(e) {
       e.preventDefault();
       var id = $(this).data('id');
       $('tt.a' + id + ',.layered-control-' + id).css('display', 'none');
       $('#annotation-ellipsis-' + id).css('display', 'inline-block');
-      $.resetParentDisplay($('tt.a' + id));
+      collages.resetParentDisplay($('tt.a' + id));
     });
   },
   toggleEditMode: function(highlight) {
@@ -1242,10 +1232,10 @@ $.extend({
               linking = true;
             }
           });
-          var collageId = $.getItemId();
+          var collageId = h2o_global.getItemId();
           text += '...';
 
-          $.openAnnotationForm('annotations/new', {
+          collages.openAnnotationForm('annotations/new', {
             collage_id: collageId,
             annotation_start: new_annotation_start,
             annotation_end: new_annotation_end,
@@ -1263,7 +1253,7 @@ $.extend({
             $('#link_edit #search_wrapper_outer').show();
             $('#collage_linking').hide(); 
             $('#collage_non_linking').show();
-            $.openCollageLinkForm('collage_links/embedded_pager', {
+            collages.openCollageLinkForm('collage_links/embedded_pager', {
               host_collage: collageId,
               link_start: new_annotation_start,
               link_end: new_annotation_end,
@@ -1307,7 +1297,7 @@ $.extend({
     });
     $('#annotation_submit').live('click', function(e) {
       e.preventDefault();
-      $.submitAnnotation();
+      collages.submitAnnotation();
     });
     $('#cancel_new_annotation').live('click', function() {
       $('#edit_item .dynamic').hide().html('');
@@ -1323,19 +1313,19 @@ $.extend({
           data: {
             '_method': 'delete'
           },
-          url: $.rootPath() + 'annotations/destroy/' + annotationId,
+          url: h2o_global.root_path() + 'annotations/destroy/' + annotationId,
           beforeSend: function(){
-            $.showGlobalSpinnerNode();
+            h2o_global.showGlobalSpinnerNode();
           },
           error: function(xhr){
-            $.hideGlobalSpinnerNode();
+            h2o_global.hideGlobalSpinnerNode();
           },
           success: function(response){
-            $.deleteAnnotationMarkup(clean_annotations["a" + annotationId]);
+            collages.deleteAnnotationMarkup(clean_annotations["a" + annotationId]);
             $('#edit_item #annotation_edit .dynamic').hide().html('');
             $('#edit_item').append($('<div>').attr('id', 'status_message').html('Annotation Deleted'));
-            $.hideShowAnnotationOptions(false);
-            $.hideGlobalSpinnerNode();
+            collages.hideShowAnnotationOptions(false);
+            h2o_global.hideGlobalSpinnerNode();
           }
         });
       }
@@ -1345,17 +1335,17 @@ $.extend({
       $.ajax({
         type: 'GET',
         cache: false,
-        url: $.rootPath() + 'annotations/edit/' + $(this).data('id'),
+        url: h2o_global.root_path() + 'annotations/edit/' + $(this).data('id'),
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
           //$('#new-annotation-error').html('').hide();
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           //$('#new-annotation-error').show().append(xhr.responseText);
         },
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('<div>').attr('id', 'annotation_edit').html(html).appendTo($('#edit_item'));
           var filtered = $('#annotation_annotation').val().replace(/&quot;/g, '"');
           $('#annotation_annotation').val(filtered);
@@ -1367,17 +1357,17 @@ $.extend({
     $('.control-divider').live('click', function(e) {
       e.preventDefault();
       if($('#edit_toggle').length && $('#edit_toggle').hasClass('edit_mode')) {
-        $.annotationButton($(this).data('id'));
+        collages.annotationButton($(this).data('id'));
       }
     });
     $('.annotation-asterisk').live('click', function(e) {
       e.preventDefault();
       var annotation_id = $(this).data('id');
-      $.toggleAnnotation(annotation_id);
-      $.hideShowAnnotationOptions(false);
+      collages.toggleAnnotation(annotation_id);
+      collages.hideShowAnnotationOptions(false);
       if($('#edit_toggle').length && $('#edit_toggle').hasClass('edit_mode')) {
         if(!$('#delete_annotation').length || $('#delete_annotation').data('id') != annotation_id) {
-          $.annotationButton(annotation_id);
+          collages.annotationButton(annotation_id);
         }
       }
     });
@@ -1385,21 +1375,21 @@ $.extend({
   openAnnotationForm: function(url_path, data){
     $.ajax({
         type: 'GET',
-        url: $.rootPath() + url_path,
+        url: h2o_global.root_path() + url_path,
         data: data, 
         cache: false,
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
           $('div.ajax-error').html('').hide();
         },
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#edit_item #status_message').remove();
           $('#annotation_edit .dynamic').css('padding', '10px').html(html).show();
           //$('<div>').attr('id', 'annotation_edit').addClass('tab_panel new_annotation').html(html).appendTo($('#edit_item'));
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('div.ajax-error').show().append(xhr.responseText);
         }
       });
@@ -1412,7 +1402,7 @@ $.extend({
       var link_end = $('input[name=link_end]').val();
       var host_collage = $('input[name=host_collage]').val();
       var itemId = $(this).attr('id').split('-')[1];
-      $.submitCollageLink(itemId, link_start, link_end, host_collage);
+      collages.submitCollageLink(itemId, link_start, link_end, host_collage);
     });
   },
 
@@ -1421,9 +1411,9 @@ $.extend({
       e.preventDefault();
       $.ajax({
         method: 'GET',
-        url: $.rootPath() + 'collage_links/embedded_pager',
+        url: h2o_global.root_path() + 'collage_links/embedded_pager',
         beforeSend: function(){
-           $.showGlobalSpinnerNode();
+           h2o_global.showGlobalSpinnerNode();
         },
         data: {
             keywords: $('#collage-keyword-search').val(),
@@ -1434,11 +1424,11 @@ $.extend({
         },
         dataType: 'html',
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#link_edit .dynamic').html(html);
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
@@ -1455,39 +1445,38 @@ $.extend({
         link_text_end: link_end
         }
       },
-      url: $.rootPath() + 'collage_links/create',
+      url: h2o_global.root_path() + 'collage_links/create',
       success: function(results){
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         $('#link_edit .dynamic,#annotation_edit .dynamic').hide().html('');
         $('#link_edit #search_wrapper_outer').hide();
         $('#edit_item').append($('<div>').attr('id', 'status_message').html('Link Created'));
-        $.markupCollageLink(results.collage_link);
+        collages.markupCollageLink(results.collage_link);
       }
     });
   },
-
   openCollageLinkForm: function(url_path, data){
     $.ajax({
       type: 'GET',
-      url: $.rootPath() + url_path,
+      url: h2o_global.root_path() + url_path,
       cache: false,
       beforeSend: function(){
-         $.showGlobalSpinnerNode();
+         h2o_global.showGlobalSpinnerNode();
       },
       data: data,
       dataType: 'html',
       success: function(html){
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         $('#link_edit .dynamic').html(html).show();
       }
     });
   }
-});
+};
 
 $(document).ready(function(){
   if($('.singleitem').length > 0){
-    $.showGlobalSpinnerNode();
-    $.observeSelectors();
+    h2o_global.showGlobalSpinnerNode();
+    collages.observeSelectors();
 
     $('.toolbar, #buttons').css('visibility', 'visible');
     $('#cancel-annotation').live('click', function(e){
@@ -1501,7 +1490,7 @@ $(document).ready(function(){
 
     $.each(annotations, function(i, el) {
       clean_annotations[i] = $.parseJSON(el).annotation;
-      $.markupAnnotation(clean_annotations[i], layer_color_map, true);
+      collages.markupAnnotation(clean_annotations[i], layer_color_map, true);
     });
 
     unlayered_tts = $('div.article tt:not(.a)');
@@ -1511,38 +1500,38 @@ $(document).ready(function(){
 
     $.each(collage_links, function(i, el) {
       clean_collage_links[i] = el.collage_link;
-      $.markupCollageLink(clean_collage_links[i]);
+      collages.markupCollageLink(clean_collage_links[i]);
     });
 
-    $.observeAnnotationListeners();
-    $.observeToolListeners();
-    $.observePrintListeners();
-    $.observeLayerColorMapping();
-    $.observeHeatmap();
-    $.observeAnnotationEditListeners();
+    collages.observeAnnotationListeners();
+    collages.observeToolListeners();
+    collages.observePrintListeners();
+    collages.observeLayerColorMapping();
+    collages.observeHeatmap();
+    collages.observeAnnotationEditListeners();
   
-    $.observeStatsListener();
+    collages.observeStatsListener();
 
     /* Collage Search */
-    $.initKeywordSearch();
-    $.initPlaylistItemAddButton();
+    collages.initKeywordSearch();
+    collages.initPlaylistItemAddButton();
 
-    $.observeFootnoteLinks();
-    $.hideGlobalSpinnerNode();
-    $.observeViewerToggleEdit();
-    $.observeStatsHighlights();
+    collages.observeFootnoteLinks();
+    h2o_global.hideGlobalSpinnerNode();
+    collages.observeViewerToggleEdit();
+    collages.observeStatsHighlights();
           
-    $.updateWordCount();
+    collages.updateWordCount();
 
-    $.slideToParagraph();
-    $.observeDeleteInheritedAnnotations();
-    $.observeUpgradeCollage();
+    collages.slideToParagraph();
+    collages.observeDeleteInheritedAnnotations();
+    collages.observeUpgradeCollage();
 
     //Must be after onclicks initiated
     if($.cookie('user_id') == null) {
       access_results = { 'can_edit_annotations' : false };
       last_data = original_data;
-      $.loadState();
+      collages.loadState();
     }
   }
 });

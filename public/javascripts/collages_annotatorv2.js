@@ -13,7 +13,25 @@ var collage_id;
 var heatmap_display = false;
 var original_annotations;
 
-$.extend({
+h2o_global.collage_afterload = function(results) {
+  if($.browser.msie && $.browser.version < 9.0) {
+    return;
+  }
+  if(results.can_edit_annotations) {
+    collages.initiate_annotator(true);  
+    $('.requires_edit').animate({ opacity: 1.0 });
+  } else {
+    collages.initiate_annotator(false);  
+    $('.requires_edit').remove();
+  }
+  if(results.can_edit_description) {
+    $('.edit-action').animate({ opacity: 1.0 });
+  } else {
+    $('.edit-action').remove();
+  }
+};
+
+var collages = {
   clean_layer: function(layer_name) {
     return layer_name.replace(/\./, 'specialsymbol');
   },
@@ -84,7 +102,7 @@ $.extend({
 	      });
 	      var opacity = 0.4 / key_length;
 	      $.each(unique_layers, function(key, value) {
-	        var color_combine = $.xcolor.opacity(current_hex, layer_data[$.revert_clean_layer(key)], opacity);
+	        var color_combine = $.xcolor.opacity(current_hex, layer_data[collages.revert_clean_layer(key)], opacity);
 	        current_hex = color_combine.getHex();
 	      });
 	      $.rule(selector + ' { background-color: ' + current_hex + '; }').appendTo('#additional_styles');
@@ -109,9 +127,9 @@ $.extend({
         type: 'GET',
         cache: false,
         dataType: 'JSON',
-        url: $.rootPath() + 'collages/' + $.getItemId() + '/delete_inherited_annotations',
+        url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/delete_inherited_annotations',
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         success: function(data){
           var stored_annotations = st_annotator.dumpAnnotations();
@@ -120,18 +138,18 @@ $.extend({
               st_annotator.plugins.H2O.specialDeleteAnnotation(a);
             }
           });
-          $.updateWordCount();
-          $.hideGlobalSpinnerNode();
+          collages.updateWordCount();
+          h2o_global.hideGlobalSpinnerNode();
           $('#inherited_h,#inherited_span').remove();
         },
         error: function() {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
   },
   initiate_annotator: function(can_edit) {
-    collage_id = $.getItemId();
+    collage_id = h2o_global.getItemId();
     $('div.article').data('collage_id', collage_id).data('original_data', original_data).annotator({ readOnly: !can_edit }).annotator('addPlugin', 'H2O', layer_data).annotator('addPlugin', 'Store', {
       prefix: '/annotations',
       urls: {
@@ -142,24 +160,6 @@ $.extend({
         search: '/search'
       }
     });
-  },
-  collage_afterload: function(results) {
-    if($.browser.msie && $.browser.version < 9.0) {
-      return;
-    }
-
-    if(results.can_edit_annotations) {
-      $.initiate_annotator(true);  
-      $('.requires_edit').animate({ opacity: 1.0 });
-    } else {
-      $.initiate_annotator(false);  
-      $('.requires_edit').remove();
-    }
-    if(results.can_edit_description) {
-      $('.edit-action').animate({ opacity: 1.0 });
-    } else {
-      $('.edit-action').remove();
-    }
   },
   slideToParagraph: function() {
     if(document.location.hash.match(/^#p[0-9]+/)) {
@@ -175,9 +175,6 @@ $.extend({
     }, function() {
       $(this).removeClass('stats_hover');
     });
-  },
-  updateLayerCount: function() {
-    $('#stats_layer_size').html($('#layers li').size());
   },
   observeFootnoteLinks: function() {
     $.each($('div.article a.footnote'), function(i, el) {
@@ -221,7 +218,7 @@ $.extend({
     });
     $(document).delegate('#add_new_layer', 'click', function() {
       var new_layer = $('<li class="annotator-item annotator-h2o_layer"><p>Enter Layer Name <input type="text" name="new_layer" /></p><p class="hex_input">Choose a Color<input type="hidden" name="new_layer_list[][hex]" /></p><a href="#" class="remove_layer">Cancel &raquo;</a></div>');
-      var hexes = $.getHexes();
+      var hexes = collages.getHexes();
       hexes.insertBefore(new_layer.find('.remove_layer'));
       new_layer.insertBefore($('.annotator-h2o_layer_button'));
       return false;
@@ -234,8 +231,8 @@ $.extend({
   observeHeatmap: function() {
     $(document).delegate('#heatmap_toggle:not(.inactive,.activated)', 'click', function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
-      last_data = $.retrieveState();
+      h2o_global.showGlobalSpinnerNode();
+      last_data = collages.retrieveState();
       $('.unlayered,.annotator-hl').show();
       $.each($('#layers_highlights a'), function(i, el) {
         if($(el).text().match(/^UNHIGHLIGHT/)) {
@@ -247,15 +244,15 @@ $.extend({
       annotations = heatmap;
       heatmap_display = true;
       st_annotator.plugins.H2O.loadAnnotations();
-      $.highlightHeatmap();
+      collages.highlightHeatmap();
       $('#heatmap_toggle').addClass('activated');
-      $.hideGlobalSpinnerNode();
+      h2o_global.hideGlobalSpinnerNode();
     });
     $(document).delegate('#heatmap_toggle.activated', 'click', function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       var stored_annotations = st_annotator.dumpAnnotations();
-      var collage_id = $.getItemId();
+      var collage_id = h2o_global.getItemId();
       $.each(stored_annotations, function(_i, a) {
         if(a.collage_id != collage_id) {
           st_annotator.plugins.H2O.specialDeleteAnnotation(a);
@@ -267,9 +264,9 @@ $.extend({
       $('#heatmap_toggle').removeClass('activated');
 	    $.rule('.annotator-wrapper .annotator-hl', '#additional_styles').remove();
 
-      $.rehighlight();
-      $.loadState($.getItemId(), last_data);
-      $.hideGlobalSpinnerNode();
+      collages.rehighlight();
+      collages.loadState(h2o_global.getItemId(), last_data);
+      h2o_global.hideGlobalSpinnerNode();
     });
   },
   hideShowUnlayeredOptions: function() {
@@ -284,17 +281,6 @@ $.extend({
     } else {
       $('#show_unlayered,#hide_unlayered').show();
     } 
-  },
-  addCommas: function(str) {
-    str += '';
-    x = str.split('.');
-    x1 = x[0];
-    x2 = x.length > 1 ? '.' + x[1] : '';
-    var rgx = /(\d+)(\d{3})/;
-    while(rgx.test(x1)) {
-      x1 = x1.replace(rgx, '$1' + ',' + '$2');
-    }
-    return x1 + x2;
   },
   observeToolListeners: function () {
     $(document).delegate("#buttons a.btn-a:not(.btn-a-active)", 'click', function(e) {
@@ -335,44 +321,44 @@ $.extend({
       e.preventDefault();
       last_data = original_data;
       $('.unlayered,.annotator-hl').show();
-      $.loadState($.getItemId(), last_data);
+      collages.loadState(h2o_global.getItemId(), last_data);
     });
     $('#full_text').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.unlayered,.annotator-hl').show();
       $('.unlayered-control-start,.unlayered-control-end,.unlayered-ellipsis,.layered-control-start,.layered-control-end,.layered-ellipsis').hide();
       $.each($('#layers a.hide_show'), function(i, el) {
         $(el).html('HIDE "' + $(el).parent().data('name') + '"');
       });
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $('#show_unlayered a').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.unlayered').show();
       $('.unlayered-ellipsis,.unlayered-control-start,.unlayered-control-end').hide();
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
     $('#hide_unlayered a').click(function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       $('.unlayered,.unlayered-control-start,.unlayered-control-end').hide();
       $('.unlayered-ellipsis').show();
-      $.hideShowUnlayeredOptions();
-      $.hideGlobalSpinnerNode();
+      collages.hideShowUnlayeredOptions();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $(document).delegate('#layers .hide_show', 'click', function(e) {
       e.preventDefault();
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
 
       var el = $(this);
       var layer = $(this).parent().data('name');
-      var clean_layer = $.clean_layer(layer);
+      var clean_layer = collages.clean_layer(layer);
       if(el.html().match("SHOW ")) {
         $('.layer-' + clean_layer).parents('.original_content').show();
         $('.layer-' + clean_layer).show();
@@ -386,13 +372,13 @@ $.extend({
         el.html('SHOW "' + layer + '"');
       }
 
-      $.hideGlobalSpinnerNode();
+      h2o_global.hideGlobalSpinnerNode();
     });
 
     $(document).delegate('#layers_highlights .link-o', 'click', function(e) {
       e.preventDefault();
       var layer = $(this).parent().data('name');
-      var clean_layer = $.clean_layer(layer);
+      var clean_layer = collages.clean_layer(layer);
       var hex = $(this).parent().data('hex');
         
       var text_node = $(($(this).contents())[0]);
@@ -407,7 +393,7 @@ $.extend({
         new_node = document.createTextNode('HIGHLIGHT "' + layer + '"');
       }
       text_node.replaceWith(new_node);
-      $.rehighlight();
+      collages.rehighlight();
     });
   },
   observePrintListeners: function() {
@@ -416,7 +402,7 @@ $.extend({
       $('#collage_print').submit();
     });
     $('form#collage_print').submit(function() {
-      var data = $.retrieveState();
+      var data = collages.retrieveState();
 
       if($('#heatmap_toggle').hasClass('activated')) {
         data.load_heatmap = true;
@@ -446,7 +432,7 @@ $.extend({
         readable_state: data,
         words_shown: words_shown
       },
-      url: $.rootPath() + 'collages/' + $.getItemId() + '/save_readable_state',
+      url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/save_readable_state',
       success: function(results){
         //if(show_message) {
           //$('#autosave').html('Updated at: ' + results.time);
@@ -490,10 +476,10 @@ $.extend({
       if(heatmap_display) {
         return;
       }
-      var data = $.retrieveState();
+      var data = collages.retrieveState();
       if(JSON.stringify(data) != JSON.stringify(last_data)) {
         last_data = data;
-        $.recordCollageState(JSON.stringify(data), true);
+        collages.recordCollageState(JSON.stringify(data), true);
       }
     }, 1000); 
   },
@@ -511,23 +497,18 @@ $.extend({
         });
       }
     });
-    $.hideShowUnlayeredOptions();
+    collages.hideShowUnlayeredOptions();
     if(access_results.can_edit_annotations) {
       $('#edit_toggle').click();
       $('.default-hidden').css('color', '#000');
     } else {
-      $.checkForPanelAdjust();
+      h2o_global.checkForPanelAdjust();
     }
     if($.cookie('scroll_pos')) {
       $(window).scrollTop($.cookie('scroll_pos'));
       $.cookie('scroll_pos', null);
     }
   }, 
-  resetParentDisplay: function(els) {
-    var parents = els.parentsUntil('div.article');
-    parents.removeClass('no_visible_children');
-    parents.filter(':not(:has(.layered-control,.control-divider,.unlayered-ellipsis:visible,tt:visible))').addClass('no_visible_children');
-  },
   observeAddCollageAsAnnotation: function(){
     $(document).delegate('.add-collage-button', 'click', function(e) {
       e.preventDefault();
@@ -540,23 +521,23 @@ $.extend({
       e.preventDefault();
       $.ajax({
         method: 'GET',
-        url: $.rootPath() + 'collage_links/embedded_pager',
+        url: h2o_global.root_path() + 'collage_links/embedded_pager',
         beforeSend: function(){
-           $.showGlobalSpinnerNode();
+           h2o_global.showGlobalSpinnerNode();
         },
         data: {
             keywords: $('#collage_search input').val()
         },
         dataType: 'html',
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#collage_links').html(html);
           if($('#collage_links .add-collage-button').size() == 0) {
             $('#collage_links').append($('<p>').html('No collages found.').attr('id', 'no_collages_found'));
           }
         },
         error: function(xhr){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
@@ -564,20 +545,20 @@ $.extend({
   openCollageLinkForm: function(url_path) {
     $.ajax({
       type: 'GET',
-      url: $.rootPath() + url_path,
+      url: h2o_global.root_path() + url_path,
       cache: false,
       beforeSend: function(){
-         $.showGlobalSpinnerNode();
+         h2o_global.showGlobalSpinnerNode();
       },
       data: {},
       dataType: 'html',
       success: function(html){
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
         $('#collage_links').html(html);
       }
     });
   }
-});
+};
 
 $(document).ready(function(){
   if($.browser.msie && $.browser.version < 9.0) {
@@ -590,21 +571,21 @@ $(document).ready(function(){
     return;
   }
 
-  $.showGlobalSpinnerNode();
+  h2o_global.showGlobalSpinnerNode();
 
   $('.toolbar, #buttons').css('visibility', 'visible');
-  $.observeToolListeners();
-  $.observeLayerColorMapping();
-  $.observePrintListeners();
-  $.observeHeatmap();
-  $.observeDeleteInheritedAnnotations();
-  $.initKeywordSearch();
-  $.observeAddCollageAsAnnotation();
+  collages.observeToolListeners();
+  collages.observeLayerColorMapping();
+  collages.observePrintListeners();
+  collages.observeHeatmap();
+  collages.observeDeleteInheritedAnnotations();
+  collages.initKeywordSearch();
+  collages.observeAddCollageAsAnnotation();
 
-  $.observeFootnoteLinks();
-  $.hideGlobalSpinnerNode();
-  $.observeStatsHighlights();
-  $.slideToParagraph();
+  collages.observeFootnoteLinks();
+  h2o_global.hideGlobalSpinnerNode();
+  collages.observeStatsHighlights();
+  collages.slideToParagraph();
 });
 
 var layer_tools_visibility = '\

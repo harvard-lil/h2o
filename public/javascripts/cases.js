@@ -1,22 +1,23 @@
-$.extend({
-  case_afterload: function(results) {
+h2o_global.case_afterload = function(results) {
     if(results.can_edit) {
       $('.requires_edit').animate({ opacity: 1.0 });
     } else {
       $('.requires_edit').remove();
     }
-  },
-  case_jurisdiction_post: function(data) {
+};
+h2o_global.case_jurisdiction_post = function(data) {
     if(data.update) {
       $('#case_case_jurisdiction_id option[value=' + data.id + ']').html(data.name);
     } else {
       var option = $('<option>').val(data.id).html(data.name);
       $('#case_case_jurisdiction_id').append(option).val(data.id);
     }
-    $.hideGlobalSpinnerNode();
+    h2o_global.hideGlobalSpinnerNode();
     $('#generic-node').dialog('close');
-  },
-  initializeFontChange: function() {
+};
+
+var cases = {
+  initialize_font_change: function() {
     var val = $.cookie('font_size');
     if (val == null){
       val = 16;
@@ -28,7 +29,7 @@ $.extend({
       $('#case .details h5').css('font-size', parseInt(val) + 1 + 'px');
     }
   }      
-});
+};
 
 $(document).ready(function(){
   if($('.description').length) {
@@ -50,18 +51,18 @@ $(document).ready(function(){
       cache: false,
       url: url,
       beforeSend: function() {
-        $.showGlobalSpinnerNode();
+        h2o_global.showGlobalSpinnerNode();
       },  
       success: function(html) {
-        $.hideGlobalSpinnerNode();
-        $.generateGenericNode(html);
+        h2o_global.hideGlobalSpinnerNode();
+        h2o_global.generateGenericNode(html);
       },  
       error: function(xhr, textStatus, errorThrown) {
-        $.hideGlobalSpinnerNode();
+        h2o_global.hideGlobalSpinnerNode();
       }
     });
   });
-  $.observeMetadataForm();
+  h2o_global.observeMetadataForm();
 
   $('form a.add_child').click(function() {
     var assoc   = $(this).attr('data-association');
@@ -81,5 +82,5 @@ $(document).ready(function(){
     $(this).parents('.fields').hide();
     return false;
   });
-  $.initializeFontChange();
+  cases.initialize_font_change();
 });

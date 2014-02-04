@@ -304,9 +304,9 @@
             this.dragEl.remove();
 
             if(playlist_changed.size() > 0) {
-              $.dropActivate(playlist_changed.find('> .dd'), playlist_changed.data('actual_object_id'));
+              playlists.dropActivate(playlist_changed.find('> .dd'), playlist_changed.data('actual_object_id'));
             } else {
-              $.dropActivate($('div.playlists'), $('div.playlists').data('playlist_id'));
+              playlists.dropActivate($('div.playlists'), $('div.playlists').data('playlist_id'));
             }
 
             this.reset();

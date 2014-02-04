@@ -4,7 +4,103 @@ var remove_item;
 var dropped_original_position;
 var items_dd_handles;
 
-$.extend({
+h2o_global.playlist_afterload = function(results) {
+  playlists.set_nestability_and_editability();
+  if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
+    if(results.can_edit) {
+      playlists.playlist_mark_private($.cookie('user_id'), true);
+      $('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
+        $('#description .inactive').css('opacity', 0.4);
+      });
+      $('#edit_toggle').click();
+      is_owner = true;
+
+      if(results.nested_private_count_nonowned > 0 || results.nested_private_count_owned > 0) {
+        var data = {
+          "owned" : results.nested_private_count_owned,
+          "nonowned" : results.nested_private_count_nonowned,
+          "url" : '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private'
+        };
+        if(results.nested_private_count_owned == 0) {
+          var content = $($.mustache(nested_notification, data)).css('display', 'none');
+          content.appendTo($('#description'));
+          content.slideDown();
+        } else {
+          var content = $($.mustache(set_nested_owned_private_resources_public, data)).css('display', 'none');
+          content.appendTo($('#description'));
+          content.slideDown();
+    
+          $(document).delegate('#nested_public', 'click', function(e) {
+            e.preventDefault();
+            var creator = $('#main_details h3 a:first').html().replace(/ \(.*/, '');
+            var node = $('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
+            $(node).dialog({
+              title: 'Set Nested Resources to Public',
+              width: 'auto',
+              height: 'auto',
+              buttons: {
+                Yes: function() {
+                  $.ajax({
+                    type: 'post',
+                    dataType: 'json',
+                    url: '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private',
+                    beforeSend: function(){
+                      h2o_global.showGlobalSpinnerNode();
+                    },
+                    success: function(data) {
+                      $('#nested_public').remove();
+                      $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users.').css('color', 'red');
+                      $(node).dialog('close');
+                    },
+                    complete: function() {
+                      h2o_global.hideGlobalSpinnerNode();
+                    }
+                  });
+                },
+                No: function() {
+                  $(node).dialog('close');
+                }
+              }
+            });
+          });
+        }
+      }
+    } else {
+      playlists.playlist_mark_private($.cookie('user_id'), false);
+      if(!results.can_edit_notes) {
+        $('#description #public-notes, #description #private-notes').remove();
+      }
+      if(!results.can_edit_desc) {
+        $('#description .icon-edit').remove();
+      }
+      $('.requires_remove').remove();
+      $('.requires_edit').animate({ opacity: 1.0 }, 400, 'swing', function() {
+        $('#description .inactive').css('opacity', 0.4);
+      });
+    }
+  } else {
+    playlists.playlist_mark_private($.cookie('user_id'), false);
+    $('.requires_edit, .requires_remove').remove();
+  }
+  var notes = $.parseJSON(results.notes) || new Array() 
+  $.each(notes, function(i, el) {
+    if(el.playlist_item.notes != null) {
+      var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      var node = $('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
+      if(!$('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .additional_details').length) {
+        $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper').append($('<div>').addClass('additional_details'));
+        if($('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell .rr').size() == 0) {
+          $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell').append($('<a href="#" class="rr rr-closed" id="rr' + el.playlist_item.id + '">Show/Hide More</a>'));
+        }
+      }
+      $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details .notes').remove();
+      $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details').append(node);
+    }
+  });
+  $('.add-popup select option').remove();
+};
+
+var playlists = {
   playlist_mark_private: function(user_id, can_edit) {
     $.each($('.private'), function(i, link) {
       var listitem = $(link).parentsUntil('.listitem').last().parent();
@@ -35,101 +131,6 @@ $.extend({
       $('div#playlist').data('nestable', true);
     }
   },
-  playlist_afterload: function(results) {
-    $.set_nestability_and_editability();
-    if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
-      if(results.can_edit) {
-        $.playlist_mark_private($.cookie('user_id'), true);
-        $('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
-          $('#description .inactive').css('opacity', 0.4);
-        });
-        $('#edit_toggle').click();
-        is_owner = true;
-
-        if(results.nested_private_count_nonowned > 0 || results.nested_private_count_owned > 0) {
-          var data = {
-            "owned" : results.nested_private_count_owned,
-            "nonowned" : results.nested_private_count_nonowned,
-            "url" : '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private'
-          };
-          if(results.nested_private_count_owned == 0) {
-            var content = $($.mustache(nested_notification, data)).css('display', 'none');
-            content.appendTo($('#description'));
-            content.slideDown();
-          } else {
-            var content = $($.mustache(set_nested_owned_private_resources_public, data)).css('display', 'none');
-            content.appendTo($('#description'));
-            content.slideDown();
-      
-            $(document).delegate('#nested_public', 'click', function(e) {
-              e.preventDefault();
-              var creator = $('#main_details h3 a:first').html().replace(/ \(.*/, '');
-              var node = $('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
-              $(node).dialog({
-                title: 'Set Nested Resources to Public',
-                width: 'auto',
-                height: 'auto',
-                buttons: {
-                  Yes: function() {
-                    $.ajax({
-                      type: 'post',
-                      dataType: 'json',
-                      url: '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private',
-                      beforeSend: function(){
-                        $.showGlobalSpinnerNode();
-                      },
-                      success: function(data) {
-                        $('#nested_public').remove();
-                        $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users.').css('color', 'red');
-                        $(node).dialog('close');
-                      },
-                      complete: function() {
-                        $.hideGlobalSpinnerNode();
-                      }
-                    });
-                  },
-                  No: function() {
-                    $(node).dialog('close');
-                  }
-                }
-              });
-            });
-          }
-        }
-      } else {
-        $.playlist_mark_private($.cookie('user_id'), false);
-        if(!results.can_edit_notes) {
-          $('#description #public-notes, #description #private-notes').remove();
-        }
-        if(!results.can_edit_desc) {
-          $('#description .icon-edit').remove();
-        }
-        $('.requires_remove').remove();
-        $('.requires_edit').animate({ opacity: 1.0 }, 400, 'swing', function() {
-          $('#description .inactive').css('opacity', 0.4);
-        });
-      }
-    } else {
-      $.playlist_mark_private($.cookie('user_id'), false);
-      $('.requires_edit, .requires_remove').remove();
-    }
-    var notes = $.parseJSON(results.notes) || new Array() 
-    $.each(notes, function(i, el) {
-      if(el.playlist_item.notes != null) {
-        var title = el.playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
-        var node = $('<div>').html('<b>' + title + ':</b><br />' + el.playlist_item.notes).addClass('notes');
-        if(!$('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .additional_details').length) {
-          $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper').append($('<div>').addClass('additional_details'));
-          if($('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell .rr').size() == 0) {
-            $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper .rr-cell').append($('<a href="#" class="rr rr-closed" id="rr' + el.playlist_item.id + '">Show/Hide More</a>'));
-          }
-        }
-        $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details .notes').remove();
-        $('#playlist_item_' + el.playlist_item.id + ' > .wrapper > .inner-wrapper > .additional_details').append(node);
-      }
-    });
-    $('.add-popup select option').remove();
-  },
   observeViewerToggleEdit: function() {
     $('#edit_toggle,#quickbar_edit_toggle').click(function(e) {
       e.preventDefault();
@@ -146,10 +147,10 @@ $.extend({
         } else {
           $('#edit_item').hide();
           $('#stats').show();
-          $.resetRightPanelThreshold();
-          $.checkForPanelAdjust();
+          h2o_global.resetRightPanelThreshold();
+          h2o_global.checkForPanelAdjust();
         }
-        $.unObserveDragAndDrop();
+        playlists.unObserveDragAndDrop();
       } else {
         $('#edit_toggle,#quickbar_edit_toggle').addClass('edit_mode');
         $('body').addClass('playlist_edit_mode');
@@ -159,14 +160,14 @@ $.extend({
           $('#collapse_toggle').removeClass('expanded');
           $('.singleitem').removeClass('expanded_singleitem');
           $('#edit_item').show();
-          $.resetRightPanelThreshold();
+          h2o_global.resetRightPanelThreshold();
         } else {
           $('#stats').hide();
           $('#edit_item').show();
-          $.resetRightPanelThreshold();
+          h2o_global.resetRightPanelThreshold();
         }
-        $.observeDragAndDrop();
-        $.checkForPanelAdjust();
+        playlists.observeDragAndDrop();
+        h2o_global.checkForPanelAdjust();
       }
     });
   },
@@ -243,7 +244,7 @@ $.extend({
   },
   observeDeleteNodes: function() {
     $(document).delegate('#playlist .delete-playlist-item', 'click', function(e) {
-      $.cancelItemAdd();
+      playlists.cancelItemAdd();
       e.preventDefault();
       var listing = $(this).parentsUntil('.listitem').last();
       listing.parent().addClass('listing-with-delete-form');
@@ -255,7 +256,7 @@ $.extend({
   },
   observeEditNodes: function() {
     $(document).delegate('#playlist .edit-playlist-item', 'click', function(e) {
-      $.cancelItemAdd();
+      playlists.cancelItemAdd();
       e.preventDefault();
       var url = $(this).attr('href');
       var listing = $(this).parentsUntil('.listitem').last();
@@ -264,16 +265,16 @@ $.extend({
         cache: false,
         url: url,
         beforeSend: function() {
-            $.showGlobalSpinnerNode();
+            h2o_global.showGlobalSpinnerNode();
         },
         success: function(html) {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           var content = $(html).css('display', 'none');
           content.appendTo(listing);
           content.slideDown(200);
         },
         error: function(xhr, textStatus, errorThrown) {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
@@ -358,12 +359,12 @@ $.extend({
         $('.playlists .dd-list .listing').replaceWith(response);
         $('.requires_edit,.requires_remove,.requires_logged_in').animate({ opacity: 1.0 });
         $('li#playlist_item_' + data.playlist_item_id + ' .dd').nestable({ group: 1 });
-        $.update_positions(data.position_data);
-        $.set_nestability_and_editability();
+        playlists.update_positions(data.position_data);
+        playlists.set_nestability_and_editability();
       }, 
       error: function() {
         setTimeout(function() {
-          document.location.href = $.rootPath() + data.type + '/' + data.playlist_id;
+          document.location.href = h2o_global.root_path() + data.type + '/' + data.playlist_id;
         }, 1000); 
       }
     });
@@ -374,15 +375,15 @@ $.extend({
       if($(this).hasClass('inactive')) {
         return;
       }
-      $.showGlobalSpinnerNode();
+      h2o_global.showGlobalSpinnerNode();
       var type = $(this).data('type');
       $.ajax({
         type: 'post',
         dataType: 'json',
         url: '/playlists/' + $('#playlist').data('itemid') + '/notes/' + type,
         success: function(results) {
-          $.hideGlobalSpinnerNode();
-          $.renderPublicPlaylistBehavior(results);
+          h2o_global.hideGlobalSpinnerNode();
+          playlists.renderPublicPlaylistBehavior(results);
           if(type == 'public') {
             $('.notes b').html('Additional Notes:');
           } else {
@@ -435,18 +436,18 @@ $.extend({
         dataType: 'JSON',
         data: { '_method' : 'delete' },
         beforeSend: function() {
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         error: function(xhr) {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         },
         success: function(data) {
-          $.renderPublicPlaylistBehavior(data);
+          playlists.renderPublicPlaylistBehavior(data);
 	        $('.listing-with-delete-form').slideUp(200, function() {
             $(this).remove();
           });
-          $.update_positions(data.position_data);
-          $.hideGlobalSpinnerNode();
+          playlists.update_positions(data.position_data);
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
@@ -457,30 +458,30 @@ $.extend({
       form.ajaxSubmit({
         dataType: "JSON",
         beforeSend: function() {
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         success: function(data) {
           if(data.error) {
             $('#error_block').html(data.message).show();
           } else {
             if(form.hasClass('new')) {
-              $.renderPublicPlaylistBehavior(data);
-              $.renderNewPlaylistItem(data);
+              playlists.renderPublicPlaylistBehavior(data);
+              playlists.renderNewPlaylistItem(data);
             } else {
-              $.renderPublicPlaylistBehavior(data);
-              $.renderEditPlaylistItem(data);
+              playlists.renderPublicPlaylistBehavior(data);
+              playlists.renderEditPlaylistItem(data);
             }
           }
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         },
         error: function(xhr) {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     });
     $(document).delegate('#playlist_item_cancel', 'click', function(e) {
       e.preventDefault();
-      $.cancelItemAdd();
+      playlists.cancelItemAdd();
     });
   },
   unObserveDragAndDrop: function() {
@@ -490,7 +491,7 @@ $.extend({
   },
   dropActivate: function(working_playlist, playlist_id) {
     if(dropped_item !== undefined) {
-      $.cancelItemAdd();
+      playlists.cancelItemAdd();
     }
 
     var position_update = true; 
@@ -519,17 +520,17 @@ $.extend({
           playlist_order: positions.join('&')
         },
         beforeSend: function(){
-          $.showGlobalSpinnerNode();
+          h2o_global.showGlobalSpinnerNode();
         },
         success: function(data) {
-          $.update_positions(data);
+          playlists.update_positions(data);
         },
         complete: function() {
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
         }
       });
     } else {
-	    var url = $.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
+	    var url = h2o_global.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
       var listing_el = $('#listing_' + new_item.type + '_' + new_item.id);
 
       dropped_item = listing_el;
@@ -538,9 +539,9 @@ $.extend({
 	      method: 'GET',
 	      cache: false,
 	      dataType: "html",
-	      url: $.rootPath() + 'playlist_items/new',
+	      url: h2o_global.root_path() + 'playlist_items/new',
 	      beforeSend: function(){
-	           $.showGlobalSpinnerNode();
+	           h2o_global.showGlobalSpinnerNode();
 	      },
 	      data: {
           klass: new_item.type,
@@ -549,7 +550,7 @@ $.extend({
           position: working_playlist.find('> .dd-list > .dd-item').index(listing_el) + 1 
 	      },
 	      success: function(html){
-	        $.hideGlobalSpinnerNode();
+	        h2o_global.hideGlobalSpinnerNode();
           var new_content = $(html);
           listing_el.find('.icon').addClass('hover');
           listing_el.append(new_content).css({ height: 'auto', 'border-top': 'none' }).addClass('listing-with-form');
@@ -594,9 +595,9 @@ $.extend({
       var itemController = $('#add_item_select').val();
       $.ajax({
         method: 'GET',
-        url: $.rootPath() + itemController + '/embedded_pager',
+        url: h2o_global.root_path() + itemController + '/embedded_pager',
         beforeSend: function(){
-           $.showGlobalSpinnerNode();
+           h2o_global.showGlobalSpinnerNode();
         },
         data: {
           keywords: $('#add_item_term').val(),
@@ -604,11 +605,11 @@ $.extend({
         },
         dataType: 'html',
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#add_item_results').html(html);
-          $.toggleHeaderPagination();
+          playlists.toggleHeaderPagination();
           $('div#nestable2').nestable({ group: 1 }); //, maxDepth: 1 });
-          $.initializeBarcodes();
+          h2o_global.initializeBarcodes();
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {
@@ -625,16 +626,16 @@ $.extend({
         type: 'GET',
         dataType: 'html',
         beforeSend: function(){
-         $.showGlobalSpinnerNode();
+         h2o_global.showGlobalSpinnerNode();
         },
         data: {
           keywords: $('#add_item_term').val()
         },
         url: $(this).attr('href'),
         success: function(html){
-          $.hideGlobalSpinnerNode();
+          h2o_global.hideGlobalSpinnerNode();
           $('#add_item_results').html(html);
-          $.toggleHeaderPagination();
+          playlists.toggleHeaderPagination();
           $('div#nestable2').nestable({ group: 1 }); //, maxDepth: 1 });
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
@@ -645,31 +646,28 @@ $.extend({
       });
     });
   }
-});
+};
 
 $(document).ready(function(){
-  $.setPlaylistFontHierarchy(14);
+  h2o_global.setPlaylistFontHierarchy(14);
 
   $('.toolbar, .buttons').css('visibility', 'visible');
-  $.observeStats();
-  $.observeNoteFunctionality();
+  playlists.observeStats();
+  playlists.observeNoteFunctionality();
 
-  /* New Item Search */
   $('#add_item_select').selectbox({
     className: "jsb", replaceInvisible: true 
   });
-  $.initKeywordSearch();
-  $.initHeaderPagination();
-  $.initPlaylistItemPagination();
-  /* End New Search */
-  
-  $.observeEditNodes();
-  $.observeDeleteNodes();
-  $.observePlaylistManipulation();
-  $.observePlaylistExpansion();
-  $.observeMainPlaylistExpansion();
-  $.observeAdditionalDetailsExpansion();
-  $.observeViewerToggleEdit();
+  playlists.initKeywordSearch();
+  playlists.initHeaderPagination();
+  playlists.initPlaylistItemPagination();
+  playlists.observeEditNodes();
+  playlists.observeDeleteNodes();
+  playlists.observePlaylistManipulation();
+  playlists.observePlaylistExpansion();
+  playlists.observeMainPlaylistExpansion();
+  playlists.observeAdditionalDetailsExpansion();
+  playlists.observeViewerToggleEdit();
 });
 
 var delete_playlist_item_template = '\
