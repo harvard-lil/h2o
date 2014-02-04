@@ -4,15 +4,17 @@ class CollageLinksController < BaseController
     params[:page] ||= 1
 
     if params[:keywords]
-      obj = Sunspot.new_search(Collage)
-      obj.build do
+      @objects = Sunspot.new_search(Collage)
+      @objects.build do
         keywords params[:keywords]
         paginate :page => params[:page], :per_page => 5 || nil
+
+        with :public, true
+        with :active, true
+
         order_by :score, :desc
       end
-      obj.execute!
-      t = obj.hits.inject([]) { |arr, h| arr.push([h.stored(:id), h.stored(:display_name), "collage"]); arr }
-      @objects = WillPaginate::Collection.create(params[:page], 5, obj.total) { |pager| pager.replace(t) } 
+      @objects.execute!
     else
       @objects = Rails.cache.fetch("collages-embedded-search-#{params[:page]}--karma-asc") do
         obj = Sunspot.new_search(Collage)

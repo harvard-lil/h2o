@@ -2,7 +2,7 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   
   before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
-  before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap, :delete_inherited_annotations]
+  before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap, :delete_inherited_annotations, :upgrade_annotator]
 
   protect_from_forgery :except => [:export_unique] #, :copy]
   before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
@@ -50,7 +50,6 @@ class CollagesController < BaseController
         :can_edit             => can_edit,
         :can_edit_description => can_edit_description,
         :can_edit_annotations => can_edit_annotations,
-        :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
         :custom_block         => 'collage_afterload'
       }
     else
@@ -94,7 +93,12 @@ class CollagesController < BaseController
   def show
     @page_cache = true if @collage.public?
     @editability_path = access_level_collage_path(@collage)
-    add_javascripts ['collages', 'markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.xcolor']
+
+    if @collage.annotator_version == 2
+      add_javascripts ['json2', 'annotator-full', 'h2o-annotator']
+      add_stylesheets 'annotator.min'
+    end
+    add_javascripts ['markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.xcolor', "collages_annotatorv#{@collage.annotator_version}"]
     add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     @color_map = @collage.color_map
@@ -167,10 +171,42 @@ class CollagesController < BaseController
   end
 
   def export_unique
+    if @collage.annotator_version == 2
+      add_javascripts ['json2.js', 'annotator-full.js', 'h2o-annotator.js']
+      add_stylesheets 'annotator.min.css'
+    end
     render :action => 'export', :layout => 'print'
   end
 
   def collage_lookup
     render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }
+  end
+
+  def upgrade_annotator
+    if params[:data].has_key?(:annotations)
+      params[:data][:annotations].each do |k, v|
+        Annotation.find(k).update_attributes(v)
+      end
+    end
+    if params[:data].has_key?(:collage_links)
+	    params[:data][:collage_links].each do |k, v|
+	      collage_link = CollageLink.find(k)
+	      Annotation.create({ :collage_id => @collage.id, 
+	                          :xpath_start => v[:xpath_start], 
+	                          :xpath_end => v[:xpath_end],
+	                          :start_offset => v[:start_offset],
+	                          :end_offset => v[:end_offset],
+	                          :linked_collage_id => collage_link.linked_collage_id,
+	                          :user_id => @collage.user_id,
+                            :annotation_start => 0,
+                            :annotation_end => 0,
+                            :annotation => '' })
+        CollageLink.destroy(collage_link)
+	    end
+    end
+    @collage.update_attributes({:annotator_version => 2, :readable_state => nil })
+    render :json => {}
+  rescue Exception => e
+    render :json => { :error => true, :message => "Could not process. Please try again." }, :status => :unprocessable_entity
   end
 end

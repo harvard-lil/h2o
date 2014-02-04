@@ -43,6 +43,8 @@ class CollageSweeper < ActionController::Caching::Sweeper
   end
 
   def after_save(record)
+    return true if record.changed.include?("created_at")
+
     # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
     return true if params && params[:action] == "embedded_pager"
 

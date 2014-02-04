@@ -31,6 +31,7 @@ ActionController::Routing::Routes.draw do |map|
               :export => :get,
               :export_unique => :post,
               :heatmap => :get,
+              :upgrade_annotator => :post,
               :delete_inherited_annotations => :get } do |collage|
     collage.resources :versions
   end

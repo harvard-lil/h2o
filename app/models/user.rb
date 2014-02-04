@@ -105,7 +105,12 @@ class User < ActiveRecord::Base
     text :affiliation
     boolean :public
     boolean :active
+    boolean :anonymous
     date :updated_at
+  end
+
+  def anonymous
+    self.login.match(/^anon_/).present?
   end
 
   def active

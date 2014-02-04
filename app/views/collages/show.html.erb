@@ -3,14 +3,20 @@
 </form>
 <div id="fixed_links">
 <a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Collage Info">Collapse/Expand</a>
+<% if @collage.annotator_version == 1 -%>
 <a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
+<% end -%>
 <a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @collage.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
 
 <aside id="singleitem_barcode_toolbar">
   <%= render :partial => "shared/barcode", :locals => { :object => @collage } %>
-  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip<%= ' inactive' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>"><span class="icon icon-heatmap"><span>Show/Hide Heatmap</span></span></a>
+  <% if @collage.heatmap_active -%>
+  <a href="#" id="heatmap_toggle" title="Show Heatmap" class="link-heatmap tooltip"><span class="icon icon-heatmap"><span>Show/Hide Heatmap</span></span></a>
+  <% else -%>
+  <a href="#" id="heatmap_toggle" title="Heatmap capabilities are temporarily disabled because this collage has multiple annotator versions." class="link-heatmap tooltip inactive"><span class="icon icon-heatmap"><span>Show/Hide Heatmap</span></span></a>
+  <% end -%>
   <a href="<%= copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>">
     <span class="icon icon-remix-large"><span>Remix Collage</span></span>
   </a>
@@ -18,7 +24,7 @@
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Collage</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
 </aside>
 
-<div id="collage" class="singleitem" data-itemid="<%= @collage.id %>">
+<div id="collage<%= @collage.id %>" class="singleitem" data-itemid="<%= @collage.id %>" data-annotator_version="<%= @collage.annotator_version %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @collage.name %></h1>
     <h3 class="scale1-5 <%= @collage.root != @collage ? 'with_creators' : '' %>">
@@ -55,19 +61,25 @@
           </li>
            <% end -%>
         </ul>
+
         <ul>
           <li><a href="#" class="tooltip" title="Show <%= @collage.user.login %>'s version of the collage" id="author_edits">SHOW <%= @collage.user.simple_display %>'S TEXT EDITS</a></li>
-        </li>
+        </ul>
 
+        <% if @collage.annotator_version == 1 -%>
         <h5>ANNOTATIONS</h5>
         <ul>
           <li id="show_annotations">
-            <a href="#" title="View all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>SHOW ALL ANNOTATIONS</a>
+            <a href="#" title="View all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count.to_i } == 0 %>>SHOW ALL ANNOTATIONS</a>
           </li>
           <li id="hide_annotations">
-            <a href="#" title="Hide all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count } == 0 %>>CONTRACT ALL ANNOTATIONS</a>
+            <a href="#" title="Hide all annotations" class="tooltip" <%= raw 'class="inactive"' if @collage.annotations.inject(0) { |s, a| s + a.annotation_word_count.to_i } == 0 %>>CONTRACT ALL ANNOTATIONS</a>
+          </li>
+          <li id="annotations_na">
+          N/A
           </li>
         </ul>
+        <% end -%>
 
         <h5>HIGHLIGHTS</h5>
         <ul id="layers_highlights">
@@ -92,14 +104,23 @@
     <%= Collage.format_content(@collage.description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT COLLAGE INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
+    <% if @collage.annotator_version == 1 %>
+    <%= link_to raw('<span class="icon icon-upgrade"></span>UPGRADE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "upgrade-action requires_edit scale0-8" %>
+    <% end -%>
   </div>
 
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
-  <% cache("collage-#{@collage.id}-editable-content") do %>
-  <article>
+  <div class="article">
+  <% if @collage.annotator_version == 1 %>
+    <% cache("collage-#{@collage.id}-editable-content") do %>
     <%= raw @collage.editable_content %>
-  </article>
+    <% end -%>
+  <% else -%>
+    <% cache("collage-#{@collage.id}-editable-content-v2") do %>
+    <%= raw @collage.editable_content_v2 %>
+    <% end -%>
   <% end -%>
+  </div>
 </div>
 
 <div id="stats" class="right_panel">
@@ -148,7 +169,12 @@
 var editability_path = "<%= access_level_collage_path(@collage) %>"; 
 var original_data = <%= raw @collage.readable_state || '{}' %>;
 var annotations = <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>;
+<% if @collage.annotator_version == 1 -%>
 var collage_links = <%= raw @collage.collage_links.inject({}) { |h, a| h["c#{a.id}"] =  a; h }.to_json %>;
+<% end -%>
+var linked_collages = <%= raw @collage.annotations.select { |a| a.linked_collage_id.present? }.inject({}) { |h, a| h["c#{a.linked_collage_id}"] = a.linked_collage.name; h }.to_json %>; 
 var color_list = <%= raw Collage.color_list.to_json %>;
 var layer_color_map = <%= raw @color_map.to_json %>;
+var layer_data = <%= raw @collage.layer_data.to_json %>;
+var heatmap = <%= raw @collage.heatmap.to_json %>;
 </script>

@@ -28,27 +28,37 @@ module HeatmapExtensions
   end
 
   module InstanceMethods
+    def heatmap_active
+      !self.annotatable.collages.detect { |c| c.annotator_version != self.annotator_version }
+    end
+
     def heatmap
-      raw_data = {}
-      self.annotatable.collages.each do |collage|
-        collage.annotations.each do |annotation|
-          next if annotation.layers.empty?
-          a_start = annotation.annotation_start.gsub(/^t/, '').to_i 
-          a_end = annotation.annotation_end.gsub(/^t/, '').to_i
-          (a_start..a_end).each do |i|
-            raw_data["t#{i}"] ||= 0 
-            raw_data["t#{i}"] += 1
+      if self.annotator_version == 1
+	      raw_data = {}
+	      self.annotatable.collages.each do |collage|
+	        collage.annotations.each do |annotation|
+	          next if annotation.layers.empty?
+	          a_start = annotation.annotation_start.gsub(/^t/, '').to_i 
+	          a_end = annotation.annotation_end.gsub(/^t/, '').to_i
+	          (a_start..a_end).each do |i|
+	            raw_data["t#{i}"] ||= 0 
+	            raw_data["t#{i}"] += 1
+	          end
+	        end
+	      end
+	      max = raw_data.values.max.to_f
+	      { :data => raw_data, :max => max }
+      else 
+        heatmap_annotations = self.annotatable.collages.inject([]) do |arr, c|
+          if c != self && c.annotator_version == self.annotator_version
+            c.annotations.each do |ann|
+              arr << ann.to_json(:include => :layers)
+            end
           end
+          arr
         end
+        heatmap_annotations.flatten
       end
-      #raw_data # Need to scale
-      #No colors
-      #color_map = Collage.color_map
-      max = raw_data.values.max.to_f
-      #scale_data = {}
-      #raw_data.each { |k, v| scale_data[k] = color_map[((v.to_f/max)*22).to_i - 1] }
-      #scale_data
-      { :data => raw_data, :max => max }
     end
   end
 end

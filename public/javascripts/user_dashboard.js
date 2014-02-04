@@ -1,183 +1,183 @@
-jQuery.extend({
+$.extend({
   renderDeleteFunctionality: function() {
-    if('/users/' + jQuery.cookie('user_id') == document.location.pathname) {
-      jQuery.each(jQuery('#results_set li'), function(i, el) {
-        var delete_link = jQuery('<a>')
+    if('/users/' + $.cookie('user_id') == document.location.pathname) {
+      $.each($('#results_set li'), function(i, el) {
+        var delete_link = $('<a>')
                             .addClass('icon icon-delete tooltiip')
                             .attr('title', 'Delete')
                             .html('DELETE')
-                            .data('type', jQuery(el).data('type'))
-                            .attr('href', '/' + jQuery(el).data('type') + 's/' + jQuery(el).data('itemid'));
-        jQuery(el).find('.details h3').append(delete_link);
+                            .data('type', $(el).data('type'))
+                            .attr('href', '/' + $(el).data('type') + 's/' + $(el).data('itemid'));
+        $(el).find('.details h3').append(delete_link);
       });
     }
   },
   updated_permissions: function(data) {
-    jQuery('.extra' + data.id).append(jQuery('<span>Updated!</span>'));
-    jQuery.hideGlobalSpinnerNode();
-    jQuery('#generic-node').dialog('close');
-    jQuery('.extra' + data.id + ' span').fadeOut(4000, function() { jQuery(this).remove(); });
+    $('.extra' + data.id).append($('<span>Updated!</span>'));
+    $.hideGlobalSpinnerNode();
+    $('#generic-node').dialog('close');
+    $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
   },
   observeCaseApproval: function() {
-    jQuery('.approve-action').live('click', function(e) {
+    $(document).delegate('.approve-action', 'click', function(e) {
       e.preventDefault();
   
-      var approveUrl = jQuery(this).attr('href');
+      var approveUrl = $(this).attr('href');
       var item_id = approveUrl.match(/[0-9]+/).toString();
-      jQuery.ajax({
+      $.ajax({
         cache: false,
         type: 'POST',
         url: approveUrl,
         dataType: 'JSON',
         data: {},
         beforeSend: function(){
-          jQuery.showGlobalSpinnerNode();
+          $.showGlobalSpinnerNode();
         },
         error: function(xhr){
-          jQuery.hideGlobalSpinnerNode();
+          $.hideGlobalSpinnerNode();
         },
         success: function(data){
-          jQuery(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
-            jQuery(".listitem" + item_id).remove();
+          $(".listitem" + item_id).animate({ opacity: 0.0, height: 0 }, 500, function() {
+            $(".listitem" + item_id).remove();
           });
-          jQuery.hideGlobalSpinnerNode();
+          $.hideGlobalSpinnerNode();
         }
       });
     });
   },
   observeCollectionActions: function() {
-    jQuery('#lookup_submit').live('click', function(e) {
+    $(document).delegate('#lookup_submit', 'click', function(e) {
       e.preventDefault();
-      var link = jQuery(this);
+      var link = $(this);
       var type = link.data('type');
-      if(jQuery(this).hasClass('disabled')) {
+      if($(this).hasClass('disabled')) {
         return false;
       }
-      jQuery.ajax({
+      $.ajax({
         type: 'GET',
         cache: false,
-        url: jQuery(this).attr('href'),
+        url: $(this).attr('href'),
         dataType: "JSON",
         data: {
-          lookup: jQuery('#lookup').val()
+          lookup: $('#lookup').val()
         },
         beforeSend: function() {
-          jQuery.showGlobalSpinnerNode();
+          $.showGlobalSpinnerNode();
           link.addClass('disabled');
         },
         error: function(xhr){
-          jQuery.hideGlobalSpinnerNode();
+          $.hideGlobalSpinnerNode();
           link.removeClass('disabled');
-          jQuery('#lookup_results li').remove();
-          var node = jQuery('<li>');
-          node.append(jQuery('<span>Error: please try again.</span>'));
-          jQuery('#lookup_results').append(node);
+          $('#lookup_results li').remove();
+          var node = $('<li>');
+          node.append($('<span>Error: please try again.</span>'));
+          $('#lookup_results').append(node);
         },
         success: function(results){
-          jQuery('#lookup_results li').remove();
-          jQuery('#lookup').val('');
+          $('#lookup_results li').remove();
+          $('#lookup').val('');
           if(results.items.length == 0) {
-            var node = jQuery('<li>');
-            node.append(jQuery('<span>Could not find any ' + type + 's.</span>'));
-            jQuery('#lookup_results').append(node);
+            var node = $('<li>');
+            node.append($('<span>Could not find any ' + type + 's.</span>'));
+            $('#lookup_results').append(node);
           }
-          jQuery.each(results.items, function(i, el) {
-            var node = jQuery('<li class="item' + el.id + '">');
-            node.append(jQuery('<span>' + el.display + '</span>'));
-            if(jQuery('#current_list .item' + el.id).length) {
-              node.append(jQuery('<span> (already added)</span>'));
+          $.each(results.items, function(i, el) {
+            var node = $('<li class="item' + el.id + '">');
+            node.append($('<span>' + el.display + '</span>'));
+            if($('#current_list .item' + el.id).length) {
+              node.append($('<span> (already added)</span>'));
             } else {
-              node.append(jQuery('<a data-type="' + type + '" data-id="' + el.id + '">').attr('href', '#').addClass('add_item').html('ADD'));
+              node.append($('<a data-type="' + type + '" data-id="' + el.id + '">').attr('href', '#').addClass('add_item').html('ADD'));
             }
-            jQuery('#lookup_results').append(node);
+            $('#lookup_results').append(node);
           });
-          jQuery.hideGlobalSpinnerNode();
+          $.hideGlobalSpinnerNode();
           link.removeClass('disabled');
         }
       });
     });
-    jQuery('.remove_item').live('click', function(e) {
+    $(document).delegate('.remove_item', 'click', function(e) {
       e.preventDefault();
-      jQuery(this).parent().remove();
+      $(this).parent().remove();
     });
-    jQuery('.add_item').live('click', function(e) {
+    $(document).delegate('.add_item', 'click', function(e) {
       e.preventDefault();
-      var link = jQuery(this);
+      var link = $(this);
       var cloned = link.parent().clone();
-      cloned.append(jQuery('<input type="hidden">').attr('name', 'user_collection[' + link.data('type') + '_ids][]').val(link.data('id')));
+      cloned.append($('<input type="hidden">').attr('name', 'user_collection[' + link.data('type') + '_ids][]').val(link.data('id')));
       cloned.find('.add_item').removeClass('add_item').addClass('remove_item').html('REMOVE');
-      jQuery('#current_list').append(cloned);
+      $('#current_list').append(cloned);
       link.parent().remove();
     });
   },
   listResultsSpecial: function(url, region, store_address) {
     list_results_url = url;
 
-    jQuery.ajax({
+    $.ajax({
       type: 'GET',
       dataType: 'html',
       url: url,
       beforeSend: function(){
-           jQuery.showGlobalSpinnerNode();
+           $.showGlobalSpinnerNode();
          },
          error: function(xhr){
-           jQuery.hideGlobalSpinnerNode();
+           $.hideGlobalSpinnerNode();
       },
       success: function(html){
         if(store_address) {
-          jQuery.address.value(url);
+          $.address.value(url);
         }
-        jQuery.hideGlobalSpinnerNode();
-        jQuery('#results_' + region).html(html);
-        jQuery('#pagination_' + region).html(jQuery('#new_pagination').html());
-        jQuery('#new_pagination').remove();
-        jQuery.initializeBarcodes();
-        jQuery('#results_' + region + ' .listitem').hoverIntent(function() {
-        jQuery(this).addClass('hover');
-        jQuery(this).find('.icon').addClass('hover');
+        $.hideGlobalSpinnerNode();
+        $('#results_' + region).html(html);
+        $('#pagination_' + region).html($('#new_pagination').html());
+        $('#new_pagination').remove();
+        $.initializeBarcodes();
+        $('#results_' + region + ' .listitem').hoverIntent(function() {
+        $(this).addClass('hover');
+        $(this).find('.icon').addClass('hover');
         }, function() {
-          jQuery(this).removeClass('hover');
-          jQuery(this).find('.icon').removeClass('hover');
+          $(this).removeClass('hover');
+          $(this).find('.icon').removeClass('hover');
         });
       }
     });
   },
   observeSpecialPagination: function() {
-    jQuery('.special_sort select').selectbox({
+    $('.special_sort select').selectbox({
       className: "jsb", replaceInvisible: true 
     }).change(function() {
-      var sort = jQuery(this).val();
-      var region = jQuery(this).parent().parent().data('region');
+      var sort = $(this).val();
+      var region = $(this).parent().parent().data('region');
       var url = document.location.pathname + '?ajax_region=' + region + '&sort=' + sort;
-      jQuery.listResultsSpecial(url, region, true);
+      $.listResultsSpecial(url, region, true);
     });
-    jQuery('.users_pagination a').live('click', function(e) {
+    $(document).delegate('.users_pagination a', 'click', function(e) {
       e.preventDefault();
-      var href = jQuery(this).attr('href');
-      var region = jQuery(this).parent().data('region');
-      jQuery.listResultsSpecial(href, region, true);
+      var href = $(this).attr('href');
+      var region = $(this).parent().data('region');
+      $.listResultsSpecial(href, region, true);
     });
   },
   observeKeywordsSearch: function() {
-    jQuery('#search_user_content').click(function(e){
-      var url = document.location.pathname + '?keywords=' + jQuery('#user_keywords').val() + '&sort=' + jQuery('.bookshelf_setup .sort select').val();
-      jQuery.showGlobalSpinnerNode();
-      jQuery.address.value(url);
-      jQuery('#results_set').load(url, function() { 
-        jQuery.hideGlobalSpinnerNode(); 
-        jQuery.renderDeleteFunctionality();
+    $('#search_user_content').click(function(e){
+      var url = document.location.pathname + '?keywords=' + $('#user_keywords').val() + '&sort=' + $('.bookshelf_setup .sort select').val();
+      $.showGlobalSpinnerNode();
+      $.address.value(url);
+      $('#results_set').load(url, function() { 
+        $.hideGlobalSpinnerNode(); 
+        $.renderDeleteFunctionality();
 
         //TODO: Investigate this:
-        jQuery('.pagination').html('');
+        $('.pagination').html('');
       });
     });
   }
 });
 
-jQuery(function() {
-  jQuery.observeCaseApproval();
-  jQuery.observeCollectionActions();
-  jQuery.observeSpecialPagination();
-  jQuery.observeKeywordsSearch();
-  jQuery.renderDeleteFunctionality();
+$(function() {
+  $.observeCaseApproval();
+  $.observeCollectionActions();
+  $.observeSpecialPagination();
+  $.observeKeywordsSearch();
+  $.renderDeleteFunctionality();
 });

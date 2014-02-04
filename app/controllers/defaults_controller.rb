@@ -41,7 +41,7 @@ class DefaultsController < BaseController
   end
 
   def new
-    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     @default = Default.new
@@ -49,7 +49,7 @@ class DefaultsController < BaseController
   end
 
   def render_or_redirect_for_captcha_failure
-    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     @default = Default.new(params[:default])
@@ -60,7 +60,7 @@ class DefaultsController < BaseController
   end
 
   def edit
-    add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
+    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
     add_stylesheets ['new_default']
 
     if @default.metadatum.blank?
@@ -80,7 +80,7 @@ class DefaultsController < BaseController
       flash[:notice] = 'Link was successfully created.'
       redirect_to edit_default_path(@default)
     else
-      add_javascripts ['visibility_selector', 'new_default', 'h2o_wysiwig', 'switch_editor']
+      add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
       add_stylesheets ['new_default']
 
       @default.build_metadatum

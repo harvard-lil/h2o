@@ -123,6 +123,17 @@ class Collage < ActiveRecord::Base
     h["l46"] = '6b0000'
     h
   end
+  
+  def layer_data
+    h = {}
+    self.layers.each do |layer|
+      map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      h["#{layer.name}"] = map.hex if map
+    end
+    #hardcoding required layer as dark red
+    h["required"] = '6b0000'
+    h
+  end
 
   def barcode
     Rails.cache.fetch("collage-barcode-#{self.id}") do
@@ -169,6 +180,33 @@ class Collage < ActiveRecord::Base
       end
     end
     return layers
+  end
+
+  def editable_content_v2
+    doc = Nokogiri::HTML.parse(self.annotatable.content)
+
+    # Footnote markup
+    doc.css("a").each do |li|
+      if li['href'] =~ /^#/
+        li['class'] = 'footnote'
+      end
+    end
+
+    count = 1
+    doc.xpath('//p[not(ancestor::center)] | //center | //h2[not(ancestor::center)]').each do |node|
+      if node.children.any? && node.text != ''
+	      first_child = node.children.first
+	      control_node = Nokogiri::XML::Node.new('a', doc)
+	      control_node['id'] = "paragraph#{count}"
+	      control_node['href'] = "#p#{count}"
+	      control_node['class'] = "paragraph-numbering scale0-9"
+	      control_node.inner_html = "#{count}"
+	      first_child.add_previous_sibling(control_node)
+	      count += 1
+      end
+    end
+
+    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 
   def editable_content
@@ -226,6 +264,64 @@ class Collage < ActiveRecord::Base
   end
 
   alias :to_s :display_name
+
+  def xpath_and_offset(doc, tt_pos, anchor)
+    results = { :xpath => '', :offset => 0 }
+    node = doc.xpath("//tt[@id='#{tt_pos}']").first
+    element = node.parent
+    while element.name != 'body'
+      index = element.xpath("../#{element.name}").index(element) + 1
+      results[:xpath] = "/#{element.name}[#{index}]#{results[:xpath]}"
+      element = element.parent
+    end
+
+    nodes = node.xpath('../tt')
+    node_index = nodes.index(node)
+
+    if anchor == 'start'
+      if node_index != 0
+        results[:offset] = nodes[0,node_index].collect { |n| n.text }.join('').length
+      end
+    else
+      results[:offset] = nodes[0,node_index + 1].collect { |n| n.text }.join('').length
+    end
+
+    results
+  end
+
+  def upgrade_via_nokogiri
+    doc = Nokogiri::HTML.parse(self.content)
+ 
+    self.annotations.each do |annotation|
+      start_detail = xpath_and_offset(doc, annotation.annotation_start, 'start')
+      
+      end_detail = xpath_and_offset(doc, annotation.annotation_end, 'end')
+      attributes = { :xpath_start => start_detail[:xpath],
+                     :xpath_end => end_detail[:xpath], 
+                     :start_offset => start_detail[:offset],
+                     :end_offset => end_detail[:offset] } 
+      annotation.update_attributes(attributes)
+    end
+    
+    self.collage_links.each do |collage_link|
+      start_detail = xpath_and_offset(doc, collage_link.link_text_start, 'start')
+      end_detail = xpath_and_offset(doc, collage_link.link_text_end, 'end')
+
+	    Annotation.create({ :collage_id => self.id,
+	                        :xpath_start => start_detail[:xpath],
+	                        :xpath_end => end_detail[:xpath],
+	                        :start_offset => start_detail[:offset],
+	                        :end_offset => end_detail[:offset],
+	                        :linked_collage_id => collage_link.linked_collage_id,
+	                        :user_id => self.user_id,
+                          :annotation_start => 0,
+                          :annotation_end => 0,
+                          :annotation => '' })
+    end
+    #CollageLink.destroy(self.collage_links)
+
+    self.update_attribute(:annotator_version, 2)
+  end
 
   private
 

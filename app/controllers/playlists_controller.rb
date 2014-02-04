@@ -252,6 +252,8 @@ class PlaylistsController < BaseController
   end
 
   def export
+    add_javascripts ['json2', 'annotator-full', 'h2o-annotator']
+    add_stylesheets 'annotator.min'
     render :layout => 'print'
   end
 

@@ -215,6 +215,9 @@ class ApplicationController < ActionController::Base
         with :media_type, params[:media_type]
       end
 
+      if model == User
+        with :anonymous, false  
+      end
       if model == Playlist && current_user
         any_of do
           with :users_by_permission, current_user.login

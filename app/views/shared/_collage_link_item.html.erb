@@ -8,7 +8,7 @@
 <table width="95%" id="collage_link_list">
   <% @objects.results.each do |hit| -%>
   <tr>
-    <td valign="top"><button class="add-collage-button" id="collage-<%= hit.id %>">SELECT</button></td>
+    <td valign="top"><button class="add-collage-button" id="collage-<%= hit.id %>" data-collage_id="<%= hit.id %>">SELECT</button></td>
     <td class="title"><%= hit.display_name %></td>
   </tr>
   <% end %>
