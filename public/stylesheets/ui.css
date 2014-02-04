@@ -1666,3 +1666,9 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 .hidden-label {
   display: none;
 }
+#no_results {
+  font-size: 14px;
+  padding: 20px;
+  font-weight: bold;
+  font-style: italic;
+}

@@ -74,7 +74,14 @@ class UsersController < ApplicationController
 
     public_filtering = !current_user || @user != current_user
 
-    models = params.has_key?(:filter_type) ? [params[:filter_type].singularize.classify.constantize] : [Playlist, Collage, Case, Media, TextBlock, Default]  
+    models = [Playlist, Collage, Case, Media, TextBlock, Default]
+    if params.has_key?(:filter_type)
+      if params[:filter_type] == 'medias'
+        models = [Media]
+      else
+        models = [params[:filter_type].singularize.classify.constantize]
+      end
+    end
     models.each do |model|
       set_belongings model
     end
