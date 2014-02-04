@@ -347,9 +347,15 @@
   /* border: 1px solid red; */
 }
 
+
+.dd-item > button[data-action="collapse"] {
+  display: none; 
+}
+/*
 .dd-item > button { display: block; position: relative; cursor: pointer; float: left; width: 25px; height: 20px; margin: 5px 0; padding: 0; text-indent: 100%; white-space: nowrap; overflow: hidden; border: 0; background: transparent; line-height: 1; text-align: center; font-weight: bold; }
 .dd-item > button:before { content: '+'; display: block; position: absolute; width: 100%; text-align: center; text-indent: 0; }
 .dd-item > button[data-action="collapse"]:before { content: '-'; }
+*/
 
 .dd-empty { border: 1px dashed #bbb; min-height: 15px; }
 

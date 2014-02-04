@@ -63,7 +63,8 @@ class PlaylistsController < BaseController
         :custom_block                   => 'playlist_afterload',
         :can_edit_desc                  => can_edit_desc,
         :nested_private_count_owned     => nested_private_count_owned,
-        :nested_private_count_nonowned  => nested_private_count_nonowned
+        :nested_private_count_nonowned  => nested_private_count_nonowned,
+        :is_superadmin                  => current_user.has_role?(:superadmin)
       }
     else
       render :json => {
@@ -72,7 +73,8 @@ class PlaylistsController < BaseController
         :can_position_update  => false,
         :can_edit_notes       => false,
         :custom_block         => 'playlist_afterload',
-        :can_edit_desc        => false 
+        :can_edit_desc        => false, 
+        :is_superadmin        => false
       }
     end
   end

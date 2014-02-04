@@ -1,4 +1,4 @@
-<div class="playlists dd">
+<div class="playlists dd" data-playlist_id="<%= @playlist.id %>">
 	<ol class="dd-list <%= 'dd-empty' if @playlist.playlist_items.empty? %>">
 		<% @playlist.playlist_items.each_with_index do |item, index| -%>
 		  <%= render :partial => 'shared/objects/playlist_item',

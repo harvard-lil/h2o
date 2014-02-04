@@ -39,11 +39,10 @@ class PlaylistItemsController < BaseController
 
     klass = params[:klass] == "media" ? Media : params[:klass].classify.constantize
     @actual_object = klass.find(params[:id])
-    @playlist_item = PlaylistItem.new({ :url => params[:url], 
-                                 :playlist_id => params[:playlist_id], 
-                                 :position => params[:position], 
-                                 :actual_object_type => @actual_object.class.to_s, 
-                                 :actual_object_id => @actual_object.id })
+    @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id], 
+                                        :position => params[:position], 
+                                        :actual_object_type => @actual_object.class.to_s, 
+                                        :actual_object_id => @actual_object.id })
 
     if @actual_object.class == Default
       @url_display = @actual_object.url

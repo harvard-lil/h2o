@@ -9,7 +9,7 @@ $.extend({
     $.each($('.private'), function(i, link) {
       var listitem = $(link).parentsUntil('.listitem').last().parent();
       if(user_id != listitem.data('user_id')) {
-        listitem.find('.additional_details,section.playlists').remove();
+        listitem.find('.additional_details,div.dd').remove();
         if(!can_edit) {
           listitem.find('.rr').remove();
         }
@@ -21,9 +21,24 @@ $.extend({
       $('a.private').removeClass('private');
     }
   },
+  set_nestability_and_editability: function() {
+    if(access_results.is_superadmin) {
+      $('li.playlist').data('nestable', true);
+    } else if($.cookie('user_id') != null) {
+      var editable_playlists = $('li.playlist[data-user_id=' + $.cookie('user_id') + ']');
+      editable_playlists.data('nestable', true);
+      var editable_items = editable_playlists.find('> .dd > .dd-list > li.listitem');
+      var items_to_revoke =  $('li.playlist').not(editable_playlists).not(editable_items);
+      items_to_revoke.find('.delete-playlist-item,.edit-playlist-item').remove();
+    }
+    if(access_results.can_edit) {
+      $('div#playlist').data('nestable', true);
+    }
+  },
   playlist_afterload: function(results) {
+    $.set_nestability_and_editability();
     if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
-      if (results.can_edit) {
+      if(results.can_edit) {
         $.playlist_mark_private($.cookie('user_id'), true);
         $('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
           $('#description .inactive').css('opacity', 0.4);
@@ -206,12 +221,19 @@ $.extend({
     });
   },
   update_positions: function(position_data) {
+    var check_first = true;
+    var prefix = '';
     $.each(position_data, function(index, value) {
+      if(check_first && $('#playlist_item_' + index).parents('.playlist').size() > 0) {
+        prefix = $('#playlist_item_' + index).parents('.playlist:first').find('.number:first').html() + '.';
+        check_first = false;
+      }
       var current_val = $('#playlist_item_' + index + ' .number:first').html();
-      if(current_val != value) {
+      var new_value = prefix + value;
+      if(current_val != new_value) {
         var posn_rep = new RegExp('^' + current_val + '');
         $('#playlist_item_' + index + ' .number').each(function(i, el) {
-          $(el).html($(el).html().replace(posn_rep, value));
+          $(el).html($(el).html().replace(posn_rep, new_value));
         });
       }
     });
@@ -335,7 +357,9 @@ $.extend({
       success: function(response) {
         $('.playlists .dd-list .listing').replaceWith(response);
         $('.requires_edit,.requires_remove,.requires_logged_in').animate({ opacity: 1.0 });
+        $('li#playlist_item_' + data.playlist_item_id + ' .dd').nestable({ group: 1 });
         $.update_positions(data.position_data);
+        $.set_nestability_and_editability();
       }, 
       error: function() {
         setTimeout(function() {
@@ -464,75 +488,81 @@ $.extend({
       $('.dd-handle').removeClass('dd-handle').addClass('dd-handle-inactive');
     }
   },
+  dropActivate: function(working_playlist, playlist_id) {
+    if(dropped_item !== undefined) {
+      $.cancelItemAdd();
+    }
+
+    var position_update = true; 
+    var new_item;
+
+    // If playlist has not been nestable yet (e.g. new item), 
+    // it neesd to be called and thrown away
+    var throwaway_order = working_playlist.nestable('serialize');
+    var nested_order = working_playlist.nestable('serialize');
+
+    var positions = new Array();
+    $.each(nested_order, function(i, item) {
+      if(item.drop == "new_item") {
+        position_update = false;
+        new_item = item;
+      } else {
+        positions.push("playlist_item[]=" + item.itemid);
+      }
+    });
+    if(position_update) {
+      $.ajax({
+        type: 'post',
+        dataType: 'json',
+        url: '/playlists/' + playlist_id + '/position_update',
+        data: {
+          playlist_order: positions.join('&')
+        },
+        beforeSend: function(){
+          $.showGlobalSpinnerNode();
+        },
+        success: function(data) {
+          $.update_positions(data);
+        },
+        complete: function() {
+          $.hideGlobalSpinnerNode();
+        }
+      });
+    } else {
+	    var url = $.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
+      var listing_el = $('#listing_' + new_item.type + '_' + new_item.id);
+
+      dropped_item = listing_el;
+      dropped_original_position = new_item.index + 1; 
+	    $.ajax({
+	      method: 'GET',
+	      cache: false,
+	      dataType: "html",
+	      url: $.rootPath() + 'playlist_items/new',
+	      beforeSend: function(){
+	           $.showGlobalSpinnerNode();
+	      },
+	      data: {
+          klass: new_item.type,
+          id: new_item.id,
+	        playlist_id: playlist_id,
+          position: working_playlist.find('> .dd-list > .dd-item').index(listing_el) + 1 
+	      },
+	      success: function(html){
+	        $.hideGlobalSpinnerNode();
+          var new_content = $(html);
+          listing_el.find('.icon').addClass('hover');
+          listing_el.append(new_content).css({ height: 'auto', 'border-top': 'none' }).addClass('listing-with-form');
+          listing_el.find('.dd-handle').show();
+	      }
+	    });
+    }
+  },
   observeDragAndDrop: function() {
     if(access_results.can_position_update) {
       $('.dd-handle-inactive').removeClass('dd-handle-inactive').addClass('dd-handle');
-      $('div.playlists').nestable({ group: 1 });
-      $('div.playlists').on('custom_change', function() {
-        if(dropped_item !== undefined) {
-          $.cancelItemAdd();
-        }
-
-        var position_update = true; 
-        var new_item;
-        var order = $('div.playlists').nestable('serialize');
-        var positions = new Array();
-        $.each(order, function(i, item) {
-          if(item.drop == "new_item") {
-            position_update = false;
-            new_item = item;
-          } else {
-            positions.push("playlist_item[]=" + item.id);
-          }
-        });
-        if(position_update) {
-          $.ajax({
-            type: 'post',
-            dataType: 'json',
-            url: '/playlists/' + $('#playlist').data('itemid') + '/position_update',
-            data: {
-              playlist_order: positions.join('&')
-            },
-            beforeSend: function(){
-              $.showGlobalSpinnerNode();
-            },
-            success: function(data) {
-              $.update_positions(data);
-            },
-            complete: function() {
-              $.hideGlobalSpinnerNode();
-            }
-          });
-        } else {
-			    var url = $.rootPathWithFQDN() + new_item.type + '/' + new_item.id;
-          var listing_el = $('#listing_' + new_item.type + '_' + new_item.id);
-
-          dropped_item = listing_el;
-          dropped_original_position = new_item.index + 1; 
-			    $.ajax({
-			      method: 'GET',
-			      cache: false,
-			      dataType: "html",
-			      url: $.rootPath() + 'playlist_items/new',
-			      beforeSend: function(){
-			           $.showGlobalSpinnerNode();
-			      },
-			      data: {
-              klass: new_item.type,
-              id: new_item.id,
-			        url: url,
-			        playlist_id: playlist_id,
-              position: $('.playlists ol.dd-list .dd-item').index(listing_el) + 1
-			      },
-			      success: function(html){
-			        $.hideGlobalSpinnerNode();
-              var new_content = $(html);
-              listing_el.find('.icon').addClass('hover');
-              listing_el.append(new_content).css({ height: 'auto', 'border-top': 'none' }).addClass('listing-with-form');
-              listing_el.find('.dd-handle').show();
-			      }
-			    });
-        }
+      $('div.dd').nestable({ group: 1 });
+      $('.dd-item,div.playlists').on('custom_change', function() {
       });
     }
   },
@@ -577,7 +607,7 @@ $.extend({
           $.hideGlobalSpinnerNode();
           $('#add_item_results').html(html);
           $.toggleHeaderPagination();
-          $('div#nestable2').nestable({ group: 1, maxDepth: 1 });
+          $('div#nestable2').nestable({ group: 1 }); //, maxDepth: 1 });
           $.initializeBarcodes();
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
@@ -605,7 +635,7 @@ $.extend({
           $.hideGlobalSpinnerNode();
           $('#add_item_results').html(html);
           $.toggleHeaderPagination();
-          $('div#nestable2').nestable({ group: 1, maxDepth: 1 });
+          $('div#nestable2').nestable({ group: 1 }); //, maxDepth: 1 });
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {

@@ -93,9 +93,9 @@
             {
                 var handle = $(e.target);
 
-                //STEPH: Overrides to allow links inside handle to be preserved
+                //H2O Customization
                 if(handle.is('a') || handle.is('.icon-delete') || handle.is('.icon-edit')) {
-                  return;
+                    return;
                 }
 
                 if (!handle.hasClass(list.options.handleClass)) {
@@ -295,16 +295,20 @@
             // fix for zepto.js
             //this.placeEl.replaceWith(this.dragEl.children(this.options.itemNodeName + ':first').detach());
             var el = this.dragEl.children(this.options.itemNodeName).first();
+            
+            //H2O Customization
+            var playlist_changed = this.placeEl.parents('.dd-item:first');
+
             el[0].parentNode.removeChild(el[0]);
             this.placeEl.replaceWith(el);
-
             this.dragEl.remove();
-            //STEPH: Overrides here to force custom_change, not change
-            this.el.trigger('custom_change');
-            if (this.hasNewRoot) {
-                //this.dragRootEl.trigger('change');
-                this.dragRootEl.trigger('custom_change');
+
+            if(playlist_changed.size() > 0) {
+              $.dropActivate(playlist_changed.find('> .dd'), playlist_changed.data('actual_object_id'));
+            } else {
+              $.dropActivate($('div.playlists'), $('div.playlists').data('playlist_id'));
             }
+
             this.reset();
         },
 
@@ -371,9 +375,26 @@
                 if (mouse.distX > 0 && prev.length && !prev.hasClass(opt.collapsedClass)) {
                     // cannot increase level when item above is collapsed
                     list = prev.find(opt.listNodeName).last();
-                    //Overrides here to not allow horizontal movement
-                    list = prev.children(opt.listNodeName).last();
-                    list.append(this.placeEl);
+
+                    // check if depth limit has reached
+                    depth = this.placeEl.parents(opt.listNodeName).length;
+                        
+                    if (depth + this.dragDepth <= opt.maxDepth) {
+                        // create new sub-level if one doesn't exist
+                        //H2O Customizations here
+                        if (prev.data('nestable') && !list.length) {
+                            list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
+                            list.append(this.placeEl);
+                            var test_node = $('<div>').addClass('dd');
+                            test_node.append(list);
+                            prev.append(test_node); //list);
+                            this.setParent(prev);
+                        } else {
+                            // else append to next level up
+                            list = prev.children(opt.listNodeName).last();
+                            list.append(this.placeEl);
+                        }
+                    }
                 }
                 // decrease horizontal level
                 if (mouse.distX < 0) {
@@ -381,6 +402,7 @@
                     next = this.placeEl.next(opt.itemNodeName);
                     if (!next.length) {
                         parent = this.placeEl.parent();
+
                         this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
                         if (!parent.children().length) {
                             this.unsetParent(parent.parent());
@@ -413,6 +435,10 @@
             var pointElRoot = this.pointEl.closest('.' + opt.rootClass),
                 isNewRoot   = this.dragRootEl.data('nestable-id') !== pointElRoot.data('nestable-id');
 
+            if(this.pointEl.hasClass('dd-item') && this.pointEl.data('nestable') == true && this.pointEl.find('> .wrapper .rr-closed').size() > 0) {
+              this.pointEl.find('> .wrapper .rr-closed').click();
+            }
+
             /**
              * move vertical
              */
@@ -421,6 +447,12 @@
                 if (isNewRoot && opt.group !== pointElRoot.data('nestable-group')) {
                     return;
                 }
+
+                //H2O Customization
+                if(!pointElRoot.parent().data('nestable')) {
+                  return;
+                }
+
                 // check depth limit
                 depth = this.dragDepth - 1 + this.pointEl.parents(opt.listNodeName).length;
                 if (depth > opt.maxDepth) {
@@ -448,8 +480,8 @@
                 }
                 // parent root list has changed
                 if (isNewRoot) {
-                    this.hasNewRoot = true;
                     this.dragRootEl = pointElRoot;
+                    this.hasNewRoot = this.el[0] !== this.dragRootEl[0];
                 }
             }
         }
