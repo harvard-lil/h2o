@@ -306,7 +306,7 @@
             if(playlist_changed.size() > 0) {
               playlists.dropActivate(playlist_changed.find('> .dd'), playlist_changed.data('actual_object_id'));
             } else {
-              playlists.dropActivate($('div.playlists'), $('div.playlists').data('playlist_id'));
+              playlists.dropActivate($('div.playlists:first'), $('div.playlists').data('playlist_id'));
             }
 
             this.reset();
@@ -434,10 +434,6 @@
             // find parent list of item under cursor
             var pointElRoot = this.pointEl.closest('.' + opt.rootClass),
                 isNewRoot   = this.dragRootEl.data('nestable-id') !== pointElRoot.data('nestable-id');
-
-            if(this.pointEl.hasClass('dd-item') && this.pointEl.data('nestable') == true && this.pointEl.find('> .wrapper .rr-closed').size() > 0) {
-              this.pointEl.find('> .wrapper .rr-closed').click();
-            }
 
             /**
              * move vertical
