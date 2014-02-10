@@ -1084,7 +1084,7 @@
 
         //H2O customization:
         if($('#print-options').size() == 0 && annotation.collage_id === undefined) {
-          annotation.collage_id = $.getItemId(); 
+          annotation.collage_id = h2o_global.getItemId(); 
         }
         annotation.ranges.push(normed.serialize(this.wrapper[0], '.annotator-hl,.unlayered,.collage-link,.unlayered-ellipsis,.layered-ellipsis'));
         var base_css_classes = 'annotator-hl annotation-' + annotation.id + ' collage-' + annotation.collage_id;
@@ -2339,7 +2339,7 @@
 
     Store.prototype.annotationCreated = function(annotation) {
       //H2O Customization: 
-      annotation.collage_id = $.getItemId();
+      annotation.collage_id = h2o_global.getItemId();
       annotation.linked_collage_id = $('#linked_collage_id').val();
 
       if (__indexOf.call(this.annotations, annotation) < 0) {

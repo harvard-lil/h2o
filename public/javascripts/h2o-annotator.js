@@ -78,7 +78,7 @@ H2O.prototype.pluginInit = function() {
     H2O.prototype.setUnlayeredSingle(annotation);
     H2O.prototype.setLayeredBorders([annotation]);
     collages.rehighlight();
-    jQuery.updateWordCount();
+    collages.updateWordCount();
   });
   this.annotator.subscribe("annotationsLoaded", function(annotations) {
     if(heatmap_display) {
@@ -87,8 +87,8 @@ H2O.prototype.pluginInit = function() {
 
     H2O.prototype.setLayeredBorders(annotations);
     collages.rehighlight();
-    jQuery.hideShowUnlayeredOptions();
-    jQuery.updateWordCount();
+    collages.hideShowUnlayeredOptions();
+    collages.updateWordCount();
     H2O.prototype.manageLayerCleanup(h2o_annotator.annotator, undefined, false);
 
     st_annotator = h2o_annotator.annotator;
@@ -116,7 +116,7 @@ H2O.prototype.pluginInit = function() {
       H2O.prototype.destroyAnnotationMarkup(annotation);
       H2O.prototype.resetUnlayered();
       H2O.prototype.manageLayerCleanup(h2o_annotator.annotator, annotation, false);
-      jQuery.updateWordCount();
+      collages.updateWordCount();
     }
   });
   this.annotator.subscribe("annotationUpdated", function(annotation) {
@@ -546,7 +546,7 @@ H2O.prototype.beforeDestroyAnnotationMarkup = function(annotation) {
       $('.unlayered-' + key).show();
       $('.unlayered-control-start-' + key + ',.unlayered-control-end-' + key).css('display', 'inline-block');
       $(this).hide();
-      jQuery.hideShowUnlayeredOptions();
+      collages.hideShowUnlayeredOptions();
     });
     $(document).delegate('.unlayered-control-start,.unlayered-control-end', 'click', function(e) {
       e.preventDefault();
@@ -554,7 +554,7 @@ H2O.prototype.beforeDestroyAnnotationMarkup = function(annotation) {
       $('.unlayered-' + key).hide();
       $('.unlayered-ellipsis-' + key).show();
       $('.unlayered-control-start-' + key + ',.unlayered-control-end-' + key).hide();
-      jQuery.hideShowUnlayeredOptions();
+      collages.hideShowUnlayeredOptions();
     });
   };
 

@@ -1222,7 +1222,7 @@ var h2o_global = {
           buttons.removeClass('inactive');
         } else {
           if(data.custom_block) {
-            eval('h2o_global' + data.custom_block + '(data)');
+            eval('h2o_global.' + data.custom_block + '(data)');
           } else {
             if(data.modify_playlists_cookie) {
               if(user_playlists.length < 10) {
