@@ -5,7 +5,8 @@ class CanvasAuthController < ApplicationController
       @user = find_canvas_user
       if @user
         login_user
-        redirect_to root_url
+		flash[:notice] = "You were logged in automatically from Canvas"
+		redirect_to user_path(@user.id)
       else
         set_session_with_canvas_user_id
         redirect_to_h2o_login
@@ -26,8 +27,7 @@ class CanvasAuthController < ApplicationController
   end
 
   def find_canvas_user
-    #User.find_by_canvas_id(params[:user_id])
-    User.find(415)
+    User.find_by_canvas_id(params[:user_id])
   end
 
   def set_session_with_canvas_user_id

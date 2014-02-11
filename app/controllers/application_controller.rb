@@ -381,7 +381,7 @@ class ApplicationController < ActionController::Base
 
     def display_first_time_canvas_notice
       notice =
-        "You are logging in to H2o directly from Canvas for the first time.<br/><br/>
+        "You are logging into H2o directly from Canvas for the first time.<br/><br/>
          After you login your Canvas id will be attached to your H2o id
          and the next time you initiate an H2o session from Canvas you'll be logged in
          automatically."

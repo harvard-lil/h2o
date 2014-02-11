@@ -18,15 +18,17 @@ class UserSessionsController < ApplicationController
     @user_session.save do |result|
       if result
         apply_user_preferences(@user_session.user)
-        if first_time_canvas_login?
-          save_canvas_id_to_user(@user_session.user)
-          flash[:notice] = "You canvas id was attached to this account"
-        end
         if request.xhr?
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false
         else
-          redirect_back_or_default "/"
+          if first_time_canvas_login?
+            save_canvas_id_to_user(@user_session.user)
+            flash[:notice] = "You canvas id was attached to this account"
+			redirect_to user_path(@user_session.user)
+		  else
+			redirect_back_or_default "/"
+          end
         end
       else
         render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity
