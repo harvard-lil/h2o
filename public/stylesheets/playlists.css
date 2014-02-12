@@ -13,11 +13,11 @@
 #playlist #main_details {
   padding-right: 30px; /* making some room for the wedge */
 }
-.playlists .playlist { 
+.playlists .listitem {
   position:relative;
   width:100%;
 }
-.playlists-edit-mode .playlist {
+.playlists-edit-mode .listitem {
   padding:2px 0px;
 }
 .playlists .expanded {
@@ -93,33 +93,33 @@
 .playlists li.listing .dd-handle {
   display: none; 
 }
-.playlists .playlist .wrapper {
+.playlists .listitem .wrapper {
   border-bottom: 1px solid #999999;
 }
-.playlists .playlist .wrapper .inner-wrapper {
+.playlists .listitem .wrapper .inner-wrapper {
   padding: 11px 3px;
 }
-.playlists .playlist .wrapper .inner-wrapper table {
+.playlists .listitem .wrapper .inner-wrapper table {
   margin-right: 25px;
 }
-.playlists .playlist .wrapper .inner-wrapper td.icon-cell {
+.playlists .listitem .wrapper .inner-wrapper td.icon-cell {
   text-align: center;
   padding: 0px 7px;
 }
-.playlists .playlist .wrapper .inner-wrapper td.icon-cell .icon {
+.playlists .listitem .wrapper .inner-wrapper td.icon-cell .icon {
   display: block;
 }
-.playlists .playlist .wrapper .inner-wrapper td.title-cell {
+.playlists .listitem .wrapper .inner-wrapper td.title-cell {
   vertical-align: top;
 }
 .playlists .last > .wrapper {
   border-bottom: none;
 }
-.playlists .playlist .wrapper .delete-playlist-item,
-.playlists .playlist .wrapper .edit-playlist-item {
+.playlists .listitem .wrapper .delete-playlist-item,
+.playlists .listitem .wrapper .edit-playlist-item {
   visibility: hidden;
 }
-.playlists-edit-mode .playlist .wrapper {
+.playlists-edit-mode .listitem .wrapper {
   background:-moz-linear-gradient(top, #eeeeee, #cdcdcd);
   background:-webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#cdcdcd));
   background: -o-linear-gradient(#eeeeee,#cdcdcd);
@@ -129,16 +129,16 @@
   border-radius: 5px;
   border: 1px solid #cacaca;
 }
-.playlists-edit-mode .playlist .wrapper .delete-playlist-item,
-.playlists-edit-mode .playlist .wrapper .edit-playlist-item {
+.playlists-edit-mode .listitem .wrapper .delete-playlist-item,
+.playlists-edit-mode .listitem .wrapper .edit-playlist-item {
   visibility: visible;
 }
 
-.playlist .rr-cell {
+.listitem .rr-cell {
   width: 22px;
   vertical-align: middle;
 }
-.playlist .rr {
+.listitem .rr {
   top:15px;
   right: 12px;
   width:12px; 
@@ -148,13 +148,13 @@
   display: block;
   padding: 5px;
 }
-.playlist .wrapper .rr-closed {
+.listitem .wrapper .rr-closed {
   background-position: -159px -62px;
 }
-.playlist .wrapper .rr.hover_link {
+.listitem .wrapper .rr.hover_link {
   background-position: -159px -83px;
 }
-.playlist .wrapper .rr-closed.hover_link {
+.listitem .wrapper .rr-closed.hover_link {
   background-position: -160px -108px;
 }
 
@@ -187,7 +187,7 @@
 .playlists .playlists .playlists .playlists .additional_details {
   padding-left: 96px;
 }
-.playlist div.additional_details p {
+.listitem div.additional_details p {
   margin-bottom: 10px;
 }
 
@@ -339,7 +339,7 @@
   min-height: 1px;
 }
 #nestable2 .dd-placeholder {
-  display: none;
+ margin: 0px 4px;
 }
 
 .dd-handle {
@@ -400,22 +400,22 @@ button.inactive { opacity: 0.5; }
 
 /** ADDED FROM ui.css **/
 /* Playlist list items -- needed here because used on users page */
-.playlist .number,
+.listitem .number,
 .dd-dragel .number {
   color:#9c9c9c;
   font-weight:bold;
   text-align:center;
 }
-.playlist .width_11 {
+.listitem .width_11 {
   width: 11px;
 }
-.playlist .width_22 {
+.listitem .width_22 {
   width: 22px;
 }
-.playlist .width_33 {
+.listitem .width_33 {
   width: 33px;
 }
-.playlist .width_44 {
+.listitem .width_44 {
   width: 44px;
 }
 .expanded .number {
@@ -425,28 +425,28 @@ button.inactive { opacity: 0.5; }
   color: #373737;
 }
 
-.playlist .wrapper a.title,
+.listitem .wrapper a.title,
 .dd-dragel .wrapper a.title {
   font-weight: bold;
   display:inline;
   text-decoration: none;
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
-.playlist .wrapper a.title.private,
+.listitem .wrapper a.title.private,
 .dd-dragel .wrapper a.title.private {
   font-weight: normal;
 }
-.playlist .wrapper a.hover_link {
+.listitem .wrapper a.hover_link {
 color: #036290;
 }
-.playlist .wrapper span.creator_details {
+.listitem .wrapper span.creator_details {
   display: block;
 }
-.playlist .wrapper a.author_link,
+.listitem .wrapper a.author_link,
 .dd-dragel .wrapper a.author_link {
   text-decoration: none;
 }
-.playlist .wrapper a.action {
+.listitem .wrapper a.action {
   padding-left: 5px;
   text-decoration: none;
 }

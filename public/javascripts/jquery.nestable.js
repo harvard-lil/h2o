@@ -299,6 +299,18 @@
             //H2O Customization
             var playlist_changed = this.placeEl.parents('.dd-item:first');
 
+            if(this.placeEl.parent().parent().attr('id') == 'nestable2' && el.data('drop') == 'new_item') {
+              this.placeEl.remove();
+              if(el.data('index') == 0) {
+                el.insertBefore($('#nestable2 .dd-list li:first'));
+              } else {
+                el.insertAfter($('#nestable2 .dd-list li:nth-child(' + el.data('index') + ')'));
+              }
+              this.dragEl.remove();
+              this.reset();
+              return;
+            }
+
             el[0].parentNode.removeChild(el[0]);
             this.placeEl.replaceWith(el);
             this.dragEl.remove();
@@ -382,7 +394,7 @@
                     if (depth + this.dragDepth <= opt.maxDepth) {
                         // create new sub-level if one doesn't exist
                         //H2O Customizations here
-                        if (prev.data('nestable') && !list.length) {
+                        if (prev.data('nestable') == true && !list.length) {
                             list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
                             list.append(this.placeEl);
                             var test_node = $('<div>').addClass('dd');
@@ -441,11 +453,11 @@
             if (!mouse.dirAx || isNewRoot || isEmpty) {
                 // check if groups match if dragging over new root
                 if (isNewRoot && opt.group !== pointElRoot.data('nestable-group')) {
-                    return;
+                    //H2O: Skip this
+                    //return;
                 }
 
-                //H2O Customization
-                if(!pointElRoot.parent().data('nestable')) {
+                if(this.dragEl.html().match('data-drop="new_item"') === null && !pointElRoot.parent().data('nestable')) {
                   return;
                 }
 
