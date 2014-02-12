@@ -46,6 +46,14 @@
       <%= form.check_box :default_show_annotations %>
       Show annotations on collages by default?
       <br /><br />
+      <% if !@user.new_record? %>
+        <% if @user.canvas_id.blank? %>
+          Not connected to Canvas
+        <% else %>
+          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :method => :post %>
+        <% end %>
+      <% end %>
+      <br /><br />
       <%= form.label :default_font_size %>
       <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %><br />
       <br />

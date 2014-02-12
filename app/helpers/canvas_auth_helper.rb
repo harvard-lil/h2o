@@ -1,0 +1,2 @@
+module CanvasAuthHelper
+end

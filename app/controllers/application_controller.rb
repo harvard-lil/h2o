@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
   before_filter :set_sort_params, :only => :index
   before_filter :set_sort_lists, :only => :index
   before_filter :set_page_cache_indicator
- 
+
   #Add ability to make page caching conditional
   #to support only caching public items
   def self.caches_page(*actions)
@@ -46,14 +46,14 @@ class ApplicationController < ActionController::Base
     if current_user && ! current_user.tz_name.blank?
       Time.zone = current_user.tz_name
     else
-      Time.zone = DEFAULT_TIMEZONE 
+      Time.zone = DEFAULT_TIMEZONE
     end
   end
-  
+
   def set_page_cache_indicator
     @page_cache = false
   end
-  
+
   # Switches to nil layout for ajax calls.
   def layout_switch
     (request.xhr?) ? nil : :application
@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
   def deny_access
     flash[:notice] = "You do not have access to this content."
     #redirect_to playlists_path
-    
+
     redirect_back_or_default "/"
   end
 
@@ -141,7 +141,7 @@ class ApplicationController < ActionController::Base
       }))
     end
   end
- 
+
   def common_index(model)
     set_belongings model
 
@@ -194,7 +194,7 @@ class ApplicationController < ActionController::Base
 
   def build_search(model, params)
     items = (model == TextBlock ? Sunspot.new_search(TextBlock, JournalArticle) : Sunspot.new_search(model))
-    
+
     items.build do
       if params.has_key?(:keywords)
         keywords params[:keywords]
@@ -276,13 +276,13 @@ class ApplicationController < ActionController::Base
     @stylesheets = [] if ! defined?(@stylesheets)
     @stylesheets << new_stylesheets
   end
-  
+
   # Accepts a string or an array and emits javascript tags in the layout in that order.
   def add_javascripts(new_javascripts)
     @javascripts = [] if ! defined?(@javascripts)
     @javascripts << new_javascripts
   end
-      
+
   # TODO: This handles the scenario where users with remember_me are auto logged in,
   # but cookies are not defined for them when auto logged in
   # Note: Can be moved to after auto login filter if one exists
@@ -295,7 +295,7 @@ class ApplicationController < ActionController::Base
   def apply_user_preferences(user, on_create)
     if user
       cookies[:font_size] = user.default_font_size
-      cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false') 
+      cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false')
       cookies[:show_annotations] = user.default_show_annotations
       cookies[:display_name] = user.simple_display
       cookies[:user_id] = user.id
@@ -316,7 +316,7 @@ class ApplicationController < ActionController::Base
       cookies.delete(attr)
     end
   end
- 
+
   def verbose
     Rails.logger.warn "ApplicationController#verbose hit"
   end
@@ -377,5 +377,31 @@ class ApplicationController < ActionController::Base
       else
         return true
       end
+    end
+
+    def display_first_time_canvas_notice
+      notice =
+        "You are logging in to H2o directly from Canvas for the first time.<br/><br/>
+         After you login your Canvas id will be attached to your H2o id
+         and the next time you initiate an H2o session from Canvas you'll be logged in
+         automatically."
+      if flash[:notice].blank?
+        flash[:notice] = notice.html_safe
+      else
+        flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
+      end
+    end
+
+    def first_time_canvas_login?
+      session.key?(:canvas_user_id)
+    end
+
+    def save_canvas_id_to_user(user)
+      user.update_attribute(:canvas_id, session.fetch(:canvas_user_id))
+      clear_canvas_id_from_session
+    end
+
+    def clear_canvas_id_from_session
+      session[:canvas_user_id] = nil
     end
 end

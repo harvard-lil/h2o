@@ -5,13 +5,14 @@ class UsersController < ApplicationController
   before_filter :require_user, :only => [:edit, :update, :bookmark_item, :delete_bookmark_item, :require_user]
   before_filter :create_brain_buster, :only => [:new]
   before_filter :validate_brain_buster, :only => [:create]
- 
+  before_filter :display_first_time_canvas_notice, :only => [:new, :create]
+
   def new
     @user = User.new
   end
 
   def index
-    common_index User    
+    common_index User
   end
 
   def render_or_redirect_for_captcha_failure
@@ -21,13 +22,17 @@ class UsersController < ApplicationController
     create_brain_buster
     render :action => "new"
   end
-  
+
   def create
     @user = User.new(params[:user])
-    
+
     @user.save do |result|
       if result
         flash[:notice] = "Account registered!"
+        if first_time_canvas_login?
+          save_canvas_id_to_user(@user)
+          flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
+        end
         redirect_back_or_default "/"
       else
         render :action => :new
@@ -89,7 +94,7 @@ class UsersController < ApplicationController
     if request.xhr?
       if params.has_key?("ajax_region")
 	      p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
-	      if(params[:order] == 'desc') 
+	      if(params[:order] == 'desc')
 	        p = p.reverse
 	      end
 	      @collection = p.paginate(:page => params[:page], :per_page => 10)
@@ -103,7 +108,7 @@ class UsersController < ApplicationController
       else
         @results = Sunspot.new_search(models)
         @results.build do
-          paginate :page => params[:page], :per_page => 10 
+          paginate :page => params[:page], :per_page => 10
           with :user_id, user_id_filter
 
           if public_filtering
@@ -124,9 +129,9 @@ class UsersController < ApplicationController
       bookmarks_id = @user.bookmark_id || 0
       @bookshelf = Sunspot.new_search(models)
       @bookshelf.build do
-        paginate :page => params[:page], :per_page => 10 
+        paginate :page => params[:page], :per_page => 10
         with :user_id, user_id_filter
-          
+
         if public_filtering
           with :public, true
           with :active, true
@@ -203,7 +208,7 @@ class UsersController < ApplicationController
         next if !v[:display]
 	      p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
 
-	      if(params[:order] == 'desc') 
+	      if(params[:order] == 'desc')
 	        p = p.reverse
 	      end
 	      v[:results] = p.paginate(:page => params[:page], :per_page => 10)
@@ -225,7 +230,7 @@ class UsersController < ApplicationController
   rescue Exception => e
     render :json => {}
   end
-  
+
   def update
     @user = @current_user # makes our views "cleaner" and more consistent
 
@@ -245,8 +250,8 @@ class UsersController < ApplicationController
       return
     end
 
-    playlist_item_to_delete = PlaylistItem.find_by_playlist_id_and_actual_object_type_and_actual_object_id(current_user.bookmark_id, params[:type].classify, params[:id].to_i) 
-      
+    playlist_item_to_delete = PlaylistItem.find_by_playlist_id_and_actual_object_type_and_actual_object_id(current_user.bookmark_id, params[:type].classify, params[:id].to_i)
+
     if playlist_item_to_delete && playlist_item_to_delete.destroy
       render :json => { :success => true }
     else
@@ -292,11 +297,19 @@ class UsersController < ApplicationController
     @users = []
     @users << User.find_by_email_address(params[:lookup])
     @users << User.find_by_login(params[:lookup])
-    @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } } 
+    @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } }
     render :json => { :items => @users }
   end
 
   def playlists
-    render :json => { :playlists => User.find(params[:id]).playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) } 
+    render :json => { :playlists => User.find(params[:id]).playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) }
   end
+
+  def disconnect_canvas
+    @user = @current_user
+    @user.update_attribute(:canvas_id, nil)
+    flash[:notice] = 'Canvas connection removed'
+    redirect_to edit_user_path(@user)
+  end
+
 end

@@ -5,13 +5,13 @@ class DropboxH2o
     @client = DropboxClient.new(new_session, DROPBOXCONFIG[:access_type])
   end
 
-  def self.test
-    Notifier.deliver_bulk_upload_completed(User.find(415), BulkUpload.create!)
-    f = File.read('/Users/timcase/Sites/h2o/dbsession.txt')
-    @dh2o = DropboxH2o.new(f)
-    @dh2o.import(Case, BulkUpload.create!)
-    Notifier.deliver_password_reset_instructions(User.find(415))
-  end
+  #def self.test
+    #Notifier.deliver_bulk_upload_completed(User.find(415), BulkUpload.create!)
+    #f = File.read('/Users/timcase/Sites/h2o/dbsession.txt')
+    #@dh2o = DropboxH2o.new(f)
+    #@dh2o.import(Case, BulkUpload.create!)
+    #Notifier.deliver_password_reset_instructions(User.find(415))
+  #end
 
   def self.do_import(klass, dbsession, bulk_upload, user)
     puts "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}\n"
