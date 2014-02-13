@@ -85,7 +85,11 @@ class DropboxImporter
   end
 
   def excluded_file_paths
-    [FAILED_DIR_FILE_PATH, DropboxErrorLog::ERROR_LOG_PATH]
+    [FAILED_DIR_FILE_PATH,
+     DropboxErrorLog::ERROR_LOG_PATH,
+     '/parser_archive',
+     '/parser_input',
+     '/parser_output']
   end
 
   def record_import(options = {})
