@@ -52,6 +52,10 @@
         <% else %>
           Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :method => :post %>
         <% end %>
+        <% if @user.has_dropbox_token? %>
+          </br>
+          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :method => :post %>
+        <% end %>
       <% end %>
       <br /><br />
       <%= form.label :default_font_size %>

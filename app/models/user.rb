@@ -351,6 +351,10 @@ class User < ActiveRecord::Base
     DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
   end
 
+  def has_dropbox_token?
+    File.exists?(dropbox_access_token_file_path)
+  end
+
   def dropbox_access_token
     return unless File.exists?(dropbox_access_token_file_path)
     @dropbox_access_token ||= File.read(dropbox_access_token_file_path)

@@ -65,7 +65,7 @@ class UsersController < ApplicationController
         return
       end
     end
-          
+
     redirect_back_or_default "/"
   end
 
@@ -309,6 +309,13 @@ class UsersController < ApplicationController
     @user = @current_user
     @user.update_attribute(:canvas_id, nil)
     flash[:notice] = 'Canvas connection removed'
+    redirect_to edit_user_path(@user)
+  end
+
+  def disconnect_dropbox
+    @user = @current_user
+    File.delete(@user.dropbox_access_token_file_path)
+    flash[:noice] = 'Dropbox connection removed'
     redirect_to edit_user_path(@user)
   end
 

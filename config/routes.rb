@@ -71,7 +71,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :users,
     :collection => { :create_anon => :post, :user_lookup => :get },
-    :member => { :playlists => :get, :disconnect_canvas => :post }
+    :member => { :playlists => :get, :disconnect_canvas => :post, :disconnect_dropbox => :post}
   map.resources :user_collections, :member => { :update_permissions => :post,
                                                 :manage_users => :get,
                                                 :manage_playlists => :get,
