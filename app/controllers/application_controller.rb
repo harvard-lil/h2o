@@ -216,7 +216,7 @@ class ApplicationController < ActionController::Base
       end
 
       if model == User
-        with :anonymous, false  
+        with :anonymous, false
       end
       if model == Playlist && current_user
         any_of do
@@ -306,7 +306,7 @@ class ApplicationController < ActionController::Base
         cookies[:playlists] = "[]"
       else
         cookies[:bookmarks] = user.bookmarks_map.to_json
-        cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) 
+        cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name])
       end
     end
   end
@@ -380,15 +380,17 @@ class ApplicationController < ActionController::Base
     end
 
     def display_first_time_canvas_notice
-      notice =
-        "You are logging into H2o directly from Canvas for the first time.<br/><br/>
-         After you login your Canvas id will be attached to your H2o id
-         and the next time you initiate an H2o session from Canvas you'll be logged in
-         automatically."
-      if flash[:notice].blank?
-        flash[:notice] = notice.html_safe
-      else
-        flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
+      if first_time_canvas_login?
+          notice =
+            "You are logging into H2o directly from Canvas for the first time.<br/><br/>
+           After you login your Canvas id will be attached to your H2o id
+           and the next time you initiate an H2o session from Canvas you'll be logged in
+           automatically."
+        if flash[:notice].blank?
+          flash[:notice] = notice.html_safe
+        else
+          flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
+        end
       end
     end
 
