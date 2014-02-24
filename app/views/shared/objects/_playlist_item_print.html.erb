@@ -25,7 +25,7 @@
   <% elsif item.actual_object_type == 'Case' -%>
     <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => item.actual_object } %>
     <div class="page-break"></div>
-  <% elsif item.actual_object_type == 'Playlist' && recursive_level < 4 -%>
+  <% elsif item.actual_object_type == 'Playlist' && recursive_level < 4 && item.actual_object.present? -%>
     <div class="item_description"><%= PlaylistItem.format_content(item.actual_object.description) %></div>
     <section class="playlists">
       <ul>

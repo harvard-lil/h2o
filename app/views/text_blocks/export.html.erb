@@ -3,7 +3,9 @@
 	<div class="details">
 		<div class="clear"></div>
 		<% cache "text_block-#{@text_block.id}-detail" do -%>
+      <% if @text_block.metadatum -%>
       <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
+      <% end -%>
 		<% end -%>
 	</div>
   <div class="fontdetails"></div>
