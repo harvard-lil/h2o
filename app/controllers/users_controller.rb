@@ -57,7 +57,7 @@ class UsersController < ApplicationController
           return
         else
           flash[:notice] = "Account registered!"
-          redirect_back_or_default user_path(user)
+          redirect_back_or_default "/"
           return
         end
       else
@@ -126,7 +126,7 @@ class UsersController < ApplicationController
         render :partial => 'base/search_ajax'
       end
     else
-      bookmarks_id = @user.bookmark_id || 0
+      bookmarks_id = @user.present? ? @user.bookmark_id : 0
       @bookshelf = Sunspot.new_search(models)
       @bookshelf.build do
         paginate :page => params[:page], :per_page => 10
