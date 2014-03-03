@@ -75,6 +75,11 @@ class UsersController < ApplicationController
     params[:page] ||= 1
 
     @user = params[:id] == 'create_anon' ? @current_user : User.find_by_id(params[:id])
+    if @user.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     user_id_filter = @user.id
 
     public_filtering = !current_user || @user != current_user
