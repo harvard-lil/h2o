@@ -38,6 +38,9 @@ class QuestionInstancesController < BaseController
   # GET /question_instances
   # GET /question_instances.xml
   def index
+    # Special redirect
+    redirect_to root_url, :status => 301
+
     @question_instances = QuestionInstance.find(:all, :include => [:questions], :order => :id)
   end
 
