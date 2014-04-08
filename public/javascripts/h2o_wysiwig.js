@@ -1,6 +1,8 @@
 var tinyMCEPreInit = {
 			mceInit : {
         'content':{
+          relative_urls: false,
+          convert_urls: false,
           mode: "textareas",
           menubar: false,
           toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | formatselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo help | fullscreen",
