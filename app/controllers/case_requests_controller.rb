@@ -1,38 +1,34 @@
 class CaseRequestsController < ApplicationController
-
-  before_filter :require_user
-  before_filter :load_single_resource, :only => [:destroy]
+  protect_from_forgery :except => [:destroy]
 
   def new
-    add_javascripts ['new_case_request']
-    @case_request = CaseRequest.new
-
-    respond_to do |format|
-      format.html
-    end
   end
 
   def create
-    @case_request = CaseRequest.new(params[:case_request])
+    @case_request = CaseRequest.new(case_requests_params)
     @case_request.user = current_user
     
-    respond_to do |format|
-      if @case_request.save
-        flash[:notice] = 'Case Request was successfully created.'
-        format.html { redirect_to cases_path }
-      else
-        format.html { render :action => 'new' }
-      end
+    if @case_request.save
+      flash[:notice] = 'Case Request was successfully created.'
+      redirect_to cases_path
+    else
+      render :action => 'new'
     end
   end
 
   def destroy
-    Notifier.deliver_case_request_notify_rejected(@case_request)
+    Notifier.case_request_notify_rejected(@case_request).deliver
     @case_request.destroy
     respond_to do |format|
       format.html { redirect_to(cases_url) }
       format.xml  { head :ok }
       format.json { render :json => {} }
     end
+  end
+  private
+  def case_requests_params
+    params.require(:case_request).permit(:full_name, :decision_date, :author, :case_jurisdiction_id,
+                                         :docket_number, :volume, :reporter, :page, :bluebook_citation,
+                                         :status)
   end
 end

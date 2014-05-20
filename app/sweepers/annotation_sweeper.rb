@@ -5,8 +5,7 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
   observe Annotation
 
   def collage_clear(record)
-    expire_page :controller => :collages, :action => :show, :id => record.collage.id
-    expire_fragment "collage-#{record.collage.id}-annotatable-content"
+    ActionController::Base.expire_page "/collages/#{record.collage.id}.html"
   end
 
   def after_save(record)

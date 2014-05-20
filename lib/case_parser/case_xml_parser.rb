@@ -2,8 +2,8 @@ require 'rubygems'
 require 'nokogiri'
 
 class CaseXmlParser
-  def initialize(file)
-    @doc = Nokogiri::XML(file)
+  def initialize(file_contents)
+    @doc = Nokogiri::XML(file_contents)
   end
 
   def xml_to_case_attributes

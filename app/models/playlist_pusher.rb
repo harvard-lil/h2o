@@ -31,8 +31,8 @@ class PlaylistPusher
     execute!(self.ownership_sql)
     execute!(self.public_private_sql)
     self.barcode_clear_users.uniq.each do |user|
-      Rails.cache.delete("user-barcode-#{user.id}") 
-      Rails.cache.delete("views/user-barcode-html-#{user.id}")
+      Rails.cache.delete("user-barcode-#{user.id}", :compress => H2O_CACHE_COMPRESSION) 
+      Rails.cache.delete("views/user-barcode-html-#{user.id}", :compress => H2O_CACHE_COMPRESSION)
       #user.update_karma #Causes major performance issues
     end
 
@@ -44,9 +44,9 @@ class PlaylistPusher
   end
 
   def push_single_playlist(new_source_playlist_id, recursive_level)
-    source_playlist = Playlist.find(new_source_playlist_id)
+    source_playlist = Playlist.where(id: new_source_playlist_id).first
     created_playlist_ids = execute!(self.build_playlist_sql(source_playlist))
-    new_playlists = Playlist.find(created_playlist_ids)
+    new_playlists = Playlist.where(id: created_playlist_ids).first
     self.generate_ownership_sql!(new_playlists)
     self.generate_public_private_sql!(new_playlists)
     self.barcode_clear_users << source_playlist.user if source_playlist.user.present?
@@ -69,13 +69,13 @@ class PlaylistPusher
   end
 
   def notify_completed(new_playlists)
-    playlist = Playlist.find(self.source_playlist_id)
+    playlist = Playlist.where(id: self.source_playlist_id).first
     if self.email_receiver == 'source'
       recipient = playlist.user
     elsif self.email_receiver == 'destination' && self.user_ids.length == 1
-      recipient = User.find(self.user_ids.first)
+      recipient = User.where(id: self.user_ids.first).first
     end
-    Notifier.deliver_playlist_push_completed(recipient, playlist.name, new_playlists.first.id)
+    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver
   end
 
   def build_playlist_sql(source_playlist)
@@ -93,7 +93,7 @@ class PlaylistPusher
     self.barcode_clear_users << actual_object.user if actual_object.user.present?
 
     returned_object_ids = execute!(create_sql)
-    created_actual_objects = actual_object.class.find(returned_object_ids)
+    created_actual_objects = actual_object.class.where(id: returned_object_ids)
     self.create_collage_annotations_and_links!(actual_object, created_actual_objects) if actual_object.class == Collage
     self.generate_ownership_sql!(created_actual_objects)
     self.generate_public_private_sql!(created_actual_objects)
@@ -108,7 +108,7 @@ class PlaylistPusher
       structs = self.build_structs_from_objects([Annotation, CollageLink], objects, new_collages)
       structs.each do |struct|
         returned_object_ids = execute!(struct.insert_sql)
-        returned_objects = struct.klass.find(returned_object_ids)
+        returned_objects = struct.klass.where(id: returned_object_ids)
         self.generate_ownership_sql!(returned_objects)
       end
     end

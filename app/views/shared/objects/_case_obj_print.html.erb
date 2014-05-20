@@ -1,4 +1,3 @@
-<% cache "case-#{case_obj.id}-detail" do -%> 
 <p>Decision date: <%= case_obj.decision_date %></p>
 <% unless case_obj.author.blank? -%>
 <p>Author: <%= case_obj.author %></p>
@@ -11,7 +10,6 @@
 <% end -%>
 <% unless case_obj.case_jurisdiction.blank? -%>
 <p>Jurisdiction: <%= case_obj.case_jurisdiction.display_name %></p> 
-<% end -%>
 <% end -%>
 <article>
 <%= raw case_obj.content %>

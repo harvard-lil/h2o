@@ -8,9 +8,9 @@ class CaseSweeper < ActionController::Caching::Sweeper
       Rails.cache.delete_matched(%r{cases-search*})
       Rails.cache.delete_matched(%r{cases-embedded-search*})
   
-      expire_page :controller => :cases, :action => :show, :id => record.id
+      ActionController::Base.expire_page "/cases/#{record.id}.html"
   
-      expire_fragment "case-list-object-#{record.id}"
+      ActionController::Base.new.expire_fragment "case-list-object-#{record.id}"
 
       if record.changed.include?("public")
         Rails.cache.delete("user-barcode-#{record.user_id}")
@@ -22,7 +22,8 @@ class CaseSweeper < ActionController::Caching::Sweeper
 
   def after_save(record)
     # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
-    return if params && params[:action] == "embedded_pager"
+    # FIXME
+    # return if params && params[:action] == "embedded_pager"
 
     clear_case(record)
     notify_private(record)
@@ -31,6 +32,5 @@ class CaseSweeper < ActionController::Caching::Sweeper
   def before_destroy(record)
     clear_playlists(record.playlist_items)
     clear_case(record)
-    #notify_destroy(record)
   end
 end

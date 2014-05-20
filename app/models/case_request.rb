@@ -1,8 +1,4 @@
 class CaseRequest < ActiveRecord::Base
-  include AuthUtilities
-
-  acts_as_authorization_object
-
   validates_presence_of :full_name, :author, :bluebook_citation,
                         :docket_number, :volume, :reporter, :page,
                         :reporter, :page, :status, :decision_date
@@ -17,6 +13,8 @@ class CaseRequest < ActiveRecord::Base
   has_one :case
   belongs_to :case_jurisdiction
   belongs_to :user
+
+  default_scope { where("status != 'approved'") }
 
   def display_name
     self.full_name

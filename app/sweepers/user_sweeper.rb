@@ -24,7 +24,7 @@ class UserSweeper < ActionController::Caching::Sweeper
         set = record.send(t)
         items << set 
         set.each do |obj|
-          expire_fragment "#{t.to_s.singularize}-list-object-#{obj.id}"
+          ActionController::Base.new.expire_fragment "#{t.to_s.singularize}-list-object-#{obj.id}"
         end
       end
       Sunspot.index items

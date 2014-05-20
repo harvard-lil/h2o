@@ -1,15 +1,9 @@
 class Default < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
-  extend TaggingExtensions::ClassMethods
-
-  include H2oModelExtensions
-  include StandardModelExtensions::InstanceMethods
-  include AncestryExtensions::InstanceMethods
-  include AuthUtilities
-  include Authorship
+  include StandardModelExtensions
+  include AncestryExtensions
   include MetadataExtensions
-  include KarmaRounding
-  include ActionController::UrlWriter
+  include CaptchaExtensions
+  include Rails.application.routes.url_helpers
 
   RATINGS = {
     :bookmark => 1,
@@ -17,7 +11,6 @@ class Default < ActiveRecord::Base
     :default_remix => 1
   }
 
-  acts_as_authorization_object
   acts_as_taggable_on :tags
   has_many :playlist_items, :as => :actual_object
   belongs_to :user
@@ -53,18 +46,18 @@ class Default < ActiveRecord::Base
   end
 
   def barcode
-    Rails.cache.fetch("default-barcode-#{self.id}") do
+    Rails.cache.fetch("default-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
 
       self.public_children.each do |child|
         barcode_elements << { :type => "default_remix",
                               :date => child.created_at,
                               :title => "Remixed to Link #{child.name}",
-                              :link => default_path(child.id) }
+                              :link => default_path(child) }
       end
       
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-      self.update_attribute(:karma, value)
+      #self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }
     end

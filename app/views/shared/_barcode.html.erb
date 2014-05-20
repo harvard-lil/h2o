@@ -1,5 +1,5 @@
 <% if object && object.barcode.any? -%>
-<% cache "#{object.class.to_s.downcase}-barcode-html-#{object.id}" do %>
+<% cache("#{object.class.to_s.downcase}-barcode-html-#{object.id}", :compress => true) do %>
 <div class="barcode" data-karma="<%= object.karma || 0 %>" data-ticks="<%= object.barcode.size || 0 %>">
   <span class="left_overflow overflow inactive"></span>
   <span class="right_overflow overflow"></span>

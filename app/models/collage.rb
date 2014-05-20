@@ -1,18 +1,11 @@
 class Collage < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
-  extend TaggingExtensions::ClassMethods
-  extend HeatmapExtensions::ClassMethods
-
-  include H2oModelExtensions
-  include StandardModelExtensions::InstanceMethods
-  include AncestryExtensions::InstanceMethods
-  include AuthUtilities
-  include Authorship
+  include StandardModelExtensions
+  include AncestryExtensions
   include MetadataExtensions
-  include TaggingExtensions::InstanceMethods
-  include HeatmapExtensions::InstanceMethods
-  include KarmaRounding
-  include ActionController::UrlWriter
+  include HeatmapExtensions
+  include CaptchaExtensions
+  include FormattingExtensions
+  include Rails.application.routes.url_helpers
 
   RATINGS = {
     :remix => 5,
@@ -25,32 +18,14 @@ class Collage < ActiveRecord::Base
     :add => "Added to"
   }
 
-
   acts_as_taggable_on :tags
-  acts_as_authorization_object
-
-  def self.annotatable_classes
-    Dir.glob(RAILS_ROOT + '/app/models/*.rb').each do |file|
-      model_name = Pathname(file).basename.to_s
-      model_name = model_name[0..(model_name.length - 4)]
-      model_name.camelize.constantize
-    end
-    # Responds to the annotatable class method with true.
-    Object.subclasses_of(ActiveRecord::Base).find_all{|m| m.respond_to?(:annotatable) && m.send(:annotatable)}
-  end
-
-  def self.annotatable_classes_select_options
-    self.annotatable_classes.collect{|c| [c.model_name]}
-  end
-
-  #acts_as_voteable
 
   before_destroy :collapse_children
   has_ancestry :orphan_strategy => :restrict
 
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
-  has_many :annotations, :order => 'created_at', :dependent => :destroy
+  has_many :annotations, -> { order(:created_at) }, :dependent => :destroy
   has_and_belongs_to_many :user_collections   # dependent => destroy
   has_many :defects, :as => :reportable
   has_many :color_mappings
@@ -58,16 +33,16 @@ class Collage < ActiveRecord::Base
 
   has_many :collage_links, :foreign_key => "host_collage_id"
   has_many :parent_collage_links, :class_name =>  "CollageLink", :foreign_key => "linked_collage_id"
+
   # Create the content we're going to annotate. This is a might bit inefficient, mainly because
   # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing
   # the creation of a contentless collage, though.
-  before_validation_on_create :prepare_content
+  before_validation :prepare_content, :on => :create
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
-  # TODO: Figure out why tags & annotations breaks in searchable
-  searchable do #(:include => [:tags]) do #, :annotations => {:layers => true}]) do
+  searchable do
     text :display_name, :stored => true, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -88,13 +63,14 @@ class Collage < ActiveRecord::Base
   end
 
   def fork_it(new_user, params)
-    collage_copy = self.clone
+    collage_copy = self.dup
     collage_copy.name = params[:name]
     collage_copy.created_at = Time.now
     collage_copy.parent = self
     collage_copy.public = params[:public]
     collage_copy.description = params[:description]
     collage_copy.user = new_user
+    collage_copy.valid_recaptcha = true
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy
@@ -136,13 +112,13 @@ class Collage < ActiveRecord::Base
   end
 
   def barcode
-    Rails.cache.fetch("collage-barcode-#{self.id}") do
+    Rails.cache.fetch("collage-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.public_children.each do |child|
         barcode_elements << { :type => "remix",
                               :date => child.created_at,
                               :title => "Remixed to Collage #{child.name}",
-                              :link => collage_path(child.id) }
+                              :link => collage_path(child) }
       end
 
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
@@ -150,10 +126,6 @@ class Collage < ActiveRecord::Base
 
       barcode_elements.sort_by { |a| a[:date] }
     end
-  end
-
-  def can_edit?
-    return current_user.has_role?(:superadmin) || self.owner?
   end
 
   def display_name
@@ -228,7 +200,8 @@ class Collage < ActiveRecord::Base
 
     count = 1
     doc.xpath('//p[not(ancestor::center)] | //center | //h2[not(ancestor::center)]').each do |node|
-      tt_size = node.css('tt').size  #xpath tt isn't working because it's not selecting all children (possible TODO later)
+      #FIXME: xpath tt isn't working because it's not selecting all children
+      tt_size = node.css('tt').size
       if node.children.size > 0 && tt_size > 0
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
@@ -275,7 +248,7 @@ class Collage < ActiveRecord::Base
       element = element.parent
     end
 
-    nodes = node.xpath('../tt')
+    nodes = node.xpath('../*')
     node_index = nodes.index(node)
 
     if anchor == 'start'
@@ -302,25 +275,35 @@ class Collage < ActiveRecord::Base
                      :end_offset => end_detail[:offset] } 
       annotation.update_attributes(attributes)
     end
-    
+
     self.collage_links.each do |collage_link|
       start_detail = xpath_and_offset(doc, collage_link.link_text_start, 'start')
       end_detail = xpath_and_offset(doc, collage_link.link_text_end, 'end')
-
-	    Annotation.create({ :collage_id => self.id,
-	                        :xpath_start => start_detail[:xpath],
-	                        :xpath_end => end_detail[:xpath],
-	                        :start_offset => start_detail[:offset],
-	                        :end_offset => end_detail[:offset],
-	                        :linked_collage_id => collage_link.linked_collage_id,
-	                        :user_id => self.user_id,
+  
+  	  Annotation.create({ :collage_id => self.id,
+  	                      :xpath_start => start_detail[:xpath],
+  	                      :xpath_end => end_detail[:xpath],
+  	                      :start_offset => start_detail[:offset],
+  	                      :end_offset => end_detail[:offset],
+  	                      :linked_collage_id => collage_link.linked_collage_id,
+  	                      :user_id => self.user_id,
                           :annotation_start => 0,
                           :annotation_end => 0,
                           :annotation => '' })
     end
-    #CollageLink.destroy(self.collage_links)
 
     self.update_attribute(:annotator_version, 2)
+  end
+  
+  def deleteable_tags
+    Tag.find_by_sql("SELECT tag_id AS id FROM
+      (SELECT tag_id, COUNT(*)
+        FROM annotations a
+        JOIN taggings t ON a.id = t.taggable_id
+        WHERE t.taggable_type = 'Annotation'
+        AND a.collage_id = '#{self.id}'
+        GROUP BY tag_id) b
+      WHERE b.count = 1").collect { |t| t.id }
   end
 
   private

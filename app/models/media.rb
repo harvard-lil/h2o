@@ -1,18 +1,16 @@
 class Media < ActiveRecord::Base
-  extend TaggingExtensions::ClassMethods
+  self.table_name = "medias"
 
-  include StandardModelExtensions::InstanceMethods
-  include AuthUtilities
-  include Authorship
-  include KarmaRounding
-  include ActionController::UrlWriter
+  include StandardModelExtensions
+  include CaptchaExtensions
+  include FormattingExtensions
+  include Rails.application.routes.url_helpers
 
   RATINGS = {
     :bookmark => 1,
     :add => 3
   }
 
-  acts_as_authorization_object
   acts_as_taggable_on :tags
 
   belongs_to :media_type
@@ -61,16 +59,14 @@ class Media < ActiveRecord::Base
     string :media_type do
       media_type.slug
     end
-
-    # TODO: add stored media type slug here
   end
 
   def barcode
-    Rails.cache.fetch("media-barcode-#{self.id}") do
+    Rails.cache.fetch("media-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added.sort_by { |a| a[:date] }
 
-      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-      self.update_attribute(:karma, value)
+      #value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+      #self.update_attribute(:karma, value)
 
       barcode_elements
     end

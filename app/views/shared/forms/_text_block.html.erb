@@ -1,16 +1,8 @@
-<% if ['new', 'create'].include?(params[:action]) -%>
-<div id="input_type" style="display:none;">
-<p>Are you uploading law journal content such as an article or note?</p>
-<input type="radio" name="text_block_journal_article" id="text_block_v" value="text-block" /> No
-<input type="radio" name="text_block_journal_article" id="journal_article_v" value="journal-article" <%= 'checked="checked"' if @journal_article.errors.any? %> /> Yes
-</div>
-<% end -%>
-
 <div class="standard-form" id="text-block-form">
   <div id="text_block-error" style="display:none;" class="error"></div>
   <h1><%= (@text_block.new_record?) ? 'Add New Text' : %Q|Edit "#{@text_block}"| %></h1>
-<% semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
-  <% form.inputs do %>
+<%= semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
+  <%= form.inputs do %>
     <%= form.input :name %>
     <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
     <% if @text_block.new_record? || @text_block.content_editable? %>
@@ -20,12 +12,7 @@
       </div>
       <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('preview.png')} in the toolbar to preview.|) )
       %>
-      <%= form.input :mime_type,
-                     :label => 'Content Type',
-                     :as => :select,
-                     :collection => TextBlock.mime_type_select_options,
-                     :selected => 'text/html',
-                     :include_blank => false %>
+      <%= form.input :mime_type, :input_html => { :value => "text/html" }, :as => :hidden %>
     <% end %>
     <%= form.input :tag_list,
       :as => :string,
@@ -36,10 +23,10 @@
     %>
     <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
-    <% if @text_block.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
+    <%= render :partial => 'shared/captcha', :locals => { :single_resource => @text_block } %>
   <% end %>
-  <% form.buttons do %>
-    <%= form.commit_button 'SAVE' %>
+  <%= form.actions do %>
+    <%= form.action :submit, :as => 'button', :label => 'Save' %>
   <% end %>
 <% end %>
 </div>

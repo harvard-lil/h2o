@@ -1,8 +1,0 @@
-<% cache("question-reply-detail-view-#{@question.id}") do %>
-  <div class="question-replies" id="replies-for-question-<%= @question.id %>">
-    <ol class="reply-container">
-      <% @replies = @question.reply_list %>
-      <%= render :partial => 'shared/objects/reply', :collection => @replies %>
-    </ol>
-  </div>
-<% end %>

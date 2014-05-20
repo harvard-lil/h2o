@@ -1,14 +1,14 @@
 <% if @objects -%>
 <h3>
-  <%= pluralize @objects.total, "Result" %> <span class="dr">(Drag and drop items)</span>
+  <%= pluralize @objects.total_entries, "Result" %> <span class="dr">(Drag and drop items)</span>
   <aside class="sort">
 	  <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[@list_key] } %>
   </aside>
 </h3>
-<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <div id="nestable2">
   <ol class="dd-list">
-    <% @objects.results.each_with_index do |hit, i| -%>
+    <% @display_objects.each_with_index do |hit, i| -%>
     <li class="listing dd-item" data-index="<%= i %>" data-type="<%= hit.class.to_s.tableize %>" data-id="<%= hit.id %>" data-drop="new_item" id="listing_<%= hit.class.to_s.tableize %>_<%= hit.id %>">
       <div class="dd-handle">
       <a class="tooltip icon icon-<%= hit.class == Media ? "media-#{hit.media_type.slug}" : hit.class.to_s.downcase %>" title="<%= hit.class == Media ? hit.media_type.label : hit.class %>"></a>
@@ -21,5 +21,5 @@
     <% end %>
   </ol>
 </div>
-<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <% end %>

@@ -1,2 +1,0 @@
-class MetadataController < ApplicationController
-end

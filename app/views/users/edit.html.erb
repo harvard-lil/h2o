@@ -1,10 +1,16 @@
 <div class="standard-form">
   <h1>Edit My Account</h1>
-<% form_for @user, :url => user_path(@user), :html => { :class => "formtastic" } do |f| %>
-  <%= f.error_messages %>
+  <%= form_for @user, :url => user_path(@user), :html => { :class => "formtastic" } do |f| %>
+  <% if @user.errors.any? %>
+  <ul class="error">
+    <% @user.errors.full_messages.each do |msg| %>
+    <li><%= msg %></li>
+    <% end %>
+    </ul>
+  <% end %>
   <%= render :partial => "form", :object => f %>
   <div style="text-align:center;width:100%;">
-  <%= f.submit "Update" %>
+  <%= f.submit "Update", :class => 'button' %>
   </div>
 <% end %>
 </div>

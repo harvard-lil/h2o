@@ -3,12 +3,12 @@
   <%= @media.updated_at.strftime("%B %d, %Y") %>
 </p>
 
-<% cache "media-#{@media.id}-tags" do -%>
+<% cache("media-#{@media.id}-tags", :compress => H2O_CACHE_COMPRESSION) do -%>
 <% if @media.tags.any? -%>
 <p>
   <label>Tags:</label>
   <% @media.tags.each do |tag| -%>
-  <%= link_to tag.name, media_tag_path(CGI.escape(tag.name)) %>
+  <%= link_to tag.name, tag_path("medias", CGI.escape(tag.name)) %>
   <% end -%>
 </p>
 <% end -%>

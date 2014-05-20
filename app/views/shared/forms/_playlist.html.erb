@@ -1,12 +1,7 @@
-<%  
-  if ['edit'].include?(controller.action_name)
-    playlist_object = Playlist.find(params[:id])
-  end
--%>
 <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
 <h3 id="generic_title"><%= @playlist.new_record? ? 'Add a new Playlist' : "Edit \"#{@playlist.name}\"" %></h3>
-<% semantic_form_for playlist_object do |form| %>
-  <% form.inputs do %>
+<%= semantic_form_for @playlist do |form| %>
+  <%= form.inputs do %>
     <% if @can_edit_all -%>
     <%= form.input :name, :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
     <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
@@ -34,19 +29,8 @@
       :required => false,
 	    :input_html => { :class => 'tagging-autofill-tags' }
 	  %>
-    <%#= form.input :location_id,
-      :as => :select,
-      :collection => Location.all(:order => 'name'),
-      :label => 'Where Taught',
-      :required => false
-    %>
-    <%#= form.input :when_taught,
-      :as => :string,
-      :label => 'When Taught',
-      :hint => "Please enter a year, multiple years (comma delimited), a year range, a month or months, semester (e.g. fall, spring), quarter (e.g. fall, winter, spring, summer). Please enter 'other' if none of these apply.",
-      :required => false
-    %>
     <% end -%>
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+    <%= render :partial => 'shared/captcha', :locals => { :single_resource => @playlist } %>
   <% end -%>
 <% end -%>

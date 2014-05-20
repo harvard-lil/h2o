@@ -3,8 +3,8 @@
 <% unless request.xhr? %>
   <h3><%= (@journal_article.new_record?) ? 'Add New Journal Article' : %Q|Edit "#{@journal_article.display_name}"| %></h3>
 <% end %>
-<% semantic_form_for(@journal_article, :html => {:id => 'journal_article-form'}) do |form| %>
-  <% form.inputs do %>
+<%= semantic_form_for(@journal_article, :html => {:id => 'journal_article-form'}) do |form| %>
+  <%= form.inputs do %>
     <%= form.input :author %>
     <%= form.input :name, :label => "Title" %>
     <%= form.input :subtitle, :required => false %>
@@ -26,7 +26,7 @@
     <%= form.input :issue %>
     <%= form.input :page %>
     <%= form.input :bluebook_citation %>
-    <%= form.input :journal_article_types, :as => :check_boxes %>
+    <%#= FIXME: form.input :journal_article_types, :as => :check_boxes %>
     <%= form.input :article_series_title, :required => false %>
     <%= form.input :article_series_description, :required => false %>
     <%= form.input :pdf_url, :required => false %>
@@ -50,8 +50,8 @@
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
   <% end %>
   <% unless request.xhr? %>
-    <% form.buttons do %>
-      <%= form.commit_button 'SAVE' %>
+    <% form.actions do %>
+      <%= form.action :submit, :as => 'button', :label => "Save" %>
     <% end %>
   <% end %>
 <% end %>

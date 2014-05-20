@@ -1,7 +1,7 @@
 <div class="standard-form">
   <h1><%= @default.new_record? ? "Add a new Link" : "Edit #{@default.name} Link" %></h1>
-  <% semantic_form_for(@default, :html => { :id => 'default-form' }) do |form| -%>
-    <% form.inputs do %>
+  <%= semantic_form_for(@default, :html => { :id => 'default-form' }) do |form| -%>
+    <%= form.inputs do %>
       <%= form.input :name %>
       <%= form.input :url %>
       <li class="mce_switches_row">
@@ -14,11 +14,10 @@
       <%= form.input :content_type, :as => :select, :include_blank => false, :collection => Default.content_types_options %>
       <%= form.input :tag_list %>
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
-      <% if @default.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
-      <p>&nbsp;</p>
+      <%= render :partial => 'shared/captcha', :locals => { :single_resource => @default } %>
     <% end -%>
-    <% form.buttons do -%>
-    <%= form.commit_button 'SAVE' %>
+    <%= form.actions do -%>
+    <%= form.action :submit, :as => 'button', :label => "Save" %>
     <% end -%>
   <% end -%>
 </div>

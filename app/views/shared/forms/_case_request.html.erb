@@ -1,12 +1,12 @@
 <div class="standard-form">
   <div id="error_block" style="display:none;" class="error"></div>
-  <h3 id="generic_title"><%= (@case_request.new_record?) ? 'Create a Case Request' : "Edit \"#{@case_request.full_name}\"" %></h3>
-  <% semantic_form_for(@case_request, :html => {:id => 'case_request-form'}) do |form| %>
-    <% form.inputs do %>
+  <h1><%= (@case_request.new_record?) ? 'Create a Case Request' : "Edit \"#{@case_request.full_name}\"" %></h1>
+  <%= semantic_form_for(@case_request, :html => {:id => 'case_request-form'}) do |form| %>
+    <%= form.inputs do %>
       <%= form.input :full_name, :required => true  %>
       <%= form.input :decision_date, :as => :string, :required => true, :input_html => {:class => 'datepicker'}  %>
       <%= form.input :author, :required => true  %>
-      <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :required => false %>
+      <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.order(:name), :required => false %>
       <%= form.input :docket_number, :required => true  %>
       <%= form.input :volume, :required => true  %>
       <%= form.input :reporter, :required => true  %>
@@ -14,10 +14,8 @@
       <%= form.input :bluebook_citation, :required => true  %>
       <%= form.input :status, :as => 'hidden'  %>
     <% end %>
-    <% unless request.xhr? %>
-      <% form.buttons do %>
-        <%= form.commit_button 'Submit Case Request' %>
-      <% end %>
+    <%= form.actions do -%>
+      <%= form.action :submit, :as => "button", :label => 'Submit Case Request' %>
     <% end %>
   <% end %>
 </div>

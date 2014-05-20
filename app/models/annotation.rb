@@ -1,11 +1,5 @@
 class Annotation < ActiveRecord::Base
-  extend TaggingExtensions::ClassMethods
-  extend RedclothExtensions::ClassMethods
-
-  include AuthUtilities
-
   acts_as_taggable_on :layers
-  acts_as_authorization_object
   belongs_to :linked_collage, :class_name => "Collage", :foreign_key => "linked_collage_id"
 
   belongs_to :collage

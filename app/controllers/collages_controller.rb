@@ -1,27 +1,8 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   
-  before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :collage_lookup, :heatmap]
-  before_filter :load_single_resource, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap, :delete_inherited_annotations, :upgrade_annotator]
-
-  protect_from_forgery :except => [:export_unique] #, :copy]
-  before_filter :restrict_if_private, :only => [:layers, :show, :edit, :update, :destroy, :undo_annotation, :copy, :export, :export_unique, :access_level, :heatmap]
+  protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
-
-  access_control do
-    allow all, :to => [:layers, :index, :show, :new, :create, :description_preview, :embedded_pager, :export, :export_unique, :access_level, :heatmap]
-
-    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
-    allow logged_in, :to => :copy
-
-    allow logged_in, :to => [:destroy, :edit, :update, :save_readable_state, :delete_inherited_annotations], :if => :is_owner?
-
-    allow :superadmin
-  end
-
-  def allow_edit?
-    current_user.can_permission_collage("edit_collage", @collage)
-  end
 
   def embedded_pager
     super Collage
@@ -36,10 +17,6 @@ class CollagesController < BaseController
     }
   end
 
-  def description_preview
-    render :text => Collage.format_content(params[:preview]), :layout => false
-  end
-
   def access_level 
     if current_user
       can_edit = @collage.can_edit?
@@ -50,7 +27,7 @@ class CollagesController < BaseController
         :can_edit             => can_edit,
         :can_edit_description => can_edit_description,
         :can_edit_annotations => can_edit_annotations,
-        :custom_block         => 'collage_afterload'
+        :custom_block         => "collage_afterload"
       }
     else
       render :json => {
@@ -58,7 +35,7 @@ class CollagesController < BaseController
         :can_edit_description => false,
         :can_edit_annotations => false,
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
-        :custom_block         => 'collage_afterload'
+        :custom_block         => "collage_v2_afterload"
       }
     end
   end
@@ -73,8 +50,15 @@ class CollagesController < BaseController
   end
 
   def copy
-    @collage_copy = @collage.fork_it(current_user, params[:collage])
+    # FIXME: captcha failing on remix
+    #@tmp_collage = Collage.new
+    #verify_captcha(@tmp_collage)
+    #if !@tmp_collage.valid_recaptcha
+    #  render :json => { :error => true, :message => "Captcha failed. Please try again." }
+    #  return
+    #end
 
+    @collage_copy = @collage.fork_it(current_user, params[:collage])
     if @collage_copy.id.nil?
       render :json => { :error => true, :message => "#{@collage_copy.errors.full_messages.join(',')}" }
       return
@@ -89,17 +73,9 @@ class CollagesController < BaseController
     common_index Collage
   end
 
-  # GET /collages/1
   def show
-    @page_cache = true if @collage.public?
+    @page_cache = true if @collage.present? && @collage.public?
     @editability_path = access_level_collage_path(@collage)
-
-    if @collage.annotator_version == 2
-      add_javascripts ['json2', 'annotator-full', 'h2o-annotator']
-      add_stylesheets 'annotator.min'
-    end
-    add_javascripts ['markitup/jquery.markitup.js','markitup/sets/textile/set.js','markitup/sets/html/set.js', 'jquery.xcolor', "collages_annotatorv#{@collage.annotator_version}"]
-    add_stylesheets ['/javascripts/markitup/skins/markitup/style.css','/javascripts/markitup/sets/textile/style.css', 'collages']
 
     @color_map = @collage.color_map
   end
@@ -107,15 +83,15 @@ class CollagesController < BaseController
   # GET /collages/new
   def new
     klass = params[:annotatable_type].to_s.classify.constantize
-
-    @collage = Collage.new(:annotatable_type => params[:annotatable_type], :annotatable_id => params[:annotatable_id])
+    @collage.annotatable_type = params[:annotatable_type]
+    @collage.annotatable_id = params[:annotatable_id]
     if klass == Case
-      annotatable = klass.find(params[:annotatable_id])
+      annotatable = klass.where(:id => params[:annotatable_id]).first
       @collage.name = annotatable.short_name
       @collage.tag_list = annotatable.tags.select { |t| t.name }.join(', ')
     end
     if klass == TextBlock
-      annotatable = klass.find(params[:annotatable_id])
+      annotatable = klass.where(:id => params[:annotatable_id]).first
       @collage.name = annotatable.name
       @collage.tag_list = annotatable.tags.select { |t| t.name }.join(', ')
     end
@@ -130,8 +106,9 @@ class CollagesController < BaseController
 
   # POST /collages
   def create
-    @collage = Collage.new(params[:collage])
+    @collage = Collage.new(collages_params)
     @collage.user = current_user
+    verify_captcha(@collage)
 
     if @collage.save
       render :json => { :type => 'collages', :id => @collage.id, :error => false }
@@ -140,20 +117,14 @@ class CollagesController < BaseController
     end
   end
 
-  # PUT /collages/1
   def update
-    @collage.attributes = params[:collage]
-    #Track this editor.
-    @collage.accepts_role!(:editor,current_user)
-
-    if @collage.save
+    if @collage.update_attributes(collages_params)
       render :json => { :type => 'collages', :id => @collage.id }
     else
       render :json => { :type => 'collages', :id => @collage.id }
     end
   end
 
-  # DELETE /collages/1
   def destroy
     @collage.destroy
 
@@ -171,10 +142,6 @@ class CollagesController < BaseController
   end
 
   def export_unique
-    if @collage.annotator_version == 2
-      add_javascripts ['json2.js', 'annotator-full.js', 'h2o-annotator.js']
-      add_stylesheets 'annotator.min.css'
-    end
     render :action => 'export', :layout => 'print'
   end
 
@@ -182,31 +149,8 @@ class CollagesController < BaseController
     render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }
   end
 
-  def upgrade_annotator
-    if params[:data].has_key?(:annotations)
-      params[:data][:annotations].each do |k, v|
-        Annotation.find(k).update_attributes(v)
-      end
-    end
-    if params[:data].has_key?(:collage_links)
-	    params[:data][:collage_links].each do |k, v|
-	      collage_link = CollageLink.find(k)
-	      Annotation.create({ :collage_id => @collage.id, 
-	                          :xpath_start => v[:xpath_start], 
-	                          :xpath_end => v[:xpath_end],
-	                          :start_offset => v[:start_offset],
-	                          :end_offset => v[:end_offset],
-	                          :linked_collage_id => collage_link.linked_collage_id,
-	                          :user_id => @collage.user_id,
-                            :annotation_start => 0,
-                            :annotation_end => 0,
-                            :annotation => '' })
-        CollageLink.destroy(collage_link)
-	    end
-    end
-    @collage.update_attributes({:annotator_version => 2, :readable_state => nil })
-    render :json => {}
-  rescue Exception => e
-    render :json => { :error => true, :message => "Could not process. Please try again." }, :status => :unprocessable_entity
+  private
+  def collages_params
+    params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id)
   end
 end

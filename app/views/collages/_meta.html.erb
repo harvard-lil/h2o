@@ -11,7 +11,7 @@
 <p>
   <label>Tags:</label>
   <% @collage.tags.each do |tag| -%>
-  <%= link_to tag.name, collage_tag_path(CGI.escape(tag.name)) %>
+  <%= link_to tag.name, tag_path("collages", CGI.escape(tag.name)) %>
   <% end -%>
 </p>
 <% end -%>

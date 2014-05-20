@@ -5,7 +5,7 @@
       <%= pending_case.short_name %>
       <%= link_to "DELETE", case_path(pending_case), :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "case", "data-id" => pending_case.id %>
       <%= link_to "EDIT", edit_case_path(pending_case), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
-      <% if current_user.is_case_admin -%>
+      <% if current_user.has_role?(:case_admin) %>
       <%= link_to "APPROVE", approve_case_path(pending_case), :class => "icon icon-approve action approve-action tooltip", :title => "Approve" %>
       <% end -%>
     </h3>

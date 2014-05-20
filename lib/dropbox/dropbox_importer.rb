@@ -7,7 +7,6 @@ class DropboxImporter
     @dh2o = dh2o
   end
 
-
   def import(klass, bulk_upload)
     puts "dropbox_importer.rb (19): Import message received with KLASS: #{klass.inspect} BULK_UPLOAD: #{bulk_upload.inspect}\n"
     @klass = klass
@@ -24,6 +23,7 @@ class DropboxImporter
   def import!(path)
     puts "dropbox_importer.rb (32): import! message received with PATH: #{path.inspect}\n"
     new_instance = build_instance(path)
+
     puts "dropbox_importer.rb (34): new instance built for #{path.inspect}\n"
     if new_instance.save
       puts "dropbox_importer.rb (36): new instance saved successfully\n"
@@ -38,8 +38,10 @@ class DropboxImporter
     file_contents = @dh2o.get_file(path)
     begin
       new_instance = @klass.new_from_xml_file(file_contents)
+    Rails.logger.warn "stephie got here A: #{new_instance.inspect}"
     rescue Exception => e
       Import.create!(:dropbox_filepath => e.message)
+    Rails.logger.warn "stephie got here B: #{e.inspect}"
     end
     new_instance
   end

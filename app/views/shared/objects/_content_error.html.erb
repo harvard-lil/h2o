@@ -8,7 +8,7 @@
       <% end -%>
       <%= link_to 'DELETE', content_error, :class => "icon icon-delete tooltip", "data-type" => "content_error", "data-id" => content_error.id %>
     </h3>
-    <p>Reported by <%= link_to(content_error.reporter.display, user_path(content_error.reporter)) %></p>
+    <p>Reported by <%= link_to(content_error.user.display, user_path(content_error.user)) %></p>
     <p class="error"><b>Error:</b> <%= content_error.description %></p>
   </div>
 	<div class="clear"></div>

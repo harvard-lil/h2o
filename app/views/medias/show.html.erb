@@ -17,9 +17,9 @@
   </div>
   <div id="description" class="scale1-1">
     <p><%= @media.description %></p>
-    <% if current_user && (current_user.is_media_admin || current_user.medias.include?(@media)) %>
+    <% if current_user && (current_user.has_role?(:superadmin) || current_user.medias.include?(@media)) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT ' + @type_label.upcase + ' INFORMATION<span class="icon icon-arrow"></span>'), edit_media_path(@media), :class => "edit-external scale0-8" %>
-    <%= link_to raw('<span class="icon icon-delete"></span>DELETE ' + @type_label.upcase + '<span class="icon icon-arrow"></span>'), @media, "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE ' + @type_label.upcase + '<span class="icon icon-arrow"></span>'), media_path(@media), "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
     <% end -%>
   </div>
 	<article>

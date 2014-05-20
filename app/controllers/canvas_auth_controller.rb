@@ -2,7 +2,7 @@ class CanvasAuthController < ApplicationController
 
   def authorize
     if requesting_app_is_authenticated?
-      @user = find_canvas_user
+      @user = User.where(id: params[:user_id]).first
       if @user
         login_user
 		flash[:notice] = "You were logged in automatically from Canvas"
@@ -24,10 +24,6 @@ class CanvasAuthController < ApplicationController
     #canvas_auth = CanvasAuth.new(request)
     #canvas_auth.valid?
     true
-  end
-
-  def find_canvas_user
-    User.find_by_canvas_id(params[:user_id])
   end
 
   def set_session_with_canvas_user_id

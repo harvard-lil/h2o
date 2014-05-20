@@ -1,7 +1,5 @@
-require 'redcloth_extensions'
-
 class PlaylistItem < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
+  include FormattingExtensions
 
   validates_presence_of :name
   belongs_to :playlist
@@ -10,6 +8,14 @@ class PlaylistItem < ActiveRecord::Base
 
   def clean_type
     actual_object_type.to_s.downcase
+  end
+
+  def user
+    self.playlist.present? ? self.playlist.user : nil
+  end
+
+  def public?
+    self.playlist.present? ? self.playlist.public : nil
   end
 
   def not_infinite

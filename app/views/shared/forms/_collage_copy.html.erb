@@ -2,13 +2,14 @@
 <div id="error_block"></div>
   <% semantic_form_for @collage, :url => copy_collage_path(@collage), :html => {:id => "copy_collage_#{@collage.id}", :method => "post", :class => "collage_form formtastic"} do |form| %>
   <% form.inputs do %>
-        <%= form.input :name, :as => :string, 
-          :input_html => { :class => "ui-widget-content ui-corner-all", :value => @collage.root.name } %>
-        <%= form.input :public, :input_html => { :class => 'privacy_toggle' } %>
-        <%= form.input :description,
-          :as => :text,
-          :input_html => { :size => '40x5', :class => "ui-widget-content ui-corner-all", :value => '' },
-          :required => false
-        %>
-<% end -%>
+    <%= form.input :name, :as => :string, 
+      :input_html => { :class => "ui-widget-content ui-corner-all", :value => @collage.root.name } %>
+    <%= form.input :public, :input_html => { :class => 'privacy_toggle' } %>
+    <%= form.input :description,
+      :as => :text,
+      :input_html => { :size => '40x5', :class => "ui-widget-content ui-corner-all", :value => '' },
+      :required => false
+    %>
+    <%= render :partial => 'shared/captcha', :locals => { :single_resource => @collage } %>
+  <% end -%>
 <% end -%>

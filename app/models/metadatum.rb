@@ -1,10 +1,5 @@
 class Metadatum < ActiveRecord::Base
-  include H2oModelExtensions
-  include AuthUtilities
-  include Authorship
   belongs_to :classifiable, :polymorphic => true
-
-  # From http://dublincore.org/documents/dces/
 
   DISPLAY_FIELDS = [:contributor, :coverage, :creator, :date, :description, :format, :identifier, :publisher, :relation, :rights, :subject, :source, :title]
 

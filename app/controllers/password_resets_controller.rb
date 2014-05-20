@@ -1,14 +1,13 @@
 class PasswordResetsController < ApplicationController
   before_filter :load_user_using_perishable_token, :only => [:edit, :update]
-  before_filter :require_no_user
-  before_filter :display_first_time_canvas_notice
+ # before_filter :display_first_time_canvas_notice
 
   def new
     render
   end
 
   def create
-    @user = User.find_by_login(params[:login])
+    @user = User.where(login: params[:login])
     if @user
       @user.deliver_password_reset_instructions!
       flash[:notice] = "Instructions to reset your password have been emailed to you. " +

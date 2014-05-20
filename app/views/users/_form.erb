@@ -16,9 +16,8 @@
       <%= form.label :tz_name, "Timezone" %>
       <%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %>
       <% if form.object.new_record? -%>
-      <br /><br />
-      <ul class="user_captcha">
-      <%= render :partial => 'shared/forms/captcha' %>
+      <ul>
+      <%= render :partial => 'shared/captcha', :locals => { :single_resource => @user } %>
       </ul>
       <% end -%>
     </td>
@@ -47,15 +46,14 @@
       Show annotations on collages by default?
       <br /><br />
       <% if !@user.new_record? %>
-        <% if @user.canvas_id.blank? %>
-          Not connected to Canvas
-        <% else %>
+        <% if @user.canvas_id.present? -%>
+          <br />
           Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :method => :post %>
         <% end %>
-        <% if @user.has_dropbox_token? %>
-          </br>
+        <% if @user.has_dropbox_token? -%>
+          <br />
           Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :method => :post %>
-        <% end %>
+        <% end -%>
       <% end %>
       <br /><br />
       <%= form.label :default_font_size %>

@@ -1,17 +1,7 @@
-<input type="hidden" value="<%= params[:link_start] %>" name="link_start" />
-<input type="hidden" value="<%= params[:link_end] %>" name="link_end" />
-<input type="hidden" value="<%= params[:host_collage] %>" name="host_collage" />
-<input type="hidden" value="<%= params[:text] %>" name="text" />
-
 <% if @objects -%>
-<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
-<table width="95%" id="collage_link_list">
-  <% @objects.results.each do |hit| -%>
-  <tr>
-    <td valign="top"><button class="add-collage-button" id="collage-<%= hit.id %>" data-collage_id="<%= hit.id %>">SELECT</button></td>
-    <td class="title"><%= hit.display_name %></td>
-  </tr>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
+  <% @display_objects.each do |hit| -%>
+  <a href="#" class="add-collage-button" data-id="<%= hit.id %>"><%= hit.display_name %></a>
   <% end %>
-</table>
-<%= will_paginate @objects.hits, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <% end %>

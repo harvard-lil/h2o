@@ -2,20 +2,24 @@
   <h3 class="scale1-3">
   <span class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></span>
   <span class="icon icon-<%= item.actual_object_type == "Media" ? "media-#{item.actual_object.media_type.slug}" : item.clean_type %>"></span>
-	<% if item.actual_object_type != 'Default' && !item.actual_object.nil? -%>
-	<%= link_to item.name, item.actual_object %>
-	<% else -%>
-	<%= link_to item.name, item.url, :target => 'blank' %>
-	<% end -%>
+  <% if item.actual_object.present? -%>
+    <% if item.actual_object_type == 'Media' -%>
+    <%= link_to item.name, media_path(item.actual_object) %>
+    <% elsif item.actual_object_type == 'Default' %>
+    <%= link_to item.name, item.url, :target => 'blank' %>
+    <% else -%>
+    <%= link_to item.name, item.actual_object %>
+    <% end -%>
+  <% end -%>
   </h3>
   <div class="item_description scale0-8"><%= PlaylistItem.format_content(item.description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
-	<div class="notes scale0-8">
-		<b class="scale0-8">Additional Notes:</b>
+  <div class="notes scale0-8">
+    <b class="scale0-8">Additional Notes:</b>
     <%= PlaylistItem.format_content(item.notes) %>
-	</div>
+  </div>
   <% end -%>
-	<div class="clear"></div>
+  <div class="clear"></div>
   <% if item.actual_object_type == 'TextBlock' -%>
     <%= render :partial => 'shared/objects/textblock_print', :locals => { :text_block => item.actual_object } %>
     <div class="page-break"></div>

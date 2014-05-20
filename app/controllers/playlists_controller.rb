@@ -2,40 +2,10 @@ require 'net/http'
 require 'uri'
 
 class PlaylistsController < BaseController
-
-  include PlaylistUtilities
+  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy]
   
   cache_sweeper :playlist_sweeper
-  caches_page :show, :export, :if => Proc.new{|c| c.instance_variable_get('@playlist').public?}
-
-  # TODO: Investigate whether this can be updated to :only => :index, since access_level is being called now
-  before_filter :load_single_resource, :except => [:embedded_pager, :index, :destroy, :check_export, :toggle_nested_private]
-  before_filter :require_user, :except => [:embedded_pager, :show, :index, :export, :access_level, :check_export, :playlist_lookup]
-  before_filter :restrict_if_private, :except => [:embedded_pager, :index, :new, :create, :destroy]
-
-  access_control do
-    allow all, :to => [:embedded_pager, :show, :index, :export, :access_level, :check_export]
-
-    allow logged_in, :to => [:new, :create, :copy, :deep_copy]
-    allow logged_in, :to => [:notes], :if => :allow_notes?
-    allow logged_in, :to => [:edit, :update], :if => :allow_edit?
-
-    allow logged_in, :if => :is_owner?
-
-    allow :superadmin
-  end
-
-  def allow_notes?
-    load_single_resource
-
-    current_user.can_permission_playlist("edit_notes", @playlist)
-  end
-
-  def allow_edit?
-    load_single_resource
-
-    current_user.can_permission_playlist("edit_descriptions", @playlist)
-  end
+  caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').public? }
 
   def embedded_pager
     super Playlist
@@ -87,22 +57,8 @@ class PlaylistsController < BaseController
   def show
     @page_cache = true if @playlist.public?
     @editability_path = access_level_playlist_path(@playlist)
-    add_javascripts ['playlists', 'jquery.tipsy', 'jquery.nestable']
-    add_stylesheets ['playlists']
-
-
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
     @can_edit = current_user && (current_user.has_role?(:superadmin) || @playlist.owner?)
-  end
-
-  def check_export
-    cgi = request.query_parameters.delete_if { |k, v| k == "_" }.to_query
-    clean_cgi = CGI.escape(cgi)
-    if FileTest.exists?("#{RAILS_ROOT}/tmp/cache/playlist_#{params[:id]}.pdf?#{clean_cgi}")
-      render :json => {}, :status => 200
-    else
-      render :json => {}, :status => 404
-    end
   end
 
   # GET /playlists/new
@@ -122,10 +78,9 @@ class PlaylistsController < BaseController
 
   # POST /playlists
   def create
-    @playlist = Playlist.new(params[:playlist])
-
-    @playlist.title = @playlist.name.downcase.gsub(" ", "_") unless @playlist.title.present?
+    @playlist = Playlist.new(playlist_params)
     @playlist.user = current_user
+    verify_captcha(@playlist)
 
     if @playlist.save
       #IMPORTANT: This reindexes the item with author set
@@ -133,7 +88,7 @@ class PlaylistsController < BaseController
 
       render :json => { :type => 'playlists', :id => @playlist.id, :modify_playlists_cookie => true, :name => @playlist.name }
     else
-      render :json => { :type => 'playlists', :id => @playlist.id }
+      render :json => { :type => 'playlists', :id => @playlist.id, :error => true, :message => "Could not create playlist, with errors: #{@playlist.errors.full_messages.join(',')}" }
     end
   end
 
@@ -152,16 +107,14 @@ class PlaylistsController < BaseController
       params["playlist"].delete("location_id")
     end
 
-    if @playlist.update_attributes(params[:playlist])
+    if @playlist.update_attributes(playlist_params)
       render :json => { :type => 'playlists', :id => @playlist.id }
     else
       render :json => { :type => 'playlists', :id => @playlist.id, :error => true, :message => "#{@playlist.errors.full_messages.join(', ')}" }
     end
   end
 
-  # DELETE /playlists/1
   def destroy
-    @playlist = Playlist.find(params[:id])
     @playlist.destroy
 
     render :json => { :success => true, :id => params[:id].to_i }
@@ -169,20 +122,17 @@ class PlaylistsController < BaseController
     render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
   end
 
-  def push  
+  def push
     if request.get?
-      @playlist = Playlist.find(params[:id])    
       @collections = current_user.collections
     else    
-      @collection = UserCollection.find(params[:user_collection_id])
-      @playlist = Playlist.find(params[:id])
+      @collection = UserCollection.where(id: params[:user_collection_id]).first
       @playlist_pusher = PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
       @playlist_pusher.delay.push!
       respond_to do |format|
         format.json { render :json => {:custom_block => 'push_playlist'} }
         format.js { render :text => nil }
         format.html { redirect_to(playlists_url) }
-        format.xml  { head :ok }
       end      
     end
   end
@@ -200,16 +150,17 @@ class PlaylistsController < BaseController
 
   def copy
     begin
-      @playlist = Playlist.find(params[:id], :include => :playlist_items)  
-      @playlist_copy = Playlist.new(params[:playlist])
+      @playlist = Playlist.where(id: params[:id]).includes(:playlist_items).first
+      @playlist_copy = Playlist.new(playlist_params)
       @playlist_copy.parent = @playlist
       @playlist_copy.karma = 0
-      @playlist_copy.title = params[:playlist][:name]
       @playlist_copy.user = current_user
+      # FIXME: Captcha not working here
+      @playlist_copy.valid_recaptcha = true
  
       if @playlist_copy.save
         # Note: Building empty playlist barcode to reduce cache lookup, optimize
-        Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}") { [] }
+        Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}", :compress => H2O_CACHE_COMPRESSION) { [] }
   
         @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
           new_item = item.clone
@@ -219,30 +170,12 @@ class PlaylistsController < BaseController
   
         render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
       else
-        render :json => { :type => 'playlists'}, :status => :unprocessable_entity 
+        render :json => { :type => 'playlists', :message => "Could not create playlist, with errors: #{@playlist_copy.errors.full_messages.join(',')}", :error => true }
       end
     rescue Exception => e
       Rails.logger.warn "Failure in playlist copy: #{e.inspect}"
       render :json => { :type => 'playlists'}, :status => :unprocessable_entity 
     end
-  end
-
-  def url_check
-    return_hash = Hash.new
-    test_url = params[:url_string]
-    return_hash["url_string"] = test_url
-    return_hash["description_string"]
-
-    uri = URI.parse(test_url)
-
-    object_hash = identify_object(test_url,uri)
-
-    return_hash["host"] = uri.host
-    return_hash["port"] = uri.port
-    return_hash["type"] = object_hash["type"]
-    return_hash["body"] = object_hash["body"]
-
-    render :json => return_hash.to_json
   end
 
   def position_update
@@ -259,18 +192,22 @@ class PlaylistsController < BaseController
   end
 
   def export
-    add_javascripts ['json2', 'annotator-full', 'h2o-annotator']
-    add_stylesheets 'annotator.min'
     render :layout => 'print'
   end
 
-  def notes
-    value = params[:type] == 'public' ? true : false
-    @playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
+  def public_notes
+    update_notes(true, @playlist)
+  end
+  def private_notes
+    update_notes(false, @playlist)
+  end
 
-    render :json => {  :total_count => @playlist.playlist_items.count,
-                       :public_count => @playlist.public_count,
-                       :private_count => @playlist.private_count
+  def update_notes(value, playlist)
+    playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
+
+    render :json => {  :total_count => playlist.playlist_items.count,
+                       :public_count => playlist.public_count,
+                       :private_count => playlist.private_count
                      }
   end
 
@@ -282,5 +219,10 @@ class PlaylistsController < BaseController
     @playlist.toggle_nested_private
 
     render :json => { :updated_count => @playlist.nested_private_resources.count }
+  end
+
+  private
+  def playlist_params
+    params.require(:playlist).permit(:name, :public, :tag_list, :description, :counter_start)
   end
 end

@@ -1,109 +1,42 @@
 class CaseJurisdictionsController < BaseController
-
-  before_filter :require_user, :except => [:index, :show]
-  
-  access_control do
-    allow :case_admin, :superadmin
-    allow all, :to => [:show, :index]
-  end
-
-  # GET /case_jurisdictions
-  # GET /case_jurisdictions.xml
-  def index
-    @case_jurisdictions = CaseJurisdiction.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @case_jurisdictions }
-    end
-  end
-
-  # GET /case_jurisdictions/1
-  # GET /case_jurisdictions/1.xml
-  def show
-    @case_jurisdiction = CaseJurisdiction.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @case_jurisdiction }
-    end
-  end
-
-  # GET /case_jurisdictions/new
-  # GET /case_jurisdictions/new.xml
   def new
-    @case_jurisdiction = CaseJurisdiction.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @case_jurisdiction }
-    end
   end
 
-  # GET /case_jurisdictions/1/edit
   def edit
-    @case_jurisdiction = CaseJurisdiction.find(params[:id])
   end
 
-  # POST /case_jurisdictions
-  # POST /case_jurisdictions.xml
   def create
-    @case_jurisdiction = CaseJurisdiction.new(params[:case_jurisdiction])
+    @case_jurisdiction = CaseJurisdiction.new(case_jurisdictions_params)
 
-    respond_to do |format|
-      if @case_jurisdiction.save
-        flash[:notice] = 'CaseJurisdiction was successfully created.'
-        format.html { redirect_to(@case_jurisdiction) }
-        format.xml  { render :xml => @case_jurisdiction, :status => :created, :location => @case_jurisdiction }
-        format.json { render :json => { :custom_block => 'case_jurisdiction_post', 
-                                        :id => @case_jurisdiction.id, 
-                                        :update => false, 
-                                        :name => @case_jurisdiction.name, 
-                                        :error => false 
-                                      } 
-                    }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @case_jurisdiction.errors, :status => :unprocessable_entity }
-        format.json { render :json => { :error => true, :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" } }
-      end
+    if @case_jurisdiction.save
+      render :json => { :custom_block => 'case_jurisdiction_post', 
+                        :id => @case_jurisdiction.id, 
+                        :update => false, 
+                        :name => @case_jurisdiction.name, 
+                        :error => false 
+                      } 
+    else
+      render :json => { :error => true, 
+                        :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" }
     end
   end
 
-  # PUT /case_jurisdictions/1
-  # PUT /case_jurisdictions/1.xml
   def update
-    @case_jurisdiction = CaseJurisdiction.find(params[:id])
-
-    respond_to do |format|
-      if @case_jurisdiction.update_attributes(params[:case_jurisdiction])
-        flash[:notice] = 'CaseJurisdiction was successfully updated.'
-        format.html { redirect_to(@case_jurisdiction) }
-        format.xml  { head :ok }
-        format.json { render :json => { :custom_block => 'case_jurisdiction_post', 
-                                        :id => @case_jurisdiction.id, 
-                                        :update => false, 
-                                        :name => @case_jurisdiction.name, 
-                                        :error => false 
-                                      } 
-                    }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @case_jurisdiction.errors, :status => :unprocessable_entity }
-        format.json { render :json => { :error => true, :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" } }
-      end
+    if @case_jurisdiction.update_attributes(case_jurisdictions_params)
+      render :json => { :custom_block => 'case_jurisdiction_post', 
+                        :id => @case_jurisdiction.id, 
+                        :update => true,
+                        :name => @case_jurisdiction.name, 
+                        :error => false 
+                      } 
+    else
+      render :json => { :error => true, 
+                        :message => "We could not create this case jurisdiction:<br />#{@case_jurisdiction.errors.full_messages.join('<br />')}" }
     end
   end
 
-  # DELETE /case_jurisdictions/1
-  # DELETE /case_jurisdictions/1.xml
-  def destroy
-    @case_jurisdiction = CaseJurisdiction.find(params[:id])
-    @case_jurisdiction.destroy
-
-    respond_to do |format|
-      format.html { redirect_to(case_jurisdictions_url) }
-      format.xml  { head :ok }
-    end
+  private
+  def case_jurisdictions_params
+    params.require(:case_jurisdiction).permit(:id, :name, :abbreviation)
   end
 end

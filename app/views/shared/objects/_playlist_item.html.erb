@@ -18,6 +18,8 @@
       <td class="title-cell">
         <% if actual_object.present? && item.actual_object_type == 'Default' -%>
         <%= link_to item.name, actual_object.url, :target => '_blank', :class => "title #{"private" if !actual_object.public}" %>
+        <% elsif actual_object.present? && item.actual_object_type == 'Media' -%>
+        <%= link_to item.name, media_path(actual_object), :target => '_blank', :class => "title #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? -%>
         <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title #{"private" if !actual_object.public}" %>
         <% else -%>

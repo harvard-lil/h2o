@@ -1,0 +1,126 @@
+#playlists_export, #collages_export, #text_blocks_export, 
+#cases_export, #collages_export_unique, #journal_articles_export {
+  background: #FFF; font-family: sans-serif; font-size: 11px;  color: #000; border-bottom: 2px solid #FFF;
+  * { line-height: 1.4em; }
+  #shell { background: #fff; }
+  a { 
+    color: #036290;
+    text-decoration: none;
+  }
+  
+  .singleitem {
+    float: none;
+    width: 100%;
+  }
+  .singleitem article {
+    padding-left: 0px;
+    margin-top: 20px;
+  }
+  .singleitem .details {
+    background: none;
+    padding: 0px;
+    margin: 0px;
+  }
+  
+  /* Header */
+  .collage-content > h1 { margin-top: 0px; padding: 0px 0px 4px 0px; }
+  .no_visible_children { display: none; }
+  
+  /* Timestamp & Author */
+  .collage-content .info { padding: 0px; font-weight: bold; }
+  
+  /* Description */
+  #playlist .details { padding-bottom: 10px; }
+  #playlist .item_description,
+  .collage-content .item_description { 
+    font-style: italic; 
+    color: #000;
+    background: none;
+    padding: 0px;
+  }
+  
+  /* Collage Content */
+  .unlayered-control,
+  .collage-content { padding-left: 50px; clear: both; }
+  .collage-content p { margin-bottom: 20px; }
+  .collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 2px 5px 2px 18px; margin: 3px;
+  background: url(<%= asset_path 'asterisk.jpg' %>) 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
+  .collage-content .annotation-ellipsis { padding-left: 5px; }
+  .collage-content p,
+  .collage-content center,
+  .collage-content h2 { position: relative; }
+  .collage-content .paragraph-numbering {
+    position: absolute; 
+    left: -50px;
+    text-decoration: none;
+    font-weight: normal;
+  }
+  .collage-content blockquote { padding-left: 30px; margin-left: 30px; }
+  .collage-content blockquote .paragraph-numbering { left: -113px; }
+  
+  .playlists .collage-content article { position: relative; }
+  
+  #playlist { padding: 0px; overflow: hidden; }
+  #playlist .playlists .playlists { display: block; }
+  #playlist .listitem { padding-bottom: 10px; }
+  #playlist .listitem .notes { padding-bottom: 10px; }
+  .playlist h3 { margin-bottom: 10px; }
+  .playlist p { margin-bottom: 10px; }
+  
+  /* Text Block */
+  #text_block { clear: both; }
+  #text_block .details { font-style: italic; margin-bottom: 20px; }
+  #text_block article p { margin-bottom: 20px; }
+  
+  /* Print */
+  #print-options {
+    margin-top: 15px; 
+    padding-bottom: 25px;
+  }
+  #print-options .jsb {
+    display: inline-block;
+    float: none;
+    border: 1px solid #666;
+    border-radius:4px; 
+    -moz-border-radius:4px; 
+    -webkit-border-radius:4px;
+    -o-border-radius:4px;
+    margin: 0px 10px 5px 0px;
+  }
+  #fontface_span .jsb {
+    width: 110px !important;
+  }
+  #print-options strong {
+    display: inline-block;
+    width: 150px;
+    font-weight: normal;
+  }
+  #print-options #annotation_options,
+  #print-options #highlight_options,
+  #print-options #heatmap_options {
+    display: inline-block;
+  }
+  #print-options #create_date {
+    width: 173px;
+  }
+  
+  .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }
+  .print_border span { width: 100%; display: block; position: absolute; bottom: 0px; opacity: 0.0; }
+  
+  .fontdetails {
+    font-weight: bold;
+    font-size: 12px !important;
+    margin-top: -20px;
+  }
+  .annotator-outer { display: none; }
+  .layered-ellipsis { display: none; margin: 0px 2px; }
+
+  .unlayered-ellipsis { display: none; margin: 0px 2px; }
+
+  div.article .layered-empty { border-bottom: 2px solid #FEFED9; }
+  div.article .paragraph-numbering .layered-empty { border-bottom: 2px solid #FFF; }
+}
+
+.annotator-wrapper > .unlayered-ellipsis {
+  padding: 0px 0px 10px 509px;
+}

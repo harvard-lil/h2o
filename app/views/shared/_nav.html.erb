@@ -4,13 +4,13 @@
 			<% if @page_cache -%>
 			<span id="user_account"></span>
 			<%= link_to "sign out", log_out_path, :class => 'requires_logged_in' %>
-			<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => 'afterload' %>
+			<%= link_to "sign in", new_user_session_path, :id => 'header_login', :class => 'afterload' %>
 			<% else -%>
 			<% if current_user -%>
 			<%= link_to "#{current_user.simple_display} Dashboard", user_path(current_user), :id => "logged-in" %>
 			<%= link_to "sign out", log_out_path %>
 			<% else -%>
-			<%= link_to "sign in", crossroad_user_session_path, :id => 'header_login', :class => "dont_hide" %>
+			<%= link_to "sign in", new_user_session_path, :id => 'header_login', :class => "dont_hide" %>
 			<% end -%>
 			<% end -%>
 			<div class="clear"></div>
@@ -29,11 +29,11 @@
 		</nav>
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
 		<section id="search">
-		<% form_tag("/all_materials", :method => :get, :class => "search") do -%>
+		<%= form_tag("/all_materials", :method => :get, :class => "search") do %>
 		<table>
 			<tr>
 				<td id="spinner">
-					<img src="/images/ajax-loader.gif" alt="" />
+					<%= image_tag "ajax-loader.gif" %>
 				</td>
 				<% if params[:controller] == 'cases' && (@page_cache || (current_user && !current_user.has_role?(:nonauthenticated))) -%>
 				<td class="requires_non_anonymous">

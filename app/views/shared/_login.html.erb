@@ -2,7 +2,7 @@
 <div id="login-popup" class="standard-form popup">
 <div class="right">
 <h3>Returning user log in</h3>
-<% form_for :user_session, :url => user_session_path do |f| -%>
+<%= form_for UserSession.new do |f| %>
 <%= f.label :login %>
 <%= f.text_field :login, :class => 'text' %>
 <%= f.label :password %>

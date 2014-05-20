@@ -1,13 +1,9 @@
 class Playlist < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
-  extend TaggingExtensions::ClassMethods
-
-  include StandardModelExtensions::InstanceMethods
-  include AncestryExtensions::InstanceMethods
-  include AuthUtilities
-  include Authorship
-  include KarmaRounding
-  include ActionController::UrlWriter
+  include StandardModelExtensions
+  include AncestryExtensions
+  include CaptchaExtensions
+  include FormattingExtensions
+  include Rails.application.routes.url_helpers
 
   RATINGS = {
     :remix => 5,
@@ -20,14 +16,11 @@ class Playlist < ActiveRecord::Base
     :add => "Added to another playlist"
   }
 
-  #no sql injection here.
-  acts_as_list :scope => 'ancestry = #{self.connection.quote(self.ancestry)}'
-  acts_as_authorization_object
   acts_as_taggable_on :tags
 
   has_ancestry :orphan_strategy => :restrict
 
-  has_many :playlist_items, :order => "playlist_items.position", :dependent => :destroy
+  has_many :playlist_items, -> { order("playlist_items.position") }, :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
   has_and_belongs_to_many :user_collections #, :dependent => :destroy
   belongs_to :location
@@ -38,7 +31,9 @@ class Playlist < ActiveRecord::Base
   validates_length_of :name, :in => 1..250
 
   before_destroy :collapse_children
-  named_scope :public, :conditions => {:public => true, :active => true}
+
+  # FIXME: scope name can't be redundant to attribute name
+  # scope :public, -> { where(public: true, active: true) }
 
   validate :when_taught_validation
 
@@ -99,13 +94,13 @@ class Playlist < ActiveRecord::Base
   alias :to_s :display_name
 
   def barcode
-    Rails.cache.fetch("playlist-barcode-#{self.id}") do
+    Rails.cache.fetch("playlist-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.public_children.each do |child|
         barcode_elements << { :type => "remix",
                               :date => child.created_at,
                               :title => "Remixed to Playlist #{child.name}",
-                              :link => playlist_path(child.id) }
+                              :link => playlist_path(child) }
       end
 
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
@@ -116,14 +111,14 @@ class Playlist < ActiveRecord::Base
   end
 
   def parents
-    PlaylistItem.find_all_by_actual_object_id_and_actual_object_type(self.id, "Playlist").collect { |p| p.playlist }.uniq
+    PlaylistItem.where(actual_object_id: self.id, actual_object_type: "Playlist").collect { |p| p.playlist }.uniq
   end
 
   def relation_ids
     r = self.parents
     i = 0
     while i < r.size
-      Playlist.find(r[i]).parents.each do |a|
+      Playlist.where(id: r[i]).first.parents.each do |a|
         next if r.include?(a)
         next if a.name == "Your Bookmarks"
         r.push(a)
@@ -138,12 +133,8 @@ class Playlist < ActiveRecord::Base
     self.playlist_items.map(&:actual_object)
   end
 
-  def child_playlists
-    self.actual_objects.find_all{ |ao| ao.class == Playlist }
-  end
-
   def collage_word_count
-    Rails.cache.fetch("playlist-wordcount-#{self.id}") do
+    Rails.cache.fetch("playlist-wordcount-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
 	    shown_word_count = 0
 	    total_word_count = 0
 	    self.playlist_items.each do |pi|
@@ -219,17 +210,8 @@ class Playlist < ActiveRecord::Base
     end
 
     # TODO: Figure out a better way to do this logic, or cache, and sweep
-    p = Permission.find_by_key("view_private")
+    p = Permission.where(key: "view_private")
     pas = self.user_collections.collect { |uc| uc.permission_assignments }.flatten.select { |pr| pr.permission_id = p.id }
     ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
-  end
-
-  private
-
-  def recursive_playlists(playlist)
-    yield playlist
-    playlist.actual_objects.find_all{|ao| ao.is_a?(Playlist)}.each do |child|
-      recursive_playlists(child){|x| yield x}
-    end
   end
 end

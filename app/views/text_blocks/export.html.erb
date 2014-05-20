@@ -2,10 +2,10 @@
   <h1><%= @text_block.display_name %></h1>
 	<div class="details">
 		<div class="clear"></div>
-		<% cache "text_block-#{@text_block.id}-detail" do -%>
+		<% cache("text_block-#{@text_block.id}-detail", :compress => H2O_CACHE_COMPRESSION) do -%>
       <% if @text_block.metadatum -%>
       <%= render :partial => 'shared/objects/metadatum', :object => @text_block.metadatum %>
-      <% end -%>
+      <% end -%> 
 		<% end -%>
 	</div>
   <div class="fontdetails"></div>

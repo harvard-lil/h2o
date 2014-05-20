@@ -1,4 +1,0 @@
-<% rotisserie_instance = RotisserieInstance.find(@rotisserie_instance_id) -%>
-The following URL allows you to participate in all discussions for this Rotisserie.
-
-<%= link_to rotisserie_instance.output, polymorphic_url(rotisserie_instance, :tid => @tid) %>

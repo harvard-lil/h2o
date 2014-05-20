@@ -1,4 +1,6 @@
 module HeatmapExtensions
+  extend ActiveSupport::Concern
+
   module ClassMethods
     def color_list
       [
@@ -27,38 +29,16 @@ module HeatmapExtensions
     end
   end
 
-  module InstanceMethods
-    def heatmap_active
-      !self.annotatable.collages.detect { |c| c.annotator_version != self.annotator_version }
+  def heatmap
+    heatmap_annotations = self.annotatable.collages.inject([]) do |arr, c|
+      if c != self && c.annotator_version == self.annotator_version
+        c.annotations.each do |ann|
+          arr << ann.to_json(:include => :layers)
+        end
+      end
+      arr
     end
 
-    def heatmap
-      if self.annotator_version == 1
-	      raw_data = {}
-	      self.annotatable.collages.each do |collage|
-	        collage.annotations.each do |annotation|
-	          next if annotation.layers.empty?
-	          a_start = annotation.annotation_start.gsub(/^t/, '').to_i 
-	          a_end = annotation.annotation_end.gsub(/^t/, '').to_i
-	          (a_start..a_end).each do |i|
-	            raw_data["t#{i}"] ||= 0 
-	            raw_data["t#{i}"] += 1
-	          end
-	        end
-	      end
-	      max = raw_data.values.max.to_f
-	      { :data => raw_data, :max => max }
-      else 
-        heatmap_annotations = self.annotatable.collages.inject([]) do |arr, c|
-          if c != self && c.annotator_version == self.annotator_version
-            c.annotations.each do |ann|
-              arr << ann.to_json(:include => :layers)
-            end
-          end
-          arr
-        end
-        heatmap_annotations.flatten
-      end
-    end
+    heatmap_annotations.flatten
   end
 end

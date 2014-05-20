@@ -1,32 +1,36 @@
   <div class="standard-form">
     <div id="case-error" style="display:none;" class="error"></div>
     <h1 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h1>
-    <% semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
-      <% form.object.case_docket_numbers.build %>
-      <% form.object.case_citations.build %>
-      <% form.inputs do %>
+    <%= semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
+      <%= form.inputs do %>
         <%= form.input :short_name %>
         <%= form.input :full_name %>
         <%= form.input :decision_date, :as => :string, :input_html => { :class => "datepicker" } %>
         <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>
-        <% if @case.case_request %>
-        <%= form.input :case_request, :as => :select, :collection => CaseRequest.all(:order => 'created_at DESC', :conditions => "status ='new'"), :hint => "Leave blank if no case request"%>
+        <% if @case.case_request -%>
+        <%= form.input :case_request_id, :as => :hidden %>
+        <% end -%>
+
+        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.order('name'), :hint => raw(current_user.has_role?(:case_admin) ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
+
+        <%= form.semantic_fields_for :case_docket_numbers do |cdn_f| %>
+        <%= cdn_f.input :docket_number, :hint => raw('<a href="#" class="remove_case_docket_number existing_case_docket_number">REMOVE</a>') %>
+        <%= cdn_f.input :_destroy, :as => :boolean, :wrapper_html => { :class => 'boolean_hidden' } %>
+        <% end -%>
+        <li id="case_new_case_docket_link">
+        <a href="#" class="add_case_docket_number">ADD CASE DOCKET NUMBER</a>
+        </li>
+
+        <%= form.semantic_fields_for :case_citations do |cc_f| %>
+          <%= cc_f.input :volume %>
+          <%= cc_f.input :reporter %>
+          <%= cc_f.input :page, :hint => raw('<a href="#" class="remove_case_citation existing_case_citation">REMOVE</a>') %>
+          <%= cc_f.input :_destroy, :as => :boolean, :wrapper_html => { :class => 'boolean_hidden' } %>
         <% end %>
-        <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.all(:order => 'name'), :hint => (current_user.is_case_admin ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_jurisdiction_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
-        <% if @case.case_request %>
-          <% @case.case_docket_numbers = @case.case_docket_numbers.delete(@case.case_docket_numbers.first) %>
-        <% end %>
-        <% form.semantic_fields_for :case_docket_numbers do |cd| %>
-          <%= render :partial => 'shared/forms/case_docket_number', :locals => {:f => cd} %>
-        <% end %>
-        <li id="case_new_case_docket_link"><%= add_child_link "ADD ADDITIONAL CASE DOCKET NUMBER", :case_docket_numbers %></li>
-        <%= new_child_fields_template(form, :case_docket_numbers, :partial => 'shared/forms/case_docket_number')%>
-        <% if @case.case_request %>
-          <% @case.case_citations = @case.case_citations.delete(@case.case_citations.first) %>
-        <% end %>
-        <% form.semantic_fields_for :case_citations do |cd| %>
-          <%= cd.inputs :volume, :reporter, :page, :name => ((cd.object.new_record?) ? "Add citation" : 'Edit existing citation') %>
-        <% end %>
+        <li id="case_new_case_citation_link">
+        <a href="#" class="add_case_citation">ADD CASE CITATION</a>
+        </li>
+
         <% if @case.new_record? || @case.content_editable? %>
           <div class="mce_switches">
             <a href="#" id="case_content-html" class="html">HTML</a>
@@ -37,15 +41,15 @@
             :required => true 
           %>
         <% end -%>
-        <% if current_user.is_case_admin -%>
+        <% if current_user.has_role?(:case_admin) -%>
         <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
         <% end -%>
       <% end %>
-      <% unless request.xhr? %>
-        <% form.buttons do %>
-          <%= form.commit_button 'SAVE' %>
-          <%= form.commit_button 'SAVE AND APPROVE' %>
-        <% end %>
+      <%= form.actions do %>
+        <%= form.action :submit, :as => 'button', :label => "SAVE", :button_html => { :name => "save" } %>
+        <% if !@case.active -%>
+        <%= form.action :submit, :as => 'button', :label => "SAVE AND APPROVE", :button_html => { :name => "approve" } %>
+        <% end -%>
       <% end %>
     <% end %>
   </div>

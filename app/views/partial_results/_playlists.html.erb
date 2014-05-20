@@ -1,7 +1,7 @@
 <% playlists.each do |v| -%>
 <div class="playlist item" id="listitem_playlist<%= v[:playlist].id %>"><div class="item_wrapper">
   <%= link_to "#{v[:title]} (#{v[:playlist].karma})", playlist_url(v[:playlist]), :class => "item_link" %>
-  <%= link_to v[:user].attribution || v[:user].login, user_path(v[:user]), :class => "author" %>
+  <%= link_to v[:user].attribution || v[:user].login, users_path(v[:user]), :class => "author" %>
   <% if v[:user].affiliation.present? -%>
   | <%= v[:user].affiliation %>
   <% end -%>

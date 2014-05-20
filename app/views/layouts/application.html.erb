@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <title><%= raw(@page_title) || "H2O Classroom Tools" %></title>
-    <link rel="icon" href="/images/h20-logo.png" type="image/png" />
+    <link rel="icon" href="<%= asset_path 'h20-logo.png' %>" type="image/png" />
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy">
-    <%= stylesheet_link_tag 'jquery.ui.custom', 'ui', 'mobile', 'icons', 'barcode', 'formtastic', RAILS_ENV == 'development' ? {} : { :cache => 'all' } %>
-    <% [(@stylesheets.blank?) ? nil : @stylesheets].compact.flatten.each do |ss| -%>
-      <%= stylesheet_link_tag ss %>
-    <% end -%>
+    <%= stylesheet_link_tag "application", media: "all" %>
+    <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
 
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';
 var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
-  <%= javascript_include_tag 'modernizr.custom.77714' %>
   <% if Object.const_defined?(:GOOGLE_ANALYTICS_CODE) %>
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -35,7 +32,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
 </head>
 
-<body id="b<%= params[:controller] %>" class="b<%= "#{params[:controller]}_#{params[:action]}" %> action_<%= params[:action] %> <%= @page_cache ? 'cached_page' : '' %>">
+<body data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>" class="<%= @page_cache ? 'cached_page' : '' %>">
 	<section id="shell">
     <%= render :partial => "shared/quickbar" %>
     <%= render :partial => "shared/nav" %>
@@ -56,22 +53,10 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <% end -%>
 
 <%= render :partial => "shared/font_selectors" %>
-
-<%= javascript_include_tag 'jquery.min.js' %>
-<% if RAILS_ENV == 'development' -%>
-<%= javascript_include_tag 'jquery-migrate.js' %>
-<% else -%>
-<%= javascript_include_tag 'jquery-migrate.min.js' %>
-<% end -%>
-<%= javascript_include_tag 'jquery-ui.min.js' %>
+    
+<%= javascript_include_tag "application" %>
 <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
-<%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'jquery.rating.pack',
-  'jquery.form', 'jquery.cookie', 'jquery.tabSlideOut.v1.3.js', 
-  'jquery.rule.min', 'jquery.tipsy', 'jquery.hoverIntent', 'mustache', 'ui', 'jquery.address.min', RAILS_ENV == 'development' ? {} : { :cache => 'all' } %>
-
-<% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
-  <%= javascript_include_tag js %>
-<% end -%>
+<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
 
 <% flash.delete(:error) %>
 <% flash.delete(:notice) %>

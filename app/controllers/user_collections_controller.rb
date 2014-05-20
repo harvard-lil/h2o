@@ -1,14 +1,8 @@
 class UserCollectionsController < BaseController
-  #before_filter :require_user, :except => [:layers, :index, :show, :description_preview, :embedded_pager, :export, :export_unique, :access_level]
-  before_filter :load_user_collection, :only => [:edit, :manage_users, :manage_playlists, :manage_collages, :manage_permissions, :update_permissions, :destroy, :update]
-
   def load_user_collection
-    @user_collection = UserCollection.find(params[:id])
   end
 
   def new
-    @user_collection = UserCollection.new
-
     respond_to do |format|
       format.html 
     end

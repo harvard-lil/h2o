@@ -1,7 +1,7 @@
 <div id="playlist_item_form" class="<%= @playlist_item.new_record? ? 'new' : 'edit' %>" >
   <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
-  <% semantic_form_for @playlist_item, :html => { :class => (@playlist_item.new_record? ? 'new' : 'edit') } do |form| %>
-    <% form.inputs do %>
+  <%= semantic_form_for @playlist_item, :html => { :class => (@playlist_item.new_record? ? 'new' : 'edit') } do |form| %>
+    <%= form.inputs do %>
       <% if @actual_object.class == Default -%>
       <li>
         <label>Url</label>

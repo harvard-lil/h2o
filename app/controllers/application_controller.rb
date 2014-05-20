@@ -1,38 +1,91 @@
-# Filters added to this controller apply to all controllers in the application.
-# Likewise, all the methods added will be available for all controllers.
-
 class ApplicationController < ActionController::Base
-  protect_from_forgery # See ActionController::RequestForgeryProtection for details
-
-  include ExceptionNotification::ExceptionNotifiable
-  #Comment out the line below if you want to see the normal rails errors in normal development.
-  alias :rescue_action_locally :rescue_action_in_public if Rails.env == 'development'
-
-  self.exception_notifiable_verbose = true #SEN uses logger.info, so won't be verbose in production
-  self.exception_notifiable_silent_exceptions = [Acl9::AccessDenied, MethodDisabled, ActionController::RoutingError ]
-
-  #specific errors can be handled by something else:
-
-  rescue_from Acl9::AccessDenied, :with => :deny_access
-
-  helper :all
-  helper_method :current_user_session, :current_user
-  filter_parameter_logging :password, :password_confirmation
+  before_filter :load_single_resource, :check_authorization,  # Important that check_auth happens load_single_resource
+                :fix_cookies, :redirect_bad_format, :set_time_zone, :set_page_cache_indicator
+  before_filter :set_sort_params, :only => [:index, :tags]
+  before_filter :set_sort_lists, :only => [:index, :tags]
 
   layout :layout_switch
 
-  before_filter :fix_cookies
-  before_filter :redirect_bad_format, :title_select, :set_time_zone
-  before_filter :set_sort_params, :only => :index
-  before_filter :set_sort_lists, :only => :index
-  before_filter :set_page_cache_indicator
+  protect_from_forgery with: :exception
 
-  #Add ability to make page caching conditional
-  #to support only caching public items
-  def self.caches_page(*actions)
-    return unless perform_caching
-    options = actions.extract_options!
-    after_filter(:only => actions) { |c| c.cache_page if options[:if].nil? or options[:if].call(c) }
+  helper :all
+  helper_method :current_user_session, :current_user
+
+  # Layout is always false for ajax calls
+  def layout_switch
+    request.xhr? ? false : "application"
+  end
+
+  def check_authorization
+    current_user_roles = current_user.present? ? current_user.roles.map { |r| r.name } : []
+    # Superadmin can do everything
+    if current_user.present? && current_user_roles.include?("superadmin")
+      return true
+    end
+    # Cases admin can do everything on cases controller
+    if current_user.present? && current_user_roles.include?("case_admin") && params[:controller].match(/^case/).present?
+      return true
+    end
+
+    return true if params[:controller] == "bulk_uploads" && current_user.present?
+
+    # allow index, embedded_pager
+    return true if @single_resource.nil? && params[:controller] != "playlist_items"
+
+    # if playlist item is created, allow owner of playlist to add
+    if params[:controller] == "playlist_items" && request.post? && params.has_key?(:playlist_item)
+      playlist = Playlist.where(id: params[:playlist_item][:playlist_id])
+      if current_user.present? && playlist.user == current_user
+        return true
+      end
+    end
+
+    # owner of resource can do all on single resource
+    if current_user.present? && @single_resource.user == current_user
+      return true
+    end
+
+    # many methods can be done if item is public
+    if @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level, :heatmap].include?(params[:action].to_sym)
+      return true
+    end
+
+    # allow logged in users to new, create, copy, deep copy
+    if current_user.present? && [:new, :create, :copy, :deep_copy].include?(params[:action].to_sym)
+      return true
+    end
+
+    # various whitelisting based on user collections
+    if current_user.present?
+      if params[:controller] == "annotations"
+        if [:destroy, :edit, :update].include?(params[:action].to_sym) && current_user.can_permission_collage("edit_annotations", @single_resource.collage)
+          return true
+        end
+      elsif params[:controller] == "collages"
+        if [:edit, :update].include?(params[:action].to_sym) && current_user.can_permission_collage("edit_collage", @single_resource)
+          return true
+        end
+      elsif params[:controller] == "playlists"
+        if [:notes].include?(params[:action].to_sym) && current_user.can_permission_playlist("edit_notes", @single_resource)
+          return true
+        end
+        if [:edit, :update].include?(params[:action].to_sym) && current_user.can_permission_playlist("edit_description", @single_resource)
+          return true
+        end
+      end
+    end
+
+    # if not passed whitelist accessibility,
+    # redirect on no access
+    flash[:notice] = "You do not have access to this content."
+    if request.xhr?
+      render :json => {}
+    elsif current_user.present?
+      redirect_to user_path(current_user)
+    else
+      redirect_to new_user_session_path
+    end
+    return false
   end
 
   def redirect_bad_format
@@ -45,8 +98,8 @@ class ApplicationController < ActionController::Base
   def set_time_zone
     if current_user && ! current_user.tz_name.blank?
       Time.zone = current_user.tz_name
-    else
-      Time.zone = DEFAULT_TIMEZONE
+    #else
+    #  Time.zone = DEFAULT_TIMEZONE
     end
   end
 
@@ -54,49 +107,16 @@ class ApplicationController < ActionController::Base
     @page_cache = false
   end
 
-  # Switches to nil layout for ajax calls.
-  def layout_switch
-    (request.xhr?) ? nil : :application
-  end
-
-  def title_select
-    @logo_title = "default"
-    case self.controller_name
-      when "base" then @logo_title = "Home"
-      when "rotisserie_instances", "rotisserie_discussions" then @logo_title = "Rotisserie"
-      when "questions", "question_instances" then @logo_title = "Question Tool"
-    else
-      @logo_title = self.controller_name
-    end
-
-    @logo_title.upcase!
-  end
-
-  # Method executed when Acl9::AccessDenied is caught
-  # should redirect to page with appropriate info
-  # and possibly raise a 403?
-  #--
-  # FIXME: Place in redirect to error page
-  #++
-  def deny_access
-    flash[:notice] = "You do not have access to this content."
-    #redirect_to playlists_path
-
-    redirect_back_or_default "/"
-  end
-
-  def create_influence(original_object, spawned_object)
-    original_influence = Influence.find_or_create_by_resource_id_and_resource_type(
-      original_object.id, original_object.class.to_s)
-
-    influence_record = Influence.new(:parent_id => original_influence.id)
-    influence_record.resource = spawned_object
-    influence_record.save!
-  end
-
   # Note: set_sort_params should always execute before set_sort_lists
   # to ensure proper dropdown selected
   def set_sort_params
+    if !["karma", "updated_at", "score", "display_name", "decision_date", "created_at", "user"].include?(params[:sort])
+      params[:sort] = nil
+    end
+    if params[:sort] == "decision_date" && params[:filter_type] != "cases"
+      params[:sort] = nil
+    end
+
     if params.has_key?(:keywords)
       params[:sort] ||= "score"
     else
@@ -109,8 +129,6 @@ class ApplicationController < ActionController::Base
 
     params[:order] = (["score", "karma", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
   end
-
-  def verbose; true; end
 
   def set_sort_lists
     @sort_lists = {}
@@ -244,7 +262,7 @@ class ApplicationController < ActionController::Base
     if current_user
       admin_method = "is_#{model.to_s.downcase}_admin"
       @is_admin[model.to_s.downcase.to_sym] = current_user.respond_to?(admin_method) ? current_user.send(admin_method) : false
-      @my_belongings[model.to_s.tableize.to_sym] = current_user.send(model.to_s.tableize.to_s)
+      @my_belongings[model.to_s.tableize.to_sym] = model == Media ? current_user.medias : current_user.send(model.to_s.tableize.to_s)
     else
       @is_admin[model.to_s.downcase] = false
       @my_belongings[model.to_s.downcase] = []
@@ -271,21 +289,9 @@ class ApplicationController < ActionController::Base
     sort_fields
   end
 
-  # Accepts a string or an array and emits stylesheet tags in the layout in that order.
-  def add_stylesheets(new_stylesheets)
-    @stylesheets = [] if ! defined?(@stylesheets)
-    @stylesheets << new_stylesheets
-  end
-
-  # Accepts a string or an array and emits javascript tags in the layout in that order.
-  def add_javascripts(new_javascripts)
-    @javascripts = [] if ! defined?(@javascripts)
-    @javascripts << new_javascripts
-  end
-
-  # TODO: This handles the scenario where users with remember_me are auto logged in,
+  # This handles the scenario where users with remember_me are auto logged in,
   # but cookies are not defined for them when auto logged in
-  # Note: Can be moved to after auto login filter if one exists
+  # TODO: Can be moved to after auto login filter if one exists
   def fix_cookies
     if current_user.present? && cookies[:user_id].nil?
       apply_user_preferences(current_user, false)
@@ -322,88 +328,76 @@ class ApplicationController < ActionController::Base
   end
 
   private
-
-    def current_user_session
-      return @current_user_session if defined?(@current_user_session)
-      @current_user_session = UserSession.find
+  def verify_captcha(item)
+    if verify_recaptcha(:model => item, :message => '')
+      item.valid_recaptcha = true
     end
+  end
 
-    def current_user
-      return @current_user if defined?(@current_user)
-      @current_user = current_user_session && current_user_session.record
-    end
+  def current_user_session
+    return @current_user_session if defined?(@current_user_session)
+    @current_user_session = UserSession.find
+  end
 
-    def require_user
-      unless current_user
-        flash[:notice] = "You must be logged in to access this page"
-        redirect_to crossroad_user_session_url
-        #redirect_to new_user_session_url
-        return false
-      end
-    end
+  def current_user
+    return @current_user if defined?(@current_user)
+    @current_user = current_user_session && current_user_session.record
+  end
 
-    def require_no_user
-      if current_user
-        flash[:notice] = "You must be logged out to access this page"
-        redirect_to user_path(current_user)
-        return false
-      end
-    end
+  def load_single_resource
+    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base'].include?(params[:controller])
 
-    def redirect_back_or_default(default)
-      redirect_to(cookies[:return_to] || default)
-    end
-
-    def update_question_instance_time
-      if ! @UPDATE_QUESTION_INSTANCE_TIME.blank?
-        @UPDATE_QUESTION_INSTANCE_TIME.updated_at = Time.now
-        @UPDATE_QUESTION_INSTANCE_TIME.save
-      end
-    rescue Exception => e
-      logger.warn("Couldn't update question instance id: #{@UPDATE_QUESTION_INSTANCE_TIME.id} because #{e.inspect}")
-    end
-
-    def restrict_if_private
-      artifact = instance_variable_get("@#{controller_name.singularize.downcase}")
-      return true if artifact.nil?
-      if !artifact.public? and not current_user
-        flash[:notice] = "You do not have access to this content."
-        redirect_to crossroad_user_session_url
-        return false
-      elsif !artifact.public? and current_user and !(current_user.has_role?(:superadmin) || artifact.owner?)
-        flash[:notice] = "You do not have access to this content."
-        redirect_to crossroad_user_session_url
-        return false
+    if params[:action] == "new"
+      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      @single_resource = item = model.new
+      if model == Media
+        @media = item
       else
-        return true
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
       end
-    end
-
-    def display_first_time_canvas_notice
-      if first_time_canvas_login?
-          notice =
-            "You are logging into H2o directly from Canvas for the first time.<br/><br/>
-           After you login your Canvas id will be attached to your H2o id
-           and the next time you initiate an H2o session from Canvas you'll be logged in
-           automatically."
-        if flash[:notice].blank?
-          flash[:notice] = notice.html_safe
+      @page_title = "New #{model.to_s}"
+    elsif params[:id].present?
+      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      item = params[:action] == "new" ? model.new : model.where(:id => params[:id]).first
+      if item.present?
+        @single_resource = item
+        if params[:controller] == "medias"
+          @media = item
         else
-          flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
+          instance_variable_set "@#{model.to_s.tableize.singularize}", item
         end
+        @page_title = item.name
       end
     end
+  end
 
-    def first_time_canvas_login?
-      session.key?(:canvas_user_id)
+  def display_first_time_canvas_notice
+    if first_time_canvas_login?
+      notice =
+        "You are logging into H2o directly from Canvas for the first time.<br/><br/>
+         After you login your Canvas id will be attached to your H2o id
+         and the next time you initiate an H2o session from Canvas you'll be logged in
+         automatically."
+      if flash[:notice].blank?
+        flash[:notice] = notice.html_safe
+      else
+        flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
+      end
     end
+  end
+  def redirect_back_or_default(default)
+    redirect_to(cookies[:return_to] || default)
+  end
+  def first_time_canvas_login?
+    session.key?(:canvas_user_id)
+  end
 
-    def save_canvas_id_to_user(user)
-      user.update_attribute(:canvas_id, session.fetch(:canvas_user_id))
-      clear_canvas_id_from_session
-    end
+  def save_canvas_id_to_user(user)
+    user.update_attribute(:canvas_id, session.fetch(:canvas_user_id))
+    clear_canvas_id_from_session
+  end
 
-    def clear_canvas_id_from_session
-      session[:canvas_user_id] = nil
-    end
+  def clear_canvas_id_from_session
+    session[:canvas_user_id] = nil
+  end
 end

@@ -1,4 +1,4 @@
-<div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>" data-annotator_version="<%= @collage.annotator_version %>">
+<div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
   <h1 id="singlecollage" class="scale1-5"><%= @collage.name %></h1>
   <div class="details">
     <p class="info scale0-8"><%= @collage.updated_at.strftime("%B %d, %Y") %> by <%= link_to(@collage.user.display, user_path(@collage.user)) %></p>
@@ -6,15 +6,9 @@
   </div>
   <div class="fontdetails"></div>
 	<div class="article">
-  <% if @collage.annotator_version == 1 -%>
-	<% cache("collage-#{@collage.id}-editable-content") do %>
-	<%= raw @collage.editable_content %>
-	<% end -%>
-  <% else -%>
-	<% cache("collage-#{@collage.id}-editable-content-v2") do %>
+	<% cache("#{@collage.annotatable_type}-#{@collage.annotatable_id}-collaged-editable-content-v2", :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
 	<%= raw @collage.editable_content_v2 %>
 	<% end -%>
-  <% end -%>
 	</div>
 </div>
 

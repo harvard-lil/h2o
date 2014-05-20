@@ -1,8 +1,8 @@
 <div style="width: 380px; float: left;">
   <div id="error_block" style="display:none;" class="error"></div>
   <h3 id="generic_title"><%= (@collage.new_record?) ? 'Add a New Collage' : "Edit \"#{@collage.display_name}\"" %></h3>
-  <% semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
-    <% form.inputs do %>
+  <%= semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
+    <%= form.inputs do %>
       <%= form.input :name %>
       <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
       <%= form.input :description,
@@ -19,6 +19,7 @@
         :required => false
 	    %>
       <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
+      <%= render :partial => 'shared/captcha', :locals => { :single_resource => @collage } %>
       <% if @collage.new_record? -%>
         <%= form.input :annotatable_type,
           :as => :hidden,
@@ -32,12 +33,5 @@
       <% end %>
     <% end %>
   <% end %>
-</div>
-
-<div style="width: 380px; float: right;padding-left:50px;">
-  <h3>Preview</h3>
-  <div id="preview-container">
-    <div id="collage_preview" class="textile_preview"><%= (@collage.description.nil?) ? '' : Collage.format_content(@collage.description) %></div> 
-  </div>
 </div>
 <div class="clear"></div>

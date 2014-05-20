@@ -1,9 +1,0 @@
-<% unless captcha_passed? %>
-  <%= hidden_field_tag :captcha_id, @captcha.id %>
-  <li class="string required" id="captcha_label">
-    <label for="captcha">Captcha<abbr title="required">*</abbr></label>
-    <input id="captcha" maxlength="255" name="captcha_answer" size="50" type="text" />
-    <p class="inline-hints"><%= @captcha.question %></p>
-    <p class="inline-errors"><%= flash[:error] %></p>
-  </li>
-<% end %>

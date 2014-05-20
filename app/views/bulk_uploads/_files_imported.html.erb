@@ -4,17 +4,18 @@
   <tr>
     <td>
       <%= import.dropbox_filepath.gsub("/", "").ljust(150) %>
-    </td> 
+    </td>
+    <% if import.created_object.present? -%>
     <td>
-        <%= link_to import.short_name, case_path(import.created_object) %>
+      <%= link_to import.short_name, case_path(import.created_object) %>
     </td>
     <td>
-        <%= import.active? ? "active" : "not active" %>
+      <%= import.active ? "active" : "not active" %>
     </td>
     <td>
-      Edit
-      <%= link_to "#{import.short_name}", edit_case_path(import.created_object) %>
+      <%= link_to "Edit #{import.short_name}", edit_case_path(import.created_object) %>
     </td>
+     <% end -%>
   </tr>
   <% end %>
   </table>

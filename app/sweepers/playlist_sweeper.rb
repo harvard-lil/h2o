@@ -9,9 +9,9 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
 
       return if creation || record.changed.empty?
   
-      expire_fragment "playlist-list-object-#{record.id}"
-      expire_page :controller => :playlists, :action => :show, :id => record.id
-      expire_page :controller => :playlists, :action => :export, :id => record.id
+      ActionController::Base.new.expire_fragment "playlist-list-object-#{record.id}"
+      ActionController::Base.expire_page "/playlists/#{record.id}.html"
+      ActionController::Base.expire_page "/playlists/#{record.id}/export.html"
       Rails.cache.delete("playlist-wordcount-#{record.id}")
   
       record.ancestor_ids.each do |parent_id|
@@ -23,14 +23,13 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
         Rails.cache.delete("playlist-wordcount-#{p}")
         Rails.cache.delete("playlist-barcode-#{p}")
         Rails.cache.delete("views/playlist-barcode-html-#{p}")
-        expire_page :controller => :playlists, :action => :show, :id => p
-        expire_page :controller => :playlists, :action => :export, :id => p
+        ActionController::Base.expire_page "/playlists/#{p}.html"
+        ActionController::Base.expire_page "/playlists/#{p}/export.html"
       end
 
       if record.changed.include?("public")
-        #TODO: Move this into SweeperHelper, but right now doesn't call
         [:playlists, :collages, :cases].each do |type|
-          record.user.send(type).each { |i| expire_page :controller => type, :action => :show, :id => i.id }
+          record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
         Rails.cache.delete("user-barcode-#{record.user_id}")
       end
@@ -42,12 +41,12 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   def playlist_clear_nonsiblings(id)
     record = Playlist.find(params[:id])
 
-    expire_page :controller => :playlists, :action => :show, :id => record.id
-    expire_page :controller => :playlists, :action => :export, :id => record.id
+    ActionController::Base.expire_page "/playlists/#{record.id}.html"
+    ActionController::Base.expire_page "/playlists/#{record.id}/export.html"
 
     record.relation_ids.each do |p|
-      expire_page :controller => :playlists, :action => :show, :id => p
-      expire_page :controller => :playlists, :action => :export, :id => p
+      ActionController::Base.expire_page "/playlists/#{p}.html"
+      ActionController::Base.expire_page "/playlists/#{p}/export.html"
     end
   end
 

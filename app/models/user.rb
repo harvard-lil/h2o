@@ -1,36 +1,15 @@
-# == Schema Information
-# Schema version: 20090828145656
-#
-# Table name: users
-#
-#  id                :integer(4)      not null, primary key
-#  created_at        :datetime
-#  updated_at        :datetime
-#  login             :string(255)     not null
-#  crypted_password  :string(255)     not null
-#  password_salt     :string(255)     not null
-#  persistence_token :string(255)     not null
-#  login_count       :integer(4)      default(0), not null
-#  last_request_at   :datetime
-#  last_login_at     :datetime
-#  current_login_at  :datetime
-#  last_login_ip     :string(255)
-#  current_login_ip  :string(255)
-#
-
 class User < ActiveRecord::Base
-  include StandardModelExtensions::InstanceMethods
-  include ActionController::UrlWriter
-  include KarmaRounding
+  include StandardModelExtensions
+  include Rails.application.routes.url_helpers
+  include CaptchaExtensions
 
-  #acts_as_voter
-  acts_as_authentic
-  acts_as_authorization_subject
+  acts_as_authentic do |c|
+    c.crypto_provider = Authlogic::CryptoProviders::Sha512
+  end
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
   has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
-  has_many :rotisserie_assignments
   has_many :permission_assignments, :dependent => :destroy
   has_many :cases
   has_many :text_blocks
@@ -43,7 +22,7 @@ class User < ActiveRecord::Base
 
   attr_accessor :terms
 
-  validates_format_of_email :email_address, :allow_blank => true
+  validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
 
@@ -117,6 +96,14 @@ class User < ActiveRecord::Base
     true
   end
 
+  def has_role?(role_name)
+    if role_name == :case_admin
+      self.roles.detect { |r| [:case_admin, :superadmin].include?(r.name.to_sym) }.present?
+    else
+      self.roles.detect { |r| r.name == role_name.to_s }.present?
+    end
+  end
+
   def public
     true
   end
@@ -149,17 +136,17 @@ class User < ActiveRecord::Base
   end
 
   def pending_cases
-    self.is_case_admin ? Case.find_all_by_active(false) : Case.find_all_by_user_id(self.id, :order => :updated_at)
+    self.has_role?(:case_admin) ? Case.where(active: false) : Case.where(user_id: self.id).order(:updated_at)
   end
 
   def content_errors
-    self.is_admin ? Defect.all : []
+    self.has_role?(:superadmin) ? Defect.all : []
   end
 
   def bookmarks
     if self.bookmark_id
-      Rails.cache.fetch("user-bookmarks-#{self.id}") do
-        Playlist.find(self.bookmark_id, :include => :playlist_items).playlist_items
+      Rails.cache.fetch("user-bookmarks-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
+        Playlist.where(id: self.bookmark_id).includes(:playlist_items).first.playlist_items
       end
     else
       []
@@ -167,48 +154,13 @@ class User < ActiveRecord::Base
   end
 
   def bookmarks_map
-    Rails.cache.fetch("user-bookmarks-map-#{self.id}") do
+    Rails.cache.fetch("user-bookmarks-map-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
     end
   end
 
-  def get_current_assignments(rotisserie_discussion = nil)
-    assignments_array = Array.new()
-
-    if rotisserie_discussion.nil?
-      rotisserie_assignments = self.assignments
-    else
-      rotisserie_assignments = RotisserieAssignment.find(:all, :conditions => {:user_id =>  self.id, :round => rotisserie_discussion.current_round, :rotisserie_discussion_id => rotisserie_discussion.id })
-    end
-
-    rotisserie_assignments.each do |assignment|
-        if !assignment.responded? && assignment.open?
-          assignments_array << assignment
-        end
-    end
-
-    return assignments_array
-  end
-
-  def is_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
-  end
-  def is_case_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['case_admin','superadmin']}).length > 0
-  end
-  def is_text_block_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
-  end
-  def is_media_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
-  end
-  def is_collage_admin
-    self.roles.find(:all, :conditions => {:authorizable_type => nil, :name => ['superadmin']}).length > 0
-  end
-
   def playlists_by_permission(permission_key)
-    # TODO: Add caching, caching invalidation
-    permission = Permission.find_by_key(permission_key)
+    permission = Permission.where(key: permission_key).first
     return [] if permission.nil?
     self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.playlists if pa.permission == permission; arr }.flatten.uniq
   end
@@ -219,8 +171,7 @@ class User < ActiveRecord::Base
   end
 
   def collages_by_permission(permission_key)
-    # TODO: Add caching, caching invalidation
-    permission = Permission.find_by_key(permission_key)
+    permission = Permission.where(key: permission_key).first
     return [] if permission.nil?
     self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.collages if pa.permission == permission; arr }.flatten.uniq
   end
@@ -232,7 +183,7 @@ class User < ActiveRecord::Base
 
   def deliver_password_reset_instructions!
     reset_perishable_token!
-    Notifier.deliver_password_reset_instructions(self)
+    Notifier.password_reset_instructions(self).deliver
   end
 
   def default_font_size
@@ -252,7 +203,7 @@ class User < ActiveRecord::Base
   end
 
   def barcode
-    Rails.cache.fetch("user-barcode-#{self.id}") do
+    Rails.cache.fetch("user-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = []
 
       item_types = ["collages", "playlists", "medias", "text_blocks"]
@@ -270,7 +221,7 @@ class User < ActiveRecord::Base
           barcode_elements << { :type => created_type,
                                 :date => item.created_at,
                                 :title => "#{item.class} created: #{item.name}",
-                                :link => self.send("#{item.class.to_s.tableize.singularize}_path", item.id) }
+                                :link => self.send(item.is_a?(Media) ? "medias_path" : "#{item.class.to_s.tableize.singularize}_path", item) }
         end
 
         # Base Collaged
@@ -282,14 +233,14 @@ class User < ActiveRecord::Base
               barcode_elements << { :type => collaged_type,
                                     :date => collage.created_at,
                                     :title => "#{item.class} #{item.name} collaged to #{collage.name}",
-                                    :link => collage_path(collage.id) }
+                                    :link => collage_path(collage) }
 
             end
           end
         end
 
         # Bookmarked, or Incorporated
-        incorporated_items = PlaylistItem.all(:conditions => { :actual_object_id => public_items.map(&:id), :actual_object_type => type_title })
+        incorporated_items = PlaylistItem.where(actual_object_id: public_items.map(&:id), actual_object_type: type_title)
         incorporated_items.each do |ii|
           next if ii.playlist.nil?
           playlist = ii.playlist
@@ -303,7 +254,7 @@ class User < ActiveRecord::Base
             barcode_elements << { :type => "user_#{single_type}_added",
                                   :date => ii.created_at,
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
-                                  :link => playlist_path(playlist.id) }
+                                  :link => playlist_path(playlist) }
           end
         end
 
@@ -315,7 +266,7 @@ class User < ActiveRecord::Base
               barcode_elements << { :type => "user_#{single_type}_remix",
                                     :date => child.created_at,
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                    :link => self.send("#{single_type}_path", child.id) }
+                                    :link => self.send("#{single_type}_path", child) }
             end
           end
         end
@@ -327,7 +278,7 @@ class User < ActiveRecord::Base
           barcode_elements << { :type => "user_default_remix",
                                 :date => child.created_at,
                                 :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                :link => default_path(child.id) }
+                                :link => default_path(child) }
         end
       end
 
@@ -341,10 +292,14 @@ class User < ActiveRecord::Base
   end
 
   def private_playlists_by_permission
-    p = Permission.find_by_key("view_private")
+    p = Permission.where(key: "view_private").first
     pas = self.permission_assignments.select { |pa| pa.permission_id == p.id }
     playlists = pas.collect { |pa| pa.user_collection.playlists }.flatten.uniq
     playlists.select { |playlist| !playlist.public }
+  end
+
+  def has_dropbox_token?
+    File.exists?(dropbox_access_token_file_path)
   end
 
   def dropbox_access_token_file_path
@@ -372,5 +327,4 @@ class User < ActiveRecord::Base
   def write_token_to_new_file(token)
     File.open(dropbox_access_token_file_path, 'w') {|f| f.write(token) }
   end
-
 end

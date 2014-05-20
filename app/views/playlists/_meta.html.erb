@@ -7,7 +7,7 @@
 <p>
   <label>Tags:</label>
   <% @playlist.tags.each do |tag| -%>
-  <%= link_to tag.name, playlist_tag_path(CGI.escape(tag.name)) %>
+  <%= link_to tag.name, tag_path("playlists", CGI.escape(tag.name)) %>
   <% end -%>
 </p>
 <% end -%>

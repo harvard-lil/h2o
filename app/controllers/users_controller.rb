@@ -1,10 +1,6 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
 
-  before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => [:edit, :update, :bookmark_item, :delete_bookmark_item, :require_user]
-  before_filter :create_brain_buster, :only => [:new]
-  before_filter :validate_brain_buster, :only => [:create]
   before_filter :display_first_time_canvas_notice, :only => [:new, :create]
 
   def new
@@ -15,55 +11,47 @@ class UsersController < ApplicationController
     common_index User
   end
 
-  def render_or_redirect_for_captcha_failure
-    @user = User.new(params[:user])
-    @user.valid?
-    @user.errors.add_to_base("Your captcha answer failed - please try again.")
-    create_brain_buster
-    render :action => "new"
-  end
-
   def create
-    @user = User.new(params[:user])
+    @user = User.new(users_params)
+    verify_captcha(@user)
 
-    @user.save do |result|
-      if result
-        flash[:notice] = "Account registered!"
-        if first_time_canvas_login?
-          save_canvas_id_to_user(@user)
-          flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
-        end
-        redirect_back_or_default "/"
-      else
-        render :action => :new
+    if @user.save
+      flash[:notice] = "Account registered!"
+      if first_time_canvas_login?
+        save_canvas_id_to_user(@user)
+        flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
       end
+      redirect_back_or_default "/"
+    else
+      render :action => :new
     end
   end
 
+  def request_anon
+    @user = User.new
+  end
+
   def create_anon
-    password = ActiveSupport::SecureRandom.random_bytes(10)
-    user = User.new(:login => "anon_#{ActiveSupport::SecureRandom.hex(13)}",
+    if request.get?
+      @user = User.new
+      return
+    end
+
+    password = ::SecureRandom.random_bytes(10)
+    user_key = ::SecureRandom.hex(13)
+    @user = User.new(:login => "anon_#{user_key}",
+      :email_address => "anon_#{user_key}@dummy.com",
       :password => password,
       :password_confirmation => password)
-    user.has_role! :nonauthenticated
-    user.save do |result|
-      if result
-        apply_user_preferences(user, true)
-        cookies[:anonymous_user] = true
-        cookies[:display_name] = "ANONYMOUS"
-        if request.xhr?
-          #text doesn't matter, it's the return code that does
-          render :text => '/'
-          return
-        else
-          flash[:notice] = "Account registered!"
-          redirect_back_or_default "/"
-          return
-        end
-      else
-        render :action => :create_anon, :status => :unprocessable_entity
-        return
-      end
+    @user.roles << Role.where(name: "nonauthenticated").first
+    verify_captcha(@user)
+
+    if @user.save
+      apply_user_preferences(@user, true)
+      cookies[:anonymous_user] = true
+      cookies[:display_name] = "ANONYMOUS"
+      redirect_back_or_default "/"
+      return
     end
 
     redirect_back_or_default "/"
@@ -74,7 +62,7 @@ class UsersController < ApplicationController
     set_sort_lists
     params[:page] ||= 1
 
-    @user = params[:id] == 'create_anon' ? @current_user : User.find_by_id(params[:id])
+    @user = params[:id] == 'create_anon' ? @current_user : User.where(id: params[:id]).first
     if @user.nil?
       redirect_to root_url, :status => 301
       return
@@ -146,7 +134,7 @@ class UsersController < ApplicationController
           keywords params[:keywords]
         end
 
-        #TODO: This is buggy, limit this filter to type playlist
+        #FIXME: This is buggy, limit this filter to type playlist
         without :id, bookmarks_id
 
         order_by params[:sort].to_sym, params[:order].to_sym
@@ -195,19 +183,16 @@ class UsersController < ApplicationController
 
         @types[:private_playlists_by_permission][:display] = true
         @types[:pending_cases][:display] = true
-	      if @user.is_case_admin
+	      if @user.has_role?(:case_admin)
 	        @types[:case_requests][:display] = true
 	        @my_belongings[:case_requests] = current_user.case_requests
 	      end
-	      if @user.is_admin
+	      if @user.has_role?(:superadmin)
 	        @types[:content_errors][:display] = true
 	      end
 	    else
 	      @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
 	    end
-
-	    add_javascripts 'user_dashboard'
-	    add_stylesheets 'user_dashboard'
 
 	    @types.each do |type, v|
         next if !v[:display]
@@ -216,7 +201,7 @@ class UsersController < ApplicationController
 	      if(params[:order] == 'desc')
 	        p = p.reverse
 	      end
-	      v[:results] = p.paginate(:page => params[:page], :per_page => 10)
+        v[:results] = p.paginate(:page => params[:page], :per_page => 10)
 	    end
       render 'show'
     end
@@ -227,19 +212,10 @@ class UsersController < ApplicationController
     @user = @current_user
   end
 
-  def has_voted_for
-    votes = current_user.votes.find(:all, :conditions => ['voteable_type = ?',params[:id]]).collect{|v|v.voteable_id}
-    hash = {}
-    votes.each{|v| hash[v] = true}
-    render :json => hash
-  rescue Exception => e
-    render :json => {}
-  end
-
   def update
     @user = @current_user # makes our views "cleaner" and more consistent
 
-    if @user.update_attributes(params[:user])
+    if @user.update_attributes(users_params)
       cookies[:show_annotations] = @user.default_show_annotations
       flash[:notice] = "Account updated!"
       redirect_to user_path(@user)
@@ -248,15 +224,13 @@ class UsersController < ApplicationController
     end
   end
 
-  # post delete_bookmark_item/:type/:id
   def delete_bookmark_item
     if current_user.bookmark_id.nil?
       render :json => { :success => false, :message => "Error." }
       return
     end
 
-    playlist_item_to_delete = PlaylistItem.find_by_playlist_id_and_actual_object_type_and_actual_object_id(current_user.bookmark_id, params[:type].classify, params[:id].to_i)
-
+    playlist_item_to_delete = PlaylistItem.where(playlist_id: current_user.bookmark_id, actual_object_type: params[:type].classify, actual_object_id: params[:id].to_i).first
     if playlist_item_to_delete && playlist_item_to_delete.destroy
       render :json => { :success => true }
     else
@@ -264,14 +238,13 @@ class UsersController < ApplicationController
     end
   end
 
-  # post bookmark_item/:type/:id
   def bookmark_item
     if current_user.bookmark_id.nil?
       playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false, :user_id => current_user.id })
       playlist.save
       current_user.update_attribute(:bookmark_id, playlist.id)
     else
-      playlist = Playlist.find(current_user.bookmark_id)
+      playlist = Playlist.where(id: current_user.bookmark_id).first
     end
 
     begin
@@ -282,7 +255,7 @@ class UsersController < ApplicationController
       if playlist.contains_item?("#{klass.to_s}#{params[:id]}")
         render :json => { :already_bookmarked => true, :user_id => current_user.id }
       else
-        actual_object = klass.find(params[:id])
+        actual_object = klass.where(id: params[:id]).first
         playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
           :actual_object_type => actual_object.class.to_s,
           :actual_object_id => actual_object.id,
@@ -300,14 +273,14 @@ class UsersController < ApplicationController
 
   def user_lookup
     @users = []
-    @users << User.find_by_email_address(params[:lookup])
-    @users << User.find_by_login(params[:lookup])
+    @users << User.where(email_address: params[:lookup]).first
+    @users << User.where(login: params[:lookup])
     @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } }
     render :json => { :items => @users }
   end
 
   def playlists
-    render :json => { :playlists => User.find(params[:id]).playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) }
+    render :json => { :playlists => User.where(id: params[:id]).first.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) }
   end
 
   def disconnect_canvas
@@ -324,4 +297,11 @@ class UsersController < ApplicationController
     redirect_to edit_user_path(@user)
   end
 
+  private
+  def users_params
+    params.require(:user).permit(:id, :name, :login, :password, :password_confirmation, 
+                                 :email_address, :tz_name, :attribution, :title, 
+                                 :url, :affiliation, :description, :tab_open_new_items, 
+                                 :default_show_annotations, :default_font_size, :terms)
+  end
 end

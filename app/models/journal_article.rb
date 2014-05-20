@@ -1,13 +1,6 @@
 class JournalArticle < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
-  extend TaggingExtensions::ClassMethods
-
-  include H2oModelExtensions
   include AnnotatableExtensions
-  include AuthUtilities
-  include Authorship
 
-  acts_as_authorization_object
   acts_as_taggable_on :tags
 
   has_and_belongs_to_many :journal_article_types

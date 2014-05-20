@@ -1,17 +1,12 @@
 class TextBlock < ActiveRecord::Base
-  extend RedclothExtensions::ClassMethods
-
-  include H2oModelExtensions
-  include StandardModelExtensions::InstanceMethods
+  include StandardModelExtensions
   include AnnotatableExtensions
-  include AuthUtilities
-  include Authorship
   include MetadataExtensions
-  include KarmaRounding
-  include ActionController::UrlWriter
+  include Rails.application.routes.url_helpers
+  include CaptchaExtensions
+  include FormattingExtensions
 
   MIME_TYPES = {
-    'text/plain' => 'Plain text',
     'text/html' => 'HTML formatted text'
   }
   RATINGS = {
@@ -20,7 +15,6 @@ class TextBlock < ActiveRecord::Base
     :add => 3
   }
 
-  acts_as_authorization_object
   acts_as_taggable_on :tags
 
   has_many :annotations, :through => :collages
@@ -29,6 +23,7 @@ class TextBlock < ActiveRecord::Base
   has_many :playlist_items, :as => :actual_object, :dependent => :destroy
   belongs_to :user
 
+  accepts_nested_attributes_for :metadatum
   validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
 
   def self.tag_list
@@ -37,14 +32,6 @@ class TextBlock < ActiveRecord::Base
       WHERE taggable_type IN ('TextBlock', 'JournalArticle')
       GROUP BY ts.tag_id, t.name
       ORDER BY COUNT(*) DESC LIMIT 25")
-  end
-
-  def self.select_options
-    self.find(:all).collect{|c|[c.to_s,c.id]}
-  end
-
-  def self.mime_type_select_options
-    MIME_TYPES.keys.collect{|f|[MIME_TYPES[f],f]}
   end
 
   def display_name
@@ -81,17 +68,19 @@ class TextBlock < ActiveRecord::Base
     string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
+
+    time :created_at
     time :updated_at
   end
 
   def barcode
-    Rails.cache.fetch("textblock-barcode-#{self.id}") do
+    Rails.cache.fetch("textblock-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.collages.each do |collage|
         barcode_elements << { :type => "collaged",
                               :date => collage.created_at,
                               :title => "Collaged to #{collage.name}",
-                              :link => collage_path(collage.id) }
+                              :link => collage_path(collage) }
       end
 
       value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }

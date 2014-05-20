@@ -30,7 +30,7 @@
     </h3>
   </div>
   <div id="description" class="scale1-1">
-    <%= Playlist.format_content(@playlist.description) %>
+    <%= raw Playlist.format_content(@playlist.description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@playlist), :class => "edit-action requires_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE PLAYLIST<span class="icon icon-arrow"></span>'), @playlist, "data-type" => "playlist", "data-id" => @playlist.id, :class => "delete-action requires_edit scale0-8" %>
     <p id="public_private_instruction" class="requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>

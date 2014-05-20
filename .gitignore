@@ -2,7 +2,6 @@
 .DS_Store
 *.swp
 tmp/
-solr/
 locals/
 config/database.yml
 public/stylesheets/all.css
@@ -11,8 +10,13 @@ public/collages/
 public/playlists/
 public/cases/
 public/index.html
+public/index.html.gz
 public/base.html
 public/p/
 log/.nfs*
 log/*
 log/*.log*
+.bundle
+config/newrelic.yml
+solr/pids/
+public/assets/

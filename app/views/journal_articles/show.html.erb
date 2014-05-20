@@ -17,10 +17,10 @@
 		<div class="clear"></div>
 	</hgroup>
 	<div class="details">
-		<% cache "journal_article-#{@journal_article.id}-tags" do -%>
+		<% cache("journal_article-#{@journal_article.id}-tags", :compress => H2O_CACHE_COMPRESSION) do -%>
 		<div class="tags">
 			<% @journal_article.tags.each do |tag| -%>
-			<%= link_to tag.name, text_block_tag_path(CGI.escape(tag.name)) %>
+			<%= link_to tag.name, tag_path("text_blocks", CGI.escape(tag.name)) %>
 			<% end -%>
 		</div>
 		<% end -%>

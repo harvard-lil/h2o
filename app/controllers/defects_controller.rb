@@ -1,9 +1,9 @@
 class DefectsController < ApplicationController
-  
-  before_filter :require_user
+  protect_from_forgery :except => [:destroy]
 
   def create
-    @defect = Defect.new(params[:defect])
+    @defect = Defect.new(defects_params)
+    @defect.user = current_user
 
     if @defect.save
       render :json => { :error => false }
@@ -13,7 +13,12 @@ class DefectsController < ApplicationController
   end
 
   def destroy
-    Defect.find(params[:id]).destroy
+    @defect.destroy
     render :json => {}
+  end
+
+  private
+  def defects_params
+    params.require(:defect).permit(:description, :reportable_id,  :reportable_type)
   end
 end

@@ -1,8 +1,8 @@
   <div class="standard-form">
     <div id="media-error" style="display:none;" class="error"></div>
     <h1 id="generic_title"><%= @media.new_record? ? 'Add a new media' : "Edit \"#{@media.name}\"" %></h1>
-    <% semantic_form_for(@media, :html => {:id => 'media-form'}) do |form| %>
-      <% form.inputs do %>
+    <%= semantic_form_for(@media, :url => (@media.new_record? ? medias_path : media_path(@media)), :html => {:id => 'media-form'}) do |form| %>
+      <%= form.inputs do %>
         <%= form.input :name %>
         <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
         <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 3 } %>
@@ -22,11 +22,11 @@
           :required => false
         %>
         <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
-        <% if @media.new_record? %><%= render :partial => 'shared/forms/captcha' %><% end %>
+        <%= render :partial => 'shared/captcha', :locals => { :single_resource => @media } %>
       <% end %>
 
-      <% form.buttons do %>
-        <%= form.commit_button 'SAVE' %>
+      <%= form.actions do %>
+        <%= form.action :submit, :as => 'button', :label => "Save" %>
       <% end %>
     <% end %>
   </div>

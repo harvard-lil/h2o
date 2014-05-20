@@ -8,10 +8,10 @@
 	</div>
 	<% end -%>
 	<div class="details">
-    <% cache "journal_article-#{journal_article.id}-tags" do %>
+    <% cache("journal_article-#{journal_article.id}-tags", :compress => H2O_CACHE_COMPRESSION) do %>
       <div class="tags">
         <% if journal_article.tag_list.any? -%>
-        | <%= raw journal_article.tag_list.collect { |tag| link_to(tag, journal_article_tag_path(CGI.escape(tag))) }.join(', ') %>
+        | <%= raw journal_article.tag_list.collect { |tag| link_to(tag, tag_path("journal_articles", CGI.escape(tag))) }.join(', ') %>
         <% end -%>
       </div>
     <% end -%>

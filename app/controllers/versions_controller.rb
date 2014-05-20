@@ -1,5 +1,4 @@
 class VersionsController < ApplicationController
-
   def show
     self.send("add_#{base_name}_assets")
     instance_variable_set("@#{base_name}", parent_class.copy_by_id_and_version(params[parent_param_key], params[:id]))

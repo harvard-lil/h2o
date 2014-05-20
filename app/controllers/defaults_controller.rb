@@ -1,20 +1,6 @@
 class DefaultsController < BaseController
   cache_sweeper :default_sweeper
-
-  before_filter :load_single_resource, :only => [:edit, :update, :destroy, :show, :copy]
-  before_filter :require_user, :except => [:index, :embedded_pager, :show]
-  before_filter :create_brain_buster, :only => [:new]
-  before_filter :validate_brain_buster, :only => [:create]
-
-  access_control do
-    allow all, :to => [:index, :show, :embedded_pager, :new, :create]
-
-    allow logged_in, :to => [:copy]
-
-    allow logged_in, :to => [:destroy, :edit, :update], :if => :is_owner?
-
-    allow :superadmin
-  end
+  protect_from_forgery :except => [:destroy]
 
   def show
   end
@@ -41,28 +27,11 @@ class DefaultsController < BaseController
   end
 
   def new
-    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
-    add_stylesheets ['new_default']
-
     @default = Default.new
     @default.build_metadatum
   end
 
-  def render_or_redirect_for_captcha_failure
-    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
-    add_stylesheets ['new_default']
-
-    @default = Default.new(params[:default])
-    @default.build_metadatum
-    @default.valid?
-    create_brain_buster
-    render :action => "new"
-  end
-
   def edit
-    add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
-    add_stylesheets ['new_default']
-
     if @default.metadatum.blank?
       @default.build_metadatum
     end
@@ -73,23 +42,20 @@ class DefaultsController < BaseController
       params[:default][:tag_list] = params[:default][:tag_list].downcase
     end
 
-    @default = Default.new(params[:default])
+    @default = Default.new(defaults_params)
     @default.user = current_user
+    verify_captcha(@default)
 
     if @default.save
       flash[:notice] = 'Link was successfully created.'
       redirect_to edit_default_path(@default)
     else
-      add_javascripts ['visibility_selector', 'h2o_wysiwig', 'switch_editor']
-      add_stylesheets ['new_default']
-
-      @default.build_metadatum
       render :action => "new"
     end
   end
 
   def update
-    if @default.update_attributes(params[:default])
+    if @default.update_attributes(defaults_params)
       flash[:notice] = 'Link was succeessfully updated.'
       redirect_to default_path(@default.id)
     else
@@ -100,5 +66,15 @@ class DefaultsController < BaseController
   def destroy
     @default.destroy
     render :json => {}
+  end
+
+  private
+  def defaults_params
+    params.require(:default).permit(:id, :name, :url, :description, :content_type, :tag_list,
+                                       metadatum_attributes: [:contributor, :coverage, :creator, :date,
+                                                              :description, :format, :identifier, :language,
+                                                              :publisher, :relation, :rights, :source,
+                                                              :subject, :title, :dc_type, :classifiable_type, 
+                                                              :classifiable_id ])
   end
 end

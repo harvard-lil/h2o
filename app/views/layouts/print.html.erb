@@ -6,15 +6,15 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title><%= raw @page_title ? "Printed #{raw @page_title}" : "H2O Classroom Tools" %></title>
 
-    <%= stylesheet_link_tag 'ui', 'icons', 'export', :media => "all" %>
-    <%= stylesheet_link_tag 'print', :media => "print" %>
-    <%= javascript_include_tag 'modernizr.custom.77714' %>
+    <%= stylesheet_link_tag "application-print", media: "all" %>
+    <%= stylesheet_link_tag "print", :media => "print" %>
+    <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
-  <body id="b<%= params[:controller] %>">
+  <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div class="wrapper">
   	<section id="shell">
       <div id="print-options">
@@ -49,13 +49,6 @@
             <option value="none">None</option>
           </select>
         </div>
-        <div id="heatmap_options">
-          <strong>PRINT HEATMAP</strong>
-          <select id="printheatmap">
-            <option value="yes">Yes</option>
-            <option value="no" selected="selected">No</option>
-          </select>
-        </div>
         <% end %>
         <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
         <span id="fontface_span">
@@ -83,16 +76,6 @@
     </section>
     </div>
 
-    <%= javascript_include_tag 'jquery.min.js' %>
-    <% if RAILS_ENV == 'development' -%>
-    <%= javascript_include_tag 'jquery-migrate.js' %>
-    <% else -%>
-    <%= javascript_include_tag 'jquery-migrate.min.js' %>
-    <% end -%>
-    <%= javascript_include_tag 'jquery-ui.min.js' %>
-    <%= javascript_include_tag 'fonts', 'jquery.selectbox-0.6.1.pack', 'jquery.rule.min', 'jquery.xcolor', 'export' %>
-    <% [ @javascripts.blank? ? nil : @javascripts ].compact.flatten.each do |js| %>
-    <%= javascript_include_tag js %>
-    <% end -%>
+    <%= javascript_include_tag "application-print" %>
   </body>
 </html>

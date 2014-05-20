@@ -20,16 +20,11 @@ correct environment
   # Accept the rvmrc prompt, you should now be in the correct version of ruby and 
   # and empty gemset
 
-4) Install rails 2.3.14 and other gems needed to even get rake to work:
-  gem install rails --version=2.3.14 --no-ri --no-rdoc
-  gem install sunspot_rails --version=1.1.0
-  gem install pg
+4) Run bundle install
 
 5) Create the database (postgres only for now). Set up config/database.yml to connect to it.
 
 6) Install the rest of the gems, run migrations:
-  rake gems:install
-  # if you have a pg_dump, restore that into the database referenced in config/database.yml
   rake db:migrate
 
 7) Configure solr in config/sunspot.yml. Start via:

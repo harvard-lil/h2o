@@ -1,17 +1,12 @@
 <div>
   <div id="error_block" style="display:none;" class="error"></div>
   <h3 id="generic_title"><%= (@case_jurisdiction.new_record?) ? 'Create a Case Jurisdiction' : "Edit \"#{@case_jurisdiction.name}\"" %></h3>
-  <% semantic_form_for(@case_jurisdiction, :html => {:id => 'case_jurisdiction-form'}) do |form| %>
-    <% form.inputs do %>
+  <%= semantic_form_for(@case_jurisdiction, :html => {:id => 'case_jurisdiction-form'}) do |form| %>
+    <%= form.inputs do %>
       <%= form.input :name %>
       <%= form.input :abbreviation %>
       <% unless request.xhr? %>
       <%= form.input :content, :as => :text, :required => false %>
-      <% end %>
-    <% end %>
-    <% unless request.xhr? %>
-      <% form.buttons do %>
-        <%= form.commit_button 'SAVE' %>
       <% end %>
     <% end %>
   <% end %>

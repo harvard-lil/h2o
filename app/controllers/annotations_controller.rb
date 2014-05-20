@@ -1,25 +1,6 @@
 class AnnotationsController < BaseController
-
   cache_sweeper :annotation_sweeper
-
-  before_filter :require_user, :except => [:show, :embedded_pager, :choose]
-  before_filter :load_single_resource, :only => [:show, :edit, :update, :destroy, :metadata]
-
-  access_control do
-    allow all, :to => [:show, :metadata, :embedded_pager, :choose]
-    allow :superadmin
-
-    allow logged_in, :to => [:destroy, :edit, :update, :autocomplete_layers], :if => :allow_edit?
-    allow logged_in, :to => [:create, :new]
-
-    allow logged_in, :to => [:destroy, :edit, :update, :create, :new, :autocomplete_layers], :if => :is_owner?
-  end
-
-  def allow_edit?
-    load_single_resource
-
-    current_user.can_permission_collage("edit_annotations", @collage)
-  end
+  protect_from_forgery :except => [:create, :destroy, :update]
 
   def embedded_pager
     super Annotation
@@ -36,12 +17,6 @@ class AnnotationsController < BaseController
     render :xml => @annotation.to_xml(:skip_types => true)
   end
 
-  def autocomplete_layers
-    render :json => Annotation.autocomplete_for(:layers,params[:tag])
-  end
-
-  # GET /annotations/1
-  # GET /annotations/1.xml
   def show
     @color_map = {}
     @annotation.collage.layers.each do |layer|
@@ -54,10 +29,8 @@ class AnnotationsController < BaseController
     @color_list = Collage.color_list
   end
 
-  # GET /annotations/new
-  # GET /annotations/new.xml
   def new
-    @annotation = Annotation.new(:collage_id => params[:collage_id])
+    @annotation.collage_id = params[:collage_id]
     
     @color_map = {}
     @annotation.collage.layers.each do |layer|
@@ -77,7 +50,6 @@ class AnnotationsController < BaseController
     end
   end
 
-  # GET /annotations/1/edit
   def edit
     @color_map = {}
     @annotation.collage.layers.each do |layer|
@@ -87,65 +59,50 @@ class AnnotationsController < BaseController
   end
 
   def create
-    if !params.has_key?(:annotation)
-      range = params[:ranges].first
-      params[:annotation] = {
-        :annotation_start => 0,
-        :annotation_end => 0,
-        :collage_id => params[:collage_id],
-        :xpath_start => range[:start],
-        :xpath_end => range[:end],
-        :start_offset => range[:startOffset],
-        :end_offset => range[:endOffset],
-        :annotation => params[:text],
-        :linked_collage_id => params[:linked_collage_id]
-      }
-      filter_layer_list_v2
-    else
-      filter_layer_list
-    end
+    collage = Collage.where(id: params[:collage_id]).first
 
-    @annotation = Annotation.new(params[:annotation])
+    range = params[:ranges].first
+    params[:annotation] = {
+      :annotation_start => 0,
+      :annotation_end => 0,
+      :collage_id => params[:collage_id],
+      :xpath_start => range[:start],
+      :xpath_end => range[:end],
+      :start_offset => range[:startOffset],
+      :end_offset => range[:endOffset],
+      :annotation => params[:text],
+      :linked_collage_id => params[:linked_collage_id].present? ? params[:linked_collage_id] : nil,
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
+    }
+
+    @annotation = Annotation.new(annotations_params)
     @annotation.user = current_user
-   
-    if params.has_key?(:new_layer_list) && params[:new_layer_list].any? && (params[:new_layer_list].first[:hex] == "" || params[:new_layer_list].first[:layer] == "")
-      render :text => "Please enter a layer name and select a hex.", :status => :unprocessable_entity
-      return
-    end
-
+ 
     if @annotation.save
-      create_color_mappings
-
-      color_map = {}
-      @annotation.collage.layers.each do |layer|
-        map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
-        color_map[layer.id] = map.hex if map
-      end
+      create_color_mappings if params[:layer_hexes].present?
 
       render :json => { :id => @annotation.id,
-                        :annotation => @annotation.to_json(:include => [:layers]), 
-                        :color_map => color_map.to_json, :type => "create",
+                        :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :text => @annotation.annotation,
+                        :linked_collage_id => @annotation.linked_collage_id.present? ? @annotation.linked_collage_id : nil, 
                         :linked_collage_name => @annotation.linked_collage_id.present? ? @annotation.linked_collage.name : nil }
     else
-      render :text => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
+      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
+             :status => :unprocessable_entity
     end
   end
 
   def update
-    if @annotation.collage.annotator_version == 2
-      range = params[:ranges].first
-      params[:annotation] = {
-        :annotation => params[:text] 
-      }
-      filter_layer_list_v2
-    else
-      filter_layer_list
-    end
+    params[:annotation] = {
+      :annotation => params[:text],
+      :linked_collage_id => params[:linked_collage_id].present? ? params[:linked_collage_id] : nil,
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
+    }
 
     current_layers = @annotation.layers
 
-    @annotation.attributes = params[:annotation]
-    if @annotation.save
+    if @annotation.update_attributes(annotations_params)
+
       #Destroys color mappings for deleted layers that are deletable
       @annotation.reload
       updated_layers = @annotation.layers
@@ -156,22 +113,17 @@ class AnnotationsController < BaseController
         end
       end
 
-      create_color_mappings
-
-      color_map = {}
-      @annotation.collage.layers.each do |layer|
-        map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
-        color_map[layer.id] = map.hex if map
-      end
-
-      render :json => { :annotation => @annotation.to_json(:include => [:layers]), :color_map => color_map.to_json, :type => "update" }
+      create_color_mappings if params[:layer_hexes].present?
+      render :json => { :id => @annotation.id,
+                        :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :linked_collage_id => @annotation.linked_collage_id.present? ? @annotation.linked_collage_id : nil, 
+                        :linked_collage_name => @annotation.linked_collage_id.present? ? @annotation.linked_collage.name : nil }
     else
-      render :text => "We couldn't update that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}", :status => :unprocessable_entity
+      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
+             :status => :unprocessable_entity
     end
   end
 
-  # DELETE /annotations/1
-  # DELETE /annotations/1.xml
   def destroy
     deleteable_tags = @annotation.collage.deleteable_tags
     @annotation.layers.each do |layer|
@@ -190,43 +142,17 @@ class AnnotationsController < BaseController
 
   private
 
-  def filter_layer_list
-    layer_list = []
-    if params.has_key?(:new_layer_list)
-      params[:new_layer_list].each do |new_layer|
-        new_layer["layer"].downcase!
-      end
-      layer_list << params[:new_layer_list].map { |c| c["layer"] }
-    end
-    if params.has_key?(:existing_layer_list)
-      layer_list << params[:existing_layer_list]
-    end
-    params[:annotation][:layer_list] = layer_list.join(', ')
-  end
-
-  def filter_layer_list_v2
-    layer_list = []
-    if params.has_key?(:category)
-      params[:category].each do |layer|
-        layer_list << layer.gsub(/^layer-/, '').downcase
-      end
-    end
-    if params.has_key?(:new_layer_list)
-      params[:new_layer_list].each do |new_layer|
-        new_layer["layer"].downcase!
-      end
-      layer_list << params[:new_layer_list].map { |c| c["layer"] }
-    end
-
-    params[:annotation][:layer_list] = layer_list.join(', ')
-  end
-
   def create_color_mappings
-    if params.has_key?(:new_layer_list)
-      params[:new_layer_list].each do |new_layer|
-        tag = @annotation.layers.detect { |l| l.name == new_layer["layer"] }
-        ColorMapping.create(:collage_id => @annotation.collage_id, :tag_id => tag.id, :hex => new_layer["hex"])
-      end
+    params[:layer_hexes].each do |layer|
+      next if !layer["is_new"]
+      tag = @annotation.layers.detect { |l| l.name == layer["layer"] }
+      c = ColorMapping.create(collage_id: @annotation.collage_id, tag_id: tag.id, hex: layer[:hex])
     end
+  end
+
+  private
+  def annotations_params
+    params.require(:annotation).permit(:collage_id, :linked_collage_id, :annotation_start, :annotation_end, :xpath_end,
+                                       :xpath_start, :start_offset, :end_offset, :annotation, :id, :layer_list)
   end
 end
