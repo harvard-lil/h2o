@@ -1,11 +1,14 @@
+Sysadmin:
 * git pull
 * touch tmp/restart.txt
 * rake sunspot:reindex[5,User]
 * rake h2o:clear_static_page_cache
+* remove update_user_karma cron
+* Fine tune bin/cache_garbage_collection and set nightly cronjob to run
+* Verify nightly rake h2o:clear_homepage_cache running
 
-DB updates by Steph:
+Steph:
 * UPDATE collages SET readable_state = NULL (later)
 * UPDATE collages SET words_shown = word_count (later)
 * ALTER TABLE collages ALTER COLUMN annotator_version SET DEFAULT 2 (after upgrade complete)
-
 * Troubleshot no exception emails

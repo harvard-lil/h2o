@@ -1,3 +1,0 @@
-cron updates
-* Remove update_user_karma cron
-* Fine tune bin/cache_garbage_collection and set nightly cronjob to run
