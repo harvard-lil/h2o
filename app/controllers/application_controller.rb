@@ -345,7 +345,7 @@ class ApplicationController < ActionController::Base
   end
 
   def load_single_resource
-    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base'].include?(params[:controller])
+    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base', 'pages'].include?(params[:controller])
 
     if params[:action] == "new"
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize

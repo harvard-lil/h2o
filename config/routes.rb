@@ -16,6 +16,7 @@ H2o::Application.routes.draw do
   get '/delete_bookmark_item/:type/:id' => 'users#delete_bookmark_item', as: :delete_bookmark_item
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
   get '/:klass/tag/:tag' => 'base#tags', as: :tag
+  get '/p/:id' => 'pages#show'
 
   resources :users do
     member do
