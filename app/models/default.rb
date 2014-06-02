@@ -3,6 +3,7 @@ class Default < ActiveRecord::Base
   include AncestryExtensions
   include MetadataExtensions
   include CaptchaExtensions
+  include FormattingExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS = {

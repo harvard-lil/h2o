@@ -46,7 +46,7 @@ class PlaylistPusher
   def push_single_playlist(new_source_playlist_id, recursive_level)
     source_playlist = Playlist.where(id: new_source_playlist_id).first
     created_playlist_ids = execute!(self.build_playlist_sql(source_playlist))
-    new_playlists = Playlist.where(id: created_playlist_ids).first
+    new_playlists = Playlist.where(id: created_playlist_ids)
     self.generate_ownership_sql!(new_playlists)
     self.generate_public_private_sql!(new_playlists)
     self.barcode_clear_users << source_playlist.user if source_playlist.user.present?

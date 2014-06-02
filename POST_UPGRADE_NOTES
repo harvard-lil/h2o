@@ -1,5 +1,7 @@
 Sysadmin:
 * git pull
+* bundle install (need to install daemons gem for delayed_job)
+* bundle exec ./bin/delayed_job restart
 * touch tmp/restart.txt
 * rake sunspot:reindex[5,User]
 * rake h2o:clear_static_page_cache
@@ -10,5 +12,4 @@ Sysadmin:
 Steph:
 * UPDATE collages SET readable_state = NULL (later)
 * UPDATE collages SET words_shown = word_count (later)
-* ALTER TABLE collages ALTER COLUMN annotator_version SET DEFAULT 2 (after upgrade complete)
 * Troubleshot no exception emails

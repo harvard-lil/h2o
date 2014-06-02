@@ -1,4 +1,6 @@
 class Annotation < ActiveRecord::Base
+  include FormattingExtensions
+
   acts_as_taggable_on :layers
   belongs_to :linked_collage, :class_name => "Collage", :foreign_key => "linked_collage_id"
 
