@@ -79,4 +79,11 @@ H2o::Application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
+
+  config.middleware.use ExceptionNotification::Rack,
+    :email => {
+      :email_prefix => "[H2O] ",
+      :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
+      :exception_recipients => %w{steph@endpoint.com} #later add h2o@cyber.law.harvard.edu tim@endpoint.com
+    }
 end
