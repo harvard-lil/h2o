@@ -78,7 +78,7 @@ class User < ActiveRecord::Base
 
   MANAGEMENT_ROLES = ["owner", "editor", "user"]
 
-  searchable do
+  searchable :if => :not_anonymous do
     text :login
     text :attribution
     text :affiliation
@@ -90,6 +90,10 @@ class User < ActiveRecord::Base
 
   def anonymous
     self.login.match(/^anon_/).present?
+  end
+
+  def not_anonymous
+    !self.anonymous
   end
 
   def active
