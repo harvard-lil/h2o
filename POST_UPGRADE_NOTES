@@ -1,15 +1,3 @@
-Sysadmin:
-* git pull
-* bundle install (need to install daemons gem for delayed_job)
-* bundle exec ./bin/delayed_job restart
-* touch tmp/restart.txt
-* rake sunspot:reindex[5,User]
-* rake h2o:clear_static_page_cache
-* remove update_user_karma cron
-* Fine tune bin/cache_garbage_collection and set nightly cronjob to run
-* Verify nightly rake h2o:clear_homepage_cache running
-
-Steph:
-* UPDATE collages SET readable_state = NULL (later)
-* UPDATE collages SET words_shown = word_count (later)
-* Troubleshot no exception emails
+* Move tmp/cache/* contents to one directory further
+* Finalize Rails garbage collection (2 weeks expired)
+* Investigate workling, starling running

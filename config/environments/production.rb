@@ -76,6 +76,7 @@ H2o::Application.configure do
   # config.autoflush_log = false
 
   config.action_mailer.default_url_options = { :host => 'h2o.law.harvard.edu' }
+  config.action_mailer.smtp_settings = { :enable_starttls_auto => false }
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
