@@ -7,7 +7,7 @@ class PagesController < ApplicationController
       @page_title = params[:id].capitalize + " | H2O Classroom Tools" 
       render params[:id]
     else
-      redirect_to "/", :status => 301
+      redirect_to root_url, :status => 301
     end
   end
 end

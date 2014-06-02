@@ -2,7 +2,7 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   
   protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy]
-  caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').public?}
+  caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').present? && c.instance_variable_get('@collage').public?}
 
   def embedded_pager
     super Collage
@@ -74,6 +74,11 @@ class CollagesController < BaseController
   end
 
   def show
+    if @collage.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     @page_cache = true if @collage.present? && @collage.public?
     @editability_path = access_level_collage_path(@collage)
 

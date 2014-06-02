@@ -5,7 +5,7 @@ class PlaylistsController < BaseController
   protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy]
   
   cache_sweeper :playlist_sweeper
-  caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').public? }
+  caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').present? && c.instance_variable_get('@playlist').public? }
 
   def embedded_pager
     super Playlist
@@ -55,6 +55,11 @@ class PlaylistsController < BaseController
 
   # GET /playlists/1
   def show
+    if @playlist.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     @page_cache = true if @playlist.public?
     @editability_path = access_level_playlist_path(@playlist)
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
