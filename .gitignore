@@ -20,3 +20,4 @@ log/*.log*
 config/newrelic.yml
 solr/pids/
 public/assets/
+solr/data/
