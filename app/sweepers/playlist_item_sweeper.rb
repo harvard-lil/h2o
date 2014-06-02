@@ -28,6 +28,7 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    clear_playlists([record])
     actual_object_clear(record.actual_object)
   end
 end
