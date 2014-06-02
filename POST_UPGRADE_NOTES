@@ -1,0 +1,9 @@
+* Run rake h2o:clear_static_page_cache
+* Exclude anon* users from search index.
+* Troubleshoot playlist caching issues
+* Troubleshot no exception emails
+
+Other Db updates
+* UPDATE collages SET readable_state = NULL
+* UPDATE collages SET words_shown = word_count
+* ALTER TABLE collages ALTER COLUMN annotator_version SET DEFAULT 2

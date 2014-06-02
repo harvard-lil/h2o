@@ -38,6 +38,7 @@ namespace :h2o do
     Rake::Task["h2o:clear_ui_cache"].execute
     Rake::Task["h2o:clear_page_cache"].execute
     Rake::Task["h2o:clear_homepage_cache"].execute
+    Rake::Task["h2o:clear_static_page_cache"].execute
   end
 
   desc 'Send cases list email'

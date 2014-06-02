@@ -1,14 +1,3 @@
-* Install Ruby 2.1, bundler
-* git pull
-* bundle install 
-* rake db:migrate
-* rake assets:precompile
-* Restart app 
-* Restart solr, potential for reindexing solr
-* rake h2o:clear_all_cache
-* Run rake h2o:upgrade_collages => will take a while
-* Clear collages cache (rm -rf public/collages/*)
-
 cron updates
 * Remove update_user_karma cron
 * Fine tune bin/cache_garbage_collection and set nightly cronjob to run
