@@ -1,9 +1,11 @@
-* Run rake h2o:clear_static_page_cache
-* Exclude anon* users from search index.
-* Troubleshoot playlist caching issues
-* Troubleshot no exception emails
+* git pull
+* touch tmp/restart.txt
+* rake sunspot:reindex[5,User]
+* rake h2o:clear_static_page_cache
 
-Other Db updates
-* UPDATE collages SET readable_state = NULL
-* UPDATE collages SET words_shown = word_count
-* ALTER TABLE collages ALTER COLUMN annotator_version SET DEFAULT 2
+DB updates by Steph:
+* UPDATE collages SET readable_state = NULL (later)
+* UPDATE collages SET words_shown = word_count (later)
+* ALTER TABLE collages ALTER COLUMN annotator_version SET DEFAULT 2 (after upgrade complete)
+
+* Troubleshot no exception emails
