@@ -1,3 +1,2 @@
 * Move tmp/cache/* contents to one directory further
 * Finalize Rails garbage collection (2 weeks expired)
-* Investigate workling, starling running

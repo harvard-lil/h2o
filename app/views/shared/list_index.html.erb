@@ -13,7 +13,7 @@
 		<h2>
 		<% if params[:tag] -%>
 		<%= @label %> tagged: <%= CGI.unescape(params[:tag]) %> (<%= pluralize @collection.results.total_entries, @label %> Total)
-		<%= link_to "CLEAR TAG", self.send("#{@model.to_s.tableize}_path") %>
+		<%= link_to "CLEAR TAG", self.send("#{@model == Media ? "medias" : @model.to_s.tableize}_path") %>
 		<% elsif params[:keywords] -%>
 		Search Results: <b><%= params[:keywords] %></b>
 		<p>

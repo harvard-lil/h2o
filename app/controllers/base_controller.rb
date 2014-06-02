@@ -79,8 +79,8 @@ class BaseController < ApplicationController
   end
 
   def tags
-    if ["collages", "text_blocks", "journal_articles", "playlists", "medias"].include?(params[:klass])
-      common_index params[:klass].singularize.capitalize.constantize
+    if ["collages", "text_blocks", "playlists", "medias"].include?(params[:klass])
+      common_index params[:klass].singularize.camelize.constantize
     else
       redirect_to root_url, :status => 301
     end

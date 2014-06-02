@@ -3,6 +3,10 @@ class TextBlocksController < BaseController
   protect_from_forgery :except => [:destroy]
 
   def show
+    if @text_block.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
   end
 
   def export

@@ -52,6 +52,11 @@ class MediasController < BaseController
   end
 
   def show
+    if @media.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     set_belongings(Media)
     @type_label = @media.media_type.label
   end
