@@ -11,30 +11,30 @@ namespace :h2o do
 
   desc 'Clear Static Page Caches'
   task(:clear_static_page_cache => :environment) do
-    system("rm -rf #{RAILS_ROOT}/public/p/*")
+    system("rm -rf #{Rails.root}/public/p/*")
   end
   
   desc 'Clear Page Caches'
   task(:clear_page_cache => :environment) do
-    system("rm -rf #{RAILS_ROOT}/public/collages/*")
-    system("rm -rf #{RAILS_ROOT}/public/playlists/*")
-    system("rm -rf #{RAILS_ROOT}/public/cases/*")
+    system("rm -rf #{Rails.root}/public/collages/*")
+    system("rm -rf #{Rails.root}/public/playlists/*")
+    system("rm -rf #{Rails.root}/public/cases/*")
   end
   
   desc 'Clear UI Caches'
   task(:clear_ui_cache => :environment) do
-    system("rm -rf #{RAILS_ROOT}/public/stylesheets/all.css")
-    system("rm -rf #{RAILS_ROOT}/public/javascripts/all.js")
+    system("rm -rf #{Rails.root}/public/stylesheets/all.css")
+    system("rm -rf #{Rails.root}/public/javascripts/all.js")
   end
 
   desc 'Clear Homepage Cache'
   task(:clear_homepage_cache => :environment) do
-    system("rm -rf #{RAILS_ROOT}/public/index.html")
+    system("rm -rf #{Rails.root}/public/index.html")
   end
   
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
-    system("rm -rf #{RAILS_ROOT}/tmp/cache/*")
+    system("rm -rf #{Rails.root}/tmp/cache/*")
     Rake::Task["h2o:clear_ui_cache"].execute
     Rake::Task["h2o:clear_page_cache"].execute
     Rake::Task["h2o:clear_homepage_cache"].execute
