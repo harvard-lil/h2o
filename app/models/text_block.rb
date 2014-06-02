@@ -56,7 +56,7 @@ class TextBlock < ActiveRecord::Base
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
-    text :description
+    text :clean_description
     boolean :active
     boolean :public
     integer :karma
@@ -71,6 +71,10 @@ class TextBlock < ActiveRecord::Base
 
     time :created_at
     time :updated_at
+  end
+
+  def clean_description
+    self.description.gsub!(/\p{Cc}/, "")
   end
 
   def barcode

@@ -51,7 +51,7 @@ class Case < ActiveRecord::Base
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
-    text :content
+    text :clean_content
     time :decision_date
     time :created_at
     time :updated_at
@@ -72,6 +72,10 @@ class Case < ActiveRecord::Base
   after_create :assign_to_h2ocases
 
   alias :to_s :display_name
+
+  def clean_content
+    self.content.gsub!(/\p{Cc}/, "")
+  end
 
   def bookmark_name
     self.short_name
