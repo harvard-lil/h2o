@@ -21,12 +21,6 @@ namespace :h2o do
     system("rm -rf #{Rails.root}/public/cases/*")
   end
   
-  desc 'Clear UI Caches'
-  task(:clear_ui_cache => :environment) do
-    system("rm -rf #{Rails.root}/public/stylesheets/all.css")
-    system("rm -rf #{Rails.root}/public/javascripts/all.js")
-  end
-
   desc 'Clear Homepage Cache'
   task(:clear_homepage_cache => :environment) do
     system("rm -rf #{Rails.root}/public/index.html")
@@ -35,7 +29,6 @@ namespace :h2o do
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
     system("rm -rf #{Rails.root}/tmp/cache/*")
-    Rake::Task["h2o:clear_ui_cache"].execute
     Rake::Task["h2o:clear_page_cache"].execute
     Rake::Task["h2o:clear_homepage_cache"].execute
     Rake::Task["h2o:clear_static_page_cache"].execute
