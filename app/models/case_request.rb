@@ -26,4 +26,8 @@ class CaseRequest < ActiveRecord::Base
   def approve!
     self.update_attribute('status', 'approved')
   end
+
+  def public?
+    true
+  end
 end

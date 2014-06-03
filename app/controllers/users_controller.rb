@@ -240,7 +240,7 @@ class UsersController < ApplicationController
 
   def bookmark_item
     if current_user.bookmark_id.nil?
-      playlist = Playlist.new({ :name => "Your Bookmarks", :title => "Your Bookmarks", :public => false, :user_id => current_user.id })
+      playlist = Playlist.new({ :name => "Your Bookmarks", :public => false, :user_id => current_user.id })
       playlist.save
       current_user.update_attribute(:bookmark_id, playlist.id)
     else

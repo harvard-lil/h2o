@@ -36,7 +36,9 @@ class UserSessionsController < ApplicationController
 
   def destroy
     destroy_user_preferences(current_user)
-    current_user_session.destroy
+    if current_user_session.present?
+      current_user_session.destroy
+    end
     redirect_back_or_default "/"
   end
 end

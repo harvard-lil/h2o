@@ -10,6 +10,11 @@ class TextBlocksController < BaseController
   end
 
   def export
+    if @text_block.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     render :layout => 'print'
   end
 
