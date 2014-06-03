@@ -166,6 +166,9 @@ var collages = {
         search: '/search'
       }
     }).addPlugin(h2o, layer_data).getInstance();
+    if(!can_edit) {
+      h2o_annotator.options.readOnly = true;
+    }
     h2o_annotator.attach(elem);
     h2o_annotator.plugins.H2O.loadAnnotations(h2o_global.getItemId(), raw_annotations.single, true);
   },
