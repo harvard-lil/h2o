@@ -2,7 +2,7 @@
   <a href="#" class="tooltip list-icon icon icon-user" title="User"></a>
   <div class="details">
     <h3>
-      <%= link_to user.simple_display, users_path(user), :class => "title" %>
+      <%= link_to user.simple_display, user_path(user), :class => "title" %>
       <% if current_user && (@is_admin[:user] || @my_belongings[:users].include?(user)) %>
       <%= link_to 'DELETE', user, :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "user", "data-id" => user.id %>
       <% end %>
