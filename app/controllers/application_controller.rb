@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
-  before_filter :load_single_resource, :check_authorization,  # Important that check_auth happens load_single_resource
-                :fix_cookies, :redirect_bad_format, :set_time_zone, :set_page_cache_indicator
+  before_filter :redirect_bad_format, :load_single_resource, :check_authorization,  # Important that check_auth happens load_single_resource
+                :fix_cookies, :set_time_zone, :set_page_cache_indicator
   before_filter :set_sort_params, :only => [:index, :tags]
   before_filter :set_sort_lists, :only => [:index, :tags]
 
@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
     end
 
     # many methods can be done if item is public
-    if @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level, :heatmap].include?(params[:action].to_sym)
+    if @single_resource.present? && @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level, :heatmap].include?(params[:action].to_sym)
       return true
     end
 
@@ -90,7 +90,8 @@ class ApplicationController < ActionController::Base
 
   def redirect_bad_format
     if params[:format] == "php"
-      redirect_to root_url, :status => 301
+      # Note: This has to be hardcoded, not root_url
+      redirect_to "/", :status => 301
     end
   end
 
@@ -345,7 +346,7 @@ class ApplicationController < ActionController::Base
   end
 
   def load_single_resource
-    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base', 'pages'].include?(params[:controller])
+    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
 
     if params[:action] == "new"
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
