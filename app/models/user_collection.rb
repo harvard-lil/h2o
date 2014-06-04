@@ -8,4 +8,11 @@ class UserCollection < ActiveRecord::Base
   validates_presence_of :owner_id, :name
 
   accepts_nested_attributes_for :permission_assignments, :allow_destroy => true
+  accepts_nested_attributes_for :users, :allow_destroy => true
+  accepts_nested_attributes_for :playlists, :allow_destroy => true
+  accepts_nested_attributes_for :collages, :allow_destroy => true
+
+  def user
+    self.owner
+  end
 end

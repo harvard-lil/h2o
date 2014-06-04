@@ -272,10 +272,7 @@ class UsersController < ApplicationController
   end
 
   def user_lookup
-    @users = []
-    @users << User.where(email_address: params[:lookup]).first
-    @users << User.where(login: params[:lookup])
-    @users = @users.compact.delete_if { |u| u.id == @current_user.id }.collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } }
+    @users = User.where("(email_address = ? OR login = ?) AND id != ?", params[:lookup], params[:lookup], current_user.id).collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } }
     render :json => { :items => @users }
   end
 

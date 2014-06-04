@@ -24,6 +24,9 @@ H2o::Application.routes.draw do
       post 'disconnect_canvas'
       post 'disconnect_dropbox'
     end
+    collection do
+      get 'user_lookup'
+    end
   end
   resources :text_blocks do
     member do
@@ -59,6 +62,7 @@ H2o::Application.routes.draw do
     end
     collection do
       get 'embedded_pager'
+      get 'playlist_lookup'
     end
   end
   resources :playlist_items do
@@ -85,6 +89,7 @@ H2o::Application.routes.draw do
     end
     collection do
       get 'embedded_pager'
+      get 'collage_lookup'
     end
   end
   resources :cases do
@@ -101,7 +106,7 @@ H2o::Application.routes.draw do
 
   resources :user_collections do
     member do
-      post 'update_permissions'
+      patch 'update_permissions'
       get 'manage_users'
       get 'manage_playlists'
       get 'manage_collages'

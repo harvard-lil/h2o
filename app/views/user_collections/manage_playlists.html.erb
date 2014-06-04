@@ -1,6 +1,6 @@
 <div id="manage_playlists">
   <div id="error_block" style="display:none;" class="error"></div>
-  <% semantic_form_for(@user_collection, :html => { :id => "manage-playlists-collection" }) do |form| -%>
+  <%= semantic_form_for(@user_collection, :html => { :id => "manage-playlists-collection" }) do |form| -%>
     <h4 id="generic_title">Playlists Tied to This Collection</h4>
     <ul id="current_list">
       <input type="hidden" name="manage_playlists" value="1" />

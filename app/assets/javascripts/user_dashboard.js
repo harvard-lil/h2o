@@ -1,3 +1,9 @@
+h2o_global.updated_permissions = function(data) {
+    $('.extra' + data.id).append($('<span>Updated!</span>'));
+    h2o_global.hideGlobalSpinnerNode();
+    $('#generic-node').dialog('close');
+    $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
+};
 var users_show = {
   renderDeleteFunctionality: function() {
     if('/users/' + $.cookie('user_id') == document.location.pathname) {
@@ -11,12 +17,6 @@ var users_show = {
         $(el).find('.details h3').append(delete_link);
       });
     }
-  },
-  updated_permissions: function(data) {
-    $('.extra' + data.id).append($('<span>Updated!</span>'));
-    h2o_global.hideGlobalSpinnerNode();
-    $('#generic-node').dialog('close');
-    $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
   },
   observeCaseApproval: function() {
     $(document).delegate('.approve-action', 'click', function(e) {

@@ -1,6 +1,6 @@
 <div id="manage_collages">
   <div id="error_block" style="display:none;" class="error"></div>
-  <% semantic_form_for(@user_collection, :html => { :id => "manage-collages-collection" }) do |form| -%>
+  <%= semantic_form_for(@user_collection, :html => { :id => "manage-collages-collection" }) do |form| -%>
     <h4 id="generic_title">Collages Tied to This Collection</h4>
     <ul id="current_list">
       <input type="hidden" name="manage_collages" value="1" />

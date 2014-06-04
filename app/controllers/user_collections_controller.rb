@@ -1,4 +1,6 @@
 class UserCollectionsController < BaseController
+  protect_from_forgery :except => [:destroy, :update]
+
   def load_user_collection
   end
 
@@ -37,7 +39,7 @@ class UserCollectionsController < BaseController
 
   def create
     params[:user_collection][:owner_id] = @current_user.id
-    user_collection = UserCollection.new(params[:user_collection])
+    user_collection = UserCollection.new(user_collections_params)
 
     if user_collection.save
       render :json => { :error => false, :type => "users", :id => current_user.id }
@@ -82,11 +84,18 @@ class UserCollectionsController < BaseController
   end
 
   def update
-    if params.has_key?(:manage_users)
-      if !params.has_key?(:user_collection)
-        params[:user_collection] = { :user_ids => [] }
-      end
+    if !params.has_key?(:user_collection)
+      params[:user_collection] = {}
+    end
+    if params.has_key?(:manage_users) && !params[:user_collection].has_key?(:user_ids)
+      params[:user_collection][:user_ids] = []
+    elsif params.has_key?(:manage_playlists) && !params[:user_collection].has_key?(:playlist_ids)
+      params[:user_collection][:playlist_ids] =[]
+    elsif params.has_key?(:manage_collages) && !params[:user_collection].has_key?(:collage_ids)
+      params[:user_collection][:collage_ids] = []
+    end
 
+    if params.has_key?(:manage_users)
       # Permission Assignment Updates based on user updates
       arr = []
       @user_collection.permission_assignments.each do |pa|
@@ -99,13 +108,21 @@ class UserCollectionsController < BaseController
       params[:user_collection][:permission_assignments_attributes] = arr
     end
 
-    params[:user_collection][:owner_id] = @current_user.id
-    @user_collection.attributes = params[:user_collection]
-
-    if @user_collection.save
+    if @user_collection.update_attributes(user_collections_params)
       render :json => { :error => false, :type => "users", :id => current_user.id }
     else
       render :json => { :error => true, :message => "#{@user_collection.errors.full_messages.join(',')}" }
     end
+  end
+  
+  private
+  def user_collections_params
+    params.require(:user_collection).permit(:name, 
+                                            :description, 
+                                            :owner_id, 
+                                            permission_assignments_attributes: [:id, :user_id, :permission_id, :_destroy], 
+                                            :user_ids => [], 
+                                            :playlist_ids => [],
+                                            :collage_ids => [])
   end
 end
