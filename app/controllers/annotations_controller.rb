@@ -61,6 +61,12 @@ class AnnotationsController < BaseController
   def create
     collage = Collage.where(id: params[:collage_id]).first
 
+    if params[:layer_hexes].present?
+      params[:layer_hexes].each do |k|
+        k["layer"].downcase!
+      end
+    end
+
     range = params[:ranges].first
     params[:annotation] = {
       :annotation_start => 0,

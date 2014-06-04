@@ -125,8 +125,8 @@ H2O = (function() {
       $.each($('input[name=new_layer]'), function(i, el) {
         var hex = $(el).siblings('.hexes').find('.active');
         if($(el).val() != '' && $(el).val() != 'Enter Layer Name' && hex.size() > 0) {
-          editor.annotation.layer_hexes.push({ layer: $(el).val(), hex: hex.text(), is_new: true });
-          h2o_annotator.plugins.H2O.layer_map[$(el).val()] = hex.text();
+          editor.annotation.layer_hexes.push({ layer: $(el).val().toLowerCase(), hex: hex.text(), is_new: true });
+          h2o_annotator.plugins.H2O.layer_map[$(el).val().toLowerCase()] = hex.text();
         }
       });
 
