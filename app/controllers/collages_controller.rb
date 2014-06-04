@@ -131,7 +131,9 @@ class CollagesController < BaseController
   end
 
   def destroy
-    @collage.destroy
+    if @collage.present?
+      @collage.destroy
+    end
 
     render :json => {}
   end
