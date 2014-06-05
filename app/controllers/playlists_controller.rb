@@ -55,7 +55,7 @@ class PlaylistsController < BaseController
 
   # GET /playlists/1
   def show
-    if @playlist.nil?
+    if @playlist.nil? || @playlist.user.nil?
       redirect_to root_url, :status => 301
       return
     end
