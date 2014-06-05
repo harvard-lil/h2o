@@ -1,24 +1,11 @@
 namespace :h2o do
-  desc 'Update item karma'
-  task(:update_user_karma => :environment) do
-    Rails.cache.delete_matched(%r{user-barcode-*})
-    User.find_in_batches(:batch_size => 20) do |items|
-      items.each do |i|
-        i.update_karma
-      end
-    end
-  end
-
-  desc 'Clear Static Page Caches'
-  task(:clear_static_page_cache => :environment) do
-    system("rm -rf #{Rails.root}/public/p/*")
-  end
-  
   desc 'Clear Page Caches'
   task(:clear_page_cache => :environment) do
     system("rm -rf #{Rails.root}/public/collages/*")
     system("rm -rf #{Rails.root}/public/playlists/*")
     system("rm -rf #{Rails.root}/public/cases/*")
+    system("rm -rf #{Rails.root}/public/p/*")
+    system("rm -rf #{Rails.root}/public/index.html")
   end
   
   desc 'Clear Homepage Cache'
@@ -30,8 +17,6 @@ namespace :h2o do
   task(:clear_all_cache => :environment) do
     system("rm -rf #{Rails.root}/tmp/cache/*")
     Rake::Task["h2o:clear_page_cache"].execute
-    Rake::Task["h2o:clear_homepage_cache"].execute
-    Rake::Task["h2o:clear_static_page_cache"].execute
   end
 
   desc 'Send cases list email'

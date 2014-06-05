@@ -131,16 +131,12 @@ class BaseController < ApplicationController
 
     @media_map = {}
     [Collage, Default, TextBlock, Case].each do |klass|
-      klass.where("public IS TRUE AND karma IS NOT NULL").order("karma DESC").first(5).each do |item|
-        @highlighted[klass.to_s.downcase.to_sym] << item
-      end
+      @highlighted[klass.to_s.downcase.to_sym] = klass.where("public IS TRUE AND karma IS NOT NULL").order("karma DESC").limit(5)
     end
     ["Audio", "PDF", "Image", "Video"].each do |media_label|
       mt = MediaType.where(label: media_label).first
       @media_map[mt.slug] = media_label == "Audio" ? "Audio" : "#{media_label}s"
-      Media.where("public IS TRUE AND media_type_id = #{mt.id}").order("karma DESC").first(5).each do |item|
-        @highlighted["media_#{mt.slug}".to_sym] << item
-      end
+      @highlighted["media_#{mt.slug}".to_sym] = Media.where("public IS TRUE AND media_type_id = #{mt.id}").order("karma DESC").limit(5)
     end
   end
 

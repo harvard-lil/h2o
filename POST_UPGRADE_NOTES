@@ -1,2 +1,7 @@
+* Clean-up collages related database:
+  * Remove collagelinks
+  * Remove content in collages
+  * Remove annotator_version column
+  * Remove other references to upgrade
 * Move tmp/cache/* contents to one directory further
 * Finalize Rails garbage collection (2 weeks expired)
