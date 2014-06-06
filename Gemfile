@@ -28,6 +28,7 @@ gem 'acts-as-taggable-on', '~> 3.1.1'
 
 gem 'authlogic'
 gem 'ancestry'
+gem 'progress_bar'
 gem 'sunspot_rails'
 gem 'dropbox-sdk'
 gem 'will_paginate'
