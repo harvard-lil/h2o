@@ -74,11 +74,6 @@ class CollagesController < BaseController
   end
 
   def show
-    if @collage.nil?
-      redirect_to root_url, :status => 301
-      return
-    end
-
     @page_cache = true if @collage.present? && @collage.public?
     @editability_path = access_level_collage_path(@collage)
 

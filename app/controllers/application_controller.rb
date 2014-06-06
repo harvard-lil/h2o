@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
-  before_filter :redirect_bad_format, :load_single_resource, :check_authorization,  # Important that check_auth happens load_single_resource
+  # Important that check_auth happens after load_single_resource
+  before_filter :redirect_bad_format, :load_single_resource, :check_authorization,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
   before_filter :set_sort_params, :only => [:index, :tags]
   before_filter :set_sort_lists, :only => [:index, :tags]
@@ -203,7 +204,6 @@ class ApplicationController < ActionController::Base
       end
     end
 
-
     if request.xhr?
       render :partial => 'shared/generic_block'
     else
@@ -234,9 +234,6 @@ class ApplicationController < ActionController::Base
         with :media_type, params[:media_type]
       end
 
-      if model == User
-        with :anonymous, false
-      end
       if model == Playlist && current_user
         any_of do
           with :users_by_permission, current_user.login
@@ -360,7 +357,7 @@ class ApplicationController < ActionController::Base
     elsif params[:id].present?
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
       item = params[:action] == "new" ? model.new : model.where(:id => params[:id]).first
-      if item.present?
+      if item.present? && item.user.present?
         @single_resource = item
         if params[:controller] == "medias"
           @media = item
@@ -368,6 +365,8 @@ class ApplicationController < ActionController::Base
           instance_variable_set "@#{model.to_s.tableize.singularize}", item
         end
         @page_title = item.name
+      else
+        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
       end
     end
   end

@@ -55,11 +55,6 @@ class PlaylistsController < BaseController
 
   # GET /playlists/1
   def show
-    if @playlist.nil? || @playlist.user.nil?
-      redirect_to root_url, :status => 301
-      return
-    end
-
     @page_cache = true if @playlist.public?
     @editability_path = access_level_playlist_path(@playlist)
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
@@ -202,11 +197,6 @@ class PlaylistsController < BaseController
   end
 
   def export
-    if @playlist.nil? || @playlist.user.nil?
-      redirect_to root_url, :status => 301
-      return
-    end
-
     render :layout => 'print'
   end
 
