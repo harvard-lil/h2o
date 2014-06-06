@@ -134,7 +134,7 @@ class PlaylistsController < BaseController
 
   def push
     if request.get?
-      @collections = current_user.collections
+      @collections = current_user.present? ? current_user.collections : []
     else    
       @collection = UserCollection.where(id: params[:user_collection_id]).first
       @playlist_pusher = PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
