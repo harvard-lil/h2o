@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
     # if playlist item is created, allow owner of playlist to add
     if params[:controller] == "playlist_items" && request.post? && params.has_key?(:playlist_item)
       playlist = Playlist.where(id: params[:playlist_item][:playlist_id]).first
-      if current_user.present? && playlist.user == current_user
+      if current_user.present? && playlist.user.present? && playlist.user == current_user
         return true
       end
     end

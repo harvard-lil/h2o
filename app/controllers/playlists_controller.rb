@@ -73,6 +73,11 @@ class PlaylistsController < BaseController
   end
 
   def edit
+    if @playlist.nil? || @playlist.user.nil?
+      redirect_to root_url
+      return
+    end
+
     if current_user
       @can_edit_all = current_user.has_role?(:superadmin) || @playlist.owner?
       @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
@@ -197,6 +202,11 @@ class PlaylistsController < BaseController
   end
 
   def export
+    if @playlist.nil? || @playlist.user.nil?
+      redirect_to root_url, :status => 301
+      return
+    end
+
     render :layout => 'print'
   end
 

@@ -3,7 +3,7 @@ class TextBlocksController < BaseController
   protect_from_forgery :except => [:destroy]
 
   def show
-    if @text_block.nil?
+    if @text_block.nil? || @text_block.user.nil?
       redirect_to root_url, :status => 301
       return
     end

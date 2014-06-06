@@ -69,7 +69,12 @@ class BaseController < ApplicationController
     elsif params[:type] == "users"
       @highlighted_users = User.where("karma > 150 AND karma < 250").order("karma DESC").paginate(:page => params[:page], :per_page => per_page)
     elsif params[:type] == "author_playlists"
-      @author_playlists = Playlist.where(id: params[:id]).first.user.playlists.paginate(:page => params[:page], :per_page => per_page)
+      playlist = Playlist.where(id: params[:id]).first
+      if playlist.present? && playlist.user.present?
+        @author_playlists = playlist.user.playlists.paginate(:page => params[:page], :per_page => per_page)
+      else
+        @author_playlists = []
+      end
     else
       render :partial => "partial_results/empty"
       return
