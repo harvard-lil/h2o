@@ -34,11 +34,6 @@ class Collage < ActiveRecord::Base
   has_many :collage_links, :foreign_key => "host_collage_id"
   has_many :parent_collage_links, :class_name =>  "CollageLink", :foreign_key => "linked_collage_id"
 
-  # Create the content we're going to annotate. This is a might bit inefficient, mainly because
-  # we're doing a heavy bit of parsing on each attempted save. It is probably better than allowing
-  # the creation of a contentless collage, though.
-  before_validation :prepare_content, :on => :create
-
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
 
@@ -304,36 +299,5 @@ class Collage < ActiveRecord::Base
         AND a.collage_id = '#{self.id}'
         GROUP BY tag_id) b
       WHERE b.count = 1").collect { |t| t.id }
-  end
-
-  private
-
-  def prepare_content
-    if self.content.blank?
-      content_to_prepare = self.annotatable.content.gsub(/<br>/,'<br /> ')
-      doc = Nokogiri::HTML.parse(content_to_prepare)
-      doc.xpath('//*').each do |child|
-        child.children.each do|c|
-          if c.class == Nokogiri::XML::Text && ! c.content.blank?
-            text_content = c.content.scan(/\S*\s*/).delete_if(&:empty?).map do |word|
-              "<tt>" + word + '</tt> '
-            end.join(' ')
-
-            c.swap(text_content)
-          end
-        end
-      end
-      class_counter = 1
-      indexable_content = []
-      doc.xpath('//tt').each do |n|
-        n['id'] = "t#{class_counter}"
-        class_counter +=1
-        indexable_content << n.text.strip
-      end
-      self.word_count = class_counter
-      self.words_shown = class_counter
-      self.indexable_content = indexable_content.join(' ')
-      self.content = doc.xpath("//html/body/*").to_s
-    end
   end
 end

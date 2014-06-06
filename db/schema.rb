@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140606175239) do
+ActiveRecord::Schema.define(version: 20140606195142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -156,11 +156,9 @@ ActiveRecord::Schema.define(version: 20140606175239) do
     t.integer  "annotatable_id"
     t.string   "name",              limit: 250,                    null: false
     t.string   "description",       limit: 5120
-    t.string   "content",           limit: 5242880,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "word_count"
-    t.string   "indexable_content", limit: 5242880
     t.string   "ancestry"
     t.boolean  "public",                            default: true
     t.boolean  "active",                            default: true
