@@ -194,10 +194,6 @@ class User < ActiveRecord::Base
     attributes['default_font_size'] || self.large_font_size
   end
 
-  def tab_open_new_items
-    @tab_open_new_items || false
-  end
-
   def large_font_size
     16
   end

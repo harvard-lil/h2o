@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140416194444) do
+ActiveRecord::Schema.define(version: 20140606175239) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -169,7 +169,7 @@ ActiveRecord::Schema.define(version: 20140416194444) do
     t.integer  "karma"
     t.integer  "pushed_from_id"
     t.integer  "user_id",                           default: 0,    null: false
-    t.integer  "annotator_version",                 default: 1,    null: false
+    t.integer  "annotator_version",                 default: 2,    null: false
   end
 
   add_index "collages", ["active"], name: "index_collages_on_active", using: :btree
@@ -244,6 +244,17 @@ ActiveRecord::Schema.define(version: 20140416194444) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "status"
+  end
+
+  create_table "institutions", force: true do |t|
+    t.string   "name",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "institutions_users", id: false, force: true do |t|
+    t.integer "institution_id", null: false
+    t.integer "user_id",        null: false
   end
 
   create_table "journal_article_types", force: true do |t|
@@ -652,7 +663,7 @@ ActiveRecord::Schema.define(version: 20140416194444) do
     t.string   "attribution"
     t.string   "perishable_token"
     t.boolean  "default_show_annotations", default: false, null: false
-    t.boolean  "tab_open_new_items"
+    t.boolean  "tab_open_new_items",       default: false, null: false
     t.string   "default_font_size",        default: "16"
     t.string   "title"
     t.string   "affiliation"
