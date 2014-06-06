@@ -617,7 +617,7 @@ var h2o_global = {
   loadEditability: function() {
     if($.cookie('user_id') == null) {
       //lack of cookies indicate user not logged in. Skipping
-      $('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous').remove();
+      $('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous, .remix-action, .link-add, .bookmark-action, .link-collage, .remix-option-action').remove();
       $('.afterload').css('opacity', 1.0);
       h2o_global.setFixedLinkPosition();
       
