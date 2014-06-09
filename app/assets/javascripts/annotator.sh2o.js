@@ -156,8 +156,8 @@ H2O = (function() {
       H2O.prototype.resetUnlayered(h2o_global.getItemId());
       H2O.prototype.setLayeredBorders([annotation]);
       collages.rehighlight();
-      collages.updateWordCount();
       H2O.prototype.addAnnotationIndicator(annotation);
+      collages.updateWordCount();
     });
     this.annotator.subscribe("annotationUpdated", function(annotation) {
       annotation.layers = $.parseJSON(annotation.layers);

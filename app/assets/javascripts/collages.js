@@ -436,6 +436,9 @@ var collages = {
     }
 
     $('#word_stats').html(layered + ' layered, ' + unlayered + ' unlayered');
+
+    $('#stats_annotation_size').html($('.annotation-indicator').size());
+    $('#stats_layer_size').html($('ul#layers_highlights li').size());
   },
   retrieveState: function() {
     var data = { highlights: {} };
