@@ -73,6 +73,7 @@ H2O = (function() {
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setHighlights(annotation);
         H2O.prototype.setUnlayeredSingle(annotation);
+        H2O.prototype.addAnnotationIndicator(annotation);
       });
 
       H2O.prototype.resetUnlayered(this.plugins.H2O.collage_id);
@@ -157,6 +158,7 @@ H2O = (function() {
       H2O.prototype.setLayeredBorders([annotation]);
       collages.rehighlight();
       collages.updateWordCount();
+      H2O.prototype.addAnnotationIndicator(annotation);
     });
     this.annotator.subscribe("annotationUpdated", function(annotation) {
       annotation.layers = $.parseJSON(annotation.layers);
@@ -179,6 +181,7 @@ H2O = (function() {
         H2O.prototype.destroyAnnotationMarkup(this.annotation_deleted_id);
         H2O.prototype.resetUnlayered(h2o_global.getItemId());
         H2O.prototype.manageLayers(this.annotation_deleted_id, 'deleted');
+        $('span#annotation-indicator-' + this.annotation_deleted_id).remove();
         collages.updateWordCount();
       }
     });
@@ -219,6 +222,30 @@ H2O = (function() {
       label: 'Add New Layer'
     });
   };
+
+  H2O.prototype.addAnnotationIndicator = function(annotation) {
+    var first_highlight = $('.annotation-' + annotation.id + ':first');
+    var last_highlight = $('.annotation-' + annotation.id + ':last');
+    if(first_highlight.size() > 0) {
+      var start_position = first_highlight.position().top;
+      var class_name = 'annotation-indicator';
+      $.each(annotation.layers, function(i, el) {
+        class_name += ' annotation-indicator-' + el;
+      });
+      var height = last_highlight.position().top + last_highlight.height() - start_position;
+      $('.annotator-wrapper').prepend($('<span>').attr('data-id', annotation.id).addClass(class_name).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position, 'height' : height }));
+    }
+  };
+  H2O.prototype.updateAnnotationIndicator = function(annotation_id) {
+    var first_highlight = $('.annotation-' + annotation_id + ':first');
+    var last_highlight = $('.annotation-' + annotation_id + ':last');
+    if(first_highlight.size() > 0) {
+      var start_position = first_highlight.position().top;
+      var height = last_highlight.position().top + last_highlight.height() - start_position;
+      $('span#annotation-indicator-' + annotation_id).css({ 'top' : start_position, 'height' : height }).show();
+    }
+  };
+
 
   H2O.prototype.manageLayers = function(annotation, type) {
     if(this.heatmap_display) {

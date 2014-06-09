@@ -390,12 +390,11 @@ var collages = {
       var clean_layer = collages.clean_layer(layer);
       if(el.html().match("SHOW ")) {
         $('.layer-' + clean_layer).parents('.original_content').show();
-        $('.layer-' + clean_layer).show();
+        $('.layer-' + clean_layer + ',.annotation-indicator-' + clean_layer).show();
         $('.layered-ellipsis.' + clean_layer).hide();
-
         el.html('HIDE "' + layer + '"');
       } else {
-        $('.layer-' + clean_layer).hide();
+        $('.layer-' + clean_layer + ',.annotation-indicator-' + clean_layer).hide();
         $('.layered-ellipsis.' + clean_layer).css('display', 'inline-block');
         $('.layer-' + clean_layer).parents('.original_content').filter(':not(.original_content *):not(:has(.unlayered:visible,.annotator-hl:visible,.layered-ellipsis:visible))').hide();
         el.html('SHOW "' + layer + '"');

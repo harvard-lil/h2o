@@ -238,6 +238,7 @@ var h2o_global = {
     $.rule('.playlist .playlist .playlist .playlist .playlist a.title { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
   },
   setFont: function() {
+    $('.annotation-indicator').hide();
     $('.btn-a-active').click();
     var font_size = $('#fontsize a.active').data('value');
     var font_face = $('#fontface a.active').data('value');
@@ -256,6 +257,11 @@ var h2o_global = {
     $.rule('.main_wrapper .singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
     h2o_global.setPlaylistFontHierarchy(base_font_size);
     h2o_global.adjustTooltipPosition();
+    if($('body').attr('id') == 'collages_show') {
+      $.each($('.annotation-indicator'), function(i, el) {
+        h2o_annotator.plugins.H2O.updateAnnotationIndicator($(el).data('id'));
+      });
+    }
   },
   observeResultsHover: function(region) {
     $(region + ' #results .listitem').hoverIntent(function() {

@@ -42,9 +42,6 @@
       <%= form.check_box :tab_open_new_items %>
       Open new collages, media, texts, playlists, etc. in a new tab?
       <br /><br />
-      <%= form.check_box :default_show_annotations %>
-      Show annotations on collages by default?
-      <br /><br />
       <% if !@user.new_record? %>
         <% if @user.canvas_id.present? -%>
           <br />
