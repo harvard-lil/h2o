@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
     end
 
     # many methods can be done if item is public
-    if @single_resource.present? && @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level, :heatmap].include?(params[:action].to_sym)
+    if @single_resource.present? && @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level].include?(params[:action].to_sym)
       return true
     end
 

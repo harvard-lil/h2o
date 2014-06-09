@@ -258,9 +258,7 @@ var h2o_global = {
     h2o_global.setPlaylistFontHierarchy(base_font_size);
     h2o_global.adjustTooltipPosition();
     if($('body').attr('id') == 'collages_show') {
-      $.each($('.annotation-indicator'), function(i, el) {
-        h2o_annotator.plugins.H2O.updateAnnotationIndicator($(el).data('id'));
-      });
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     }
   },
   observeResultsHover: function(region) {

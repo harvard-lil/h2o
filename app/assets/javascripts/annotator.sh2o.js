@@ -46,7 +46,6 @@ H2O = (function() {
   function H2O(categories) {
     this.categories = categories;
     this.formatted_annotations = {};
-    this.heatmap_display = false;
     this.annotation_deleted_id = null;
     this.initialized = false;
     this.collage_id = 0;
@@ -236,6 +235,11 @@ H2O = (function() {
       $('.annotator-wrapper').prepend($('<span>').attr('data-id', annotation.id).addClass(class_name).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position, 'height' : height }));
     }
   };
+  H2O.prototype.updateAllAnnotationIndicators = function() {
+    $.each($('.annotation-indicator'), function(i, el) {
+      h2o_annotator.plugins.H2O.updateAnnotationIndicator($(el).data('id'));
+    });
+  };
   H2O.prototype.updateAnnotationIndicator = function(annotation_id) {
     var first_highlight = $('.annotation-' + annotation_id + ':first');
     var last_highlight = $('.annotation-' + annotation_id + ':last');
@@ -248,10 +252,6 @@ H2O = (function() {
 
 
   H2O.prototype.manageLayers = function(annotation, type) {
-    if(this.heatmap_display) {
-      return false;
-    }
-
     if(type == 'created' || type == 'updated') {
       h2o_annotator.editor.element.find('#add_new_layer').parent().remove();
       h2o_annotator.editor.fields.pop();
@@ -514,10 +514,6 @@ H2O = (function() {
   };
 
   H2O.prototype.setUnlayeredSingle = function(annotation) {
-    if(this.heatmap_display) {
-      return;
-    }
-
     $.each(annotation._local.highlights, function(_i, el) {
       if($(el).parents('.annotator-hl').size() == 0) {
         var parent_node = $(el).parent();
@@ -577,6 +573,7 @@ H2O = (function() {
       $('.unlayered-control-start-' + key + ',.unlayered-control-end-' + key).css('display', 'inline-block');
       $(this).hide();
       collages.hideShowUnlayeredOptions();
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     });
     $(document).delegate('.unlayered-control-start,.unlayered-control-end', 'click', function(e) {
       e.preventDefault();
@@ -585,6 +582,7 @@ H2O = (function() {
       $('.unlayered-ellipsis-' + key).show();
       $('.unlayered-control-start-' + key + ',.unlayered-control-end-' + key).hide();
       collages.hideShowUnlayeredOptions();
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     });
   };
 
@@ -607,10 +605,6 @@ H2O = (function() {
   };
 
   H2O.prototype.updateEditor = function(field, annotation) {
-    if(annotation.id === undefined && this.heatmap_display) {
-      $('#heatmap_toggle.disabled').click();
-    }
-
     $('.annotator-checkbox input').prop('checked', false);
     if(annotation.id !== undefined) {
       //annotation is not new

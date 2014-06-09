@@ -36,11 +36,6 @@ var collages = {
   revert_clean_layer: function(layer_name) {
     return layer_name.replace(/specialsymbol/, '.');
   },
-  highlightHeatmap: function() {
-    $('.layered-empty').removeClass('layered-empty');
-
-	  $.rule('.annotator-wrapper .annotator-hl { background-color: rgba(255,0,0,0.3); }').appendTo('#additional_styles');
-  },
   rehighlight: function() {
 	  $('.layered-empty').removeClass('layered-empty');
 	  var total_selectors = new Array();
@@ -257,45 +252,6 @@ var collages = {
       }
     });
   },
-  observeHeatmap: function() {
-    $(document).delegate('#heatmap_toggle:not(.inactive,.activated)', 'click', function(e) {
-      e.preventDefault();
-      h2o_global.showGlobalSpinnerNode();
-      last_data = collages.retrieveState();
-      $('.unlayered,.annotator-hl').show();
-      $.each($('#layers_highlights a'), function(i, el) {
-        if($(el).text().match(/^UNHIGHLIGHT/)) {
-          $(el).click();
-        }
-      });
-      $('#text-layer-tools').addClass('inactive').css('opacity', 0.3);
-      h2o_annotator.plugins.H2O.heatmap_display = true;
-      $('.layered-ellipsis,.unlayered-ellipsis').html('');
-      h2o_annotator.plugins.H2O.loadAnnotations(h2o_global.getItemId(), raw_annotations.heatmap, false);
-      collages.highlightHeatmap();
-      $('#heatmap_toggle').addClass('activated');
-      h2o_global.hideGlobalSpinnerNode();
-    });
-    $(document).delegate('#heatmap_toggle.activated', 'click', function(e) {
-      e.preventDefault();
-      h2o_global.showGlobalSpinnerNode();
-
-      var data = h2o_annotator.plugins.H2O.format_annotations(raw_annotations.heatmap);
-      $.each(data, function(_i, annotation) {
-        h2o_annotator.plugins.H2O.removeAnnotationMarkup(annotation);
-      });
-      $('.layered-ellipsis,.unlayered-ellipsis').html('[...]');
-      h2o_annotator.plugins.H2O.heatmap_display = false;
-
-      $('#text-layer-tools').removeClass('inactive').css('opacity', 1.0);
-      $('#heatmap_toggle').removeClass('activated');
-	    $.rule('.annotator-wrapper .annotator-hl', '#additional_styles').remove();
-
-      collages.rehighlight();
-      collages.loadState(h2o_global.getItemId(), last_data);
-      h2o_global.hideGlobalSpinnerNode();
-    });
-  },
   hideShowUnlayeredOptions: function() {
     var total = $('.unlayered-ellipsis').size();
     var shown = $('.unlayered-ellipsis').filter(':visible').size();
@@ -360,6 +316,7 @@ var collages = {
         $(el).html('HIDE "' + $(el).parent().data('name') + '"');
       });
       collages.hideShowUnlayeredOptions();
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
       h2o_global.hideGlobalSpinnerNode();
     });
 
@@ -369,6 +326,7 @@ var collages = {
       $('.unlayered').show();
       $('.unlayered-ellipsis,.unlayered-control-start,.unlayered-control-end').hide();
       collages.hideShowUnlayeredOptions();
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
       h2o_global.hideGlobalSpinnerNode();
     });
     $('#hide_unlayered a').click(function(e) {
@@ -378,6 +336,7 @@ var collages = {
       $('.unlayered-ellipsis').show();
       $('.unlayered:has(.unlayered-ellipsis)').show();
       collages.hideShowUnlayeredOptions();
+      h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
       h2o_global.hideGlobalSpinnerNode();
     });
 
@@ -431,11 +390,6 @@ var collages = {
     });
     $('form#collage_print').submit(function() {
       var data = collages.retrieveState();
-
-      if($('#heatmap_toggle').hasClass('activated')) {
-        data.load_heatmap = true;
-      }
-
       data.font_size = $('#fontsize a.active').data('value');
       data.font_face = $('#fontface a.active').data('value');
       $('#state').val(JSON.stringify(data));
@@ -501,9 +455,6 @@ var collages = {
   },
   listenToRecordCollageState: function() {
     setInterval(function(i) {
-      if(h2o_annotator.plugins.H2O.heatmap_display) {
-        return;
-      }
       var data = collages.retrieveState();
       if(JSON.stringify(data) != JSON.stringify(last_data)) {
         last_data = data;
@@ -526,6 +477,7 @@ var collages = {
       }
     });
     collages.hideShowUnlayeredOptions();
+    h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     if(access_results.can_edit_annotations) {
       $('#edit_toggle').click();
       $('.default-hidden').css('color', '#000');
@@ -632,7 +584,6 @@ $(document).ready(function(){
   collages.observeToolListeners();
   collages.observeLayerColorMapping();
   collages.observePrintListeners();
-  collages.observeHeatmap();
   collages.observeDeleteInheritedAnnotations();
   collages.observeCollageLinkBehavior();
 

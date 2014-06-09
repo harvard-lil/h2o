@@ -1,11 +1,8 @@
 var all_tts;
-var stored_heatmap = {};
-var loaded_heatmaps = false;
 var annotations;
 var original_data = {};
 var layer_data;
 var collage_id;
-var heatmap_display = false;
 var h2o_annotator;
 
 var collages = {

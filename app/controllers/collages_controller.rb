@@ -40,10 +40,6 @@ class CollagesController < BaseController
     end
   end
 
-  def heatmap
-    render :json => { :heatmap => @collage.heatmap }
-  end
-
   # TODO: Remove this if unused?
   def layers
     render :json => @collage.layers
