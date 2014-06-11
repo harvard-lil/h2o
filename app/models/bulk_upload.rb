@@ -12,4 +12,9 @@ class BulkUpload < ActiveRecord::Base
   def public?
     false
   end
+
+  # TODO: Add link to user later
+  def user
+    1
+  end
 end
