@@ -607,7 +607,7 @@ var playlists_show = {
           $('#add_item_results').html(html);
           playlists_show.toggleHeaderPagination();
           $('div#nestable2').nestable();
-          h2o_global.initializeBarcodes();
+          //h2o_global.initializeBarcodes();
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {
