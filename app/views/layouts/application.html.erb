@@ -12,20 +12,6 @@
 
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';
 var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
-  <% if Object.const_defined?(:GOOGLE_ANALYTICS_CODE) %>
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '<%= GOOGLE_ANALYTICS_CODE %>']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-<% end %> 
-
 <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
 <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 <style type="text/css" id="additional_styles"></style>
@@ -38,7 +24,9 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
     <%= render :partial => "shared/nav" %>
     <div class="wrapper main_wrapper">
 
-    <% if flash[:notice] && !@page_cache %>
+    <% if flash[:notice] && flash[:notice].match(/^Your account has not been verified/) %>
+    <p id="notice"><%= raw flash[:notice] %></p>
+    <% elsif flash[:notice] && !@page_cache %>
     <p id="notice"><%= flash[:notice] %></p>
     <% end -%>
 
@@ -64,6 +52,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <script type="text/javascript">
   var editability_path = '<%= @editability_path || '' %>';
 </script>
-
+<%= render "shared/google_analytics" %>
   </body>
 </html>

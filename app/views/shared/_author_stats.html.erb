@@ -1,6 +1,5 @@
 <% if user.present? -%>
 <div class="stats_panel">
-  <%= render :partial => "shared/barcode", :locals => { :object => user } %>
   <p>
     <label>Name:</label>
     <span><%= user.display %></span>

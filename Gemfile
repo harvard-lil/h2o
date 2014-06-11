@@ -43,6 +43,7 @@ gem 'delayed_job'
 gem 'delayed_job_active_record'
 gem 'daemons'
 gem 'rails_admin'
+gem 'cancan'
 gem 'kaminari'
 gem 'recaptcha'
 
@@ -54,4 +55,5 @@ end
 gem 'bcrypt'
 gem 'scrypt'
 
+gem 'rails_admin_import', '0.1.9'
 # gem 'rails-perftest'

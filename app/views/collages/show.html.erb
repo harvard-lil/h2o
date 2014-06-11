@@ -8,7 +8,6 @@
 </div>
 
 <aside id="singleitem_barcode_toolbar">
-  <%= render :partial => "shared/barcode", :locals => { :object => @collage } %>
   <a href="<%= copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>">
     <span class="icon icon-remix-large"><span>Remix Collage</span></span>
   </a>
@@ -98,7 +97,7 @@
     <%= render :partial => 'meta' %>
   </div>
   <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
+  <%#= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
   <% if false -%>
   <h3>Related Collages</h3>
   <% end -%>

@@ -1,0 +1,5 @@
+<% if current_user.present? && !current_user.verified %>
+<div class="error">
+You must verify your account before contributing to H2O. Please request a verification email <a href="<%= verification_request_user_url(current_user) %>" target="blank">here</a>.
+</div>
+<% end -%>

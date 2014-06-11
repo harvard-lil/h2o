@@ -1,11 +1,15 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
   
-  protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy]
+  protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').present? && c.instance_variable_get('@collage').public?}
 
   def embedded_pager
-    super Collage
+    if params.has_key?(:for_annotation)
+      super Collage, 'shared/collage_link_item'
+    else
+      super Collage
+    end
   end
 
   def delete_inherited_annotations

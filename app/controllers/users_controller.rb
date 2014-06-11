@@ -11,17 +11,38 @@ class UsersController < ApplicationController
     common_index User
   end
 
+  def verification_request
+    if current_user.present? && current_user = User.where(id: params[:id]).first
+      current_user.send_verification_request
+      flash[:notice] = 'An email has been sent to you for account verification. Please stay logged in and visit the link in the email to verify your account.'
+      redirect_to user_path(current_user)
+    end
+  end
+
+  def verify
+    if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
+      current_user.update_attribute(:verified, true)
+      flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
+      redirect_to user_path(current_user)
+      return
+    end
+
+    flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
+    redirect_to user_path(current_user)
+  end
+
   def create
     @user = User.new(users_params)
     verify_captcha(@user)
 
     if @user.save
-      flash[:notice] = "Account registered!"
+      @user.send_verification_request
+      flash[:notice] = "Account registered! Please verify your account by clicking the link provided in the verification email."
       if first_time_canvas_login?
         save_canvas_id_to_user(@user)
         flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
       end
-      redirect_back_or_default "/"
+      redirect_to user_path(@user)
     else
       render :action => :new
     end
@@ -29,32 +50,6 @@ class UsersController < ApplicationController
 
   def request_anon
     @user = User.new
-  end
-
-  def create_anon
-    if request.get?
-      @user = User.new
-      return
-    end
-
-    password = ::SecureRandom.random_bytes(10)
-    user_key = ::SecureRandom.hex(13)
-    @user = User.new(:login => "anon_#{user_key}",
-      :email_address => "anon_#{user_key}@dummy.com",
-      :password => password,
-      :password_confirmation => password)
-    @user.roles << Role.where(name: "nonauthenticated").first
-    verify_captcha(@user)
-
-    if @user.save
-      apply_user_preferences(@user, true)
-      cookies[:anonymous_user] = true
-      cookies[:display_name] = "ANONYMOUS"
-      redirect_back_or_default "/"
-      return
-    end
-
-    redirect_back_or_default "/"
   end
 
   def show
@@ -99,8 +94,8 @@ class UsersController < ApplicationController
           render :partial => 'shared/generic_collection_block'
         end
       else
-        @results = Sunspot.new_search(models)
-        @results.build do
+        @collection = Sunspot.new_search(models)
+        @collection.build do
           paginate :page => params[:page], :per_page => 10
           with :user_id, user_id_filter
 
@@ -115,7 +110,7 @@ class UsersController < ApplicationController
 
           order_by params[:sort].to_sym, params[:order].to_sym
         end
-        @results.execute!
+        @collection.execute!
         render :partial => 'base/search_ajax'
       end
     else

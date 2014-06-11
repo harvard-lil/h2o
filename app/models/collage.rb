@@ -3,14 +3,10 @@ class Collage < ActiveRecord::Base
   include AncestryExtensions
   include MetadataExtensions
   include CaptchaExtensions
+  include VerifiedUserExtensions
   include FormattingExtensions
   include Rails.application.routes.url_helpers
 
-  RATINGS = {
-    :remix => 5,
-    :bookmark => 1,
-    :add => 3
-  }
   RATINGS_DISPLAY = {
     :remix => "Remixed",
     :bookmark => "Bookmarked",
@@ -29,9 +25,6 @@ class Collage < ActiveRecord::Base
   has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
-
-  has_many :collage_links, :foreign_key => "host_collage_id"
-  has_many :parent_collage_links, :class_name =>  "CollageLink", :foreign_key => "linked_collage_id"
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
@@ -112,10 +105,11 @@ class Collage < ActiveRecord::Base
         barcode_elements << { :type => "remix",
                               :date => child.created_at,
                               :title => "Remixed to Collage #{child.name}",
-                              :link => collage_path(child) }
+                              :link => collage_path(child), 
+                              :rating => 5 }
       end
 
-      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
       self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }
@@ -254,39 +248,6 @@ class Collage < ActiveRecord::Base
     end
 
     results
-  end
-
-  def upgrade_via_nokogiri
-    doc = Nokogiri::HTML.parse(self.content)
- 
-    self.annotations.each do |annotation|
-      start_detail = xpath_and_offset(doc, annotation.annotation_start, 'start')
-      
-      end_detail = xpath_and_offset(doc, annotation.annotation_end, 'end')
-      attributes = { :xpath_start => start_detail[:xpath],
-                     :xpath_end => end_detail[:xpath], 
-                     :start_offset => start_detail[:offset],
-                     :end_offset => end_detail[:offset] } 
-      annotation.update_attributes(attributes)
-    end
-
-    self.collage_links.each do |collage_link|
-      start_detail = xpath_and_offset(doc, collage_link.link_text_start, 'start')
-      end_detail = xpath_and_offset(doc, collage_link.link_text_end, 'end')
-  
-  	  Annotation.create({ :collage_id => self.id,
-  	                      :xpath_start => start_detail[:xpath],
-  	                      :xpath_end => end_detail[:xpath],
-  	                      :start_offset => start_detail[:offset],
-  	                      :end_offset => end_detail[:offset],
-  	                      :linked_collage_id => collage_link.linked_collage_id,
-  	                      :user_id => self.user_id,
-                          :annotation_start => 0,
-                          :annotation_end => 0,
-                          :annotation => '' })
-    end
-
-    self.update_attribute(:annotator_version, 2)
   end
   
   def deleteable_tags

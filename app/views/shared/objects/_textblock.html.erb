@@ -17,9 +17,6 @@
     </p>
 	</div>
   <div class="right_details">
-  <div class="barcode_outer">
-    <%= render :partial => "shared/barcode", :locals => { :object => textblock } %>
-  </div>
 	<div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), textblock, :class => "action read-action" %>
     <%= link_to raw('<span class="icon icon-collage-this"></span>COLLAGE THIS'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => textblock), :class => "new-action link-collage" %>

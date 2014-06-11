@@ -1,24 +1,6 @@
 module StandardModelExtensions
   extend ActiveSupport::Concern
 
-=begin
-  included do
-    #Class methods go here.
-    # Validate text and string column lengths automatically, and for existence.
-    to_validate = self.columns.reject{|col| ! [:string,:text].include?(col.type)}
-    valid_output = ''
-    to_validate.each do|val_col|
-      valid_output += "validates_length_of :#{val_col.name}, :maximum => #{val_col.limit}, :allow_blank => #{val_col.null}\n"
-      if ! val_col.null
-        valid_output += "validates_presence_of :#{val_col.name}\n"
-      end
-    end
-
-    #This seems ass-backwards, but works well.
-    model.class_eval valid_output
-  end
-=end
-
   def current_user
     session = UserSession.find
     current_user = session && session.user
@@ -52,14 +34,16 @@ module StandardModelExtensions
       playlist = item.playlist
       if playlist.name == "Your Bookmarks"
         elements << { :type => "bookmark",
-                              :date => item.created_at,
-                              :title => "Bookmarked by #{playlist.user.display}",
-                              :link => user_path(playlist.user) }
+                      :date => item.created_at,
+                      :title => "Bookmarked by #{playlist.user.display}",
+                      :link => user_path(playlist.user),
+                      :rating => 1 }
       elsif playlist.public
         elements << { :type => "add",
-                              :date => item.created_at,
-                              :title => "Added to playlist #{playlist.name}",
-                              :link => playlist_path(playlist) }
+                      :date => item.created_at,
+                      :title => "Added to playlist #{playlist.name}",
+                      :link => playlist_path(playlist),
+                      :rating => 3 }
       end
     end
     elements
@@ -90,5 +74,17 @@ module StandardModelExtensions
   
   def root_user_id
     self.root.user_id
+  end
+
+  def visible_barcode
+    sum = 0
+    visible_barcode = []
+    i = 0
+    while sum < 200 && self.barcode[i].present?
+      visible_barcode << self.barcode[i]
+      sum = sum + (self.barcode[i][:rating]*3) + 1
+      i += 1
+    end
+    visible_barcode.reverse
   end
 end

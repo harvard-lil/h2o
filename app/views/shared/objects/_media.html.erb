@@ -19,9 +19,6 @@
     </p>
 	</div>
   <div class="right_details">
-  <div class="barcode_outer">
-    <%= render :partial => "shared/barcode", :locals => { :object => media } %>
-  </div>
 	<div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), media_path(media), :class => "action read-action" %>
     <a data-item_id="<%= media.id %>" data-type="media" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>

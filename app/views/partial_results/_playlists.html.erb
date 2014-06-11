@@ -1,11 +1,10 @@
 <% playlists.each do |v| -%>
 <div class="playlist item" id="listitem_playlist<%= v[:playlist].id %>"><div class="item_wrapper">
-  <%= link_to "#{v[:title]} (#{v[:playlist].karma})", playlist_url(v[:playlist]), :class => "item_link" %>
+  <%= link_to v[:title], playlist_url(v[:playlist]), :class => "item_link" %>
   <%= link_to v[:user].attribution || v[:user].login, user_path(v[:user]), :class => "author" %>
   <% if v[:user].affiliation.present? -%>
   | <%= v[:user].affiliation %>
   <% end -%>
-  <%= render :partial => "shared/barcode", :locals => { :object => v[:playlist] } %>
   <div class="additional_details">
     <%= link_to raw('<span class="icon icon-remix"></span>REMIX'), copy_playlist_path(v[:playlist]), :class => "link-remix remix-option-action requires_logged_in", "data-type" => "playlist", "data-title" => v[:playlist].name %>
     <a data-item_id="<%= v[:playlist].id %>" data-bookmarktype="item_playlist" data-type="playlist" href="#" class="link-add requires_logged_in"><span class="icon icon-add"></span>ADD</a>

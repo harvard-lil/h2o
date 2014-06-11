@@ -1,9 +1,6 @@
 <% if single_resource.new_record? %>
-<li id="captcha" class="<%= 'error' if single_resource.errors.has_key?(:base) %>">
+<li id="captcha" class="<%= 'error' if single_resource.errors.has_key?(:base) && !single_resource.errors[:base][0].match(/^You must verify your account/) %>">
   <label class="label">Captcha</label>
   <%= recaptcha_tags(:ajax => request.xhr?, :noscript => false) %>
-  <% if single_resource.errors.has_key?(:base) -%>
-  <p class="inline-errors"><%= single_resource.errors[:base].first %></p>
-  <% end -%>
 </li>
 <% end -%>

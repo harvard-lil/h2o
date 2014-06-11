@@ -527,7 +527,7 @@ var collages = {
       e.preventDefault();
       $.ajax({
         method: 'GET',
-        url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/collage_links/embedded_pager',
+        url: h2o_global.root_path() + 'collages/embedded_pager?for_annotation=1',
         beforeSend: function(){
            h2o_global.showGlobalSpinnerNode();
         },

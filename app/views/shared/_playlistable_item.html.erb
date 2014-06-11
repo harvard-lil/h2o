@@ -13,9 +13,6 @@
       <div class="dd-handle">
       <a class="tooltip icon icon-<%= hit.class == Media ? "media-#{hit.media_type.slug}" : hit.class.to_s.downcase %>" title="<%= hit.class == Media ? hit.media_type.label : hit.class %>"></a>
       <h4><%= hit.display_name %></h4>
-      <div class="listing_barcode">
-        <%= render :partial => "shared/barcode", :locals => { :object => hit } %>
-      </div>
       </div>
     </li>
     <% end %>

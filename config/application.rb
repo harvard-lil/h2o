@@ -22,5 +22,8 @@ module H2o
 
     config.autoload_paths += %W(#{config.root}/lib #{config.root}/lib/core_ext #{config.root}/lib/dropbox)
     config.action_controller.page_cache_directory = "#{Rails.root.to_s}/public"
+
+    config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"
+    config.cache_store = :file_store, "tmp/cache/h2o/"
   end
 end

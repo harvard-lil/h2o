@@ -137,11 +137,11 @@ H2O = (function() {
       annotation.layer_hexes = [];
       $('#existing_collage_link,#cancel_link_to_collage').hide();
       $('#link_to_collage').show();
-      collages.openCollageLinkForm('/collages/' + h2o_global.getItemId() + '/collage_links/embedded_pager');
+      collages.openCollageLinkForm('/collages/embedded_pager?for_annotation=1');
     });
     this.annotator.subscribe("beforeAnnotationUpdated", function(annotation) {
       annotation.layer_hexes = [];
-      collages.openCollageLinkForm('/collages/' + h2o_global.getItemId() + '/collage_links/embedded_pager');
+      collages.openCollageLinkForm('/collages/embedded_pager?for_annotation=1');
     });
     this.annotator.subscribe("annotationCreated", function(annotation) {
       annotation.layers = $.parseJSON(annotation.layers);

@@ -3,12 +3,13 @@ class Media < ActiveRecord::Base
 
   include StandardModelExtensions
   include CaptchaExtensions
+  include VerifiedUserExtensions
   include FormattingExtensions
   include Rails.application.routes.url_helpers
 
-  RATINGS = {
-    :bookmark => 1,
-    :add => 3
+  RATINGS_DISPLAY = {
+    :bookmark => "Bookmarked",
+    :add => "Added to"
   }
 
   acts_as_taggable_on :tags
@@ -65,8 +66,8 @@ class Media < ActiveRecord::Base
     Rails.cache.fetch("media-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added.sort_by { |a| a[:date] }
 
-      #value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-      #self.update_attribute(:karma, value)
+      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
+      self.update_attribute(:karma, value)
 
       barcode_elements
     end

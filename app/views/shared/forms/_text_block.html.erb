@@ -1,7 +1,16 @@
 <div class="standard-form" id="text-block-form">
-  <div id="text_block-error" style="display:none;" class="error"></div>
   <h1><%= (@text_block.new_record?) ? 'Add New Text' : %Q|Edit "#{@text_block}"| %></h1>
-<%= semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
+  <% if @text_block.errors.any? -%>
+  <div id="text_block-error" class="error">
+  <ul>
+    <% @text_block.errors.full_messages.each do |msg| %>
+    <li><%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+  <% end -%>
+  <%= render :partial => "shared/user_verified" %>
+  <%= semantic_form_for(@text_block, :html => {:id => 'text_block-form'}) do |form| %>
   <%= form.inputs do %>
     <%= form.input :name %>
     <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>

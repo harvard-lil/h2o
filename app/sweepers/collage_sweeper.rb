@@ -18,10 +18,10 @@ class CollageSweeper < ActionController::Caching::Sweeper
       relations = [record.ancestor_ids, record.descendant_ids]
       relations.push(record.sibling_ids.select { |i| i != record.id }) if record.parent.present?
 
-      record.ancestor_ids.each do |parent_id|
-        Rails.cache.delete("collage-barcode-#{parent_id}")
-        Rails.cache.delete("views/collage-barcode-html-#{parent_id}")
-      end
+      #record.ancestor_ids.each do |parent_id|
+      #  Rails.cache.delete("collage-barcode-#{parent_id}")
+      #  Rails.cache.delete("views/collage-barcode-html-#{parent_id}")
+      #end
       relations.flatten.uniq.each do |rel_id|
         ActionController::Base.expire_page "/collages/#{rel_id}.html"
       end
@@ -37,10 +37,10 @@ class CollageSweeper < ActionController::Caching::Sweeper
     end
   end
 
-  def after_create(record)
-    Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.annotatable_id}")
-    Rails.cache.delete("views/#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.annotatable_id}")
-  end
+  #def after_create(record)
+  #  Rails.cache.delete("#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-#{record.annotatable_id}")
+  #  Rails.cache.delete("views/#{record.annotatable.class.to_s.downcase.gsub(/item/, '')}-barcode-html-#{record.annotatable_id}")
+  #end
 
   def after_save(record)
     return true if record.changed.empty?

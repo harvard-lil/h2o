@@ -1,5 +1,6 @@
 <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
 <h3 id="generic_title"><%= @playlist.new_record? ? 'Add a new Playlist' : "Edit \"#{@playlist.name}\"" %></h3>
+<%= render :partial => "shared/user_verified" %>
 <%= semantic_form_for @playlist do |form| %>
   <%= form.inputs do %>
     <% if @can_edit_all -%>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140606195142) do
+ActiveRecord::Schema.define(version: 20140609195006) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -141,16 +141,6 @@ ActiveRecord::Schema.define(version: 20140606195142) do
   add_index "cases", ["short_name"], name: "index_cases_on_short_name", using: :btree
   add_index "cases", ["updated_at"], name: "index_cases_on_updated_at", using: :btree
 
-  create_table "collage_links", force: true do |t|
-    t.integer  "host_collage_id",   null: false
-    t.integer  "linked_collage_id", null: false
-    t.string   "link_text_start",   null: false
-    t.string   "link_text_end",     null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "pushed_from_id"
-  end
-
   create_table "collages", force: true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
@@ -195,7 +185,6 @@ ActiveRecord::Schema.define(version: 20140606195142) do
 
   create_table "defaults", force: true do |t|
     t.string   "name",           limit: 1024
-    t.string   "title",          limit: 1024
     t.string   "url",            limit: 1024,                   null: false
     t.string   "description",    limit: 5242880
     t.boolean  "active",                         default: true
@@ -668,6 +657,7 @@ ActiveRecord::Schema.define(version: 20140606195142) do
     t.string   "url"
     t.text     "description"
     t.string   "canvas_id"
+    t.boolean  "verified",                 default: false, null: false
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree

@@ -33,7 +33,6 @@ class PlaylistPusher
     self.barcode_clear_users.uniq.each do |user|
       Rails.cache.delete("user-barcode-#{user.id}", :compress => H2O_CACHE_COMPRESSION) 
       Rails.cache.delete("views/user-barcode-html-#{user.id}", :compress => H2O_CACHE_COMPRESSION)
-      #user.update_karma #Causes major performance issues
     end
 
     if @playlist_name_override && self.user_ids.length == 1
@@ -102,10 +101,10 @@ class PlaylistPusher
   end
 
   def create_collage_annotations_and_links!(source_collage, new_collages)
-    objects = ([source_collage].map(&:annotations) + [source_collage].map(&:collage_links)).flatten
+    objects = [source_collage].map(&:annotations).flatten
 
     if objects.any?
-      structs = self.build_structs_from_objects([Annotation, CollageLink], objects, new_collages)
+      structs = self.build_structs_from_objects([Annotation], objects, new_collages)
       structs.each do |struct|
         returned_object_ids = execute!(struct.insert_sql)
         returned_objects = struct.klass.where(id: returned_object_ids)
@@ -117,9 +116,8 @@ class PlaylistPusher
   def create_selects_for_actual_objects(actual_objects, new_collages)
     select_statements = actual_objects.inject([]) do |arr, ao|
       tn = ao.class.table_name
-      mapped_term = ao.is_a?(CollageLink) ? :host_collage_id : :collage_id
       new_collages.each do |new_collage|
-        sql = "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id, mapped_term => new_collage.id, :cloned => true}).join(', ')} FROM #{tn}, users
+        sql = "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id, :collage_id => new_collage.id, :cloned => true}).join(', ')} FROM #{tn}, users
                WHERE #{tn}.id = #{ao.id} AND users.id = #{new_collage.user_id};"
         arr << sql
       end

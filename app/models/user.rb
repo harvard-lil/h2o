@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
+  has_and_belongs_to_many :institutions
   has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
   has_many :cases
@@ -35,19 +36,11 @@ class User < ActiveRecord::Base
     :user_case_collaged => 3,
     :user_media_collaged => 3,
     :user_text_block_collaged => 3,
-    :user_playlist_bookmarked => 1,
-    :user_collage_bookmarked => 1,
-    :user_case_bookmarked => 1,
-    :user_media_bookmarked => 1,
-    :user_text_block_bookmarked => 1,
     :user_playlist_added => 3,
     :user_collage_added => 5,
     :user_case_added => 1,
     :user_media_added => 2,
-    :user_text_block_added => 2,
-    :user_collage_remix => 2,
-    :user_playlist_remix => 2,
-    :user_default_remix => 1
+    :user_text_block_added => 2
   }
   RATINGS_DISPLAY = { :playlist_created => "Playlist Created",
     :collage_created => "Collage Created",
@@ -80,19 +73,17 @@ class User < ActiveRecord::Base
 
   searchable :if => :not_anonymous do
     text :login
-    text :attribution
+    text :simple_display
+    string :display_name, :stored => true
     text :affiliation
+    integer :karma
     boolean :public
     boolean :active
     date :updated_at
   end
 
-  def anonymous
-    self.login.match(/^anon_/).present?
-  end
-
   def not_anonymous
-    !self.anonymous
+    !self.login.match(/^anon_/).present?
   end
 
   def active
@@ -123,9 +114,9 @@ class User < ActiveRecord::Base
     if login.match(/^anon_[a-f,\d]+/)
       return 'anonymous'
     elsif attribution.present?
-      return "#{attribution} #{karma_display.blank? ? '' : "(#{karma_display})"}"
+      return attribution #"#{attribution} #{karma_display.blank? ? '' : "(#{karma_display})"}"
     else
-      return "#{login} #{karma_display.blank? ? '' : "(#{karma_display})"}"
+      return login #"#{login} #{karma_display.blank? ? '' : "(#{karma_display})"}"
     end
   end
   def simple_display
@@ -137,6 +128,7 @@ class User < ActiveRecord::Base
       return login
     end
   end
+  alias :display_name :simple_display
 
   def pending_cases
     self.has_role?(:case_admin) ? Case.where(active: false) : Case.where(user_id: self.id).order(:updated_at)
@@ -184,6 +176,11 @@ class User < ActiveRecord::Base
     collages.include?(collage)
   end
 
+  def send_verification_request
+    reset_perishable_token!
+    Notifier.verification_request(self).deliver
+  end
+
   def deliver_password_reset_instructions!
     reset_perishable_token!
     Notifier.password_reset_instructions(self).deliver
@@ -220,7 +217,8 @@ class User < ActiveRecord::Base
           barcode_elements << { :type => created_type,
                                 :date => item.created_at,
                                 :title => "#{item.class} created: #{item.name}",
-                                :link => self.send(item.is_a?(Media) ? "medias_path" : "#{item.class.to_s.tableize.singularize}_path", item) }
+                                :link => self.send(item.is_a?(Media) ? "medias_path" : "#{item.class.to_s.tableize.singularize}_path", item),
+                                :rating => User::RATINGS[created_type.to_sym] }
         end
 
         # Base Collaged
@@ -232,7 +230,8 @@ class User < ActiveRecord::Base
               barcode_elements << { :type => collaged_type,
                                     :date => collage.created_at,
                                     :title => "#{item.class} #{item.name} collaged to #{collage.name}",
-                                    :link => collage_path(collage) }
+                                    :link => collage_path(collage),
+                                    :rating => User::RATINGS[collaged_type.to_sym] }
 
             end
           end
@@ -248,12 +247,14 @@ class User < ActiveRecord::Base
             barcode_elements << { :type => "user_#{single_type}_bookmarked",
                                   :date => ii.created_at,
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.user.display}",
-                                  :link => user_path(playlist.user) }
+                                  :link => user_path(playlist.user),
+                                  :rating => 1 }
           else
             barcode_elements << { :type => "user_#{single_type}_added",
                                   :date => ii.created_at,
                                   :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
-                                  :link => playlist_path(playlist) }
+                                  :link => playlist_path(playlist),
+                                  :rating => User::RATINGS["user_#{single_type}_added".to_sym] }
           end
         end
 
@@ -265,7 +266,8 @@ class User < ActiveRecord::Base
               barcode_elements << { :type => "user_#{single_type}_remix",
                                     :date => child.created_at,
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                    :link => self.send("#{single_type}_path", child) }
+                                    :link => self.send("#{single_type}_path", child),
+                                    :rating => 2 }
             end
           end
         end
@@ -277,17 +279,17 @@ class User < ActiveRecord::Base
           barcode_elements << { :type => "user_default_remix",
                                 :date => child.created_at,
                                 :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                :link => default_path(child) }
+                                :link => default_path(child),
+                                :rating => 1 }
         end
       end
+   
+      # FIXME: If barcode is turned back on, fix this
+      #value = self.barcode.inject(0) { |sum, item| sum + item[:rating] }
+      #self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }
     end
-  end
-
-  def update_karma
-    value = self.barcode.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-    self.update_attribute(:karma, value)
   end
 
   def private_playlists_by_permission
@@ -325,5 +327,9 @@ class User < ActiveRecord::Base
 
   def write_token_to_new_file(token)
     File.open(dropbox_access_token_file_path, 'w') {|f| f.write(token) }
+  end
+
+  def custom_label_method
+    "#{self.email_address} (#{self.simple_display})"
   end
 end

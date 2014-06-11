@@ -20,9 +20,6 @@
   </div>
 
   <div class="right_details">
-  <div class="barcode_outer">
-  <%= render :partial => "shared/barcode", :locals => { :object => playlist } %>
-  </div>
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), playlist, :class => "action read-action" %>
     <%= link_to raw('<span class="icon icon-remix"></span>REMIX'), copy_playlist_path(playlist), :class => "link-remix remix-option-action", "data-type" => "playlist", "data-title" => playlist.name %>

@@ -1,4 +1,7 @@
 #users_show {
+  #notice {
+    margin: 20px 0px 0px 0px;
+  }
   #results .panel {
     width: 300px;
     float: left;
@@ -142,5 +145,8 @@
     float: right;
     margin-bottom: 10px;
     clear: right;
+  }
+  .stats_panel .error {
+    margin-bottom: 10px;
   }
 }

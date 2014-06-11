@@ -16,13 +16,13 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   
       record.ancestor_ids.each do |parent_id|
         Rails.cache.delete("playlist-wordcount-#{parent_id}")
-        Rails.cache.delete("playlist-barcode-#{parent_id}")
-        Rails.cache.delete("views/playlist-barcode-html-#{parent_id}")
+        # Rails.cache.delete("playlist-barcode-#{parent_id}")
+        # Rails.cache.delete("views/playlist-barcode-html-#{parent_id}")
       end
       record.relation_ids.each do |p|
         Rails.cache.delete("playlist-wordcount-#{p}")
-        Rails.cache.delete("playlist-barcode-#{p}")
-        Rails.cache.delete("views/playlist-barcode-html-#{p}")
+        # Rails.cache.delete("playlist-barcode-#{p}")
+        # Rails.cache.delete("views/playlist-barcode-html-#{p}")
         ActionController::Base.expire_page "/playlists/#{p}.html"
         ActionController::Base.expire_page "/playlists/#{p}/export.html"
       end
@@ -31,7 +31,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
-        Rails.cache.delete("user-barcode-#{record.user_id}")
+        # Rails.cache.delete("user-barcode-#{record.user_id}")
       end
     rescue Exception => e
       Rails.logger.warn "Playlist sweeper error: #{e.inspect}"

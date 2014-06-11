@@ -133,9 +133,17 @@ class BaseController < ApplicationController
         Rails.logger.warn "Base#index Exception: #{e.inspect}"
       end
     end
+    [3456, 3820, 3230, 3212, 3385].each do |c|
+      begin
+        collage = Collage.where(id: c).first
+        @highlighted[:collage] << collage if collage
+      rescue Exception => e
+        Rails.logger.warn "Base#index Exception: #{e.inspect}"
+      end
+    end
 
     @media_map = {}
-    [Collage, Default, TextBlock, Case].each do |klass|
+    [Default, TextBlock, Case].each do |klass|
       @highlighted[klass.to_s.downcase.to_sym] = klass.where("public IS TRUE AND karma IS NOT NULL").order("karma DESC").limit(5)
     end
     ["Audio", "PDF", "Image", "Video"].each do |media_label|
@@ -145,52 +153,35 @@ class BaseController < ApplicationController
     end
   end
 
-  def common_search(models)
-    set_sort_params
-    set_sort_lists
-    params[:page] ||= 1
-    params[:per_page] ||= 20
-
-    @results = Sunspot.new_search(models)
-    @results.build do
-      if params.has_key?(:keywords)
-        keywords params[:keywords]
-      end
-      keywords params[:keywords]
-      with :public, true
-      with :active, true
-      order_by :score, :desc
-      paginate :page => params[:page], :per_page => params[:per_page]
-
-      order_by params[:sort].to_sym, params[:order].to_sym
-    end
-    @results.execute!
-    models.each do |model|
-      set_belongings model
-    end
-  end
-
   def search
-    params[:keywords] = CGI::escapeHTML(params[:keywords])
+    params[:keywords] = CGI::escapeHTML(params[:keywords].to_s)
     if params.has_key?(:keywords) && params[:keywords].present? && params[:keywords].length > 50
       params[:keywords] = params[:keywords][0..49]
     end
 
-    common_search [Playlist, Collage, Media, TextBlock, Case, Default]
+    [Playlist, Collage, Media, TextBlock, Case, Default].each do |model|
+      set_belongings model
+    end
+
+    set_sort_params
+    set_sort_lists
+    @collection = build_search([Playlist, Collage, Media, TextBlock, Case, Default], params)
 
     if request.xhr?
-      render :partial => 'base/search_ajax' 
+      render :partial => 'base/search_ajax'
     else
       render 'search'
     end
   end
 
   def quick_collage
+    set_sort_params
+    set_sort_lists
     params[:per_page] = 5
-    common_search [TextBlock, Case, Collage]
+    @collection = build_search([TextBlock, Case, Collage], params)
 
     if params.has_key?(:ajax)
-      render :partial => 'base/search_ajax' 
+      render :partial => 'base/search_ajax'
     else
       render :partial => 'base/quick_collage'
     end
@@ -198,5 +189,9 @@ class BaseController < ApplicationController
 
   def error
     redirect_to root_url, :status => 301
+  end
+
+  def not_found
+    render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
   end
 end

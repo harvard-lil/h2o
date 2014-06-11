@@ -1,5 +1,6 @@
 H2o::Application.routes.draw do
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
+  mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
 
   root 'base#index'
 
@@ -10,7 +11,6 @@ H2o::Application.routes.draw do
   get 'all_materials' => 'base#search', as: :search_all
   get 'quick_collage' => 'base#quick_collage', as: :quick_collage
   get 'log_out' => 'user_sessions#destroy', as: :log_out
-  match 'create_anon' => 'users#create_anon', as: :anonymous_user, via: [:get, :post]
   get 'partial_results/:type' => 'base#partial_results', as: :partial_results
   get '/bookmark_item/:type/:id' => 'users#bookmark_item', as: :bookmark_item
   get '/delete_bookmark_item/:type/:id' => 'users#delete_bookmark_item', as: :delete_bookmark_item
@@ -23,6 +23,8 @@ H2o::Application.routes.draw do
       get 'playlists'
       post 'disconnect_canvas'
       post 'disconnect_dropbox'
+      get 'verification_request'
+      get 'verify/:token' => 'users#verify', as: :verify
     end
     collection do
       get 'user_lookup'
@@ -75,17 +77,13 @@ H2o::Application.routes.draw do
   end
   resources :collages do
     resources :annotations
-    resources :collage_links do
-      collection do
-        get 'embedded_pager'
-      end
-    end
     member do
       get 'access_level'
       get 'delete_inherited_annotations'
       post 'export_unique'
       post 'save_readable_state'
       post 'copy'
+      get 'collage_list'
     end
     collection do
       get 'embedded_pager'
@@ -113,4 +111,6 @@ H2o::Application.routes.draw do
       get 'manage_permissions'
     end
   end
+  
+  get '/:id', :to => 'base#not_found'
 end

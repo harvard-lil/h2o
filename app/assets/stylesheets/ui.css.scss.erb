@@ -76,8 +76,22 @@ form.formtastic input.button {
   border: none;
 }
 
-#notice, #error_block, .error {
+#notice, 
+#error_block,
+.error,
+.stats_panel .error {
   color: #A51514;
+  a {
+    color: #A51514;
+    font-weight: bold;
+  }
+}
+.standard-form .error {
+  margin: 20px 0px 0px 20px;
+  a {
+    color: #A51514;
+    font-size: 14px;
+  }
 }
 #notice {
   margin: 10px 0px;
@@ -440,6 +454,9 @@ header #search table td {
 #results li.listitem a {
   text-decoration: none;
   font-weight: bold;
+}
+#results li.listitem a.base_index_overflow {
+  display: none;
 }
 #results li.listitem a.show_default_description,
 #results li.listitem a.hide_default_description {
@@ -810,9 +827,12 @@ body#bpages .main_wrapper {
 }
 #login-popup {
   display: none;
-}
-#login-popup .left a {
-  font-size: 14px;
+  .left {
+    padding: 85px 0px;
+    a {
+      font-size: 14px;
+    }
+  }
 }
 .standard-form .errorExplanation { color: #4e9ed1; margin-bottom: 20px; }
 .standard-form .errorExplanation ul { margin-left: 20px; }
@@ -926,20 +946,32 @@ h2 .bookmarked { color: #FFF; }
   z-index: 100000;
   font-family: 'futura-pt', Verdana, Arial, Helvetica, Sans-Serif;
 }
-.tipsy-barcode {
-  margin-left: -5px;
-}
 .tipsy-p {
   font-size: 15px;
   opacity: 0.0;
 }
 .tipsy-inner {
+  border: 5px solid #c3c3c3;
   background-color: #FFFFFF;
   color: #000;
   max-width: 200px;
   padding: 9px;
   text-align: center;
   font-weight: bold;
+}
+.tipsy-barcode {
+  margin-left: -5px;
+}
+.tipsy-barcode-breakdown {
+  margin-left: -5px;
+  .tipsy-inner {
+    text-align: left;
+    .detail {
+      padding-left: 2px;
+      position: relative;
+      top: -5px;
+    }
+  }
 }
 
   .tipsy-arrow { position: absolute; width: 0; height: 0; border: 5px solid transparent; }
@@ -1166,9 +1198,8 @@ ul.user_captcha > li p.inline-errors { display: none; }
   margin: 10px 0px;
 }
 #singleitem_barcode_toolbar .barcode {
-  width: 319px;
+  width: 200px;
   display: inline-block;
-  margin-right: 10px;
 }
 #singleitem_barcode_toolbar a.link-add,
 #singleitem_barcode_toolbar a.remix-action,
@@ -1479,6 +1510,7 @@ div.stats_hover ul.lineage .current > a {
 /* Barcode Breakdown */
 .barcode_breakdown {
   padding: 10px 0px;
+  display: none;
 }
 div.stats_hover .barcode_breakdown {
   opacity: 1.0;

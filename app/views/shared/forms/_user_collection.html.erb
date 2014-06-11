@@ -7,8 +7,8 @@
       <%= form.input :description, :as => :text, :required => false %>
     <% end %>
     <% unless request.xhr? %>
-      <% form.buttons do %>
-        <%= form.commit_button 'SAVE' %>
+      <%= form.actions do -%>
+        <%= form.action :submit, :as => 'button', :label => "SAVE" %>
       <% end %>
     <% end %>
   <% end %>

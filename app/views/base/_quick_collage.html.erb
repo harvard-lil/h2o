@@ -13,13 +13,13 @@
     Search Results: <b><%= params[:keywords] %></b>
     </h1>
     <% end -%>
-    <%= pluralize @results.total, "Result" %>
+    <span id="result_count"><%= pluralize @collection.total, "Result" %></span>
     <aside class="pagination" id="collage_pagination">
-    <%= will_paginate @results.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax => 1 } %>
+    <%= will_paginate @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax => 1 } %>
     </aside>
   </div>
   <ul id="results_set">
-    <% @results.each_hit_with_result do |hit, result| -%>
+    <% @collection.each_hit_with_result do |hit, result| -%>
 		<%= render :partial => "shared/objects/#{result.class == Case ? 'case_obj' : result.class.to_s.downcase}",
                :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
     <% end %>

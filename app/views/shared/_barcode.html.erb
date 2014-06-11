@@ -1,14 +1,17 @@
-<% if object && object.barcode.any? -%>
-<% cache("#{object.class.to_s.downcase}-barcode-html-#{object.id}", :compress => true) do %>
+<% if false && object && object.barcode.any? -%>
+<% cache("#{object.class.to_s.downcase}-barcode-html-#{object.id}", :compress => H2O_CACHE_COMPRESSION) do %>
 <div class="barcode" data-karma="<%= object.karma || 0 %>" data-ticks="<%= object.barcode.size || 0 %>">
-  <span class="left_overflow overflow inactive"></span>
-  <span class="right_overflow overflow"></span>
-  <div class="barcode_wrapper">
-    <% object.barcode.each do |item| %>
-    <a href="<%= item[:link] || '#' %>" target="_blank" class="<%= item[:type] %>" title="<%= item[:title] %>"><span><%= item[:title] %></span></a>
-    <% end -%>
-    <div class="clear"></div>
-  </div>
+  <% if object.karma.to_i > 66 -%>
+  <a class="listing_overflow overflow" href="#"></a>
+  <% end -%>
+  <% object.visible_barcode.each do |item| %>
+  <a href="<%= item[:link] || '#' %>" target="_blank" class="<%= item[:type] %>" title="<%= item[:title] %>"><span><%= item[:title] %></span></a>
+  <% end -%>
+  <% if object.karma.to_i > 66 -%>
+  <a class="base_index_overflow overflow" href="#"></a>
+  <% end -%>
+  <div class="clear"></div>
 </div>
+<%= render :partial => "shared/breakdown_barcode", :locals => { :model => object.class, :breakdown_data => object.barcode_breakdown } %>
 <% end -%>
 <% end -%>

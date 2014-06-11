@@ -23,9 +23,6 @@
   </div>
 
   <div class="right_details">
-  <div class="barcode_outer">
-    <%= render :partial => "shared/barcode", :locals => { :object => collage } %>
-  </div>
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), collage, :class => "action read-action" %>
     <a href="<%= copy_collage_path(collage) %>" class="remix-action link-copy" data-type="collage" data-title="<%= collage.name %>"><span class="icon icon-remix"></span>REMIX</a>

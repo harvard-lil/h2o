@@ -10,4 +10,4 @@ WHITELISTED_ATTRIBUTES = %w|class src href height width target title|
 require 'core_ext/array'
 require 'dropbox_sdk'
 
-H2O_CACHE_COMPRESSION = false #true
+H2O_CACHE_COMPRESSION = true

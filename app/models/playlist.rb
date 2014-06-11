@@ -2,14 +2,10 @@ class Playlist < ActiveRecord::Base
   include StandardModelExtensions
   include AncestryExtensions
   include CaptchaExtensions
+  include VerifiedUserExtensions
   include FormattingExtensions
   include Rails.application.routes.url_helpers
 
-  RATINGS = {
-    :remix => 5,
-    :bookmark => 1,
-    :add => 3
-  }
   RATINGS_DISPLAY = {
     :remix => "Remixed",
     :bookmark => "Bookmarked",
@@ -100,10 +96,11 @@ class Playlist < ActiveRecord::Base
         barcode_elements << { :type => "remix",
                               :date => child.created_at,
                               :title => "Remixed to Playlist #{child.name}",
-                              :link => playlist_path(child) }
+                              :link => playlist_path(child),
+                              :rating => 5 }
       end
 
-      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
       self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }

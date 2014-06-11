@@ -58,6 +58,7 @@
       <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large" %>
     </div>
     <div class="stats_panel">
+      <%= render :partial => "shared/user_verified" %>
       <p>
         <label>Default font size:</label>
         <span><%= @user.default_font_size %></span>
@@ -80,6 +81,7 @@
       </p>
     </div>
   </div>
+  <% if false -%>
 	<div id="collections_panel" class="panel">
 	  <div class="header">
 	    <h3>User Collections</h3>
@@ -101,6 +103,7 @@
 	    <%= render :partial => "shared/objects/user_collection", :collection => @user.collections %>
 	  </ul>
 	</div>
+  <% end -%>
   <% end -%>
 
   <div class="clear"></div>

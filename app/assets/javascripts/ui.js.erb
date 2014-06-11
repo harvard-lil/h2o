@@ -176,7 +176,8 @@ var h2o_global = {
         $('#quick_collage_node #results_set').find('.barcode_outer,.read-action,.link-add,.bookmark-action,.edit-external,.icon-delete').remove();
         $('#quick_collage_node #results_set').show();
         $('#collage_pagination').html($('#quick_collage_node #new_pagination').html());
-        $('#new_pagination').remove();
+        $('#result_count').html($('#new_result_count').html());
+        $('#new_pagination,#new_result_count').remove();
         h2o_global.observeResultsHover('#quick_collage_node');
       }
     });
@@ -360,63 +361,26 @@ var h2o_global = {
           h2o_global.hideGlobalSpinnerNode();
           current.parent().parent().append($(html));
           current.parent().remove();
-          h2o_global.initializeBarcodes();
         }
       });
     });
   },
   initializeBarcodes: function() {
-    $('.barcode a').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0, offset: 10 });
-    $('.barcode a').mouseover(function() {
+    $('.barcode a:not(.overflow)').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0, offset: 1 });
+    $('.barcode a:not(.overflow)').mouseover(function() {
       $(this).tipsy('show');
       $('.tipsy').addClass($(this).attr('class') + ' tipsy-barcode');
     }).mouseout(function() {
       $(this).tipsy('hide');
     });
-    $.each($('.barcode:not(.adjusted)'), function(i, el) {
-      var current = $(el);
-      current.addClass('adjusted');
-      var barcode_width = current.width();
-      if(current.data('karma')*3 > barcode_width) {
-        current.find('.barcode_wrapper').css({ left: '0px', width: current.data('karma') * 3 + current.data('ticks') });
-      } else {
-        current.find('.barcode_wrapper').css({ padding: '0px' });
-        current.find('.overflow').hide();
-        if($('#playlist.singleitem').size() && current.parent().hasClass('additional_details')) {
-          current.width(current.data('karma') * 3 + current.data('ticks') + 5);
-        }
-      }
+    $('.barcode a.overflow').tipsy({ gravity: 's', trigger: 'manual', opacity: 1.0, offset: 1, html: true, title: function() { return $(this).parent().siblings('.barcode_breakdown').html() } });
+    $('.barcode a.overflow').mouseover(function() {
+      $(this).tipsy('show');
+      $('.tipsy').addClass('tipsy-barcode-breakdown');
+    }).mouseout(function() {
+      $(this).tipsy('hide');
     });
     $('.barcode').animate({ opacity: 1.0 });
-
-    //TODO: Clean this up a bit to be more precise
-    $(document).delegate('span.right_overflow:not(.inactive)', 'click', function() {
-      var current = $(this);
-      var wrapper = current.siblings('.barcode_wrapper');
-      var min_left_position = -1*(wrapper.width() + 27 - current.parent().width());
-      var standard_shift = -1*(current.parent().width() - 27);
-      var position = parseInt($(this).siblings('.barcode_wrapper').css('left').replace('px', ''));
-      if(position + standard_shift < min_left_position) {
-        wrapper.animate({ left: min_left_position });
-        current.addClass('inactive');
-      } else {
-        wrapper.animate({ left: position + standard_shift });
-      }
-      current.siblings('.left_overflow').removeClass('inactive');
-    });
-    $(document).delegate('span.left_overflow:not(.inactive)', 'click', function() {
-      var current = $(this);
-      var wrapper = current.siblings('.barcode_wrapper');
-      var standard_shift = -1*(current.parent().width() - 21);
-      var position = parseInt($(this).siblings('.barcode_wrapper').css('left').replace('px', ''));
-      if(position - standard_shift > 0) {
-        wrapper.animate({ left: 0 });
-        current.addClass('inactive');
-      } else {
-        wrapper.animate({ left: position - standard_shift });
-      }
-      current.siblings('.right_overflow').removeClass('inactive');
-    });
   },
   resetRightPanelThreshold: function() {
     if($('#collapse_toggle').size()) {
@@ -620,6 +584,7 @@ var h2o_global = {
   },
   loadEditability: function() {
     if($.cookie('user_id') == null) {
+      _gaq.push(['_trackEvent', 'User Tick', 'Not Logged In']);
       //lack of cookies indicate user not logged in. Skipping
       $('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous, .remix-action, .link-add, .bookmark-action, .link-collage, .remix-option-action').remove();
       $('.afterload').css('opacity', 1.0);
@@ -635,8 +600,10 @@ var h2o_global = {
       return;
     } else {
       if(eval($.cookie('anonymous_user'))) {
+        _gaq.push(['_trackEvent', 'User Tick', 'Anonymous User']);
         $('.requires_non_anonymous').remove(); 
       } else {
+        _gaq.push(['_trackEvent', 'User Tick', 'User: ' + $.cookie('user_id')]);
         $('.requires_non_anonymous').animate({ opacity: 1.0 });
       }
       $('#user_account').append($('<a>').html($.cookie('display_name').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + $.cookie('user_id')));
@@ -781,7 +748,6 @@ var h2o_global = {
         $('#results_' + region).html(html);
         $('#pagination_' + region).html($('#new_pagination').html());
         $('#new_pagination').remove();
-        h2o_global.initializeBarcodes();
         $('#results_' + region + ' .listitem').hoverIntent(function() {
         $(this).addClass('hover');
         $(this).find('.icon').addClass('hover');
@@ -807,8 +773,8 @@ var h2o_global = {
       },
       success: function(html){
         h2o_global.hideGlobalSpinnerNode();
-        if(href.match('collage_links')) {
-          $('#collage_links').html(html).show();    
+        if(href.match('for_annotation')) {
+          $('#collage_list').html(html).show();    
         } else {
           if(store_address) {
             $.address.value(href);
@@ -817,7 +783,6 @@ var h2o_global = {
           $('#results_set').html(html);
           $('.standard_pagination').html($('#new_pagination').html());
           $('#new_pagination').remove();
-          h2o_global.initializeBarcodes();
           h2o_global.observeResultsHover('');
           if($('body#users_show').length) {
             users_show.renderDeleteFunctionality();
@@ -847,7 +812,7 @@ var h2o_global = {
     });
   },
   observePagination: function(){
-    $(document).delegate('.standard_pagination a,#collage_links .pagination a,#link_edit .pagination a', 'click', function(e){
+    $(document).delegate('.standard_pagination a,#collage_list .pagination a,#link_edit .pagination a', 'click', function(e){
       e.preventDefault();
       h2o_global.listResults($(this).attr('href'), true);
     });
@@ -1352,7 +1317,6 @@ $(function() {
     h2o_global.listResults(url, false);
   }
 
-  h2o_global.initializeBarcodes();
   h2o_global.observeDestroyControls('');
   h2o_global.observeGenericControls('');
   h2o_global.observeRemixControls('');

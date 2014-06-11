@@ -112,7 +112,7 @@ class ApplicationController < ActionController::Base
   # Note: set_sort_params should always execute before set_sort_lists
   # to ensure proper dropdown selected
   def set_sort_params
-    if !["karma", "updated_at", "score", "display_name", "decision_date", "created_at", "user"].include?(params[:sort])
+    if !["updated_at", "score", "display_name", "decision_date", "created_at", "user"].include?(params[:sort])
       params[:sort] = nil
     end
     if params[:sort] == "decision_date" && params[:filter_type] != "cases"
@@ -125,19 +125,18 @@ class ApplicationController < ActionController::Base
       if params[:controller] == "users" && params[:sort].nil?
         params[:sort] ||= "updated_at"
       else
-        params[:sort] ||= "karma"
+        params[:sort] ||= "display_name"
       end
     end
 
-    params[:order] = (["score", "karma", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
+    params[:order] = (["score", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
   end
 
   def set_sort_lists
     @sort_lists = {}
     base_sort = {
-      "score" => { :display => "SORT BY RELEVANCE", :selected => true },
-      "karma" => { :display => "SORT BY INFLUENCE", :selected => false },
-      "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false }
+      "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false },
+      "score" => { :display => "SORT BY RELEVANCE", :selected => true }
     }
     @sort_lists[:all] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE (IF APPLIES)", :selected => false },
@@ -147,11 +146,12 @@ class ApplicationController < ActionController::Base
     @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
     }))
+    @sort_lists[:users] = base_sort
     @sort_lists[:text_blocks] = generate_sort_list(base_sort.merge({
       "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
     if ["index", "search"].include?(params[:action])
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:media] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false },
         "user" => { :display => "SORT BY AUTHOR", :selected => false }
       }))
@@ -163,7 +163,7 @@ class ApplicationController < ActionController::Base
   end
 
   def common_index(model)
-    set_belongings model
+    set_belongings model if model != User
 
     @page_title = "#{model.to_s.pluralize} | H2O Classroom Tools"
     @model = model
@@ -245,7 +245,7 @@ class ApplicationController < ActionController::Base
 
       with :active, true
 
-      paginate :page => params[:page], :per_page => 20
+      paginate :page => params[:page], :per_page => params[:per_page]
       order_by params[:sort].to_sym, params[:order].to_sym
     end
 

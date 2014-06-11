@@ -5,7 +5,6 @@
 </div>
 
 <aside id="singleitem_barcode_toolbar">
-  <%= render :partial => "shared/barcode", :locals => { :object => @case } %>
   <%= link_to raw('<span class="icon icon-tocollage-large"><span>Collage This</span></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action tooltip requires_logged_in', :title => "Collage This" %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @case.id, "data-type" => "case", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Case</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@case.name}", "data-type" => "case", "data-itemid" => @case.id %>

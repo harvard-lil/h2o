@@ -1,6 +1,5 @@
 <% @highlighted[:default].each do |item| -%>
 <div class="user item"><div class="item_wrapper">
   <%= link_to item.display_name, item.url %>
-  <%= render :partial => "shared/barcode", :locals => { :object => item } %>
 </div></div>
 <% end -%>

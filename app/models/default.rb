@@ -6,10 +6,10 @@ class Default < ActiveRecord::Base
   include FormattingExtensions
   include Rails.application.routes.url_helpers
 
-  RATINGS = {
-    :bookmark => 1,
-    :add => 3,
-    :default_remix => 1
+  RATINGS_DISPLAY = {
+    :default_remix => "Remixed",
+    :bookmark => "Bookmarked",
+    :add => "Added to"
   }
 
   acts_as_taggable_on :tags
@@ -54,11 +54,12 @@ class Default < ActiveRecord::Base
         barcode_elements << { :type => "default_remix",
                               :date => child.created_at,
                               :title => "Remixed to Link #{child.name}",
-                              :link => default_path(child) }
+                              :link => default_path(child),
+                              :rating => 1 }
       end
       
-      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
-      #self.update_attribute(:karma, value)
+      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
+      self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }
     end
@@ -66,5 +67,9 @@ class Default < ActiveRecord::Base
 
   def self.content_types_options
     %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
+  end
+        
+  def before_import_save(row, map)
+    self.valid_recaptcha = true
   end
 end

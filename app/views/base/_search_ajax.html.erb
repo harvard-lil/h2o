@@ -1,11 +1,12 @@
-<% if @results.hits.any? -%>
-<% @results.each_hit_with_result do |hit, result| -%>
+<% if @collection.hits.any? -%>
+<% @collection.each_hit_with_result do |hit, result| -%>
 <%= render :partial => "shared/objects/#{result.class == Case ? 'case_obj' : result.class.to_s.downcase}",
            :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
 <% end %>
 
+<span id="new_result_count"><%= pluralize @collection.total, "Result" %></span>
 <div id="new_pagination">
-<%= will_paginate @results.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax => 1 } %>
+<%= will_paginate @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :ajax => 1 } %>
 </div>
 <% else -%>
 <p id="no_results">No items match your search.</p>

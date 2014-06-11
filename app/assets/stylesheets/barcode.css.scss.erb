@@ -5,27 +5,20 @@
   overflow: hidden;
   opacity: 0.0;
 }
-.barcode_wrapper {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  padding: 0px 13px 0px 14px;
-}
 .barcode a {
   background-color: #999;
   opacity: 0.9;
   display: block;
-  float: left;
   height: 14px;
   width: 0px;
   margin-left: 1px;
   width: 5px;
+  float: right;
 }
 .barcode a span {
   display: none;
 }
-.barcode span.overflow {
-  position: absolute;
+.barcode a.overflow {
   top: 0px;
   height: 14px;
   color: #FFF;
@@ -33,23 +26,15 @@
   z-index: 2;
   overflow: hidden;
   width: 13px;
-}
-.barcode span.overflow:hover {
-  cursor: pointer;
-}
-.barcode span.inactive {
-  opacity: 0.3;
-}
-.barcode span.inactive:hover {
-  cursor: default;
-}
-.barcode span.left_overflow {
-  left: 0px;
-  background-position: -255px -14px;
-}
-.barcode span.right_overflow {
-  right: 0px;
   background-position: -282px -14px;
+}
+#base_index #home_index .barcode {
+  a {
+    float: left;
+  }
+  a.listing_overflow {
+    display: none;
+  }
 }
 .barcode a:hover {
   opacity: 1.0;

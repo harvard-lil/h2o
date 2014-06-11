@@ -12,9 +12,9 @@ class CaseSweeper < ActionController::Caching::Sweeper
   
       ActionController::Base.new.expire_fragment "case-list-object-#{record.id}"
 
-      if record.changed.include?("public")
-        Rails.cache.delete("user-barcode-#{record.user_id}")
-      end
+      #if record.changed.include?("public")
+      #  Rails.cache.delete("user-barcode-#{record.user_id}")
+      #end
     rescue Exception => e
       Rails.logger.warn "Case sweeper error: #{e.inspect}"
     end

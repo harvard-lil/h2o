@@ -4,10 +4,10 @@ class Case < ActiveRecord::Base
   include FormattingExtensions
   include Rails.application.routes.url_helpers
 
-  RATINGS = {
-    :collaged => 5,
-    :bookmark => 1,
-    :add => 3
+  RATINGS_DISPLAY = {
+    :collaged => "Collaged",
+    :bookmark => "Bookmarked",
+    :add => "Added to"
   }
 
   acts_as_taggable_on :tags
@@ -119,10 +119,11 @@ class Case < ActiveRecord::Base
         barcode_elements << { :type => "collaged",
                               :date => collage.created_at,
                               :title => "Collaged to #{collage.name}",
-                              :link => collage_path(collage) }
+                              :link => collage_path(collage),
+                              :rating => 5 }
       end
 
-      value = barcode_elements.inject(0) { |sum, item| sum += self.class::RATINGS[item[:type].to_sym].to_i; sum }
+      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
       self.update_attribute(:karma, value)
 
       barcode_elements.sort_by { |a| a[:date] }

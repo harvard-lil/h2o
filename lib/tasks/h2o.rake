@@ -15,7 +15,7 @@ namespace :h2o do
   
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
-    system("rm -rf #{Rails.root}/tmp/cache/*")
+    system("rm -rf #{Rails.root}/tmp/cache/h2o/*")
     Rake::Task["h2o:clear_page_cache"].execute
   end
 

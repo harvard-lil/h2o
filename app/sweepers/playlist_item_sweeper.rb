@@ -6,8 +6,8 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   def actual_object_clear(actual_object)
     begin
       if actual_object.present?
-        Rails.cache.delete("#{actual_object.class.to_s.downcase}-barcode-#{actual_object.id}")
-        Rails.cache.delete("views/#{actual_object.class.to_s.downcase}-barcode-html-#{actual_object.id}")
+        # Rails.cache.delete("#{actual_object.class.to_s.downcase}-barcode-#{actual_object.id}")
+        # Rails.cache.delete("views/#{actual_object.class.to_s.downcase}-barcode-html-#{actual_object.id}")
         if [Playlist, Collage, Case].include?(actual_object.class)
           ActionController::Base.expire_page "/#{actual_object.class.to_s.tableize}/#{actual_object.id}.html"
           ActionController::Base.expire_page "/#{actual_object.class.to_s.tableize}/#{actual_object.id}/export.html"

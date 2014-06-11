@@ -23,9 +23,6 @@
     <% end -%>
 	</div>
   <div class="right_details">
-  <div class="barcode_outer">
-    <%= render :partial => "shared/barcode", :locals => { :object => default } %>
-  </div>
 	<% if current_user -%>
 	<div class="controls">
     <a data-item_id="<%= default.id %>" data-type="default" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
