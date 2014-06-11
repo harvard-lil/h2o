@@ -57,3 +57,5 @@ gem 'scrypt'
 
 gem 'rails_admin_import', '0.1.9'
 # gem 'rails-perftest'
+
+gem "skylight"

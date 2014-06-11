@@ -21,3 +21,4 @@ config/newrelic.yml
 solr/pids/
 public/assets/
 solr/data/
+config/skylight.yml

@@ -165,6 +165,8 @@ GEM
     scrypt (1.2.1)
       ffi-compiler (>= 0.0.2)
       rake
+    skylight (0.3.14)
+      activesupport (>= 3.0.0)
     sprockets (2.11.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -232,6 +234,7 @@ DEPENDENCIES
   recaptcha
   sass-rails (~> 4.0.0)
   scrypt
+  skylight
   sunspot_rails
   sunspot_solr
   therubyracer

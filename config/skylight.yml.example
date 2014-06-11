@@ -1,0 +1,7 @@
+production: 
+  application: 123
+  authentication: ABC
+
+development:
+  application: 123
+  authentication: ABC
