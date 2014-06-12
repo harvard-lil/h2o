@@ -30,7 +30,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
-        Rails.cache.delete("user-barcode-#{record.user_id}")
+        # Rails.cache.delete("user-barcode-#{record.user_id}")
       end
     rescue Exception => e
       Rails.logger.warn "Collage sweeper error: #{e.inspect}"
