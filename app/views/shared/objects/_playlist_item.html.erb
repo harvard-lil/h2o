@@ -46,7 +46,7 @@
 
       <% if actual_object.respond_to?(:description) && actual_object.description != item.description -%>
       <div class="item_desc">
-        <%= PlaylistItem.format_content(item.description) %>
+        <%= raw PlaylistItem.format_content(item.description) %>
       </div>
       <% end -%>
       <% if item.notes.to_s != '' && item.public_notes -%>

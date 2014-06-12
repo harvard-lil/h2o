@@ -35,7 +35,7 @@
 				<td id="spinner">
 					<%= image_tag "ajax-loader.gif" %>
 				</td>
-				<% if params[:controller] == 'cases' && (@page_cache || (current_user && !current_user.has_role?(:nonauthenticated))) -%>
+				<% if params[:controller] == 'cases' && (@page_cache || (current_user && current_user.not_anonymous)) %>
 				<td class="requires_non_anonymous">
 				<%= link_to "REQUEST CASE", new_case_request_path, :id => 'case_request_button', :class => 'requires-non-anonymous button' %>
 				</td>
