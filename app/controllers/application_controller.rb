@@ -355,6 +355,7 @@ class ApplicationController < ActionController::Base
       end
       @page_title = "New #{model.to_s}"
     elsif params[:id].present?
+      # TODO: Add includes(playlist_items) for loading playlist here
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
       item = params[:action] == "new" ? model.new : model.where(:id => params[:id]).first
       if item.present? && item.user.present?
