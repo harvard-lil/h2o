@@ -215,7 +215,7 @@ class ApplicationController < ActionController::Base
   end
 
   def build_search(model, params)
-    items = (model == TextBlock ? Sunspot.new_search(TextBlock, JournalArticle) : Sunspot.new_search(model))
+    items = (model == User ? User.search : model.search(:include => :user))
 
     items.build do
       if params.has_key?(:keywords)
