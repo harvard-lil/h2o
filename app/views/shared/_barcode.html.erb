@@ -1,5 +1,5 @@
 <% if false && object && object.barcode.any? -%>
-<% cache("#{object.class.to_s.downcase}-barcode-html-#{object.id}", :compress => H2O_CACHE_COMPRESSION) do %>
+<% cache(["barcode-html", object], :compress => H2O_CACHE_COMPRESSION) do %>
 <div class="barcode" data-karma="<%= object.karma || 0 %>" data-ticks="<%= object.barcode.size || 0 %>">
   <% if object.karma.to_i > 66 -%>
   <a class="listing_overflow overflow" href="#"></a>

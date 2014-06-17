@@ -63,18 +63,19 @@
     <% end -%>
   </div>
   </div>
-    <% if recursive_level < 4 && item.actual_object_type == 'Playlist' && actual_object -%>
-      <% if actual_object.playlist_items.any? -%>
+    <% if recursive_level < 4 && item.actual_object_type == 'Playlist' && @nested_playlists.has_key?("Playlist-#{item.actual_object_id}") %>
+      <% nested_playlist = @nested_playlists["Playlist-#{item.actual_object_id}"] %> 
+      <% if nested_playlist.playlist_items.any? -%>
       <div class="dd playlists">
         <ol class="dd-list">
-        <% actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
+        <% nested_playlist.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item',
             :locals => { :item => nested_item,
             :actual_object => nested_item.actual_object,
             :parent_index => parent_index == '' ? index : "#{parent_index}.#{index}",
             :index => nested_index + 1,
             :recursive_level => recursive_level + 1,
-            :last => (nested_item == actual_object.playlist_items.last) } %>
+            :last => (nested_item == nested_playlist.playlist_items.last) } %>
         <% end -%>
         </ol>
       </div>

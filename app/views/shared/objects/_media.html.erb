@@ -1,4 +1,4 @@
-<% cache("media-list-object-#{hit.stored(:id)}", :compress => H2O_CACHE_COMPRESSION) do %>
+<% cache([media.user, "list-object", media], :compress => H2O_CACHE_COMPRESSION) do %>
 <li class="listitem listitem<%= media.id %>" id="listitem_media<%= media.id %>" data-itemid="<%= media.id %>" data-type="media">
   <a href="#" class="tooltip list-icon icon icon-media-<%= media.media_type.slug %>" title="<%= media.media_type.label %>"></a>
 	<div class="details">

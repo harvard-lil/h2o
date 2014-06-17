@@ -13,36 +13,21 @@ class BaseController < ApplicationController
 
     params[:page] ||= 1
 
-    if params[:keywords].present?
-      obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
-      obj.build do
+    obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
+   
+    obj.build do
+      if params[:keywords].present?
         keywords params[:keywords]
-        paginate :page => params[:page], :per_page => 5 || nil
-
-        with :public, true
-        with :active, true
-
-        order_by params[:sort].to_sym, params[:order].to_sym
       end
-      obj.execute!
-      formatted_objects = { :results => obj.results, :total => obj.total }
-    else
-      cache_key = model.present? ? "#{model.to_s.tableize}-embedded-search-#{params[:sort]}-#{params[:page]}--karma-asc" :
-        "embedded-search-#{params[:page]}-#{params[:sort]}-karma-asc"
-      formatted_objects = Rails.cache.fetch(cache_key, :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do
-        obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
-        obj.build do
-          paginate :page => params[:page], :per_page => 5 || nil
+      paginate :page => params[:page], :per_page => 5 || nil
 
-          with :public, true
-          with :active, true
+      with :public, true
+      with :active, true
 
-          order_by params[:sort].to_sym, params[:order].to_sym
-        end
-        obj.execute!
-        { :results => obj.results, :total => obj.total }
-      end
+      order_by params[:sort].to_sym, params[:order].to_sym
     end
+    obj.execute!
+    formatted_objects = { :results => obj.results, :total => obj.total }
 
     @display_objects = formatted_objects[:results]
     @objects = formatted_objects[:results].paginate(:page => params[:page], :per_page => 5, :total_entries => formatted_objects[:total])
@@ -73,7 +58,7 @@ class BaseController < ApplicationController
       if playlist.present? && playlist.user.present?
         @author_playlists = playlist.user.playlists.paginate(:page => params[:page], :per_page => per_page)
       else
-        @author_playlists = []
+        @author_playlists = [].paginate(:page => params[:page], :per_page => per_page)
       end
     else
       render :partial => "partial_results/empty"

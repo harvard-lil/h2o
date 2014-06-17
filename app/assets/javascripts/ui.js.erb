@@ -18,6 +18,7 @@ var scife_fn_clicked = function() {
 var page_load = true;
 var list_results_url = '';
 var captcha_config = '<%= Recaptcha.configuration.public_key %>';
+var playlists_initialized = false;
 
 $.extend({
   mustache: function(template, data, partial, stream) {
@@ -291,41 +292,46 @@ var h2o_global = {
       });
     }
   },
+
+  triggerAddItem: function(element) {
+    h2o_global.hideGlobalSpinnerNode();
+
+    var current_id = element.data('item_id');
+    if($('.singleitem').size()) {
+      element.parentsUntil('.listitem').last().parent().addClass('adding-item');
+    }
+    if(popup_item_id != 0 && current_id == popup_item_id) {
+      $('.add-popup').hide();
+      popup_item_id = 0;
+    } else {
+      popup_item_id = current_id;
+      popup_item_type = element.data('type');
+      var filtered_playlists = new Array();
+      if(popup_item_type == 'playlist') {
+        $.each(user_playlists, function(i, j) {
+          if(popup_item_id != j.id) {
+            filtered_playlists.push(j);
+          }
+        }); 
+      } else {
+        filtered_playlists = user_playlists;
+      }
+      var addItemNode = $($.mustache(add_popup_template, { "playlists": filtered_playlists }));
+      $(addItemNode).dialog({
+        title: 'Add item to...',
+        modal: true,
+        width: 'auto',
+        height: 'auto',
+      }).dialog('open');
+    }
+  },
   observeTabDisplay: function() {
     $(document).delegate('.ui-dialog-titlebar-close', 'click', function() {
       popup_item_id = 0;
     });
     $(document).delegate(' .link-add a, a.link-add', 'click', function() {
       var element = $(this);
-      var current_id = element.data('item_id');
-      if($('.singleitem').size()) {
-        element.parentsUntil('.listitem').last().parent().addClass('adding-item');
-      }
-      if(popup_item_id != 0 && current_id == popup_item_id) {
-        $('.add-popup').hide();
-        popup_item_id = 0;
-      } else {
-        popup_item_id = current_id;
-        popup_item_type = element.data('type');
-        var filtered_playlists = new Array();
-        if(popup_item_type == 'playlist') {
-          $.each(user_playlists, function(i, j) {
-            if(popup_item_id != j.id) {
-              filtered_playlists.push(j);
-            }
-          }); 
-        } else {
-          filtered_playlists = user_playlists;
-        }
-        var addItemNode = $($.mustache(add_popup_template, { "playlists": filtered_playlists }));
-        $(addItemNode).dialog({
-          title: 'Add item to...',
-          modal: true,
-          width: 'auto',
-          height: 'auto',
-        }).dialog('open');
-      }
-
+      h2o_global.initializeUserPlaylists(element);
       return false;
     });
     $(document).delegate('.new-playlist-item', 'click', function(e) {
@@ -1160,7 +1166,14 @@ var h2o_global = {
       }
     }).dialog('open');
   },
-  initiailizeUserPlaylists: function() {
+  initializeUserPlaylists: function(element) {
+    if(playlists_initialized) {
+      h2o_global.triggerAddItem(element);
+      return;
+    }
+    playlists_initialized = true;
+    h2o_global.showGlobalSpinnerNode();
+
     if($.cookie('playlists') == null || $.cookie('user_id') == null) {
       return;
     }
@@ -1175,6 +1188,7 @@ var h2o_global = {
             j.name = j.name.replace(/\+/g, ' ');
             $('#listitem_playlist' + j.id + ' .push-action').addClass('mark-for-keep');
           });
+          h2o_global.triggerAddItem(element);
         }
       });
     } else {
@@ -1183,6 +1197,7 @@ var h2o_global = {
         playlist.name = playlist.name.replace(/\+/g, ' ');
         $('#listitem_playlist' + playlist.id + ' .push-action').addClass('mark-for-keep');
       });
+      h2o_global.triggerAddItem(element);
     }
     $('.push-action:not(.mark-for-keep)').remove();
     $('.push-action').show();
@@ -1261,7 +1276,6 @@ $(function() {
 
   h2o_global.loadEditability();
   h2o_global.updateExistingBookmarks();
-  h2o_global.initiailizeUserPlaylists();
 
   //Keep this early to adjust font sizes early
   h2o_global.adjustArticleHeaderSizes();

@@ -17,13 +17,15 @@ class PlaylistsController < BaseController
       can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
       can_edit_notes = can_edit || current_user.can_permission_playlist("edit_notes", @playlist)
       can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)
-      notes = can_edit_notes ? @playlist.playlist_items : @playlist.playlist_items.select { |pi| !pi.public_notes }
+
+      playlist_items = PlaylistItem.unscoped.where(playlist_id: @playlist.id)
+      notes = can_edit_notes ? playlist_items : playlist_items.select { |pi| !pi.public_notes }
       nested_private_count_owned = 0
       nested_private_count_nonowned = 0
       if can_edit
         nested_private_resources = @playlist.nested_private_resources
-        nested_private_count_owned = nested_private_resources.select { |i| i.user_id == @playlist.user_id }.count
-        nested_private_count_nonowned = nested_private_resources.count - nested_private_count_owned
+        nested_private_count_owned = nested_private_resources.select { |i| i.user_id == @playlist.user_id }.size
+        nested_private_count_nonowned = nested_private_resources.size - nested_private_count_owned
       end
       render :json => {
         :can_edit                       => can_edit,
@@ -55,6 +57,9 @@ class PlaylistsController < BaseController
 
   # GET /playlists/1
   def show
+    nested_ps = Playlist.includes(:playlist_items).where(id: @playlist.all_actual_object_ids[:Playlist])
+    @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
+
     @page_cache = true if @playlist.public?
     @editability_path = access_level_playlist_path(@playlist)
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
@@ -155,7 +160,7 @@ class PlaylistsController < BaseController
 
   def copy
     begin
-      @playlist = Playlist.where(id: params[:id]).includes(:playlist_items).first
+      @playlist = Playlist.where(id: params[:id]).first
       @playlist_copy = Playlist.new(playlist_params)
       @playlist_copy.parent = @playlist
       @playlist_copy.karma = 0
@@ -186,17 +191,39 @@ class PlaylistsController < BaseController
   def position_update
     playlist_order = (params[:playlist_order].split("&"))
     playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
-     
+ 
+    playlist = Playlist.where(id: params[:id]).first
+    playlist_items = PlaylistItem.unscoped.where(playlist_id: params[:id])
+    return_hash = {}
     playlist_order.each_index do |item_index|
-      PlaylistItem.update(playlist_order[item_index], :position => item_index + 1)
+      pi = playlist_items.detect { |pi| pi.id == playlist_order[item_index].to_i }
+      pi.update_column(:position, item_index + playlist.counter_start) if pi.present?
+      return_hash[pi.id] = item_index + playlist.counter_start
     end
-
-    return_hash = @playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h }
 
     render :json => return_hash.to_json
   end
 
   def export
+    all_actual_object_ids = @playlist.all_actual_object_ids
+    @preloaded_collages = @preloaded_cases = {}
+    [Collage, Case].each do |model|
+      item_ids = all_actual_object_ids[model.to_s.to_sym]
+      if item_ids.any?
+        if model == Collage
+          items = model.includes(:annotatable, :color_mappings, :annotations => [:layers, :taggings => :tag]).where(id: item_ids)
+          items.each do |item|
+            @preloaded_collages["collage#{item.id}"] = item
+          end
+        elsif model == Case
+          items = model.includes(:case_citations, :case_docket_numbers).where(id: item_ids)
+          items.each do |item|
+            @preloaded_cases["case#{item.id}"] = item
+          end
+        end
+      end
+    end
+
     render :layout => 'print'
   end
 

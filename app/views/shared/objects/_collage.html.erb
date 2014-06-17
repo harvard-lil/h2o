@@ -1,4 +1,4 @@
-<% cache("collage-list-object-#{hit.stored(:id)}", :compress => H2O_CACHE_COMPRESSION) do %>
+<% cache([collage.user, "list-object", collage], :compress => H2O_CACHE_COMPRESSION) do %>
 <li class="listitem listitem<%= collage.id %>" id="listitem_collage<%= collage.id %>" data-itemid="<%= collage.id %>" data-type="collage">
   <a href="#" class="tooltip list-icon icon icon-collage" title="Collage"></a>
   <div class="details">

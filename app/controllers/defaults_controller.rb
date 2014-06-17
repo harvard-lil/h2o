@@ -1,18 +1,19 @@
 class DefaultsController < BaseController
   cache_sweeper :default_sweeper
-  protect_from_forgery :except => [:destroy]
+  protect_from_forgery :except => [:destroy, :copy]
 
   def show
   end
 
   def copy
-    default_copy = @default.clone
+    default_copy = @default.dup
     default_copy.parent = @default
     default_copy.karma = 0
     default_copy.user = current_user
+    default_copy.valid_recaptcha = true
 
     if default_copy.save
-      render :json => { :type => 'links', :id => default_copy.id }
+      render :json => { :type => 'defaults', :id => default_copy.id }
     else
       render :json => { :type => 'links' }, :status => :unprocessable_entity
     end

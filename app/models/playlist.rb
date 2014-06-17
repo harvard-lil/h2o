@@ -22,7 +22,7 @@ class Playlist < ActiveRecord::Base
   belongs_to :location
   belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
-
+  
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
 
@@ -108,7 +108,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def parents
-    PlaylistItem.where(actual_object_id: self.id, actual_object_type: "Playlist").collect { |p| p.playlist }.uniq
+    PlaylistItem.unscoped.where(actual_object_id: self.id, actual_object_type: "Playlist").collect { |p| p.playlist }.uniq
   end
 
   def relation_ids
@@ -116,8 +116,7 @@ class Playlist < ActiveRecord::Base
     i = 0
     while i < r.size
       Playlist.where(id: r[i]).first.parents.each do |a|
-        next if r.include?(a)
-        next if a.name == "Your Bookmarks"
+        next if r.include?(a) || a.name == "Your Bookmarks"
         r.push(a)
       end
       i+=1
@@ -131,21 +130,31 @@ class Playlist < ActiveRecord::Base
   end
 
   def collage_word_count
-    Rails.cache.fetch("playlist-wordcount-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-	    shown_word_count = 0
-	    total_word_count = 0
-	    self.playlist_items.each do |pi|
-	      if pi.actual_object_type == 'Collage' && pi.actual_object
-	        shown_word_count += pi.actual_object.words_shown.to_i
-	        total_word_count += (pi.actual_object.word_count.to_i-1)
-	      elsif pi.actual_object_type == 'Playlist' && pi.actual_object && pi.actual_object != self
-	        res = pi.actual_object.collage_word_count
-	        shown_word_count += res[0]
-	        total_word_count += res[1]
-	      end
-	    end
-	    [shown_word_count, total_word_count]
+    shown_word_count = 0
+    total_word_count = 0
+    self.playlist_items.each do |pi|
+      if pi.actual_object_type == 'Collage' && pi.actual_object
+        shown_word_count += pi.actual_object.words_shown.to_i
+        total_word_count += (pi.actual_object.word_count.to_i-1)
+      elsif pi.actual_object_type == 'Playlist' && pi.actual_object && pi.actual_object != self
+        res = pi.actual_object.collage_word_count
+        shown_word_count += res[0]
+        total_word_count += res[1]
+      end
     end
+    [shown_word_count, total_word_count]
+  end
+  
+  def all_actual_object_ids
+    t = { :Collage => [], :Media => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
+    self.playlist_items.each do |pi|
+      t[pi.actual_object_type.to_sym] << pi.actual_object.id if pi.actual_object.present?
+      if pi.actual_object_type == "Playlist"
+        b = pi.actual_object.all_actual_object_ids
+        t.each { |k, v| t[k] = t[k] + b[k] }
+      end
+    end
+    t
   end
 
   def contains_item?(item_key)
@@ -161,12 +170,6 @@ class Playlist < ActiveRecord::Base
       end
     else
       false
-    end
-  end
-
-  def reset_positions
-    self.playlist_items.each_with_index do |pi, index|
-      pi.update_attribute(:position, self.counter_start + index)
     end
   end
 

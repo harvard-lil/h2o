@@ -129,6 +129,9 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    if !["asc", "desc", "ascending", "descending"].include?(params[:order])
+      params[:order] = :asc
+    end
     params[:order] = (["score", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
   end
 
@@ -344,6 +347,7 @@ class ApplicationController < ActionController::Base
 
   def load_single_resource
     return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
+    return if params[:action] == "position_update"
 
     if params[:action] == "new"
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
@@ -355,9 +359,16 @@ class ApplicationController < ActionController::Base
       end
       @page_title = "New #{model.to_s}"
     elsif params[:id].present?
-      # TODO: Add includes(playlist_items) for loading playlist here
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
-      item = params[:action] == "new" ? model.new : model.where(:id => params[:id]).first
+      if params[:action] == "new"
+        item = model.new
+      elsif ["access_level", "save_readable_state"].include?(params[:action])
+        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
+      elsif model.respond_to?(:get_single_resource)
+        item = model.get_single_resource(params[:id])
+      else
+        item = model.where(id: params[:id]).first
+      end
       if item.present? && item.user.present?
         @single_resource = item
         if params[:controller] == "medias"
@@ -400,5 +411,14 @@ class ApplicationController < ActionController::Base
 
   def clear_canvas_id_from_session
     session[:canvas_user_id] = nil
+  end
+
+  rescue_from CanCan::AccessDenied do |exception|
+    flash[:notice] = "You are not authorized to access this page."
+    if current_user.present?
+      redirect_to "/users/#{current_user.id}"
+    else
+      redirect_to "/user_sessions/new"
+    end
   end
 end

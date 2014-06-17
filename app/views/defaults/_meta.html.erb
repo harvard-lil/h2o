@@ -3,7 +3,7 @@
   <%= @default.updated_at.strftime("%B %d, %Y") %>
 </p>
 
-<% cache("media-#{@default.id}-tags", :compress => H2O_CACHE_COMPRESSION) do -%>
+<% cache(["tags", @default], :compress => H2O_CACHE_COMPRESSION) do -%>
 <% if @default.tags.any? -%>
 <p>
   <label>Tags:</label>

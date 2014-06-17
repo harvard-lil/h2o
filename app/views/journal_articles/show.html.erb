@@ -17,7 +17,7 @@
 		<div class="clear"></div>
 	</hgroup>
 	<div class="details">
-		<% cache("journal_article-#{@journal_article.id}-tags", :compress => H2O_CACHE_COMPRESSION) do -%>
+		<% cache(["tags", @journal_article.id], :compress => H2O_CACHE_COMPRESSION) do -%>
 		<div class="tags">
 			<% @journal_article.tags.each do |tag| -%>
 			<%= link_to tag.name, tag_path("text_blocks", CGI.escape(tag.name)) %>

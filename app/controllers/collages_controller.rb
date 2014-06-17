@@ -134,8 +134,7 @@ class CollagesController < BaseController
   end
 
   def save_readable_state
-    #TODO: Figure out why this is making so many DB calls for optimization
-    Collage.update(params[:id], :readable_state => params[:readable_state], :words_shown => params[:words_shown])
+    @collage.update_columns({ :readable_state => params[:readable_state], :words_shown => params[:words_shown] })
     render :json => { :time => Time.now.to_s(:simpledatetime) }
   end
 

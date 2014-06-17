@@ -2,16 +2,6 @@ class PlaylistItemsController < BaseController
   cache_sweeper :playlist_item_sweeper
   protect_from_forgery except: :destroy
 
-  def show
-    render :partial => 'shared/objects/playlist_item',
-      :locals => { :item => @playlist_item,
-      :actual_object => @playlist_item.actual_object,
-      :parent_index => '', 
-      :index => params[:playlist_index],
-      :recursive_level => 0,
-      :last => false }
-  end
-
   def new
     @can_edit_all = @can_edit_desc = true
     @can_edit_notes = false
@@ -21,15 +11,13 @@ class PlaylistItemsController < BaseController
     @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id], 
                                         :position => params[:position], 
                                         :actual_object_type => @actual_object.class.to_s, 
-                                        :actual_object_id => @actual_object.id })
+                                        :actual_object_id => @actual_object.id,
+                                        :name => @actual_object.name })
 
     if @actual_object.class == Default
       @url_display = @actual_object.url
     elsif @actual_object.class == Collage
-      @playlist_item.name = @actual_object.name
       @playlist_item.description = @actual_object.description
-    elsif @actual_object.class == Playlist
-      @playlist_item.name = @actual_object.root.name
     end
     
     render :partial => "shared/forms/playlist_item"
@@ -37,33 +25,43 @@ class PlaylistItemsController < BaseController
 
   def create
     playlist_item = PlaylistItem.new(playlist_item_params)
-    playlist = playlist_item.playlist
     playlist_item.position ||= playlist_item.playlist.total_count + 1
 
-    position_data = {}
     if playlist_item.save
-      playlist_item.playlist.save
+      position_data = {}
+
       position_data[playlist_item.id.to_s] = playlist_item.position
 
-      playlist_item.playlist.playlist_items.each_with_index do |pi, index|
+      playlist_items = PlaylistItem.unscoped.where(playlist_id: playlist_item.playlist_id)
+
+      playlist_items.each_with_index do |pi, index|
         if pi != playlist_item && (index + 1) >= playlist_item.position
           position_data[pi.id] = (pi.position + 1).to_s
-          pi.update_attribute(:position, pi.position + 1)
+          pi.update_column(:position, pi.position + 1)
         end
       end
 
-	    render :json => { :type => 'playlists', 
-                        :playlist_item_id => playlist_item.id, 
-                        :playlist_id => playlist_item.playlist.id,
-                        :id => playlist_item.playlist.id,
+      if playlist_item.actual_object_type == "Playlist"
+        nested_ps = Playlist.includes(:playlist_items).where(id: playlist_item.actual_object.all_actual_object_ids[:Playlist])
+        @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
+        @nested_playlists["Playlist-#{playlist_item.actual_object_id}"] = playlist_item.actual_object
+      end
+      content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => playlist_item,
+        :actual_object => playlist_item.actual_object,
+        :parent_index => '', 
+        :index => playlist_item.position, 
+        :recursive_level => 0,
+        :last => false })
+
+      render :json => { :playlist_item_id => playlist_item.id, 
                         :error => false, 
                         :position_data => position_data,
-                        :total_count => playlist.total_count,
-                        :public_count => playlist.public_count,
-                        :private_count => playlist.private_count
-                      }
+                        :total_count => playlist_items.size,
+                        :public_count => playlist_items.select { |pi| pi.public_notes }.size,
+                        :private_count => playlist_items.select { |pi| !pi.public_notes }.size,
+                        :content => content }
     else
-	    render :json => { :message => "We could not add that playlist item: #{playlist_item.errors.full_messages.join('<br />')}", :error => true }
+      render :json => { :message => "We could not add that playlist item: #{playlist_item.errors.full_messages.join('<br />')}", :error => true }
     end
   end
 
@@ -104,8 +102,7 @@ class PlaylistItemsController < BaseController
     end
 
     if @playlist_item.update_attributes(playlist_item_params)
-      @playlist_item.playlist.save
-	    render :json => { :type => 'playlists', 
+      render :json => { :type => 'playlists', 
                         :id => @playlist_item.id, 
                         :name => @playlist_item.name, 
                         :description => @playlist_item.description,
@@ -116,20 +113,30 @@ class PlaylistItemsController < BaseController
                         :private_count => playlist.private_count
                       }
     else
-	    render :json => { :error => @playlist_item.errors }
+      render :json => { :error => @playlist_item.errors }
     end
   end
   
   def destroy
-    playlist = @playlist_item.playlist
-    if @playlist_item.destroy
-      @playlist_item.playlist.save
-      playlist.reset_positions
-	    render :json => { :type => 'playlist_item', 
-                        :position_data => playlist.playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h },
-                        :total_count => playlist.total_count,
-                        :public_count => playlist.public_count,
-                        :private_count => playlist.private_count
+    playlist_item = PlaylistItem.unscoped.where(id: params[:id]).first
+    
+    if playlist_item.nil?
+      render :json => {}
+      return
+    end
+
+    playlist = Playlist.where(id: playlist_item.playlist_id).first
+
+    if playlist_item.destroy
+      playlist_items = PlaylistItem.unscoped.where(playlist_id: playlist.id).order(:position)
+      playlist_items.each_with_index do |pi, index|
+        pi.update_column(:position, playlist.counter_start + index)
+      end
+      render :json => { :type => 'playlist_item', 
+                        :position_data => playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h },
+                        :total_count => playlist_items.size,
+                        :public_count => playlist_items.select { |pi| pi.public_notes }.size,
+                        :private_count => playlist_items.select { |pi| !pi.public_notes }.size
                     }
     end
   end

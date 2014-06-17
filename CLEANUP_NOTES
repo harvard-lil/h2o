@@ -1,0 +1,3 @@
+* Delete users from database where email_address IS NULL / '', address creation of this
+* Run various dev solr instances on same port, but with different index name
+* Add created_at to admin various pages to view created items

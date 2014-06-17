@@ -5,7 +5,7 @@ module RailsAdmin
         RailsAdmin::Config::Actions.register(self)
 
         register_instance_option :visible? do
-          authorized? && ([Collage, Playlist].include?(bindings[:object].class) || (bindings[:object].public && bindings[:object].active))
+          authorized? && bindings[:object].present? && ([Collage, Playlist].include?(bindings[:object].class) || (bindings[:object].public && bindings[:object].active))
         end
 
         register_instance_option :member do

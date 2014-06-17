@@ -19,15 +19,15 @@ class UserSweeper < ActionController::Caching::Sweeper
 
   def after_update(record)
     if record.changed.include?("attribution")
-      items = []
-      [:playlists, :cases, :collages, :medias, :text_blocks].each do |t|
-        set = record.send(t)
-        items << set 
-        set.each do |obj|
-          ActionController::Base.new.expire_fragment "#{t.to_s.singularize}-list-object-#{obj.id}"
-        end
+      record.collages.each do |collage|
+        ActionController::Base.expire_page "/collages/#{collage.id}.html"
       end
-      Sunspot.index items
+      record.playlists.each do |playlist|
+        ActionController::Base.expire_page "/playlists/#{playlist.id}.html"
+        ActionController::Base.expire_page "/playlists/#{playlist.id}/export.html"
+      end
+
+      Sunspot.index record.all_items
       Sunspot.commit
     end
   end

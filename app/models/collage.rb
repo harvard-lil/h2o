@@ -28,7 +28,7 @@ class Collage < ActiveRecord::Base
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
-
+  
   searchable do
     text :display_name, :stored => true, :boost => 3.0
     string :display_name, :stored => true
@@ -143,6 +143,8 @@ class Collage < ActiveRecord::Base
   end
 
   def editable_content_v2
+    return '' if self.annotatable.nil?
+
     doc = Nokogiri::HTML.parse(self.annotatable.content)
 
     # Footnote markup
@@ -285,5 +287,9 @@ class Collage < ActiveRecord::Base
       { :hex => 'ff3800', :text => '#000000' },
       { :hex => 'fe2a2a', :text => '#000000' }
     ]
+  end
+  
+  def self.get_single_resource(id)
+    Collage.where(id: id).includes(:annotations => [:layers, :taggings => :tag]).first
   end
 end

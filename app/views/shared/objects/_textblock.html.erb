@@ -1,4 +1,4 @@
-<% cache("textblock-list-object-#{hit.stored(:id)}", :compress => H2O_CACHE_COMPRESSION) do %>
+<% cache([textblock.user, "list-object", textblock], :compress => H2O_CACHE_COMPRESSION) do %>
 <li class="listitem listitem<%= textblock.id %>" id="listitem_text_block<%= textblock.id %>" data-itemid="<%= textblock.id %>" data-type="text_block">
   <a href="#" class="tooltip list-icon icon icon-textblock" title="Text"></a>
 	<div class="details">

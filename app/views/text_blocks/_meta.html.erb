@@ -7,7 +7,7 @@
 <%= render :partial => "shared/objects/metadatum", :object => @text_block.metadatum %>
 <% end -%>
 
-<% cache("text_block-#{@text_block.id}-tags", :compress => H2O_CACHE_COMPRESSION) do -%>
+<% cache(["tags", @text_block], :compress => H2O_CACHE_COMPRESSION) do -%>
 <% if @text_block.tags.any? -%>
 <p>
   <label>Tags:</label>

@@ -9,6 +9,10 @@ class UserSessionsController < ApplicationController
     render :layout => (request.xhr?) ? false : true
   end
 
+  def index
+    redirect_to root_url
+  end
+
   def create
     redirect_to root_url and return if current_user.present?
 

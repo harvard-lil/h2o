@@ -5,19 +5,11 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
 
   def clear_text_block(record)
     begin
-      Rails.cache.delete_matched(%r{text_blocks-search*})
-      Rails.cache.delete_matched(%r{text_blocks-embedded-search*})
-  
-      ActionController::Base.new.expire_fragment "text_block-#{record.id}-tags"
-      ActionController::Base.new.expire_fragment "text_block-#{record.id}-detail"
-      ActionController::Base.new.expire_fragment "textblock-list-object-#{record.id}"
-
       if record.changed.include?("public")
         #TODO: Move this into SweeperHelper, but right now doesn't call
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
-        # Rails.cache.delete("user-barcode-#{record.user_id}")
       end
     rescue Exception => e
       Rails.logger.warn "Textblock sweeper error: #{e.inspect}"
@@ -25,10 +17,6 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
   end
 
   def after_save(record)
-    # FIXME
-    # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
-    #return if params && params[:action] == "embedded_pager"
-
     return true if record.changed.include?("karma")
 
     clear_text_block(record)

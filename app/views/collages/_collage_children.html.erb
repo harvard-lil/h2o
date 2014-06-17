@@ -1,16 +1,18 @@
+<% collage_subtree.each do |collage, v| -%>
 <li <%= raw 'class="current"' if @collage == collage %>>
+<% if collage.public -%>
 <% if @collage == collage -%>
 <span id="current_marker">Current Collage</span><br />
 <% end -%>
 <%= link_to "#{collage.created_at.to_s(:simpledatetime)} by", collage %>
 <%= link_to(collage.user.display, user_path(collage.user)) %><br />
-<% if collage.public_children.size > 0 -%>
-	<ul class="lineage">
-	<% collage.public_children.each do |child| -%>
-	<%= render :partial => 'collage_children',
-  		:locals => { :collage => child,
-  		:recursive_level => recursive_level + 1 } %>
-	<% end -%>
-	</ul>
 <% end -%>
+  <% if v.size > 0 -%>
+	<ul class="lineage">
+	<%= render :partial => 'collage_children',
+  		:locals => { :collage_subtree => v,
+  		:recursive_level => recursive_level + 1 } %>
+	</ul>
+  <% end -%>
 </li>
+<% end -%>

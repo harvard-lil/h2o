@@ -24,10 +24,10 @@
     <%= render :partial => 'shared/objects/textblock_print', :locals => { :text_block => item.actual_object } %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Collage' -%>
-    <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => item.actual_object } %>
+    <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => @preloaded_collages["collage#{item.actual_object_id}"] } %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Case' -%>
-    <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => item.actual_object } %>
+    <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => @preloaded_cases["case#{item.actual_object_id}"] } %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Playlist' && recursive_level < 4 && item.actual_object.present? -%>
     <div class="item_description"><%= PlaylistItem.format_content(item.actual_object.description) %></div>

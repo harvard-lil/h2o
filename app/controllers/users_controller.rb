@@ -27,8 +27,13 @@ class UsersController < ApplicationController
       return
     end
 
-    flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
-    redirect_to user_path(current_user)
+    if current_user
+      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
+      redirect_to user_path(current_user)
+    else
+      flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
+      redirect_to '/user_sessions/new'
+    end
   end
 
   def create
@@ -81,11 +86,17 @@ class UsersController < ApplicationController
 
     if request.xhr?
       if params.has_key?("ajax_region")
-	      p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
-	      if(params[:order] == 'desc')
-	        p = p.reverse
-	      end
-	      @collection = p.paginate(:page => params[:page], :per_page => 10)
+        p = []
+        if params["ajax_region"] == "case_requests"
+          p = CaseRequest.all.sort_by { |p| p.send(params[:sort]).to_s.downcase }
+        else
+          p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
+        end
+        
+        if(params[:order] == 'desc')
+          p = p.reverse
+        end
+        @collection = p.paginate(:page => params[:page], :per_page => 10)
         @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize
 
         if params[:ajax_region] == "bookmarks"
@@ -149,55 +160,63 @@ class UsersController < ApplicationController
         end
       end
 
-	    @types = {
-	      :private_playlists_by_permission => {
+      @types = {
+        :private_playlists_by_permission => {
           :display => false,
           :header => "Private Playlists",
           :partial => "playlist"
         },
-	      :pending_cases => {
+        :pending_cases => {
           :display => false,
           :header => "Pending Cases",
           :partial => "pending_case"
         },
-	      :case_requests => {
+        :case_requests => {
           :display => false,
           :header => "Case Requests",
           :partial => "case_request"
         },
-	      :content_errors => {
+        :content_errors => {
           :display => false,
           :header => "Content Errors",
           :partial => "content_error"
         }
       }
-	    if current_user && @user == current_user
-	      @page_title = "Dashboard | H2O Classroom Tools"
+      if current_user && @user == current_user
+        @page_title = "Dashboard | H2O Classroom Tools"
 
-	      @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
+        @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
         @types[:private_playlists_by_permission][:display] = true
         @types[:pending_cases][:display] = true
-	      if @user.has_role?(:case_admin)
-	        @types[:case_requests][:display] = true
-	        @my_belongings[:case_requests] = current_user.case_requests
-	      end
-	      if @user.has_role?(:superadmin)
-	        @types[:content_errors][:display] = true
-	      end
-	    else
-	      @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
-	    end
 
-	    @types.each do |type, v|
+        if @user.has_role?(:case_admin)
+          @types[:case_requests][:display] = true
+          @my_belongings[:case_requests] = current_user.case_requests
+        end
+
+        if @user.has_role?(:superadmin)
+          @types[:content_errors][:display] = true
+        end
+      else
+        @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
+      end
+
+      @types.each do |type, v|
         next if !v[:display]
-	      p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+        p = []
 
-	      if(params[:order] == 'desc')
-	        p = p.reverse
-	      end
+        if type == :case_requests
+          p = CaseRequest.all.sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+        else
+          p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+        end
+
+        if(params[:order] == 'desc')
+          p = p.reverse
+        end
         v[:results] = p.paginate(:page => params[:page], :per_page => 10)
-	    end
+      end
       render 'show'
     end
   end

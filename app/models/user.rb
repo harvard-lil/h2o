@@ -69,8 +69,6 @@ class User < ActiveRecord::Base
     errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
   end
 
-  MANAGEMENT_ROLES = ["owner", "editor", "user"]
-
   searchable :if => :not_anonymous do
     text :login
     text :simple_display
@@ -88,6 +86,10 @@ class User < ActiveRecord::Base
 
   def active
     true
+  end
+
+  def all_items
+    [self.playlists + self.cases + self.collages + self.medias + self.text_blocks].flatten
   end
 
   def has_role?(role_name)
@@ -131,7 +133,7 @@ class User < ActiveRecord::Base
   alias :display_name :simple_display
 
   def pending_cases
-    self.has_role?(:case_admin) ? Case.where(active: false) : Case.where(user_id: self.id).order(:updated_at)
+    self.has_role?(:case_admin) ? Case.where(active: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
   end
 
   def content_errors
@@ -140,8 +142,13 @@ class User < ActiveRecord::Base
 
   def bookmarks
     if self.bookmark_id
-      Rails.cache.fetch("user-bookmarks-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-        Playlist.where(id: self.bookmark_id).includes(:playlist_items).first.playlist_items
+      Rails.cache.fetch([self, "bookmarks"], :compress => H2O_CACHE_COMPRESSION) do
+        p = Playlist.where(id: self.bookmark_id).first
+        if p.present?
+          p.playlist_items
+        else
+          []
+        end
       end
     else
       []
@@ -149,7 +156,7 @@ class User < ActiveRecord::Base
   end
 
   def bookmarks_map
-    Rails.cache.fetch("user-bookmarks-map-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
+    Rails.cache.fetch([self, "bookmarks_map"], :compress => H2O_CACHE_COMPRESSION) do
       self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
     end
   end

@@ -45,7 +45,7 @@ H2o::Application.routes.draw do
   end
   resources :defaults do
     member do
-      get 'copy'
+      post 'copy'
     end
     collection do
       get 'embedded_pager'

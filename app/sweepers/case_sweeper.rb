@@ -5,26 +5,13 @@ class CaseSweeper < ActionController::Caching::Sweeper
 
   def clear_case(record)
     begin
-      Rails.cache.delete_matched(%r{cases-search*})
-      Rails.cache.delete_matched(%r{cases-embedded-search*})
-  
       ActionController::Base.expire_page "/cases/#{record.id}.html"
-  
-      ActionController::Base.new.expire_fragment "case-list-object-#{record.id}"
-
-      #if record.changed.include?("public")
-      #  Rails.cache.delete("user-barcode-#{record.user_id}")
-      #end
     rescue Exception => e
       Rails.logger.warn "Case sweeper error: #{e.inspect}"
     end
   end
 
   def after_save(record)
-    # Note: For some reason, this is being triggered by base#embedded_pager, so this should skip it
-    # FIXME
-    # return if params && params[:action] == "embedded_pager"
-
     clear_case(record)
     notify_private(record)
   end

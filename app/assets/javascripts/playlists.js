@@ -124,7 +124,8 @@ var playlists_show = {
       var editable_playlists = $('li.playlist[data-user_id=' + $.cookie('user_id') + ']');
       editable_playlists.data('nestable', true);
       var editable_items = editable_playlists.find('> .dd > .dd-list > li.listitem');
-      var items_to_revoke =  $('li.playlist').not(editable_playlists).not(editable_items);
+      var top_level_items = $('#playlist > .playlists > .dd-list > .level0');
+      var items_to_revoke =  $('li.listitem').not(top_level_items).not(editable_playlists).not(editable_items);
       items_to_revoke.find('.delete-playlist-item,.edit-playlist-item').remove();
     }
     if(access_results.can_edit) {
@@ -349,24 +350,6 @@ var playlists_show = {
       listitem_wrapper.find('.additional_details').remove();
     }
   },
-  renderNewPlaylistItem: function(data) {
-    $.ajax({
-      type: 'get',
-      url: '/playlist_items/' + data.playlist_item_id,
-      success: function(response) {
-        $('.playlists .dd-list .listing').replaceWith(response);
-        $('.requires_edit,.requires_remove,.requires_logged_in').animate({ opacity: 1.0 });
-        $('li#playlist_item_' + data.playlist_item_id + ' .dd').nestable();
-        playlists_show.update_positions(data.position_data);
-        playlists_show.set_nestability_and_editability();
-      }, 
-      error: function() {
-        setTimeout(function() {
-          document.location.href = h2o_global.root_path() + data.type + '/' + data.playlist_id;
-        }, 1000); 
-      }
-    });
-  },
   observeNoteFunctionality: function() {
     $('#public-notes,#private-notes').click(function(e) {
       e.preventDefault();
@@ -464,7 +447,13 @@ var playlists_show = {
           } else {
             if(form.hasClass('new')) {
               playlists_show.renderPublicPlaylistBehavior(data);
-              playlists_show.renderNewPlaylistItem(data);
+              var new_node = $(data.content);
+              new_node.find('.requires_edit,.requires_remove,.requires_logged_in').css('opacity', 1);
+              new_node.find('.icon-cell .tooltip').addClass('hover');
+              $('.playlists .dd-list .listing').replaceWith(new_node);
+              $('li#playlist_item_' + data.playlist_item_id + ' .dd').nestable();
+              playlists_show.update_positions(data.position_data);
+              playlists_show.set_nestability_and_editability();
             } else {
               playlists_show.renderPublicPlaylistBehavior(data);
               playlists_show.renderEditPlaylistItem(data);
