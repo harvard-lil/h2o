@@ -49,11 +49,13 @@ class PlaylistItemsController < BaseController
       content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => playlist_item,
         :actual_object => playlist_item.actual_object,
         :parent_index => '', 
-        :index => playlist_item.position, 
+        :index => '',
         :recursive_level => 0,
         :last => false })
 
-      render :json => { :playlist_item_id => playlist_item.id, 
+      render :json => { :type => "playlists",
+                        :id => playlist_item.playlist_id, 
+                        :playlist_item_id => playlist_item.id, 
                         :error => false, 
                         :position_data => position_data,
                         :total_count => playlist_items.size,
