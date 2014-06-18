@@ -435,6 +435,7 @@ var playlists_show = {
     $(document).delegate('#playlist_item_submit', 'click', function(e) {
       e.preventDefault();
       var form = $(this).closest('form');
+      form.append($('<input>').attr('name', 'on_playlist_page').attr('type', 'hidden').val(1));
       var new_item = form.hasClass('new');
       form.ajaxSubmit({
         dataType: "JSON",
@@ -454,6 +455,7 @@ var playlists_show = {
               $('li#playlist_item_' + data.playlist_item_id + ' .dd').nestable();
               playlists_show.update_positions(data.position_data);
               playlists_show.set_nestability_and_editability();
+              dropped_item = undefined;
             } else {
               playlists_show.renderPublicPlaylistBehavior(data);
               playlists_show.renderEditPlaylistItem(data);
@@ -596,7 +598,6 @@ var playlists_show = {
           $('#add_item_results').html(html);
           playlists_show.toggleHeaderPagination();
           $('div#nestable2').nestable();
-          //h2o_global.initializeBarcodes();
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {
