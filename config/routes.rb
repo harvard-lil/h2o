@@ -61,6 +61,7 @@ H2o::Application.routes.draw do
       post 'position_update'
       post 'private_notes'
       post 'public_notes'
+      post 'toggle_nested_private'
     end
     collection do
       get 'embedded_pager'

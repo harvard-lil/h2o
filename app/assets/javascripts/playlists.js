@@ -49,7 +49,7 @@ h2o_global.playlist_afterload = function(results) {
                     },
                     success: function(data) {
                       $('#nested_public').remove();
-                      $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users.').css('color', 'red');
+                      $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users. Please refresh the page to see changes.').css('color', 'red');
                       $(node).dialog('close');
                     },
                     complete: function() {

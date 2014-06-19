@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 class PlaylistsController < BaseController
-  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy]
+  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy, :toggle_nested_private]
   
   cache_sweeper :playlist_sweeper
   caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').present? && c.instance_variable_get('@playlist').public? }
