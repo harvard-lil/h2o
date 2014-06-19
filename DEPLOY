@@ -2,3 +2,4 @@
 * rake db:migrate
 * rake assets:precompile
 * touch tmp/restart.txt
+* RAILS_ENV=production script/delayed_job restart
