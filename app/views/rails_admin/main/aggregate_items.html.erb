@@ -1,0 +1,59 @@
+<% if @error.present? -%>
+<div class="alert alert-error">
+<%= @error %>
+</div>
+<% elsif request.post? -%>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load('visualization', '1.0', {'packages':['corechart']});
+
+  google.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+
+    var data = google.visualization.arrayToDataTable([
+      ["Year - Month","Created", "Deleted"],
+      <% @dates.each do |date| -%>
+      ["<%= date %>", <%= @created.has_key?(date) ? @created[date].size : 0 %>, <%= @deleted.has_key?(date) ? @deleted[date].size : 0 %>],
+      <% end -%>
+    ]);
+
+    var options = {
+      hAxis: { title:"<%= @abstract_model %> Created & Deleted From <%= params[:from] %> - <%= params[:to] %>" }
+    };
+
+    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+    chart.draw(data, options);     }
+</script>
+<div id="chart_div" style="width: 900px; height: 500px;"></div>
+<% end %>
+
+<%= form_tag aggregate_items_path, :method => "post" do %>
+    <label for="from">From</label>
+    <input type="text" id="from" name="from">
+    <label for="to">to</label>
+    <input type="text" id="to" name="to">
+    <br />
+    <input name="retrieve_data" type="submit" />
+<% end -%>
+
+<script type="text/javascript">
+$(function() {
+    $( "#from" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        numberOfMonths: 1,
+        onClose: function( selectedDate ) {
+            $( "#to" ).datepicker( "option", "minDate", selectedDate );
+        }
+    });
+    $( "#to" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        numberOfMonths: 1,
+        onClose: function( selectedDate ) {
+            $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+        }
+    });
+});
+</script>

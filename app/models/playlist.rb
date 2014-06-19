@@ -4,6 +4,7 @@ class Playlist < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include FormattingExtensions
+  include DeletedItemExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {

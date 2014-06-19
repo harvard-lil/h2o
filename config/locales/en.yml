@@ -21,3 +21,9 @@
 
 en:
   hello: "Hello world"
+  admin:
+    actions:
+      aggregate_items:
+        menu: "Created / Deleted Stats"
+        breadcrumb: "Created / Deleted Stats"
+        title: "Created / Deleted Stats"

@@ -8,6 +8,7 @@ class Ability
       can :access, :rails_admin
       can :dashboard, :all
       can [:index, :export, :bulk_delete, :destroy, :view_in_app, :edit_in_app], :all
+      can :aggregate_items, [Collage, Media, Playlist, TextBlock, Default]
       can [:show, :edit, :new], Institution
       cannot [:view_in_app, :edit_in_app], Institution
       can [:import], [Default, Institution]

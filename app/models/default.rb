@@ -4,6 +4,7 @@ class Default < ActiveRecord::Base
   include MetadataExtensions
   include CaptchaExtensions
   include FormattingExtensions
+  include DeletedItemExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {

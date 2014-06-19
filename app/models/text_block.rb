@@ -5,6 +5,7 @@ class TextBlock < ActiveRecord::Base
   include Rails.application.routes.url_helpers
   include CaptchaExtensions
   include VerifiedUserExtensions
+  include DeletedItemExtensions
   include FormattingExtensions
 
   MIME_TYPES = {
