@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
   include StandardModelExtensions
   include Rails.application.routes.url_helpers
   include CaptchaExtensions
+  include DeletedItemExtensions
 
   acts_as_authentic do |c|
     c.crypto_provider = Authlogic::CryptoProviders::Sha512
