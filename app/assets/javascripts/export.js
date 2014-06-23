@@ -43,6 +43,12 @@ var collages = {
     $.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
       var set = $('#collage' + collage_id + ' div.article ' + selector);
       set = set.filter(':not(:has(*:visible)):not(.paragraph-numbering)');
+      if(selector == 'em') {
+        set = set.filter(':not(.original_content)');
+      }
+      if(selector == 'a') {
+        set = set.filter(':not(.paragraph-numbering)');
+      }
       set.remove();
     });
     
