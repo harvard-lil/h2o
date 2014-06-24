@@ -7,6 +7,7 @@ class Collage < ActiveRecord::Base
   include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers
+  include ActionView::Helpers::TextHelper
 
   RATINGS_DISPLAY = {
     :remix => "Remixed",
@@ -77,22 +78,15 @@ class Collage < ActiveRecord::Base
     collage_copy
   end
 
-  def color_map
-    h = {}
-    self.layers.each do |layer|
-      map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
-      h["l#{layer.id}"] = map.hex if map
-    end
-    #hardcoding required layer as dark red
-    h["l46"] = '6b0000'
-    h
-  end
-  
   def layer_data
     h = {}
     self.layers.each do |layer|
       map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
-      h["#{layer.name}"] = map.hex if map
+      if map
+        h[layer.name] = map.hex
+      else
+        h[layer.name] = cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc')
+      end
     end
     #hardcoding required layer as dark red
     h["required"] = '6b0000'

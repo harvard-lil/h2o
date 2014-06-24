@@ -474,9 +474,17 @@ var collages = {
         $('.annotation-' + e).hide();
         $('.layered-ellipsis-' + e).show();
       } else if(i.match(/^highlights/)) {
-        $.each(e, function(j, k) {
-          $("ul#layers_highlights li[data-name='" + j + "'] a").click();
+        $.each(e, function(j, hex) {
+          var layer = j;
+          var clean_layer = collages.clean_layer(layer);
+            
+          $('span.layer-' + clean_layer).addClass('highlight-' + clean_layer);
+          $("ul#layers_highlights li[data-name='" + j + "'] a").data('highlight', true);
+          var new_node = document.createTextNode('UNHIGHLIGHT "' + layer + '"');
+          var text_node = $(($("ul#layers_highlights li[data-name='" + j + "'] a").contents())[0]);
+          text_node.replaceWith(new_node);
         });
+        collages.rehighlight();
       }
     });
     collages.hideShowUnlayeredOptions();

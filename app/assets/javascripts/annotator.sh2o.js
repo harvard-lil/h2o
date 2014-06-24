@@ -256,7 +256,7 @@ H2O = (function() {
       h2o_annotator.editor.element.find('#add_new_layer').parent().remove();
       h2o_annotator.editor.fields.pop();
       $.each(annotation.layers, function(i, layer) {
-        if($('#layers_highlights li[data-name=' + layer + ']').size() == 0) {
+        if($("#layers_highlights li[data-name='" + layer + "']").size() == 0) {
           if(layer != 'required') {
             h2o_annotator.editor.addField({
               id: 'layer-' + layer,

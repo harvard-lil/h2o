@@ -77,7 +77,7 @@ class CollagesController < BaseController
     @page_cache = true if @collage.present? && @collage.public?
     @editability_path = access_level_collage_path(@collage)
 
-    @color_map = @collage.color_map
+    @layer_data = @collage.layer_data
   end
 
   # GET /collages/new

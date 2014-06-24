@@ -47,7 +47,7 @@
         </ul>
         <ul id="layers">
            <% @collage.layers.each do |layer| %>
-          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
+          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @layer_data[layer.name] %>">
             <a href="#" class="l<%= layer.id %> hide_show shown tooltip" title="Hide the <%= layer.name %> layer" >HIDE "<%= layer.name %>"</a>
           </li>
            <% end -%>
@@ -60,8 +60,8 @@
         <h5>HIGHLIGHTS</h5>
         <ul id="layers_highlights">
            <% @collage.layers.each do |layer| %>
-          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc') %>">
-            <a href="#" title="Highlight the <%= layer.name %> Layer" class="l<%= layer.id %> tooltip link-o">HIGHLIGHT "<%= layer.name %>" <span class="indicator" style="background-color:#<%= @color_map["l#{layer.id}"] ? @color_map["l#{layer.id}"] : cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933',     'cc99cc') %>"></span></a>
+          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @layer_data[layer.name] %>">
+            <a href="#" title="Highlight the <%= layer.name %> Layer" class="l<%= layer.id %> tooltip link-o">HIGHLIGHT "<%= layer.name %>" <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span></a>
           </li>
            <% end -%>
         </ul>
@@ -110,8 +110,7 @@ var editability_path = "<%= access_level_collage_path(@collage) %>";
 var original_data = <%= raw @collage.readable_state || '{}' %>;
 var linked_collages = <%= raw @collage.annotations.select { |a| a.linked_collage_id.present? }.inject({}) { |h, a| h["c#{a.linked_collage_id}"] = a.linked_collage.name; h }.to_json %>; 
 var color_list = <%= raw Collage.color_list.to_json %>;
-var layer_color_map = <%= raw @color_map.to_json %>;
-var layer_data = <%= raw @collage.layer_data.to_json %>;
+var layer_data = <%= raw @layer_data.to_json %>;
 var raw_annotations = {
   "single": <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h }.to_json %>
 };
