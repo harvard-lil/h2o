@@ -143,14 +143,7 @@ class User < ActiveRecord::Base
 
   def bookmarks
     if self.bookmark_id
-      Rails.cache.fetch([self, "bookmarks"], :compress => H2O_CACHE_COMPRESSION) do
-        p = Playlist.where(id: self.bookmark_id).first
-        if p.present?
-          p.playlist_items
-        else
-          []
-        end
-      end
+      PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
     else
       []
     end

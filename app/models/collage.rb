@@ -22,7 +22,7 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
   has_many :annotations, -> { order(:created_at) }, :dependent => :destroy
-  has_and_belongs_to_many :user_collections   # dependent => destroy
+  # has_and_belongs_to_many :user_collections   # dependent => destroy
   has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
