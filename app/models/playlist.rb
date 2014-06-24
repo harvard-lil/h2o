@@ -207,6 +207,9 @@ class Playlist < ActiveRecord::Base
   end
 
   def users_by_permission
+    # Temporary override on users by permissions 
+    return []
+
     if self.name == "Your Bookmarks" || self.public
       return []
     end
