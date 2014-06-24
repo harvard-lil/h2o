@@ -10,7 +10,7 @@ var collages = {
     //do nothing
   },
   clean_layer: function(layer_name) {
-    return layer_name.replace(/\./, 'specialsymbol');
+    return layer_name.replace(/ /, 'whitespace').replace(/\./, 'specialsymbol');
   },
   rehighlight: function() {
     //do nothing
@@ -195,12 +195,19 @@ var export_functions = {
     h2o_annotator.attach(elem);
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },
+  filteredLayerData: function(layer_data) {
+    var filtered_layer_data = {}; 
+    $.each(layer_data, function(i, j) {
+      filtered_layer_data[collages.clean_layer(i)] = j;
+    });
+    return filtered_layer_data;
+  },
   highlightCollage: function(collage_id, highlights) {
-    layer_data = eval("layer_data_" + collage_id);
+    layer_data = export_functions.filteredLayerData(eval("layer_data_" + collage_id));
 
     var keys = new Array();
     $.each(highlights, function(i, j) {
-      keys.push(i);
+      keys.push(collages.clean_layer(i));
     });
     $.each(layer_data, function(i, j) {
       if($.inArray(i, keys) == -1) {
@@ -209,7 +216,7 @@ var export_functions = {
     });
 
     $.each(highlights, function(i, j) {
-      $('#collage' + collage_id + ' .annotator-wrapper .layer-' + i).addClass('highlight-' + i);
+      $('#collage' + collage_id + ' .annotator-wrapper .layer-' + collages.clean_layer(i)).addClass('highlight-' + collages.clean_layer(i));
     });
     $('#collage' + collage_id + ' .layered-empty').removeClass('layered-empty');
 

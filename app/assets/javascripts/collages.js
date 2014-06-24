@@ -31,10 +31,10 @@ h2o_global.collage_afterload = function(results) {
 
 var collages = {
   clean_layer: function(layer_name) {
-    return layer_name.replace(/\./, 'specialsymbol');
+    return layer_name.replace(/ /, 'whitespace').replace(/\./, 'specialsymbol');
   },
   revert_clean_layer: function(layer_name) {
-    return layer_name.replace(/specialsymbol/, '.');
+    return layer_name.replace(/whitespace/, ' ').replace(/specialsymbol/, '.');
   },
   rehighlight: function() {
 	  $('.layered-empty').removeClass('layered-empty');
