@@ -165,8 +165,7 @@ class PlaylistsController < BaseController
       @playlist_copy.parent = @playlist
       @playlist_copy.karma = 0
       @playlist_copy.user = current_user
-      # FIXME: Captcha not working here
-      @playlist_copy.valid_recaptcha = true
+      verify_captcha(@playlist_copy)
  
       if @playlist_copy.save
         # Note: Building empty playlist barcode to reduce cache lookup, optimize

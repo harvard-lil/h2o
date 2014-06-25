@@ -22,3 +22,4 @@ solr/pids/
 public/assets/
 solr/data/
 config/skylight.yml
+config/initializers/h2o_secret.rb

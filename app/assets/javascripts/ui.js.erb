@@ -17,7 +17,6 @@ var scife_fn_clicked = function() {
 };
 var page_load = true;
 var list_results_url = '';
-var captcha_config = '<%= Recaptcha.configuration.public_key %>';
 var playlists_initialized = false;
 
 $.extend({
@@ -35,6 +34,9 @@ var h2o_global = {
       } else {
       $('#terms_require').html("<p class='inline-hints'>If this item is submitted as a non-public item, other users will not be able to see, copy, or create derivative works from it, unless you change the item's setting to \"Public.\" Note that making a previously \"public\" item non-public will not affect copies or derivatives made from that public version.</p>");
     }
+  },
+  show_recaptcha: function() {
+    Recaptcha.create('<%= Recaptcha.configuration.public_key %>', 'captcha_div');
   },
   run_page_initialize: function() {
     var body_id = $('body').attr('id');
@@ -1091,6 +1093,7 @@ var h2o_global = {
       var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
       var html = $.mustache(remix_item_template, data);
       h2o_global.generateGenericNode(html);
+      h2o_global.show_recaptcha();
     });
     $(document).delegate('.deep-remix-action', 'click', function(e) {
       e.preventDefault();
@@ -1220,7 +1223,7 @@ var h2o_global = {
           h2o_global.hideGlobalSpinnerNode();
           buttons.removeClass('inactive');
           if($('#captcha_div').length > 0) {
-            Recaptcha.create(captcha_config, 'captcha_div'); 
+            h2o_global.show_recaptcha();
           }
         } else {
           if(data.custom_block) {
@@ -1448,10 +1451,11 @@ var remix_item_template = '\
 <label for="{{type}}_description">Description</label>\
 <textarea class="ui-widget-content ui-corner-all" cols="40" id="{{type}}_description" name="{{type}}[description]" rows="5"></textarea>\
 </li>\
+<li id="captcha_div">\
+</li>\
 </ol></fieldset>\
 </form>\
 ';
-
 var deep_remix_item_template = '\
 <h3 id="generic_title">Remix {{node_title}}</h3>\
 <div id="error_block"></div>\

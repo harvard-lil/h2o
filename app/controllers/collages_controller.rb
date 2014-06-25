@@ -51,12 +51,12 @@ class CollagesController < BaseController
 
   def copy
     # FIXME: captcha failing on remix
-    #@tmp_collage = Collage.new
-    #verify_captcha(@tmp_collage)
-    #if !@tmp_collage.valid_recaptcha
-    #  render :json => { :error => true, :message => "Captcha failed. Please try again." }
-    #  return
-    #end
+    @tmp_collage = Collage.new
+    verify_captcha(@tmp_collage)
+    if !@tmp_collage.valid_recaptcha
+      render :json => { :error => true, :message => "Captcha failed. Please try again." }
+      return
+    end
 
     @collage_copy = @collage.fork_it(current_user, params[:collage])
     if @collage_copy.id.nil?
