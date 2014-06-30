@@ -82,6 +82,7 @@ H2o::Application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   config.middleware.use ExceptionNotification::Rack,
+    :ignore_exceptions => ['ActionController::BadRequest'] + ExceptionNotifier.ignored_exceptions,
     :email => {
       :email_prefix => "[H2O] ",
       :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
