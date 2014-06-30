@@ -21,6 +21,17 @@ class User < ActiveRecord::Base
   has_many :case_requests
   has_many :playlists
   alias :textblocks :text_blocks
+ 
+  # Deal with this later by replacing habtm with hm through
+  def users_roles
+    []
+  end
+  def users_user_collections
+    []
+  end
+  def users_institutions
+    []
+  end
 
   attr_accessor :terms
 
