@@ -196,8 +196,10 @@ class PlaylistsController < BaseController
     return_hash = {}
     playlist_order.each_index do |item_index|
       pi = playlist_items.detect { |pi| pi.id == playlist_order[item_index].to_i }
-      pi.update_column(:position, item_index + playlist.counter_start) if pi.present?
-      return_hash[pi.id] = item_index + playlist.counter_start
+      if pi.present?
+        pi.update_column(:position, item_index + playlist.counter_start)
+        return_hash[pi.id] = item_index + playlist.counter_start
+      end
     end
 
     render :json => return_hash.to_json
