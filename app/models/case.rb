@@ -95,7 +95,10 @@ class Case < ActiveRecord::Base
       new_case[:case_jurisdiction_id] = cj.id
     end
     new_case.delete(:jurisdiction)
-    Case.new(new_case)
+    c = Case.new(new_case)
+    c.user = User.where(login: 'h2ocases').first
+
+    c
   end
 
   def to_tsv

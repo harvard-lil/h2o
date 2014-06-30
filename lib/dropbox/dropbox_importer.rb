@@ -38,17 +38,14 @@ class DropboxImporter
     file_contents = @dh2o.get_file(path)
     begin
       new_instance = @klass.new_from_xml_file(file_contents)
-    Rails.logger.warn "stephie got here A: #{new_instance.inspect}"
     rescue Exception => e
       Import.create!(:dropbox_filepath => e.message)
-    Rails.logger.warn "stephie got here B: #{e.inspect}"
     end
     new_instance
   end
 
   def handle_import_success(path, new_instance)
     puts "dropbox_importer.rb (55): handle_import_success message received PATH: #{path.inspect} NEWINSTANCE: #{new_instance.inspect}\n"
-    puts "saved file woot!"
     record_import(:bulk_upload => self.bulk_upload,
                   :actual_object => new_instance,
                   :dropbox_filepath => path,
