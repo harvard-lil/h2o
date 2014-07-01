@@ -18,7 +18,7 @@ module FormattingExtensions
         if output[0..2] == "<p>" then output = output[3..-1] end
         if output[-4..-1] == "</p>" then output = output[0..-5] end
       end
-      output
+      output.gsub(/&#8217;/, "'")
     end
 
     def format_html(*args)
