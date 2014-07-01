@@ -10,22 +10,41 @@
   google.setOnLoadCallback(drawChart);
 
   function drawChart() {
-
     var data = google.visualization.arrayToDataTable([
       ["Year - Month","Created", "Deleted"],
       <% @dates.each do |date| -%>
-      ["<%= date %>", <%= @created.has_key?(date) ? @created[date].size : 0 %>, <%= @deleted.has_key?(date) ? @deleted[date].size : 0 %>],
+      ["<%= date %>", <%= @created[date].size %>, <%= @deleted[date].size %>],
       <% end -%>
     ]);
 
     var options = {
-      hAxis: { title:"<%= @abstract_model %> Created & Deleted From <%= params[:from] %> - <%= params[:to] %>" }
+      hAxis: { title:"<%= @abstract_model %> Created & Deleted per Month (<%= params[:from] %> - <%= params[:to] %>)" }
     };
 
     var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-    chart.draw(data, options);     }
+    chart.draw(data, options); 
+
+    var data_totals = google.visualization.arrayToDataTable([
+      ["Year - Month","Created", "Deleted"],
+      <% @dates.each do |date| -%>
+      ["<%= date %>", <%= @totals_created[date] %>, <%= @totals_deleted[date] %>],
+      <% end -%>
+    ]);
+
+    var options_totals = {
+      hAxis: { title:"<%= @abstract_model %> Created & Deleted Aggregate (<%= params[:from] %> - <%= params[:to] %>)" }
+    };
+
+    var chart_totals = new google.visualization.ColumnChart(document.getElementById('totals_chart_div'));
+    chart_totals.draw(data_totals, options_totals);
+}
 </script>
-<div id="chart_div" style="width: 900px; height: 500px;"></div>
+<table width="100%">
+  <tr>
+    <td><div id="chart_div" style="width: 650px; height: 300px;"></div></td>
+    <td><div id="totals_chart_div" style="width: 650px; height: 300px;"></div></td>
+  </tr>
+</table>
 <% end %>
 
 <%= form_tag aggregate_items_path, :method => "post" do %>

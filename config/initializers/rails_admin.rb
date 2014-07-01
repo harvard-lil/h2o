@@ -25,6 +25,19 @@ module RailsAdmin
                 @created = @abstract_model.where(created_at: start_filter..end_filter).select(:id, :created_at).group_by(&:month)
                 @deleted = DeletedItem.where(item_type: params[:model_name].capitalize, deleted_at: start_filter..end_filter).select(:id, :deleted_at).group_by(&:month)
                 @dates = (@created.keys + @deleted.keys).uniq.sort
+                @totals_created = {}
+                @totals_deleted = {}
+                created_total = 0
+                deleted_total = 0
+                @dates.each do |date|
+                  @created[date] = [] if !@created.has_key?(date) 
+                  created_total += @created[date].size
+                  @totals_created[date] = created_total 
+                  
+                  @deleted[date] = [] if !@deleted.has_key?(date) 
+                  deleted_total += @deleted[date].size
+                  @totals_deleted[date] = deleted_total 
+                end
               end
             end
           end
