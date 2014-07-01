@@ -11,7 +11,7 @@
     <%= form.input :description,
       :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
       :required => false,
-      :hint => "You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }",
+      :hint => raw("You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }"),
       :html_safe => true
     %>
     <% end -%>
