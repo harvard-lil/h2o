@@ -10,6 +10,9 @@ class CaseJurisdiction < ActiveRecord::Base
     self.name
   end
 
-  alias :to_s :display_name
+  def user
+    User.where(login: 'h2ocases').first
+  end
 
+  alias :to_s :display_name
 end
