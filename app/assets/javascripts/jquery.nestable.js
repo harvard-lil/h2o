@@ -92,12 +92,6 @@
             var onStartEvent = function(e)
             {
                 var handle = $(e.target);
-
-                //H2O Customization
-                if(handle.is('a') || handle.is('.icon-delete') || handle.is('.icon-edit')) {
-                    return;
-                }
-
                 if (!handle.hasClass(list.options.handleClass)) {
                     if (handle.closest('.' + list.options.noDragClass).length) {
                         return;
@@ -295,32 +289,14 @@
             // fix for zepto.js
             //this.placeEl.replaceWith(this.dragEl.children(this.options.itemNodeName + ':first').detach());
             var el = this.dragEl.children(this.options.itemNodeName).first();
-            
-            //H2O Customization
-            var playlist_changed = this.placeEl.parents('.dd-item:first');
-
-            if(this.placeEl.parent().parent().attr('id') == 'nestable2' && el.data('drop') == 'new_item') {
-              this.placeEl.remove();
-              if(el.data('index') == 0) {
-                el.insertBefore($('#nestable2 .dd-list li:first'));
-              } else {
-                el.insertAfter($('#nestable2 .dd-list li:nth-child(' + el.data('index') + ')'));
-              }
-              this.dragEl.remove();
-              this.reset();
-              return;
-            }
-
             el[0].parentNode.removeChild(el[0]);
             this.placeEl.replaceWith(el);
+
             this.dragEl.remove();
-
-            if(playlist_changed.size() > 0) {
-              playlists_show.dropActivate(playlist_changed.find('> .dd'), playlist_changed.data('actual_object_id'));
-            } else {
-              playlists_show.dropActivate($('div.playlists:first'), $('div.playlists').data('playlist_id'));
+            this.el.trigger('change');
+            if (this.hasNewRoot) {
+                this.dragRootEl.trigger('change');
             }
-
             this.reset();
         },
 
@@ -387,19 +363,14 @@
                 if (mouse.distX > 0 && prev.length && !prev.hasClass(opt.collapsedClass)) {
                     // cannot increase level when item above is collapsed
                     list = prev.find(opt.listNodeName).last();
-
                     // check if depth limit has reached
                     depth = this.placeEl.parents(opt.listNodeName).length;
-                        
                     if (depth + this.dragDepth <= opt.maxDepth) {
                         // create new sub-level if one doesn't exist
-                        //H2O Customizations here
-                        if (prev.data('nestable') == true && !list.length) {
+                        if (!list.length) {
                             list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
                             list.append(this.placeEl);
-                            var test_node = $('<div>').addClass('dd');
-                            test_node.append(list);
-                            prev.append(test_node); //list);
+                            prev.append(list);
                             this.setParent(prev);
                         } else {
                             // else append to next level up
@@ -414,7 +385,6 @@
                     next = this.placeEl.next(opt.itemNodeName);
                     if (!next.length) {
                         parent = this.placeEl.parent();
-
                         this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
                         if (!parent.children().length) {
                             this.unsetParent(parent.parent());
@@ -453,14 +423,8 @@
             if (!mouse.dirAx || isNewRoot || isEmpty) {
                 // check if groups match if dragging over new root
                 if (isNewRoot && opt.group !== pointElRoot.data('nestable-group')) {
-                    //H2O: Skip this
-                    //return;
+                    return;
                 }
-
-                if(this.dragEl.html().match('data-drop="new_item"') === null && !pointElRoot.parent().data('nestable')) {
-                  return;
-                }
-
                 // check depth limit
                 depth = this.dragDepth - 1 + this.pointEl.parents(opt.listNodeName).length;
                 if (depth > opt.maxDepth) {

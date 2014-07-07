@@ -25,18 +25,6 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     end
   end
 
-  def playlist_clear_nonsiblings(id)
-    record = PlaylistItem.unscoped { Playlist.where(id: params[:id]) }.first
-
-    ActionController::Base.expire_page "/playlists/#{record.id}.html"
-    ActionController::Base.expire_page "/playlists/#{record.id}/export.html"
-
-    record.relation_ids.each do |p|
-      ActionController::Base.expire_page "/playlists/#{p}.html"
-      ActionController::Base.expire_page "/playlists/#{p}/export.html"
-    end
-  end
-
   def after_create(record)
     playlist_clear(record, true)
   end
@@ -53,11 +41,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
     playlist_clear(record, false)
   end
 
-  def after_playlists_position_update
-    playlist_clear_nonsiblings(params[:id])
-  end
-
   def after_playlists_notes
-    playlist_clear_nonsiblings(params[:id])
+    Playlist.clear_nonsiblings(params[:id])
   end
 end

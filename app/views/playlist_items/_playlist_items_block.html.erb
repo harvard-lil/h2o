@@ -1,13 +1,13 @@
-<div class="playlists dd" data-playlist_id="<%= @playlist.id %>">
+<div class="playlists dd main_playlist" data-playlist_id="<%= @playlist.id %>" data-actual_object_id="<%= @playlist.id %>" data-counter_start="<%= @playlist.counter_start %>">
 	<ol class="dd-list <%= 'dd-empty' if @playlist.playlist_items.empty? %>">
 		<% @playlist.playlist_items.each_with_index do |item, index| -%>
-		  <%= render :partial => 'shared/objects/playlist_item',
-		    :locals => { :item => item,
-        :actual_object => item.actual_object,
-			  :parent_index => '',
-			  :index => index + @playlist.counter_start,
-			  :recursive_level => 0,
-        :last => (item == @playlist.playlist_items.last) } %>
+			<%= render :partial => 'shared/objects/playlist_item',
+				:locals => { :item => item,
+				:actual_object => item.actual_object,
+				:parent_index => '',
+				:index => index + @playlist.counter_start,
+				:position => index,
+				:recursive_level => 0 } %>
 		<% end -%>
 	</ol>
 </div>

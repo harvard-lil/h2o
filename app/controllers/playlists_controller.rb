@@ -188,21 +188,25 @@ class PlaylistsController < BaseController
   end
 
   def position_update
-    playlist_order = (params[:playlist_order].split("&"))
-    playlist_order.collect!{|x| x.gsub("playlist_item[]=", "")}
- 
-    playlist = Playlist.where(id: params[:id]).first
-    playlist_items = PlaylistItem.unscoped.where(playlist_id: params[:id])
-    return_hash = {}
-    playlist_order.each_index do |item_index|
-      pi = playlist_items.detect { |pi| pi.id == playlist_order[item_index].to_i }
-      if pi.present?
-        pi.update_column(:position, item_index + playlist.counter_start)
-        return_hash[pi.id] = item_index + playlist.counter_start
-      end
+    updates = {}
+    ids = []
+    params["changed"].each do |k, v|
+      updates["pi_#{v["id"]}"] = { :position => v["position"], :playlist_id => v["playlist_id"] }
+      ids << v["id"]
+    end
+  
+    mod_playlists = []
+    PlaylistItem.unscoped.includes(:playlist).where(id: ids).each do |playlist_item|
+      mod_playlists << playlist_item.playlist_id
+      updates["pi_#{playlist_item.id}"][:position] = updates["pi_#{playlist_item.id}"][:position].to_i + playlist_item.playlist.counter_start
+      playlist_item.update_columns(updates["pi_#{playlist_item.id}"])
     end
 
-    render :json => return_hash.to_json
+    mod_playlists.uniq.each do |playlist_id|
+      Playlist.clear_nonsiblings(playlist_id)
+    end
+
+    render :json => {}
   end
 
   def export

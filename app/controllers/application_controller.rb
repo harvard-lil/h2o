@@ -146,9 +146,12 @@ class ApplicationController < ActionController::Base
       "created_at" => { :display => "SORT BY DATE CREATED", :selected => false },
       "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
-    @sort_lists[:cases] = @sort_lists[:pending_cases] = @sort_lists[:case_requests] = generate_sort_list(base_sort.merge({
+    @sort_lists[:cases] = @sort_lists[:pending_cases] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
     }))
+    @sort_lists[:case_requests] = { 
+          "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false }
+    }
     @sort_lists[:users] = base_sort
     @sort_lists[:text_blocks] = generate_sort_list(base_sort.merge({
       "user" => { :display => "SORT BY AUTHOR", :selected => false }

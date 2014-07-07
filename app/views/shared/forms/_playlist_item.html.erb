@@ -1,6 +1,7 @@
 <div id="playlist_item_form" class="<%= @playlist_item.new_record? ? 'new' : 'edit' %>" >
   <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
   <%= semantic_form_for @playlist_item, :html => { :class => (@playlist_item.new_record? ? 'new' : 'edit') } do |form| %>
+    <ul>
     <%= form.inputs do %>
       <% if @actual_object.class == Default -%>
       <li>
@@ -9,19 +10,19 @@
       </li>
       <% end -%>
       <% if @can_edit_all -%>
-      <%= form.input :name,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all"} %>
+      <%= form.input :name,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all dd-nodrag"} %>
       <% end -%>
       <% if @can_edit_desc -%>
       <%= form.input :description,
-        :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all"},
+        :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all dd-nodrag"},
         :required => false %>
       <% end -%>
       <% if !@playlist_item.new_record? && @can_edit_notes -%>
-      <li class="text">
+      <li class="text dd-nodrag">
         <label for="playlist_item_notes">Notes</label>
         <textarea name="playlist_item[notes]" cols="38" rows="5" class="ui-widget-content ui-corner-all"><%= @playlist_item.notes.to_s %></textarea>
       </li>
-      <li>
+      <li class="dd-nodrag">
         <label for="playlist_item_notes">Are Notes Public?</label>
         <input type="checkbox" name="playlist_item[public_notes]" <%= raw 'checked="checked"' if @playlist_item.public_notes %> />
       </li>
@@ -32,7 +33,7 @@
       <%= form.input(:actual_object_type, :as => :hidden) %>
       <%= form.input(:actual_object_id, :as => :hidden) %>
     <% end -%>
-    <a href="#" id="playlist_item_submit">SUBMIT</a>
-    <a href="#" id="playlist_item_cancel">CANCEL</a>
+    <a href="#" id="playlist_item_submit" class="dd-nodrag">SUBMIT</a>
+    <a href="#" id="playlist_item_cancel" class="dd-nodrag">CANCEL</a>
   <% end -%>
 </div>

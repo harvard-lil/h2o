@@ -25,19 +25,16 @@ class PlaylistItemsController < BaseController
 
   def create
     playlist_item = PlaylistItem.new(playlist_item_params)
-    playlist_item.position ||= playlist_item.playlist.total_count + 1
+    playlist_item.position ||= playlist_item.playlist.total_count
+    playlist_item_index = playlist_item.position
+    playlist_item.position += playlist_item.playlist.counter_start
 
     if playlist_item.save
       if params.has_key?("on_playlist_page")
-        position_data = {}
-  
-        position_data[playlist_item.id.to_s] = playlist_item.position
-  
         playlist_items = PlaylistItem.unscoped.where(playlist_id: playlist_item.playlist_id)
   
         playlist_items.each_with_index do |pi, index|
           if pi != playlist_item && (index + 1) >= playlist_item.position
-            position_data[pi.id] = (pi.position + 1).to_s
             pi.update_column(:position, pi.position + 1)
           end
         end
@@ -51,12 +48,12 @@ class PlaylistItemsController < BaseController
           :actual_object => playlist_item.actual_object,
           :parent_index => '', 
           :index => '',
+          :position => playlist_item_index,
           :recursive_level => 0,
           :last => false })
   
         render :json => { :playlist_item_id => playlist_item.id, 
                           :error => false, 
-                          :position_data => position_data,
                           :total_count => playlist_items.size,
                           :public_count => playlist_items.select { |pi| pi.public_notes }.size,
                           :private_count => playlist_items.select { |pi| !pi.public_notes }.size,
@@ -124,7 +121,7 @@ class PlaylistItemsController < BaseController
   
   def destroy
     playlist_item = PlaylistItem.unscoped.where(id: params[:id]).first
-    
+  
     if playlist_item.nil?
       render :json => {}
       return
@@ -139,7 +136,6 @@ class PlaylistItemsController < BaseController
         pi.update_column(:position, pi.position - 1)
       end
       render :json => { :type => 'playlist_item', 
-                        :position_data => playlist_items.inject({}) { |h, i| h[i.id] = i.position.to_s; h },
                         :total_count => playlist_items.size,
                         :public_count => playlist_items.select { |pi| pi.public_notes }.size,
                         :private_count => playlist_items.select { |pi| !pi.public_notes }.size

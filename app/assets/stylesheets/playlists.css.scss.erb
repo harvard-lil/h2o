@@ -6,43 +6,34 @@
   background: #fff;
   padding: 4px;
 }
-#playlist .playlists ul,
-.dd-dragel ul {
-  background: #fff;
-}
 #playlist #main_details {
   padding-right: 30px; /* making some room for the wedge */
-}
-.playlists .listitem {
-  position:relative;
-  width:100%;
 }
 .playlists-edit-mode .listitem {
   padding:2px 0px;
 }
-.playlists .expanded {
-  background: #f0f0f0;
-  border-bottom: 1px solid #999999;
+.playlists {
+  .expanded {
+    background: #f0f0f0;
+  }
+  .expanded.playlist {
+    border-bottom: 1px solid #999999;
+  }
+  .expanded.last, .last {
+    border-bottom: none;
+  }
+  .expanded.playlist > .wrapper {
+    border-bottom: 1px solid #999999;
+  }
 }
-.playlists .expanded.last {
-  border-bottom: none;
-}
-.playlists-edit-mode .expanded {
+.playlists-edit-mode .expanded,
+.playlists-edit-mode .expanded.playlist {
   background: #fff;
   border-bottom: none;
 }
-.playlists .playlists,
-.dd-dragel .playlists {
+/* .dd-dragel .playlists */
+.dd-list .dd-list {
   display: none;
-  margin-left: 63px;
-}
-.playlists .playlists .playlists,
-.dd-dragel .playlists .playlists {
-  margin-left: 74px;
-}
-.playlists .playlists .playlists .playlists,
-.dd-dragel .playlists .playlists .playlists {
-  margin-left: 85px;
 }
 .playlists li.listing {
   height: 15px;
@@ -95,22 +86,20 @@
 }
 .playlists .listitem .wrapper {
   border-bottom: 1px solid #999999;
-}
-.playlists .listitem .wrapper .inner-wrapper {
   padding: 11px 3px;
-}
-.playlists .listitem .wrapper .inner-wrapper table {
-  margin-right: 25px;
-}
-.playlists .listitem .wrapper .inner-wrapper td.icon-cell {
-  text-align: center;
-  padding: 0px 7px;
-}
-.playlists .listitem .wrapper .inner-wrapper td.icon-cell .icon {
-  display: block;
-}
-.playlists .listitem .wrapper .inner-wrapper td.title-cell {
-  vertical-align: top;
+  table {
+    /* margin-right: 25px; */
+  }
+  td.icon-cell {
+    text-align: center;
+    padding: 0px 7px;
+    .icon {
+      display: block;
+    }
+  }
+  td.title-cell {
+    vertical-align: top;
+  }
 }
 .playlists .last > .wrapper {
   border-bottom: none;
@@ -313,7 +302,8 @@
   margin: 0; 
   padding: 0;
 }
-.dd-list .dd-list {
+.dd-list ol,
+.dd-list ul {
   padding-left: 30px;
 }
 .dd-item { 
@@ -338,15 +328,12 @@
   border: 1px dashed #036290;
   min-height: 1px;
 }
+ul .dd-placeholder {
+  display: none;
+}
 #nestable2 .dd-placeholder {
  margin: 0px 4px;
 }
-
-.dd-handle {
-  margin-right: 20px;
-  /* border: 1px solid red; */
-}
-
 
 .dd-item > button[data-action="collapse"] {
   display: none; 
@@ -405,18 +392,7 @@ button.inactive { opacity: 0.5; }
   color:#9c9c9c;
   font-weight:bold;
   text-align:center;
-}
-.listitem .width_11 {
-  width: 11px;
-}
-.listitem .width_22 {
-  width: 22px;
-}
-.listitem .width_33 {
-  width: 33px;
-}
-.listitem .width_44 {
-  width: 44px;
+  padding-left: 3px;
 }
 .expanded .number {
   color:#373737;

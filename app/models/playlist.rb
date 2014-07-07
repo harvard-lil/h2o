@@ -219,4 +219,15 @@ class Playlist < ActiveRecord::Base
     pas = self.user_collections.collect { |uc| uc.permission_assignments }.flatten.select { |pr| pr.permission_id = p.id }
     ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
   end
+
+  def self.clear_nonsiblings(id) 
+    record = PlaylistItem.unscoped { Playlist.where(id: id) }.first
+
+    ActionController::Base.expire_page "/playlists/#{record.id}.html"
+    ActionController::Base.expire_page "/playlists/#{record.id}/export.html"
+    record.relation_ids.each do |p|
+      ActionController::Base.expire_page "/playlists/#{p}.html"
+      ActionController::Base.expire_page "/playlists/#{p}/export.html"
+    end
+  end
 end

@@ -58,12 +58,12 @@ H2o::Application.routes.draw do
       get 'push'
       get 'access_level'
       get 'export'
-      post 'position_update'
       post 'private_notes'
       post 'public_notes'
       post 'toggle_nested_private'
     end
     collection do
+      post 'position_update'
       get 'embedded_pager'
       get 'playlist_lookup'
     end
