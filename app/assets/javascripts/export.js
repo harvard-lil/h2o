@@ -54,7 +54,7 @@ var collages = {
     
     var cannotations = eval("annotations_" + collage_id);
     $.each(cannotations, function(i, ann) {
-      var annotation = $.parseJSON(ann).annotation;
+      var annotation = $.parseJSON(ann);
       $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
     });
   }
@@ -75,6 +75,7 @@ var export_functions = {
 	  $('#printannotations').val('no').selectbox({
 	    className: "jsb", replaceInvisible: true
 	  }).change(function() {
+      // Go through annotation content
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
