@@ -1,0 +1,104 @@
+<a href="#" class="right_panel_close">Close</a>
+<h3>
+  Advanced Search
+  <a id="advanced-search-wedge" href="#" title="Click to apply advanced filters"></a>
+</h3>
+<div id="advanced-search-content">
+  <% if @type_lookup != :cases && (@user_facet_display.size > 1 || params.has_key?(:user_ids)) -%>
+  <div class="aleft">
+    <h4 id="user_h">
+      Creator
+      <% if params.has_key?(:user_ids) -%>
+      <a class="clear_filters" id="clear_user_ids_filter" href="#">Clear</a>
+      <% end -%>
+    </h4>
+    <ul id="user_id_filters" data-users="<%= @queued_users.to_json %>">
+      <% @user_facet_display[0..4].each do |row| -%>
+      <li>
+        <% if row[:count] == 0 -%>
+        <span class="current_user"><%= row[:user].simple_display %> (<%= row[:count] %>)</span>
+        <% else -%>
+        <a href="#" data-value="<%= row[:user].id %>" class="<%= row[:class] %>"><%= row[:user].simple_display %> (<%= row[:count] %>)</a>
+        <% end -%>
+      </li>
+      <% end -%>
+      <% if @queued_users.any? -%>
+      <li>
+        <a href="#" id="load_more_users">load more</a>
+      </li>
+      <% end -%>
+    </ul>
+  </div>
+  <% end -%>
+  <% if @klass_facet_display.size > 1 || params.has_key?(:klass) || (params[:controller] == "users" && @klass_facet_display.size > 0) -%>
+  <div class="aright">
+    <h4 id="type_h">
+      Type
+      <% if params.has_key?(:klass) -%>
+      <a class="clear_filters" id="clear_klass_filter" href="#">Clear</a>
+      <% end -%>
+    </h4>
+    <ul id="klass_filters">
+      <% if params.has_key?(:klass) && ['Primary', 'Secondary'].include?(params[:klass]) -%>
+      <li>
+        <a href="#" data-value="<%= params[:klass] %>" class="active"><%= params[:klass] %> Playlists (<%= @collection.results.total_entries %>)</a>
+      </li>
+      <% else -%>
+        <% @klass_facet_display.each do |row| -%>
+        <li>
+          <a href="#" data-value="<%= row[:value] %>" class="<%= params.has_key?(:klass) ? 'active' : '' %>"><%= row[:value] %> (<%= row[:count] %>)</a>
+          <% if params[:controller] == "users" && row[:value] == "Playlist" && @primary_playlists && @secondary_playlists -%>
+          <ul>
+            <% if @primary_playlists -%>
+            <li><a href="#" data-value="Primary" class="<%= (params.has_key?(:klass) && params[:klass] == "Primary") ? 'active' : '' %>">Primary (<%= @primary_playlists %>)</a></li>
+            <% end -%>
+            <% if @secondary_playlists -%>
+            <li><a href="#" data-value="Secondary" class="<%= (params.has_key?(:klass) && params[:klass] == "Secondary") ? 'active' : '' %>">Secondary (<%= @secondary_playlists %>)</a></li>
+            <% end -%>
+          </ul>
+          <% end -%>
+        </li>
+        <% end -%>
+      <% end -%>
+    </ul>
+  </div>
+  <% end -%>
+  <% if params[:controller] == "users" -%>
+    <h4>Filter by Keyword or Name</h4>
+    <p id="within">
+      <% if params.has_key?(:within) && params[:within] != '' -%>
+      <input type="text" name="within" value="<%= params[:within] %>" />
+      <a id="clear_within_filter" href="#">Clear</a>
+      <% else -%>
+      <input type="text" name="within" value="" />
+      <% end -%>
+    </p>
+    <a href="#" id="search_within" class="button">Apply Filter</a>
+    <h3>
+      Profile <span class="icon icon-profile"></span>
+      <% if current_user && @user == current_user -%>
+      <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
+      <% end -%>
+    </h3>
+    <%= render :partial => "shared/author_stats", :locals => { :user => @user } %>  
+    <% if current_user && @user == current_user -%>
+      <h3>
+        Settings <span class="icon icon-settings"></span>
+        <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
+      </h3>
+      <%= render :partial => "users/settings", :locals => { :user => @user } %>
+      <%= render "users/collections" %>
+    <% end -%>
+  <% else -%>
+  <h4>Filter by Keyword or Name</h4>
+  <p id="within">
+    <% if params.has_key?(:within) && params[:within] != '' -%>
+    <input type="text" name="within" value="<%= params[:within] %>" />
+    <a id="clear_within_filter" href="#">Clear</a>
+    <% else -%>
+    <input type="text" name="within" value="" />
+    <% end -%>
+  </p>
+  <a href="#" id="search_within" class="button">Apply Filter</a>
+  <% end -%>
+</div>

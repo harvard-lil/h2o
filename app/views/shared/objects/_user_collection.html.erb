@@ -6,8 +6,8 @@
 	</div>
 	<div class="details">
 		<h3>
-			<%= link_to user_collection.name, user_collection_path(user_collection), :class => "title" %>
-			<%= link_to 'EDIT', edit_user_collection_path(user_collection), :class => "icon icon-edit tooltip" %>
+			<%= link_to user_collection.name, edit_user_collection_path(user_collection), :class => "title edit-action" %>
+			<%= link_to 'EDIT', edit_user_collection_path(user_collection), :class => "icon icon-edit tooltip edit-action" %>
 			<%= link_to 'DELETE', user_collection, :class => "icon icon-delete tooltip" %>
 		</h3>
 		<p>

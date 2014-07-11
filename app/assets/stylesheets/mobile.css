@@ -64,21 +64,19 @@
   */
 
   /* Index */
-  #home_index #description {
-    margin-top: 20px;
-    width: 100%;
+  #base_index #home_index #welcome2 .col-sm-6 {
+    width: auto;
+    padding: 2em;
   }
-  #home_index #description h1 {
-    font-size: 20pt;
-    padding-bottom: 10px;
-    line-height: 26pt;
+  #base_index #home_index #welcome3 .col-xs-4 {
+    width: 18.3333%;
+    padding: 0px 6%;
   }
-  #home_index #description h2 {
-    font-size: 15pt;
-    line-height: 25pt;
-  }
-  #home_index #description #links {
-    padding: 10px 0px 10px;
+  #base_index #home_index #welcome1 h1,
+  #base_index #home_index #welcome2 h1,
+  #base_index #home_index #welcome3 h1,
+  #base_index #home_index #welcome4 h1 {
+    line-height: 1.1em;
   }
 
   #quickbar_left #quickbar_title,

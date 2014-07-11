@@ -15,7 +15,7 @@
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Collage</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
 </aside>
 
-<div id="collage<%= @collage.id %>" class="singleitem" data-itemid="<%= @collage.id %>">
+<div id="collage<%= @collage.id %>" class="singleitem leftcol" data-itemid="<%= @collage.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @collage.name %></h1>
     <h3 class="scale1-5 <%= @collage.root != @collage ? 'with_creators' : '' %>">
@@ -97,7 +97,7 @@
     <%= render :partial => 'meta' %>
   </div>
   <h3>Author Stats</h3>
-  <%#= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
+  <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
   <% if false -%>
   <h3>Related Collages</h3>
   <% end -%>

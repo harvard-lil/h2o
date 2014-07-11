@@ -22,10 +22,6 @@ class TextBlocksController < BaseController
   end
 
   def create
-    unless params[:text_block][:tag_list].blank?
-      params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
-    end
-
     @text_block = TextBlock.new(text_blocks_params)
     @text_block.user = current_user
     verify_captcha(@text_block)
@@ -43,10 +39,6 @@ class TextBlocksController < BaseController
   end
 
   def update
-    unless params[:text_block][:tag_list].blank?
-      params[:text_block][:tag_list] = params[:text_block][:tag_list].downcase
-    end
-
     if @text_block.update_attributes(text_blocks_params)
       flash[:notice] = 'Text Block was successfully updated.'
       redirect_to "/text_blocks/#{@text_block.id}"

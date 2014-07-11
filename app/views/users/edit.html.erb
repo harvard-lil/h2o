@@ -1,5 +1,5 @@
-<div class="standard-form">
-  <h1>Edit My Account</h1>
+<div id="#manage_users" class="standard-form">
+  <h3 id="generic_title">Edit My Account</h3>
   <%= form_for @user, :url => user_path(@user), :html => { :class => "formtastic" } do |f| %>
   <% if @user.errors.any? %>
   <ul class="error">
@@ -9,8 +9,5 @@
     </ul>
   <% end %>
   <%= render :partial => "form", :object => f %>
-  <div style="text-align:center;width:100%;">
-  <%= f.submit "Update", :class => 'button' %>
-  </div>
 <% end %>
 </div>

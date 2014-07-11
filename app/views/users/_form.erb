@@ -41,20 +41,29 @@
     <td valign="top">
       <%= form.check_box :tab_open_new_items %>
       Open new collages, media, texts, playlists, etc. in a new tab?
-      <br /><br />
+      <br />
       <% if !@user.new_record? %>
         <% if @user.canvas_id.present? -%>
+        <div>
           <br />
-          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :method => :post %>
+          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :class => "user-disconnect" %>
+          <br />
+        </div>
         <% end %>
         <% if @user.has_dropbox_token? -%>
+        <div>
           <br />
-          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :method => :post %>
+          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :class => "user-disconnect" %>
+          <br />
+        </div>
         <% end -%>
       <% end %>
-      <br /><br />
+      <br />
       <%= form.label :default_font_size %>
       <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %><br />
+      <br />
+      <%= form.label :default_font %>
+      <%= form.select :default_font, [['futura', 'futura'], ['leitura', 'leitura'], ['garamond', 'garamond'], ['verdana', 'verdana'], ['proxima', 'proxima'], ['dagny', 'dagny']], :selected => @user.default_font.to_s %><br />
       <br />
     </td>
   </tr>

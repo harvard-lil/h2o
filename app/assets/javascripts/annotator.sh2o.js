@@ -118,6 +118,7 @@ H2O = (function() {
       $.each($('.annotator-editor li.annotator-checkbox input'), function(_i, el) {
         if($(el).is(':checked')) {
           var layer_name = $(el).attr('id').replace(/^layer-/, '');
+          layer_name = collages.revert_clean_layer(layer_name);
           editor.annotation.layer_hexes.push({ layer: layer_name, hex: h2o_annotator.plugins.H2O.layer_map[layer_name], is_new: false });
         }
       });
@@ -202,7 +203,7 @@ H2O = (function() {
     for (cat in this.categories) {
       color = this.categories[cat];
       this.annotator.editor.addField({
-        id: 'layer-' + cat,
+        id: 'layer-' + collages.clean_layer(cat),
         type: 'checkbox',
         label: cat,
         value: cat
@@ -259,7 +260,7 @@ H2O = (function() {
         if($("#layers_highlights li[data-name='" + layer + "']").size() == 0) {
           if(layer != 'required') {
             h2o_annotator.editor.addField({
-              id: 'layer-' + layer,
+              id: 'layer-' + collages.clean_layer(layer),
               type: 'checkbox',
               label: layer,
               value: layer
@@ -310,10 +311,10 @@ H2O = (function() {
     var class_string = 'annotator-hl annotation-' + annotation.id;
     for(var _i = 0; _i < annotation.layers.length; _i++) {
       var _l = annotation.layers[_i];
-      class_string += ' layer-' + _l;
+      class_string += ' layer-' + collages.clean_layer(_l);
       if($("#layers_highlights li[data-name='" + _l + "']").size() &&
         $("#layers_highlights li[data-name='" + _l + "'] a").html().match(/^UNHIGHLIGHT/)) {
-        class_string += ' highlight-' + _l;
+        class_string += ' highlight-' + collages.clean_layer(_l);
       }
     }
     $('.annotation-' + annotation.id).attr('class', class_string);
@@ -609,7 +610,7 @@ H2O = (function() {
     if(annotation.id !== undefined) {
       //annotation is not new
       $.each(annotation.layers, function(i, layer) {
-        $('input#layer-' + layer).prop('checked', true);
+        $('input#layer-' + collages.clean_layer(layer)).prop('checked', true);
       });
 
       if(annotation.linked_collage_id === null || annotation.linked_collage_id === undefined) {

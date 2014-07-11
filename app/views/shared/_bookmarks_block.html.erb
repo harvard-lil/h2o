@@ -1,9 +1,0 @@
-<% @collection.each do |bookmark| -%>
-  <% item = bookmark.actual_object %>
-  <%= render :partial => "shared/objects/#{item.class == Case ? 'case_obj' : item.class.to_s.downcase}",
-              :locals => { :hit => item, (item.class == Case ? :case_obj : item.class.to_s.downcase.to_sym) => item } %>
-<% end -%>
-
-<div id="new_pagination" style="display:none;">
-<%= will_paginate @collection, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
-<div>

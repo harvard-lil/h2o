@@ -61,6 +61,14 @@ class Media < ActiveRecord::Base
     string :media_type do
       media_type.slug
     end
+    
+    string :klass, :stored => true
+    boolean :primary do
+      false
+    end
+    boolean :secondary do
+      false
+    end
   end
 
   def barcode

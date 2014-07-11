@@ -3,7 +3,7 @@
 	<div class="details">
     <h3>
       <%= link_to default.name, default.url, :class => "title", :target => "_blank" %>
-      <% if current_user && (@is_admin[:default] || @my_belongings[:defaults].include?(default)) %>
+      <% if current_user && (current_user.has_role?(:superadmin) || current_user == default.user) %>
         <%= link_to 'EDIT', edit_default_path(default), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% end %>
     </h3>

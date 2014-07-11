@@ -16,8 +16,6 @@ class CasesController < BaseController
     @page_cache = true
     @editability_path = access_level_case_path(@case)
 
-    set_belongings Case
-
     if !@case.public || !@case.active
       flash[:notice] = "This case is not public or active."
       redirect_to cases_url
@@ -81,9 +79,6 @@ class CasesController < BaseController
   end
 
   def create
-    unless params[:case][:tag_list].blank?
-      params[:case][:tag_list] = params[:case][:tag_list].downcase
-    end
     @case = Case.new(cases_params)
     @case.user = current_user
 
@@ -97,10 +92,6 @@ class CasesController < BaseController
 
   def update
     # This is not industrial level security - a user could theoretically overwrite the case content of a case they own via URL tampering.
-    unless params[:case][:tag_list].blank?
-      params[:case][:tag_list] = params[:case][:tag_list].downcase
-    end
-
     #<=This ensures that version is incremented when docket numbers or citations are only updated
     @case.updated_at = Time.now 
 

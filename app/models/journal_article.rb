@@ -10,20 +10,6 @@ class JournalArticle < ActiveRecord::Base
   validates_presence_of :name, :description, :publish_date, :author,
     :volume, :issue, :page, :bluebook_citation, :attribution
 
-  searchable(:include => [:collages, :tags]) do
-    text :name, :boost => 3.0
-    string :name, :stored => true
-    string :display_name, :stored => true
-
-    string :id, :stored => true
-    text :description
-    boolean :active
-    boolean :public
-
-    string :tag_list, :stored => true, :multiple => true
-    string :collages, :stored => true, :multiple => true
-  end
-
   def display_name
     self.name + (self.subtitle.present? ? ": #{self.subtitle}" : '')
   end

@@ -15,12 +15,11 @@ class Playlist < ActiveRecord::Base
 
   acts_as_taggable_on :tags
 
-  has_ancestry :orphan_strategy => :restrict
+  has_ancestry :orphan_strategy => :adopt
 
   has_many :playlist_items, -> { order("playlist_items.position") }, :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
-  # TODO: Fix this - breaks delete in admin
-  # has_and_belongs_to_many :user_collections #, :dependent => :destroy
+  has_and_belongs_to_many :user_collections, :dependent => :destroy
   belongs_to :location
   belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
@@ -79,11 +78,16 @@ class Playlist < ActiveRecord::Base
     integer :karma
     string :users_by_permission, :stored => true, :multiple => true
 
+    boolean :featured
     boolean :public
+    boolean :primary
+    boolean :secondary
     boolean :active
 
     time :created_at
     time :updated_at
+    
+    string :klass, :stored => true
   end
 
   def display_name
@@ -91,6 +95,9 @@ class Playlist < ActiveRecord::Base
   end
   alias :to_s :display_name
 
+  def secondary
+    !self.primary
+  end
   def barcode
     Rails.cache.fetch("playlist-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added

@@ -31,6 +31,9 @@ form.formtastic fieldset > ol > li { overflow:auto; } /* clearing contained floa
 form.formtastic fieldset > ol > li.required { }
 form.formtastic fieldset > ol > li.optional { }
 form.formtastic fieldset > ol > li.error { }
+form.formtastic fieldset > ol > li.boolean { 
+  margin-bottom: 5px;
+}
   
 
 /* LABELS
@@ -91,7 +94,7 @@ form.formtastic fieldset ol li.hidden { display:none; }
 
 /* BOOLEAN OVERRIDES
 --------------------------------------------------------------------------------------------------*/
-form.formtastic fieldset > ol > li.boolean label { padding-left:25%; width:auto; margin-right: 3px; }
+form.formtastic fieldset > ol > li.boolean label { width:auto; margin-right: 3px; }
 form.formtastic fieldset > ol > li.boolean label input { margin:0 0.5em 0 0.2em; }
 
 

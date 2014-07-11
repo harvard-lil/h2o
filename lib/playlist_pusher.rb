@@ -6,6 +6,8 @@ class PlaylistPusher
               :public_private_override,
               :barcode_clear_users
   attr_accessor :ownership_sql,
+              :featured_sql,
+              :all_new_objects,
               :public_private_sql
 
   def initialize(options = {})
@@ -13,9 +15,11 @@ class PlaylistPusher
     @source_playlist_id = options[:playlist_id]
     @email_receiver = options.has_key?(:email_receiver) ? options[:email_receiver] : 'source'
     @ownership_sql = ''
+    @featured_sql = ''
     @public_private_sql = ''
     @barcode_clear_users = []
     @created_playlist_ids = []
+    @all_new_objects = {}
     if options.has_key?(:playlist_name_override)
       @playlist_name_override = options[:playlist_name_override]
     end
@@ -29,6 +33,7 @@ class PlaylistPusher
   def push!
     new_playlists = self.push_single_playlist(self.source_playlist_id, 0)
     execute!(self.ownership_sql)
+    execute!(self.featured_sql)
     execute!(self.public_private_sql)
     self.barcode_clear_users.uniq.each do |user|
       Rails.cache.delete("user-barcode-#{user.id}", :compress => H2O_CACHE_COMPRESSION) 
@@ -37,6 +42,11 @@ class PlaylistPusher
 
     if @playlist_name_override && self.user_ids.length == 1
       new_playlists.first.update_attribute(:name, @playlist_name_override)
+    end
+
+    puts "attempting to reindex"
+    [Case, Collage, Default, Media, Playlist, TextBlock].each do |klass|
+      Sunspot.index! klass.where(id: self.all_new_objects[klass])
     end
 
     self.notify_completed(new_playlists)
@@ -186,12 +196,15 @@ class PlaylistPusher
   end
 
   def generate_ownership_sql!(objects)
-    klass = objects.first.class.to_s.tableize
+    klass = objects.first.class
     increments = objects.size / self.user_ids.size
     i = 0 
     1.upto(increments).each do |inc|
       self.user_ids.each do |user_id|
-        self.ownership_sql << "UPDATE #{klass.tableize} SET user_id = #{user_id} WHERE id = #{objects[i].id};"
+        self.ownership_sql << "UPDATE #{klass.to_s.tableize} SET user_id = #{user_id} WHERE id = #{objects[i].id};"
+        self.featured_sql << "UPDATE #{klass.to_s.tableize} SET featured = false WHERE id = #{objects[i].id};" if [Collage, Playlist].include?(klass)
+        self.all_new_objects[klass] ||= []
+        self.all_new_objects[klass] << objects[i].id
         i+=1
       end
     end

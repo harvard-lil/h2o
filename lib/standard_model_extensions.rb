@@ -1,6 +1,24 @@
 module StandardModelExtensions
   extend ActiveSupport::Concern
 
+  def klass
+    self.class.to_s
+  end
+  def klass_partial
+    if self.class == Case
+      'case_obj'
+    else
+      self.class.to_s.downcase
+    end
+  end
+  def klass_sym
+    if self.class == Case
+      :case_obj
+    else
+      self.class.to_s.downcase.to_sym
+    end
+  end
+
   def current_user
     session = UserSession.find
     current_user = session && session.user

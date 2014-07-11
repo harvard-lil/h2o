@@ -2,14 +2,14 @@
 <li class="listitem listitem<%= media.id %>" id="listitem_media<%= media.id %>" data-itemid="<%= media.id %>" data-type="media">
   <a href="#" class="tooltip list-icon icon icon-media-<%= media.media_type.slug %>" title="<%= media.media_type.label %>"></a>
 	<div class="details">
+    <h3>
+      <%= link_to media.name, media_path(media), :class => "title" %>
+    </h3>
     <div class="tags">
       <% media.tag_list.each do |tag| %>
       <%= link_to tag, tag_path("medias", CGI.escape(tag)) %>
       <% end -%>
     </div>
-    <h3>
-      <%= link_to media.name, media_path(media), :class => "title" %>
-    </h3>
     <p>
       <%= item_date_stamp media %>
       <% if hit.stored(:user_id).present? -%>

@@ -10,7 +10,7 @@
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Case</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@case.name}", "data-type" => "case", "data-itemid" => @case.id %>
 </aside>
 
-<div id="case" class="singleitem" data-itemid="<%= @case.id %>">
+<div id="case" class="singleitem leftcol" data-itemid="<%= @case.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @case.display_name %></h1>
   </div>

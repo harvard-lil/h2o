@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140611150407) do
+ActiveRecord::Schema.define(version: 20140710152711) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20140611150407) do
     t.datetime "updated_at"
     t.boolean  "has_errors"
     t.integer  "delayed_job_id"
+    t.integer  "user_id",        default: 0, null: false
   end
 
   create_table "case_citations", force: true do |t|
@@ -80,6 +81,22 @@ ActiveRecord::Schema.define(version: 20140611150407) do
 
   add_index "case_docket_numbers", ["case_id"], name: "index_case_docket_numbers_on_case_id", using: :btree
   add_index "case_docket_numbers", ["docket_number"], name: "index_case_docket_numbers_on_docket_number", using: :btree
+
+  create_table "case_ingestion_logs", force: true do |t|
+    t.integer  "case_ingestion_request_id"
+    t.string   "status"
+    t.text     "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "case_ingestion_requests", force: true do |t|
+    t.string   "url",        null: false
+    t.integer  "user_id",    null: false
+    t.integer  "case_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "case_jurisdictions", force: true do |t|
     t.string   "abbreviation", limit: 150
@@ -144,7 +161,7 @@ ActiveRecord::Schema.define(version: 20140611150407) do
   create_table "collages", force: true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name",              limit: 250,                    null: false
+    t.string   "name",              limit: 250,                     null: false
     t.string   "description",       limit: 5120
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -156,8 +173,9 @@ ActiveRecord::Schema.define(version: 20140611150407) do
     t.integer  "words_shown"
     t.integer  "karma"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                           default: 0,    null: false
-    t.integer  "annotator_version",                 default: 2,    null: false
+    t.integer  "user_id",                           default: 0,     null: false
+    t.integer  "annotator_version",                 default: 2,     null: false
+    t.boolean  "featured",                          default: false, null: false
   end
 
   add_index "collages", ["active"], name: "index_collages_on_active", using: :btree
@@ -380,12 +398,14 @@ ActiveRecord::Schema.define(version: 20140611150407) do
     t.boolean  "public",                      default: true
     t.string   "ancestry"
     t.integer  "position"
-    t.integer  "counter_start",               default: 1,    null: false
+    t.integer  "counter_start",               default: 1,     null: false
     t.integer  "karma"
     t.integer  "pushed_from_id"
     t.integer  "location_id"
     t.string   "when_taught"
-    t.integer  "user_id",                     default: 0,    null: false
+    t.integer  "user_id",                     default: 0,     null: false
+    t.boolean  "primary",                     default: false, null: false
+    t.boolean  "featured",                    default: false, null: false
   end
 
   add_index "playlists", ["active"], name: "index_playlists_on_active", using: :btree
@@ -640,8 +660,8 @@ ActiveRecord::Schema.define(version: 20140611150407) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                        null: false
-    t.integer  "login_count",              default: 0,     null: false
+    t.string   "persistence_token",                            null: false
+    t.integer  "login_count",              default: 0,         null: false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -655,15 +675,16 @@ ActiveRecord::Schema.define(version: 20140611150407) do
     t.integer  "karma"
     t.string   "attribution"
     t.string   "perishable_token"
-    t.boolean  "default_show_annotations", default: false, null: false
-    t.boolean  "tab_open_new_items",       default: false, null: false
+    t.boolean  "default_show_annotations", default: false,     null: false
+    t.boolean  "tab_open_new_items",       default: false,     null: false
     t.string   "default_font_size",        default: "16"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"
     t.text     "description"
     t.string   "canvas_id"
-    t.boolean  "verified",                 default: false, null: false
+    t.boolean  "verified",                 default: false,     null: false
+    t.string   "default_font",             default: "Verdana"
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree

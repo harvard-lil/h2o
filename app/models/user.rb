@@ -90,6 +90,13 @@ class User < ActiveRecord::Base
     boolean :public
     boolean :active
     date :updated_at
+   
+    integer :user_id, :stored => true
+    string :klass, :stored => true
+  end
+
+  def user_id
+    self.id
   end
 
   def not_anonymous
@@ -200,6 +207,10 @@ class User < ActiveRecord::Base
 
   def default_font_size
     attributes['default_font_size'] || self.large_font_size
+  end
+
+  def default_font
+    attributes['default_font'] || 'futura'
   end
 
   def large_font_size

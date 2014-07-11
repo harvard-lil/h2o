@@ -33,6 +33,9 @@ class Case < ActiveRecord::Base
   def display_name
     (short_name.blank?) ? full_name : short_name
   end
+  def score
+    0
+  end
 
   alias :to_s :display_name
   alias :name :display_name
@@ -47,7 +50,7 @@ class Case < ActiveRecord::Base
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
   validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
-  searchable(:include => [:collages, :case_citations]) do
+  searchable do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -62,16 +65,26 @@ class Case < ActiveRecord::Base
     string :user
     string :user_display, :stored => true
     integer :user_id, :stored => true
-    # string :tag_list, :stored => true, :multiple => true
-    string :collages, :stored => true, :multiple => true
-    string :case_citations, :stored => true, :multiple => true
-    string :case_docket_numbers, :stored => true, :multiple => true
-    string :case_jurisdiction, :stored => true, :multiple => true
+    string :indexable_case_citations, :stored => true, :multiple => true
+    string :case_docket_numbers, :stored => true, :multiple => true # TODO: Fix this to include relevent info
+    string :case_jurisdiction, :stored => true, :multiple => true # TODO: Fix this to include relevent info
+
+    string :klass, :stored => true
+    boolean :primary do
+      false
+    end
+    boolean :secondary do
+      false
+    end
   end
 
   after_create :assign_to_h2ocases
 
   alias :to_s :display_name
+
+  def indexable_case_citations
+    self.case_citations.map(&:display_name)
+  end
 
   def clean_content
     self.content.gsub!(/\p{Cc}/, "")

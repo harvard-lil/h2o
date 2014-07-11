@@ -29,7 +29,7 @@
 		</nav>
 		<h1 id="logo"><%= link_to "H2O", "/" %></h1>
 		<section id="search">
-		<%= form_tag("/all_materials", :method => :get, :class => "search") do %>
+    <form action="/all_materials" method="get" class="search">
 		<table>
 			<tr>
 				<td id="spinner">
@@ -63,7 +63,7 @@
 				<% end -%>
 			</tr>
 		</table>
-		<% end -%>
+		</form>
 		<div class="popup" id="create_all_popup">
 			<div class="left">
 			<%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %> 

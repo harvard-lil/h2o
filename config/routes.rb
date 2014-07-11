@@ -8,6 +8,7 @@ H2o::Application.routes.draw do
             :case_jurisdictions, :login_notifiers, :bulk_uploads
 
   get 'base/embedded_pager' => 'base#embedded_pager'
+  get 'load_more_users' => 'base#load_more_users'
   get 'all_materials' => 'base#search', as: :search_all
   get 'quick_collage' => 'base#quick_collage', as: :quick_collage
   get 'log_out' => 'user_sessions#destroy', as: :log_out
@@ -15,7 +16,7 @@ H2o::Application.routes.draw do
   get '/bookmark_item/:type/:id' => 'users#bookmark_item', as: :bookmark_item
   get '/delete_bookmark_item/:type/:id' => 'users#delete_bookmark_item', as: :delete_bookmark_item
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
-  get '/:klass/tag/:tag' => 'base#tags', as: :tag
+  get '/:tklass/tag/:tag' => 'base#tags', as: :tag
   get '/p/:id' => 'pages#show'
 
   resources :users do

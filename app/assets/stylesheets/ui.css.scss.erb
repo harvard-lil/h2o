@@ -409,23 +409,38 @@ header #search table td {
 }
 
 #results {
+  #results_set {
+    background: #FFF;
+    padding: 2px;
+  }
+  .featured {
+    font-size: 15px;
+    font-style: italic;
+    line-height: 2.5em;
+  }
 }
-#results #results_set {
-  background: #FFF;
-  padding: 2px;
+#results.expanded_results {
+  width: 100%;
 }
+
 #results .search_details {
   background: #c2c2c2;
   padding: 10px;
   clear: both;
   position: relative;
+  h2 {
+    font-weight: normal;
+    font-size: 16px;
+    #totals {
+      width: 360px; 
+    }
+  }
+}
+#results.expanded_leftcol .search_details h2 #totals {
+  width: 700px;
 }
 #results .search_details.bottom {
   height: 21px;
-}
-#results .search_details h2 {
-  font-weight: normal;
-  font-size: 16px;
 }
 #results .breadcrumb {
   float: left;
@@ -1158,7 +1173,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   border: 1px solid #3f3f3f;
 }
 
-.singleitem {
+.leftcol {
   display:block;
   margin-top: 5px;
   position:relative;
@@ -1169,8 +1184,8 @@ ul.user_captcha > li p.inline-errors { display: none; }
 .playlist_edit_mode .singleitem {
   width: 536px;
 }
-.playlist_edit_mode .expanded_singleitem,
-.expanded_singleitem {
+.playlist_edit_mode .expanded_leftcol,
+.expanded_leftcol {
   width: 100%;
 }
 .singleitem h1,
@@ -1286,6 +1301,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 .stats_panel #user_website {
   word-break: break-all;
+  -ms-word-break: break-all;
 }
 .stats_panel {
   padding: 10px;
@@ -1679,4 +1695,66 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
 }
 li.boolean_hidden {
   display: none;
+}
+
+.drilldown, #playlist_drilldown {
+  margin-top: 10px;
+  ul, p {
+    padding: 10px;
+  }
+  a#search_within {
+    margin: 10px;
+  }
+  h4 {
+    background: #d5d5d5;
+    padding: 4px 4px 4px 10px;
+    margin: 2px;
+  }
+  a.clear_filters, a#clear_within_filter {
+    font-weight: normal;
+    margin-left: 3px;
+    font-size: 12px;
+  }
+  #load_more_users {
+    text-decoration: none;
+    color: #036290;
+    font-style: italic;
+  }
+  a.current_user {
+    color: #036290;
+    font-style: italic;
+  }
+  span.current_user {
+    color: #888888;
+    font-style: italic;
+  }
+  #klass_filters ul {
+    padding: 0px 10px;
+  }
+}
+.drilldown #advanced-search-wedge {
+  display: none;
+}
+#edit_item #add_item_results #playlist_drilldown {
+  margin-top: 2px;
+  h3 {
+    background: #FFFFFF;
+    color: #000;
+    position: relative;
+  }
+  .aleft {
+    float: left; 
+    width: 49%;
+    clear: left;
+  }
+  .aright {
+    float: right; 
+    width: 49%;
+    clear: right;
+  }
+  p {
+    clear: both;
+    display: inline-block;
+    width: 375px;
+  }
 }

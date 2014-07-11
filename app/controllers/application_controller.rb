@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
     # if playlist item is created, allow owner of playlist to add
     if params[:controller] == "playlist_items" && request.post? && params.has_key?(:playlist_item)
       playlist = Playlist.where(id: params[:playlist_item][:playlist_id]).first
-      if current_user.present? && playlist.user.present? && playlist.user == current_user
+      if current_user.present? && playlist.present? && playlist.user.present? && playlist.user == current_user
         return true
       end
     end
@@ -129,10 +129,12 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    if !params.has_key?(:order) && ["score", "updated_at", "created_at"].include?(params[:sort])
+      params[:order] = "desc"
+    end
     if !["asc", "desc", "ascending", "descending"].include?(params[:order])
       params[:order] = :asc
     end
-    params[:order] = (["score", "updated_at"].include?(params[:sort]) ? :desc : :asc) unless params[:order]
   end
 
   def set_sort_lists
@@ -146,11 +148,12 @@ class ApplicationController < ActionController::Base
       "created_at" => { :display => "SORT BY DATE CREATED", :selected => false },
       "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
-    @sort_lists[:cases] = @sort_lists[:pending_cases] = generate_sort_list(base_sort.merge({
+    @sort_lists[:cases] = generate_sort_list(base_sort.merge({
       "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
     }))
-    @sort_lists[:case_requests] = { 
-          "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false }
+    @sort_lists[:pending_cases] = @sort_lists[:case_requests] = {
+      "display_name" => { :display => "SORT BY DISPLAY NAME", :selected => false },
+      "decision_date" => { :display => "SORT BY DECISION DATE", :selected => false }
     }
     @sort_lists[:users] = base_sort
     @sort_lists[:text_blocks] = generate_sort_list(base_sort.merge({
@@ -169,10 +172,8 @@ class ApplicationController < ActionController::Base
   end
 
   def common_index(model)
-    set_belongings model if model != User
-
-    @page_title = "#{model.to_s.pluralize} | H2O Classroom Tools"
-    @model = model
+    @page_title = "#{params.has_key?(:featured) ? "Featured " : ""}#{model.to_s.pluralize} | H2O Classroom Tools"
+    @type_lookup = model == Media ? :medias : model.to_s.tableize.to_sym 
     @label = model.to_s
     if model == Media
       @label = "Audio Items" if params[:media_type] == "audio"
@@ -221,8 +222,23 @@ class ApplicationController < ActionController::Base
     items = (model == User ? User.search : (model.is_a?(Array) ? Sunspot.new_search(model) : model.search(:include => :user)))
 
     items.build do
+      if params.has_key?(:klass)
+        classes = params[:klass].split(',')
+        any_of do
+          classes.each { |k| with :klass, k }
+        end
+      end
+      if params.has_key?(:user_ids)
+        user_ids = params[:user_ids].split(',')
+        any_of do
+          user_ids.each { |k| with :user_id, k }
+        end
+      end
       if params.has_key?(:keywords)
         keywords params[:keywords]
+      end
+      if params.has_key?(:within)
+        keywords params[:within]
       end
       if params.has_key?(:tags) && model != Case
         if params.has_key?(:any)
@@ -249,31 +265,69 @@ class ApplicationController < ActionController::Base
         with :public, true
       end
 
+      if [Collage,Playlist].include?(model) && params.has_key?(:featured)
+        with :featured, true
+      end
+
       with :active, true
+
+      facet(:user_id)
+      facet(:klass)
 
       paginate :page => params[:page], :per_page => params[:per_page]
       order_by params[:sort].to_sym, params[:order].to_sym
     end
 
     items.execute!
+    build_facet_display(items) if model != User
     items
   end
 
-  def set_belongings(model)
-    @my_belongings ||= {}
-    @is_admin ||= {}
+  def build_facet_display(collection)
+    @display_drilldown = true
+    @user_facet_display = []
+    @klass_facet_display = []
+    @queued_users = []
 
-    if current_user
-      admin_method = "is_#{model.to_s.downcase}_admin"
-      @is_admin[model.to_s.downcase.to_sym] = current_user.respond_to?(admin_method) ? current_user.send(admin_method) : false
-      @my_belongings[model.to_s.tableize.to_sym] = model == Media ? current_user.medias : current_user.send(model.to_s.tableize.to_s)
+    if collection.results.total_entries == 0
+      if params.has_key?(:user_ids)
+        u = User.where(id: params[:user_ids])
+        @user_facet_display << { :user => u.first, :count => 0, :class => '' } if u.present?
+      end
+      if params.has_key?(:klass)
+        @klass_facet_display << { :value => params[:klass], :count => 0 }
+      end
+      return
     else
-      @is_admin[model.to_s.downcase] = false
-      @my_belongings[model.to_s.downcase] = []
+      if params[:controller] != "users" && current_user && !(params.has_key?(:user_ids) && params[:user_ids].to_i != current_user.id)
+        b = collection.facet(:user_id).rows.detect { |b| b.value == current_user.id }
+        @user_facet_display << { :user => current_user, :class => 'current_user', :count => b.present? ? b.count : 0 }
+      end
+
+      collection.facet(:user_id).rows.each do |row|
+        next if [606, 0].include?(row.value)
+        next if current_user && row.value == current_user.id
+        if @user_facet_display.size < 5
+          u = User.where(id: row.value)
+          @user_facet_display << { :user => u.first, :count => row.count, :class => '' } if u.present?
+        else
+          @queued_users << { :id => row.value, :count => row.count }
+        end
+      end
+ 
+      collection.facet(:klass).rows.each do |row|
+        @klass_facet_display << { :value => row.value, :count => row.count }
+      end
     end
-    if model == TextBlock
-      @my_belongings[:textblocks] = @my_belongings[:text_blocks]
+
+    if params.has_key?(:klass) && params[:klass] == 'PrimaryPlaylist'
+      @klass_facet_display.delete_if { |a| a[:value] == 'Playlist' }
     end
+    if params.has_key?(:user_ids)
+      @user_facet_display.each { |b| b[:class] = "#{b[:class]} active" }
+    end
+  
+    @klass_facets = collection.facet(:klass).rows
   end
 
   protected
@@ -305,6 +359,7 @@ class ApplicationController < ActionController::Base
   def apply_user_preferences(user, on_create)
     if user
       cookies[:font_size] = user.default_font_size
+      cookies[:font] = user.default_font
       cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false')
       cookies[:show_annotations] = user.default_show_annotations
       cookies[:display_name] = user.simple_display
@@ -321,7 +376,7 @@ class ApplicationController < ActionController::Base
     end
   end
   def destroy_user_preferences(user)
-    [:font_size, :use_new_tab, :show_annotations, :display_name,
+    [:font_size, :font, :use_new_tab, :show_annotations, :display_name,
      :user_id, :anonymous_user, :bookmarks, :playlists].each do |attr|
       cookies.delete(attr)
     end

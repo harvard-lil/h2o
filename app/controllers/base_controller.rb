@@ -19,14 +19,34 @@ class BaseController < ApplicationController
       if params[:keywords].present?
         keywords params[:keywords]
       end
-      paginate :page => params[:page], :per_page => 5 || nil
+      if params.has_key?(:within)
+        keywords params[:within]
+      end
+      if params.has_key?(:klass)
+        classes = params[:klass].split(',')
+        any_of do
+          classes.each { |k| with :klass, k }
+        end
+      end
+      if params.has_key?(:user_ids)
+        user_ids = params[:user_ids].split(',')
+        any_of do
+          user_ids.each { |k| with :user_id, k }
+        end
+      end
 
       with :public, true
       with :active, true
 
+      facet(:user_id)
+      facet(:klass)
+
+      paginate :page => params[:page], :per_page => 5 || nil
       order_by params[:sort].to_sym, params[:order].to_sym
     end
     obj.execute!
+    build_facet_display(obj)
+
     formatted_objects = { :results => obj.results, :total => obj.total }
 
     @display_objects = formatted_objects[:results]
@@ -69,8 +89,8 @@ class BaseController < ApplicationController
   end
 
   def tags
-    if ["collages", "text_blocks", "playlists", "medias"].include?(params[:klass])
-      common_index params[:klass].singularize.camelize.constantize
+    if ["collages", "text_blocks", "playlists", "medias"].include?(params[:tklass])
+      common_index params[:tklass].singularize.camelize.constantize
     else
       redirect_to root_url, :status => 301
     end
@@ -79,83 +99,25 @@ class BaseController < ApplicationController
   def index
     @page_cache = true
     @page_title = 'H2O Classroom Tools'
-
-    per_page = 8
-
-    @highlighted = { :fall2013 => [], 
-                     :highlighted => [], 
-                     :user => [], 
-                     :collage => [], 
-                     :media_image => [], 
-                     :media_pdf => [], 
-                     :media_audio => [], 
-                     :media_video => [], 
-                     :textblock => [], 
-                     :case => [],
-                     :default => []
-                   }
-    [1374, 1995, 1324, 1162, 711, 1923, 1889, 1844, 1510].each do |p|
-      begin
-        playlist = Playlist.where(id: p).first
-        @highlighted[:fall2013] << { :title => playlist.name, :playlist => playlist, :user => playlist.user } if playlist 
-      rescue Exception => e
-        Rails.logger.warn "Base#index Exception: #{e.inspect}"
-      end
-    end
-    [986, 671, 945, 1943, 911, 633, 66, 626].each do |p|
-      begin
-        playlist = Playlist.where(id: p).first
-        @highlighted[:highlighted] << { :title => playlist.name, :playlist => playlist, :user => playlist.user } if playlist 
-      rescue Exception => e
-        Rails.logger.warn "Base#index Exception: #{e.inspect}"
-      end
-    end
-    [571, 529, 496, 595, 267, 387, 392, 684, 140].each do |u|
-      begin
-        user = User.where(id: u).first
-        @highlighted[:user] << user
-      rescue Exception => e
-        Rails.logger.warn "Base#index Exception: #{e.inspect}"
-      end
-    end
-    [3456, 3820, 3230, 3212, 3385].each do |c|
-      begin
-        collage = Collage.where(id: c).first
-        @highlighted[:collage] << collage if collage
-      rescue Exception => e
-        Rails.logger.warn "Base#index Exception: #{e.inspect}"
-      end
-    end
-
-    @media_map = {}
-    [Default, TextBlock, Case].each do |klass|
-      @highlighted[klass.to_s.downcase.to_sym] = klass.where("public IS TRUE AND karma IS NOT NULL").order("karma DESC").limit(5)
-    end
-    ["Audio", "PDF", "Image", "Video"].each do |media_label|
-      mt = MediaType.where(label: media_label).first
-      @media_map[mt.slug] = media_label == "Audio" ? "Audio" : "#{media_label}s"
-      @highlighted["media_#{mt.slug}".to_sym] = Media.where("public IS TRUE AND media_type_id = #{mt.id}").order("karma DESC").limit(5)
-    end
   end
 
   def search
+    @type_lookup = :all
+    @page_title = "All Materials | H2O Classroom Tools"
+
     params[:keywords] = CGI::escapeHTML(params[:keywords].to_s)
     if params.has_key?(:keywords) && params[:keywords].present? && params[:keywords].length > 50
       params[:keywords] = params[:keywords][0..49]
     end
 
-    [Playlist, Collage, Media, TextBlock, Case, Default].each do |model|
-      set_belongings model
-    end
-
     set_sort_params
     set_sort_lists
     @collection = build_search([Playlist, Collage, Media, TextBlock, Case, Default], params)
-
+  
     if request.xhr?
-      render :partial => 'base/search_ajax'
+      render :partial => 'shared/generic_block'
     else
-      render 'search'
+      render 'shared/list_index'
     end
   end
 
@@ -166,10 +128,15 @@ class BaseController < ApplicationController
     @collection = build_search([TextBlock, Case, Collage], params)
 
     if params.has_key?(:ajax)
-      render :partial => 'base/search_ajax'
+      render :partial => 'shared/generic_block'
     else
       render :partial => 'base/quick_collage'
     end
+  end
+
+  def load_more_users
+    users = User.where(id: params[:display].split(',')).inject({}) { |h, u| h[u.id] = u.simple_display; h }
+    render :json => { :users => users }
   end
 
   def error

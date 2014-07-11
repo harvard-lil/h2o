@@ -85,7 +85,7 @@ h2o_global.playlist_afterload = function(results) {
   var notes = $.parseJSON(results.notes) || new Array() 
   $.each(notes, function(i, playlist_item) {
     if(playlist_item.notes != null) {
-      var title = playlist_item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      var title = playlist_item.public_notes ? "Notes" : "Notes (private)";
       var node = $('<div>').html('<b>' + title + ':</b><br />' + playlist_item.notes).addClass('notes');
       if(!$('#playlist_item_' + playlist_item.id + ' > .wrapper > .inner-wrapper .additional_details').length) {
         $('#playlist_item_' + playlist_item.id + ' > .wrapper > .inner-wrapper').append($('<div>').addClass('additional_details'));
@@ -190,6 +190,22 @@ var playlists_show = {
       $(this).find('a.title,a.author_link,a.rr').removeClass('hover_link');
       if(!$('div.main_playlist').hasClass('playlists-edit-mode') && !$(this).parent().hasClass('expanded') && !$(this).parent().hasClass('adding-item')) {
         $(this).find('.icon').removeClass('hover');
+      }
+    });
+  },
+  observeAdvancedSearchToggle: function() {
+    $('#advanced-search-wedge').live('click', function(e) {
+      e.preventDefault();
+      if($(this).hasClass('opened')) {
+        $(this).removeClass('opened');
+        $('#advanced-search-content').slideUp('fast', function() {
+          $.rule('#playlists_show #advanced-search-content { display: none; }').appendTo('style');
+        });
+      } else {
+        $(this).addClass('opened');
+        $('#advanced-search-content').slideDown('fast', function() {
+          $.rule('#playlists_show #advanced-search-content { display: block; }').appendTo('style');
+        });
       }
     });
   },
@@ -330,7 +346,7 @@ var playlists_show = {
     //Notes changes
     var notes_item = listitem_wrapper.find('.notes');
     if(notes_item.size() == 0 && item.notes != '') {
-      var notes_title = item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      var notes_title = item.public_notes ? "Notes" : "Notes (private)";
       var new_item = $('<div>').attr('class', 'notes').html('<b>' + notes_title + ':</b><br />' + item.notes);
       if(listitem_wrapper.find('.additional_details').size() == 0) {
         listitem_wrapper.find('.rr-cell').append($('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
@@ -347,7 +363,7 @@ var playlists_show = {
     } else if(notes_item.size() && item.notes == '') {
       notes_item.remove();
     } else if(notes_item.size() && item.notes != '') {
-      var notes_title = item.public_notes ? "Additional Notes" : "Additional Notes (private)";
+      var notes_title = item.public_notes ? "Notes" : "Notes (private)";
       notes_item.html('<b>' + notes_title + ':</b><br />' + item.notes);
     }
 
@@ -372,9 +388,9 @@ var playlists_show = {
           h2o_global.hideGlobalSpinnerNode();
           playlists_show.renderPublicPlaylistBehavior(results);
           if(type == 'public') {
-            $('.notes b').html('Additional Notes:');
+            $('.notes b').html('Notes:');
           } else {
-            $('.notes b').html('Additional Notes (private):');
+            $('.notes b').html('Notes (private):');
           }
         }
       });
@@ -605,22 +621,49 @@ var playlists_show = {
     $(document).delegate('#add_item_search', 'click', function(e) {
       e.preventDefault();
       var itemController = $('#add_item_select').val();
+
+      var user_ids = new Array();
+      $.each($('#user_id_filters li input:checked'), function(i, el) {
+        user_ids.push($(el).val());
+      });  
+      if($('a#clear_user_ids_filter').data('activated')) {
+        user_ids = new Array();
+      }
+      var classes = new Array();
+      $.each($('#klass_filters li input:checked'), function(i, el) {
+        classes.push($(el).val());
+      });
+      if($('a#clear_klass_filter').data('activated')) {
+        classes = new Array();
+      }
+      data = {
+          keywords: $('#add_item_term').val(),
+          sort: $('#add_item_results .sort select').val(),
+      };
+      if(user_ids.length) {
+        data.user_ids = user_ids.join(',');
+      }
+      if(classes.length) {
+        data.klass = classes.join(',');
+      }
+      if($('input[name=within]').size() && $('input[name=within]').val() != '') {
+        data.within = escape($('input[name=within]').val());
+      }
+
       $.ajax({
         method: 'GET',
         url: h2o_global.root_path() + itemController + '/embedded_pager',
         beforeSend: function(){
            h2o_global.showGlobalSpinnerNode();
         },
-        data: {
-          keywords: $('#add_item_term').val(),
-          sort: $('#add_item_results .sort select').val() 
-        },
+        data: data,
         dataType: 'html',
         success: function(html){
           h2o_global.hideGlobalSpinnerNode();
           $('#add_item_results').html(html);
           playlists_show.toggleHeaderPagination();
           $('div#nestable2').nestable();
+
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {
@@ -678,6 +721,7 @@ var playlists_show = {
     playlists_show.observeMainPlaylistExpansion();
     playlists_show.observeAdditionalDetailsExpansion();
     playlists_show.observeViewerToggleEdit();
+    //playlists_show.observeAdvancedSearchToggle();
   },
   nested_notification: '<p id="private_detail">This playlist contains {{nonowned}} private nested resource item(s) owned by other users.</p>',
   set_nested_owned_private_resources_public: '\

@@ -1,10 +1,42 @@
 h2o_global.updated_permissions = function(data) {
-    $('.extra' + data.id).append($('<span>Updated!</span>'));
-    h2o_global.hideGlobalSpinnerNode();
-    $('#generic-node').dialog('close');
-    $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
+  $('.extra' + data.id).append($('<span>Updated!</span>'));
+  h2o_global.hideGlobalSpinnerNode();
+  $('#generic-node').dialog('close');
+  $('.extra' + data.id + ' span').fadeOut(4000, function() { $(this).remove(); });
+};
+h2o_global.update_user_settings = function(data) {
+  $('#user_settings').replaceWith(data.settings_content);
+  $('#user_profile').replaceWith(data.profile_content);
+  $('#generic-node').dialog('close');
+  h2o_global.hideGlobalSpinnerNode();
+  var div = $('<div>').attr('id', 'user_updated').html('Your account has been updated.');
+  div.insertAfter($('#search_within'));
+  return;
 };
 var users_show = {
+  observeUserDisconnect: function() {
+    $('.user-disconnect').live('click', function(e) {
+      e.preventDefault();
+      var link = $(this);
+      $.ajax({
+        cache: false,
+        type: 'POST',
+        url: link.attr('href'),
+        dataType: 'JSON',
+        data: {},
+        beforeSend: function(){
+          h2o_global.showGlobalSpinnerNode();
+        },
+        error: function(xhr){
+          h2o_global.hideGlobalSpinnerNode();
+        },
+        success: function(data){
+          link.parent().replaceWith($('<div>').html('<br />Disconnected<br />'));
+          h2o_global.hideGlobalSpinnerNode();
+        }
+      });
+    });
+  },
   renderDeleteFunctionality: function() {
     if('/users/' + $.cookie('user_id') == document.location.pathname) {
       $.each($('#results_set li'), function(i, el) {
@@ -152,5 +184,9 @@ var users_show = {
     users_show.observeSpecialPagination();
     users_show.observeKeywordsSearch();
     users_show.renderDeleteFunctionality();
+    users_show.observeUserDisconnect();
+    $('.edit-action').live('click', function(e) {
+      $('#user_updated').remove();
+    });
   }
 };

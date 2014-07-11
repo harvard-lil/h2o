@@ -1,7 +1,0 @@
-<% @collection.each do |result| -%>
-  <%= render :partial => "shared/objects/#{@view}", :locals => { @view.to_sym => result, :hit => result } %>
-<% end -%>
-
-<div id="new_pagination" style="display:none;">
-<%= will_paginate @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
-<div>

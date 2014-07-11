@@ -2,33 +2,37 @@
   #notice {
     margin: 20px 0px 0px 0px;
   }
-  #results .panel {
-    width: 300px;
-    float: left;
-    margin-top: 25px;
-    background: #FFF;
+  #results {
+    #bookshelf_panel {
+      float: left;
+      h3.title {
+        width: 60%;
+        float: left;
+        font-size: 20px;
+      }
+      li.listitem h3 .icon-delete {
+        visibility: visible;
+        position: relative;
+        top: 3px;
+      }
+    }
   }
   #results .special_panel {
+    margin-top: 10px;
     width: 100%;
     float: none;
   }
-  #results #bookshelf_panel {
-    width: 780px;
-    margin-right: 10px;
-  }
-  #results #bookshelf_panel li.listitem h3 .icon-delete {
-    visibility: visible;
+  #advanced-search-content h3 {
     position: relative;
-    top: 3px;
   }
-  #results #settings_panel,
-  #results #collections_panel {
-    margin-top: 5px;
+  #advanced-search-content a.icon-edit-large {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
   }
   #results .panel .header {
     background: #d5d5d5;
     padding: 20px 10px 2px 10px;
-    position: relative;
   }
   #results .panel .header h3 {
     font-weight: normal;
@@ -39,46 +43,8 @@
   #results .panel .header span {
     margin-left: 3px;
   }
-  #results #profile_panel .header a,
-  #results #settings_panel .header a {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-  }
   #results .clear {
     clear: both;
-  }
-  
-  .fixed_link {
-    width: 40px;
-    height: 40px;
-    padding: 3px;
-    background: #d5d5d5;
-    text-align: center;
-    text-indent: 0px;
-  }
-  #activities_toggle {
-  }
-  #bookshelf_toggle {
-    top: 240px;
-  }
-  #bookshelf_toggle span {
-    position: relative;
-    top: 2px;
-  }
-  #profile_toggle {
-    top: 288px;
-  }
-  #profile_toggle span {
-    position: relative;
-    top: 3px;
-  }
-  #settings_toggle {
-    top: 336px;
-  }
-  #settings_toggle span {
-    position: relative;
-    top: 2px;
   }
   
   ul.user_list li {
@@ -90,24 +56,12 @@
     font-weight: bold;
   }
   
-  #results li.listitem .details {
-    width: 360px;
-  }
-  #results .special_panel li.listitem .details {
-    width: 85%;
-  }
-  #results #bookmarks_panel li.listitem .details {
-    width: 400px;
-  }
   #results #bookmarks_panel .bookmark-action {
     display: none;
   }
   table#user_search {
     width: 100%;
     margin: 10px 0px;
-  }
-  #results .sort {
-    margin: 0px;
   }
   #results .special_sort {
     margin: 0px 0px 10px 0px;
@@ -148,5 +102,17 @@
   }
   .stats_panel .error {
     margin-bottom: 10px;
+  }
+  #user_tz_name, #user_description {
+    width: 175px;
+    margin-right: 50px;
+  }
+  .stats_panel p {
+    padding: 1px 10px;
+  }
+  #user_updated {
+    padding: 10px;
+    color: red;
+    font-weight: bold;
   }
 }

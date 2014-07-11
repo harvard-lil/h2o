@@ -1,7 +1,32 @@
-<% @collection.each_hit_with_result do |hit, result| -%>
-  <%= render :partial => "shared/objects/#{@partial}", :locals => { @model_sym => result, :hit => hit } %>
+<% if @collection.is_a?(WillPaginate::Collection) -%>
+<% @collection.each do |result| -%>
+  <%= render :partial => "shared/objects/#{result.klass_partial}", :locals => { result.klass_sym => result, :hit => result } %>
 <% end -%>
-
 <div id="new_pagination" style="display:none;">
-<%= will_paginate @collection.is_a?(WillPaginate::Collection) ? @collection : @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
+<%= will_paginate @collection, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
 <div>
+<div id="new_stats"></div>
+<div id="new_totals"></div>
+<% elsif @collection.hits.any? -%>
+<% @collection.each_hit_with_result do |hit, result| -%>
+  <%= render :partial => "shared/objects/#{result.klass_partial}", :locals => { result.klass_sym => result, :hit => hit } %>
+<% end -%>
+<div id="new_pagination" style="display:none;">
+<%= will_paginate @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
+</div>
+<div id="new_stats" style="display:none;">
+<% if @display_drilldown -%>
+<%= render "shared/drilldown" %>
+<% end -%>
+</div>
+<div id="new_totals" style="display:none;">
+<%= results_display(@collection, @klass_facets) %> Total
+</div>
+<% else -%>
+<p id="no_results">No items match your search.</p>
+<div id="new_pagination"></div>
+<div id="new_stats">
+<%= render "shared/drilldown" %>
+</div>
+<div id="new_totals"></div>
+<% end -%>

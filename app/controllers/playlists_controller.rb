@@ -86,8 +86,9 @@ class PlaylistsController < BaseController
     end
   end
 
-  # POST /playlists
   def create
+    return :json => {} if !params.has_key?(:playlist)
+
     @playlist = Playlist.new(playlist_params)
     @playlist.user = current_user
     verify_captcha(@playlist)
@@ -165,6 +166,7 @@ class PlaylistsController < BaseController
       @playlist_copy.parent = @playlist
       @playlist_copy.karma = 0
       @playlist_copy.user = current_user
+      @playlist_copy.featured = false
       verify_captcha(@playlist_copy)
  
       if @playlist_copy.save
@@ -260,6 +262,6 @@ class PlaylistsController < BaseController
 
   private
   def playlist_params
-    params.require(:playlist).permit(:name, :public, :tag_list, :description, :counter_start)
+    params.require(:playlist).permit(:name, :public, :primary, :tag_list, :description, :counter_start, :featured)
   end
 end

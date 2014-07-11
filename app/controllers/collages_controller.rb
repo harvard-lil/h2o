@@ -50,7 +50,6 @@ class CollagesController < BaseController
   end
 
   def copy
-    # FIXME: captcha failing on remix
     @tmp_collage = Collage.new
     verify_captcha(@tmp_collage)
     if !@tmp_collage.valid_recaptcha
@@ -152,6 +151,6 @@ class CollagesController < BaseController
 
   private
   def collages_params
-    params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id)
+    params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id, :featured)
   end
 end

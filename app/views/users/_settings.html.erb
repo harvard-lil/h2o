@@ -1,0 +1,23 @@
+<div class="stats_panel" id="user_settings">
+  <%= render :partial => "shared/user_verified" %>
+  <p>
+    <label>Default font:</label>
+    <span><%= user.default_font %></span>
+  </p>
+  <p>
+    <label>Default font size:</label>
+    <span><%= user.default_font_size %></span>
+  </p>
+  <p>
+    <label>Timezone:</label>
+    <span><%= user.tz_name %></span>
+  </p>
+  <p>
+    <label>Username:</label>
+    <span><%= user.login %></span>
+  </p>
+  <p>
+    <label>Email Address:</label>
+    <span><%= user.email_address %></span>
+  </p>
+</div>

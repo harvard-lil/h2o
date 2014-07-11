@@ -1,111 +1,36 @@
+<div id="fixed_links">
+  <a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Advanced Search">Collapse/Expand</a>
+</div>
+<div id="stats" class="right_panel drilldown">
+  <%= render "shared/drilldown", :locals => { :user_dash => true } %>
+</div>
+
 <div id="results">
-  <div id="bookshelf_panel" class="panel">
-    <div class="header">
-      <h3><%= @user == current_user ? "My" : "#{@user.simple_display}'s" %> Workshop</h3>
+  <div id="bookshelf_panel" class="leftcol">
+    <h3 class="title">
+      <%= @user == current_user ? "My" : "#{@user.simple_display}'s" %> Workshop
       <span class="icon icon-bookshelf"></span>
-      <table id="user_search" cellpadding="0" cellspacing="0">
-        <tr>
-          <td id="user_search_input">
-            <input id="user_keywords" name="keywords" size="50" type="text">
-          </td>
-          <td id="user_search_filter">
-				    <select id="search_all">
-					    <option value="all_materials">all</option>
-              <% {"playlists" => "Playlists", "collages" => "Collages", "cases" => "Cases", "text_blocks" => "Texts", "medias" => "Media Items", "defaults" => "Links" }.each do |k, v| -%>
-					    <option value="<%= k %>" <%= raw 'selected="selected"' if params[:controller] == k %>><%= v %></option>
-					    <% end -%>
-				    </select>
-          </td>
-          <td id="user_search_button">
-            <button id="search_user_content" class="button">SEARCH</button>
-          </td>
-          <td id="user_sort" align="right">
-            <aside class="sort">
-              <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
-            </aside>
-          </td>
-        </tr>
-      </table>
-      <% if @bookshelf.results.total_entries > 10 -%>
+    </h3>
+    <aside class="sort">
+     <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[:all] } %>
+    </aside>
+    <div class="search_details">
+      <% if @collection.results.total_entries > 10 -%>
       <aside class="pagination standard_pagination">
-        <%= will_paginate @bookshelf.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
+        <%= will_paginate @collection.hits, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
       </aside>
       <% end -%>
-      <div class="clear"></div>
+      <p id="totals">
+        <%= results_display(@collection, @klass_facets) %> Total
+      </p>
     </div>
     <ul id="results_set">
-      <% @bookshelf.each_hit_with_result do |hit, result| -%>
+      <% @collection.each_hit_with_result do |hit, result| -%>
       <%= render :partial => "shared/objects/#{result.class == Case ? 'case_obj' : result.class.to_s.downcase}",
                  :locals => { :hit => hit, (result.class == Case ? :case_obj : result.class.to_s.downcase.to_sym) => result } %>
       <% end -%>
     </ul>
   </div>
-  <div id="profile_panel" class="panel">
-    <div class="header">
-      <h3>Profile</h3>
-      <span class="icon icon-profile"></span>
-      <% if @user == current_user -%>
-      <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large" %>
-      <% end -%>
-    </div>
-    <%= render :partial => "shared/author_stats", :locals => { :user => @user } %>
-  </div>
-  <% if @user == current_user -%>
-  <div id="settings_panel" class="panel">
-    <div class="header">
-      <h3>Settings</h3>
-      <span class="icon icon-settings"></span>
-      <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large" %>
-    </div>
-    <div class="stats_panel">
-      <%= render :partial => "shared/user_verified" %>
-      <p>
-        <label>Default font size:</label>
-        <span><%= @user.default_font_size %></span>
-      </p>
-      <p>
-        <label>Timezone:</label>
-        <span><%= @user.tz_name %></span>
-      </p>
-      <p>
-        <label>Username:</label>
-        <span><%= @user.login %></span>
-      </p>
-      <p>
-        <label>Email Address:</label>
-        <span><%= @user.email_address %></span>
-      </p>
-      <p>
-        <label>Password:</label>
-        <span>********</span>
-      </p>
-    </div>
-  </div>
-  <% if false -%>
-	<div id="collections_panel" class="panel">
-	  <div class="header">
-	    <h3>User Collections</h3>
-	  </div>
-	  <ul id="user_collections">
-	    <li class="listitem">
-	      <div class="controls">
-	        <ul>
-	          <li class="link-add">
-	            <a href="<%= new_user_collection_path %>" class="new-action">Add</a>
-	          </li>
-	        </ul>
-	      </div>
-	      <div class="details">
-	        <h4><a href="<%= new_user_collection_path %>" class="new-action">Create a New User Collection</a></h4>
-	      </div>
-	      <div class="clear"></div>
-	    </li>
-	    <%= render :partial => "shared/objects/user_collection", :collection => @user.collections %>
-	  </ul>
-	</div>
-  <% end -%>
-  <% end -%>
-
   <div class="clear"></div>
 
 	<% if @user == current_user && @user.bookmarks.any? -%>

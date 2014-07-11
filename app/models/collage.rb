@@ -23,7 +23,7 @@ class Collage < ActiveRecord::Base
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
   has_many :annotations, -> { order(:created_at) }, :dependent => :destroy
-  # has_and_belongs_to_many :user_collections   # dependent => destroy
+  has_and_belongs_to_many :user_collections,  :dependent => :destroy
   has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
@@ -37,6 +37,7 @@ class Collage < ActiveRecord::Base
     string :id, :stored => true
     text :description, :boost => 2.0
 
+    boolean :featured
     boolean :active
     boolean :public
     time :created_at
@@ -49,6 +50,14 @@ class Collage < ActiveRecord::Base
     string :root_user_display, :stored => true
     integer :root_user_id, :stored => true
     integer :karma
+    
+    string :klass, :stored => true
+    boolean :primary do
+      false
+    end
+    boolean :secondary do
+      false
+    end
   end
 
   def fork_it(new_user, params)
@@ -60,6 +69,7 @@ class Collage < ActiveRecord::Base
     collage_copy.description = params[:description]
     collage_copy.user = new_user
     collage_copy.valid_recaptcha = true
+    collage_copy.featured = false
     self.annotations.each do |annotation|
       new_annotation = annotation.clone
       new_annotation.collage = collage_copy

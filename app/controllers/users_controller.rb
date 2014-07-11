@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
   before_filter :display_first_time_canvas_notice, :only => [:new, :create]
-  protect_from_forgery :except => [:disconnect_dropbox]
+  protect_from_forgery :except => [:disconnect_dropbox, :disconnect_canvas]
 
   def new
     @user = User.new
@@ -68,66 +68,44 @@ class UsersController < ApplicationController
       return
     end
 
-    user_id_filter = @user.id
-
-    public_filtering = !current_user || @user != current_user
-
-    models = [Playlist, Collage, Case, Media, TextBlock, Default]
-    if params.has_key?(:filter_type)
-      if params[:filter_type] == 'medias'
-        models = [Media]
+    if request.xhr? && params.has_key?("ajax_region")
+      p = []
+      if params["ajax_region"] == "case_requests"
+        p = CaseRequest.all.sort_by { |p| p.send(params[:sort]).to_s.downcase }
       else
-        models = [params[:filter_type].singularize.classify.constantize]
+        p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
       end
-    end
-    models.each do |model|
-      set_belongings model
-    end
-
-    if request.xhr?
-      if params.has_key?("ajax_region")
-        p = []
-        if params["ajax_region"] == "case_requests"
-          p = CaseRequest.all.sort_by { |p| p.send(params[:sort]).to_s.downcase }
-        else
-          p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
-        end
-        
-        if(params[:order] == 'desc')
-          p = p.reverse
-        end
-        @collection = p.paginate(:page => params[:page], :per_page => 10)
-        @view = params[:ajax_region] == 'cases' ? 'case_obj' : params[:ajax_region].singularize
-
-        if params[:ajax_region] == "bookmarks"
-          render :partial => 'shared/bookmarks_block'
-        else
-          render :partial => 'shared/generic_collection_block'
-        end
-      else
-        @collection = Sunspot.new_search(models)
-        @collection.build do
-          paginate :page => params[:page], :per_page => 10
-          with :user_id, user_id_filter
-
-          if public_filtering
-            with :public, true
-            with :active, true
-          end
-
-          if params.has_key?(:keywords)
-            keywords params[:keywords]
-          end
-
-          order_by params[:sort].to_sym, params[:order].to_sym
-        end
-        @collection.execute!
-        render :partial => 'base/search_ajax'
+      
+      if(params[:order] == 'desc')
+        p = p.reverse
       end
-    else
+      @collection = p.paginate(:page => params[:page], :per_page => 10)
+      render :partial => 'shared/generic_block'
+      return
+    elsif !params.has_key?("ajax_region")
+      user_id_filter = @user.id
+      public_filtering = !current_user || @user != current_user
+      primary_filtering = false
+      secondary_filtering = false
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
-      @bookshelf = Sunspot.new_search(models)
-      @bookshelf.build do
+     
+      models = [Playlist, Collage, Case, Media, TextBlock, Default]
+      if params.has_key?(:klass)
+        if params[:klass] == 'medias'
+          models = [Media]
+        elsif params[:klass] == 'Primary'
+          models = [Playlist]
+          primary_filtering = true
+        elsif params[:klass] == 'Secondary'
+          models = [Playlist]
+          secondary_filtering = true
+        else
+          models = [params[:klass].singularize.classify.constantize]
+        end
+      end
+
+      @collection = Sunspot.new_search(models)
+      @collection.build do
         paginate :page => params[:page], :per_page => 10
         with :user_id, user_id_filter
 
@@ -136,17 +114,40 @@ class UsersController < ApplicationController
           with :active, true
         end
 
-        if params.has_key?(:keywords)
-          keywords params[:keywords]
+        if primary_filtering
+          with :primary, true
+        end
+        if secondary_filtering
+          with :secondary, true
         end
 
-        #FIXME: This is buggy, limit this filter to type playlist
+        if params.has_key?(:within)
+          keywords params[:within]
+        end
+
+        facet(:user_id)
+        facet(:klass)
+        facet(:primary)
+        facet(:secondary)
+
         without :id, bookmarks_id
 
         order_by params[:sort].to_sym, params[:order].to_sym
       end
-      @bookshelf.execute!
 
+      @collection.execute!
+      build_facet_display(@collection)
+      b = @collection.facet(:primary).rows.detect { |r| r.value }
+      @primary_playlists = b.count if b.present?
+      b = @collection.facet(:secondary).rows.detect { |r| r.value }
+      @secondary_playlists = b.count if b.present?
+
+      if primary_filtering
+        @klass_facets = []
+      end
+    end
+
+    if !request.xhr?
       set_sort_lists
       @sort_lists[:all]["updated_at"] = @sort_lists[:all]["created_at"]
       @sort_lists[:all]["updated_at"][:display] = "SORT BY MOST RECENT ACTIVITY"
@@ -192,7 +193,6 @@ class UsersController < ApplicationController
 
         if @user.has_role?(:case_admin)
           @types[:case_requests][:display] = true
-          @my_belongings[:case_requests] = current_user.case_requests
         end
 
         if @user.has_role?(:superadmin)
@@ -217,22 +217,38 @@ class UsersController < ApplicationController
         end
         v[:results] = p.paginate(:page => params[:page], :per_page => 10)
       end
+    end
+    
+    if request.xhr?
+      render :partial => 'shared/generic_block'
+    else
       render 'show'
     end
   end
 
   def edit
-    @page_title = "User Edit | H2O Classroom Tools"
-    @user = @current_user
+    if current_user && request.xhr?
+      @user = current_user
+    elsif current_user && !request.xhr?
+      redirect_to "/users/#{current_user.id}"
+    else
+      redirect_to root_url
+    end
   end
 
   def update
     @user = @current_user # makes our views "cleaner" and more consistent
 
     if @user.update_attributes(users_params)
-      cookies[:show_annotations] = @user.default_show_annotations
-      flash[:notice] = "Account updated!"
-      redirect_to user_path(@user)
+      [:font, :font_size, :show_annotations].each do |f|
+        cookies[f] = @user.send("default_#{f.to_s}")
+      end
+      profile_content = render_to_string("shared/_author_stats.html.erb", :locals => { :user => @user })
+      settings_content = render_to_string("users/_settings.html.erb", :locals => { :user => @user })
+      render :json => { :error => false, 
+                        :custom_block => "update_user_settings", 
+                        :settings_content => settings_content,
+                        :profile_content => profile_content }
     else
       render :action => :edit
     end
@@ -297,15 +313,14 @@ class UsersController < ApplicationController
   def disconnect_canvas
     @user = @current_user
     @user.update_attribute(:canvas_id, nil)
-    flash[:notice] = 'Canvas connection removed'
     redirect_to edit_user_path(@user)
+    render :json => {}
   end
 
   def disconnect_dropbox
     @user = @current_user
     File.delete(@user.dropbox_access_token_file_path)
-    flash[:noice] = 'Dropbox connection removed'
-    redirect_to edit_user_path(@user)
+    render :json => {}
   end
 
   private
@@ -313,6 +328,6 @@ class UsersController < ApplicationController
     params.require(:user).permit(:id, :name, :login, :password, :password_confirmation, 
                                  :email_address, :tz_name, :attribution, :title, 
                                  :url, :affiliation, :description, :tab_open_new_items, 
-                                 :default_show_annotations, :default_font_size, :terms)
+                                 :default_show_annotations, :default_font_size, :default_font, :terms)
   end
 end

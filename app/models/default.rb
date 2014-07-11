@@ -20,7 +20,7 @@ class Default < ActiveRecord::Base
   has_ancestry :orphan_strategy => :restrict
 
   searchable(:include => [:metadatum, :tags]) do
-    text :display_name  #name
+    text :display_name 
     string :display_name, :stored => true
     string :id, :stored => true
     text :url
@@ -37,6 +37,14 @@ class Default < ActiveRecord::Base
 
     time :created_at
     time :updated_at
+    
+    string :klass, :stored => true
+    boolean :primary do
+      false
+    end
+    boolean :secondary do
+      false
+    end
   end
 
   def url_format

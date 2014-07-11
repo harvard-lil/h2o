@@ -20,6 +20,13 @@ class CaseRequest < ActiveRecord::Base
     self.full_name
   end
 
+  def klass_partial
+    'case_request'
+  end
+  def klass_sym
+    :case_request
+  end
+
   alias :to_s :display_name
   alias :name :display_name
 

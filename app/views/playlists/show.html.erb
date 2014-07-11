@@ -11,7 +11,7 @@
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Playlist</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@playlist.name}", "data-type" => "playlist", "data-itemid" => @playlist.id %>
 </aside>
 
-<div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
+<div id="playlist" class="singleitem leftcol" data-itemid="<%= @playlist.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><span><%= raw @playlist.name %></span></h1>
     <h3 class="scale1-5 <%= @playlist.root != @playlist ? 'with_creators' : '' %>">
@@ -84,6 +84,7 @@
     </div>
   </div>
   <div id="add_item_results"></div>
+  <div id="add_item_results_filter"></div>
 </div>
 
 <div class="clear"></div>

@@ -39,10 +39,6 @@ class DefaultsController < BaseController
   end
 
   def create
-    unless params[:default][:tag_list].blank?
-      params[:default][:tag_list] = params[:default][:tag_list].downcase
-    end
-
     @default = Default.new(defaults_params)
     @default.user = current_user
     verify_captcha(@default)

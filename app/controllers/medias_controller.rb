@@ -20,9 +20,6 @@ class MediasController < BaseController
   end
 
   def create
-    unless params[:media][:tag_list].blank?
-      params[:media][:tag_list] = params[:media][:tag_list].downcase
-    end
     @media = Media.new(medias_params)
     @media.user = current_user
     verify_captcha(@media)
@@ -39,10 +36,6 @@ class MediasController < BaseController
   end
 
   def update
-    unless params[:media][:tag_list].blank?
-      params[:media][:tag_list] = params[:media][:tag_list].downcase
-    end
-
     if @media.update_attributes(medias_params)
       flash[:notice] = "#{@media.media_type.label} was successfully updated."
       redirect_to "/medias/#{@media.id}"
@@ -52,7 +45,6 @@ class MediasController < BaseController
   end
 
   def show
-    set_belongings(Media)
     @type_label = @media.media_type.label
   end
 
