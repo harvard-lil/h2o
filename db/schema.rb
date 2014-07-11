@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140710152711) do
+ActiveRecord::Schema.define(version: 20140711172934) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -677,7 +677,7 @@ ActiveRecord::Schema.define(version: 20140710152711) do
     t.string   "perishable_token"
     t.boolean  "default_show_annotations", default: false,     null: false
     t.boolean  "tab_open_new_items",       default: false,     null: false
-    t.string   "default_font_size",        default: "16"
+    t.string   "default_font_size",        default: "10"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"

@@ -292,11 +292,11 @@ var h2o_global = {
     });
   },
   loadUserFonts: function() {
-    if($.cookie('font') !== null && $.cookie('font') != 'futura') {
+    if($('#fontface a[data-value="' + $.cookie('font') + '"]').size() > 0 && $.cookie('font') != 'futura') {
       $('#fontface a.active').removeClass('active');
       $('#fontface a[data-value="' + $.cookie('font') + '"]').addClass('active');
     }
-    if($.cookie('font_size') !== null && $.cookie('font_size') != '10') {
+    if($.cookie('font_size') == '13' || $.cookie('font_size') == '16' || $.cookie('font_size') == '19') {
       $('#fontsize a.active').removeClass('active');
       if($.cookie('font_size') == '13') {
         $('#fontsize a[data-value="medium"]').addClass('active');

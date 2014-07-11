@@ -206,15 +206,11 @@ class User < ActiveRecord::Base
   end
 
   def default_font_size
-    attributes['default_font_size'] || self.large_font_size
+    attributes['default_font_size'] || 10
   end
 
   def default_font
     attributes['default_font'] || 'futura'
-  end
-
-  def large_font_size
-    16
   end
 
   def save_version?
