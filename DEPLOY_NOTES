@@ -1,7 +1,0 @@
-* git pull
-* rake db:migrate
-* rake sunspot:reindex
-* rake assets:precompile
-* touch tmp/restart.txt
-* rake h2o:clear_page_cache
-* restart delayed job

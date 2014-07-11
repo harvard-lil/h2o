@@ -1,1 +1,0 @@
-* Copy sskardal/h2o_secret.rb to production config/initializers/ prior to restart (pulling recaptcha config out of repo).
