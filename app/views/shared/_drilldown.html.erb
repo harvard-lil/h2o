@@ -46,7 +46,7 @@
       <% else -%>
         <% @klass_facet_display.each do |row| -%>
         <li>
-          <a href="#" data-value="<%= row[:value] %>" class="<%= params.has_key?(:klass) ? 'active' : '' %>"><%= row[:value] == 'Default' ? 'Link' : row[:value] %> (<%= row[:count] %>)</a>
+          <a href="#" data-value="<%= row[:value] %>" class="<%= params.has_key?(:klass) ? 'active' : '' %>"><%= row[:value] == 'Default' ? 'Link' : (row[:value] == 'TextBlock' ? 'Text' : row[:value]) %> (<%= row[:count] %>)</a>
           <% if params[:controller] == "users" && row[:value] == "Playlist" && @primary_playlists && @secondary_playlists -%>
           <ul>
             <% if @primary_playlists -%>

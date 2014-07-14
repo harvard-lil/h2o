@@ -13,7 +13,13 @@ module ApplicationHelper
 
     r_display = []
     klass_facets.each do |row|
-      r_display << pluralize(row.count, row.value)
+      if row.value == 'Default'
+        r_display << pluralize(row.count, 'Link')
+      elsif row.value == 'TextBlock'
+        r_display << pluralize(row.count, 'Text')
+      else
+        r_display << pluralize(row.count, row.value)
+      end
     end
     r_display.join(', ')
   end
