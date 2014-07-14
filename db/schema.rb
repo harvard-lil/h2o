@@ -55,7 +55,6 @@ ActiveRecord::Schema.define(version: 20140711172934) do
     t.datetime "updated_at"
     t.boolean  "has_errors"
     t.integer  "delayed_job_id"
-    t.integer  "user_id",        default: 0, null: false
   end
 
   create_table "case_citations", force: true do |t|
@@ -660,8 +659,8 @@ ActiveRecord::Schema.define(version: 20140711172934) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                            null: false
-    t.integer  "login_count",              default: 0,         null: false
+    t.string   "persistence_token",                           null: false
+    t.integer  "login_count",              default: 0,        null: false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -675,16 +674,16 @@ ActiveRecord::Schema.define(version: 20140711172934) do
     t.integer  "karma"
     t.string   "attribution"
     t.string   "perishable_token"
-    t.boolean  "default_show_annotations", default: false,     null: false
-    t.boolean  "tab_open_new_items",       default: false,     null: false
+    t.boolean  "default_show_annotations", default: false,    null: false
+    t.boolean  "tab_open_new_items",       default: false,    null: false
     t.string   "default_font_size",        default: "10"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"
     t.text     "description"
     t.string   "canvas_id"
-    t.boolean  "verified",                 default: false,     null: false
-    t.string   "default_font",             default: "Verdana"
+    t.boolean  "verified",                 default: false,    null: false
+    t.string   "default_font",             default: "futura"
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree
