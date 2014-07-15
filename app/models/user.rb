@@ -205,14 +205,6 @@ class User < ActiveRecord::Base
     Notifier.password_reset_instructions(self).deliver
   end
 
-  def default_font_size
-    attributes['default_font_size'] || 10
-  end
-
-  def default_font
-    attributes['default_font'] || 'futura'
-  end
-
   def save_version?
     (self.changed - self.non_versioned_columns).any?
   end
