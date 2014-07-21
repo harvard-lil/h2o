@@ -172,12 +172,12 @@ class PlaylistsController < BaseController
       if @playlist_copy.save
         # Note: Building empty playlist barcode to reduce cache lookup, optimize
         Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}", :compress => H2O_CACHE_COMPRESSION) { [] }
-  
-        @playlist_copy.playlist_items << @playlist.playlist_items.collect { |item| 
-          new_item = item.clone
-          new_item.save!
-          new_item
-        }
+ 
+        @playlist.playlist_items.each do |playlist_item|
+          new_item = playlist_item.dup
+          new_item.playlist_id = @playlist_copy.id
+          new_item.save
+        end
   
         render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
       else
