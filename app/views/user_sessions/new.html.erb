@@ -2,7 +2,7 @@
   <h1>Log In</h1>
   <%= form_for @user_session, :url => user_sessions_path, :html => { :class => "formtastic" } do |f| %>
     <% if @user_session.errors.any? -%>
-    <%= @user_session.errors.full_messages.join(', ') %>
+    <div id="error_block"><%= @user_session.errors.full_messages.join(', ') %></div>
     <% end -%>
     <%= f.label :login %>
     <%= f.text_field :login, :class => 'text' %>

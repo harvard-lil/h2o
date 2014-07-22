@@ -343,4 +343,8 @@ class User < ActiveRecord::Base
   def custom_label_method
     "#{self.email_address} (#{self.simple_display})"
   end
+    
+  def preverified?
+    self.email_address.match(/\.edu$/)
+  end
 end

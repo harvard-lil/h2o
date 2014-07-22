@@ -7,7 +7,7 @@ module SpamPreventionExtension
   end
   
   def spam_check
-    if current_user && !current_user.email_address.match(/edu$/)
+    if current_user && !current_user.preverified?
       if self.description.to_s.downcase.split(/<\/a>/).size > 20
         self.errors.add(:base, "Sorry, we could not #{self.new_record? ? "create" : "update"} your item.")
       end

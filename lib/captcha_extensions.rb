@@ -7,6 +7,8 @@ module CaptchaExtensions
   end
   
   def captcha
+    return if current_user && current_user.preverified?
+
     if self.valid_recaptcha.nil?
       self.errors.add(:base, "Captcha failed. Please try again.")
     end
