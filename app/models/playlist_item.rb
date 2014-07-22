@@ -45,11 +45,11 @@ class PlaylistItem < ActiveRecord::Base
   def render_dropdown
     return false if self.actual_object.nil?
 
-    return false if actual_object_type == "TextBlock"
+    if ["TextBlock", "Case"].include?(actual_object_type)
+      return true if self.description.present?
+    end
 
-    return true if actual_object_type == "Playlist"
-
-    return true if actual_object_type == "Collage"
+    return true if ["Playlist", "Collage"].include?(actual_object_type)
 
     if self.actual_object.respond_to?(:description)
       return true if self.actual_object.description.present?

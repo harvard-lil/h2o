@@ -93,6 +93,9 @@ form.formtastic input.button {
     font-size: 14px;
   }
 }
+.standard-form li.error {
+  margin-left: 0px;
+}
 #notice {
   margin: 10px 0px;
   font-size: 17px;
@@ -550,9 +553,7 @@ header #search table td {
   background: #f0f0f0;
 }
 #results li.listitem.hover .controls,
-#results li.listitem.with_popup .controls,
-#results li.listitem.hover h3 .icon,
-#results li.listitem.with_popup h3 .icon {
+#results li.listitem.with_popup .controls {
   opacity: 1.0;
   visibility: visible;
 }
@@ -1175,11 +1176,14 @@ ul.user_captcha > li p.inline-errors { display: none; }
 
 .leftcol {
   display:block;
-  margin-top: 5px;
+  margin-top: 20px;
   position:relative;
   height:100%;
   float: left;
   width: 747px;
+}
+#results {
+  margin-top: 5px;
 }
 .playlist_edit_mode .singleitem {
   width: 536px;
@@ -1208,9 +1212,9 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 #singleitem_barcode_toolbar {
   text-align: right;
-  opacity: 1.0;
   width: 100%;
-  margin: 10px 0px;
+  margin-top: 10px;
+  display: none;
 }
 #singleitem_barcode_toolbar .barcode {
   width: 200px;
@@ -1218,6 +1222,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 #singleitem_barcode_toolbar a.link-add,
 #singleitem_barcode_toolbar a.remix-action,
+#singleitem_barcode_toolbar a.link-remix,
 #singleitem_barcode_toolbar a.link-copy,
 #singleitem_barcode_toolbar a.collage-this,
 #singleitem_barcode_toolbar a.bookmark-action,
@@ -1262,7 +1267,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   clear: right;
   background: #FFF;
   opacity: 0.0;
-  margin-top: 5px;
+  margin-top: 20px;
   width: 305px;
   display: none;
   position: relative;

@@ -19,7 +19,6 @@ var page_load = true;
 var list_results_url = '';
 var playlists_initialized = false;
 var user_drilldown = [];
-//This is a dummy comment to force asset rebuild
 
 $.extend({
   mustache: function(template, data, partial, stream) {
@@ -512,7 +511,7 @@ var h2o_global = {
     $('.barcode').animate({ opacity: 1.0 });
   },
   resetRightPanelThreshold: function() {
-    if($('#collapse_toggle').size()) {
+    if($('#collapse_toggle').size() && $('.right_panel:visible').size()) {
       var threshold = $('.right_panel:visible').offset().top + $('.right_panel:visible').height();
       $('#collapse_toggle').data('threshold', threshold);
     }
@@ -721,6 +720,7 @@ var h2o_global = {
       
       if($('body').attr('id') == 'playlists_show') {
         playlists_show.playlist_mark_private('', false);
+        $('#stats').fadeIn(200);
       }
       if($('body').attr('id') == 'collages_show') {
         access_results = { "can_edit_annotations" : false }
@@ -734,6 +734,10 @@ var h2o_global = {
       } else {
         _gaq.push(['_trackEvent', 'User Tick', 'User: ' + $.cookie('user_id')]);
         $('.requires_non_anonymous').animate({ opacity: 1.0 });
+      }
+      $('#singleitem_barcode_toolbar').slideDown();
+      if($('body').data('action') == 'show' && $('body').attr('id') != 'users_show') {
+        $('.leftcol, .right_panel').animate({ 'margin-top': '5px' });
       }
       $('#user_account').append($('<a>').html($.cookie('display_name').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + $.cookie('user_id')));
       $('#defect_user_id').val($.cookie('user_id'));
@@ -1063,15 +1067,6 @@ var h2o_global = {
           h2o_global.hideGlobalSpinnerNode();
         },
         success: function(data){
-          if(h2o_global.class_type() == 'playlists' && ($.cookie('playlists') != 'force_lookup' || user_playlists.length < 12)) {
-            var user_new_playlists = []; 
-            $.each(user_playlists, function(i, playlist) {
-              if(playlist.id != data.id) {
-                user_new_playlists.push(j);
-              }
-            });
-            $.cookie('playlists', JSON.stringify(user_new_playlists), { path: '/' });
-          }
           if($('.singleitem').length) {
             document.location.href = "/" + type + "s";
           } else {
@@ -1323,31 +1318,22 @@ var h2o_global = {
     playlists_initialized = true;
     h2o_global.showGlobalSpinnerNode();
 
-    if($.cookie('playlists') == null || $.cookie('user_id') == null) {
+    if($.cookie('user_id') == null) {
       return;
     }
-    if($.cookie('playlists') == 'force_lookup') {
-      $.ajax({
-        type: 'GET',
-        dataType: 'json',
-        url: '/users/' + $.cookie('user_id') + '/playlists',
-        success: function(data) {
-          user_playlists = eval(data.playlists);
-          $.each(user_playlists, function(i, j) {
-            j.name = j.name.replace(/\+/g, ' ');
-            $('#listitem_playlist' + j.id + ' .push-action').addClass('mark-for-keep');
-          });
-          h2o_global.triggerAddItem(element);
-        }
-      });
-    } else {
-      user_playlists = $.parseJSON($.cookie('playlists'));
-      $.each(user_playlists, function(i, playlist) {
-        playlist.name = playlist.name.replace(/\+/g, ' ');
-        $('#listitem_playlist' + playlist.id + ' .push-action').addClass('mark-for-keep');
-      });
-      h2o_global.triggerAddItem(element);
-    }
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: '/users/' + $.cookie('user_id') + '/playlists',
+      success: function(data) {
+        user_playlists = eval(data.playlists);
+        $.each(user_playlists, function(i, j) {
+          j.name = j.name.replace(/\+/g, ' ');
+          $('#listitem_playlist' + j.id + ' .push-action').addClass('mark-for-keep');
+        });
+        h2o_global.triggerAddItem(element);
+      }
+    });
     $('.push-action:not(.mark-for-keep)').remove();
     $('.push-action').show();
   },
@@ -1375,14 +1361,6 @@ var h2o_global = {
           if(data.custom_block) {
             eval('h2o_global.' + data.custom_block + '(data)');
           } else {
-            if(data.modify_playlists_cookie) {
-              if(user_playlists.length < 10) {
-                user_playlists.push({ "id" : data.id, "name" : data.name });
-                $.cookie('playlists', JSON.stringify(user_playlists), { path: '/' });
-              } else {
-                $.cookie('playlists', 'force_lookup');
-              }
-            }
             setTimeout(function() {
               var redirect_to = h2o_global.root_path() + data.type + '/' + data.id;
               var use_new_tab = $.cookie('use_new_tab');

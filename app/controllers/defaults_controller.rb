@@ -11,6 +11,7 @@ class DefaultsController < BaseController
     default_copy.karma = 0
     default_copy.user = current_user
     default_copy.valid_recaptcha = true
+    default_copy.name = params["default"]["name"] if params.has_key?("default")
 
     if default_copy.save
       render :json => { :type => 'defaults', :id => default_copy.id }

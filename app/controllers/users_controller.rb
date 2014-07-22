@@ -91,7 +91,7 @@ class UsersController < ApplicationController
      
       models = [Playlist, Collage, Case, Media, TextBlock, Default]
       if params.has_key?(:klass)
-        if params[:klass] == 'medias'
+        if params[:klass] == 'Media'
           models = [Media]
         elsif params[:klass] == 'Primary'
           models = [Playlist]
@@ -250,7 +250,7 @@ class UsersController < ApplicationController
                         :settings_content => settings_content,
                         :profile_content => profile_content }
     else
-      render :action => :edit
+      render :json => { :error => true, :message => "Could not update user, with errors: #{@user.errors.full_messages.join(', ')}" }
     end
   end
 

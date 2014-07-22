@@ -31,10 +31,10 @@ h2o_global.collage_afterload = function(results) {
 
 var collages = {
   clean_layer: function(layer_name) {
-    return layer_name.replace(/ /, 'whitespace').replace(/\./, 'specialsymbol');
+    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe');
   },
   revert_clean_layer: function(layer_name) {
-    return layer_name.replace(/whitespace/, ' ').replace(/specialsymbol/, '.');
+    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'");
   },
   rehighlight: function() {
 	  $('.layered-empty').removeClass('layered-empty');
@@ -349,7 +349,12 @@ var collages = {
       var clean_layer = collages.clean_layer(layer);
       if(el.html().match("SHOW ")) {
         $('.layer-' + clean_layer).parents('.original_content').show();
-        $('.layer-' + clean_layer + ',.annotation-indicator-' + clean_layer).show();
+        $('.layer-' + clean_layer).show();
+        $.each($('.annotation-indicator'), function(i, ai) {
+          if($(ai).hasClass('annotation-indicator-' + clean_layer)) {
+            h2o_annotator.plugins.H2O.updateAnnotationIndicator($(ai).data('id'));
+          }
+        });
         $('.layered-ellipsis.' + clean_layer).hide();
         el.html('HIDE "' + layer + '"');
       } else {
@@ -473,6 +478,7 @@ var collages = {
       } else if(i.match(/^layered/)) {
         $('.annotation-' + e).hide();
         $('.layered-ellipsis-' + e).show();
+        $('.annotation-' + e).parents('.original_content').filter(':not(.original_content *):not(:has(.unlayered:visible,.annotator-hl:visible,.layered-ellipsis:visible))').hide();
       } else if(i.match(/^highlights/)) {
         $.each(e, function(j, hex) {
           var layer = j;
@@ -488,6 +494,11 @@ var collages = {
       }
     });
     collages.hideShowUnlayeredOptions();
+    $.each($('ul#layers li'), function(i, el) {
+      if($('.layer-' + collages.clean_layer($(el).data('name') + ':visible')).size() == 0) {
+        $(el).find('a').html('SHOW "' + $(el).data('name') + '"');
+      }
+    });
     h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     if(access_results.can_edit_annotations) {
       $('#edit_toggle').click();

@@ -1,5 +1,6 @@
 <div id="#manage_users" class="standard-form">
   <h3 id="generic_title">Edit My Account</h3>
+  <div id="error_block" class="error ui-corner-all" style="display: none;"></div>
   <%= form_for @user, :url => user_path(@user), :html => { :class => "formtastic" } do |f| %>
   <% if @user.errors.any? %>
   <ul class="error">

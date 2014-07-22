@@ -61,12 +61,14 @@
   margin-bottom: 10px;
 }
 .playlists li.listing-with-form .dd-handle {
-  padding-left: 35px;
+  padding-left: 10px;
 }
 .playlists li.listing-with-form #playlist_item_form,
-.playlists li.listing-with-edit-form #playlist_item_form,
+.playlists li.listing-with-edit-form #playlist_item_form {
+  padding: 0px 6px 10px 10px;
+}
 .playlists li.listing-with-delete-form #playlist_item_form {
-  padding: 0px 0px 10px 67px;
+  padding: 10px 6px 0px 10px;
 }
 #playlist_item_form #playlist_item_submit, 
 #playlist_item_form #playlist_item_cancel,
@@ -80,6 +82,7 @@
   text-decoration: none;
   font-weight: bold;
   text-align: center;
+  font-size: 13px !important;
 }
 .playlists li.listing .dd-handle {
   display: none; 
@@ -500,5 +503,8 @@ span.private_item {
   top: 19px;
 }
 #playlists_show #advanced-search-content {
+  display: none;
+}
+#playlists_show #stats {
   display: none;
 }

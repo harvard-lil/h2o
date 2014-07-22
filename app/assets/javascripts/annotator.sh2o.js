@@ -230,7 +230,7 @@ H2O = (function() {
       var start_position = first_highlight.position().top;
       var class_name = 'annotation-indicator';
       $.each(annotation.layers, function(i, el) {
-        class_name += ' annotation-indicator-' + el;
+        class_name += ' annotation-indicator-' + collages.clean_layer(el);
       });
       var height = last_highlight.position().top + last_highlight.height() - start_position;
       $('.annotator-wrapper').prepend($('<span>').attr('data-id', annotation.id).addClass(class_name).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position, 'height' : height }));
@@ -245,9 +245,13 @@ H2O = (function() {
     var first_highlight = $('.annotation-' + annotation_id + ':first');
     var last_highlight = $('.annotation-' + annotation_id + ':last');
     if(first_highlight.size() > 0) {
-      var start_position = first_highlight.position().top;
-      var height = last_highlight.position().top + last_highlight.height() - start_position;
-      $('span#annotation-indicator-' + annotation_id).css({ 'top' : start_position, 'height' : height }).show();
+      if($('.annotation-' + annotation_id + ':visible').size() == 0) {
+        $('span#annotation-indicator-' + annotation_id).css({ 'top' : 0, 'height': 0 }).hide();
+      } else {
+        var start_position = first_highlight.position().top;
+        var height = last_highlight.position().top + last_highlight.height() - start_position;
+        $('span#annotation-indicator-' + annotation_id).css({ 'top' : start_position, 'height' : height }).show();
+      }
     }
   };
 
@@ -419,6 +423,7 @@ H2O = (function() {
       $('.annotation-' + _id).parents('.original_content').show();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).css('display', 'inline-block');
       $(this).hide();
+      h2o_annotator.plugins.H2O.updateAnnotationIndicator(_id);
     });
     $('.layered-control-start,.layered-control-end').off('click').on('click', function(e) {
       e.preventDefault();
@@ -427,6 +432,7 @@ H2O = (function() {
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).hide();
       $('.layered-ellipsis-' + _id).css('display', 'inline-block');
       $('.annotation-' + _id).parents('.original_content').filter(':not(.original_content *):not(:has(.unlayered:visible,.annotator-hl:visible,.layered-ellipsis:visible))').hide();
+      h2o_annotator.plugins.H2O.updateAnnotationIndicator(_id);
     });
   };
 

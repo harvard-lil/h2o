@@ -43,7 +43,7 @@
       <% end -%>
       <% end -%>
 
-      <% if actual_object.respond_to?(:description) && actual_object.description != item.description -%>
+      <% if (actual_object.respond_to?(:description) && actual_object.description != item.description) || (["TextBlock", "Case"].include?(item.actual_object_type) && item.description.present?) -%>
       <div class="item_desc">
         <%= raw PlaylistItem.format_content(item.description) %>
       </div>

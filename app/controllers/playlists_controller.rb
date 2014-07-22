@@ -97,7 +97,7 @@ class PlaylistsController < BaseController
       #IMPORTANT: This reindexes the item with author set
       @playlist.index!
 
-      render :json => { :type => 'playlists', :id => @playlist.id, :modify_playlists_cookie => true, :name => @playlist.name }
+      render :json => { :type => 'playlists', :id => @playlist.id, :name => @playlist.name }
     else
       render :json => { :type => 'playlists', :id => @playlist.id, :error => true, :message => "Could not create playlist, with errors: #{@playlist.errors.full_messages.join(',')}" }
     end
@@ -179,7 +179,7 @@ class PlaylistsController < BaseController
           new_item.save
         end
   
-        render :json => { :type => 'playlists', :id => @playlist_copy.id, :modify_playlists_cookie => true, :name => @playlist_copy.name  } 
+        render :json => { :type => 'playlists', :id => @playlist_copy.id, :name => @playlist_copy.name  } 
       else
         render :json => { :type => 'playlists', :message => "Could not create playlist, with errors: #{@playlist_copy.errors.full_messages.join(',')}", :error => true }
       end

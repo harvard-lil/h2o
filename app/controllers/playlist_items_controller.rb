@@ -49,8 +49,7 @@ class PlaylistItemsController < BaseController
           :parent_index => '', 
           :index => '',
           :position => playlist_item_index,
-          :recursive_level => 0,
-          :last => false })
+          :recursive_level => 0 })
   
         render :json => { :playlist_item_id => playlist_item.id, 
                           :error => false, 
@@ -104,12 +103,14 @@ class PlaylistItemsController < BaseController
     end
 
     if @playlist_item.update_attributes(playlist_item_params)
-      render :json => { :type => 'playlists', 
-                        :id => @playlist_item.id, 
-                        :name => @playlist_item.name, 
-                        :description => @playlist_item.description,
-                        :public_notes => @playlist_item.public_notes,
-                        :notes => @playlist_item.notes,
+      content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => @playlist_item,
+        :actual_object => @playlist_item.actual_object,
+        :parent_index => '', 
+        :index => '',
+        :position => @playlist_item.position,
+        :recursive_level => 4 }
+      )
+      render :json => { :content => content,
                         :total_count => playlist.total_count,
                         :public_count => playlist.public_count,
                         :private_count => playlist.private_count

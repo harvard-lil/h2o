@@ -3,6 +3,8 @@ class Default < ActiveRecord::Base
   include AncestryExtensions
   include MetadataExtensions
   include CaptchaExtensions
+  include VerifiedUserExtensions
+  include SpamPreventionExtension
   include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers

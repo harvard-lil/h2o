@@ -52,9 +52,13 @@ class Case < ActiveRecord::Base
 
   searchable do
     text :display_name, :boost => 3.0
+    text :indexable_case_citations, :boost => 3.0
+    text :clean_content
+    text :indexable_case_docket_numbers
+    text :case_jurisdiction
+
     string :display_name, :stored => true
     string :id, :stored => true
-    text :clean_content
     time :decision_date
     time :created_at
     time :updated_at
@@ -65,9 +69,6 @@ class Case < ActiveRecord::Base
     string :user
     string :user_display, :stored => true
     integer :user_id, :stored => true
-    string :indexable_case_citations, :stored => true, :multiple => true
-    string :case_docket_numbers, :stored => true, :multiple => true # TODO: Fix this to include relevent info
-    string :case_jurisdiction, :stored => true, :multiple => true # TODO: Fix this to include relevent info
 
     string :klass, :stored => true
     boolean :primary do
@@ -84,6 +85,12 @@ class Case < ActiveRecord::Base
 
   def indexable_case_citations
     self.case_citations.map(&:display_name)
+  end
+  def indexable_case_docket_numbers
+    self.case_docket_numbers.map(&:docket_number)
+  end
+  def indexable_case_jurisdiction
+    self.case_jurisdiction.present? ? self.case_jurisdiction.name : ''
   end
 
   def clean_content
@@ -160,7 +167,7 @@ class Case < ActiveRecord::Base
   end
 
   def date_check
-    if ! self.decision_date.blank? && self.decision_date > Date.today
+    if !self.decision_date.blank? && self.decision_date > Date.today
       errors.add(:decision_date,'cannot be in the future')
     end
   end

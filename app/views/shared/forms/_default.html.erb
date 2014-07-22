@@ -1,5 +1,15 @@
 <div class="standard-form">
   <h1><%= @default.new_record? ? "Add a new Link" : "Edit #{@default.name} Link" %></h1>
+  <% if @default.errors.any? -%>
+  <div id="text_block-error" class="error">
+  <ul>
+    <% @default.errors.full_messages.each do |msg| %>
+    <li><%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+  <% end -%>
+  <%= render :partial => "shared/user_verified" %>
   <%= semantic_form_for(@default, :html => { :id => 'default-form' }) do |form| -%>
     <%= form.inputs do %>
       <%= form.input :name %>

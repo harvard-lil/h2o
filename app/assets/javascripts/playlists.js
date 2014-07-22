@@ -82,6 +82,11 @@ h2o_global.playlist_afterload = function(results) {
     playlists_show.playlist_mark_private($.cookie('user_id'), false);
     $('.requires_edit, .requires_remove').remove();
   }
+  if($('.right_panel:visible').size() == 0) {
+    $('#stats').fadeIn(200, function() {
+      h2o_global.resetRightPanelThreshold();
+    });
+  }
   var notes = $.parseJSON(results.notes) || new Array() 
   $.each(notes, function(i, playlist_item) {
     if(playlist_item.notes != null) {
@@ -314,64 +319,6 @@ var playlists_show = {
       $('#private-notes').removeClass('inactive').css('opacity', 1.0);
     }
   },
-  renderEditPlaylistItem: function(item) {
-    $('#playlist_item_form').slideUp(200, function() {
-      $(this).remove();
-    });
-    var listitem_wrapper = $('.listitem' + item.id + ' > .wrapper');
-    listitem_wrapper.find('a.title').html(item.name);
-
-    //Description changes
-    var item_desc = listitem_wrapper.find('.item_desc');
-    if(item_desc.size() == 0 && item.description != '') {
-      var new_item = $('<div>').attr('class', 'item_desc').html(item.description);
-      if(listitem_wrapper.find('.additional_details').size() == 0) {
-        listitem_wrapper.find('.rr-cell').append($('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
-        var add_details = $('<div>').addClass('additional_details');
-        add_details.append(new_item);
-        add_details.insertAfter(listitem_wrapper.find('table'));
-      } else {
-        if(listitem_wrapper.find('.creator_details').size()) {
-          new_item.insertAfter(listitem_wrapper.find('.creator_details'));
-        } else {
-          listitem_wrapper.find('.additional_details').prepend(new_item);
-        }
-      }
-    } else if(item_desc.size() && item.description == '') {
-      item_desc.remove();
-    } else if(item_desc.size() && item.description != '') {
-      item_desc.html(item.description);
-    }
-
-    //Notes changes
-    var notes_item = listitem_wrapper.find('.notes');
-    if(notes_item.size() == 0 && item.notes != '') {
-      var notes_title = item.public_notes ? "Notes" : "Notes (private)";
-      var new_item = $('<div>').attr('class', 'notes').html('<b>' + notes_title + ':</b><br />' + item.notes);
-      if(listitem_wrapper.find('.additional_details').size() == 0) {
-        listitem_wrapper.find('.rr-cell').append($('<a href="#" class="rr rr-closed" id="rr' + item.id + '">Show/Hide More</a>'));
-        var add_details = $('<div>').addClass('additional_details');
-        add_details.append(new_item);
-        add_details.insertAfter(listitem_wrapper.find('table'));
-      } else {
-        if(listitem_wrapper.find('.actual_obj_desc').size()) {
-          new_item.insertBefore(listitem_wrapper.find('.actual_obj_desc'));
-        } else {
-          listitem_wrapper.find('.additional_details').append(new_item);
-        }
-      }
-    } else if(notes_item.size() && item.notes == '') {
-      notes_item.remove();
-    } else if(notes_item.size() && item.notes != '') {
-      var notes_title = item.public_notes ? "Notes" : "Notes (private)";
-      notes_item.html('<b>' + notes_title + ':</b><br />' + item.notes);
-    }
-
-    if(listitem_wrapper.find('.additional_details *').size() == 0) {
-      listitem_wrapper.find('.rr').remove();
-      listitem_wrapper.find('.additional_details').remove();
-    }
-  },
   observeNoteFunctionality: function() {
     $('#public-notes,#private-notes').click(function(e) {
       e.preventDefault();
@@ -471,19 +418,21 @@ var playlists_show = {
           if(data.error) {
             $('#error_block').html(data.message).show();
           } else {
+            playlists_show.renderPublicPlaylistBehavior(data);
             if(form.hasClass('new')) {
-              playlists_show.renderPublicPlaylistBehavior(data);
               var new_node = $(data.content);
               new_node.find('.requires_edit,.requires_remove,.requires_logged_in').css('opacity', 1);
               new_node.find('.icon-cell .tooltip').addClass('hover');
               $('.playlists .dd-list .listing').replaceWith(new_node);
-              playlists_show.update_positions();
-              playlists_show.set_nestability_and_editability();
-              dropped_item = undefined;
             } else {
-              playlists_show.renderPublicPlaylistBehavior(data);
-              playlists_show.renderEditPlaylistItem(data);
+              var new_node = $(data.content).find('.wrapper');
+              new_node.find('.requires_edit,.requires_remove,.requires_logged_in').css('opacity', 1);
+              new_node.find('.icon-cell .tooltip').addClass('hover');
+              $('#playlist_item_form').parent().replaceWith(new_node);
             }
+            playlists_show.update_positions();
+            playlists_show.set_nestability_and_editability();
+            dropped_item = undefined;
           }
           h2o_global.hideGlobalSpinnerNode();
         },

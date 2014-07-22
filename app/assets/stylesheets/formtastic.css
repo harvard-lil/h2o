@@ -42,7 +42,7 @@ form.formtastic fieldset > ol > li label {
   display:block; 
   text-transform: uppercase;
   padding-top:.2em;
-  font-size: 11px;
+  font-size: 13px !important;
   font-weight: bold;
   padding-bottom: 3px;
 }

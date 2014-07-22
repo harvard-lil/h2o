@@ -77,7 +77,7 @@
     <div class="clear"></div>
   </div>
   <div id="description" class="scale1-1">
-    <%= Collage.format_content(@collage.description) %>
+    <%= raw Collage.format_content(@collage.description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT COLLAGE INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
   </div>

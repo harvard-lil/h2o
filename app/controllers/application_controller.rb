@@ -38,6 +38,9 @@ class ApplicationController < ActionController::Base
       playlist = Playlist.where(id: params[:playlist_item][:playlist_id]).first
       if current_user.present? && playlist.present? && playlist.user.present? && playlist.user == current_user
         return true
+      else
+        render :json => { :message => "We could not add that playlist item. Please confirm that you are<br />logged in and the playlist you are trying to add to exists. You may<br />need to enable cookies to stay logged in.", :error => true }
+        return false
       end
     end
 
@@ -368,16 +371,14 @@ class ApplicationController < ActionController::Base
 
       if on_create
         cookies[:bookmarks] = "[]"
-        cookies[:playlists] = "[]"
       else
         cookies[:bookmarks] = user.bookmarks_map.to_json
-        cookies[:playlists] = user.playlists.size > 10 ? "force_lookup" : user.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name])
       end
     end
   end
   def destroy_user_preferences(user)
-    [:font_size, :font, :use_new_tab, :show_annotations, :display_name,
-     :user_id, :anonymous_user, :bookmarks, :playlists].each do |attr|
+    [:font_size, :font, :use_new_tab, :show_annotations,
+     :user_id, :anonymous_user, :bookmarks, :display_name].each do |attr|
       cookies.delete(attr)
     end
   end
