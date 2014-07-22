@@ -591,7 +591,9 @@ var playlists_show = {
       $('.dd-handle-inactive').removeClass('dd-handle-inactive').addClass('dd-handle');
       $('div.main_playlist').nestable();
       $('div.main_playlist').on('change', function(el) {
-        playlists_show.dropActivate();
+        if(!$(el.target).hasClass('dd-nodrag')) {
+          playlists_show.dropActivate();
+        }
       });
     }
   },
