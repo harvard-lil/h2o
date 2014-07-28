@@ -35,8 +35,10 @@ class BaseController < ApplicationController
         end
       end
 
-      with :public, true
-      with :active, true
+      any_of do
+        with :public, true
+        with :user_id, current_user.id
+      end
 
       facet(:user_id)
       facet(:klass)
