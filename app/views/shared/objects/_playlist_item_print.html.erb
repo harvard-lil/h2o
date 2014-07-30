@@ -1,8 +1,8 @@
+<% if item.actual_object.present? -%>
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
   <h3 class="scale1-3">
   <span class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></span>
   <span class="icon icon-<%= item.actual_object_type == "Media" ? "media-#{item.actual_object.media_type.slug}" : item.clean_type %>"></span>
-  <% if item.actual_object.present? -%>
     <% if item.actual_object_type == 'Media' -%>
     <%= link_to item.name, media_path(item.actual_object) %>
     <% elsif item.actual_object_type == 'Default' %>
@@ -10,7 +10,6 @@
     <% else -%>
     <%= link_to item.name, item.actual_object %>
     <% end -%>
-  <% end -%>
   </h3>
   <div class="item_description scale0-8"><%= PlaylistItem.format_content(item.description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
@@ -44,3 +43,12 @@
     </section>
   <% end -%>
 </li>
+<% else -%>
+<li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
+  <h3 class="missing_item">
+  <span class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></span>
+  <%= item.name %>
+  <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
+  </h3>
+</li>
+<% end -%>
