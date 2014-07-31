@@ -8,7 +8,7 @@
 			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
 		</h2>
 		<div id="description" class="item_description">
-			<%= Playlist.format_content(@playlist.description) %>
+			<%= raw Playlist.format_content(@playlist.description) %>
 		</div>
 	</div>
   <div class="fontdetails"></div>
