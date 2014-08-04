@@ -118,9 +118,6 @@ class ApplicationController < ActionController::Base
     if !["updated_at", "score", "display_name", "decision_date", "created_at", "user"].include?(params[:sort])
       params[:sort] = nil
     end
-    if params[:sort] == "decision_date" && params[:filter_type] != "cases"
-      params[:sort] = nil
-    end
 
     if params.has_key?(:keywords)
       params[:sort] ||= "score"

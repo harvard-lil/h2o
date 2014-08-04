@@ -926,11 +926,10 @@ var h2o_global = {
 
           if(update_filters) {
             $('#stats').html($('#new_stats').html());
-            $('#new_stats').remove();
             user_drilldown = $('#user_id_filters').data('users');
           }
           $('#totals').html($('#new_totals').html());
-          $('#new_totals').remove();
+          $('#new_totals,#new_stats').remove();
          
           h2o_global.observeResultsHover('');
           if($('body#users_show').length) {
