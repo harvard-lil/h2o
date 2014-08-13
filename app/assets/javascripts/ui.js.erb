@@ -351,11 +351,11 @@ var h2o_global = {
     //$.cookie('font_size', element.val(), { path: "/" });
   },
   setPlaylistFontHierarchy: function(base_font_size) {
-    $.rule('.playlist a.title { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('style');
-    $.rule('.playlist .playlist a.title { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
-    $.rule('.playlist .playlist .playlist a.title { font-size: ' + base_font_size*1.0 + 'px; }').appendTo('style');
-    $.rule('.playlist .playlist .playlist .playlist a.title { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
-    $.rule('.playlist .playlist .playlist .playlist .playlist a.title { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+    $.rule('body .main_wrapper .singleitem .listitem a.title { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('style');
+    $.rule('body .main_wrapper .singleitem .listitem .listitem a.title { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    $.rule('body .main_wrapper .singleitem .listitem .listitem .listitem a.title { font-size: ' + base_font_size*1.0 + 'px; }').appendTo('style');
+    $.rule('body .main_wrapper .singleitem .listitem .listitem .listitem .listitem a.title { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
+    $.rule('body .main_wrapper .singleitem .listitem .listitem .listitem .listitem .listitem a.title { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
   },
   setFont: function() {
     if($('#fontsize').size() == 0) {
