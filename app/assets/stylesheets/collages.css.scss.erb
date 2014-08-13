@@ -9,7 +9,7 @@ div.article {
 .singleitem div.article h2,
 .singleitem div.article h3,
 .singleitem div.article h4 {
-  margin-left: 15px;
+  margin-left: 1.8em;
 }
 div.article pre {
   white-space: pre-line;
@@ -164,7 +164,14 @@ div.article.show_unlayered .unlayered-ellipsis { display: none; }
 .layered-control-start { display: none; background: url(<%= asset_path 'fcollapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
 .unlayered-control-end,
 .layered-control-end { display: none; background: url(<%= asset_path 'collapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
-.paragraph-numbering { position: absolute; left: 30px; color: #369; text-decoration: none; font-weight: normal; font-size: 13px; }
+.paragraph-numbering {
+  position: absolute;
+  left: 30px;
+  color: #369;
+  text-decoration: none;
+  font-weight: normal;
+  font-size: 13px;
+}
 
 div.article .layered-ellipsis { display: none; text-decoration: none; color: #336699; }
 div.article .layered-empty { /* background-color: #FEFED9; */ }
@@ -373,6 +380,9 @@ div.article tt a.annotation_tip {
       height: 15px;
       width: 12px;
     }
+  }
+  #show_paragraph_numbers a {
+    display: none;
   }
 }
 

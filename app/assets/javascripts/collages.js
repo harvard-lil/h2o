@@ -339,6 +339,23 @@ var collages = {
       h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
       h2o_global.hideGlobalSpinnerNode();
     });
+    $('#show_paragraph_numbers a').click(function(e) {
+      e.preventDefault();
+      h2o_global.showGlobalSpinnerNode();
+      $(this).hide();
+      $('#hide_paragraph_numbers a').show();
+      $('.paragraph-numbering').show();
+      h2o_global.hideGlobalSpinnerNode();
+    });
+    $('#hide_paragraph_numbers a').click(function(e) {
+      e.preventDefault();
+      h2o_global.showGlobalSpinnerNode();
+      $(this).hide();
+      $('#show_paragraph_numbers a').show();
+      $('.paragraph-numbering').hide();
+      h2o_global.hideGlobalSpinnerNode();
+    });
+
 
     $(document).delegate('#layers .hide_show', 'click', function(e) {
       e.preventDefault();

@@ -44,6 +44,12 @@
           <li id="hide_unlayered">
             <a href="#" class="tooltip"  title="Hide All Unlayered">HIDE ALL UNLAYERED</a>
           </li>
+          <li id="show_paragraph_numbers">
+            <a href="#" class="tooltip" title="Show Paragraph Numbers">SHOW PARAGRAPH NUMBERS</a>
+          </li>
+          <li id="hide_paragraph_numbers">
+            <a href="#" class="tooltip"  title="Hide Paragraph Numbers">HIDE PARAGRAPH NUMBERS</a>
+          </li>
         </ul>
         <ul id="layers">
            <% @collage.layers.each do |layer| %>
@@ -52,7 +58,6 @@
           </li>
            <% end -%>
         </ul>
-
         <ul>
           <li><a href="#" class="tooltip" title="Show <%= @collage.user.login %>'s version of the collage" id="author_edits">SHOW <%= @collage.user.simple_display %>'S TEXT EDITS</a></li>
         </ul>
