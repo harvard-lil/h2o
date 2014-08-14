@@ -290,6 +290,24 @@ var h2o_global = {
       $(el).css({ 'font-family' : h2o_fonts.font_map[selected_font], 'font-size': h2o_fonts.base_font_sizes[selected_font][$(el).data('value')] + 'px' });
     });
   },
+  setFontClasses: function() {
+    $.each($('div.singleitem div.article span.original_content, div.singleitem article span'), function(i, el) {
+      var font_size = $(el).css('font-size');
+      var class_to_add = '';
+      if(font_size == '16px') {
+        class_to_add = 'scale1-0';
+      } else if (font_size == '20px') {
+        class_to_add = 'scale1-3';
+      } else if(font_size == '24px') {
+        class_to_add = 'scale1-5';
+      } else if(font_size == '28px') {
+        class_to_add = 'scale1-75';
+      } else if(font_size == '32px') {
+        class_to_add = 'scale2-0';
+      }
+      $(el).addClass(class_to_add).css('font-size', 'auto');
+    });
+  },
   loadUserFonts: function() {
     if($('#fontface a[data-value="' + $.cookie('font') + '"]').size() > 0 && $.cookie('font') != 'futura') {
       $('#fontface a.active').removeClass('active');
@@ -367,18 +385,22 @@ var h2o_global = {
     var font_size = $('#fontsize a.active').data('value');
     var font_face = $('#fontface a.active').data('value');
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
+    var full_selector = "body .main_wrapper .singleitem div.article *, body .main_wrapper .singleitem article *, body .main_wrapper .singleitem div.playlists *, #bmedias #description p";
     if(font_face == 'verdana') {
-      $.rule("body .main_wrapper .singleitem div.article *, body .main_wrapper .singleitem div.playlists *, .singleitem article tt, #bmedias #description p { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('style');
+      $.rule(full_selector + " { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('style');
     } else {
-      $.rule("body .main_wrapper .singleitem div.article *, body .main_wrapper .singleitem div.playlists *, .singleitem article tt, #bmedias #description p { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('style');
+      $.rule(full_selector + " { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('style');
     }
-    $.rule('.main_wrapper .singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale1-2 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
-    $.rule('.main_wrapper .singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale2-0, body .main_wrapper .singleitem div.article *.scale2-0 { font-size: ' + base_font_size*2.0 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-75, body .main_wrapper .singleitem div.article *.scale1-75 { font-size: ' + base_font_size*1.75 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-5, body .main_wrapper .singleitem div.article *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-4, body .main_wrapper .singleitem div.article *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-3, body .main_wrapper .singleitem div.article *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-2, body .main_wrapper .singleitem div.article *.scale1-2 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-1, body .main_wrapper .singleitem div.article *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale1-0, body .main_wrapper .singleitem div.article *.scale1-0 { font-size: ' + base_font_size*1.0 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale0-9, body .main_wrapper .singleitem div.article *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale0-8, body .main_wrapper .singleitem div.article *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
     h2o_global.setPlaylistFontHierarchy(base_font_size);
     h2o_global.adjustTooltipPosition();
     if($('body').attr('id') == 'collages_show' && h2o_annotator !== undefined) {
@@ -726,6 +748,7 @@ var h2o_global = {
         access_results = { "can_edit_annotations" : false }
         collages.initiate_annotator(false);
       }
+      h2o_global.setFontClasses();
       return;
     } else {
       if(eval($.cookie('anonymous_user'))) {
@@ -751,6 +774,7 @@ var h2o_global = {
 
     if(editability_path == '') {
       $('.afterload').animate({ opacity: 1.0 });
+      h2o_global.setFontClasses();
       return;
     }
 

@@ -5,7 +5,8 @@ var tinyMCEPreInit = {
       convert_urls: false,
       mode: "textareas",
       menubar: false,
-      toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | formatselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo help | fullscreen",
+      toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | fontsizeselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo help | fullscreen",
+      fontsize_formats: "16px 20px 24px 28px 32px",
       theme_advanced_toolbar_location:"top",
       theme_advanced_toolbar_align:"left",
       theme_advanced_statusbar_location:"bottom",
@@ -13,7 +14,8 @@ var tinyMCEPreInit = {
       theme_advanced_resize_horizontal:false,
       plugins:"fullscreen,link,charmap,textcolor",
       add_form_submit_trigger: false,
-      skin_url: 'http://tinymce.cachefly.net/4.0/skins/lightgray'
+      skin_url: 'http://tinymce.cachefly.net/4.0/skins/lightgray',
+      content_css: '/h2o_tinymce.css'
     }
   } ,
   qtInit : {

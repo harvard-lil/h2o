@@ -27,6 +27,7 @@ h2o_global.collage_afterload = function(results) {
   } else {
     $('.edit-action').remove();
   }
+  h2o_global.setFontClasses();
 };
 
 var collages = {
