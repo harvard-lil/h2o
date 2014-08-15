@@ -423,4 +423,7 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+
+  rescue_from ActionController::InvalidCrossOriginRequest do |exception|
+  end
 end
