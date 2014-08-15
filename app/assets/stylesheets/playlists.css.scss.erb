@@ -347,7 +347,14 @@ ul .dd-placeholder {
 .dd-item > button[data-action="collapse"]:before { content: '-'; }
 */
 
-.dd-empty { border: 1px dashed #bbb; min-height: 15px; }
+.dd-empty { 
+  border: 1px dashed #bbb; 
+  min-height: 15px;
+  display: none;
+}
+.playlists-edit-mode .dd-empty {
+  display: block;
+}
 
 .dd-dragel {
   box-shadow: 10px 10px 5px #888888;

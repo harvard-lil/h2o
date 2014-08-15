@@ -10,7 +10,7 @@ class BulkUploadsController < ApplicationController
   end
 
   def create
-    bulk_upload = BulkUpload.create!
+    bulk_upload = BulkUpload.create!(:user_id => current_user.id)
     BulkUploadsWorker.delay.send_import(:dropbox_session => current_dropbox_session,
                                         :user_id => current_user.id,
                                         :bulk_upload_id => bulk_upload.id)

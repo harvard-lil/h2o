@@ -2,12 +2,6 @@ class MediasController < BaseController
   cache_sweeper :media_sweeper
   protect_from_forgery :except => [:destroy]
 
-  def access_level 
-    render :json => {
-      :logged_in => current_user ? current_user.to_json(:only => [:id, :login]) : false,
-      :can_edit => current_user ? Media.where(id: params[:id]).first.can_edit? : false }
-  end
-
   def index
     common_index Media
   end

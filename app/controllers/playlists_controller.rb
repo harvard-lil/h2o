@@ -13,13 +13,8 @@ class PlaylistsController < BaseController
 
   def access_level 
     if current_user
-      can_edit = current_user.has_role?(:superadmin) || @playlist.owner?
-      can_position_update = can_edit || current_user.can_permission_playlist("position_update", @playlist)
-      can_edit_notes = can_edit || current_user.can_permission_playlist("edit_notes", @playlist)
-      can_edit_desc = can_edit || current_user.can_permission_playlist("edit_descriptions", @playlist)
-
+      can_edit = can? :edit, @playlist
       playlist_items = PlaylistItem.unscoped.where(playlist_id: @playlist.id)
-      notes = can_edit_notes ? playlist_items : playlist_items.select { |pi| !pi.public_notes }
       nested_private_count_owned = 0
       nested_private_count_nonowned = 0
       if can_edit
@@ -29,11 +24,9 @@ class PlaylistsController < BaseController
       end
       render :json => {
         :can_edit                       => can_edit,
-        :notes                          => can_edit_notes ? notes.to_json(:only => [:id, :notes, :public_notes]) : "[]",
-        :can_position_update            => can_position_update,
-        :can_edit_notes                 => can_edit_notes,
+        :can_destroy                    => can?(:destroy, @playlist),
+        :notes                          => can_edit ? playlist_items.to_json(:only => [:id, :notes, :public_notes]) : [].to_json,
         :custom_block                   => 'playlist_afterload',
-        :can_edit_desc                  => can_edit_desc,
         :nested_private_count_owned     => nested_private_count_owned,
         :nested_private_count_nonowned  => nested_private_count_nonowned,
         :is_superadmin                  => current_user.has_role?(:superadmin)
@@ -41,11 +34,9 @@ class PlaylistsController < BaseController
     else
       render :json => {
         :can_edit             => false,
+        :can_destroy          => false,
         :notes                => [],
-        :can_position_update  => false,
-        :can_edit_notes       => false,
         :custom_block         => 'playlist_afterload',
-        :can_edit_desc        => false, 
         :is_superadmin        => false
       }
     end
@@ -55,7 +46,6 @@ class PlaylistsController < BaseController
     common_index Playlist
   end
 
-  # GET /playlists/1
   def show
     nested_ps = Playlist.includes(:playlist_items).where(id: @playlist.all_actual_object_ids[:Playlist])
     @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
@@ -63,26 +53,16 @@ class PlaylistsController < BaseController
     @page_cache = true if @playlist.public?
     @editability_path = access_level_playlist_path(@playlist)
     @author_playlists = @playlist.user.playlists.paginate(:page => 1, :per_page => 5)
-    @can_edit = current_user && (current_user.has_role?(:superadmin) || @playlist.owner?)
   end
 
-  # GET /playlists/new
   def new
     @playlist = Playlist.new
-    @can_edit_all = @can_edit_desc = true
   end
 
   def edit
     if @playlist.nil? || @playlist.user.nil?
       redirect_to root_url
       return
-    end
-
-    if current_user
-      @can_edit_all = current_user.has_role?(:superadmin) || @playlist.owner?
-      @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
-    else
-      @can_edit_all = @can_edit_desc = false
     end
   end
 
@@ -103,21 +83,7 @@ class PlaylistsController < BaseController
     end
   end
 
-  # PUT /playlists/1
   def update
-    if current_user
-      can_edit_all = current_user.has_role?(:superadmin) || @playlist.owner?
-      can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", @playlist)
-    else
-      can_edit_all = can_edit_desc = false
-    end
-    if !can_edit_all
-      params["playlist"].delete("name")  
-      params["playlist"].delete("tag_list")  
-      params["playlist"].delete("when_taught")
-      params["playlist"].delete("location_id")
-    end
-
     if @playlist.update_attributes(playlist_params)
       render :json => { :type => 'playlists', :id => @playlist.id }
     else
@@ -133,6 +99,7 @@ class PlaylistsController < BaseController
     render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
   end
 
+  # TODO: Is this used?
   def push
     if request.get?
       @collections = current_user.present? ? current_user.collections : []
@@ -242,7 +209,9 @@ class PlaylistsController < BaseController
   end
 
   def update_notes(value, playlist)
-    playlist.playlist_items.each { |pi| pi.update_attribute(:public_notes, value) } 
+    playlist.playlist_items.each { |pi| pi.update_column(:public_notes, value) }
+    ActionController::Base.expire_page "/playlists/#{playlist.id}.html"
+    ActionController::Base.expire_page "/playlists/#{playlist.id}/export.html"
 
     render :json => {  :total_count => playlist.playlist_items.count,
                        :public_count => playlist.public_count,

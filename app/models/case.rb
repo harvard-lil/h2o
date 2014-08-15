@@ -62,7 +62,6 @@ class Case < ActiveRecord::Base
     time :decision_date
     time :created_at
     time :updated_at
-    boolean :active
     boolean :public
     integer :karma
 
@@ -102,7 +101,7 @@ class Case < ActiveRecord::Base
   end
 
   def approve!
-    self.update_attribute(:active, true)
+    self.update_attribute(:public, true)
     Notifier.case_notify_approved(self, self.case_request).deliver if self.case_request.present?
   end
 
@@ -125,10 +124,6 @@ class Case < ActiveRecord::Base
     [self.short_name,
      self.case_citations.first.to_s,
      "http://#{host_and_port}/cases/#{self.id}"].join("\t")
-  end
-
-  def self.since_date_and_not_active(options = {})
-    self.where("active = false AND created_at > ?", options[:date])
   end
 
   def current_collage

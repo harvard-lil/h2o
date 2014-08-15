@@ -4,7 +4,7 @@ module RailsAdmin
       class AggregateItems < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
 
-        register_instance_option  :visible? do
+        register_instance_option :visible? do
           authorized?
         end
 
@@ -58,7 +58,7 @@ module RailsAdmin
         RailsAdmin::Config::Actions.register(self)
 
         register_instance_option :visible? do
-          authorized? && bindings[:object].present? && ([Collage, Playlist].include?(bindings[:object].class) || (bindings[:object].public && bindings[:object].active))
+          authorized?
         end
 
         register_instance_option :member do
@@ -94,7 +94,7 @@ module RailsAdmin
         RailsAdmin::Config::Actions.register(self)
 
         register_instance_option :visible? do
-          authorized? && [Case, Default, Media, TextBlock].include?(bindings[:object].class)
+          authorized?
         end
 
         register_instance_option :member do
@@ -131,9 +131,6 @@ RailsAdmin.config do |config|
     bulk_delete
 
     aggregate_items 
-    show
-    edit
-    new
     import
     export
 
@@ -147,27 +144,27 @@ RailsAdmin.config do |config|
   config.model 'Collage' do
     list do
       field :name
-      field :active
       field :public
-      field :karma
+      field :user
+      field :created_at
     end
   end
 
   config.model 'Playlist' do
     list do
       field :name
-      field :active
       field :public
-      field :karma
+      field :user
+      field :created_at
     end
   end
 
   config.model 'Media' do
     list do
       field :name
-      field :active
       field :public
-      field :karma
+      field :user
+      field :created_at
     end
   end
 
@@ -175,9 +172,9 @@ RailsAdmin.config do |config|
     label 'Text'
     list do
       field :name
-      field :active
       field :public
-      field :karma
+      field :user
+      field :created_at
     end
   end
 
@@ -186,19 +183,19 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :url
-      field :active
       field :public
-      field :karma
+      field :user
+      field :created_at
     end
   end
 
   config.model 'Case' do
     list do
-      field :short_name
-      field :full_name
-      field :active
+      field :display_name
       field :public
-      field :karma
+      field :user
+      field :user
+      field :created_at
     end
   end
 

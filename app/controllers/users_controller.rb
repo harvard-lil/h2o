@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   def verify
     if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
-      current_user.update_attribute(:verified, true)
+      current_user.update_column(:verified, true)
       flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
       redirect_to user_path(current_user)
       return
@@ -84,12 +84,14 @@ class UsersController < ApplicationController
       return
     elsif !params.has_key?("ajax_region")
       user_id_filter = @user.id
-      public_filtering = !current_user || @user != current_user
+      public_filtering = !(current_user && @user == current_user)
       primary_filtering = false
       secondary_filtering = false
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
      
       models = [Playlist, Collage, Case, Media, TextBlock, Default]
+      models << UserCollection if @user == current_user
+
       if params.has_key?(:klass)
         if params[:klass] == 'Media'
           models = [Media]
@@ -111,7 +113,6 @@ class UsersController < ApplicationController
 
         if public_filtering
           with :public, true
-          with :active, true
         end
 
         if primary_filtering
@@ -129,8 +130,6 @@ class UsersController < ApplicationController
         facet(:klass)
         facet(:primary)
         facet(:secondary)
-
-        without :id, bookmarks_id
 
         order_by params[:sort].to_sym, params[:order].to_sym
       end
@@ -162,10 +161,15 @@ class UsersController < ApplicationController
       end
 
       @types = {
-        :private_playlists_by_permission => {
+        :shared_private_playlists => {
           :display => false,
-          :header => "Private Playlists",
+          :header => "Shared Private Playlists",
           :partial => "playlist"
+        },
+        :shared_private_collages => {
+          :display => false,
+          :header => "Shared Private Collages",
+          :partial => "collage"
         },
         :pending_cases => {
           :display => false,
@@ -188,7 +192,8 @@ class UsersController < ApplicationController
 
         @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
-        @types[:private_playlists_by_permission][:display] = true
+        @types[:shared_private_playlists][:display] = true
+        @types[:shared_private_collages][:display] = true
         @types[:pending_cases][:display] = true
 
         if @user.has_role?(:case_admin)
@@ -209,7 +214,7 @@ class UsersController < ApplicationController
         if type == :case_requests
           p = CaseRequest.all.sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
         else
-          p = @user.send(type).sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+          p = @user.send(type).sort_by { |j| (j.respond_to?(params[:sort]) ? j.send(params[:sort]) : j.send(:display_name)).to_s.downcase }
         end
 
         if(params[:order] == 'desc')
@@ -271,6 +276,7 @@ class UsersController < ApplicationController
   def bookmark_item
     if current_user.bookmark_id.nil?
       playlist = Playlist.new({ :name => "Your Bookmarks", :public => false, :user_id => current_user.id })
+      playlist.valid_recaptcha = true
       playlist.save
       current_user.update_attribute(:bookmark_id, playlist.id)
     else
@@ -278,8 +284,6 @@ class UsersController < ApplicationController
     end
 
     begin
-      raise "not logged in" if !current_user
-
       klass = params[:type] == 'media' ? Media : params[:type].classify.constantize
 
       if playlist.contains_item?("#{klass.to_s}#{params[:id]}")

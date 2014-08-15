@@ -83,7 +83,7 @@ H2O = (function() {
       collages.updateWordCount();
 
       if(h2o_annotator.options.readOnly) {
-        access_results = { 'can_edit_annotations' : false };
+        access_results = { 'can_edit' : false };
       }
 
       if($('#collage_print').size() > 0) {

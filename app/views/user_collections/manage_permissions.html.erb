@@ -8,18 +8,18 @@
     <br /><hr /><br />
     <% end -%>
     <h3><%= type.to_s.humanize %> Related Permissions:</h3>
-    <table cellpadding="10" cellspacing="5">
+    <table cellpadding="10" cellspacing="5" width="100%">
       <tr>
-        <th>User</th>
+        <th style="text-align:left">User</th>
         <% @permissions[type].each do |p| -%>
         <th><%= p.label %></th> 
         <% end -%>
       </tr>
       <% @user_collection.users.each do |user| -%>
       <tr>
-        <td><%= user.login %></td>
+        <td style="text-align:left"><%= user.login %></td>
         <% @permissions[type].each do |p| -%>
-        <td>
+        <td style="text-align:center;">
           <input type="checkbox" name="permission_assignments[<%= user.id %>][]" value="<%= p.id %>" <%= 'checked="checked"' if @user_permission_map.include?("#{user.id}_#{p.id}") %> />
         </td>
         <% end -%>

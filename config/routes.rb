@@ -4,20 +4,30 @@ H2o::Application.routes.draw do
 
   root 'base#index'
 
-  resources :user_sessions, :password_resets, :case_requests, :defects, 
-            :case_jurisdictions, :login_notifiers, :bulk_uploads
+  resources :bulk_uploads, only: [:show, :new, :create]
+  resources :case_jurisdictions, only: [:new, :create]
+  resources :case_requests, only: [:new, :create, :destroy]
+  resources :defects, only: [:create, :destroy]
+  resources :login_notifiers, only: [:new, :create]
+  resources :password_resets, only: [:new, :create, :edit, :update]
+  resources :user_sessions, only: [:new, :create, :destroy, :index]
 
-  get 'base/embedded_pager' => 'base#embedded_pager'
-  get 'load_more_users' => 'base#load_more_users'
-  get 'all_materials' => 'base#search', as: :search_all
-  get 'quick_collage' => 'base#quick_collage', as: :quick_collage
   get 'log_out' => 'user_sessions#destroy', as: :log_out
-  get 'partial_results/:type' => 'base#partial_results', as: :partial_results
   get '/bookmark_item/:type/:id' => 'users#bookmark_item', as: :bookmark_item
   get '/delete_bookmark_item/:type/:id' => 'users#delete_bookmark_item', as: :delete_bookmark_item
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
-  get '/:tklass/tag/:tag' => 'base#tags', as: :tag
   get '/p/:id' => 'pages#show'
+
+  resources :base do
+    collection do
+      get 'embedded_pager'
+      get 'load_more_users'
+      get 'quick_collage', as: :quick_collage
+    end
+  end
+  get '/:tklass/tag/:tag' => 'base#tags', as: :tag
+  get 'author_playlists' => 'base#author_playlists', as: :author_playlists
+  get 'all_materials' => 'base#search', as: :search_all
 
   resources :users do
     member do
@@ -56,15 +66,15 @@ H2o::Application.routes.draw do
     member do
       post 'copy'
       post 'deep_copy'
-      get 'push'
+      # get 'push'
       get 'access_level'
       get 'export'
       post 'private_notes'
       post 'public_notes'
       post 'toggle_nested_private'
+      post 'position_update'
     end
     collection do
-      post 'position_update'
       get 'embedded_pager'
       get 'playlist_lookup'
     end

@@ -6,77 +6,66 @@ var items_dd_handles;
 
 h2o_global.playlist_afterload = function(results) {
   playlists_show.set_nestability_and_editability();
-  if(results.can_edit || results.can_edit_notes || results.can_edit_desc) {
-    if(results.can_edit) {
-      playlists_show.playlist_mark_private($.cookie('user_id'), true);
-      $('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
-        $('#description .inactive').css('opacity', 0.4);
-      });
-      $('#edit_toggle').click();
-      is_owner = true;
+  if(!results.can_destroy) {
+    $('#description .delete-action').remove();
+  }
+  if(results.can_edit) {
+    playlists_show.playlist_mark_private($.cookie('user_id'), true);
+    $('.requires_edit, .requires_remove').animate({ opacity: 1.0 }, 400, 'swing', function() {
+      $('#description .inactive').css('opacity', 0.4);
+    });
+    $('#edit_toggle').click();
+    is_owner = true;
 
-      if(results.nested_private_count_nonowned > 0 || results.nested_private_count_owned > 0) {
-        var data = {
-          "owned" : results.nested_private_count_owned,
-          "nonowned" : results.nested_private_count_nonowned,
-          "url" : '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private'
-        };
-        if(results.nested_private_count_owned == 0) {
-          var content = $($.mustache(playlists_show.nested_notification, data)).css('display', 'none');
-          content.appendTo($('#description'));
-          content.slideDown();
-        } else {
-          var content = $($.mustache(playlists_show.set_nested_owned_private_resources_public, data)).css('display', 'none');
-          content.appendTo($('#description'));
-          content.slideDown();
-    
-          $(document).delegate('#nested_public', 'click', function(e) {
-            e.preventDefault();
-            var creator = $('#main_details h3 a:first').html().replace(/ \(.*/, '');
-            var node = $('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
-            $(node).dialog({
-              title: 'Set Nested Resources to Public',
-              width: 'auto',
-              height: 'auto',
-              buttons: {
-                Yes: function() {
-                  $.ajax({
-                    type: 'post',
-                    dataType: 'json',
-                    url: '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private',
-                    beforeSend: function(){
-                      h2o_global.showGlobalSpinnerNode();
-                    },
-                    success: function(data) {
-                      $('#nested_public').remove();
-                      $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users. Please refresh the page to see changes.').css('color', 'red');
-                      $(node).dialog('close');
-                    },
-                    complete: function() {
-                      h2o_global.hideGlobalSpinnerNode();
-                    }
-                  });
-                },
-                No: function() {
-                  $(node).dialog('close');
-                }
+    if(results.nested_private_count_nonowned > 0 || results.nested_private_count_owned > 0) {
+      var data = {
+        "owned" : results.nested_private_count_owned,
+        "nonowned" : results.nested_private_count_nonowned,
+        "url" : '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private'
+      };
+      if(results.nested_private_count_owned == 0) {
+        var content = $($.mustache(playlists_show.nested_notification, data)).css('display', 'none');
+        content.appendTo($('#description'));
+        content.slideDown();
+      } else {
+        var content = $($.mustache(playlists_show.set_nested_owned_private_resources_public, data)).css('display', 'none');
+        content.appendTo($('#description'));
+        content.slideDown();
+  
+        $(document).delegate('#nested_public', 'click', function(e) {
+          e.preventDefault();
+          var creator = $('#main_details h3 a:first').html().replace(/ \(.*/, '');
+          var node = $('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
+          $(node).dialog({
+            title: 'Set Nested Resources to Public',
+            width: 'auto',
+            height: 'auto',
+            buttons: {
+              Yes: function() {
+                $.ajax({
+                  type: 'post',
+                  dataType: 'json',
+                  url: '/playlists/' + $('#playlist').data('itemid') + '/toggle_nested_private',
+                  beforeSend: function(){
+                    h2o_global.showGlobalSpinnerNode();
+                  },
+                  success: function(data) {
+                    $('#nested_public').remove();
+                    $('#private_detail').html('There are now ' + data.updated_count + ' nested private items in this playlist, owned by other users. Please refresh the page to see changes.').css('color', 'red');
+                    $(node).dialog('close');
+                  },
+                  complete: function() {
+                    h2o_global.hideGlobalSpinnerNode();
+                  }
+                });
+              },
+              No: function() {
+                $(node).dialog('close');
               }
-            });
+            }
           });
-        }
+        });
       }
-    } else {
-      playlists_show.playlist_mark_private($.cookie('user_id'), false);
-      if(!results.can_edit_notes) {
-        $('#description #public-notes, #description #private-notes').remove();
-      }
-      if(!results.can_edit_desc) {
-        $('#description .icon-edit').remove();
-      }
-      $('.requires_remove').remove();
-      $('.requires_edit').animate({ opacity: 1.0 }, 400, 'swing', function() {
-        $('#description .inactive').css('opacity', 0.4);
-      });
     }
   } else {
     playlists_show.playlist_mark_private($.cookie('user_id'), false);
@@ -447,7 +436,7 @@ var playlists_show = {
     });
   },
   unObserveDragAndDrop: function() {
-    if(access_results.can_position_update) {
+    if(access_results.can_edit) {
       $('.dd-handle').removeClass('dd-handle').addClass('dd-handle-inactive');
     }
   },
@@ -501,7 +490,7 @@ var playlists_show = {
       $.ajax({
         type: 'post',
         dataType: 'json',
-        url: '/playlists/position_update',
+        url: '/playlists/' + h2o_global.getItemId() + '/position_update',
         data: {
           changed: changed
         },
@@ -536,7 +525,7 @@ var playlists_show = {
     return changed;
   },
   observeDragAndDrop: function() {
-    if(access_results.can_position_update) {
+    if(access_results.can_edit) {
       $('.dd-handle-inactive').removeClass('dd-handle-inactive').addClass('dd-handle');
       $('div.main_playlist').nestable();
       $('div.main_playlist').on('change', function(el) {

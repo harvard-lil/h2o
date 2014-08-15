@@ -2,15 +2,15 @@ class UserSessionsController < ApplicationController
   before_filter :display_first_time_canvas_notice, :only => [:new]
   protect_from_forgery :except => [:create]
 
+  def index
+    redirect_to root_url
+  end
+
   def new
     redirect_to root_url and return if current_user.present?
 
     @user_session = UserSession.new
     render :layout => (request.xhr?) ? false : true
-  end
-
-  def index
-    redirect_to root_url
   end
 
   def create

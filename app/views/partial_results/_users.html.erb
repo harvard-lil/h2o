@@ -1,8 +1,0 @@
-<% @highlighted[:user].each do |u| -%>
-<div class="user item"><div class="item_wrapper">
-  <%= link_to u.display, user_path(u), :class => "user" %>
-  <% if u.affiliation.present? -%>
-  <span class="affiliation"><%= u.affiliation %></span>
-  <% end -%>
-</div></div>
-<% end -%>

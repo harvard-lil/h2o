@@ -23,30 +23,18 @@ class CollagesController < BaseController
 
   def access_level 
     if current_user
-      can_edit = @collage.can_edit?
-      can_edit_description = can_edit || current_user.can_permission_collage("edit_collage", @collage)
-      can_edit_annotations = can_edit || current_user.can_permission_collage("edit_annotations", @collage)
-
       render :json => {
-        :can_edit             => can_edit,
-        :can_edit_description => can_edit_description,
-        :can_edit_annotations => can_edit_annotations,
+        :can_edit             => can?(:edit, @collage),
+        :can_destroy          => can?(:destroy, @collage),
         :custom_block         => "collage_afterload"
       }
     else
       render :json => {
         :can_edit             => false,
-        :can_edit_description => false,
-        :can_edit_annotations => false,
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
         :custom_block         => "collage_v2_afterload"
       }
     end
-  end
-
-  # TODO: Remove this if unused?
-  def layers
-    render :json => @collage.layers
   end
 
   def copy
@@ -79,7 +67,6 @@ class CollagesController < BaseController
     @layer_data = @collage.layer_data
   end
 
-  # GET /collages/new
   def new
     klass = params[:annotatable_type].to_s.classify.constantize
     @collage.annotatable_type = params[:annotatable_type]
@@ -96,14 +83,12 @@ class CollagesController < BaseController
     end
   end
 
-  # GET /collages/1/edit
   def edit
     if @collage.metadatum.blank?
       @collage.build_metadatum
     end
   end
 
-  # POST /collages
   def create
     @collage = Collage.new(collages_params)
     @collage.user = current_user

@@ -4,6 +4,7 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   observe PlaylistItem
 
   def after_create(record)
+    return if record.playlist && record.playlist.name == "Your Bookmarks"
     clear_playlists([record])
   end
 
@@ -12,6 +13,7 @@ class PlaylistItemSweeper < ActionController::Caching::Sweeper
   end
 
   def before_destroy(record)
+    return if record.playlist && record.playlist.name == "Your Bookmarks"
     clear_playlists([record])
   end
 end

@@ -38,11 +38,12 @@ class UserCollectionsController < BaseController
   end
 
   def create
-    params[:user_collection][:owner_id] = @current_user.id
+    params[:user_collection][:user_id] = @current_user.id
     user_collection = UserCollection.new(user_collections_params)
 
     if user_collection.save
-      render :json => { :error => false, :type => "users", :id => current_user.id }
+      content = render_to_string("shared/objects/_usercollection.html.erb", :locals => { :usercollection => user_collection })
+      render :json => { :error => false, :custom_block => "create_user_collection", :content => content, :id => user_collection.id }
     else
       render :json => { :error => true, :message => "#{user_collection.errors.full_messages.join(',')}" }
     end
@@ -74,7 +75,8 @@ class UserCollectionsController < BaseController
 
       @user_collection.attributes = { :permission_assignments_attributes => arr }
       if @user_collection.save
-        render :json => { :error => false, :id => @user_collection.id, :custom_block => "updated_permissions" }
+        content = render_to_string("shared/objects/_usercollection.html.erb", :locals => { :usercollection => @user_collection })
+        render :json => { :error => false, :custom_block => "update_user_collection", :content => content, :id => @user_collection.id }
       else
         render :json => { :error => true, :message => "#{@user_collection.errors.full_messages.join(',')}" }
       end
@@ -109,7 +111,8 @@ class UserCollectionsController < BaseController
     end
 
     if @user_collection.update_attributes(user_collections_params)
-      render :json => { :error => false, :type => "users", :id => current_user.id }
+      content = render_to_string("shared/objects/_usercollection.html.erb", :locals => { :usercollection => @user_collection })
+      render :json => { :error => false, :custom_block => "update_user_collection", :content => content, :id => @user_collection.id }
     else
       render :json => { :error => true, :message => "#{@user_collection.errors.full_messages.join(',')}" }
     end
@@ -119,7 +122,7 @@ class UserCollectionsController < BaseController
   def user_collections_params
     params.require(:user_collection).permit(:name, 
                                             :description, 
-                                            :owner_id, 
+                                            :user_id, 
                                             permission_assignments_attributes: [:id, :user_id, :permission_id, :_destroy], 
                                             :user_ids => [], 
                                             :playlist_ids => [],

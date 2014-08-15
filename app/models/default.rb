@@ -35,7 +35,6 @@ class Default < ActiveRecord::Base
 
     string :user
     boolean :public
-    boolean :active
 
     time :created_at
     time :updated_at

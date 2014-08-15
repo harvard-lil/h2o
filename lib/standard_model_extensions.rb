@@ -25,14 +25,6 @@ module StandardModelExtensions
     return current_user
   end
 
-  def owner?
-    return self.user == current_user
-  end
-
-  def can_edit?
-    return current_user.present? ? (current_user.has_role?(:superadmin) || self.owner?) : false
-  end
-
   def stored(field)
     self.send(field)
   end

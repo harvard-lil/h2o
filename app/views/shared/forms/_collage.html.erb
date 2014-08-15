@@ -6,7 +6,7 @@
     <%= form.inputs do %>
       <%= form.input :name %>
       <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
-      <% if current_user && current_user.has_role?(:superadmin) && !@collage.new_record? -%>
+      <% if current_user.has_role?(:superadmin) && !@collage.new_record? -%>
       <%= form.input :featured %>
       <% end -%>
       <%= form.input :description,

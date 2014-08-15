@@ -39,7 +39,6 @@ class Collage < ActiveRecord::Base
     text :description, :boost => 2.0
 
     boolean :featured
-    boolean :active
     boolean :public
     time :created_at
     time :updated_at

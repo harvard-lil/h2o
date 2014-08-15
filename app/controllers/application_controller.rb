@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   # Important that check_auth happens after load_single_resource
-  before_filter :redirect_bad_format, :load_single_resource, :check_authorization,
+  before_filter :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
   before_filter :set_sort_params, :only => [:index, :tags]
   before_filter :set_sort_lists, :only => [:index, :tags]
@@ -17,79 +17,57 @@ class ApplicationController < ActionController::Base
     request.xhr? ? false : "application"
   end
 
-  def check_authorization
-    current_user_roles = current_user.present? ? current_user.roles.map { |r| r.name } : []
-    # Superadmin can do everything
-    if current_user.present? && current_user_roles.include?("superadmin")
-      return true
-    end
-    # Cases admin can do everything on cases controller
-    if current_user.present? && current_user_roles.include?("case_admin") && params[:controller].match(/^case/).present?
-      return true
-    end
+  def load_single_resource
+    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
 
-    return true if params[:controller] == "bulk_uploads" && current_user.present?
+    return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
 
-    # allow index, embedded_pager
-    return true if @single_resource.nil? && params[:controller] != "playlist_items"
-
-    # if playlist item is created, allow owner of playlist to add
-    if params[:controller] == "playlist_items" && request.post? && params.has_key?(:playlist_item)
-      playlist = Playlist.where(id: params[:playlist_item][:playlist_id]).first
-      if current_user.present? && playlist.present? && playlist.user.present? && playlist.user == current_user
-        return true
+    if params[:action] == "new"
+      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      @single_resource = item = model.new
+      if model == Media
+        @media = item
       else
-        render :json => { :message => "We could not add that playlist item. Please confirm that you are<br />logged in and the playlist you are trying to add to exists. You may<br />need to enable cookies to stay logged in.", :error => true }
-        return false
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
+      end
+      @page_title = "New #{model.to_s}"
+    elsif params[:id].present?
+      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      if params[:action] == "new"
+        item = model.new
+      elsif ["access_level", "save_readable_state"].include?(params[:action])
+        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
+      elsif model.respond_to?(:get_single_resource)
+        item = model.get_single_resource(params[:id])
+      else
+        item = model.where(id: params[:id]).first
+      end
+      if item.present? && item.is_a?(User)
+        @single_resource = item
+      elsif item.present? && item.respond_to?(:user) && item.user.present?
+        @single_resource = item
+        if params[:controller] == "medias"
+          @media = item
+        else
+          instance_variable_set "@#{model.to_s.tableize.singularize}", item
+        end
+        @page_title = item.name
+      else
+        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
       end
     end
+  end
 
-    # owner of resource can do all on single resource
-    if current_user.present? && @single_resource.user == current_user
-      return true
-    end
+  def check_authorization_h2o
+    return true if params[:controller] == "rails_admin/main"
 
-    # many methods can be done if item is public
-    if @single_resource.present? && @single_resource.public? && [:show, :layers, :export, :export_unique, :access_level].include?(params[:action].to_sym)
-      return true
-    end
-
-    # allow logged in users to new, create, copy, deep copy
-    if current_user.present? && [:new, :create, :copy, :deep_copy].include?(params[:action].to_sym)
-      return true
-    end
-
-    # various whitelisting based on user collections
-    if current_user.present?
-      if params[:controller] == "annotations"
-        if [:destroy, :edit, :update].include?(params[:action].to_sym) && current_user.can_permission_collage("edit_annotations", @single_resource.collage)
-          return true
-        end
-      elsif params[:controller] == "collages"
-        if [:edit, :update].include?(params[:action].to_sym) && current_user.can_permission_collage("edit_collage", @single_resource)
-          return true
-        end
-      elsif params[:controller] == "playlists"
-        if [:notes].include?(params[:action].to_sym) && current_user.can_permission_playlist("edit_notes", @single_resource)
-          return true
-        end
-        if [:edit, :update].include?(params[:action].to_sym) && current_user.can_permission_playlist("edit_description", @single_resource)
-          return true
-        end
-      end
-    end
-
-    # if not passed whitelist accessibility,
-    # redirect on no access
-    flash[:notice] = "You do not have access to this content."
-    if request.xhr?
-      render :json => {}
-    elsif current_user.present?
-      redirect_to user_path(current_user)
+    if @single_resource.present?
+      authorize! params[:action].to_sym, @single_resource
     else
-      redirect_to new_user_session_path
+      authorize! params[:action].to_sym, params[:controller].to_sym
     end
-    return false
+
+    return true
   end
 
   def redirect_bad_format
@@ -103,8 +81,6 @@ class ApplicationController < ActionController::Base
   def set_time_zone
     if current_user && ! current_user.tz_name.blank?
       Time.zone = current_user.tz_name
-    #else
-    #  Time.zone = DEFAULT_TIMEZONE
     end
   end
 
@@ -269,8 +245,6 @@ class ApplicationController < ActionController::Base
         with :featured, true
       end
 
-      with :active, true
-
       facet(:user_id)
       facet(:klass)
 
@@ -288,6 +262,11 @@ class ApplicationController < ActionController::Base
     @user_facet_display = []
     @klass_facet_display = []
     @queued_users = []
+    @klass_label_map = {
+      'Default' => 'Link',
+      'UserCollection' => 'User Collection',
+      'TextBlock' => 'Text'
+    }
 
     if collection.results.total_entries == 0
       if params.has_key?(:user_ids)
@@ -401,44 +380,6 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.record
   end
 
-  def load_single_resource
-    return if ['user_sessions', 'users', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
-    return if params[:action] == "position_update"
-
-    if params[:action] == "new"
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
-      @single_resource = item = model.new
-      if model == Media
-        @media = item
-      else
-        instance_variable_set "@#{model.to_s.tableize.singularize}", item
-      end
-      @page_title = "New #{model.to_s}"
-    elsif params[:id].present?
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
-      if params[:action] == "new"
-        item = model.new
-      elsif ["access_level", "save_readable_state"].include?(params[:action])
-        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
-      elsif model.respond_to?(:get_single_resource)
-        item = model.get_single_resource(params[:id])
-      else
-        item = model.where(id: params[:id]).first
-      end
-      if item.present? && item.user.present?
-        @single_resource = item
-        if params[:controller] == "medias"
-          @media = item
-        else
-          instance_variable_set "@#{model.to_s.tableize.singularize}", item
-        end
-        @page_title = item.name
-      else
-        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
-      end
-    end
-  end
-
   def display_first_time_canvas_notice
     if first_time_canvas_login?
       notice =
@@ -470,11 +411,16 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from CanCan::AccessDenied do |exception|
-    flash[:notice] = "You are not authorized to access this page."
-    if current_user.present?
-      redirect_to "/users/#{current_user.id}"
+    if request.xhr?
+      # JSON response 
+      render :json => { :success => false, :message => "We could not perform this action. Please confirm that you are<br />logged in with cookies enabled.", :error => true }
     else
-      redirect_to "/user_sessions/new"
+      flash[:notice] = "You are not authorized to access this page."
+      if current_user.present?
+        redirect_to "/users/#{current_user.id}"
+      else
+        redirect_to "/user_sessions/new"
+      end
     end
   end
 end

@@ -7,7 +7,7 @@ module VerifiedUserExtensions
   end
   
   def verify_user
-    if !(current_user && current_user.verified)
+    if !(current_user && current_user.verified) && !(self.class == Playlist && self.name == "Your Bookmarks")
       self.errors.add(:base, "Your account must be verified to contribute to H2O.")
     end
   end

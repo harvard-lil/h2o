@@ -57,37 +57,18 @@ class BaseController < ApplicationController
     render :partial => view
   end
 
-  def partial_results
+  def author_playlists
     per_page = 5
     params[:page] ||= 1
 
-    if params[:type] == "playlists"
-      playlists = []
-      map = { "945" => "Copyright", "671" => "Criminal Law", "911" => "Music and Digital Media", "986" => "Torts" }
-      [945, 671, 911, 986].each do |p|
-        begin
-          playlist = Playlist.where(id: p).first
-          playlists << { :title => map[p.to_s], :playlist => playlist, :user => playlist.user } if playlist 
-        rescue Exception => e
-          Rails.logger.warn "Base#index Exception: #{e.inspect}"
-        end
-      end
-      @highlighted_playlists = playlists.paginate(:page => params[:page], :per_page => per_page)
-    elsif params[:type] == "users"
-      @highlighted_users = User.where("karma > 150 AND karma < 250").order("karma DESC").paginate(:page => params[:page], :per_page => per_page)
-    elsif params[:type] == "author_playlists"
-      playlist = Playlist.where(id: params[:id]).first
-      if playlist.present? && playlist.user.present?
-        @author_playlists = playlist.user.playlists.paginate(:page => params[:page], :per_page => per_page)
-      else
-        @author_playlists = [].paginate(:page => params[:page], :per_page => per_page)
-      end
+    playlist = Playlist.where(id: params[:id]).first
+    if playlist.present? && playlist.user.present?
+      @author_playlists = playlist.user.playlists.paginate(:page => params[:page], :per_page => per_page)
     else
-      render :partial => "partial_results/empty"
-      return
+      @author_playlists = [].paginate(:page => params[:page], :per_page => per_page)
     end
         
-    render :partial => "partial_results/#{params[:type]}"
+    render :partial => "author_playlists"
   end
 
   def tags

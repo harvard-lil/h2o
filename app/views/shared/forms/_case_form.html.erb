@@ -47,7 +47,7 @@
       <% end %>
       <%= form.actions do %>
         <%= form.action :submit, :as => 'button', :label => "SAVE", :button_html => { :name => "save" } %>
-        <% if !@case.active -%>
+        <% if !@case.public -%>
         <%= form.action :submit, :as => 'button', :label => "SAVE AND APPROVE", :button_html => { :name => "approve" } %>
         <% end -%>
       <% end %>

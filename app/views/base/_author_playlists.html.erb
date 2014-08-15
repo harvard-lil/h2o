@@ -4,9 +4,8 @@
 <%= will_paginate @author_playlists,
     :class => "load_more_pagination", 
     :params => {
-      :type => "author_playlists", 
       :controller => :base,
-      :action => :partial_results
+      :action => :author_playlists
     }, 
     :next_label => 'Load More'
 %>

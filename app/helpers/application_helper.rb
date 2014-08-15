@@ -8,15 +8,13 @@ module ApplicationHelper
     end.strftime("%m/%d/%Y")
   end
 
-  def results_display(collection, klass_facets)
+  def results_display(collection, klass_facets, klass_label_map)
     return pluralize(collection.results.total_entries, 'Result') if klass_facets.nil?
 
     r_display = []
     klass_facets.each do |row|
-      if row.value == 'Default'
-        r_display << pluralize(row.count, 'Link')
-      elsif row.value == 'TextBlock'
-        r_display << pluralize(row.count, 'Text')
+      if klass_label_map.has_key?(row.value)
+        r_display << pluralize(row.count, klass_label_map[row.value])
       else
         r_display << pluralize(row.count, row.value)
       end

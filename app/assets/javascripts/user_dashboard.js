@@ -13,6 +13,27 @@ h2o_global.update_user_settings = function(data) {
   div.insertAfter($('#search_within'));
   return;
 };
+h2o_global.create_user_collection = function(data) {
+  var new_item = $(data.content).hide();
+  var delete_link = $('<a>')
+    .addClass('icon icon-delete tooltiip')
+    .attr('title', 'Delete')
+    .html('DELETE')
+    .data('type', 'user_collection')
+    .attr('href', '/user_collections/' + new_item.data('itemid'));
+  new_item.find('.details h3').append(delete_link);
+  $('#results_set').prepend(new_item);
+  new_item.slideDown();
+  $('#generic-node').dialog('close');
+  h2o_global.hideGlobalSpinnerNode();
+  return;
+};
+h2o_global.update_user_collection = function(data) {
+  $('#listitem_usercollection' + data.id).replaceWith(data.content);
+  $('#generic-node').dialog('close');
+  h2o_global.hideGlobalSpinnerNode();
+  return;
+};
 var users_show = {
   observeUserDisconnect: function() {
     $('.user-disconnect').live('click', function(e) {

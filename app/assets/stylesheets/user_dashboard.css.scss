@@ -20,6 +20,22 @@
         position: relative;
         top: 4px;
       }
+      li.listitem .extra a.edit-action {
+        color: #036290;
+      }
+      li.listitem .extra ul a {
+        color: #036290;
+        font-weight: normal;
+      }
+    }
+    #generic_item_form.delete {
+      padding-left: 10px;
+    }
+    .special_panel .icon {
+      visibility: visible;
+      margin-left: 5px;
+      position: relative;
+      top: 3px;
     }
   }
   #results .special_panel {

@@ -15,16 +15,16 @@ h2o_global.collage_afterload = function(results) {
   if($.browser.msie && $.browser.version < 9.0) {
     return;
   }
-  if(results.can_edit_annotations) {
+  if(!results.can_destroy) {
+    $('#description .delete-action').remove();
+  }
+  if(results.can_edit) {
     collages.initiate_annotator(true);  
     $('.requires_edit').animate({ opacity: 1.0 });
+    $('.edit-action').animate({ opacity: 1.0 });
   } else {
     collages.initiate_annotator(false);  
     $('.requires_edit').remove();
-  }
-  if(results.can_edit_description) {
-    $('.edit-action').animate({ opacity: 1.0 });
-  } else {
     $('.edit-action').remove();
   }
   h2o_global.setFontClasses();
@@ -518,7 +518,7 @@ var collages = {
       }
     });
     h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
-    if(access_results.can_edit_annotations) {
+    if(access_results.can_edit) {
       $('#edit_toggle').click();
       $('.default-hidden').css('color', '#000');
     } else {

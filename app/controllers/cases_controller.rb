@@ -2,7 +2,7 @@ class CasesController < BaseController
   protect_from_forgery except: [:approve, :destroy]
 
   cache_sweeper :case_sweeper
-  caches_page :show, :if => Proc.new { |c| c.instance_variable_get('@case').active }
+  caches_page :show, :if => Proc.new { |c| c.instance_variable_get('@case').public }
 
   def embedded_pager
     super Case
@@ -15,17 +15,12 @@ class CasesController < BaseController
   def show
     @page_cache = true
     @editability_path = access_level_case_path(@case)
-
-    if !@case.public || !@case.active
-      flash[:notice] = "This case is not public or active."
-      redirect_to cases_url
-    end
   end
 
   def access_level
     if current_user
       render :json => {
-        :can_edit => current_user.has_role?(:superadmin) || current_user.has_role?(:case_admin) || @case.owner?,
+        :can_edit => can?(:edit, @case),
         :custom_block => 'case_afterload'
       }
     else
@@ -80,7 +75,7 @@ class CasesController < BaseController
 
   def create
     @case = Case.new(cases_params)
-    @case.user = current_user
+    @case.user = User.where(login: 'h2ocases').first
 
     if @case.save
       @case.approve! if params.has_key?(:approve)
@@ -97,7 +92,7 @@ class CasesController < BaseController
 
     if @case.update_attributes(cases_params)
       @case.approve! if params.has_key?(:approve)
-      if @case.active
+      if @case.public
         flash[:notice] = 'Case was successfully updated.'
         redirect_to "/cases/#{@case.id}"
       else
@@ -118,7 +113,7 @@ class CasesController < BaseController
   def handle_successful_save
     @case.case_request.approve! if @case.case_request
 
-    if @case.active
+    if @case.public
       Notifier.case_notify_approved(@case, @case.case_request).deliver if @case.case_request
       redirect_to "/cases/#{@case.id}"
     else

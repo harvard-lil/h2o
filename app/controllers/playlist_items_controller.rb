@@ -3,9 +3,6 @@ class PlaylistItemsController < BaseController
   protect_from_forgery except: :destroy
 
   def new
-    @can_edit_all = @can_edit_desc = true
-    @can_edit_notes = false
-
     klass = params[:klass] == "media" ? Media : params[:klass].classify.constantize
     @actual_object = klass.where(id: params[:id]).first
     @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id], 
@@ -67,41 +64,11 @@ class PlaylistItemsController < BaseController
   end
 
   def edit
-    playlist = @playlist_item.playlist
-
-    if current_user
-      @can_edit_all = current_user.has_role?(:superadmin) || playlist.owner?
-      @can_edit_notes = @can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
-      @can_edit_desc = @can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
-    else
-      @can_edit_all = @can_edit_notes = @can_edit_desc = false
-    end
-
     render :partial => "shared/forms/playlist_item"
   end
 
   def update
     playlist = @playlist_item.playlist
-
-    if current_user
-      can_edit_all = current_user.has_role?(:superadmin) || playlist.owner?
-      can_edit_notes = can_edit_all || current_user.can_permission_playlist("edit_notes", playlist)
-      can_edit_desc = can_edit_all || current_user.can_permission_playlist("edit_descriptions", playlist)
-    else
-      can_edit_all = can_edit_notes = can_edit_desc = false
-    end
-
-    if !can_edit_desc 
-      params[:playlist_item].delete(:description)
-    end
-
-    if !can_edit_notes
-      params[:playlist_item].delete(:notes)
-      params[:playlist_item].delete(:public_notes)
-    else
-      params[:playlist_item][:public_notes] = params[:playlist_item][:public_notes] == 'on' ? true : false
-    end
-
     if @playlist_item.update_attributes(playlist_item_params)
       content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => @playlist_item,
         :actual_object => @playlist_item.actual_object,

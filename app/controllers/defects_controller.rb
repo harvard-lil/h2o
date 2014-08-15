@@ -1,5 +1,5 @@
 class DefectsController < ApplicationController
-  protect_from_forgery :except => [:destroy]
+  protect_from_forgery :except => [:destroy, :create]
 
   def create
     @defect = Defect.new(defects_params)

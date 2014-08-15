@@ -87,8 +87,9 @@ class User < ActiveRecord::Base
     string :display_name, :stored => true
     text :affiliation
     integer :karma
-    boolean :public
-    boolean :active
+    boolean :public do
+      true
+    end
     date :updated_at
    
     integer :user_id, :stored => true
@@ -101,10 +102,6 @@ class User < ActiveRecord::Base
 
   def not_anonymous
     !self.login.match(/^anon_/).present?
-  end
-
-  def active
-    true
   end
 
   def all_items
@@ -152,7 +149,7 @@ class User < ActiveRecord::Base
   alias :display_name :simple_display
 
   def pending_cases
-    self.has_role?(:case_admin) ? Case.where(active: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
+    self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
   end
 
   def content_errors
@@ -171,28 +168,6 @@ class User < ActiveRecord::Base
     Rails.cache.fetch([self, "bookmarks_map"], :compress => H2O_CACHE_COMPRESSION) do
       self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
     end
-  end
-
-  def playlists_by_permission(permission_key)
-    permission = Permission.where(key: permission_key).first
-    return [] if permission.nil?
-    self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.playlists if pa.permission == permission; arr }.flatten.uniq
-  end
-
-  def can_permission_playlist(permission_key, playlist)
-    playlists = self.playlists_by_permission(permission_key)
-    playlists.include?(playlist)
-  end
-
-  def collages_by_permission(permission_key)
-    permission = Permission.where(key: permission_key).first
-    return [] if permission.nil?
-    self.permission_assignments.inject([]) { |arr, pa| arr << pa.user_collection.collages if pa.permission == permission; arr }.flatten.uniq
-  end
-
-  def can_permission_collage(permission_key, collage)
-    collages = self.collages_by_permission(permission_key)
-    collages.include?(collage)
   end
 
   def send_verification_request
@@ -303,11 +278,15 @@ class User < ActiveRecord::Base
     end
   end
 
-  def private_playlists_by_permission
-    p = Permission.where(key: "view_private").first
-    pas = self.permission_assignments.select { |pa| pa.permission_id == p.id }
-    playlists = pas.collect { |pa| pa.user_collection.playlists }.flatten.uniq
-    playlists.select { |playlist| !playlist.public }
+  def shared_private_playlists
+    p = Permission.where(key: "view_private_playlist").first
+    permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:playlists])
+    permission_assignments.collect { |pa| pa.user_collection.playlists.select { |p| !p.public } }.flatten
+  end
+  def shared_private_collages
+    p = Permission.where(key: "view_private_collage").first
+    permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:collages])
+    permission_assignments.collect { |pa| pa.user_collection.collages.select { |p| !p.public } }.flatten
   end
 
   def has_dropbox_token?
@@ -341,7 +320,7 @@ class User < ActiveRecord::Base
   end
 
   def custom_label_method
-    "#{self.email_address} (#{self.simple_display})"
+    "<a href=\"/users/#{self.id}\">#{self.email_address} (#{self.simple_display})</a>"
   end
     
   def preverified?

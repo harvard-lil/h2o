@@ -49,7 +49,6 @@ class Media < ActiveRecord::Base
     string :content
     integer :karma
 
-    boolean :active
     boolean :public
     string :tag_list, :stored => true, :multiple => true
 

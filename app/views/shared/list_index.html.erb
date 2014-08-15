@@ -32,7 +32,7 @@
 		Search Results: <b><%= params[:keywords] %></b>
 		<% end -%>
 		<p id="totals">
-    <%= results_display(@collection, @klass_facets) %> Total
+    <%= results_display(@collection, @klass_facets, @klass_label_map) %> Total
 		</p>
 		</h2>
 	</div>

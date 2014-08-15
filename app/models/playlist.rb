@@ -30,9 +30,6 @@ class Playlist < ActiveRecord::Base
 
   before_destroy :collapse_children
 
-  # FIXME: scope name can't be redundant to attribute name
-  # scope :public, -> { where(public: true, active: true) }
-
   validate :when_taught_validation
 
   def when_taught_validation
@@ -64,7 +61,7 @@ class Playlist < ActiveRecord::Base
     errors.add(:when_taught, "is not valid. Please read instructiosn below to learn valid options.")
   end
 
-  searchable(:include => [:tags]) do
+  searchable(:include => [:tags], :if => :not_bookmark?) do
     text :display_name
     string :display_name, :stored => true
     string :id, :stored => true
@@ -83,12 +80,15 @@ class Playlist < ActiveRecord::Base
     boolean :public
     boolean :primary
     boolean :secondary
-    boolean :active
 
     time :created_at
     time :updated_at
     
     string :klass, :stored => true
+  end
+
+  def not_bookmark?
+    self.name != "Your Bookmarks"
   end
 
   def display_name

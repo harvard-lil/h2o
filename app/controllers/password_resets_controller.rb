@@ -28,11 +28,11 @@ class PasswordResetsController < ApplicationController
     @user.password_confirmation = params[:user][:password_confirmation]
     if @user.save
       flash[:notice] = "Password successfully updated"
-      if first_time_canvas_login?
-        save_canvas_id_to_user(@user)
-        flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
-      end
-      redirect_to '/'
+      # if first_time_canvas_login?
+      #  save_canvas_id_to_user(@user)
+      #  flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
+      # end
+      redirect_to user_path(@user.id)
     else
 
       render :action => :edit
@@ -44,10 +44,10 @@ class PasswordResetsController < ApplicationController
       @user = User.find_using_perishable_token(params[:id])
       unless @user
         flash[:notice] = "We're sorry, but we could not locate your account." +
-          "If you are having issues try copying and pasting the URL " +
+          " If you are having issues try copying and pasting the URL " +
           "from your email into your browser or restarting the " +
           "reset password process."
-        redirect_to root_url
+        redirect_to new_user_session_path
       end
     end
 end

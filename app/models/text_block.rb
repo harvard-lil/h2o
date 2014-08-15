@@ -59,7 +59,6 @@ class TextBlock < ActiveRecord::Base
     string :display_name, :stored => true
     string :id, :stored => true
     text :clean_description
-    boolean :active
     boolean :public
     integer :karma
 

@@ -10,7 +10,7 @@
       <%= link_to import.short_name, case_path(import.created_object) %>
     </td>
     <td>
-      <%= import.active ? "active" : "not active" %>
+      <%= import.public ? "public" : "not public" %>
     </td>
     <td>
       <%= link_to "Edit #{import.short_name}", edit_case_path(import.created_object) %>
