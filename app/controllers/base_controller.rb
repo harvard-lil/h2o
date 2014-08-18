@@ -2,6 +2,10 @@ class BaseController < ApplicationController
   caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
 
   def embedded_pager(model = nil, view = 'shared/playlistable_item')
+    if params[:within] == 'Filter%20by%20Keyword%20or%20Name'
+      params[:within] = nil
+    end
+
     if model.present?
       params[:filter_type] = model.to_s.tableize
     end

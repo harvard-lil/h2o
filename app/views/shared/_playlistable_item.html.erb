@@ -5,11 +5,6 @@
 	  <%= render :partial => 'shared/sort', :locals => { :list => @sort_lists[@list_key] } %>
   </aside>
 </h3>
-<% if false -%>
-<div id="playlist_drilldown">
-<%= render "shared/drilldown" %>
-</div>
-<% end -%>
 <%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
 <div id="nestable2">
   <ol class="dd-list">
@@ -24,4 +19,7 @@
   </ol>
 </div>
 <%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
+<div id="new_playlist_drilldown">
+<%= render "shared/drilldown" %>
+</div>
 <% end %>

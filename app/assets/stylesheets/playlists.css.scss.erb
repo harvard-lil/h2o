@@ -218,6 +218,9 @@
 #edit_item #add_item_results {
   clear: both;
   background: #FFF;
+  #new_playlist_drilldown {
+    display: none;
+  }
 }
 #edit_item #add_item_results h3 {
   color: #FFF;
@@ -509,9 +512,50 @@ span.private_item {
   background-position: -162px -43px;
   top: 19px;
 }
-#playlists_show #advanced-search-content {
-  display: none;
-}
 #playlists_show #stats {
   display: none;
+}
+#playlist_drilldown {
+  margin: 0px 10px;
+  ul {
+    padding: 5px 10px;
+  }
+  h3 {
+    display: none;
+  }
+  .aleft {
+    float: left;
+    width: 49%;
+  }
+  .aright {
+    float: right;
+    width: 49%;
+  }
+  h4 {
+    background: #333;
+    color: #FFFFFF;
+  }
+  h4.filter_k {
+    display: none;
+  }
+  #within {
+    clear: both;
+    display: inline-block;
+    width: 410px;
+    padding: 5px 10px 10px 0px;
+    input {
+      width: 100%;
+      border: none;
+      padding: 6px;
+    }
+  }
+  a#search_within {
+    margin: 0px;
+    width: 50px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  #clear_within_filter {
+    display: none;
+  }
 }

@@ -125,6 +125,41 @@ var h2o_global = {
       user_drilldown = $('#user_id_filters').data('users');
     }
 
+    $('#load_more_users').live('click', function(e) {
+      e.preventDefault();
+      var new_users = user_drilldown.splice(0,5);
+      var user_ids = [];
+      $.each(new_users, function(i, j) {
+        user_ids.push(j.id);
+      });
+
+      $.ajax({
+        type: 'GET',
+        dataType: 'html',
+        url: '/base/load_more_users?display=' + user_ids.join(','),
+        beforeSend: function(){
+          h2o_global.showGlobalSpinnerNode();
+        },
+        error: function(xhr){
+          h2o_global.hideGlobalSpinnerNode();
+        },
+        success: function(data){
+          var user_display = ($.parseJSON(data)).users;
+          $.each(new_users, function(i, j) {
+	          var user_data = { "id" : j.id, "display": user_display[j.id], "count": j.count };
+	          var user_content = $($.mustache(more_user_template, user_data));
+            user_content.insertBefore($('#load_more_users'));
+          });
+          h2o_global.hideGlobalSpinnerNode();
+        }
+      });
+      return false;
+    });
+
+    if($('body#playlists_show').size() > 0) {
+      return;
+    }
+
     $('ul#klass_filters a,ul#user_id_filters a:not(#load_more_users)').live('click', function(e) {
       e.preventDefault();
       $(this).addClass('active');
@@ -158,37 +193,6 @@ var h2o_global = {
       $(this).hide();
       $(this).siblings('input').val('');
       $('#search_within').click();
-    });
-
-    $('#load_more_users').live('click', function(e) {
-      e.preventDefault();
-      var new_users = user_drilldown.splice(0,5);
-      var user_ids = [];
-      $.each(new_users, function(i, j) {
-        user_ids.push(j.id);
-      });
-
-      $.ajax({
-        type: 'GET',
-        dataType: 'html',
-        url: '/base/load_more_users?display=' + user_ids.join(','),
-        beforeSend: function(){
-          h2o_global.showGlobalSpinnerNode();
-        },
-        error: function(xhr){
-          h2o_global.hideGlobalSpinnerNode();
-        },
-        success: function(data){
-          var user_display = ($.parseJSON(data)).users;
-          $.each(new_users, function(i, j) {
-	          var user_data = { "id" : j.id, "display": user_display[j.id], "count": j.count };
-	          var user_content = $($.mustache(more_user_template, user_data));
-            user_content.insertBefore($('#load_more_users'));
-          });
-          h2o_global.hideGlobalSpinnerNode();
-        }
-      });
-      return false;
     });
   },
   setFixedLinkPosition: function() {

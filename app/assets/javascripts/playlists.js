@@ -187,22 +187,6 @@ var playlists_show = {
       }
     });
   },
-  observeAdvancedSearchToggle: function() {
-    $('#advanced-search-wedge').live('click', function(e) {
-      e.preventDefault();
-      if($(this).hasClass('opened')) {
-        $(this).removeClass('opened');
-        $('#advanced-search-content').slideUp('fast', function() {
-          $.rule('#playlists_show #advanced-search-content { display: none; }').appendTo('style');
-        });
-      } else {
-        $(this).addClass('opened');
-        $('#advanced-search-content').slideDown('fast', function() {
-          $.rule('#playlists_show #advanced-search-content { display: block; }').appendTo('style');
-        });
-      }
-    });
-  },
   observePlaylistExpansion: function() {
     $(document).delegate(".listitem .rr", 'click', function() {
       $(this).toggleClass('rr-closed');
@@ -558,33 +542,33 @@ var playlists_show = {
     return;
   },
   initKeywordSearch: function() {
+    $('ul#klass_filters a,ul#user_id_filters a:not(#load_more_users)').live('click', function(e) {
+      e.preventDefault();
+      $(this).addClass('active');
+      $('#add_item_search').click();
+    });
+    $('.clear_filters').live('click', function(e) {
+      e.preventDefault();
+      $(this).parent().siblings('ul').find('a.active').removeClass('active');
+      $('#add_item_search').click();
+    });
+    $('#search_within').live('click', function(e) {
+      e.preventDefault();
+      $('#add_item_search').click();
+    });
     $(document).delegate('#add_item_search', 'click', function(e) {
       e.preventDefault();
       var itemController = $('#add_item_select').val();
 
-      var user_ids = new Array();
-      $.each($('#user_id_filters li input:checked'), function(i, el) {
-        user_ids.push($(el).val());
-      });  
-      if($('a#clear_user_ids_filter').data('activated')) {
-        user_ids = new Array();
-      }
-      var classes = new Array();
-      $.each($('#klass_filters li input:checked'), function(i, el) {
-        classes.push($(el).val());
-      });
-      if($('a#clear_klass_filter').data('activated')) {
-        classes = new Array();
-      }
       data = {
           keywords: $('#add_item_term').val(),
           sort: $('#add_item_results .sort select').val(),
       };
-      if(user_ids.length) {
-        data.user_ids = user_ids.join(',');
+      if($('ul#user_id_filters a.active').size()) {
+        data.user_ids = $('ul#user_id_filters a.active').data('value');
       }
-      if(classes.length) {
-        data.klass = classes.join(',');
+      if($('ul#klass_filters a.active').size()) {
+        data.klass = $('ul#klass_filters a.active').data('value');
       }
       if($('input[name=within]').size() && $('input[name=within]').val() != '') {
         data.within = escape($('input[name=within]').val());
@@ -604,6 +588,16 @@ var playlists_show = {
           playlists_show.toggleHeaderPagination();
           $('div#nestable2').nestable();
 
+          $('#new_playlist_drilldown #search_within').html('Apply');
+          $('#playlist_drilldown').html($('#new_playlist_drilldown').html());
+          $('#new_playlist_drilldown').remove();
+          if($('#playlist_drilldown #within input').val() == '') {
+            $('#playlist_drilldown #within input').val('Filter by Keyword or Name');
+          }
+          if($('#user_id_filters').size()) {
+            user_drilldown = $('#user_id_filters').data('users');
+          }
+
           $('#add_item_results .sort select').selectbox({
             className: "jsb", replaceInvisible: true 
           }).change(function() {
@@ -611,6 +605,16 @@ var playlists_show = {
           });
         }
       });
+    });
+    $(document).delegate('#playlist_drilldown #within input', 'focus', function() {
+      if($(this).val() == 'Filter by Keyword or Name') {
+        $(this).val('');
+      }
+    });
+    $(document).delegate('#playlist_drilldown #within input', 'blur', function() {
+      if($(this).val() == '') {
+        $(this).val('Filter by Keyword or Name');
+      }
     });
   },
   initPlaylistItemPagination: function() {
@@ -661,7 +665,6 @@ var playlists_show = {
     playlists_show.observeMainPlaylistExpansion();
     playlists_show.observeAdditionalDetailsExpansion();
     playlists_show.observeViewerToggleEdit();
-    //playlists_show.observeAdvancedSearchToggle();
   },
   nested_notification: '<p id="private_detail">This playlist contains {{nonowned}} private nested resource item(s) owned by other users.</p>',
   set_nested_owned_private_resources_public: '\

@@ -97,7 +97,7 @@
       <%= render "users/collections" %>
     <% end -%>
   <% else -%>
-  <h4>Filter by Keyword or Name</h4>
+  <h4 class="filter_k">Filter by Keyword or Name</h4>
   <p id="within">
     <% if params.has_key?(:within) && params[:within] != '' -%>
     <input type="text" name="within" value="<%= params[:within] %>" />
