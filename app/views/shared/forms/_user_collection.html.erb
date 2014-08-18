@@ -4,7 +4,7 @@
   <%= semantic_form_for(@user_collection, :html => {:id => 'user_collection-form'}) do |form| %>
     <%= form.inputs do %>
       <%= form.input :name %>
-      <%= form.input :description, :as => :text, :required => false %>
+      <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 4 } %>
     <% end %>
     <% unless request.xhr? %>
       <%= form.actions do -%>
