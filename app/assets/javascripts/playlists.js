@@ -552,6 +552,11 @@ var playlists_show = {
       $(this).parent().siblings('ul').find('a.active').removeClass('active');
       $('#add_item_search').click();
     });
+    $('#clear_within_filter').live('click', function(e) {
+      e.preventDefault();
+      $('#within input').val('');
+      $('#add_item_search').click();
+    });
     $('#search_within').live('click', function(e) {
       e.preventDefault();
       $('#add_item_search').click();
@@ -588,14 +593,19 @@ var playlists_show = {
           playlists_show.toggleHeaderPagination();
           $('div#nestable2').nestable();
 
-          $('#new_playlist_drilldown #search_within').html('Apply');
-          $('#playlist_drilldown').html($('#new_playlist_drilldown').html());
-          $('#new_playlist_drilldown').remove();
-          if($('#playlist_drilldown #within input').val() == '') {
-            $('#playlist_drilldown #within input').val('Filter by Keyword or Name');
-          }
-          if($('#user_id_filters').size()) {
-            user_drilldown = $('#user_id_filters').data('users');
+          if($('#nestable2 ol li').size() > 0) {
+            $('#new_playlist_drilldown #search_within').html('Apply');
+            $('#playlist_drilldown').html($('#new_playlist_drilldown').html());
+            $('#new_playlist_drilldown').remove();
+            if($('#playlist_drilldown #within input').val() == '') {
+              $('#playlist_drilldown #within input').val('Filter by Keyword or Name');
+            }
+            if($('#user_id_filters').size()) {
+              user_drilldown = $('#user_id_filters').data('users');
+            }
+          } else {
+            $('#playlist_drilldown').html('');
+            $('#new_playlist_drilldown').remove();
           }
 
           $('#add_item_results .sort select').selectbox({

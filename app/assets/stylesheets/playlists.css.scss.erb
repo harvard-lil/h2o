@@ -517,6 +517,12 @@ span.private_item {
 }
 #playlist_drilldown {
   margin: 0px 10px;
+  #advanced-search-content {
+    margin-bottom: 10px;
+    .clear_filters {
+      color: #FFF;
+    }
+  }
   ul {
     padding: 5px 10px;
   }
@@ -542,11 +548,12 @@ span.private_item {
     clear: both;
     display: inline-block;
     width: 410px;
-    padding: 5px 10px 10px 0px;
+    padding: 0px 10px 0px 0px;
+    background: #FFF;
     input {
-      width: 100%;
+      width: 366px;
       border: none;
-      padding: 6px;
+      padding: 5px;
     }
   }
   a#search_within {
@@ -554,8 +561,11 @@ span.private_item {
     width: 50px;
     text-align: center;
     text-transform: uppercase;
+    position: relative;
+    left: -2px;
   }
   #clear_within_filter {
-    display: none;
+    float: right;
+    margin-top: 8px;
   }
 }
