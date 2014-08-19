@@ -22,7 +22,7 @@ class TextBlock < ActiveRecord::Base
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable
   has_many :defects, :as => :reportable
-  has_many :playlist_items, :as => :actual_object, :dependent => :destroy
+  has_many :playlist_items, :as => :actual_object
   belongs_to :user
 
   accepts_nested_attributes_for :metadatum

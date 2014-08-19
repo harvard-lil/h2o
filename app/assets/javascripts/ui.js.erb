@@ -15,6 +15,7 @@ var page_load = true;
 var list_results_url = '';
 var playlists_initialized = false;
 var user_drilldown = [];
+var scrollpane_api;
 
 $.extend({
   mustache: function(template, data, partial, stream) {
@@ -150,6 +151,9 @@ var h2o_global = {
 	          var user_content = $($.mustache(more_user_template, user_data));
             user_content.insertBefore($('#load_more_users'));
           });
+          if(scrollpane_api !== undefined) {
+            scrollpane_api.reinitialise();
+          }
           h2o_global.hideGlobalSpinnerNode();
         }
       });
@@ -1087,13 +1091,18 @@ var h2o_global = {
           h2o_global.hideGlobalSpinnerNode();
         },
         success: function(data){
-          if($('.singleitem').length) {
-            document.location.href = "/" + type + "s";
-          } else {
-            listing.slideUp(200, function(e) {
-              listing.remove();
-            });
+          if(data.error) {
+            $('#generic_item_form').replaceWith($('<p class="delete_error error">This item cannot be deleted: ' + data.message + '</p>'));
             h2o_global.hideGlobalSpinnerNode();
+          } else {
+            if($('.singleitem').length) {
+              document.location.href = "/" + type + "s";
+            } else {
+              listing.slideUp(200, function(e) {
+                listing.remove();
+              });
+              h2o_global.hideGlobalSpinnerNode();
+            }
           }
         }
       });
@@ -1102,6 +1111,7 @@ var h2o_global = {
       if($(this).parent().hasClass('delete-playlist-item')) {
         return;
       }
+
 
       // hide any existing forms
       e.preventDefault();
@@ -1113,6 +1123,7 @@ var h2o_global = {
         listing = $('#description');
       } else {
         listing = $(this).parentsUntil('ul').last();
+        listing.find('.delete_error').slideUp().remove();
 	      if(listing.find('#generic_item_form').size()) {
 	        return;
 	      }

@@ -575,7 +575,7 @@ var playlists_show = {
       if($('ul#klass_filters a.active').size()) {
         data.klass = $('ul#klass_filters a.active').data('value');
       }
-      if($('input[name=within]').size() && $('input[name=within]').val() != '') {
+      if($('input[name=within]').size() && $('input[name=within]').val() != '' && $('input[name=within]').val() != 'Filter by Keyword or Name') {
         data.within = escape($('input[name=within]').val());
       }
 
@@ -601,6 +601,7 @@ var playlists_show = {
               $('#playlist_drilldown #within input').val('Filter by Keyword or Name');
             }
             if($('#user_id_filters').size()) {
+              scrollpane_api = $('#user_id_filters').jScrollPane().data('jsp');
               user_drilldown = $('#user_id_filters').data('users');
             }
           } else {

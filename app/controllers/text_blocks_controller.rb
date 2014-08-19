@@ -48,8 +48,12 @@ class TextBlocksController < BaseController
   end
 
   def destroy
-    @text_block.destroy
-    render :json => {}
+    if @text_block.collages.any?
+      render :json => { :error => true, :message => "Text blocks that have been collaged can not be deleted." }
+    else
+      @text_block.destroy
+      render :json => {}
+    end
   end
 
   private
