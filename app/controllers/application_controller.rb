@@ -337,13 +337,15 @@ class ApplicationController < ActionController::Base
 
   def apply_user_preferences(user, on_create)
     if user
-      cookies[:font_size] = user.default_font_size
-      cookies[:font] = user.default_font
-      cookies[:use_new_tab] = (user.tab_open_new_items? ? 'true' : 'false')
-      cookies[:show_annotations] = user.default_show_annotations
-      cookies[:display_name] = user.simple_display
       cookies[:user_id] = user.id
-      cookies[:anonymous_user] = false
+
+      [:default_font_size, :default_font, :tab_open_new_items,
+       :simple_display, :print_titles, :print_dates_details, 
+       :print_paragraph_numbers, :print_annotations, :print_highlights,
+       :print_font_face, :print_font_size, :tab_open_new_items,
+       :default_show_annotations].each do |attr|
+        cookies[attr] = user.send(attr)
+      end
 
       if on_create
         cookies[:bookmarks] = "[]"
@@ -352,9 +354,13 @@ class ApplicationController < ActionController::Base
       end
     end
   end
-  def destroy_user_preferences(user)
-    [:font_size, :font, :use_new_tab, :show_annotations,
-     :user_id, :anonymous_user, :bookmarks, :display_name].each do |attr|
+
+  def destroy_user_preferences
+    [:default_font_size, :default_font, :tab_open_new_items,
+     :user_id, :bookmarks, :simple_display,
+     :print_titles, :print_dates_details, :print_paragraph_numbers,
+     :print_annotations, :print_highlights, :print_font_face,
+     :print_font_size, :default_show_annotations].each do |attr|
       cookies.delete(attr)
     end
   end

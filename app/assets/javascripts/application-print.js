@@ -16,6 +16,7 @@
 //= require jquery.selectbox-0.6.1.pack
 //= require jquery.rule
 //= require jquery.xcolor
+//= require jquery.cookie
 //= require annotator
 //= require annotator.sh2o
 //= require annotator.store

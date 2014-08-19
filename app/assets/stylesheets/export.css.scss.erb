@@ -1,7 +1,15 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique, #journal_articles_export {
+  .wrapper {
+    max-width: 1200px;
+    width: 1200px;
+  }
   background: #FFF; font-family: sans-serif; font-size: 11px;  color: #000; border-bottom: 2px solid #FFF;
-  * { line-height: 1.4em; }
+  * { 
+    line-height: 1.4em;
+    font-family: 'ff-dagny-web-pro';
+    font-size: 14px;
+  }
   .jsb-item {
     line-height: 2em;
   }
@@ -12,17 +20,27 @@
   }
   
   .singleitem {
+    padding-top: 15px;
     float: none;
     width: 100%;
-  }
-  .singleitem article {
-    padding-left: 0px;
-    margin-top: 20px;
-  }
-  .singleitem .details {
-    background: none;
-    padding: 0px;
-    margin: 0px;
+    article {
+      padding-left: 0px;
+      margin-top: 20px;
+    }
+    .details {
+      background: none;
+      padding: 0px;
+      margin: 0px;
+    }
+    .scale0-8 {
+      font-size: 11.2px;
+    }
+    .scale1-5 {
+      font-size: 21px;
+    }
+    .scale1-3 {
+      font-size: 18.2px;
+    }
   }
   
   /* Header */
@@ -63,7 +81,6 @@
   
   .playlists .collage-content article { position: relative; }
   
-  #playlist { padding: 0px; overflow: hidden; }
   #playlist .playlists .playlists { display: block; }
   #playlist .listitem { padding-bottom: 10px; }
   #playlist .listitem .notes { padding-bottom: 10px; }
@@ -78,7 +95,12 @@
   /* Print */
   #print-options {
     margin-top: 15px; 
-    padding-bottom: 25px;
+    * {
+      font-size: 12px;
+    }
+    .jsb-currentItem {
+      line-height: 1.8em;
+    }
   }
   #print-options .jsb {
     display: inline-block;
@@ -102,18 +124,20 @@
   #print-options #highlight_options {
     display: inline-block;
   }
-  #print-options #create_date {
-    width: 173px;
+  #print-options #create_date,
+  #print-options #paragraph_n {
+    width: 200px;
+  }
+  #print-options #fontface_s {
+    width: 176px;
+  }
+  #print-options #fontsize_s {
+    width: 200px;
   }
   
   .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }
   .print_border span { width: 100%; display: block; position: absolute; bottom: 0px; opacity: 0.0; }
   
-  .fontdetails {
-    font-weight: bold;
-    font-size: 12px !important;
-    margin-top: -20px;
-  }
   .annotator-outer { display: none; }
   .layered-ellipsis { display: none; margin: 0px 2px; }
 

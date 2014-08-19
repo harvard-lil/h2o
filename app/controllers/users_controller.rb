@@ -245,8 +245,12 @@ class UsersController < ApplicationController
     @user = @current_user # makes our views "cleaner" and more consistent
 
     if @user.update_attributes(users_params)
-      [:font, :font_size, :show_annotations].each do |f|
-        cookies[f] = @user.send("default_#{f.to_s}")
+      [:default_font_size, :default_font, :tab_open_new_items,
+       :simple_display, :print_titles, :print_dates_details, 
+       :print_paragraph_numbers, :print_annotations, :print_highlights,
+       :print_font_face, :print_font_size, :tab_open_new_items,
+       :default_show_annotations].each do |attr|
+        cookies[attr] = @user.send(attr)
       end
       profile_content = render_to_string("shared/_author_stats.html.erb", :locals => { :user => @user })
       settings_content = render_to_string("users/_settings.html.erb", :locals => { :user => @user })
@@ -332,6 +336,9 @@ class UsersController < ApplicationController
     params.require(:user).permit(:id, :name, :login, :password, :password_confirmation, 
                                  :email_address, :tz_name, :attribution, :title, 
                                  :url, :affiliation, :description, :tab_open_new_items, 
-                                 :default_show_annotations, :default_font_size, :default_font, :terms)
+                                 :default_show_annotations, :default_font_size, :default_font, :terms,
+                                 :print_titles, :print_dates_details, :print_paragraph_numbers,
+                                 :print_annotations, :print_highlights, :print_font_face,
+                                 :print_font_size)
   end
 end

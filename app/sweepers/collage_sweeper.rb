@@ -45,9 +45,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
     ActionController::Base.expire_page "/collages/#{params[:id]}.html"
     ActionController::Base.expire_page "/collages/#{params[:id]}/export.html"
 
-    PlaylistItem.where({ :actual_object_type => 'Collage', :actual_object_id => params[:id] }).select(:playlist_id).each do |pi|
-      ActionController::Base.expire_page "/playlists/#{pi.playlist_id}.html"
-      ActionController::Base.expire_page "/playlists/#{pi.playlist_id}/export.html"
-    end
+    playlist_items = PlaylistItem.where({ :actual_object_type => 'Collage', :actual_object_id => params[:id] })
+    PlaylistItem.clear_playlists(playlist_items)
   end
 end

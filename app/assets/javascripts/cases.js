@@ -18,7 +18,7 @@ h2o_global.case_jurisdiction_post = function(data) {
 
 var cases_new = {
   initialize_font_change: function() {
-    var val = $.cookie('font_size');
+    var val = $.cookie('default_font_size');
     if (val == null){
       val = 16;
     }

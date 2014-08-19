@@ -39,7 +39,7 @@ class UserSessionsController < ApplicationController
   end
 
   def destroy
-    destroy_user_preferences(current_user)
+    destroy_user_preferences
     if current_user_session.present?
       current_user_session.destroy
     end

@@ -94,7 +94,7 @@ H2O = (function() {
         var collage_data = eval('collage_data_' + this.plugins.H2O.collage_id);
         collages.loadState(this.plugins.H2O.collage_id, collage_data);
       }
-  
+
       //loadState has to be before listenTo
       if(!h2o_annotator.options.readOnly) {
         collages.listenToRecordCollageState();
@@ -439,12 +439,17 @@ H2O = (function() {
   H2O.prototype.resetUnlayered = function(c_id) {
     //resetting parents that have no annotator children to unlayered, and resetting unlayered children inside
     var collage_selector = $('#collage' + c_id);
+    var white = /^\s*$/;
     $.each(collage_selector.find('.annotator-wrapper .original_content:not(.annotator-hl,.unlayered *, .unlayered,:has(.annotator-hl),br)'), function(i, el) {
-      $(el).addClass('unlayered');
-      $.each($(el).find('.unlayered'), function(j, unlayered_el) {
-        $(unlayered_el).contents().unwrap();
-      });
-      $(el).find('.unlayered-control-start,.unlayered-control-end,.unlayered-ellipsis').remove();
+      if($(el).is('a') && white.test($(el).html())) {
+        //Do nothing. Annotator skips this.
+      } else {
+        $(el).addClass('unlayered');
+        $.each($(el).find('.unlayered'), function(j, unlayered_el) {
+          $(unlayered_el).contents().unwrap();
+        });
+        $(el).find('.unlayered-control-start,.unlayered-control-end,.unlayered-ellipsis').remove();
+      }
     });
 
     //removing any unlayered control borders, ellipsis for not needed anymore

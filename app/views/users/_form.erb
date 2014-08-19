@@ -1,71 +1,111 @@
-<table width="100%">
+<table width="100%" id="user_form_markup">
   <tr>
-    <td valign="top">
-      <%= form.label :login %>
-      <%= form.text_field :login %><br />
-      <br />
-      <%= form.label :password, form.object.new_record? ? nil : "Change password" %>
-      <%= form.password_field :password %><br />
-      <br />
-      <%= form.label :password_confirmation %>
-      <%= form.password_field :password_confirmation %><br />
-      <br />
-      <%= form.label :email_address %>
-      <%= form.text_field :email_address %><br />
-      <br />
-      <%= form.label :tz_name, "Timezone" %>
-      <%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %>
+    <td valign="top" id="firstcol">
+      <p>
+        <%= form.label :login %>
+        <%= form.text_field :login %>
+      </p>
+      <p>
+        <%= form.label :email_address %>
+        <%= form.text_field :email_address %>
+      </p>
+      <p>
+        <%= form.label :attribution %>
+        <%= form.text_field :attribution %>
+      </p>
+      <p>
+        <%= form.label :title %>
+        <%= form.text_field :title %>
+      </p>
+      <p>
+        <%= form.label :url %>
+        <%= form.text_field :url %>
+      </p>
+      <p>
+        <%= form.label :affiliation %>
+        <%= form.text_field :affiliation %>
+      </p>
+      <p>
+        <%= form.label :description %>
+        <%= form.text_area :description, :rows => 5 %>
+      </p>
+    </td>
+    <td valign="top" id="secondcol">
+      <% if !@user.new_record? -%>
+        <p>
+          <%= form.label :default_font_size %>
+          <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %>
+        </p>
+        <p>
+          <%= form.label :default_font %>
+          <%= form.select :default_font, [['Futura', 'futura'], ['Leitura', 'leitura'], ['Garamond', 'garamond'], ['Verdana', 'verdana'], ['Proxima Nova', 'proxima'], ['Dagny Web', 'dagny']], :selected => @user.default_font.to_s %>
+        </p>
+        <% if @user.canvas_id.present? -%>
+        <p>
+          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :class => "user-disconnect" %>
+        </p>
+        <% end %>
+        <% if @user.has_dropbox_token? -%>
+        <p>
+          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :class => "user-disconnect" %>
+        </p>
+        <% end -%>
+        <p>
+          <%= form.check_box :tab_open_new_items %>
+          Open new collages, media, texts, playlists, etc. in a new tab?
+        </p>
+      <% end %>
+      <p>
+        <%= form.label :tz_name, "Timezone" %>
+        <%= form.time_zone_select :tz_name, ActiveSupport::TimeZone.us_zones, { :include_blank => true } %>
+      </p>
+      <p>
+        <%= form.label :password, form.object.new_record? ? nil : "Change password" %>
+        <%= form.password_field :password %>
+      </p>
+      <p>
+        <%= form.label :password_confirmation %>
+        <%= form.password_field :password_confirmation %>
+      </p>
       <% if form.object.new_record? -%>
       <ul>
       <%= render :partial => 'shared/captcha', :locals => { :single_resource => @user } %>
       </ul>
       <% end -%>
     </td>
-    <td valign="top">
-      <%= form.label :attribution %>
-      <%= form.text_field :attribution %><br />
-      <br />
-      <%= form.label :title %>
-      <%= form.text_field :title %>
-      <br /><br />
-      <%= form.label :url %>
-      <%= form.text_field :url %>
-      <br /><br />
-      <%= form.label :affiliation %>
-      <%= form.text_field :affiliation %>
-      <br /><br />
-      <%= form.label :description %>
-      <%= form.text_area :description, :rows => 5 %>
-      <br /><br />
+    <% if !@user.new_record? -%>
+    <td valign="top" id="thirdcol">
+      <p>Control your default print setting values below.</p>
+      <p>
+        <%= form.label :print_titles %>
+        <%= form.select :print_titles, [['Yes', true], ['No', false]] %>
+      </p>
+      <p>
+        <%= form.label :print_dates_details %>
+        <%= form.select :print_dates_details, [['Yes', true], ['No', false]] %>
+      </p>
+      <p>
+        <%= form.label :print_paragraph_numbers %>
+        <%= form.select :print_paragraph_numbers, [['Yes', true], ['No', false]] %>
+      </p>
+      <p>
+        <%= form.label :print_annotations %>
+        <%= form.select :print_annotations, [['Yes', true], ['No', false]] %>
+      </p>
+      <p>
+        <%= form.label :print_highlights %>
+        <%= form.select :print_highlights, [['Original', 'original'], ['None', 'none'], ['All', 'all']] %>
+      </p>
+      <p>
+        <%= form.label :print_font_face %>
+        <%= form.select :print_font_face, [['futura', 'futura'], ['leitura', 'leitura'], ['garamond', 'garamond'], ['verdana', 'verdana'], ['proxima', 'proxima'], ['dagny', 'dagny']], :selected => @user.print_font_face %>
+      </p>
+      <p>
+        <%= form.label :print_font_size %>
+        <%= form.select :print_font_size, [['small', 'small'], ['medium', 'medium'], ['large', 'large'], ['xlarge', 'xlarge']], :selected => @user.print_font_size %>
+      </p>
     </td>
-    <td valign="top">
-      <%= form.check_box :tab_open_new_items %>
-      Open new collages, media, texts, playlists, etc. in a new tab?
-      <br />
-      <% if !@user.new_record? %>
-        <% if @user.canvas_id.present? -%>
-        <div>
-          <br />
-          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :class => "user-disconnect" %>
-          <br />
-        </div>
-        <% end %>
-        <% if @user.has_dropbox_token? -%>
-        <div>
-          <br />
-          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :class => "user-disconnect" %>
-          <br />
-        </div>
-        <% end -%>
-      <% end %>
-      <br />
-      <%= form.label :default_font_size %>
-      <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %><br />
-      <br />
-      <%= form.label :default_font %>
-      <%= form.select :default_font, [['futura', 'futura'], ['leitura', 'leitura'], ['garamond', 'garamond'], ['verdana', 'verdana'], ['proxima', 'proxima'], ['dagny', 'dagny']], :selected => @user.default_font.to_s %><br />
-      <br />
-    </td>
+    <% end -%>
   </tr>
   <% if form.object.new_record? -%>
   <tr>

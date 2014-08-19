@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140725171240) do
+ActiveRecord::Schema.define(version: 20140818123358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -651,8 +651,8 @@ ActiveRecord::Schema.define(version: 20140725171240) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                           null: false
-    t.integer  "login_count",              default: 0,        null: false
+    t.string   "persistence_token",                             null: false
+    t.integer  "login_count",              default: 0,          null: false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -666,16 +666,23 @@ ActiveRecord::Schema.define(version: 20140725171240) do
     t.integer  "karma"
     t.string   "attribution"
     t.string   "perishable_token"
-    t.boolean  "default_show_annotations", default: false,    null: false
-    t.boolean  "tab_open_new_items",       default: false,    null: false
+    t.boolean  "default_show_annotations", default: false,      null: false
+    t.boolean  "tab_open_new_items",       default: false,      null: false
     t.string   "default_font_size",        default: "10"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"
     t.text     "description"
     t.string   "canvas_id"
-    t.boolean  "verified",                 default: false,    null: false
+    t.boolean  "verified",                 default: false,      null: false
     t.string   "default_font",             default: "futura"
+    t.boolean  "print_titles",             default: true,       null: false
+    t.boolean  "print_dates_details",      default: true,       null: false
+    t.boolean  "print_paragraph_numbers",  default: true,       null: false
+    t.boolean  "print_annotations",        default: false,      null: false
+    t.string   "print_highlights",         default: "original", null: false
+    t.string   "print_font_face",          default: "dagny",    null: false
+    t.string   "print_font_size",          default: "small",    null: false
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree

@@ -29,7 +29,7 @@
           <option value="no">No</option>
         </select>
         <% if ["collages", "playlists"].include?(params[:controller]) -%>
-        <strong>PRINT PARAGRAPH NUMBERS</strong>
+        <strong id="paragraph_n">PRINT PARAGRAPH NUMBERS</strong>
         <select id="printparagraphnumbers">
           <option value="yes" selected="selected">Yes</option>
           <option value="no">No</option>
@@ -52,7 +52,7 @@
         <% end %>
         <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
         <span id="fontface_span">
-        <strong>FONT FACE</strong>
+        <strong id="fontface_s">FONT FACE</strong>
         <select id="fontface">
           <option value="leitura">Leitura</option>
           <option value="garamond">Garamond</option>
@@ -63,7 +63,7 @@
         </select>
         </span>
         <% if ["cases", "text_blocks"].include?(params[:controller]) %> <br /> <% end %>
-        <strong>FONT SIZE</strong>
+        <strong id="fontsize_s">FONT SIZE</strong>
         <select id="fontsize">
           <option value="small" selected="selected">Small</option>
           <option value="medium">Medium</option>

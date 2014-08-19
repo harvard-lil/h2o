@@ -42,7 +42,7 @@ var collages = {
 
     $.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
       var set = $('#collage' + collage_id + ' div.article ' + selector);
-      set = set.filter(':not(:has(*:visible)):not(.paragraph-numbering)');
+      set = set.filter(':not(:visible):not(:has(*:visible)):not(.paragraph-numbering)');
       if(selector == 'em') {
         set = set.filter(':not(.original_content)');
       }
@@ -64,6 +64,42 @@ var collages = {
 
 var export_functions = {
   init: function() {
+    if($.cookie('user_id') !== null) {
+      if($.cookie('print_titles') == 'false') {
+        $('#printtitle').val('no');
+	      $('h1').hide();
+	      $('.playlists h3').hide();
+      }
+      if($.cookie('print_dates_details') == 'false') {
+        $('#printdetails').val('no');
+	      $('.details').hide();
+      }
+      if($.cookie('print_paragraph_numbers') == 'false') {
+        $('#printparagraphnumbers').val('no');
+	      $('.paragraph-numbering').hide();
+	      $('.collage-content').css('padding-left', '0px');
+      }
+      if($.cookie('print_annotations') == 'true') {
+        $('#printannotations').val('yes');
+        $('.annotation-content').show();
+      }
+      if($.cookie('print_highlights') == 'none') {
+        $('#printhighlights').val('none');
+	      $('.collage-content').each(function(i, el) {
+	        var id = $(el).data('id');
+	        export_functions.highlightCollage(id, {});
+	      });
+      } else if($.cookie('print_highlights') == 'all') {
+        $('#printhighlights').val('all');
+	      $('.collage-content').each(function(i, el) {
+	        var id = $(el).data('id');
+	        export_functions.highlightCollage(id, eval("layer_data_" + id));
+	      });
+      }
+      $('#fontface').val($.cookie('print_font_face'));
+      $('#fontsize').val($.cookie('print_font_size'));
+    }
+
 	  $('#fontface').selectbox({
 	    className: "jsb", replaceInvisible: true
 	  }).change(function() {
@@ -74,7 +110,7 @@ var export_functions = {
 	  }).change(function() {
 	    export_functions.setFontPrint();
 	  });
-	  $('#printannotations').val('no').selectbox({
+	  $('#printannotations').selectbox({
 	    className: "jsb", replaceInvisible: true
 	  }).change(function() {
       // Go through annotation content
@@ -84,7 +120,7 @@ var export_functions = {
         $('.annotation-content').hide();
       }
 	  });
-	
+
 	  $('#printtitle').selectbox({
 	    className: "jsb", replaceInvisible: true
 	  }).change(function() {
@@ -107,17 +143,6 @@ var export_functions = {
 	    }
 	    else {
 	      $('.details').hide();
-	    }
-	  });
-	  $('#printfontdetails').selectbox({
-	    className: "jsb", replaceInvisible: true
-	  }).change(function() {
-	    var choice = $(this).val();
-	    if (choice == 'yes') {
-	      $('.fontdetails').show();
-	    }
-	    else {
-	      $('.fontdetails').hide();
 	    }
 	  });
 	  $('#printparagraphnumbers').selectbox({
@@ -169,22 +194,23 @@ var export_functions = {
 	  export_functions.setFontPrint();
   },
   setFontPrint: function() {
-
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
+
+    var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
     if(font_face == 'verdana') {
-      $.rule("body .singleitem *, body .singleitem .article tt { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
+      $.rule(base_selector + " * { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
     } else {
-      $.rule("body .singleitem *, body .singleitem .article tt { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
+      $.rule(base_selector + " * { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
     }
-    $.rule('.singleitem *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('#additional_styles');
-    $.rule('.singleitem *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
   },
   loadAnnotator: function(id) {
     annotations = eval("annotations_" + id);
@@ -206,12 +232,16 @@ var export_functions = {
     return filtered_layer_data;
   },
   highlightCollage: function(collage_id, highlights) {
+    if(highlights === undefined) {
+      highlights = {};
+    }
     layer_data = export_functions.filteredLayerData(eval("layer_data_" + collage_id));
 
     var keys = new Array();
     $.each(highlights, function(i, j) {
       keys.push(collages.clean_layer(i));
     });
+
     $.each(layer_data, function(i, j) {
       if($.inArray(i, keys) == -1) {
         $('#collage' + collage_id + ' .layer-' + i).removeClass('highlight-' + i);
@@ -302,11 +332,6 @@ var export_functions = {
 };
 
 $(document).ready(function(){
-  if($('#playlist').size()) {
-    $('#printhighlights option:first').remove();
-    $('#printhighlights').val('none');
-  }
-
   $('.collage-content').each(function(i, el) {
     export_functions.loadAnnotator($(el).data('id')); 
   });

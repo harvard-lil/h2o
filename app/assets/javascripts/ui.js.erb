@@ -309,17 +309,17 @@ var h2o_global = {
     });
   },
   loadUserFonts: function() {
-    if($('#fontface a[data-value="' + $.cookie('font') + '"]').size() > 0 && $.cookie('font') != 'futura') {
+    if($('#fontface a[data-value="' + $.cookie('default_font') + '"]').size() > 0 && $.cookie('default_font') != 'futura') {
       $('#fontface a.active').removeClass('active');
-      $('#fontface a[data-value="' + $.cookie('font') + '"]').addClass('active');
+      $('#fontface a[data-value="' + $.cookie('default_font') + '"]').addClass('active');
     }
-    if($.cookie('font_size') == '13' || $.cookie('font_size') == '16' || $.cookie('font_size') == '19') {
+    if($.cookie('default_font_size') == '13' || $.cookie('default_font_size') == '16' || $.cookie('default_font_size') == '19') {
       $('#fontsize a.active').removeClass('active');
-      if($.cookie('font_size') == '13') {
+      if($.cookie('default_font_size') == '13') {
         $('#fontsize a[data-value="medium"]').addClass('active');
-      } else if($.cookie('font_size') == '16') {
+      } else if($.cookie('default_font_size') == '16') {
         $('#fontsize a[data-value="large"]').addClass('active');
-      } else if($.cookie('font_size') == '19') {
+      } else if($.cookie('default_font_size') == '19') {
         $('#fontsize a[data-value="xlarge"]').addClass('active');
       }
     }
@@ -365,8 +365,6 @@ var h2o_global = {
       h2o_global.setFont();
       h2o_global.resetFontSizeOptions();
     });
-    //var val = $.cookie('font_size');
-    //$.cookie('font_size', element.val(), { path: "/" });
   },
   setPlaylistFontHierarchy: function(base_font_size) {
     $.rule('body .main_wrapper .singleitem .listitem a.title { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('style');
@@ -751,18 +749,13 @@ var h2o_global = {
       h2o_global.setFontClasses();
       return;
     } else {
-      if(eval($.cookie('anonymous_user'))) {
-        _gaq.push(['_trackEvent', 'User Tick', 'Anonymous User']);
-        $('.requires_non_anonymous').remove(); 
-      } else {
-        _gaq.push(['_trackEvent', 'User Tick', 'User: ' + $.cookie('user_id')]);
-        $('.requires_non_anonymous').animate({ opacity: 1.0 });
-      }
+      _gaq.push(['_trackEvent', 'User Tick', 'User: ' + $.cookie('user_id')]);
+      $('.requires_non_anonymous').animate({ opacity: 1.0 });
       $('#singleitem_barcode_toolbar').slideDown();
       if($('body').data('action') == 'show' && $('body').attr('id') != 'users_show') {
         $('.leftcol, .right_panel').animate({ 'margin-top': '5px' });
       }
-      $('#user_account').append($('<a>').html($.cookie('display_name').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + $.cookie('user_id')));
+      $('#user_account').append($('<a>').html($.cookie('simple_display').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + $.cookie('user_id')));
       $('#defect_user_id').val($.cookie('user_id'));
       $('.requires_logged_in').animate({ opacity: 1.0 });
       $('#header_login').remove();
@@ -1297,13 +1290,17 @@ var h2o_global = {
     $('#generic-node').remove();
     var newItemNode = $('<div id="generic-node"></div>').html(html);
     var title = '';
+    var width = '700';
     if(newItemNode.find('#generic_title').length) {
       title = newItemNode.find('#generic_title').html();
+    }
+    if(title == 'Edit My Account') {
+      width = '900';
     }
     $(newItemNode).dialog({
       title: title,
       modal: true,
-      width: '700',
+      width: width,
       height: 'auto',
       open: function(event, ui) {
          if(newItemNode.find('#manage_users').length) {
@@ -1390,8 +1387,7 @@ var h2o_global = {
           } else {
             setTimeout(function() {
               var redirect_to = h2o_global.root_path() + data.type + '/' + data.id;
-              var use_new_tab = $.cookie('use_new_tab');
-              if(use_new_tab == 'true'){
+              if($.cookie('tab_open_new_items') == 'true') {
                 window.open(redirect_to, '_blank');
                 $('#generic-node').dialog('close');
                 h2o_global.hideGlobalSpinnerNode();
