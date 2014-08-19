@@ -46,6 +46,8 @@ gem 'rails_admin'
 gem 'cancan'
 gem 'kaminari'
 gem 'recaptcha'
+gem 'paperclip'
+gem 'ckeditor'
 
 group :development do
   gem 'sunspot_solr'

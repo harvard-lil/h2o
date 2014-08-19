@@ -1,0 +1,6 @@
+<div id="page">
+  <% if @page.slug != 'terms' -%>
+  <h1><%= @page.page_title %></h1>
+  <% end -%>
+  <%= raw @page.content %>
+</div>

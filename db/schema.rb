@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140818123358) do
+ActiveRecord::Schema.define(version: 20140819123717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -156,6 +156,22 @@ ActiveRecord::Schema.define(version: 20140818123358) do
   add_index "cases", ["short_name"], name: "index_cases_on_short_name", using: :btree
   add_index "cases", ["updated_at"], name: "index_cases_on_updated_at", using: :btree
 
+  create_table "ckeditor_assets", force: true do |t|
+    t.string   "data_file_name",               null: false
+    t.string   "data_content_type"
+    t.integer  "data_file_size"
+    t.integer  "assetable_id"
+    t.string   "assetable_type",    limit: 30
+    t.string   "type",              limit: 30
+    t.integer  "width"
+    t.integer  "height"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ckeditor_assets", ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable", using: :btree
+  add_index "ckeditor_assets", ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type", using: :btree
+
   create_table "collages", force: true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
@@ -195,6 +211,17 @@ ActiveRecord::Schema.define(version: 20140818123358) do
     t.string   "hex"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "content_images", force: true do |t|
+    t.string   "name"
+    t.integer  "page_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "image_file_name"
+    t.string   "image_content_type"
+    t.integer  "image_file_size"
+    t.datetime "image_updated_at"
   end
 
   create_table "defaults", force: true do |t|
@@ -349,6 +376,14 @@ ActiveRecord::Schema.define(version: 20140818123358) do
 
   add_index "metadata", ["classifiable_id"], name: "index_metadata_on_classifiable_id", using: :btree
   add_index "metadata", ["classifiable_type"], name: "index_metadata_on_classifiable_type", using: :btree
+
+  create_table "pages", force: true do |t|
+    t.string   "page_title", null: false
+    t.string   "slug",       null: false
+    t.text     "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "permission_assignments", force: true do |t|
     t.integer  "user_collection_id"

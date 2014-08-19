@@ -77,6 +77,8 @@ class Ability
       cannot [:view_in_app, :edit_in_app], Institution
       can [:import], [Default, Institution]
 
+      can [:new, :edit], Page
+
       can :approve, Case
       can [:new], CaseJurisdiction
       can [:create], :case_jurisdictions

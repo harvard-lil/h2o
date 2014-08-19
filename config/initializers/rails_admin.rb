@@ -134,12 +134,28 @@ RailsAdmin.config do |config|
     import
     export
 
+    edit
+    new
+
     delete
     edit_in_app
     view_in_app
   end
 
-  config.included_models = ['Playlist', 'Collage', 'Case', 'User', 'TextBlock', 'Media', 'Default', 'Institution']
+  config.included_models = ['Playlist', 'Collage', 'Case', 'User', 'TextBlock', 'Media', 'Default', 'Institution', 'Page']
+
+  config.model 'Page' do
+    list do
+      field :slug
+      field :page_title
+      field :updated_at
+    end
+    edit do
+      field :slug
+      field :page_title
+      field :content, :ck_editor
+    end
+  end
 
   config.model 'Collage' do
     list do

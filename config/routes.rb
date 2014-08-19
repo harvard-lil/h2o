@@ -1,4 +1,5 @@
 H2o::Application.routes.draw do
+  mount Ckeditor::Engine => '/ckeditor'
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
 
