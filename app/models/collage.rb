@@ -71,16 +71,15 @@ class Collage < ActiveRecord::Base
     collage_copy.valid_recaptcha = true
     collage_copy.featured = false
     self.annotations.each do |annotation|
-      new_annotation = annotation.clone
+      new_annotation = annotation.dup
       new_annotation.collage = collage_copy
       new_annotation.cloned = true
-      #copy tags
       new_annotation.layer_list = annotation.layer_list
       new_annotation.user = new_user
       new_annotation.save
     end
     self.color_mappings.each do |color_mapping|
-      color_mapping = color_mapping.clone
+      color_mapping = color_mapping.dup
       color_mapping.collage_id = collage_copy.id
       color_mapping.save
     end
