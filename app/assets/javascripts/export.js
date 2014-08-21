@@ -64,6 +64,16 @@ var collages = {
 
 var export_functions = {
   init: function() {
+    if(document.location.hash.match('fontface')) {
+      var vals = document.location.hash.replace('#', '').split('-');
+      for(var i in vals) {
+        var font_values = vals[i].split('=');
+        if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
+          $('#' + font_values[0]).val(font_values[1]);
+        }
+      }
+    }
+
     if($.cookie('user_id') !== null) {
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no');
@@ -182,15 +192,6 @@ var export_functions = {
 	    }
 	  });
 
-	  if(document.location.hash.match('fontface')) {
-	    var vals = document.location.hash.replace('#', '').split('-');
-	    for(var i in vals) {
-	      var font_values = vals[i].split('=');
-	      if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
-	        $('#' + font_values[0]).val(font_values[1]);
-	      }
-	    }
-	  }
 	  export_functions.setFontPrint();
   },
   setFontPrint: function() {
