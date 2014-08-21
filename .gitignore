@@ -24,3 +24,4 @@ solr/data/
 config/skylight.yml
 config/initializers/h2o_secret.rb
 config/dropbox_access_token/*
+public/ckeditor_assets/

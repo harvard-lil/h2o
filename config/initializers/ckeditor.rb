@@ -7,9 +7,7 @@ Ckeditor.setup do |config|
   require "ckeditor/orm/active_record"
 
   # Allowed image file types for upload.
-  # Set to nil or [] (empty array) for all file types
-  # By default: %w(jpg jpeg png gif tiff)
-  # config.image_file_types = ["jpg", "jpeg", "png", "gif", "tiff"]
+  config.image_file_types = ["jpg", "jpeg", "png", "gif"]
 
   # Allowed attachment file types for upload.
   # Set to nil or [] (empty array) for all file types

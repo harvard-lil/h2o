@@ -20,9 +20,10 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
   admin:
     actions:
+      view_in_app:
+        menu: "View in H2O"
       aggregate_items:
         menu: "Created / Deleted Stats"
         breadcrumb: "Created / Deleted Stats"

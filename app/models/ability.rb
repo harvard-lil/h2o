@@ -80,6 +80,7 @@ class Ability
       can [:import], [Default, Institution]
 
       can [:new, :edit], Page
+      cannot :edit_in_app, Page
 
       can :approve, Case
       can [:new], CaseJurisdiction

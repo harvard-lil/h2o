@@ -69,6 +69,8 @@ module RailsAdmin
           proc do
             if @object.is_a?(Media)
               redirect_to main_app.media_path(@object)
+            elsif @object.is_a?(Page)
+              redirect_to "/p/#{@object.slug}"
             else
               redirect_to main_app.url_for(@object)
             end
