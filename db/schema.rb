@@ -138,7 +138,7 @@ ActiveRecord::Schema.define(version: 20140819123717) do
     t.string   "content",              limit: 5242880,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                               default: true
+    t.boolean  "public",                               default: false
     t.integer  "case_request_id"
     t.integer  "karma"
     t.integer  "pushed_from_id"
