@@ -90,7 +90,7 @@ class UsersController < ApplicationController
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
      
       models = [Playlist, Collage, Case, Media, TextBlock, Default]
-      models << UserCollection if @user == current_user
+      # models << UserCollection if @user == current_user
 
       if params.has_key?(:klass)
         if params[:klass] == 'Media'

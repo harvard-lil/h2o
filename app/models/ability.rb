@@ -49,6 +49,7 @@ class Ability
       can :create, :dropbox_sessions
       can :show, BulkUpload, :user_id => user.id
 
+=begin
       # User Collection related permissions
       can :new, UserCollection
       can [:edit, :destroy, :update, :manage_users, :manage_playlists, :manage_collages, :manage_permissions, :update_permissions], UserCollection, :user_id => user.id
@@ -62,6 +63,7 @@ class Ability
       can [:show], Collage, :id => permissions_by_id[:view_private_collage]
       can [:show], Playlist, :id => permissions_by_id[:view_private_playlist]
       can [:position_update], Playlist, :id => permissions_by_id[:position_update]
+=end
       
       can [:edit, :update], User, :id => user.id
     end
