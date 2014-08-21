@@ -5,7 +5,7 @@ var tinyMCEPreInit = {
       convert_urls: false,
       mode: "textareas",
       menubar: false,
-      toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | fontsizeselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo help | fullscreen",
+      toolbar1: "bold italic strikethrough | bullist numlist blockquote | alignleft aligncenter alignright | link unlink | fontsizeselect formatselect underline alignjustify forecolor | pastetext pasteword removeformat | charmap | outdent indent | undo redo | fullscreen",
       fontsize_formats: "16px 20px 24px 28px 32px",
       theme_advanced_toolbar_location:"top",
       theme_advanced_toolbar_align:"left",

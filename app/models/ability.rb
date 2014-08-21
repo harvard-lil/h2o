@@ -85,6 +85,8 @@ class Ability
       can :approve, Case
       can [:new], CaseJurisdiction
       can [:create], :case_jurisdictions
+
+      can :show, BulkUpload
     elsif user.has_role? :case_admin
       can [:new, :edit, :update, :show, :destroy], Case
       can :create, :cases
