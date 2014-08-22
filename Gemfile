@@ -48,6 +48,7 @@ gem 'kaminari'
 gem 'recaptcha'
 gem 'paperclip'
 gem 'ckeditor'
+gem 'warden'
 
 group :development do
   gem 'sunspot_solr'

@@ -16,7 +16,14 @@ Ckeditor.setup do |config|
 
   # Setup authorization to be run as a before filter
   # By default: there is no authorization.
-  # config.authorize_with :cancan
+  config.authorize_with do
+    current_user_session = UserSession.find
+    if current_user_session && current_user_session.record.has_role?(:superadmin)
+      # Hooray, pass
+    else
+      redirect_to "/"
+    end
+  end
 
   # Asset model classes
   # config.picture_model { Ckeditor::Picture }
@@ -26,12 +33,8 @@ Ckeditor.setup do |config|
   # By default: 24
   # config.default_per_page = 24
 
-  # Customize ckeditor assets path
-  # By default: nil
-  # config.asset_path = "http://www.example.com/assets/ckeditor/"
-
   # To reduce the asset precompilation time, you can limit plugins and/or languages to those you need:
   # By default: nil (no limit)
-  # config.assets_languages = ['en', 'uk']
-  # config.assets_plugins = ['image', 'smiley']
+  config.assets_languages = ['en']
+  #config.assets_plugins = ['image', 'smiley']
 end
