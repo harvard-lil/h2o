@@ -345,7 +345,8 @@ var collages = {
       h2o_global.showGlobalSpinnerNode();
       $(this).hide();
       $('#hide_paragraph_numbers a').show();
-      $('.paragraph-numbering').show();
+      $('.singleitem div.article p,.singleitem div.article h2, .singleitem div.article h3, .singleitem div.article h4').css('margin-left', '1.8em');
+      $('.paragraph-numbering').css('opacity', 1.0);
       h2o_global.hideGlobalSpinnerNode();
     });
     $('#hide_paragraph_numbers a').click(function(e) {
@@ -353,7 +354,8 @@ var collages = {
       h2o_global.showGlobalSpinnerNode();
       $(this).hide();
       $('#show_paragraph_numbers a').show();
-      $('.paragraph-numbering').hide();
+      $('.singleitem div.article p,.singleitem div.article h2, .singleitem div.article h3, .singleitem div.article h4').css('margin-left', '0.0em');
+      $('.paragraph-numbering').css('opacity', 0.0);
       h2o_global.hideGlobalSpinnerNode();
     });
 
@@ -476,6 +478,9 @@ var collages = {
         data.highlights[$(el).parent().data('name')] = $(el).parent().data('hex');
       }
     });
+    if($('.paragraph-numbering').size() && $('.paragraph-numbering:visible').css('opacity') == 0.0) {
+      data.paragraph_numbering = 'hidden';
+    }
 
     return data;
   },
@@ -511,6 +516,13 @@ var collages = {
         collages.rehighlight();
       }
     });
+
+    if(data.paragraph_numbering !== undefined && data.paragraph_numbering == 'hidden') {
+      $('#hide_paragraph_numbers a').click();
+    } else {
+      $('.paragraph-numbering').css('opacity', 1.0);
+    }
+
     collages.hideShowUnlayeredOptions();
     $.each($('ul#layers li'), function(i, el) {
       if($('.layer-' + collages.clean_layer($(el).data('name') + ':visible')).size() == 0) {
