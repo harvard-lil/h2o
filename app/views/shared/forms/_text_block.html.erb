@@ -21,7 +21,6 @@
       </div>
       <%= form.input(:description, :label => 'Textual Content', :as => :text, :hint => raw(%Q|This is where you post the HTML that comprises the content of the text. It should not be wrapped in (or include) &lt;body&gt;, &lt;html&gt;, &lt;head&gt; or other high-level structural tags. Click #{image_tag('preview.png')} in the toolbar to preview.|) )
       %>
-      <%= form.input :mime_type, :input_html => { :value => "text/html" }, :as => :hidden %>
     <% end %>
     <%= form.input :tag_list,
       :as => :string,

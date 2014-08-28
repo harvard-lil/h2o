@@ -8,9 +8,6 @@ class TextBlock < ActiveRecord::Base
   include DeletedItemExtensions
   include FormattingExtensions
 
-  MIME_TYPES = {
-    'text/html' => 'HTML formatted text'
-  }
   RATINGS_DISPLAY = {
     :collaged => "Collaged",
     :bookmark => "Bookmarked",
@@ -26,7 +23,6 @@ class TextBlock < ActiveRecord::Base
   belongs_to :user
 
   accepts_nested_attributes_for :metadatum
-  validates_inclusion_of :mime_type, :in => MIME_TYPES.keys
 
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
@@ -43,13 +39,11 @@ class TextBlock < ActiveRecord::Base
   #Export the content that gets annotated in a Collage - also, render the content for display.
   #As always, the content method should export valid html/XHTML.
   def content
-    if mime_type == 'text/plain'
-      self.class.format_content(description)
-    elsif mime_type == 'text/html'
-      self.class.format_html(description)
-    else
-      self.class.format_content(description)
-    end
+    ActionController::Base.helpers.sanitize(
+      self.description,
+      :tags => WHITELISTED_TAGS + ["sup", "sub", "pre"],
+      :attributes => WHITELISTED_ATTRIBUTES + ["style", "name"]
+    )
   end
 
   alias :to_s :display_name

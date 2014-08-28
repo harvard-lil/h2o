@@ -146,10 +146,10 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
-  def editable_content_v2
+  def editable_content
     return '' if self.annotatable.nil?
 
-    doc = Nokogiri::HTML.parse(self.annotatable.content)
+    doc = Nokogiri::HTML.parse(self.annotatable.content.gsub(/\r\n/, ''))
 
     # Footnote markup
     doc.css("a").each do |li|
@@ -159,7 +159,13 @@ class Collage < ActiveRecord::Base
     end
 
     count = 1
-    doc.xpath('//p[not(ancestor::center)] | //center | //h2[not(ancestor::center)]').each do |node|
+
+    children_nodes = doc.xpath('/html/body').children
+    if children_nodes.size == 1 && self.annotatable.content.match('^<div>')
+      children_nodes = children_nodes.first.children
+    end
+
+    children_nodes.each do |node|
       if node.children.any? && node.text != ''
 	      first_child = node.children.first
 	      control_node = Nokogiri::XML::Node.new('a', doc)
@@ -169,42 +175,6 @@ class Collage < ActiveRecord::Base
 	      control_node.inner_html = "#{count}"
 	      first_child.add_previous_sibling(control_node)
 	      count += 1
-      end
-    end
-
-    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
-  end
-
-  def editable_content
-    doc = Nokogiri::HTML.parse(self.content)
-
-    # Footnote markup
-    doc.css("a").each do |li|
-      if li['href'] =~ /^#/
-        li['class'] = 'footnote'
-      end
-    end
-
-    # data-id markup
-    x = 1
-    doc.xpath('//tt').each do |node|
-      node['data-id'] = x.to_s
-      x+=1
-    end
-
-    count = 1
-    doc.xpath('//p[not(ancestor::center)] | //center | //h2[not(ancestor::center)]').each do |node|
-      #FIXME: xpath tt isn't working because it's not selecting all children
-      tt_size = node.css('tt').size
-      if node.children.size > 0 && tt_size > 0
-        first_child = node.children.first
-        control_node = Nokogiri::XML::Node.new('a', doc)
-        control_node['id'] = "paragraph#{count}"
-        control_node['href'] = "#p#{count}"
-        control_node['class'] = "paragraph-numbering scale0-9"
-        control_node.inner_html = "#{count}"
-        first_child.add_previous_sibling(control_node)
-        count += 1
       end
     end
 

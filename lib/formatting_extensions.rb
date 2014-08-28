@@ -21,14 +21,6 @@ module FormattingExtensions
       output.gsub(/&#8217;/, "'")
     end
 
-    def format_html(*args)
-      ActionController::Base.helpers.sanitize(
-        args.join(' '),
-        :tags => WHITELISTED_TAGS, 
-        :attributes => WHITELISTED_ATTRIBUTES + ["style", "name"]
-      )
-    end
-
     def insert_column_names
       self.columns.reject{|col| col.name == "id"}.map(&:name)
     end

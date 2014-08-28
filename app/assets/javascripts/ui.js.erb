@@ -74,10 +74,11 @@ var h2o_global = {
     });
   },
   adjustArticleHeaderSizes: function() {
-    $('article h1').addClass('scale1-4');
-    $('article h2').addClass('scale1-3');
-    $('article h3').addClass('scale1-2');
-    $('article h4').addClass('scale1-1');
+    $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
+    $('article h1, div.article h1').addClass('scale1-4');
+    $('article h2, div.article h2').addClass('scale1-3');
+    $('article h3, div.article h3').addClass('scale1-2');
+    $('article h4, div.article h4').addClass('scale1-1');
   },
   observeDefaultPrintListener: function() {
     if(h2o_global.class_type() != 'collages') {
@@ -403,6 +404,7 @@ var h2o_global = {
     $.rule('.main_wrapper .singleitem *.scale1-0, body .main_wrapper .singleitem div.article *.scale1-0 { font-size: ' + base_font_size*1.0 + 'px; }').appendTo('style');
     $.rule('.main_wrapper .singleitem *.scale0-9, body .main_wrapper .singleitem div.article *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('style');
     $.rule('.main_wrapper .singleitem *.scale0-8, body .main_wrapper .singleitem div.article *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
+    $.rule('.main_wrapper .singleitem *.scale0-8 *, body .main_wrapper .singleitem div.article *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('style');
     h2o_global.setPlaylistFontHierarchy(base_font_size);
     h2o_global.adjustTooltipPosition();
     if($('body').attr('id') == 'collages_show' && h2o_annotator !== undefined) {

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140819123717) do
+ActiveRecord::Schema.define(version: 20140825181727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -138,7 +138,7 @@ ActiveRecord::Schema.define(version: 20140819123717) do
     t.string   "content",              limit: 5242880,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                               default: false
+    t.boolean  "public",                               default: true
     t.integer  "case_request_id"
     t.integer  "karma"
     t.integer  "pushed_from_id"
@@ -189,6 +189,7 @@ ActiveRecord::Schema.define(version: 20140819123717) do
     t.integer  "user_id",                           default: 0,     null: false
     t.integer  "annotator_version",                 default: 2,     null: false
     t.boolean  "featured",                          default: false, null: false
+    t.text     "viewable_html"
   end
 
   add_index "collages", ["ancestry"], name: "index_collages_on_ancestry", using: :btree
@@ -651,19 +652,17 @@ ActiveRecord::Schema.define(version: 20140819123717) do
   add_index "tags", ["name"], name: "index_tags_on_name", using: :btree
 
   create_table "text_blocks", force: true do |t|
-    t.string   "name",                                                  null: false
-    t.string   "description",    limit: 5242880,                        null: false
-    t.string   "mime_type",      limit: 50,      default: "text/plain"
+    t.string   "name",                                          null: false
+    t.string   "description",    limit: 5242880,                null: false
     t.boolean  "public",                         default: true
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "karma"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                        default: 0,            null: false
+    t.integer  "user_id",                        default: 0,    null: false
   end
 
   add_index "text_blocks", ["created_at"], name: "index_text_blocks_on_created_at", using: :btree
-  add_index "text_blocks", ["mime_type"], name: "index_text_blocks_on_mime_type", using: :btree
   add_index "text_blocks", ["name"], name: "index_text_blocks_on_name", using: :btree
   add_index "text_blocks", ["updated_at"], name: "index_text_blocks_on_updated_at", using: :btree
 

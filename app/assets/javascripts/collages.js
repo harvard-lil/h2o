@@ -345,7 +345,7 @@ var collages = {
       h2o_global.showGlobalSpinnerNode();
       $(this).hide();
       $('#hide_paragraph_numbers a').show();
-      $('.singleitem div.article p,.singleitem div.article h2, .singleitem div.article h3, .singleitem div.article h4').css('margin-left', '1.8em');
+      $('.singleitem div.article > *').css('margin-left', '1.8em');
       $('.paragraph-numbering').css('opacity', 1.0);
       h2o_global.hideGlobalSpinnerNode();
     });
@@ -354,7 +354,7 @@ var collages = {
       h2o_global.showGlobalSpinnerNode();
       $(this).hide();
       $('#show_paragraph_numbers a').show();
-      $('.singleitem div.article p,.singleitem div.article h2, .singleitem div.article h3, .singleitem div.article h4').css('margin-left', '0.0em');
+      $('.singleitem div.article > *').css('margin-left', '0.0em');
       $('.paragraph-numbering').css('opacity', 0.0);
       h2o_global.hideGlobalSpinnerNode();
     });

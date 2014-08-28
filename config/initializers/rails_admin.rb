@@ -232,7 +232,7 @@ RailsAdmin.config do |config|
       field :id
       field :login
       field :email_address
-      field :institutions
+      field :created_at
     end
   end
 end

@@ -3,7 +3,7 @@
 <div class="collage-content" id="collage<%= collage.id %>" data-id="<%= collage.id %>">
 <div class="article">
 <% cache(["editable-content", collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
-<%= raw collage.editable_content_v2 %>
+<%= raw collage.editable_content %>
 <% end -%>
 </div>
 </div>

@@ -211,7 +211,7 @@ var export_functions = {
     $.rule(base_selector + ' *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('#additional_styles');
     $.rule(base_selector + ' *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('#additional_styles');
     $.rule(base_selector + ' *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale0-8 { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
+    $.rule(base_selector + ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
   },
   loadAnnotator: function(id) {
     annotations = eval("annotations_" + id);
@@ -333,6 +333,12 @@ var export_functions = {
 };
 
 $(document).ready(function(){
+  $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
+  $('article h1, div.article h1').addClass('scale1-4');
+  $('article h2, div.article h2').addClass('scale1-3');
+  $('article h3, div.article h3').addClass('scale1-2');
+  $('article h4, div.article h4').addClass('scale1-1');
+
   $('.collage-content').each(function(i, el) {
     export_functions.loadAnnotator($(el).data('id')); 
   });

@@ -89,8 +89,8 @@
 
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
   <div class="article">
+    <%= raw @collage.editable_content %>
 	  <% cache(["editable-content", @collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
-    <%= raw @collage.editable_content_v2 %>
     <% end -%>
   </div>
 </div>
