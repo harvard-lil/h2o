@@ -138,7 +138,7 @@ ActiveRecord::Schema.define(version: 20140825181727) do
     t.string   "content",              limit: 5242880,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                               default: true
+    t.boolean  "public",                               default: false
     t.integer  "case_request_id"
     t.integer  "karma"
     t.integer  "pushed_from_id"
@@ -189,7 +189,6 @@ ActiveRecord::Schema.define(version: 20140825181727) do
     t.integer  "user_id",                           default: 0,     null: false
     t.integer  "annotator_version",                 default: 2,     null: false
     t.boolean  "featured",                          default: false, null: false
-    t.text     "viewable_html"
   end
 
   add_index "collages", ["ancestry"], name: "index_collages_on_ancestry", using: :btree
