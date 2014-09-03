@@ -38,6 +38,7 @@ class DropboxImporter
     file_contents = @dh2o.get_file(path)
     begin
       new_instance = @klass.new_from_xml_file(file_contents)
+      new_instance.public = false
     rescue Exception => e
       Import.create!(:dropbox_filepath => e.message)
     end
