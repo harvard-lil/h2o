@@ -163,7 +163,9 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :public
-      field :user
+      field :user do
+        searchable [:login, :email_address]
+      end
       field :created_at
     end
   end
@@ -172,7 +174,9 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :public
-      field :user
+      field :user do
+        searchable [:login, :email_address]
+      end
       field :created_at
     end
   end
@@ -181,7 +185,9 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :public
-      field :user
+      field :user do
+        searchable [:login, :email_address]
+      end
       field :created_at
     end
   end
@@ -191,7 +197,9 @@ RailsAdmin.config do |config|
     list do
       field :name
       field :public
-      field :user
+      field :user do
+        searchable [:login, :email_address]
+      end
       field :created_at
     end
   end
@@ -202,7 +210,9 @@ RailsAdmin.config do |config|
       field :name
       field :url
       field :public
-      field :user
+      field :user do
+        searchable [:login, :email_address]
+      end
       field :created_at
     end
   end
@@ -211,8 +221,6 @@ RailsAdmin.config do |config|
     list do
       field :display_name
       field :public
-      field :user
-      field :user
       field :created_at
     end
   end
