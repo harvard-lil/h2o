@@ -78,6 +78,8 @@ H2o::Application.routes.draw do
     collection do
       get 'embedded_pager'
       get 'playlist_lookup'
+      get 'import'
+      post 'submit_import'
     end
   end
   resources :playlist_items do

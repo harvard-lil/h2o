@@ -34,6 +34,9 @@ jQuery(document).ready(function(){
   if($('body').data('controller') == 'medias' || $('body').data('controller') == 'users' || $('body').data('action') == 'show') {
     return;
   }
+  if($('body').attr('id') == 'playlists_import') {
+    return;
+  }
   var init, ed, qt, first_init, mce = false;
 
   if ( typeof(tinymce) == 'object' ) {

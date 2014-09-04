@@ -166,6 +166,19 @@ class Playlist < ActiveRecord::Base
     end
     t
   end
+  
+  def all_actual_items
+    t = []
+    self.playlist_items.each do |pi|
+      t << pi.actual_object if pi.actual_object.present?
+      if pi.actual_object_type == "Playlist" && pi.actual_object.present?
+        pi.actual_object.all_actual_items.each do |b|
+          t << b
+        end
+      end
+    end
+    t
+  end
 
   def contains_item?(item_key)
     self.playlist_items.map { |pi| "#{pi.actual_object_type}#{pi.actual_object_id}" }.include?(item_key)

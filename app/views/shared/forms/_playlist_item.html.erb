@@ -23,7 +23,6 @@
         <input type="checkbox" name="playlist_item[public_notes]" <%= raw 'checked="checked"' if @playlist_item.public_notes %> />
       </li>
       <% end -%>
-      <%= form.input(:url, :as => :hidden) %>
       <%= form.input(:playlist_id, :as => :hidden) %>
       <%= form.input(:position, :as => :hidden) %>
       <%= form.input(:actual_object_type, :as => :hidden) %>

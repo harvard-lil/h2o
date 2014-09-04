@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140825181727) do
+ActiveRecord::Schema.define(version: 20140903203519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -144,6 +144,7 @@ ActiveRecord::Schema.define(version: 20140825181727) do
     t.integer  "pushed_from_id"
     t.boolean  "sent_in_cases_list",                   default: false
     t.integer  "user_id",                              default: 0,     null: false
+    t.boolean  "created_via_import",                   default: false, null: false
   end
 
   add_index "cases", ["author"], name: "index_cases_on_author", using: :btree
@@ -175,20 +176,21 @@ ActiveRecord::Schema.define(version: 20140825181727) do
   create_table "collages", force: true do |t|
     t.string   "annotatable_type"
     t.integer  "annotatable_id"
-    t.string   "name",              limit: 250,                     null: false
-    t.string   "description",       limit: 5120
+    t.string   "name",               limit: 250,                     null: false
+    t.string   "description",        limit: 5120
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "word_count"
     t.string   "ancestry"
-    t.boolean  "public",                            default: true
-    t.string   "readable_state",    limit: 5242880
+    t.boolean  "public",                             default: true
+    t.string   "readable_state",     limit: 5242880
     t.integer  "words_shown"
     t.integer  "karma"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                           default: 0,     null: false
-    t.integer  "annotator_version",                 default: 2,     null: false
-    t.boolean  "featured",                          default: false, null: false
+    t.integer  "user_id",                            default: 0,     null: false
+    t.integer  "annotator_version",                  default: 2,     null: false
+    t.boolean  "featured",                           default: false, null: false
+    t.boolean  "created_via_import",                 default: false, null: false
   end
 
   add_index "collages", ["ancestry"], name: "index_collages_on_ancestry", using: :btree
@@ -225,17 +227,18 @@ ActiveRecord::Schema.define(version: 20140825181727) do
   end
 
   create_table "defaults", force: true do |t|
-    t.string   "name",           limit: 1024
-    t.string   "url",            limit: 1024,                   null: false
-    t.string   "description",    limit: 5242880
-    t.boolean  "public",                         default: true
+    t.string   "name",               limit: 1024
+    t.string   "url",                limit: 1024,                    null: false
+    t.string   "description",        limit: 5242880
+    t.boolean  "public",                             default: true
     t.integer  "karma"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "pushed_from_id"
     t.string   "content_type"
-    t.integer  "user_id",                        default: 0,    null: false
+    t.integer  "user_id",                            default: 0,     null: false
     t.string   "ancestry"
+    t.boolean  "created_via_import",                 default: false, null: false
   end
 
   create_table "defects", force: true do |t|
@@ -343,13 +346,14 @@ ActiveRecord::Schema.define(version: 20140825181727) do
     t.string   "name"
     t.text     "content"
     t.integer  "media_type_id"
-    t.boolean  "public",                         default: true
+    t.boolean  "public",                             default: true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "description",    limit: 5242880
+    t.string   "description",        limit: 5242880
     t.integer  "karma"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                        default: 0,    null: false
+    t.integer  "user_id",                            default: 0,     null: false
+    t.boolean  "created_via_import",                 default: false, null: false
   end
 
   create_table "metadata", force: true do |t|
@@ -410,7 +414,6 @@ ActiveRecord::Schema.define(version: 20140825181727) do
     t.boolean  "public_notes",                    default: true, null: false
     t.integer  "pushed_from_id"
     t.string   "name",               limit: 1024
-    t.string   "url",                limit: 1024
     t.text     "description"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
@@ -419,21 +422,22 @@ ActiveRecord::Schema.define(version: 20140825181727) do
   add_index "playlist_items", ["position"], name: "index_playlist_items_on_position", using: :btree
 
   create_table "playlists", force: true do |t|
-    t.string   "name",           limit: 1024
+    t.string   "name",               limit: 1024
     t.text     "description"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public",                      default: true
+    t.boolean  "public",                          default: true
     t.string   "ancestry"
     t.integer  "position"
-    t.integer  "counter_start",               default: 1,     null: false
+    t.integer  "counter_start",                   default: 1,     null: false
     t.integer  "karma"
     t.integer  "pushed_from_id"
     t.integer  "location_id"
     t.string   "when_taught"
-    t.integer  "user_id",                     default: 0,     null: false
-    t.boolean  "primary",                     default: false, null: false
-    t.boolean  "featured",                    default: false, null: false
+    t.integer  "user_id",                         default: 0,     null: false
+    t.boolean  "primary",                         default: false, null: false
+    t.boolean  "featured",                        default: false, null: false
+    t.boolean  "created_via_import",              default: false, null: false
   end
 
   add_index "playlists", ["ancestry"], name: "index_playlists_on_ancestry", using: :btree
@@ -651,14 +655,15 @@ ActiveRecord::Schema.define(version: 20140825181727) do
   add_index "tags", ["name"], name: "index_tags_on_name", using: :btree
 
   create_table "text_blocks", force: true do |t|
-    t.string   "name",                                          null: false
-    t.string   "description",    limit: 5242880,                null: false
-    t.boolean  "public",                         default: true
+    t.string   "name",                                               null: false
+    t.string   "description",        limit: 5242880,                 null: false
+    t.boolean  "public",                             default: true
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "karma"
     t.integer  "pushed_from_id"
-    t.integer  "user_id",                        default: 0,    null: false
+    t.integer  "user_id",                            default: 0,     null: false
+    t.boolean  "created_via_import",                 default: false, null: false
   end
 
   add_index "text_blocks", ["created_at"], name: "index_text_blocks_on_created_at", using: :btree

@@ -71,6 +71,15 @@ h2o_global.playlist_afterload = function(results) {
     playlists_show.playlist_mark_private($.cookie('user_id'), false);
     $('.requires_edit, .requires_remove').remove();
   }
+  /*
+  if(results.is_superadmin) {
+    var node = $('<div>').attr('id', 'reassign');
+    node.append($('<span>').html('Reassign ownership'));
+    node.append($('<input>').attr('id', 'ownership_user_id'));
+    node.append($('<a>').attr('id', 'reassign_ownership').html('Submit').addClass('button'));
+    $('#description').append(node);
+  }
+  */
   if($('.right_panel:visible').size() == 0) {
     $('#stats').fadeIn(200, function() {
       h2o_global.resetRightPanelThreshold();

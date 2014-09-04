@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 class PlaylistsController < BaseController
-  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy, :toggle_nested_private]
+  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy, :toggle_nested_private, :submit_import]
   
   cache_sweeper :playlist_sweeper
   caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').present? && c.instance_variable_get('@playlist').public? }
@@ -227,6 +227,82 @@ class PlaylistsController < BaseController
     @playlist.toggle_nested_private
 
     render :json => { :updated_count => @playlist.nested_private_resources.count }
+  end
+
+  def import
+  end
+
+  def submit_import
+    results = validate_nested(params["data"]["0"])
+    if results[:errors].any?
+      render :json => { :success => false, :message => results[:errors].join('. ') }
+    else
+      parent_playlist = create_item_from_import(params["data"]["0"])
+      render :json => { :playlist_id => parent_playlist.id, :success => true }
+    end
+  end
+
+  def validate_nested(data)
+    if data.has_key?("h2o_item_id")
+      existing_item = data["type"].classify.constantize.where(id: data["h2o_item_id"])
+      if existing_item.empty?
+        return { :errors => ["Could not find #{data["type"]} with id #{data["h2o_item_id"]}"], :data => data }
+      else
+        # MAYBE TODO: Add error message if item is private and not owned by current user
+        data["new_item"] = existing_item.first
+        return { :errors => [], :data => data }
+      end
+    end
+
+    if data["type"] == 'media'
+      klass = Media
+    else
+      klass = data["type"].classify.constantize
+    end
+    new_item = klass.new({ 
+      :name => data["name"], 
+      :description => data["description"], 
+      :user_id => current_user.id, 
+      :public => false, 
+      :created_via_import => true
+    })
+    new_item.valid_recaptcha = true
+    if new_item.is_a?(Default)
+      new_item.url = data["url"]
+    end
+    if new_item.is_a?(Media)
+      new_item.media_type = MediaType.where(slug: data["media_type"]).first
+      new_item.content = data["content"]
+    end
+    item_errors = []
+    if !new_item.valid?
+      item_errors << "For '#{data["name"]}', #{new_item.errors.full_messages.join(', ')}"
+    end
+    if data["has_children"] == "true" && data["type"] == "playlist"
+      data["children"].each do |a, b|
+        results = validate_nested(b)
+        item_errors << results[:errors]
+      end
+    end
+    data["new_item"] = new_item
+    return { :errors => item_errors.flatten, :data => data }
+  end
+
+  def create_item_from_import(data)
+    data["new_item"].save
+    if data["has_children"] == "true" && data["type"] == "playlist"
+      position = 0
+      data["children"].each do |a, b|
+        child_item = create_item_from_import(b)
+        playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id, 
+                                           :actual_object_type => child_item.class.to_s, 
+                                           :position => position,
+                                           :name => child_item.name,
+                                           :playlist_id => data["new_item"].id })
+        position += 1
+      end
+    end
+    return data["new_item"]
   end
 
   private

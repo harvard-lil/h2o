@@ -20,7 +20,7 @@ class Ability
       can [:new, :create], :users
       return
     else
-      can :playlist_lookup, :playlists
+      can [:playlist_lookup], :playlists
       can :collage_lookup, :collages
       can [:user_lookup, :playlists, :disconnect_canvas, :disconnect_dropbox], :users
       can :create, :defects
@@ -71,7 +71,8 @@ class Ability
     if user.has_role? :superadmin
       can :access, :rails_admin
       can :dashboard, :all
-      can [:index, :export, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit, 
+      can [:import, :submit_import], :playlists
+      can [:index, :export, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
            :update, :position_update, :update_notes, :delete_inherited_annotations, :save_readable_state],
         :all
       can :aggregate_items, [Collage, Media, Playlist, TextBlock, Default, User]

@@ -1,0 +1,238 @@
+// TODO: Collage Import, potential remix or collage on the fly here
+var playlists_import = {
+  playlist_indicator: '#',
+  type_map: { C: 'collage', L: 'default', M: 'media', P: 'playlist', T: 'text_block', A: 'case' },
+  initialize: function() {
+    $('#playlist_input textarea').autosize();
+    $('#playlist_input textarea').on('keyup', function() {
+      playlists_import.render_playlist_html(playlists_import.generate_data(true)); 
+    });
+    playlists_import.render_playlist_html(playlists_import.generate_data(true)); 
+    $('#import_playlist').on('click', function(e) {
+      $('#success_message').remove();
+      e.preventDefault();
+      if($(this).hasClass('inactive')) {
+        return;
+      }
+      $.ajax({
+        type: 'post',
+        dataType: 'json',
+        url: '/playlists/submit_import',
+        data: { data: playlists_import.generate_data(false) },
+        beforeSend: function() {
+          h2o_global.showGlobalSpinnerNode();
+        },
+        success: function(data) {
+          if(data.success) {
+            $('#playlist_render #render').css('opacity', '0.5');
+            $('#import_playlist').addClass('inactive');
+            $('<p>').attr('id', 'success_message').html('Your content has been created. Please view the parent playlist <a target="_blank" href="/playlists/' + data.playlist_id + '">here</a>.').insertAfter($('#import_playlist'));
+          } else {
+            $('<p>').attr('id', 'success_message').html(data.message).insertAfter($('#import_playlist'));
+          }
+        },
+        complete: function() {
+          h2o_global.hideGlobalSpinnerNode();
+        },
+        error: function(data) {
+          $('<p>').attr('id', 'success_message').html('Could not complete your request. Please try again.').insertAfter($('#import_playlist'));
+        }
+      });
+      
+    });
+  },
+  generate_data: function(modify_root_key) {
+    var lines = $('#playlist_input textarea').val().split('\n');
+    lines.push('ENDCONTENT');
+    var data = [ { type: "playlist", children: [], root: true, level: 0, user: user_display } ];
+    var current_playlist = data[0];
+    var current_item = data[0];
+    var current_nest_level = 0;
+    var parent_playlist = undefined;
+    var working_content = '';
+    for(var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if(line.match(/^name:/) || line.match(/^description:/) || line.match(/^h2o_item:/) || line.match(/^#/) || line.match(/^url:/) || line.match(/^media_type:/) || line.match(/^content:/) || line == 'ENDCONTENT') {
+        if(working_content.match(/^url:/)) {
+          current_item.url = working_content.replace(/^url:/, '');
+          current_item.has_url = true;
+        } else if(working_content.match(/^name:/) || working_content.match(/^description:/) || working_content.match(/^media_type:/) || working_content.match(/^content:/)) {
+          if(current_item['h2o_item_id'] === undefined) {
+            var key = working_content.split(':')[0];
+            if(current_nest_level == 0 && modify_root_key) {
+              key = 'root_' + key;  
+            }
+            var all_content = working_content.split(':');
+            all_content.shift();
+            current_item[key] = all_content.join(':');
+            if(key == 'content') {
+              if(current_item.content.length > 50) {
+                current_item.abbreviated_content = 'Media Content: ' + current_item.content.substr(0,50) + '...';
+              } else {
+                current_item.abbreviated_content = 'Media Content: ' + current_item.content;
+              }
+            }
+          }
+        } else if(working_content.match(/^h2o_item:/)) {
+          var key = 'link';
+          var full_link = working_content.split(':http:\/\/')[1];
+          var relative_link = '';
+          $.each(full_link.split('/'), function(i, j) {
+            if(j.match(/law.harvard.edu/)) {
+              //do nothing
+            }
+            else if(j.match(/^[0-9]*/)) {
+              current_item['h2o_item_id'] = j;
+            }
+          });
+          current_item['name'] = "Inherited Name";
+          if(current_item['type'] == 'case' || current_item['type'] == 'collage') {
+            current_item['description'] = "Inherited description from original " + current_item['type'];
+          } else {
+            current_item['description'] = "Inherited description from " + current_item['type'];
+          }
+        }
+        else if(working_content.match(/^#/)) {
+          var this_nest_level = working_content.match(/^#*/)[0].length;
+          if(this_nest_level > current_nest_level) {
+            parent_playlist = current_playlist;
+            current_playlist = current_item;
+            current_nest_level = this_nest_level;
+          } else if(this_nest_level < current_nest_level) {
+            current_nest_level = current_nest_level - 1;
+            current_playlist = parent_playlist;
+          } 
+          if(working_content.match(/^#*[A-Z]/)) {
+            var type_char = working_content.match(/^#*[A-Z]/)[0].slice(this_nest_level);
+            var type = playlists_import.type_map[type_char];
+            if(type === undefined) {
+              type = 'unknown';
+            }
+            var new_item = { type: type, children: [], root: false, has_children: false, name: '', description: '', level: this_nest_level, has_url: false, media_type: false };
+            current_playlist.has_children = true;
+            current_playlist.children.push(new_item);
+            current_item = new_item;
+          }
+        }
+        working_content = line;
+      } else {
+        working_content += line;
+      }
+    }
+    return data;
+  },
+  set_positions: function(data) {
+    var level = 1;
+    while($('#playlist_render #render li[data-level="' + level + '"]').size()) {
+      $.each($('#playlist_render #render li[data-level="' + level + '"]'), function(i, el) {
+        var prefix = '';
+        if($(el).parents('.listitem').size()) {
+          prefix = $(el).parents('.listitem:first').find('.number:first').html() + '.';
+        }
+        var index = $(el).parent().find('> li').index($(el));
+        $(el).data('position', index);
+        var new_value = prefix + (index + 1);
+        $(el).find('.number').html(new_value);
+      });
+      level += 1;
+    }
+  },
+  render_playlist_html: function(data) {
+    $('#playlist_render #render').fadeOut(50, function() {
+      $('#playlist_render #render').html('');
+      $('#playlist_render #render').append($.mustache('{{> playlist }}', data[0], { playlist: playlists_import.recursive }));
+      $.each($('#playlist_render #render ul'), function(i, el) {
+        $(el).find('li:last').addClass('last-li');
+      });
+      playlists_import.set_positions(data);
+      $.each($('#playlist_render #render li'), function(i, list_item) {
+        var errors = [];
+        var has_error = false;
+        if($(list_item).find('.name .title').html() == '') {
+          errors.push('Name missing');
+        }
+        if($(list_item).data('type') == 'text_block' && $(list_item).find('.description').html() == '') {
+          errors.push('Description/content missing');
+        }
+        if($(list_item).data('type') == 'media') {
+          if($(list_item).find('.icon').data('media_type') == '') {
+            errors.push('Missing media_type. Options include "video", "audio", "pdf", "image"');
+          } else {
+            var media_type = $(list_item).find('.icon').data('media_type');
+            if(!(media_type == 'pdf' || media_type == 'video' || media_type == 'audio' || media_type == 'image')) {
+              errors.push('Invalid media type. Options include "video", "audio", "pdf", "image"');
+            }
+          }
+          if($(list_item).find('.content').size() == 0 || $(list_item).find('.content').html() == '' || $(list_item).find('.content').html() == 'Media Content: ') {
+            errors.push('Missing media content.');
+          }
+        }
+        if($(list_item).data('type') == 'default') {
+          if($(list_item).data('url') == '') {
+            errors.push('URL missing');
+          }
+          if($(list_item).find('.name .title a').html() == '') {
+            errors.push('Name missing');
+          }
+        }
+        if($(list_item).data('type') != 'playlist' && $(list_item).find('ul').size() > 0) {
+          errors.push('This item cannot contain nested children.');
+        }
+        if(errors.length > 0) {
+          $(list_item).addClass('has_error');
+          $('<div>').html(errors.join(', ')).addClass('error-description').insertAfter($(list_item).find('> .description'));
+        }
+      });
+      if($('li.has_error').size() == 0) {
+        $('#import_playlist').removeClass('inactive');
+      } else {
+        $('#import_playlist').addClass('inactive');
+      }
+      $('#success_message').remove();
+      $('#playlist_render #render').css('opacity', '1.0').fadeIn(50);
+    });
+  },
+  recursive: '\
+{{#root}}\
+<div id="main_details">\
+<h1>{{root_name}}</h1>\
+<h3>by: <span>{{user}}</span></h3>\
+</div>\
+<div id="description">{{root_description}}</div>\
+<ul id="root">\
+{{/root}}\
+{{^root}}\
+<li data-level="{{level}}" data-type="{{type}}" data-url="{{url}}" class="listitem">\
+<div class="name">\
+<span class="number"></span>\
+{{#media_type}}\
+<span data-media_type="{{media_type}}" class="icon icon-{{type}}-{{media_type}}"></span>\
+{{/media_type}}\
+{{^media_type}}\
+<span data-media_type="" class="icon icon-{{type}}"></span>\
+{{/media_type}}\
+{{#has_url}}\
+<span class="title"><a href="{{url}}" target="_blank">{{name}}</a></span>\
+{{/has_url}}\
+{{^has_url}}\
+<span class="title">{{name}}</span>\
+{{/has_url}}\
+</div>\
+<div class="description">{{description}}</div>\
+{{#media_type}}\
+<div class="content">{{abbreviated_content}}</div>\
+{{/media_type}}\
+{{#has_children}}\
+<ul>\
+{{/has_children}}\
+{{/root}}\
+{{# children}}\
+{{> playlist }}\
+{{/ children}}\
+{{#has_children}}\
+</ul>\
+{{/has_children}}\
+{{^root}}\
+</li>\
+{{/root}}'
+};
