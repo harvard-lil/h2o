@@ -52,7 +52,15 @@ var playlists_import = {
     var working_content = '';
     for(var i = 0; i < lines.length; i++) {
       var line = lines[i];
-      if(line.match(/^name:/) || line.match(/^description:/) || line.match(/^h2o_item:/) || line.match(/^#/) || line.match(/^url:/) || line.match(/^media_type:/) || line.match(/^content:/) || line == 'ENDCONTENT') {
+      if(line.match(/^name:/) ||
+         line.match(/^description:/) || 
+         line.match(/^h2o_item:/) || 
+         line.match(/^collage_item:/) || 
+         line.match(/^#/) || 
+         line.match(/^url:/) || 
+         line.match(/^media_type:/) || 
+         line.match(/^content:/) || 
+         line == 'ENDCONTENT') {
         if(working_content.match(/^url:/)) {
           current_item.url = working_content.replace(/^url:/, '');
           current_item.has_url = true;
@@ -74,7 +82,6 @@ var playlists_import = {
             }
           }
         } else if(working_content.match(/^h2o_item:/)) {
-          var key = 'link';
           var full_link = working_content.split(':http:\/\/')[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
@@ -86,13 +93,24 @@ var playlists_import = {
             }
           });
           current_item['name'] = "Inherited Name";
-          if(current_item['type'] == 'case' || current_item['type'] == 'collage') {
-            current_item['description'] = "Inherited description from original " + current_item['type'];
-          } else {
-            current_item['description'] = "Inherited description from " + current_item['type'];
-          }
-        }
-        else if(working_content.match(/^#/)) {
+          current_item['description'] = "Inherited Description";
+        } else if(working_content.match(/^collage_item:/)) {
+          current_item.collage_item = true;
+          var full_link = working_content.split(':http:\/\/')[1];
+          var relative_link = '';
+          $.each(full_link.split('/'), function(i, j) {
+            if(j.match(/law.harvard.edu/)) {
+              //do nothing
+            }
+            else if(j == 'text_blocks' || j == 'cases') {
+              current_item.collage_item_type = j.replace(/s$/, '');
+            }
+            else if(j.match(/^[0-9]*/)) {
+              current_item.collage_item_id = j;
+            }
+          });
+          current_item['name'] = 'Inherited Name';
+        } else if(working_content.match(/^#/)) {
           var this_nest_level = working_content.match(/^#*/)[0].length;
           if(this_nest_level > current_nest_level) {
             parent_playlist = current_playlist;
@@ -108,7 +126,16 @@ var playlists_import = {
             if(type === undefined) {
               type = 'unknown';
             }
-            var new_item = { type: type, children: [], root: false, has_children: false, name: '', description: '', level: this_nest_level, has_url: false, media_type: false };
+            var new_item = { type: type, 
+                             children: [], 
+                             root: false, 
+                             has_children: false, 
+                             name: '', 
+                             description: '', 
+                             level: this_nest_level, 
+                             has_url: false, 
+                             media_type: false,
+                             collage_item: false };
             current_playlist.has_children = true;
             current_playlist.children.push(new_item);
             current_item = new_item;
@@ -153,6 +180,12 @@ var playlists_import = {
         }
         if($(list_item).data('type') == 'text_block' && $(list_item).find('.description').html() == '') {
           errors.push('Description/content missing');
+        }
+        if($(list_item).data('type') == 'collage' && $(list_item).find('.collage_item').size() > 0) {
+          var type = $(list_item).find('.collage_item').data('collage_item_type');
+          if(!(type == 'case' || type == 'text_block')) {
+            errors.push('Collaged item must be a case or text.');
+          }
         }
         if($(list_item).data('type') == 'media') {
           if($(list_item).find('.icon').data('media_type') == '') {
@@ -222,6 +255,9 @@ var playlists_import = {
 {{#media_type}}\
 <div class="content">{{abbreviated_content}}</div>\
 {{/media_type}}\
+{{#collage_item}}\
+<div class="collage_item" data-collage_item_type="{{collage_item_type}}">Item {{collage_item_type}} with id {{collage_item_id}} will be collaged.</div>\
+{{/collage_item}}\
 {{#has_children}}\
 <ul>\
 {{/has_children}}\

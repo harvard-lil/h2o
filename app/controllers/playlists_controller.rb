@@ -254,6 +254,22 @@ class PlaylistsController < BaseController
       end
     end
 
+    if data.has_key?("collage_item_id")
+      existing_item = data["collage_item_type"].classify.constantize.where(id: data["collage_item_id"])
+      if existing_item.empty?
+        return { :errors => ["Could not find #{data["collage_item_type"]} with id #{data["collage_item_id"]} to collage"], :data => data }
+      else
+        # MAYBE TODO: Add error message if item is private and not owned by current user
+        data["new_item"] = Collage.new({ :name => existing_item.first.is_a?(Case) ? existing_item.first.short_name : existing_item.first.name,
+                                         :public => false,
+                                         :annotatable_type => data["collage_item_type"].classify,
+                                         :annotatable_id => data["collage_item_id"],
+                                         :user_id => current_user.id })
+        data["new_item"].valid_recaptcha = true
+        return { :errors => [], :data => data }
+      end
+    end
+
     if data["type"] == 'media'
       klass = Media
     else
