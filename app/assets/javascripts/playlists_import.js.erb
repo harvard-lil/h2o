@@ -56,6 +56,7 @@ var playlists_import = {
          line.match(/^description:/) || 
          line.match(/^h2o_item:/) || 
          line.match(/^collage_item:/) || 
+         line.match(/^remix_item:/) || 
          line.match(/^#/) || 
          line.match(/^url:/) || 
          line.match(/^media_type:/) || 
@@ -92,8 +93,7 @@ var playlists_import = {
               current_item['h2o_item_id'] = j;
             }
           });
-          current_item['name'] = "Inherited Name";
-          current_item['description'] = "Inherited Description";
+          current_item['name'] = "Inherited Name (Link to Existing Item)";
         } else if(working_content.match(/^collage_item:/)) {
           current_item.collage_item = true;
           var full_link = working_content.split(':http:\/\/')[1];
@@ -109,7 +109,23 @@ var playlists_import = {
               current_item.collage_item_id = j;
             }
           });
-          current_item['name'] = 'Inherited Name';
+          current_item['name'] = 'Inherited Name (Collaged)';
+        } else if(working_content.match(/^remix_item:/)) {
+          current_item.remix_item = true;
+          var full_link = working_content.split(':http:\/\/')[1];
+          var relative_link = '';
+          $.each(full_link.split('/'), function(i, j) {
+            if(j.match(/law.harvard.edu/)) {
+              //do nothing
+            }
+            else if(j == 'collages' || j == 'defaults') {
+              current_item.remix_item_type = j.replace(/s$/, '');
+            }
+            else if(j.match(/^[0-9]*/)) {
+              current_item.remix_item_id = j;
+            }
+          });
+          current_item['name'] = 'Inherited Name (Remixed)';
         } else if(working_content.match(/^#/)) {
           var this_nest_level = working_content.match(/^#*/)[0].length;
           if(this_nest_level > current_nest_level) {
@@ -135,7 +151,8 @@ var playlists_import = {
                              level: this_nest_level, 
                              has_url: false, 
                              media_type: false,
-                             collage_item: false };
+                             collage_item: false,
+                             remix_item: false };
             current_playlist.has_children = true;
             current_playlist.children.push(new_item);
             current_item = new_item;
@@ -200,7 +217,7 @@ var playlists_import = {
             errors.push('Missing media content.');
           }
         }
-        if($(list_item).data('type') == 'default') {
+        if($(list_item).data('type') == 'default' && $(list_item).find('.remix_item').size() == 0) {
           if($(list_item).data('url') == '') {
             errors.push('URL missing');
           }
@@ -256,8 +273,11 @@ var playlists_import = {
 <div class="content">{{abbreviated_content}}</div>\
 {{/media_type}}\
 {{#collage_item}}\
-<div class="collage_item" data-collage_item_type="{{collage_item_type}}">Item {{collage_item_type}} with id {{collage_item_id}} will be collaged.</div>\
+<div class="collage_item" data-collage_item_type="{{collage_item_type}}">Note: {{collage_item_type}} with id {{collage_item_id}} will be collaged.</div>\
 {{/collage_item}}\
+{{#remix_item}}\
+<div class="remix_item" data-collage_item_type="{{remix_item_type}}">Note: {{remix_item_type}} with id {{remix_item_id}} will be remixed.</div>\
+{{/remix_item}}\
 {{#has_children}}\
 <ul>\
 {{/has_children}}\

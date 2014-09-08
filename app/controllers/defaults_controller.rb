@@ -6,17 +6,13 @@ class DefaultsController < BaseController
   end
 
   def copy
-    default_copy = @default.dup
-    default_copy.parent = @default
-    default_copy.karma = 0
-    default_copy.user = current_user
-    default_copy.valid_recaptcha = true
-    default_copy.name = params["default"]["name"] if params.has_key?("default")
+    default_copy = @default.h2o_clone(current_user, params[:default])
+    verify_captcha(default_copy)
 
     if default_copy.save
       render :json => { :type => 'defaults', :id => default_copy.id }
     else
-      render :json => { :type => 'links' }, :status => :unprocessable_entity
+      render :json => { :error => true, :message => default_copy.errors.full_messages }
     end
   end
 

@@ -38,20 +38,14 @@ class CollagesController < BaseController
   end
 
   def copy
-    @tmp_collage = Collage.new
-    verify_captcha(@tmp_collage)
-    if !@tmp_collage.valid_recaptcha
-      render :json => { :error => true, :message => "Captcha failed. Please try again." }
-      return
-    end
+    collage_copy = @collage.h2o_clone(current_user, params[:collage])
+    verify_captcha(collage_copy)
 
-    @collage_copy = @collage.fork_it(current_user, params[:collage])
-    if @collage_copy.id.nil?
-      render :json => { :error => true, :message => "#{@collage_copy.errors.full_messages.join(',')}" }
-      return
+    if collage_copy.save
+      render :json => { :type => 'collages', :id => collage_copy.id }
+    else
+      render :json => { :error => true, :message => "#{collage_copy.errors.full_messages.join(',')}" }
     end
-
-    render :json => { :type => 'collages', :id => @collage_copy.id }
   rescue Exception => e
     render :json => { :error => true, :message => "Could not process. Please try again." }, :status => :unprocessable_entity
   end

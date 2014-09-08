@@ -56,6 +56,18 @@ class Default < ActiveRecord::Base
     self.name
   end
 
+  def h2o_clone(default_user, params)
+    default_copy = self.dup
+    default_copy.parent = self
+    default_copy.karma = 0
+    default_copy.user = default_user
+    Rails.logger.warn "stephie: #{params.inspect}"
+    default_copy.name = params[:name]
+    default_copy.public = params[:public] if params.has_key?(:public)
+
+    default_copy
+  end
+
   def barcode
     Rails.cache.fetch("default-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added

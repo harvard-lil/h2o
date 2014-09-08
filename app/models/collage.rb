@@ -60,30 +60,31 @@ class Collage < ActiveRecord::Base
     end
   end
 
-  def fork_it(new_user, params)
+  def h2o_clone(new_user, params)
     collage_copy = self.dup
     collage_copy.name = params[:name]
-    collage_copy.created_at = Time.now
-    collage_copy.parent = self
     collage_copy.public = params[:public]
     collage_copy.description = params[:description]
+    collage_copy.created_at = Time.now
+    collage_copy.parent = self
     collage_copy.user = new_user
-    collage_copy.valid_recaptcha = true
     collage_copy.featured = false
+    collage_copy.annotations = []
+    collage_copy.color_mappings = []
+    collage_copy.tag_list = self.tag_list.join(', ')
+
     self.annotations.each do |annotation|
       new_annotation = annotation.dup
-      new_annotation.collage = collage_copy
       new_annotation.cloned = true
       new_annotation.layer_list = annotation.layer_list
       new_annotation.user = new_user
-      new_annotation.save
+      collage_copy.annotations << new_annotation
     end
     self.color_mappings.each do |color_mapping|
-      color_mapping = color_mapping.dup
-      color_mapping.collage_id = collage_copy.id
-      color_mapping.save
+      new_color_mapping = color_mapping.dup
+      new_color_mapping.collage_id = collage_copy.id
+      collage_copy.color_mappings << new_color_mapping
     end
-    collage_copy.save
     collage_copy
   end
 

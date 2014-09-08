@@ -270,6 +270,18 @@ class PlaylistsController < BaseController
       end
     end
 
+    if data.has_key?("remix_item_id")
+      existing_item = data["remix_item_type"].classify.constantize.where(id: data["remix_item_id"])
+      if existing_item.empty?
+        return { :errors => ["Could not find #{data["remix_item_type"]} with id #{data["remix_item_id"]} to remix"], :data => data }
+      else
+        existing_item = existing_item.first
+        data["new_item"] = existing_item.h2o_clone(current_user, { :name => existing_item.name, :description => existing_item.description, :public => false })
+        data["new_item"].valid_recaptcha = true
+        return { :errors => [], :data => data }
+      end
+    end
+
     if data["type"] == 'media'
       klass = Media
     else
