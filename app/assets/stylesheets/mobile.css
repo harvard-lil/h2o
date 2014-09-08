@@ -4,23 +4,15 @@
     width: 98%;
     max-width: auto;
   }
-  .singleitem {
-    width: 100%;
-  }
-  .right_panel {
-    width: 100%;
-  }
-  .playlist_edit_mode .singleitem {
-    width: 100%;
-  }
-  .playlist_edit_mode #edit_item {
-    width: 100%;
-  }
+  .singleitem,
+  .right_panel,
+  #results,
+  .playlist_edit_mode .singleitem,
+  .playlist_edit_mode #edit_item,
   .playlist_edit_mode .expanded_singleitem,
   .expanded_singleitem {
     width: 100%;
   }
-
   #edit_item.fixed_position {
     position: static;
   }
@@ -45,23 +37,7 @@
   }
   #fixed_links {
     visibility: hidden;
-    /*
-    position: fixed;
-    top: 0px;
-    height: 29px;
-    background: #747474;
-    text-align: center;
-    width: 100%;
-    margin-left: -4px;
-    padding: 3px;
-    */
   }
-  /*
-  .fixed_link {
-    position: static;
-    display: inline-block;
-  }
-  */
 
   /* Index */
   #base_index #home_index #welcome2 .col-sm-6 {
