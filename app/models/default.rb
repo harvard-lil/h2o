@@ -49,7 +49,7 @@ class Default < ActiveRecord::Base
   end
 
   def url_format
-    self.errors.add(:url, "URL must be an absolute path (it must contain http)") if !self.url.match(/^http/)
+    self.errors.add(:url, "must be an absolute path (it must contain http)") if !self.url.to_s.match(/^http/)
   end
 
   def display_name

@@ -287,6 +287,7 @@ class PlaylistsController < BaseController
     else
       klass = data["type"].classify.constantize
     end
+
     new_item = klass.new({ 
       :name => data["name"], 
       :description => data["description"], 
@@ -304,7 +305,7 @@ class PlaylistsController < BaseController
     end
     item_errors = []
     if !new_item.valid?
-      item_errors << "For '#{data["name"]}', #{new_item.errors.full_messages.join(', ')}"
+      item_errors << "For #{klass.to_s} '#{data["name"]}', #{new_item.errors.full_messages.join(', ')}"
     end
     if data["has_children"] == "true" && data["type"] == "playlist"
       data["children"].each do |a, b|
