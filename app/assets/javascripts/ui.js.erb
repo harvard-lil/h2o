@@ -7,7 +7,6 @@ var panel_offset;
 var panel_width;
 var min_tick_width = 10;
 var item_offset_top;
-var right_offset;
 var user_playlists = new Array();
 var scife_fn_clicked = function() {
 };
@@ -544,9 +543,10 @@ var h2o_global = {
   },
   adjustEditItemPositioning: function() {
     if($(window).scrollTop() < item_offset_top) {
-      $('#edit_item').removeClass('fixed_position').css({ right: '0px', top: '0px' });
+      $('#edit_item').removeClass('fixed_position').css({ right: '0px', top: '0px', width: '48%' });
     } else {
-      $('#edit_item').addClass('fixed_position').css({ top: $('#quickbar').height() + 10, right: right_offset });
+      var right_offset = ($('body').width() - $('.main_wrapper').width()) / 2
+      $('#edit_item').addClass('fixed_position').css({ top: $('#quickbar').height() + 10, right: right_offset, width: '525px' });
     }
     return false;
   },
@@ -601,7 +601,6 @@ var h2o_global = {
   initializeRightPanelScroll: function() {
     if($('.right_panel').size()) {
       item_offset_top = $('.leftcol').offset().top - 15;
-      right_offset = ($('body').width() - $('.main_wrapper').width()) / 2
       $(window).scroll(function() {
         h2o_global.checkForPanelAdjust();
       });
