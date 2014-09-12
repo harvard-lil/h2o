@@ -451,6 +451,11 @@ H2O = (function() {
         $(el).find('.unlayered-control-start,.unlayered-control-end,.unlayered-ellipsis').remove();
       }
     });
+    $.each(collage_selector.find('.annotator-wrapper br.original_content'), function(i, el) {
+      if($(el).next().hasClass('unlayered')) {
+        $(el).addClass('unlayered');
+      }
+    });
 
     //removing any unlayered control borders, ellipsis for not needed anymore
     var all_items = collage_selector.find('.unlayered-control-start,.unlayered-control-end,.unlayered:not(:has(.unlayered)),.annotator-hl');
