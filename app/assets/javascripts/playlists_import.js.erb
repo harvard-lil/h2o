@@ -18,7 +18,7 @@ var playlists_import = {
         type: 'post',
         dataType: 'json',
         url: '/playlists/submit_import',
-        data: { data: playlists_import.generate_data(false) },
+        data: { data: playlists_import.clean_data(playlists_import.generate_data(false)) },
         beforeSend: function() {
           h2o_global.showGlobalSpinnerNode();
         },
@@ -41,6 +41,19 @@ var playlists_import = {
       
     });
   },
+  clean_data: function(filtered_data) {
+    $.each(filtered_data, function(i, el) {
+      delete el.parent_playlist;
+      delete el.level;
+      delete el.has_url;
+      delete el.user;
+      delete el.root;
+      if(el.has_children) {
+        el.children = playlists_import.clean_data(el.children);
+      }
+    });
+    return filtered_data;
+  },
   generate_data: function(modify_root_key) {
     var lines = $('#playlist_input textarea').val().split('\n');
     lines.push('ENDCONTENT');
@@ -48,7 +61,6 @@ var playlists_import = {
     var current_playlist = data[0];
     var current_item = data[0];
     var current_nest_level = 0;
-    var parent_playlist = undefined;
     var working_content = '';
     for(var i = 0; i < lines.length; i++) {
       var line = lines[i];
@@ -129,12 +141,14 @@ var playlists_import = {
         } else if(working_content.match(/^#/)) {
           var this_nest_level = working_content.match(/^#*/)[0].length;
           if(this_nest_level > current_nest_level) {
-            parent_playlist = current_playlist;
             current_playlist = current_item;
             current_nest_level = this_nest_level;
           } else if(this_nest_level < current_nest_level) {
-            current_nest_level = current_nest_level - 1;
-            current_playlist = parent_playlist;
+            var diff = current_nest_level - this_nest_level;
+            for(var j = 0; j < diff; j++) {
+              current_nest_level = current_nest_level - 1;
+              current_playlist = current_playlist.parent_playlist;
+            }
           } 
           if(working_content.match(/^#*[A-Z]/)) {
             var type_char = working_content.match(/^#*[A-Z]/)[0].slice(this_nest_level);
@@ -152,7 +166,8 @@ var playlists_import = {
                              has_url: false, 
                              media_type: false,
                              collage_item: false,
-                             remix_item: false };
+                             remix_item: false,
+                             parent_playlist: current_playlist };
             current_playlist.has_children = true;
             current_playlist.children.push(new_item);
             current_item = new_item;
