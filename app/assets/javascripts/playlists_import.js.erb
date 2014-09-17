@@ -210,9 +210,6 @@ var playlists_import = {
         if($(list_item).find('.name .title').html() == '') {
           errors.push('Name missing');
         }
-        if($(list_item).data('type') == 'text_block' && $(list_item).find('.description').html() == '') {
-          errors.push('Description/content missing');
-        }
         if($(list_item).data('type') == 'collage' && $(list_item).find('.collage_item').size() > 0) {
           var type = $(list_item).find('.collage_item').data('collage_item_type');
           if(!(type == 'case' || type == 'text_block')) {
