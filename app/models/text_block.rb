@@ -22,6 +22,7 @@ class TextBlock < ActiveRecord::Base
   has_many :playlist_items, :as => :actual_object
   belongs_to :user
 
+  validates_presence_of :name
   accepts_nested_attributes_for :metadatum
 
   def self.tag_list
