@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140903203519) do
+ActiveRecord::Schema.define(version: 20140917170053) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -382,11 +382,17 @@ ActiveRecord::Schema.define(version: 20140903203519) do
   add_index "metadata", ["classifiable_type"], name: "index_metadata_on_classifiable_type", using: :btree
 
   create_table "pages", force: true do |t|
-    t.string   "page_title", null: false
-    t.string   "slug",       null: false
+    t.string   "page_title",                           null: false
+    t.string   "slug",                                 null: false
     t.text     "content"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "footer_link",          default: false, null: false
+    t.string   "footer_link_text"
+    t.integer  "footer_sort",          default: 1000,  null: false
+    t.boolean  "is_user_guide",        default: false, null: false
+    t.integer  "user_guide_sort",      default: 1000,  null: false
+    t.string   "user_guide_link_text"
   end
 
   create_table "permission_assignments", force: true do |t|

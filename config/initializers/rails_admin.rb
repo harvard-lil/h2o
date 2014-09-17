@@ -155,6 +155,20 @@ RailsAdmin.config do |config|
     edit do
       field :slug
       field :page_title
+      field :footer_link do
+        help "If checked, this will show in the footer navigation"
+      end
+      field :footer_sort 
+      field :footer_link_text do
+        help "Anchor text for footer link"
+      end
+      field :is_user_guide do
+        help "If check, this will have sidebar navigation and show in the user guide sidebar navigation"
+      end
+      field :user_guide_sort
+      field :user_guide_link_text do
+        help "Anchor text for user guide sidebar navigation"
+      end
       field :content, :ck_editor
     end
   end

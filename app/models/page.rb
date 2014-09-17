@@ -6,5 +6,7 @@ class Page < ActiveRecord::Base
   def clear_cached_page
     page = Page.where(id: id).first
     ActionController::Base.expire_page "/p/#{page.slug}.html"
+
+    # TODO: Page management if link settings change
   end
 end

@@ -1,14 +1,12 @@
 <footer>
   <div class="wrapper">
     <div id="footer_links">
-      <a href="/p/about">About H2O</a>
-      <a target="_blank" href="http://h2o.law.harvard.edu/blog/files/2013/08/H2O-%E2%80%94%C2%A0User-Guide-v-1.2-2013.08.22.pdf">User Guide</a>
+      <% footer_links.each do |page| -%>
+      <% if page.slug == "faq" -%>
       <a href="/blog">Blog</a>
-      <a href="/p/faq">FAQs</a>
-      <a href="/p/terms">Terms of Service</a>
-      <a href="/p/privacy">Privacy Policy</a>
-      <a href="/p/team">H2O Team</a>
-      <a class="last" href="/p/contact_us">Contact Us</a>
+      <% end -%>
+      <a class="<%= 'last' if footer_links.last == page %>" href="/p/<%= page.slug %>"><%= page.footer_link_text.present? ? page.footer_link_text : page.page_title %></a>
+      <% end -%>
     </div>
     <% if params[:controller] == 'base' && params[:action] == 'index' -%>
     <div id="sponsors">
