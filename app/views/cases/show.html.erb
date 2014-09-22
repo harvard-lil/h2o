@@ -18,9 +18,9 @@
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT CASE INFORMATION<span class="icon icon-arrow"></span>'), edit_case_path(@case), :class => "edit-external scale0-8 requires_edit" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE CASE<span class="icon icon-arrow"></span>'), @case, "data-type" => "case", "data-id" => @case.id, :class => "delete-action requires_edit scale0-8" %>
   </div>
-  <article>
+  <div class="article">
     <%= raw @case.content %>
-  </article>
+  </div>
 </div>
 
 <div id="stats" class="right_panel">

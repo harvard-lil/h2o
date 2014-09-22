@@ -24,7 +24,7 @@ var cases_new = {
     }
     if(val != null) {
       $('.font-size-popup select').val(val);
-      $('#case article').css('font-size', parseInt(val) + 1 + 'px');
+      $('#case div.article').css('font-size', parseInt(val) + 1 + 'px');
       $('#description_less, #description_more, #description').css('font-size', (parseInt(val) + 2) + 'px');
       $('#case .details h5').css('font-size', parseInt(val) + 1 + 'px');
     }

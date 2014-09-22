@@ -1,14 +1,143 @@
-.singleitem div.article {
-  opacity: 1.0;
-  color:#000;
-  height:100%; 
-  background: #FFF;
-}
-.singleitem div.article > * {
-  margin-left: 1.8em;
-}
-div.article pre {
-  white-space: pre-line;
+body#collages_show .singleitem {
+  div.article {
+    opacity: 1.0;
+    color:#000;
+    height:100%; 
+    background: #FFF;
+    pre {
+      white-space: pre-line;
+    }
+  }
+  div.article > * {
+    margin-left: 1.8em;
+  }
+  
+  .annotator-viewer {
+    .annotator-collage span {
+      color: #000;
+      margin-right: 5px;
+      padding: 2px;
+    }
+    .annotator-collage h3 {
+      margin-left: 0px;
+    }
+    div#viewer_linked_collage {
+      padding-left: 0px;
+    }
+    .annotator-controls .annotator-delete {
+      background: url(<%= asset_path "icons.png" %>) no-repeat -31px -137px;
+      height: 15px;
+      width: 12px;
+    }
+  }
+  #show_paragraph_numbers a {
+    display: none;
+  }
+
+  .annotator-editor {
+    #add_new_layer {
+      padding-left: 6px;
+      margin: 5px;
+    }
+    #add_new_layer:after {
+      background-image: none;
+    }
+    .annotator-h2o_layer {
+      padding: 5px;
+      div.hexes a:after {
+        background-image: none;
+      }
+      div.hexes a {
+        padding: 0px;
+      }
+      p {
+        padding: 0px;
+        margin: 0px;
+      }
+    }
+    .annotator-error {
+      padding: 5px;
+      color: red;
+      font-weight: bold;
+    }
+    a#remove_layer {
+      margin: 5px 0px 0px 10px;
+      padding-left: 5px;
+    }
+    #layer_error {
+      padding-right: 0px;
+    }
+    #add_new_layer_error {
+      margin: 5px 0px 0px 10px;
+    }
+    .hexes {
+      padding-left: 8px;
+      a {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+        border: 2px solid #FFF;
+        padding: 0px;
+        text-indent: -10000px;
+      }
+      a.active {
+      border: 2px solid #000;
+      }
+      a.inactive {
+        opacity: 0.3;
+      }
+    }
+    #existing_collage_link,
+    #link_to_collage {
+      padding-left: 5px;
+    }
+    #existing_collage_link a {
+      margin: 5px 0px 5px 10px;
+    }
+    #existing_collage_link span {
+      color: #000;
+    }
+    #link_to_collage:after,
+    #remove_layer:after,
+    .hexes a:after,
+    #collage_search a:after {
+      background: none;
+    }
+    #link_to_collage {
+      margin: 5px;
+    }
+    #collage_search_buttons {
+      padding: 10px;
+      background: #C2C2C2;
+      a#cancel_link_to_collage {
+      }
+    }
+    #collage_search {
+      background: #D5D5D5;
+      padding: 10px;
+      .pagination {
+        padding: 5px 10px;
+        text-align: center;
+      }
+      a {
+        background: none;
+        box-shadow: none;
+        text-shadow: none;
+        padding: 0px;
+        border: 0px;
+      }
+    }
+    .annotator-item #collage_search_input {
+      min-width: 0px;
+      display: inline-block;
+      width: 198px;
+      background: #F3F3F3;
+      margin-right: 10px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+  }
 }
 div.article blockquote {
   padding-left: 15px;
@@ -251,136 +380,6 @@ div.article tt a.annotation_tip {
   margin-right: 5px;
   color: #000;
   padding: 2px;
-}
-
-#collages_show .annotator-editor {
-  #add_new_layer {
-    padding-left: 6px;
-    margin: 5px;
-  }
-  #add_new_layer:after {
-    background-image: none;
-  }
-  .annotator-h2o_layer {
-    padding: 5px;
-    div.hexes a:after {
-      background-image: none;
-    }
-    div.hexes a {
-      padding: 0px;
-    }
-    p {
-      padding: 0px;
-      margin: 0px;
-    }
-  }
-  .annotator-error {
-    padding: 5px;
-    color: red;
-    font-weight: bold;
-  }
-  a#remove_layer {
-    margin: 5px 0px 0px 10px;
-    padding-left: 5px;
-  }
-  #layer_error {
-    padding-right: 0px;
-  }
-  #add_new_layer_error {
-    margin: 5px 0px 0px 10px;
-  }
-  .hexes {
-    padding-left: 8px;
-    a {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      margin-right: 2px;
-      border: 2px solid #FFF;
-      padding: 0px;
-      text-indent: -10000px;
-    }
-    a.active {
-    border: 2px solid #000;
-    }
-    a.inactive {
-      opacity: 0.3;
-    }
-  }
-  #existing_collage_link,
-  #link_to_collage {
-    padding-left: 5px;
-  }
-  #existing_collage_link a {
-    margin: 5px 0px 5px 10px;
-  }
-  #existing_collage_link span {
-    color: #000;
-  }
-  #link_to_collage:after,
-  #remove_layer:after,
-  .hexes a:after,
-  #collage_search a:after {
-    background: none;
-  }
-  #link_to_collage {
-    margin: 5px;
-  }
-  #collage_search_buttons {
-    padding: 10px;
-    background: #C2C2C2;
-    a#cancel_link_to_collage {
-    }
-  }
-  #collage_search {
-    background: #D5D5D5;
-    padding: 10px;
-    .pagination {
-      padding: 5px 10px;
-      text-align: center;
-    }
-    a {
-      background: none;
-      box-shadow: none;
-      text-shadow: none;
-      padding: 0px;
-      border: 0px;
-    }
-  }
-  .annotator-item #collage_search_input {
-    min-width: 0px;
-    display: inline-block;
-    width: 198px;
-    background: #F3F3F3;
-    margin-right: 10px;
-    padding: 5px;
-    margin-bottom: 10px;
-  }
-}
-
-
-#collages_show {
-  .annotator-viewer {
-    .annotator-collage span {
-      color: #000;
-      margin-right: 5px;
-      padding: 2px;
-    }
-    .annotator-collage h3 {
-      margin-left: 0px;
-    }
-    div#viewer_linked_collage {
-      padding-left: 0px;
-    }
-    .annotator-controls .annotator-delete {
-      background: url(<%= asset_path "icons.png" %>) no-repeat -31px -137px;
-      height: 15px;
-      width: 12px;
-    }
-  }
-  #show_paragraph_numbers a {
-    display: none;
-  }
 }
 
 .annotator-wrapper .annotation-indicator {

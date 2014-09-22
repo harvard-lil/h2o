@@ -18,7 +18,7 @@
 <div id="collage<%= @collage.id %>" class="singleitem leftcol" data-itemid="<%= @collage.id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= @collage.name %></h1>
-    <h3 class="scale1-5 <%= @collage.root != @collage ? 'with_creators' : '' %>">
+    <h6 class="scale0-9 <%= @collage.root != @collage ? 'with_creators' : '' %>">
       <% if @collage.root != @collage -%>
       <span class="creator_details">
         <span>Original Creator: </span><%= link_to(@collage.root.user.display, user_path(@collage.root.user)) %>

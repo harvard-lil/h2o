@@ -11,6 +11,6 @@
 <% unless case_obj.case_jurisdiction.blank? -%>
 <p>Jurisdiction: <%= case_obj.case_jurisdiction.display_name %></p> 
 <% end -%>
-<article>
+<div class="article">
 <%= raw case_obj.content %>
-</article>
+</div>

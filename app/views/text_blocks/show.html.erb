@@ -22,9 +22,9 @@
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE TEXT<span class="icon icon-arrow"></span>'), @text_block, "data-type" => "text_block", "data-id" => @text_block.id, :class => "delete-action scale0-8" %>
   </div>
   <% end -%>
-  <article>
+  <div class="article">
     <%= raw @text_block.content %>
-  </article>
+  </div>
 </div>
 
 <div id="stats" class="right_panel">
