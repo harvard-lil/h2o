@@ -59,6 +59,10 @@ var collages = {
         $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
+
+    if($('#printannotations').val() == 'yes') {
+      $('#collage' + collage_id + ' span.annotation-content').show();
+    }
   }
 };
 
@@ -91,7 +95,6 @@ var export_functions = {
       }
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes');
-        $('.annotation-content').show();
       }
       if($.cookie('print_highlights') == 'none') {
         $('#printhighlights').val('none');
