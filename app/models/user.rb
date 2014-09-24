@@ -10,16 +10,17 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
-  has_and_belongs_to_many :institutions
-  has_many :collections, :foreign_key => "owner_id", :class_name => "UserCollection"
+  has_and_belongs_to_many :institutions 
+  has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
-  has_many :cases
-  has_many :text_blocks
-  has_many :collages
-  has_many :defaults
-  has_many :medias
-  has_many :case_requests
-  has_many :playlists
+
+  has_many :cases, :dependent => :destroy
+  has_many :text_blocks, :dependent => :destroy
+  has_many :collages, :dependent => :destroy
+  has_many :defaults, :dependent => :destroy
+  has_many :medias, :dependent => :destroy
+  has_many :case_requests, :dependent => :destroy
+  has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
  
   # Deal with this later by replacing habtm with hm through
