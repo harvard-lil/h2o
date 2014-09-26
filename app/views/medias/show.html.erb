@@ -21,7 +21,7 @@
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE ' + @type_label.upcase + '<span class="icon icon-arrow"></span>'), media_path(@media), "data-type" => "media", "data-id" => @media.id, :class => "delete-action scale0-8" %>
     <% end -%>
   </div>
-	<div class="article">
+	<div class="article media_<%= @type_label.downcase %>">
 		<%= raw @media.typed_content %>
 	</div>
 </div>
