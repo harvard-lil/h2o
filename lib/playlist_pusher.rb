@@ -197,12 +197,13 @@ class PlaylistPusher
 
   def generate_ownership_sql!(objects)
     klass = objects.first.class
+    klass_table = klass == Media ? "medias" : klass.to_s.tableize
     increments = objects.size / self.user_ids.size
-    i = 0 
+    i = 0
     1.upto(increments).each do |inc|
       self.user_ids.each do |user_id|
-        self.ownership_sql << "UPDATE #{klass.to_s.tableize} SET user_id = #{user_id} WHERE id = #{objects[i].id};"
-        self.featured_sql << "UPDATE #{klass.to_s.tableize} SET featured = false WHERE id = #{objects[i].id};" if [Collage, Playlist].include?(klass)
+        self.ownership_sql << "UPDATE #{klass_table} SET user_id = #{user_id} WHERE id = #{objects[i].id};"
+        self.featured_sql << "UPDATE #{klass_table} SET featured = false WHERE id = #{objects[i].id};" if [Collage, Playlist].include?(klass)
         self.all_new_objects[klass] ||= []
         self.all_new_objects[klass] << objects[i].id
         i+=1
