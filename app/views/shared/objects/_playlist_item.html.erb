@@ -60,10 +60,13 @@
         <%= raw PlaylistItem.format_content(actual_object.description) %>
       </div>
       <% end -%>
+      <% if recursive_level == 5 && item.actual_object_type == 'Playlist' && @nested_playlists.has_key?("Playlist-#{item.actual_object_id}") %>
+      <%= link_to "[click to show contents]", playlist_path(item.actual_object), :class => "nested_limit" %>
+      <% end -%>
     </div>
     <% end -%>
   </div>
-  <% if recursive_level < 4 && item.actual_object_type == 'Playlist' && @nested_playlists.has_key?("Playlist-#{item.actual_object_id}") %>
+  <% if recursive_level < 5 && item.actual_object_type == 'Playlist' && @nested_playlists.has_key?("Playlist-#{item.actual_object_id}") %>
   <% nested_playlist = @nested_playlists["Playlist-#{item.actual_object_id}"] %> 
   <ol class="dd-list" data-counter_start="<%= nested_playlist.counter_start %>">
   <% if nested_playlist.playlist_items.any? -%>
