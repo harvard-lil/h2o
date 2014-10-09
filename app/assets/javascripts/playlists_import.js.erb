@@ -95,7 +95,7 @@ var playlists_import = {
             }
           }
         } else if(working_content.match(/^h2o_item:/)) {
-          var full_link = working_content.split(':http:\/\/')[1];
+          var full_link = working_content.split(':https:\/\/')[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {
@@ -108,7 +108,7 @@ var playlists_import = {
           current_item['name'] = "Inherited Name (Link to Existing Item)";
         } else if(working_content.match(/^collage_item:/)) {
           current_item.collage_item = true;
-          var full_link = working_content.split(':http:\/\/')[1];
+          var full_link = working_content.split(':https:\/\/')[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {
@@ -124,7 +124,7 @@ var playlists_import = {
           current_item['name'] = 'Inherited Name (Collaged)';
         } else if(working_content.match(/^remix_item:/)) {
           current_item.remix_item = true;
-          var full_link = working_content.split(':http:\/\/')[1];
+          var full_link = working_content.split(':https:\/\/')[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {

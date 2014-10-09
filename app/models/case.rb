@@ -123,7 +123,7 @@ class Case < ActiveRecord::Base
   def to_tsv
     [self.short_name,
      self.case_citations.first.to_s,
-     "http://#{host_and_port}/cases/#{self.id}"].join("\t")
+     "https://#{host_and_port}/cases/#{self.id}"].join("\t")
   end
 
   def current_collage

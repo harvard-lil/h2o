@@ -1,21 +1,17 @@
 Make sure you have a jre and postgres dev libraries installed, you'll also 
 need libxml2 (and maybe other libraries) needed to satisfy gem requirements.
 
-1) Install rvm, version 1.6.18. This is necessary because we need an older 
-version of rubygems to work with rails 2.3. The details of rvm installation are
-on the rvm website.
-  curl -L https://get.rvm.io | bash -s -- --version 1.6.18
+1) Install rvm
 
-2) Install ree-1.8.7
-  rvm install ree
+2) Install ruby 2.1.0p0 via rvm
 
 3) Check out h2o. cd into the directory and create a gemset and rvmrc to set up the
 correct environment
   git clone https://github.com/berkmancenter/h2o.git h2o
   cd h2o
-  rvm use ree
-  rvm gemset create rails2
-  rvm use ree@rails2 --rvmrc
+  rvm use ruby2.1.0p0
+  rvm gemset create h2o_gemset
+  rvm use ruby2.1.0p0@h2o_gemset --rvmrc
   cd ../ && cd h2o/ 
   # Accept the rvmrc prompt, you should now be in the correct version of ruby and 
   # and empty gemset
@@ -35,4 +31,3 @@ correct environment
   passenger start -p 3000
 
 and you should now be able to connect on http://localhost:3000/
-

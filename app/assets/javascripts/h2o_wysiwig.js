@@ -14,7 +14,7 @@ var tinyMCEPreInit = {
       theme_advanced_resize_horizontal:false,
       plugins:"fullscreen,link,charmap,textcolor",
       add_form_submit_trigger: false,
-      skin_url: 'http://tinymce.cachefly.net/4.0/skins/lightgray',
+      skin_url: 'https://tinymce.cachefly.net/4.0/skins/lightgray',
       content_css: '/h2o_tinymce.css'
     }
   } ,
