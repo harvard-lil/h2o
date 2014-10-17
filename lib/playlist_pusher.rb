@@ -216,12 +216,13 @@ class PlaylistPusher
   def generate_public_private_sql!(objects)
     return if @public_private_override.nil?
 
-    klass = objects.first.class.to_s.tableize
+    klass = objects.first.class
+    klass_table = klass == Media ? "medias" : klass.to_s.tableize
     increments = objects.size / self.user_ids.size
     i = 0 
     1.upto(increments).each do |inc|
       self.user_ids.each do |user_id|
-        self.public_private_sql << "UPDATE #{klass.tableize} SET public = #{@public_private_override} WHERE id = #{objects[i].id};"
+        self.public_private_sql << "UPDATE #{klass_table} SET public = #{@public_private_override} WHERE id = #{objects[i].id};"
         i+=1
       end
     end
