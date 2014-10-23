@@ -8,8 +8,7 @@ var panel_width;
 var min_tick_width = 10;
 var item_offset_top;
 var user_playlists = new Array();
-var scife_fn_clicked = function() {
-};
+var scife_fn_clicked = function() {};
 var page_load = true;
 var list_results_url = '';
 var playlists_initialized = false;
@@ -1243,7 +1242,13 @@ var h2o_global = {
     $(document).delegate('.remix-option-action', 'click', function(e) {
       e.preventDefault();
       var link = $(this);
-      var data = { "copy_url" : link.attr('href'), "deep_copy_url": link.attr('href').replace(/copy/, 'deep_copy'), "type" : link.data('type'), "title" : link.data('title') }; 
+      var data = { "copy_url" : link.attr('href'),
+                   "deep_copy_url": link.attr('href').replace(/copy/, 'deep_copy'),
+                   "type" : link.data('type'),
+                   "title" : link.data('title'),
+                   "public" : link.data('public') };
+                   
+       console.log(data);
       $($.mustache(remix_option_template, data)).dialog({
         title: 'Playlist Remix Options',
         modal: true,
@@ -1258,7 +1263,7 @@ var h2o_global = {
       if(node_title == 'Default') {
         node_title = 'Link';
       }
-      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
+      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title'), "public": link.data('public') };
       var html = $.mustache(remix_item_template, data);
       h2o_global.generateGenericNode(html);
       h2o_global.show_recaptcha();
@@ -1267,7 +1272,7 @@ var h2o_global = {
       e.preventDefault();
       var link = $(this);
       var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
-      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title') }; 
+      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title'), "public" : link.data('public') }; 
       var html = $.mustache(deep_remix_item_template, data);
       h2o_global.generateGenericNode(html);
     });
@@ -1587,8 +1592,8 @@ var delete_item_template = '\
 
 var remix_option_template = '\
 <div id="playlist_remix_options">\
-<a href="{{deep_copy_url}}" class="button deep-remix-action" data-type="playlist" data-title="{{title}}">Your own version of EVERY item in this playlist</a>\
-<a href="{{copy_url}}" class="button remix-action" data-type="playlist" data-title="{{title}}">Your own version of the top-level only of the playlist</a>\
+<a href="{{deep_copy_url}}" class="button deep-remix-action" data-type="playlist" data-title="{{title}}" data-public="{{public}}">Your own version of EVERY item in this playlist</a>\
+<a href="{{copy_url}}" class="button remix-action" data-type="playlist" data-title="{{title}}" data-public="{{public}}">Your own version of the top-level only of the playlist</a>\
 </div>';
 
 var remix_item_template = '\
@@ -1603,7 +1608,13 @@ var remix_item_template = '\
 </li>\
 <li class="boolean required" id="{{type}}_public_input">\
 <label for="{{type}}_public">\
+{{#public}}\
 <input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="{{type}}[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
+{{/public}}\
+{{^public}}\
+<input name="{{type}}[public]" type="hidden" value="0">\
+<i>Because the original item is private the new item will be set to private.</i>\
+{{/public}}\
 </li>\
 <li class="text optional" id="{{type}}_description_input">\
 <label for="{{type}}_description">Description</label>\
@@ -1626,8 +1637,14 @@ var deep_remix_item_template = '\
 </li>\
 <li class="boolean required" id="{{type}}_public_input">\
 <label for="{{type}}_public">\
+{{#public}}\
 <input name="{{type}}[public]" type="hidden" value="0"><input class="privacy_toggle" id="{{type}}_public" name="playlist[public]" checked="checked" type="checkbox" value="1">Public<abbr title="required">*</abbr></label>\
 <small>This applies to EVERY item created.</small>\
+{{/public}}\
+{{^public}}\
+<input name="playlist[public]" type="hidden" value="0">\
+<i>Because the original playlist is private, the new playlist and its nested items will also be set to private.</i>\
+{{/public}}\
 </li>\
 </ol></fieldset>\
 </form>\

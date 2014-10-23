@@ -407,9 +407,13 @@ var playlists_show = {
               new_node.find('.icon-cell .tooltip').addClass('hover');
               $('.playlists .dd-list .listing').replaceWith(new_node);
             } else {
+              var details_visible = $('#playlist_item_form').siblings('.additional_details').is(':visible');
               var new_node = $(data.content).find('.wrapper');
               new_node.find('.requires_edit,.requires_remove,.requires_logged_in').css('opacity', 1);
               new_node.find('.icon-cell .tooltip').addClass('hover');
+              if(details_visible) {
+                new_node.find('.additional_details').show();
+              }
               $('#playlist_item_form').parent().replaceWith(new_node);
             }
             playlists_show.update_positions();

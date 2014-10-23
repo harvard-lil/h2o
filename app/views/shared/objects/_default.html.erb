@@ -30,7 +30,8 @@
       copy_default_path(default), 
       :class => "link-remix remix-action", 
       "data-type" => "default", 
-      "data-title" => default.name %>
+      "data-title" => default.name,
+      "data-public" => default.public %>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
       :class => "link-bookmark bookmark-action", 
       "data-itemid" => default.id,

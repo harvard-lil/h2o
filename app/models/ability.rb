@@ -34,6 +34,10 @@ class Ability
       can :copy, Collage, :public => true
       can :copy, Default, :public => true
 
+      can [:copy, :deep_copy], Playlist, :user_id => user.id
+      can :copy, Collage, :user_id => user.id
+      can :copy, Default, :user_id => user.id
+
       can [:embedded_pager, :access_level], :all
 
       # Can do things on owned items

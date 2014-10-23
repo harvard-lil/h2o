@@ -1,3 +1,0 @@
-* rake sunspot:reindex[5,Case]
-* rake assets:precompile
-* rake h2o:clear_page_cache

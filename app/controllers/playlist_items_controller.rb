@@ -29,13 +29,13 @@ class PlaylistItemsController < BaseController
     if playlist_item.save
       if params.has_key?("on_playlist_page")
         playlist_items = PlaylistItem.unscoped.where(playlist_id: playlist_item.playlist_id)
-  
+
         playlist_items.each_with_index do |pi, index|
           if pi != playlist_item && (index + 1) >= playlist_item.position
             pi.update_column(:position, pi.position + 1)
           end
         end
-  
+ 
         if playlist_item.actual_object_type == "Playlist"
           nested_ps = Playlist.includes(:playlist_items).where(id: playlist_item.actual_object.all_actual_object_ids[:Playlist])
           @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
@@ -69,6 +69,11 @@ class PlaylistItemsController < BaseController
 
   def update
     playlist = @playlist_item.playlist
+
+    if @playlist_item.actual_object_type == "Playlist"
+      @nested_playlists = {}
+    end
+
     if @playlist_item.update_attributes(playlist_item_params)
       content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => @playlist_item,
         :actual_object => @playlist_item.actual_object,
