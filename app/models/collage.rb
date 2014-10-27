@@ -31,7 +31,7 @@ class Collage < ActiveRecord::Base
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
-  
+
   searchable do
     text :display_name, :stored => true, :boost => 3.0
     string :display_name, :stored => true
@@ -58,6 +58,11 @@ class Collage < ActiveRecord::Base
     boolean :secondary do
       false
     end
+  end
+
+  # For Rails Admin delete purposes only
+  def collages_user_collections
+    []
   end
 
   def h2o_clone(new_user, params)

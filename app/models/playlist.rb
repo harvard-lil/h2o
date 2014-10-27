@@ -32,6 +32,11 @@ class Playlist < ActiveRecord::Base
 
   validate :when_taught_validation
 
+  # For Rails Admin delete purposes only
+  def playlists_user_collections
+    []
+  end
+
   def when_taught_validation
     self.when_taught = self.when_taught.to_s.downcase.gsub(/ /, '')
 
