@@ -25,14 +25,4 @@ namespace :h2o do
     File.open("#{Rails.root}/tmp/cases_list.csv", 'w') { |file| file.write(body) }
     Notifier.cases_list.deliver
   end
-
-  desc 'Upgrade collages'
-  task(:upgrade_collages => :environment) do
-    Collage.find_each(batch_size: 10) do |collage|
-      if collage.annotator_version == 1
-        collage.upgrade_via_nokogiri
-        puts "updated #{collage.id}"
-      end
-    end
-  end
 end

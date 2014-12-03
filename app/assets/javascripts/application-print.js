@@ -11,7 +11,7 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery.ui.all
+//= require jquery-ui
 //= require fonts
 //= require jquery.selectbox-0.6.1.pack
 //= require jquery.rule

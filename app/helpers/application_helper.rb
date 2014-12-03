@@ -12,6 +12,7 @@ module ApplicationHelper
     return pluralize(collection.results.total_entries, 'Result') if klass_facets.nil?
 
     r_display = []
+
     klass_facets.each do |row|
       if klass_label_map.has_key?(row.value)
         r_display << pluralize(row.count, klass_label_map[row.value])

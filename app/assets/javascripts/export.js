@@ -6,16 +6,16 @@ var collage_id;
 var h2o_annotator;
 
 var collages = {
-  listenToRecordCollageState: function() {
+  listenToRecordAnnotatedItemState: function() {
     //do nothing
   },
   clean_layer: function(layer_name) {
     return layer_name.replace(/ /, 'whitespace').replace(/\./, 'specialsymbol');
   },
-  rehighlight: function() {
+  set_highlights: function(data) {
     //do nothing
   },
-  hideShowUnlayeredOptions: function() {
+  rehighlight: function() {
     //do nothing
   },
   updateWordCount: function() {
@@ -23,22 +23,16 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     $.each(data, function(i, e) {
-	   if(i.match(/^unlayered/)) {
-		    $('#collage' + collage_id + ' .unlayered-' + e).remove();
-		    $('#collage' + collage_id + ' .unlayered-ellipsis-' + e).replaceWith($('<span>').addClass('unlayered-ellipsis').html('[...]').show());
-		  } else if(i.match(/^layered/)) {
-		      $('#collage' + collage_id + ' .annotation-' + e).remove();
-		      $('#collage' + collage_id + ' .layered-ellipsis-' + e).replaceWith($('<span>').addClass('layered-ellipsis').html('[...]').show());
-      } else if(i == 'font_face') {
+      if(i == 'font_face') {
         $('#fontface').val(e);
       } else if(i == 'font_size') {
         $('#fontsize').val(e);
       } else if(i == 'highlights') {
         $('#printhighlights').val('original');
-        export_functions.highlightCollage(collage_id, e);
+        export_functions.highlightAnnotatedItem(collage_id, e);
       }
     });
-    $('#collage' + collage_id + ' .unlayered-ellipsis:not(:visible),#collage' + collage_id + ' .layered-ellipsis:not(:visible)').remove();
+    $('.annotator-hl:not(:visible)').remove();
 
     $.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
       var set = $('#collage' + collage_id + ' div.article ' + selector);
@@ -100,13 +94,13 @@ var export_functions = {
         $('#printhighlights').val('none');
 	      $('.collage-content').each(function(i, el) {
 	        var id = $(el).data('id');
-	        export_functions.highlightCollage(id, {});
+	        export_functions.highlightAnnotatedItem(id, {});
 	      });
       } else if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
 	      $('.collage-content').each(function(i, el) {
 	        var id = $(el).data('id');
-	        export_functions.highlightCollage(id, eval("layer_data_" + id));
+	        export_functions.highlightAnnotatedItem(id, eval("layer_data_" + id));
 	      });
       }
       $('#fontface').val($.cookie('print_font_face'));
@@ -180,17 +174,17 @@ var export_functions = {
 	      $('.collage-content').each(function(i, el) {
 	        var id = $(el).data('id');
 	        var data = eval("collage_data_" + id);
-	        export_functions.highlightCollage(id, data.highlights);
+	        export_functions.highlightAnnotatedItem(id, data.highlights);
 	      });
 	    } else if(choice == 'all') {
 	      $('.collage-content').each(function(i, el) {
 	        var id = $(el).data('id');
-	        export_functions.highlightCollage(id, eval("layer_data_" + id));
+	        export_functions.highlightAnnotatedItem(id, eval("layer_data_" + id));
 	      });
 	    } else {
 	      $('.collage-content').each(function(i, el) {
 	        var id = $(el).data('id');
-	        export_functions.highlightCollage(id, {});
+	        export_functions.highlightAnnotatedItem(id, {});
 	      });
 	    }
 	  });
@@ -218,6 +212,7 @@ var export_functions = {
   },
   loadAnnotator: function(id) {
     annotations = eval("annotations_" + id);
+    layer_data = eval("layer_data_" + id);
 
     var elem = $('#collage' + id + ' div.article');
     var factory = new Annotator.Factory();
@@ -235,7 +230,7 @@ var export_functions = {
     });
     return filtered_layer_data;
   },
-  highlightCollage: function(collage_id, highlights) {
+  highlightAnnotatedItem: function(collage_id, highlights) {
     if(highlights === undefined) {
       highlights = {};
     }
@@ -255,7 +250,6 @@ var export_functions = {
     $.each(highlights, function(i, j) {
       $('#collage' + collage_id + ' .annotator-wrapper .layer-' + collages.clean_layer(i)).addClass('highlight-' + collages.clean_layer(i));
     });
-    $('#collage' + collage_id + ' .layered-empty').removeClass('layered-empty');
 
 	  var total_selectors = new Array();
 	  $.each($('#collage' + collage_id + ' .annotator-wrapper .annotator-hl'), function(i, child) {
@@ -314,7 +308,7 @@ var export_functions = {
 	      $.each(unique_layers, function(key, value) {
 	        key_length++;
 	      });
-	      var opacity = 0.4 / key_length;
+	      var opacity = 0.6 / key_length;
 	      $.each(unique_layers, function(key, value) {
 	        var color_combine = $.xcolor.opacity(current_hex, layer_data[key], opacity);
 	        current_hex = color_combine.getHex();
@@ -327,11 +321,6 @@ var export_functions = {
 	  $.each(updated, function(key, value) {
 	    keys_arr.push(key);
 	  });
-    if(keys_arr.length > 0) {
-	    $('#collage' + collage_id + ' .annotator-hl:not(' + keys_arr.join(',') + ')').addClass('layered-empty');
-    } else {
-      $('#collage' + collage_id + ' .annotator-hl').addClass('layered-empty');
-    }
   }
 };
 
@@ -342,6 +331,7 @@ $(document).ready(function(){
   $('article h3, div.article h3').addClass('scale1-2');
   $('article h4, div.article h4').addClass('scale1-1');
 
+  $('div.article *:not(.paragraph-numbering)').addClass('original_content');
   $('.collage-content').each(function(i, el) {
     export_functions.loadAnnotator($(el).data('id')); 
   });

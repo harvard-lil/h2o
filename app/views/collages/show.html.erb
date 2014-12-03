@@ -2,17 +2,17 @@
 <input type="hidden" id="state" name="state" value="" />
 </form>
 <div id="fixed_links">
-<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Collage Info">Collapse/Expand</a>
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="<%= @collage.annotated_label %> Info">Collapse/Expand</a>
 <a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @collage.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
 
 <aside id="singleitem_barcode_toolbar">
-  <a href="<%= copy_collage_path(@collage) %>" class="tooltip remix-action requires_logged_in" id="copy-collage" title="Remix <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>" data-public="<%= @collage.public %>">
-    <span class="icon icon-remix-large"><span>Remix Collage</span></span>
+  <a href="<%= copy_collage_path(@collage) %>" class="tooltip clone-action requires_logged_in" id="copy-collage" title="Clone <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>" data-public="<%= @collage.public %>">
+    <span class="icon icon-clone-large"><span>Clone <%= @collage.annotated_label %></span></span>
   </a>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add To Playlist</span></span>'), '#', "data-item_id" => @collage.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
-  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Collage</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark ' + @collage.annotated_label + '</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
 </aside>
 
 <div id="collage<%= @collage.id %>" class="singleitem leftcol" data-itemid="<%= @collage.id %>" data-public="<%= @collage.public %>">
@@ -31,58 +31,44 @@
       <% end -%>
     </h3>
     <aside id="buttons">
-      <a href="#" class="btn-a afterload dont_hide" id="text-layer-tools">SHOW/HIDE</a>
+      <a href="#" class="btn-a afterload dont_hide" id="text-layer-tools">ANNOTATION DISPLAY</a>
       <div class="popup text-layers-popup">
         <h5 class="first">TEXT</h5>
         <ul>
-          <li>
-            <a href="#" class="tooltip" title="Show the entire text of <%= @collage.name %>" id="full_text">SHOW FULL TEXT</a>
+          <li id="show_text_edits">
+            <span>Show Full Text</span>
+            <div class="toggle toggle-light"></div>
           </li>
-          <li id="show_unlayered">
-            <a href="#" class="tooltip" title="Show All Unlayered">SHOW ALL UNLAYERED</a>
+          <li id="show_comments">
+            <span>Show Comments</span>
+            <div class="toggle toggle-light"></div>
           </li>
-          <li id="hide_unlayered">
-            <a href="#" class="tooltip"  title="Hide All Unlayered">HIDE ALL UNLAYERED</a>
+          <li id="show_links">
+            <span>Show Links</span>
+            <div class="toggle toggle-light"></div>
           </li>
-          <li id="show_paragraph_numbers">
-            <a href="#" class="tooltip" title="Show Paragraph Numbers">SHOW PARAGRAPH NUMBERS</a>
-          </li>
-          <li id="hide_paragraph_numbers">
-            <a href="#" class="tooltip"  title="Hide Paragraph Numbers">HIDE PARAGRAPH NUMBERS</a>
-          </li>
-        </ul>
-        <ul id="layers">
-           <% @collage.layers.each do |layer| %>
-          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @layer_data[layer.name] %>">
-            <a href="#" class="l<%= layer.id %> hide_show shown tooltip" title="Hide the <%= layer.name %> layer" >HIDE "<%= layer.name %>"</a>
-          </li>
-           <% end -%>
-        </ul>
-        <ul>
-          <li><a href="#" class="tooltip" title="Show <%= @collage.user.login %>'s version of the collage" id="author_edits">SHOW <%= @collage.user.simple_display %>'S TEXT EDITS</a></li>
         </ul>
 
         <h5>HIGHLIGHTS</h5>
         <ul id="layers_highlights">
-           <% @collage.layers.each do |layer| %>
-          <li data-id="l<%= layer.id %>" data-name="<%= layer.name %>" data-hex="<%= @layer_data[layer.name] %>">
-            <a href="#" title="Highlight the <%= layer.name %> Layer" class="l<%= layer.id %> tooltip link-o">HIGHLIGHT "<%= layer.name %>" <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span></a>
+          <li id="highlight_all_li">
+            <span>All</span>
+            <div class="toggle toggle-light"></div>
           </li>
-           <% end -%>
+          <% @collage.layers.each do |layer| %>
+          <li class="user_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>" data-hex="<%= @layer_data[layer.name] %>">
+            <span><%= layer.name %></span>
+            <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>
+            <div class="toggle toggle-light"></div>
+          </li>
+          <% end -%>
         </ul>
-
-        <% if @collage.annotations.detect { |a| a.cloned == true } %>
-        <h5 id="inherited_h">ACTIONS</h5>
-        <span id="inherited_span" class="requires_edit">
-          <a href="#" id="delete_inherited_annotations" class="tooltip" title="Delete Inherited Layers and Annotations from remix">DELETE INHERITED LAYERS</a>
-        </span>
-        <% end -%>
       </div>
     </aside>
     <div class="clear"></div>
   </div>
   <div id="description" class="scale1-1">
-    <%= raw Collage.format_content(@collage.description) %>
+    <%= raw @collage.formatted(:description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT COLLAGE INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
   </div>
@@ -97,15 +83,12 @@
 
 <div id="stats" class="right_panel">
   <a href="#" class="right_panel_close">Close</a>
-  <h3 class="info">Collage Information<span class="icon icon-panel"></span></h3>
+  <h3 class="info"><%= @collage.annotated_label %> Information<span class="icon icon-panel"></span></h3>
   <div class="stats_panel">
     <%= render :partial => 'meta' %>
   </div>
   <h3>Author Stats</h3>
   <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
-  <% if false -%>
-  <h3>Related Collages</h3>
-  <% end -%>
 </div>
 
 <div class="clear"></div>
@@ -113,7 +96,6 @@
 <script type="text/javascript">
 var editability_path = "<%= access_level_collage_path(@collage) %>"; 
 var original_data = <%= raw @collage.readable_state || '{}' %>;
-var linked_collages = <%= raw @collage.annotations.select { |a| a.linked_collage_id.present? }.inject({}) { |h, a| h["c#{a.linked_collage_id}"] = a.linked_collage.name; h }.to_json %>; 
 var color_list = <%= raw Collage.color_list.to_json %>;
 var layer_data = <%= raw @layer_data.to_json %>;
 var raw_annotations = {

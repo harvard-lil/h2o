@@ -27,11 +27,19 @@
       </p>
       <p>
         <%= form.label :description %>
-        <%= form.text_area :description, :rows => 5 %>
+        <%= form.text_area :description, :rows => 5, :class => "no_tinymce" %>
       </p>
     </td>
     <td valign="top" id="secondcol">
       <% if !@user.new_record? -%>
+        <p>
+          <%= form.label :default_show_comments, "Show Comments" %>
+          <%= form.select :default_show_comments, [['Yes', true], ['No', false]] %>
+        </p>
+        <p>
+          <%= form.label :default_show_paragraph_numbers, "Show Paragraph Numbers" %>
+          <%= form.select :default_show_paragraph_numbers, [['Yes', true], ['No', false]] %>
+        </p>
         <p>
           <%= form.label :default_font_size %>
           <%= form.select :default_font_size, [['small (10px)', '10'], ['medium (13px)', '13'], ['large (16px)', '16'], ['extra-large (19px)', '19']], :selected => @user.default_font_size.to_s %>

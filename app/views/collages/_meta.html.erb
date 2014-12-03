@@ -2,10 +2,6 @@
   <label>Last Updated:</label>
   <span id="autosave"><%= @collage.updated_at.strftime("%B %d, %Y") %></span>
 </p>
-<p>
-  <label>Total Words:</label>
-  <span id="word_stats"></span>
-</p>
 <% if @collage.tags.any? -%>
 <p>
   <label>Tags:</label>
@@ -14,15 +10,6 @@
   <% end -%>
 </p>
 <% end -%>
-<p>
-  <label>Annotations:</label>
-  <span id="stats_annotation_size"><%= @collage.annotations.size %></a>
-</p>
-<p>
-  <label>Layers:</label>
-  <span id="stats_layer_size"><%= @collage.layers.size %></span>
-</p>
-
 <% if @collage.annotatable.present? -%>
 <p><label>Original Item:</label>
 <% if @collage.annotatable_type == 'Case' %>

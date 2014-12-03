@@ -5,7 +5,6 @@ class Media < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
-  include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers
 
@@ -80,5 +79,14 @@ class Media < ActiveRecord::Base
 
       barcode_elements
     end
+  end
+
+  def h2o_clone(new_user, params)
+    media_copy = self.dup
+    media_copy.karma = 0
+    media_copy.user = new_user
+    media_copy.name = params[:name] if params.has_key?(:name)
+    media_copy.description = params[:description] if params.has_key?(:description)
+    media_copy 
   end
 end

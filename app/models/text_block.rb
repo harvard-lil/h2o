@@ -6,10 +6,9 @@ class TextBlock < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include DeletedItemExtensions
-  include FormattingExtensions
 
   RATINGS_DISPLAY = {
-    :collaged => "Collaged",
+    :collaged => "Annotated",
     :bookmark => "Bookmarked",
     :add => "Added to"
   }
@@ -28,7 +27,7 @@ class TextBlock < ActiveRecord::Base
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
       JOIN tags t ON ts.tag_id = t.id
-      WHERE taggable_type IN ('TextBlock', 'JournalArticle')
+      WHERE taggable_type = 'TextBlock'
       GROUP BY ts.tag_id, t.name
       ORDER BY COUNT(*) DESC LIMIT 25")
   end
@@ -39,9 +38,9 @@ class TextBlock < ActiveRecord::Base
 
   #Export the content that gets annotated in a Collage - also, render the content for display.
   #As always, the content method should export valid html/XHTML.
-  def content
+  def sanitized_content
     ActionController::Base.helpers.sanitize(
-      self.description,
+      self.content,
       :tags => WHITELISTED_TAGS + ["sup", "sub", "pre"],
       :attributes => WHITELISTED_ATTRIBUTES + ["style", "name"]
     )
@@ -53,7 +52,7 @@ class TextBlock < ActiveRecord::Base
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
-    text :clean_description
+    text :clean_content
     boolean :public
     integer :karma
 
@@ -77,8 +76,8 @@ class TextBlock < ActiveRecord::Base
     end
   end
 
-  def clean_description
-    self.description.gsub!(/\p{Cc}/, "")
+  def clean_content
+    self.content.gsub!(/\p{Cc}/, "")
   end
 
   def barcode
@@ -87,7 +86,7 @@ class TextBlock < ActiveRecord::Base
       self.collages.each do |collage|
         barcode_elements << { :type => "collaged",
                               :date => collage.created_at,
-                              :title => "Collaged to #{collage.name}",
+                              :title => "Annotated to #{collage.name}",
                               :link => collage_path(collage),
                               :rating => 5 }
       end
@@ -97,5 +96,14 @@ class TextBlock < ActiveRecord::Base
 
       barcode_elements.sort_by { |a| a[:date] }
     end
+  end
+
+  def h2o_clone(new_user, params)
+    text_copy = self.dup
+    text_copy.karma = 0
+    text_copy.name = params[:name] if params.has_key?(:name)
+    text_copy.description = params[:description] if params.has_key?(:description)
+    text_copy.user = new_user
+    text_copy 
   end
 end

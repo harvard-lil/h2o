@@ -4,12 +4,11 @@ class Playlist < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
-  include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {
-    :remix => "Remixed",
+    :clone => "Cloned",
     :bookmark => "Bookmarked",
     :add => "Added to another playlist"
   }
@@ -108,9 +107,9 @@ class Playlist < ActiveRecord::Base
     Rails.cache.fetch("playlist-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.public_children.each do |child|
-        barcode_elements << { :type => "remix",
+        barcode_elements << { :type => "clone",
                               :date => child.created_at,
-                              :title => "Remixed to Playlist #{child.name}",
+                              :title => "Cloned to Playlist #{child.name}",
                               :link => playlist_path(child),
                               :rating => 5 }
       end
@@ -255,5 +254,24 @@ class Playlist < ActiveRecord::Base
       ActionController::Base.expire_page "/playlists/#{p}.html"
       ActionController::Base.expire_page "/playlists/#{p}/export.html"
     end
+  end
+
+  def h2o_clone(new_user, params)
+    playlist_copy = self.dup
+    playlist_copy.parent = self
+    playlist_copy.name = params[:name] if params.has_key?(:name)
+    playlist_copy.public = params[:public] if params.has_key?(:public)
+    playlist_copy.description = params[:description] if params.has_key?(:description)
+    playlist_copy.created_at = Time.now
+    playlist_copy.karma = 0
+    playlist_copy.user = new_user
+    playlist_copy.featured = false
+
+    self.playlist_items.each do |playlist_item|
+      new_playlist_item = playlist_item.dup
+      playlist_copy.playlist_items << new_playlist_item
+    end
+    
+    playlist_copy
   end
 end

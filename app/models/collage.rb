@@ -5,13 +5,12 @@ class Collage < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
-  include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers
   include ActionView::Helpers::TextHelper
 
   RATINGS_DISPLAY = {
-    :remix => "Remixed",
+    :clone => "Cloned",
     :bookmark => "Bookmarked",
     :add => "Added to"
   }
@@ -52,12 +51,17 @@ class Collage < ActiveRecord::Base
     integer :karma
     
     string :klass, :stored => true
+    string :annotype, :stored => true
     boolean :primary do
       false
     end
     boolean :secondary do
       false
     end
+  end
+
+  def annotype
+    self.annotatable_type
   end
 
   # For Rails Admin delete purposes only
@@ -67,9 +71,9 @@ class Collage < ActiveRecord::Base
 
   def h2o_clone(new_user, params)
     collage_copy = self.dup
-    collage_copy.name = params[:name]
-    collage_copy.public = params[:public]
-    collage_copy.description = params[:description]
+    collage_copy.name = params[:name] if params.has_key?(:name)
+    collage_copy.public = params[:public] if params.has_key?(:public)
+    collage_copy.description = params[:description] if params.has_key?(:description)
     collage_copy.created_at = Time.now
     collage_copy.parent = self
     collage_copy.user = new_user
@@ -82,7 +86,6 @@ class Collage < ActiveRecord::Base
       new_annotation = annotation.dup
       new_annotation.cloned = true
       new_annotation.layer_list = annotation.layer_list
-      new_annotation.user = new_user
       collage_copy.annotations << new_annotation
     end
     self.color_mappings.each do |color_mapping|
@@ -99,12 +102,12 @@ class Collage < ActiveRecord::Base
       map = self.color_mappings.detect { |cm| cm.tag_id == layer.id }
       if map
         h[layer.name] = map.hex
+      elsif layer.name == "required"
+        h[layer.name] = "6b0000"
       else
         h[layer.name] = cycle('ffcc00', '99ccff', '99cc33', 'ff9999', 'b2c1d0', 'ff9933', 'cc99cc')
       end
     end
-    #hardcoding required layer as dark red
-    h["required"] = '6b0000'
     h
   end
 
@@ -112,9 +115,9 @@ class Collage < ActiveRecord::Base
     Rails.cache.fetch("collage-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.public_children.each do |child|
-        barcode_elements << { :type => "remix",
+        barcode_elements << { :type => "clone",
                               :date => child.created_at,
-                              :title => "Remixed to Collage #{child.name}",
+                              :title => "Cloned to #{child.name}",
                               :link => collage_path(child), 
                               :rating => 5 }
       end
@@ -129,6 +132,7 @@ class Collage < ActiveRecord::Base
   def display_name
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end
+  alias :to_s :display_name
 
   def layers
     self.annotations.collect{|a| a.layers}.flatten.uniq
@@ -187,51 +191,6 @@ class Collage < ActiveRecord::Base
     CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
   end
 
-  def current?
-    !self.outdated?
-  end
-
-  def outdated?
-    self.annotatable.version > self.annotatable_version
-  end
-
-  def update_annotatable_version_number
-    if self.new_record?
-      if self.annotatable
-        self.annotatable.reload
-        if self.annotatable.respond_to?(:version)
-          self.annotatable_version = self.annotatable.version
-        end
-      end
-    end
-  end
-
-  alias :to_s :display_name
-
-  def xpath_and_offset(doc, tt_pos, anchor)
-    results = { :xpath => '', :offset => 0 }
-    node = doc.xpath("//tt[@id='#{tt_pos}']").first
-    element = node.parent
-    while element.name != 'body'
-      index = element.xpath("../#{element.name}").index(element) + 1
-      results[:xpath] = "/#{element.name}[#{index}]#{results[:xpath]}"
-      element = element.parent
-    end
-
-    nodes = node.xpath('../*')
-    node_index = nodes.index(node)
-
-    if anchor == 'start'
-      if node_index != 0
-        results[:offset] = nodes[0,node_index].collect { |n| n.text }.join('').length
-      end
-    else
-      results[:offset] = nodes[0,node_index + 1].collect { |n| n.text }.join('').length
-    end
-
-    results
-  end
-  
   def deleteable_tags
     Tag.find_by_sql("SELECT tag_id AS id FROM
       (SELECT tag_id, COUNT(*)
@@ -249,27 +208,19 @@ class Collage < ActiveRecord::Base
       { :hex => '9e00ff', :text => '#FFFFFF' },
       { :hex => '6600ff', :text => '#FFFFFF' },
       { :hex => '2e00ff', :text => '#FFFFFF' },
-      { :hex => '000aff', :text => '#FFFFFF' },
-      { :hex => '0042ff', :text => '#FFFFFF' },
-      { :hex => '007aff', :text => '#FFFFFF' },
-      { :hex => '00b3ff', :text => '#000000' },
       { :hex => '00ffdb', :text => '#000000' },
-      { :hex => '00ffa3', :text => '#000000' },
-      { :hex => '00ff6b', :text => '#000000' },
       { :hex => '05ff00', :text => '#000000' },
-      { :hex => '73fd00', :text => '#000000' },
-      { :hex => 'abfd00', :text => '#000000' },
-      { :hex => 'e4fd00', :text => '#000000' },
       { :hex => 'ffee00', :text => '#000000' },
-      { :hex => 'feb62a', :text => '#000000' },
-      { :hex => 'fdac12', :text => '#000000' },
       { :hex => 'fe872a', :text => '#000000' },
-      { :hex => 'ff3800', :text => '#000000' },
-      { :hex => 'fe2a2a', :text => '#000000' }
+      { :hex => 'ff3800', :text => '#000000' }
     ]
   end
   
   def self.get_single_resource(id)
     Collage.where(id: id).includes(:annotations => [:layers, :taggings => :tag]).first
+  end
+
+  def annotated_label
+    self.annotatable_type == "Case" ? "Annotated Case" : "Annotated Text"
   end
 end

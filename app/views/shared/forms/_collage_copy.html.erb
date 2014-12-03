@@ -1,4 +1,4 @@
-<h3 id="generic_title">Remix Collage</h3>
+<h3 id="generic_title">Clone <%= @collage.annotated_item %></h3>
 <div id="error_block"></div>
   <% semantic_form_for @collage, :url => copy_collage_path(@collage), :html => {:id => "copy_collage_#{@collage.id}", :method => "post", :class => "collage_form formtastic"} do |form| %>
   <% form.inputs do %>

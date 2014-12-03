@@ -5,12 +5,11 @@ class Default < ActiveRecord::Base
   include CaptchaExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
-  include FormattingExtensions
   include DeletedItemExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {
-    :default_remix => "Remixed",
+    :default_clone => "Cloned",
     :bookmark => "Bookmarked",
     :add => "Added to"
   }
@@ -61,8 +60,8 @@ class Default < ActiveRecord::Base
     default_copy.parent = self
     default_copy.karma = 0
     default_copy.user = default_user
-    Rails.logger.warn "stephie: #{params.inspect}"
-    default_copy.name = params[:name]
+    default_copy.name = params[:name] if params.has_key?(:name)
+    default_copy.description = params[:description] if params.has_key?(:description)
     default_copy.public = params[:public] if params.has_key?(:public)
 
     default_copy
@@ -73,9 +72,9 @@ class Default < ActiveRecord::Base
       barcode_elements = self.barcode_bookmarked_added
 
       self.public_children.each do |child|
-        barcode_elements << { :type => "default_remix",
+        barcode_elements << { :type => "default_clone",
                               :date => child.created_at,
-                              :title => "Remixed to Link #{child.name}",
+                              :title => "Cloned to Link #{child.name}",
                               :link => default_path(child),
                               :rating => 1 }
       end

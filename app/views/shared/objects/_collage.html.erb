@@ -1,6 +1,6 @@
 <% cache([collage.user, "list-object", collage], :compress => H2O_CACHE_COMPRESSION) do %>
 <li class="listitem listitem<%= collage.id %>" id="listitem_collage<%= collage.id %>" data-itemid="<%= collage.id %>" data-type="collage">
-  <a href="#" class="tooltip list-icon icon icon-collage" title="Collage"></a>
+  <a href="#" class="tooltip list-icon icon icon-collage" title="<%= collage.annotated_label %>"></a>
   <div class="details">
     <h3>
       <%= link_to collage.name, collage_path(collage), :class => "title" %>
@@ -14,9 +14,6 @@
       <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %> |
       <% end -%>
       <% end -%>
-      <% if collage.words_shown.present? -%>
-      <%= number_with_delimiter(collage.words_shown, :delimiter => ',') %> Words |
-      <% end -%>
       <%= collage.updated_at.strftime("%B %d, %Y") %>
       <% if false -%>Taught at [school] (if it hasn't been taught anywhere, don't display this field) <% end -%>
     </p>
@@ -25,7 +22,7 @@
   <div class="right_details">
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), collage, :class => "action read-action" %>
-    <a href="<%= copy_collage_path(collage) %>" class="remix-action link-copy" data-type="collage" data-title="<%= collage.name %>" data-public="<%= collage.public %>"><span class="icon icon-remix"></span>REMIX</a>
+    <a href="<%= copy_collage_path(collage) %>" class="clone-action link-copy" data-type="collage" data-title="<%= collage.name %>" data-public="<%= collage.public %>"><span class="icon icon-clone"></span>CLONE</a>
     <a data-item_id="<%= collage.id %>" data-type="collage" class="link-add" href="#"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
       :class => "link-bookmark bookmark-action", 

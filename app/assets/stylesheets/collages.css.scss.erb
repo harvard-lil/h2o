@@ -11,7 +11,25 @@ body#collages_show .singleitem {
   div.article > * {
     margin-left: 1.8em;
   }
-  
+ 
+  .annotator-adder {
+    background: #FFF;
+    width: 130px;
+    padding: 10px;
+    border: 5px solid #CCC;
+    height: 26px;
+    a {
+      display: inline-block;
+      text-indent: -10000px;
+      margin-right: 10px;
+    }
+    a#adder_annotate {
+      margin-right: 0px;
+    }
+    button {
+      display: none;
+    }
+  }
   .annotator-viewer {
     .annotator-collage span {
       color: #000;
@@ -21,27 +39,29 @@ body#collages_show .singleitem {
     .annotator-collage h3 {
       margin-left: 0px;
     }
-    div#viewer_linked_collage {
-      padding-left: 0px;
-    }
     .annotator-controls .annotator-delete {
       background: url(<%= asset_path "icons.png" %>) no-repeat -31px -137px;
       height: 15px;
       width: 12px;
     }
   }
-  #show_paragraph_numbers a {
+  #show_paragraph_numbers a,
+  #hide_text_edits,
+  #hide_comments {
     display: none;
   }
 
   .annotator-editor {
-    #add_new_layer {
-      padding-left: 6px;
-      margin: 5px;
+    #h2o_delete {
+      margin-right: 5px;
     }
-    #add_new_layer:after {
+    #remove_edit_quicklink {
+      padding-left: 5px;
+    }
+    #remove_edit_quicklink:after {
       background-image: none;
     }
+    
     .annotator-h2o_layer {
       padding: 5px;
       div.hexes a:after {
@@ -60,12 +80,9 @@ body#collages_show .singleitem {
       color: red;
       font-weight: bold;
     }
-    a#remove_layer {
-      margin: 5px 0px 0px 10px;
-      padding-left: 5px;
-    }
     #layer_error {
       padding-right: 0px;
+      display: block;
     }
     #add_new_layer_error {
       margin: 5px 0px 0px 10px;
@@ -100,42 +117,64 @@ body#collages_show .singleitem {
     }
     #link_to_collage:after,
     #remove_layer:after,
-    .hexes a:after,
-    #collage_search a:after {
+    .hexes a:after {
       background: none;
     }
-    #link_to_collage {
-      margin: 5px;
+    .annotator-item {
+      clear: both;
     }
-    #collage_search_buttons {
-      padding: 10px;
-      background: #C2C2C2;
-      a#cancel_link_to_collage {
+    .annotator-item.annotator-checkbox {
+      clear: none;
+      display: block;
+      float: left;
+      label {
+        color: #000;
+        padding: 0px 3px;
+        border: 1px solid #000;
+      }
+      input[type="checkbox"] {
+        display: none;
       }
     }
-    #collage_search {
-      background: #D5D5D5;
-      padding: 10px;
-      .pagination {
-        padding: 5px 10px;
-        text-align: center;
-      }
-      a {
-        background: none;
-        box-shadow: none;
-        text-shadow: none;
+    .annotator-item.annotation_hidden_property {
+      display: list-item;
+      clear: both;
+      float: none;
+      label {
+        border: none;
         padding: 0px;
-        border: 0px;
       }
     }
-    .annotator-item #collage_search_input {
-      min-width: 0px;
-      display: inline-block;
-      width: 198px;
-      background: #F3F3F3;
-      margin-right: 10px;
-      padding: 5px;
-      margin-bottom: 10px;
+  }
+  .annotator-editor {
+    .annotator-cancel {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 18px;
+    }
+    .annotator-resize {
+      display: none;
+    }
+  }
+  .annotator-editor.annotator-invert-y {
+    .annotator-cancel {
+      left: 5px;
+      right: auto;
+    }
+  }
+  .annotator-editor .annotator-cancel:after {
+    left: 7px;
+    width: 14px;
+  }
+  .annotator-editor.hide {
+    #h2o_delete {
+      margin-right: 0px;
+    }
+  }
+  .annotator-editor.highlight.new_item {
+    .annotator-cancel {
+      margin-right: 0px;
     }
   }
 }
@@ -206,6 +245,8 @@ div.article .no_visible_children {
 }
 .singleitem .popup ul li {
   text-transform: uppercase;
+  margin-bottom: 6px;
+  clear: both;
 }
 .singleitem .text-layers-popup {
   width: 200px;
@@ -253,9 +294,7 @@ div.article .no_visible_children {
 /* Hover */
 div.article .control-divider:hover,
 div.article .layered-control:hover,
-div.article .annotation-ellipsis:hover,
-div.article .unlayered-control:hover,
-div.article .unlayered-ellipsis:hover {
+div.article .annotation-ellipsis:hover {
   cursor: pointer;
 }
 
@@ -268,26 +307,14 @@ div.article.edit_mode .control-divider { display: inline-block; }
 div.article.edit_mode .edit_highlight { background: #EEF9D9; }
 div.article.edit_mode .special_highlight { visibiility: hidden; }
 div.article .layered-control,
-div.article .unlayered-control { width: 9px; height: 16px; }
-div.article.edit_mode .layered-control,
-div.article.edit_mode .unlayered-control { width: 9px; height: 16px; }
+div.article.edit_mode .layered-control { width: 9px; height: 16px; }
 div.article .default-hidden,
 div.article.edit_mode .default-hidden,
 
-div.article.hide_unlayered tt { display: none; }
-div.article.hide_unlayered tt.a { display: inline; }
-div.article.hide_unlayered .unlayered-control { display: none; }
-div.article.hide_unlayered .unlayered-ellipsis { display: inline-block; }
-div.article.show_unlayered tt { display: inline; }
-div.article.show_unlayered .unlayered-control { display: inline-block; }
-div.article.show_unlayered .unlayered-ellipsis { display: none; }
 /* End Edit mode toggles */
 
 .annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
-.unlayered-ellipsis { display: none; font-weight: normal; color: #336699; font-style: normal; text-decoration: none; }
-.unlayered-control-start,
 .layered-control-start { display: none; background: url(<%= asset_path 'fcollapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
-.unlayered-control-end,
 .layered-control-end { display: none; background: url(<%= asset_path 'collapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
 .paragraph-numbering {
   position: absolute;
@@ -299,9 +326,13 @@ div.article.show_unlayered .unlayered-ellipsis { display: none; }
   opacity: 0.0;
 }
 
-div.article .layered-ellipsis { display: none; text-decoration: none; color: #336699; font-style: normal; }
-div.article .layered-empty { /* background-color: #FEFED9; */ }
-div.article .paragraph-numbering .layered-empty { background-color: #FFF; }
+div.article .layered-ellipsis { 
+  display: none;
+  text-decoration: none; 
+  color: #336699; 
+  font-weight: bold;
+  padding: 0px 5px;
+}
 
 /* Annotation Layers */
 .new_layer {
@@ -382,13 +413,78 @@ div.article tt a.annotation_tip {
   padding: 2px;
 }
 
-.annotator-wrapper .annotation-indicator {
-  position: absolute;
-  width: 1px;
-  display: block;
-  background-color: #676767;
-  left: 9px;
+.annotator-wrapper {
+  .annotator-hl {
+    font-size: inherit !important
+  }
+  .with_comment {
+    border-bottom: 1px solid #66cc66;
+  }
+  .annotation-bar-indicator {
+    position: absolute;
+    width: 1px;
+    display: block;
+    background-color: #676767;
+    left: 9px;
+  }
+  .annotation-indicator {
+    position: absolute;
+    width: 26px;
+    display: block;
+    right: -30px;
+    opacity: 0.5;
+    z-index: 100;
+  }
+  .annotation-indicator:hover {
+    opacity: 1.0;
+  }
+  .annotation-indicator-highlights {
+    opacity: 1.0;
+  }
+  .annotation-indicator-highlights a,
+  .annotation-indicator-highlights span {
+    border: 1px solid #000;
+    text-decoration: none;
+    padding: 0px 3px;
+    margin-right: 3px;
+    white-space: nowrap;
+  }
+  .annotation-indicator-link:hover,
+  .annotation-indicator-annotate:hover {
+    cursor: pointer;
+  }
+  .annotation-indicator-link span.readonly-link,
+  .annotation-indicator-link span.edit-link,
+  .annotation-indicator-annotate span.readonly-annotate,
+  .annotation-indicator-annotate span.edit-annotate {
+    display: none;
+    background: #FFF;
+    padding: 0px 3px;
+    color: #000;
+    z-index: 100;
+    width: 200px;
+    position: absolute;
+    left: 28px;
+    top: 0px;
+  }
+  .annotation-indicator-annotate,
+  .annotation-indicator-link {
+    span.readonly-annotate,
+    span.edit-annotate,
+    span.readonly-link,
+    span.edit-link {
+      width: 250px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    a.icon-edit {
+      float: right;
+      margin: 3px;
+    }
+  }
 }
-.annotator-wrapper > .unlayered-ellipsis {
-  padding: 0px 0px 10px 330px;
+
+.article.read_only .annotator-wrapper .icon-adder-show {
+  visibility: hidden;
 }
+

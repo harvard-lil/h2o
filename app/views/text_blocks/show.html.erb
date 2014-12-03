@@ -6,7 +6,7 @@
 
 <aside id="singleitem_barcode_toolbar">
   <% if current_user -%>
-  <%= link_to raw('<span class="icon icon-tocollage-large"><span>Collage This</span></span>'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'collage-this new-action tooltip', :title => "Collage This" %>
+  <%= link_to raw('<span class="icon icon-tocollage-large"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'collage-this new-action tooltip', :title => "Clone and Annotate" %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @text_block.id, "data-type" => "text_block", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Text</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@text_block.name}", "data-type" => "text_block", "data-itemid" => @text_block.id %>
   <% end -%>
@@ -18,12 +18,13 @@
   </div>
   <% if can? :edit, @text_block -%>
   <div id="description" class="scale1-1">
+    <%= raw @text_block.formatted(:description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT TEXT INFORMATION<span class="icon icon-arrow"></span>'), edit_text_block_path(@text_block), :class => "edit-external scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE TEXT<span class="icon icon-arrow"></span>'), @text_block, "data-type" => "text_block", "data-id" => @text_block.id, :class => "delete-action scale0-8" %>
   </div>
   <% end -%>
   <div class="article">
-    <%= raw @text_block.content %>
+    <%= raw @text_block.sanitized_content %>
   </div>
 </div>
 

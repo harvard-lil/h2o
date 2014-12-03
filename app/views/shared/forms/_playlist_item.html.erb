@@ -3,16 +3,20 @@
   <%= semantic_form_for @playlist_item, :html => { :class => (@playlist_item.new_record? ? 'new' : 'edit') } do |form| %>
     <ul>
     <%= form.inputs do %>
-      <% if @actual_object.class == Default -%>
+      <% if @playlist_item.actual_object_type == 'Default' -%>
       <li>
         <label>Url</label>
-        <span style="clear:both;"><%= @url_display %></span>
+        <span style="clear:both;"><%= @playlist_item.actual_object.url %></span>
       </li>
       <% end -%>
+      <% if @playlist_item.actual_object_type != 'Case' -%>
       <%= form.input :name,  :as => :string, :input_html => {:class => "ui-widget-content ui-corner-all dd-nodrag"} %>
-      <%= form.input :description,
+      <%= form.input :description, :as => :text,
         :input_html => {:size => '40x5', :class => "ui-widget-content ui-corner-all dd-nodrag"},
         :required => false %>
+      <% elsif @playlist_item.new_record? -%>
+      <li>You may not edit name or description for cases in your playlist.</li>
+      <% end -%>
       <% if !@playlist_item.new_record? -%>
       <li class="text dd-nodrag">
         <label for="playlist_item_notes">Notes</label>

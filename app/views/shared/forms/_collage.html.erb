@@ -1,6 +1,6 @@
 <div style="width: 380px; float: left;">
   <div id="error_block" style="display:none;" class="error"></div>
-  <h3 id="generic_title"><%= (@collage.new_record?) ? 'Add a New Collage' : "Edit \"#{@collage.display_name}\"" %></h3>
+  <h3 id="generic_title"><%= (@collage.new_record?) ? 'Clone and Annotate' : "Edit \"#{@collage.display_name}\"" %></h3>
   <%= render :partial => "shared/user_verified" %>
   <%= semantic_form_for(@collage, :html => {:id => 'collage-form'}) do |form| %>
     <%= form.inputs do %>

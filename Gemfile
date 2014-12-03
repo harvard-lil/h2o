@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.1'
+gem 'rails', '4.1.7'
 gem 'pg'
 
 # Use SCSS for stylesheets
@@ -61,4 +61,4 @@ gem 'scrypt'
 gem 'rails_admin_import', '0.1.9'
 # gem 'rails-perftest'
 
-gem "skylight"
+# gem "skylight"

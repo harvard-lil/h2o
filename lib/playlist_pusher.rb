@@ -197,6 +197,9 @@ class PlaylistPusher
 
   def generate_ownership_sql!(objects)
     klass = objects.first.class
+
+    return true if klass == Annotation
+
     klass_table = klass == Media ? "medias" : klass.to_s.tableize
     increments = objects.size / self.user_ids.size
     i = 0

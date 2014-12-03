@@ -27,11 +27,11 @@
       <% end -%>
     </div>
     <div id="quickbar_right">
-      <a href="#" id="quickbar_tools">SHOW/HIDE</a>
+      <a href="#" id="quickbar_tools">ANNOTATION DISPLAY</a>
       <a href="#" class="icon icon-black-print" id="quickbar_print" title="Print <%= @collage.name %>"><span>Print</span></a>
-      <%= link_to raw('<span class="icon icon-black-favorite"><span>Bookmark Collage</span></span>'), '#', :class => "bookmark-action requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
+      <%= link_to raw('<span class="icon icon-black-favorite"><span>Bookmark ' + @collage.annotated_label + '</span></span>'), '#', :class => "bookmark-action requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
       <a href="#" class="icon icon-black-font" id="quickbar_font" title="Change the size of the text"><span>Font Settings</span></a>
-      <a href="<%= copy_collage_path(@collage) %>" class="remix-action requires_logged_in icon icon-black-remix" id="quickbar_copy-collage" title="Remix <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>" data-public="<%= @collage.public %>"><span>Remix</span></a>
+      <a href="<%= copy_collage_path(@collage) %>" class="clone-action requires_logged_in icon icon-black-clone" id="quickbar_copy-collage" title="Clone <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>" data-public="<%= @collage.public %>"><span>Clone</span></a>
     </div>
     <div class="clear"></div>
   </div>

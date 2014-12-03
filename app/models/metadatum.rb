@@ -36,5 +36,4 @@ class Metadatum < ActiveRecord::Base
       rec.errors.add_to_base('You must define at least one metadata attribute.')
     end
   end
-
 end

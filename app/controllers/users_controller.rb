@@ -136,10 +136,6 @@ class UsersController < ApplicationController
 
       @collection.execute!
       build_facet_display(@collection)
-      b = @collection.facet(:primary).rows.detect { |r| r.value }
-      @primary_playlists = b.count if b.present?
-      b = @collection.facet(:secondary).rows.detect { |r| r.value }
-      @secondary_playlists = b.count if b.present?
 
       if primary_filtering
         @klass_facets = []
@@ -249,7 +245,7 @@ class UsersController < ApplicationController
        :simple_display, :print_titles, :print_dates_details, 
        :print_paragraph_numbers, :print_annotations, :print_highlights,
        :print_font_face, :print_font_size, :tab_open_new_items,
-       :default_show_annotations].each do |attr|
+       :default_show_comments, :default_show_paragraph_numbers].each do |attr|
         cookies[attr] = @user.send(attr)
       end
       profile_content = render_to_string("shared/_author_stats.html.erb", :locals => { :user => @user })
@@ -297,8 +293,7 @@ class UsersController < ApplicationController
         playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
           :actual_object_type => actual_object.class.to_s,
           :actual_object_id => actual_object.id,
-          :position => playlist.playlist_items.count,
-          :name => actual_object.name)
+          :position => playlist.playlist_items.count)
         playlist_item.save
 
         render :json => { :already_bookmarked => false, :user_id => current_user.id }
@@ -336,9 +331,9 @@ class UsersController < ApplicationController
     params.require(:user).permit(:id, :name, :login, :password, :password_confirmation, 
                                  :email_address, :tz_name, :attribution, :title, 
                                  :url, :affiliation, :description, :tab_open_new_items, 
-                                 :default_show_annotations, :default_font_size, :default_font, :terms,
+                                 :default_show_comments, :default_font_size, :default_font, :terms,
                                  :print_titles, :print_dates_details, :print_paragraph_numbers,
                                  :print_annotations, :print_highlights, :print_font_face,
-                                 :print_font_size)
+                                 :print_font_size, :default_show_paragraph_numbers)
   end
 end

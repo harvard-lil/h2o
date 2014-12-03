@@ -15,7 +15,8 @@ var tinyMCEPreInit = {
       plugins:"fullscreen,link,charmap,textcolor",
       add_form_submit_trigger: false,
       skin_url: 'https://tinymce.cachefly.net/4.0/skins/lightgray',
-      content_css: '/h2o_tinymce.css'
+      content_css: '/h2o_tinymce.css',
+      editor_deselector: 'no_tinymce'
     }
   } ,
   qtInit : {
@@ -31,10 +32,7 @@ var tinyMCEPreInit = {
 };
 
 jQuery(document).ready(function(){
-  if($('body').data('controller') == 'medias' || $('body').data('controller') == 'users' || $('body').data('action') == 'show') {
-    return;
-  }
-  if($('body').attr('id') == 'playlists_import') {
+  if($('body').data('action') == 'show') {
     return;
   }
   var init, ed, qt, first_init, mce = false;
@@ -73,4 +71,9 @@ jQuery(document).ready(function(){
       switchEditors.switchto(jQuery('.mce_switches .html').attr('id'));
     }
   });
+ 
+  if($('body').attr('id') == 'text_blocks_new') {
+    $('li#text_block_description_input > div').hide();
+    $('li#text_block_description_input > textarea').show();
+  }
 });

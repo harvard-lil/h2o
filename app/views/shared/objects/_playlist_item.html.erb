@@ -18,13 +18,13 @@
       </td>
       <td class="title-cell">
         <% if actual_object.present? && item.actual_object_type == 'Default' -%>
-        <%= link_to item.name, actual_object.url, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
+        <%= link_to actual_object.name, actual_object.url, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? && item.actual_object_type == 'Media' -%>
-        <%= link_to item.name, media_path(actual_object), :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
+        <%= link_to actual_object.name, media_path(actual_object), :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? -%>
-        <%= link_to raw(item.name), actual_object, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
+        <%= link_to raw(actual_object.name), actual_object, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% else -%>
-        <%= item.name %> <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
+        <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
         <% end -%>
         <%= link_to raw('<span class="icon icon-delete dd-nodrag"></span>'), url_for(:controller => 'playlist_items', :action => 'destroy', :id => item),
           :class => "action delete-playlist-item requires_remove" %>
@@ -45,19 +45,14 @@
       <% end -%>
       <% end -%>
 
-      <% if (actual_object.respond_to?(:description) && actual_object.description != item.description) || (["TextBlock", "Case"].include?(item.actual_object_type) && item.description.present?) -%>
+      <% if actual_object.respond_to?(:description) && actual_object.description != '' -%>
       <div class="item_desc">
-        <%= raw PlaylistItem.format_content(item.description) %>
+        <%= raw actual_object.formatted(:description) %>
       </div>
       <% end -%>
       <% if item.notes.to_s != '' && item.public_notes -%>
       <div class="notes">
-        <b>Notes:</b><br /><%= PlaylistItem.format_content(item.notes) %>
-      </div>
-      <% end -%>
-      <% if actual_object.respond_to?(:description) && !actual_object.is_a?(TextBlock) && actual_object.description != '' -%>
-      <div class="actual_obj_desc">
-        <%= raw PlaylistItem.format_content(actual_object.description) %>
+        <b>Notes:</b><br /><%= item.formatted(:notes) %>
       </div>
       <% end -%>
       <% if recursive_level == 5 && item.actual_object_type == 'Playlist' && @nested_playlists.has_key?("Playlist-#{item.actual_object_id}") %>

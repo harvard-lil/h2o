@@ -8,7 +8,7 @@
 			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
 		</h2>
 		<div id="description" class="item_description">
-			<%= raw Playlist.format_content(@playlist.description) %>
+			<%= raw @playlist.formatted(:description) %>
 		</div>
 	</div>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>

@@ -42,9 +42,6 @@ class AnnotationsController < BaseController
     @other_layers = @required_layer.present? ? @annotation.collage.layers.select { |t| t.id != @required_layer.id } : @annotation.collage.layers
     @color_list = Collage.color_list
 
-    [:annotation_start, :annotation_end].each do |p|
-      @annotation[p] = params[p]
-    end
     [:collage_id].each do |p|
       @annotation[p] = (params[p] == 'null') ? nil : params[p]
     end
@@ -67,20 +64,18 @@ class AnnotationsController < BaseController
 
     range = params[:ranges].first
     params[:annotation] = {
-      :annotation_start => 0,
-      :annotation_end => 0,
       :collage_id => params[:collage_id],
       :xpath_start => range[:start],
       :xpath_end => range[:end],
       :start_offset => range[:startOffset],
       :end_offset => range[:endOffset],
       :annotation => params[:text],
-      :linked_collage_id => params[:linked_collage_id].present? ? params[:linked_collage_id] : nil,
+      :hidden => params[:hidden],
+      :link => params[:link].present? ? params[:link] : nil,
       :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
     }
 
     @annotation = Annotation.new(annotations_params)
-    @annotation.user = current_user
  
     if @annotation.save
       create_color_mappings if params[:layer_hexes].present?
@@ -88,8 +83,8 @@ class AnnotationsController < BaseController
       render :json => { :id => @annotation.id,
                         :layers => @annotation.layers.collect { |l| l.name }.to_json,
                         :text => @annotation.annotation,
-                        :linked_collage_id => @annotation.linked_collage_id.present? ? @annotation.linked_collage_id : nil, 
-                        :linked_collage_name => @annotation.linked_collage_id.present? ? @annotation.linked_collage.name : nil }
+                        :hidden => @annotation.hidden,
+                        :link => @annotation.link }
     else
       render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
              :status => :unprocessable_entity
@@ -97,9 +92,24 @@ class AnnotationsController < BaseController
   end
 
   def update
+    if params.has_key?(:force_destroy) && params[:force_destroy]
+      deleteable_tags = @annotation.collage.deleteable_tags
+      @annotation.layers.each do |layer|
+        if deleteable_tags.include?(layer.id)
+          to_delete = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+          ColorMapping.destroy(to_delete) if to_delete
+        end
+      end
+      @annotation.destroy
+      render :json => { :id => @annotation.id, 
+                        :layers => [].to_json,
+                        :force_destroy => true }
+      return
+    end
+
     params[:annotation] = {
       :annotation => params[:text],
-      :linked_collage_id => params[:linked_collage_id].present? ? params[:linked_collage_id] : nil,
+      :link => params[:link].present? ? params[:link] : nil,
       :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
     }
 
@@ -120,8 +130,8 @@ class AnnotationsController < BaseController
       create_color_mappings if params[:layer_hexes].present?
       render :json => { :id => @annotation.id,
                         :layers => @annotation.layers.collect { |l| l.name }.to_json,
-                        :linked_collage_id => @annotation.linked_collage_id.present? ? @annotation.linked_collage_id : nil, 
-                        :linked_collage_name => @annotation.linked_collage_id.present? ? @annotation.linked_collage.name : nil }
+                        :link => @annotation.link,
+                        :text => @annotation.annotation }
     else
       render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
              :status => :unprocessable_entity
@@ -156,7 +166,7 @@ class AnnotationsController < BaseController
 
   private
   def annotations_params
-    params.require(:annotation).permit(:collage_id, :linked_collage_id, :annotation_start, :annotation_end, :xpath_end,
-                                       :xpath_start, :start_offset, :end_offset, :annotation, :id, :layer_list)
+    params.require(:annotation).permit(:collage_id, :link, :xpath_end, :xpath_start, :start_offset,
+                                       :end_offset, :annotation, :id, :layer_list, :hidden)
   end
 end

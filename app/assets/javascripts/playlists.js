@@ -4,6 +4,13 @@ var remove_item;
 var dropped_original_position;
 var items_dd_handles;
 
+h2o_global.playlist_clone_response = function(data) {
+  $('#generic-node #error_block').html('The system is cloning the playlist and every item in the playlist. You will be emailed when the process has completed.').show();
+  $('#generic-node form').css('opacity', 0.5);
+  h2o_global.hideGlobalSpinnerNode();
+};
+
+/* Generic HTML form elements */
 h2o_global.playlist_afterload = function(results) {
   playlists_show.set_nestability_and_editability();
   if(!results.can_destroy) {

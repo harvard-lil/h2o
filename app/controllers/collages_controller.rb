@@ -1,5 +1,7 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
+
+  before_filter :limit_missing_item, :only => :destroy
   
   protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
   caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').present? && c.instance_variable_get('@collage').public?}

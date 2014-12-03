@@ -66,8 +66,6 @@ H2o::Application.routes.draw do
   resources :playlists do
     member do
       post 'copy'
-      post 'deep_copy'
-      # get 'push'
       get 'access_level'
       get 'export'
       post 'private_notes'

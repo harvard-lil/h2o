@@ -16,7 +16,7 @@
       <% @user_facet_display[0..4].each do |row| -%>
       <li>
         <% if row[:count] == 0 -%>
-        <span class="current_user"><%= row[:user].simple_display %> (<%= row[:count] %>)</span>
+        <span class="empty_filter"><%= row[:user].simple_display %> (<%= row[:count] %>)</span>
         <% else -%>
         <a href="#" data-value="<%= row[:user].id %>" class="<%= row[:class] %>"><%= row[:user].simple_display %> (<%= row[:count] %>)</a>
         <% end -%>
@@ -30,7 +30,67 @@
     </ul>
   </div>
   <% end -%>
-  <% if @klass_facet_display.size > 1 || params.has_key?(:klass) || (params[:controller] == "users" && @klass_facet_display.size > 0) -%>
+  <% if @type_lookup == :collages -%>
+  <div class="aright">
+    <h4 id="annotype">
+      Type
+      <% if params.has_key?(:annotype) -%>
+      <a class="clear_filters" id="clear_annotype_filter" href="#">Clear</a>
+      <% end -%>
+    </h4>
+    <ul id="annotype_filters">
+      <% if !params.has_key?(:annotype) || (params.has_key?(:annotype) && params[:annotype] == "Case") -%>
+      <li>
+        <% if !@annotype_facet_display.has_key?(:case) -%>
+        <span class="empty_filter">Annotated Case (0)</span>
+        <% else -%>
+        <a href="#" data-value="Case" class="<%= 'active' if params.has_key?(:annotype) && params[:annotype] == "Case" %>">Annotated Case (<%= @annotype_facet_display[:case] %>)</a>
+        <% end -%>
+      </li>
+      <% end -%>
+      <% if !params.has_key?(:annotype) || (params.has_key?(:annotype) && params[:annotype] == "TextBlock") -%>
+      <li>
+        <% if !@annotype_facet_display.has_key?(:textblock) -%>
+        <span class="empty_filter">Annotated Text (0)</span>
+        <% else -%>
+        <a href="#" data-value="TextBlock" class="<%= 'active' if params.has_key?(:annotype) && params[:annotype] == "TextBlock" %>">Annotated Text (<%= @annotype_facet_display[:textblock] %>)</a>
+        <% end -%>
+      </li>
+      <% end -%>
+    </ul>
+  </div>
+  <% end -%>
+  <% if @type_lookup == :playlists -%>
+  <div class="aright">
+    <h4 id="type_h">
+      Playlist
+      <% if params.has_key?(:klass) -%>
+      <a class="clear_filters" id="clear_klass_filter" href="#">Clear</a>
+      <% end -%>
+    </h4>
+    <ul id="klass_filters">
+      <% if !params.has_key?(:klass) || (params.has_key?(:klass) && params[:klass] == "Primary") %>
+      <li>
+        <% if @primary_playlists.nil? -%>
+        <span class="empty_filter">Primary (0)</span>
+        <% else -%>
+        <a href="#" data-value="Primary" class="<%= 'active' if params.has_key?(:klass) && params[:klass] == "Primary" %>">Primary (<%= @primary_playlists %>)</a>
+        <% end -%>
+      </li>
+      <% end -%>
+      <% if !params.has_key?(:klass) || (params.has_key?(:klass) && params[:klass] == "Secondary") %>
+      <li>
+        <% if @secondary_playlists.nil? -%>
+        <span class="empty_filter">Secondary (0)</span>
+        <% else -%>
+        <a href="#" data-value="Secondary" class="<%= 'active' if params.has_key?(:klass) && params[:klass] == "Secondary" %>">Secondary (<%= @secondary_playlists %>)</a>
+        <% end -%>
+      </li>
+      <% end -%>
+    </ul>
+  </div>
+  <% end -%>
+  <% if @type_lookup != :playlists && (@klass_facet_display.size > 1 || params.has_key?(:klass) || (params[:controller] == "users" && @klass_facet_display.size > 0)) -%>
   <div class="aright">
     <h4 id="type_h">
       Type

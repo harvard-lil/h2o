@@ -1,7 +1,7 @@
 class UserIdCleanup < ActiveRecord::Migration
   def self.up
     [:annotations, :case_requests, :cases, :collages,
-     :defaults, :journal_articles, :medias, :playlists, :text_blocks,
+     :defaults, :medias, :playlists, :text_blocks,
      :rotisserie_discussions, :rotisserie_instances, :rotisserie_posts].each do |t|
       add_column t, :user_id, :integer, :null => false, :default => 0
     end

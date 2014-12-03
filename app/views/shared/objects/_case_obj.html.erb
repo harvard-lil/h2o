@@ -17,7 +17,7 @@
   <div class="right_details">
   <div class="controls">
     <%= link_to raw('<span class="icon icon-read"></span>READ'), case_obj, :class => "action read-action" %>
-    <%= link_to raw('<span class="icon icon-collage-this"></span>COLLAGE THIS'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action link-collage" %>
+    <%= link_to raw('<span class="icon icon-collage-this"></span>CLONE AND ANNOTATE'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => case_obj), :class => "new-action link-collage" %>
     <a data-item_id="<%= case_obj.id %>" data-type="case" class="link-add" href="#"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
       :class => "link-bookmark bookmark-action", 

@@ -51,7 +51,7 @@ class ApplicationController < ActionController::Base
         else
           instance_variable_set "@#{model.to_s.tableize.singularize}", item
         end
-        @page_title = item.name
+        @page_title = item.name if item.respond_to?(:name)
       else
         render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
       end
@@ -163,6 +163,8 @@ class ApplicationController < ActionController::Base
     elsif model == TextBlock
       @label = "Texts"
       @page_title = "Texts | H2O Classroom Tools"
+    elsif model == Collage
+      @page_title = "Annotated Items | H2O Classroom Tools"
     end
     @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
 
@@ -199,9 +201,14 @@ class ApplicationController < ActionController::Base
 
     items.build do
       if params.has_key?(:klass)
-        classes = params[:klass].split(',')
-        any_of do
-          classes.each { |k| with :klass, k }
+        if params[:klass] == "Primary"
+          with :klass, "Playlist"
+          with :primary, true
+        elsif params[:klass] == "Secondary"
+          with :klass, "Playlist"
+          with :secondary, true
+        else
+          with :klass, params[:klass]
         end
       end
       if params.has_key?(:user_ids)
@@ -209,6 +216,9 @@ class ApplicationController < ActionController::Base
         any_of do
           user_ids.each { |k| with :user_id, k }
         end
+      end
+      if params.has_key?(:annotype)
+        with :annotype, params[:annotype] 
       end
       if params.has_key?(:keywords)
         keywords params[:keywords]
@@ -247,6 +257,13 @@ class ApplicationController < ActionController::Base
 
       facet(:user_id)
       facet(:klass)
+      if model != User
+        facet(:primary)
+        facet(:secondary)
+      end
+      if model == Collage
+        facet(:annotype)
+      end
 
       paginate :page => params[:page], :per_page => params[:per_page]
       order_by params[:sort].to_sym, params[:order].to_sym
@@ -261,11 +278,13 @@ class ApplicationController < ActionController::Base
     @display_drilldown = true
     @user_facet_display = []
     @klass_facet_display = []
+    @annotype_facet_display = {}
     @queued_users = []
     @klass_label_map = {
       'Default' => 'Link',
       'UserCollection' => 'User Collection',
-      'TextBlock' => 'Text'
+      'TextBlock' => 'Text',
+      'Collage' => 'Annotated Item'
     }
 
     if collection.results.total_entries == 0
@@ -283,6 +302,12 @@ class ApplicationController < ActionController::Base
         @user_facet_display << { :user => current_user, :class => 'current_user', :count => b.present? ? b.count : 0 }
       end
 
+      if collection.facet(:annotype).present?
+        collection.facet(:annotype).rows.each do |row|
+          @annotype_facet_display[row.value.to_s.downcase.to_sym] = row.count
+        end
+      end
+
       collection.facet(:user_id).rows.each do |row|
         next if [606, 0].include?(row.value)
         next if current_user && row.value == current_user.id
@@ -298,6 +323,11 @@ class ApplicationController < ActionController::Base
         @klass_facet_display << { :value => row.value, :count => row.count }
       end
     end
+     
+    b = collection.facet(:primary).rows.detect { |r| r.value }
+    @primary_playlists = b.count if b.present?
+    b = collection.facet(:secondary).rows.detect { |r| r.value }
+    @secondary_playlists = b.count if b.present?
 
     if params.has_key?(:klass) && params[:klass] == 'PrimaryPlaylist'
       @klass_facet_display.delete_if { |a| a[:value] == 'Playlist' }
@@ -343,7 +373,7 @@ class ApplicationController < ActionController::Base
        :simple_display, :print_titles, :print_dates_details, 
        :print_paragraph_numbers, :print_annotations, :print_highlights,
        :print_font_face, :print_font_size, :tab_open_new_items,
-       :default_show_annotations].each do |attr|
+       :default_show_comments, :default_show_paragraph_numbers].each do |attr|
         cookies[attr] = user.send(attr)
       end
 
@@ -360,13 +390,29 @@ class ApplicationController < ActionController::Base
      :user_id, :bookmarks, :simple_display,
      :print_titles, :print_dates_details, :print_paragraph_numbers,
      :print_annotations, :print_highlights, :print_font_face,
-     :print_font_size, :default_show_annotations].each do |attr|
+     :print_font_size, :default_show_comments, :default_show_paragraph_numbers].each do |attr|
       cookies.delete(attr)
     end
   end
 
   def verbose
     Rails.logger.warn "ApplicationController#verbose hit"
+  end
+
+  def limit_missing_item
+    @single_resource.playlist_items.each do |playlist_item|
+      if playlist_item.playlist.user == @single_resource.user
+        playlist_item.destroy
+      end
+    end
+
+    playlist_users = @single_resource.playlist_items.collect { |pi| pi.playlist.user_id }.uniq
+    if playlist_users.detect { |u| u != @single_resource.user_id }
+      @single_resource.update_attributes({ :user_id => 101022 })
+      render :json => {}
+    else
+      # Do nothing, continue with deletion of item
+    end
   end
 
   private

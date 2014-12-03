@@ -6,7 +6,7 @@
 </div>
 
 <aside id="singleitem_barcode_toolbar">
-  <%= link_to raw('<span class="icon icon-remix-large"><span>Remix Playlist</span></span>'), copy_playlist_path(@playlist), :class => "tooltip link-remix remix-option-action requires_logged_in", :title => "Remix #{@playlist.name}", "data-type" => "playlist", "data-title" => @playlist.name, "data-public" => @playlist.public %>
+  <%= link_to raw('<span class="icon icon-clone-large"><span>Clone Playlist</span></span>'), copy_playlist_path(@playlist), :class => "tooltip link-clone clone-action requires_logged_in", :title => "Clone #{@playlist.name}", "data-type" => "playlist", "data-title" => @playlist.name, "data-public" => @playlist.public %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => @playlist.id, "data-type" => "playlist", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Playlist</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@playlist.name}", "data-type" => "playlist", "data-itemid" => @playlist.id %>
 </aside>
@@ -29,7 +29,7 @@
     </h3>
   </div>
   <div id="description" class="scale1-1">
-    <%= raw Playlist.format_content(@playlist.description) %>
+    <%= raw @playlist.formatted(:description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@playlist), :class => "edit-action requires_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE PLAYLIST<span class="icon icon-arrow"></span>'), @playlist, "data-type" => "playlist", "data-id" => @playlist.id, :class => "delete-action requires_edit scale0-8" %>
     <p id="public_private_instruction" class="requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>

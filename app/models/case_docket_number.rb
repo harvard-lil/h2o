@@ -9,5 +9,4 @@ class CaseDocketNumber < ActiveRecord::Base
   end
 
   alias :to_s :display_name
-
 end

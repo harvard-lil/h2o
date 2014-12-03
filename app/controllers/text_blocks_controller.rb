@@ -1,6 +1,7 @@
 class TextBlocksController < BaseController
   cache_sweeper :text_block_sweeper
   protect_from_forgery :except => [:destroy]
+  before_filter :limit_missing_item, :only => :destroy
 
   def show
   end
@@ -58,7 +59,7 @@ class TextBlocksController < BaseController
 
   private
   def text_blocks_params
-    params.require(:text_block).permit(:id, :name, :public, :description, :tag_list, 
+    params.require(:text_block).permit(:id, :name, :public, :description, :tag_list, :content, 
                                        metadatum_attributes: [:contributor, :coverage, :creator, :date,
                                                               :description, :format, :identifier, :language,
                                                               :publisher, :relation, :rights, :source,

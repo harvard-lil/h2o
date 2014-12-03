@@ -39,7 +39,7 @@
           <% end -%>
         </td>
         <td valign="top" width="37%">
-			    <h4>Collages: (<%= link_to 'Add/Remove', manage_collages_user_collection_path(usercollection), :class => "action edit-action manage-collages" %>)</h4>
+			    <h4>Annotated Items: (<%= link_to 'Add/Remove', manage_collages_user_collection_path(usercollection), :class => "action edit-action manage-collages" %>)</h4>
           <% if usercollection.collages.any? -%>
           <ul>
             <% usercollection.collages.each do |c| -%>

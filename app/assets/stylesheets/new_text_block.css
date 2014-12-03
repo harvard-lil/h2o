@@ -1,6 +1,3 @@
-#text_block_description_input,
-#journal_article_description_input,
-#journal_article_author_description_input,
-#journal_article_video_embed_input {
+#text_block_content_input {
   clear: both;
 }

@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 
 class PlaylistsController < BaseController
-  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :deep_copy, :toggle_nested_private, :submit_import]
+  protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :toggle_nested_private, :submit_import]
   
   cache_sweeper :playlist_sweeper
   caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').present? && c.instance_variable_get('@playlist').public? }
@@ -115,7 +115,7 @@ class PlaylistsController < BaseController
     end
   end
  
-  def deep_copy
+  def copy
     @playlist_pusher = PlaylistPusher.new(:playlist_id => params[:id], 
                                           :user_ids => [current_user.id], 
                                           :email_receiver => 'destination',
@@ -123,37 +123,7 @@ class PlaylistsController < BaseController
                                           :public_private_override => params[:playlist][:public])
     @playlist_pusher.delay.push!
 
-    render :json => { :custom_block => "deep_remix_response" }
-  end
-
-  def copy
-    begin
-      @playlist = Playlist.where(id: params[:id]).first
-      @playlist_copy = Playlist.new(playlist_params)
-      @playlist_copy.parent = @playlist
-      @playlist_copy.karma = 0
-      @playlist_copy.user = current_user
-      @playlist_copy.featured = false
-      verify_captcha(@playlist_copy)
- 
-      if @playlist_copy.save
-        # Note: Building empty playlist barcode to reduce cache lookup, optimize
-        Rails.cache.fetch("playlist-barcode-#{@playlist_copy.id}", :compress => H2O_CACHE_COMPRESSION) { [] }
- 
-        @playlist.playlist_items.each do |playlist_item|
-          new_item = playlist_item.dup
-          new_item.playlist_id = @playlist_copy.id
-          new_item.save
-        end
-  
-        render :json => { :type => 'playlists', :id => @playlist_copy.id, :name => @playlist_copy.name  } 
-      else
-        render :json => { :type => 'playlists', :message => "Could not create playlist, with errors: #{@playlist_copy.errors.full_messages.join(',')}", :error => true }
-      end
-    rescue Exception => e
-      Rails.logger.warn "Failure in playlist copy: #{e.inspect}"
-      render :json => { :type => 'playlists'}, :status => :unprocessable_entity 
-    end
+    render :json => { :custom_block => "playlist_clone_response" }
   end
 
   def position_update
@@ -270,10 +240,10 @@ class PlaylistsController < BaseController
       end
     end
 
-    if data.has_key?("remix_item_id")
-      existing_item = data["remix_item_type"].classify.constantize.where(id: data["remix_item_id"])
+    if data.has_key?("clone_item_id")
+      existing_item = data["clone_item_type"].classify.constantize.where(id: data["clone_item_id"])
       if existing_item.empty?
-        return { :errors => ["Could not find #{data["remix_item_type"]} with id #{data["remix_item_id"]} to remix"], :data => data }
+        return { :errors => ["Could not find #{data["clone_item_type"]} with id #{data["clone_item_id"]} to clone"], :data => data }
       else
         existing_item = existing_item.first
         data["new_item"] = existing_item.h2o_clone(current_user, { :name => existing_item.name, :description => existing_item.description, :public => false })

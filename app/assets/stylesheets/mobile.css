@@ -68,4 +68,8 @@
   #quickbar_left .quickbar_extra {
     display: none;
   }
+  .annotator-wrapper .annotation-indicator {
+    right: auto;
+    left: 40px;
+  }
 }

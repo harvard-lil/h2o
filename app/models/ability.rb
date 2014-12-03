@@ -30,22 +30,24 @@ class Ability
       can [:bookmark_item, :delete_bookmark_item, :verification_request, :verify], :users
       can :new, [Playlist, Collage, Media, TextBlock, Default, CaseRequest, PlaylistItem]
       can :create, [:playlists, :collages, :medias, :text_blocks, :defaults, :case_requests, :bulk_uploads, :playlist_items, :annotations]
-      can [:copy, :deep_copy], Playlist, :public => true
+      can :copy, Playlist, :public => true
       can :copy, Collage, :public => true
       can :copy, Default, :public => true
-
-      can [:copy, :deep_copy], Playlist, :user_id => user.id
+      can :copy, Playlist, :user_id => user.id
       can :copy, Collage, :user_id => user.id
       can :copy, Default, :user_id => user.id
 
       can [:embedded_pager, :access_level], :all
 
       # Can do things on owned items
-      can [:edit, :show, :update, :destroy], [Playlist, Collage, TextBlock, Media, Default, Annotation], :user_id => user.id
+      can [:edit, :show, :update, :destroy], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
       can [:position_update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :user_id => user.id 
       can [:delete_inherited_annotations, :save_readable_state], Collage, :user_id => user.id
       can [:update, :edit, :destroy], PlaylistItem do |playlist_item|
         playlist_item.playlist.user == user
+      end
+      can [:update, :destroy], Annotation do |annotation|
+        annotation.collage.user == user
       end
 
       # Dropbox related permissions
@@ -53,22 +55,6 @@ class Ability
       can :create, :dropbox_sessions
       can :show, BulkUpload, :user_id => user.id
 
-=begin
-      # User Collection related permissions
-      can :new, UserCollection
-      can [:edit, :destroy, :update, :manage_users, :manage_playlists, :manage_collages, :manage_permissions, :update_permissions], UserCollection, :user_id => user.id
-      can :create, :user_collections
-  
-      all_permission_assignments = PermissionAssignment.where(user_id: user.id).includes(:permission, :user_collection => [:collages, :playlists])
-      permissions_by_id = all_permission_assignments.inject({}) { |h, pa| h[pa.permission.key.to_sym] = pa.user_collection.send("#{pa.permission.permission_type}s").collect { |i| i.id }; h }
-      can [:edit, :update, :delete_inherited_annotations, :save_readable_state], Collage, :id => permissions_by_id[:edit_collage] 
-      can [:edit, :update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :id => permissions_by_id[:edit_playlist]
-      can [:update, :edit, :destroy], PlaylistItem, :playlist_id => permissions_by_id[:edit_playlist]
-      can [:show], Collage, :id => permissions_by_id[:view_private_collage]
-      can [:show], Playlist, :id => permissions_by_id[:view_private_playlist]
-      can [:position_update], Playlist, :id => permissions_by_id[:position_update]
-=end
-      
       can [:edit, :update], User, :id => user.id
     end
 

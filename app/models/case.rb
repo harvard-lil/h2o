@@ -1,11 +1,10 @@
 class Case < ActiveRecord::Base
   include StandardModelExtensions
   include AnnotatableExtensions
-  include FormattingExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {
-    :collaged => "Collaged",
+    :collaged => "Annotated",
     :bookmark => "Bookmarked",
     :add => "Added to"
   }
@@ -32,6 +31,9 @@ class Case < ActiveRecord::Base
 
   def display_name
     (short_name.blank?) ? full_name : short_name
+  end
+  def description
+    nil
   end
   def score
     0
@@ -126,17 +128,13 @@ class Case < ActiveRecord::Base
      "https://#{host_and_port}/cases/#{self.id}"].join("\t")
   end
 
-  def current_collage
-    self.collages.detect{|collage| collage.current?}
-  end
-
   def barcode
     Rails.cache.fetch("case-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
       barcode_elements = self.barcode_bookmarked_added
       self.collages.each do |collage|
         barcode_elements << { :type => "collaged",
                               :date => collage.created_at,
-                              :title => "Collaged to #{collage.name}",
+                              :title => "Annotated to #{collage.name}",
                               :link => collage_path(collage),
                               :rating => 5 }
       end

@@ -1,5 +1,5 @@
 #playlists_export, #collages_export, #text_blocks_export, 
-#cases_export, #collages_export_unique, #journal_articles_export {
+#cases_export, #collages_export_unique {
   .wrapper {
     max-width: 1050px;
     width: 1050px;
@@ -61,7 +61,6 @@
   }
   
   /* Collage Content */
-  .unlayered-control,
   .collage-content { padding-left: 50px; clear: both; }
   .collage-content p { margin-bottom: 20px; }
   .collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 2px 5px 2px 18px; margin: 3px;
@@ -117,7 +116,7 @@
   }
   #print-options strong {
     display: inline-block;
-    width: 150px;
+    width: 140px;
     font-weight: normal;
   }
   #print-options #annotation_options,
@@ -129,29 +128,21 @@
     width: 200px;
   }
   #print-options #fontface_s {
-    width: 176px;
+    width: 100px;
   }
   #print-options #fontsize_s {
-    width: 200px;
+    width: 150px;
   }
   
   .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }
   .print_border span { width: 100%; display: block; position: absolute; bottom: 0px; opacity: 0.0; }
   
   .annotator-outer { display: none; }
-  .layered-ellipsis { display: none; margin: 0px 2px; }
-
-  .unlayered-ellipsis { display: none; margin: 0px 2px; }
+  .layered-ellipsis { display: none; margin: 0px 2px; cursor: default; }
 
   div.article {
     .annotator-wrapper {
       position: relative;
-    }
-    .layered-empty { 
-      border-bottom: 2px solid #FEFED9;
-    }
-    .paragraph-numbering .layered-empty { 
-      border-bottom: 2px solid #FFF;
     }
   }
   h3.missing_item {
@@ -169,9 +160,10 @@
   margin: 0px 0px 10px 15px;
 }
 
+.annotator-wrapper .annotation-bar-indicator,
 .annotator-wrapper .annotation-indicator {
   display: none;
 }
-.annotator-wrapper > .unlayered-ellipsis {
-  padding: 0px 0px 10px 502px;
+.annotator-hl {
+  font-size: inherit !important
 }

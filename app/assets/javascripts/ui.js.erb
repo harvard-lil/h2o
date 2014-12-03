@@ -74,7 +74,7 @@ var h2o_global = {
   adjustArticleHeaderSizes: function() {
     $('div.article sub, div.article sup').addClass('scale0-8');
     $('div.article h1, div.article h1 *').addClass('scale1-4');
-    $('div.article h2, div.article h2 *').addClass('scale1-3');
+    $('div.article h2, div.article h2 *:not(.paragraph-numbering)').addClass('scale1-3');
     $('div.article h3, div.article h3 *').addClass('scale1-2');
     $('div.article h4, div.article h4 *').addClass('scale1-1');
     $('div.article h5, div.article h5 *, div#main_details h5 *').addClass('scale1-0');
@@ -106,6 +106,7 @@ var h2o_global = {
     current_href = current_href.replace(/(&)?page=[0-9]*/, '');
     current_href = current_href.replace(/(&)?user_ids=[0-9]*/, '');
     current_href = current_href.replace(/(&)?klass=[a-zA-Z]*/, '');
+    current_href = current_href.replace(/(&)?annotype=[a-zA-Z]*/, '');
     current_href = current_href.replace(/&within=.*/, '');
     if (!current_href.match(/\?/)) {
       current_href += '?';
@@ -114,8 +115,12 @@ var h2o_global = {
     if($('#user_id_filters a.active').size()) {
       current_href += '&user_ids=' + $('#user_id_filters a.active').data('value');
     }
+    
     if($('#klass_filters a.active').size()) {
       current_href += '&klass=' + $('#klass_filters a.active').data('value');
+    }
+    if($('#annotype_filters a.active').size()) {
+      current_href += '&annotype=' + $('#annotype_filters a.active').data('value');
     }
     if($('input[name=within]').val() != '') {
       current_href += '&within=' + $('input[name=within]').val();
@@ -153,6 +158,9 @@ var h2o_global = {
 	          var user_content = $($.mustache(more_user_template, user_data));
             user_content.insertBefore($('#load_more_users'));
           });
+          if(new_users.length < 5) {
+            $('#load_more_users').remove();
+          }
           if(scrollpane_api !== undefined) {
             scrollpane_api.reinitialise();
           }
@@ -166,7 +174,7 @@ var h2o_global = {
       return;
     }
 
-    $('ul#klass_filters a,ul#user_id_filters a:not(#load_more_users)').live('click', function(e) {
+    $('ul#klass_filters a,ul#annotype_filters a,ul#user_id_filters a:not(#load_more_users)').live('click', function(e) {
       e.preventDefault();
       $(this).addClass('active');
       if($(this).data('value') == 'Primary' || $(this).data('value') == 'Secondary') {
@@ -215,7 +223,7 @@ var h2o_global = {
       }
     }
   },
-  observeQuickCollage: function() {
+  observeQuickAnnotation: function() {
     $('#quick_collage').on('click', function(e) {
       e.preventDefault();
       var href = $(this).attr('href');
@@ -232,11 +240,11 @@ var h2o_global = {
         success: function(html){
           h2o_global.hideGlobalSpinnerNode();
           $('#quick_collage_node').remove();
-          var quickCollageDialog = $('<div id="quick_collage_node"></div>');
-          $(quickCollageDialog).html(html);
-          $(quickCollageDialog).find('.barcode_outer,.read-action,.link-add,.bookmark-action,.edit-external,.icon-delete').remove();
-          $(quickCollageDialog).dialog({
-            title: 'Create a Collage',
+          var quickDialog = $('<div id="quick_collage_node"></div>');
+          $(quickDialog).html(html);
+          $(quickDialog).find('.barcode_outer,.read-action,.link-add,.bookmark-action,.edit-external,.icon-delete').remove();
+          $(quickDialog).dialog({
+            title: 'Create an Annotated Item',
             modal: true,
             width: '700',
             height: 'auto'
@@ -249,7 +257,7 @@ var h2o_global = {
             if($('#quick_collage_keyword').val() != '') {
               url += '&keywords=' + $('#quick_collage_keyword').val();
             }
-            h2o_global.listCollageResults(url);
+            h2o_global.listAnnotatedItemResults(url);
           });
         }
       });
@@ -260,14 +268,14 @@ var h2o_global = {
       if($('#quick_collage_keyword').val() != '') {
         url += '&keywords=' + $('#quick_collage_keyword').val();
       }
-      h2o_global.listCollageResults(url);
+      h2o_global.listAnnotatedItemResults(url);
     });
     $(document).delegate('#collage_pagination a', 'click', function(e) {
       e.preventDefault();
-      h2o_global.listCollageResults($(this).attr('href'));
+      h2o_global.listAnnotatedItemResults($(this).attr('href'));
     });
   },
-  listCollageResults: function(href) {
+  listAnnotatedItemResults: function(href) {
     $.ajax({
       type: 'GET',
       dataType: 'html',
@@ -384,7 +392,7 @@ var h2o_global = {
       return;
     }
 
-    $('.annotation-indicator').hide();
+    $('.annotation-bar-indicator').hide();
     $('.btn-a-active').click();
     var font_size = $('#fontsize a.active').data('value');
     var font_face = $('#fontface a.active').data('value');
@@ -627,10 +635,13 @@ var h2o_global = {
         }
         $('.leftcol').addClass('expanded_leftcol');
       }
+      if($('body#collages_show').size()) {
+        h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
+      }
     });
     $('.right_panel_close').live('click', function(e) {
       e.preventDefault();
-      $('#collapse_toggle').click(); 
+      $('#collapse_toggle').click();
     }).hover(function() {
       $('.right_panel').css('opacity', 0.5);
     }, function() {
@@ -739,7 +750,7 @@ var h2o_global = {
     if($.cookie('user_id') == null) {
       _gaq.push(['_trackEvent', 'User Tick', 'Not Logged In']);
       //lack of cookies indicate user not logged in. Skipping
-      $('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous, .remix-action, .link-add, .bookmark-action, .link-collage, .remix-option-action').remove();
+      $('.requires_edit, .requires_logged_in, .requires_remove, .requires_non_anonymous, .clone-action, .link-add, .bookmark-action, .link-collage').remove();
       $('.afterload').css('opacity', 1.0);
       h2o_global.setFixedLinkPosition();
       
@@ -944,7 +955,7 @@ var h2o_global = {
           $('#results_set').html(html);
 
           if($.cookie('user_id') == null) {
-            $('.remix-action, .link-add, .bookmark-action, .link-collage, .remix-option-action').remove();
+            $('.clone-action, .link-add, .bookmark-action, .link-collage').remove();
           }
 
           $('.standard_pagination').html($('#new_pagination').html());
@@ -981,6 +992,9 @@ var h2o_global = {
       }
       if($('ul#klass_filters a.active').size()) {
         url += '&klass=' + $('ul#klass_filters a.active').data('value');
+      }
+      if($('ul#annotype_filters a.active').size()) {
+        url += '&annotype=' + $('ul#annotype_filters a.active').data('value');
       }
       if($('ul#user_id_filters a.active').size()) {
         url += '&user_ids=' + $('ul#user_id_filters a.active').data('value');
@@ -1238,24 +1252,8 @@ var h2o_global = {
       });
     });
   },
-  observeRemixControls: function(region) {
-    $(document).delegate('.remix-option-action', 'click', function(e) {
-      e.preventDefault();
-      var link = $(this);
-      var data = { "copy_url" : link.attr('href'),
-                   "deep_copy_url": link.attr('href').replace(/copy/, 'deep_copy'),
-                   "type" : link.data('type'),
-                   "title" : link.data('title'),
-                   "public" : link.data('public') };
-                   
-      $($.mustache(remix_option_template, data)).dialog({
-        title: 'Playlist Remix Options',
-        modal: true,
-        width: 'auto',
-        height: 'auto'
-      }).dialog('open');
-    });
-    $(document).delegate('.remix-action', 'click', function(e) {
+  observeCloneControls: function(region) {
+    $(document).delegate('.clone-action', 'click', function(e) {
       e.preventDefault();
       var link = $(this);
       var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
@@ -1263,26 +1261,16 @@ var h2o_global = {
         node_title = 'Link';
       }
       var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title'), "public": link.data('public') };
-      var html = $.mustache(remix_item_template, data);
+      var html;
+      if(node_title == 'Playlist') {
+        html = $.mustache(deep_clone_item_template, data);
+      } else {
+        html = $.mustache(clone_item_template, data);
+      }
       h2o_global.generateGenericNode(html);
       h2o_global.show_recaptcha();
     });
-    $(document).delegate('.deep-remix-action', 'click', function(e) {
-      e.preventDefault();
-      var link = $(this);
-      var node_title = link.data('type').charAt(0).toUpperCase() + link.data('type').slice(1);
-      var data = { "copy_url" : link.attr('href'), "node_title" : node_title, "type" : link.data('type'), "title" : link.data('title'), "public" : link.data('public') }; 
-      var html = $.mustache(deep_remix_item_template, data);
-      h2o_global.generateGenericNode(html);
-    });
   },
-  deep_remix_response: function(data) {
-    $('#generic-node').dialog('close');
-    var response = $('<p class="deep-remix-response">The system is remixing the playlist and every item in the playlist. You will be emailed when the process has completed.</p>');
-    $('.deep-remix-action').replaceWith(response); 
-    h2o_global.hideGlobalSpinnerNode();
-  },
-  /* Generic HTML form elements */
   observeGenericControls: function(region){
     $(document).delegate(region + ' .edit-action,' + region + ' .new-action,' + region + '.push-action', 'click', function(e){
       var actionUrl = $(this).attr('href');
@@ -1497,7 +1485,7 @@ $(function() {
 
   h2o_global.observeDestroyControls('');
   h2o_global.observeGenericControls('');
-  h2o_global.observeRemixControls('');
+  h2o_global.observeCloneControls('');
   h2o_global.observeBookmarkControls();
   h2o_global.observePagination(); 
   h2o_global.observeSort();
@@ -1516,7 +1504,7 @@ $(function() {
   h2o_global.loadUserFonts();
   h2o_global.observeMetadataForm();
   h2o_global.observeMetadataDisplay();
-  h2o_global.observeQuickCollage();
+  h2o_global.observeQuickAnnotation();
   h2o_global.initializeRightPanelScroll();
   h2o_global.resetRightPanelThreshold();
   h2o_global.observeDefaultPrintListener();
@@ -1589,14 +1577,8 @@ var delete_item_template = '\
 </div>\
 ';
 
-var remix_option_template = '\
-<div id="playlist_remix_options">\
-<a href="{{deep_copy_url}}" class="button deep-remix-action" data-type="playlist" data-title="{{title}}" data-public="{{public}}">Your own version of EVERY item in this playlist</a>\
-<a href="{{copy_url}}" class="button remix-action" data-type="playlist" data-title="{{title}}" data-public="{{public}}">Your own version of the top-level only of the playlist</a>\
-</div>';
-
-var remix_item_template = '\
-<h3 id="generic_title">Remix {{node_title}}</h3>\
+var clone_item_template = '\
+<h3 id="generic_title">Clone {{node_title}}</h3>\
 <div id="error_block"></div>\
 <form action="{{copy_url}}" class="{{type}}_form formtastic formtastic {{type}}" method="post">\
 <fieldset class="inputs">\
@@ -1624,8 +1606,8 @@ var remix_item_template = '\
 </ol></fieldset>\
 </form>\
 ';
-var deep_remix_item_template = '\
-<h3 id="generic_title">Remix {{node_title}}</h3>\
+var deep_clone_item_template = '\
+<h3 id="generic_title">Clone {{node_title}}</h3>\
 <div id="error_block"></div>\
 <form action="{{copy_url}}" class="{{type}}_form formtastic formtastic {{type}}" method="post">\
 <fieldset class="inputs">\

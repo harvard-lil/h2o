@@ -56,26 +56,26 @@ class User < ActiveRecord::Base
     :user_text_block_added => 2
   }
   RATINGS_DISPLAY = { :playlist_created => "Playlist Created",
-    :collage_created => "Collage Created",
+    :collage_created => "Annotated Item Created",
     :media_created => "Media Created",
     :text_block_created => "Text Block Created",
     :case_created => "Case Created",
-    :user_case_collaged => "Case Collaged",
-    :user_media_collaged => "Media Collaged",
-    :user_text_block_collaged => "Text Block Collaged",
+    :user_case_collaged => "Case Annotated",
+    :user_media_collaged => "Media Annotated",
+    :user_text_block_collaged => "Text Block Annotated",
     :user_playlist_bookmarked => "Playlist Bookmarked",
-    :user_collage_bookmarked => "Collage Bookmarked",
+    :user_collage_bookmarked => "Annotated Item Bookmarked",
     :user_case_bookmarked => "Case Bookmarked",
     :user_media_bookmarked => "Media Bookmarked",
     :user_text_block_bookmarked => "Text Block Bookmarked",
     :user_playlist_added => "Playlist Added",
-    :user_collage_added => "Collage Added",
+    :user_collage_added => "Annotated Item Added",
     :user_case_added => "Case Added",
     :user_media_added => "Media Added",
     :user_text_block_added => "Text Block Added",
-    :user_collage_remix => "Collage Remixed",
-    :user_playlist_remix => "Playlist Remixed",
-    :user_default_remix => "Link Remixed"
+    :user_collage_clone => "Annotated Item Cloned",
+    :user_playlist_clone => "Playlist Cloned",
+    :user_default_clone => "Link Cloned"
   }
 
   def terms_validation
@@ -245,12 +245,11 @@ class User < ActiveRecord::Base
           end
         end
 
-        # Remix
         if ["collages", "playlists"].include?(type)
           public_items.each do |item|
             item.public_children.each do |child|
               next if child.nil? || child.user.nil? || child.user == self
-              barcode_elements << { :type => "user_#{single_type}_remix",
+              barcode_elements << { :type => "user_#{single_type}_clone",
                                     :date => child.created_at,
                                     :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
                                     :link => self.send("#{single_type}_path", child),
@@ -263,7 +262,7 @@ class User < ActiveRecord::Base
       self.defaults.each do |item|
         item.public_children.each do |child|
           next if child.nil? || child.user.nil? || child.user == self
-          barcode_elements << { :type => "user_default_remix",
+          barcode_elements << { :type => "user_default_clone",
                                 :date => child.created_at,
                                 :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
                                 :link => default_path(child),

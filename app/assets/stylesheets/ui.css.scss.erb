@@ -507,7 +507,7 @@ header #search table td {
   display: inline-block;
   opacity: 0.0;
   text-align: right;
-  width: 350px;
+  width: 405px;
   padding-top: 5px;
 }
 #results li.listitem h3 .action,
@@ -537,6 +537,10 @@ header #search table td {
   padding-left: 10px;
   font-size: 11px;
 }
+#results .listitem .controls a.read-action { 
+  padding-left: 0px;
+}
+
 #results .listitem .controls a.inactive {
   opacity: 0.3;
 }
@@ -1210,8 +1214,8 @@ ul.user_captcha > li p.inline-errors { display: none; }
   display: inline-block;
 }
 #singleitem_barcode_toolbar a.link-add,
-#singleitem_barcode_toolbar a.remix-action,
-#singleitem_barcode_toolbar a.link-remix,
+#singleitem_barcode_toolbar a.clone-action,
+#singleitem_barcode_toolbar a.link-clone,
 #singleitem_barcode_toolbar a.link-copy,
 #singleitem_barcode_toolbar a.collage-this,
 #singleitem_barcode_toolbar a.bookmark-action,
@@ -1476,7 +1480,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width: 200px !important;
 }
 
-.link-remix,
+.link-clone,
 .link-copy {
   color: #ef3c24;
 }
@@ -1549,10 +1553,10 @@ div.stats_hover .barcode_breakdown {
 div.stats_hover .barcode_breakdown .icon-add {
   background-position: -9px -13px;
 }
-.barcode_breakdown .icon-remix {
+.barcode_breakdown .icon-clone {
   background-position: -51px -164px;
 }
-div.stats_hover .barcode_breakdown .icon-remix {
+div.stats_hover .barcode_breakdown .icon-clone {
   background-position: -33px -106px;
 }
 .barcode_breakdown .icon-bookmark {
@@ -1636,7 +1640,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   position: fixed;
   top: 0px;
   width: 100%;
-  z-index: 2;
+  z-index: 1000;
   background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
   padding: 5px 0px;
   display: none;
@@ -1678,12 +1682,12 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   background-position: -200px -114px;
 }
 
-#playlist_remix_options .deep-remix-action,
-#playlist_remix_options .remix-action {
+#playlist_clone_options .deep-clone-action,
+#playlist_clone_options .clone-action {
   display: block;
   margin-top: 20px;
 }
-#playlist_remix_options p.deep-remix-response {
+#playlist_clone_options p.deep-clone-response {
   width: 340px;
   margin-top: 20px;
   color: red;
@@ -1729,7 +1733,7 @@ li.boolean_hidden {
     color: #036290;
     font-style: italic;
   }
-  span.current_user {
+  span.empty_filter {
     color: #888888;
     font-style: italic;
   }

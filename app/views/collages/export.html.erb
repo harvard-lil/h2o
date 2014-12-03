@@ -2,7 +2,7 @@
   <h1 id="singlecollage" class="scale1-5"><%= @collage.name %></h1>
   <div class="details">
     <p class="info scale0-8"><%= @collage.updated_at.strftime("%B %d, %Y") %> by <%= link_to(@collage.user.display, user_path(@collage.user)) %></p>
-    <p class="item_description scale0-8"><%= raw Collage.format_content(@collage.description) %></p>
+    <p class="item_description scale0-8"><%= raw @collage.formatted(:description) %></p>
   </div>
 	<div class="article">
 	<% cache(["editable-content", @collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>

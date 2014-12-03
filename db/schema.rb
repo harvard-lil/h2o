@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140917170053) do
+ActiveRecord::Schema.define(version: 20141126184357) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,30 +19,25 @@ ActiveRecord::Schema.define(version: 20140917170053) do
   create_table "annotations", force: true do |t|
     t.integer  "collage_id"
     t.string   "annotation",            limit: 10240
-    t.string   "annotation_start"
-    t.string   "annotation_end"
     t.integer  "word_count"
-    t.string   "annotated_content",     limit: 1048576
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "ancestry"
-    t.boolean  "public",                                default: true
-    t.boolean  "active",                                default: true
+    t.boolean  "public",                              default: true
+    t.boolean  "active",                              default: true
     t.integer  "annotation_word_count"
     t.integer  "pushed_from_id"
-    t.boolean  "cloned",                                default: false, null: false
-    t.integer  "user_id",                               default: 0,     null: false
+    t.boolean  "cloned",                              default: false, null: false
     t.string   "xpath_start"
     t.string   "xpath_end"
-    t.integer  "start_offset",                          default: 0,     null: false
-    t.integer  "end_offset",                            default: 0,     null: false
-    t.integer  "linked_collage_id"
+    t.integer  "start_offset",                        default: 0,     null: false
+    t.integer  "end_offset",                          default: 0,     null: false
+    t.string   "link"
+    t.boolean  "hidden",                              default: false, null: false
   end
 
   add_index "annotations", ["active"], name: "index_annotations_on_active", using: :btree
   add_index "annotations", ["ancestry"], name: "index_annotations_on_ancestry", using: :btree
-  add_index "annotations", ["annotation_end"], name: "index_annotations_on_annotation_end", using: :btree
-  add_index "annotations", ["annotation_start"], name: "index_annotations_on_annotation_start", using: :btree
   add_index "annotations", ["public"], name: "index_annotations_on_public", using: :btree
 
   create_table "brain_busters", force: true do |t|
@@ -417,10 +412,8 @@ ActiveRecord::Schema.define(version: 20140917170053) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "notes"
-    t.boolean  "public_notes",                    default: true, null: false
+    t.boolean  "public_notes",       default: true, null: false
     t.integer  "pushed_from_id"
-    t.string   "name",               limit: 1024
-    t.text     "description"
     t.string   "actual_object_type"
     t.integer  "actual_object_id"
   end
@@ -662,7 +655,7 @@ ActiveRecord::Schema.define(version: 20140917170053) do
 
   create_table "text_blocks", force: true do |t|
     t.string   "name",                                               null: false
-    t.string   "description",        limit: 5242880,                 null: false
+    t.string   "content",            limit: 5242880,                 null: false
     t.boolean  "public",                             default: true
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -670,6 +663,7 @@ ActiveRecord::Schema.define(version: 20140917170053) do
     t.integer  "pushed_from_id"
     t.integer  "user_id",                            default: 0,     null: false
     t.boolean  "created_via_import",                 default: false, null: false
+    t.string   "description",        limit: 5242880
   end
 
   add_index "text_blocks", ["created_at"], name: "index_text_blocks_on_created_at", using: :btree
@@ -695,8 +689,8 @@ ActiveRecord::Schema.define(version: 20140917170053) do
     t.string   "login"
     t.string   "crypted_password"
     t.string   "password_salt"
-    t.string   "persistence_token",                             null: false
-    t.integer  "login_count",              default: 0,          null: false
+    t.string   "persistence_token",                                   null: false
+    t.integer  "login_count",                    default: 0,          null: false
     t.datetime "last_request_at"
     t.datetime "last_login_at"
     t.datetime "current_login_at"
@@ -710,23 +704,24 @@ ActiveRecord::Schema.define(version: 20140917170053) do
     t.integer  "karma"
     t.string   "attribution"
     t.string   "perishable_token"
-    t.boolean  "default_show_annotations", default: false,      null: false
-    t.boolean  "tab_open_new_items",       default: false,      null: false
-    t.string   "default_font_size",        default: "10"
+    t.boolean  "tab_open_new_items",             default: false,      null: false
+    t.string   "default_font_size",              default: "10"
     t.string   "title"
     t.string   "affiliation"
     t.string   "url"
     t.text     "description"
     t.string   "canvas_id"
-    t.boolean  "verified",                 default: false,      null: false
-    t.string   "default_font",             default: "futura"
-    t.boolean  "print_titles",             default: true,       null: false
-    t.boolean  "print_dates_details",      default: true,       null: false
-    t.boolean  "print_paragraph_numbers",  default: true,       null: false
-    t.boolean  "print_annotations",        default: false,      null: false
-    t.string   "print_highlights",         default: "original", null: false
-    t.string   "print_font_face",          default: "dagny",    null: false
-    t.string   "print_font_size",          default: "small",    null: false
+    t.boolean  "verified",                       default: false,      null: false
+    t.string   "default_font",                   default: "futura"
+    t.boolean  "print_titles",                   default: true,       null: false
+    t.boolean  "print_dates_details",            default: true,       null: false
+    t.boolean  "print_paragraph_numbers",        default: true,       null: false
+    t.boolean  "print_annotations",              default: false,      null: false
+    t.string   "print_highlights",               default: "original", null: false
+    t.string   "print_font_face",                default: "dagny",    null: false
+    t.string   "print_font_size",                default: "small",    null: false
+    t.boolean  "default_show_comments",          default: false,      null: false
+    t.boolean  "default_show_paragraph_numbers", default: true,       null: false
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree

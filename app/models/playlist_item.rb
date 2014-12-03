@@ -1,10 +1,12 @@
 class PlaylistItem < ActiveRecord::Base
-  include FormattingExtensions
+  include StandardModelExtensions
 
-  validates_presence_of :name
   belongs_to :playlist
   belongs_to :actual_object, :polymorphic => true 
   validate :not_infinite
+
+  delegate :name, to: :actual_object, allow_nil: true
+  delegate :description, to: :actual_object, allow_nil: true
 
   default_scope { includes(:actual_object) }
 
@@ -45,17 +47,9 @@ class PlaylistItem < ActiveRecord::Base
   def render_dropdown
     return false if self.actual_object.nil?
 
-    if ["TextBlock", "Case"].include?(actual_object_type)
-      return true if self.description.present?
-    end
-
     return true if ["Playlist", "Collage"].include?(actual_object_type)
 
-    if self.actual_object.respond_to?(:description)
-      return true if self.actual_object.description.present?
-
-      return true if self.description != '' && self.description != self.actual_object.description
-    end
+    return true if self.actual_object.respond_to?(:description) && self.actual_object.description.present?
 
     return true if self.notes.to_s != '' && self.public_notes
 

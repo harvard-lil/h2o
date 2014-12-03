@@ -42,6 +42,8 @@ class BaseController < ApplicationController
 
       facet(:user_id)
       facet(:klass)
+      facet(:primary)
+      facet(:secondary)
 
       paginate :page => params[:page], :per_page => 5 || nil
       order_by params[:sort].to_sym, params[:order].to_sym

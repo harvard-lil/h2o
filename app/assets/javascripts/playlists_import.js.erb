@@ -1,4 +1,3 @@
-// TODO: Collage Import, potential remix or collage on the fly here
 var playlists_import = {
   playlist_indicator: '#',
   type_map: { C: 'collage', L: 'default', M: 'media', P: 'playlist', T: 'text_block', A: 'case' },
@@ -68,7 +67,7 @@ var playlists_import = {
          line.match(/^description:/) || 
          line.match(/^h2o_item:/) || 
          line.match(/^collage_item:/) || 
-         line.match(/^remix_item:/) || 
+         line.match(/^clone_item:/) || 
          line.match(/^#/) || 
          line.match(/^url:/) || 
          line.match(/^media_type:/) || 
@@ -121,9 +120,9 @@ var playlists_import = {
               current_item.collage_item_id = j;
             }
           });
-          current_item['name'] = 'Inherited Name (Collaged)';
-        } else if(working_content.match(/^remix_item:/)) {
-          current_item.remix_item = true;
+          current_item['name'] = 'Inherited Name (Annotated)';
+        } else if(working_content.match(/^clone_item:/)) {
+          current_item.clone_item = true;
           var full_link = working_content.split(':https:\/\/')[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
@@ -131,13 +130,13 @@ var playlists_import = {
               //do nothing
             }
             else if(j == 'collages' || j == 'defaults') {
-              current_item.remix_item_type = j.replace(/s$/, '');
+              current_item.clone_item_type = j.replace(/s$/, '');
             }
             else if(j.match(/^[0-9]*/)) {
-              current_item.remix_item_id = j;
+              current_item.clone_item_id = j;
             }
           });
-          current_item['name'] = 'Inherited Name (Remixed)';
+          current_item['name'] = 'Inherited Name (Cloned)';
         } else if(working_content.match(/^#/)) {
           var this_nest_level = working_content.match(/^#*/)[0].length;
           if(this_nest_level > current_nest_level) {
@@ -166,7 +165,7 @@ var playlists_import = {
                              has_url: false, 
                              media_type: false,
                              collage_item: false,
-                             remix_item: false,
+                             clone_item: false,
                              parent_playlist: current_playlist };
             current_playlist.has_children = true;
             current_playlist.children.push(new_item);
@@ -213,7 +212,7 @@ var playlists_import = {
         if($(list_item).data('type') == 'collage' && $(list_item).find('.collage_item').size() > 0) {
           var type = $(list_item).find('.collage_item').data('collage_item_type');
           if(!(type == 'case' || type == 'text_block')) {
-            errors.push('Collaged item must be a case or text.');
+            errors.push('Annotated item must be a case or text.');
           }
         }
         if($(list_item).data('type') == 'media') {
@@ -229,7 +228,7 @@ var playlists_import = {
             errors.push('Missing media content.');
           }
         }
-        if($(list_item).data('type') == 'default' && $(list_item).find('.remix_item').size() == 0) {
+        if($(list_item).data('type') == 'default' && $(list_item).find('.clone_item').size() == 0) {
           if($(list_item).data('url') == '') {
             errors.push('URL missing');
           }
@@ -287,9 +286,9 @@ var playlists_import = {
 {{#collage_item}}\
 <div class="collage_item" data-collage_item_type="{{collage_item_type}}">Note: {{collage_item_type}} with id {{collage_item_id}} will be collaged.</div>\
 {{/collage_item}}\
-{{#remix_item}}\
-<div class="remix_item" data-collage_item_type="{{remix_item_type}}">Note: {{remix_item_type}} with id {{remix_item_id}} will be remixed.</div>\
-{{/remix_item}}\
+{{#clone_item}}\
+<div class="clone_item" data-collage_item_type="{{clone_item_type}}">Note: {{clone_item_type}} with id {{clone_item_id}} will be cloneed.</div>\
+{{/clone_item}}\
 {{#has_children}}\
 <ul>\
 {{/has_children}}\
