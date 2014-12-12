@@ -5,10 +5,8 @@
       <td class="icon-cell">
         <% if actual_object.nil? -%>
         <a href="#" class="icon icon-missing" title=""></a>
-        <% elsif item.actual_object_type == 'Media' && actual_object -%>
-        <a href="#" class="tooltip icon icon-media-<%= actual_object.media_type.slug %>" title="<%= actual_object.media_type.label %>"></a>
         <% else -%>
-        <a href="#" class="<%= "tooltip" if actual_object.present? %> icon icon-<%= item.clean_type %>" title="<%= actual_object.is_a?(Default) ? "Link" : actual_object.class %>"></a>
+        <a href="#" class="tooltip icon icon-<%= item.clean_type %>" title="<%= item.type_label %>"></a>
         <% end -%>
       </td>
       <td class="rr-cell">

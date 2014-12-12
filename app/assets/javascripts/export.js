@@ -21,6 +21,9 @@ var collages = {
   updateWordCount: function() {
     //do nothing
   },
+  getHexes: function() {
+    return $('<div>');
+  },
   loadState: function(collage_id, data) {
     $.each(data, function(i, e) {
       if(i == 'font_face') {

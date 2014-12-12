@@ -1,7 +1,17 @@
 .toggle {
   display: inline-block;
-  margin-left: 10px;
   float: right;
+}
+.toggle-show_hide {
+  float: right;
+  display: inline-block;
+  margin-right: 10px;
+}
+.user_layer {
+  .toggle-show_hide.toggle-light .toggle-on,
+  .toggle-show_hide.toggle-light .toggle-off {
+    font-size: 9px;
+  }
 }
 .toggle-slide {
   overflow: hidden;
@@ -72,6 +82,7 @@
 .toggle-light .toggle-off {
   font-size: 10px;
   font-weight: 500;
+  line-height: 15px;
 }
 .toggle-light .toggle-on,
 .toggle-light .toggle-select .toggle-inner .active {
@@ -107,4 +118,10 @@
 }
 .toggle-inner .toggle-off.active {
   text-indent: 11px;
+}
+
+.toggle-show_hide.toggle-light .toggle-on,
+.toggle-show_hide.toggle-light .toggle-off {
+  font-size: 9px;
+  line-height: 16px;
 }

@@ -49,7 +49,7 @@
           </li>
         </ul>
 
-        <h5>HIGHLIGHTS</h5>
+        <h5>TAGS &amp; HIGHLIGHTS</h5>
         <ul id="layers_highlights">
           <li id="highlight_all_li">
             <span>All</span>
@@ -57,9 +57,12 @@
           </li>
           <% @collage.layers.each do |layer| %>
           <li class="user_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>" data-hex="<%= @layer_data[layer.name] %>">
-            <span><%= layer.name %></span>
-            <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>
+            <span class="layer_name">
+              <%= layer.name %>
+              <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>
+            </span>
             <div class="toggle toggle-light"></div>
+            <div class="toggle-show_hide toggle-light" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>"></div>
           </li>
           <% end -%>
         </ul>

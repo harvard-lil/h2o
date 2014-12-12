@@ -26,7 +26,24 @@ class PlaylistItem < ActiveRecord::Base
   end
 
   def clean_type
-    actual_object_type.to_s.downcase
+    if self.actual_object_type == 'Media'
+      return 'media-' + actual_object.media_type.slug
+    else
+      return actual_object_type.to_s.downcase
+    end
+  end
+  def type_label
+    if self.actual_object_type == 'Media'
+      return self.actual_object.media_type.label
+    elsif self.actual_object_type == 'Default'
+      return 'Link'
+    elsif self.actual_object_type == 'Collage'
+      return 'Annotated Item'
+    elsif self.actual_object_type == 'TextBlock'
+      return 'Text'
+    else
+      return actual_object_type
+    end
   end
 
   def user
