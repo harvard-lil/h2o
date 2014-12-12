@@ -647,7 +647,7 @@ H2O = (function() {
             label: '&nbsp;',
             value: annotation.highlight_only
           });
-           
+
           //Manage li options
           var data = { hex: annotation.highlight_only };
           var new_node = $(jQuery.mustache(layer_tools_highlight_only, data));
@@ -805,6 +805,9 @@ H2O = (function() {
         h = annotation._local.highlights[_i];
         _results.push(h.className = h.className + ' layer-' + clean_layer);
         if(created || $('li.user_layer[data-name="' + clean_layer + '"] .toggle-on').hasClass('active')) {
+          _results.push(h.className = h.className + ' highlight-' + clean_layer);
+        }
+        if(created || $('li.highlight_only_layer[data-hex="' + clean_layer.replace(/hex-/, '') + '"] .toggle-on').hasClass('active')) {
           _results.push(h.className = h.className + ' highlight-' + clean_layer);
         } 
       });

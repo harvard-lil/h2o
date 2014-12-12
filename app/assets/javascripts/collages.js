@@ -30,6 +30,9 @@ h2o_global.collage_afterload = function(results) {
 
 var collages = {
   clean_layer: function(layer_name) {
+    if(layer_name === undefined) {
+      return '';
+    }
     return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe');
   },
   revert_clean_layer: function(layer_name) {
