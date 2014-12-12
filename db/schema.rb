@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141126184357) do
+ActiveRecord::Schema.define(version: 20141202134126) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,7 @@ ActiveRecord::Schema.define(version: 20141126184357) do
     t.integer  "end_offset",                          default: 0,     null: false
     t.string   "link"
     t.boolean  "hidden",                              default: false, null: false
+    t.string   "highlight_only"
   end
 
   add_index "annotations", ["active"], name: "index_annotations_on_active", using: :btree

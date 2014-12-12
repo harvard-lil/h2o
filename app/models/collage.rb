@@ -134,8 +134,12 @@ class Collage < ActiveRecord::Base
   end
   alias :to_s :display_name
 
+  def highlights_only
+    self.annotations.collect { |a| a.highlight_only }.flatten.uniq.compact 
+  end
+
   def layers
-    self.annotations.collect{|a| a.layers}.flatten.uniq
+    self.annotations.collect{ |a| a.layers }.flatten.uniq
   end
 
   def layer_list

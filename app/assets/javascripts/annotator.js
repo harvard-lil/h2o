@@ -11611,9 +11611,6 @@ Editor = (function(_super) {
           error_msg = 'Tag name is already taken.';
         } 
       }
-      if(hex.size() == 1 && $('input#new_layer').val() == '') {
-        error_msg = 'Tag must have a name.';
-      }
     }
     if($('.annotator-editor').hasClass('link')) {
       if(!($('input#link').val().match(/^http:\/\//) || $('input#link').val().match(/^https:\/\//))) {
@@ -11656,6 +11653,10 @@ Editor = (function(_super) {
       case 'checkbox':
         input = $('<input />');
         break;
+      //H2O Custom
+      case 'checkbox2':
+        input = $('<input />');
+        break;
       case 'select':
         input = $('<select />');
     }
@@ -11667,6 +11668,15 @@ Editor = (function(_super) {
     if (field.type === 'checkbox') {
       input[0].type = 'checkbox';
       element.addClass('annotator-checkbox');
+      element.append($('<label />', {
+        "for": field.id,
+        html: field.label
+      }));
+    }
+    //H2O Custom
+    if (field.type === 'checkbox2') {
+      input[0].type = 'checkbox';
+      element.addClass('annotator-checkbox2');
       element.append($('<label />', {
         "for": field.id,
         html: field.label

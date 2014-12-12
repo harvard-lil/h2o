@@ -47,8 +47,9 @@ Annotator.Editor.prototype.html = '<div class="annotator-outer annotator-editor"
 $ = Annotator.Util.$;
 
 H2O = (function() {
-  function H2O(categories) {
+  function H2O(categories, highlights_only) {
     this.categories = categories;
+    this.highlights_only = highlights_only;
     this.formatted_annotations = {};
     this.annotation_deleted_id = null;
     this.initialized = false;
@@ -83,8 +84,8 @@ H2O = (function() {
           $('.annotator-cancel').trigger('click');
         }
       });
-      $(document).delegate('.annotator-checkbox:not(.annotation_hidden_property) label', 'click', function(e) {
-        $('.annotator-checkbox input').prop('checked', false);
+      $(document).delegate('.annotator-checkbox:not(.annotation_hidden_property) label, .annotator-checkbox2 label', 'click', function(e) {
+        $('.annotator-checkbox input, .annotator-checkbox2 input').prop('checked', false);
         $(this).siblings('input').prop('checked', true);
         $('.annotator-save').trigger('click');
       });
@@ -126,7 +127,6 @@ H2O = (function() {
         $(this).siblings('.edit-annotate,.edit-link').find('.icon-edit').show();
         $(this).css({ 'opacity': 1.0 });
         $(this).siblings('.edit-annotate,.edit-link').toggle();
-        //if($(this).hasClass('icon-adder-annotate')
       });
       $(document).delegate('.edit-annotate .icon-edit,.edit-link .icon-edit', 'click', function(e) {
         e.preventDefault();
@@ -165,10 +165,10 @@ H2O = (function() {
 
         var position = $(this).position();
         position.top += 4;
-        if ($(this).hasClass('annotation-indicator-highlights')) {
+        if ($(this).hasClass('annotation-indicator-highlights') || $(this).hasClass('icon-adder-highlight-only')) {
           position.left += $(this).find('a').width()/2;
           $('.annotator-editor').addClass('highlight');
-          $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property)').show();
+          $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property), .annotator-listing .annotator-checkbox2').show();
           $('#new_layer').parent().show();
           $('.annotator-adder button').trigger('click');
         } else if ($(this).hasClass('icon-adder-show')) {
@@ -202,7 +202,7 @@ H2O = (function() {
         $('.annotator-listing textarea').focus();
       } else if ($(this).attr('id') == 'adder_highlight') {
         $('.annotator-editor').addClass('highlight');
-        $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property)').show();
+        $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property), .annotator-listing .annotator-checkbox2').show();
         $('#new_layer').parent().show();
         $('.annotator-adder button').trigger('click');
       } else if ($(this).attr('id') == 'adder_hide') {
@@ -228,7 +228,7 @@ H2O = (function() {
       this.initialized = true;
 
       $.each(annotations, function(i, annotation) {
-        H2O.prototype.setLayeredBorders([annotation]);
+        H2O.prototype.setLayeredBorders(annotation);
 
         if(annotation.hidden) {
           $('.annotation-' + annotation.id).addClass('annotation-hidden').hide();
@@ -294,7 +294,9 @@ H2O = (function() {
 
       editor.annotation.link = $('input#link').val();
       editor.annotation.layer_hexes = [];
+      editor.annotation.highlight_only = undefined;
 
+      /* Layer with color mapping */
       $.each($('.annotator-editor li.annotator-checkbox input:not(#show_annotation)'), function(_i, el) {
         if($(el).is(':checked')) {
           var layer_name = $(el).attr('id').replace(/^layer-/, '');
@@ -302,12 +304,21 @@ H2O = (function() {
           editor.annotation.layer_hexes.push({ layer: layer_name, hex: h2o_annotator.plugins.H2O.layer_map[layer_name], is_new: false });
         }
       });
-
       var hex = $('.annotator-listing .hexes .active');
       if($('input#new_layer').val() != '' && hex.size() > 0) {
         editor.annotation.layer_hexes = [{ layer: $('input#new_layer').val().toLowerCase(), hex: hex.text(), is_new: true }];
         h2o_annotator.plugins.H2O.layer_map[$('input#new_layer').val().toLowerCase()] = hex.text();
       }
+
+      /* Highlight Only */
+      if($('input#new_layer').val() == '' && hex.size() == 1) {
+        editor.annotation.highlight_only = hex.text();
+      }
+      $.each($('.annotator-editor li.annotator-checkbox2 input'), function(_i, el) {
+        if($(el).is(':checked')) {
+          editor.annotation.highlight_only = $(el).attr('id').replace(/^highlight-only-/, '');
+        }
+      });
 
       editor.annotation.hidden = $('#adder_hide').hasClass('active');
     });
@@ -318,7 +329,7 @@ H2O = (function() {
       $(annotation._local.highlights).addClass('annotation-' + annotation.id);
       H2O.prototype.addAnnotationIndicator(annotation);
       h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
-      H2O.prototype.setLayeredBorders([annotation]);
+      H2O.prototype.setLayeredBorders(annotation);
 
       if(annotation.hidden) {
         if($('#show_text_edits .toggle-inner .toggle-on').hasClass('active')) {
@@ -369,6 +380,7 @@ H2O = (function() {
       annotation.layers = $.parseJSON(annotation.layers);
       annotation.text = annotation.text;
       annotation.link = annotation.link;
+      annotation.highlight_only = annotation.highlight_only;
       H2O.prototype.updateAnnotationMarkup(annotation);
       H2O.prototype.manageLayers(annotation, 'updated');
       H2O.prototype.setHighlights(annotation, false);
@@ -414,9 +426,7 @@ H2O = (function() {
       type: 'input',
       label: 'http://'
     });
-    var cat, color, _ref;
-    _ref = this.categories;
-
+    var cat, color, highlight;
     for (cat in this.categories) {
       color = this.categories[cat];
       this.annotator.editor.addField({
@@ -428,6 +438,16 @@ H2O = (function() {
     }
     this.layer_map = this.categories;
 
+    for (highlight in this.highlights_only) {
+      color = this.highlights_only[highlight];
+      this.annotator.editor.addField({
+        id: 'highlight-only-' + collages.clean_layer(color),
+        type: 'checkbox2',
+        label: '&nbsp;',
+        value: color
+      });
+    }
+
     this.annotator.editor.addField({
       load: this.updateEditor
     });
@@ -437,10 +457,13 @@ H2O = (function() {
     this.annotator.editor.addField({
       id: 'new_layer',
       type: 'input',
-      label: 'Enter Tag Name'
+      label: 'Enter Tag Name (optional)'
     });
     $.each(this.layer_map, function(layer, hex) {
       collages.set_highlights({ layer: layer, hex: hex });
+    });
+    $.each(this.highlights_only, function(i, highlight) {
+      collages.set_highlights_for_highlight_only(highlight);
     });
   };
 
@@ -492,6 +515,8 @@ H2O = (function() {
           $('#layered-ellipsis-' + annotation.id).hide();
           h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
         }
+      } else if(annotation.highlight_only !== null) {
+        $('.annotator-wrapper').append($('<a>').attr('data-id', annotation.id).addClass('annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position }));
       } else if(annotation.link !== null) {
         var div = $('<div>').attr('data-id', annotation.id).addClass('annotation-indicator annotation-indicator-link').attr('id', 'annotation-indicator-' + annotation.id).css({ 'top': start_position });
         div.append($('<span>').addClass('icon icon-adder-link'));
@@ -584,6 +609,11 @@ H2O = (function() {
           modifying_layers = true;
         }
       });
+      if(annotation.highlight_only) {
+        if($('#layers_highlights li.highlight_only_layer[data-hex=' + annotation.highlight_only + ']').size() == 0) {
+          modifying_layers = true;
+        }
+      }
 
       if(modifying_layers) {
         h2o_annotator.editor.element.find('#new_layer').parent().remove();
@@ -605,15 +635,32 @@ H2O = (function() {
             var new_node = $(jQuery.mustache(layer_tools_highlights, data));
             new_node.appendTo($('#layers_highlights'));
   
-            collages.turn_on_initial_highlight(clean_layer);
+            collages.turn_on_initial_highlight('name', clean_layer);
             collages.set_highlights(data);
           }
         });
 
+        if(annotation.highlight_only) {
+          h2o_annotator.editor.addField({
+            id: 'highlight-only-' + annotation.highlight_only,
+            type: 'checkbox2',
+            label: '&nbsp;',
+            value: annotation.highlight_only
+          });
+           
+          //Manage li options
+          var data = { hex: annotation.highlight_only };
+          var new_node = $(jQuery.mustache(layer_tools_highlight_only, data));
+          new_node.appendTo($('#layers_highlights'));
+  
+          collages.turn_on_initial_highlight('hex', annotation.highlight_only);
+          collages.set_highlights_for_highlight_only(annotation.highlight_only);
+        }
+
         h2o_annotator.editor.addField({
           id: 'new_layer',
           type: 'input',
-          label: 'Enter Tag Name'
+          label: 'Enter Tag Name (optional)'
         });
         var hexes = collages.getHexes();
         hexes.insertAfter($('#new_layer')); 
@@ -635,14 +682,29 @@ H2O = (function() {
               }
             }
             h2o_annotator.editor.fields = updated_fields;
-         
-            $('.annotator-listing li.' + clean_layer + ',#layers li[data-name=' + clean_layer + ']').remove();
             $(el).remove();
           }
         }
-        var updated_hexes = collages.getHexes();
-        $('.hexes').replaceWith(updated_hexes);
       });
+      $.each($('#layers_highlights li.highlight_only_layer'), function(i, el) {
+        if(!(type == 'updated' && $(el).data('hex') == annotation.highlight_only)) {
+          var hex = $(el).data('hex');
+          if($('.annotator-wrapper span.annotator-hl.layer-hex-' + hex).size() == 0) {
+            var updated_fields = new Array();
+            for(var _j = 0; _j < h2o_annotator.editor.fields.length; _j++) {
+              if(h2o_annotator.editor.fields[_j].id != 'highlight-only-' + hex) {
+                updated_fields.push(h2o_annotator.editor.fields[_j]);
+              } else {
+                h2o_annotator.editor.element.find('#highlight-only-' + hex).parent().remove();
+              }
+            }
+            h2o_annotator.editor.fields = updated_fields;
+            $(el).remove();
+          }
+        }
+      });
+      var updated_hexes = collages.getHexes();
+      $('.hexes').replaceWith(updated_hexes);
     }
     return;
   };
@@ -652,39 +714,58 @@ H2O = (function() {
       $($('#annotation-indicator-' + annotation.id + ' .edit-annotate').contents()[0]).replaceWith(annotation.text);
     } else if(annotation.link !== null && annotation.link != '') {
       $('#annotation-indicator-' + annotation.id + ' .edit-link a.link').html(annotation.link).attr('href', annotation.link);
+    } else if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
+      var class_string = 'annotator-hl annotation-' + annotation.id + ' layer-hex-' + annotation.highlight_only;
+      if($("#layers_highlights li.highlight_only_layer[data-hex='" + annotation.highlight_only + "']").size() &&
+        $("#layers_highlights li.highlight_only_layer[data-hex='" + annotation.highlight_only + "'] .toggle-on").hasClass('active')) {
+        class_string += ' highlight-hex-' + annotation.highlight_only;
+      }
+      $('.annotation-' + annotation.id).attr('class', class_string);
+      $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' hex-' + annotation.highlight_only); 
+      $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' hex-' + annotation.highlight_only); 
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'layered-ellipsis layered-ellipsis-' + annotation.id + ' hex-' + annotation.highlight_only); 
+
+      $('#annotation-indicator-' + annotation.id).attr('class', 'annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).html('').css({ 'right' : '-30px', 'opacity' : 0.5 });
     } else {
       var class_string = 'annotator-hl annotation-' + annotation.id;
-      var div = $('#annotation-indicator-' + annotation.id);
       var clean_layer = collages.clean_layer(annotation.layers[0]);
-      div.css({ opacity : 0.0 });
-      div.html(annotation.layers[0]);
-      div.attr('class', 'annotation-indicator annotation-indicator-highlights indicator-highlight-' + clean_layer);
+      var div = $('#annotation-indicator-' + annotation.id);
+      div.css({ opacity : 0.0 }).html(annotation.layers[0]).attr('class', 'annotation-indicator annotation-indicator-highlights indicator-highlight-' + clean_layer);
       if($("#layers_highlights li[data-name='" + clean_layer + "']").size() &&
         $("#layers_highlights li[data-name='" + clean_layer + "'] .toggle-on").hasClass('active')) {
         class_string += ' highlight-' + clean_layer;
       }
+      var hex = h2o_annotator.plugins.H2O.layer_map[annotation.layers[0]];
+      //div.append($('<a>').attr('href', '#').addClass('indicator-highlight-' + clean_layer).html(_l));
       $('.annotation-' + annotation.id).attr('class', class_string);
       div.css({ 'right': (div.width() + 17)*-1, 'opacity': 1.0 });
+      $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' ' + clean_layer);
+      $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' ' + clean_layer);
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'layered-ellipsis layered-ellipsis-' + annotation.id + ' ' + clean_layer);
+
+      //if changed from highlight only
     }
   };
 
-  H2O.prototype.setLayeredBorders = function(annotations) {
-    for(var _i=0; _i<annotations.length; _i++) {
-      var _id = annotations[_i].id;
-      if(_id === undefined) {
-        _id = 'noid';
-      }
-      var layer_class = '';
-      if(annotations[_i].layers !== undefined) {
-        var layer_class = annotations[_i].layers.join(' ');
-      }
-      var start_node = $('.annotation-' + _id + ':first');
-      $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertBefore(start_node);
-      $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '">[...]</a>').insertBefore(start_node);
-      
-      var end_node = $('.annotation-' + _id + ':last');
-      $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertAfter(end_node);
+  H2O.prototype.setLayeredBorders = function(annotation) {
+    var _id = annotation.id;
+    if(_id === undefined) {
+      _id = 'noid';
     }
+    var layer_class = '';
+    if(annotation.layers !== undefined) {
+      layer_class = annotation.layers[0];
+    }
+    if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
+      layer_class = 'hex-' + annotation.highlight_only; 
+    }
+    var start_node = $('.annotation-' + _id + ':first');
+    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '">[...]</a>').insertBefore(start_node);
+      
+    var end_node = $('.annotation-' + _id + ':last');
+    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertAfter(end_node);
+
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
       if($('#print-options').size() > 0) {
@@ -712,17 +793,22 @@ H2O = (function() {
   H2O.prototype.setHighlights = function(annotation, created) {
     var h, _i, _len, _results;
     _results = [];
-    $.each(annotation._local.highlights, function(_i, h) {
-      h = annotation._local.highlights[_i];
-      for(_c = 0; _c < annotation.layers.length; _c++) { 
-        var _l = annotation.layers[_c];
-        var clean_layer = collages.clean_layer(_l);
+    var clean_layer;
+    if(annotation.layers.length == 1) {
+      clean_layer = collages.clean_layer(annotation.layers[0]);
+    } else if(annotation.highlight_only !== null) {
+      clean_layer = 'hex-' + annotation.highlight_only;
+    }
+
+    if(clean_layer !== undefined) {
+      $.each(annotation._local.highlights, function(_i, h) {
+        h = annotation._local.highlights[_i];
         _results.push(h.className = h.className + ' layer-' + clean_layer);
         if(created || $('li.user_layer[data-name="' + clean_layer + '"] .toggle-on').hasClass('active')) {
           _results.push(h.className = h.className + ' highlight-' + clean_layer);
         } 
-      }
-    });
+      });
+    }
 
     return;
   };
@@ -807,7 +893,8 @@ H2O = (function() {
         "cloned": annotation.cloned,
         "collage_id" : annotation.collage_id,
         "link" : annotation.link,
-        "hidden" : annotation.hidden
+        "hidden" : annotation.hidden,
+        "highlight_only": annotation.highlight_only
       };
       formatted_annotation.ranges = ranges;
       formatted_annotations.push(formatted_annotation);

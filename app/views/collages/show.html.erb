@@ -56,13 +56,20 @@
             <div class="toggle toggle-light"></div>
           </li>
           <% @collage.layers.each do |layer| %>
-          <li class="user_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>" data-hex="<%= @layer_data[layer.name] %>">
+          <li class="user_layer highlight_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>" data-hex="<%= @layer_data[layer.name] %>">
             <span class="layer_name">
               <%= layer.name %>
               <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>
             </span>
             <div class="toggle toggle-light"></div>
-            <div class="toggle-show_hide toggle-light" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>"></div>
+            <div class="toggle-show_hide toggle-light"></div>
+          </li>
+          <% end -%>
+          <% @collage.highlights_only.each do |highlight| %>
+          <li class="highlight_only_layer highlight_layer" data-hex="<%= highlight %>">
+            <span class="indicator" style="background-color:#<%= highlight %>"></span>
+            <div class="toggle toggle-light"></div>
+            <div class="toggle-show_hide toggle-light"></div>
           </li>
           <% end -%>
         </ul>
@@ -101,6 +108,7 @@ var editability_path = "<%= access_level_collage_path(@collage) %>";
 var original_data = <%= raw @collage.readable_state || '{}' %>;
 var color_list = <%= raw Collage.color_list.to_json %>;
 var layer_data = <%= raw @layer_data.to_json %>;
+var highlights_only = <%= raw @collage.highlights_only.to_json %>;
 var raw_annotations = {
   "single": <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h }.to_json %>
 };

@@ -71,6 +71,7 @@ class AnnotationsController < BaseController
       :end_offset => range[:endOffset],
       :annotation => params[:text],
       :hidden => params[:hidden],
+      :highlight_only => params[:highlight_only],
       :link => params[:link].present? ? params[:link] : nil,
       :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
     }
@@ -82,6 +83,7 @@ class AnnotationsController < BaseController
 
       render :json => { :id => @annotation.id,
                         :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :highlight_only => @annotation.highlight_only,
                         :text => @annotation.annotation,
                         :hidden => @annotation.hidden,
                         :link => @annotation.link }
@@ -110,6 +112,7 @@ class AnnotationsController < BaseController
     params[:annotation] = {
       :annotation => params[:text],
       :link => params[:link].present? ? params[:link] : nil,
+      :highlight_only => params[:highlight_only].present? ? params[:highlight_only] : nil,
       :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
     }
 
@@ -130,6 +133,7 @@ class AnnotationsController < BaseController
       create_color_mappings if params[:layer_hexes].present?
       render :json => { :id => @annotation.id,
                         :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :highlight_only => @annotation.highlight_only,
                         :link => @annotation.link,
                         :text => @annotation.annotation }
     else
@@ -167,6 +171,6 @@ class AnnotationsController < BaseController
   private
   def annotations_params
     params.require(:annotation).permit(:collage_id, :link, :xpath_end, :xpath_start, :start_offset,
-                                       :end_offset, :annotation, :id, :layer_list, :hidden)
+                                       :end_offset, :annotation, :id, :layer_list, :hidden, :highlight_only)
   end
 end
