@@ -497,7 +497,7 @@ var h2o_global = {
   observeCreatePopup: function() {
     $(document).delegate('#create_all', 'click', function(e) {
       e.preventDefault();
-      $('#create_all_popup').css({ left: $('#create_all').position().left - 95, top: $('#create_all').offset().top - 8 });
+      $('#create_all_popup').css({ left: $('#create_all').position().left - 160, top: $('#create_all').offset().top - 8 });
       $('#create_all_popup').toggle();
       $(this).toggleClass('active');
     });
