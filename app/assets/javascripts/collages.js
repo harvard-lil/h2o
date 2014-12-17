@@ -33,10 +33,10 @@ var collages = {
     if(layer_name === undefined) {
       return '';
     }
-    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe');
+    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen');
   },
   revert_clean_layer: function(layer_name) {
-    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'");
+    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'").replace(/rightparen/, ')').replace(/leftparen/, '(');
   },
   turn_on_initial_highlight: function(attr, value) {
     $('li[data-' + attr + '="' + value + '"] .toggle').toggles({ on: true, height: 15, width: 40 });

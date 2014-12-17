@@ -56,7 +56,7 @@
             <div class="toggle toggle-light"></div>
           </li>
           <% @collage.layers.each do |layer| %>
-          <li class="user_layer highlight_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.gsub(/ /, 'whitespace').gsub(/\./, 'specialsymbol').gsub(/'/, 'apostrophe') %>" data-hex="<%= @layer_data[layer.name] %>">
+          <li class="user_layer highlight_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.clean_layer %>" data-hex="<%= @layer_data[layer.name] %>">
             <span class="layer_name">
               <%= layer.name %>
               <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>

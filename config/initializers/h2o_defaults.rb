@@ -8,6 +8,7 @@ WHITELISTED_TAGS = %w|a b br center del div em h1 h2 h3 h4 h5 h6 i img li ol p s
 WHITELISTED_ATTRIBUTES = %w|class src href height width target title|
 
 require 'core_ext/array'
+require 'core_ext/string'
 require 'dropbox_sdk'
 
 H2O_CACHE_COMPRESSION = true
