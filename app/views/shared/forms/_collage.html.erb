@@ -19,7 +19,7 @@
         :as => :string,
         :hint => 'Please define the tags for this collage in a comma-separated list.',
         :label => 'Tags',
-        :input_html => { :class => 'tagging-autofill-tags' },
+        :input_html => {:class => 'tagging-autofill-tags', :value => @collage.tags.collect { |t| t.name }.join(',') },
         :required => false
 	    %>
       <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>

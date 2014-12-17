@@ -33,10 +33,10 @@ var collages = {
     if(layer_name === undefined) {
       return '';
     }
-    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen');
+    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen').replace(/,/g, 'c0mma');
   },
   revert_clean_layer: function(layer_name) {
-    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'").replace(/rightparen/, ')').replace(/leftparen/, '(');
+    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'").replace(/rightparen/g, ')').replace(/leftparen/g, '(').replace(/c0mma/g, ',');
   },
   turn_on_initial_highlight: function(attr, value) {
     $('li[data-' + attr + '="' + value + '"] .toggle').toggles({ on: true, height: 15, width: 40 });
@@ -48,6 +48,7 @@ var collages = {
   },
   set_highlights: function(data) {
     var color_combine = $.xcolor.opacity('#FFFFFF', data.hex, 0.4);
+
     current_hex = color_combine.getHex();
     var clean_layer = collages.clean_layer(data.layer);
     $.rule('.indicator-highlight-' + clean_layer + ' { background-color: ' + current_hex + '; }').appendTo('#additional_styles');

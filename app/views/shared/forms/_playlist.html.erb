@@ -27,7 +27,7 @@
 	    :hint => 'Please define the tags for this playlist in a comma-separated list.',
 	    :label => 'Tags',
       :required => false,
-	    :input_html => { :class => 'tagging-autofill-tags' }
+      :input_html => {:class => 'tagging-autofill-tags', :value => @playlist.tags.collect { |t| t.name }.join(',') }
 	  %>
     <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
     <%= render :partial => 'shared/captcha', :locals => { :single_resource => @playlist } %>

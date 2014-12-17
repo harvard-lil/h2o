@@ -22,7 +22,8 @@
       </li>
       <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 10 } %>
       <%= form.input :content_type, :as => :select, :include_blank => false, :collection => Default.content_types_options %>
-      <%= form.input :tag_list %>
+      <%= form.input :tag_list,
+        :input_html => {:class => 'tagging-autofill-tags', :value => @default.tags.collect { |t| t.name }.join(',') } %>
       <%= render :partial => 'shared/forms/metadatum', :locals => {:form => form } %>
       <%= render :partial => 'shared/captcha', :locals => { :single_resource => @default } %>
     <% end -%>
