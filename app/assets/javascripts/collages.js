@@ -33,10 +33,10 @@ var collages = {
     if(layer_name === undefined) {
       return '';
     }
-    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen').replace(/,/g, 'c0mma');
+    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen').replace(/,/g, 'c0mma').replace(/\&/g, 'amp3r');
   },
   revert_clean_layer: function(layer_name) {
-    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'").replace(/rightparen/g, ')').replace(/leftparen/g, '(').replace(/c0mma/g, ',');
+    return layer_name.replace(/whitespace/g, ' ').replace(/specialsymbol/g, '.').replace(/apostrophe/g, "'").replace(/rightparen/g, ')').replace(/leftparen/g, '(').replace(/c0mma/g, ',').replace(/amp3r/, '&');
   },
   turn_on_initial_highlight: function(attr, value) {
     $('li[data-' + attr + '="' + value + '"] .toggle').toggles({ on: true, height: 15, width: 40 });
