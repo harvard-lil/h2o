@@ -79,11 +79,19 @@ module StandardModelExtensions
   end
 
   def root_user_display
-    self.root.user.nil? ? nil : self.root.user.display
+    begin
+      self.root.user.nil? ? nil : self.root.user.display
+    rescue ActiveRecord::RecordNotFound
+      return nil
+    end
   end
   
   def root_user_id
-    self.root.user_id
+    begin
+      self.root.user_id
+    rescue ActiveRecord::RecordNotFound
+      return self.user_id
+    end
   end
 
   def visible_barcode
