@@ -53,7 +53,7 @@ class PlaylistPusher
   end
 
   def push_single_playlist(new_source_playlist_id, recursive_level)
-    source_playlist = Playlist.where(id: new_source_playlist_id).first
+    source_playlist = Playlist.find(new_source_playlist_id)
     created_playlist_ids = execute!(self.build_playlist_sql(source_playlist))
     new_playlists = Playlist.where(id: created_playlist_ids)
     self.generate_ownership_sql!(new_playlists)
@@ -91,7 +91,7 @@ class PlaylistPusher
     @barcode_clear_users << source_playlist.user if source_playlist.user.present?
 
     sql = "INSERT INTO playlists (\"#{Playlist.insert_column_names.join('", "')}\") "
-    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => source_playlist.id, :karma => 0, :ancestry => (source_playlist.ancestry.nil? ? source_playlist.id : "#{source_playlist.ancestry}/#{source_playlist.id}") }).join(", ")} FROM playlists, users "
+    sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => source_playlist.id, :karma => 0, :ancestry => (source_playlist.ancestry.blank? ? source_playlist.id : "#{source_playlist.ancestry}/#{source_playlist.id}") }).join(", ")} FROM playlists, users "
     sql += "WHERE playlists.id = #{source_playlist.id} AND users.id IN (#{self.user_ids.join(", ")}) "
     sql += "RETURNING *;"
     sql
@@ -143,7 +143,7 @@ class PlaylistPusher
     select_statement = ''
     table_name = actual_object.class.table_name
     if ["playlists", "collages"].include?(table_name)
-      ancestry_override = actual_object.ancestry.nil? ? "#{actual_object.id}" : "#{actual_object.ancestry}/#{actual_object.id}"
+      ancestry_override = actual_object.ancestry.blank? ? "#{actual_object.id}" : "#{actual_object.ancestry}/#{actual_object.id}"
       select_statement = "SELECT #{actual_object.class.insert_value_names(:overrides => {:pushed_from_id => actual_object.id, :ancestry => ancestry_override}).join(', ')} FROM #{table_name}, users
            WHERE #{table_name}.id = #{actual_object.id} AND users.id IN (#{self.user_ids.join(", ")}); "
     else
