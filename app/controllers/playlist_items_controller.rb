@@ -90,7 +90,7 @@ class PlaylistItemsController < BaseController
       if @playlist_item.playlist.user == @playlist_item.actual_object.user
         if params[:playlist_item][:name] != @playlist_item.actual_object.name ||
            params[:playlist_item][:description] != @playlist_item.actual_object.description
-          @playlist_item.actual_object.update_attributes({ :name => params[:playlist_item][:name], :description => params[:playlist_item][:name] })
+          @playlist_item.actual_object.update_attributes({ :name => params[:playlist_item][:name], :description => params[:playlist_item][:description] })
         end
       else
         if params[:playlist_item][:name] == @playlist_item.actual_object.name &&
