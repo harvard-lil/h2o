@@ -1,5 +1,5 @@
 <div id="text_block" class="singleitem" data-itemid="<%= @text_block.id %>">
-  <h1><%= @text_block.display_name %></h1>
+  <h1 class="scale1-5"><%= @text_block.display_name %></h1>
 	<div class="details">
 		<div class="clear"></div>
 		<% cache(["detail", @text_block], :compress => H2O_CACHE_COMPRESSION) do -%>

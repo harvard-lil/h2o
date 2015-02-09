@@ -1,5 +1,9 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique {
+  .annotator-adder {
+    visibility: hidden !important;
+    display: none !important;
+  }
   .wrapper {
     max-width: 1050px;
     width: 1050px;
@@ -12,9 +16,6 @@
   }
   .jsb-item {
     line-height: 2em;
-  }
-  .jsb {
-    width: 86px !important;
   }
   #shell { background: #fff; }
   a { 
@@ -96,45 +97,59 @@
   
   /* Print */
   #print-options {
-    margin-top: 15px; 
+    opacity: 0.0;
+    background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
+    padding: 10px 5px 12px 5px;
+    position: fixed;
+    top: 0px;
+    z-index: 1000;
+    width: 100%;
     * {
       font-size: 12px;
+    }
+    h2 {
+      font-size: 14px;
+      display: inline-block;
     }
     .jsb-currentItem {
       line-height: 1.8em;
     }
-  }
-  #print-options .jsb {
-    display: inline-block;
-    float: none;
-    border: 1px solid #666;
-    border-radius:4px; 
-    -moz-border-radius:4px; 
-    -webkit-border-radius:4px;
-    -o-border-radius:4px;
-    margin: 0px 10px 5px 0px;
-  }
-  #fontface_span .jsb {
-    width: 110px !important;
-  }
-  #print-options strong {
-    display: inline-block;
-    width: 140px;
-    font-weight: normal;
-  }
-  #print-options #annotation_options,
-  #print-options #highlight_options {
-    display: inline-block;
-  }
-  #print-options #create_date,
-  #print-options #paragraph_n {
-    width: 200px;
-  }
-  #print-options #fontface_s {
-    width: 100px;
-  }
-  #print-options #fontsize_s {
-    width: 150px;
+    > div {
+      display: inline-block;
+    }
+    .jsb {
+      width: 50px !important;
+      display: inline-block;
+      float: none;
+      border: 1px solid #666;
+      border-radius:4px; 
+      -moz-border-radius:4px; 
+      -webkit-border-radius:4px;
+      -o-border-radius:4px;
+      margin: 0px 10px 5px 0px;
+    }
+    .jsb-list {
+      width: 60px !important;
+    }
+    strong {
+      display: inline-block;
+      margin: 0px 5px 0px 20px;
+      font-weight: normal;
+    }
+    #fontface_div .jsb,
+    #highlight_options .jsb {
+      width: 110px !important;
+    }
+    #fontface_div .jsb-list,
+    #highlight_options .jsb-list {
+      width: 120px !important;
+    }
+    #fontsize_div .jsb {
+      width: 60px !important;
+    }
+    #fontsize_div .jsb-list {
+      width: 70px !important;
+    }
   }
   
   .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }

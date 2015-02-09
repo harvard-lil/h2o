@@ -600,13 +600,21 @@ header #search table td {
 }
 #media_detail {
   margin-bottom: 2px;
+  p {
+    width: 74%;
+    display: inline-block;
+  }
+  p#content_info {
+    clear: both;
+    display: block;
+    width: 100%;
+    span.error {
+      margin: 0px;
+    }
+  }
 }
 #media_content_input abbr {
   display: none;
-}
-#media_detail p {
-  width: 74%;
-  display: inline-block;
 }
 
 /* Home Page */

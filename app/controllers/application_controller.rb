@@ -384,7 +384,7 @@ class ApplicationController < ActionController::Base
       [:default_font_size, :default_font, :tab_open_new_items,
        :simple_display, :print_titles, :print_dates_details, 
        :print_paragraph_numbers, :print_annotations, :print_highlights,
-       :print_font_face, :print_font_size, :tab_open_new_items,
+       :print_font_face, :print_font_size, :tab_open_new_items, :hidden_text_display,
        :default_show_comments, :default_show_paragraph_numbers].each do |attr|
         cookies[attr] = user.send(attr)
       end
@@ -401,7 +401,7 @@ class ApplicationController < ActionController::Base
     [:default_font_size, :default_font, :tab_open_new_items,
      :user_id, :bookmarks, :simple_display,
      :print_titles, :print_dates_details, :print_paragraph_numbers,
-     :print_annotations, :print_highlights, :print_font_face,
+     :print_annotations, :print_highlights, :print_font_face, :hidden_text_display,
      :print_font_size, :default_show_comments, :default_show_paragraph_numbers].each do |attr|
       cookies.delete(attr)
     end

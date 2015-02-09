@@ -40,6 +40,8 @@ class CollagesController < BaseController
   end
 
   def copy
+    redirect_to root_url if request.get?
+
     collage_copy = @collage.h2o_clone(current_user, params[:collage])
     verify_captcha(collage_copy)
 

@@ -472,6 +472,11 @@ var h2o_global = {
         filtered_playlists = user_playlists;
       }
       var addItemNode = $($.mustache(add_popup_template, { "playlists": filtered_playlists }));
+      if(addItemNode.find('select option').size() == 0) {
+        addItemNode.find('a.new-playlist-item').parent().remove();
+        var error_msg = $('<p>').addClass('error').html('You have no playlists that this item can be added to.<br />Create a playlist by clicking on the CREATE button, or cloning an existing playlist.');
+        addItemNode.find('select#playlist_id').parent().replaceWith(error_msg);
+      }
       $(addItemNode).dialog({
         title: 'Add item to...',
         modal: true,
@@ -890,6 +895,11 @@ var h2o_global = {
             }
           }
         });
+      },
+      error: function() {
+        h2o_global.hideGlobalSpinnerNode();
+        var error_message = $('<p>').addClass('error').html('Sorry, we could not add this item because it no longer exists.'); 
+        $('div.ui-dialog a.new-playlist-item').replaceWith(error_message);
       }
     });
   },

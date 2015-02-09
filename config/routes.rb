@@ -124,6 +124,7 @@ H2o::Application.routes.draw do
       get 'manage_permissions'
     end
   end
-  
+ 
+  get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'
 end

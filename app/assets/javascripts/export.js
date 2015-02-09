@@ -4,6 +4,7 @@ var original_data = {};
 var layer_data;
 var collage_id;
 var h2o_annotator;
+var all_collage_data = {};
 
 var collages = {
   listenToRecordAnnotatedItemState: function() {
@@ -28,45 +29,37 @@ var collages = {
     return $('<div>');
   },
   loadState: function(collage_id, data) {
-    $.each(data, function(i, e) {
-      if(i == 'font_face') {
-        $('#fontface').val(e);
-      } else if(i == 'font_size') {
-        $('#fontsize').val(e);
-      }
-    });
-    $('#printhighlights').val('original');
     export_functions.highlightAnnotatedItem(collage_id, data.highlights, data.highlight_only_highlights);
-    $('.annotator-hl:not(:visible)').remove();
 
-    $.each(['a', 'em', 'sup', 'p', 'center', 'h2', 'pre'], function(i, selector) {
-      var set = $('#collage' + collage_id + ' div.article ' + selector);
-      set = set.filter(':not(:visible):not(:has(*:visible)):not(.paragraph-numbering)');
-      if(selector == 'em') {
-        set = set.filter(':not(.original_content)');
-      }
-      if(selector == 'a') {
-        set = set.filter(':not(.paragraph-numbering)');
-      }
-      set.remove();
-    });
-    
-    var cannotations = eval("annotations_" + collage_id);
+    var cannotations = all_collage_data["collage" + collage_id].annotations;
     $.each(cannotations, function(i, ann) {
       var annotation = $.parseJSON(ann);
       if(annotation.annotation != '') {
         $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
+      } else if(annotation.link !== undefined && annotation.link !== null) {
+        var link_html = '<a href="' + annotation.link + '">' + annotation.link + '</a>'; 
+        $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(link_html).insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
 
     if($('#printannotations').val() == 'yes') {
       $('#collage' + collage_id + ' span.annotation-content').show();
     }
+    if($('#hiddentext').val() == 'show') {
+      $('#collage' + collage_id + ' .layered-ellipsis-hidden').hide();
+      $('#collage' + collage_id + ' .original_content,#collage' + collage_id + ' .annotation-hidden').show();
+    }
+    if($('#printhighlights').val() == 'all') {
+      export_functions.highlightAnnotatedItem(collage_id, all_collage_data["collage" + collage_id].layer_data, all_collage_data["collage" + collage_id].highlights_only);
+    }
   }
 };
 
 var export_functions = {
-  init: function() {
+  initiate_collage_data: function(id, data) {
+    all_collage_data["collage" + id] = data;
+  },
+  init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
@@ -76,6 +69,9 @@ var export_functions = {
         }
       }
     }
+  },
+  init_user_settings: function() {
+    $('#printhighlights').val('original');
 
     if($.cookie('user_id') !== null) {
       if($.cookie('print_titles') == 'false') {
@@ -95,6 +91,9 @@ var export_functions = {
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes');
       }
+      if($.cookie('hidden_text_display') == 'true') {
+        $('#hiddentext').val('show');
+      }
       if($.cookie('print_highlights') == 'none') {
         $('#printhighlights').val('none');
         $('.collage-content').each(function(i, el) {
@@ -103,15 +102,12 @@ var export_functions = {
         });
       } else if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
-        $('.collage-content').each(function(i, el) {
-          var id = $(el).data('id');
-          export_functions.highlightAnnotatedItem(id, eval("layer_data_" + id), eval("highlights_only_" + id));
-        });
       }
       $('#fontface').val($.cookie('print_font_face'));
       $('#fontsize').val($.cookie('print_font_size'));
     }
-
+  },
+  init_listeners: function() {
     $('#fontface').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
@@ -125,7 +121,6 @@ var export_functions = {
     $('#printannotations').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
-      // Go through annotation content
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
@@ -170,6 +165,33 @@ var export_functions = {
         $('.collage-content').css('padding-left', '0px');
       }
     });
+    $('#hiddentext').selectbox({
+      className: "jsb", replaceInvisible: true
+    }).change(function() {
+      var choice = $(this).val();
+      if(choice == 'show') {
+        $('.layered-ellipsis-hidden').hide();
+        $('.original_content,.annotation-hidden').show();
+      } else if(choice == 'hide') {
+        $('.layered-ellipsis-hidden').show();
+        $('.annotation-hidden').hide();
+        $('.annotation-hidden').parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
+        $.each($('.layered-ellipsis-hidden'), function(a, b) {
+          var annotation_id = $(b).data('layered');
+          $.each($('.annotation-' + annotation_id).parents('.original_content').filter(':not(.original_content *)'), function(i, j) {
+            var has_text_node = false;
+            $.each($(j).contents(), function(k, l) {
+              if(l.nodeType == 3 && $(l).text() != ' ') {
+                has_text_node = true;
+              }
+            });
+            if(has_text_node) {
+              $(j).show();
+            }
+          });
+        });
+      }
+    });
     $('#printhighlights').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
@@ -178,13 +200,13 @@ var export_functions = {
       if(choice == 'original') {
         $('.collage-content').each(function(i, el) {
           var id = $(el).data('id');
-          var data = eval("collage_data_" + id);
-          export_functions.highlightAnnotatedItem(id, data.highlights, data.highlight_only_highlights);
+          var data = all_collage_data["collage" + id];
+          export_functions.highlightAnnotatedItem(id, data.highlights, data.highlights_only);
         });
       } else if(choice == 'all') {
         $('.collage-content').each(function(i, el) {
           var id = $(el).data('id');
-          export_functions.highlightAnnotatedItem(id, eval("layer_data_" + id), eval("highlights_only_" + id));
+          export_functions.highlightAnnotatedItem(id, all_collage_data["collage" + id].layer_data, all_collage_data["collage" + id].highlights_only);
         });
       } else {
         $('.collage-content').each(function(i, el) {
@@ -194,6 +216,8 @@ var export_functions = {
       }
     });
 
+    $('.wrapper').css('margin-top', $('#print-options').height() + 15);
+    $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
   },
   setFontPrint: function() {
@@ -216,17 +240,17 @@ var export_functions = {
     $.rule(base_selector + ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
   },
   loadAnnotator: function(id) {
-    annotations = eval("annotations_" + id);
-    layer_data = eval("layer_data_" + id);
-    highlights_only_data = eval("highlights_only_" + id);
+    annotations = all_collage_data["collage" + id].annotations || {};
+    layer_data = all_collage_data["collage" + id].layer_data || {};
+    highlights_only = all_collage_data["collage" + id].highlights_only || {};
 
     var elem = $('#collage' + id + ' div.article');
     var factory = new Annotator.Factory();
     var Store = Annotator.Plugin.fetch('Store');
     var h2o = Annotator.Plugin.fetch('H2O');
 
-    h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only_data).getInstance();
-    h2o_annotator.attach(elem);
+    h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only).getInstance();
+    h2o_annotator.attach(elem, 'print_export_annotation');
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },
   filteredLayerData: function(layer_data) {
@@ -236,13 +260,12 @@ var export_functions = {
     });
     return filtered_layer_data;
   },
-  highlightAnnotatedItem: function(collage_id, highlights, highlight_only_highlights) {
+  highlightAnnotatedItem: function(collage_id, highlights, highlights_only) {
     if(highlights === undefined) {
       highlights = {};
     }
-    layer_data = export_functions.filteredLayerData(eval("layer_data_" + collage_id));
-    highlight_only_data = eval("highlights_only_" + collage_id);
-
+    layer_data = export_functions.filteredLayerData(all_collage_data["collage" + collage_id].layer_data);
+ 
     // Removing highlights from tagged + color
     var keys = new Array();
     $.each(highlights, function(i, j) {
@@ -255,16 +278,16 @@ var export_functions = {
     });
 
     //Removing highlights from color only
-    $.each(highlight_only_data, function(i, j) {
-      if($.inArray(j, highlight_only_highlights) == -1) {
+    $.each(all_collage_data["collage" + collage_id].highlights_only || [], function(i, j) {
+      if($.inArray(j, highlights_only) == -1) {
         $('#collage' + collage_id + ' .layer-hex-' + j).removeClass('highlight-hex-' + j);
       }
     });
 
-    $.each(highlights, function(i, j) {
+    $.each(highlights || [], function(i, j) {
       $('#collage' + collage_id + ' .annotator-wrapper .layer-' + collages.clean_layer(i)).addClass('highlight-' + collages.clean_layer(i));
     });
-    $.each(highlight_only_highlights, function(i, j) {
+    $.each(highlights_only || [], function(i, j) {
       $('#collage' + collage_id + ' .annotator-wrapper .layer-hex-' + j).addClass('highlight-hex-' + j);
     });
 
@@ -347,6 +370,9 @@ var export_functions = {
 };
 
 $(document).ready(function(){
+  export_functions.init_hash_detail();
+  export_functions.init_user_settings();
+
   $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
   $('article h1, div.article h1').addClass('scale1-4');
   $('article h2, div.article h2').addClass('scale1-3');
@@ -358,5 +384,5 @@ $(document).ready(function(){
     export_functions.loadAnnotator($(el).data('id')); 
   });
 
-  export_functions.init();
+  export_functions.init_listeners();
 });

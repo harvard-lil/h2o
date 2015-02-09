@@ -405,7 +405,7 @@ var playlists_show = {
         },
         success: function(data) {
           if(data.error) {
-            $('#error_block').html(data.message).show();
+            $('#error_block').html(data.error).show();
           } else {
             playlists_show.renderPublicPlaylistBehavior(data);
             if(form.hasClass('new')) {

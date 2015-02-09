@@ -53,7 +53,11 @@ class PlaylistPusher
   end
 
   def push_single_playlist(new_source_playlist_id, recursive_level)
-    source_playlist = Playlist.find(new_source_playlist_id)
+    source_playlists = Playlist.where(id: new_source_playlist_id)
+
+    return [] if source_playlists.empty?
+    source_playlist = source_playlists.first
+
     created_playlist_ids = execute!(self.build_playlist_sql(source_playlist))
     new_playlists = Playlist.where(id: created_playlist_ids)
     self.generate_ownership_sql!(new_playlists)
@@ -84,7 +88,7 @@ class PlaylistPusher
     elsif self.email_receiver == 'destination' && self.user_ids.length == 1
       recipient = User.where(id: self.user_ids.first).first
     end
-    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver
+    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver if recipient.present?
   end
 
   def build_playlist_sql(source_playlist)

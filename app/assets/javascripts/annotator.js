@@ -10834,7 +10834,7 @@ Annotator = (function(_super) {
     });
   };
 
-  Annotator.prototype.attach = function(element) {
+  Annotator.prototype.attach = function(element, context) {
     var name, p;
     this.element = $(element);
     this.addEvents();
@@ -10842,7 +10842,7 @@ Annotator = (function(_super) {
       this._setupDocumentEvents();
     }
     this._setupWrapper()._setupViewer()._setupEditor();
-    this._setupDynamicStyle();
+    this._setupDynamicStyle(context);
     this.adder = $(this.html.adder).appendTo(this.wrapper).hide();
     for (name in this.plugins) {
       p = this.plugins[name];
@@ -10919,7 +10919,7 @@ Annotator = (function(_super) {
     return this;
   };
 
-  Annotator.prototype._setupDynamicStyle = function() {
+  Annotator.prototype._setupDynamicStyle = function(context) {
     var max, notclasses, sel, style, x;
     style = $('#annotator-dynamic-style');
     if (!style.length) {
@@ -10935,8 +10935,17 @@ Annotator = (function(_super) {
       }
       return _results;
     })()).join('');
-    max = Util.maxZIndex($(document.body).find(sel));
-    max = Math.max(max, 1000);
+    if(window._annotatorZIndex === undefined || window._annotatorZIndex[context] === undefined){
+      max = Util.maxZIndex($(document.body).find(sel));
+      max = Math.max(max, 1000);
+      if(context !== undefined){
+        window._annotatorZIndex = window._annotatorZIndex || {};
+        window._annotatorZIndex[context] = max;
+      }
+    }
+    else {
+      max = window._annotatorZIndex[context] + 20;
+    }
     style.text([".annotator-adder, .annotator-outer, .annotator-notice {", "  z-index: " + (max + 20) + ";", "}", ".annotator-filter {", "  z-index: " + (max + 10) + ";", "}"].join("\n"));
     return this;
   };

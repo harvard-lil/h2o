@@ -15,43 +15,49 @@
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
-    <div class="wrapper">
-  	<section id="shell">
-      <div id="print-options">
-        <strong>PRINT TITLE(S)</strong>
-        <select id="printtitle">
-          <option value="yes" selected="selected">Yes</option>
-          <option value="no">No</option>
+    <div id="print-options">
+      <h2>PRINT SETTINGS</h2>
+      <strong>TITLE(S)</strong>
+      <select id="printtitle">
+        <option value="yes" selected="selected">Show</option>
+        <option value="no">Hide</option>
+      </select>
+      <strong>DATES DETAILS</strong>
+      <select id="printdetails">
+        <option value="yes" selected="selected">Show</option>
+        <option value="no">Hide</option>
+      </select>
+      <% if ["collages", "playlists"].include?(params[:controller]) -%>
+      <strong>PARAGRAPH NUMBERS</strong>
+      <select id="printparagraphnumbers">
+        <option value="yes" selected="selected">Show</option>
+        <option value="no">Hide</option>
+      </select>
+      <div id="annotation_options">
+        <strong>COMMENTS/LINKS</strong>
+        <select id="printannotations">
+          <option value="yes">Show</option>
+          <option value="no" selected="selected">Hide</option>
         </select>
-        <strong id="create_date">PRINT CREATE AND DATE DETAILS</strong>
-        <select id="printdetails">
-          <option value="yes" selected="selected">Yes</option>
-          <option value="no">No</option>
+      </div>
+      <div id="highlight_options">
+        <strong>HIGHLIGHTS</strong>
+        <select id="printhighlights">
+          <option value="original" selected="selected">Last Saved</option>
+          <option value="all">Show All</option>
+          <option value="none">Hide</option>
         </select>
-        <% if ["collages", "playlists"].include?(params[:controller]) -%>
-        <strong id="paragraph_n">PRINT PARAGRAPH NUMBERS</strong>
-        <select id="printparagraphnumbers">
-          <option value="yes" selected="selected">Yes</option>
-          <option value="no">No</option>
+      </div>
+      <div id="hidden_text_options">
+        <strong>HIDDEN TEXT</strong>
+        <select id="hiddentext">
+          <option value="show">SHOW</option>
+          <option value="hide" selected="selected">HIDE</option>
         </select>
-        <div id="annotation_options">
-          <strong>PRINT ANNOTATIONS</strong>
-          <select id="printannotations">
-            <option value="yes">Yes</option>
-            <option value="no" selected="selected">No</option>
-          </select>
-        </div>
-        <div id="highlight_options">
-          <strong>PRINT HIGHLIGHTS</strong>
-          <select id="printhighlights">
-            <option value="original" selected="selected">Original</option>
-            <option value="all">All</option>
-            <option value="none">None</option>
-          </select>
-        </div>
-        <% end %>
-        <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
-        <span id="fontface_span">
+      </div>
+      <% end %>
+      <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
+      <div id="fontface_div">
         <strong id="fontface_s">FONT FACE</strong>
         <select id="fontface">
           <option value="leitura">Leitura</option>
@@ -61,19 +67,23 @@
           <option value="proxima">Proxima Nova</option>
           <option value="dagny" selected="selected">Dagny Web</option>
         </select>
-        </span>
-        <% if ["cases", "text_blocks"].include?(params[:controller]) %> <br /> <% end %>
-        <strong id="fontsize_s">FONT SIZE</strong>
+      </div>
+      <div id="fontsize_div">
+        <strong>FONT SIZE</strong>
         <select id="fontsize">
           <option value="small" selected="selected">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
           <option value="xlarge">X-Large</option>
         </select>
-      <% end %>
       </div>
-      <%= yield %>
-    </section>
+      <% end %>
+    </div>
+
+    <div class="wrapper">
+  	  <section id="shell">
+        <%= yield %>
+      </section>
     </div>
 
     <%= javascript_include_tag "application-print" %>

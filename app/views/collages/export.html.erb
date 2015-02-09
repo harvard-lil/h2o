@@ -12,8 +12,12 @@
 </div>
 
 <script type="text/javascript">
-var collage_data_<%= @collage.id %> = <%= raw params[:state] || @collage.readable_state || {} %>;
-var annotations_<%= @collage.id %> = <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>;
-var layer_data_<%= @collage.id %> = <%= raw @collage.layer_data.to_json %>;
-var highlights_only_<%= @collage.id %> = <%= raw @collage.highlights_only.to_json %>;
+document.addEventListener("DOMContentLoaded", function() {
+  export_functions.initiate_collage_data(<%= @collage.id %>, {
+    data: <%= raw(params[:state] || @collage.readable_state || "{}") %>,
+    annotations: <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>,
+    layer_data: <%= raw @collage.layer_data.to_json %>,
+    highlights_only: <%= raw @collage.highlights_only.to_json %>
+  });
+});
 </script>

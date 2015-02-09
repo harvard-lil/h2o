@@ -5,6 +5,12 @@ class PlaylistItemsController < BaseController
   def new
     klass = params[:klass] == "media" ? Media : params[:klass].classify.constantize
     @actual_object = klass.where(id: params[:id]).first
+
+    if @actual_object.nil?
+      render :json => {}, :status => :error
+      return
+    end
+
     @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id], 
                                         :position => params[:position], 
                                         :actual_object_type => @actual_object.class.to_s, 
@@ -84,6 +90,11 @@ class PlaylistItemsController < BaseController
 
   def update
     playlist = @playlist_item.playlist
+
+    if @playlist_item.actual_object.nil?
+      render :json => { :error => "Could not update playlist item because original item does not exist." }
+      return
+    end
 
     # Autoclone
     if @playlist_item.actual_object_type != 'Case'

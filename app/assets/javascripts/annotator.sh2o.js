@@ -232,7 +232,7 @@ H2O = (function() {
 
         if(annotation.hidden) {
           $('.annotation-' + annotation.id).addClass('annotation-hidden').hide();
-          $('.layered-ellipsis-' + annotation.id).css('display', 'inline-block');
+          $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
           $('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
           $.each($('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *)'), function(i, j) {
             var has_text_node = false;
@@ -263,8 +263,7 @@ H2O = (function() {
       }
 
       if($('#print-options').size() > 0) {
-        var collage_data = eval('collage_data_' + this.plugins.H2O.collage_id);
-        collages.loadState(this.plugins.H2O.collage_id, collage_data);
+        collages.loadState(this.plugins.H2O.collage_id, all_collage_data["collage" + this.plugins.H2O.collage_id].data);
       }
 
       //loadState has to be before listenTo
@@ -754,7 +753,7 @@ H2O = (function() {
     }
     var layer_class = '';
     if(annotation.layers !== undefined) {
-      layer_class = annotation.layers[0];
+      layer_class = annotation.layers[0] || '';
     }
     if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
       layer_class = 'hex-' + annotation.highlight_only; 

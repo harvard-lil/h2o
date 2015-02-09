@@ -97,12 +97,16 @@
         <%= form.select :print_paragraph_numbers, [['Yes', true], ['No', false]] %>
       </p>
       <p>
-        <%= form.label :print_annotations %>
+        <%= form.label :print_annotations, "Print Comments/Links" %>
         <%= form.select :print_annotations, [['Yes', true], ['No', false]] %>
       </p>
       <p>
         <%= form.label :print_highlights %>
         <%= form.select :print_highlights, [['Original', 'original'], ['None', 'none'], ['All', 'all']] %>
+      </p>
+      <p>
+        <%= form.label :hidden_text_display, "Hidden Text" %>
+        <%= form.select :hidden_text_display, [['Hide', false], ['Show', true]] %>
       </p>
       <p>
         <%= form.label :print_font_face %>

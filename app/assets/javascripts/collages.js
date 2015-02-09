@@ -409,10 +409,7 @@ var collages = {
       $('#collage_print').submit();
     });
     $('form#collage_print').submit(function() {
-      var data = collages.retrieveState();
-      data.font_size = $('#fontsize a.active').data('value');
-      data.font_face = $('#fontface a.active').data('value');
-      $('#state').val(JSON.stringify(data));
+      $('#state').val(JSON.stringify(collages.retrieveState()));
     });
   },
   recordAnnotatedItemState: function(data, show_message) {

@@ -19,7 +19,10 @@
         <%= form.input :media_type, :as => :radio %>
         <li id="media_detail">
           <label for="media_content">Content <abbr title="required">*</abbr></label>
-          <p style="clear:both;display:block;">You can add media items by pasting the URL or HTML embed code in the box below.</p>
+          <p id="content_info" style="clear:both;display:block;">
+            You can add media items by pasting the URL or HTML embed code in the box below.<br />
+            <span class="error">As H2O is a secure site, all embedded item URLs must also be from a secure site - with a URL that has https:// , not just http:// - to embed correctly.</span>
+          </p>
         </li>
         <%= form.input :content,
             :label => '',
