@@ -41,6 +41,15 @@ class MediasController < BaseController
   end
 
   def show
+    http_match = @media.content.scan(/http:\/\//)
+    if http_match.size == 1
+      if @media.content.match(/^http:/)
+        redirect_to @media.content
+      else
+        url = @media.content.scan(/http:\/\/[^"]*/)
+        redirect_to url.first
+      end
+    end
     @type_label = @media.media_type.label
   end
 
