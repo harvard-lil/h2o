@@ -70,7 +70,7 @@ class AnnotationsController < BaseController
       :start_offset => range[:startOffset],
       :end_offset => range[:endOffset],
       :annotation => params[:text],
-      :hidden => params[:hidden],
+      :hidden => params[:hidden].present? ? params[:hidden] : false,
       :highlight_only => params[:highlight_only],
       :link => params[:link].present? ? params[:link] : nil,
       :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
