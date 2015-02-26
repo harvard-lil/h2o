@@ -28,6 +28,7 @@ class DefaultsController < BaseController
   def new
     @default = Default.new
     @default.build_metadatum
+    @page_title = "New Link"
   end
 
   def edit

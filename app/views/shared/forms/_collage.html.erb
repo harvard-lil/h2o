@@ -11,7 +11,7 @@
       <% end -%>
       <%= form.input :description,
         :as => :text,
-        :input_html => {:size => '40x5', :class => 'textile_description'},
+        :input_html => {:size => '40x5', :class => 'textile_description with_tinymce'},
         :required => false,
         :hint => raw("You can use html and textile markdown in the description. #{link_to('docs', 'http://redcloth.org/textile', :target => '_blank')}<br/>Allowed tags: #{ WHITELISTED_TAGS.sort.join(' ') }")
       %>

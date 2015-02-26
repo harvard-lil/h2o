@@ -18,7 +18,7 @@ class Default < ActiveRecord::Base
   has_many :playlist_items, :as => :actual_object
   belongs_to :user
   validate :url_format
-  has_ancestry :orphan_strategy => :restrict
+  has_ancestry :orphan_strategy => :adopt
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name 

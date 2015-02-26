@@ -45,8 +45,8 @@
 			<% @paginated_bookmarks.each do |bookmark| -%>
       <% item = bookmark.actual_object %>
       <% if item.present? -%>
-      <%= render :partial => "shared/objects/#{item.class == Case ? 'case_obj' : item.class.to_s.downcase}",
-                 :locals => { :hit => item, (item.class == Case ? :case_obj : item.class.to_s.downcase.to_sym) => item } %>
+      <%= render :partial => "shared/objects/#{item.klass_partial}",
+                 :locals => { :hit => item, item.klass_sym => item } %>
 			<% end -%>
 			<% end -%>
 		</ul>

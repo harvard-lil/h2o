@@ -225,6 +225,32 @@ class Playlist < ActiveRecord::Base
     return results.flatten
   end
 
+  def self.destroy_playlist_and_nested(playlist)
+    all_nested_items = playlist.all_actual_items
+    items = []
+
+    all_nested_items.each do |item|
+      can_delete = item.user == playlist.user
+     
+      if [Collage, Default, Media, TextBlock].include?(item.class)
+        playlist_users = item.playlist_items.collect { |pi| pi.playlist.user_id }.uniq
+        if playlist_users.detect { |u| u != playlist.user_id }
+          can_delete = false
+          item.update_attributes({ :user_id => 101022 })
+        end
+      end
+
+      if can_delete
+        item.destroy
+        items << "<b>#{item.class.to_s}:</b> #{item.name}"
+      end
+    end
+
+    playlist.destroy
+
+    return "Playlist #{playlist.name} and nested items have been deleted."
+  end
+
   def toggle_nested_private
     self.nested_private_resources.select { |i| i.user_id == self.user_id }.each do |item|
       item.update_attribute(:public, true)

@@ -1338,6 +1338,9 @@ var h2o_global = {
           }
         }
         h2o_global.toggleVisibilitySelector();
+        if(newItemNode.find('.with_tinymce').length) {
+          tinymce.init(h2o_mceInit);
+        }
       },
       buttons: {
         Submit: function() {

@@ -475,6 +475,9 @@ color: #036290;
 #description #public_private_instruction {
   margin: 15px 0px 0px 0px;
   padding: 0px;
+  font-style: italic;
+  border-top: 1px solid #c2c2c2;
+  padding-top: 10px;
 }
 #description a#public-notes span.count,
 #description a#private-notes span.count {
@@ -493,15 +496,23 @@ span.missing_item,
 span.private_item {
   opacity: 0.6; 
 }
-.singleitem #description p#private_detail {
-  margin: 15px 0px 0px 0px;
-  padding: 0px;
+.singleitem #description {
+  p#private_detail {
+    margin: 15px 0px 7px 0px;
+    padding: 0px;
+    font-style: italic;
+    border-top: 1px solid #c2c2c2;
+    padding-top: 10px;
+  }
+  #nested_public {
+    margin-bottom: 5px;
+  }
 }
-#main-wedge, #advanced-search-wedge {
+#main-wedge {
   background: url(<%= asset_path 'icons.png' %>);
-  background-position: -162px -66px;
-  height: 12px;
-  width: 12px;
+  background-position: -206px -86px;
+  height: 20px;
+  width: 22px;
   background-repeat: no-repeat;
   display: block;
   overflow: hidden;
@@ -510,16 +521,10 @@ span.private_item {
   right: 12px;
   top: 20px;
 }
-#advanced-search-wedge {
-  top: 15px;
-}
 #main-wedge.opened {
-  background-position: -162px -43px;
+  background-position: -199px -67px;
   top: 22px;
-}
-#advanced-search-wedge.opened {
-  background-position: -162px -43px;
-  top: 19px;
+  width: 24px;
 }
 #playlists_show #stats {
   display: none;

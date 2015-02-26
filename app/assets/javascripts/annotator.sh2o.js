@@ -106,6 +106,17 @@ H2O = (function() {
       $('.annotation-' + $(this).data('id')).removeClass('with_comment');
     });
 
+    $(document).delegate('#stats_expand', 'click', function(e) {
+      $('#stats_collapse').slideDown(100, function() {
+        var height_offset = $('div#stats').data('height_offset');
+        $.each($('.edit-annotate:visible'), function(i, el) {
+          if($(el).offset().top < height_offset) {
+            $(el).hide(); 
+          }
+        });
+        $('#stats_expand').hide();
+      });
+    });
     if(h2o_annotator.options.readOnly) {
       $(document).delegate('.annotation-indicator', 'click', function(e) {
         if($(e.target).hasClass('link')) {
@@ -123,6 +134,15 @@ H2O = (function() {
       });
     } else {
       $(document).delegate('.icon-adder-annotate,.icon-adder-link', 'click', function(e) {
+        if($('div#stats').is(':visible')) {
+          var height_offset = $('div#stats').offset().top + $('div#stats').height();
+          if(height_offset > $(this).offset().top) {
+            $('div#stats').data('height_offset', height_offset);
+            $('div#stats_collapse').slideUp(100, function() {
+              $('#stats_expand').css('display', 'block');
+            });
+          }
+        }
         e.preventDefault();
         $(this).siblings('.edit-annotate,.edit-link').find('.icon-edit').show();
         $(this).css({ 'opacity': 1.0 });

@@ -891,6 +891,13 @@ body#bpages .main_wrapper {
 .standard-form form.formtastic fieldset > ol > li p.inline-hints {
   text-align: left;
   margin: 0px;
+  span.error {
+    margin: 0px 0px 15px 0px;
+    display: block;
+    a {
+      text-decoration: underline;
+    }
+  }
 }
 .standard-form form.formtastic .action button,
 .standard-form form.formtastic input#user_submit,
@@ -1748,9 +1755,6 @@ li.boolean_hidden {
   #klass_filters ul {
     padding: 0px 10px;
   }
-}
-.drilldown #advanced-search-wedge {
-  display: none;
 }
 #edit_item #add_item_results #playlist_drilldown {
   margin-top: 2px;

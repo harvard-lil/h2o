@@ -586,6 +586,15 @@ $(document).ready(function(){
   h2o_global.hideGlobalSpinnerNode();
   collages.observeStatsHighlights();
   collages.slideToParagraph();
+
+
+  $(window).resize(function() {
+     if($(window).width() < 1150) {
+       $('.edit-annotate').css('width', $(window).width() * 0.25 - 25);
+     } else {
+       $('.edit-annotate').css('width', 295);
+     }
+  });
 });
 
 var layer_tools_highlights = '\

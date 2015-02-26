@@ -18,7 +18,7 @@ class Collage < ActiveRecord::Base
   acts_as_taggable_on :tags
 
   before_destroy :collapse_children
-  has_ancestry :orphan_strategy => :restrict
+  has_ancestry :orphan_strategy => :adopt
 
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user

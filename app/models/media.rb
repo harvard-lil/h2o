@@ -19,6 +19,21 @@ class Media < ActiveRecord::Base
   belongs_to :user
   validates_presence_of :name, :media_type_id, :content
   has_many :playlist_items, :as => :actual_object
+  before_save :filter_harvard_urls
+  validate :is_secure
+
+  def is_secure
+    http_match = self.content.scan(/http:\/\//)
+    if http_match.size > 0
+      self.errors.add(:content, "must be secure (link to https).")
+    end
+  end
+
+  def filter_harvard_urls
+    if self.content.match(/wiki.harvard.edu/)
+      self.content.gsub!(/\?[^"]*/, '')
+    end
+  end
 
   def is_pdf?
     self.media_type.slug == 'pdf'

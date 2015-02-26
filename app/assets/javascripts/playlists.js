@@ -697,10 +697,10 @@ var playlists_show = {
     playlists_show.observeAdditionalDetailsExpansion();
     playlists_show.observeViewerToggleEdit();
   },
-  nested_notification: '<p id="private_detail">This playlist contains {{nonowned}} private nested resource item(s) owned by other users.</p>',
+  nested_notification: '<p id="private_detail" class="scale0-9">This playlist contains {{nonowned}} private nested resource item(s) owned by other users.</p>',
   set_nested_owned_private_resources_public: '\
-<p id="private_detail">This playlist contains {{owned}} private nested resource item(s) owned by you, and {{nonowned}} private nested resource item(s) owned by other users.</p>\
-<a href="{{url}}" id="nested_public" class="button">Set nested item(s) owned by you to public</a>',
+<p id="private_detail" class="scale0-9">This playlist contains {{owned}} private nested resource item(s) owned by you, and {{nonowned}} private nested resource item(s) owned by other users.</p>\
+<a href="{{url}}" id="nested_public" class="button scale0-9">Set nested item(s) owned by you to public</a>',
   delete_playlist_item_template: '\
 <div id="playlist_item_form" class="delete">\
 <p>Are you sure you want to delete this playlist item?</p>\

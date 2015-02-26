@@ -66,6 +66,7 @@ class Ability
            :update, :position_update, :update_notes, :delete_inherited_annotations, :save_readable_state],
         :all
       can :aggregate_items, [Collage, Media, Playlist, TextBlock, Default, User]
+      can :delete_playlist_nested, Playlist
       can [:show, :edit, :new], Institution
       cannot [:view_in_app, :edit_in_app], Institution
       can [:import], [Default, Institution]

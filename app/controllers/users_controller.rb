@@ -68,19 +68,21 @@ class UsersController < ApplicationController
       return
     end
 
-    if request.xhr? && params.has_key?("ajax_region")
+    if request.xhr? && params.has_key?(:ajax_region)
       p = []
       if params["ajax_region"] == "case_requests"
         p = CaseRequest.all.sort_by { |p| p.send(params[:sort]).to_s.downcase }
       else
         p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
       end
-      
+     
       if(params[:order] == 'desc')
         p = p.reverse
       end
       @collection = p.paginate(:page => params[:page], :per_page => 10)
-      render :partial => 'shared/generic_block'
+      
+      render :partial => params[:ajax_region] == "bookmarks" ? 'shared/bookmark_block' : 'shared/generic_block'
+      
       return
     elsif !params.has_key?("ajax_region")
       user_id_filter = @user.id
@@ -219,7 +221,7 @@ class UsersController < ApplicationController
         v[:results] = p.paginate(:page => params[:page], :per_page => 10)
       end
     end
-    
+   
     if request.xhr?
       render :partial => 'shared/generic_block'
     else
@@ -274,13 +276,12 @@ class UsersController < ApplicationController
   end
 
   def bookmark_item
-    if current_user.bookmark_id.nil?
+    playlist = current_user.bookmark_id.present? ? Playlist.where(id: current_user.bookmark_id).first : nil
+    if playlist.nil?
       playlist = Playlist.new({ :name => "Your Bookmarks", :public => false, :user_id => current_user.id })
       playlist.valid_recaptcha = true
       playlist.save
       current_user.update_attribute(:bookmark_id, playlist.id)
-    else
-      playlist = Playlist.where(id: current_user.bookmark_id).first
     end
 
     begin

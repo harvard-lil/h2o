@@ -17,16 +17,10 @@
         <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
         <%= form.input :description, :as => :text, :required => false, :input_html => { :rows => 3, :class => "no_tinymce" } %>
         <%= form.input :media_type, :as => :radio %>
-        <li id="media_detail">
-          <label for="media_content">Content <abbr title="required">*</abbr></label>
-          <p id="content_info" style="clear:both;display:block;">
-            You can add media items by pasting the URL or HTML embed code in the box below.<br />
-            <span class="error">As H2O is a secure site, all embedded item URLs must also be from a secure site - with a URL that has https:// , not just http:// - to embed correctly.</span>
-          </p>
-        </li>
         <%= form.input :content,
-            :label => '',
-            :input_html => { :rows => 3, :class => "no_tinymce" } %>
+            :required => true,
+            :input_html => { :rows => 3, :class => "no_tinymce" },
+            :hint => raw('You can add media items by pasting the URL or HTML embed code in the box above.<br /><span class="error">All embedded items must be from a secure (https) site. If content is not secure, <a href="/defaults/new">create a link</a> instead.</span>') %>
         <%= form.input :tag_list,
           :as => :string,
           :hint => 'Please define the tags for this media in a comma-separated list.',

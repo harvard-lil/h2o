@@ -1,6 +1,33 @@
 module RailsAdmin
   module Config
     module Actions
+      class DeletePlaylistNested < RailsAdmin::Config::Actions::Base
+        RailsAdmin::Config::Actions.register(self)
+        register_instance_option :visible? do
+          authorized?
+        end
+        register_instance_option :member do
+          true
+        end
+        register_instance_option :http_methods do
+          [:get, :post]
+        end
+        register_instance_option :controller do
+          proc do #Proc.new do
+            if request.get?
+              #do nothing
+            elsif request.post?  #delete?
+              message = Playlist.destroy_playlist_and_nested(@object)
+              flash[:notice] = message #"Playlist #{@object.name} and nested items have been deleted."
+              redirect_to "/admin/playlist"
+            end
+          end
+        end
+
+        register_instance_option :link_icon do
+          'icon-trash'
+        end
+      end
       class AggregateItems < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
 
@@ -140,6 +167,7 @@ RailsAdmin.config do |config|
     new
 
     delete
+    delete_playlist_nested
     edit_in_app
     view_in_app
   end
@@ -174,6 +202,7 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Collage' do
+    label 'Annotated Item'
     list do
       field :name
       field :public

@@ -32,7 +32,7 @@
     <%= raw @playlist.formatted(:description) %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(@playlist), :class => "edit-action requires_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE PLAYLIST<span class="icon icon-arrow"></span>'), @playlist, "data-type" => "playlist", "data-id" => @playlist.id, :class => "delete-action requires_edit scale0-8" %>
-    <p id="public_private_instruction" class="requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>
+    <p id="public_private_instruction" class="scale0-9 requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>
     <a href="#" id="public-notes" class="requires_edit scale0-8<%= " inactive" if @playlist.public_count == @playlist.total_count %>" data-type="public"><span class="icon icon-setup"></span>MAKE ALL NOTES PUBLIC <span class="count">(<span><%= "#{@playlist.public_count}/#{@playlist.total_count}" %></span> playlist item notes are public)</span></a>
     <a href="#" id="private-notes" class="requires_edit scale0-8<%= " inactive" if @playlist.private_count == @playlist.total_count %>" data-type="private"><span class="icon icon-setup"></span>MAKE ALL NOTES PRIVATE <span class="count">(<span><%= "#{@playlist.private_count}/#{@playlist.total_count}" %></span> playlist item notes are private)</span></a>
   </div>

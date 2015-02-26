@@ -20,6 +20,7 @@ class TextBlocksController < BaseController
   def new
     @text_block = TextBlock.new
     @text_block.build_metadatum
+    @page_title = "New Text"
   end
 
   def create

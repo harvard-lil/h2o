@@ -7,6 +7,7 @@
 		</h3>
 		
 		<p class="cases_details">
+      requested by: <%= case_request.user.display %> (<%= case_request.user.email_address %>)<br />
       <% [:decision_date, :author, :case_jurisdiction, :docket_number, :volume, :reporter, :page, :bluebook_citation].each do |f| -%>
 			<%= f %>: <%= case_request.send(f) %><br /> 
       <% end -%>

@@ -79,8 +79,8 @@
   </div>
   <div id="description" class="scale1-1">
     <%= raw @collage.formatted(:description) %>
-    <%= link_to raw('<span class="icon icon-edit"></span>EDIT COLLAGE INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
-    <%= link_to raw('<span class="icon icon-delete"></span>DELETE COLLAGE<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT ANNOTATED ITEM INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE ANNOTATED ITEM<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
   </div>
 
   <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
@@ -94,11 +94,14 @@
 <div id="stats" class="right_panel">
   <a href="#" class="right_panel_close">Close</a>
   <h3 class="info"><%= @collage.annotated_label %> Information<span class="icon icon-panel"></span></h3>
-  <div class="stats_panel">
-    <%= render :partial => 'meta' %>
+  <div id="stats_collapse">
+    <div class="stats_panel">
+      <%= render :partial => 'meta' %>
+    </div>
+    <h3>Author Stats</h3>
+    <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
   </div>
-  <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
+  <a id="stats_expand">Expand</a>
 </div>
 
 <div class="clear"></div>
