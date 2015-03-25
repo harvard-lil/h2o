@@ -237,6 +237,8 @@ H2O = (function() {
       }
     });
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
+      $('#annotator-field-0').addClass('no_tinymce');
+
       $.each(annotations, function(i, annotation) {
         $(annotation._local.highlights).addClass('annotation-' + annotation.id);
       });
@@ -323,6 +325,7 @@ H2O = (function() {
           editor.annotation.layer_hexes.push({ layer: layer_name, hex: h2o_annotator.plugins.H2O.layer_map[layer_name], is_new: false });
         }
       });
+
       var hex = $('.annotator-listing .hexes .active');
       if($('input#new_layer').val() != '' && hex.size() > 0) {
         editor.annotation.layer_hexes = [{ layer: $('input#new_layer').val().toLowerCase(), hex: hex.text(), is_new: true }];
@@ -331,6 +334,7 @@ H2O = (function() {
 
       /* Highlight Only */
       if($('input#new_layer').val() == '' && hex.size() == 1) {
+        editor.annotation.layer_hexes = [];
         editor.annotation.highlight_only = hex.text();
       }
       $.each($('.annotator-editor li.annotator-checkbox2 input'), function(_i, el) {
@@ -535,7 +539,9 @@ H2O = (function() {
           h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
         }
       } else if(annotation.highlight_only !== null) {
-        $('.annotator-wrapper').append($('<a>').attr('data-id', annotation.id).addClass('annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position }));
+        if(!h2o_annotator.options.readOnly) {
+          $('.annotator-wrapper').append($('<a>').attr('data-id', annotation.id).addClass('annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position, 'right' : -31 }));
+        }
       } else if(annotation.link !== null) {
         var div = $('<div>').attr('data-id', annotation.id).addClass('annotation-indicator annotation-indicator-link').attr('id', 'annotation-indicator-' + annotation.id).css({ 'top': start_position });
         div.append($('<span>').addClass('icon icon-adder-link'));

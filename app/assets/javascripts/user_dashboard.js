@@ -170,9 +170,6 @@ var users_show = {
       var sort = $(this).val();
       var region = $(this).parent().parent().data('region');
       var url = document.location.pathname + '?ajax_region=' + region + '&sort=' + sort;
-      /*if($('#user_search_filter select').val() != 'all_materials') {
-        url += '&filter_type=' + $('#user_search_filter select').val();
-      } */
       h2o_global.listResultsSpecial(url, region, true);
     });
     $(document).delegate('.users_pagination a', 'click', function(e) {

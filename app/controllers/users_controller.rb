@@ -80,7 +80,7 @@ class UsersController < ApplicationController
         p = p.reverse
       end
       @collection = p.paginate(:page => params[:page], :per_page => 10)
-      
+
       render :partial => params[:ajax_region] == "bookmarks" ? 'shared/bookmark_block' : 'shared/generic_block'
       
       return

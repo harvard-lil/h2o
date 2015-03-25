@@ -19,6 +19,7 @@ class Default < ActiveRecord::Base
   belongs_to :user
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
+  before_save :filter_harvard_urls
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name 
@@ -49,6 +50,12 @@ class Default < ActiveRecord::Base
 
   def url_format
     self.errors.add(:url, "must be an absolute path (it must contain http)") if !self.url.to_s.match(/^http/)
+  end
+  
+  def filter_harvard_urls
+    if self.url.match(/wiki.harvard.edu/)
+      self.url.gsub!(/\?[^"]*/, '')
+    end
   end
 
   def display_name

@@ -6,7 +6,7 @@
     <div id="user-feedback-error"></div>
     <%= semantic_form_for(Defect.new, :html => {:id => 'defect-form'}) do |form| %>
       <%= form.inputs do %>
-        <%= form.input :description, :as => :text, :input_html => {:rows => 5 }, :label => "Describe Error"  %>
+        <%= form.input :description, :as => :text, :input_html => {:rows => 5, :class => "no_tinymce" }, :label => "Describe Error"  %>
         <%= form.input :reportable_id, :as => :hidden, :input_html => { :value => @single_resource.id } %>
         <%= form.input :reportable_type, :as => :hidden, :input_html => { :value => @single_resource.class.to_s } %>
       <% end %>
