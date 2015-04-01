@@ -100,6 +100,7 @@ H2o::Application.routes.draw do
     member do
       get 'access_level'
       get 'delete_inherited_annotations'
+      get 'export_unique'
       post 'export_unique'
       post 'save_readable_state'
       post 'copy'

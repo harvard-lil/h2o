@@ -1,19 +1,19 @@
 <% if item.actual_object.present? -%>
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
   <h3 class="scale1-5">
-  <span class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></span>
+  <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
   <span class="icon icon-<%= item.actual_object_type == "Media" ? "media-#{item.actual_object.media_type.slug}" : item.clean_type %>"></span>
-    <%= item.name %>
+  <span class="hcontent"><%= item.name %></span>
   </h3>
   <% if item.actual_object_type == 'Default' %>
-  <%= link_to item.actual_object.url, item.actual_object.url, :target => 'blank' %>
+    <%= link_to item.actual_object.url, item.actual_object.url, :target => 'blank' %>
   <% end -%>
   <div class="item_description scale0-8"><%= raw item.formatted(:description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
-  <div class="notes scale0-8">
-    <b class="scale0-8">Notes:</b>
-    <%= item.formatted(:notes) %>
-  </div>
+    <div class="notes scale0-8">
+      <b class="scale0-8">Notes:</b>
+      <%= item.formatted(:notes) %>
+    </div>
   <% end -%>
   <div class="clear"></div>
   <% if item.actual_object_type == 'TextBlock' -%>

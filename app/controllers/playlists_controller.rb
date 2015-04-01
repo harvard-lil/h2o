@@ -123,7 +123,7 @@ class PlaylistsController < BaseController
                                           :email_receiver => 'destination',
                                           :playlist_name_override => params[:playlist][:name],
                                           :public_private_override => params[:playlist][:public])
-    @playlist_pusher.delay.push!
+    @playlist_pusher.push!
 
     render :json => { :custom_block => "playlist_clone_response" }
   end

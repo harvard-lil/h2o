@@ -4,7 +4,57 @@ var original_data = {};
 var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
-var h2o_global = { slideToAnnotation: function() {} };
+var tocId = 'toc';
+
+/*
+var show_toc2 = function() {
+    var toc_node = $('#' + tocId);
+    if (!toc_node.length) {
+	generate_toc();
+    }
+    toc_node.show();
+};
+
+var hide_toc2 = function() {
+    var toc_node = $('#' + tocId);
+    toc_node.remove();  //TODO: Only removing this for dev purposes. 
+  //toc_node.hide();
+};
+
+var generate_toc2 = function () {
+    console.log("Generating TOC...");
+    var top_level = $('#playlist .playlists').find('> ul').first().children();
+
+    var tocRootNode = $('#toc_container');
+    var toc = $('<ol/>', {
+	id: tocId
+    });
+
+    var i = 0;
+    top_level.each(function () {
+	var foo = $(this).children('h3').first()
+	if (!$(this).find('.hcontent').length) {
+      //return false;
+	}
+	var content = $(foo).children('.hcontent');
+	var number = $(foo).children('.number');
+	var anchor = $(foo).children('.number').children('a');
+
+    //console.log(number.text()); console.log(content.text()); console.log( anchor.attr('name') );
+	var toc_line = '<span class="toc_hcontent"><a href="#' + anchor.attr('name') + '">';
+	toc_line += content.text() + '</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+	toc_line += '<span class="toc_number">' + number.text() + "</span>";
+
+	toc.append($('<li/>', {
+	    html: toc_line
+	}));
+	toc.appendTo(tocRootNode);
+	if (i++ == 4) {
+      return false
+	}
+    });
+}
+*/
 
 var collages = {
   listenToRecordAnnotatedItemState: function() {},
@@ -50,6 +100,44 @@ var collages = {
 };
 
 var export_functions = {
+    show_toc: function() {
+	var toc_node = $('#' + tocId);
+	if (!toc_node.length) {
+	    export_functions.generate_toc();
+	}
+	toc_node.show();
+    },
+    hide_toc: function() {
+	var toc_node = $('#' + tocId);
+	//toc_node.remove();  //TODO: Only removing this for dev purposes. 
+	toc_node.hide();
+    },
+    generate_toc: function () {
+	console.log("Generating TOC...");
+	var top_level = $('#playlist .playlists').find('> ul').first().children();
+	var tocRootNode = $('#toc_container');
+	var toc = $('<ol/>', {id: tocId});
+
+	var i = 0;
+	top_level.each(function () {
+	    var foo = $(this).children('h3').first()
+	    var content = $(foo).children('.hcontent');
+	    var number = $(foo).children('.number');
+	    var anchor = $(foo).children('.number').children('a');
+
+	    //console.log(number.text()); console.log(content.text()); console.log( anchor.attr('name') );
+	    var toc_line = '<span class="toc_hcontent"><a href="#' + anchor.attr('name') + '">';
+	    toc_line += content.text() + '</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+	    toc_line += '<span class="toc_number">' + number.text() + "</span>";
+
+	    toc.append($('<li/>', {html: toc_line}));
+	    toc.appendTo(tocRootNode);
+	    if (i++ == 4) {
+		console.log("skipping remaining TOC content...");
+		return false
+	    }
+	});
+    }, 
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
   },
