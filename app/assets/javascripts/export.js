@@ -416,4 +416,5 @@ $(document).ready(function(){
   });
 
   export_functions.init_listeners();
+  export_functions.show_toc();
 });
