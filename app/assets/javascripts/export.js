@@ -135,14 +135,20 @@ var export_functions = {
       } else if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
       }
-      if($.cookie('print_toc') == 'true') {
+      if($.cookie('toc_levels') !== null) {
         export_functions.show_toc();
       }
       $('#fontface').val($.cookie('print_font_face'));
       $('#fontsize').val($.cookie('print_font_size'));
+      $('#toc_levels').val($.cookie('toc_levels'));
     }
   },
   init_listeners: function() {
+    $('#toc_levels').selectbox({
+      className: "jsb", replaceInvisible: true
+    }).change(function() {
+      export_functions.setTocLevels();
+    });
     $('#fontface').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
@@ -255,6 +261,22 @@ var export_functions = {
     $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
   },
+    setTocLevels: function() {
+        var requested_levels = $('#toc_levels').val();
+        if (requested_levels && requested_levels.match(/\d+/)) {
+            export_functions.show_toc();
+        } else {
+            export_functions.hide_toc();
+        }
+        //create recursive toc 5 levels deep
+        //if toclevels is an integer, force recreation of toc with that limit 
+        //show every toc level <= tocLevels and hide every toc level > tocLevels
+
+        //Just control the cookie from this select box until we add a user preferences control for it
+        //That will also fix the path, which is incorrect for this cookie at the moment
+        //console.log( 'setting TL to: ' + $('#toc_levels').val() );
+        $.cookie('toc_levels', $('#toc_levels').val());
+    },
   setFontPrint: function() {
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
@@ -416,5 +438,4 @@ $(document).ready(function(){
   });
 
   export_functions.init_listeners();
-  export_functions.show_toc();
 });
