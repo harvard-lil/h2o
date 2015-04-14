@@ -72,21 +72,26 @@ var export_functions = {
         return $('#toc_levels').val();
     },
     build_branch: function(parent, depth) {
-        //wkhtmltopdf cannot handle default argument values in Javascript
-        parent = parent || $(':root');
-        depth = depth || 1;
-        var max_depth = export_functions.toc_max_depth();
-        //console.log( 'BB.max_depth: ' + max_depth);
         //$depth indicates the current depth of $parent
         //Returns nested array of nodes that are children of parent, including any children of those children
-        if (depth > max_depth) { 
+
+        //wkhtmltopdf cannot handle default argument values in function definitions
+        parent = typeof parent !== 'undefined' ? parent : $(':root');
+        depth = typeof depth !== 'undefined' ? depth : 1;
+
+        var max_depth = export_functions.toc_max_depth();
+        //console.log( 'BB.max_depth: ' + max_depth);
+        if (depth > max_depth) {
+            //TODO: This should never happen and can probably be removed completely
             //console.log('max depth reached!'); 
             return null; 
         }
         
-        var nodes = []
+        var nodes = [];
         parent.toc_level = depth-1;
         children = parent.find('.playlists > ul').first().children();
+
+        //Can we just push parent onto nodes and let the children.each call noop?
         if (!children.length) { 
             return parent; 
         } else {
