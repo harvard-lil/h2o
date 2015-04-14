@@ -60,7 +60,6 @@ var export_functions = {
     hide_toc: function() {
         var toc_node = $('#' + tocId);
         toc_node.remove();
-        //toc_node.hide();
         $('#toc_container').hide();
     },
     generate_toc: function(toc_levels) {
@@ -86,23 +85,15 @@ var export_functions = {
             //console.log('max depth reached!'); 
             return null; 
         }
-        
-        var nodes = [];
-        parent.toc_level = depth-1;
-        children = parent.find('.playlists > ul').first().children();
 
-        //Can we just push parent onto nodes and let the children.each call noop?
-        if (!children.length) { 
-            return parent; 
-        } else {
-            //This is where we save a parent that does have children
-            nodes.push( parent );
-        }
-        
+        parent.toc_level = depth-1;
+        var nodes = [parent];
+        var children = parent.find('.playlists > ul').first().children();
+
         children.each(function () {
             var child = $(this);
             child.toc_level = depth;
-            //console.log( get_text(child) );
+
             //if we are currently at our max depth, return this kid rather than make a recursive call.
             //nodes.push( (depth == max_depth) ? child : export_functions.build_branch( child, depth+1 ) );
             if (depth == max_depth) {
@@ -121,7 +112,6 @@ var export_functions = {
         
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.get_text(flat_results[i])
-            //console.log( toc_line );
             toc.append($('<li/>', { html: toc_line }));
             toc.appendTo(toc_root_node);
         }
