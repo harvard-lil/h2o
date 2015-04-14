@@ -96,6 +96,20 @@
   #text_block div.article p { margin-bottom: 20px; }
   
   /* Print */
+  #toc_container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-weight: bold;
+    font-size: 16px;
+    #toc {
+      .toc_level1 { padding-left: 0em; }
+      .toc_level2 { padding-left: 1.5em; }
+      .toc_level3 { padding-left: 3.0em; }
+      .toc_level4 { padding-left: 4.5em; }
+      .toc_level5 { padding-left: 5.0em; }
+      .toc_level5 { padding-left: 6.5em; }
+    }
+  }
   #print-options {
     opacity: 0.0;
     background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
@@ -157,7 +171,7 @@
       width: 60px !important;
     }
   }
-  
+
   .print_border { display: block; position: absolute; width: 100%; height: 100%; top:0px; left: 0px; }
   .print_border span { width: 100%; display: block; position: absolute; bottom: 0px; opacity: 0.0; }
   
@@ -179,6 +193,7 @@
     }
   }
 }
+
 #text_blocks_export div.article ul {
   list-style-type: disc;
   margin: 0px 0px 10px 15px;

@@ -50,44 +50,94 @@ var collages = {
 };
 
 var export_functions = {
-    show_toc: function() {
+    show_toc: function(toc_levels) {
         var toc_node = $('#' + tocId);
-        if (!toc_node.length) {
-            export_functions.generate_toc();
-        }
-        toc_node.show();
+        toc_node.remove();
+        export_functions.generate_toc(toc_levels);
+        toc_node.show();  //do we need this?
+        $('#toc_container').show();
     },
     hide_toc: function() {
         var toc_node = $('#' + tocId);
-        //toc_node.remove();  //TODO: We only use remove() for dev. Deployed code should use hide()
-        toc_node.hide();
+        toc_node.remove();
+        //toc_node.hide();
+        $('#toc_container').hide();
     },
-    generate_toc: function () {
-        console.log("Generating TOC...");
-        var top_level = $('#playlist .playlists').find('> ul').first().children();
-        var toc_root_node = $('#toc_container');
-        var toc = $('<ol/>', {id: tocId});
-
-        var i = 0;
-        top_level.each(function () {
-            var header_node = $(this).children('h3').first()
-            var content = $(header_node).children('.hcontent');
-            var number = $(header_node).children('.number');
-            var anchor = $(header_node).children('.number').children('a');
-
-            //console.log(number.text()); console.log(content.text()); console.log( anchor.attr('name') );
-            var toc_line = '<span class="toc_hcontent"><a href="#' + anchor.attr('name') + '">';
-            toc_line += content.text() + '</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-            toc_line += '<span class="toc_number">' + number.text() + "</span>";
-
-            toc.append($('<li/>', {html: toc_line}));
-            toc.appendTo(toc_root_node);
-            if (i++ == 4) {
-                console.log("skipping remaining TOC content...");
-                return false;
+    generate_toc: function(toc_levels) {
+        var toc_nodes = export_functions.build_branch();
+        export_functions.wrap_toc(toc_nodes);
+    },
+    toc_max_depth: function() {
+        //console.log( 'TMD: ' + $('#toc_levels').val() );
+        return $('#toc_levels').val();
+    },
+    build_branch: function(parent, depth) {
+        //wkhtmltopdf cannot handle default argument values in Javascript
+        parent = parent || $(':root');
+        depth = depth || 1;
+        var max_depth = export_functions.toc_max_depth();
+        //console.log( 'BB.max_depth: ' + max_depth);
+        //$depth indicates the current depth of $parent
+        //Returns nested array of nodes that are children of parent, including any children of those children
+        if (depth > max_depth) { 
+            //console.log('max depth reached!'); 
+            return null; 
+        }
+        
+        var nodes = []
+        parent.toc_level = depth-1;
+        children = parent.find('.playlists > ul').first().children();
+        if (!children.length) { 
+            return parent; 
+        } else {
+            //This is where we save a parent that does have children
+            nodes.push( parent );
+        }
+        
+        children.each(function () {
+            var child = $(this);
+            child.toc_level = depth;
+            //console.log( get_text(child) );
+            //if we are currently at our max depth, return this kid rather than make a recursive call.
+            //nodes.push( (depth == max_depth) ? child : export_functions.build_branch( child, depth+1 ) );
+            if (depth == max_depth) {
+                nodes.push( child );
+            }
+            else {
+                nodes.push( export_functions.build_branch( child, depth+1 ) );
             }
         });
-  }, 
+        return nodes;
+    },
+    wrap_toc: function(nodes) {
+        var toc_root_node = $('#toc_container');
+        var flat_results = export_functions.flatten(nodes)
+        var toc = $('<ol/>', { id: tocId });
+        
+        for(var i = 0; i<flat_results.length; i++) {
+            var toc_line = export_functions.get_text(flat_results[i])
+            //console.log( toc_line );
+            toc.append($('<li/>', { html: toc_line }));
+            toc.appendTo(toc_root_node);
+        }
+    },
+    get_text: function( node ) {
+        //TODO: Clean this up and use less raw HTML
+        var header_node = node.children('h3').first();;
+        var content = $(header_node).children('.hcontent');
+        var anchor = $(header_node).children('.number').children('a');
+        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level;
+        toc_line += '"><a href="#' + anchor.attr('name') + '">';
+        toc_line += content.text() + '</a></span>';
+
+        return toc_line;
+    },
+    flatten: function(arr) {
+        //TODO: exit safely if arr is null
+        return arr.reduce(function (flat, toFlatten) {
+            return flat.concat(Array.isArray(toFlatten) ? export_functions.flatten(toFlatten) : toFlatten);
+        }, []);
+    },
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
   },
@@ -102,7 +152,12 @@ var export_functions = {
       }
     }
   },
-  init_user_settings: function() {
+    title_debug: function(msg) {
+        $("h1").text( $("h1").text() + ", " + msg );
+    },
+    init_user_settings: function() {
+        //export_functions.title_debug('IUS firing');
+        //$("h1").text( $("h1").text() + "," + 'IUS firing' );
     $('#printhighlights').val('original');
 
     if($.cookie('user_id') !== null) {
@@ -135,19 +190,21 @@ var export_functions = {
       } else if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
       }
-      if($.cookie('toc_levels') !== null) {
-        export_functions.show_toc();
-      }
       $('#fontface').val($.cookie('print_font_face'));
       $('#fontsize').val($.cookie('print_font_size'));
       $('#toc_levels').val($.cookie('toc_levels'));
+      if($.cookie('toc_levels') !== null) {
+        //console.log( 'IUS.toc_levels: ' + $.cookie('toc_levels') );
+        export_functions.show_toc($.cookie('toc_levels'));
+      }
     }
   },
   init_listeners: function() {
     $('#toc_levels').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
-      export_functions.setTocLevels();
+      //BUG: This might be locking in $('#toc_levels').val() to whatever it was when the listener was defined
+      export_functions.setTocLevels($('#toc_levels').val());
     });
     $('#fontface').selectbox({
       className: "jsb", replaceInvisible: true
@@ -261,21 +318,15 @@ var export_functions = {
     $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
   },
-    setTocLevels: function() {
-        var requested_levels = $('#toc_levels').val();
-        if (requested_levels && requested_levels.match(/\d+/)) {
-            export_functions.show_toc();
+    setTocLevels: function(toc_levels) {
+        if (toc_levels && toc_levels.match(/\d+/)) {
+            export_functions.show_toc(toc_levels);
         } else {
             export_functions.hide_toc();
         }
-        //create recursive toc 5 levels deep
-        //if toclevels is an integer, force recreation of toc with that limit 
-        //show every toc level <= tocLevels and hide every toc level > tocLevels
-
         //Just control the cookie from this select box until we add a user preferences control for it
         //That will also fix the path, which is incorrect for this cookie at the moment
-        //console.log( 'setting TL to: ' + $('#toc_levels').val() );
-        $.cookie('toc_levels', $('#toc_levels').val());
+        $.cookie('toc_levels', toc_levels);
     },
   setFontPrint: function() {
     var font_size = $('#fontsize').val();
