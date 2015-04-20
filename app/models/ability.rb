@@ -10,7 +10,7 @@ class Ability
     can [:new, :create], :user_sessions
     can :index, [:collages, :playlists, :cases, :text_blocks, :medias, :defaults]
 
-    can [:show, :export], Playlist, :public => true
+    can [:show, :export, :export_as], Playlist, :public => true
     can [:show, :export, :export_unique], Collage, :public => true
     can [:show, :export], Case, :public => true
     can [:show, :export], TextBlock, :public => true

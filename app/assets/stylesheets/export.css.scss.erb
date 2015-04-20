@@ -141,7 +141,16 @@ h3:first-child {
     #toc_container {
       page-break-after: always;
     }
+    /* Untested: page break before every top level playlist (maybe other objects too?)
+    except for the first one
+    */
+    /*
+    .playlist .level0:first-of-type {      page-break-before: never    }
+    */
   }
+
+  
+  #export-form { display: flex; } /* temporary work around for form layout problem */
 
   #toc_container {
     padding-top: 20px;
@@ -210,6 +219,12 @@ h3:first-child {
     }
     #fontsize_div .jsb-list {
       width: 70px !important;
+    }
+    #export_format_options .jsb {
+      width: 40px !important;
+    }
+    #export_format_options .jsb-list {
+      width: 50px !important;
     }
     #toc_levels_options .jsb {
       width: 50px !important;

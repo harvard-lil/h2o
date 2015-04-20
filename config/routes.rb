@@ -74,6 +74,7 @@ H2o::Application.routes.draw do
       post 'copy'
       get 'access_level'
       get 'export'
+      post 'export_as'
       post 'private_notes'
       post 'public_notes'
       post 'toggle_nested_private'

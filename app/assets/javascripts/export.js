@@ -195,10 +195,14 @@ var export_functions = {
     }
   },
   init_listeners: function() {
+    $('#export_format').selectbox({
+      className: "jsb", replaceInvisible: true
+    }).change(function() {
+      //console.log('Format set to: ' + $('#export_format').val());
+    });
     $('#toc_levels').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
-      //BUG: This might be locking in $('#toc_levels').val() to whatever it was when the listener was defined
       export_functions.setTocLevels($('#toc_levels').val());
     });
     $('#fontface').selectbox({

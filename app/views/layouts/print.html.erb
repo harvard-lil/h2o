@@ -17,32 +17,34 @@
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div id="print-options">
       <h2>PRINT SETTINGS</h2>
+      <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
+
       <strong>TITLE(S)</strong>
-      <select id="printtitle">
+      <select id="printtitle" name="printtitle">
         <option value="yes" selected="selected">Show</option>
         <option value="no">Hide</option>
       </select>
       <strong>DATES DETAILS</strong>
-      <select id="printdetails">
+      <select id="printdetails" name="printdetails">
         <option value="yes" selected="selected">Show</option>
         <option value="no">Hide</option>
       </select>
       <% if ["collages", "playlists"].include?(params[:controller]) -%>
       <strong>PARAGRAPH NUMBERS</strong>
-      <select id="printparagraphnumbers">
+      <select id="printparagraphnumbers" name="printparagraphnumbers">
         <option value="yes" selected="selected">Show</option>
         <option value="no">Hide</option>
       </select>
       <div id="annotation_options">
         <strong>COMMENTS/LINKS</strong>
-        <select id="printannotations">
+        <select id="printannotations" name="printannotations">
           <option value="yes">Show</option>
           <option value="no" selected="selected">Hide</option>
         </select>
       </div>
       <div id="highlight_options">
         <strong>HIGHLIGHTS</strong>
-        <select id="printhighlights">
+        <select id="printhighlights" name="printhighlights">
           <option value="original" selected="selected">Last Saved</option>
           <option value="all">Show All</option>
           <option value="none">Hide</option>
@@ -50,7 +52,7 @@
       </div>
       <div id="hidden_text_options">
         <strong>HIDDEN TEXT</strong>
-        <select id="hiddentext">
+        <select id="hiddentext" name="hiddentext">
           <option value="show">SHOW</option>
           <option value="hide" selected="selected">HIDE</option>
         </select>
@@ -59,7 +61,7 @@
       <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
       <div id="fontface_div">
         <strong id="fontface_s">FONT FACE</strong>
-        <select id="fontface">
+        <select id="fontface" name="fontface">
           <option value="leitura">Leitura</option>
           <option value="garamond">Garamond</option>
           <option value="futura">Futura</option>
@@ -70,7 +72,7 @@
       </div>
       <div id="fontsize_div">
         <strong>FONT SIZE</strong>
-        <select id="fontsize">
+        <select id="fontsize" name="fontsize">
           <option value="small" selected="selected">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
@@ -79,7 +81,7 @@
       </div>
       <div id="toc_levels_options">
         <strong>TOC</strong>
-        <select id="toc_levels">
+        <select id="toc_levels" name="toc_levels">
           <option value="" selected="selected">Hide</option>
           <option value="1">1</option>
           <option value="2">2</option>
@@ -88,9 +90,16 @@
           <option value="5">5</option>
         </select>
       </div>
+      <div id="export_format_options">
+        <strong>FMT</strong>
+        <select id="export_format" name="export_format">
+          <option value="pdf" selected="selected">PDF</option>
+        </select>
+      </div>
+      <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
       <% end %>
+     <% end %>
     </div>
-
     <div class="wrapper">
   	  <section id="shell">
         <%= yield %>

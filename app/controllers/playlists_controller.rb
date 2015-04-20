@@ -150,6 +150,10 @@ class PlaylistsController < BaseController
     render :json => {}
   end
 
+  def export_as
+    raise "fake error for easy rePOSTing"
+  end
+
   def export
     all_actual_object_ids = @playlist.all_actual_object_ids
     @preloaded_collages = @preloaded_cases = {}
