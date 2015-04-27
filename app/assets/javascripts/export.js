@@ -155,42 +155,49 @@ var export_functions = {
         //$("h1").text( $("h1").text() + "," + 'IUS firing' );
     $('#printhighlights').val('original');
 
-    if($.cookie('print_titles') == 'false') {
-      $('#printtitle').val('no');
-      $('h1').hide();
-      $('.playlists h3').hide();
-    }
-    if($.cookie('print_dates_details') == 'false') {
-      $('#printdetails').val('no');
-      $('.details').hide();
-    }
-    if($.cookie('print_paragraph_numbers') == 'false') {
-      $('#printparagraphnumbers').val('no');
-      $('.paragraph-numbering').hide();
-      $('.collage-content').css('padding-left', '0px');
-    }
-    if($.cookie('print_annotations') == 'true') {
-      $('#printannotations').val('yes');
-    }
-    if($.cookie('hidden_text_display') == 'true') {
-      $('#hiddentext').val('show');
-    }
-    if($.cookie('print_highlights') == 'none') {
-      $('#printhighlights').val('none');
-      $('.collage-content').each(function(i, el) {
-        var id = $(el).data('id');
-        export_functions.highlightAnnotatedItem(id, {}, {});
-      });
-    } else if($.cookie('print_highlights') == 'all') {
-      $('#printhighlights').val('all');
-    }
-    $('#fontface').val($.cookie('print_font_face'));
-    $('#fontsize').val($.cookie('print_font_size'));
-    $('#toc_levels').val($.cookie('toc_levels'));
-    if($.cookie('toc_levels') !== null) {
-      //console.log( 'IUS.toc_levels: ' + $.cookie('toc_levels') );
-      export_functions.show_toc($.cookie('toc_levels'));
-    }
+    //Print export won't have user_id set, so don't require it here
+    //if($.cookie('user_id') !== null) {
+      if($.cookie('print_titles') == 'false') {
+        $('#printtitle').val('no');
+        $('h1').hide();
+        $('.playlists h3').hide();
+      }
+      if($.cookie('print_dates_details') == 'false') {
+        $('#printdetails').val('no');
+        $('.details').hide();
+      }
+      if($.cookie('print_paragraph_numbers') == 'false') {
+        $('#printparagraphnumbers').val('no');
+        $('.paragraph-numbering').hide();
+        $('.collage-content').css('padding-left', '0px');
+      }
+      if($.cookie('print_annotations') == 'true') {
+        $('#printannotations').val('yes');
+      }
+      if($.cookie('hidden_text_display') == 'true') {
+        $('#hiddentext').val('show');
+      }
+      if($.cookie('print_highlights') == 'none') {
+        $('#printhighlights').val('none');
+        $('.collage-content').each(function(i, el) {
+          var id = $(el).data('id');
+          export_functions.highlightAnnotatedItem(id, {}, {});
+        });
+      } else if($.cookie('print_highlights') == 'all') {
+        $('#printhighlights').val('all');
+      }
+        if ($.cookie('print_font_face') !== null ) {
+            $('#fontface').val($.cookie('print_font_face'));
+        }
+        if ($.cookie('print_font_size') !== null) {
+            $('#fontsize').val($.cookie('print_font_size'));
+        }
+      if($.cookie('toc_levels') !== null) {
+          $('#toc_levels').val($.cookie('toc_levels'));
+          //console.log( 'IUS.toc_levels: ' + $.cookie('toc_levels') );
+        export_functions.show_toc($.cookie('toc_levels'));
+      }
+    //}
   },
   init_listeners: function() {
     $('#export_format').selectbox({
