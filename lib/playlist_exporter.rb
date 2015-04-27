@@ -1,7 +1,6 @@
 require 'uri'
 
 class PlaylistExporter
-  include Rails.application.routes.url_helpers
 
   class << self
 
@@ -10,12 +9,13 @@ class PlaylistExporter
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       # target_url = "http://sskardal03.murk.law.harvard.edu:8000/playlists/19763/export"
       command = generate_command(request_url, params)
+      Rails.logger.debug command.join(' ')
       exit_code = nil
       command_output = ''
-      Open3.popen2e(*command) {|i,out_err,wait_thread|
+      Open3.popen2e(*command) do |i, out_err, wait_thread|
         out_err.each {|line| command_output += line}
         exit_code = wait_thread.value.exitstatus
-      }
+      end
 
       #ASYNC
       #email the user either way
@@ -85,7 +85,7 @@ class PlaylistExporter
     def get_target_url(request_url, id)
       uri = URI(request_url)
       #TODO: Use uri.host in production (murk needs sskardal03.murk.law.harvard.edu added to /etc/hosts)
-      export_playlist_url(
+      Rails.application.routes.url_helpers.export_playlist_url(
                           :id => id,
                           :host => '128.103.64.117',
                           :port => uri.port
