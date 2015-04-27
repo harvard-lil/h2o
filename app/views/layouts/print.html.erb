@@ -19,6 +19,24 @@
       <h2>PRINT SETTINGS</h2>
       <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
 
+      <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
+      <div id="export_format_options">
+        <strong>FMT</strong>
+        <select id="export_format" name="export_format">
+          <option value="pdf" selected="selected">PDF</option>
+        </select>
+      </div>
+      <div id="toc_levels_options">
+        <strong>TOC</strong>
+        <select id="toc_levels" name="toc_levels">
+          <option value="" selected="selected">Hide</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
       <strong>TITLE(S)</strong>
       <select id="printtitle" name="printtitle">
         <option value="yes" selected="selected">Show</option>
@@ -79,24 +97,6 @@
           <option value="xlarge">X-Large</option>
         </select>
       </div>
-      <div id="toc_levels_options">
-        <strong>TOC</strong>
-        <select id="toc_levels" name="toc_levels">
-          <option value="" selected="selected">Hide</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-      </div>
-      <div id="export_format_options">
-        <strong>FMT</strong>
-        <select id="export_format" name="export_format">
-          <option value="pdf" selected="selected">PDF</option>
-        </select>
-      </div>
-      <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
       <% end %>
      <% end %>
     </div>

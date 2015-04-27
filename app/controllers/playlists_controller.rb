@@ -151,7 +151,17 @@ class PlaylistsController < BaseController
   end
 
   def export_as
-    raise "fake error for easy rePOSTing"
+    export_result = PlaylistExporter.export_as(request.url, params)
+    #For now: false == failed, non-falsey == path to file
+    #raise "fake error for easy rePOSTing"
+    if export_result
+      send_file(
+              export_result,
+              filename: File.basename(export_result),
+              )
+    else
+      render :text => "Sorry, there was an unexpected error.", :status => :error
+    end
   end
 
   def export
