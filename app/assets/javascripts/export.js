@@ -67,7 +67,6 @@ var export_functions = {
         export_functions.wrap_toc(toc_nodes);
     },
     toc_max_depth: function() {
-        //console.log( 'TMD: ' + $('#toc_levels').val() );
         return $('#toc_levels').val();
     },
     build_branch: function(parent, depth) {
@@ -151,11 +150,10 @@ var export_functions = {
         $("h1").text( $("h1").text() + ", " + msg );
     },
     init_user_settings: function() {
-        //export_functions.title_debug('IUS firing');
-        //$("h1").text( $("h1").text() + "," + 'IUS firing' );
-    $('#printhighlights').val('original');
+        export_functions.title_debug('IUS firing: [' + $.cookie('print_dates_details') + ']');
+      $('#printhighlights').val('original');
 
-    //Print export won't have user_id set, so don't require it here
+    //TODO: There's no real reason to use the user_id cookie as a gate here.
     //if($.cookie('user_id') !== null) {
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no');
@@ -183,7 +181,8 @@ var export_functions = {
           var id = $(el).data('id');
           export_functions.highlightAnnotatedItem(id, {}, {});
         });
-      } else if($.cookie('print_highlights') == 'all') {
+      } 
+      if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
       }
         if ($.cookie('print_font_face') !== null ) {
@@ -193,8 +192,7 @@ var export_functions = {
             $('#fontsize').val($.cookie('print_font_size'));
         }
       if($.cookie('toc_levels') !== null) {
-          $('#toc_levels').val($.cookie('toc_levels'));
-          //console.log( 'IUS.toc_levels: ' + $.cookie('toc_levels') );
+        $('#toc_levels').val($.cookie('toc_levels'));
         export_functions.show_toc($.cookie('toc_levels'));
       }
     //}
@@ -202,9 +200,7 @@ var export_functions = {
   init_listeners: function() {
     $('#export_format').selectbox({
       className: "jsb", replaceInvisible: true
-    }).change(function() {
-      //console.log('Format set to: ' + $('#export_format').val());
-    });
+    }).change(function() {});
     $('#toc_levels').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
