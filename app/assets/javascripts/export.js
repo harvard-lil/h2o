@@ -150,7 +150,7 @@ var export_functions = {
         $("h1").text( $("h1").text() + ", " + msg );
     },
     init_user_settings: function() {
-        export_functions.title_debug('IUS firing: [' + $.cookie('print_dates_details') + ']');
+        //export_functions.title_debug('IUS firing: [' + $.cookie('print_dates_details') + ']');
       $('#printhighlights').val('original');
 
     //TODO: There's no real reason to use the user_id cookie as a gate here.
