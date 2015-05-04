@@ -213,7 +213,8 @@ var playlists_show = {
   observeMainPlaylistExpansion: function() {
     var wedge_hover = "Click to expand all playlist items";
     var wedge_hover_close = "Click to collapse all playlist items";
-    $('#main-wedge').attr('title', wedge_hover).on('click', function() {
+    $('#main-wedge').attr('title', wedge_hover)
+    $(document).on('click', '#main-wedge', function() {
       if($(this).hasClass('opened')){
         $('.additional_details').slideUp();
         $('.rr').addClass('rr-closed');
