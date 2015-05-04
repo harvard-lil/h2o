@@ -1,12 +1,12 @@
 <p>
   <label>Last Updated:</label>
-  <span id="autosave"><%= @playlist.updated_at.strftime("%B %d, %Y") %></span>
+  <span id="autosave"><%= playlist.updated_at.strftime("%B %d, %Y") %></span>
 </p>
 
-<% if @playlist.tags.any? -%>
+<% if playlist.tags.any? -%>
 <p>
   <label>Tags:</label>
-  <% @playlist.tags.each do |tag| -%>
+  <% playlist.tags.each do |tag| -%>
   <%= link_to tag.name, tag_path("playlists", CGI.escape(tag.name)) %>
   <% end -%>
 </p>

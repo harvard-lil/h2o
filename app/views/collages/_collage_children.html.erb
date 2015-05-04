@@ -9,7 +9,7 @@
 <% end -%>
   <% if v.size > 0 -%>
 	<ul class="lineage">
-	<%= render :partial => 'collage_children',
+	<%= render :partial => 'collages/collage_children',
   		:locals => { :collage_subtree => v,
   		:recursive_level => recursive_level + 1 } %>
 	</ul>

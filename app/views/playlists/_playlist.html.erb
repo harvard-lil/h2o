@@ -1,0 +1,98 @@
+<div id="fixed_links">
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Playlist Info">Collapse/Expand</a>
+<a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
+<a href="<%= export_playlist_path(playlist) %>" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= playlist.name %>">Print</a>
+<a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
+</div>
+
+<aside id="singleitem_barcode_toolbar">
+  <%= link_to raw('<span class="icon icon-clone-large"><span>Clone Playlist</span></span>'), copy_playlist_path(playlist), :class => "tooltip link-clone clone-action requires_logged_in", :title => "Clone #{playlist.name}", "data-type" => "playlist", "data-title" => playlist.name, "data-public" => playlist.public %>
+  <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => playlist.id, "data-type" => "playlist", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Playlist</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{playlist.name}", "data-type" => "playlist", "data-itemid" => playlist.id %>
+</aside>
+
+<div id="playlist" class="singleitem leftcol" data-itemid="<%= playlist.id %>">
+  <div id="main_details">
+    <h1 class="scale1-5"><span><%= raw playlist.name %></span></h1>
+    <h6 class="scale0-9 <%= playlist.root != playlist ? 'with_creators' : '' %>">
+      <% if playlist.root != playlist -%>
+      <span class="creator_details">
+        <span>Original Creator: </span><%= raw link_to(playlist.root.user.display, user_path(playlist.root.user)) %>
+      </span>
+      <span class="creator_details">
+        <span>Current Version: </span><%= link_to(playlist.user.display, user_path(playlist.user)) %>
+      </span>
+      <% else -%>
+      <span>by </span><%= link_to(playlist.user.display, user_path(playlist.user)) %>
+      <% end -%>
+      <a href="#" id="main-wedge">Show/Hide</a>
+    </h3>
+  </div>
+  <div id="description" class="scale1-1">
+    <%= raw playlist.formatted(:description) %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(playlist), :class => "edit-action requires_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE PLAYLIST<span class="icon icon-arrow"></span>'), playlist, "data-type" => "playlist", "data-id" => playlist.id, :class => "delete-action requires_edit scale0-8" %>
+    <p id="public_private_instruction" class="scale0-9 requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>
+    <a href="#" id="public-notes" class="requires_edit scale0-8<%= " inactive" if playlist.public_count == playlist.total_count %>" data-type="public"><span class="icon icon-setup"></span>MAKE ALL NOTES PUBLIC <span class="count">(<span><%= "#{playlist.public_count}/#{playlist.total_count}" %></span> playlist item notes are public)</span></a>
+    <a href="#" id="private-notes" class="requires_edit scale0-8<%= " inactive" if playlist.private_count == playlist.total_count %>" data-type="private"><span class="icon icon-setup"></span>MAKE ALL NOTES PRIVATE <span class="count">(<span><%= "#{playlist.private_count}/#{playlist.total_count}" %></span> playlist item notes are private)</span></a>
+  </div>
+  <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => playlist} %>
+</div>
+
+<div id="stats" class="right_panel">
+  <a href="#" class="right_panel_close">Close</a>
+  <h3 class="info">Playlist Information<span class="icon icon-panel"></span></h3>
+  <div class="stats_panel">
+  <%= render :partial => 'playlists/meta', locals: { playlist: playlist } %>
+  </div>
+  <h3>Author Stats</h3>
+  <%= render :partial => "shared/author_stats", :locals => { :user => playlist.user } %>
+  <% if @author_playlists %>
+  <h3>Other Playlists by <%= playlist.user.simple_display %></h3>
+  <div class="stats_panel" id="author_playlists">
+  <%= render :partial => "base/author_playlists" if @author_playlists %>
+  </div>
+  <% end %>
+</div>
+
+<div id="edit_item" class="requires_edit right_panel">
+  <a href="#" class="right_panel_close"></a>
+  <table class="tabs"><tr>
+    <td><a id="find_items_tab" class="current" href="#">Find Items</a></td>
+    <td></td>
+  </tr></table>
+  <div id="find_items" class="tab_panel new_item">
+    <p class="instruction">
+      Search below to find items, then drag and drop items
+      onto playlists you own. To add items to nested playlists,
+      you must first expand those playlists.
+    </p>
+    <div id="search_wrapper_outer">
+      <a id="add_item_search" href="#">SEARCH</a>
+      <div id="select_wrapper">
+      <select id="add_item_select">
+        <option value="base">all</option>
+        <option value="cases">cases</option>
+        <option value="collages">annotated items</option>
+        <option value="medias">medias</option>
+        <option value="playlists">playlists</option>
+        <option value="text_blocks">texts</option>
+        <option value="defaults">links</option>
+      </select>
+      </div>
+      <div id="search_wrapper">
+      <input id="add_item_term" />
+      </div>
+    </div>
+    <div id="playlist_drilldown"></div>
+  </div>
+  <div id="add_item_results"></div>
+  <div id="add_item_results_filter"></div>
+</div>
+
+<div class="clear"></div>
+
+<script type="text/javascript">
+var playlist_id = <%= playlist.id %>;
+var editability_path = "<%= access_level_playlist_path(playlist) %>"; 
+</script>
