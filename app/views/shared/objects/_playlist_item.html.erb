@@ -15,12 +15,14 @@
         <% end -%>
       </td>
       <td class="title-cell">
+        <% target = iframe? ? {} : {target: '_blank'} %>
         <% if actual_object.present? && item.actual_object_type == 'Default' -%>
         <%= link_to actual_object.name, actual_object.url, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? && item.actual_object_type == 'Media' -%>
         <%= link_to actual_object.name, media_path(actual_object), :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? -%>
-        <%= link_to raw(actual_object.name), actual_object, :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
+          <% href = iframe? ? url_for_iframe(actual_object) : actual_object %>
+        <%= link_to raw(actual_object.name), href, target.merge(:class => "title dd-nodrag#{" private" if !actual_object.public}#{" local" if iframe?}") %>
         <% else -%>
         <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
         <% end -%>

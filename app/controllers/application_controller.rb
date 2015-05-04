@@ -6,16 +6,18 @@ class ApplicationController < ActionController::Base
   before_filter :set_sort_lists, :only => [:index, :tags]
   before_filter :filter_tag_list, :only => [:update, :create]
 
+  after_filter :allow_iframe
+
   layout :layout_switch
 
   protect_from_forgery with: :exception
 
   helper :all
-  helper_method :current_user_session, :current_user
+  helper_method :current_user_session, :current_user, :iframe?
 
   # Layout is always false for ajax calls
   def layout_switch
-    request.xhr? ? false : "application"
+    return false if request.xhr?
   end
 
   def filter_tag_list
@@ -70,13 +72,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def action_check
+    params.fetch(:action).to_sym
+  end
+
   def check_authorization_h2o
     return true if params[:controller] == "rails_admin/main"
 
     if @single_resource.present?
-      authorize! params[:action].to_sym, @single_resource
+      authorize! action_check, @single_resource
     else
-      authorize! params[:action].to_sym, params[:controller].to_sym
+      authorize! action_check, params[:controller].to_sym
     end
 
     return true
@@ -485,6 +491,14 @@ class ApplicationController < ActionController::Base
 
   def clear_canvas_id_from_session
     session[:canvas_user_id] = nil
+  end
+
+  def iframe?
+    false
+  end
+
+  def allow_iframe
+    response.headers.except!('X-Frame-Options') if iframe?
   end
 
   rescue_from CanCan::AccessDenied do |exception|

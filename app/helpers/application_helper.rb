@@ -34,4 +34,13 @@ module ApplicationHelper
       Page.where(:is_user_guide => true).order(:user_guide_sort)
     end
   end
+
+  def url_for_iframe(single_resource)
+    case single_resource
+    when Playlist, Collage
+      iframe_show_path(type: single_resource.class.table_name, id: single_resource.id)
+    else
+      fail "Unknown single_resource type: #{single_resource.class}"
+    end
+  end
 end

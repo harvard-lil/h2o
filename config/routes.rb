@@ -124,6 +124,11 @@ H2o::Application.routes.draw do
       get 'manage_permissions'
     end
   end
+
+  scope :iframe, controller: 'iframe' do
+    get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
+    get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
+  end
  
   get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'
