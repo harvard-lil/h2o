@@ -121,6 +121,9 @@ var playlists_show = {
         }
         var new_html = $(link).html() + ' <span class="private_item">[This resource is private.]</span>';
         $(link).replaceWith(new_html);
+        if(listitem.hasClass('playlist') && listitem.find('ol.dd-list').size() > 0) {
+          listitem.find('ol.dd-list').remove();  
+        }
       }
     });
     if(can_edit) {
