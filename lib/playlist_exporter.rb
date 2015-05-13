@@ -62,23 +62,28 @@ class PlaylistExporter
       cookies.map {|k,v| "--cookie #{k} #{encode_cookie_value(v)}" if v.present?}.join(' ')
     end
 
-    def generate_options(params)
-      # The order of options is important with respect to options that are passed to
-      # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
+    def generate_toc_options(params)
       options = []
 
       # No PDF-specific "outline" (displayed in the left sidebar in Adobe PDF Reader)
-      #TODO: How is the outline displayed/used in ePub?
       options << "--no-outline"
       
       if params['toc_levels'].present?
         #TODO: This only currently turns the TOC on or off. Once we have a proper
         # H? tag hierarchy in the Rails view, then we can extend this to allow user
-        # control over the TOC depth using the value in: encode_cookie_value(params['toc_levels'])
+        # control over the TOC depth using the value in params['toc_levels']
         # That will probably need to be done with a dynamically generated XSLT file that
-        # explictly limits the H? levels it renders.
+        # explictly limits the H? levels it renders, now that wkhtmltopdf dropped the
+        # toc_depth switch it used to support.
         options << "toc --xsl-style-sheet toc.xsl"
       end
+      options
+    end
+
+    def generate_options(params)
+      # The order of options is important with respect to options that are passed to
+      # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
+      options = []
 
       #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
       # javascript special effects still run, then you didn't need it any more. #dumbosfeather
@@ -95,8 +100,8 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
+      toc_options = generate_toc_options(params)
       options = generate_options(params)
-
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)
       prep_output_file_path(output_file_path)
@@ -105,7 +110,15 @@ class PlaylistExporter
       
       Rails.logger.debug output_file_path
       #Rails.logger.debug output_file_url
-      [binary, options, cookie_string, target_url, output_file_path,].flatten.join(' ').split
+      [
+       binary,
+       toc_options,
+       'page',
+       target_url,
+       options,
+       cookie_string,
+       output_file_path,
+      ].flatten.join(' ').split
     end
 
     def prep_output_file_path(output_file_path)

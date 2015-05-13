@@ -175,14 +175,14 @@ class Collage < ActiveRecord::Base
 
     children_nodes.each do |node|
       if node.children.any? && node.text != ''
-	      first_child = node.children.first
-	      control_node = Nokogiri::XML::Node.new('a', doc)
-	      control_node['id'] = "paragraph#{count}"
-	      control_node['href'] = "#p#{count}"
-	      control_node['class'] = "paragraph-numbering scale0-9"
-	      control_node.inner_html = "#{count}"
-	      first_child.add_previous_sibling(control_node)
-	      count += 1
+        first_child = node.children.first
+        control_node = Nokogiri::XML::Node.new('a', doc)
+        control_node['id'] = "paragraph#{count}"
+        control_node['href'] = "#p#{count}"
+        control_node['class'] = "paragraph-numbering scale0-9"
+        control_node.inner_html = "#{count}"
+        node.add_previous_sibling(control_node)
+        count += 1
       end
     end
 

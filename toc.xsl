@@ -13,7 +13,7 @@
         <xsl:comment>HTML title is required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>
-          h1 {
+          div.header {
             text-align: center;
             font-size: 20px;
             font-family: arial;
@@ -32,7 +32,7 @@
         </style>
       </head>
       <body>
-        <div><b>Table of Contents</b></div>
+        <div class="header"><b>Table of Contents</b></div>
         <ul><xsl:apply-templates select="outline:item/outline:item"/></ul>
       </body>
     </html>

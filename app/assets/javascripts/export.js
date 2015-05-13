@@ -50,6 +50,12 @@ var collages = {
 };
 
 var export_functions = {
+    init_download_settings: function() {
+        //export_functions.title_debug('IDS firing with force_boop cookie: ' + $.cookie('force_boop'));
+        if($.cookie('force_boop') == 'true') {
+            $('#print-options').remove();
+        }
+    },
     show_toc: function(toc_levels) {
         var toc_node = $('#' + tocId);
         toc_node.remove();
@@ -148,6 +154,7 @@ var export_functions = {
   },
     title_debug: function(msg) {
         $("h1").text( $("h1").text() + ", " + msg );
+        console.log('title_debug-ing the message: ' + msg);
     },
     custom_hide: function(selector) {
         $(selector).hide();
@@ -159,7 +166,6 @@ var export_functions = {
         }
     },
     init_user_settings: function() {
-        //export_functions.title_debug('IUS firing: [' + $.cookie('print_dates_details') + ']');
       $('#printhighlights').val('original');
 
       if($.cookie('print_titles') == 'false') {
@@ -500,4 +506,5 @@ $(document).ready(function(){
   });
 
   export_functions.init_listeners();
+  export_functions.init_download_settings();
 });
