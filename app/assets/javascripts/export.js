@@ -93,7 +93,7 @@ var export_functions = {
             var child = $(this);
             child.toc_level = depth;
 
-            //if we are currently at our max depth, return this kid rather than make a recursive call.
+            //if we are currently at our max depth, return this child rather than make a recursive call.
             //nodes.push( (depth == max_depth) ? child : export_functions.build_branch( child, depth+1 ) );
             if (depth == max_depth) {
                 nodes.push( child );
@@ -120,8 +120,8 @@ var export_functions = {
         var header_node = node.children('h3').first();;
         var content = $(header_node).children('.hcontent');
         var anchor = $(header_node).children('.number').children('a');
-        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level;
-        toc_line += '"><a href="#' + anchor.attr('name') + '">';
+        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level + '">';
+        toc_line += '<a href="#' + anchor.attr('name') + '">';
         toc_line += content.text() + '</a></span>';
 
         return toc_line;
@@ -149,24 +149,35 @@ var export_functions = {
     title_debug: function(msg) {
         $("h1").text( $("h1").text() + ", " + msg );
     },
+    custom_hide: function(selector) {
+        $(selector).hide();
+        //The export process needs to remove elements, not just hide them.
+        //TODO: Rename force_boop here and playlist_exporter.rb
+        if($.cookie('force_boop') == 'true') {
+            //temporarily commented out because we are trying something else
+            //$(selector).remove();
+        }
+    },
     init_user_settings: function() {
         //export_functions.title_debug('IUS firing: [' + $.cookie('print_dates_details') + ']');
       $('#printhighlights').val('original');
 
-    //TODO: There's no real reason to use the user_id cookie as a gate here.
-    //if($.cookie('user_id') !== null) {
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no');
-        $('h1').hide();
-        $('.playlists h3').hide();
+        //$('h1').hide();
+        export_functions.custom_hide('h1');
+        //$('.playlists h3').hide();
+        export_functions.custom_hide('.playlists h3');
       }
       if($.cookie('print_dates_details') == 'false') {
         $('#printdetails').val('no');
-        $('.details').hide();
+        //$('.details').hide();
+        export_functions.custom_hide('.details');
       }
       if($.cookie('print_paragraph_numbers') == 'false') {
         $('#printparagraphnumbers').val('no');
-        $('.paragraph-numbering').hide();
+        //$('.paragraph-numbering').hide();
+        export_functions.custom_hide('.paragraph-numbering');
         $('.collage-content').css('padding-left', '0px');
       }
       if($.cookie('print_annotations') == 'true') {
@@ -195,7 +206,6 @@ var export_functions = {
         $('#toc_levels').val($.cookie('toc_levels'));
         export_functions.show_toc($.cookie('toc_levels'));
       }
-    //}
   },
   init_listeners: function() {
     $('#export_format').selectbox({
@@ -270,7 +280,8 @@ var export_functions = {
       if(choice == 'show') {
         $('.layered-ellipsis-hidden').hide();
         $('.original_content,.annotation-hidden').show();
-      } else if(choice == 'hide') {
+      }
+      else if(choice == 'hide') {
         $('.layered-ellipsis-hidden').show();
         $('.annotation-hidden').hide();
         $('.annotation-hidden').parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();

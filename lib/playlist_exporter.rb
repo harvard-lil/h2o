@@ -8,7 +8,6 @@ class PlaylistExporter
       #request_url will actually be the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       # target_url = "http://sskardal03.murk.law.harvard.edu:8000/playlists/19763/export"
-      Rails.logger.debug Time.now
       command = generate_command(request_url, params)
 
       exit_code = nil
@@ -21,10 +20,8 @@ class PlaylistExporter
       Rails.logger.debug command.join(' ')
       Rails.logger.debug command_output
       #ASYNC
-      #email the user either way
       #if it failed, email "sorry" message that we BCC to an admin
       #if it succeeded, email "here is your link" message
-      Rails.logger.debug Time.now
       if exit_code == 0
         command.last
       else
@@ -51,7 +48,7 @@ class PlaylistExporter
         'fontsize'=> {'cookie_name' => 'print_font_size'},
       }
 
-      cookies = {}
+      cookies = {'force_boop' => 'true'}
       field_to_cookie.each do |field, v|
         if params[field].present?
           if params[field] == v['formval']
@@ -62,21 +59,22 @@ class PlaylistExporter
         end
       end
 
-      cookies.map {|k,v| "--cookie #{k} #{sanitize_cookie(v)}" if v.present?}.join(' ')
+      cookies.map {|k,v| "--cookie #{k} #{encode_cookie_value(v)}" if v.present?}.join(' ')
     end
 
-    def generation_options(params)
+    def generate_options(params)
       # The order of options is important with respect to options that are passed to
       # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
       options = []
 
       # No PDF-specific "outline" (displayed in the left sidebar in Adobe PDF Reader)
+      #TODO: How is the outline displayed/used in ePub?
       options << "--no-outline"
       
       if params['toc_levels'].present?
         #TODO: This only currently turns the TOC on or off. Once we have a proper
         # H? tag hierarchy in the Rails view, then we can extend this to allow user
-        # control over the TOC depth using the value in: sanitize_cookie(params['toc_levels'])
+        # control over the TOC depth using the value in: encode_cookie_value(params['toc_levels'])
         # That will probably need to be done with a dynamically generated XSLT file that
         # explictly limits the H? levels it renders.
         options << "toc --xsl-style-sheet toc.xsl"
@@ -97,7 +95,7 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
-      options = generation_options(params)
+      options = generate_options(params)
 
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)
@@ -143,8 +141,8 @@ class PlaylistExporter
                       ).to_s
     end
 
-    def sanitize_cookie(val)
-      val.to_s.gsub(/\W/, '')
+    def encode_cookie_value(val)
+       ERB::Util.url_encode(val)
     end
 
   end
