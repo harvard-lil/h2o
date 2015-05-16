@@ -2,11 +2,12 @@
 <div class="collage-content" id="collage<%= collage.id %>" data-id="<%= collage.id %>">
 <div class="article">
 <% cache(["editable-content", collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
-<%= raw collage.editable_content %>
+<%= raw collage.editable_content(true) %> <%# TODO: split this cache key based on that true|false argument %>
 <% end -%>
 </div>
 </div>
 <script type="text/javascript">
+//TODO: consider not rendering this in the view if it's a no-op. 
 document.addEventListener("DOMContentLoaded", function() {
   export_functions.initiate_collage_data(<%= collage.id %>, {
     data: <%= raw(params[:state] || collage.readable_state || "{}") %>,

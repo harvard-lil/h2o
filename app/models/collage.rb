@@ -147,7 +147,21 @@ class Collage < ActiveRecord::Base
     self.layers.map(&:name)
   end
 
-  def editable_content
+  def layer_report
+    layers = {}
+    self.annotations.each do |ann|
+      ann.layers.each do |l|
+        if layers[l.id].blank?
+          layers[l.id] = {:count => 0, :name => l.name, :annotation_count => 0}
+        end
+        layers[l.id][:count] = layers[l.id][:count].to_i + ann.word_count
+        layers[l.id][:annotation_count] = layers[l.id][:annotation_count].to_i + 1
+      end
+    end
+    return layers
+  end
+
+  def editable_content(convert_h_tags=false)
     return '' if self.annotatable.nil?
 
     original_content = ''
@@ -173,8 +187,17 @@ class Collage < ActiveRecord::Base
       children_nodes = children_nodes.first.children
     end
 
+
     children_nodes.each do |node|
       if node.children.any? && node.text != ''
+      if convert_h_tags
+        #TODO: probably need to handle for every H tag, possibly skipping H3s which will
+        # get handled in the view as the H tags we coerce into the hierarchy we want.
+        if true && node.name == 'h2'
+          node.name = 'div'
+          node['class'] = node['class'].to_s + " new-h2"
+        end
+      end
         first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
         control_node['id'] = "paragraph#{count}"

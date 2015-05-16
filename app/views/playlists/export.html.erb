@@ -3,14 +3,15 @@
 		<h1 class="scale1-5"><%= raw @playlist.name %></h1>
 	</hgroup>
 	<div class="details">
-		<h2 class="scale0-8">
+		<div class="scale0-8 vh2">
 			<%= @playlist.updated_at.strftime("%B %d, %Y") %>
 			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
-		</h2>
+		</div >
 		<div id="description" class="item_description">
 			<%= raw @playlist.formatted(:description) %>
 		</div>
 	</div>
+    <!-- TODO: This creates an extra block of whitespace when the cookie is false onload -->
 	<div id="toc_container"></div>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
 </div>

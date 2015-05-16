@@ -494,9 +494,10 @@ $(document).ready(function(){
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
 
+  //TODO: add support for all the newly created new-h# classes 
   $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
   $('article h1, div.article h1').addClass('scale1-4');
-  $('article h2, div.article h2').addClass('scale1-3');
+  $('article h2, div.article h2, .new-h2').addClass('scale1-3');
   $('article h3, div.article h3').addClass('scale1-2');
   $('article h4, div.article h4').addClass('scale1-1');
 
