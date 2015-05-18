@@ -115,15 +115,9 @@ var playlists_show = {
     $.each($('.private'), function(i, link) {
       var listitem = $(link).parentsUntil('.listitem').last().parent();
       if(user_id != listitem.data('user_id')) {
-        listitem.find('.additional_details,div.dd').remove();
-        if(!can_edit) {
-          listitem.find('.rr').remove();
-        }
+        listitem.find('.additional_details,ol.dd-list,.rr').remove();
         var new_html = $(link).html() + ' <span class="private_item">[This resource is private.]</span>';
         $(link).replaceWith(new_html);
-        if(listitem.hasClass('playlist') && listitem.find('ol.dd-list').size() > 0) {
-          listitem.find('ol.dd-list').remove();  
-        }
       }
     });
     if(can_edit) {
