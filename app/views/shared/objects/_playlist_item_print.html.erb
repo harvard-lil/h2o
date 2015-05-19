@@ -1,5 +1,6 @@
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
 <% if item.actual_object.present? -%>
+  <!-- actual_object_type <%= item.actual_object_type %> -->
   <!-- this is the H3 that the javascript TOC preview uses -->
   <h3 class="scale1-5 new-h<%= recursive_level+1 %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>

@@ -4,6 +4,15 @@ class PlaylistExporter
 
   class << self
 
+    def convert_h_tags(doc)
+      # to grab multiple H nodes: doc.xpath('/html/body/*[self::h1 or self::h2 or self::h3]')
+      doc.xpath("//h2").each do |node|
+        node.name = 'div'
+        node['class'] = node['class'].to_s + " new-h2"
+      end
+      doc
+    end
+
     def export_as(request_url, params)
       #request_url will actually be the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf

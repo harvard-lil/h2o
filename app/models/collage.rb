@@ -161,6 +161,10 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
+  def printable_content
+    self.editable_content(true)
+  end
+
   def editable_content(convert_h_tags=false)
     return '' if self.annotatable.nil?
 
@@ -173,43 +177,39 @@ class Collage < ActiveRecord::Base
 
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
-    # Footnote markup
-    doc.css("a").each do |li|
-      if li['href'] =~ /^#/
-        li['class'] = 'footnote'
-      end
+    doc.xpath('//a[starts-with(@href, "#")]').each do |li|
+      li['class'] = 'footnote'
     end
-
-    count = 1
 
     children_nodes = doc.xpath('/html/body').children
     if children_nodes.size == 1 && self.annotatable.content.match('^<div>')
       children_nodes = children_nodes.first.children
     end
 
+    count = 1
     children_nodes.each do |node|
       if node.children.any? && node.text != ''
-        if convert_h_tags
-          #TODO: probably need to handle for every H tag, possibly skipping H3s which will
-          # get handled in the view as the H tags we coerce into the hierarchy we want.
-          if true && node.name == 'h2'
-            node.name = 'div'
-            node['class'] = node['class'].to_s + " new-h2"
-          end
-        end
         #first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
         control_node['id'] = "paragraph#{count}"
         control_node['href'] = "#p#{count}"
         control_node['class'] = "paragraph-numbering scale0-9"
         control_node.inner_html = "#{count}"
-        #TODO: Verify these changes do not break anything outside of the print export
+        #TODO: Verify the change from first_child.add... to node.add... do not break anything outside of the print export
+        #first_child.add_previous_sibling(control_node)
         node.add_previous_sibling(control_node)
         count += 1
       end
     end
 
-    CGI.unescapeHTML(doc.xpath("//html/body/*").to_s)
+    #This is kind of a hack to avoid re-parsing everything in printable_content()
+    if convert_h_tags
+      PlaylistExporter.convert_h_tags(doc) 
+    end
+    html = doc.xpath("/html/body/*").to_s
+
+    #return CGI.unescapeHTML(doc.xpath("/html/body/*").to_s)
+    convert_h_tags ? html : CGI.unescapeHTML(html)
   end
 
   def deleteable_tags
