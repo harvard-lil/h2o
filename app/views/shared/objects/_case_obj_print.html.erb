@@ -12,5 +12,6 @@
 <p>Jurisdiction: <%= case_obj.case_jurisdiction.display_name %></p> 
 <% end -%>
 <div class="article">
+<%# TODO: cache this %>
 <%= raw case_obj.printable_content %>
 </div>
