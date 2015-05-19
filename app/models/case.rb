@@ -98,6 +98,25 @@ class Case < ActiveRecord::Base
     self.content.gsub!(/\p{Cc}/, "")
   end
 
+  def printable_content(local_filename="/tmp/c1.txt")
+    #TODO: Cache this in the view
+    #return self.content
+    doc = Nokogiri::HTML.parse(self.content)
+    children_nodes = doc.xpath('/html/body').children
+    children_nodes.each do |node|
+      if node.children.any? && node.text != ''
+        #TODO: probably need to handle for every H tag, possibly skipping H3s which will
+        # get handled in the view as the H tags we coerce into the hierarchy we want.
+        if node.name == 'h2'
+          node.name = 'div'
+          node['class'] = node['class'].to_s + " new-h2"
+        end
+      end
+    end
+    #TODO: ditch debug File.open
+    doc.xpath("//html/body/*").to_s.tap {|html| File.open(local_filename, 'w') {|f| f.write(html) } }
+  end
+
   def bookmark_name
     self.short_name
   end

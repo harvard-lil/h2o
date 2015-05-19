@@ -187,23 +187,23 @@ class Collage < ActiveRecord::Base
       children_nodes = children_nodes.first.children
     end
 
-
     children_nodes.each do |node|
       if node.children.any? && node.text != ''
-      if convert_h_tags
-        #TODO: probably need to handle for every H tag, possibly skipping H3s which will
-        # get handled in the view as the H tags we coerce into the hierarchy we want.
-        if true && node.name == 'h2'
-          node.name = 'div'
-          node['class'] = node['class'].to_s + " new-h2"
+        if convert_h_tags
+          #TODO: probably need to handle for every H tag, possibly skipping H3s which will
+          # get handled in the view as the H tags we coerce into the hierarchy we want.
+          if true && node.name == 'h2'
+            node.name = 'div'
+            node['class'] = node['class'].to_s + " new-h2"
+          end
         end
-      end
-        first_child = node.children.first
+        #first_child = node.children.first
         control_node = Nokogiri::XML::Node.new('a', doc)
         control_node['id'] = "paragraph#{count}"
         control_node['href'] = "#p#{count}"
         control_node['class'] = "paragraph-numbering scale0-9"
         control_node.inner_html = "#{count}"
+        #TODO: Verify these changes do not break anything outside of the print export
         node.add_previous_sibling(control_node)
         count += 1
       end
