@@ -1,11 +1,12 @@
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
+<% h_tag = "h#{recursive_level+1}" %>
 <% if item.actual_object.present? -%>
   <!-- actual_object_type <%= item.actual_object_type %> -->
   <!-- this is the H3 that the javascript TOC preview uses -->
-  <h3 class="scale1-5 new-h<%= recursive_level+1 %>">
+  <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
     <span class="hcontent"><%= item.name %></span>
-  </h3>
+  </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
     <%= link_to item.actual_object.url, item.actual_object.url, :target => '_blank' %>
   <% end -%>
@@ -43,10 +44,10 @@
     </section>
   <% end -%>
 <% else -%>
-  <h3 class="missing_item"><!-- TODO: See above change for new-h? -->
+  <<%= h_tag %> class="missing_item">
   <span class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></span>
   <%= item.name %>
   <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
-  </h3>
+  </<%= h_tag %>>
 <% end -%>
 </li>
