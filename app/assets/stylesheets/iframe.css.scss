@@ -2,6 +2,64 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+$ic-color-neutral: #e6e6e6;
+$ic-brand-primary: #0096db;
+$ic-color-dark: #333;
+
 #breadcrumb-navigation {
   font-size: 18px;
+  margin-left: 10px;
+
+  span:not(:first-child):not(:nth-child(2)):before {
+    content: ' > ';
+    vertical-align: sub;
+  }
+
+  >* {
+    a {
+      margin-top: 10px;
+    }
+
+    &:first-child {
+      float: right;
+      margin-right: 10px;
+    }
+  }
+
+  a.external img {
+    width: 30px;
+  }
+}
+
+#single-resource {
+  .leftcol {
+    width: 90%;
+  }
+
+  .main_playlist .listitem .item_desc {
+    background: $ic-color-neutral;
+    margin-right: 10px;
+    color: $ic-color-dark;
+    padding: 5px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: $ic-color-dark;
+    border-radius: 4px;
+
+    a {
+      color: $ic-brand-primary;
+    }
+  }
+
+  .ui-state-default {
+    text-transform: none;
+  }
+
+  .popup.text-layers-popup {
+    font-family: futura-pt, Verdana, Arial, Helvetica, sans-serif;
+
+    ul, ol {
+      margin: 0px;
+    }
+  }
 }

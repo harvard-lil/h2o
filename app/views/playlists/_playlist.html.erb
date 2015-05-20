@@ -1,18 +1,22 @@
+<% unless iframe? %>
 <div id="fixed_links">
 <a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="Playlist Info">Collapse/Expand</a>
 <a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
 <a href="<%= export_playlist_path(playlist) %>" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= playlist.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
 </div>
+<% end %>
 
+<% unless iframe? %>
 <aside id="singleitem_barcode_toolbar">
   <%= link_to raw('<span class="icon icon-clone-large"><span>Clone Playlist</span></span>'), copy_playlist_path(playlist), :class => "tooltip link-clone clone-action requires_logged_in", :title => "Clone #{playlist.name}", "data-type" => "playlist", "data-title" => playlist.name, "data-public" => playlist.public %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => playlist.id, "data-type" => "playlist", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Playlist</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{playlist.name}", "data-type" => "playlist", "data-itemid" => playlist.id %>
 </aside>
+<% end %>
 
 <div id="playlist" class="singleitem leftcol" data-itemid="<%= playlist.id %>">
-  <div id="main_details">
+  <div id="main_details" class="ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top">
     <h1 class="scale1-5"><span><%= raw playlist.name %></span></h1>
     <h6 class="scale0-9 <%= playlist.root != playlist ? 'with_creators' : '' %>">
       <% if playlist.root != playlist -%>
@@ -30,15 +34,18 @@
   </div>
   <div id="description" class="scale1-1">
     <%= raw playlist.formatted(:description) %>
+    <% unless iframe? %>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT PLAYLIST INFORMATION<span class="icon icon-arrow"></span>'), edit_playlist_path(playlist), :class => "edit-action requires_edit scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE PLAYLIST<span class="icon icon-arrow"></span>'), playlist, "data-type" => "playlist", "data-id" => playlist.id, :class => "delete-action requires_edit scale0-8" %>
     <p id="public_private_instruction" class="scale0-9 requires_edit">Edit playlist item notes below to have a mix of public & private notes, or:</p>
     <a href="#" id="public-notes" class="requires_edit scale0-8<%= " inactive" if playlist.public_count == playlist.total_count %>" data-type="public"><span class="icon icon-setup"></span>MAKE ALL NOTES PUBLIC <span class="count">(<span><%= "#{playlist.public_count}/#{playlist.total_count}" %></span> playlist item notes are public)</span></a>
     <a href="#" id="private-notes" class="requires_edit scale0-8<%= " inactive" if playlist.private_count == playlist.total_count %>" data-type="private"><span class="icon icon-setup"></span>MAKE ALL NOTES PRIVATE <span class="count">(<span><%= "#{playlist.private_count}/#{playlist.total_count}" %></span> playlist item notes are private)</span></a>
+    <% end %>
   </div>
   <%= render :partial => 'playlist_items/playlist_items_block', :locals => {:playlist => playlist} %>
 </div>
 
+<% unless iframe? %>
 <div id="stats" class="right_panel">
   <a href="#" class="right_panel_close">Close</a>
   <h3 class="info">Playlist Information<span class="icon icon-panel"></span></h3>
@@ -54,6 +61,7 @@
   </div>
   <% end %>
 </div>
+<% end %>
 
 <div id="edit_item" class="requires_edit right_panel">
   <a href="#" class="right_panel_close"></a>

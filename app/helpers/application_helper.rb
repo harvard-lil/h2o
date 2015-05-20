@@ -43,4 +43,8 @@ module ApplicationHelper
       fail "Unknown single_resource type: #{single_resource.class}"
     end
   end
+
+  def raw_annotations_for(collage)
+    { single: collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h } }
+  end
 end

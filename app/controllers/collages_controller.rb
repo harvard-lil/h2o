@@ -24,7 +24,7 @@ class CollagesController < BaseController
   end
 
   def access_level 
-    if current_user
+    if current_user && params[:iframe].blank?
       render :json => {
         :can_edit             => can?(:edit, @collage),
         :can_destroy          => can?(:destroy, @collage),
@@ -34,7 +34,7 @@ class CollagesController < BaseController
       render :json => {
         :can_edit             => false,
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
-        :custom_block         => "collage_v2_afterload"
+        :custom_block         => params[:iframe].present? ? "collage_afterload" : "collage_v2_afterload"
       }
     end
   end

@@ -1,5 +1,5 @@
 <li class="dd-item <%= actual_object.class.to_s.downcase %> listitem listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>" data-user_id="<%= actual_object.present? ? actual_object.user_id : 'n/a' %>" data-actual_object_id="<%= item.actual_object_id %>" data-nestable="false" data-position="<%= position %>" data-level="<%= recursive_level %>">
-  <div class="wrapper <%= "missing_item" if actual_object.nil? %> dd-handle">
+  <div class="wrapper <%= "missing_item" if actual_object.nil? %> dd-handle<%= ' ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top' if iframe? %>">
     <table><tr>
       <td class="number"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></td>
       <td class="icon-cell">
@@ -22,7 +22,7 @@
         <%= link_to actual_object.name, media_path(actual_object), :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? -%>
           <% href = iframe? ? url_for_iframe(actual_object) : actual_object %>
-        <%= link_to raw(actual_object.name), href, target.merge(:class => "title dd-nodrag#{" private" if !actual_object.public}#{" local" if iframe?}") %>
+        <%= link_to raw(actual_object.name), href, target.merge(data: data_for(actual_object), :class => "title dd-nodrag#{" private" if !actual_object.public}#{" local" if iframe?}") %>
         <% else -%>
         <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
         <% end -%>

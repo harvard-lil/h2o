@@ -1250,10 +1250,14 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 
 .singleitem #main_details { 
-  background: #c2c2c2;
   padding: 10px;
   position: relative;
 }
+
+*:not(#single-resource) > .singleitem #main_details { 
+  background: #c2c2c2;
+}
+
 .singleitem #main_details p {
   font-size:12px;
   line-height:1.5em;

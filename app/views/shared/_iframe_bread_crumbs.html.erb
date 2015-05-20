@@ -1,5 +1,14 @@
 <%= content_tag :div, id: "breadcrumb-navigation" do %>
+  <span><%= link_to @single_resource, class: 'external btn Button--primary', target:'_blank' do %>
+    Open page in <%= image_tag 'h20-logo.png' %>
+    <% end %>
+  </span>
   <span>
-    <%= link_to @single_resource.name, iframe_show_path(params.slice(:id, :type)) %>
+    <%= link_to(
+      @single_resource.name,
+      iframe_show_path(params.slice(:id, :type)),
+      class: 'btn Button--secondary',
+      data: data_for(@single_resource)
+    ) %>
   </span>
 <% end %>
