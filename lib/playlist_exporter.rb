@@ -85,6 +85,7 @@ class PlaylistExporter
              "ul {padding-left: 0em;}",
              "ul ul {padding-left: 1em;}",
             ]
+      
       # Add CSS to hide any levels that are > depth
       (1..6).each do |i|
         if i > depth
