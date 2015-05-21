@@ -57,6 +57,7 @@ var export_functions = {
         }
     },
     show_toc: function(toc_levels) {
+        return; //Disabled until we update it to work with the new H tags structure
         var toc_node = $('#' + tocId);
         toc_node.remove();
         export_functions.generate_toc(toc_levels);

@@ -11,7 +11,6 @@
 			<%= raw @playlist.formatted(:description) %>
 		</div>
 	</div>
-    <!-- TODO: This creates an extra block of whitespace when the cookie is false onload -->
 	<div id="toc_container"></div>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
 </div>
