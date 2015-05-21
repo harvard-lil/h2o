@@ -32,7 +32,7 @@ class PlaylistExporter
     end
 
     def convert_h_tags(doc)
-      # Accepts text & html as well as Nokogiri documents
+      # Accepts text & html as well as a Nokogiri document
       doc = Nokogiri::HTML.parse(doc) unless doc.respond_to?(:xpath)
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
@@ -76,7 +76,7 @@ class PlaylistExporter
 
     def generate_toc_levels_css(depth)
       # TODO: Could we use this, which I have just found?
-      #    <xsl:template match="outline:item[count(ancestor::outline:item)&lt;=2]">
+      #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
       # <li class="book-toc-item level_{count(ancestor::outline:item)}">
       depth = depth.to_i
       
@@ -106,7 +106,7 @@ class PlaylistExporter
                                                  "playlists/toc.xsl",
                                                  :layout => false,
                                                  :locals => vars,
-                                                 ).tap {|x| Rails.logger.debug x}
+                                                 )  #.tap {|x| Rails.logger.debug x}
     end
 
     def generate_toc_options(params)

@@ -9,20 +9,19 @@
   <xsl:template match="outline:outline">
     <html>
       <head>
-        <title>TOC HTML title</title>
-        <xsl:comment>HTML title is required to avoid breaking page layout</xsl:comment>
+        <title>(This does not get displayed in the rendered PDF)</title>
+        <xsl:comment>Non-empty HTML title is required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <!-- TODO: add stylesheet links to export and print css using Rails helper -->
         <style>
           div.header {
             text-align: center;
-            font-size: 20px;
-            font-family: arial;
           }
-          .toc-entry {border-bottom: 1px dashed rgb(200,200,200);}
           span {float: right;}
           li {list-style: none;}
           a {text-decoration:none; color: black;}
+
+          .toc-entry {border-bottom: 1px dashed rgb(200,200,200);}
 
           <%= general_css %>
           <%= toc_levels_css %>

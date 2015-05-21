@@ -154,7 +154,6 @@ class PlaylistsController < BaseController
     #TODO: name the file @playlist.name.parameterize.underscore
     export_result = PlaylistExporter.export_as(request.url, params)
     #For now: false == failed, non-falsey == path to file
-    #raise "fake error for easy rePOSTing"
     if export_result
       send_file(
               export_result,
