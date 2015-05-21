@@ -1,19 +1,9 @@
+require 'tempfile'
 require 'uri'
 
 class PlaylistExporter
 
   class << self
-
-    def convert_h_tags(doc)
-      # Accepts text & html as well as Nokogiri documents
-      doc = Nokogiri::HTML.parse(doc) if !doc.respond_to?(:xpath)
-
-      doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
-        node.name = 'div'
-      end
-      doc
-    end
 
     def export_as(request_url, params)
       #request_url will actually be the full request URI that is posting TO this page. We need
@@ -39,6 +29,17 @@ class PlaylistExporter
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
         false
       end
+    end
+
+    def convert_h_tags(doc)
+      # Accepts text & html as well as Nokogiri documents
+      doc = Nokogiri::HTML.parse(doc) unless doc.respond_to?(:xpath)
+
+      doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
+        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
+        node.name = 'div'
+      end
+      doc
     end
 
     def forwarded_cookies(params)
@@ -73,22 +74,57 @@ class PlaylistExporter
       cookies.map {|k,v| "--cookie #{k} #{encode_cookie_value(v)}" if v.present?}.join(' ')
     end
 
-    def generate_toc_options(params)
-      options = []
-
-      # No PDF-specific "outline" (displayed in the left sidebar in Adobe PDF Reader)
-      options << "--no-outline"
+    def generate_toc_levels_css(depth)
+      # TODO: Could we use this,w hich I just found?
+      #    <xsl:template match="outline:item[count(ancestor::outline:item)&lt;=2]">
+      # <li class="book-toc-item level_{count(ancestor::outline:item)}">
+      depth = depth.to_i
+      return "" if depth == 0
       
-      if params['toc_levels'].present?
-        #TODO: This only currently turns the TOC on or off. Once we have a proper
-        # H? tag hierarchy in the Rails view, then we can extend this to allow user
-        # control over the TOC depth using the value in params['toc_levels']
-        # That will probably need to be done with a dynamically generated XSLT file that
-        # explictly limits the H? levels it renders, now that wkhtmltopdf dropped the
-        # toc_depth switch it used to support.
-        options << "toc --xsl-style-sheet toc.xsl"
+      # This starting css defines basic indentation for all levels that do get displayed
+      css = [
+             "ul {padding-left: 0em;}",
+             "ul ul {padding-left: 1em;}",
+            ]
+      # Add CSS to hide any levels that are > depth
+      (1..6).each do |i|
+        if i > depth
+          css << ("ul " * i) + "{display: none;}"
+        end
+      end
+      css.join("\n")
+    end
+
+    def render_toc(params)
+      vars = {
+        :title => "rendered-title",  #TODO: use @playlist.name
+        :general_css => ".general_css {}",  #TODO: implement
+        :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
+      }
+
+      ApplicationController.new.render_to_string(
+                                                 "playlists/toc.xsl",
+                                                 :layout => false,
+                                                 :locals => vars,
+                                                 ).tap {|x| Rails.logger.debug x}
+    end
+
+    def generate_toc_options(params)
+      # No PDF-specific "outline" (displayed in the left sidebar in Adobe PDF Reader)
+      options = ["--no-outline"]
+      if params['toc_levels']
+        options << "toc --xsl-style-sheet " + toc_file(params)
       end
       options
+    end
+
+    def toc_file(params)
+      #NOTE: There may be a risk tempfile will unlink this file before it gets used,
+      #so we probably need a regular IO file that we unlink or clear some other way.
+      file = Tempfile.new(['export_toc', '.xsl'])
+      file.write render_toc(params)
+      file.close
+      file.path
     end
 
     def generate_options(params)
@@ -97,11 +133,12 @@ class PlaylistExporter
       options = []
 
       #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
-      # javascript special effects still run, then you didn't need it any more. #dumbosfeather
+      # javascript special effects still run, then you didn't need it any more.
       options << "--no-stop-slow-scripts --javascript-delay 1000 --debug-javascript"
       options << "--print-media-type"
 
-      # The below is only needed if you do not have a DNS or /etc/hosts entry for this dev server
+      # The below is only needed if you do not have a DNS or /etc/hosts entry for
+      # this dev server. However, it will probably break the typekit JS call
       #hostname = URI(request_url).host  #"sskardal03.murk.law.harvard.edu"
       #options << "--custom-header-propagation --custom-header host #{hostname}"
       options
@@ -111,9 +148,8 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
-      #           a {text-decoration:none; color: black;}
-      # ApplicationController.new.render_to_string("playlists/toc.xsl", :layout => false, :locals => {:title => "hi"})
       toc_options = generate_toc_options(params)
+
       options = generate_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)

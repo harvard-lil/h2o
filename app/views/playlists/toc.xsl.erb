@@ -12,6 +12,7 @@
         <title>TOC HTML title</title>
         <xsl:comment>HTML title is required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <!-- TODO: add stylesheet links to export and print css using Rails helper -->
         <style>
           div.header {
             text-align: center;
@@ -25,22 +26,25 @@
             font-size: 20px;
             font-family: arial;
           }
-          ul ul {font-size: 80%; }
-          ul {padding-left: 0em;}
-          ul ul {padding-left: 1em;}
           a {text-decoration:none; color: black;}
+
+          <%= general_css %>
+          <%= toc_levels_css %>
+
         </style>
       </head>
       <body>
-        <div class="header"><b>Table of Contents</b></div>
-        <ul><xsl:apply-templates select="outline:item/outline:item"/></ul>
+        <div class="header toc"><b><%= title %></b></div>
+        <div class="toc">
+          <ul class="toc"><xsl:apply-templates select="outline:item/outline:item"/></ul>
+        </div>
       </body>
     </html>
   </xsl:template>
   <xsl:template match="outline:item">
     <li>
       <xsl:if test="@title!=''">
-        <div>
+        <div class="toc">
           <a>
             <xsl:if test="@link">
               <xsl:attribute name="href"><xsl:value-of select="@link"/></xsl:attribute>
