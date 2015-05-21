@@ -97,7 +97,7 @@ class PlaylistExporter
 
     def render_toc(params)
       vars = {
-        :title => "rendered-title",  #TODO: use @playlist.name
+        :title => params['playlist_name'],
         :general_css => ".general_css {}",  #TODO: implement
         :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
       }

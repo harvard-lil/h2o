@@ -18,6 +18,7 @@
     <div id="print-options">
       <h2>PRINT SETTINGS</h2>
       <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
+      <%= hidden_field_tag "playlist_name", @playlist.name %>
 
       <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
       <div id="export_format_options">
