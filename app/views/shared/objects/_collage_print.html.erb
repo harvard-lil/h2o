@@ -7,8 +7,9 @@
 </div>
 </div>
 <script type="text/javascript">
-//TODO: consider not rendering this in the view if it's a no-op. 
+/*
 document.addEventListener("DOMContentLoaded", function() {
+  console.log("firing ICD for id: <%= collage.id %>" );
   export_functions.initiate_collage_data(<%= collage.id %>, {
     data: <%= raw(params[:state] || collage.readable_state || "{}") %>,
     annotations: <%= raw collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>,
@@ -16,5 +17,6 @@ document.addEventListener("DOMContentLoaded", function() {
     highlights_only: <%= raw collage.highlights_only.to_json %>
   });
 });
+/*
 </script>
 <% end -%>

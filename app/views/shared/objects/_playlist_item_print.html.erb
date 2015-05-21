@@ -1,7 +1,15 @@
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>">
 <% h_tag = "h#{recursive_level+1}" %>
 <% if item.actual_object.present? -%>
+  <!-- item.class <%= item.class %> -->
+  <!-- item.id <%= item.id %> -->
+  <!-- item.description <%= raw item.description %> -->
+  <!-- BOOP -->
+
   <!-- actual_object_type <%= item.actual_object_type %> -->
+  <!-- actual_object.id <%= item.actual_object.id %> -->
+  <!-- actual_object.description <%= raw item.actual_object.description %> -->
+  
   <!-- this is the H3 that the javascript TOC preview uses -->
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
@@ -13,7 +21,7 @@
   <% if item.actual_object_type == 'Media' %>
     <%= link_to media_url(item.actual_object), media_url(item.actual_object), :target => '_blank' %>
   <% end -%>
-  <div class="item_description scale0-8"><%= raw item.formatted(:description) %></div>
+  <div class="item_description scale0-8"><%= raw item.print_formatted(:description) %></div>
   <% if item.notes.to_s != '' && item.public_notes -%>
     <div class="notes scale0-8">
       <b class="scale0-8">Notes:</b>

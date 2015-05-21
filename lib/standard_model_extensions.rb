@@ -106,6 +106,10 @@ module StandardModelExtensions
     visible_barcode.reverse
   end
 
+  def print_formatted(field)
+    PlaylistExporter.convert_h_tags(formatted(field))
+  end
+
   def formatted(field)
     doc = RedCloth.new(self.send(field).to_s)
     doc.sanitize_html = false

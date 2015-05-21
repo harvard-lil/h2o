@@ -5,10 +5,12 @@ class PlaylistExporter
   class << self
 
     def convert_h_tags(doc)
-      # to grab multiple H nodes: doc.xpath('/html/body/*[self::h1 or self::h2 or self::h3]')
-      doc.xpath("//h2").each do |node|
+      # Accepts text & html as well as Nokogiri documents
+      doc = Nokogiri::HTML.parse(doc) if !doc.respond_to?(:xpath)
+
+      doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
+        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
-        node['class'] = node['class'].to_s + " new-h2"
       end
       doc
     end
@@ -109,6 +111,8 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
+      #           a {text-decoration:none; color: black;}
+      # ApplicationController.new.render_to_string("playlists/toc.xsl", :layout => false, :locals => {:title => "hi"})
       toc_options = generate_toc_options(params)
       options = generate_options(params)
       cookie_string = forwarded_cookies(params)
