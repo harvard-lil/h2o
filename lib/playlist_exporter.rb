@@ -75,11 +75,10 @@ class PlaylistExporter
     end
 
     def generate_toc_levels_css(depth)
-      # TODO: Could we use this,w hich I just found?
+      # TODO: Could we use this, which I have just found?
       #    <xsl:template match="outline:item[count(ancestor::outline:item)&lt;=2]">
       # <li class="book-toc-item level_{count(ancestor::outline:item)}">
       depth = depth.to_i
-      return "" if depth == 0
       
       # This starting css defines basic indentation for all levels that do get displayed
       css = [

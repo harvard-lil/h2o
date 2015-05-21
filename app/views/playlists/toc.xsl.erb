@@ -19,13 +19,9 @@
             font-size: 20px;
             font-family: arial;
           }
-          div {border-bottom: 1px dashed rgb(200,200,200);}
+          .toc-entry {border-bottom: 1px dashed rgb(200,200,200);}
           span {float: right;}
           li {list-style: none;}
-          ul {
-            font-size: 20px;
-            font-family: arial;
-          }
           a {text-decoration:none; color: black;}
 
           <%= general_css %>
@@ -34,17 +30,16 @@
         </style>
       </head>
       <body>
-        <div class="header toc"><b><%= title %></b></div>
-        <div class="toc">
-          <ul class="toc"><xsl:apply-templates select="outline:item/outline:item"/></ul>
-        </div>
+        <div class="header"><b><%= title %></b></div>
+          <ul class=""><xsl:apply-templates select="outline:item/outline:item"/></ul>
+
       </body>
     </html>
   </xsl:template>
   <xsl:template match="outline:item">
     <li>
       <xsl:if test="@title!=''">
-        <div class="toc">
+        <div class="toc-entry">
           <a>
             <xsl:if test="@link">
               <xsl:attribute name="href"><xsl:value-of select="@link"/></xsl:attribute>
