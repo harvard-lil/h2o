@@ -145,6 +145,9 @@ class Case < ActiveRecord::Base
       barcode_elements.sort_by { |a| a[:date] }
     end
   end
+  def version
+    1.0
+  end
 
   private
   

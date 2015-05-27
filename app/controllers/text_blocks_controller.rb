@@ -41,6 +41,12 @@ class TextBlocksController < BaseController
   end
 
   def update
+    #versionify
+    if @text_block.content != params[:text_block][:content] && @text_block.collages.detect { |c| c.version == @text_block.version }
+      FrozenItem.create({ :content => @text_block.content, :version => @text_block.version, :item_id => @text_block.id, :item_type => "TextBlock" })
+      params[:text_block][:version] = @text_block.version + 1
+    end
+
     if @text_block.update_attributes(text_blocks_params)
       flash[:notice] = 'Text Block was successfully updated.'
       redirect_to "/text_blocks/#{@text_block.id}"
@@ -60,7 +66,7 @@ class TextBlocksController < BaseController
 
   private
   def text_blocks_params
-    params.require(:text_block).permit(:id, :name, :public, :description, :tag_list, :content, 
+    params.require(:text_block).permit(:id, :name, :public, :description, :tag_list, :content, :version,
                                        metadatum_attributes: [:contributor, :coverage, :creator, :date,
                                                               :description, :format, :identifier, :language,
                                                               :publisher, :relation, :rights, :source,

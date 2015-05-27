@@ -146,24 +146,16 @@ class Collage < ActiveRecord::Base
     self.layers.map(&:name)
   end
 
-  def layer_report
-    layers = {}
-    self.annotations.each do |ann|
-      ann.layers.each do |l|
-        if layers[l.id].blank?
-          layers[l.id] = {:count => 0, :name => l.name, :annotation_count => 0}
-        end
-        layers[l.id][:count] = layers[l.id][:count].to_i + ann.word_count
-        layers[l.id][:annotation_count] = layers[l.id][:annotation_count].to_i + 1
-      end
-    end
-    return layers
-  end
-
   def editable_content
     return '' if self.annotatable.nil?
 
-    doc = Nokogiri::HTML.parse(self.annotatable.content.gsub(/\r\n/, ''))
+    original_content = ''
+    if self.version == self.annotatable.version
+      original_content = self.annotatable.content
+    else
+      original_content = self.annotatable.frozen_items.detect { |f| f.version = self.version }.content
+    end
+    doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
     # Footnote markup
     doc.css("a").each do |li|

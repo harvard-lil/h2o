@@ -187,6 +187,7 @@ ActiveRecord::Schema.define(version: 20150130134612) do
     t.integer  "annotator_version",                  default: 2,     null: false
     t.boolean  "featured",                           default: false, null: false
     t.boolean  "created_via_import",                 default: false, null: false
+    t.integer  "version",                            default: 1,     null: false
   end
 
   add_index "collages", ["ancestry"], name: "index_collages_on_ancestry", using: :btree
@@ -266,6 +267,15 @@ ActiveRecord::Schema.define(version: 20150130134612) do
     t.integer  "item_id"
     t.string   "item_type"
     t.datetime "deleted_at"
+  end
+
+  create_table "frozen_items", force: true do |t|
+    t.text     "content"
+    t.integer  "version",    null: false
+    t.integer  "item_id",    null: false
+    t.string   "item_type",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "imports", force: true do |t|
@@ -665,6 +675,7 @@ ActiveRecord::Schema.define(version: 20150130134612) do
     t.integer  "user_id",                            default: 0,     null: false
     t.boolean  "created_via_import",                 default: false, null: false
     t.string   "description",        limit: 5242880
+    t.integer  "version",                            default: 1,     null: false
   end
 
   add_index "text_blocks", ["created_at"], name: "index_text_blocks_on_created_at", using: :btree

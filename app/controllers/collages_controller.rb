@@ -91,6 +91,8 @@ class CollagesController < BaseController
     @collage = Collage.new(collages_params)
     @collage.user = current_user
     verify_captcha(@collage)
+    
+    @collage.version = @collage.annotatable.is_a?(Case) ? 1.0 : @collage.annotatable.version
 
     if @collage.save
       render :json => { :type => 'collages', :id => @collage.id, :error => false }

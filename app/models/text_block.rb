@@ -19,6 +19,7 @@ class TextBlock < ActiveRecord::Base
   has_many :collages, :as => :annotatable
   has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object
+  has_many :frozen_items, :as => :item
   belongs_to :user
 
   validates_presence_of :name
