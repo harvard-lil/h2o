@@ -107,47 +107,6 @@
   #text_block div.article p { margin-bottom: 20px; }
   
   /* Print */
-  /* CSS page numbers experiment from https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Getting_started/Media*/
-/*
-  #print-head, #print-foot {
-    display: none;
-  }
-*/  
-/* - Experimenting with automagic page numbers
-@media print {
-h3 {
-  page-break-before: always;
-  padding-top: 2em;
-  }
-h3:first-child {
-  page-break-before: avoid;
-  counter-reset: page;
-  }
-#print-head {
-  display: block;
-  position: fixed;
-  top: 0pt;
-  left:0pt;
-  right: 0pt;
-
-  font-size: 200%;
-  text-align: center;
-  }
-#print-foot {
-  display: block;
-  position: fixed;
-  bottom: 0pt;
-  right: 0pt;
-
-  font-size: 200%;
-  }
-#print-foot:after {
-  content: counter(page);
-  counter-increment: page;
-  }
-} 
-*/
-
   @media print {
     #toc_container {
       page-break-after: always;
@@ -160,7 +119,6 @@ h3:first-child {
     */
   }
 
-  
   #export-form { display: flex; } /* temporary work around for form layout problem */
 
   #toc_container {
