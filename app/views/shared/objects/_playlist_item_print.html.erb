@@ -5,12 +5,11 @@
   <!-- item.id <%= item.id %> -->
   <!-- item.description <%= raw item.description %> -->
   <!-- BOOP -->
-
   <!-- actual_object_type <%= item.actual_object_type %> -->
   <!-- actual_object.id <%= item.actual_object.id %> -->
   <!-- actual_object.description <%= raw item.actual_object.description %> -->
   
-  <!-- this is the H3 that the javascript TOC preview uses -->
+  <!-- this is the H tag the javascript TOC preview uses -->
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
     <span class="hcontent"><%= item.name %></span>

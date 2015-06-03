@@ -1,7 +1,11 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique {
-  .vh1, .vh2 { font-weight: bold; } /* This is applied to dom elements that were H2 before we converted them to divs for the print export feature */
+  /* This is applied to dom elements that were H2 before we converted them to divs for the print export feature */
+  .vh1, .vh2 { font-weight: bold; } 
 
+  h1.off {
+    color: red;
+  }
   .annotator-adder {
     visibility: hidden !important;
     display: none !important;
@@ -10,7 +14,11 @@
     max-width: 1050px;
     width: 1050px;
   }
-  background: #FFF; font-family: sans-serif; font-size: 11px;  color: #000; border-bottom: 2px solid #FFF;
+  background: #FFF;
+  font-family: sans-serif;
+  font-size: 11px;
+  color: #000;
+  border-bottom: 2px solid #FFF;
   * { 
     line-height: 1.4em;
     font-family: 'ff-dagny-web-pro';
@@ -132,7 +140,7 @@
       .toc_level3 { padding-left: 3.0em; }
       .toc_level4 { padding-left: 4.5em; }
       .toc_level5 { padding-left: 5.0em; }
-      .toc_level5 { padding-left: 6.5em; }
+      .toc_level6 { padding-left: 6.5em; }
     }
     display: none;
   }

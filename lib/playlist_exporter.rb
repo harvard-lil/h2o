@@ -95,10 +95,21 @@ class PlaylistExporter
       css.join("\n")
     end
 
+    def generate_toc_general_css(params)
+      #TODO: we may need to map the value we get using fonts.js:h2o_fonts
+      #Or map it pre-emptively on the client side
+      #  #{params['fontface']}
+      " .toc {
+          font-family: leitura-news;
+          font-size: #{params['fontsize']};
+        }
+      "
+    end
+
     def render_toc(params)
       vars = {
         :title => params['playlist_name'],
-        :general_css => ".general_css {}",  #TODO: implement
+        :general_css => generate_toc_general_css(params),
         :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
       }
 
@@ -106,7 +117,7 @@ class PlaylistExporter
                                                  "playlists/toc.xsl",
                                                  :layout => false,
                                                  :locals => vars,
-                                                 )  #.tap {|x| Rails.logger.debug x}
+                                                 ).tap {|x| Rails.logger.debug x}
     end
 
     def generate_toc_options(params)

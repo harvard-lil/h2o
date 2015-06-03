@@ -13,6 +13,7 @@
         <xsl:comment>Non-empty HTML title is required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <!-- TODO: add stylesheet links to export and print css using Rails helper -->
+        <!-- TODO: move standard TOC CSS into export.css so the javascript TOC preview matches this one. -->
         <style>
           div.header {
             text-align: center;
@@ -28,17 +29,16 @@
 
         </style>
       </head>
-      <body>
+      <body class="toc">
         <div class="header"><b><%= title %></b></div>
-          <ul class=""><xsl:apply-templates select="outline:item/outline:item"/></ul>
-
+          <ul class="toc"><xsl:apply-templates select="outline:item/outline:item"/></ul>
       </body>
     </html>
   </xsl:template>
   <xsl:template match="outline:item">
-    <li>
+    <li class="toc">
       <xsl:if test="@title!=''">
-        <div class="toc-entry">
+        <div class="toc toc-entry">
           <a>
             <xsl:if test="@link">
               <xsl:attribute name="href"><xsl:value-of select="@link"/></xsl:attribute>

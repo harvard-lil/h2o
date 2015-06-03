@@ -51,8 +51,8 @@ var collages = {
 
 var export_functions = {
     init_download_settings: function() {
-        //export_functions.title_debug('IDS firing with force_boop cookie: ' + $.cookie('force_boop'));
         if($.cookie('force_boop') == 'true') {
+            //TODO: We can probably remove this if we have removed all H tags from this DOM element
             $('#print-options').remove();
         }
     },
@@ -123,7 +123,6 @@ var export_functions = {
         }
     },
     get_text: function( node ) {
-        //TODO: Clean this up and use less raw HTML
         var header_node = node.children('h3').first();;
         var content = $(header_node).children('.hcontent');
         var anchor = $(header_node).children('.number').children('a');
@@ -144,10 +143,12 @@ var export_functions = {
   },
   init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
+      //Note: This gets overwritten by init_user_settings cookie values for fontface and fontsize if they exists
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
         if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
+          console.log('hash-setting: ' + font_values[0] + ' -> ' + font_values[1]);
           $('#' + font_values[0]).val(font_values[1]);
         }
       }
@@ -166,15 +167,19 @@ var export_functions = {
             //$(selector).remove();
         }
     },
+    set_titles_visible: function(is_visible) {
+        var new_color = is_visible ? '#000' : '#FFF';
+        $('h1').css("color", new_color)
+        $('h1 > .number a').css("color", new_color)
+    },
     init_user_settings: function() {
       $('#printhighlights').val('original');
-
+      console.log("init_user_settings sees $.cookie('print_font_face'): '" + $.cookie('print_font_face') + "'");
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no');
         //$('h1').hide();
-        export_functions.custom_hide('h1');
-        //$('.playlists h3').hide();
-        export_functions.custom_hide('.playlists h3');
+        //export_functions.custom_hide('h1');
+        export_functions.set_titles_visible(false);
       }
       if($.cookie('print_dates_details') == 'false') {
         $('#printdetails').val('no');
@@ -203,12 +208,13 @@ var export_functions = {
       if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all');
       }
-        if ($.cookie('print_font_face') !== null ) {
-            $('#fontface').val($.cookie('print_font_face'));
-        }
-        if ($.cookie('print_font_size') !== null) {
-            $('#fontsize').val($.cookie('print_font_size'));
-        }
+      if ($.cookie('print_font_face') !== null ) {
+          console.log("cookie-setting fontface to: '" + $.cookie('print_font_face') + "'");
+          $('#fontface').val($.cookie('print_font_face'));
+      }
+      if ($.cookie('print_font_size') !== null) {
+          $('#fontsize').val($.cookie('print_font_size'));
+      }
       if($.cookie('toc_levels') !== null) {
         $('#toc_levels').val($.cookie('toc_levels'));
         export_functions.show_toc($.cookie('toc_levels'));
@@ -248,12 +254,12 @@ var export_functions = {
     }).change(function() {
       var choice = $(this).val();
       if (choice == 'yes') {
-        $('h1').show();
-        $('.playlists h3').show();
+        export_functions.set_titles_visible(true);
+        //$('h1').show();
       }
       else {
-        $('h1').hide();
-        $('.playlists h3').hide();
+        export_functions.set_titles_visible(false);
+        //$('h1').hide();
       }
     });
     $('#printdetails').selectbox({
@@ -322,7 +328,8 @@ var export_functions = {
       } else if(choice == 'all') {
         $('.collage-content').each(function(i, el) {
           var id = $(el).data('id');
-          export_functions.highlightAnnotatedItem(id, all_collage_data["collage" + id].layer_data, all_collage_data["collage" + id].highlights_only);
+          var data = all_collage_data["collage" + id];
+          export_functions.highlightAnnotatedItem(id, data.layer_data, data.highlights_only);
         });
       } else {
         $('.collage-content').each(function(i, el) {
@@ -495,12 +502,15 @@ $(document).ready(function(){
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
 
-  //TODO: add support for all the newly created new-h# classes 
   $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
-  $('article h1, div.article h1').addClass('scale1-4');
+/* Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
+   from this list, but it shows up in setFontPrint()
+*/
+  
+  $('article h1, div.article h1, .new-h1').addClass('scale1-4');
   $('article h2, div.article h2, .new-h2').addClass('scale1-3');
-  $('article h3, div.article h3').addClass('scale1-2');
-  $('article h4, div.article h4').addClass('scale1-1');
+  $('article h3, div.article h3, .new-h3').addClass('scale1-2');
+  $('article h4, div.article h4, .new-h4').addClass('scale1-1');
 
   $('div.article *:not(.paragraph-numbering)').addClass('original_content');
   $('.collage-content').each(function(i, el) {
@@ -509,4 +519,9 @@ $(document).ready(function(){
 
   export_functions.init_listeners();
   export_functions.init_download_settings();
+    console.log( "STYLETEST" );
+    console.log( $("h1 .hcontent").first().text() );
+    console.log( $("h1 .hcontent").first().css('font-family') );
+
 });
+
