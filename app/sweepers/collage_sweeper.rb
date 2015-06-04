@@ -7,16 +7,16 @@ class CollageSweeper < ActionController::Caching::Sweeper
     begin
       ActionController::Base.expire_page "/collages/#{record.id}.html"
       ActionController::Base.expire_page "/collages/#{record.id}/export.html"
-      ActionController::Base.expire_page "iframe/load/collages/#{record.id}.html"
-      ActionController::Base.expire_page "iframe/show/collages/#{record.id}.html"
+      ActionController::Base.expire_page "/iframe/load/collages/#{record.id}.html"
+      ActionController::Base.expire_page "/iframe/show/collages/#{record.id}.html"
  
       #expire pages of ancestors, descendants, and siblings meta
       relations = [record.ancestor_ids, record.descendant_ids]
       relations.push(record.sibling_ids.select { |i| i != record.id }) if record.parent.present?
       relations.flatten.uniq.each do |rel_id|
         ActionController::Base.expire_page "/collages/#{rel_id}.html"
-        ActionController::Base.expire_page "iframe/load/collages/#{rel_id}.html"
-        ActionController::Base.expire_page "iframe/show/collages/#{rel_id}.html"
+        ActionController::Base.expire_page "/iframe/load/collages/#{rel_id}.html"
+        ActionController::Base.expire_page "/iframe/show/collages/#{rel_id}.html"
       end
 
       if record.changed.include?("public")
@@ -25,8 +25,8 @@ class CollageSweeper < ActionController::Caching::Sweeper
         end
         [:playlists, :collages].each do |type|
           record.user.send(type).each do |i|
-            ActionController::Base.expire_page "iframe/load/#{type.to_s}/#{i.id}.html"
-            ActionController::Base.expire_page "iframe/show/#{type.to_s}/#{i.id}.html"
+            ActionController::Base.expire_page "/iframe/load/#{type.to_s}/#{i.id}.html"
+            ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html"
           end
         end
       end
@@ -54,8 +54,8 @@ class CollageSweeper < ActionController::Caching::Sweeper
   def after_collages_save_readable_state
     ActionController::Base.expire_page "/collages/#{params[:id]}.html"
     ActionController::Base.expire_page "/collages/#{params[:id]}/export.html"
-    ActionController::Base.expire_page "iframe/load/collages/#{params[:id]}.html"
-    ActionController::Base.expire_page "iframe/show/collages/#{params[:id]}.html"
+    ActionController::Base.expire_page "/iframe/load/collages/#{params[:id]}.html"
+    ActionController::Base.expire_page "/iframe/show/collages/#{params[:id]}.html"
 
     playlist_items = PlaylistItem.where({ :actual_object_type => 'Collage', :actual_object_id => params[:id] })
     PlaylistItem.clear_playlists(playlist_items)

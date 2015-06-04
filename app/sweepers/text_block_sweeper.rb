@@ -5,6 +5,9 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
 
   def clear_text_block(record)
     begin
+      ActionController::Base.expire_page "/iframe/load/text_blocks/#{record.id}.html"
+      ActionController::Base.expire_page "/iframe/show/text_blocks/#{record.id}.html"
+
       if record.changed.include?("public")
         #TODO: Move this into SweeperHelper, but right now doesn't call
         [:playlists, :collages, :cases].each do |type|

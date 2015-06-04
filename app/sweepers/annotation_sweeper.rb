@@ -6,6 +6,9 @@ class AnnotationSweeper < ActionController::Caching::Sweeper
 
   def collage_clear(record)
     ActionController::Base.expire_page "/collages/#{record.collage.id}.html"
+    Rails.logger.debug("Sweeper: #{record.collage.id}")
+    ActionController::Base.expire_page "/iframe/load/collages/#{record.collage.id}.html"
+    ActionController::Base.expire_page "/iframe/show/collages/#{record.collage.id}.html"
   end
 
   def after_save(record)
