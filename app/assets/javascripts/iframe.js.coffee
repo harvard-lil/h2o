@@ -9,7 +9,6 @@ show_new_iframe_resource = (anchor, target, callback)->
   anchor.data('href', target.prop('href'))
   anchor.data('external', target.data('external'))
   anchor.data('type', target.data('type'))
-  $('body').attr('id', "#{anchor.data('type')}_show")
   for key, value of target.data('collage')
     window[key] = value
 
@@ -24,6 +23,10 @@ prep_collage = ->
   collages.observeStatsHighlights();
   collages.slideToParagraph();
 
+set_anchor_id = (anchor)->
+  $('body').attr('id', "#{anchor.data('type')}_show")
+  
+
 $(document).on 'click', '#single-resource a.local', (e)->
   e.preventDefault()
   anchor = $('#single-resource')
@@ -32,8 +35,9 @@ $(document).on 'click', '#single-resource a.local', (e)->
   href = target.prop('href')
   show_new_iframe_resource anchor, target, (response, status, j)=>
     if status != 'error'
+      set_anchor_id(anchor)
       external = $('#single-resource').data('external')
-      node = $("<span><a href=\"#{href}\" class=\"btn Button--secondary\">#{name}</a></span>")
+      node = $("<span><a href=\"#{href}\" class=\"btn Button Button--small\">#{name}</a></span>")
       link = node.find('a')
       link.data(target.data())
       link.data('external', external)
@@ -41,14 +45,17 @@ $(document).on 'click', '#single-resource a.local', (e)->
       update_h2o_external_link(external)
       h2o_global.loadEditability()
       prep_collage()
+      window.scrollTo(0, 0) unless window.location.hash
     else
       alert("We're sorry. Something went wrong.")
 
 $(document).on 'click', '#breadcrumb-navigation a:not(.external)', (e)->
   e.preventDefault()
   target = $(e.target)
-  show_new_iframe_resource $('#single-resource'), target, (response, status, j)=>
+  anchor = $('#single-resource')
+  show_new_iframe_resource anchor, target, (response, status, j)=>
     if status != 'error'
+      set_anchor_id(anchor)
       target.parent('span').nextAll().remove()
       external = target.data('external')
       update_h2o_external_link(external)
@@ -59,11 +66,8 @@ $(document).on 'click', '#breadcrumb-navigation a:not(.external)', (e)->
 
 $(document).on 'click', '#single-resource #main-wedge', ->
   $('#main_details').toggleClass('ui-accordion-header-active')
-  $('#main_details').toggleClass('ui-state-active')
   is_on = $('#main_details').hasClass('ui-accordion-header-active')
   $('.main_playlist .listitem > .wrapper').toggleClass('ui-accordion-header-active', is_on)
-  $('.main_playlist .listitem > .wrapper').toggleClass('ui-state-active', is_on)
 
 $(document).on 'click', '#single-resource .wrapper table .rr', ->
   $(this).closest('.wrapper').toggleClass('ui-accordion-header-active')
-  $(this).closest('.wrapper').toggleClass('ui-state-active')
