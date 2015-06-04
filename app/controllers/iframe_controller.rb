@@ -22,8 +22,8 @@ class IframeController < ApplicationController
     resource_type = params.fetch(:type)
     @single_resource =
       case resource_type
-      when 'playlists', 'collages'
-        resource_type.singularize.capitalize.constantize.find(params.fetch(:id))
+      when 'playlists', 'collages', 'text_blocks'
+        resource_type.camelize.singularize.constantize.find(params.fetch(:id))
       else
         head :bad_request
       end

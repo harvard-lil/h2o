@@ -36,9 +36,17 @@ module ApplicationHelper
   end
 
   def url_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :url)
+  end
+
+  def path_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :path)
+  end
+
+  def url_or_path_for_iframe(single_resource, method)
     case single_resource
-    when Playlist, Collage
-      iframe_show_path(type: single_resource.class.table_name, id: single_resource.id)
+    when Playlist, Collage, TextBlock
+      send("iframe_show_#{method}", type: single_resource.class.table_name, id: single_resource.id)
     else
       fail "Unknown single_resource type: #{single_resource.class}"
     end

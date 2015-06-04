@@ -21,7 +21,7 @@
         <% elsif actual_object.present? && item.actual_object_type == 'Media' -%>
         <%= link_to actual_object.name, media_path(actual_object), :target => '_blank', :class => "title dd-nodrag #{"private" if !actual_object.public}" %>
         <% elsif actual_object.present? -%>
-          <% href = iframe? ? url_for_iframe(actual_object) : actual_object %>
+          <% href = iframe? ? path_for_iframe(actual_object) : actual_object %>
         <%= link_to raw(actual_object.name), href, target.merge(data: data_for(actual_object), :class => "title dd-nodrag#{" private" if !actual_object.public}#{" local" if iframe?}") %>
         <% else -%>
         <span class="missing_item">[This resource no longer exists on H2O because its owner deleted it.]</span>
