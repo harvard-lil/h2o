@@ -6,6 +6,7 @@
 <% unless iframe? %>
 <a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= collage.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
+<%= zero_clipboard_iframe_button(collage) %>
 <% end %>
 </div>
 

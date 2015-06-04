@@ -9,6 +9,12 @@ var update_unlayered_end = 0;
 var collage_id;
 var original_annotations;
 
+var collages_show = {
+  initialize: function() {
+    h2o_global.initZeroClipboard();
+  }
+};
+
 h2o_global.collage_afterload = function(results) {
   if($.browser.msie && $.browser.version < 9.0) {
     return;
@@ -26,6 +32,8 @@ h2o_global.collage_afterload = function(results) {
     $('.edit-action').remove();
   }
   h2o_global.setFontClasses();
+  console.log('foo');
+  h2o_global.initZeroClipboard();
 };
 
 var collages = {

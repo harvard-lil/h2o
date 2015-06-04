@@ -52,6 +52,17 @@ module ApplicationHelper
     end
   end
 
+  def zero_clipboard_iframe_button(object)
+    button_tag(
+      "Canvas Link",
+      class: "fixed_link left-tooltip btn-a dont_hide",
+      id: "canvas_link",
+      title: "Copy a Canvas Friendly Link to Your Clipboard",
+      data: { clipboard_text: url_for_iframe(object).gsub(/^http(s)?:\/\//, '') },
+      type: false
+    )
+  end
+
   def raw_annotations_for(collage)
     { single: collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h } }
   end

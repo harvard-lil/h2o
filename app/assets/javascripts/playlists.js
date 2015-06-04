@@ -675,6 +675,7 @@ var playlists_show = {
   },
   initialize: function() {
     h2o_global.setPlaylistFontHierarchy(14);
+    h2o_global.initZeroClipboard();
   
     $('.toolbar, .buttons').css('visibility', 'visible');
     playlists_show.observeStats();
