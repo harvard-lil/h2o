@@ -10,5 +10,19 @@
   padding-left: 35px;
 }
 .wrapper {
-  margin-right: 35px;
+  /* margin-right: 35px; */
+  /*  border-left: red 1px solid; */
+  /*  border-right: green 1px solid; */
+
+    max-width: 680px !important;
+    width: 680px !important;
+    margin-left: 40px !important;
+
 }
+/*
+@page { 
+    size: auto;   /* auto is the initial value */ 
+    /* this affects the margin in the printer settings */ 
+    margin: 169mm 169mm 169mm 169mm !important;  
+} 
+*/
