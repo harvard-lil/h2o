@@ -15,6 +15,7 @@ class Ability
     can [:show, :export], Case, :public => true
     can [:show, :export], TextBlock, :public => true
     can :show, Media, :public => true
+    can :show, PlaylistItem
 
     if user.nil?
       can [:new, :create], :users

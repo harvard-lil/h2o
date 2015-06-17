@@ -161,6 +161,13 @@ class PlaylistItemsController < BaseController
     end
   end
 
+  def show
+    # This exists to prevent garbage exceptions in the Rails log caused by
+    # spam links pointing to this non-existent route, and returns a 404 specifically
+    # to detract from spam links' Google juice
+    render :text => "Not found", :status => 404, :layout => false
+  end
+
   private
   def playlist_item_params
     params.require(:playlist_item).permit(:position, :playlist_id, :notes, :public_notes, 
