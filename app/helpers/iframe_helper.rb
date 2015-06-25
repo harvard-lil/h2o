@@ -2,7 +2,7 @@ module IframeHelper
   def data_for(object)
     {
       external: url_for(object),
-      type: object.class.to_s.downcase.pluralize
+      type: object.class.table_name
     }.tap do |data|
       if object.is_a?(Collage)
         extras = {

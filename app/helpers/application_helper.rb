@@ -35,32 +35,29 @@ module ApplicationHelper
     end
   end
 
-  def url_for_iframe(single_resource)
-    url_or_path_for_iframe(single_resource, :url)
+  def load_url_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :load, :url)
   end
 
-  def path_for_iframe(single_resource)
-    url_or_path_for_iframe(single_resource, :path)
+  def load_path_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :load, :path)
   end
 
-  def url_or_path_for_iframe(single_resource, method)
+  def show_url_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :show, :url)
+  end
+
+  def show_path_for_iframe(single_resource)
+    url_or_path_for_iframe(single_resource, :show, :path)
+  end
+
+  def url_or_path_for_iframe(single_resource, action, method)
     case single_resource
-    when Playlist, Collage, TextBlock
-      send("iframe_show_#{method}", type: single_resource.class.table_name, id: single_resource.id)
+    when Playlist, Collage, TextBlock, Media, Case
+      send("iframe_#{action}_#{method}", type: single_resource.class.table_name, id: single_resource.id)
     else
       fail "Unknown single_resource type: #{single_resource.class}"
     end
-  end
-
-  def zero_clipboard_iframe_button(object)
-    button_tag(
-      "Canvas Link",
-      class: "fixed_link left-tooltip btn-a dont_hide",
-      id: "canvas_link",
-      title: "Copy a Canvas Friendly Link to Your Clipboard",
-      data: { clipboard_text: url_for_iframe(object).gsub(/^http(s)?:\/\//, '') },
-      type: false
-    )
   end
 
   def raw_annotations_for(collage)

@@ -57,9 +57,15 @@ $ic-color-dark: #333;
     }
   }
 
-  ol.dd-list li.dd-item .dd-handle, ol.dd-list li.dd-item div.wrapper {
-    background-image: none;
-    background-color: $ic-color-neutral;
+  ol.dd-list li.dd-item {
+    .dd-handle, div.wrapper {
+      background-image: none;
+      background-color: $ic-color-neutral;
+    }
+
+    &.media, .media {
+      margin-top: 0px;
+    }
   }
 }
 

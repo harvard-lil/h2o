@@ -149,6 +149,10 @@ class Case < ActiveRecord::Base
     1.0
   end
 
+  def to_partial_path
+    "cases/court_case"
+  end
+
   private
   
   def host_and_port

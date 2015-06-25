@@ -12,6 +12,8 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
         #TODO: Move this into SweeperHelper, but right now doesn't call
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
+          record.user.send(type).each { |i| ActionController::Base.expire_page "/iframe/load/#{type.to_s}/#{i.id}.html" }
+          record.user.send(type).each { |i| ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html" }
         end
       end
     rescue Exception => e

@@ -22,8 +22,10 @@ class IframeController < ApplicationController
     resource_type = params.fetch(:type)
     @single_resource =
       case resource_type
-      when 'playlists', 'collages', 'text_blocks'
+      when 'playlists', 'collages', 'text_blocks', 'cases'
         resource_type.camelize.singularize.constantize.find(params.fetch(:id))
+      when 'medias'
+        Media.find(params.fetch(:id))
       else
         head :bad_request
       end
@@ -33,6 +35,8 @@ class IframeController < ApplicationController
       @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
     when Collage
       @layer_data = @single_resource.layer_data
+    when Media
+      @type_label = @single_resource.media_type.label
     end
   end
 end

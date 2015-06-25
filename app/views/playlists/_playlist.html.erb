@@ -4,7 +4,6 @@
 <a href="#" class="fixed_link requires_edit left-tooltip" id="edit_toggle" title="Edit/Read">Edit/View</a>
 <a href="<%= export_playlist_path(playlist) %>" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= playlist.name %>">Print</a>
 <a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
-<%= zero_clipboard_iframe_button(playlist) %>
 </div>
 <% end %>
 
@@ -17,7 +16,7 @@
 <% end %>
 
 <div id="playlist" class="singleitem leftcol" data-itemid="<%= playlist.id %>">
-  <div id="main_details" class="ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top">
+  <div id="main_details" <%= 'class="ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top"'.html_safe if iframe? %>>
     <h1 class="scale1-5"><span><%= raw playlist.name %></span></h1>
     <h6 class="scale0-9 <%= playlist.root != playlist ? 'with_creators' : '' %>">
       <% if playlist.root != playlist -%>
