@@ -1451,6 +1451,14 @@ $(function() {
     $.cookie('return_to', document.location.pathname, { path: '/' });
   }
 
+  // Workaround for http://www.tinymce.com/develop/bugtracker_view.php?id=5917
+  $.widget("ui.dialog", $.ui.dialog, {
+      _allowInteraction: function(event) {
+          console.log('_allowInteraction-ing!');
+          return !!$(event.target).closest(".mce-container").length || this._super( event );
+      }
+  });
+
   h2o_global.loadEditability();
   h2o_global.updateExistingBookmarks();
 

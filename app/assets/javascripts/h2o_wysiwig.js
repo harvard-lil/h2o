@@ -21,7 +21,7 @@ var h2o_mceInit_abbr = {
       convert_urls: false,
       mode: "textareas",
       menubar: false,
-      toolbar1: "bold italic | bullist numlist | formatselect | pastetext removeformat | charmap | undo redo",
+      toolbar1: "bold italic | bullist numlist | link unlink | formatselect | pastetext removeformat | charmap | undo redo",
       fontsize_formats: "16px 20px 24px 28px 32px",
       theme_advanced_toolbar_location:"top",
       theme_advanced_toolbar_align:"left",
