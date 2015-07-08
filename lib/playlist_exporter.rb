@@ -18,6 +18,7 @@ class PlaylistExporter
         exit_code = wait_thread.value.exitstatus
       end
 
+      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))
       Rails.logger.debug command.join(' ')
       Rails.logger.debug command_output
       #ASYNC
@@ -138,7 +139,7 @@ class PlaylistExporter
       file.path
     end
 
-    def generate_options(params)
+    def generate_page_options(params)
       # The order of options is important with respect to options that are passed to
       # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
       options = []
@@ -159,9 +160,11 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
+      margin_realunit = "0.8in"
+      global_options = "--margin-top #{margin_realunit} --margin-bottom #{margin_realunit} --margin-left #{margin_realunit} --margin-right #{margin_realunit}"
       toc_options = generate_toc_options(params)
 
-      options = generate_options(params)
+      page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)
       prep_output_file_path(output_file_path)
@@ -172,10 +175,11 @@ class PlaylistExporter
       #Rails.logger.debug output_file_url
       [
        binary,
+       global_options,
        toc_options,
        'page',
        target_url,
-       options,
+       page_options,
        cookie_string,
        output_file_path,
       ].flatten.join(' ').split

@@ -1,8 +1,6 @@
 .popup, .playlist .icon-type { display: none; }
 .page-break { page-break-after: always; }
-
 #print-options { display: none; }
-
 .collage-content .paragraph-numbering {
   /* left: -35px; */
 }
@@ -10,7 +8,7 @@
   padding-left: 35px;
 }
 .wrapper {
-  max-width: 680px !important;
-  width: 680px !important;
-  margin-left: 50px !important;
+  max-width: 7.5in !important;
+  width: 7.5in !important;
+  margin-left: 0px !important;
 }
