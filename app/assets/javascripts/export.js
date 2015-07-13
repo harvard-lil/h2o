@@ -357,20 +357,22 @@ var export_functions = {
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
-
     var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
-    if(font_face == 'verdana') {
-      $.rule(base_selector + " * { font-family: Verdana, Arial, Helvetica, Sans-serif; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
-    } else {
-      $.rule(base_selector + " * { font-family: '" + h2o_fonts.font_map[font_face] + "'; font-size: " + base_font_size + 'px; }').appendTo('#additional_styles');
-    }
-    $.rule(base_selector + ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }').appendTo('#additional_styles');
-    $.rule(base_selector + ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }').appendTo('#additional_styles');
+      var mapped_font_face = font_face == 'verdana' ? "Verdana, Arial, Helvetica, Sans-serif" : h2o_fonts.font_map[font_face];
+      var rules = [
+          " * { font-family: '" + mapped_font_face + "'; font-size: " + base_font_size + 'px; }' ,
+          ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }',
+          ' *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }',
+          ' *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }',
+          ' *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }',
+          ' *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }',
+          ' *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }',
+          ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }',
+      ];
+
+      $.each(rules, function(i, rule) {
+          $.rule(base_selector + rule).appendTo('#additional_styles');
+      });
   },
   loadAnnotator: function(id) {
     annotations = all_collage_data["collage" + id].annotations || {};
@@ -519,9 +521,5 @@ $(document).ready(function(){
 
   export_functions.init_listeners();
   export_functions.init_download_settings();
-    console.log( "STYLETEST" );
-    console.log( $("h1 .hcontent").first().text() );
-    console.log( $("h1 .hcontent").first().css('font-family') );
-
 });
 
