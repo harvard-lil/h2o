@@ -9,27 +9,25 @@
   <xsl:template match="outline:outline">
     <html>
       <head>
-        <title>(This does not get displayed in the rendered PDF)</title>
+        <title>(This title does not get displayed in the rendered PDF)</title>
         <xsl:comment>Non-empty HTML title is required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <!-- TODO: add stylesheet links to export and print css using Rails helper -->
-        <!-- TODO: move standard TOC CSS into export.css so the javascript TOC preview matches this one. -->
+        <!-- NOTE: javascript and stylesheet tags do not work in this TOC -->
+        <!-- TODO: move below TOC CSS into export.css so the javascript TOC preview matches this one. -->
         <style>
           div.header {
             text-align: center;
           }
           span {float: right;}
           li {list-style: none;}
-          a {text-decoration:none; color: black;}
-
+          a {text-decoration:none; }
           .toc-entry {border-bottom: 1px dashed rgb(200,200,200);}
 
           <%= general_css %>
           <%= toc_levels_css %>
-
         </style>
       </head>
-      <body class="toc">
+      <body class="toc wrapper">
         <div class="header"><b><%= title %></b></div>
           <ul class="toc"><xsl:apply-templates select="outline:item/outline:item"/></ul>
       </body>

@@ -160,10 +160,10 @@ class PlaylistExporter
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
-      margin_realunit = "0.8in"
-      global_options = "--margin-top #{margin_realunit} --margin-bottom #{margin_realunit} --margin-left #{margin_realunit} --margin-right #{margin_realunit}"
+      # Note: This margin works in conjunction with print.css .wrapper styling.
+      margin = "0.8in"
+      global_options = "--margin-top #{margin} --margin-bottom #{margin} --margin-left #{margin} --margin-right #{margin}"
       toc_options = generate_toc_options(params)
-
       page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)

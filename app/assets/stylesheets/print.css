@@ -8,7 +8,9 @@
   padding-left: 35px;
 }
 .wrapper {
+  /* These settings work in conjunction with wkhtmltopdf export parameters. */
   max-width: 7.5in !important;
   width: 7.5in !important;
   margin-left: 0px !important;
 }
+
