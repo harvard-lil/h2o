@@ -5,6 +5,11 @@ var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
 var tocId = 'toc';
+var h2o_themes = {
+    'theme-classic' : [" {color: red; }"],
+    'theme-modern'  : [" {color: green; }"],
+    'theme-gothic'  : [" {color: blue; }"],
+};
 
 var collages = {
   listenToRecordAnnotatedItemState: function() {},
@@ -338,11 +343,21 @@ var export_functions = {
         });
       }
     });
-
     //$('.wrapper').css('margin-top', $('#print-options').height() + 15);
     $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
+      $('.theme-button').on('click', function() {
+          //TODO: Maybe set this color to something to indicate it's active?
+          export_functions.setFontTheme( $(this).attr('id') );
+      });
   },
+    setFontTheme: function(themeId) {
+        console.log("Setting theme: " + themeId);
+        $.each(h2o_themes[themeId], function(i, rule) {
+            console.log("Rule: " + ".wrapper " + rule);
+            $.rule(".wrapper * " + rule).appendTo('#additional_styles');
+        });
+    },
     setTocLevels: function(toc_levels) {
         if (toc_levels && toc_levels.match(/\d+/)) {
             export_functions.show_toc(toc_levels);
