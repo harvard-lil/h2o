@@ -339,7 +339,7 @@ var export_functions = {
       }
     });
 
-    $('.wrapper').css('margin-top', $('#print-options').height() + 15);
+    //$('.wrapper').css('margin-top', $('#print-options').height() + 15);
     $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
   },
