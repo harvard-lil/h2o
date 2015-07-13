@@ -5,10 +5,11 @@ var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
 var tocId = 'toc';
+/* TODO:
+* printhighlights change fix
+*/
 var h2o_themes = {
-    'theme-classic' : [" {color: red; }"],
-    'theme-modern'  : [" {color: green; }"],
-    'theme-gothic'  : [" {color: blue; }"],
+    'theme-classic' : {'printhighlights': 'todo'},
 };
 
 var collages = {
@@ -153,7 +154,6 @@ var export_functions = {
       for(var i in vals) {
         var font_values = vals[i].split('=');
         if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
-          console.log('hash-setting: ' + font_values[0] + ' -> ' + font_values[1]);
           $('#' + font_values[0]).val(font_values[1]);
         }
       }
@@ -167,10 +167,10 @@ var export_functions = {
         $(selector).hide();
         //The export process needs to remove elements, not just hide them.
         //TODO: Rename force_boop here and playlist_exporter.rb
-        if($.cookie('force_boop') == 'true') {
+        //if($.cookie('force_boop') == 'true') {
             //temporarily commented out because we are trying something else
             //$(selector).remove();
-        }
+        //}
     },
     set_titles_visible: function(is_visible) {
         var new_color = is_visible ? '#000' : '#FFF';
@@ -179,7 +179,7 @@ var export_functions = {
     },
     init_user_settings: function() {
       $('#printhighlights').val('original');
-      console.log("init_user_settings sees $.cookie('print_font_face'): '" + $.cookie('print_font_face') + "'");
+      //console.log("init_user_settings sees $.cookie('print_font_face'): '" + $.cookie('print_font_face') + "'");
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no');
         //$('h1').hide();
@@ -322,41 +322,36 @@ var export_functions = {
     $('#printhighlights').selectbox({
       className: "jsb", replaceInvisible: true
     }).change(function() {
-      var choice = $(this).val();
-      $('#highlight_styles').text('');
-      if(choice == 'original') {
+        var choice = $(this).val();
+        $('#highlight_styles').text('');
         $('.collage-content').each(function(i, el) {
-          var id = $(el).data('id');
-          var data = all_collage_data["collage" + id];
-          export_functions.highlightAnnotatedItem(id, data.highlights, data.highlights_only);
+            var id = $(el).data('id');
+            var data = all_collage_data["collage" + id];
+            if(choice == 'original') {
+                export_functions.highlightAnnotatedItem(id, data.highlights, data.highlights_only);
+            } else if(choice == 'all') {
+                export_functions.highlightAnnotatedItem(id, data.layer_data, data.highlights_only);
+            } else {
+                export_functions.highlightAnnotatedItem(id, {}, {});
+            }
         });
-      } else if(choice == 'all') {
-        $('.collage-content').each(function(i, el) {
-          var id = $(el).data('id');
-          var data = all_collage_data["collage" + id];
-          export_functions.highlightAnnotatedItem(id, data.layer_data, data.highlights_only);
-        });
-      } else {
-        $('.collage-content').each(function(i, el) {
-          var id = $(el).data('id');
-          export_functions.highlightAnnotatedItem(id, {}, {});
-        });
-      }
     });
     //$('.wrapper').css('margin-top', $('#print-options').height() + 15);
     $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
       $('.theme-button').on('click', function() {
           //TODO: Maybe set this color to something to indicate it's active?
-          export_functions.setFontTheme( $(this).attr('id') );
+          export_functions.setTheme( $(this).attr('id') );
       });
   },
-    setFontTheme: function(themeId) {
+    setTheme: function(themeId) {
         console.log("Setting theme: " + themeId);
-        $.each(h2o_themes[themeId], function(i, rule) {
-            console.log("Rule: " + ".wrapper " + rule);
-            $.rule(".wrapper * " + rule).appendTo('#additional_styles');
+        var allThemes = ['theme-classic', 'theme-modern', 'theme-gothic',];
+        var sel = ".wrapper *";
+        $.each(allThemes, function(i, theme) {
+            $(sel).removeClass(theme);
         });
+        $(sel).addClass(themeId);
     },
     setTocLevels: function(toc_levels) {
         if (toc_levels && toc_levels.match(/\d+/)) {
