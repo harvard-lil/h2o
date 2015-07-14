@@ -7,9 +7,24 @@ var all_collage_data = {};
 var tocId = 'toc';
 /* TODO:
 * printhighlights change fix
+Titles: Show
+Date Details: Hide
+Paragraph #s: Hide
+Comments/Links: Show
+Highlights: Last Saved
+Hidden Text: Hide
+Font: Futura
+Size: Medium
 */
 var h2o_themes = {
-    'theme-classic' : {'printhighlights': 'todo'},
+    'theme-classic' : {
+        '#printtitle': 'yes',
+        '#printhighlights': 'all',
+    },
+    'theme-modern' : {
+        '#printtitle': 'no',
+        '#printhighlights': 'all',
+    },
 };
 
 var collages = {
@@ -253,19 +268,12 @@ var export_functions = {
         $('.annotation-content').hide();
       }
     });
+ //TODO: use jqueryUI selectbox
 
-    $('#printtitle').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
-      var choice = $(this).val();
-      if (choice == 'yes') {
-        export_functions.set_titles_visible(true);
-        //$('h1').show();
-      }
-      else {
-        export_functions.set_titles_visible(false);
-        //$('h1').hide();
-      }
+    $('#printtitle').change(function() {
+        var choice = $(this).val();
+        console.log('#printtitle.change firing and seeing val: ' + choice);
+        export_functions.set_titles_visible(choice == 'yes');
     });
     $('#printdetails').selectbox({
       className: "jsb", replaceInvisible: true
@@ -327,13 +335,15 @@ var export_functions = {
         $('.collage-content').each(function(i, el) {
             var id = $(el).data('id');
             var data = all_collage_data["collage" + id];
+            var args = null;
             if(choice == 'original') {
-                export_functions.highlightAnnotatedItem(id, data.highlights, data.highlights_only);
+                args = [id, data.highlights, data.highlights_only];
             } else if(choice == 'all') {
-                export_functions.highlightAnnotatedItem(id, data.layer_data, data.highlights_only);
-            } else {
-                export_functions.highlightAnnotatedItem(id, {}, {});
+                args = [id, data.layer_data, data.highlights_only];
+            } else {  //"none"
+                args = [id, {}, {}];
             }
+            export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
     //$('.wrapper').css('margin-top', $('#print-options').height() + 15);
@@ -346,12 +356,12 @@ var export_functions = {
   },
     setTheme: function(themeId) {
         console.log("Setting theme: " + themeId);
-        var allThemes = ['theme-classic', 'theme-modern', 'theme-gothic',];
-        var sel = ".wrapper *";
-        $.each(allThemes, function(i, theme) {
-            $(sel).removeClass(theme);
+        var themeInfo = h2o_themes[themeId];
+        $.each(themeInfo, function(sel, value) {
+            console.log('* ' + sel + ': ' + value);
+            $(sel).val(value);
+            $(sel).triggerHandler('change');  //Not sure why we have to do this manually here, but we do.
         });
-        $(sel).addClass(themeId);
     },
     setTocLevels: function(toc_levels) {
         if (toc_levels && toc_levels.match(/\d+/)) {
