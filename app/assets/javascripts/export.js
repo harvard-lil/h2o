@@ -19,11 +19,19 @@ Size: Medium
 var h2o_themes = {
     'theme-classic' : {
         '#printtitle': 'yes',
+        '#printdetails': 'no',
+        '#printparagraphnumbers': 'no',
+        '#printannotations': 'yes',
         '#printhighlights': 'all',
+        '#hiddentext': 'hide',
     },
     'theme-modern' : {
         '#printtitle': 'no',
-        '#printhighlights': 'all',
+        '#printdetails': 'yes',
+        '#printparagraphnumbers': 'yes',
+        '#printannotations': 'no',
+        '#printhighlights': 'none',
+        '#hiddentext': 'show',
     },
 };
 
@@ -169,7 +177,7 @@ var export_functions = {
       for(var i in vals) {
         var font_values = vals[i].split('=');
         if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
-          $('#' + font_values[0]).val(font_values[1]);
+            $('#' + font_values[0]).val(font_values[1]).change();
         }
       }
     }
@@ -178,6 +186,7 @@ var export_functions = {
         $("h1").text( $("h1").text() + ", " + msg );
         console.log('title_debug-ing the message: ' + msg);
     },
+/*
     custom_hide: function(selector) {
         $(selector).hide();
         //The export process needs to remove elements, not just hide them.
@@ -187,30 +196,31 @@ var export_functions = {
             //$(selector).remove();
         //}
     },
+*/    
     set_titles_visible: function(is_visible) {
+        // Hide/Show titles in a crafty way to avoid breaking the wkhtmltopdf TOC
         var new_color = is_visible ? '#000' : '#FFF';
         $('h1').css("color", new_color)
         $('h1 > .number a').css("color", new_color)
     },
     init_user_settings: function() {
       $('#printhighlights').val('original');
-      //console.log("init_user_settings sees $.cookie('print_font_face'): '" + $.cookie('print_font_face') + "'");
       if($.cookie('print_titles') == 'false') {
-        $('#printtitle').val('no');
+          $('#printtitle').val('no');
         //$('h1').hide();
         //export_functions.custom_hide('h1');
         export_functions.set_titles_visible(false);
       }
       if($.cookie('print_dates_details') == 'false') {
-        $('#printdetails').val('no');
-        //$('.details').hide();
-        export_functions.custom_hide('.details');
+          $('#printdetails').val('no');
+        $('.details').hide();
+        //export_functions.custom_hide('.details');
       }
       if($.cookie('print_paragraph_numbers') == 'false') {
-        $('#printparagraphnumbers').val('no');
+          $('#printparagraphnumbers').val('no');
         //$('.paragraph-numbering').hide();
-        export_functions.custom_hide('.paragraph-numbering');
-        $('.collage-content').css('padding-left', '0px');
+        //export_functions.custom_hide('.paragraph-numbering');
+        //$('.collage-content').css('padding-left', '0px');
       }
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes');
@@ -239,6 +249,7 @@ var export_functions = {
         $('#toc_levels').val($.cookie('toc_levels'));
         export_functions.show_toc($.cookie('toc_levels'));
       }
+        //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
   },
   init_listeners: function() {
     $('#export_format').selectbox({
@@ -259,9 +270,7 @@ var export_functions = {
     }).change(function() {
       export_functions.setFontPrint();
     });
-    $('#printannotations').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#printannotations').change(function() {
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
@@ -275,9 +284,7 @@ var export_functions = {
         console.log('#printtitle.change firing and seeing val: ' + choice);
         export_functions.set_titles_visible(choice == 'yes');
     });
-    $('#printdetails').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#printdetails').change(function() {
       var choice = $(this).val();
       if (choice == 'yes') {
         $('.details').show();
@@ -286,9 +293,7 @@ var export_functions = {
         $('.details').hide();
       }
     });
-    $('#printparagraphnumbers').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#printparagraphnumbers').change(function() {
       var choice = $(this).val();
       if (choice == 'yes') {
         $('.paragraph-numbering').show();
@@ -299,9 +304,7 @@ var export_functions = {
         $('.collage-content').css('padding-left', '0px');
       }
     });
-    $('#hiddentext').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#hiddentext').change(function() {
       var choice = $(this).val();
       if(choice == 'show') {
         $('.layered-ellipsis-hidden').hide();
@@ -327,9 +330,7 @@ var export_functions = {
         });
       }
     });
-    $('#printhighlights').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#printhighlights').change(function() {
         var choice = $(this).val();
         $('#highlight_styles').text('');
         $('.collage-content').each(function(i, el) {
@@ -356,11 +357,9 @@ var export_functions = {
   },
     setTheme: function(themeId) {
         console.log("Setting theme: " + themeId);
-        var themeInfo = h2o_themes[themeId];
-        $.each(themeInfo, function(sel, value) {
+        $.each(h2o_themes[themeId], function(sel, value) {
             console.log('* ' + sel + ': ' + value);
-            $(sel).val(value);
-            $(sel).triggerHandler('change');  //Not sure why we have to do this manually here, but we do.
+            $(sel).val(value).change();
         });
     },
     setTocLevels: function(toc_levels) {
