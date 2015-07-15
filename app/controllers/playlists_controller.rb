@@ -47,13 +47,7 @@ class PlaylistsController < BaseController
   end
 
   def show
-    if params[:format] == 'zip'
-      # This exists to prevent garbage exceptions in the Rails log caused by
-      # spam links pointing to this non-existent route, and returns a 404 specifically
-      # to detract from spam links' Google juice
-      render :text => "Not found", :status => 404, :layout => false
-      return
-    end
+    return if redirect_bad_format
   
     nested_ps = Playlist.includes(:playlist_items).where(id: @playlist.all_actual_object_ids[:Playlist])
     @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }

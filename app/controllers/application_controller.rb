@@ -86,6 +86,13 @@ class ApplicationController < ActionController::Base
     if params[:format] == "php"
       # Note: This has to be hardcoded, not root_url
       redirect_to "/", :status => 301
+      true
+    elsif params[:format] == "zip"
+      # This exists to prevent garbage exceptions in the Rails log caused by
+      # spam links pointing to this non-existent route, and returns a 404 specifically
+      # to detract from spam links' Google juice
+      render :text => "Not found", :status => 404, :layout => false
+      true
     end
   end
 
