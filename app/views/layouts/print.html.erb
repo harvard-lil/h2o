@@ -54,28 +54,6 @@
         <option value="yes" selected="selected">Show</option>
         <option value="no">Hide</option>
       </select>
-      <div id="annotation_options">
-        <strong>COMMENTS/LINKS</strong>
-        <select id="printannotations" name="printannotations">
-          <option value="yes">Show</option>
-          <option value="no" selected="selected">Hide</option>
-        </select>
-      </div>
-      <div id="highlight_options">
-        <strong>HIGHLIGHTS</strong>
-        <select id="printhighlights" name="printhighlights">
-          <option value="original" selected="selected">Last Saved</option>
-          <option value="all">Show All</option>
-          <option value="none">Hide</option>
-        </select>
-      </div>
-      <div id="hidden_text_options">
-        <strong>HIDDEN TEXT</strong>
-        <select id="hiddentext" name="hiddentext">
-          <option value="show">SHOW</option>
-          <option value="hide" selected="selected">HIDE</option>
-        </select>
-      </div>
       <% end %>
       <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
       <div id="fontface_div">
@@ -111,13 +89,38 @@
       <%= hidden_field_tag "playlist_name", @playlist.name %>
 
       <div id="themes-div" style="border: 1px #DDDDDD solid; margin-right: 20px;">
-      <b>PRINT THEMES</b></br>
+        <center><b>PRINT THEMES</b></center>
       <%= button_tag "Classic", class: 'theme-button', type: 'button', id: 'theme-classic' %>
       <%= button_tag "Modern",  class: 'theme-button', type: 'button', id: 'theme-modern' %>
       <%= button_tag "Gothic",  class: 'theme-button', type: 'button', id: 'theme-gothic' %>
       </div>
 
+      <div id="annotations-div" style="border: 1px #DDDDDD solid; margin-right: 20px;">
+        <center><b>ANNOTATION DISPLAY</b></center>
 
+      <div id="annotation_options" style="display: inline-block; border: 2px blue solid;">
+        <b>COMMENTS/LINKS</b><br/>
+        <select id="printannotations" name="printannotations">
+          <option value="yes">Show</option>
+          <option value="no" selected="selected">Hide</option>
+        </select>
+      </div>
+      <div id="highlight_options" style="display: inline-block; border: 2px red solid;">
+        <b>HIGHLIGHTS</b><br/>
+        <select id="printhighlights" name="printhighlights">
+          <option value="original" selected="selected">Last Saved</option>
+          <option value="all">Show All</option>
+          <option value="none">Hide</option>
+        </select>
+      </div>
+      <div id="hidden_text_options" style="display: inline-block; border: 2px blue solid;">
+        <b>HIDDEN TEXT</b><br/>
+        <select id="hiddentext" name="hiddentext">
+          <option value="show">SHOW</option>
+          <option value="hide" selected="selected">HIDE</option>
+        </select>
+      </div>
+</div>
       <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
      <% end %><!-- /form -->
     </div><!-- /print-options-new -->
