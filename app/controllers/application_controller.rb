@@ -288,8 +288,14 @@ class ApplicationController < ActionController::Base
       order_by params[:sort].to_sym, params[:order].to_sym
     end
 
-    items.execute!
-    build_facet_display(items) if model != User
+    begin
+      items.execute!
+      build_facet_display(items) if model != User
+    rescue => e
+      # Return empty search results rather than blow up on user
+      items = User.search { with :user_id, nil }
+      logger.warn "Rescued search error: #{e}"
+    end
     items
   end
 
