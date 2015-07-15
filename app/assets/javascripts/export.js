@@ -24,6 +24,8 @@ var h2o_themes = {
         '#printannotations': 'yes',
         '#printhighlights': 'all',
         '#hiddentext': 'hide',
+        '#fontface': 'futura',
+        '#fontsize': 'medium',
     },
     'theme-modern' : {
         '#printtitle': 'no',
@@ -32,7 +34,10 @@ var h2o_themes = {
         '#printannotations': 'no',
         '#printhighlights': 'none',
         '#hiddentext': 'show',
+        '#fontface': 'proxima',
+        '#fontsize': 'small',
     },
+    'theme-gothic' : {},
 };
 
 var collages = {
@@ -252,22 +257,14 @@ var export_functions = {
         //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
   },
   init_listeners: function() {
-    $('#export_format').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {});
-    $('#toc_levels').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#export_format').change(function() {});
+    $('#toc_levels').change(function() {
       export_functions.setTocLevels($('#toc_levels').val());
     });
-    $('#fontface').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#fontface').change(function() {
       export_functions.setFontPrint();
     });
-    $('#fontsize').selectbox({
-      className: "jsb", replaceInvisible: true
-    }).change(function() {
+    $('#fontsize').change(function() {
       export_functions.setFontPrint();
     });
     $('#printannotations').change(function() {
@@ -278,10 +275,8 @@ var export_functions = {
       }
     });
  //TODO: use jqueryUI selectbox
-
-    $('#printtitle').change(function() {
+      $('#printtitle').change(function() {
         var choice = $(this).val();
-        console.log('#printtitle.change firing and seeing val: ' + choice);
         export_functions.set_titles_visible(choice == 'yes');
     });
     $('#printdetails').change(function() {
@@ -358,7 +353,6 @@ var export_functions = {
     setTheme: function(themeId) {
         console.log("Setting theme: " + themeId);
         $.each(h2o_themes[themeId], function(sel, value) {
-            console.log('* ' + sel + ': ' + value);
             $(sel).val(value).change();
         });
     },
