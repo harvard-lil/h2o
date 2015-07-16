@@ -5,17 +5,6 @@ var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
 var tocId = 'toc';
-/* TODO:
-* printhighlights change fix
-Titles: Show
-Date Details: Hide
-Paragraph #s: Hide
-Comments/Links: Show
-Highlights: Last Saved
-Hidden Text: Hide
-Font: Futura
-Size: Medium
-*/
 var h2o_themes = {
     'theme-classic' : {
         '#printtitle': 'yes',
@@ -26,6 +15,7 @@ var h2o_themes = {
         '#hiddentext': 'hide',
         '#fontface': 'futura',
         '#fontsize': 'medium',
+        '#marginsize': '1.0in',
     },
     'theme-modern' : {
         '#printtitle': 'no',
@@ -36,6 +26,7 @@ var h2o_themes = {
         '#hiddentext': 'show',
         '#fontface': 'proxima',
         '#fontsize': 'small',
+        '#marginsize': '0.5in',
     },
     'theme-gothic' : {},
 };
@@ -257,11 +248,11 @@ var export_functions = {
         //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
   },
   init_listeners: function() {
+    $('#export_format').change(function() {});
       $('#advanced-toggle').click(function(e) {
           e.preventDefault();
           $('#print-options-advanced').toggle();
       });
-    $('#export_format').change(function() {});
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($('#toc_levels').val());
     });
@@ -271,6 +262,9 @@ var export_functions = {
     $('#fontsize').change(function() {
       export_functions.setFontPrint();
     });
+    $('#marginsize').change(function() {
+        export_functions.setMarginSize($(this).val());
+    });
     $('#printannotations').change(function() {
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
@@ -278,7 +272,6 @@ var export_functions = {
         $('.annotation-content').hide();
       }
     });
- //TODO: use jqueryUI selectbox
       $('#printtitle').change(function() {
         var choice = $(this).val();
         export_functions.set_titles_visible(choice == 'yes');
@@ -369,6 +362,9 @@ var export_functions = {
         //Just control the cookie from this select box until we add a user preferences control for it
         //That will also fix the path, which is incorrect for this cookie at the moment
         $.cookie('toc_levels', toc_levels);
+    },
+    setMarginSize: function(newVal) {
+        $('.wrapper').css('margin-left', newVal)
     },
   setFontPrint: function() {
     var font_size = $('#fontsize').val();
