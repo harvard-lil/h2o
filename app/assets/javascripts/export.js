@@ -257,6 +257,10 @@ var export_functions = {
         //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
   },
   init_listeners: function() {
+      $('#advanced-toggle').click(function(e) {
+          e.preventDefault();
+          $('#print-options-advanced').toggle();
+      });
     $('#export_format').change(function() {});
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($('#toc_levels').val());

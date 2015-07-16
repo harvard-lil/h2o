@@ -50,20 +50,25 @@
       <div id="hidden-text-options">
         HIDDEN TEXT<br/>
         <select id="hiddentext" name="hiddentext">
-          <option value="show">SHOW</option>
-          <option value="hide" selected="selected">HIDE</option>
+          <option value="show">Show</option>
+          <option value="hide" selected="selected">Hide</option>
         </select>
       </div>
     </div>
 
-      <div id="export-controls">
+      <div id="export-format">
         <b>FORMAT</b><br/>
         <select id="export_format" name="export_format">
+          <option value="">Format</option>
           <option value="pdf" selected="selected">PDF</option>
         </select>
       </div>
 
-      <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %>
+      <div id="export-button-div">
+        <%= submit_tag "Export", class: 'button', id: 'export-form-submit' %><br/>
+        <a href="#" id="advanced-toggle">(Advanced)</a>
+      </div>
+
     </div><!-- /print-options-basic -->
   </div><!-- /print-options-new -->
 
@@ -97,7 +102,8 @@
         <option value="yes" selected="selected">Show</option>
         <option value="no">Hide</option>
       </select>
-</div>
+      </div>
+
       <% if ["collages", "playlists"].include?(params[:controller]) -%>
        <div id="paragraph-numbers-options">
        PARAGRAPH NUMBERS<br/>
@@ -120,6 +126,7 @@
           <option value="dagny" selected="selected">Dagny Web</option>
         </select>
        </div>
+
        <div id="fontsize-div">
         FONT SIZE</br>
         <select id="fontsize" name="fontsize">

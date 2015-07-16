@@ -147,7 +147,7 @@
     display: none;
   }
   #print-options {
-    height: 140px;
+    height: 130px;
     opacity: 0.0;
     background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
     padding: 10px 5px 12px 5px;
@@ -167,9 +167,13 @@
 
     #themes-div {
         border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;
+        .theme-button {            margin: 0 5px 5px;}
     }
     #annotations-div {
         border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;
+        div {
+            margin: 0 5px 5px;
+        }
     }
     #annotation-options {
         display: inline-block;
@@ -180,58 +184,53 @@
     #hidden-text-options {
         display: inline-block; text-align: center;
     }
-    #export-controls {
-        border: #DDDDDD 1px solid; text-align: center;
+    #export-format {
+        borderX: #DDDDDD 1px solid; text-align: center;
     }
+    #export-button-div {
+        border: 1px white solid;
+        margin-left: 10px;
+    }
+    #export-form-submit {
+        height: 28px;
+        margin-top: 14px;
+    }
+
     #print-options-orig {
         width: 80%; text-align: center;
     }
     #print-options-advanced {
         display: inline-block; text-align: center;
+        border: #DDDDDD 1px solid;
+        div {
+            display: inline-block;
+            text-align: center;
+            border: 1px white solid;
+            margin: 0 5px 5px;
+        }
     }
+/* TODO: clean up redundant styling */
     #toc-levels-options {
-        display: inline-block; text-align: center; border: 1px black solid;
-    }
-
-    #printannotations {
-        display: inline-block; text-align: center;
-    }
-    #printhighlights {
-        display: inline-block; text-align: center;
-    }
-    #hiddentext {
-        border: #DDDDDD 1px solid; text-align: center;
-    }
-    #export_format {
-        width: 80%; text-align: center;
-    }
-
-    #toc-levels-options {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center; 
     }
     #titles-options {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center; 
     }
     #dates-options {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center;
     }
     #paragraph-numbers-options {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center;
     }
     #fontface-div {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center;
     }
     #fontsize-div {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center;
     }
     #margins-div {
-        display: inline-block; text-align: center; border: 1px black solid;
+        display: inline-block; text-align: center;
     }
-    #export-form-submit {
-        height: 24px;
-    }
-
-    
     select {
         height: 24px;
         min-width: 80px;
