@@ -147,7 +147,7 @@
     display: none;
   }
   #print-options {
-    height: 130px;
+    #height: 140px;
     opacity: 0.0;
     background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
     padding: 10px 5px 12px 5px;
@@ -163,14 +163,21 @@
     }
     #print-options-basic {
         display: inline-block; text-align: center;
+        div {   margin-right: 20px; }
     }
 
     #themes-div {
-        border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;
-        .theme-button {            margin: 0 5px 5px;}
+        border: 1px #DDDDDD solid;
+        margin-right: 20px;
+        text-align: center;
+        .theme-button {
+            margin: 0 5px 5px;
+        }
     }
     #annotations-div {
-        border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;
+        border: 1px #DDDDDD solid;
+
+        text-align: center;
         div {
             margin: 0 5px 5px;
         }
@@ -185,17 +192,19 @@
         display: inline-block; text-align: center;
     }
     #export-format {
-        borderX: #DDDDDD 1px solid; text-align: center;
+        borderXXX: #DDDDDD 1px solid; text-align: center;
     }
     #export-button-div {
         border: 1px white solid;
-        margin-left: 10px;
     }
     #export-form-submit {
-        height: 28px;
+        color: #FFFFFF;
         margin-top: 14px;
+        margin-bottom: 4px;
     }
+    #advanced-toggle {
 
+    }
     #print-options-orig {
         width: 80%; text-align: center;
     }
