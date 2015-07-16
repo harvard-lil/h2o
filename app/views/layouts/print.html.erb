@@ -17,29 +17,29 @@
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
  <div id="print-options" style="width: 100%;">
 
-  <div id="print-options-new" style="width: 80%; text-align: center; border: 1px black solid;">
-    <div id="print-options-basic" style="display: inline-block; text-align: center;">
+  <div id="print-options-new">
+    <div id="print-options-basic">
 
       <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
       <%= hidden_field_tag "playlist_name", @playlist.name %>
 
-      <div id="themes-div" style="border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;">
+      <div id="themes-div">
         <b>PRINT THEMES</b><br/>
       <%= button_tag "Classic", class: 'theme-button', type: 'button', id: 'theme-classic' %>
       <%= button_tag "Modern",  class: 'theme-button', type: 'button', id: 'theme-modern' %>
       <%= button_tag "Gothic",  class: 'theme-button', type: 'button', id: 'theme-gothic' %>
       </div>
 
-    <div id="annotations-div" style="border: 1px #DDDDDD solid; margin-right: 20px; text-align: center;">
+    <div id="annotations-div">
       <b>ANNOTATION DISPLAY</b><br/>
-      <div id="annotation-options" style="display: inline-block;">
+      <div id="annotation-options">
         COMMENTS/LINKS<br/>
         <select id="printannotations" name="printannotations">
           <option value="yes">Show</option>
           <option value="no" selected="selected">Hide</option>
         </select>
       </div>
-      <div id="highlight-options" style="display: inline-block; text-align: center;">
+      <div id="highlight-options">
         HIGHLIGHTS<br/>
         <select id="printhighlights" name="printhighlights">
           <option value="original" selected="selected">Last Saved</option>
@@ -47,7 +47,7 @@
           <option value="none">Hide</option>
         </select>
       </div>
-      <div id="hidden-text-options" style="display: inline-block; text-align: center;">
+      <div id="hidden-text-options">
         HIDDEN TEXT<br/>
         <select id="hiddentext" name="hiddentext">
           <option value="show">SHOW</option>
@@ -56,7 +56,7 @@
       </div>
     </div>
 
-      <div id="export-controls" style="border: #DDDDDD 1px solid; text-align: center;">
+      <div id="export-controls">
         <b>FORMAT</b><br/>
         <select id="export_format" name="export_format">
           <option value="pdf" selected="selected">PDF</option>
@@ -67,11 +67,11 @@
     </div><!-- /print-options-basic -->
   </div><!-- /print-options-new -->
 
-  <div id="print-options-orig" style="width: 80%; text-align: center; border: 1px blue solid;">
-     <div id="print-options-advanced" style="display: inline-block; text-align: center;">
+  <div id="print-options-orig">
+     <div id="print-options-advanced">
       <b>ADVANCED OPTIONS</b><br/>
 
-      <div id="toc-levels-options" style="display: inline-block; text-align: center; border: 1px black solid;">
+      <div id="toc-levels-options">
         TOC</br>
         <select id="toc_levels" name="toc_levels">
           <option value="" selected="selected">None</option>
@@ -83,7 +83,7 @@
         </select>
       </div>
 
-      <div id="toc-levels-options" style="display: inline-block; text-align: center; border: 1px black solid;">
+      <div id="titles-options">
         TITLES</br>
         <select id="printtitle" name="printtitle">
           <option value="yes" selected="selected">Show</option>
@@ -91,7 +91,7 @@
         </select>
       </div>
 
-      <div id="toc-levels-options" style="display: inline-block; text-align: center; border: 1px black solid;">
+      <div id="dates-options">
       DATES DETAILS</br>
       <select id="printdetails" name="printdetails">
         <option value="yes" selected="selected">Show</option>
@@ -99,7 +99,7 @@
       </select>
 </div>
       <% if ["collages", "playlists"].include?(params[:controller]) -%>
-       <div id="toc-levels-options" style="display: inline-block; text-align: center; border: 1px black solid;">
+       <div id="paragraph-numbers-options">
        PARAGRAPH NUMBERS<br/>
        <select id="printparagraphnumbers" name="printparagraphnumbers">
          <option value="yes" selected="selected">Show</option>
@@ -109,7 +109,7 @@
       <% end %>
 
       <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
-       <div id="fontface-div" style="display: inline-block; text-align: center; border: 1px black solid;">
+       <div id="fontface-div">
         FONT FACE<br/>
         <select id="fontface" name="fontface">
           <option value="leitura">Leitura</option>
@@ -120,13 +120,25 @@
           <option value="dagny" selected="selected">Dagny Web</option>
         </select>
        </div>
-       <div id="fontsize-div" style="display: inline-block; text-align: center; border: 1px black solid;">
+       <div id="fontsize-div">
         FONT SIZE</br>
         <select id="fontsize" name="fontsize">
           <option value="small" selected="selected">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
           <option value="xlarge">X-Large</option>
+        </select>
+       </div>
+       <div id="margins-div">
+        MARGINS</br>
+        <select id="margins" name="margins">
+          <option value="0.5in" selected="selected">0.5in</option>
+          <option value="0.75in">0.75in</option>
+          <option value="1.0in">1.0in</option>
+          <option value="1.25in">1.25in</option>
+          <option value="1.5in">1.5in</option>
+          <option value="1.75in">1.75in</option>
+          <option value="2.0in">2.0in</option>
         </select>
        </div>
       <% end %>
