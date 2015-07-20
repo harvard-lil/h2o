@@ -84,18 +84,21 @@ var export_functions = {
             $('#print-options').remove();
         }
     },
-    show_toc: function(toc_levels) {
+    set_toc: function(toc_levels) {
         return; //Disabled until we update it to work with the new H tags structure
         var toc_node = $('#' + tocId);
-        toc_node.remove();
-        export_functions.generate_toc(toc_levels);
-        toc_node.show();  //do we need this?
-        $('#toc_container').show();
+        //Below is untested
+        if (isNaN(parseInt(toc_levels))) {
+            toc_node.remove();
+            $('#toc_container').hide();
+        } else {
+            export_functions.generate_toc(toc_levels);
+            toc_node.show();  //do we need this?
+            $('#toc_container').show();
+        }
     },
     hide_toc: function() {
         var toc_node = $('#' + tocId);
-        toc_node.remove();
-        $('#toc_container').hide();
     },
     generate_toc: function(toc_levels) {
         var toc_nodes = export_functions.build_branch();
@@ -251,8 +254,7 @@ var export_functions = {
           $('#marginsize').val($.cookie('print_margin_size')).change();
       }
       if($.cookie('toc_levels') !== null) {
-        $('#toc_levels').val($.cookie('toc_levels'));
-        export_functions.show_toc($.cookie('toc_levels'));
+          $('#toc_levels').val($.cookie('toc_levels')).change();
       }
         //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
   },
@@ -362,11 +364,7 @@ var export_functions = {
         });
     },
     setTocLevels: function(toc_levels) {
-        if (toc_levels && toc_levels.match(/\d+/)) {
-            export_functions.show_toc(toc_levels);
-        } else {
-            export_functions.hide_toc();
-        }
+        export_functions.set_toc(toc_levels);
         //Just control the cookie from this select box until we add a user preferences control for it
         //That will also fix the path, which is incorrect for this cookie at the moment
         $.cookie('toc_levels', toc_levels);
