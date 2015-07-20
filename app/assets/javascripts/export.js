@@ -5,8 +5,10 @@ var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
 var tocId = 'toc';
+var page_width_inches = 8.5;
 var h2o_themes = {
     'theme-classic' : {
+        '#toc_levels': '3',
         '#printtitle': 'yes',
         '#printdetails': 'no',
         '#printparagraphnumbers': 'no',
@@ -18,6 +20,7 @@ var h2o_themes = {
         '#marginsize': '1.0in',
     },
     'theme-modern' : {
+        '#toc_levels': '0',
         '#printtitle': 'no',
         '#printdetails': 'yes',
         '#printparagraphnumbers': 'yes',
@@ -168,7 +171,9 @@ var export_functions = {
   },
   init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
-      //Note: This gets overwritten by init_user_settings cookie values for fontface and fontsize if they exists
+      //Note: This implements a special case requested by the business. Any changes made 
+      // here will be overwritten by init_user_settings cookie values if they exist
+        //TODO: Skip this if it will be changed by print_font_face or print_font_size cookies
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
@@ -200,6 +205,7 @@ var export_functions = {
         $('h1 > .number a').css("color", new_color)
     },
     init_user_settings: function() {
+        //$('#print-options-advanced').hide();  //TODO: hide before this gets deployed
       $('#printhighlights').val('original');
       if($.cookie('print_titles') == 'false') {
           $('#printtitle').val('no');
@@ -240,6 +246,9 @@ var export_functions = {
       }
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size'));
+      }
+      if ($.cookie('print_margin_size') !== null) {
+          $('#marginsize').val($.cookie('print_margin_size')).change();
       }
       if($.cookie('toc_levels') !== null) {
         $('#toc_levels').val($.cookie('toc_levels'));
@@ -348,7 +357,6 @@ var export_functions = {
       });
   },
     setTheme: function(themeId) {
-        console.log("Setting theme: " + themeId);
         $.each(h2o_themes[themeId], function(sel, value) {
             $(sel).val(value).change();
         });
@@ -364,7 +372,11 @@ var export_functions = {
         $.cookie('toc_levels', toc_levels);
     },
     setMarginSize: function(newVal) {
+        //newVal will already have units
         $('.wrapper').css('margin-left', newVal)
+        
+        var newWidth = parseFloat(page_width_inches) - (2 * parseFloat(newVal));
+        $('.wrapper').css('width', newWidth + 'in');
     },
   setFontPrint: function() {
     var font_size = $('#fontsize').val();

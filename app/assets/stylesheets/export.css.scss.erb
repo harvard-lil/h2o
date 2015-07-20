@@ -11,8 +11,10 @@
     display: none !important;
   }
   .wrapper {
-    max-width: 850px;
-    width: 850px;
+      /* For minimum screen re-draw on page load, width should be set
+         to export.js:page_width_inches - 2*margin-left
+      */
+    width: 6.5in;
     margin-left: 1.0in;
     margin-top: 155px;  /* give more room for new print options */
   }
@@ -209,7 +211,8 @@
         width: 80%; text-align: center;
     }
     #print-options-advanced {
-        display: inline-block; text-align: center;
+        display: inline-block;
+        text-align: center;
         border: #DDDDDD 1px solid;
         div {
             display: inline-block;
@@ -218,7 +221,7 @@
             margin: 0 5px 5px;
         }
     }
-/* TODO: clean up redundant styling */
+/* TODO: clean up redundant styling below, that is now being defined above */
     #toc-levels-options {
         display: inline-block; text-align: center; 
     }

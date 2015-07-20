@@ -21,9 +21,7 @@ class PlaylistExporter
       File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))
       Rails.logger.debug command.join(' ')
       Rails.logger.debug command_output
-      #ASYNC
-      #if it failed, email "sorry" message that we BCC to an admin
-      #if it succeeded, email "here is your link" message
+
       if exit_code == 0
         command.last
       else
@@ -50,6 +48,7 @@ class PlaylistExporter
       # and stop using multiple forms of true and false.
 
       # No translation value here means we just pass the form field value straight through
+      # Note: We don't send marginsize because margins are set via the wkhtmltopdf command line
       field_to_cookie = {
         'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
         'printdetails' => {'cookie_name' => 'print_dates_details', 'cookval' => 'false', 'formval' => 'no', },
@@ -61,7 +60,8 @@ class PlaylistExporter
         'fontsize'=> {'cookie_name' => 'print_font_size'},
       }
 
-      cookies = {'force_boop' => 'true'}
+      # cookies = {'force_boop' => 'true'}
+      cookies = {}
       field_to_cookie.each do |field, v|
         if params[field].present?
           if params[field] == v['formval']
