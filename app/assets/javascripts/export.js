@@ -6,6 +6,18 @@ var h2o_annotator;
 var all_collage_data = {};
 var tocId = 'toc';
 var page_width_inches = 8.5;
+var cookies = [
+    'hidden_text_display',
+    'print_annotations',
+    'print_dates_details',
+    'print_font_face',
+    'print_font_size',
+    'print_highlights',
+    'print_margin_size',
+    'print_paragraph_numbers',
+    'print_titles',
+    'toc_levels',
+]
 var h2o_themes = {
     'theme-classic' : {
         '#toc_levels': '3',
@@ -79,10 +91,7 @@ var collages = {
 
 var export_functions = {
     init_download_settings: function() {
-        if($.cookie('force_boop') == 'true') {
-            //TODO: We can probably remove this if we have removed all H tags from this DOM element
-            $('#print-options').remove();
-        }
+        //currently a no-op
     },
     set_toc: function(toc_levels) {
         return; //Disabled until we update it to work with the new H tags structure
@@ -207,48 +216,62 @@ var export_functions = {
         $('h1').css("color", new_color)
         $('h1 > .number a').css("color", new_color)
     },
+
+    debug_cookies: function() {
+        $.each(cookies, function(i, cookie) {
+            console.log("Cookie: " + cookie + ": '" + $.cookie(cookie) + "'");
+        });
+    },
     init_user_settings: function() {
         //$('#print-options-advanced').hide();  //TODO: hide before this gets deployed
       $('#printhighlights').val('original');
       if($.cookie('print_titles') == 'false') {
-          $('#printtitle').val('no');
+          $('#printtitle').val('no').change();
         //$('h1').hide();
         //export_functions.custom_hide('h1');
         export_functions.set_titles_visible(false);
       }
       if($.cookie('print_dates_details') == 'false') {
-          $('#printdetails').val('no');
+          $('#printdetails').val('no').change();
         $('.details').hide();
         //export_functions.custom_hide('.details');
       }
+        console.log("Cookie: $.cookie('print_paragraph_numbers'): " + $.cookie('print_paragraph_numbers') );
+      console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
       if($.cookie('print_paragraph_numbers') == 'false') {
-          $('#printparagraphnumbers').val('no');
+          $('#printparagraphnumbers').val('no').change();
         //$('.paragraph-numbering').hide();
         //export_functions.custom_hide('.paragraph-numbering');
         //$('.collage-content').css('padding-left', '0px');
+      } else {
+          //This fixes the bug that left this selectbox showing no/hide when the
+          //cookie was actually true and the paragraph numbers were being displayed
+          //by default
+          $('#printparagraphnumbers').val('yes').change();
       }
+
       if($.cookie('print_annotations') == 'true') {
-        $('#printannotations').val('yes');
+        $('#printannotations').val('yes').change();
       }
       if($.cookie('hidden_text_display') == 'true') {
-        $('#hiddentext').val('show');
+        $('#hiddentext').val('show').change();
       }
       if($.cookie('print_highlights') == 'none') {
-        $('#printhighlights').val('none');
+        $('#printhighlights').val('none').change();
         $('.collage-content').each(function(i, el) {
           var id = $(el).data('id');
           export_functions.highlightAnnotatedItem(id, {}, {});
         });
       } 
       if($.cookie('print_highlights') == 'all') {
-        $('#printhighlights').val('all');
+        $('#printhighlights').val('all').change();
       }
       if ($.cookie('print_font_face') !== null ) {
-          console.log("cookie-setting fontface to: '" + $.cookie('print_font_face') + "'");
-          $('#fontface').val($.cookie('print_font_face'));
+          //console.log("cookie-setting fontface to: '" + $.cookie('print_font_face') + "'");
+          $('#fontface').val($.cookie('print_font_face')).change();
       }
       if ($.cookie('print_font_size') !== null) {
-          $('#fontsize').val($.cookie('print_font_size'));
+          $('#fontsize').val($.cookie('print_font_size')).change();
       }
       if ($.cookie('print_margin_size') !== null) {
           $('#marginsize').val($.cookie('print_margin_size')).change();
@@ -256,10 +279,11 @@ var export_functions = {
       if($.cookie('toc_levels') !== null) {
           $('#toc_levels').val($.cookie('toc_levels')).change();
       }
-        //TODO: iterate over the selectors here and call their .change() methods and retest wkhtmltopdf
+        //TODO: iterate over the selectors here and call their .change() methods
+        //and retest wkhtmltopdf
   },
   init_listeners: function() {
-    $('#export_format').change(function() {});
+      console.log("INILISTENERS firing");
       $('#advanced-toggle').click(function(e) {
           e.preventDefault();
           $('#print-options-advanced').toggle();
@@ -370,6 +394,7 @@ var export_functions = {
         $.cookie('toc_levels', toc_levels);
     },
     setMarginSize: function(newVal) {
+        //TODO: make this get the margin from the form
         //newVal will already have units
         $('.wrapper').css('margin-left', newVal)
         
@@ -524,6 +549,8 @@ var export_functions = {
 };
 
 $(document).ready(function(){
+  // export_functions.debug_cookies();
+  export_functions.init_listeners();
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
 
@@ -542,7 +569,6 @@ $(document).ready(function(){
     export_functions.loadAnnotator($(el).data('id')); 
   });
 
-  export_functions.init_listeners();
   export_functions.init_download_settings();
 });
 
