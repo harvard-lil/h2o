@@ -3,9 +3,58 @@ require 'uri'
 
 class PlaylistExporter
 
+  class PDF; end
+  class RTF; end
+
+  PIPELINES = {
+    'pdf' => [PDF],
+    'rtf' => [PDF, RTF],
+  }
+
   class << self
 
+
     def export_as(request_url, params)
+      #TODO: use PIPELINES design
+      pdf_file = export_as_pdf(request_url, params)
+      export_format = params[:export_format]
+      
+      if export_format == 'pdf'
+        return pdf_file
+      elsif export_format == 'rtf'
+        return export_as_rtf(pdf_file, params)
+      else
+        raise "Unsupported export_format #{export_format}"
+      end
+    end
+
+    def export_as_rtf(pdf_file, params)
+      out_file = pdf_file.gsub(/\.pdf$/, '.rtf')
+      command = [
+                 Rails.root.to_s + '/bin/calibre/ebook-convert',
+                 pdf_file,
+                 out_file,
+                 '--keep-ligatures',
+      ]
+      exit_code = nil
+      command_output = ''
+      Open3.popen2e(*command) do |i, out_err, wait_thread|
+        out_err.each {|line| command_output += "CALIBRERTF: #{line}"}
+        exit_code = wait_thread.value.exitstatus
+      end
+
+      File.write('/tmp/last-calibre-call', command.join(' '))  #TODO: remove
+      Rails.logger.debug command.join(' ')
+      Rails.logger.debug command_output
+
+      if exit_code == 0
+        out_file
+      else
+        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
+      end
+    end
+
+    def export_as_pdf(request_url, params)
       #request_url will actually be the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       # target_url = "http://sskardal03.murk.law.harvard.edu:8000/playlists/19763/export"
@@ -18,7 +67,7 @@ class PlaylistExporter
         exit_code = wait_thread.value.exitstatus
       end
 
-      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))
+      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
       Rails.logger.debug command.join(' ')
       Rails.logger.debug command_output
 
@@ -62,7 +111,7 @@ class PlaylistExporter
       }
 
       # cookies = {'force_boop' => 'true'}
-      cookies = {}
+      cookies = {'print_export' => 'true'}  #TODO: To be used to detect a non-screen view
       field_to_cookie.each do |field, v|
         if params[field].present?
           #Rails.logger.debug "FtCookie got: #{field} -> '#{params[field]}'"
@@ -185,7 +234,7 @@ class PlaylistExporter
        target_url,
        page_options,
        cookie_string,
-       output_file_path,
+       output_file_path,  #This always has to be last in this array
       ].flatten.join(' ').split
     end
 
