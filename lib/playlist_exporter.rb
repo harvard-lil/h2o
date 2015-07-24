@@ -171,7 +171,7 @@ class PlaylistExporter
                                                  "playlists/toc.xsl",
                                                  :layout => false,
                                                  :locals => vars,
-                                                 ).tap {|x| Rails.logger.debug x}
+                                                 )  #.tap {|x| Rails.logger.debug x}
     end
 
     def generate_toc_options(params)

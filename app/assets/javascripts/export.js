@@ -199,17 +199,11 @@ var export_functions = {
         $("h1").text( $("h1").text() + ", " + msg );
         console.log('title_debug-ing the message: ' + msg);
     },
-/*
     custom_hide: function(selector) {
-        $(selector).hide();
         //The export process needs to remove elements, not just hide them.
-        //TODO: Rename force_boop here and playlist_exporter.rb
-        //if($.cookie('force_boop') == 'true') {
-            //temporarily commented out because we are trying something else
-            //$(selector).remove();
-        //}
+        if ($.cookie('print_export') != 'true') return;
+        $(selector).remove();
     },
-*/    
     set_titles_visible: function(is_visible) {
         // Hide/Show titles in a crafty way to avoid breaking the wkhtmltopdf TOC
         var new_color = is_visible ? '#000' : '#FFF';
@@ -236,12 +230,12 @@ var export_functions = {
         $('.details').hide();
         //export_functions.custom_hide('.details');
       }
-        console.log("Cookie: $.cookie('print_paragraph_numbers'): " + $.cookie('print_paragraph_numbers') );
-      console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
+      //console.log("Cookie: $.cookie('print_paragraph_numbers'): " + $.cookie('print_paragraph_numbers') );
+      //console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
       if($.cookie('print_paragraph_numbers') == 'false') {
           $('#printparagraphnumbers').val('no').change();
         //$('.paragraph-numbering').hide();
-        //export_functions.custom_hide('.paragraph-numbering');
+        export_functions.custom_hide('.paragraph-numbering');
         //$('.collage-content').css('padding-left', '0px');
       } else {
           //This fixes the bug that left this selectbox showing no/hide when the
