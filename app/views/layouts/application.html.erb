@@ -9,7 +9,6 @@
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Sorts+Mill+Goudy">
     <%= stylesheet_link_tag "application", media: "all" %>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
-    <%= javascript_include_tag 'ZeroClipboard' %>
 
     <%= javascript_tag("var AUTH_TOKEN = '#{form_authenticity_token}';
 var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
