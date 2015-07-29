@@ -35,6 +35,7 @@ class IframeController < ApplicationController
       @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
     when Collage
       @layer_data = @single_resource.layer_data
+      @editability_path = access_level_collage_path(@single_resource)
     when Media
       @type_label = @single_resource.media_type.label
     end

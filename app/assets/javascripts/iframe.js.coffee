@@ -16,6 +16,7 @@ update_h2o_external_link = (external)->
   $('#breadcrumb-navigation > span:first-child a').prop('href', external)
 
 prep_collage = ->
+  h2o_global.adjustArticleHeaderSizes();
   $('.toolbar, #buttons').css('visibility', 'visible');
   collages.observeToolListeners();
   collages.observeLayerColorMapping();
