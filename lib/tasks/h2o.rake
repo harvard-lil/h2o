@@ -6,6 +6,7 @@ namespace :h2o do
     system("rm -rf #{Rails.root}/public/cases/*")
     system("rm -rf #{Rails.root}/public/p/*")
     system("rm -rf #{Rails.root}/public/index.html")
+    system("rm -rf #{Rails.root}/public/iframe/*")
   end
   
   desc 'Clear Homepage Cache'
