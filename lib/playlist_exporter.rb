@@ -202,9 +202,8 @@ class PlaylistExporter
     end
 
     def generate_toc_options(params)
-      # No PDF-specific "outline" (displayed in the left sidebar in Adobe PDF Reader)
       options = ["--no-outline"]
-      if params['toc_levels']
+      if params['toc_levels'].present?
         options << "toc --xsl-style-sheet " + toc_file(params)
       end
       options
