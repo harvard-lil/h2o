@@ -13,7 +13,6 @@ class PlaylistExporter
 
   class << self
 
-
     def export_as(request_url, params)
       #TODO: use PIPELINES design
       pdf_file = export_as_pdf(request_url, params)
@@ -31,6 +30,7 @@ class PlaylistExporter
     end
 
     def export_as_epub(pdf_file, params)
+      #TODO: DRY this up with other export_as_* methods
       out_file = pdf_file.gsub(/\.pdf$/, '.epub')
       command = [
                  Rails.root.to_s + '/bin/calibre/ebook-convert',
@@ -241,7 +241,7 @@ class PlaylistExporter
       binary = 'wkhtmltopdf'
 
       # Note: This margin works in conjunction with print.css .wrapper styling.
-      margin = "0.8in"
+      margin = params['marginsize']
       global_options = "--margin-top #{margin} --margin-bottom #{margin} --margin-left #{margin} --margin-right #{margin}"
       toc_options = generate_toc_options(params)
       page_options = generate_page_options(params)
