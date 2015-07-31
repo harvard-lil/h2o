@@ -23,8 +23,35 @@ class PlaylistExporter
         return pdf_file
       elsif export_format == 'rtf'
         return export_as_rtf(pdf_file, params)
+      elsif export_format == 'epub'
+        return export_as_epub(pdf_file, params)
       else
         raise "Unsupported export_format #{export_format}"
+      end
+    end
+
+    def export_as_epub(pdf_file, params)
+      out_file = pdf_file.gsub(/\.pdf$/, '.epub')
+      command = [
+                 Rails.root.to_s + '/bin/calibre/ebook-convert',
+                 pdf_file,
+                 out_file,
+      ]
+      exit_code = nil
+      command_output = ''
+      Open3.popen2e(*command) do |i, out_err, wait_thread|
+        out_err.each {|line| command_output += "CALIBREEPUB: #{line}"}
+        exit_code = wait_thread.value.exitstatus
+      end
+
+      File.write('/tmp/last-calibre-call', command.join(' '))  #TODO: remove
+      Rails.logger.debug command.join(' ')
+      Rails.logger.debug command_output
+
+      if exit_code == 0
+        out_file
+      else
+        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
       end
     end
 
