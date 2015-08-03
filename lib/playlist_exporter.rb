@@ -15,18 +15,30 @@ class PlaylistExporter
 
     def export_as(request_url, params)
       #TODO: use PIPELINES design
-      pdf_file = export_as_pdf(request_url, params)
+
       export_format = params[:export_format]
+      if export_format == 'rtf'
+        return export_as_rtf2(params)
+      end
       
+      pdf_file = export_as_pdf(request_url, params)
       if export_format == 'pdf'
         return pdf_file
-      elsif export_format == 'rtf'
-        return export_as_rtf(pdf_file, params)
       elsif export_format == 'epub'
         return export_as_epub(pdf_file, params)
       else
         raise "Unsupported export_format #{export_format}"
       end
+    end
+
+    def export_as_rtf2(params)
+      #TODO: we could also just pass this to calibre on STDIN
+      file = Tempfile.new(['client_html', '.html'])
+      file.write params['client_html']
+      file.close
+      Rails.logger.debug "CLIENTHTML: #{file.path}"
+
+      export_as_rtf(file.path, params)
     end
 
     def export_as_epub(pdf_file, params)
@@ -56,7 +68,7 @@ class PlaylistExporter
     end
 
     def export_as_rtf(pdf_file, params)
-      out_file = pdf_file.gsub(/\.pdf$/, '.rtf')
+      out_file = pdf_file.gsub(/\.html$/, '.rtf')
       command = [
                  Rails.root.to_s + '/bin/calibre/ebook-convert',
                  pdf_file,
@@ -65,6 +77,7 @@ class PlaylistExporter
       ]
       exit_code = nil
       command_output = ''
+      Rails.logger.debug "CALIBRERTF: #{command.join(' ')}"
       Open3.popen2e(*command) do |i, out_err, wait_thread|
         out_err.each {|line| command_output += "CALIBRERTF: #{line}"}
         exit_code = wait_thread.value.exitstatus
@@ -108,12 +121,21 @@ class PlaylistExporter
 
     def convert_h_tags(doc)
       # Accepts text & html as well as a Nokogiri document
-      doc = Nokogiri::HTML.parse(doc) unless doc.respond_to?(:xpath)
-
+      if !doc.respond_to?(:xpath)
+        doc.gsub!(/\r\n/, '')
+        if doc.length < 40
+          Rails.logger.debug "BEEP: '#{doc}'"
+        end
+        return doc if doc == '' || doc == '<br>'
+        doc = Nokogiri::HTML.parse(doc)
+      end
+      # Rails.logger.debug "XPATH it"
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end
+      # Rails.logger.debug "~~~DONE~~~"
+      
       doc
     end
 

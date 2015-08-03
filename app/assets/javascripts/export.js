@@ -277,6 +277,13 @@ var export_functions = {
         //and retest wkhtmltopdf
   },
   init_listeners: function() {
+      $('#export-form-submit').click(function(e) {
+          e.preventDefault();
+          if ($('#export_format').val() == 'rtf') {
+              $('#client_html').val( $(':root').html() );
+          }
+          $('#export-form').submit();
+      });
       console.log("INILISTENERS firing");
       $('#advanced-toggle').click(function(e) {
           e.preventDefault();

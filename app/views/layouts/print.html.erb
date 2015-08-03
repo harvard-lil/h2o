@@ -22,6 +22,7 @@
 
       <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
       <%= hidden_field_tag "playlist_name", @playlist.name %>
+      <%= hidden_field_tag "client_html", '', id: 'client_html' %>
 
       <div id="themes-div">
         <b>PRINT THEMES</b><br/>
@@ -66,7 +67,7 @@
       </div>
 
       <div id="export-button-div">
-        <a href="#" class="button" id="export-form-submit" onClick="$('#export-form').submit(); return false;">EXPORT</a><br/>
+        <a href="#" class="button" id="export-form-submit">EXPORT</a><br/>
         <a href="#" id="advanced-toggle">(Advanced)</a>
       </div>
 
