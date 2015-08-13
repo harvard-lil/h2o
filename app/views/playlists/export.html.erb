@@ -5,7 +5,7 @@
 	<div class="details">
 		<div class="scale0-8 vh2">
 			<%= @playlist.updated_at.strftime("%B %d, %Y") %>
-			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_path(@playlist.user)) %>
+			by <a href="#" class="scale0-8"><%= link_to(@playlist.user.display, user_url(@playlist.user)) %>
 		</div >
 		<div id="description" class="item_description">
 			<%= raw @playlist.formatted(:description) %>
