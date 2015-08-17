@@ -196,13 +196,16 @@ var export_functions = {
     }
   },
     title_debug: function(msg) {
-        $("h1").text( $("h1").text() + ", " + msg );
+        //$("h1").text( $("h1").text() + ", " + msg );
+        $("h1").first().text( $("h1").first().text() + ": " + msg);
         console.log('title_debug-ing the message: ' + msg);
     },
     custom_hide: function(selector) {
         //The export process needs to remove elements, not just hide them.
-        if ($.cookie('print_export') != 'true') return;
-        $(selector).remove();
+        if ($.cookie('print_export') == 'true') {
+            console.log('custom_hiding: ' + selector);
+            $(selector).remove();
+        }
     },
     set_titles_visible: function(is_visible) {
         // Hide/Show titles in a crafty way to avoid breaking the wkhtmltopdf TOC
@@ -213,7 +216,8 @@ var export_functions = {
 
     debug_cookies: function() {
         $.each(cookies, function(i, cookie) {
-            console.log("Cookie: " + cookie + ": '" + $.cookie(cookie) + "'");
+            var c = $.cookie(cookie);
+            console.log("Cookie: " + cookie + ": " + (c == null ? '' : c));
         });
     },
     init_user_settings: function() {
@@ -234,7 +238,6 @@ var export_functions = {
       //console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
       if($.cookie('print_paragraph_numbers') == 'false') {
           $('#printparagraphnumbers').val('no').change();
-        //$('.paragraph-numbering').hide();
         export_functions.custom_hide('.paragraph-numbering');
         //$('.collage-content').css('padding-left', '0px');
       } else {
@@ -280,11 +283,12 @@ var export_functions = {
       $('#export-form-submit').click(function(e) {
           e.preventDefault();
           if ($('#export_format').val() == 'rtf') {
+              $('#client_html').val('');
               $('#client_html').val( $(':root').html() );
           }
           $('#export-form').submit();
       });
-      console.log("INILISTENERS firing");
+
       $('#advanced-toggle').click(function(e) {
           e.preventDefault();
           $('#print-options-advanced').toggle();
@@ -299,6 +303,7 @@ var export_functions = {
       export_functions.setFontPrint();
     });
     $('#marginsize').change(function() {
+        console.log('#marginsize listener firing with val: "' + $(this).val() + '"');
         export_functions.setMarginSize($(this).val());
     });
     $('#printannotations').change(function() {
@@ -397,10 +402,11 @@ var export_functions = {
     setMarginSize: function(newVal) {
         //TODO: make this get the margin from the form
         //newVal will already have units
-        $('.wrapper').css('margin-left', newVal)
+        var div = $('.wrapper')
+        div.css('margin-left', newVal);
         
         var newWidth = parseFloat(page_width_inches) - (2 * parseFloat(newVal));
-        $('.wrapper').css('width', newWidth + 'in');
+        div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
     var font_size = $('#fontsize').val();
@@ -550,16 +556,15 @@ var export_functions = {
 };
 
 $(document).ready(function(){
-  // export_functions.debug_cookies();
+  export_functions.debug_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
 
   $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
-/* Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
-   from this list, but it shows up in setFontPrint()
-*/
-  
+
+// Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
+//   from this list, but it shows up in setFontPrint()
   $('article h1, div.article h1, .new-h1').addClass('scale1-4');
   $('article h2, div.article h2, .new-h2').addClass('scale1-3');
   $('article h3, div.article h3, .new-h3').addClass('scale1-2');
@@ -570,6 +575,18 @@ $(document).ready(function(){
     export_functions.loadAnnotator($(el).data('id')); 
   });
 
-  export_functions.init_download_settings();
+  //export_functions.init_download_settings();
+    var div = $('.wrapper');
+    if ($.cookie('print_export') == 'true') {
+        //Reset margins because export back-end will manage them
+        div.css('margin-left', '0px');
+        div.css('margin-right', '0px');
+        div.css('width', '8.5in');
+    }
+    //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
+
+    //export_functions.title_debug('BOOPTEST 1');
+    export_functions.custom_hide('#print-options');
+    $('.annotation-hidden').filter(":hidden").remove();
 });
 
