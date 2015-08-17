@@ -17,8 +17,8 @@ class PlaylistExporter
       #TODO: use PIPELINES design
 
       export_format = params[:export_format]
-      if export_format == 'rtf'
-        return export_as_rtf2(params)
+      if export_format == 'doc'
+        return export_as_doc(request_url, params)
       end
       
       pdf_file = export_as_pdf(request_url, params)
@@ -31,6 +31,49 @@ class PlaylistExporter
       end
     end
 
+    def export_as_doc(request_url, params)
+      #fetch HTML with phantomjs (and cookies) into a temp file in /tmp/playlist_exports/
+      #html_file = fetch_playlist_html(request_url, params)
+      #inject CSS into HTML
+      #convert that file to MIME 1.0 file
+      return convert_to_mime_file('htmlize-inline-ms.html')
+      # return path of that file
+    end
+
+    def fetch_playlist_html(request_url, params)
+      #create json options for phantom
+      #create temp ifle name
+      base_dir = '/tmp/apd'
+      FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
+      temp_filename = Dir::Tmpname.create('boop', base_dir) {|path| path }
+      
+      file = Tempfile.new(['phantomjs_args', '.json'])
+      file.write render_toc(params)
+      file.close
+
+      #phantomjs htmlize request_url $tmpfile
+      #inject cSS (htmlize does this)
+    end
+
+    def convert_to_mime_file(input_file)
+      boundary = "----=_NextPart_ZROIIZO.ZCZYUACXV.ZARTUI"
+      lines = []
+      lines << "MIME-Version: 1.0"
+      lines << "Content-Type: multipart/related; boundary=\"#{boundary}\""
+      lines << ""
+      lines << '--' + boundary
+      lines << "Content-Location: file:///C:/boop.htm"
+      lines << "Content-Transfer-Encoding: base64"
+      lines << "Content-Type: text/html; charset=\"utf-8\""
+      lines << ""
+      encoded_contents = Base64.encode64(File.read(input_file))
+      lines << encoded_contents
+
+      tempfile = '/tmp/last_encoded-file.doc'
+      File.write(tempfile, lines.join("\n") + '--' + boundary + '--')
+      return tempfile
+    end
+
     def export_as_rtf2(params)
       #TODO: we could also just pass this to calibre on STDIN
       file = Tempfile.new(['client_html', '.html'])
@@ -38,14 +81,15 @@ class PlaylistExporter
       file.close
       Rails.logger.debug "CLIENTHTML: #{file.path}"
 
-      export_as_rtf(file.path, params)
+#      export_as_rtf(file.path, params)
+      export_as_rtf('/tmp/format-test.html', params)
     end
 
     def export_as_epub(pdf_file, params)
       #TODO: DRY this up with other export_as_* methods
       out_file = pdf_file.gsub(/\.pdf$/, '.epub')
       command = [
-                 Rails.root.to_s + '/bin/calibre/ebook-convert',
+                 Rails.root.to_s + '/tmp/calibre/ebook-convert',
                  pdf_file,
                  out_file,
       ]
@@ -70,7 +114,7 @@ class PlaylistExporter
     def export_as_rtf(pdf_file, params)
       out_file = pdf_file.gsub(/\.html$/, '.rtf')
       command = [
-                 Rails.root.to_s + '/bin/calibre/ebook-convert',
+                 Rails.root.to_s + '/tmp/calibre/ebook-convert',
                  pdf_file,
                  out_file,
                  '--keep-ligatures',
@@ -120,26 +164,33 @@ class PlaylistExporter
     end
 
     def convert_h_tags(doc)
-      # Accepts text & html as well as a Nokogiri document
+      # Accepts text or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
+        return '' if doc == '' || doc == '<br>'
+
         if doc.length < 40
           Rails.logger.debug "BEEP: '#{doc}'"
         end
-        return doc if doc == '' || doc == '<br>'
+
         doc = Nokogiri::HTML.parse(doc)
       end
-      # Rails.logger.debug "XPATH it"
+
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end
-      # Rails.logger.debug "~~~DONE~~~"
       
       doc
     end
 
     def forwarded_cookies(params)
+      forwarded_cookies_hash(params).map {|k,v|
+        "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
+      }.join(' ')
+    end
+    
+    def forwarded_cookies_hash(params)
       # This performs the reverse of export.js:init_user_settings() by mapping
       # form field names to cookie names while also translating values.
       # Ideally we would just consolidate the form field names to match cookie names
@@ -159,8 +210,7 @@ class PlaylistExporter
         'fontsize'=> {'cookie_name' => 'print_font_size'},
       }
 
-      # cookies = {'force_boop' => 'true'}
-      cookies = {'print_export' => 'true'}  #TODO: To be used to detect a non-screen view
+      cookies = {'print_export' => 'true'}
       field_to_cookie.each do |field, v|
         if params[field].present?
           #Rails.logger.debug "FtCookie got: #{field} -> '#{params[field]}'"
@@ -174,7 +224,7 @@ class PlaylistExporter
       end
       Rails.logger.debug "FTC created:\n#{cookies}"
 
-      cookies.map {|k,v| "--cookie #{k} #{encode_cookie_value(v)}" if v.present?}.join(' ')
+      cookies
     end
 
     def generate_toc_levels_css(depth)
