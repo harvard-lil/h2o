@@ -69,8 +69,8 @@ class PlaylistExporter
       encoded_contents = Base64.encode64(File.read(input_file))
       lines << encoded_contents
 
-      tempfile = '/tmp/last_encoded-file.doc'
-      File.write(tempfile, lines.join("\n") + '--' + boundary + '--')
+      tempfile = '/tmp/last-encoded-file.doc'
+      File.write(tempfile, lines.join("\n") + "\n" + "--" + boundary + "--")
       return tempfile
     end
 
