@@ -5,14 +5,13 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title><%= raw @page_title ? "Printed #{raw @page_title}" : "H2O Classroom Tools" %></title>
-    <%= stylesheet_link_tag "application-print", media: "all" %>
-    <%= stylesheet_link_tag "print", :media => "print" %>
-    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> --> 
+    <%= stylesheet_link_tag "application-print", media: "all", class: "stylesheet-link-tag", id: "css-application-print" %>
+    <%= stylesheet_link_tag "print", media: "print", class: "stylesheet-link-tag", id: "css-print" %>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
-    <script type="text/javascript">try{Typekit.load();}catch(e){ console.log('WARNING: Typekit.load() failed.');}</script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
  <div id="print-options" style="width: 100%;">
@@ -61,7 +60,7 @@
         <b>FORMAT</b><br/>
         <select id="export_format" name="export_format">
           <option value="pdf" selected="selected">PDF</option>
-          <option value="rtf">RTF</option>
+          <option value="doc">DOC</option>
           <option value="epub">EPUB</option>
         </select>
       </div>
