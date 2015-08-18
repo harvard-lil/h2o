@@ -67,7 +67,7 @@ class PlaylistExporter
       lines << "Content-Transfer-Encoding: base64"
       lines << "Content-Type: text/html; charset=\"utf-8\""
       lines << ""
-      encoded_contents = Base64.encode64(File.read(input_file))
+      encoded_contents = Base64.strict_encode64(File.read(input_file))
       lines << encoded_contents
 
       tempfile = '/tmp/last-encoded-file.doc'
