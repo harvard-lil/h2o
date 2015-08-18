@@ -36,7 +36,8 @@ class PlaylistExporter
       #html_file = fetch_playlist_html(request_url, params)
       #inject CSS into HTML
       #convert that file to MIME 1.0 file
-      return convert_to_mime_file('htmlize-inline-ms.html')
+      #return convert_to_mime_file('htmlize-inline-ms.html')
+      return convert_to_mime_file('mydocument.htm')
       # return path of that file
     end
 
