@@ -203,7 +203,7 @@ var export_functions = {
     custom_hide: function(selector) {
         //The export process needs to remove elements, not just hide them.
         if ($.cookie('print_export') == 'true') {
-            console.log('custom_hiding: ' + selector);
+            //console.log('custom_hiding: ' + selector);
             $(selector).remove();
         }
     },
@@ -556,7 +556,7 @@ var export_functions = {
 };
 
 $(document).ready(function(){
-  export_functions.debug_cookies();
+  //export_functions.debug_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
@@ -578,15 +578,33 @@ $(document).ready(function(){
   //export_functions.init_download_settings();
     var div = $('.wrapper');
     if ($.cookie('print_export') == 'true') {
-        //Reset margins because export back-end will manage them
+        //TODO: Move any phantom-js specific code into the phantomjs script
+        // Reset margins because export back-end will manage them
         div.css('margin-left', '0px');
         div.css('margin-right', '0px');
         div.css('width', '8.5in');
-    }
+
+        // Remove things that would otherwise trip up any of our exporter backends
+        $('#print-options').remove();
+
+        /*
+        $('form.annotator-widget').remove();
+        //Could we just do this here? 
+        $('.annotation-hidden').filter(":hidden").remove();
+        $('.annotator-editor').remove();
+        $('.annotator-hide').remove();
+        $('.annotator-viewer').remove();
+        */
+
+        //TODO: do we need all the above, or can we just shotgun everything with this?
+        //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example!
+        $("body *").filter(":hidden").not("script").remove();
+        //$("body *").filter(":hidden").remove();
+
+    } //end if print_export
+
     //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
 
     //export_functions.title_debug('BOOPTEST 1');
-    export_functions.custom_hide('#print-options');
-    $('.annotation-hidden').filter(":hidden").remove();
 });
 
