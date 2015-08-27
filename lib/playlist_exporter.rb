@@ -3,6 +3,7 @@ require 'uri'
 
 class PlaylistExporter
 
+  #TODO: get rid of PIPELINES approach
   class PDF; end
   class RTF; end
 
@@ -14,17 +15,16 @@ class PlaylistExporter
   class << self
 
     def export_as(request_url, params)
-      #TODO: use PIPELINES design
-
       export_format = params[:export_format]
+      Rails.logger.debug "RU: #{request_url}"
+
       if export_format == 'doc'
         return export_as_doc(request_url, params)
-      end
-      
-      pdf_file = export_as_pdf(request_url, params)
-      if export_format == 'pdf'
+      elsif export_format == 'pdf'
+        pdf_file = export_as_pdf(request_url, params)
         return pdf_file
       elsif export_format == 'epub'
+        pdf_file = export_as_pdf(request_url, params)
         return export_as_epub(pdf_file, params)
       else
         raise "Unsupported export_format #{export_format}"
@@ -33,26 +33,49 @@ class PlaylistExporter
 
     def export_as_doc(request_url, params)
       #fetch HTML with phantomjs (and cookies) into a temp file in /tmp/playlist_exports/
-      #html_file = fetch_playlist_html(request_url, params)
-      #inject CSS into HTML
-      #convert that file to MIME 1.0 file
-      return convert_to_mime_file('htmlize-inline-ms.html')
-      # return path of that file
+      html_file = fetch_playlist_html(request_url, params)
+      return convert_to_mime_file(html_file)
     end
 
     def fetch_playlist_html(request_url, params)
-      #create json options for phantom
-      #create temp ifle name
+      #TODO: create json options for phantom
+      #TODO: clean up code/names here
+      target_url = get_target_url(request_url, params[:id])
+
       base_dir = '/tmp/apd'
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
-      temp_filename = Dir::Tmpname.create('boop', base_dir) {|path| path }
-      
-      file = Tempfile.new(['phantomjs_args', '.json'])
-      file.write render_toc(params)
-      file.close
+      out_file = Dir::Tmpname.create('boop', base_dir) {|path| path }
 
-      #phantomjs htmlize request_url $tmpfile
-      #inject cSS (htmlize does this)
+      # file = Tempfile.new(['phantomjs_args', '.json'])
+      # file.write render_toc(params)
+      # file.close
+
+      command = [
+                 Rails.root.to_s + '/bin/phantomjs',
+                 Rails.root.to_s + '/bin/htmlize.js',
+                 target_url,
+                 out_file,
+                ]
+      Rails.logger.debug command.join(' ')
+
+      exit_code = nil
+      command_output = ''
+      Open3.popen2e(*command) do |i, out_err, wait_thread|
+        out_err.each {|line| command_output += "PHANTOMJS: #{line}"}
+        exit_code = wait_thread.value.exitstatus
+      end
+
+      File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
+      Rails.logger.debug command.join(' ')
+      Rails.logger.debug command_output
+
+      if exit_code == 0
+        out_file
+      else
+        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
+      end
+
+      out_file.tap {|x| Rails.logger.debug "Created #{x}" }
     end
 
     def convert_to_mime_file(input_file)
@@ -66,11 +89,12 @@ class PlaylistExporter
       lines << "Content-Transfer-Encoding: base64"
       lines << "Content-Type: text/html; charset=\"utf-8\""
       lines << ""
-      encoded_contents = Base64.encode64(File.read(input_file))
-      lines << encoded_contents
+      lines << Base64.encode64(File.read(input_file))
 
-      tempfile = '/tmp/last-encoded-file.doc'
-      File.write(tempfile, lines.join("\n") + "\n" + "--" + boundary + "--")
+      tempfile = '/tmp/last-encoded-file.doc'  #TODO: Use a real tempfile filename for this
+      #Note: only the last boundary seems to need the final trailing "--" ?
+      delim = "\n"
+      File.write(tempfile, lines.join(delim) + delim + "--" + boundary + "--")
       return tempfile
     end
 
@@ -321,7 +345,7 @@ class PlaylistExporter
       prep_output_file_path(output_file_path)
       #output_file_url = output_filename_relative_path(output_file_path)
       target_url = get_target_url(request_url, object_id)
-      
+
       Rails.logger.debug output_file_path
       #Rails.logger.debug output_file_url
       [
@@ -339,7 +363,7 @@ class PlaylistExporter
     def prep_output_file_path(output_file_path)
       FileUtils.mkdir_p(File.dirname(output_file_path))
     end
-      
+
     def get_target_url(request_url, id)
       uri = URI(request_url)
       Rails.application.routes.url_helpers.export_playlist_url(
