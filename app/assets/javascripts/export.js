@@ -580,6 +580,7 @@ $(document).ready(function(){
     if ($.cookie('print_export') == 'true') {
         //TODO: Move any phantom-js specific code into the phantomjs script
         // Reset margins because export back-end will manage them
+        div.css('margin-top', '0px');
         div.css('margin-left', '0px');
         div.css('margin-right', '0px');
         div.css('width', '8.5in');
