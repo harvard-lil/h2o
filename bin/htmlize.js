@@ -1,51 +1,34 @@
 
-
-phantom.clearCookies();
-//var cookie_domain = 'h2o.law.harvard.edu';
-var cookie_domain = 'sskardal03.murk.law.harvard.edu';
-
-var cookies = [
-    {
-        'name': 'print_dates_details',
-        'value': true
-    },
-    {
-        'name': 'print_paragraph_numbers',
-        'value': false
-    },
-    {
-        'name': 'print_annotations',
-        'value': true
-    },
-    {
-        'name': 'hidden_text_display',
-        'value': true
-    },
-    {
-        'name': 'print_highlights',
-        'value': 'all'
-    },
-    {
-        'name': 'print_export',
-        'value': true
-    }
-];
-
-
 //console.log("dev-exiting"); phantom.exit();
 
 var system = require('system'),
     address, output, size;
 address = system.args[1];
 output_file = system.args[2];
+options_file = system.args[3];
 var page = require('webpage').create();
 
-cookies.forEach(function(cookie) {
-    //TODO: set the domain from $address
-    cookie.domain = cookie_domain;
-    cookie.path = '/';
-    phantom.addCookie(cookie);
-});
+var set_cookies = function(address, options_file) {
+    phantom.clearCookies();  //TODO: is this really needed?
+
+    var parser = document.createElement('a');
+    parser.href = address;
+    var cookie_domain = parser.hostname;
+
+    var json_string = require('fs').read(options_file);
+    console.log('json_file: ' + json_string);
+    var json = JSON.parse(json_string);
+    Object.keys(json).forEach(function(name) {
+        var cookie = {
+            'name': name,
+            'value': json[name],
+            'domain': cookie_domain,
+            'path': '/'
+        };
+        //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
+        phantom.addCookie(cookie);
+    });
+} //set_cookies
 
 //page.viewportSize = { width: 824, height: 600 };
 //page.paperSize = { width: size[0], height: size[1], margin: '0px' };
@@ -61,6 +44,8 @@ cookies.forEach(function(cookie) {
     };  
 */
 
+set_cookies(address, options_file);
+
 page.onConsoleMessage = function(msg) {
     console.log(msg);
 };
@@ -73,7 +58,7 @@ page.onResourceRequested = function(requestData) {
         //console.log( JSON.stringify(requestData, null, 2) );
     }
 };
-console.log('running...');
+console.log('Opening: ' + address );
 page.open(address, function (status) {
     if (status !== 'success') {
         console.log('Unable to load the address. Status was: ' + status);
@@ -81,27 +66,19 @@ page.open(address, function (status) {
     }
 
     window.setTimeout(function () {
-        //We need this delay to make sure everything loads and runs inside the page
-        process_page(page);
+        //Do everything inside a setTimeout to ensure everything loads and runs inside the page
+        get_stylesheets(page)
+        for (var i in cssFiles) {
+            // console.log('file: ' + cssFiles[i]);
+        }
+        write_file(output_file, page.content);
+
         phantom.exit();
     }, 200);
 });
 
-var process_page = function(page) {
-    console.log('starting');
-    get_stylesheets(page)
-
-    for (var i in cssFiles) {
-       // console.log('file: ' + cssFiles[i]);
-    }
-
-    write_file(output_file, page.content);
-}
-
 var get_stylesheets = function(page) {
     page.evaluate(function() {
-
-        //console.log( $('.stylesheet-link-tag').not("[media^=screen]").first().get(0).href );
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
             //console.log( JSON.stringify($(el).attr('media'), null, 2) );
@@ -119,14 +96,12 @@ var get_stylesheets = function(page) {
             //$(sheet).after($(sheet).cssText());
             //$('#css-ui').cssText()  in the context of the page, will give us the CSS it points at! \o/
             //$(target).after(contentToBeInserted)
-            //    (copy into an array to avoid modifying that iterator during iteration
-            //  iterate over each CSS tag, append its cssText() to it as a sibling
         }
     });
 }
 
 var write_file = function(output_file, content) {
-    if (!output_file) {
+    if (output_file == '-') {
         console.log(content);
         return;
     }
