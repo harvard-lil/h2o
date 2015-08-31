@@ -37,24 +37,29 @@ class PlaylistExporter
       return convert_to_mime_file(html_file)
     end
 
+    def json_options_file(params)
+      file = Tempfile.new(['phantomjs-args-', '.json'])
+      file.write forwarded_cookies_hash(params).to_json
+      file.close
+      file.path.tap {|x| Rails.logger.debug "JSON: #{x}" }
+    end
+
     def fetch_playlist_html(request_url, params)
       #TODO: create json options for phantom
       #TODO: clean up code/names here
       target_url = get_target_url(request_url, params[:id])
 
-      base_dir = '/tmp/apd'
+      base_dir = Rails.root.join('tmp/phantomjs')
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
-      out_file = Dir::Tmpname.create('boop', base_dir) {|path| path }
+      out_file = Dir::Tmpname.create(params[:id], base_dir) {|path| path}
 
-      # file = Tempfile.new(['phantomjs_args', '.json'])
-      # file.write render_toc(params)
-      # file.close
-
+      options_file = json_options_file(params)
       command = [
                  Rails.root.to_s + '/bin/phantomjs',
                  Rails.root.to_s + '/bin/htmlize.js',
                  target_url,
                  out_file,
+                 options_file,
                 ]
       Rails.logger.debug command.join(' ')
 
