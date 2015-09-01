@@ -578,16 +578,16 @@ $(document).ready(function(){
   //export_functions.init_download_settings();
     var div = $('.wrapper');
     if ($.cookie('print_export') == 'true') {
+        //TODO: We might benefit from format-specific code here. Right now, phantomjs
+        // overwrites some of the below CSS we're setting, which seems sketchy.
         //TODO: Move any phantom-js specific code into the phantomjs script
+        
         // Reset margins because export back-end will manage them
-        div.css('margin-top', '0px');
-        div.css('margin-left', '0px');
-        div.css('margin-right', '0px');
+        div.css('margin', '0px');
         div.css('width', '8.5in');
 
         // Remove things that would otherwise trip up any of our exporter backends
         $('#print-options').remove();
-
         /*
         $('form.annotator-widget').remove();
         //Could we just do this here? 

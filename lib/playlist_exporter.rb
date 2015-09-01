@@ -251,9 +251,7 @@ class PlaylistExporter
           end
         end
       end
-      Rails.logger.debug "FTC created:\n#{cookies}"
-
-      cookies
+      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
     def generate_toc_levels_css(depth)
@@ -261,13 +259,13 @@ class PlaylistExporter
       #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
       # <li class="book-toc-item level_{count(ancestor::outline:item)}">
       depth = depth.to_i
-      
+
       # This starting css defines basic indentation for all levels that do get displayed
       css = [
              "ul {padding-left: 0em;}",
              "ul ul {padding-left: 1em;}",
             ]
-      
+
       # Add CSS to hide any levels that are > depth
       (1..6).each do |i|
         if i > depth

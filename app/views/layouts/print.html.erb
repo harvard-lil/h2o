@@ -4,10 +4,11 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title><%= raw @page_title ? "Printed #{raw @page_title}" : "H2O Classroom Tools" %></title>
-    <!-- TODO: we do not need the id attrs for stylesheet_link_tag any more -->
+
     <%= stylesheet_link_tag "ui", media: "screen", class: "stylesheet-link-tag" %>
     <%= stylesheet_link_tag "application-print", media: "all", class: "stylesheet-link-tag" %>
     <%= stylesheet_link_tag "print", media: "print", class: "stylesheet-link-tag" %>
+
     <style type="text/css" id="export-styles"></style>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
