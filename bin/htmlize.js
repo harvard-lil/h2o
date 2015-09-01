@@ -1,5 +1,4 @@
-
-//console.log("dev-exiting"); phantom.exit();
+//PhantomJS script
 
 var system = require('system'),
     address, output, size;
@@ -9,8 +8,6 @@ options_file = system.args[3];
 var page = require('webpage').create();
 
 var set_cookies = function(address, options_file) {
-    phantom.clearCookies();  //TODO: is this really needed?
-
     var parser = document.createElement('a');
     parser.href = address;
     var cookie_domain = parser.hostname;
@@ -25,26 +22,15 @@ var set_cookies = function(address, options_file) {
             'domain': cookie_domain,
             'path': '/'
         };
-        //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
+        console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
     });
-} //set_cookies
-
-//page.viewportSize = { width: 824, height: 600 };
-//page.paperSize = { width: size[0], height: size[1], margin: '0px' };
-/*
-     page.paperSize = {
-        format: 'A4',
-        margin: {
-            left: marginLeft,
-            top: marginTop,
-            right: marginRight,
-            bottom: marginBottom
-        }
-    };  
-*/
+}
 
 set_cookies(address, options_file);
+console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2)); phantom.exit();
+//next: i don't think we're getting cookie for margins, prob b/c playlistexporter isn't sending them
+//bc PDF generation doesn't need them?
 
 page.onConsoleMessage = function(msg) {
     console.log(msg);
@@ -61,43 +47,36 @@ page.onResourceRequested = function(requestData) {
 console.log('Opening: ' + address );
 page.open(address, function (status) {
     if (status !== 'success') {
-        console.log('Unable to load the address. Status was: ' + status);
+        console.log('Unable to load page. Status was: ' + status);
         phantom.exit(1);
     }
 
     window.setTimeout(function () {
         //Do everything inside a setTimeout to ensure everything loads and runs inside the page
-        get_stylesheets(page)
-        for (var i in cssFiles) {
-            // console.log('file: ' + cssFiles[i]);
-        }
+        set_styling(page, "2in 2in 2in 2in");
+        //for (var i in cssFiles) { console.log('file: ' + cssFiles[i]); }
         write_file(output_file, page.content);
-
         phantom.exit();
     }, 200);
 });
 
-var get_stylesheets = function(page) {
-    page.evaluate(function() {
+var set_styling = function(page, margin_string) {
+    page.evaluate(function(margin_string) {
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
-            //console.log( JSON.stringify($(el).attr('media'), null, 2) );
-            //sheets.push( $(el).get(0).href );
             sheets.push( el );
-            //console.log(el);
         });
 
         for (var i in sheets) {
             var sheet = sheets[i];
             console.log('injecting: ' + $(sheet).get(0).href);
-
-            //s.appendTo($(sheet));
             $('#export-styles').append($(sheet).cssText());
-            //$(sheet).after($(sheet).cssText());
-            //$('#css-ui').cssText()  in the context of the page, will give us the CSS it points at! \o/
-            //$(target).after(contentToBeInserted)
+            $(sheet).remove();  //prevents "missing asset" error in Word 
         }
-    });
+        //clear out css added by export.js to avoid possible conflict with margins we define in #export-styles
+        $('.wrapper').attr('style', '');
+        $('#export-styles').append("\n .wrapper { margin: " + margin_string + " !important; }");
+    }, margin_string);
 }
 
 var write_file = function(output_file, content) {
@@ -114,9 +93,9 @@ var write_file = function(output_file, content) {
     }
 }
 
+/*
 var get_css = function(stylesheets) {
     var content = [];
-/*
   for (var i in stylesheets) {
         var url = stylesheets[i];
 
@@ -138,7 +117,7 @@ var get_css = function(stylesheets) {
             //page2.close();
         });
     }
-  */
   return(content.join("\n"));
 }
+  */
 
