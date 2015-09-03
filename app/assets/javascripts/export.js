@@ -303,7 +303,7 @@ var export_functions = {
       export_functions.setFontPrint();
     });
     $('#marginsize').change(function() {
-        console.log('#marginsize listener firing with val: "' + $(this).val() + '"');
+        //console.log('#marginsize listener firing with val: "' + $(this).val() + '"');
         export_functions.setMarginSize($(this).val());
     });
     $('#printannotations').change(function() {
@@ -556,6 +556,7 @@ var export_functions = {
 };
 
 $(document).ready(function(){
+  //console.log('BOOP: document.ready starting');
   //export_functions.debug_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
@@ -580,32 +581,31 @@ $(document).ready(function(){
     if ($.cookie('print_export') == 'true') {
         //TODO: We might benefit from format-specific code here. Right now, phantomjs
         // overwrites some of the below CSS we're setting, which seems sketchy.
-        //TODO: Move any phantom-js specific code into the phantomjs script
-        
-        // Reset margins because export back-end will manage them
-        div.css('margin', '0px');
-        div.css('width', '8.5in');
 
         // Remove things that would otherwise trip up any of our exporter backends
+        console.log("SS: Prepping CSS in-page");
         $('#print-options').remove();
-        /*
-        $('form.annotator-widget').remove();
-        //Could we just do this here? 
-        $('.annotation-hidden').filter(":hidden").remove();
-        $('.annotator-editor').remove();
-        $('.annotator-hide').remove();
-        $('.annotator-viewer').remove();
-        */
 
-        //TODO: do we need all the above, or can we just shotgun everything with this?
-        //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example!
+        // Reset margins because export back-end will manage them
+        //NEW: technically, we only need to do this for PDF exports, because PDF
+        //exports set margins outside of javascript/HTML completely.
+
+        //TODO: set margins here based on cookie value, instead of doing it in phantomjs
+        div.css('margin', '');
+        div.css('margin-top', '');
+        div.css('margin-right', '');
+        div.css('margin-bottom', '');
+        div.css('margin-left', '');
+        div.css('width', '');
+        div.attr('style', '');  //TODO: Just use removeAttr('style') here. It's cleaner
+
+        //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         $("body *").filter(":hidden").not("script").remove();
-        //$("body *").filter(":hidden").remove();
-
-    } //end if print_export
+    }
 
     //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
 
     //export_functions.title_debug('BOOPTEST 1');
+    //console.log('BOOP: document.ready done');
 });
 

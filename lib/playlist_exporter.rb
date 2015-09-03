@@ -16,7 +16,6 @@ class PlaylistExporter
 
     def export_as(request_url, params)
       export_format = params[:export_format]
-      Rails.logger.debug "RU: #{request_url}"
 
       if export_format == 'doc'
         return export_as_doc(request_url, params)
@@ -55,8 +54,8 @@ class PlaylistExporter
 
       options_file = json_options_file(params)
       command = [
-                 Rails.root.to_s + '/bin/phantomjs',
-                 Rails.root.to_s + '/bin/htmlize.js',
+                 'bin/phantomjs',
+                 'bin/htmlize.js',
                  target_url,
                  out_file,
                  options_file,
@@ -236,7 +235,8 @@ class PlaylistExporter
         'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
         'printhighlights' => {'cookie_name' => 'print_highlights'},
         'fontface' => {'cookie_name' => 'print_font_face'},
-        'fontsize'=> {'cookie_name' => 'print_font_size'},
+        'fontsize' => {'cookie_name' => 'print_font_size'},
+        'marginsize' => {'cookie_name' => 'print_margin_size'},
       }
 
       cookies = {'print_export' => 'true'}

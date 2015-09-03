@@ -9,8 +9,12 @@
 }
 .wrapper {
   /* These settings work in conjunction with wkhtmltopdf export parameters. */
+  /* TODO: Can we get rid of these? Do they still need !important? */
+/*  //turning these off to clarify phantomjs styling issues
   max-width: 7.5in !important;
   width: 7.5in !important;
   margin-left: 0px !important;
+  padding-bottom: 0px;
+  */
 }
 

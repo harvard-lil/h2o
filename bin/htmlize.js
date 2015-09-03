@@ -22,15 +22,13 @@ var set_cookies = function(address, options_file) {
             'domain': cookie_domain,
             'path': '/'
         };
-        console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
+        //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
     });
 }
 
 set_cookies(address, options_file);
-console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2)); phantom.exit();
-//next: i don't think we're getting cookie for margins, prob b/c playlistexporter isn't sending them
-//bc PDF generation doesn't need them?
+//console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2)); phantom.exit();
 
 page.onConsoleMessage = function(msg) {
     console.log(msg);
@@ -44,6 +42,17 @@ page.onResourceRequested = function(requestData) {
         //console.log( JSON.stringify(requestData, null, 2) );
     }
 };
+page.onError = function(msg, trace) {
+    var msgStack = ['ERROR: ' + msg];
+    if (trace && trace.length) {
+        msgStack.push('TRACE:');
+        trace.forEach(function(t) {
+          msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
+        });
+    }
+    console.error(msgStack.join('\n'));
+};
+
 console.log('Opening: ' + address );
 page.open(address, function (status) {
     if (status !== 'success') {
@@ -53,14 +62,23 @@ page.open(address, function (status) {
 
     window.setTimeout(function () {
         //Do everything inside a setTimeout to ensure everything loads and runs inside the page
-        set_styling(page, "2in 2in 2in 2in");
+
+        set_styling(page);
         //for (var i in cssFiles) { console.log('file: ' + cssFiles[i]); }
         write_file(output_file, page.content);
         phantom.exit();
     }, 200);
 });
 
-var set_styling = function(page, margin_string) {
+var set_styling = function(page) {
+    var margin_string;
+    for (var i in page.cookies) {
+        var cookie = page.cookies[i];
+        if (cookie.name == 'print_margin_size') {
+            margin_string = cookie.value;
+        }
+    }
+
     page.evaluate(function(margin_string) {
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
@@ -69,12 +87,21 @@ var set_styling = function(page, margin_string) {
 
         for (var i in sheets) {
             var sheet = sheets[i];
-            console.log('injecting: ' + $(sheet).get(0).href);
+            //console.log('injecting: ' + $(sheet).get(0).href);
             $('#export-styles').append($(sheet).cssText());
             $(sheet).remove();  //prevents "missing asset" error in Word 
         }
+        //TODO: Remove ui.css <link> node just in case
+
         //clear out css added by export.js to avoid possible conflict with margins we define in #export-styles
-        $('.wrapper').attr('style', '');
+        //console.log(' RAPPER inline style: ' + $('.wrapper').attr('style'));
+
+        var html = $('html');
+        html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');
+        html.attr('xmlns:w', 'urn:schemas-microsoft-com:office:word');
+        html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
+
+        //Note: Setting width here has no effect in DOC
         $('#export-styles').append("\n .wrapper { margin: " + margin_string + " !important; }");
     }, margin_string);
 }

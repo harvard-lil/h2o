@@ -14,9 +14,6 @@
       /* For minimum screen re-draw on page load, width should be set
          to export.js:page_width_inches - 2*margin-left
       */
-    width: 6.5in;
-    margin-left: 1.0in;
-    margin-top: 155px;  /* give more room for new print options */
   }
   background: #FFF;
   font-family: sans-serif;
@@ -91,7 +88,7 @@
   .collage-content { padding-left: 50px; clear: both; }
   .collage-content p { margin-bottom: 20px; }
   .collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 2px 5px 2px 18px; margin: 3px;
-  background: url(<%= asset_path 'asterisk.jpg' %>) 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
+  background: url("<%= asset_path 'asterisk.jpg' %>") 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
   .collage-content .annotation-ellipsis { padding-left: 5px; }
   .collage-content p,
   .collage-content center,
@@ -149,9 +146,7 @@
     display: none;
   }
   #print-options {
-    #height: 140px;
-    opacity: 0.0;
-    background: transparent url(<%= asset_path 'quickbar.png' %>) bottom repeat-x;
+    background: transparent url("<%= asset_path 'quickbar.png' %>") bottom repeat-x;
     padding: 10px 5px 12px 5px;
     position: fixed;
     top: 0px;
@@ -161,11 +156,13 @@
       font-size: 12px;
     }
     #print-options-new {
-        width: 80%; text-align: center;
+        width: 80%;
+        text-align: center;
     }
     #print-options-basic {
-        display: inline-block; text-align: center;
-        div {   margin-right: 20px; }
+        display: inline-block;
+        text-align: center;
+        div { margin-right: 20px; }
     }
 
     #themes-div {
@@ -194,7 +191,7 @@
         display: inline-block; text-align: center;
     }
     #export-format {
-        borderXXX: #DDDDDD 1px solid; text-align: center;
+        Xborder: #DDDDDD 1px solid; text-align: center;
     }
     #export-button-div {
         border: 1px white solid;
