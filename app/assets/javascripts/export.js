@@ -597,7 +597,7 @@ $(document).ready(function(){
         div.css('margin-bottom', '');
         div.css('margin-left', '');
         div.css('width', '');
-        div.attr('style', '');  //TODO: Just use removeAttr('style') here. It's cleaner
+        div.removeAttr('style');  //TODO: This really replaces all the above, so delete them.
 
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         $("body *").filter(":hidden").not("script").remove();

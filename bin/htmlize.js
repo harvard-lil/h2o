@@ -75,7 +75,7 @@ var set_styling = function(page) {
     for (var i in page.cookies) {
         var cookie = page.cookies[i];
         if (cookie.name == 'print_margin_size') {
-            margin_string = cookie.value;
+            margin_string = Array(5).join(cookie.value + ' ');
         }
     }
 
@@ -85,24 +85,36 @@ var set_styling = function(page) {
             sheets.push( el );
         });
 
+        //TODO: Remove ui.css <link> node just in case
         for (var i in sheets) {
             var sheet = sheets[i];
-            //console.log('injecting: ' + $(sheet).get(0).href);
             $('#export-styles').append($(sheet).cssText());
             $(sheet).remove();  //prevents "missing asset" error in Word 
         }
-        //TODO: Remove ui.css <link> node just in case
-
-        //clear out css added by export.js to avoid possible conflict with margins we define in #export-styles
-        //console.log(' RAPPER inline style: ' + $('.wrapper').attr('style'));
 
         var html = $('html');
+        html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
         html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');
         html.attr('xmlns:w', 'urn:schemas-microsoft-com:office:word');
+        html.attr('xmlns:m', 'http://schemas.microsoft.com/office/2004/12/omml');
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
 
-        //Note: Setting width here has no effect in DOC
-        $('#export-styles').append("\n .wrapper { margin: " + margin_string + " !important; }");
+        var header = [
+            "<!--[if gte mso 9]>",
+            "<xml><w:WordDocument><w:View>Edit</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
+            "<![endif]-->",
+            "<link rel='File-List' href='boop_files/filelist.xml'>",
+            "<style><!-- ",
+            //top, right, bottom, left
+            "@page WordDocExportWrapper {margin: " + margin_string + "; size:8.5in 11.0in; mso-paper-source:0;}",
+            "div.WordDocExportWrapper {page:WordDocExportWrapper;}",
+            "--></style>",
+        ];
+
+        $('title').after($(header.join("\n")));
+
+        //Note: Setting width here has no effect in DOC. WE PROBABLY DO NOT NEED THIS AT ALL.
+        //$('#export-styles').append("\n .wrapper { margin: " + margin_string + " !important; }");
     }, margin_string);
 }
 
