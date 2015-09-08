@@ -160,13 +160,15 @@
       
      <% end %><!-- /form -->
     </div>
-    <div class="WordDocExportWrapper">
+   <div class="MsoNormal">
+    <div class="WordSection1">
      <div class="wrapper">
   	  <section id="shell">
         <%= yield %>
       </section>
      </div>
     </div>
+   </div>
 
     <%= javascript_include_tag "application-print" %>
     <%= render "shared/google_analytics" %>

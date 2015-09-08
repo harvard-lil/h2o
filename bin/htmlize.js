@@ -6,6 +6,7 @@ address = system.args[1];
 output_file = system.args[2];
 options_file = system.args[3];
 var page = require('webpage').create();
+var cookies = {};
 
 var set_cookies = function(address, options_file) {
     var parser = document.createElement('a');
@@ -16,6 +17,7 @@ var set_cookies = function(address, options_file) {
     console.log('json_file: ' + json_string);
     var json = JSON.parse(json_string);
     Object.keys(json).forEach(function(name) {
+        cookies[name] = json[name];
         var cookie = {
             'name': name,
             'value': json[name],
@@ -71,13 +73,8 @@ page.open(address, function (status) {
 });
 
 var set_styling = function(page) {
-    var margin_string;
-    for (var i in page.cookies) {
-        var cookie = page.cookies[i];
-        if (cookie.name == 'print_margin_size') {
-            margin_string = Array(5).join(cookie.value + ' ');
-        }
-    }
+    var margin_string = Array(5).join(cookies['print_margin_size'] + ' ');
+    console.log('MS: ' + margin_string);
 
     page.evaluate(function(margin_string) {
         var sheets = [];
@@ -106,8 +103,9 @@ var set_styling = function(page) {
             "<link rel='File-List' href='boop_files/filelist.xml'>",
             "<style><!-- ",
             //top, right, bottom, left
-            "@page WordDocExportWrapper {margin: " + margin_string + "; size:8.5in 11.0in; mso-paper-source:0;}",
-            "div.WordDocExportWrapper {page:WordDocExportWrapper;}",
+            "@page WordSection1 {margin: " + margin_string + "; size:8.5in 11.0in; mso-paper-source:0;}",
+            "div.WordSection1 {page:WordSection1;}",
+            "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-size: 18.0pt; font-family:'Garamond',serif; }",
             "--></style>",
         ];
 
