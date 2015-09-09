@@ -380,8 +380,6 @@ var export_functions = {
             export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
-    //$('.wrapper').css('margin-top', $('#print-options').height() + 15);
-    $('#print-options').css('opacity', 1.0);
     export_functions.setFontPrint();
       $('.theme-button').on('click', function() {
           //TODO: Maybe set this color to something to indicate it's active?
@@ -404,7 +402,6 @@ var export_functions = {
         //newVal will already have units
         var div = $('.wrapper')
         div.css('margin-left', newVal);
-        
         var newWidth = parseFloat(page_width_inches) - (2 * parseFloat(newVal));
         div.css('width', newWidth + 'in');
     },
@@ -414,6 +411,9 @@ var export_functions = {
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
     var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
       var mapped_font_face = font_face == 'verdana' ? "Verdana, Arial, Helvetica, Sans-serif" : h2o_fonts.font_map[font_face];
+
+      console.log('setFontPrint setting: ' + mapped_font_face);
+
       var rules = [
           " * { font-family: '" + mapped_font_face + "'; font-size: " + base_font_size + 'px; }' ,
           ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }',
@@ -428,6 +428,7 @@ var export_functions = {
       $.each(rules, function(i, rule) {
           $.rule(base_selector + rule).appendTo('#additional_styles');
       });
+      //console.log( $('#additional_styles').cssText() );
   },
   loadAnnotator: function(id) {
     annotations = all_collage_data["collage" + id].annotations || {};
@@ -591,13 +592,16 @@ $(document).ready(function(){
         //exports set margins outside of javascript/HTML completely.
 
         //TODO: set margins here based on cookie value, instead of doing it in phantomjs
+        /*
         div.css('margin', '');
         div.css('margin-top', '');
         div.css('margin-right', '');
         div.css('margin-bottom', '');
         div.css('margin-left', '');
         div.css('width', '');
+        */
         div.removeAttr('style');  //TODO: This really replaces all the above, so delete them.
+        div.css('margin-top', '0px');  //Counteract CSS related to floating print options header
 
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         $("body *").filter(":hidden").not("script").remove();

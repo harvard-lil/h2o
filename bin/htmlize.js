@@ -77,6 +77,11 @@ var set_styling = function(page) {
     console.log('MS: ' + margin_string);
 
     page.evaluate(function(margin_string) {
+        //TODO: inject $.rule's manually into the two empty stylesheet dom nodes because
+        //jQuery.rule doesn't populate that in a way that works for us.
+        // OR...
+        // maybe it does work and it's just not controlling things in a way that Word respects.
+        // We can test this by making something dump its cssText()
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
             sheets.push( el );
@@ -88,7 +93,17 @@ var set_styling = function(page) {
             $('#export-styles').append($(sheet).cssText());
             $(sheet).remove();  //prevents "missing asset" error in Word 
         }
-
+        /*
+         * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
+         *
+         * @example $.rule('div{ padding:20px;background:#CCC}, p{ border:1px red solid; }').appendTo('style');
+         *
+         * @example $.rule('div{}').append('margin:40px').css('margin-left',0).appendTo('link:eq(1)');
+         *
+         * @example $.rule().not('div, p.magic').fadeOut('slow');
+         *
+         * @example var text = $.rule('#screen h2').add('h4').end().eq(4).text();
+         */
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
         html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');

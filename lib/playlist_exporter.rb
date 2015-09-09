@@ -40,7 +40,7 @@ class PlaylistExporter
       file = Tempfile.new(['phantomjs-args-', '.json'])
       file.write forwarded_cookies_hash(params).to_json
       file.close
-      file.path.tap {|x| Rails.logger.debug "JSON: #{x}" }
+      file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
     end
 
     def fetch_playlist_html(request_url, params)
