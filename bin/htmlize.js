@@ -1,5 +1,7 @@
 //PhantomJS script
 
+console.log('htmlize.js running...');
+
 var system = require('system'),
     address, output, size;
 address = system.args[1];
@@ -13,9 +15,15 @@ var set_cookies = function(address, options_file) {
     parser.href = address;
     var cookie_domain = parser.hostname;
 
-    var json_string = require('fs').read(options_file);
-    console.log('json_file: ' + json_string);
-    var json = JSON.parse(json_string);
+    var json_string, json;
+    try {
+        json_string = require('fs').read(options_file);
+        console.log('json_file: ' + json_string);
+        json = JSON.parse(json_string);
+    } catch(e) {
+        console.log('Error reading/parsing JSON options file: ' + e);
+        phantom.exit(1);
+    }
     Object.keys(json).forEach(function(name) {
         cookies[name] = json[name];
         var cookie = {
@@ -73,10 +81,9 @@ page.open(address, function (status) {
 });
 
 var set_styling = function(page) {
-    var margin_string = Array(5).join(cookies['print_margin_size'] + ' ');
-    console.log('MS: ' + margin_string);
 
-    page.evaluate(function(margin_string) {
+    page.evaluate(function(cookies) {
+
         //TODO: inject $.rule's manually into the two empty stylesheet dom nodes because
         //jQuery.rule doesn't populate that in a way that works for us.
         // OR...
@@ -91,17 +98,13 @@ var set_styling = function(page) {
         for (var i in sheets) {
             var sheet = sheets[i];
             $('#export-styles').append($(sheet).cssText());
-            $(sheet).remove();  //prevents "missing asset" error in Word 
+            $(sheet).remove();  //prevents "missing asset" error in Word
         }
         /*
          * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
-         *
          * @example $.rule('div{ padding:20px;background:#CCC}, p{ border:1px red solid; }').appendTo('style');
-         *
          * @example $.rule('div{}').append('margin:40px').css('margin-left',0).appendTo('link:eq(1)');
-         *
          * @example $.rule().not('div, p.magic').fadeOut('slow');
-         *
          * @example var text = $.rule('#screen h2').add('h4').end().eq(4).text();
          */
         var html = $('html');
@@ -111,6 +114,14 @@ var set_styling = function(page) {
         html.attr('xmlns:m', 'http://schemas.microsoft.com/office/2004/12/omml');
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
 
+        var margins = Array(5).join(cookies['print_margin_size'] + ' ');
+        console.log('MS: ' + margins);
+
+        var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
+        var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
+        console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);
+
+        //TODO: font_size_string (in px, then convert to pt to get correct sizing)
         var header = [
             "<!--[if gte mso 9]>",
             "<xml><w:WordDocument><w:View>Edit</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
@@ -118,17 +129,20 @@ var set_styling = function(page) {
             "<link rel='File-List' href='boop_files/filelist.xml'>",
             "<style><!-- ",
             //top, right, bottom, left
-            "@page WordSection1 {margin: " + margin_string + "; size:8.5in 11.0in; mso-paper-source:0;}",
+            "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
-            "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-size: 18.0pt; font-family:'Garamond',serif; }",
+            //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
+            //TODO: convert font size to points
+            "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-family:" + font_face_string + "; font-size:" + font_size_string + "pt; }",
+            ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "--></style>",
         ];
 
         $('title').after($(header.join("\n")));
 
         //Note: Setting width here has no effect in DOC. WE PROBABLY DO NOT NEED THIS AT ALL.
-        //$('#export-styles').append("\n .wrapper { margin: " + margin_string + " !important; }");
-    }, margin_string);
+        //$('#export-styles').append("\n .wrapper { margin: " + margins + " !important; }");
+    }, cookies);
 }
 
 var write_file = function(output_file, content) {

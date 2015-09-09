@@ -1,3 +1,4 @@
+var export_h2o_fonts;
 var all_tts;
 var annotations;
 var original_data = {};
@@ -185,12 +186,12 @@ var export_functions = {
     if(document.location.hash.match('fontface')) {
       //Note: This implements a special case requested by the business. Any changes made 
       // here will be overwritten by init_user_settings cookie values if they exist
-        //TODO: Skip this if it will be changed by print_font_face or print_font_size cookies
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
-        if(font_values[0] == 'fontsize' || font_values[0] == 'fontface') {
-            $('#' + font_values[0]).val(font_values[1]).change();
+        var name = font_values[0];
+        if ((name == 'fontface' && $.cookie('print_font_face') == null) || (name == 'fontsize' && $.cookie('print_font_size') == null)) {
+            $('#' + name).val(font_values[1]).change();
         }
       }
     }
@@ -303,7 +304,6 @@ var export_functions = {
       export_functions.setFontPrint();
     });
     $('#marginsize').change(function() {
-        //console.log('#marginsize listener firing with val: "' + $(this).val() + '"');
         export_functions.setMarginSize($(this).val());
     });
     $('#printannotations').change(function() {
@@ -406,11 +406,12 @@ var export_functions = {
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
+      //TODO: Avoid calling this multiple times on page-load
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
     var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
-      var mapped_font_face = font_face == 'verdana' ? "Verdana, Arial, Helvetica, Sans-serif" : h2o_fonts.font_map[font_face];
+    var mapped_font_face = font_face == 'verdana' ? h2o_fonts.font_map_fallbacks[font_face] : h2o_fonts.font_map[font_face];
 
       console.log('setFontPrint setting: ' + mapped_font_face);
 
@@ -557,7 +558,7 @@ var export_functions = {
 };
 
 $(document).ready(function(){
-  //console.log('BOOP: document.ready starting');
+  console.log('BOOP: document.ready starting');
   //export_functions.debug_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
@@ -580,11 +581,8 @@ $(document).ready(function(){
   //export_functions.init_download_settings();
     var div = $('.wrapper');
     if ($.cookie('print_export') == 'true') {
-        //TODO: We might benefit from format-specific code here. Right now, phantomjs
-        // overwrites some of the below CSS we're setting, which seems sketchy.
 
         // Remove things that would otherwise trip up any of our exporter backends
-        console.log("SS: Prepping CSS in-page");
         $('#print-options').remove();
 
         // Reset margins because export back-end will manage them
@@ -601,15 +599,16 @@ $(document).ready(function(){
         div.css('width', '');
         */
         div.removeAttr('style');  //TODO: This really replaces all the above, so delete them.
-        div.css('margin-top', '0px');  //Counteract CSS related to floating print options header
+        div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
 
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         $("body *").filter(":hidden").not("script").remove();
+
+        export_h2o_fonts = h2o_fonts;  //Make available to phantomjs scope
     }
 
     //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
 
-    //export_functions.title_debug('BOOPTEST 1');
-    //console.log('BOOP: document.ready done');
+    console.log('BOOP: document.ready done');
 });
 

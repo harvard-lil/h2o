@@ -37,7 +37,9 @@ class PlaylistExporter
     end
 
     def json_options_file(params)
-      file = Tempfile.new(['phantomjs-args-', '.json'])
+      #TODO: use Tempfile.new when done debugging
+      #file = Tempfile.new(['phantomjs-args-', '.json'])
+      file = File.new('tmp/phantomjs/last-phantomjs-options.json', 'w')
       file.write forwarded_cookies_hash(params).to_json
       file.close
       file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
@@ -69,7 +71,7 @@ class PlaylistExporter
         exit_code = wait_thread.value.exitstatus
       end
 
-      File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
+      #File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
       Rails.logger.debug command.join(' ')
       Rails.logger.debug command_output
 
