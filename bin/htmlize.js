@@ -84,29 +84,6 @@ var set_styling = function(page) {
 
     page.evaluate(function(cookies) {
 
-        //TODO: inject $.rule's manually into the two empty stylesheet dom nodes because
-        //jQuery.rule doesn't populate that in a way that works for us.
-        // OR...
-        // maybe it does work and it's just not controlling things in a way that Word respects.
-        // We can test this by making something dump its cssText()
-        var sheets = [];
-        $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
-            sheets.push( el );
-        });
-
-        //TODO: Remove ui.css <link> node just in case
-        for (var i in sheets) {
-            var sheet = sheets[i];
-            $('#export-styles').append($(sheet).cssText());
-            $(sheet).remove();  //prevents "missing asset" error in Word
-        }
-        /*
-         * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
-         * @example $.rule('div{ padding:20px;background:#CCC}, p{ border:1px red solid; }').appendTo('style');
-         * @example $.rule('div{}').append('margin:40px').css('margin-left',0).appendTo('link:eq(1)');
-         * @example $.rule().not('div, p.magic').fadeOut('slow');
-         * @example var text = $.rule('#screen h2').add('h4').end().eq(4).text();
-         */
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
         html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');
@@ -115,13 +92,14 @@ var set_styling = function(page) {
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
 
         var margins = Array(5).join(cookies['print_margin_size'] + ' ');
-        console.log('MS: ' + margins);
-
         var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
         var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
         console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);
 
-        //TODO: font_size_string (in px, then convert to pt to get correct sizing)
+        /* NOTE: We express font-size here in pt, even though it is expressed in px in the
+         * browser, but this seems to match up rather well in testing. Small text might be a
+         * little too big in the DOC, however. It's not perfect now, but it's pretty good.
+         */
         var header = [
             "<!--[if gte mso 9]>",
             "<xml><w:WordDocument><w:View>Edit</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
@@ -137,11 +115,34 @@ var set_styling = function(page) {
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "--></style>",
         ];
-
         $('title').after($(header.join("\n")));
 
-        //Note: Setting width here has no effect in DOC. WE PROBABLY DO NOT NEED THIS AT ALL.
-        //$('#export-styles').append("\n .wrapper { margin: " + margins + " !important; }");
+        var sheets = [];
+        $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
+            sheets.push( el );
+        });
+
+        //TODO: Remove ui.css <link> node just in case
+        for (var i in sheets) {
+            var sheet = sheets[i];
+            $('#export-styles').append($(sheet).cssText());
+            $(sheet).remove();  //prevents "missing asset" error in Word
+        }
+        $('#additional_styles').append($('#additional_styles').cssText());
+
+        //BUG: Highlights do not work, nor do any of the below attempted workarounds.
+        //TODO: Perhaps just wrap highlighted text with <u> tags as a lame workaround?
+        //var foo = ".highlight-hex-ff3800 { text-decoration: underline; }";
+        //$('#highlight_styles').append(foo);
+        $('#highlight_styles').append($('#highlight_styles').cssText());
+
+        /*
+         * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
+         * @example $.rule('div{ padding:20px;background:#CCC}, p{ border:1px red solid; }').appendTo('style');
+         * @example $.rule('div{}').append('margin:40px').css('margin-left',0).appendTo('link:eq(1)');
+         * @example var text = $.rule('#screen h2').add('h4').end().eq(4).text();
+         */
+
     }, cookies);
 }
 

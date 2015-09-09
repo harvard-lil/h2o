@@ -406,17 +406,25 @@ var export_functions = {
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
-      //TODO: Avoid calling this multiple times on page-load
+      //TODO: Avoid calling this multiple times on page-load and make it no-op
+      //when there's no actual change
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
-    var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
-    var mapped_font_face = font_face == 'verdana' ? h2o_fonts.font_map_fallbacks[font_face] : h2o_fonts.font_map[font_face];
+      var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
+      var mapped_font_face;
+      if (font_face == 'verdana') {
+          mapped_font_face = "'" + h2o_fonts.font_map_fallbacks[font_face] + "'";
+      }
+      else {
+          mapped_font_face = h2o_fonts.font_map[font_face] + ',' + h2o_fonts.font_map_fallbacks[font_face];
+      }
 
       console.log('setFontPrint setting: ' + mapped_font_face);
 
+      //TODO: mapped_font_face only works in the browser. we need the fallback for exports
       var rules = [
-          " * { font-family: '" + mapped_font_face + "'; font-size: " + base_font_size + 'px; }' ,
+          " * { font-family: " + mapped_font_face + "; font-size: " + base_font_size + 'px; }' ,
           ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }',
           ' *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }',
           ' *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }',
@@ -566,8 +574,8 @@ $(document).ready(function(){
 
   $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
 
-// Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
-//   from this list, but it shows up in setFontPrint()
+  // Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
+  //   from this list, but it shows up in setFontPrint()
   $('article h1, div.article h1, .new-h1').addClass('scale1-4');
   $('article h2, div.article h2, .new-h2').addClass('scale1-3');
   $('article h3, div.article h3, .new-h3').addClass('scale1-2');
@@ -603,8 +611,9 @@ $(document).ready(function(){
 
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         $("body *").filter(":hidden").not("script").remove();
-
-        export_h2o_fonts = h2o_fonts;  //Make available to phantomjs scope
+        
+        //PhantomJS requires this in page scope
+        export_h2o_fonts = h2o_fonts;
     }
 
     //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
