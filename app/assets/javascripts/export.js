@@ -221,6 +221,30 @@ var export_functions = {
             console.log("Cookie: " + cookie + ": " + (c == null ? '' : c));
         });
     },
+    init_missing_cookies: function() {
+
+        //return;
+
+        /*
+         * TODO: Set cookies the same way they are set in user control panel or don't set them at all here
+         */
+
+        var defaults = {
+            print_margin_left: 'margin-left',
+            print_margin_top: 'margin-top',
+            print_margin_right: 'margin-right',
+            print_margin_bottom: 'margin-bottom',
+        };
+        Object.keys(defaults).forEach(function(name) {
+            $.cookie(name, $.cookie(name) || $('#' + defaults[name]).val() );
+        });
+
+        // $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
+        // $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
+        // $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
+        // $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
+
+    } ,
     init_user_settings: function() {
         //$('#print-options-advanced').hide();  //TODO: hide before this gets deployed
       $('#printhighlights').val('original');
@@ -257,43 +281,36 @@ var export_functions = {
       if($.cookie('print_highlights') == 'none') {
         $('#printhighlights').val('none').change();
         $('.collage-content').each(function(i, el) {
-          var id = $(el).data('id');
-          export_functions.highlightAnnotatedItem(id, {}, {});
+          export_functions.highlightAnnotatedItem($(el).data('id'), {}, {});
         });
-      } 
+      }
       if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val('all').change();
       }
       if ($.cookie('print_font_face') !== null ) {
-          //console.log("cookie-setting fontface to: '" + $.cookie('print_font_face') + "'");
           $('#fontface').val($.cookie('print_font_face')).change();
       }
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size')).change();
       }
-      if ($.cookie('print_margin_size') !== null) {
-          $('#marginsize').val($.cookie('print_margin_size')).change();
-      }
       if($.cookie('toc_levels') !== null) {
           $('#toc_levels').val($.cookie('toc_levels')).change();
       }
-        //TODO: iterate over the selectors here and call their .change() methods
-        //and retest wkhtmltopdf
+
+      //These newer options may not have cookies defined yet
+        //TODO: finish init_missing_cookies()
+      $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
+      $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
+      $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
+      $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
+      $('#margin-left').change();
   },
   init_listeners: function() {
       $('#export-form-submit').click(function(e) {
           e.preventDefault();
-          if ($('#export_format').val() == 'rtf') {
-              $('#client_html').val('');
-              $('#client_html').val( $(':root').html() );
-          }
           $('#export-form').submit();
       });
 
-      $('#advanced-toggle').click(function(e) {
-          e.preventDefault();
-          $('#print-options-advanced').toggle();
-      });
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($('#toc_levels').val());
     });
@@ -303,8 +320,9 @@ var export_functions = {
     $('#fontsize').change(function() {
       export_functions.setFontPrint();
     });
-    $('#marginsize').change(function() {
-        export_functions.setMarginSize($(this).val());
+    $('.margin-select').change(function() {
+        console.log('.M-S listener firing');
+        export_functions.setMargins();
     });
     $('#printannotations').change(function() {
       if($(this).val() == 'yes') {
@@ -397,8 +415,15 @@ var export_functions = {
         //That will also fix the path, which is incorrect for this cookie at the moment
         $.cookie('toc_levels', toc_levels);
     },
-    setMarginSize: function(newVal) {
-        //TODO: make this get the margin from the form
+    setMargins: function() {
+        var div = $('.wrapper')
+        div.css('margin-left', $('#margin-left').val());
+        var newWidth = parseFloat(page_width_inches) -
+            (parseFloat($('#margin-left').val()) + parseFloat($('#margin-right').val()));
+        //console.log('L/R/Width: ' + [$('#margin-left').val(), $('#margin-r').val(), newWidth].join('/') );
+        div.css('width', newWidth + 'in');
+    },
+    XsetMarginSize: function(newVal) {
         //newVal will already have units
         var div = $('.wrapper')
         div.css('margin-left', newVal);
@@ -568,6 +593,7 @@ var export_functions = {
 $(document).ready(function(){
   console.log('BOOP: document.ready starting');
   //export_functions.debug_cookies();
+    export_functions.init_missing_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
