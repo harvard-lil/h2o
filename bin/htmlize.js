@@ -91,7 +91,14 @@ var set_styling = function(page) {
         html.attr('xmlns:m', 'http://schemas.microsoft.com/office/2004/12/omml');
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
 
-        var margins = Array(5).join(cookies['print_margin_size'] + ' ');
+        var margins = [
+            cookies['print_margin_left'],
+            cookies['print_margin_top'],
+            cookies['print_margin_right'],
+            cookies['print_margin_bottom'],
+        ].join(' ');
+        console.log('Newmargins: ' + margins);
+
         var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
         var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
         console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);

@@ -46,7 +46,6 @@ class PlaylistExporter
     end
 
     def fetch_playlist_html(request_url, params)
-      #TODO: create json options for phantom
       #TODO: clean up code/names here
       target_url = get_target_url(request_url, params[:id])
 
@@ -238,7 +237,10 @@ class PlaylistExporter
         'printhighlights' => {'cookie_name' => 'print_highlights'},
         'fontface' => {'cookie_name' => 'print_font_face'},
         'fontsize' => {'cookie_name' => 'print_font_size'},
-        'marginsize' => {'cookie_name' => 'print_margin_size'},
+        'margin-left' => {'cookie_name' => 'print_margin_left'},
+        'margin-top' => {'cookie_name' => 'print_margin_top'},
+        'margin-right' => {'cookie_name' => 'print_margin_right'},
+        'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
       }
 
       cookies = {'print_export' => 'true'}
