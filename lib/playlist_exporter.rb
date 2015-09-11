@@ -209,21 +209,32 @@ class PlaylistExporter
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end
-      
+
       doc
     end
 
     def forwarded_cookies(params)
-      forwarded_cookies_hash(params).map {|k,v|
+      if params[:export_format] == 'pdf'
+        cookies = forwarded_cookies_hash(params).except(*[
+                                                         'print_margin_top',
+                                                         'print_margin_right',
+                                                         'print_margin_bottom',
+                                                         'print_margin_left',
+                                                        ])
+      else
+        cookies = forwarded_cookies_hash(params)
+      end
+      Rails.logger.debug "Using cookies: #{cookies}"
+      cookies.map {|k,v|
         "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
       }.join(' ')
     end
-    
+
     def forwarded_cookies_hash(params)
       # This performs the reverse of export.js:init_user_settings() by mapping
       # form field names to cookie names while also translating values.
       # Ideally we would just consolidate the form field names to match cookie names
-      # and stop using multiple forms of true and false.
+      # as well as no longer using multiple forms of true and false.
 
       # No translation value here means we just pass the form field value straight through
       # Note: We don't send marginsize because margins are set via the wkhtmltopdf command line
@@ -338,19 +349,19 @@ class PlaylistExporter
       options
     end
 
+
     def generate_command(request_url, params)
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
-      # Note: This margin works in conjunction with print.css .wrapper styling.
-      margin = params['marginsize']
-      global_options = "--margin-top #{margin} --margin-bottom #{margin} --margin-left #{margin} --margin-right #{margin}"
+      global_options = %w[margin-top margin-right margin-bottom margin-left].map {|name|
+        "--#{name} #{params[name]}"
+      }.join(' ')
       toc_options = generate_toc_options(params)
       page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_filename(object_id)
       prep_output_file_path(output_file_path)
-      #output_file_url = output_filename_relative_path(output_file_path)
       target_url = get_target_url(request_url, object_id)
 
       Rails.logger.debug output_file_path
@@ -378,14 +389,6 @@ class PlaylistExporter
                           :host => uri.host,  #murk: '128.103.64.117',
                           :port => uri.port
                           )
-    end
-
-    def output_filename_relative_path(full_path)
-      begin
-        full_path.match(%r{(/public/playlists/.+)$})[0]
-      rescue => e
-        raise "Failed to find output_filename_relative_path in #{full_path}"
-      end
     end
 
     def output_filename(object_id)
