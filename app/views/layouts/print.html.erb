@@ -27,10 +27,13 @@
       <%= hidden_field_tag "client_html", '', id: 'client_html' %>
 
       <div id="themes-div">
-        <b>PRINT THEMES</b><br/>
-      <%= button_tag "Classic", class: 'theme-button', type: 'button', id: 'theme-classic' %>
-      <%= button_tag "Modern",  class: 'theme-button', type: 'button', id: 'theme-modern' %>
-      <%= button_tag "Gothic",  class: 'theme-button', type: 'button', id: 'theme-gothic' %>
+        <b>STYLES</b><br/>
+        <select id="theme-select">
+          <option value="default" selected="selected">Default</option>
+          <option value="classic">Classic</option>
+          <option value="modern">Modern</option>
+          <option value="custom">Custom</option>
+        </select>
       </div>
 
     <div id="annotations-div">

@@ -20,7 +20,22 @@ var cookies = [
     'toc_levels',
 ]
 var h2o_themes = {
-    'theme-classic' : {
+    'default' : {
+        '#toc_levels': '1',
+        '#printtitle': 'yes',
+        '#printdetails': 'no',
+        '#printparagraphnumbers': 'no',
+        '#printannotations': 'yes',
+        '#printhighlights': 'all',
+        '#hiddentext': 'hide',
+        '#fontface': 'futura',
+        '#fontsize': 'medium',
+        '#margin-top': '1.0in',
+        '#margin-right': '1.0in',
+        '#margin-bottom': '1.0in',
+        '#margin-left': '1.0in',
+    },
+    'classic' : {
         '#toc_levels': '3',
         '#printtitle': 'yes',
         '#printdetails': 'no',
@@ -30,9 +45,12 @@ var h2o_themes = {
         '#hiddentext': 'hide',
         '#fontface': 'futura',
         '#fontsize': 'medium',
-        '#marginsize': '1.0in',
+        '#margin-top': '0.5in',
+        '#margin-right': '1.0in',
+        '#margin-bottom': '0.5in',
+        '#margin-left': '1.0in',
     },
-    'theme-modern' : {
+    'modern' : {
         '#toc_levels': '0',
         '#printtitle': 'no',
         '#printdetails': 'yes',
@@ -42,9 +60,11 @@ var h2o_themes = {
         '#hiddentext': 'show',
         '#fontface': 'proxima',
         '#fontsize': 'small',
-        '#marginsize': '0.5in',
+        '#margin-top': '0.5in',
+        '#margin-right': '0.5in',
+        '#margin-bottom': '0.5in',
+        '#margin-left': '0.5in',
     },
-    'theme-gothic' : {},
 };
 
 var collages = {
@@ -398,16 +418,20 @@ var export_functions = {
             export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
+    //TODO: Do we need to call setFontPrint here, or is the cookie reading code enough?
     export_functions.setFontPrint();
-      $('.theme-button').on('click', function() {
-          //TODO: Maybe set this color to something to indicate it's active?
-          export_functions.setTheme( $(this).attr('id') );
+      $('#theme-select').change(function() {
+          export_functions.setTheme( $(this).val() );
       });
   },
     setTheme: function(themeId) {
-        $.each(h2o_themes[themeId], function(sel, value) {
-            $(sel).val(value).change();
-        });
+        console.log('setting theme: ' + themeId);
+        if (h2o_themes[themeId]) {
+            $.each(h2o_themes[themeId], function(sel, value) {
+                console.log('    ' + sel + ': ' + value);
+                $(sel).val(value).change();
+            });
+        }
     },
     setTocLevels: function(toc_levels) {
         export_functions.set_toc(toc_levels);
