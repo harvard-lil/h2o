@@ -237,10 +237,10 @@ class PlaylistExporter
         'printhighlights' => {'cookie_name' => 'print_highlights'},
         'fontface' => {'cookie_name' => 'print_font_face'},
         'fontsize' => {'cookie_name' => 'print_font_size'},
-        'margin-left' => {'cookie_name' => 'print_margin_left'},
         'margin-top' => {'cookie_name' => 'print_margin_top'},
         'margin-right' => {'cookie_name' => 'print_margin_right'},
         'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
+        'margin-left' => {'cookie_name' => 'print_margin_left'},
       }
 
       cookies = {'print_export' => 'true'}

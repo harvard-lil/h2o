@@ -92,10 +92,10 @@ var set_styling = function(page) {
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
 
         var margins = [
-            cookies['print_margin_left'],
             cookies['print_margin_top'],
             cookies['print_margin_right'],
             cookies['print_margin_bottom'],
+            cookies['print_margin_left'],
         ].join(' ');
         console.log('Newmargins: ' + margins);
 
