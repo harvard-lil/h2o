@@ -3,15 +3,6 @@ require 'uri'
 
 class PlaylistExporter
 
-  #TODO: get rid of PIPELINES approach
-  class PDF; end
-  class RTF; end
-
-  PIPELINES = {
-    'pdf' => [PDF],
-    'rtf' => [PDF, RTF],
-  }
-
   class << self
 
     def export_as(request_url, params)
@@ -103,16 +94,6 @@ class PlaylistExporter
       return tempfile
     end
 
-    # def export_as_rtf2(params)
-    #   #TODO: we could also just pass this to calibre on STDIN
-    #   file = Tempfile.new(['client_html', '.html'])
-    #   file.write params['client_html']
-    #   file.close
-    #   Rails.logger.debug "CLIENTHTML: #{file.path}"
-    #   #      export_as_rtf(file.path, params)
-    #   export_as_rtf('/tmp/format-test.html', params)
-    # end
-
     def export_as_epub(pdf_file, params)
       #TODO: DRY this up with other export_as_* methods
       out_file = pdf_file.gsub(/\.pdf$/, '.epub')
@@ -125,33 +106,6 @@ class PlaylistExporter
       command_output = ''
       Open3.popen2e(*command) do |i, out_err, wait_thread|
         out_err.each {|line| command_output += "CALIBREEPUB: #{line}"}
-        exit_code = wait_thread.value.exitstatus
-      end
-
-      File.write('/tmp/last-calibre-call', command.join(' '))  #TODO: remove
-      Rails.logger.debug command.join(' ')
-      Rails.logger.debug command_output
-
-      if exit_code == 0
-        out_file
-      else
-        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
-      end
-    end
-
-    def export_as_rtf(pdf_file, params)
-      out_file = pdf_file.gsub(/\.html$/, '.rtf')
-      command = [
-                 Rails.root.to_s + '/tmp/calibre/ebook-convert',
-                 pdf_file,
-                 out_file,
-                 '--keep-ligatures',
-      ]
-      exit_code = nil
-      command_output = ''
-      Rails.logger.debug "CALIBRERTF: #{command.join(' ')}"
-      Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| command_output += "CALIBRERTF: #{line}"}
         exit_code = wait_thread.value.exitstatus
       end
 
