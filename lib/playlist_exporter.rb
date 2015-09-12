@@ -103,16 +103,15 @@ class PlaylistExporter
       return tempfile
     end
 
-    def export_as_rtf2(params)
-      #TODO: we could also just pass this to calibre on STDIN
-      file = Tempfile.new(['client_html', '.html'])
-      file.write params['client_html']
-      file.close
-      Rails.logger.debug "CLIENTHTML: #{file.path}"
-
-#      export_as_rtf(file.path, params)
-      export_as_rtf('/tmp/format-test.html', params)
-    end
+    # def export_as_rtf2(params)
+    #   #TODO: we could also just pass this to calibre on STDIN
+    #   file = Tempfile.new(['client_html', '.html'])
+    #   file.write params['client_html']
+    #   file.close
+    #   Rails.logger.debug "CLIENTHTML: #{file.path}"
+    #   #      export_as_rtf(file.path, params)
+    #   export_as_rtf('/tmp/format-test.html', params)
+    # end
 
     def export_as_epub(pdf_file, params)
       #TODO: DRY this up with other export_as_* methods
