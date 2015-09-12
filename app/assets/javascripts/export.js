@@ -325,12 +325,21 @@ var export_functions = {
       $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
       $('#margin-left').change();
   },
+  init_theme_picker_listener: function() {
+      console.log('init_theme_picker_listener firing');
+      $('.theme-select-trigger').change(function() {
+          //This actually won't work like we want it to b/c the changing a theme using the
+          // theme select, changes form elements, which then fires those elements' .change()
+          // listeners, which resets the theme select to custom instantly
+          //console.log('resetting theme-select');
+          //$('#theme-select').val('custom');
+      });
+  },
   init_listeners: function() {
       $('#export-form-submit').click(function(e) {
           e.preventDefault();
           $('#export-form').submit();
       });
-
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($('#toc_levels').val());
     });
@@ -341,7 +350,6 @@ var export_functions = {
       export_functions.setFontPrint();
     });
     $('.margin-select').change(function() {
-        console.log('.M-S listener firing');
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
@@ -418,17 +426,15 @@ var export_functions = {
             export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
-    //TODO: Do we need to call setFontPrint here, or is the cookie reading code enough?
-    export_functions.setFontPrint();
       $('#theme-select').change(function() {
           export_functions.setTheme( $(this).val() );
       });
-  },
+      //TODO: Do we need to call setFontPrint here, or is the cookie reading code enough?
+      export_functions.setFontPrint();
+  },  //end init_listeners
     setTheme: function(themeId) {
-        console.log('setting theme: ' + themeId);
         if (h2o_themes[themeId]) {
             $.each(h2o_themes[themeId], function(sel, value) {
-                console.log('    ' + sel + ': ' + value);
                 $(sel).val(value).change();
             });
         }
@@ -445,13 +451,6 @@ var export_functions = {
         var newWidth = parseFloat(page_width_inches) -
             (parseFloat($('#margin-left').val()) + parseFloat($('#margin-right').val()));
         //console.log('L/R/Width: ' + [$('#margin-left').val(), $('#margin-r').val(), newWidth].join('/') );
-        div.css('width', newWidth + 'in');
-    },
-    XsetMarginSize: function(newVal) {
-        //newVal will already have units
-        var div = $('.wrapper')
-        div.css('margin-left', newVal);
-        var newWidth = parseFloat(page_width_inches) - (2 * parseFloat(newVal));
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
@@ -668,6 +667,7 @@ $(document).ready(function(){
 
     //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
 
+    export_functions.init_theme_picker_listener();
     console.log('BOOP: document.ready done');
 });
 

@@ -17,7 +17,7 @@
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
- <div id="print-options" style="width: 100%;">
+ <div id="print-options">
 
   <div id="print-options-new">
     <div id="print-options-basic">
@@ -65,9 +65,8 @@
       <div id="export-format">
         <b>FORMAT</b><br/>
         <select id="export_format" name="export_format">
-          <option value="pdf" selected="selected">PDF</option>
-          <option value="doc">DOC</option>
-          <option value="epub">EPUB</option>
+          <option value="pdf">PDF</option>
+          <option value="doc" selected="selected">DOC</option>
         </select>
       </div>
 
@@ -85,7 +84,7 @@
 
       <div id="toc-levels-options">
         TOC</br>
-        <select id="toc_levels" name="toc_levels">
+        <select id="toc_levels" name="toc_levels" class="theme-select-trigger">
           <option value="" selected="selected">None</option>
           <option value="1">1</option>
           <option value="2">2</option>
@@ -98,7 +97,7 @@
 
       <div id="titles-options">
         TITLES</br>
-        <select id="printtitle" name="printtitle">
+        <select id="printtitle" name="printtitle" class="theme-select-trigger">
           <option value="yes" selected="selected">Show</option>
           <option value="no">Hide</option>
         </select>
@@ -115,7 +114,7 @@
       <% if ["collages", "playlists"].include?(params[:controller]) -%>
        <div id="paragraph-numbers-options">
        PARAGRAPH NUMBERS<br/>
-       <select id="printparagraphnumbers" name="printparagraphnumbers">
+       <select id="printparagraphnumbers" name="printparagraphnumbers" class="theme-select-trigger">
          <option value="yes" selected="selected">Show</option>
          <option value="no">Hide</option>
        </select>
@@ -125,7 +124,7 @@
       <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
        <div id="fontface-div">
         FONT FACE<br/>
-        <select id="fontface" name="fontface">
+        <select id="fontface" name="fontface" class="theme-select-trigger">
           <option value="leitura">Leitura</option>
           <option value="garamond">Garamond</option>
           <option value="goudy">Goudy</option>
@@ -138,7 +137,7 @@
 
        <div id="fontsize-div">
         FONT SIZE</br>
-        <select id="fontsize" name="fontsize">
+        <select id="fontsize" name="fontsize" class="theme-select-trigger">
           <option value="small" selected="selected">Small</option>
           <option value="medium">Medium</option>
           <option value="large">Large</option>
@@ -148,7 +147,7 @@
 
        <div id="marginsize-div">
         MARGIN-T</br>
-        <select class="margin-select" id="margin-top" name="margin-top">
+        <select class="margin-select theme-select-trigger" id="margin-top" name="margin-top">
           <option value="0.5in">0.5in</option>
           <option value="0.75in">0.75in</option>
           <option value="1.0in" selected="selected">1.0in</option>
@@ -160,7 +159,7 @@
        </div>
        <div id="marginsize-div">
         MARGIN-R</br>
-        <select  class="margin-select" id="margin-right" name="margin-right">
+        <select  class="margin-select theme-select-trigger" id="margin-right" name="margin-right">
           <option value="0.5in">0.5in</option>
           <option value="0.75in">0.75in</option>
           <option value="1.0in" selected="selected">1.0in</option>
@@ -172,7 +171,7 @@
        </div>
        <div id="marginsize-div">
         MARGIN-B</br>
-        <select class="margin-select" id="margin-bottom" name="margin-bottom">
+        <select class="margin-select theme-select-trigger" id="margin-bottom" name="margin-bottom">
           <option value="0.5in">0.5in</option>
           <option value="0.75in">0.75in</option>
           <option value="1.0in" selected="selected">1.0in</option>
@@ -184,7 +183,7 @@
        </div>
        <div id="marginsize-div">
         MARGIN-L</br>
-        <select class="margin-select" id="margin-left" name="margin-left">
+        <select class="margin-select theme-select-trigger" id="margin-left" name="margin-left">
           <option value="0.5in">0.5in</option>
           <option value="0.75in">0.75in</option>
           <option value="1.0in" selected="selected">1.0in</option>
