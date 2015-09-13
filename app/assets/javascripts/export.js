@@ -111,24 +111,16 @@ var collages = {
 };
 
 var export_functions = {
-    init_download_settings: function() {
-        //currently a no-op
-    },
-    set_toc: function(toc_levels) {
-        return; //Disabled until we update it to work with the new H tags structure
+    set_toc: function(levels) {
         var toc_node = $('#' + tocId);
-        //Below is untested
-        if (isNaN(parseInt(toc_levels))) {
-            toc_node.remove();
-            $('#toc_container').hide();
-        } else {
-            export_functions.generate_toc(toc_levels);
+        if (levels) {
+            export_functions.generate_toc(levels);
             toc_node.show();  //do we need this?
             $('#toc_container').show();
+        } else {
+            $('#toc_container').hide();
+            toc_node.remove();
         }
-    },
-    hide_toc: function() {
-        var toc_node = $('#' + tocId);
     },
     generate_toc: function(toc_levels) {
         var toc_nodes = export_functions.build_branch();
@@ -176,7 +168,7 @@ var export_functions = {
         var toc_root_node = $('#toc_container');
         var flat_results = export_functions.flatten(nodes)
         var toc = $('<ol/>', { id: tocId });
-        
+
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.get_text(flat_results[i])
             toc.append($('<li/>', { html: toc_line }));
@@ -341,7 +333,7 @@ var export_functions = {
           $('#export-form').submit();
       });
     $('#toc_levels').change(function() {
-      export_functions.setTocLevels($('#toc_levels').val());
+      export_functions.setTocLevels($(this).val());
     });
     $('#fontface').change(function() {
       export_functions.setFontPrint();
@@ -635,7 +627,6 @@ $(document).ready(function(){
     export_functions.loadAnnotator($(el).data('id')); 
   });
 
-  //export_functions.init_download_settings();
     var div = $('.wrapper');
     if ($.cookie('print_export') == 'true') {
 
