@@ -10,7 +10,6 @@ var page_width_inches = 8.5;
 var cookies = [
     'hidden_text_display',
     'print_annotations',
-    'print_dates_details',
     'print_font_face',
     'print_font_size',
     'print_highlights',
@@ -23,7 +22,6 @@ var h2o_themes = {
     'default' : {
         '#toc_levels': '1',
         '#printtitle': 'yes',
-        '#printdetails': 'no',
         '#printparagraphnumbers': 'no',
         '#printannotations': 'yes',
         '#printhighlights': 'all',
@@ -38,7 +36,6 @@ var h2o_themes = {
     'classic' : {
         '#toc_levels': '3',
         '#printtitle': 'yes',
-        '#printdetails': 'no',
         '#printparagraphnumbers': 'no',
         '#printannotations': 'yes',
         '#printhighlights': 'all',
@@ -53,7 +50,6 @@ var h2o_themes = {
     'modern' : {
         '#toc_levels': '0',
         '#printtitle': 'no',
-        '#printdetails': 'yes',
         '#printparagraphnumbers': 'yes',
         '#printannotations': 'no',
         '#printhighlights': 'none',
@@ -266,11 +262,6 @@ var export_functions = {
         //export_functions.custom_hide('h1');
         export_functions.set_titles_visible(false);
       }
-      if($.cookie('print_dates_details') == 'false') {
-          $('#printdetails').val('no').change();
-        $('.details').hide();
-        //export_functions.custom_hide('.details');
-      }
       //console.log("Cookie: $.cookie('print_paragraph_numbers'): " + $.cookie('print_paragraph_numbers') );
       //console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
       if($.cookie('print_paragraph_numbers') == 'false') {
@@ -354,15 +345,6 @@ var export_functions = {
       $('#printtitle').change(function() {
         var choice = $(this).val();
         export_functions.set_titles_visible(choice == 'yes');
-    });
-    $('#printdetails').change(function() {
-      var choice = $(this).val();
-      if (choice == 'yes') {
-        $('.details').show();
-      }
-      else {
-        $('.details').hide();
-      }
     });
     $('#printparagraphnumbers').change(function() {
       var choice = $(this).val();
