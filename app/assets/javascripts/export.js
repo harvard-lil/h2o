@@ -112,9 +112,9 @@ var export_functions = {
         if (levels) {
             export_functions.generate_toc(levels);
             toc_node.show();  //do we need this?
-            $('#toc_container').show();
+            $('#toc-container').show();
         } else {
-            $('#toc_container').hide();
+            $('#toc-container').hide();
             toc_node.remove();
         }
     },
@@ -161,7 +161,7 @@ var export_functions = {
         return nodes;
     },
     wrap_toc: function(nodes) {
-        var toc_root_node = $('#toc_container');
+        var toc_root_node = $('#toc-container');
         var flat_results = export_functions.flatten(nodes)
         var toc = $('<ol/>', { id: tocId });
 

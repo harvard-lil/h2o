@@ -204,6 +204,7 @@ class PlaylistExporter
         'margin-right' => {'cookie_name' => 'print_margin_right'},
         'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
         'margin-left' => {'cookie_name' => 'print_margin_left'},
+        'toc_levels' => {'cookie_name' => 'toc_levels'},
       }
 
       cookies = {'print_export' => 'true'}

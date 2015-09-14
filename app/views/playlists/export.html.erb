@@ -7,6 +7,9 @@
 			<%= raw @playlist.formatted(:description) %>
 		</div>
 	</div>
-	<div id="toc_container"></div>
+    <!-- ref https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c -->
+	<div id="toc-container">
+      <p class="MsoToc1"></p>
+    </div>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
 </div>

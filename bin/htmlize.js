@@ -44,14 +44,6 @@ page.onConsoleMessage = function(msg) {
     console.log(msg);
 };
 
-var cssFiles = [];
-page.onResourceRequested = function(requestData) {
-    var url = requestData['url'];
-    if ((/http.+?\.css\b/gi).test(url)) {
-        cssFiles.push(url);
-        //console.log( JSON.stringify(requestData, null, 2) );
-    }
-};
 page.onError = function(msg, trace) {
     var msgStack = ['ERROR: ' + msg];
     if (trace && trace.length) {
@@ -74,11 +66,31 @@ page.open(address, function (status) {
         //Do everything inside a setTimeout to ensure everything loads and runs inside the page
 
         set_styling(page);
-        //for (var i in cssFiles) { console.log('file: ' + cssFiles[i]); }
+        set_toc(cookies['toc_levels']);
         write_file(output_file, page.content);
         phantom.exit();
     }, 200);
 });
+
+var set_toc = function(maxLevel) {
+    console.log('ST got mL: ' + maxLevel);
+    if (!maxLevel) {return;}
+
+    page.evaluate(function(maxLevel) {
+        var f = ["<!--[if supportFields]>",
+                 "<span style='mso-element:field-begin'></span>",
+                 'TOC \o "1-' + maxLevel + '" \u',
+                 "<span style='mso-element:field-separator'></span>",
+                 "<![endif]-->",
+                 "<span style='mso-no-proof:yes'>[To update TOC, right-click and choose &quot;Update field&quot;]</span>",
+                 "<!--[if supportFields]>",
+                 "<span style='mso-element:field-end'></span>",
+                 "<![endif]-->",
+                ];
+        $('.MsoToc1').append(f.join('\n'));
+    }, maxLevel);
+}
+
 
 var set_styling = function(page) {
 
