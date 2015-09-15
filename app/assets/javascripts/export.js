@@ -635,7 +635,7 @@ $(document).ready(function(){
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         //TODO: Reminder: This will remove any hidden dom nodes we want to .show() in phantomjs
         $("body *").filter(":hidden").not("script").remove();
-        
+
         //PhantomJS requires this in page scope
         export_h2o_fonts = h2o_fonts;
     }

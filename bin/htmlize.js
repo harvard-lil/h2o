@@ -126,15 +126,14 @@ var set_styling = function(page) {
             "<![endif]-->",
             "<link rel='File-List' href='boop_files/filelist.xml'>",
             "<style><!-- ",
-            //top, right, bottom, left
+            //NOTE: margins defined as: top, right, bottom, left
             "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
             //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
-            //TODO: convert font size to points
             "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-family:" + font_face_string + "; font-size:" + font_size_string + "pt; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
-            ".MsoToc1 { font-family:" + font_face_string + ";   list-style-type: none !important;}",
-            ".MsoToc1 * { font-family:" + font_face_string + ";   list-style-type: none !important;}",
+            ".MsoToc1 { font-family:" + font_face_string + "; }",
+            "@list l0:level1 { mso-level-text: '';}",
             "--></style>",
         ];
         $('title').after($(header.join("\n")));
@@ -157,6 +156,8 @@ var set_styling = function(page) {
         //var foo = ".highlight-hex-ff3800 { text-decoration: underline; }";
         //$('#highlight_styles').append(foo);
         $('#highlight_styles').append($('#highlight_styles').cssText());
+
+        $('li').attr('style', 'mso-list:l0 level1');  //new String($('li').attr('style') ?   );
 
         /*
          * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
