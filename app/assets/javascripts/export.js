@@ -48,7 +48,7 @@ var h2o_themes = {
         '#margin-left': '1.0in',
     },
     'modern' : {
-        '#toc_levels': '0',
+        '#toc_levels': '',
         '#printtitle': 'no',
         '#printparagraphnumbers': 'yes',
         '#printannotations': 'no',
@@ -137,8 +137,8 @@ var export_functions = {
         //console.log( 'BB.max_depth: ' + max_depth);
         if (depth > max_depth) {
             //TODO: This should never happen and can probably be removed completely
-            //console.log('max depth reached!'); 
-            return null; 
+            //console.log('max depth reached!');
+            return null;
         }
 
         parent.toc_level = depth-1;
@@ -296,7 +296,7 @@ var export_functions = {
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size')).change();
       }
-      if($.cookie('toc_levels') !== null) {
+      if($.cookie('toc_levels') && !$.cookie('print_export')) {
           $('#toc_levels').val($.cookie('toc_levels')).change();
       }
 
@@ -610,10 +610,11 @@ $(document).ready(function(){
   });
 
     var div = $('.wrapper');
-    if ($.cookie('print_export') == 'true') {
+    if ($.cookie('print_export')) {
 
         // Remove things that would otherwise trip up any of our exporter backends
         $('#print-options').remove();
+        $('#toc-container').show();
 
         // Reset margins because export back-end will manage them
         //NEW: technically, we only need to do this for PDF exports, because PDF
@@ -632,6 +633,7 @@ $(document).ready(function(){
         div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
 
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
+        //TODO: Reminder: This will remove any hidden dom nodes we want to .show() in phantomjs
         $("body *").filter(":hidden").not("script").remove();
         
         //PhantomJS requires this in page scope

@@ -73,13 +73,14 @@ page.open(address, function (status) {
 });
 
 var set_toc = function(maxLevel) {
-    console.log('ST got mL: ' + maxLevel);
+    console.log('St: ' + maxLevel);
     if (!maxLevel) {return;}
+    // https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c
 
     page.evaluate(function(maxLevel) {
         var f = ["<!--[if supportFields]>",
                  "<span style='mso-element:field-begin'></span>",
-                 'TOC \o "1-' + maxLevel + '" \u',
+                 'TOC \\o "1-' + maxLevel + '" \\u',
                  "<span style='mso-element:field-separator'></span>",
                  "<![endif]-->",
                  "<span style='mso-no-proof:yes'>[To update TOC, right-click and choose &quot;Update field&quot;]</span>",
@@ -109,11 +110,11 @@ var set_styling = function(page) {
             cookies['print_margin_bottom'],
             cookies['print_margin_left'],
         ].join(' ');
-        console.log('Newmargins: ' + margins);
+        //console.log('Newmargins: ' + margins);
 
         var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
         var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
-        console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);
+        //console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);
 
         /* NOTE: We express font-size here in pt, even though it is expressed in px in the
          * browser, but this seems to match up rather well in testing. Small text might be a
@@ -132,6 +133,8 @@ var set_styling = function(page) {
             //TODO: convert font size to points
             "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-family:" + font_face_string + "; font-size:" + font_size_string + "pt; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
+            ".MsoToc1 { font-family:" + font_face_string + ";   list-style-type: none !important;}",
+            ".MsoToc1 * { font-family:" + font_face_string + ";   list-style-type: none !important;}",
             "--></style>",
         ];
         $('title').after($(header.join("\n")));
