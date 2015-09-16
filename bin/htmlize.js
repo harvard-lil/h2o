@@ -110,16 +110,12 @@ var set_styling = function(page) {
             cookies['print_margin_bottom'],
             cookies['print_margin_left'],
         ].join(' ');
-        //console.log('Newmargins: ' + margins);
+        console.log('Newmargins: ' + margins);
 
         var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
         var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
-        //console.log('ffS: ' + font_face_string + ' -> font-size: ' + font_size_string);
+        font_size_string += 'px';
 
-        /* NOTE: We express font-size here in pt, even though it is expressed in px in the
-         * browser, but this seems to match up rather well in testing. Small text might be a
-         * little too big in the DOC, however. It's not perfect now, but it's pretty good.
-         */
         var header = [
             "<!--[if gte mso 9]>",
             "<xml><w:WordDocument><w:View>Edit</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
@@ -130,9 +126,8 @@ var set_styling = function(page) {
             "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
             //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
-            "p.MsoNormal, li.MsoNormal, div.MsoNormal { font-family:" + font_face_string + "; font-size:" + font_size_string + "pt; }",
+            "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
-            ".MsoToc1 { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: '';}",
             "--></style>",
         ];
@@ -157,7 +152,8 @@ var set_styling = function(page) {
         //$('#highlight_styles').append(foo);
         $('#highlight_styles').append($('#highlight_styles').cssText());
 
-        $('li').attr('style', 'mso-list:l0 level1');  //new String($('li').attr('style') ?   );
+        // Forcibly remove bullets from LI tags
+        $('li').attr('style', 'mso-list:l0 level1');
 
         /*
          * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();

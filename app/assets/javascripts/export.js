@@ -640,8 +640,6 @@ $(document).ready(function(){
         export_h2o_fonts = h2o_fonts;
     }
 
-    //console.log('BOOP: margin-left/width: ' + div.css('margin-left') + ' / ' + div.css('width') + ' (' + parseInt(div.css('width'))/96 + 'in)');
-
     export_functions.init_theme_picker_listener();
     console.log('BOOP: document.ready done');
 });
