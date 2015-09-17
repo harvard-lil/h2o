@@ -127,25 +127,25 @@ var export_functions = {
     },
     build_branch: function(parent, depth) {
         //$depth indicates the current depth of $parent
-        //Returns nested array of nodes that are children of parent, including any children of those children
+        //Returns nested array of nodes containing parent's children, grand children, etc
 
         //wkhtmltopdf cannot handle default argument values in function definitions
         parent = typeof parent !== 'undefined' ? parent : $(':root');
         depth = typeof depth !== 'undefined' ? depth : 1;
 
         var max_depth = export_functions.toc_max_depth();
-        console.log( 'BB.max_depth: ' + max_depth);
-        if (depth > max_depth) {
-            //TODO: This should never happen and can probably be removed completely
-            console.log('max depth reached!');
-            return null;
-        }
+        //console.log( 'BB.max_depth: ' + max_depth);
+
+        // if (depth > max_depth) {
+        //     //TODO: This should never happen and can probably be removed completely
+        //     console.log('max depth reached!');
+        //     return null;
+        // }
 
         parent.toc_level = depth-1;
         var nodes = [parent];
-        var children = parent.find('.playlists > ul').first().children();
 
-        children.each(function () {
+        parent.find('.playlists > ul').first().children().each(function () {
             var child = $(this);
             child.toc_level = depth;
 
