@@ -112,56 +112,47 @@ var export_functions = {
         toc_node.remove();
         if (levels) {
             export_functions.generate_toc(levels);
-            toc_node.show();  //do we need this?
+            //toc_node.show();  //do we need this?
             $('#toc-container').show();
         } else {
             $('#toc-container').hide();
         }
     },
     generate_toc: function(toc_levels) {
-        var toc_nodes = export_functions.build_branch();
-        export_functions.wrap_toc(toc_nodes);
+        var toc_nodes = export_functions.build_toc_branch();
+//        export_functions.display_toc(toc_nodes);
+        var toc_root_node = $('#toc-container');
+        var flat_results = export_functions.flatten(toc_nodes)
+        var toc = $('<ol/>', { id: tocId });
+
+        for(var i = 0; i<flat_results.length; i++) {
+            var toc_line = export_functions.toc_entry_text(flat_results[i])
+            toc.append($('<li/>', { html: toc_line }));
+            toc.appendTo(toc_root_node);
+        }
+
     },
-    toc_max_depth: function() {
-        return $('#toc_levels').val();
-    },
-    build_branch: function(parent, depth) {
-        //$depth indicates the current depth of $parent
-        //Returns nested array of nodes containing parent's children, grand children, etc
-
-        //wkhtmltopdf cannot handle default argument values in function definitions
-        parent = typeof parent !== 'undefined' ? parent : $(':root');
-        depth = typeof depth !== 'undefined' ? depth : 1;
-
-        var max_depth = export_functions.toc_max_depth();
-        //console.log( 'BB.max_depth: ' + max_depth);
-
-        // if (depth > max_depth) {
-        //     //TODO: This should never happen and can probably be removed completely
-        //     console.log('max depth reached!');
-        //     return null;
-        // }
-
-        parent.toc_level = depth-1;
-        var nodes = [parent];
+    build_toc_branch: function(parent, depth) {
+        //NOTE: wkhtmltopdf cannot handle default argument values in function definitions
+        parent = parent || $(':root');
+        depth = depth || 1;
+        var max_depth = $('#toc_levels').val();
+        var nodes = (depth == 1) ? [] : [parent];
 
         parent.find('.playlists > ul').first().children().each(function () {
             var child = $(this);
             child.toc_level = depth;
 
-            //if we are currently at our max depth, return this child rather than make a recursive call.
-            //nodes.push( (depth == max_depth) ? child : export_functions.build_branch( child, depth+1 ) );
             if (depth == max_depth) {
                 nodes.push( child );
             }
             else {
-                nodes.push( export_functions.build_branch( child, depth+1 ) );
+                nodes.push( export_functions.build_toc_branch( child, depth+1 ) );
             }
         });
         return nodes;
     },
-    get_text: function(node) {
-        console.log('tL: ' + node.toc_level);
+    toc_entry_text: function(node) {
         var header_node = node.children('h' + node.toc_level).first();;
         var content = $(header_node).children('.hcontent');
         var anchor = $(header_node).children('.number').children('a');
@@ -170,19 +161,9 @@ var export_functions = {
         toc_line += content.text() + '</a></span>';
         return toc_line;
     },
-    wrap_toc: function(nodes) {
-        var toc_root_node = $('#toc-container');
-        var flat_results = export_functions.flatten(nodes)
-        var toc = $('<ol/>', { id: tocId });
-
-        for(var i = 0; i<flat_results.length; i++) {
-            var toc_line = 'li: ' + export_functions.get_text(flat_results[i])
-            toc.append($('<li/>', { html: toc_line }));
-            toc.appendTo(toc_root_node);
-        }
+    display_toc: function(nodes) {
     },
     flatten: function(arr) {
-        //TODO: exit safely if arr is null
         return arr.reduce(function (flat, toFlatten) {
             return flat.concat(Array.isArray(toFlatten) ? export_functions.flatten(toFlatten) : toFlatten);
         }, []);
@@ -192,8 +173,7 @@ var export_functions = {
   },
   init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
-      //Note: This implements a special case requested by the business. Any changes made 
-      // here will be overwritten by init_user_settings cookie values if they exist
+      //Note: The "Print" icon link from a playlist will have font info in the URL hash
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
@@ -420,6 +400,7 @@ var export_functions = {
         $.cookie('toc_levels', toc_levels);
     },
     setMargins: function() {
+        //TODO SOMEDAY: Set .wrapper margin-top while also accounting for built in margin value it needs for print-options
         var div = $('.wrapper')
         div.css('margin-left', $('#margin-left').val());
         var newWidth = parseFloat(page_width_inches) -
