@@ -118,7 +118,7 @@ var set_styling = function(page) {
 
         var header = [
             "<!--[if gte mso 9]>",
-            "<xml><w:WordDocument><w:View>Edit</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
+            "<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
             "<![endif]-->",
             "<link rel='File-List' href='boop_files/filelist.xml'>",
             "<style><!-- ",
@@ -154,6 +154,10 @@ var set_styling = function(page) {
 
         // Forcibly remove bullets from LI tags
         $('li').attr('style', 'mso-list:l0 level1');
+
+        /*
+          set_toc -> generate_toc(levels) -> build_branch,wrap_toc
+         */
 
         /*
          * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();

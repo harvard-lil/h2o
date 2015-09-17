@@ -109,13 +109,13 @@ var collages = {
 var export_functions = {
     set_toc: function(levels) {
         var toc_node = $('#' + tocId);
+        toc_node.remove();
         if (levels) {
             export_functions.generate_toc(levels);
             toc_node.show();  //do we need this?
             $('#toc-container').show();
         } else {
             $('#toc-container').hide();
-            toc_node.remove();
         }
     },
     generate_toc: function(toc_levels) {
@@ -134,10 +134,10 @@ var export_functions = {
         depth = typeof depth !== 'undefined' ? depth : 1;
 
         var max_depth = export_functions.toc_max_depth();
-        //console.log( 'BB.max_depth: ' + max_depth);
+        console.log( 'BB.max_depth: ' + max_depth);
         if (depth > max_depth) {
             //TODO: This should never happen and can probably be removed completely
-            //console.log('max depth reached!');
+            console.log('max depth reached!');
             return null;
         }
 
@@ -160,26 +160,26 @@ var export_functions = {
         });
         return nodes;
     },
+    get_text: function(node) {
+        console.log('tL: ' + node.toc_level);
+        var header_node = node.children('h' + node.toc_level).first();;
+        var content = $(header_node).children('.hcontent');
+        var anchor = $(header_node).children('.number').children('a');
+        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level + '">';
+        toc_line += '<a href="#' + anchor.attr('name') + '">';
+        toc_line += content.text() + '</a></span>';
+        return toc_line;
+    },
     wrap_toc: function(nodes) {
         var toc_root_node = $('#toc-container');
         var flat_results = export_functions.flatten(nodes)
         var toc = $('<ol/>', { id: tocId });
 
         for(var i = 0; i<flat_results.length; i++) {
-            var toc_line = export_functions.get_text(flat_results[i])
+            var toc_line = 'li: ' + export_functions.get_text(flat_results[i])
             toc.append($('<li/>', { html: toc_line }));
             toc.appendTo(toc_root_node);
         }
-    },
-    get_text: function( node ) {
-        var header_node = node.children('h3').first();;
-        var content = $(header_node).children('.hcontent');
-        var anchor = $(header_node).children('.number').children('a');
-        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level + '">';
-        toc_line += '<a href="#' + anchor.attr('name') + '">';
-        toc_line += content.text() + '</a></span>';
-
-        return toc_line;
     },
     flatten: function(arr) {
         //TODO: exit safely if arr is null
