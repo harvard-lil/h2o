@@ -1,11 +1,10 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique {
   /* This is applied to dom elements that were H2 before we converted them to divs for the print export feature */
+ul, ol {
+  list-style-type: none;
+}
   .vh1, .vh2 { font-weight: bold; } 
-
-  h1.off {
-    color: red;
-  }
   .annotator-adder {
     visibility: hidden !important;
     display: none !important;
@@ -31,7 +30,6 @@
     color: #036290;
     text-decoration: none;
   }
-  
   .singleitem {
     padding-top: 15px;
     float: none;
@@ -115,7 +113,7 @@
   
   /* Print */
   @media print {
-    #toc-container {
+    #toc {
       page-break-after: always;
     }
     /* Untested: page break before every top level playlist (maybe other objects too?)
@@ -129,19 +127,23 @@
   #export-form { display: flex; } /* temporary work around for form layout problem */
 
   #toc-container {
+    display: none;
     padding-top: 20px;
     padding-bottom: 20px;
     font-weight: bold;
     font-size: 16px;
     #toc {
-      .toc_level1 { padding-left: 0em; }
-      .toc_level2 { padding-left: 1.5em; }
-      .toc_level3 { padding-left: 3.0em; }
-      .toc_level4 { padding-left: 4.5em; }
-      .toc_level5 { padding-left: 5.0em; }
-      .toc_level6 { padding-left: 6.5em; }
+      .toc_level1 { margin-left: 0em; }
+      .toc_level2 { margin-left: 1.5em; }
+      .toc_level3 { margin-left: 3.0em; }
+      .toc_level4 { margin-left: 4.5em; }
+      .toc_level5 { margin-left: 5.0em; }
+      .toc_level6 { margin-left: 6.5em; }
+      li span {
+          text-decoration: none;
+          border-bottom: thin dotted #AAAAAA;
+      }
     }
-    display: none;
   }
   #print-options {
     background: transparent url("<%= asset_path 'quickbar.png' %>") bottom repeat-x;
