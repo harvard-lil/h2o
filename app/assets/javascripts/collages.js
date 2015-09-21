@@ -29,6 +29,7 @@ h2o_global.collage_afterload = function(results) {
 };
 
 var collages = {
+  //Note: Implemented in multiple areas in our javascript/ruby
   clean_layer: function(layer_name) {
     if(layer_name === undefined) {
       return '';
