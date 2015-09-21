@@ -7,8 +7,6 @@
 			<%= raw @playlist.formatted(:description) %>
 		</div>
 	</div>
-	<div id="toc-container">
-      <p class="MsoToc1"></p>
-    </div>
+    <p class="MsoToc1" id="toc-container"></p>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
 </div>

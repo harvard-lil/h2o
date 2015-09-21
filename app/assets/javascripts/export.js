@@ -120,11 +120,9 @@ var export_functions = {
     },
     generate_toc: function(toc_levels) {
         var toc_nodes = export_functions.build_toc_branch();
-//        export_functions.display_toc(toc_nodes);
-        var toc_root_node = $('#toc-container');
         var flat_results = export_functions.flatten(toc_nodes)
         var toc = $('<ol/>', { id: tocId });
-
+        var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.toc_entry_text(flat_results[i])
             toc.append($('<li/>', { html: toc_line }));
@@ -160,8 +158,6 @@ var export_functions = {
         toc_line += '<a href="#' + anchor.attr('name') + '">';
         toc_line += content.text() + '</a></span>';
         return toc_line;
-    },
-    display_toc: function(nodes) {
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
@@ -276,7 +272,7 @@ var export_functions = {
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size')).change();
       }
-      if($.cookie('toc_levels') && !$.cookie('print_export')) {
+      if($.cookie('toc_levels') ) {
           $('#toc_levels').val($.cookie('toc_levels')).change();
       }
 
@@ -403,8 +399,7 @@ var export_functions = {
         //TODO SOMEDAY: Set .wrapper margin-top while also accounting for built in margin value it needs for print-options
         var div = $('.wrapper')
         div.css('margin-left', $('#margin-left').val());
-        var newWidth = parseFloat(page_width_inches) -
-            (parseFloat($('#margin-left').val()) + parseFloat($('#margin-right').val()));
+        var newWidth = parseFloat(page_width_inches) - (parseFloat($('#margin-left').val()) + parseFloat($('#margin-right').val()));
         //console.log('L/R/Width: ' + [$('#margin-left').val(), $('#margin-r').val(), newWidth].join('/') );
         div.css('width', newWidth + 'in');
     },
@@ -440,7 +435,6 @@ var export_functions = {
       $.each(rules, function(i, rule) {
           $.rule(base_selector + rule).appendTo('#additional_styles');
       });
-      //console.log( $('#additional_styles').cssText() );
   },
   loadAnnotator: function(id) {
     annotations = all_collage_data["collage" + id].annotations || {};
