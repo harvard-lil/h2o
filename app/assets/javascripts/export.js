@@ -187,7 +187,7 @@ var export_functions = {
     },
     custom_hide: function(selector) {
         //The export process needs to remove elements, not just hide them.
-        if ($.cookie('print_export') == 'true') {
+        if ($.cookie('export_format')) {
             //console.log('custom_hiding: ' + selector);
             $(selector).remove();
         }
@@ -206,13 +206,9 @@ var export_functions = {
         });
     },
     init_missing_cookies: function() {
+        return;
 
-        //return;
-
-        /*
-         * TODO: Set cookies the same way they are set in user control panel or don't set them at all here
-         */
-
+        //TODO: Set cookies the same way they are set in user control panel or don't set them at all
         var defaults = {
             print_margin_left: 'margin-left',
             print_margin_top: 'margin-top',
@@ -230,16 +226,13 @@ var export_functions = {
 
     } ,
     init_user_settings: function() {
-        //$('#print-options-advanced').hide();  //TODO: hide before this gets deployed
+      //TODO: Do we need this? Does this do anything that can't be done with a "selected" in the HTML?
       $('#printhighlights').val('original');
+
       if($.cookie('print_titles') == 'false') {
-          $('#printtitle').val('no').change();
-        //$('h1').hide();
-        //export_functions.custom_hide('h1');
+        $('#printtitle').val('no').change();
         export_functions.set_titles_visible(false);
       }
-      //console.log("Cookie: $.cookie('print_paragraph_numbers'): " + $.cookie('print_paragraph_numbers') );
-      //console.log("FIELD: $('#printparagraphnumbers').val(): " + $('#printparagraphnumbers').val());
       if($.cookie('print_paragraph_numbers') == 'false') {
           $('#printparagraphnumbers').val('no').change();
         export_functions.custom_hide('.paragraph-numbering');
@@ -258,13 +251,13 @@ var export_functions = {
         $('#hiddentext').val('show').change();
       }
       if($.cookie('print_highlights') == 'none') {
-        $('#printhighlights').val('none').change();
+        $('#printhighlights').val($.cookie('print_highlights')).change();
         $('.collage-content').each(function(i, el) {
           export_functions.highlightAnnotatedItem($(el).data('id'), {}, {});
         });
       }
       if($.cookie('print_highlights') == 'all') {
-        $('#printhighlights').val('all').change();
+        $('#printhighlights').val($.cookie('print_highlights')).change();
       }
       if ($.cookie('print_font_face') !== null ) {
           $('#fontface').val($.cookie('print_font_face')).change();
@@ -272,12 +265,12 @@ var export_functions = {
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size')).change();
       }
-      if($.cookie('toc_levels') ) {
+      if($.cookie('toc_levels') && $.cookie('export_format') != 'pdf') {
           $('#toc_levels').val($.cookie('toc_levels')).change();
       }
 
       //These newer options may not have cookies defined yet
-        //TODO: finish init_missing_cookies()
+      //TODO: finish init_missing_cookies()
       $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
       $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
       $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
@@ -565,7 +558,7 @@ var export_functions = {
 $(document).ready(function(){
   console.log('BOOP: document.ready starting');
   //export_functions.debug_cookies();
-    export_functions.init_missing_cookies();
+  //export_functions.init_missing_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
   export_functions.init_user_settings();
@@ -584,9 +577,7 @@ $(document).ready(function(){
     export_functions.loadAnnotator($(el).data('id')); 
   });
 
-    var div = $('.wrapper');
-    if ($.cookie('print_export')) {
-
+    if ($.cookie('export_format')) {
         // Remove things that would otherwise trip up any of our exporter backends
         $('#print-options').remove();
         $('#toc-container').show();
@@ -595,6 +586,7 @@ $(document).ready(function(){
         //NEW: technically, we only need to do this for PDF exports, because PDF
         //exports set margins outside of javascript/HTML completely.
 
+        var div = $('.wrapper');
         //TODO: set margins here based on cookie value, instead of doing it in phantomjs
         /*
         div.css('margin', '');

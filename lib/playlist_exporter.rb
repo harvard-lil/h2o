@@ -207,7 +207,7 @@ class PlaylistExporter
         'toc_levels' => {'cookie_name' => 'toc_levels'},
       }
 
-      cookies = {'print_export' => 'true'}
+      cookies = {'export_format' => params[:export_format]}
       field_to_cookie.each do |field, v|
         if params[field].present?
           #Rails.logger.debug "FtCookie got: #{field} -> '#{params[field]}'"
