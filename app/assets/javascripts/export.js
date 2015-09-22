@@ -112,7 +112,6 @@ var export_functions = {
         toc_node.remove();
         if (levels) {
             export_functions.generate_toc(levels);
-            //toc_node.show();  //do we need this?
             $('#toc-container').show();
         } else {
             $('#toc-container').hide();
@@ -154,9 +153,9 @@ var export_functions = {
         var header_node = node.children('h' + node.toc_level).first();;
         var content = $(header_node).children('.hcontent');
         var anchor = $(header_node).children('.number').children('a');
-        var toc_line = '<span class="toc_hcontent toc_level' + node.toc_level + '">';
+        var toc_line = '<span class="toc_level' + node.toc_level + '">';
         toc_line += '<a href="#' + anchor.attr('name') + '">';
-        toc_line += content.text() + '</a></span>';
+        toc_line += anchor.text() + ' ' + content.text() + '</a></span>';
         return toc_line;
     },
     flatten: function(arr) {
