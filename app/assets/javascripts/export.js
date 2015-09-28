@@ -124,7 +124,7 @@ var export_functions = {
         var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.toc_entry_text(flat_results[i])
-            toc.append($('<li/>', { html: toc_line }));
+          toc.append($('<li/>', { html: toc_line }));
             toc.appendTo(toc_root_node);
         }
 
@@ -151,12 +151,14 @@ var export_functions = {
     },
     toc_entry_text: function(node) {
         var header_node = node.children('h' + node.toc_level).first();;
-        var content = $(header_node).children('.hcontent');
-        var anchor = $(header_node).children('.number').children('a');
-        var toc_line = '<span class="toc_level' + node.toc_level + '">';
-        toc_line += '<a href="#' + anchor.attr('name') + '">';
-        toc_line += anchor.text() + ' ' + content.text() + '</a></span>';
-        return toc_line;
+        var content = header_node.children('.hcontent');
+        var anchor = header_node.children('.number').children('a');
+
+        var toc_line = '<span class="toc_level' + node.toc_level + '">' + '' +
+        (Array( (node.toc_level-1) * 6 )).join('&nbsp;') +
+        '<a href="#' + anchor.attr('name') + '" style="color: #000000">' +
+        anchor.text() + ' ' + content.text() + '</a></span>';
+      return toc_line;
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {

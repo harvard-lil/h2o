@@ -83,14 +83,14 @@ var set_toc = function(maxLevel) {
                  "<span style='mso-element:field-separator'></span>",
                  "<![endif]-->",
                  "<span style='mso-no-proof:yes' id='word-doc-toc-container'>",
-                 "[To update TOC, right-click and choose &quot;Update field&quot;]",
+                 "[TOC Preview: To update, right-click and choose &quot;Update field&quot;]",
                  "</span>",
                  "<!--[if supportFields]>",
                  "<span style='mso-element:field-end'></span>",
                  "<![endif]-->",
                 ];
         $('#toc-container').append(f.join('\n'));
-        $('#word-doc-toc-container').append($('#toc').detach());
+      $('#word-doc-toc-container').append($('#toc').detach());
     }, maxLevel);
 }
 
