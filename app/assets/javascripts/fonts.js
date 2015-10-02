@@ -1,6 +1,6 @@
 var h2o_fonts = {
   font_map: {
-	  'goudy' : 'sorts-mill-goudy',  //not displayed in print layout for some reason
+	  'goudy' : 'sorts-mill-goudy',
 	  'leitura' : 'leitura-news',
 	  'garamond' : 'adobe-garamond-pro',
 	  'futura' : 'futura-pt',
@@ -8,8 +8,8 @@ var h2o_fonts = {
 	  'proxima' : 'proxima-nova',
 	  'verdana' : 'Verdana'
   },
-  font_map_fallbacks: {  //TODO: Comic Sans only here to serve as red flag during testing
-	  'goudy' : '"Sorts Mill Goudy", "Goudy", "Goudy Old Style", "Comic Sans MS"',
+  font_map_fallbacks: {  //TODO: Comic Sans and Dingbats only here to serve as red flag during testing
+	  'goudy' : '"Sorts Mill Goudy", "Goudy", "Goudy Old Style", "Dingbats"',
 	  'leitura' : '"Leitura News", "Comic Sans MS"',
 	  'garamond' : '"Garamond", "Adobe Garamond Pro", "Comic Sans MS"',
 	  'futura' : '"Futura PT", "Futura", "Comic Sans MS"',

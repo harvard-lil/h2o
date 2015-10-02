@@ -244,14 +244,14 @@ class PlaylistExporter
     end
 
     def generate_toc_general_css(params)
-      #TODO: we may need to map the value we get using fonts.js:h2o_fonts
-      #Or map it pre-emptively on the client side
-      #  #{params['fontface']}
+      #TODO: We the client to map the fontface to provide fallbacks from fonts.js:h2o_fonts
+      # What about font-size? Currently, DOC export gets font size in pixels, so we should
+      # make sure DOC and PDF export get the same thing
       " .toc {
-          font-family: leitura-news;
+          font-family: #{params['fontface']}, Dingbats;
           font-size: #{params['fontsize']};
         }
-      "
+      ".tap {|x| Rails.logger.debug "TOCBOOP: #{x}" }
     end
 
     def render_toc(params)

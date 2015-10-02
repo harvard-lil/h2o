@@ -129,7 +129,7 @@ var set_styling = function(page) {
             //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
             "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
-            "@list l0:level1 { mso-level-text: '';}",
+            "@list l0:level1 { mso-level-text: ''; }",
             "--></style>",
         ];
         $('title').after($(header.join("\n")));
@@ -153,8 +153,8 @@ var set_styling = function(page) {
         //$('#highlight_styles').append(foo);
         $('#highlight_styles').append($('#highlight_styles').cssText());
 
-        // Forcibly remove bullets from LI tags
-        $('li').attr('style', 'mso-list:l0 level1');
+        // Forcibly remove bullets from LI tags and undo Word's LI indentation
+        $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
 
         /*
          * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
