@@ -285,5 +285,20 @@ RailsAdmin.config do |config|
       field :email_address
       field :created_at
     end
+
+
+    edit do
+      field :login
+      field :email_address
+      field :set_password do
+        label "New Password"
+        help "Optional. Leave blank if not changing password."
+      end
+
+      include_all_fields
+      exclude_fields :password, :password_confirmation, :crypted_password, :password_salt, :persistence_token, :oauth_token, :oauth_secret, :bookmark_id, :perishable_token
+      #fields :set_password, :email_address
+      #field :email_address
+    end
   end
 end

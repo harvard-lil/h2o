@@ -326,4 +326,13 @@ class User < ActiveRecord::Base
   def preverified?
     self.email_address.match(/\.edu$/)
   end
+
+  def set_password; nil; end
+
+  def set_password=(value)
+    return nil if value.blank?
+    self.password = value
+    self.password_confirmation = value
+  end
+
 end

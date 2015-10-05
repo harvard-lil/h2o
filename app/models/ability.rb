@@ -56,10 +56,15 @@ class Ability
       can :create, :dropbox_sessions
       can :show, BulkUpload, :user_id => user.id
 
-      can [:edit, :update], User, :id => user.id
+      # superadmins can edit/update any id, not just their own
+      if !user.has_role? :superadmin
+        can [:edit, :update], User, :id => user.id
+      end
     end
 
     if user.has_role? :superadmin
+      can [:edit, :update], User
+
       can :access, :rails_admin
       can :dashboard, :all
       can [:import, :submit_import], :playlists
