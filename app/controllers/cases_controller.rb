@@ -105,8 +105,16 @@ class CasesController < BaseController
   end
 
   def destroy
-    @case.destroy
-    render :json => {}
+    if @case.deleteable?
+      @case.destroy
+      json = {}
+    else
+      json = {
+        :error => true,
+        :message => 'Cannot delete this Case because it has been used to create an Annotated Item'
+      }
+    end
+    render :json => json
   end
 
   private
