@@ -113,6 +113,8 @@ var set_styling = function(page) {
             cookies['print_margin_left'],
         ].join(' ');
 
+      //TODO: use the font info in the _mapped form inputs after we move their setter code into
+      //the form inputs' .change() listeners.
         var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
         var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
         font_size_string += 'px';

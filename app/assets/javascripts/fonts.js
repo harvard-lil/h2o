@@ -8,13 +8,13 @@ var h2o_fonts = {
 	  'proxima' : 'proxima-nova',
 	  'verdana' : 'Verdana'
   },
-  font_map_fallbacks: {  //TODO: Comic Sans and Dingbats only here to serve as red flag during testing
-	  'goudy' : '"Sorts Mill Goudy", "Goudy", "Goudy Old Style", "Dingbats"',
-	  'leitura' : '"Leitura News", "Comic Sans MS"',
-	  'garamond' : '"Garamond", "Adobe Garamond Pro", "Comic Sans MS"',
-	  'futura' : '"Futura PT", "Futura", "Comic Sans MS"',
-	  'dagny' : '"FF Dagny Web Pro", "FF Dagny Pro", "FF Dagny", "Comic Sans MS"',
-	  'proxima' : '"Proxima Nova", "Comic Sans MS"',
+  font_map_fallbacks: {  //TODO: Comic Sans is only here to serve as red flag during testing
+	  'goudy' : '"sorts-mill-goudy", "Sorts Mill Goudy", "Goudy", "Goudy Old Style", "Comic Sans MS"',
+	  'leitura' : '"leitura-news", "Leitura News", "Comic Sans MS"',
+	  'garamond' : '"adobe-garamond-pro", "Garamond", "Adobe Garamond Pro", "GaramondNo8", "Comic Sans MS"',
+	  'futura' : '"futura-pt", "Futura PT", "Futura", "Comic Sans MS"',
+	  'dagny' : '"ff-dagny-web-pro", "FF Dagny Web Pro", "FF Dagny Pro", "FF Dagny", "Comic Sans MS"',
+	  'proxima' : '"proxima-nova", "Proxima Nova", "Comic Sans MS"',
 	  'verdana' : '"Verdana", "Arial", "Helvetica", "sans-serif"'
   },
   //sizes are in pixels

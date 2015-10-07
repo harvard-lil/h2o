@@ -130,7 +130,6 @@ var export_functions = {
 
     },
     build_toc_branch: function(parent, depth) {
-        //NOTE: wkhtmltopdf cannot handle default argument values in function definitions
         parent = parent || $(':root');
         depth = depth || 1;
         var max_depth = $('#toc_levels').val();
@@ -170,7 +169,7 @@ var export_functions = {
   },
   init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
-      //Note: The "Print" icon link from a playlist will have font info in the URL hash
+      //Note: The "Print" icon link from a playlist will send font info in the URL hash
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
@@ -182,7 +181,6 @@ var export_functions = {
     }
   },
     title_debug: function(msg) {
-        //$("h1").text( $("h1").text() + ", " + msg );
         $("h1").first().text( $("h1").first().text() + ": " + msg);
         console.log('title_debug-ing the message: ' + msg);
     },
@@ -289,10 +287,20 @@ var export_functions = {
       });
   },
   init_listeners: function() {
-      $('#export-form-submit').click(function(e) {
-          e.preventDefault();
-          $('#export-form').submit();
-      });
+    $('#export-form-submit').click(function(e) {
+      e.preventDefault();
+
+      //Copy mapped values for font face and font size to mapped form inputs
+      var fontface = $('#fontface').val();
+      $('#fontface_mapped').val(h2o_fonts.font_map_fallbacks[fontface]);
+
+      var fontsize = $('#fontsize').val();
+      $('#fontsize_mapped').val(h2o_fonts.base_font_sizes[fontface][fontsize] + 'px');
+      console.log('faceMapped: ' + $('#fontface_mapped').val());
+      console.log('sizeMapped: ' + $('#fontsize_mapped').val());
+
+      $('#export-form').submit();
+    });
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($(this).val());
     });
@@ -398,34 +406,26 @@ var export_functions = {
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
-      //TODO: Avoid calling this multiple times on page-load and make it no-op
-      //when there's no actual change
+    //TODO: Avoid calling this multiple times on page-load
     var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
-      var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
-      var mapped_font_face;
-      if (font_face == 'verdana') {
-          mapped_font_face = "'" + h2o_fonts.font_map_fallbacks[font_face] + "'";
-      }
-      else {
-          mapped_font_face = h2o_fonts.font_map[font_face] + ',' + h2o_fonts.font_map_fallbacks[font_face];
-      }
+    var mapped_font_face = h2o_fonts.font_map_fallbacks[font_face];
+    console.log('setFontPrint setting: ' + mapped_font_face);
 
-      console.log('setFontPrint setting: ' + mapped_font_face);
-
-      //TODO: mapped_font_face only works in the browser. we need the fallback for exports
+    var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
       var rules = [
           " * { font-family: " + mapped_font_face + "; font-size: " + base_font_size + 'px; }' ,
-          ' *.scale1-5 { font-size: ' + base_font_size*1.5 + 'px; }',
-          ' *.scale1-4 { font-size: ' + base_font_size*1.4 + 'px; }',
-          ' *.scale1-3 { font-size: ' + base_font_size*1.3 + 'px; }',
-          ' *.scale1-2 { font-size: ' + base_font_size*1.2 + 'px; }',
-          ' *.scale1-1 { font-size: ' + base_font_size*1.1 + 'px; }',
-          ' *.scale0-9 { font-size: ' + base_font_size*0.9 + 'px; }',
-          ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size*0.8 + 'px; }',
+          ' *.scale1-5 { font-size: ' + base_font_size * 1.5 + 'px; }',
+          ' *.scale1-4 { font-size: ' + base_font_size * 1.4 + 'px; }',
+          ' *.scale1-3 { font-size: ' + base_font_size * 1.3 + 'px; }',
+          ' *.scale1-2 { font-size: ' + base_font_size * 1.2 + 'px; }',
+          ' *.scale1-1 { font-size: ' + base_font_size * 1.1 + 'px; }',
+          ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
+          ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }',
       ];
 
+    //TODO: call rules with rules.join("\n") if that works
       $.each(rules, function(i, rule) {
           $.rule(base_selector + rule).appendTo('#additional_styles');
       });

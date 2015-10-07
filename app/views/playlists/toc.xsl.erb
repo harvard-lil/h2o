@@ -10,20 +10,16 @@
     <html>
       <head>
         <title>(This title does not get displayed in the rendered PDF)</title>
-        <xsl:comment>Non-empty HTML title is required to avoid breaking page layout</xsl:comment>
+        <xsl:comment>Non-empty HTML title required to avoid breaking page layout</xsl:comment>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <!-- NOTE: javascript and stylesheet tags do not work in this TOC -->
-        <!-- TODO: move below TOC CSS into export.css so the javascript TOC preview matches this one. -->
         <style>
-          div.header {
-            text-align: center;
-          }
-          span {float: right;}
-          li {list-style: none;}
-          a {text-decoration:none; }
-          .toc-entry {border-bottom: 1px dashed rgb(200,200,200);}
-
-          <%= general_css %>
+          div.header { text-align: center; }
+          span { float: right; }
+          li { list-style: none; }
+          a { text-decoration:none; }
+          .toc-entry { border-bottom: 1px dashed rgb(200,200,200); }
+          .toc { <%= raw general_css %> }
           <%= toc_levels_css %>
         </style>
       </head>
