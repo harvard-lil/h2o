@@ -16,32 +16,75 @@
 </aside>
 <% end %>
 
-<div id="text_block" class="singleitem leftcol" data-itemid="<%= text_block.id %>">
+<div id="text_block" class="singleitem leftcol" data-itemid="<%= text_block.id %>" data-user_id="<%= text_block.user_id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= text_block.display_name %></h1>
   </div>
-  <% if can?(:edit, text_block) && !iframe? -%>
   <div id="description" class="scale1-1">
     <%= raw text_block.formatted(:description) %>
+    <% if can?(:edit, text_block) && !iframe? -%>
     <%= link_to raw('<span class="icon icon-edit"></span>EDIT TEXT INFORMATION<span class="icon icon-arrow"></span>'), edit_text_block_path(text_block), :class => "edit-external scale0-8" %>
     <%= link_to raw('<span class="icon icon-delete"></span>DELETE TEXT<span class="icon icon-arrow"></span>'), text_block, "data-type" => "text_block", "data-id" => text_block.id, :class => "delete-action scale0-8" %>
+    <% end -%>
   </div>
-  <% end -%>
   <div class="article">
     <%= raw text_block.sanitized_content %>
   </div>
+  
+  <% if current_user && current_user == text_block.user && !iframe? -%>
+  <div class="response-block">
+    <% unless text_block.responses.empty? %>
+    <h3>Responses:</h3>
+    <% end %>
+    <ul id="response-list">
+    <% text_block.responses.each do |r| %>
+      <%= render r %>
+    <% end %>
+    </ul>
+  </div>
+  <% end %>
+
+  <% if current_user && text_block.enable_responses && !iframe? && current_user.try(:id) != text_block.user.try(:id) -%>
+  <%= render "shared/item_response" %>
+  <% end -%>
 </div>
 
 <% unless iframe? %>
 <div id="stats" class="right_panel">
   <a href="#" class="right_panel_close">Close</a>
   <h3 class="info">Text Information<span class="icon icon-panel"></span></h3>
-  <div class="stats_panel">
-    <%= render partial: "meta", locals: { text_block: text_block } %>
+  <div id="stats_collapse">
+    <div class="stats_panel">
+      <%= render partial: "meta", locals: { text_block: text_block } %>
+    </div>
+    <h3>Author Stats</h3>
+    <%= render :partial => "shared/author_stats", :locals => { :user => text_block.user } %>
   </div>
-  <h3>Author Stats</h3>
-  <%= render :partial => "shared/author_stats", :locals => { :user => text_block.user } %>
+  <a id="stats_expand">Expand</a>
 </div>
 <% end %>
 
 <div class="clear"></div>
+
+<script type="text/javascript">
+<% if current_user && can?(:edit, text_block) -%>
+var can_edit = true;
+var report_options = <%= { report: [text_block.enable_feedback, text_block.enable_discussions, text_block.enable_responses].any?, feedback: text_block.enable_feedback, discuss: text_block.enable_discussions, respond: text_block.enable_responses }.to_json.html_safe %>;
+var raw_annotations = {
+  "single": <%= raw text_block.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution); h }.to_json %>
+};
+<% elsif current_user -%>
+var can_edit = false;
+var report_options = <%= { report: [text_block.enable_feedback, text_block.enable_discussions, text_block.enable_responses].any?, feedback: text_block.enable_feedback, discuss: text_block.enable_discussions, respond: text_block.enable_responses }.to_json.html_safe %>;
+var raw_annotations = {
+  "single": <%= raw text_block.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution) if current_user.id == a.user_id; h }.to_json %>
+};
+<% else -%>
+var raw_annotations = {};
+var can_edit = false;
+var report_options = <%= { report: false, feedback: false, discuss: false, respond: false }.to_json.html_safe %>;
+<% end -%>
+var color_list = {};
+var layer_data = {};
+var highlights_only = {};
+</script>

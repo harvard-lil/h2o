@@ -1,17 +1,14 @@
 <li class="listitem listitem<%= content_error.id %>" data-itemid="<%= content_error.id %>">
-	<div class="details">
+	<%= link_to(url_for(content_error.annotated_item) + "#a#{content_error.id}", class: "details") do %>
     <h3>
-      <% if content_error.reportable -%>
-      <%= content_error.reportable_type.titleize %>: <%= link_to content_error.display_name, send("#{content_error.reportable_type.underscore}_path", content_error.reportable), :class => "title" %>
+      <% if content_error.annotated_item_type == 'TextBlock' -%>
+      <%= "Text Block: #{content_error.annotated_item.name}" %>
       <% else -%>
-      <%= content_error.reportable_type.titleize %>: <%= content_error.display_name %>
+      <%= "Annotated Item: #{content_error.annotated_item.name}" %>
       <% end -%>
-      <%= link_to 'DELETE', content_error, :class => "icon icon-delete tooltip", "data-type" => "content_error", "data-id" => content_error.id %>
     </h3>
-    <% if content_error.user.present? -%>
-    <p>Reported by <%= link_to(content_error.user.display, user_path(content_error.user)) %></p>
-    <% end -%>
-    <p class="error"><b>Error:</b> <%= content_error.description %></p>
-  </div>
+    <p>Reported by <%= content_error.user.display %></p>
+    <p><b>Message:</b> <%= content_error.annotation %></p>
+  <% end %>
 	<div class="clear"></div>
 </li>

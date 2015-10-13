@@ -4,7 +4,6 @@ class CollagesController < BaseController
   before_filter :limit_missing_item, :only => :destroy
   
   protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
-  caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').present? && c.instance_variable_get('@collage').public?}
 
   def embedded_pager
     if params.has_key?(:for_annotation)
@@ -27,13 +26,18 @@ class CollagesController < BaseController
     if current_user && params[:iframe].blank?
       render :json => {
         :can_edit             => can?(:edit, @collage),
+        :report_options       => { report: [@collage.enable_feedback, @collage.enable_discussions, @collage.enable_responses].any?, feedback: @collage.enable_feedback, discuss: @collage.enable_discussions, respond: @collage.enable_responses },
         :can_destroy          => can?(:destroy, @collage),
+        :responses            => can?(:edit, @collage) ? @collage.responses.to_json(:only => [:created_at, :content, :user_id]) :
+                                   current_user.responses.select { |r| r.resource == @collage }.to_json(:only => [:created_at, :content]),
         :custom_block         => "collage_afterload"
       }
     else
       render :json => {
         :can_edit             => false,
+        :report_options       => { report: false, feedback: false, discuss: false, respond: false },
         :readable_state       => @collage.readable_state || { :edit_mode => false }.to_json,
+        :responses            => [].to_json,
         :custom_block         => params[:iframe].present? ? "collage_afterload" : "collage_v2_afterload"
       }
     end
@@ -136,6 +140,7 @@ class CollagesController < BaseController
 
   private
   def collages_params
-    params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id, :featured)
+    params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id, :featured,
+                                    :enable_feedback, :enable_discussions, :enable_responses)
   end
 end

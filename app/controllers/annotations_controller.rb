@@ -64,7 +64,6 @@ class AnnotationsController < BaseController
 
     range = params[:ranges].first
     params[:annotation] = {
-      :collage_id => params[:collage_id],
       :xpath_start => range[:start],
       :xpath_end => range[:end],
       :start_offset => range[:startOffset],
@@ -73,8 +72,18 @@ class AnnotationsController < BaseController
       :hidden => params[:hidden].present? ? params[:hidden] : false,
       :highlight_only => params[:highlight_only],
       :link => params[:link].present? ? params[:link] : nil,
-      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
+      :error => params[:error].present? ? params[:error] : false,
+      :discussion => params[:discuss].present? ? params[:discuss] : false,
+      :feedback => params[:feedback].present? ? params[:feedback] : false,
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil,
+      :user_id => current_user.id
     }
+
+    if params.has_key?(:text_block_id)
+      params[:annotation].merge!({ :annotated_item_id => params[:text_block_id], :annotated_item_type => "TextBlock" })
+    elsif params.has_key?(:collage_id)
+      params[:annotation].merge!({ :annotated_item_id => params[:collage_id], :annotated_item_type => "Collage" })
+    end
 
     @annotation = Annotation.new(annotations_params)
  
@@ -86,7 +95,11 @@ class AnnotationsController < BaseController
                         :highlight_only => @annotation.highlight_only,
                         :text => @annotation.annotation,
                         :hidden => @annotation.hidden,
-                        :link => @annotation.link }
+                        :error => @annotation.error,
+                        :discuss => @annotation.discussion,
+                        :feedback => @annotation.feedback,
+                        :link => @annotation.link,
+                        :user_id => @annotation.user_id }
     else
       render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
              :status => :unprocessable_entity
@@ -95,10 +108,10 @@ class AnnotationsController < BaseController
 
   def update
     if params.has_key?(:force_destroy) && params[:force_destroy]
-      deleteable_tags = @annotation.collage.deleteable_tags
+      deleteable_tags = @annotation.annotated_item.deleteable_tags
       @annotation.layers.each do |layer|
         if deleteable_tags.include?(layer.id)
-          to_delete = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+          to_delete = @annotation.annotated_item.color_mappings.detect { |cm| cm.tag_id == layer.id } 
           ColorMapping.destroy(to_delete) if to_delete
         end
       end
@@ -124,7 +137,7 @@ class AnnotationsController < BaseController
       @annotation.reload
       updated_layers = @annotation.layers
       current_layers.each do |layer|
-        if !updated_layers.include?(layer) && !@annotation.collage.layers.include?(layer)
+        if !updated_layers.include?(layer) && !@annotation.annotated_item.layers.include?(layer)
           to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
           ColorMapping.destroy(to_delete) if to_delete
         end
@@ -143,10 +156,10 @@ class AnnotationsController < BaseController
   end
 
   def destroy
-    deleteable_tags = @annotation.collage.deleteable_tags
+    deleteable_tags = @annotation.annotated_item.deleteable_tags
     @annotation.layers.each do |layer|
       if deleteable_tags.include?(layer.id)
-        to_delete = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
+        to_delete = @annotation.annotated_item.color_mappings.detect { |cm| cm.tag_id == layer.id } 
         ColorMapping.destroy(to_delete) if to_delete
       end
     end
@@ -164,13 +177,14 @@ class AnnotationsController < BaseController
     params[:layer_hexes].each do |layer|
       next if !layer["is_new"]
       tag = @annotation.layers.detect { |l| l.name == layer["layer"] }
-      c = ColorMapping.create(collage_id: @annotation.collage_id, tag_id: tag.id, hex: layer[:hex])
+      c = ColorMapping.create(collage_id: @annotation.annotated_item_id, tag_id: tag.id, hex: layer[:hex])
     end
   end
 
   private
   def annotations_params
-    params.require(:annotation).permit(:collage_id, :link, :xpath_end, :xpath_start, :start_offset,
-                                       :end_offset, :annotation, :id, :layer_list, :hidden, :highlight_only)
+    params.require(:annotation).permit(:annotated_item_id, :annotated_item_type, :link, :xpath_end, :xpath_start, :start_offset,
+                                       :end_offset, :annotation, :id, :layer_list, :hidden, :highlight_only, :error, :discussion,
+                                       :feedback, :user_id)
   end
 end

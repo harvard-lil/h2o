@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :institutions 
   has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
+  has_many :responses # directly through user_id
 
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
@@ -22,7 +23,18 @@ class User < ActiveRecord::Base
   has_many :case_requests, :dependent => :destroy
   has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
- 
+
+  def user_responses
+    r = []
+    self.text_blocks.each do |t|
+      r << t.responses
+    end
+    self.collages.each do |c|
+      r << c.responses
+    end
+    r.flatten
+  end
+
   # Deal with this later by replacing habtm with hm through
   def users_roles
     []
@@ -154,7 +166,12 @@ class User < ActiveRecord::Base
   end
 
   def content_errors
-    self.has_role?(:superadmin) ? Defect.all : []
+    errors = []
+    (self.collages + self.text_blocks).each do |annotated_item|
+      #TODO: Either separate errors and feedback or remove one of them.
+      errors << annotated_item.annotations.select { |a| a.error || a.feedback }
+    end
+    errors.flatten
   end
 
   def bookmarks

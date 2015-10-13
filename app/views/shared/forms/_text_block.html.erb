@@ -14,6 +14,9 @@
   <%= form.inputs do %>
     <%= form.input :name %>
     <%= form.input :public, :input_html => {:class => 'privacy_toggle'} %>
+    <%= form.input :enable_feedback, label: "Enable feedback <span>(Allows H2O users to report errors or provide other feedback to you, the creator of this item. Feedback is not visible to the public.)</span>".html_safe -%>
+    <%# form.input :enable_discussions -%>
+    <%= form.input :enable_responses, label: "Enable responses <span>(Allows H2O users, such as students, to respond with their thoughts and reactions. Responses are not visible to the public.)</span>".html_safe -%>
     <%= form.input :description, :as => :text, :input_html => {:size => '40x5', :class => 'no_tinymce'}, :required => false %>
     <div class="mce_switches">
       <a href="#" id="text_block_content-html" class="html">HTML</a>

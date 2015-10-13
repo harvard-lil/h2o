@@ -7,7 +7,7 @@ class CreateFrozenItems < ActiveRecord::Migration
       t.string :item_type, :null => false
       t.timestamps
     end
-         
+
     add_column :text_blocks, :version, :integer, :null => false, :default => 1
     add_column :collages, :version, :integer, :null => false, :default => 1
   end

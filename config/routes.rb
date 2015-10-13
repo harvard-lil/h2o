@@ -1,4 +1,6 @@
 H2o::Application.routes.draw do
+  get 'svg_icons/:icon_set/:size', to: 'svg_icons#show'
+
   mount Ckeditor::Engine => '/ckeditor'
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
@@ -43,6 +45,8 @@ H2o::Application.routes.draw do
     end
   end
   resources :text_blocks do
+    resources :responses, :only => [:create, :destroy]
+    resources :annotations
     member do
       get 'export'
     end
@@ -63,6 +67,8 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
+  
+
   resources :playlists do
     member do
       post 'copy'
@@ -89,6 +95,7 @@ H2o::Application.routes.draw do
     end
   end
   resources :collages do
+    resources :responses, :only => [:create, :destroy]
     resources :annotations
     member do
       get 'access_level'

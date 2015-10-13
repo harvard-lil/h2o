@@ -13,6 +13,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
       #expire pages of ancestors, descendants, and siblings meta
       relations = [record.ancestor_ids, record.descendant_ids]
       relations.push(record.sibling_ids.select { |i| i != record.id }) if record.parent.present?
+      Collage.where(id: relations.flatten.uniq).update_all(updated_at: Time.now)
       relations.flatten.uniq.each do |rel_id|
         ActionController::Base.expire_page "/collages/#{rel_id}.html"
         ActionController::Base.expire_page "/iframe/load/collages/#{rel_id}.html"
@@ -29,6 +30,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
             ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html"
           end
         end
+        record.user.collages.update_all(updated_at: Time.now)
       end
     rescue Exception => e
       Rails.logger.warn "Collage sweeper error: #{e.inspect}"

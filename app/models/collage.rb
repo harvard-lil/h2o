@@ -22,11 +22,12 @@ class Collage < ActiveRecord::Base
 
   belongs_to :annotatable, :polymorphic => true
   belongs_to :user
-  has_many :annotations, -> { order(:created_at) }, :dependent => :destroy
+  has_many :annotations, -> { order(:created_at) }, :dependent => :destroy, :as => :annotated_item
   has_and_belongs_to_many :user_collections,  :dependent => :destroy
   has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
+  has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
 
   validates_presence_of :annotatable_type, :annotatable_id
   validates_length_of :description, :in => 1..(5.kilobytes), :allow_blank => true
@@ -82,7 +83,7 @@ class Collage < ActiveRecord::Base
     collage_copy.color_mappings = []
     collage_copy.tag_list = self.tag_list.join(', ')
 
-    self.annotations.each do |annotation|
+    self.annotations.select { |b| !b.error }.each do |annotation|
       new_annotation = annotation.dup
       new_annotation.cloned = true
       new_annotation.layer_list = annotation.layer_list
@@ -130,6 +131,8 @@ class Collage < ActiveRecord::Base
   end
 
   def display_name
+
+Rails.logger.warn "stephie: #{self.inspect}"
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end
   alias :to_s :display_name
@@ -155,6 +158,7 @@ class Collage < ActiveRecord::Base
     else
       original_content = self.annotatable.frozen_items.detect { |f| f.version = self.version }.content
     end
+
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
     # Footnote markup
@@ -193,7 +197,8 @@ class Collage < ActiveRecord::Base
         FROM annotations a
         JOIN taggings t ON a.id = t.taggable_id
         WHERE t.taggable_type = 'Annotation'
-        AND a.collage_id = '#{self.id}'
+        AND a.annotated_item_id = '#{self.id}'
+        AND a.annotated_item_type = 'Collage'
         GROUP BY tag_id) b
       WHERE b.count = 1").collect { |t| t.id }
   end

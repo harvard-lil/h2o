@@ -14,6 +14,7 @@ var list_results_url = '';
 var playlists_initialized = false;
 var user_drilldown = [];
 var scrollpane_api;
+var annotated_item_id;
 
 $.extend({
   mustache: function(template, data, partial, stream) {
@@ -128,6 +129,31 @@ var h2o_global = {
 
     return current_href;
   },
+  observeResponses: function() {
+    $('#submit_response').on('click', function(e) {
+      $('#responses div.error').remove();
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        dataType: 'JSON',
+        url: '/' + h2o_global.class_type() + '/' + h2o_global.getItemId() + '/responses',
+        data: { content: $('#responses textarea').val() },
+        beforeSend: function(){
+          h2o_global.showGlobalSpinnerNode();
+        },
+        success: function(data){
+          h2o_global.hideGlobalSpinnerNode();
+          if(data.error !== undefined && data.error) {
+            $('<div>').addClass('error').html("Sorry - your response was not recorded. Please try again.").insertBefore($('#responses textarea'));
+          } else {
+            $('#responses textarea').val('');
+            $('#responses textarea,#responses #submit_response,#responses div.clear').remove();
+            $('#responses').append($('<div>').addClass('error').html('Thanks for your response!'));
+          }
+        }
+      });
+    });
+  },
   observeSearchFilter: function() {
     if($('#user_id_filters').size()) {
       user_drilldown = $('#user_id_filters').data('users');
@@ -218,7 +244,6 @@ var h2o_global = {
       });
       $('#fixed_links').fadeIn();
       if($('.slide-out-div').size() && page_load) {
-        h2o_global.loadSlideOutTabBehavior(top_offset + 30);
         page_load = false;
       }
     }
@@ -653,54 +678,6 @@ var h2o_global = {
       $('.right_panel').css('opacity', 1.0);
     });
   },
-  loadSlideOutTabBehavior: function(top_offset) {
-    $('.slide-out-div').tabSlideOut({
-      tabHandle: '.handle',                     //class of the element that will become your tab
-      pathToTabImage: '<%= asset_path 'report_error.png' %>', //path to the image for the tab //Optionally can be set using css
-      imageHeight: '135px',                     //height of tab image           //Optionally can be set using css
-      imageWidth: '28px',                       //width of tab image            //Optionally can be set using css
-      tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
-      speed: 500,                               //speed of animation
-      action: 'click',                          //options: 'click' or 'hover', action to trigger animation
-      topPos: top_offset + 'px',                          //position from the top/ use if tabLocation is left or right
-      leftPos: '20px',                          //position from left/ use if tabLocation is bottom or top
-      fixedPosition: true                      //options: true makes it stick(fixed position) on scroll
-      //FIXME: on open hide errors
-    });
-    $('.slide-out-div').show();
-    $('#defect_submit').click(function(e) {
-      e.preventDefault();
-      $('#defect-form').ajaxSubmit({
-        dataType: "JSON",
-        beforeSend: function(){
-          h2o_global.showGlobalSpinnerNode();
-          $('#user-feedback-success, #user-feedback-error').hide().html('');
-        },
-        success: function(response){
-          h2o_global.hideGlobalSpinnerNode();
-          $('.slide-out-div').css('height', $('.slide-out-div').height() + 30);
-          if(response.error) {
-            $('#user-feedback-error').show().html(response.message);
-          } else {
-            h2o_global.hideGlobalSpinnerNode();
-            $('#user-feedback-success').show().html('Thanks for your feedback. Panel will close shortly.');
-            $('#defect_description').val(' ');
-            setTimeout(function() {
-              $('.handle').click();
-              setTimeout(function() {
-                $('#user-feedback-success, #user-feedback-error').hide().html('');
-              }, 500);
-            }, 2000);
-          }
-        },
-        error: function(data){
-          h2o_global.hideGlobalSpinnerNode();
-          $('.slide-out-div').css('height', $('.slide-out-div').height() + 30);
-          $('#user-feedback-error').show().html('Sorry. We could not process your error. Please try again.');
-        }
-      });
-    });
-  },
   hideVisiblePopups: function() {
     if($('.btn-a-active').length) {
       $('.btn-a-active').click();
@@ -769,7 +746,7 @@ var h2o_global = {
       }
       if($('body').attr('id') == 'collages_show') {
         access_results = { "can_edit" : false };
-        collages.initiate_annotator(false);
+        h2o_global.initiate_annotator('collages', false, false);
       }
       h2o_global.setFontClasses();
       return;
@@ -1124,7 +1101,7 @@ var h2o_global = {
             $('#generic_item_form').replaceWith($('<p class="delete_error error">This item cannot be deleted: ' + data.message + '</p>'));
             h2o_global.hideGlobalSpinnerNode();
           } else {
-            if($('.singleitem').length) {
+            if($('.singleitem').length && type != 'response') {
               document.location.href = "/" + type + "s";
             } else {
               listing.slideUp(200, function(e) {
@@ -1162,9 +1139,11 @@ var h2o_global = {
       }	
 
 	    var data = { "url" : destroyUrl, "type" : type };
-	    var content = $($.mustache(delete_item_template, data)).css('display', 'none');
-	    content.appendTo(listing);
-	    content.slideDown(200);
+      if(data["type"]) {
+        var content = $($.mustache(delete_item_template, data)).css('display', 'none');
+        content.appendTo(listing);
+        content.slideDown(200);
+      }
     });
   },
 
@@ -1443,8 +1422,72 @@ var h2o_global = {
       h2o_global.toggle_terms();
     });  
     h2o_global.toggle_terms();
+  },
+  initiate_annotator: function(annotated_type, report_options, can_edit) {
+    var can_report = report_options["report"];
+    var can_discuss = report_options["discuss"];
+    var can_leave_feedback = report_options["feedback"];
+    if(annotated_type == 'text_blocks' && !can_report && !can_edit) {
+      return;
+    }
+
+    $('div.article *:not(.paragraph-numbering)').addClass('original_content');
+
+    annotated_item_id = h2o_global.getItemId();
+    var elem = $('div.article');
+
+    var factory = new Annotator.Factory();
+    var Store = Annotator.Plugin.fetch('Store');
+    var h2o = Annotator.Plugin.fetch('H2O');
+
+    h2o_annotator = factory.setStore(Store, { 
+      prefix: '/' + annotated_type + '/' + h2o_global.getItemId() + '/annotations',
+      urls: {
+        create: '',
+        read: '/annotations/:id',
+        update: '/:id',
+        destroy: '/:id',
+        search: '/search'
+      }
+    }).addPlugin(h2o, layer_data, highlights_only, report_options, can_edit).getInstance();
+
+    h2o_annotator.options.readOnly = !(can_edit || can_report);
+    h2o_annotator.options.user_id = $.cookie('user_id');
+    h2o_annotator.attach(elem);
+    h2o_annotator.plugins.H2O.loadAnnotations(h2o_global.getItemId(), raw_annotations.single, true);
+   
+    if(!can_report && !can_edit) {
+      h2o_annotator.options.readOnly = true;
+    } else if(can_edit) {
+      if(h2o_global.class_type() == 'collages') {
+      } else {
+        $('#adder_link,#adder_highlight,#adder_hide,#adder_hide_one_click,#adder_annotate').remove();
+      }
+      if(!can_discuss) { $('#adder_discuss').remove() }
+      $('#adder_error,#adder_feedback').remove();
+    } else if(can_report) {
+      $('#adder_link,#adder_highlight,#adder_hide,#adder_hide_one_click,#adder_annotate').remove();
+      if(!can_leave_feedback) { $('#adder_feedback').remove() }
+      if(!can_discuss) { $('#adder_discuss').remove() }
+    }
+    $('.annotator-adder > div:first-child').remove();
+    var w = ($('.annotator-adder').find('.icon').length * 38) + ($('.annotator-adder > div').length * 15) - 10;
+    $('.annotator-adder').css('width', w + 'px')
+    if($('.annotator-adder').find('.icon').length < 1) { $('.annotator-adder').remove(); }
+
+  },
+  slideToAnnotation: function() {
+    if(document.location.hash.match(/^#a[0-9]+/)) {
+      var a = document.location.hash.match(/[0-9]+/);
+      var toolbar_height = 68;
+      h2o_global.slideToElement($('#annotation-indicator-' + a), toolbar_height);
+    }
+  },
+  slideToElement: function(element, offset_correction) {
+    var pos = element.offset().top - (offset_correction ? offset_correction : 0);
+    $(window).scrollTop(pos < 0 ? 0 : pos);
   }
-};
+}
 
 $(function() {
   if(document.location.pathname != '/create_anon') {
@@ -1542,6 +1585,7 @@ $(function() {
   h2o_global.observeDefaultDescriptionShow();
   h2o_global.initialize_toggle_terms();
   h2o_global.observeSearchFilter();
+  h2o_global.observeResponses();
 
   if($('body').hasClass('action_index')) {
     h2o_global.setListLinkVisibility();

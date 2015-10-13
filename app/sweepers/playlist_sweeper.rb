@@ -29,6 +29,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
             ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html"
           end
         end
+        record.user.collages.update_all(updated_at: Time.now)
       end
     rescue Exception => e
       Rails.logger.warn "Playlist sweeper error: #{e.inspect}"

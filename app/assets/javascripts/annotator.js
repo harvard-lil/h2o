@@ -11740,6 +11740,7 @@ Editor = (function(_super) {
     controls = editor.find('.annotator-controls');
     throttle = false;
     onMousedown = function(event) {
+    console.log(event.pageY);
       if (event.target === this) {
         mousedown = {
           element: this,
@@ -12534,14 +12535,15 @@ Util.contains = function(parent, child) {
 
 Util.getTextNodes = function(jq) {
   var getTextNodes;
-  getTextNodes = function(node) {
+  getTextNodes = function(node, step) {
+    if(step === undefined) { step = 0 };
     var nodes;
     if (node && node.nodeType !== Node.TEXT_NODE) {
       nodes = [];
       if (node.nodeType !== Node.COMMENT_NODE) {
         node = node.lastChild;
         while (node) {
-          nodes.push(getTextNodes(node));
+          nodes.push(getTextNodes(node, step + 1));
           node = node.previousSibling;
         }
       }
@@ -12549,7 +12551,12 @@ Util.getTextNodes = function(jq) {
     } else {
       //H2O Customization
       if($(node).text() == "\n" || $(node).parent().is('.paragraph-numbering') || $(node).parent().is('.layered-ellipsis')) {
-        return [];
+        var siblings = $(node).parent().siblings('a');
+        if(step == 1 && $(node).parent().is('.paragraph-numbering') && siblings[0] !== undefined) {
+          return getTextNodes(siblings[0], step + 1);
+        } else {
+          return [];
+        }
       } else {
         return node;
       }
@@ -12654,9 +12661,11 @@ Util.mousePosition = function(e, offsetEl) {
     offsetEl = $(offsetEl).offsetParent()[0];
   }
   offset = $(offsetEl).offset();
+ 
+  //H2O Customization for adjustment
   return {
-    top: e.pageY - offset.top,
-    left: e.pageX - offset.left
+    top: e.pageY - offset.top - 25,
+    left: e.pageX - offset.left - 130
   };
 };
 
@@ -12741,7 +12750,7 @@ Viewer = (function(_super) {
       var annotation_id = $('.was_hidden').attr('data-id');
       $('.annotation-' + annotation_id).removeClass('with_comment');
       $('#annotation-indicator-' + annotation_id).removeClass('was_hidden').css('opacity', 0.5);
-      $('#annotation-indicator-' + annotation_id + ' span:not(.icon)').hide();
+      $('#annotation-indicator-' + annotation_id + ' > span:not(.icon)').hide();
     }
 
     return this.publish('hide');

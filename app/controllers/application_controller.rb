@@ -46,6 +46,7 @@ class ApplicationController < ActionController::Base
       end
       @page_title = "New #{model.to_s}"
     elsif params[:id].present?
+    Rails.logger.warn "stephie: #{params[:controller]}"
       model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
       if params[:action] == "new"
         item = model.new
@@ -56,9 +57,10 @@ class ApplicationController < ActionController::Base
       else
         item = model.where(id: params[:id]).first
       end
+      Rails.logger.warn "item: #{item.inspect}"
       if item.present? && item.is_a?(User)
         @single_resource = item
-      elsif item.present? && item.respond_to?(:user) && item.user.present?
+      elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
         @single_resource = item
         if params[:controller] == "medias"
           @media = item
@@ -448,6 +450,9 @@ class ApplicationController < ActionController::Base
 
   private
   def verify_captcha(item)
+    # TODO: REmove:
+    item.valid_recaptcha = true
+
     if verify_recaptcha(:model => item, :message => '')
       item.valid_recaptcha = true
     end

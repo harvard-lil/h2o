@@ -11,35 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150130134612) do
+ActiveRecord::Schema.define(version: 20150415162129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "annotations", force: true do |t|
     t.integer  "collage_id"
-    t.string   "annotation",            limit: 10240
-    t.integer  "word_count"
+    t.string   "annotation",          limit: 10240
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "ancestry"
-    t.boolean  "public",                              default: true
-    t.boolean  "active",                              default: true
-    t.integer  "annotation_word_count"
     t.integer  "pushed_from_id"
-    t.boolean  "cloned",                              default: false, null: false
+    t.boolean  "cloned",                            default: false,     null: false
     t.string   "xpath_start"
     t.string   "xpath_end"
-    t.integer  "start_offset",                        default: 0,     null: false
-    t.integer  "end_offset",                          default: 0,     null: false
+    t.integer  "start_offset",                      default: 0,         null: false
+    t.integer  "end_offset",                        default: 0,         null: false
     t.string   "link"
-    t.boolean  "hidden",                              default: false, null: false
+    t.boolean  "hidden",                            default: false,     null: false
     t.string   "highlight_only"
+    t.integer  "annotated_item_id",                 default: 0,         null: false
+    t.string   "annotated_item_type",               default: "Collage", null: false
+    t.boolean  "error",                             default: false,     null: false
+    t.boolean  "feedback",                          default: false,     null: false
+    t.boolean  "discussion",                        default: false,     null: false
+    t.integer  "user_id"
   end
-
-  add_index "annotations", ["active"], name: "index_annotations_on_active", using: :btree
-  add_index "annotations", ["ancestry"], name: "index_annotations_on_ancestry", using: :btree
-  add_index "annotations", ["public"], name: "index_annotations_on_public", using: :btree
 
   create_table "brain_busters", force: true do |t|
     t.string "question"
@@ -188,6 +185,9 @@ ActiveRecord::Schema.define(version: 20150130134612) do
     t.boolean  "featured",                           default: false, null: false
     t.boolean  "created_via_import",                 default: false, null: false
     t.integer  "version",                            default: 1,     null: false
+    t.boolean  "enable_feedback",                    default: true,  null: false
+    t.boolean  "enable_discussions",                 default: false, null: false
+    t.boolean  "enable_responses",                   default: false, null: false
   end
 
   add_index "collages", ["ancestry"], name: "index_collages_on_ancestry", using: :btree
@@ -519,6 +519,14 @@ ActiveRecord::Schema.define(version: 20150130134612) do
   add_index "questions", ["updated_at"], name: "index_questions_on_updated_at", using: :btree
   add_index "questions", ["user_id"], name: "index_questions_on_user_id", using: :btree
 
+  create_table "responses", force: true do |t|
+    t.text     "content"
+    t.integer  "user_id",       null: false
+    t.string   "resource_type", null: false
+    t.integer  "resource_id",   null: false
+    t.datetime "created_at"
+  end
+
   create_table "roles", force: true do |t|
     t.string   "name",              limit: 40
     t.string   "authorizable_type", limit: 40
@@ -676,6 +684,9 @@ ActiveRecord::Schema.define(version: 20150130134612) do
     t.boolean  "created_via_import",                 default: false, null: false
     t.string   "description",        limit: 5242880
     t.integer  "version",                            default: 1,     null: false
+    t.boolean  "enable_feedback",                    default: true,  null: false
+    t.boolean  "enable_discussions",                 default: false, null: false
+    t.boolean  "enable_responses",                   default: false, null: false
   end
 
   add_index "text_blocks", ["created_at"], name: "index_text_blocks_on_created_at", using: :btree

@@ -1,1 +1,4 @@
-<%= render @collage %>
+<% ck = "#{@collage.id}-#{current_user == @collage.user}-#{@collage.responses.limit(1).pluck(:created_at).first.try(:to_i)}-#{@collage.updated_at.to_i}" %>
+<% cache_if(@collage.public?, action: 'show', action_suffix: ck, :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
+  <%= render @collage %>
+<% end %>

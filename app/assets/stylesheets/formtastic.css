@@ -47,6 +47,10 @@ form.formtastic fieldset > ol > li label {
   padding-bottom: 3px;
 }
 form.formtastic fieldset > ol > li > li label { line-height:100%; padding-top:0; }
+form.formtastic fieldset > ol > li label span {
+  font-weight: normal;
+  text-transform: none;
+}
 form.formtastic fieldset > ol > li > li label input { line-height:100%; vertical-align:middle; margin-top:-0.1em;}
 
 

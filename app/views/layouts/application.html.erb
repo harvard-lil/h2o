@@ -36,10 +36,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
     <%= render :partial => 'shared/login' %>
   </section>
 
-<% if [Case, TextBlock, Collage].include?(@single_resource.try(:class)) && params[:action] == 'show' -%>
-  <%= render :partial => 'shared/forms/defect' %>
-<% end -%>
-
 <%= render :partial => "shared/font_selectors" %>
     
 <%= javascript_include_tag "application" %>

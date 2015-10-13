@@ -61,6 +61,6 @@ module ApplicationHelper
   end
 
   def raw_annotations_for(collage)
-    { single: collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h } }
+    { single: collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution); h } }
   end
 end

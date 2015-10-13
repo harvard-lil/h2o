@@ -40,20 +40,35 @@ var $, Annotator, H2O,
 
 Annotator = _dereq_('annotator');
 
-Annotator.prototype.html.adder = '<div class="annotator-adder"><a href="#" id="adder_link" class="icon icon-adder-link" title="link">link</a><a href="#" id="adder_highlight" class="icon icon-adder-highlight" title="highlight">pencil</a><a id="adder_hide" class="icon icon-adder-hide" href="#" title="hide">eyeball</a><a id="adder_annotate" class="icon icon-adder-annotate" href="#" title="annotate">quote</a><button id="adder_button" type="button">Test Annotate</button></div>';
+Annotator.prototype.html.adder = '<div class="annotator-adder">'
+  + '<a id="adder_hide_one_click" class="icon icon-adder-hide-one-click" href="#" title="hide">eyeball</a>'
+  + '<a id="adder_hide" class="icon icon-adder-hide" href="#" title="replace text">eyeball-t</a>'
+  + '<div></div>'
+  + '<a href="#" id="adder_link" class="icon icon-adder-link" title="link">link</a>'
+  + '<a href="#" id="adder_highlight" class="icon icon-adder-highlight" title="highlight">pencil</a>'
+  + '<a id="adder_annotate" class="icon icon-adder-annotate" href="#" title="annotate">quote</a>'
+  + '<a id="adder_feedback" href="#" class="icon icon-feedback" title="Feedback">Feedback</a>'
+  + '<a id="adder_discuss" href="#" class="icon icon-discuss" title="Discuss">Discuss</a>'
+  + '<button id="adder_button" type="button"></button>'
+  + '</div>';
 Annotator.Editor.prototype.html = '<div class="annotator-outer annotator-editor"><form class="annotator-widget"><ul class="annotator-listing"></ul><div class="annotator-controls"><a href="#cancel" class="annotator-cancel"></a><a href="#" id="h2o_delete">Delete</a><a href="#save" class="annotator-save annotator-focus">Save</a></div></form></div>';
 
 
 $ = Annotator.Util.$;
 
 H2O = (function() {
-  function H2O(categories, highlights_only) {
+  function H2O(categories, highlights_only, report_options, can_edit) {
     this.categories = categories;
     this.highlights_only = highlights_only;
     this.formatted_annotations = {};
     this.annotation_deleted_id = null;
     this.initialized = false;
-    this.collage_id = 0;
+    this.can_edit = can_edit;
+    this.can_leave_feedback = report_options["feedback"];
+    this.can_discuss = report_options["discuss"];
+    this.can_respond = report_options["respond"];
+    this.can_report = report_options["report"];
+    this.annotated_item_id = 0;
     this.updateViewer = __bind(this.updateViewer, this);
     this.updateEditor = __bind(this.updateEditor, this);
     this.accessible_annotations = {};
@@ -65,23 +80,10 @@ H2O = (function() {
   H2O.prototype.input = null;
 
   H2O.prototype.pluginInit = function() {
-    if(!h2o_annotator.options.readOnly) {
+    if(h2o_annotator.plugins.H2O.can_edit) {
       $(document).delegate('#link', 'click', function(e) {
         if($(this).val() == '') {
           $(this).val('http://').select();
-        }
-      });
-
-      $(document).delegate('body', 'click', function(e) {
-        if($(e.target).hasClass('icon-edit') ||
-           $(e.target).parent().hasClass('annotator-adder') || 
-           $(e.target).hasClass('annotator-edit') || 
-           $(e.target).hasClass('annotation-indicator') || 
-           $(e.target).parent().hasClass('annotation-indicator')) {
-          return;
-        }
-        if($(e.target).parents('.annotator-editor').length == 0 && $('.annotator-editor .annotator-controls').is(':visible')) {
-          $('.annotator-cancel').trigger('click');
         }
       });
       $(document).delegate('.annotator-checkbox:not(.annotation_hidden_property) label, .annotator-checkbox2 label', 'click', function(e) {
@@ -94,22 +96,43 @@ H2O = (function() {
         h2o_annotator.editor.hide();
         $('.annotator-delete').trigger('click');
       });
-    } 
+    }
 
-    $(document).delegate('.annotation-indicator-annotate,.annotation-indicator-link,.icon-adder-annotate,.icon-adder-link', 'mouseover', function(e) {
+    $(document).delegate('body', 'click', function(e) {
+      if($(e.target).hasClass('icon-edit') ||
+         $(e.target).hasClass('icon-delete') ||
+         $(e.target).parent().hasClass('annotator-adder') || 
+         $(e.target).hasClass('annotator-edit') || 
+         $(e.target).hasClass('annotation-indicator') || 
+         $(e.target).parent().hasClass('annotation-indicator')) {
+        return;
+      }
+      if($(e.target).parents('.annotator-editor').length == 0 && $('.annotator-editor .annotator-controls').is(':visible')) {
+        $('.annotator-cancel').trigger('click');
+      }
+    });
+
+    $(document).delegate('.annotation-indicator-annotate,.annotation-indicator-link,.icon-adder-annotate,.icon-adder-link,.annotation-indicator-discuss,.annotation-indicator-feedback', 'mouseover', function(e) {
       $('.annotation-' + $(this).data('id')).addClass('with_comment');
       $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
       $('#annotation-indicator-' + $(this).data('id')).find('span').css('z-index', 100);
-
     });
-    $(document).delegate('.annotation-indicator-annotate,.annotation-indicator-link,.icon-adder-annotate,.icon-adder-link', 'mouseout', function(e) {
+    $(document).delegate('.annotation-indicator-error', 'mouseover', function(e) {
+      $('.annotation-' + $(this).data('id')).addClass('with_error');
+      $('span.readonly-error').css('z-index', 99);
+      $('#annotation-indicator-' + $(this).data('id')).find('span').css('z-index', 100);
+    });
+    $(document).delegate('.annotation-indicator-annotate,.annotation-indicator-link,.icon-adder-annotate,.icon-adder-link,.annotation-indicator-discuss,.annotation-indicator-feedback', 'mouseout', function(e) {
       $('.annotation-' + $(this).data('id')).removeClass('with_comment');
+    });
+    $(document).delegate('.annotation-indicator-error', 'mouseout', function(e) {
+      $('.annotation-' + $(this).data('id')).removeClass('with_error');
     });
 
     $(document).delegate('#stats_expand', 'click', function(e) {
       $('#stats_collapse').slideDown(100, function() {
         var height_offset = $('div#stats').data('height_offset');
-        $.each($('.edit-annotate:visible'), function(i, el) {
+        $.each($('.edit-annotate:visible, .edit-link:visible, .delete-feedback:visible, .readonly-link'), function(i, el) {
           if($(el).offset().top < height_offset) {
             $(el).hide(); 
           }
@@ -117,36 +140,38 @@ H2O = (function() {
         $('#stats_expand').hide();
       });
     });
-    if(h2o_annotator.options.readOnly) {
-      $(document).delegate('.annotation-indicator', 'click', function(e) {
-        if($(e.target).hasClass('link')) {
-          return;
+
+    $(document).delegate('.icon-adder-annotate,.icon-adder-link,.icon-adder-error,.icon-adder-feedback', 'click', function(e) {
+      if($('div#stats').is(':visible')) {
+        var height_offset = $('div#stats').offset().top + $('div#stats').height();
+        if(height_offset > $(this).offset().top) {
+          $('div#stats').data('height_offset', height_offset);
+          $('div#stats_collapse').slideUp(100, function() {
+            $('#stats_expand').css('display', 'block');
+          });
         }
-        if($(this).find('span.icon-adder-link').size() > 0) {
-          $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
-          $(this).find('span.readonly-link').css('z-index', 100).toggle();
-        } 
-        if($(this).find('span.icon-adder-annotate').size() > 0) {
-          $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
-          $(this).find('span.readonly-annotate').css('z-index', 100).toggle();
-        }
-        return;
-      });
-    } else {
-      $(document).delegate('.icon-adder-annotate,.icon-adder-link', 'click', function(e) {
-        if($('div#stats').is(':visible')) {
-          var height_offset = $('div#stats').offset().top + $('div#stats').height();
-          if(height_offset > $(this).offset().top) {
-            $('div#stats').data('height_offset', height_offset);
-            $('div#stats_collapse').slideUp(100, function() {
-              $('#stats_expand').css('display', 'block');
-            });
-          }
-        }
+      }
+    });
+
+    if(h2o_annotator.plugins.H2O.can_edit || h2o_annotator.plugins.H2O.can_leave_feedback) {
+      $(document).delegate('.delete-error .icon-delete,.delete-feedback .icon-delete', 'click', function(e) {
         e.preventDefault();
-        $(this).siblings('.edit-annotate,.edit-link').find('.icon-edit').show();
+        var annotation = h2o_annotator.plugins.H2O.accessible_annotations[$(this).parent().parent().data('id')];
+        h2o_annotator.editor.annotation = annotation;
+        var position = $(this).parent().parent().position();
+        position.top += 4;
+        position.left += 9;
+        h2o_annotator.showViewer([annotation], position);
+        $('.annotator-delete').trigger('click');
+      });
+    }
+
+    if(h2o_annotator.plugins.H2O.can_edit) {
+      $(document).delegate('.icon-adder-annotate,.icon-adder-link,.icon-adder-error,.icon-adder-discuss,.icon-adder-feedback', 'click', function(e) {
+        e.preventDefault();
+        $(this).siblings('.edit-annotate,.edit-link,.delete-error,.delete-feedback').find('.icon-edit,.icon-trash').show();
         $(this).css({ 'opacity': 1.0 });
-        $(this).siblings('.edit-annotate,.edit-link').toggle();
+        $(this).siblings('.edit-annotate,.edit-link,.delete-error,.delete-feedback').toggle();
       });
       $(document).delegate('.edit-annotate .icon-edit,.edit-link .icon-edit', 'click', function(e) {
         e.preventDefault();
@@ -158,10 +183,11 @@ H2O = (function() {
         position.left += 9;
 
         if($(this).parent().hasClass('edit-annotate')) {
-          $('.annotator-editor').addClass('annotate');
+          $('.annotator-editor').data('type', 'annotate');
           $('.annotator-listing textarea').parent().show();
+          $('.annotator-listing textarea').attr('placeholder', 'Comments...');
         } else {
-          $('.annotator-editor').addClass('link');
+          $('.annotator-editor').data('type', 'link');
           $('.annotator-listing input#link').parent().show();
           $('input#link').val(annotation.link);
         }
@@ -179,7 +205,7 @@ H2O = (function() {
           $('.annotator-listing input#link').focus();
         }
       });
-      $(document).delegate('.annotation-indicator:not(.annotation-indicator-annotate,.annotation-indicator-link)', 'click', function(e) {
+      $(document).delegate('.annotation-indicator:not(.annotation-indicator-annotate,.annotation-indicator-link,.annotation-indicator-error,.annotation-indicator-feedback)', 'click', function(e) {
         e.preventDefault();
         var annotation = h2o_annotator.plugins.H2O.accessible_annotations[$(this).data('id')];
 
@@ -187,21 +213,50 @@ H2O = (function() {
         position.top += 4;
         if ($(this).hasClass('annotation-indicator-highlights') || $(this).hasClass('icon-adder-highlight-only')) {
           position.left += $(this).find('a').width()/2;
-          $('.annotator-editor').addClass('highlight');
+          $('.annotator-editor').data('type', 'highlight');
           $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property), .annotator-listing .annotator-checkbox2').show();
           $('#new_layer').parent().show();
           $('.annotator-adder button').trigger('click');
         } else if ($(this).hasClass('icon-adder-show')) {
           position.left += 11;
-          $('.annotator-editor').addClass('hide');
+          $('.annotator-editor').data('type', 'hide');
+          $('.annotator-listing textarea').attr('placeholder', 'Enter replacement text...');
           $('.annotation_hidden_property').show();
           $('#h2o_delete').hide();
-          $('#show_annotation').attr('checked', true);
-          $('.annotator-save').hide();
+          $('.annotator-listing textarea').parent().show();
         }
         h2o_annotator.showViewer([annotation], position);
         $('.annotator-edit').trigger('click');
         h2o_annotator.editor.annotation = annotation;
+      });
+    } else if(h2o_annotator.plugins.H2O.can_report) {
+      $(document).delegate('.annotation-indicator', 'click', function(e) {
+        if($(e.target).hasClass('link')) {
+          return;
+        }
+        if($(this).find('span.icon-adder-link').size() > 0) {
+          $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
+          $(this).find('span.readonly-link').css('z-index', 100).toggle();
+        } 
+        if($(this).find('span.icon-adder-annotate').size() > 0) {
+          $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
+          $(this).find('span.readonly-annotate').css('z-index', 100).toggle();
+        }
+        if($(this).find('span.icon-adder-error').size() > 0) {
+          $('span.readonly-link,span.readonly-annotate,span.delete-error').css('z-index', 99);
+          $(this).find('span.delete-error').css('z-index', 100).toggle();
+        }
+        if($(this).find('span.icon-adder-feedback').size() > 0) {
+          $('span.readonly-link,span.readonly-annotate,span.delete-feedback').css('z-index', 99);
+          $(this).find('span.delete-feedback').css('z-index', 100).toggle();
+        }
+        return;
+      });
+    } else {
+      $(document).delegate('.icon-adder-annotate,.icon-adder-link,.icon-adder-error,.icon-adder-discuss,.icon-adder-feedback', 'click', function(e) {
+        e.preventDefault();
+        $(this).css({ 'opacity': 1.0 });
+        $(this).siblings('.readonly-annotate, .readonly-link').toggle();
       });
     }
 
@@ -211,26 +266,35 @@ H2O = (function() {
       $(this).addClass('active');
       $('.annotator-controls a').show();
       $('.annotator-listing li, #h2o_delete').hide();
-      $('.annotator-editor').removeClass('annotate hide highlight link new_item'); 
-      $('.annotator-editor').addClass('new_item');
+      $('.annotator-editor').data('type', 'new_item');
       $('#link').val('');
 
-      if($(this).attr('id') == 'adder_annotate') {
-        $('.annotator-editor').addClass('annotate');
+      //TODO: Change this to test
+      if($(this).attr('id') == 'adder_annotate' || $(this).attr('id') == 'adder_error' || $(this).attr('id') == 'adder_feedback' || $(this).attr('id') == 'adder_discuss' || $(this).attr('id') == 'adder_hide') {
+        $('.annotator-editor').data('type', $(this).attr('id').replace(/^adder_/, ''));
         $('.annotator-listing textarea').parent().show();
         $('.annotator-adder button').trigger('click');
         $('.annotator-listing textarea').focus();
+        if($(this).attr('id') == 'adder_annotate') {
+          $('#annotator-field-0').attr('placeholder', 'Comments...');
+        } else if($(this).attr('id') == 'adder_error') {
+          $('#annotator-field-0').attr('placeholder', 'Report Error...');
+        } else if($(this).attr('id') == 'adder_feedback') {
+          $('#annotator-field-0').attr('placeholder', 'Report Feedback...');
+        } else if($(this).attr('id') == 'adder_hide' || $(this).attr('id') == 'adder_hide_one_click') {
+          $('#annotator-field-0').attr('placeholder', 'Enter replacement text...');
+        }
       } else if ($(this).attr('id') == 'adder_highlight') {
-        $('.annotator-editor').addClass('highlight');
+        $('.annotator-editor').data('type', 'highlight');
         $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property), .annotator-listing .annotator-checkbox2').show();
         $('#new_layer').parent().show();
         $('.annotator-adder button').trigger('click');
-      } else if ($(this).attr('id') == 'adder_hide') {
-        $('.annotator-editor').addClass('hide');
+      } else if($(this).attr('id') == 'adder_hide_one_click') {
+        $('.annotator-editor').data('type', 'hide');
         $('.annotator-adder button').trigger('click');
         $('.annotator-save').trigger('click');
       } else {
-        $('.annotator-editor').addClass('link');
+        $('.annotator-editor').data('type', 'link');
         $('.annotator-listing input#link').parent().show();
         $('.annotator-adder button').trigger('click');
         $('.annotator-listing input#link').focus();
@@ -276,21 +340,12 @@ H2O = (function() {
 
       collages.rehighlight();
 
-      if(h2o_annotator.options.readOnly) {
-        access_results = { 'can_edit' : false };
-      }
-
       if($('#collage_print').size() > 0) {
         collages.loadState($('.singleitem').data('itemid'), original_data);
       }
 
       if($('#print-options').size() > 0) {
-        collages.loadState(this.plugins.H2O.collage_id, all_collage_data["collage" + this.plugins.H2O.collage_id].data);
-      }
-
-      //loadState has to be before listenTo
-      if(!h2o_annotator.options.readOnly) {
-        collages.listenToRecordAnnotatedItemState();
+        collages.loadState(this.plugins.H2O.annotated_item_id, all_collage_data["collage" + this.plugins.H2O.annotated_item_id].data);
       }
 
       $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
@@ -306,6 +361,7 @@ H2O = (function() {
       $('.annotator-checkbox input').prop('checked', false);
       $('.annotator-controls a, #h2o_delete').show();
       $('#link').val('');
+      h2o_global.slideToAnnotation();
     });
 
     this.annotator.subscribe("annotationEditorSubmit", function(editor) {
@@ -343,7 +399,17 @@ H2O = (function() {
         }
       });
 
-      editor.annotation.hidden = $('#adder_hide').hasClass('active');
+      var node = $('.layered-ellipsis-' + editor.annotation.id)
+      if(node.length > 0) {
+        var text = editor.annotation.text.length > 0 ? editor.annotation.text : '...';
+        node.html('[' + text + ']');
+        $('.annotation-' + editor.annotation.id).hide();
+      }
+
+      editor.annotation.error = $('.annotator-editor').data('type') == 'error';
+      editor.annotation.discuss = $('.annotator-editor').data('type') == 'discuss';
+      editor.annotation.feedback = $('.annotator-editor').data('type') == 'feedback';
+      editor.annotation.hidden = $('.annotator-editor').data('type') == 'hide';
     });
 
     this.annotator.subscribe("annotationCreated", function(annotation) {
@@ -423,17 +489,17 @@ H2O = (function() {
       h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     });
     this.annotator.editor.subscribe("hide", function() {
-      if($('.annotator-editor').hasClass('annotate') && $('#show_comments .toggle-on').hasClass('active')) {
+      if($('.annotator-editor').data('type') == 'annotate' && $('#show_comments .toggle-on').hasClass('active')) {
         $('span.edit-annotate, span.edit-annotate .icon-edit').show();  
       }
-      if($('.annotator-editor').hasClass('link') && $('#show_links .toggle-on').hasClass('active')) {
+      if($('.annotator-editor').data('type') == 'link' && $('#show_links .toggle-on').hasClass('active')) {
         $('span.edit-link, span.edit-link .icon-edit').show();  
       }
 
       $('.annotator-listing li').hide();
       $('.annotator-checkbox input').prop('checked', false);
       $('.annotator-controls a, #h2o_delete').show();
-      $('.annotator-editor').removeClass('annotate hide highlight link new_item'); 
+      $('.annotator-editor').data('type', undefined);
       $('#link').val('');
       $('span#layer_error').remove();
     });
@@ -495,11 +561,16 @@ H2O = (function() {
     $('#show_annotation').attr('checked', false);
     $('.annotator-controls a').show();
     $('#h2o_delete').show();
-    $('.annotator-editor').removeClass('annotate hide highlight link new_item'); 
+    $('.annotator-editor').data('type', undefined);
     $('#link').val('');
   };
 
   H2O.prototype.addAnnotationIndicator = function(annotation) {
+    if((annotation.feedback || annotation.error) && !(h2o_annotator.plugins.H2O.can_edit || (annotation.user_id && annotation.user_id == h2o_annotator.options.user_id))) {
+      return;
+    } else if(annotation.discuss && (!h2o_annotator.plugins.H2O.can_discuss || !h2o_annotator.plugins.H2O.can_edit)) {
+      return;
+    }
     var first_highlight = $('.annotation-' + annotation.id + ':first');
     var last_highlight = $('.annotation-' + annotation.id + ':last');
     if(first_highlight.size() > 0) {
@@ -539,14 +610,14 @@ H2O = (function() {
           h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
         }
       } else if(annotation.highlight_only !== null) {
-        if(!h2o_annotator.options.readOnly) {
+        if(h2o_annotator.plugins.H2O.can_edit) {
           $('.annotator-wrapper').append($('<a>').attr('data-id', annotation.id).addClass('annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top' : start_position, 'right' : -31 }));
         }
       } else if(annotation.link !== null) {
         var div = $('<div>').attr('data-id', annotation.id).addClass('annotation-indicator annotation-indicator-link').attr('id', 'annotation-indicator-' + annotation.id).css({ 'top': start_position });
         div.append($('<span>').addClass('icon icon-adder-link'));
         var html = '<a class="link" target="_blank" href="' + annotation.link + '">' + annotation.link + '</a>';
-        if(h2o_annotator.options.readOnly) {
+        if(!h2o_annotator.plugins.H2O.can_edit) {
           div.append($('<span>').addClass('readonly-link').html(html));
         } else {
           var text_node = $('<span>').addClass('edit-link').html(html);
@@ -559,7 +630,7 @@ H2O = (function() {
         $('.annotator-wrapper').append(div);
       } else if(annotation.layers.length > 0) {
         var div_type = '<a>';
-        if(h2o_annotator.options.readOnly) {
+        if(h2o_annotator.plugins.H2O.can_edit) {
           div_type = '<span>';
         }
         var div = $(div_type).addClass('annotation-indicator annotation-indicator-highlights').attr('id', 'annotation-indicator-' + annotation.id).attr('data-id', annotation.id).css({ 'top': start_position, 'opacity': 0.0 });
@@ -570,18 +641,43 @@ H2O = (function() {
         }
         $('.annotator-wrapper').append(div);
         div.css({ 'right': (div.width() + 17)*-1, 'opacity': 1.0 });
+      } else if(annotation.error || annotation.discuss || annotation.feedback) {
+        var type;
+        if(annotation.error) {
+          type = 'error';
+        } else if(annotation.discuss) {
+          type = 'discuss';
+        } else {
+          type = 'feedback';
+        }
+        var div = $('<div>').attr('data-id', annotation.id).addClass('annotation-indicator annotation-indicator-' + type).attr('id', 'annotation-indicator-' + annotation.id).css({ 'top': start_position });
+        div.append($('<span>').addClass('icon icon-adder-' + type));
+        if((h2o_annotator.plugins.H2O.can_edit || annotation.user_id == h2o_annotator.options.user_id) && (annotation.error || annotation.feedback)) {
+          var text_node = $('<span>').addClass('delete-' + type).html(annotation.text);
+          var explanation = type == 'error' ? 'Reported' : 'Sent';
+          var attribution = annotation.user_id == h2o_annotator.options.user_id ? 'You' : '<a href="/users/' + annotation.user_id + '">' + (annotation.user_attribution ? annotation.user_attribution : 'Unamed User') + '</a>';
+          text_node.append($('<span>').html(' (' + explanation + ' by: ' + attribution + ')'));
+          text_node.append($('<a>').attr('href', '#').addClass('icon icon-delete'));
+          div.append(text_node);
+          if($('#show_comments .toggle-inner .toggle-on').hasClass('active')) {
+            text_node.show();
+          }
+        } else {
+          div.append($('<span>').addClass('readonly-' + type).html(annotation.text).show());
+        }
+        $('.annotator-wrapper').append(div);
       } else {
         var div = $('<div>').attr('data-id', annotation.id).addClass('annotation-indicator annotation-indicator-annotate').attr('id', 'annotation-indicator-' + annotation.id).css({ 'top': start_position });
         div.append($('<span>').addClass('icon icon-adder-annotate'));
-        if(h2o_annotator.options.readOnly) {
-          div.append($('<span>').addClass('readonly-annotate').html(annotation.text));
-        } else {
+        if(h2o_annotator.plugins.H2O.can_edit) {
           var text_node = $('<span>').addClass('edit-annotate').html(annotation.text);
           text_node.append($('<a>').attr('href', '#').addClass('icon icon-edit'));
           div.append(text_node);
           if($('#show_comments .toggle-inner .toggle-on').hasClass('active')) {
             text_node.show();
           }
+        } else {
+          div.append($('<span>').addClass('readonly-annotate').html(annotation.text));
         }
         $('.annotator-wrapper').append(div);
       }
@@ -735,7 +831,15 @@ H2O = (function() {
   };
   
   H2O.prototype.updateAnnotationMarkup = function(annotation) {
-    if(annotation.text !== null && annotation.text != '') {
+    if($('#annotation-indicator-' + annotation.id).hasClass('icon-adder-show')) {
+      var clean_layer = collages.clean_layer(annotation.layers[0]);
+      $('.layered-control-start-' + annotation.id + ',.layered-control-end-' + annotation.id).css('display', 'none');
+      $('.layered-ellipsis-' + annotation.id).css('display', 'inline-block');
+      $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' ' + clean_layer);
+      $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' ' + clean_layer);
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' layered-ellipsis-hidden ' + clean_layer);
+      $('#annotation-indicator-' + annotation.id).css('display', 'none');
+    } else if(annotation.text !== null && annotation.text != '') {
       $($('#annotation-indicator-' + annotation.id + ' .edit-annotate').contents()[0]).replaceWith(annotation.text);
     } else if(annotation.link !== null && annotation.link != '') {
       $('#annotation-indicator-' + annotation.id + ' .edit-link a.link').html(annotation.link).attr('href', annotation.link);
@@ -766,9 +870,25 @@ H2O = (function() {
       div.css({ 'right': (div.width() + 17)*-1, 'opacity': 1.0 });
       $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' ' + clean_layer);
       $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' ' + clean_layer);
-      $('.layered-ellipsis-' + annotation.id).attr('class', 'layered-ellipsis layered-ellipsis-' + annotation.id + ' ' + clean_layer);
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' layered-ellipsis-hidden ' + clean_layer);
 
       //if changed from highlight only
+    }
+  };
+
+  H2O.prototype.annotationType = function(annotation) {
+    if(annotation.error){
+      return 'error';
+    } else if(annotation.hidden) {
+      return 'hidden';
+    } else if(annotation.feedback) {
+      return 'feedback';
+    } else if(annotation.discussion) {
+      return 'discussion';
+    } else if(annotation.link !== null) {
+      return 'link';
+    } else if(annotation.highlight_only !== null) {
+      return 'highlight';
     }
   };
 
@@ -785,11 +905,12 @@ H2O = (function() {
       layer_class = 'hex-' + annotation.highlight_only; 
     }
     var start_node = $('.annotation-' + _id + ':first');
-    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '">[...]</a>').insertBefore(start_node);
+    var text = annotation.text.length > 0 ? annotation.text : '...';
+    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '">[' + text + ']</a>').insertBefore(start_node);
       
     var end_node = $('.annotation-' + _id + ':last');
-    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '"></a>').insertAfter(end_node);
+    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
@@ -803,9 +924,9 @@ H2O = (function() {
       $(this).hide();
       h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     });
-    $('.layered-control-start,.layered-control-end').off('click').on('click', function(e) {
+    $('.layered-control-start,.layered-control-end,.annotation-' + _id).off('click').on('click', function(e) {
       e.preventDefault();
-      var _id = $(this).data('layered');
+      var _id = $(this).hasClass('annotation-hidden') ? $(this).data('annotation-id') : $(this).data('layered');
       $('.annotation-' + _id).hide();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).hide();
       $('.layered-ellipsis-' + _id).css('display', 'inline-block');
@@ -868,7 +989,7 @@ H2O = (function() {
       return;
     }
 
-    if((indicator.hasClass('annotation-indicator-link') || indicator.hasClass('annotation-indicator-annotate'))
+    if((indicator.hasClass('annotation-indicator-link') || indicator.hasClass('annotation-indicator-annotate') || indicator.hasClass('annotation-indicator-feedback') || indicator.hasClass('annotation-indicator-discuss') || indicator.hasClass('annotation-indicator-error'))
       && !$('#annotation-indicator-' + annotation.id + ' span:not(.icon)').is(':visible')) {
       $('.annotation-' + annotation.id).addClass('with_comment');
       indicator.addClass('was_hidden').css('opacity', 1.0);
@@ -911,18 +1032,24 @@ H2O = (function() {
             "endOffset": annotation.end_offset
       }];
       var layers = new Array();
-      for(var _j = 0; _j < annotation.layers.length; _j++) {
-        layers.push(annotation.layers[_j].name);
+      if(annotation.layers !== undefined) {
+        for(var _j = 0; _j < annotation.layers.length; _j++) {
+          layers.push(annotation.layers[_j].name);
+        }
       }
       var formatted_annotation = { "id" : annotation.id,
         "text" : annotation.annotation,
         "ranges": ranges,
         "layers": layers,
         "cloned": annotation.cloned,
-        "collage_id" : annotation.collage_id,
         "link" : annotation.link,
         "hidden" : annotation.hidden,
-        "highlight_only": annotation.highlight_only
+        "error" : annotation.error,
+        "discuss" : annotation.discussion,
+        "feedback" : annotation.feedback,
+        "highlight_only": annotation.highlight_only,
+        "user_id" : annotation.user_id,
+        "user_attribution" : annotation.user_attribution
       };
       formatted_annotation.ranges = ranges;
       formatted_annotations.push(formatted_annotation);
@@ -933,7 +1060,7 @@ H2O = (function() {
 
   H2O.prototype.loadAnnotations = function(c_id, current_annotations, page_load) {
     if(page_load) {
-      this.collage_id = c_id;
+      this.annotated_item_id = c_id;
     }
 
     var data = this.format_annotations(current_annotations);

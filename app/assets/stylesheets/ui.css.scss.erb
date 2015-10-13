@@ -472,6 +472,8 @@ header #search table td {
 #results li.listitem a {
   text-decoration: none;
   font-weight: bold;
+
+  > p { font-weight: normal; }
 }
 #results li.listitem a.base_index_overflow {
   display: none;
@@ -1215,7 +1217,11 @@ ul.user_captcha > li p.inline-errors { display: none; }
 }
 .playlist_edit_mode .expanded_leftcol,
 .expanded_leftcol {
-  width: 100%;
+  width: 80%;
+
+  .annotation-indicator span:nth-child(2) {
+    width: 50% !important;
+  }
 }
 .singleitem h1, .singleitem h6 {
   display: inline-block;
@@ -1812,10 +1818,6 @@ li.boolean_hidden {
     list-style-type: decimal;
     margin: 0px 0px 10px 3.0em;
   }
-  div.article .annotator-widget ul {
-    list-style-type: none;
-    margin: 0px;
-  }
 }
 
 #recaptcha_area * {
@@ -1850,5 +1852,48 @@ li.boolean_hidden {
   #user_description,
   input[type=text] {
     width: 100%;
+  }
+}
+
+.singleitem #responses {
+  width: 100%;
+  margin-top: 10px;
+  padding-left: 10px;
+  textarea {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+  a {
+    float: right;
+  }
+}
+#collages_show .singleitem #responses {
+  opacity: 0.0;
+}
+
+.response-block {
+  margin-top: 20px;
+
+  h3 {
+    padding: 10px;
+    background: #c2c2c2;
+  }
+
+  #response-list {
+    li.listitem {
+      background-color: white;
+      padding: 10px;
+
+      &:not(:first-child) {
+        margin-top: 10px;
+      }
+      
+      p { font-size: 20px; }
+
+      .error { font-style: italic; font-weight: bold; }
+
+      .icon-delete { margin-left: 10px; }
+    }
   }
 }

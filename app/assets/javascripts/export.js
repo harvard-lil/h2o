@@ -2,9 +2,9 @@ var all_tts;
 var annotations;
 var original_data = {};
 var layer_data;
-var collage_id;
 var h2o_annotator;
 var all_collage_data = {};
+var h2o_global = { slideToAnnotation: function() {} };
 
 var collages = {
   listenToRecordAnnotatedItemState: function() {},
@@ -28,7 +28,7 @@ var collages = {
     var cannotations = all_collage_data["collage" + collage_id].annotations;
     $.each(cannotations, function(i, ann) {
       var annotation = $.parseJSON(ann);
-      if(annotation.annotation != '') {
+      if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
         $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
       } else if(annotation.link !== undefined && annotation.link !== null) {
         var link_html = '<a href="' + annotation.link + '">' + annotation.link + '</a>'; 
@@ -242,8 +242,8 @@ var export_functions = {
     var factory = new Annotator.Factory();
     var Store = Annotator.Plugin.fetch('Store');
     var h2o = Annotator.Plugin.fetch('H2O');
-
-    h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only).getInstance();
+    var report_options = { "report": false, "feedback": false, "discuss": false, "respond": false };
+    h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only, report_options).getInstance();
     h2o_annotator.attach(elem, 'print_export_annotation');
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },

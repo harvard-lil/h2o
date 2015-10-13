@@ -4,7 +4,7 @@
     width: 98%;
     max-width: auto;
   }
-  .singleitem,
+  body:not(#collages_show, #text_block) .singleitem,
   .right_panel,
   #results,
   .playlist_edit_mode .singleitem,
@@ -70,6 +70,13 @@
   }
   .annotator-wrapper .annotation-indicator {
     right: auto;
-    left: 40px;
+  }
+
+  .annotator-wrapper .annotation-indicator span:nth-child(2) {
+    width: 85% !important;
+  }
+
+  .expanded_leftcol {
+    width: 65%;
   }
 }

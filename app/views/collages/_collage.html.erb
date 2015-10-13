@@ -19,7 +19,7 @@
 </aside>
 <% end %>
 
-<div id="collage<%= collage.id %>" class="singleitem leftcol" data-itemid="<%= collage.id %>" data-public="<%= collage.public %>">
+<div id="collage<%= collage.id %>" class="singleitem leftcol" data-itemid="<%= collage.id %>" data-public="<%= collage.public %>" data-user_id="<%= collage.user_id %>">
   <div id="main_details">
     <h1 class="scale1-5"><%= collage.name %></h1>
     <h6 class="scale0-9 <%= collage.root != collage ? 'with_creators' : '' %>">
@@ -95,6 +95,23 @@
 	  <% cache(["editable-content", collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
     <% end -%>
   </div>
+  
+  <% if current_user && current_user == collage.user && !iframe? -%>
+  <div class="response-block">
+    <% unless collage.responses.empty? %>
+    <h3>Responses:</h3>
+    <% end %>
+    <ul id="response-list">
+    <% collage.responses.each do |r| %>
+      <%= render r %>
+    <% end %>
+    </ul>
+  </div>
+  <% end %>
+
+  <% if collage.enable_responses && !iframe? && current_user.try(:id) != collage.user.try(:id) -%>
+  <%= render "shared/item_response" %>
+  <% end -%>
 </div>
 
 <% unless iframe? %>
