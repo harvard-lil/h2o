@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :institutions 
   has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
-  has_many :responses # directly through user_id
+  has_many :responses
 
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
@@ -25,14 +25,8 @@ class User < ActiveRecord::Base
   alias :textblocks :text_blocks
 
   def user_responses
-    r = []
-    self.text_blocks.each do |t|
-      r << t.responses
-    end
-    self.collages.each do |c|
-      r << c.responses
-    end
-    r.flatten
+    content = self.collages.includes(:responses) + self.text_blocks.includes(:responses)
+    content.map(&:responses).flatten
   end
 
   # Deal with this later by replacing habtm with hm through
