@@ -214,19 +214,22 @@ class UsersController < ApplicationController
         p = []
 
         if type == :case_requests
-          p = CaseRequest.all.sort_by { |p| (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase }
+          p = CaseRequest.all.sort_by { |p|
+            (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase
+          }
         else
-        Rails.logger.warn "stephie: #{type}"
-          p = @user.send(type).sort_by { |j| (j.respond_to?(params[:sort]) ? j.send(params[:sort]) : j.send(:display_name)).to_s.downcase }
+          p = @user.send(type).sort_by { |j|
+            (j.respond_to?(params[:sort]) ? j.send(params[:sort]) : j.send(:display_name)).to_s.downcase
+          }
         end
 
         if(params[:order] == 'desc')
-          p = p.reverse
+          p.reverse!
         end
         v[:results] = p.paginate(:page => params[:page], :per_page => 10)
       end
     end
-   
+
     if request.xhr?
       render :partial => 'shared/generic_block'
     else

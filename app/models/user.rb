@@ -166,12 +166,10 @@ class User < ActiveRecord::Base
   end
 
   def content_errors
-    errors = []
-    (self.collages + self.text_blocks).each do |annotated_item|
-      #TODO: Either separate errors and feedback or remove one of them.
-      errors << annotated_item.annotations.select { |a| a.error || a.feedback }
-    end
-    errors.flatten
+    content = self.collages.includes(:annotations) + self.text_blocks.includes(:annotations)
+    content.map {|item|
+      item.annotations.select { |a| a.error || a.feedback }
+    }.flatten
   end
 
   def bookmarks
