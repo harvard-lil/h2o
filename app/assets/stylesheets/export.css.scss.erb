@@ -4,13 +4,13 @@
 ul, ol {
   list-style-type: none;
 }
-  .vh1, .vh2 { font-weight: bold; } 
+  .vh1, .vh2 { font-weight: bold; }
   .annotator-adder {
     visibility: hidden !important;
     display: none !important;
   }
   .wrapper {
-    margin-top: 155px;  /* for #print-options */
+    margin-top: 155px;
   }
   background: #FFF;
   font-family: sans-serif;
@@ -124,8 +124,6 @@ ul, ol {
     */
   }
 
-  #export-form { display: flex; } /* temporary work around for form layout problem */
-
   #toc-container {
     display: none;
     padding-top: 20px;
@@ -141,137 +139,116 @@ ul, ol {
     }
   }
   #print-options {
-    background: transparent url("<%= asset_path 'quickbar.png' %>") bottom repeat-x;
-    padding: 10px 5px 12px 5px;
     position: fixed;
     top: 0px;
     z-index: 1000;
     width: 100%;
+    min-width: 950px;
+    background: transparent url("<%= asset_path 'quickbar.png' %>") bottom repeat-x;
+    height: 162px;
     * {
       font-size: 12px;
     }
-    #print-options-new {
-        width: 80%;
-        text-align: center;
-    }
-    #print-options-basic {
-        display: inline-block;
-        text-align: center;
-        div { margin-right: 20px; }
-    }
-
-    #themes-div {
-        border: 1px #DDDDDD solid;
-        margin-right: 20px;
-        text-align: center;
-        /*
-          .theme-button {            margin: 0 5px 5px;          }
-        */
-    }
-    #annotations-div {
-        border: 1px #DDDDDD solid;
-
-        text-align: center;
-        div {
-            margin: 0 5px 5px;
-        }
-    }
-    #annotation-options {
-        display: inline-block;
-    }
-    #highlight-options {
-        display: inline-block; text-align: center;
-    }
-    #hidden-text-options {
-        display: inline-block; text-align: center;
-    }
-    #export-format {
-        Xborder: #DDDDDD 1px solid; text-align: center;
-    }
-    #export-button-div {
-        border: 1px white solid;
-    }
-    #export-form-submit {
-        color: #FFFFFF;
-        margin-top: 14px;
-        margin-bottom: 4px;
-    }
-    #advanced-toggle {
-
-    }
-    #print-options-orig {
-        width: 80%; text-align: center;
-    }
-    #print-options-advanced {
-        display: inline-block;
-        text-align: center;
-        border: #DDDDDD 1px solid;
-        div {
-            display: inline-block;
-            text-align: center;
-            border: 1px white solid;
-            margin: 0 5px 5px;
-        }
-
-    }
     select {
         height: 24px;
-        min-width: 70px;
+        margin-bottom: 6px;
     }
-    h2 {
-      font-size: 14px;
-      display: inline-block;
+    #print-options-new2 {
+        width: 1000px;
+        Xtext-align: center;
+        float: left;
     }
-    .jsb-currentItem {
-      line-height: 1.8em;
+    #print-options-left, #print-options-middle, #print-options-right {
+        padding-top: 5px;
     }
-    > div {
-      display: inline-block;
+    #print-options-left {
+        float: left;
+        vertical-align: top;
+        padding-left: 20px;
+        padding-right: 10px;
+        #theme-select {
+            width: 80px;
+        }
     }
-    .jsb {
-      width: 50px !important;
-      display: inline-block;
-      float: none;
-      border: 1px solid #666;
-      border-radius:4px; 
-      -moz-border-radius:4px; 
-      -webkit-border-radius:4px;
-      -o-border-radius:4px;
-      margin: 0px 10px 5px 0px;
+    #print-options-middle {
+        float: left;
+        padding-left: 30px;
+        padding-right: 10px;
+        padding-bottom: 5px;
+        border-left: 2px solid gray;
+        border-right: 2px solid gray;
     }
-    .jsb-list {
-      width: 60px !important;
+    #print-options-right {
+        float: left;
+        padding-left: 30px;
+        text-align: center;
+        #export_format {
+            width: 80px;
+        }
+        #export-form-submit-button {
+            width: 80px;
+            height: 51px;
+        }
     }
-    strong {
-      display: inline-block;
-      margin: 0px 5px 0px 20px;
-      font-weight: normal;
+    .print-options-title {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
     }
-    #fontface_div .jsb,
-    #highlight-options .jsb {
-      width: 110px !important;
+    .print-options-container {
+        float: left;
+        .print-options-subtitle {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .print-options-list {
+            float: left;
+            margin-right: 20px;
+            &#print-options-list-0 {
+                select { width: 80px; }
+            }
+            &#print-options-list-1 {
+                select { width: 80px; }
+                .print-options-label {
+                    width: 30px;
+                }
+            }
+            &#print-options-list-2 {
+                select { width: 55px; }
+                .print-options-label {
+                    width: 60px;
+                }
+            }
+            &#print-options-list-3 {
+                select { width: 55px; }
+                .print-options-label {
+                    width: 30px;
+                }
+            }
+            &#print-options-list-4 {
+                select { width: 55px; }
+                .print-options-label {
+                    width: 40px;
+                }
+            }
+            &#print-options-list-5 {
+                select { width: 80px; }
+            }
+        }
+        .print-options-label {
+            display: inline-block;
+            width: 60px;
+        }
+        .margin-select {
+            width: 55px;
+        }
     }
-    #fontface-div .jsb-list,
-    #highlight-options .jsb-list {
-      width: 120px !important;
+    .print-options-margin {
+        width: 40px;
     }
-    #fontsize-div .jsb {
-      width: 60px !important;
-    }
-    #fontsize-div .jsb-list {
-      width: 70px !important;
-    }
-    #export-format-options .jsb {
-      width: 40px !important;
-    }
-    #export-format-options .jsb-list {
-      width: 50px !important;
-    }
-    #toc-levels-options .jsb {
-      width: 50px !important;
-    }
-    #toc-levels-options .jsb-list {
-      width: 60px !important;
+    .print-options-label-annotations {
+        display: inline-block;
+        width: 100px;
     }
   }
 

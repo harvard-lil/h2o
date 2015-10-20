@@ -63,7 +63,8 @@ page.open(address, function (status) {
     }
 
     window.setTimeout(function () {
-        //Do everything inside a setTimeout to ensure everything loads and runs inside the page
+        //Standard PhantomJS pattern: Do everything inside a setTimeout to ensure
+        // everything loads and runs inside the page.
         set_styling(page);
         set_toc(cookies['toc_levels']);
         write_file(output_file, page.content);
@@ -72,7 +73,7 @@ page.open(address, function (status) {
 });
 
 var set_toc = function(maxLevel) {
-    console.log('St: ' + maxLevel);
+    //console.log('St: ' + maxLevel);
     if (!maxLevel) {return;}
 
     // https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c
@@ -96,7 +97,15 @@ var set_toc = function(maxLevel) {
 
 
 var set_styling = function(page) {
+/*
+    def json_options_file(params)
+    writes forwarded_cookies_hash(params).to_json to a file, but that file only contains form->cookie mapped
+    values. So... can we add the _mapped values some how? I need to trace this again...
+    Get the values mapped as cookies so they show up in the cookie translation json file
+    OR...
+    get them from export.js as a global variable
 
+*/
     page.evaluate(function(cookies) {
 
         var html = $('html');
@@ -113,23 +122,21 @@ var set_styling = function(page) {
             cookies['print_margin_left'],
         ].join(' ');
 
-      //TODO: use the font info in the _mapped form inputs after we move their setter code into
-      //the form inputs' .change() listeners.
-        var font_face_string = export_h2o_fonts['font_map_fallbacks'][ cookies['print_font_face'] ];
-        var font_size_string = export_h2o_fonts['base_font_sizes'][ cookies['print_font_face'] ][ cookies['print_font_size'] ];
-        font_size_string += 'px';
+      var font_face_string = cookies['print_font_face_mapped'];
+      var font_size_string = cookies['print_font_size_mapped'];
 
         var header = [
             "<!--[if gte mso 9]>",
-            "<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
+            "<xml><w:WordDocument><w:View>Print</w:View>",
+            "<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
             "<![endif]-->",
             "<link rel='File-List' href='boop_files/filelist.xml'>",
             "<style><!-- ",
-            //NOTE: margins defined as: top, right, bottom, left
             "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
             //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
-            "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
+            "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
+            "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
             "--></style>",
@@ -149,7 +156,8 @@ var set_styling = function(page) {
         }
         $('#additional_styles').append($('#additional_styles').cssText());
 
-        //BUG: Highlights do not work, nor do any of the below attempted workarounds.
+
+        //BUG: Highlights do not work in DOC, nor do any of the below attempted workarounds.
         //TODO: Perhaps just wrap highlighted text with <u> tags as a lame workaround?
         //var foo = ".highlight-hex-ff3800 { text-decoration: underline; }";
         //$('#highlight_styles').append(foo);
@@ -157,13 +165,6 @@ var set_styling = function(page) {
 
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
         $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
-
-        /*
-         * @example $.rule('p,div').filter(function(){ return this.style.display != 'block'; }).remove();
-         * @example $.rule('div{ padding:20px;background:#CCC}, p{ border:1px red solid; }').appendTo('style');
-         * @example $.rule('div{}').append('margin:40px').css('margin-left',0).appendTo('link:eq(1)');
-         * @example var text = $.rule('#screen h2').add('h4').end().eq(4).text();
-         */
 
     }, cookies);
 }

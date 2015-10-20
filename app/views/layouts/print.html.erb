@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta http-equiv="Cache-Control" content="must-revalidate" />
-    <title><%= raw @page_title ? "Printed #{raw @page_title}" : "H2O Classroom Tools" %></title>
+    <title><%= raw @page_title ? "Export #{raw @page_title}" : "H2O Classroom Tools" %></title>
 
     <%= stylesheet_link_tag "ui", media: "screen", class: "stylesheet-link-tag" %>
     <%= stylesheet_link_tag "application-print", media: "all", class: "stylesheet-link-tag" %>
@@ -18,182 +18,205 @@
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
- <div id="print-options">
+    <div id="print-options">
+      <div id="print-options-new2">
 
-  <div id="print-options-new">
-    <div id="print-options-basic">
+          <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
+          <%= hidden_field_tag "playlist_name", @playlist.name %>
+          <%= hidden_field_tag "fontface_mapped" %>
+          <%= hidden_field_tag "fontsize_mapped" %>
 
-      <%= form_tag(export_as_playlist_path(@playlist), :method => "post", id: "export-form" ) do %>
-      <%= hidden_field_tag "playlist_name", @playlist.name %>
-      <%= hidden_field_tag "fontface_mapped" %>
-      <%= hidden_field_tag "fontsize_mapped" %>
+          <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
+          <!-- USE JAVASCRIPT! Needs to control: font face, font size -->
+          <% end %>
+          <div id="print-options-left">
+            <div class="print-options-title">
+              STYLES
+            </div>
+            <div class="print-options-container">
+              <div class="print-options-subtitle">Presets</div>
+              <div class="print-options-list" id="print-options-list-0">
+                <select id="theme-select">
+                  <option value="default" selected="selected">Default</option>
+                  <option value="classic">Classic</option>
+                  <option value="modern">Modern</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+            </div>
+            <div class="print-options-container">
+              <div class="print-options-subtitle">Customize</div>
+              <div class="print-options-list" id="print-options-list-1">
+                <ul>
+                  <li>
+                    <span class="print-options-label">Font</span>
+                    <select id="fontface" name="fontface" class="theme-select-trigger">
+                      <option value="leitura">Leitura</option>
+                      <option value="garamond">Garamond</option>
+                      <option value="goudy">Goudy</option>
+                      <option value="futura">Futura</option>
+                      <option value="verdana">Verdana</option>
+                      <option value="proxima">Proxima Nova</option>
+                      <option value="dagny" selected="selected">Dagny Web</option>
+                    </select>
+                  </li>
+                  <li>
+                    <span class="print-options-label">Size</span>
+                    <select id="fontsize" name="fontsize" class="theme-select-trigger">
+                      <option value="small" selected="selected">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                      <option value="xlarge">X-Large</option>
+                    </select>
+                  </li>
+                </ul>
+              </div>
+              <div class="print-options-list" id="print-options-list-2">
+                <ul>
+                  <li><span class="print-options-label">TOC</span>
+                    <select id="toc_levels" name="toc_levels" class="theme-select-trigger">
+                      <option value="" selected="selected">None</option>
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                      <option>6</option>
+                    </select>
+                  </li>
+                  <li><span class="print-options-label">Titles</span>
+                    <select id="printtitle" name="printtitle" class="theme-select-trigger">
+                      <option value="yes" selected="selected">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </li>
+                  <% if ["collages", "playlists"].include?(params[:controller]) -%>
+                  <!-- Needs to control: para, comments, links, highlights, hidden text -->
+                  <% end %>
+                  <li><span class="print-options-label">Para. Nos.</span>
+                    <select id="printparagraphnumbers" name="printparagraphnumbers" class="theme-select-trigger">
+                      <option value="yes" selected="selected">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </li>
+                </ul>
+              </div>
+              <div class="print-options-list" id="print-options-list-3">
+                <ul>
+                  <li><span class="print-options-label print-options-margin">Left</span>
+                    <select class="margin-select theme-select-trigger" id="margin-left" name="margin-left">
+                      <option value="0.5in">0.5in</option>
+                      <option value="0.75in">0.75in</option>
+                      <option value="1.0in" selected="selected">1.0in</option>
+                      <option value="1.25in">1.25in</option>
+                      <option value="1.5in">1.5in</option>
+                      <option value="1.75in">1.75in</option>
+                      <option value="2.0in">2.0in</option>
+                    </select>
+                  </li>
+                  <li><span class="print-options-label print-options-margin">Top</span>
+                    <select class="margin-select theme-select-trigger" id="margin-top" name="margin-top">
+                      <option value="0.5in">0.5in</option>
+                      <option value="0.75in">0.75in</option>
+                      <option value="1.0in" selected="selected">1.0in</option>
+                      <option value="1.25in">1.25in</option>
+                      <option value="1.5in">1.5in</option>
+                      <option value="1.75in">1.75in</option>
+                      <option value="2.0in">2.0in</option>
+                    </select>
+                  </li>
+                </ul>
+              </div>
+              <div class="print-options-list" id="print-options-list-4">
+                <ul>
+                  <li><span class="print-options-label print-options-margin">Right</span>
+                    <select class="margin-select theme-select-trigger" id="margin-right" name="margin-right">
+                      <option value="0.5in">0.5in</option>
+                      <option value="0.75in">0.75in</option>
+                      <option value="1.0in" selected="selected">1.0in</option>
+                      <option value="1.25in">1.25in</option>
+                      <option value="1.5in">1.5in</option>
+                      <option value="1.75in">1.75in</option>
+                      <option value="2.0in">2.0in</option>
+                    </select>
+                  </li>
+                  <li><span class="print-options-label print-options-margin">Bottom</span>
+                    <select class="margin-select theme-select-trigger" id="margin-bottom" name="margin-bottom">
+                      <option value="0.5in">0.5in</option>
+                      <option value="0.75in">0.75in</option>
+                      <option value="1.0in" selected="selected">1.0in</option>
+                      <option value="1.25in">1.25in</option>
+                      <option value="1.5in">1.5in</option>
+                      <option value="1.75in">1.75in</option>
+                      <option value="2.0in">2.0in</option>
+                    </select>
+                  </li>
+                </ul>
+              </div><!-- customize-3 -->
+            </div><!-- /customize contents -->
+          </div>
 
-      <div id="themes-div">
-        <b>STYLES</b><br/>
-        <select id="theme-select">
-          <option value="default" selected="selected">Default</option>
-          <option value="classic">Classic</option>
-          <option value="modern">Modern</option>
-          <option value="custom">Custom</option>
-        </select>
-      </div>
+          <div id="print-options-middle">
+            <div class="print-options-title">
+              ANNOTATIONS
+            </div>
+            <div class="print-options-container">
+              <div class="print-options-list" id="print-options-list-5">
+                <ul>
+                  <li>
+                    <span class="print-options-label-annotations">Show Full Text</span>
+                    <select id="hiddentext" name="hiddentext">
+                      <option value="show">Yes</option>
+                      <option value="hide" selected="selected">No</option>
+                    </select>
+                  </li>
+                  <li>
+                    <span class="print-options-label-annotations">Show Comments</span>
+                    <select id="printannotations" name="printannotations">
+                      <option value="yes">Yes</option>
+                      <option value="no" selected="selected">No</option>
+                    </select>
+                  </li>
+                  <li>
+                    <span class="print-options-label-annotations">Show Links</span>
+                    <select id="printlinks" name="printlinks">
+                      <option value="yes">Yes</option>
+                      <option value="no" selected="selected">No</option>
+                    </select>
+                  </li>
+                  <li>
+                    <span class="print-options-label-annotations">Show Highlights</span>
+                    <select id="printhighlights" name="printhighlights">
+                      <option value="original" selected="selected">Last Saved</option>
+                      <option value="all">Show All</option>
+                      <option value="none">None</option>
+                    </select>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-    <div id="annotations-div">
-      <b>ANNOTATION DISPLAY</b><br/>
-      <div id="annotation-options">
-        COMMENTS/LINKS<br/>
-        <select id="printannotations" name="printannotations">
-          <option value="yes">Show</option>
-          <option value="no" selected="selected">Hide</option>
-        </select>
-      </div>
-      <div id="highlight-options">
-        HIGHLIGHTS<br/>
-        <select id="printhighlights" name="printhighlights">
-          <option value="original" selected="selected">Last Saved</option>
-          <option value="all">Show All</option>
-          <option value="none">Hide</option>
-        </select>
-      </div>
-      <div id="hidden-text-options">
-        HIDDEN TEXT<br/>
-        <select id="hiddentext" name="hiddentext">
-          <option value="show">Show</option>
-          <option value="hide" selected="selected">Hide</option>
-        </select>
-      </div>
-    </div>
+          <div id="print-options-right">
+            <div class="print-options-title">
+              EXPORT
+            </div>
+            <div class="print-options-container">
+              <select id="export_format" name="export_format">
+                <option value="" selected>Format</option>
+                <option value="pdf">PDF</option>
+                <option value="doc">DOC</option>
+              </select><br/>
+              <a href="#" id="export-form-submit">
+                <img src="/assets/export-button.png" id="export-form-submit-button"></a>
+            </div>
+          </div>
 
-      <div id="export-format">
-        <b>FORMAT</b><br/>
-        <select id="export_format" name="export_format">
-          <option value="pdf">PDF</option>
-          <option value="doc" selected="selected">DOC</option>
-        </select>
-      </div>
+          <% end %><!-- /form -->
 
-      <div id="export-button-div">
-        <a href="#" class="button" id="export-form-submit">EXPORT</a><br/>
-        <a href="#" id="advanced-toggle">(Advanced)</a>
-      </div>
+      </div> <!-- /print-options-new2 -->
+    </div> <!-- /print-options -->
 
-    </div><!-- /print-options-basic -->
-  </div><!-- /print-options-new -->
-
-  <div id="print-options-orig">
-     <div id="print-options-advanced">
-      <b>ADVANCED OPTIONS</b><br/>
-
-      <div id="toc-levels-options">
-        TOC</br>
-        <select id="toc_levels" name="toc_levels" class="theme-select-trigger">
-          <option value="" selected="selected">None</option>
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-          <option>6</option>
-        </select>
-      </div>
-
-      <div id="titles-options">
-        TITLES</br>
-        <select id="printtitle" name="printtitle" class="theme-select-trigger">
-          <option value="yes" selected="selected">Show</option>
-          <option value="no">Hide</option>
-        </select>
-      </div>
-
-      <% if ["collages", "playlists"].include?(params[:controller]) -%>
-       <div id="paragraph-numbers-options">
-       PARAGRAPH NUMBERS<br/>
-       <select id="printparagraphnumbers" name="printparagraphnumbers" class="theme-select-trigger">
-         <option value="yes" selected="selected">Show</option>
-         <option value="no">Hide</option>
-       </select>
-      </div>
-      <% end %>
-
-      <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
-       <div id="fontface-div">
-        FONT FACE<br/>
-        <select id="fontface" name="fontface" class="theme-select-trigger">
-          <option value="leitura">Leitura</option>
-          <option value="garamond">Garamond</option>
-          <option value="goudy">Goudy</option>
-          <option value="futura">Futura</option>
-          <option value="verdana">Verdana</option>
-          <option value="proxima">Proxima Nova</option>
-          <option value="dagny" selected="selected">Dagny Web</option>
-        </select>
-       </div>
-
-       <div id="fontsize-div">
-        FONT SIZE</br>
-        <select id="fontsize" name="fontsize" class="theme-select-trigger">
-          <option value="small" selected="selected">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
-          <option value="xlarge">X-Large</option>
-        </select>
-       </div>
-
-       <div id="marginsize-div">
-        MARGIN-T</br>
-        <select class="margin-select theme-select-trigger" id="margin-top" name="margin-top">
-          <option value="0.5in">0.5in</option>
-          <option value="0.75in">0.75in</option>
-          <option value="1.0in" selected="selected">1.0in</option>
-          <option value="1.25in">1.25in</option>
-          <option value="1.5in">1.5in</option>
-          <option value="1.75in">1.75in</option>
-          <option value="2.0in">2.0in</option>
-        </select>
-       </div>
-       <div id="marginsize-div">
-        MARGIN-R</br>
-        <select  class="margin-select theme-select-trigger" id="margin-right" name="margin-right">
-          <option value="0.5in">0.5in</option>
-          <option value="0.75in">0.75in</option>
-          <option value="1.0in" selected="selected">1.0in</option>
-          <option value="1.25in">1.25in</option>
-          <option value="1.5in">1.5in</option>
-          <option value="1.75in">1.75in</option>
-          <option value="2.0in">2.0in</option>
-        </select>
-       </div>
-       <div id="marginsize-div">
-        MARGIN-B</br>
-        <select class="margin-select theme-select-trigger" id="margin-bottom" name="margin-bottom">
-          <option value="0.5in">0.5in</option>
-          <option value="0.75in">0.75in</option>
-          <option value="1.0in" selected="selected">1.0in</option>
-          <option value="1.25in">1.25in</option>
-          <option value="1.5in">1.5in</option>
-          <option value="1.75in">1.75in</option>
-          <option value="2.0in">2.0in</option>
-        </select>
-       </div>
-       <div id="marginsize-div">
-        MARGIN-L</br>
-        <select class="margin-select theme-select-trigger" id="margin-left" name="margin-left">
-          <option value="0.5in">0.5in</option>
-          <option value="0.75in">0.75in</option>
-          <option value="1.0in" selected="selected">1.0in</option>
-          <option value="1.25in">1.25in</option>
-          <option value="1.5in">1.5in</option>
-          <option value="1.75in">1.75in</option>
-          <option value="2.0in">2.0in</option>
-        </select>
-       </div>
-      <% end %>
-
-     </div><!-- /print-options-advanced -->
-    </div><!-- /print-options-orig -->
-
-     <% end %><!-- /form -->
-    </div>
    <div class="MsoNormal">
     <div class="WordSection1">
      <div class="wrapper">

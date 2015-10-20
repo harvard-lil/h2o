@@ -1,12 +1,12 @@
-var export_h2o_fonts;
+//var export_h2o_fonts;  //TODO: deprecate
 var all_tts;
 var annotations;
 var original_data = {};
 var layer_data;
 var h2o_annotator;
 var all_collage_data = {};
-var tocId = 'toc';
 var page_width_inches = 8.5;
+var ignore_theme_change = false;
 var cookies = [
     'hidden_text_display',
     'print_annotations',
@@ -87,6 +87,9 @@ var collages = {
     if($('#printannotations').val() == 'yes') {
       $('#collage' + collage_id + ' span.annotation-content').show();
     }
+    if($('#printlinks').val() == 'yes') {
+      $('#collage' + collage_id + ' span.annotation-content').show();
+    }
     if($('#hiddentext').val() == 'show') {
       $('#collage' + collage_id + ' .layered-ellipsis-hidden').hide();
       $('#collage' + collage_id + ' .original_content,#collage' + collage_id + ' .annotation-hidden').show();
@@ -99,7 +102,7 @@ var collages = {
 
 var export_functions = {
     set_toc: function(levels) {
-        var toc_node = $('#' + tocId);
+        var toc_node = $('#' + 'tod');
         toc_node.remove();
         if (levels) {
             export_functions.generate_toc(levels);
@@ -111,7 +114,7 @@ var export_functions = {
     generate_toc: function(toc_levels) {
         var toc_nodes = export_functions.build_toc_branch();
         var flat_results = export_functions.flatten(toc_nodes)
-        var toc = $('<ol/>', { id: tocId });
+        var toc = $('<ol/>', { id: 'toc' });
         var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.toc_entry_text(flat_results[i])
@@ -197,7 +200,7 @@ var export_functions = {
     },
     init_missing_cookies: function() {
         return;
-
+      /*
         //TODO: Set cookies the same way they are set in user control panel or don't set them at all
         var defaults = {
             print_margin_left: 'margin-left',
@@ -213,11 +216,11 @@ var export_functions = {
         // $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
         // $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
         // $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
-
+        */
     } ,
     init_user_settings: function() {
       //TODO: Do we need this? Does this do anything that can't be done with a "selected" in the HTML?
-      $('#printhighlights').val('original');
+      $('#printhighlights').val('original');  //  .change();
 
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no').change();
@@ -236,6 +239,9 @@ var export_functions = {
 
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes').change();
+      }
+      if($.cookie('print_links') == 'true') {
+        $('#printlinks').val('yes').change();
       }
       if($.cookie('hidden_text_display') == 'true') {
         $('#hiddentext').val('show').change();
@@ -268,28 +274,20 @@ var export_functions = {
       $('#margin-left').change();
   },
   init_theme_picker_listener: function() {
-      console.log('init_theme_picker_listener firing');
-      $('.theme-select-trigger').change(function() {
-          //This actually won't work like we want it to b/c the changing a theme using the
-          // theme select, changes form elements, which then fires those elements' .change()
-          // listeners, which resets the theme select to custom instantly
-          //console.log('resetting theme-select');
-          //$('#theme-select').val('custom');
-      });
+    $('.theme-select-trigger').change(function() {
+      if (ignore_theme_change) {
+        return;
+      }
+      $('#theme-select').val('custom');
+    });
   },
   init_listeners: function() {
     $('#export-form-submit').click(function(e) {
       e.preventDefault();
-
-      //Copy mapped values for font face and font size to mapped form inputs
-      var fontface = $('#fontface').val();
-      $('#fontface_mapped').val(h2o_fonts.font_map_fallbacks[fontface]);
-
-      var fontsize = $('#fontsize').val();
-      $('#fontsize_mapped').val(h2o_fonts.base_font_sizes[fontface][fontsize] + 'px');
-      console.log('faceMapped: ' + $('#fontface_mapped').val());
-      console.log('sizeMapped: ' + $('#fontsize_mapped').val());
-
+      if (!$('#export_format').val()) {
+        alert('Please select an export format');
+        return false;
+      }
       $('#export-form').submit();
     });
     $('#toc_levels').change(function() {
@@ -305,6 +303,13 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
+      if($(this).val() == 'yes') {
+        $('.annotation-content').show();
+      } else {
+        $('.annotation-content').hide();
+      }
+    });
+    $('#printlinks').change(function() {
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
@@ -369,11 +374,15 @@ var export_functions = {
             export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
-      $('#theme-select').change(function() {
-          export_functions.setTheme( $(this).val() );
-      });
-      //TODO: Do we need to call setFontPrint here, or is the cookie reading code enough?
-      export_functions.setFontPrint();
+    $('#theme-select').change(function() {
+      ignore_theme_change = true;
+      export_functions.setTheme($(this).val());
+      //Prevent changed form inputs' listeners from immediately changing this back to Custom.
+      setTimeout(function() {ignore_theme_change = false}, 200);
+    });
+
+    //TODO: Maybe we only need this if there is no font face or font size cookie data.
+    export_functions.setFontPrint();
   },  //end init_listeners
     setTheme: function(themeId) {
         if (h2o_themes[themeId]) {
@@ -393,33 +402,33 @@ var export_functions = {
         var div = $('.wrapper')
         div.css('margin-left', $('#margin-left').val());
         var newWidth = parseFloat(page_width_inches) - (parseFloat($('#margin-left').val()) + parseFloat($('#margin-right').val()));
-        //console.log('L/R/Width: ' + [$('#margin-left').val(), $('#margin-r').val(), newWidth].join('/') );
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
-    //TODO: Avoid calling this multiple times on page-load
-    var font_size = $('#fontsize').val();
     var font_face = $('#fontface').val();
-    var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
+    var font_size = $('#fontsize').val();
     var mapped_font_face = h2o_fonts.font_map_fallbacks[font_face];
-    console.log('setFontPrint setting: ' + mapped_font_face);
+    var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
 
-    var base_selector = 'body#' + $('body').attr('id') + ' .singleitem';
-      var rules = [
-          " * { font-family: " + mapped_font_face + "; font-size: " + base_font_size + 'px; }' ,
-          ' *.scale1-5 { font-size: ' + base_font_size * 1.5 + 'px; }',
-          ' *.scale1-4 { font-size: ' + base_font_size * 1.4 + 'px; }',
-          ' *.scale1-3 { font-size: ' + base_font_size * 1.3 + 'px; }',
-          ' *.scale1-2 { font-size: ' + base_font_size * 1.2 + 'px; }',
-          ' *.scale1-1 { font-size: ' + base_font_size * 1.1 + 'px; }',
-          ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
-          ' *.scale0-8,' + base_selector + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }',
-      ];
+    $('#fontface_mapped').val(mapped_font_face);
+    $('#fontsize_mapped').val(base_font_size + 'px');
+    //console.log('faceMapped: ' + $('#fontface_mapped').val());
+    //console.log('sizeMapped: ' + $('#fontsize_mapped').val());
 
-    //TODO: call rules with rules.join("\n") if that works
-      $.each(rules, function(i, rule) {
-          $.rule(base_selector + rule).appendTo('#additional_styles');
-      });
+    var base = 'body#' + $('body').attr('id') + ' .singleitem';
+    var rules = [
+      base + ' * { font-family: ' + mapped_font_face + '; font-size: ' + base_font_size + 'px; }',
+      base + ' *.scale1-5 { font-size: ' + base_font_size * 1.5 + 'px; }',
+      base + ' *.scale1-4 { font-size: ' + base_font_size * 1.4 + 'px; }',
+      base + ' *.scale1-3 { font-size: ' + base_font_size * 1.3 + 'px; }',
+      base + ' *.scale1-2 { font-size: ' + base_font_size * 1.2 + 'px; }',
+      base + ' *.scale1-1 { font-size: ' + base_font_size * 1.1 + 'px; }',
+      base + ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
+      base + ' *.scale0-8,' + base + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }',
+    ].join("\n");
+
+    $('#additional_styles').text('');
+    $.rule(rules).appendTo('#additional_styles');
   },
   loadAnnotator: function(id) {
     annotations = all_collage_data["collage" + id].annotations || {};
@@ -572,14 +581,14 @@ $(document).ready(function(){
     if ($.cookie('export_format')) {
         // Remove things that would otherwise trip up any of our exporter backends
         $('#print-options').remove();
-        $('#toc-container').show();
+        $('#toc-container').show();  //TODO: Do we still need this?
 
         // Reset margins because export back-end will manage them
         //NEW: technically, we only need to do this for PDF exports, because PDF
         //exports set margins outside of javascript/HTML completely.
 
         var div = $('.wrapper');
-        //TODO: set margins here based on cookie value, instead of doing it in phantomjs
+        //TODO: maybe set margins here based on cookie value, instead of doing it in phantomjs
         /*
         div.css('margin', '');
         div.css('margin-top', '');
@@ -596,10 +605,13 @@ $(document).ready(function(){
         $("body *").filter(":hidden").not("script").remove();
 
         //PhantomJS requires this in page scope
-        export_h2o_fonts = h2o_fonts;
+        //export_h2o_fonts = h2o_fonts;
     }
+  else {
+      export_functions.init_theme_picker_listener();
+  }
 
-    export_functions.init_theme_picker_listener();
     console.log('BOOP: document.ready done');
 });
+
 

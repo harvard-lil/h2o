@@ -3,6 +3,24 @@ require 'uri'
 
 class PlaylistExporter
 
+  # No translation value here means we just pass the form field value straight through
+  FORM_COOKIE_MAP = {
+    'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
+    'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
+    'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
+    'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
+    'printhighlights' => {'cookie_name' => 'print_highlights'},
+    'fontface' => {'cookie_name' => 'print_font_face'},
+    'fontsize' => {'cookie_name' => 'print_font_size'},
+    'fontface_mapped' => {'cookie_name' => 'print_font_face_mapped'},
+    'fontsize_mapped' => {'cookie_name' => 'print_font_size_mapped'},
+    'margin-top' => {'cookie_name' => 'print_margin_top'},
+    'margin-right' => {'cookie_name' => 'print_margin_right'},
+    'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
+    'margin-left' => {'cookie_name' => 'print_margin_left'},
+    'toc_levels' => {'cookie_name' => 'toc_levels'},
+  }
+
   class << self
 
     def export_as(request_url, params)
@@ -22,9 +40,7 @@ class PlaylistExporter
     end
 
     def export_as_doc(request_url, params)
-      #fetch HTML with phantomjs (and cookies) into a temp file in /tmp/playlist_exports/
-      html_file = fetch_playlist_html(request_url, params)
-      return convert_to_mime_file(html_file)
+      convert_to_mime_file(fetch_playlist_html(request_url, params))
     end
 
     def json_options_file(params)
@@ -151,9 +167,9 @@ class PlaylistExporter
         doc.gsub!(/\r\n/, '')
         return '' if doc == '' || doc == '<br>'
 
-        if doc.length < 40
-          Rails.logger.debug "BEEP: '#{doc}'"
-        end
+        # if doc.length < 40
+        #   Rails.logger.debug "BEEP: '#{doc}'"
+        # end
 
         doc = Nokogiri::HTML.parse(doc)
       end
@@ -168,16 +184,17 @@ class PlaylistExporter
 
     def forwarded_cookies(params)
       if params[:export_format] == 'pdf'
-        cookies = forwarded_cookies_hash(params).except(*[
-                                                         'print_margin_top',
-                                                         'print_margin_right',
-                                                         'print_margin_bottom',
-                                                         'print_margin_left',
-                                                        ])
+        skip_list = [
+                     'print_margin_top',
+                     'print_margin_right',
+                     'print_margin_bottom',
+                     'print_margin_left',
+                    ]
       else
-        cookies = forwarded_cookies_hash(params)
+        skip_list = []
       end
-      Rails.logger.debug "Using cookies: #{cookies}"
+      cookies = forwarded_cookies_hash(params).except(*skip_list)
+      # Rails.logger.debug "Using cookies: #{cookies}"
       cookies.map {|k,v|
         "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
       }.join(' ')
@@ -188,27 +205,10 @@ class PlaylistExporter
       # form field names to cookie names while also translating values.
       # Ideally we would just consolidate the form field names to match cookie names
       # as well as no longer using multiple forms of true and false.
-
-      # No translation value here means we just pass the form field value straight through
       # Note: We don't send marginsize because margins are set via the wkhtmltopdf command line
-      #TODO: Translate all values rather than just the ones that export.js looks for.
-      field_to_cookie = {
-        'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
-        'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
-        'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
-        'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
-        'printhighlights' => {'cookie_name' => 'print_highlights'},
-        'fontface' => {'cookie_name' => 'print_font_face'},
-        'fontsize' => {'cookie_name' => 'print_font_size'},
-        'margin-top' => {'cookie_name' => 'print_margin_top'},
-        'margin-right' => {'cookie_name' => 'print_margin_right'},
-        'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
-        'margin-left' => {'cookie_name' => 'print_margin_left'},
-        'toc_levels' => {'cookie_name' => 'toc_levels'},
-      }
-
       cookies = {'export_format' => params[:export_format]}
-      field_to_cookie.each do |field, v|
+
+      FORM_COOKIE_MAP.each do |field, v|
         if params[field].present?
           #Rails.logger.debug "FtCookie got: #{field} -> '#{params[field]}'"
           if params[field] == v['formval']
@@ -219,7 +219,7 @@ class PlaylistExporter
           end
         end
       end
-      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
+      cookies.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
     def generate_toc_levels_css(depth)
