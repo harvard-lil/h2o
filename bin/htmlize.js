@@ -8,6 +8,7 @@ address = system.args[1];
 output_file = system.args[2];
 options_file = system.args[3];
 var page = require('webpage').create();
+var filesystem = require('fs');
 var cookies = {};
 
 var set_cookies = function(address, options_file) {
@@ -106,7 +107,9 @@ var set_styling = function(page) {
     get them from export.js as a global variable
 
 */
-    page.evaluate(function(cookies) {
+  var word_styles =      require('fs').read('/tmp/word-style1');
+  
+  page.evaluate(function(word_styles, cookies) {
 
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
@@ -139,9 +142,11 @@ var set_styling = function(page) {
             "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
+          word_styles,
             "--></style>",
-        ];
-        $('title').after($(header.join("\n")));
+        ].join("\n");
+      console.log('header reader: ' + header);
+        $('title').after($(header));
 
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
@@ -166,7 +171,7 @@ var set_styling = function(page) {
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
         $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
 
-    }, cookies);
+  }, word_styles, cookies);
 }
 
 var write_file = function(output_file, content) {

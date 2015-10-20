@@ -428,6 +428,7 @@ var export_functions = {
       base + ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
       base + ' *.scale0-8,' + base + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }',
     ].join("\n");
+    //console.log("rules: \n" + rules);
 
     $('#additional_styles').text('');
     $.rule(rules).appendTo('#additional_styles');
