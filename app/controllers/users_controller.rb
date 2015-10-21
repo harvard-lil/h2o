@@ -3,6 +3,39 @@ class UsersController < ApplicationController
   before_filter :display_first_time_canvas_notice, :only => [:new, :create]
   protect_from_forgery :except => [:disconnect_dropbox, :disconnect_canvas]
 
+  DEFAULT_SHOW_TYPES = {
+    :shared_private_playlists => {
+      :display => false,
+      :header => "Shared Private Playlists",
+      :partial => "playlist"
+    },
+    :shared_private_collages => {
+      :display => false,
+      :header => "Shared Private Collages",
+      :partial => "collage"
+    },
+    :pending_cases => {
+      :display => false,
+      :header => "Pending Cases",
+      :partial => "pending_case"
+    },
+    :case_requests => {
+      :display => false,
+      :header => "Case Requests",
+      :partial => "case_request"
+    },
+    :content_errors => {
+      :display => false,
+      :header => "Feedback",
+      :partial => "content_error"
+    },
+    :user_responses => {
+      :display => false,
+      :header => "User Responses",
+      :partial => "response"
+    }
+  }
+
   def new
     @user = User.new
   end
@@ -69,22 +102,23 @@ class UsersController < ApplicationController
     end
 
     if request.xhr? && params.has_key?(:ajax_region)
-      p = []
+      sorter = Proc.new { |p| p.send(params[:sort]).to_s.downcase }
       if params["ajax_region"] == "case_requests"
-        p = CaseRequest.all.sort_by { |p| p.send(params[:sort]).to_s.downcase }
+        content = CaseRequest.all.sort_by(&sorter)
       else
-        p = @user.send(params["ajax_region"]).sort_by { |p| p.send(params[:sort]).to_s.downcase }
+        content = @user.send(params["ajax_region"]).sort_by(&sorter)
       end
      
       if(params[:order] == 'desc')
-        p = p.reverse
+        content.reverse!
       end
-      @collection = p.paginate(:page => params[:page], :per_page => 10)
+      @collection = content.paginate(:page => params[:page], :per_page => 10)
 
       render :partial => params[:ajax_region] == "bookmarks" ? 'shared/bookmark_block' : 'shared/generic_block'
-      
       return
-    elsif !params.has_key?("ajax_region")
+    end
+
+    if !params.has_key?("ajax_region")
       user_id_filter = @user.id
       public_filtering = !(current_user && @user == current_user)
       primary_filtering = false
@@ -158,76 +192,7 @@ class UsersController < ApplicationController
         end
       end
 
-      @types = {
-        :shared_private_playlists => {
-          :display => false,
-          :header => "Shared Private Playlists",
-          :partial => "playlist"
-        },
-        :shared_private_collages => {
-          :display => false,
-          :header => "Shared Private Collages",
-          :partial => "collage"
-        },
-        :pending_cases => {
-          :display => false,
-          :header => "Pending Cases",
-          :partial => "pending_case"
-        },
-        :case_requests => {
-          :display => false,
-          :header => "Case Requests",
-          :partial => "case_request"
-        },
-        :content_errors => {
-          :display => false,
-          :header => "Feedback",
-          :partial => "content_error"
-        },
-        :user_responses => {
-          :display => false,
-          :header => "User Responses",
-          :partial => "response"
-        }
-      }
-      if current_user && @user == current_user
-        @page_title = "Dashboard | H2O Classroom Tools"
-
-        @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
-
-        @types[:shared_private_playlists][:display] = true
-        @types[:shared_private_collages][:display] = true
-        @types[:pending_cases][:display] = true
-
-        if @user.has_role?(:case_admin)
-          @types[:case_requests][:display] = true
-        end
-
-        @types[:content_errors][:display] = true
-        @types[:user_responses][:display] = true
-      else
-        @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
-      end
-
-      @types.each do |type, v|
-        next if !v[:display]
-        p = []
-
-        if type == :case_requests
-          p = CaseRequest.all.sort_by { |p|
-            (p.respond_to?(params[:sort]) ? p.send(params[:sort]) : p.send(:display_name)).to_s.downcase
-          }
-        else
-          p = @user.send(type).sort_by { |j|
-            (j.respond_to?(params[:sort]) ? j.send(params[:sort]) : j.send(:display_name)).to_s.downcase
-          }
-        end
-
-        if(params[:order] == 'desc')
-          p.reverse!
-        end
-        v[:results] = p.paginate(:page => params[:page], :per_page => 10)
-      end
+      build_user_page_content(params)
     end
 
     if request.xhr?
@@ -345,4 +310,44 @@ class UsersController < ApplicationController
                                  :print_annotations, :print_highlights, :print_font_face, :hidden_text_display,
                                  :print_font_size, :default_show_paragraph_numbers)
   end
+
+  def build_user_page_content(params)
+    @types = DEFAULT_SHOW_TYPES.dup
+    if current_user && @user == current_user
+      @page_title = "Dashboard | H2O Classroom Tools"
+      @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
+
+      @types[:shared_private_playlists][:display] = true
+      @types[:shared_private_collages][:display] = true
+      @types[:pending_cases][:display] = true
+      @types[:content_errors][:display] = true
+      @types[:user_responses][:display] = true
+
+      if @user.has_role?(:case_admin)
+        @types[:case_requests][:display] = true
+      end
+    else
+      @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
+    end
+
+    @types.each do |type, v|
+      next if !v[:display]
+
+      sorter = Proc.new {|j|
+        (j.respond_to?(params[:sort]) ? j.send(params[:sort]) : j.send(:display_name)).to_s.downcase
+      }
+      if type == :case_requests
+        content = CaseRequest.all.sort_by(&sorter)
+      else
+        content = @user.send(type).sort_by(&sorter)
+      end
+
+      if(params[:order] == 'desc')
+        content.reverse!
+      end
+
+      v[:results] = content.paginate(:page => params[:page], :per_page => 10)
+    end
+  end
+
 end
