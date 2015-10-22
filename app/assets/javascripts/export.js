@@ -3,6 +3,8 @@ var all_tts;
 var annotations;
 var original_data = {};
 var layer_data;
+var collage_id;
+var tocId = 'toc';
 var h2o_annotator;
 var all_collage_data = {};
 var page_width_inches = 8.5;
@@ -102,7 +104,7 @@ var collages = {
 
 var export_functions = {
     set_toc: function(levels) {
-        var toc_node = $('#' + 'tod');
+        var toc_node = $('#' + tocId);
         toc_node.remove();
         if (levels) {
             export_functions.generate_toc(levels);
@@ -114,7 +116,7 @@ var export_functions = {
     generate_toc: function(toc_levels) {
         var toc_nodes = export_functions.build_toc_branch();
         var flat_results = export_functions.flatten(toc_nodes)
-        var toc = $('<ol/>', { id: 'toc' });
+        var toc = $('<ol/>', { id: tocId });
         var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
             var toc_line = export_functions.toc_entry_text(flat_results[i])
