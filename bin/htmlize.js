@@ -15,10 +15,9 @@ var set_cookies = function(address, options_file) {
     var parser = document.createElement('a');
     parser.href = address;
     var cookie_domain = parser.hostname;
-
     var json_string, json;
     try {
-        json_string = require('fs').read(options_file);
+        json_string = filesystem.read(options_file);
         console.log('json_file: ' + json_string);
         json = JSON.parse(json_string);
     } catch(e) {
@@ -74,7 +73,6 @@ page.open(address, function (status) {
 });
 
 var set_toc = function(maxLevel) {
-    //console.log('St: ' + maxLevel);
     if (!maxLevel) {return;}
 
     // https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c
@@ -96,20 +94,77 @@ var set_toc = function(maxLevel) {
     }, maxLevel);
 }
 
+var get_doc_styles = function() {
+  //NOTE: Does not change anything from the theme files at the moment.
+  var requested_theme = cookies['print_theme_select'];  //TODO: rename to theme-name
+  if (!requested_theme) {return '';}
+
+  theme = requested_theme.replace(/\W/g, '');
+  console.log( 'THEME: ' + theme );
+  //TODO: quietly return empty string for the custom theme, MAYBE
+  //TODO: Perhaps we just whitelist known themes here to keep it simple
+
+
+  var css;
+  try {
+    css = filesystem.read('app/assets/stylesheets/doc-styles/' + theme + '.css');
+  } catch (e) {
+    console.log('ERROR: Failed to open requested theme: ' + theme);
+    return '';
+  }
+  return css;
+
+//  css = css.replace(/(font-family:)(.+)(;)/g, '$1' + cookies['font_face_mapped'] + '$2');
+  //scale fonts, converting from pixel to pt: 1 px = 0.75 point; 1 point = 1.333333 px
+  /*
+    function font_size_replacer(match, p1, p2, offset, string) {
+    //font_size_mapped
+    //This probably needs to get the adjustment factor from a global variable.
+    var scaled_size = parseInt( parseFloat(p2) * 1.2 );
+    return p1 + scaled_size + 'pt';
+    }
+
+    size_line = size_line.replace(/(font-size:)(.+pt)/g, font_size_replacer);
+    face_line = ' font-family: Garamond, sans-serif;';
+    face_line = face_line.replace(/(font-family:)(.+);/g, '$1Dingbats;');
+    var theme = '/home/root/boop.txt';
+    console.log( theme.replace(/\W/g, '') );
+  */
+  /*
+    We have two types of font scaling to consider here:
+    A) each font face has its own base size
+    B) the user dictates what "size" font they want in the web UI
+
+    Now we have to apply those rules to the numbers present in the doc style.
+    Let's ignore A for the moment, and implement B now. A might actually end up
+    being as simple as "adding a small percentage of our scaling factor" to the
+    number in B anyways.
+
+    fonts.js shows jumps of 4 pixels per font size change. 4px = 3pt.
+    Our scaling algo could be:
+    style_size = 36pt; (from regex)
+    baseline = 'medium'
+    font_size = 'large';
+    medium scaled to large represents a 3pt increase (aka 4px)
+    adjustment = 3;
+    new_style_size = 36 + adjustment + 'pt';
+    this is really a whole new way to scale fonts, so it's not going to line up
+    with how the web UI works via export.js:setFontPrint(). This might be OK,
+    based on how Adam wants this to behave in Word.
+    We might be able to make things a little nicer if we scale the adjustment factor
+    itself based on how base_font_sizes has different baseline sizes (i.e. for all
+    the medium fonts. That might really be splitting hairs, though.
+    
+*/
+
+  return css;
+}
 
 var set_styling = function(page) {
-/*
-    def json_options_file(params)
-    writes forwarded_cookies_hash(params).to_json to a file, but that file only contains form->cookie mapped
-    values. So... can we add the _mapped values some how? I need to trace this again...
-    Get the values mapped as cookies so they show up in the cookie translation json file
-    OR...
-    get them from export.js as a global variable
+  //TODO: use the same parsing technique that get_doc_styles does, for var header (below)
+  var doc_styles = get_doc_styles();
 
-*/
-  var word_styles =      require('fs').read('/tmp/word-style1');
-  
-  page.evaluate(function(word_styles, cookies) {
+  page.evaluate(function(doc_styles, cookies) {
 
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
@@ -142,10 +197,11 @@ var set_styling = function(page) {
             "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
-          word_styles,
+          doc_styles,
             "--></style>",
         ].join("\n");
-      console.log('header reader: ' + header);
+
+        //console.log('header reader: ' + header);
         $('title').after($(header));
 
         var sheets = [];
@@ -171,7 +227,7 @@ var set_styling = function(page) {
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
         $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
 
-  }, word_styles, cookies);
+  }, doc_styles, cookies);
 }
 
 var write_file = function(output_file, content) {
@@ -181,7 +237,7 @@ var write_file = function(output_file, content) {
     }
 
     try {
-        require('fs').write(output_file, content, 'w');
+        filesystem.write(output_file, content, 'w');
         console.log('Wrote ' + content.length + ' bytes to ' + output_file);
     } catch(e) {
         console.log(e);

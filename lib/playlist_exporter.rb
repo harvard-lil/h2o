@@ -5,6 +5,7 @@ class PlaylistExporter
 
   # No translation value here means we just pass the form field value straight through
   FORM_COOKIE_MAP = {
+    'theme-select' => {'cookie_name' => 'print_theme_select'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
     'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
