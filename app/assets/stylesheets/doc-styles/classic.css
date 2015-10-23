@@ -18,8 +18,7 @@ p.Annotation-comment, li.Annotation-comment, div.Annotation-comment, span.Annota
  font-style:italic;
  mso-bidi-font-style:normal;}
 
-p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
-{mso-style-name:Playlist-notes;
+ div.Playlist-notes { mso-style-name:Playlist-notes; }
  mso-style-unhide:no;
  mso-style-qformat:yes;
  mso-style-parent:Playlist-title;
