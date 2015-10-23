@@ -91,16 +91,19 @@ var collages = {
       }
       if (html) {
         $('<span>')
-          .addClass('annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-comment annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
 
+    //TODO: Should these just fire their respective form element listeners
+    //instead of calling show/hide here?
     if($('#printannotations').val() == 'yes') {
       $(idCss + ' span.annotation-content').show();
     }
     if($('#printlinks').val() == 'yes') {
+      //Should this point back to the above 'annotation.link' reference in the code?
       $(idCss + ' span.annotation-content').show();
     }
     if($('#hiddentext').val() == 'show') {

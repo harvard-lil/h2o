@@ -1,0 +1,106 @@
+p.Annotation-comment, li.Annotation-comment, div.Annotation-comment, span.Annotation-comment
+{mso-style-name:Annotation-comment;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ margin-top:12.0pt;
+ margin-right:0in;
+ margin-bottom:12.0pt;
+ margin-left:0in;
+ mso-pagination:widow-orphan;
+ font-size:14.0pt;
+ mso-bidi-font-size:11.0pt;
+ font-family:Garamond;
+ mso-fareast-font-family:Calibri;
+ mso-bidi-font-family:Calibri;
+ color:#538135;
+ mso-themecolor:accent6;
+ mso-themeshade:191;
+ font-style:italic;
+ mso-bidi-font-style:normal;}
+
+
+
+p.Playlist-title, li.Playlist-title, div.Playlist-title
+{mso-style-name:Playlist-title;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Title;
+ margin-top:0in;
+ margin-right:0in;
+ margin-bottom:12.0pt;
+ margin-left:0in;
+ mso-add-space:auto;
+ text-align:center;
+ mso-pagination:widow-orphan;
+ font-size:36.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:Garamond Oh yeah;
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;}
+p.Playlist-titleCxSpFirst, li.Playlist-titleCxSpFirst, div.Playlist-titleCxSpFirst
+{mso-style-name:Playlist-titleCxSpFirst;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Title;
+ mso-style-type:export-only;
+ margin:0in;
+ margin-bottom:.0001pt;
+ mso-add-space:auto;
+ text-align:center;
+ mso-pagination:widow-orphan;
+ font-size:36.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:EXPORTFONTFACE;
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;}
+p.Playlist-titleCxSpMiddle, li.Playlist-titleCxSpMiddle, div.Playlist-titleCxSpMiddle
+{mso-style-name:Playlist-titleCxSpMiddle;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Title;
+ mso-style-type:export-only;
+ margin:0in;
+ margin-bottom:.0001pt;
+ mso-add-space:auto;
+ text-align:center;
+ mso-pagination:widow-orphan;
+ font-size:36.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:EXPORTFONTFACE;
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;}
+p.Playlist-titleCxSpLast, li.Playlist-titleCxSpLast, div.Playlist-titleCxSpLast
+{mso-style-name:Playlist-titleCxSpLast;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Title;
+ mso-style-type:export-only;
+ margin-top:0in;
+ margin-right:0in;
+ margin-bottom:12.0pt;
+ margin-left:0in;
+ mso-add-space:auto;
+ text-align:center;
+ mso-pagination:widow-orphan;
+ font-size:36.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:EXPORTFONTFACE;
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;}
+
