@@ -73,31 +73,46 @@ var collages = {
     return $('<div>');
   },
   loadState: function(collage_id, data) {
-    export_functions.highlightAnnotatedItem(collage_id, data.highlights, data.highlight_only_highlights);
+    export_functions.highlightAnnotatedItem(
+      collage_id,
+      data.highlights,
+      data.highlight_only_highlights
+    );
+    var idString = "collage" + collage_id;
+    var idCss = '#' + idString;
 
-    var cannotations = all_collage_data["collage" + collage_id].annotations;
-    $.each(cannotations, function(i, ann) {
+    $.each(all_collage_data[idString].annotations, function(i, ann) {
       var annotation = $.parseJSON(ann);
+      var html, target_node;
       if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
-        $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(annotation.annotation).insertAfter($('.annotation-' + annotation.id + ':last'));
+        html = annotation.annotation;
       } else if(annotation.link !== undefined && annotation.link !== null) {
-        var link_html = '<a href="' + annotation.link + '">' + annotation.link + '</a>'; 
-        $('<span>').addClass('annotation-content annotation-content-' + annotation.id).html(link_html).insertAfter($('.annotation-' + annotation.id + ':last'));
+        html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
+      }
+      if (html) {
+        $('<span>')
+          .addClass('annotation-content annotation-content-' + annotation.id)
+          .html(html)
+          .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
 
     if($('#printannotations').val() == 'yes') {
-      $('#collage' + collage_id + ' span.annotation-content').show();
+      $(idCss + ' span.annotation-content').show();
     }
     if($('#printlinks').val() == 'yes') {
-      $('#collage' + collage_id + ' span.annotation-content').show();
+      $(idCss + ' span.annotation-content').show();
     }
     if($('#hiddentext').val() == 'show') {
-      $('#collage' + collage_id + ' .layered-ellipsis-hidden').hide();
-      $('#collage' + collage_id + ' .original_content,#collage' + collage_id + ' .annotation-hidden').show();
+      $(idCss + ' .layered-ellipsis-hidden').hide();
+      $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
     if($('#printhighlights').val() == 'all') {
-      export_functions.highlightAnnotatedItem(collage_id, all_collage_data["collage" + collage_id].layer_data, all_collage_data["collage" + collage_id].highlights_only);
+      export_functions.highlightAnnotatedItem(
+        collage_id,
+        all_collage_data[idString].layer_data,
+        all_collage_data[idString].highlights_only
+      );
     }
   }
 };
