@@ -18,6 +18,101 @@ p.Annotation-comment, li.Annotation-comment, div.Annotation-comment, span.Annota
  font-style:italic;
  mso-bidi-font-style:normal;}
 
+p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
+{mso-style-name:Playlist-notes;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Playlist-title;
+ margin-top:0in;
+ margin-right:0in;
+ margin-bottom:12.0pt;
+ margin-left:0in;
+ mso-add-space:auto;
+ mso-pagination:widow-orphan;
+ font-size:14.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:Garamond;
+ mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ mso-themecolor:text1;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;
+ font-weight:bold;
+ mso-bidi-font-weight:normal;}
+p.Playlist-notesCxSpFirst, li.Playlist-notesCxSpFirst, div.Playlist-notesCxSpFirst
+{mso-style-name:Playlist-notesCxSpFirst;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Playlist-title;
+ mso-style-type:export-only;
+ margin:0in;
+ margin-bottom:.0001pt;
+ mso-add-space:auto;
+ mso-pagination:widow-orphan;
+ font-size:14.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:Garamond;
+ mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ mso-themecolor:text1;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;
+ font-weight:bold;
+ mso-bidi-font-weight:normal;}
+p.Playlist-notesCxSpMiddle, li.Playlist-notesCxSpMiddle, div.Playlist-notesCxSpMiddle
+{mso-style-name:Playlist-notesCxSpMiddle;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Playlist-title;
+ mso-style-type:export-only;
+ margin:0in;
+ margin-bottom:.0001pt;
+ mso-add-space:auto;
+ mso-pagination:widow-orphan;
+ font-size:14.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:Garamond;
+ mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ mso-themecolor:text1;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;
+ font-weight:bold;
+ mso-bidi-font-weight:normal;}
+p.Playlist-notesCxSpLast, li.Playlist-notesCxSpLast, div.Playlist-notesCxSpLast
+{mso-style-name:Playlist-notesCxSpLast;
+ mso-style-unhide:no;
+ mso-style-qformat:yes;
+ mso-style-parent:Playlist-title;
+ mso-style-type:export-only;
+ margin-top:0in;
+ margin-right:0in;
+ margin-bottom:12.0pt;
+ margin-left:0in;
+ mso-add-space:auto;
+ mso-pagination:widow-orphan;
+ font-size:14.0pt;
+ mso-bidi-font-size:26.0pt;
+ font-family:Garamond;
+ mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+ mso-fareast-theme-font:major-fareast;
+ mso-bidi-font-family:"Times New Roman";
+ mso-bidi-theme-font:major-bidi;
+ color:black;
+ mso-themecolor:text1;
+ letter-spacing:.25pt;
+ mso-font-kerning:14.0pt;
+ font-weight:bold;
+ mso-bidi-font-weight:normal;}
 
 
 p.Playlist-title, li.Playlist-title, div.Playlist-title
