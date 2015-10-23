@@ -298,7 +298,6 @@ class PlaylistsController < BaseController
         playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id, 
                                            :actual_object_type => child_item.class.to_s, 
                                            :position => position,
-                                           :name => child_item.name,
                                            :playlist_id => data["new_item"].id })
         position += 1
       end
