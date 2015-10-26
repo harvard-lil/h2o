@@ -311,9 +311,52 @@ class UsersController < ApplicationController
                                  :print_font_size, :default_show_paragraph_numbers)
   end
 
+  def default_show_types_method
+    {
+      :shared_private_playlists => {
+        :display => false,
+        :header => "Shared Private Playlists",
+        :partial => "playlist"
+      },
+      :shared_private_collages => {
+        :display => false,
+        :header => "Shared Private Collages",
+        :partial => "collage"
+      },
+      :pending_cases => {
+        :display => false,
+        :header => "Pending Cases",
+        :partial => "pending_case"
+      },
+      :case_requests => {
+        :display => false,
+        :header => "Case Requests",
+        :partial => "case_request"
+      },
+      :content_errors => {
+        :display => false,
+        :header => "Feedback",
+        :partial => "content_error"
+      },
+      :user_responses => {
+        :display => false,
+        :header => "User Responses",
+        :partial => "response"
+      }
+    }
+  end
+
   def build_user_page_content(params)
     @types = DEFAULT_SHOW_TYPES.dup
+    logger.warn "DEFAULT_SHOW_TYPES @types: #{@types}"
+    logger.warn "DEFAULT_SHOW_TYPES current_user: '#{current_user}'"
+    logger.warn "DEFAULT_SHOW_TYPES @user: '#{@user}'"
+
+    #Reset @types to avoid the bug I suspect is lurking in production-only
+    @types = default_show_types_method
+
     if current_user && @user == current_user
+      logger.warn "DEFAULT_SHOW_TYPES: option A"
       @page_title = "Dashboard | H2O Classroom Tools"
       @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
@@ -327,6 +370,7 @@ class UsersController < ApplicationController
         @types[:case_requests][:display] = true
       end
     else
+      logger.warn "DEFAULT_SHOW_TYPES: option B"
       @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
     end
 
