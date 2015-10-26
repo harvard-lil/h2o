@@ -4,8 +4,9 @@ require 'uri'
 class PlaylistExporter
 
   # No translation value here means we just pass the form field value straight through
+  # Some cookies are just here to make them available to PhantomJS
   FORM_COOKIE_MAP = {
-    'theme-select' => {'cookie_name' => 'print_theme_select'},
+    'theme' => {'cookie_name' => 'print_theme'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
     'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },

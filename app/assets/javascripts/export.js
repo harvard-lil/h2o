@@ -298,7 +298,7 @@ var export_functions = {
       if (ignore_theme_change) {
         return;
       }
-      $('#theme-select').val('custom');
+      $('#theme').val('none');
     });
   },
   init_listeners: function() {
@@ -394,10 +394,10 @@ var export_functions = {
             export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
         });
     });
-    $('#theme-select').change(function() {
+    $('#theme').change(function() {
       ignore_theme_change = true;
       export_functions.setTheme($(this).val());
-      //Prevent changed form inputs' listeners from immediately changing this back to Custom.
+      //Prevent changed form inputs' listeners from immediately changing this back to None.
       setTimeout(function() {ignore_theme_change = false}, 200);
     });
 

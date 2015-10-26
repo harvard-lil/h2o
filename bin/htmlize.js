@@ -96,7 +96,7 @@ var set_toc = function(maxLevel) {
 
 var get_doc_styles = function() {
   //NOTE: Does not change anything from the theme files at the moment.
-  var requested_theme = cookies['print_theme_select'];  //TODO: rename to theme-name
+  var requested_theme = cookies['print_theme'];  //TODO: rename to theme-name
   if (!requested_theme) {return '';}
 
   theme = requested_theme.replace(/\W/g, '');
