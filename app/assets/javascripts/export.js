@@ -73,13 +73,15 @@ var collages = {
     return $('<div>');
   },
   loadState: function(collage_id, data) {
+    //TODO: There appears to be some overlap between this functionality and the
+    //individual form elements' listeners.
     export_functions.highlightAnnotatedItem(
       collage_id,
       data.highlights,
       data.highlight_only_highlights
     );
     var idString = "collage" + collage_id;
-    var idCss = '#' + idString;
+    var idCss = "#" + idString;
 
     $.each(all_collage_data[idString].annotations, function(i, ann) {
       var annotation = $.parseJSON(ann);
@@ -97,25 +99,29 @@ var collages = {
       }
     });
 
-    //TODO: Should these just fire their respective form element listeners
-    //instead of calling show/hide here?
+    //TODO: We are experimenting with calling listeners here instead of what looks
+    //suspiciously like duplicating code...
     if($('#printannotations').val() == 'yes') {
-      $(idCss + ' span.annotation-content').show();
+      $('#printannotations').change();
+      //$(idCss + ' span.annotation-content').show();
     }
     if($('#printlinks').val() == 'yes') {
+      $('#printlinks').change();
       //Should this point back to the above 'annotation.link' reference in the code?
-      $(idCss + ' span.annotation-content').show();
+      //$(idCss + ' span.annotation-content').show();
     }
     if($('#hiddentext').val() == 'show') {
-      $(idCss + ' .layered-ellipsis-hidden').hide();
-      $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
+      $('#hiddentext').change();
+      // $(idCss + ' .layered-ellipsis-hidden').hide();
+      // $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
     if($('#printhighlights').val() == 'all') {
-      export_functions.highlightAnnotatedItem(
-        collage_id,
-        all_collage_data[idString].layer_data,
-        all_collage_data[idString].highlights_only
-      );
+      $('#printhighlights').change();
+      // export_functions.highlightAnnotatedItem(
+      //   collage_id,
+      //   all_collage_data[idString].layer_data,
+      //   all_collage_data[idString].highlights_only
+      // );
     }
   }
 };
@@ -323,6 +329,7 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
+      
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
