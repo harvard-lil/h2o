@@ -112,4 +112,12 @@ class TextBlock < ActiveRecord::Base
     text_copy.user = new_user
     text_copy 
   end
+
+  def printable_content
+    doc = Nokogiri::HTML.fragment(self.content)
+    doc.css("p").add_class("Case-text")
+    doc.to_html
+  end
+
+
 end
