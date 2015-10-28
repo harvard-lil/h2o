@@ -93,7 +93,7 @@ var collages = {
       }
       if (html) {
         $('<span>')
-          .addClass('Annotation-comment annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-commentChar annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
@@ -329,7 +329,6 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
-      
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
