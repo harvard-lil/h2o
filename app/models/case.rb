@@ -98,10 +98,10 @@ class Case < ActiveRecord::Base
     self.content.gsub!(/\p{Cc}/, "")
   end
 
-  def printable_content(local_filename="/tmp/c1.txt")
-    #TODO: Cache this in the view
+  def printable_content
     doc = Nokogiri::HTML.parse(self.content)
     PlaylistExporter.convert_h_tags(doc)
+    doc.css("center").wrap('<div class="Case-header"></div>')
     doc.xpath("/html/body/*").to_s
   end
 
@@ -111,7 +111,9 @@ class Case < ActiveRecord::Base
 
   def approve!
     self.update_attribute(:public, true)
-    Notifier.case_notify_approved(self, self.case_request).deliver if self.case_request.present?
+    if self.case_request.present?
+      Notifier.case_notify_approved(self, self.case_request).deliver
+    end
   end
 
   def self.new_from_xml_file(file)

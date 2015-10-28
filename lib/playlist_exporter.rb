@@ -167,11 +167,10 @@ class PlaylistExporter
       # Accepts text or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
+        #NOTE: This situation needs to be handled better because this method
+        #changes $doc by reference if it's already a Nokogiri doc, despite
+        #how it also returns the resulting doc
         return '' if doc == '' || doc == '<br>'
-
-        # if doc.length < 40
-        #   Rails.logger.debug "BEEP: '#{doc}'"
-        # end
 
         doc = Nokogiri::HTML.parse(doc)
       end

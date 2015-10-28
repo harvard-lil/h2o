@@ -178,7 +178,7 @@ class Collage < ActiveRecord::Base
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
     doc.xpath('//a[starts-with(@href, "#")]').each do |li|
-      li['class'] = 'footnote'
+      li['class'] = 'footnote boop-footnote'  #TODO: possibly usable as footnote class
     end
 
     children_nodes = doc.xpath('/html/body').children
@@ -204,7 +204,9 @@ class Collage < ActiveRecord::Base
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
-      PlaylistExporter.convert_h_tags(doc) 
+      #TODO: This emulates Case#printable_content and should be refactored
+      PlaylistExporter.convert_h_tags(doc)
+      doc.css("center").wrap('<div class="Case-header"></div>')
     end
     html = doc.xpath("/html/body/*").to_s
 
