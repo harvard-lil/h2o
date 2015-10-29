@@ -34,7 +34,7 @@ span.Annotation-commentChar  /* this is how you make a style that can be applied
 	mso-themeshade:191;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
-p.Case-header, li.Case-header, div.Case-header
+p.Case-header, li.Case-header, div.Case-header, center.Case-header
 	{mso-style-name:Case-header;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;

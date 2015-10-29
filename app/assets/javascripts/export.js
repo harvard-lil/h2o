@@ -274,9 +274,9 @@ var export_functions = {
       }
       if($.cookie('print_highlights') == 'none') {
         $('#printhighlights').val($.cookie('print_highlights')).change();
-        $('.collage-content').each(function(i, el) {
-          export_functions.highlightAnnotatedItem($(el).data('id'), {}, {});
-        });
+        // $('.collage-content').each(function(i, el) {
+        //  export_functions.highlightAnnotatedItem($(el).data('id'), {}, {});
+        // });
       }
       if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val($.cookie('print_highlights')).change();

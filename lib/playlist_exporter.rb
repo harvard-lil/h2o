@@ -184,7 +184,8 @@ class PlaylistExporter
     end
 
     def inject_doc_styles(doc)
-      doc.css("center").wrap('<div class="Case-header"></div>')
+      #NOTE: Using doc.css("center").wrap(...) here broke annotations
+      doc.css("center").add_class("Case-header")  #.each {|n| n['class'] = "Case-header " + n['class'].to_s }
       doc.css("p").add_class("Case-text")
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).wrap('<div class="Case-internal-header"></div>')
