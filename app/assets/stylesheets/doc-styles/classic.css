@@ -1,3 +1,37 @@
+p.Highlight, li.Highlight, div.Highlight
+	{mso-style-name:Highlight;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:"Highlight Char";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0.5in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	mso-bidi-font-size:11.0pt;
+	font-family:"Garamond",serif;
+	mso-fareast-font-family:Calibri;
+	mso-bidi-font-family:Calibri;
+	color:black;
+	mso-themecolor:text1;
+    text-decoration:underline;
+	mso-bidi-font-style:normal;}
+span.HighlightChar
+	{mso-style-name:"Highlight Char";
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Highlight;
+	mso-ansi-font-size:14.0pt;
+	font-family:"Garamond",serif;
+	mso-ascii-font-family:Garamond;
+	mso-fareast-font-family:Calibri;
+	mso-hansi-font-family:Garamond;
+	mso-bidi-font-family:Calibri;
+	color:black;
+	mso-themecolor:text1;
+    text-decoration:underline;
+	mso-bidi-font-style:normal;}
 p.Annotation-comment, li.Annotation-comment, div.Annotation-comment
 	{mso-style-name:Annotation-comment;
 	mso-style-unhide:no;

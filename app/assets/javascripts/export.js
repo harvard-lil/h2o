@@ -6,6 +6,7 @@ var layer_data;
 var collage_id;
 var tocId = 'toc';
 var h2o_annotator;
+var h2o_global = { slideToAnnotation: function() {} };
 var all_collage_data = {};
 var page_width_inches = 8.5;
 var ignore_theme_change = false;
@@ -101,6 +102,7 @@ var collages = {
 
     //TODO: We are experimenting with calling listeners here instead of what looks
     //suspiciously like duplicating code...
+    //TODO: Should we be calling these elements' .change() handlers regardless of their val()?
     if($('#printannotations').val() == 'yes') {
       $('#printannotations').change();
       //$(idCss + ' span.annotation-content').show();
@@ -115,14 +117,18 @@ var collages = {
       // $(idCss + ' .layered-ellipsis-hidden').hide();
       // $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
-    if($('#printhighlights').val() == 'all') {
-      $('#printhighlights').change();
+
+    //We need to fire this here to correctly control highlights for DOC export
+    $('#printhighlights').change();
+    //if($('#printhighlights').val() == 'all') {
+      // $('#printhighlights').change();
+      // //We don't need to call this here because it gets called in the listener we are now firing
       // export_functions.highlightAnnotatedItem(
       //   collage_id,
       //   all_collage_data[idString].layer_data,
       //   all_collage_data[idString].highlights_only
       // );
-    }
+    //}
   }
 };
 
@@ -480,39 +486,47 @@ var export_functions = {
     return filtered_layer_data;
   },
   highlightAnnotatedItem: function(collage_id, highlights, highlights_only) {
-    var collageCssId = '#collage' + collage_id;
     highlights = highlights || {};
-    highlights_only = highlights_only || [];
-    layer_data = export_functions.filteredLayerData(all_collage_data["collage" + collage_id].layer_data);
+    highlights_only = highlights_only || {};
+
+    var collage_data = all_collage_data["collage" + collage_id];
+    var cssId = '#collage' + collage_id;
+    var doc_style_class = 'HighlightChar';
+    layer_data = export_functions.filteredLayerData(collage_data.layer_data);
 
     // Removing highlights from tagged + color
-    var keys = new Array();
+    var keys = [];
     $.each(highlights, function(i, j) {
       keys.push(collages.clean_layer(i));
     });
     $.each(layer_data, function(i, j) {
       if($.inArray(i, keys) == -1) {
-        $(collageCssId + ' .layer-' + i).removeClass('highlight-' + i);
+        $(cssId + ' .layer-' + i).removeClass('highlight-' + i);
       }
     });
 
     //Removing highlights from color only
-    $.each(all_collage_data["collage" + collage_id].highlights_only || [], function(i, j) {
+    $.each(collage_data.highlights_only, function(i, j) {
       if($.inArray(j, highlights_only) == -1) {
-        $(collageCssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j);
+        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j + ' ' + doc_style_class);
       }
     });
 
     $.each(highlights, function(i, j) {
-      var layer_name = collages.clean_layer(i);
-      $(collageCssId + ' .annotator-wrapper .layer-' + layer_name).addClass('highlight-' + layer_name);
-    });
-    $.each(highlights_only, function(i, j) {
-      $(collageCssId + ' .annotator-wrapper .layer-hex-' + j).addClass('highlight-hex-' + j);
+      $(cssId + ' .annotator-wrapper .layer-' + collages.clean_layer(i)).addClass('highlight-' + collages.clean_layer(i));
     });
 
-    var total_selectors = new Array();
-    $.each($(collageCssId + ' .annotator-wrapper .annotator-hl'), function(i, child) {
+    $.each(highlights_only, function(i, j) {
+      var nodes = $(cssId + ' .annotator-wrapper .layer-hex-' + j);
+      nodes.addClass('highlight-hex-' + j);
+      if (!nodes.hasClass(doc_style_class)) {
+        //Word needs the doc_style_class to be the first class for this node
+        nodes.attr('class', doc_style_class + ' ' + nodes.attr('class'));
+      }
+    });
+
+    var total_selectors = [];
+    $.each($(cssId + ' .annotator-wrapper .annotator-hl'), function(i, child) {
       var this_selector = '';
       var parent_class = '';
       var classes = $(child).attr('class').split(' ');
@@ -573,7 +587,7 @@ var export_functions = {
           var hex_arg = key.match(/^hex-/) ? key.replace(/^hex-/, '') : layer_data[key];
           current_hex = $.xcolor.opacity(current_hex, hex_arg, opacity).getHex();
         });
-        $.rule(collageCssId + ' ' + selector + ' { border-bottom: 2px solid ' + current_hex + '; }').appendTo('#highlight_styles');
+        $.rule(cssId + ' ' + selector + ' { border-bottom: 2px solid ' + current_hex + '; }').appendTo('#highlight_styles');
         updated[selector] = 1;
       }
     }

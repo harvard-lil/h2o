@@ -73,37 +73,35 @@ page.open(address, function (status) {
 });
 
 var set_toc = function(maxLevel) {
-    if (!maxLevel) {return;}
+  if (!maxLevel) {return;}
 
-    // https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c
-    page.evaluate(function(maxLevel) {
-        var f = ["<!--[if supportFields]>",
-                 "<span style='mso-element:field-begin'></span>",
-                 'TOC \\o "1-' + maxLevel + '" \\u',
-                 "<span style='mso-element:field-separator'></span>",
-                 "<![endif]-->",
-                 "<span style='mso-no-proof:yes' id='word-doc-toc-container'>",
-                 "[TOC Preview: To update, right-click and choose &quot;Update field&quot;]",
-                 "</span>",
-                 "<!--[if supportFields]>",
-                 "<span style='mso-element:field-end'></span>",
-                 "<![endif]-->",
-                ];
-        $('#toc-container').append(f.join('\n'));
-      $('#word-doc-toc-container').append($('#toc').detach());
-    }, maxLevel);
+  // https://support.office.com/en-in/article/Field-codes-TOC-Table-of-Contents-field-1f538bc4-60e6-4854-9f64-67754d78d05c
+  var tocHtml = [
+    "<!--[if supportFields]>",
+    "<span style='mso-element:field-begin'></span>",
+    'TOC \\o "1-' + maxLevel + '" \\u',
+    "<span style='mso-element:field-separator'></span>",
+    "<![endif]-->",
+    "<span style='mso-no-proof:yes' id='word-doc-toc-container'>",
+    "[TOC Preview: To update, right-click and choose &quot;Update field&quot;]",
+    "</span>",
+    "<!--[if supportFields]>",
+    "<span style='mso-element:field-end'></span>",
+    "<![endif]-->",
+  ].join('\n');
+
+  page.evaluate(function(tocHtml) {
+    $('#toc-container').append(tocHtml);
+    $('#word-doc-toc-container').append($('#toc').detach());
+  }, tocHtml);
 }
 
 var get_doc_styles = function() {
-  //NOTE: Does not change anything from the theme files at the moment.
-  var requested_theme = cookies['print_theme'];  //TODO: rename to theme-name
+  var requested_theme = cookies['print_theme'];
   if (!requested_theme) {return '';}
 
   theme = requested_theme.replace(/\W/g, '');
-  console.log( 'THEME: ' + theme );
-  //TODO: quietly return empty string for the custom theme, MAYBE
-  //TODO: Perhaps we just whitelist known themes here to keep it simple
-
+  console.log('THEME: ' + theme);
 
   var css;
   try {
