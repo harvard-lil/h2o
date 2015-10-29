@@ -50,6 +50,21 @@ p.Case-header, li.Case-header, div.Case-header
 	mso-fareast-font-family:Calibri;
 	mso-bidi-font-family:Calibri;
 	color:black;}
+p.Case-internal-header, li.Case-internal-header, div.Case-internal-header
+	{mso-style-name:Case-internal-header;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	mso-bidi-font-size:11.0pt;
+	font-family:Garamond;
+	mso-fareast-font-family:Calibri;
+	mso-bidi-font-family:Calibri;
+	color:red;}
 p.Case-text-h1, li.Case-text-h1, div.Case-text-h1
 	{mso-style-name:Case-text-h1;
 	mso-style-unhide:no;

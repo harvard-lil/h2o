@@ -101,8 +101,7 @@ class Case < ActiveRecord::Base
   def printable_content
     doc = Nokogiri::HTML.parse(self.content)
     PlaylistExporter.convert_h_tags(doc)
-    doc.css("center").wrap('<div class="Case-header"></div>')
-    doc.css("p").add_class("Case-text")
+    PlaylistExporter.inject_doc_styles(doc)
     doc.xpath("/html/body/*").to_s
   end
 

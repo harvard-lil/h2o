@@ -136,11 +136,11 @@ class Collage < ActiveRecord::Base
   alias :to_s :display_name
 
   def highlights_only
-    self.annotations.collect { |a| a.highlight_only }.flatten.uniq.compact 
+    self.annotations.map(&:highlight_only).flatten.uniq.compact 
   end
 
   def layers
-    self.annotations.collect{ |a| a.layers }.flatten.uniq
+    self.annotations.map(&:layers).flatten.uniq
   end
 
   def layer_list
@@ -204,14 +204,11 @@ class Collage < ActiveRecord::Base
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
-      #TODO: This duplicates part of Case#printable_content and should be refactored
       PlaylistExporter.convert_h_tags(doc)
-      doc.css("center").wrap('<div class="Case-header"></div>')
-      doc.css("p").add_class("Case-text")
+      PlaylistExporter.inject_doc_styles(doc)
     end
     html = doc.xpath("/html/body/*").to_s
 
-    #return CGI.unescapeHTML(doc.xpath("/html/body/*").to_s)
     convert_h_tags ? html : CGI.unescapeHTML(html)
   end
 

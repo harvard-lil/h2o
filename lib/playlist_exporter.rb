@@ -183,6 +183,13 @@ class PlaylistExporter
       doc
     end
 
+    def inject_doc_styles(doc)
+      doc.css("center").wrap('<div class="Case-header"></div>')
+      doc.css("p").add_class("Case-text")
+      cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
+      doc.xpath(cih_selector).wrap('<div class="Case-internal-header"></div>')
+    end
+
     def forwarded_cookies(params)
       if params[:export_format] == 'pdf'
         skip_list = [
