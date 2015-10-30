@@ -38,7 +38,7 @@ var set_cookies = function(address, options_file) {
 }
 
 set_cookies(address, options_file);
-//console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2)); phantom.exit();
+//console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2));
 
 page.onConsoleMessage = function(msg) {
     console.log(msg);
@@ -96,6 +96,15 @@ var set_toc = function(maxLevel) {
   }, tocHtml);
 }
 
+var XXXfont_size_replacer = function (match, p1, p2, p3, offset, string) {
+  //This probably needs to get the adjustment factor from a global variable.
+  var scaled_size = parseInt( parseFloat(p2) + adjustment );
+  return p1 + scaled_size + p3;
+}
+
+
+
+
 var get_doc_styles = function() {
   var requested_theme = cookies['print_theme'];
   if (!requested_theme) {return '';}
@@ -117,55 +126,30 @@ var get_doc_styles = function() {
 
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
-
+  //Note: this picks up font-family strings with leading chars too
   css = css.replace(/(font-family:)(.+);/g, '$1' + font_face_string + ';');
 
-  //scale fonts, converting from pixel to pt: 1 px = 0.75 point; 1 point = 1.333333 px
-
-  /*
-    function font_size_replacer(match, p1, p2, offset, string) {
-    //font_size_mapped
-    //This probably needs to get the adjustment factor from a global variable.
-    var scaled_size = parseInt( parseFloat(p2) * 1.2 );
-    return p1 + scaled_size + 'pt';
+  var font_size_replacer = function (match, p1, p2, p3, offset, string) {
+    var scaling_name = cookies['print_font_size'];
+    // This is the same 4px jump from fonts.js, converted to pt, assuming the base
+    // Doc style is sized as medium and thus requires no scaling.
+    var size_conversion = {
+      small: -3,
+      medium: 0,
+      large: 3,
+      xlarge: 6,
     }
 
-    size_line = size_line.replace(/(font-size:)(.+pt)/g, font_size_replacer);
-  */
-  /*
-    We have two types of font scaling to consider here:
-    A) each font face has its own base size
-    B) the user dictates what "size" font they want in the web UI
-
-    Now we have to apply those rules to the numbers present in the doc style.
-    Let's ignore A for the moment, and implement B now. A might actually end up
-    being as simple as "adding a small percentage of our scaling factor" to the
-    number in B anyways.
-
-    fonts.js shows jumps of 4 pixels per font size change. 4px = 3pt.
-    Our scaling algo could be:
-    style_size = 36pt; (from regex)
-    baseline = 'medium'
-    font_size = 'large';
-    medium scaled to large represents a 3pt increase (aka 4px)
-    adjustment = 3;
-    new_style_size = 36 + adjustment + 'pt';
-    this is really a whole new way to scale fonts, so it's not going to line up
-    with how the web UI works via export.js:setFontPrint(). This might be OK,
-    based on how Adam wants this to behave in Word.
-    We might be able to make things a little nicer if we scale the adjustment factor
-    itself based on how base_font_sizes has different baseline sizes (i.e. for all
-    the medium fonts. That might really be splitting hairs, though.
-    
-*/
-
-  return css;
+    var new_size = parseInt(parseFloat(p2) + size_conversion[cookies['print_font_size']]);
+    return p1 + new_size + p3;
+  }
+  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_replacer);
 }
 
 var set_styling = function(page) {
   //TODO: use the same parsing technique that get_doc_styles does, for var header (below)
   var doc_styles = get_doc_styles();
-  console.log('STYLES: ' + doc_styles);
+  //console.log('STYLES: ' + doc_styles);
 
   page.evaluate(function(doc_styles, cookies) {
 

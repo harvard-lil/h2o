@@ -228,7 +228,7 @@ class PlaylistExporter
           end
         end
       end
-      cookies.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
+      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
     def generate_toc_levels_css(depth)
