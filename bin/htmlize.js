@@ -110,10 +110,18 @@ var get_doc_styles = function() {
     console.log('ERROR: Failed to open requested theme: ' + theme);
     return '';
   }
-  return css;
 
-//  css = css.replace(/(font-family:)(.+)(;)/g, '$1' + cookies['font_face_mapped'] + '$2');
+  if (theme != 'none') {
+    return css;
+  }
+
+  var font_face_string = cookies['print_font_face_mapped'];
+  var font_size_string = cookies['print_font_size_mapped'];
+
+  css = css.replace(/(font-family:)(.+);/g, '$1' + font_face_string + ';');
+
   //scale fonts, converting from pixel to pt: 1 px = 0.75 point; 1 point = 1.333333 px
+
   /*
     function font_size_replacer(match, p1, p2, offset, string) {
     //font_size_mapped
@@ -123,10 +131,6 @@ var get_doc_styles = function() {
     }
 
     size_line = size_line.replace(/(font-size:)(.+pt)/g, font_size_replacer);
-    face_line = ' font-family: Garamond, sans-serif;';
-    face_line = face_line.replace(/(font-family:)(.+);/g, '$1Dingbats;');
-    var theme = '/home/root/boop.txt';
-    console.log( theme.replace(/\W/g, '') );
   */
   /*
     We have two types of font scaling to consider here:
@@ -161,6 +165,7 @@ var get_doc_styles = function() {
 var set_styling = function(page) {
   //TODO: use the same parsing technique that get_doc_styles does, for var header (below)
   var doc_styles = get_doc_styles();
+  console.log('STYLES: ' + doc_styles);
 
   page.evaluate(function(doc_styles, cookies) {
 
