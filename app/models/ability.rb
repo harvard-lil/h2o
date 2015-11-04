@@ -42,7 +42,9 @@ class Ability
       can [:embedded_pager, :access_level], :all
 
       # Can do things on owned items
-      can [:edit, :show, :update, :destroy], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
+      if !user.has_role? :superadmin
+        can [:edit, :show, :update, :destroy], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
+      end
       can [:position_update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :user_id => user.id 
       can [:delete_inherited_annotations, :save_readable_state], Collage, :user_id => user.id
       can [:update, :edit, :destroy], PlaylistItem do |playlist_item|

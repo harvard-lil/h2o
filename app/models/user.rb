@@ -332,7 +332,7 @@ class User < ActiveRecord::Base
   end
 
   def custom_label_method
-    "<a href=\"/users/#{self.id}\">#{self.email_address} (#{self.simple_display})</a>"
+    "#{self.email_address} (#{self.simple_display})"
   end
     
   def preverified?
