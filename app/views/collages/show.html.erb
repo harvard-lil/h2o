@@ -2,3 +2,122 @@
 <% cache_if(@collage.public?, action: 'show', action_suffix: ck, :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
   <%= render @collage %>
 <% end %>
+<form action="<%= export_unique_collage_path(@collage) %>" target="_blank" method="POST" id="collage_print">
+<input type="hidden" id="state" name="state" value="" />
+</form>
+<div id="fixed_links">
+<a href="#" class="fixed_link left-tooltip" id="collapse_toggle" title="<%= @collage.annotated_label %> Info">Collapse/Expand</a>
+<a href="#" class="fixed_link left-tooltip" id="fixed_print" title="Print <%= @collage.name %>">Print</a>
+<a href="#" class="fixed_link left-tooltip btn-a dont_hide" id="fixed_font" title="Change the size of the text">Font Settings</a>
+</div>
+
+<aside id="singleitem_barcode_toolbar">
+  <a href="<%= copy_collage_path(@collage) %>" class="tooltip clone-action requires_logged_in" id="copy-collage" title="Clone <%= @collage.name %>" data-type="collage" data-title="<%= @collage.name %>" data-public="<%= @collage.public %>">
+    <span class="icon icon-clone-large"><span>Clone <%= @collage.annotated_label %></span></span>
+  </a>
+  <%= link_to raw('<span class="icon icon-add-large"><span>Add To Playlist</span></span>'), '#', "data-item_id" => @collage.id, "data-type" => "collage", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
+  <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark ' + @collage.annotated_label + '</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{@collage.name}", "data-type" => "collage", "data-itemid" => @collage.id %>
+</aside>
+
+<div id="collage<%= @collage.id %>" class="singleitem leftcol" data-itemid="<%= @collage.id %>" data-public="<%= @collage.public %>">
+  <div id="main_details">
+    <h1 class="scale1-5"><%= @collage.name %></h1>
+    <h6 class="scale0-9 <%= @collage.root != @collage ? 'with_creators' : '' %>">
+      <% if @collage.root != @collage -%>
+      <span class="creator_details">
+        <span>Original Creator: </span><%= link_to(@collage.root.user.display, user_path(@collage.root.user)) %>
+      </span>
+      <span class="creator_details">
+        <span>Current Version: </span><%= link_to(@collage.user.display, user_path(@collage.user), :id => "author-link", "data-author_id" => @collage.user.id) %>
+      </span>
+      <% else -%>
+      <span>by </span><%= link_to(@collage.user.display, user_path(@collage.user), :id => "author-link", "data-author_id" => @collage.user.id) %>
+      <% end -%>
+    </h6>
+    <aside id="buttons">
+      <a href="#" class="btn-a afterload dont_hide" id="text-layer-tools">ANNOTATION DISPLAY</a>
+      <div class="popup text-layers-popup">
+        <h5 class="first">TEXT</h5>
+        <ul>
+          <li id="show_text_edits">
+            <span>Show Full Text</span>
+            <div class="toggle toggle-light"></div>
+          </li>
+          <li id="show_comments">
+            <span>Show Comments</span>
+            <div class="toggle toggle-light"></div>
+          </li>
+          <li id="show_links">
+            <span>Show Links</span>
+            <div class="toggle toggle-light"></div>
+          </li>
+        </ul>
+
+        <h5>TAGS &amp; HIGHLIGHTS</h5>
+        <ul id="layers_highlights">
+          <li id="highlight_all_li">
+            <span>All</span>
+            <div class="toggle toggle-light"></div>
+          </li>
+          <% @collage.layers.each do |layer| %>
+          <li class="user_layer highlight_layer" data-id="l<%= layer.id %>" data-name="<%= layer.name.clean_layer %>" data-hex="<%= @layer_data[layer.name] %>">
+            <span class="layer_name">
+              <%= layer.name %>
+              <span class="indicator" style="background-color:#<%= @layer_data[layer.name] %>"></span>
+            </span>
+            <div class="toggle toggle-light"></div>
+            <div class="toggle-show_hide toggle-light"></div>
+          </li>
+          <% end -%>
+          <% @collage.highlights_only.each do |highlight| %>
+          <li class="highlight_only_layer highlight_layer" data-hex="<%= highlight %>">
+            <span class="indicator" style="background-color:#<%= highlight %>"></span>
+            <div class="toggle toggle-light"></div>
+            <div class="toggle-show_hide toggle-light"></div>
+          </li>
+          <% end -%>
+        </ul>
+      </div>
+    </aside>
+    <div class="clear"></div>
+  </div>
+  <div id="description" class="scale1-1">
+    <%= raw @collage.formatted(:description) %>
+    <%= link_to raw('<span class="icon icon-edit"></span>EDIT ANNOTATED ITEM INFORMATION<span class="icon icon-arrow"></span>'), edit_collage_path(@collage), :class => "edit-action requires_edit collage_edit scale0-8" %>
+    <%= link_to raw('<span class="icon icon-delete"></span>DELETE ANNOTATED ITEM<span class="icon icon-arrow"></span>'), @collage, "data-type" => "collage", "data-id" => @collage.id, :class => "delete-action requires_edit scale0-8" %>
+  </div>
+
+  <div class="ajax-error" id="ajax-error-<%= @collage.id %>" style="display: none;"></div>
+  <div class="article">
+    <%= raw @collage.editable_content %>
+	  <% cache(["editable-content", @collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
+    <% end -%>
+  </div>
+</div>
+
+<div id="stats" class="right_panel">
+  <a href="#" class="right_panel_close">Close</a>
+  <h3 class="info"><%= @collage.annotated_label %> Information<span class="icon icon-panel"></span></h3>
+  <div id="stats_collapse">
+    <div class="stats_panel">
+      <%= render :partial => 'meta' %>
+    </div>
+    <h3>Author Stats</h3>
+    <%= render :partial => "shared/author_stats", :locals => { :user => @collage.user } %>
+  </div>
+  <a id="stats_expand">Expand</a>
+</div>
+
+<div class="clear"></div>
+  
+<script type="text/javascript">
+var editability_path = "<%= access_level_collage_path(@collage) %>"; 
+var original_data = <%= raw @collage.readable_state || '{}' %>;
+var color_list = <%= raw Collage.color_list.to_json %>;
+var layer_data = <%= raw @layer_data.to_json %>;
+var highlights_only = <%= raw @collage.highlights_only.to_json %>;
+var raw_annotations = {
+  "single": <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(:include => :layers); h }.to_json %>
+};
+</script>
+
