@@ -1,4 +1,3 @@
-//var export_h2o_fonts;  //TODO: deprecate
 var all_tts;
 var annotations;
 var original_data = {};
@@ -94,7 +93,7 @@ var collages = {
       }
       if (html) {
         $('<span>')
-          .addClass('Annotation-commentChar annotation-content annotation-content-' + annotation.id)
+          .addClass('AnnotationChar annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
@@ -645,9 +644,6 @@ $(document).ready(function(){
         //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         //TODO: Reminder: This will remove any hidden dom nodes we want to .show() in phantomjs
         $("body *").filter(":hidden").not("script").remove();
-
-        //PhantomJS requires this in page scope
-        //export_h2o_fonts = h2o_fonts;
     }
   else {
       export_functions.init_theme_picker_listener();

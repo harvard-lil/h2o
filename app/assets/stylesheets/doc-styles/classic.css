@@ -32,11 +32,11 @@ span.HighlightChar
 	mso-themecolor:text1;
     text-decoration:underline;
 	mso-bidi-font-style:normal;}
-p.Annotation-comment, li.Annotation-comment, div.Annotation-comment
-	{mso-style-name:Annotation-comment;
+p.Annotation, li.Annotation, div.Annotation
+	{mso-style-name:Annotation;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-link:"Annotation-comment Char";
+	mso-style-link:"Annotation Char";
 	margin-top:12.0pt;
 	margin-right:0in;
 	margin-bottom:12.0pt;
@@ -52,11 +52,11 @@ p.Annotation-comment, li.Annotation-comment, div.Annotation-comment
 	mso-themeshade:191;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
-span.Annotation-commentChar  /* this is how you make a style that can be applied to a span but I don't think you actually need the mso-style-link value to exist */
-	{mso-style-name:"Annotation-comment Char";
+span.AnnotationChar  /* this is how you make a style that can be applied to a span but I don't think you actually need the mso-style-link value to exist */
+	{mso-style-name:"Annotation Char";
 	mso-style-unhide:no;
 	mso-style-locked:yes;
-	mso-style-link:Annotation-comment;
+	mso-style-link:Annotation;
 	mso-ansi-font-size:14.0pt;
 	font-family:"Garamond",serif;
 	mso-ascii-font-family:Garamond;
