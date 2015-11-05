@@ -65,6 +65,7 @@ class PlaylistExporter
       options_file = json_options_file(params)
       command = [
                  'bin/phantomjs',
+                 #'--debug=true',
                  'bin/htmlize.js',
                  target_url,
                  out_file,
@@ -84,12 +85,10 @@ class PlaylistExporter
       Rails.logger.debug command_output
 
       if exit_code == 0
-        out_file
+        out_file.tap {|x| Rails.logger.debug "Created #{x}" }
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
       end
-
-      out_file.tap {|x| Rails.logger.debug "Created #{x}" }
     end
 
     def convert_to_mime_file(input_file)

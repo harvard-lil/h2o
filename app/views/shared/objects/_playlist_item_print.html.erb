@@ -3,15 +3,15 @@
 <% if item.actual_object.present? -%>
   <!-- item.class <%= item.class %> -->
   <!-- item.id <%= item.id %> -->
-  <!-- item.description <%= raw item.description %> -->
-  <!-- BOOP -->
   <!-- actual_object_type <%= item.actual_object_type %> -->
   <!-- actual_object.id <%= item.actual_object.id %> -->
-  <!-- actual_object.description <%= raw item.actual_object.description %> -->
-  
+
   <!-- this is the H tag the javascript TOC preview uses -->
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
+
+       <!-- TODO: Add Playlist-title if item.actual_object_type == Playlist. span vs div tho? -->
+
     <span class="hcontent"><%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
@@ -33,23 +33,37 @@
   <% end -%>
   <div class="clear"></div>
   <% if item.actual_object_type == 'TextBlock' -%>
-    <%= render :partial => 'shared/objects/textblock_print', :locals => { :text_block => item.actual_object } %>
+    <%= render(
+          :partial => 'shared/objects/textblock_print',
+          :locals => { :text_block => item.actual_object }
+        )
+    %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Collage' -%>
-    <%= render :partial => 'shared/objects/collage_print', :locals => { :collage => @preloaded_collages["collage#{item.actual_object_id}"] } %>
+    <%= render(
+          :partial => 'shared/objects/collage_print',
+          :locals => { :collage => @preloaded_collages["collage#{item.actual_object_id}"] }
+        )
+    %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Case' -%>
-    <%= render :partial => 'shared/objects/case_obj_print', :locals => { :case_obj => @preloaded_cases["case#{item.actual_object_id}"] } %>
+    <%= render(
+          :partial => 'shared/objects/case_obj_print',
+          :locals => { :case_obj => @preloaded_cases["case#{item.actual_object_id}"] }
+        )
+    %>
     <div class="page-break"></div>
   <% elsif item.actual_object_type == 'Playlist' && recursive_level < 5 && item.actual_object.present? -%>
     <section class="playlists">
       <ul>
         <% item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item_print',
-            :locals => { :item => nested_item,
-            :parent_index => parent_index == '' ? index : "#{parent_index}.#{index}",
-            :index => nested_index + 1,
-            :recursive_level => recursive_level + 1 } %>
+            :locals => {
+              :item => nested_item,
+              :parent_index => parent_index == '' ? index : "#{parent_index}.#{index}",
+              :index => nested_index + 1,
+              :recursive_level => recursive_level + 1,
+            } %>
         <% end -%>
       </ul>
     </section>
