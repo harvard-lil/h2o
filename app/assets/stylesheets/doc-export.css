@@ -1,38 +1,5 @@
-/* font-family and font-size get adjusted to match user-requested values, unlike other Word styles */
-p.Highlight, li.Highlight, div.Highlight
-	{mso-style-name:Highlight;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-link:"Highlight Char";
-	margin-top:12.0pt;
-	margin-right:0in;
-	margin-bottom:12.0pt;
-	margin-left:0.5in;
-	mso-pagination:widow-orphan;
-	font-size:14.0pt;
-	mso-bidi-font-size:11.0pt;
-	font-family:"Garamond",serif;
-	mso-fareast-font-family:Calibri;
-	mso-bidi-font-family:Calibri;
-	color:black;
-	mso-themecolor:text1;
-    text-decoration:underline;
-	mso-bidi-font-style:normal;}
-span.HighlightChar
-	{mso-style-name:"Highlight Char";
-	mso-style-unhide:no;
-	mso-style-locked:yes;
-	mso-style-link:Highlight;
-	mso-ansi-font-size:14.0pt;
-	font-family:"Garamond",serif;
-	mso-ascii-font-family:Garamond;
-	mso-fareast-font-family:Calibri;
-	mso-hansi-font-family:Garamond;
-	mso-bidi-font-family:Calibri;
-	color:black;
-	mso-themecolor:text1;
-    text-decoration:underline;
-	mso-bidi-font-style:normal;}
+/* Used for PhantomJS script that converts to DOC format */
+
 p.Annotation, li.Annotation, div.Annotation
 	{mso-style-name:Annotation;
 	mso-style-unhide:no;
@@ -45,7 +12,7 @@ p.Annotation, li.Annotation, div.Annotation
 	mso-pagination:widow-orphan;
 	font-size:14.0pt;
 	mso-bidi-font-size:11.0pt;
-	font-family:"Garamond",serif;
+	font-family:Garamond,;
 	mso-fareast-font-family:Calibri;
 	mso-bidi-font-family:Calibri;
 	color:#538135;
@@ -53,13 +20,13 @@ p.Annotation, li.Annotation, div.Annotation
 	mso-themeshade:191;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
-span.AnnotationChar
+span.AnnotationChar  /* this is how you make a style that can be applied to a span but I don't think you actually need the mso-style-link value to exist */
 	{mso-style-name:"Annotation Char";
 	mso-style-unhide:no;
 	mso-style-locked:yes;
 	mso-style-link:Annotation;
 	mso-ansi-font-size:14.0pt;
-	font-family:"Garamond",serif;
+	font-family:Garamond;
 	mso-ascii-font-family:Garamond;
 	mso-fareast-font-family:Calibri;
 	mso-hansi-font-family:Garamond;
@@ -253,7 +220,7 @@ p.Playlist-title, li.Playlist-title, div.Playlist-title
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -275,7 +242,7 @@ p.Playlist-titleCxSpFirst, li.Playlist-titleCxSpFirst, div.Playlist-titleCxSpFir
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -297,7 +264,7 @@ p.Playlist-titleCxSpMiddle, li.Playlist-titleCxSpMiddle, div.Playlist-titleCxSpM
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -321,7 +288,7 @@ p.Playlist-titleCxSpLast, li.Playlist-titleCxSpLast, div.Playlist-titleCxSpLast
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -343,7 +310,7 @@ p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -366,7 +333,7 @@ p.Playlist-notesCxSpFirst, li.Playlist-notesCxSpFirst, div.Playlist-notesCxSpFir
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -389,7 +356,7 @@ p.Playlist-notesCxSpMiddle, li.Playlist-notesCxSpMiddle, div.Playlist-notesCxSpM
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
@@ -414,7 +381,7 @@ p.Playlist-notesCxSpLast, li.Playlist-notesCxSpLast, div.Playlist-notesCxSpLast
 	font-family:Garamond;
 	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
 	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;

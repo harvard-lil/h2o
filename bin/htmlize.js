@@ -2,11 +2,10 @@
 
 console.log('htmlize.js running...');
 
-var system = require('system'),
-    address, output, size;
-address = system.args[1];
-output_file = system.args[2];
-options_file = system.args[3];
+var system = require('system');
+var address = system.args[1];
+var output_file = system.args[2];
+var options_file = system.args[3];
 var page = require('webpage').create();
 var filesystem = require('fs');
 var cookies = {};
@@ -16,21 +15,23 @@ var set_cookies = function(address, options_file) {
     parser.href = address;
     var cookie_domain = parser.hostname;
     var json_string, json;
+
     try {
         json_string = filesystem.read(options_file);
-        console.log('json_file: ' + json_string);
         json = JSON.parse(json_string);
     } catch(e) {
-        console.log('Error reading/parsing JSON options file: ' + e);
+        console.error('Error reading/parsing JSON options file: ' + e);
         phantom.exit(1);
     }
+    console.log('json_file: ' + json_string);
+
     Object.keys(json).forEach(function(name) {
         cookies[name] = json[name];
         var cookie = {
-            'name': name,
-            'value': json[name],
-            'domain': cookie_domain,
-            'path': '/'
+          name: name,
+          value: json[name],
+          domain: cookie_domain,
+          path: '/',
         };
         //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
@@ -96,33 +97,11 @@ var set_toc = function(maxLevel) {
   }, tocHtml);
 }
 
-var XXXfont_size_replacer = function (match, p1, p2, p3, offset, string) {
-  //This probably needs to get the adjustment factor from a global variable.
-  var scaled_size = parseInt( parseFloat(p2) + adjustment );
-  return p1 + scaled_size + p3;
-}
-
-
-
-
 var get_doc_styles = function() {
-  var requested_theme = cookies['print_theme'];
-  if (!requested_theme) {return '';}
-
-  theme = requested_theme.replace(/\W/g, '');
+  var theme = cookies['print_theme'];
   console.log('THEME: ' + theme);
 
-  var css;
-  try {
-    css = filesystem.read('app/assets/stylesheets/doc-styles/' + theme + '.css');
-  } catch (e) {
-    console.log('ERROR: Failed to open requested theme: ' + theme);
-    return '';
-  }
-
-  if (theme != 'none') {
-    return css;
-  }
+  var css = filesystem.read('app/assets/stylesheets/doc-export.css');
 
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
@@ -140,7 +119,7 @@ var get_doc_styles = function() {
       xlarge: 6,
     }
 
-    var new_size = parseInt(parseFloat(p2) + size_conversion[cookies['print_font_size']]);
+    var new_size = parseInt(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
   }
   return css.replace(/(font-size:)(.+)(pt;)/g, font_size_replacer);
@@ -149,7 +128,7 @@ var get_doc_styles = function() {
 var set_styling = function(page) {
   //TODO: use the same parsing technique that get_doc_styles does, for var header (below)
   var doc_styles = get_doc_styles();
-  //console.log('STYLES: ' + doc_styles);
+  console.log('STYLES: ' + doc_styles);
 
   page.evaluate(function(doc_styles, cookies) {
 

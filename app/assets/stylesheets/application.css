@@ -12,4 +12,5 @@
  *= require_tree .
  *= stub export
  *= stub print
+ *= stub doc-export
  */
