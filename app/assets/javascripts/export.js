@@ -1,3 +1,4 @@
+var phunk_start, phunk_last, phunk_end;
 var all_tts;
 var annotations;
 var original_data = {};
@@ -73,13 +74,20 @@ var collages = {
     return $('<div>');
   },
   loadState: function(collage_id, data) {
-    //TODO: There appears to be some overlap between this functionality and the
-    //individual form elements' listeners.
+    //NOTE: This gets called once for EACH collage.
+    /*
+      TODO: Make this more efficient or at least more DRY with respect to kind of duplicating
+      form element handlers here.
+     */
+    //console.log('EXPORT:loadState1 - ' + (new Date).toString() + ' for collage_id: ' + collage_id);
+
+    //TODO: How does this really differ from the highlightAnnotatedItem at the end of this method?
     export_functions.highlightAnnotatedItem(
       collage_id,
       data.highlights,
       data.highlight_only_highlights
     );
+
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
@@ -89,7 +97,7 @@ var collages = {
       if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
         html = annotation.annotation;
       } else if(annotation.link !== undefined && annotation.link !== null) {
-        html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
+        html = '<a data-boop="link" href="' + annotation.link + '">' + annotation.link + '</a>';
       }
       if (html) {
         $('<span>')
@@ -99,35 +107,38 @@ var collages = {
       }
     });
 
-    //TODO: We are experimenting with calling listeners here instead of what looks
-    //suspiciously like duplicating code...
-    //TODO: Should we be calling these elements' .change() handlers regardless of their val()?
+
+    //BUG: Because this gets called multiple times, I think calling these handlers like this is
+    //a ton of redundant work compared to callng .show() on a single selector (as the
+    // #printannotations test does below.)
     if($('#printannotations').val() == 'yes') {
-      $('#printannotations').change();
-      //$(idCss + ' span.annotation-content').show();
+      //$('#printannotations').change();
+      $(idCss + ' span.annotation-content').show();
     }
-    if($('#printlinks').val() == 'yes') {
-      $('#printlinks').change();
+    //if($('#printlinks').val() == 'yes') {
+    // NOT IMPLEMENTED
+      //$('#printlinks').change();
       //Should this point back to the above 'annotation.link' reference in the code?
       //$(idCss + ' span.annotation-content').show();
-    }
+    //}
     if($('#hiddentext').val() == 'show') {
-      $('#hiddentext').change();
-      // $(idCss + ' .layered-ellipsis-hidden').hide();
-      // $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
+      //$('#hiddentext').change();
+      $(idCss + ' .layered-ellipsis-hidden').hide();
+      $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
 
     //We need to fire this here to correctly control highlights for DOC export
-    $('#printhighlights').change();
-    //if($('#printhighlights').val() == 'all') {
+    //$('#printhighlights').change();  //TODO: Was just this, which worked for DOC export, but may have been too slow for large playlists
+    if($('#printhighlights').val() == 'all') {
       // $('#printhighlights').change();
       // //We don't need to call this here because it gets called in the listener we are now firing
-      // export_functions.highlightAnnotatedItem(
-      //   collage_id,
-      //   all_collage_data[idString].layer_data,
-      //   all_collage_data[idString].highlights_only
-      // );
-    //}
+
+       export_functions.highlightAnnotatedItem(
+         collage_id,
+         all_collage_data[idString].layer_data,
+         all_collage_data[idString].highlights_only
+       );
+    }
   }
 };
 
@@ -334,6 +345,7 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
+       //$(idCss + ' span.annotation-content').show();
       if($(this).val() == 'yes') {
         $('.annotation-content').show();
       } else {
@@ -436,6 +448,8 @@ var export_functions = {
         div.css('width', newWidth + 'in');
     },
   setFontPrint: function() {
+    //TODO: Add timeout to avoid running this twice during an export (when both the
+    // font face and font size change pretty much at the same time.)
     var font_face = $('#fontface').val();
     var font_size = $('#fontsize').val();
     var mapped_font_face = h2o_fonts.font_map_fallbacks[font_face];
@@ -462,6 +476,7 @@ var export_functions = {
     $.rule(rules).appendTo('#additional_styles');
   },
   loadAnnotator: function(id) {
+    //TODO: Can we exit fast if the annotation is empty or anything?
     var idString = "collage" + id;
     var collage_data = all_collage_data[idString];
     annotations = collage_data.annotations || {};
@@ -470,7 +485,7 @@ var export_functions = {
 
     var elem = $('#' + idString + ' div.article');
     var factory = new Annotator.Factory();
-    var Store = Annotator.Plugin.fetch('Store');
+    var Store = Annotator.Plugin.fetch('Store');  //left over copy paste from collages I think.
     var h2o = Annotator.Plugin.fetch('H2O');
     var report_options = { "report": false, "feedback": false, "discuss": false, "respond": false };
     h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only, report_options).getInstance();
@@ -490,7 +505,7 @@ var export_functions = {
 
     var collage_data = all_collage_data["collage" + collage_id];
     var cssId = '#collage' + collage_id;
-    var doc_style_class = 'HighlightChar';
+
     layer_data = export_functions.filteredLayerData(collage_data.layer_data);
 
     // Removing highlights from tagged + color
@@ -507,7 +522,7 @@ var export_functions = {
     //Removing highlights from color only
     $.each(collage_data.highlights_only, function(i, j) {
       if($.inArray(j, highlights_only) == -1) {
-        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j + ' ' + doc_style_class);
+        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j + ' ');
       }
     });
 
@@ -518,10 +533,6 @@ var export_functions = {
     $.each(highlights_only, function(i, j) {
       var nodes = $(cssId + ' .annotator-wrapper .layer-hex-' + j);
       nodes.addClass('highlight-hex-' + j);
-      if (!nodes.hasClass(doc_style_class)) {
-        //Word needs the doc_style_class to be the first class for this node
-        nodes.attr('class', doc_style_class + ' ' + nodes.attr('class'));
-      }
     });
 
     var total_selectors = [];
@@ -615,9 +626,13 @@ $(document).ready(function(){
   $('article h4, div.article h4, .new-h4').addClass('scale1-1');
 
   $('div.article *:not(.paragraph-numbering)').addClass('original_content');
+
+  console.log('Loading annotations...');
+  //  var annoIds = $('.collage-content').map(function() { return $(this).data('id') }).get();
   $('.collage-content').each(function(i, el) {
-    export_functions.loadAnnotator($(el).data('id')); 
+    export_functions.loadAnnotator($(el).data('id'));
   });
+  console.log('EXPORT:ready5');
 
     if ($.cookie('export_format')) {
         // Remove things that would otherwise trip up any of our exporter backends
@@ -649,7 +664,8 @@ $(document).ready(function(){
       export_functions.init_theme_picker_listener();
   }
 
-    console.log('BOOP: document.ready done');
+  //NOTE: for gigantic playlists, we are not guaranteed that all annotations will have loaded by now
+  console.log('BOOP: document.ready done');
 });
 
 

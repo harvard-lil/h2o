@@ -301,6 +301,20 @@ H2O = (function() {
       }
     });
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
+      try {
+        phunk_start = phunk_start || new Date();
+        phunk_last = phunk_last || new Date();
+
+        var now = new Date()
+        var incTime = (now - phunk_last);
+        phunk_last = now;
+        var incTimeSeconds = incTime / 1000;
+        var elapsed = parseInt((now - phunk_start)/1000);
+        console.log('aSH2O:annotationsLoaded (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id + ' - total: ' + elapsed + 's');
+
+        //return;
+      } catch(e){}
+
       $('#annotator-field-0').addClass('no_tinymce');
 
       $.each(annotations, function(i, annotation) {
