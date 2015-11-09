@@ -1,4 +1,15 @@
 /* Used for PhantomJS script that converts to DOC format */
+/* To take a Word style that's defined for p, li and div and make it work for a span
+   without showing up as a separate Word style in the Word UI:
+   Given: p.Foo, li.Foo, div.Foo
+   {mso-style-name:Foo;
+	mso-style-link:"Foo Char";  <-- Add this to the *existing* style.
+    }
+    Add: span.FooChar
+	{mso-style-name:"Foo Char";
+	mso-style-link:Foo;
+    }
+*/
 
 p.Annotation, li.Annotation, div.Annotation
 	{mso-style-name:Annotation;
@@ -195,7 +206,7 @@ span.Playlist-titleChar
 	{mso-style-name:"Playlist-title Char";
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-parent:Playlist-title;
+	mso-style-link:Playlist-title;
 	margin-top:0in;
 	margin-right:0in;
 	margin-bottom:12.0pt;
