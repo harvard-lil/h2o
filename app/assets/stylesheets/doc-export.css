@@ -162,8 +162,8 @@ p.Case-author, li.Case-author, div.Case-author
 	mso-fareast-font-family:Calibri;
 	mso-bidi-font-family:Calibri;
 	color:black;}
-p.Case-text, li.Case-text, div.Case-text
-	{mso-style-name:Case-text;
+p.Item-text, li.Item-text, div.Item-text
+	{mso-style-name:Item-text;
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;

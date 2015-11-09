@@ -115,7 +115,7 @@ class TextBlock < ActiveRecord::Base
 
   def printable_content
     doc = Nokogiri::HTML.fragment(self.content)
-    doc.css("p").add_class("Case-text")
+    doc.css("p").add_class("Item-text")
     doc.to_html
   end
 
