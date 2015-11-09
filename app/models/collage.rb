@@ -178,7 +178,7 @@ class Collage < ActiveRecord::Base
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
     doc.xpath('//a[starts-with(@href, "#")]').each do |li|
-      li['class'] = 'footnote Case-footnote'  #TODO: possibly usable as footnote class
+      li['class'] = 'footnote'
     end
 
     children_nodes = doc.xpath('/html/body').children

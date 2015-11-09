@@ -189,6 +189,22 @@ p.Case-internal-citation, li.Case-internal-citation, div.Case-internal-citation
 	mso-hansi-font-family:Garamond;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
+p.Footnote, li.Footnote, div.Footnote
+	{mso-style-name:Footnote;
+	mso-style-priority:1;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	mso-bidi-font-size:11.0pt;
+	font-family:Garamond;
+	mso-fareast-font-family:Calibri;
+	mso-bidi-font-family:Calibri;
+	color:black;}
 p.Playlist-title, li.Playlist-title, div.Playlist-title
 	{mso-style-name:Playlist-title;
 	mso-style-priority:1;
