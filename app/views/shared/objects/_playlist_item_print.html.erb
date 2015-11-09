@@ -8,11 +8,11 @@
 
   <!-- this is the H tag the javascript TOC preview uses -->
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
-    <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? "#{index}" : "#{parent_index}.#{index}" %></a></span>
+    <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span>
 
-       <!-- TODO: Add Playlist-title if item.actual_object_type == Playlist. span vs div tho? -->
-
-    <span class="hcontent"><%= item.name %></span>
+    <span
+       class="<%= 'Playlist-title ' if item.actual_object_type == 'Playlist' %>hcontent"
+       ><%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
     <%= link_to item.actual_object.url, item.actual_object.url, :target => '_blank' %>

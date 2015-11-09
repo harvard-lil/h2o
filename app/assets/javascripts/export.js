@@ -189,11 +189,10 @@ var export_functions = {
         var content = header_node.children('.hcontent');
         var anchor = header_node.children('.number').children('a');
 
-        var toc_line = '<span class="toc_level' + node.toc_level + '">' + '' +
+      return '<span class="toc_level' + node.toc_level + '">' +
         (Array( (node.toc_level-1) * 6 )).join('&nbsp;') +
         '<a href="#' + anchor.attr('name') + '" style="color: #000000">' +
         anchor.text() + ' ' + content.text() + '</a></span>';
-      return toc_line;
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
@@ -205,7 +204,7 @@ var export_functions = {
   },
   init_hash_detail: function() {
     if(document.location.hash.match('fontface')) {
-      //Note: The "Print" icon link from a playlist will send font info in the URL hash
+      //Note: The "Print" icon link from a playlist sends font info in the URL hash
       var vals = document.location.hash.replace('#', '').split('-');
       for(var i in vals) {
         var font_values = vals[i].split('=');
