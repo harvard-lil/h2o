@@ -20,7 +20,7 @@ p.Annotation, li.Annotation, div.Annotation
 	mso-themeshade:191;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
-span.AnnotationChar  /* this is how you make a style that can be applied to a span but I don't think you actually need the mso-style-link value to exist */
+span.AnnotationChar
 	{mso-style-name:"Annotation Char";
 	mso-style-unhide:no;
 	mso-style-locked:yes;
@@ -172,7 +172,7 @@ p.Playlist-title, li.Playlist-title, div.Playlist-title
 	{mso-style-name:Playlist-title;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-parent:Title;
+    mso-style-link:"Playlist-title Char";
 	margin-top:0in;
 	margin-right:0in;
 	margin-bottom:12.0pt;
@@ -183,7 +183,7 @@ p.Playlist-title, li.Playlist-title, div.Playlist-title
 	font-size:36.0pt;
 	mso-bidi-font-size:26.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
@@ -191,73 +191,26 @@ p.Playlist-title, li.Playlist-title, div.Playlist-title
 	mso-themecolor:text1;
 	letter-spacing:.25pt;
 	mso-font-kerning:14.0pt;}
-p.Playlist-titleCxSpFirst, li.Playlist-titleCxSpFirst, div.Playlist-titleCxSpFirst
-	{mso-style-name:Playlist-titleCxSpFirst;
+span.Playlist-titleChar
+	{mso-style-name:"Playlist-title Char";
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-parent:Title;
-	mso-style-type:export-only;
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-add-space:auto;
-	text-align:center;
-	mso-pagination:widow-orphan;
-	font-size:36.0pt;
-	mso-bidi-font-size:26.0pt;
-	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
-	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:Calibri;
-	mso-bidi-theme-font:major-bidi;
-	color:black;
-	mso-themecolor:text1;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;}
-p.Playlist-titleCxSpMiddle, li.Playlist-titleCxSpMiddle, div.Playlist-titleCxSpMiddle
-	{mso-style-name:Playlist-titleCxSpMiddle;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-parent:Title;
-	mso-style-type:export-only;
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-add-space:auto;
-	text-align:center;
-	mso-pagination:widow-orphan;
-	font-size:36.0pt;
-	mso-bidi-font-size:26.0pt;
-	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
-	mso-fareast-theme-font:major-fareast;
-	mso-bidi-font-family:Calibri;
-	mso-bidi-theme-font:major-bidi;
-	color:black;
-	mso-themecolor:text1;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;}
-p.Playlist-titleCxSpLast, li.Playlist-titleCxSpLast, div.Playlist-titleCxSpLast
-	{mso-style-name:Playlist-titleCxSpLast;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-parent:Title;
-	mso-style-type:export-only;
+	mso-style-parent:Playlist-title;
 	margin-top:0in;
 	margin-right:0in;
 	margin-bottom:12.0pt;
 	margin-left:0in;
 	mso-add-space:auto;
 	text-align:center;
-	mso-pagination:widow-orphan;
-	font-size:36.0pt;
-	mso-bidi-font-size:26.0pt;
+	font-size:24.0pt;
+	mso-bidi-font-size:18.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
 	color:black;
 	mso-themecolor:text1;
-	letter-spacing:.25pt;
 	mso-font-kerning:14.0pt;}
 p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
 	{mso-style-name:Playlist-notes;
@@ -273,7 +226,7 @@ p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
 	font-size:14.0pt;
 	mso-bidi-font-size:26.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
@@ -296,7 +249,7 @@ p.Playlist-notesCxSpFirst, li.Playlist-notesCxSpFirst, div.Playlist-notesCxSpFir
 	font-size:14.0pt;
 	mso-bidi-font-size:26.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
@@ -319,7 +272,7 @@ p.Playlist-notesCxSpMiddle, li.Playlist-notesCxSpMiddle, div.Playlist-notesCxSpM
 	font-size:14.0pt;
 	mso-bidi-font-size:26.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
@@ -344,7 +297,7 @@ p.Playlist-notesCxSpLast, li.Playlist-notesCxSpLast, div.Playlist-notesCxSpLast
 	font-size:14.0pt;
 	mso-bidi-font-size:26.0pt;
 	font-family:Garamond;
-	mso-fareast-font-family:"\FF2D\FF33 \30B4\30B7\30C3\30AF";
+	mso-fareast-font-family:Calibri;
 	mso-fareast-theme-font:major-fareast;
 	mso-bidi-font-family:Calibri;
 	mso-bidi-theme-font:major-bidi;
