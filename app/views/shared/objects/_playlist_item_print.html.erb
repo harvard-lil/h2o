@@ -10,7 +10,7 @@
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
     <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span>
 
-    <span class="<%= item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-title'%> hcontent"><%= item.name %></span>
+    <span class="<%= item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar'%> hcontent"><%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
     <%= link_to item.actual_object.url, item.actual_object.url, :target => '_blank' %>

@@ -223,6 +223,50 @@ span.Playlist-titleChar
 	color:black;
 	mso-themecolor:text1;
 	mso-font-kerning:14.0pt;}
+p.Item-title, li.Item-title, div.Item-title
+	{mso-style-name:Item-title;
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+    mso-style-link:"Item-title Char";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	mso-add-space:auto;
+	text-align:center;
+	mso-pagination:widow-orphan;
+	font-size:24.0pt;
+	mso-bidi-font-size:26.0pt;
+	font-family:Garamond;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:major-fareast;
+	mso-bidi-font-family:Calibri;
+	mso-bidi-theme-font:major-bidi;
+	color:black;
+	mso-themecolor:text1;
+	letter-spacing:.25pt;
+	mso-font-kerning:14.0pt;}
+span.Item-titleChar
+	{mso-style-name:"Item-title Char";
+	mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-link:Item-title;
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	mso-add-space:auto;
+	text-align:center;
+	font-size:24.0pt;
+	mso-bidi-font-size:18.0pt;
+	font-family:Garamond;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:major-fareast;
+	mso-bidi-font-family:Calibri;
+	mso-bidi-theme-font:major-bidi;
+	color:black;
+	mso-themecolor:text1;
+	mso-font-kerning:14.0pt;}
 p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
 	{mso-style-name:Playlist-notes;
 	mso-style-unhide:no;
