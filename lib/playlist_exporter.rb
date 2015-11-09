@@ -175,6 +175,7 @@ class PlaylistExporter
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
+        #BUG: This loses any classes the H tag had.
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end

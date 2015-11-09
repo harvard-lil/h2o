@@ -99,14 +99,13 @@ var set_toc = function(maxLevel) {
 
 var get_doc_styles = function() {
   var theme = cookies['print_theme'];
-  console.log('THEME: ' + theme);
-
-  var css = filesystem.read('app/assets/stylesheets/doc-export.css');
-
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
-  //Note: this picks up font-family strings with leading chars too
-  css = css.replace(/(font-family:)(.+);/g, '$1' + font_face_string + ';');
+
+  var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
+    /(font-family:)(.+);/g,
+    '$1' + font_face_string + ';'
+  );
 
   var font_size_replacer = function (match, p1, p2, p3, offset, string) {
     var scaling_name = cookies['print_font_size'];
@@ -126,9 +125,8 @@ var get_doc_styles = function() {
 }
 
 var set_styling = function(page) {
-  //TODO: use the same parsing technique that get_doc_styles does, for var header (below)
   var doc_styles = get_doc_styles();
-  console.log('STYLES: ' + doc_styles);
+  //console.log('STYLES: ' + doc_styles);
 
   page.evaluate(function(doc_styles, cookies) {
 

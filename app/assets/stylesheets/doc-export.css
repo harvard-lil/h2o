@@ -1,21 +1,21 @@
 /* Used for PhantomJS script that converts to DOC format */
-/* To take a Word style that's defined for p, li and div and make it work for a span
-   without showing up as a separate Word style in the Word UI:
+/* To take a Word style that's defined for p, li and div and make it also work
+   for a span *without* showing up as a separate Word style in the Word UI:
    Given: p.Foo, li.Foo, div.Foo
    {mso-style-name:Foo;
 	mso-style-link:"Foo Char";  <-- Add this to the *existing* style.
     }
-    Add: span.FooChar
+    span.FooChar  <-- define this *new* style
 	{mso-style-name:"Foo Char";
 	mso-style-link:Foo;
     }
 */
 
-p.Annotation, li.Annotation, div.Annotation
-	{mso-style-name:Annotation;
+p.Annotation-text, li.Annotation-text, div.Annotation-text
+	{mso-style-name:Annotation-text;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-link:"Annotation Char";
+	mso-style-link:"Annotation-text Char";
 	margin-top:12.0pt;
 	margin-right:0in;
 	margin-bottom:12.0pt;
@@ -31,11 +31,11 @@ p.Annotation, li.Annotation, div.Annotation
 	mso-themeshade:191;
 	font-style:italic;
 	mso-bidi-font-style:normal;}
-span.AnnotationChar
-	{mso-style-name:"Annotation Char";
+span.Annotation-textChar
+	{mso-style-name:"Annotation-text Char";
 	mso-style-unhide:no;
 	mso-style-locked:yes;
-	mso-style-link:Annotation;
+	mso-style-link:Annotation-text;
 	mso-ansi-font-size:14.0pt;
 	font-family:Garamond;
 	mso-ascii-font-family:Garamond;

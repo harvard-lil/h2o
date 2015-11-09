@@ -101,7 +101,7 @@ var collages = {
       }
       if (html) {
         $('<span>')
-          .addClass('AnnotationChar annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-textChar annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
