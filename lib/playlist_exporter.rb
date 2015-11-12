@@ -76,12 +76,12 @@ class PlaylistExporter
       exit_code = nil
       command_output = ''
       Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| command_output += "PHANTOMJS: #{line}"}
+        #out_err.each {|line| command_output += "PHANTOMJS: #{line}"}
+        out_err.each {|line| Rails.logger.debug "PHANTOMJS: #{line.rstrip}"}
         exit_code = wait_thread.value.exitstatus
       end
 
-      #File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
-      Rails.logger.debug command.join(' ')
+      File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
       Rails.logger.debug command_output
 
       if exit_code == 0
@@ -111,32 +111,6 @@ class PlaylistExporter
       return tempfile
     end
 
-    def export_as_epub(pdf_file, params)
-      #TODO: DRY this up with other export_as_* methods
-      out_file = pdf_file.gsub(/\.pdf$/, '.epub')
-      command = [
-                 Rails.root.to_s + '/tmp/calibre/ebook-convert',
-                 pdf_file,
-                 out_file,
-      ]
-      exit_code = nil
-      command_output = ''
-      Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| command_output += "CALIBREEPUB: #{line}"}
-        exit_code = wait_thread.value.exitstatus
-      end
-
-      File.write('/tmp/last-calibre-call', command.join(' '))  #TODO: remove
-      Rails.logger.debug command.join(' ')
-      Rails.logger.debug command_output
-
-      if exit_code == 0
-        out_file
-      else
-        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
-      end
-    end
-
     def export_as_pdf(request_url, params)
       #request_url will actually be the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
@@ -146,13 +120,12 @@ class PlaylistExporter
       exit_code = nil
       command_output = ''
       Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| command_output += "WKHTMLTOPDF: #{line}"}
+        out_err.each {|line| Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"}
         exit_code = wait_thread.value.exitstatus
       end
 
       File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
-      Rails.logger.debug command.join(' ')
-      Rails.logger.debug command_output
+      #Rails.logger.debug command_output
 
       if exit_code == 0
         command.last
@@ -267,7 +240,7 @@ class PlaylistExporter
                                                  "playlists/toc.xsl",
                                                  :layout => false,
                                                  :locals => vars,
-                                                 ).tap {|x| Rails.logger.debug x}
+                                                 )  #.tap {|x| Rails.logger.debug x}
     end
 
     def generate_toc_options(params)
