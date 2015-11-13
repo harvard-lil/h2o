@@ -300,6 +300,7 @@ H2O = (function() {
         $('.annotator-listing input#link').focus();
       }
     });
+    
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
       try {
         phunk_start = phunk_start || new Date();
@@ -331,6 +332,11 @@ H2O = (function() {
         H2O.prototype.setLayeredBorders(annotation);
 
         if(annotation.hidden) {
+          //Could this be where it is failing to hide ellipsis for DOC export, possibly
+          //due to a race condition removing hidden nodes such that some of the below
+          //selectors are no longer accurate/working?
+          //Perhaps it's hiding when it really needs to remove instead?
+
           $('.annotation-' + annotation.id).addClass('annotation-hidden').hide();
           $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
           $('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
@@ -375,7 +381,30 @@ H2O = (function() {
       $('.annotator-checkbox input').prop('checked', false);
       $('.annotator-controls a, #h2o_delete').show();
       $('#link').val('');
+
       h2o_global.slideToAnnotation();
+
+      try {
+        incTime = (new Date() - phunk_last);
+        incTimeSeconds = incTime / 1000;
+        //console.log('aDONE:ANNOTATIONSLOADED (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id);
+      }catch(e) {}
+
+      //Exports need to know when all the collages' annotations are done loading
+      all_collage_data["collage" + this.plugins.H2O.collage_id].done_loading = true;
+
+      var done_loading = true;
+      $.each(all_collage_data, function(id, annotation) {
+        if (!annotation.done_loading) {
+          done_loading = false;
+          return;
+        }
+      });
+
+      if (done_loading) {
+        console.log('DONE LOADING AND NOW SETTING WINDOW.STATUS');
+        window.status = 'annotation_load_complete';
+      }
     });
 
     this.annotator.subscribe("annotationEditorSubmit", function(editor) {

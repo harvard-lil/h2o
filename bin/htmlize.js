@@ -70,7 +70,7 @@ page.open(address, function (status) {
         set_toc(cookies['toc_levels']);
         write_file(output_file, page.content);
         phantom.exit();
-    }, 200);
+    }, 5000);  //TODO: There is probably no reason to keep this larger than 200ms or so.
 });
 
 var set_toc = function(maxLevel) {
@@ -117,10 +117,10 @@ var get_doc_styles = function() {
       large: 3,
       xlarge: 6,
     }
-
     var new_size = parseInt(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
   }
+
   return css.replace(/(font-size:)(.+)(pt;)/g, font_size_replacer);
 }
 
@@ -161,8 +161,8 @@ var set_styling = function(page) {
             "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
-          doc_styles,
-            "--></style>",
+            doc_styles,
+          "--></style>",
         ].join("\n");
 
         //console.log('header reader: ' + header);
@@ -181,16 +181,12 @@ var set_styling = function(page) {
         }
         $('#additional_styles').append($('#additional_styles').cssText());
 
-
-        //BUG: Highlights do not work in DOC, nor do any of the below attempted workarounds.
-        //TODO: Perhaps just wrap highlighted text with <u> tags as a lame workaround?
         //var foo = ".highlight-hex-ff3800 { text-decoration: underline; }";
         //$('#highlight_styles').append(foo);
         $('#highlight_styles').append($('#highlight_styles').cssText());
 
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
         $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
-
   }, doc_styles, cookies);
 }
 

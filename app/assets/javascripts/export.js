@@ -75,10 +75,6 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     //NOTE: This gets called once for EACH collage.
-    /*
-      TODO: Make this more efficient or at least more DRY with respect to kind of duplicating
-      form element handlers here.
-     */
     //console.log('EXPORT:loadState1 - ' + (new Date).toString() + ' for collage_id: ' + collage_id);
 
     //TODO: How does this really differ from the highlightAnnotatedItem at the end of this method?
@@ -100,10 +96,7 @@ var collages = {
         html = '<a data-boop="link" href="' + annotation.link + '">' + annotation.link + '</a>';
       }
       if (html) {
-        $('<span>')
-          .addClass('Annotation-textChar annotation-content annotation-content-' + annotation.id)
-          .html(html)
-          .insertAfter($('.annotation-' + annotation.id + ':last'));
+        $('<span>').addClass('Annotation-textChar annotation-content annotation-content-' + annotation.id).html(html).insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
 
@@ -122,13 +115,14 @@ var collages = {
       //$(idCss + ' span.annotation-content').show();
     //}
     if($('#hiddentext').val() == 'show') {
-      //$('#hiddentext').change();
+      $('#hiddentext').change();
       $(idCss + ' .layered-ellipsis-hidden').hide();
       $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
 
-    //We need to fire this here to correctly control highlights for DOC export
-    //$('#printhighlights').change();  //TODO: Was just this, which worked for DOC export, but may have been too slow for large playlists
+    //We need to fire this .change() here to correctly control highlights for DOC export
+    $('#printhighlights').change();  //TODO: Was just this, which worked for DOC export, but may have been too slow for large playlists
+
     if($('#printhighlights').val() == 'all') {
       // $('#printhighlights').change();
       // //We don't need to call this here because it gets called in the listener we are now firing
@@ -139,6 +133,7 @@ var collages = {
          all_collage_data[idString].highlights_only
        );
     }
+
   }
 };
 
@@ -261,7 +256,7 @@ var export_functions = {
     } ,
     init_user_settings: function() {
       //TODO: Do we need this? Does this do anything that can't be done with a "selected" in the HTML?
-      $('#printhighlights').val('original');  //  .change();
+      $('#printhighlights').val('original').change();
 
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no').change();
@@ -400,8 +395,9 @@ var export_functions = {
       }
     });
     $('#printhighlights').change(function() {
+      console.log("-------- #printhighlights firing");
         var choice = $(this).val();
-        $('#highlight_styles').text('');
+
         $('.collage-content').each(function(i, el) {
             var id = $(el).data('id');
             var data = all_collage_data["collage" + id];
@@ -474,6 +470,19 @@ var export_functions = {
     $('#additional_styles').text('');
     $.rule(rules).appendTo('#additional_styles');
   },
+  loadAllAnnotations: function() {
+    console.log('Loading annotations...');
+
+    //Annotation system looks for original_content class
+    $('div.article *:not(.paragraph-numbering)').addClass('original_content');
+
+
+    $('.collage-content').each(function(i, el) {
+      var id = $(el).data('id');
+      export_functions.loadAnnotator(id);
+    });
+    console.log('Done loading annotations.');
+  },
   loadAnnotator: function(id) {
     //TODO: Can we exit fast if the annotation is empty or anything?
     var idString = "collage" + id;
@@ -484,10 +493,11 @@ var export_functions = {
 
     var elem = $('#' + idString + ' div.article');
     var factory = new Annotator.Factory();
-    var Store = Annotator.Plugin.fetch('Store');  //left over copy paste from collages I think.
+    var Store = Annotator.Plugin.fetch('Store');  //TODO: delete. (left over copy paste from collages, I think.)
     var h2o = Annotator.Plugin.fetch('H2O');
     var report_options = { "report": false, "feedback": false, "discuss": false, "respond": false };
     h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only, report_options).getInstance();
+    h2o_annotator.expected_collage_count = h2o_annotator.expected_collage_count || Object.keys(all_collage_data).length
     h2o_annotator.attach(elem, 'print_export_annotation');
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },
@@ -521,7 +531,7 @@ var export_functions = {
     //Removing highlights from color only
     $.each(collage_data.highlights_only, function(i, j) {
       if($.inArray(j, highlights_only) == -1) {
-        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j + ' ');
+        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j);  //TODO: This had a trailing:  + ' '  and I don't know why.
       }
     });
 
@@ -538,7 +548,7 @@ var export_functions = {
     $.each($(cssId + ' .annotator-wrapper .annotator-hl'), function(i, child) {
       var this_selector = '';
       var parent_class = '';
-      var classes = $(child).attr('class').split(' ');
+      var classes = $(child).attr('class').split(' ');  //BOOP: is this where it's now grabbing the wrong class and sucking?
       for(var j = 0; j<classes.length; j++) {
         if(classes[j].match(/^highlight/)) {
           parent_class += '.' + classes[j];
@@ -609,6 +619,7 @@ var export_functions = {
 
 $(document).ready(function(){
   console.log('BOOP: document.ready starting');
+
   //export_functions.debug_cookies();
   //export_functions.init_missing_cookies();
   export_functions.init_listeners();
@@ -624,14 +635,7 @@ $(document).ready(function(){
   $('article h3, div.article h3, .new-h3').addClass('scale1-2');
   $('article h4, div.article h4, .new-h4').addClass('scale1-1');
 
-  $('div.article *:not(.paragraph-numbering)').addClass('original_content');
-
-  console.log('Loading annotations...');
-  //  var annoIds = $('.collage-content').map(function() { return $(this).data('id') }).get();
-  $('.collage-content').each(function(i, el) {
-    export_functions.loadAnnotator($(el).data('id'));
-  });
-  console.log('EXPORT:ready5');
+  export_functions.loadAllAnnotations();
 
     if ($.cookie('export_format')) {
         // Remove things that would otherwise trip up any of our exporter backends
@@ -643,21 +647,11 @@ $(document).ready(function(){
         //exports set margins outside of javascript/HTML completely.
 
         var div = $('.wrapper');
-        //TODO: maybe set margins here based on cookie value, instead of doing it in phantomjs
-        /*
-        div.css('margin', '');
-        div.css('margin-top', '');
-        div.css('margin-right', '');
-        div.css('margin-bottom', '');
-        div.css('margin-left', '');
-        div.css('width', '');
-        */
-        div.removeAttr('style');  //TODO: This really replaces all the above, so delete them.
+        div.removeAttr('style');
         div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
 
-        //$('div.article *:not(.paragraph-numbering)'). <-- "not" filter example with faster selector
         //TODO: Reminder: This will remove any hidden dom nodes we want to .show() in phantomjs
-        $("body *").filter(":hidden").not("script").remove();
+      $("body *").filter(":hidden").not("script").remove();
     }
   else {
       export_functions.init_theme_picker_listener();
@@ -665,6 +659,10 @@ $(document).ready(function(){
 
   //NOTE: for gigantic playlists, we are not guaranteed that all annotations will have loaded by now
   console.log('BOOP: document.ready done');
+
+  // if ($.cookie('export_format') == 'pdf') {
+  //   console.log($('html').html());
+  // }
 });
 
 

@@ -65,7 +65,7 @@ class PlaylistExporter
       options_file = json_options_file(params)
       command = [
                  'bin/phantomjs',
-                 #'--debug=true',
+                 '--debug=true',
                  'bin/htmlize.js',
                  target_url,
                  out_file,
@@ -267,8 +267,8 @@ class PlaylistExporter
 
       #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
       # javascript special effects still run, then you didn't need it any more.
-      options << "--no-stop-slow-scripts --javascript-delay 1000 --debug-javascript"
-      options << "--print-media-type"
+      options << "--no-stop-slow-scripts --window-status annotation_load_complete --debug-javascript"
+      options << "--print-media-type"  #TODO: remove this, because the DOC export doesn't support it
 
       # The below is only needed if you do not have a DNS or /etc/hosts entry for
       # this dev server. However, it will probably break the typekit JS call
