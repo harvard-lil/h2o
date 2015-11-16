@@ -75,7 +75,7 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     //NOTE: This gets called once for EACH collage.
-    //console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
+    console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
@@ -91,12 +91,24 @@ var collages = {
       var annotation = $.parseJSON(ann);
       var html, target_node;
       if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
+      var klass;
         html = annotation.annotation;
-      } else if(annotation.link !== undefined && annotation.link !== null) {
-        html = '<a data-boop="link" href="' + annotation.link + '">' + annotation.link + '</a>';
+        klass = 'Annotation-textChar annotation-content';
+      } else if(annotation.link) {
+        console.log('LINK: ' + annotation.link);
+        html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
+        klass = 'annotation-link';
       }
+      //TODO:::::::::::::;; Manage the classes here to distinguish between an
+      //annotation and a link to prevent the annotation selectbox UI from still
+      //hiding/showing links
+      //BUG: when loading the page, the select can show No when links are actually
+      //being displayed. Is this just a refresh issue that we can ignore?
       if (html) {
-        $('<span>').addClass('Annotation-textChar annotation-content annotation-content-' + annotation.id).html(html).insertAfter($('.annotation-' + annotation.id + ':last'));
+        $('<span>')
+          .addClass(klass + ' annotation-content annotation-content-' + annotation.id)
+          .html(html)
+          .insertAfter($('.annotation-' + annotation.id + ':last'));
       }
     });
 
@@ -107,12 +119,9 @@ var collages = {
       //$('#printannotations').change();
       $(idCss + ' span.annotation-content').show();
     }
-    //if($('#printlinks').val() == 'yes') {
-    // NOT IMPLEMENTED
-      //$('#printlinks').change();
-      //Should this point back to the above 'annotation.link' reference in the code?
-      //$(idCss + ' span.annotation-content').show();
-    //}
+    if($('#printlinks').val() == 'yes') {
+      $('#printlinks').change();
+    }
     if($('#hiddentext').val() == 'show') {
       //$('#hiddentext').change();
       $(idCss + ' .layered-ellipsis-hidden').hide();
@@ -333,18 +342,19 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
-       //$(idCss + ' span.annotation-content').show();
+      var sel = $('.annotation-content');
       if($(this).val() == 'yes') {
-        $('.annotation-content').show();
+        sel.show();
       } else {
-        $('.annotation-content').hide();
+        sel.hide();
       }
     });
     $('#printlinks').change(function() {
+      var sel = $('.annotation-link');
       if($(this).val() == 'yes') {
-        $('.annotation-content').show();
+        sel.show();
       } else {
-        $('.annotation-content').hide();
+        sel.hide();
       }
     });
       $('#printtitle').change(function() {
