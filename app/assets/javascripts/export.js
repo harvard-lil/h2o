@@ -75,17 +75,17 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     //NOTE: This gets called once for EACH collage.
-    console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
+    //console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
+    var idString = "collage" + collage_id;
+    var idCss = "#" + idString;
 
-    //TODO: How does this really differ from the highlightAnnotatedItem at the end of this method?
+    //TODO: How does this really differ from the highlightAnnotatedItem
+    //at the end of this method or in the #printhighlights.change() handler?
     export_functions.highlightAnnotatedItem(
       collage_id,
       data.highlights,
       data.highlight_only_highlights
     );
-
-    var idString = "collage" + collage_id;
-    var idCss = "#" + idString;
 
     $.each(all_collage_data[idString].annotations, function(i, ann) {
       var annotation = $.parseJSON(ann);
@@ -100,9 +100,9 @@ var collages = {
       }
     });
 
-    //BUG: Because this gets called multiple times, I think calling these handlers like this is
-    //a ton of redundant work compared to callng .show() on a single selector (as the
-    // #printannotations test does below.)
+    //BUG: Because this gets called multiple times, I think calling these
+    //handlers like this is a ton of redundant work compared to callng .show()
+    //on a single selector (as the #printannotations test does below.)
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
       $(idCss + ' span.annotation-content').show();
@@ -119,20 +119,18 @@ var collages = {
       $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
 
-    //We need to fire this .change() AT LEAST ONCE to correctly control highlights for DOC export.
-    //$('#printhighlights').change();
+    //We need to fire this .change() here (doing it in document.ready is not enough)
+    // to correctly control highlights for all export formats.
+    $('#printhighlights').change();
 
     if($('#printhighlights').val() == 'all') {
-      // $('#printhighlights').change();
-      // //We don't need to call this here because it gets called in the listener we are now firing
-
-       export_functions.highlightAnnotatedItem(
-         collage_id,
-         all_collage_data[idString].layer_data,
-         all_collage_data[idString].highlights_only
-       );
+      //We don't need this here now that the above .change is getting called.
+       // export_functions.highlightAnnotatedItem(
+       //   collage_id,
+       //   all_collage_data[idString].layer_data,
+       //   all_collage_data[idString].highlights_only
+       // );
     }
-
   }
 };
 
@@ -272,7 +270,6 @@ var export_functions = {
           //by default
           $('#printparagraphnumbers').val('yes').change();
       }
-
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes').change();
       }
@@ -284,9 +281,6 @@ var export_functions = {
       }
       if($.cookie('print_highlights') == 'none') {
         $('#printhighlights').val($.cookie('print_highlights')).change();
-        // $('.collage-content').each(function(i, el) {
-        //  export_functions.highlightAnnotatedItem($(el).data('id'), {}, {});
-        // });
       }
       if($.cookie('print_highlights') == 'all') {
         $('#printhighlights').val($.cookie('print_highlights')).change();
@@ -395,7 +389,7 @@ var export_functions = {
       }
     });
     $('#printhighlights').change(function() {
-      //console.log("-------- #printhighlights firing");
+        //console.log("-------- #printhighlights firing");
         var choice = $(this).val();
 
         $('.collage-content').each(function(i, el) {
@@ -403,13 +397,13 @@ var export_functions = {
             var data = all_collage_data["collage" + id];
             var args = null;
             if(choice == 'original') {
-                args = [id, data.highlights, data.highlights_only];
+                args = [data.highlights, data.highlights_only];
             } else if(choice == 'all') {
-                args = [id, data.layer_data, data.highlights_only];
+                args = [data.layer_data, data.highlights_only];
             } else {  //"none"
-                args = [id, {}, {}];
+                args = [{}, {}];
             }
-            export_functions.highlightAnnotatedItem(args[0], args[1], args[2]);
+            export_functions.highlightAnnotatedItem(id, args[0], args[1]);
         });
     });
     $('#theme').change(function() {
