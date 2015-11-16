@@ -304,6 +304,7 @@ H2O = (function() {
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
       //TODO: Can we explicitly skip any of this work in this method for print
       //export? (Based on existence of #print-options?)
+      var collage_id = this.plugins.H2O.collage_id;
 
       try {
         phunk_start = phunk_start || new Date();
@@ -314,7 +315,7 @@ H2O = (function() {
         phunk_last = now;
         var incTimeSeconds = incTime / 1000;
         var elapsed = parseInt((now - phunk_start)/1000);
-        //console.log('aSH2O:annotationsLoaded (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id + ' - total: ' + elapsed + 's');
+        console.log('annotationsLoaded:Start (' + incTimeSeconds + 's) for collage_id: ' + collage_id + ' - total: ' + elapsed + 's');
       } catch(e){}
 
       $('#annotator-field-0').addClass('no_tinymce');
@@ -385,10 +386,10 @@ H2O = (function() {
       $('#show_annotation').hide();
 
       var hexes = collages.getHexes();
-      hexes.insertAfter($('#new_layer')); 
+      hexes.insertAfter($('#new_layer'));
 
       $('<a>').attr('id', 'remove_edit_quicklink').html('Remove edit?').insertAfter($('input#show_annotation'));
-      
+
       $('.annotator-listing li').hide();
       $('.annotator-checkbox input').prop('checked', false);
       $('.annotator-controls a, #h2o_delete').show();
@@ -400,10 +401,11 @@ H2O = (function() {
         //This only exists on the export page
         incTime = (new Date() - phunk_last);
         incTimeSeconds = incTime / 1000;
-        //console.log('!SH2O:ANNOTATIONSLOADED (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id);
 
         //Track the loading of all the collages' annotations
-        all_collage_data["collage" + this.plugins.H2O.collage_id].done_loading = true;
+        all_collage_data["collage" + collage_id].done_loading = true;
+
+        var done_count = 0;
 
         //TODO: encapsulate this loading_done? check into its own function
         var done_loading = true;
@@ -411,8 +413,17 @@ H2O = (function() {
           if (!annotation.done_loading) {
             done_loading = false;
             return;
-          }
+          } else { done_count++; }
         });
+
+        console.log('annotationsLoaded:DONE (' +
+                    incTimeSeconds +
+                    's) for collage_id: ' +
+                    collage_id +
+                   ' ' +
+                   done_count +
+                    '/' +
+                    Object.keys(all_collage_data).length);
 
         if (done_loading && export_functions) {
           export_functions.loadAllAnnotationsComplete();

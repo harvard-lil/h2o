@@ -83,7 +83,8 @@ var collages = {
     //there exists some kind of race condition that prevents us from just
     //relying completely on a select's .change() handler. $('#printhighlights')
     //is probably the best example of how I just could never make that work.
-    console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
+    console.log('~~~~~~~~ loadState for collage_id: ' + collage_id);
+    //TODO: add x of 99 here
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
