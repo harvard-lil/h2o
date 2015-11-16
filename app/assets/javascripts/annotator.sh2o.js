@@ -302,21 +302,8 @@ H2O = (function() {
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
-      //TODO: Can we explicitly skip any of this work in this method for print
-      //export? (Based on existence of #print-options?)
       var collage_id = this.plugins.H2O.collage_id;
 
-      try {
-        phunk_start = phunk_start || new Date();
-        phunk_last = phunk_last || new Date();
-
-        var now = new Date()
-        var incTime = (now - phunk_last);
-        phunk_last = now;
-        var incTimeSeconds = incTime / 1000;
-        var elapsed = parseInt((now - phunk_start)/1000);
-        console.log('annotationsLoaded:Start (' + incTimeSeconds + 's) for collage_id: ' + collage_id + ' - total: ' + elapsed + 's');
-      } catch(e){}
 
       $('#annotator-field-0').addClass('no_tinymce');
 
@@ -334,19 +321,18 @@ H2O = (function() {
         H2O.prototype.setLayeredBorders(annotation);
 
         if(annotation.hidden) {
-          //Could this be where it is failing to hide ellipsis for DOC export, possibly
-          //due to a race condition removing hidden nodes such that some of the below
-          //selectors are no longer accurate/working?
-          //Perhaps it's hiding when it really needs to remove instead?
-
-          $('.annotation-' + annotation.id).addClass('annotation-hidden').hide();
           $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
-          $('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
-          $.each($('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *)'), function(i, j) {
+          var anno_nodes = $('.annotation-' + annotation.id);
+          anno_nodes.addClass('annotation-hidden').hide();
+          var anno_nodes_oc_parents = anno_nodes.parents('.original_content');
+          anno_nodes_oc_parents.filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
+
+          $.each(anno_nodes_oc_parents.filter(':not(.original_content *)'), function(i, j) {
             var has_text_node = false;
             $.each($(j).contents(), function(k, l) {
               if(l.nodeType == 3 && $(l).text() != ' ') {
                 has_text_node = true;
+                return;
               }
             });
             if(has_text_node) {
@@ -356,17 +342,23 @@ H2O = (function() {
         } else {
           H2O.prototype.setHighlights(annotation, false);
         }
-        H2O.prototype.addAnnotationIndicator(annotation);
-        h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
+
+        if (!$('#print-options').length) {
+          H2O.prototype.addAnnotationIndicator(annotation);
+          h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
+        }
       });
 
       collages.rehighlight();
 
-      if($('#collage_print').size() > 0) {
-        collages.loadState($('.singleitem').data('itemid'), original_data);
+      if (h2o_annotator.options.readOnly) {
+        access_results = { can_edit: false };
       }
 
-      if($('#print-options').size() > 0) {
+      if (!!$('#collage_print').length) {
+        collages.loadState($('.singleitem').data('itemid'), original_data);
+      }
+      if (!!$('#print-options').length) {
         //TODO: Merge resolution: Kent's code uses annotated_item_id where mine uses collage_id. Make sure this all shakes out in the end.
         collages.loadState(
           this.plugins.H2O.annotated_item_id,
@@ -376,31 +368,40 @@ H2O = (function() {
         console.log('Missing #print-options');
       }
 
-      //loadState has to be before listenTo
-      if(!h2o_annotator.options.readOnly) {
-        collages.listenToRecordAnnotatedItemState();
+      if (!$('#print-options').length) {
+        //Skip extraneous work that doesn't apply to print-options. Might be able to skip
+        //this for collage_print too, but I didn't have time to prove that.
+
+        //loadState has to be before listenTo
+        if(!h2o_annotator.options.readOnly) {
+          collages.listenToRecordAnnotatedItemState();
+        }
+
+        $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
+        $('#show_annotation').hide().parent().addClass('annotation_hidden_property');
+
+        collages.getHexes().insertAfter($('#new_layer'));
+
+        $('<a>').attr('id', 'remove_edit_quicklink').html('Remove edit?').insertAfter($('input#show_annotation'));
+        $('.annotator-listing li').hide();
+        $('.annotator-checkbox input').prop('checked', false);
+        $('.annotator-controls a, #h2o_delete').show();
+        $('#link').val('');
       }
-
-      $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
-      $('#show_annotation').parent().addClass('annotation_hidden_property');
-      $('#show_annotation').hide();
-
-      var hexes = collages.getHexes();
-      hexes.insertAfter($('#new_layer'));
-
-      $('<a>').attr('id', 'remove_edit_quicklink').html('Remove edit?').insertAfter($('input#show_annotation'));
-
-      $('.annotator-listing li').hide();
-      $('.annotator-checkbox input').prop('checked', false);
-      $('.annotator-controls a, #h2o_delete').show();
-      $('#link').val('');
 
       h2o_global.slideToAnnotation();
 
       try {
-        //This only exists on the export page
-        incTime = (new Date() - phunk_last);
-        incTimeSeconds = incTime / 1000;
+        //TODO: rename these vars and make them attributes of the H2O object
+        phunk_start = phunk_start || new Date();
+        phunk_last = phunk_last || new Date();
+
+        var now = new Date()
+        var incTime = (now - phunk_last);
+        phunk_last = now;
+        var incTimeSeconds = incTime / 1000;
+        var elapsed = parseInt((now - phunk_start)/1000);
+        //console.log('annotationsLoaded:Start (' + incTimeSeconds + 's) for collage_id: ' + collage_id + ' - total: ' + elapsed + 's');
 
         //Track the loading of all the collages' annotations
         all_collage_data["collage" + collage_id].done_loading = true;
@@ -413,23 +414,21 @@ H2O = (function() {
           if (!annotation.done_loading) {
             done_loading = false;
             return;
-          } else { done_count++; }
+          } else {
+            done_count++;
+          }
         });
 
-        console.log('annotationsLoaded:DONE (' +
-                    incTimeSeconds +
-                    's) for collage_id: ' +
-                    collage_id +
-                   ' ' +
-                   done_count +
-                    '/' +
-                    Object.keys(all_collage_data).length);
+        console.log('annotationsLoaded for collage_id ' + collage_id +
+                    ' - ' + incTimeSeconds + 's of ' +
+                    elapsed + 's total ' +
+                    ' - (' + done_count + '/' + Object.keys(all_collage_data).length + ')'
+                   );
 
         if (done_loading && export_functions) {
           export_functions.loadAllAnnotationsComplete();
         }
       } catch(e) {console.log('warning: ' + e);}
-
 
     });
 
@@ -984,24 +983,26 @@ H2O = (function() {
       layer_class = annotation.layers[0] || '';
     }
     if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
-      layer_class = 'hex-' + annotation.highlight_only; 
+      layer_class = 'hex-' + annotation.highlight_only;
     }
+    var clean_layer = collages.clean_layer(layer_class);
+
     var start_node = $('.annotation-' + _id + ':first');
     var text = annotation.text.length > 0 ? annotation.text : '...';
-    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '">[' + text + ']</a>').insertBefore(start_node);
-      
+    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '">[' + text + ']</a>').insertBefore(start_node);
     var end_node = $('.annotation-' + _id + ':last');
-    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + collages.clean_layer(layer_class) + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
+    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
-      if($('#print-options').size() > 0) {
+      if(!$('#print-options').length) {
+        //TODO: TEST
+        //Export doesn't need event handlers on things it will never display
         return;
       }
       var _id = $(this).data('layered');
-      $('.annotation-' + _id).show();
-      $('.annotation-' + _id).parents('.original_content').show();
+      $('.annotation-' + _id).show().parents('.original_content').show();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).css('display', 'inline-block');
       $(this).hide();
       h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
@@ -1009,11 +1010,12 @@ H2O = (function() {
     $('.layered-control-start,.layered-control-end,.annotation-' + _id).off('click').on('click', function(e) {
       e.preventDefault();
       var _id = $(this).hasClass('annotation-hidden') ? $(this).data('annotation-id') : $(this).data('layered');
-      $('.annotation-' + _id).hide();
+      var anno_nodes = $('.annotation-' + _id);
+      anno_nodes.hide();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).hide();
       $('.layered-ellipsis-' + _id).css('display', 'inline-block');
       $('#annotation-indicator-' + _id).hide();
-      $('.annotation-' + _id).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
+      anno_nodes.parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
       h2o_annotator.plugins.H2O.updateAllAnnotationIndicators();
     });
   };
