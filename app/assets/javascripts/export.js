@@ -1,5 +1,5 @@
 var phunk_start, phunk_last, phunk_end;
-var all_tts;
+//var all_tts;
 var annotations;
 var original_data = {};
 var layer_data;
@@ -75,16 +75,15 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     //NOTE: This is called once for EACH collage. This means that anything
-    //in this function that does not contrain itself to this specific collage
+    //in this function that does not constrain itself to this specific collage
     //is doing too much work and is therefore at risk of slowing down very
-    //large playlists with a lot of annotations. (Although I have not
+    //large playlists with a lot of annotations. (Although I have not tested
     //by how much.)
     //TODO: For the code in this function that just shows|hides elements,
     //there exists some kind of race condition that prevents us from just
     //relying completely on a select's .change() handler. $('#printhighlights')
     //is probably the best example of how I just could never make that work.
-    console.log('~~~~~~~~ loadState for collage_id: ' + collage_id);
-    //TODO: add x of 99 here
+    //console.log('~~~~~~~~ loadState for collage_id: ' + collage_id);
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
@@ -346,7 +345,7 @@ var export_functions = {
       }
     });
     $('#printlinks').change(function() {
-      console.log('PL.change firing with val: ' + $(this).val());
+      //console.log('PL.change firing with val: ' + $(this).val());
       var sel = $('.annotation-link');
       if($(this).val() == 'yes') {
         sel.show();
@@ -371,21 +370,29 @@ var export_functions = {
     });
     $('#hiddentext').change(function() {
       var choice = $(this).val();
+      var ellipses = $('.layered-ellipsis-hidden');
+
       if(choice == 'show') {
-        $('.layered-ellipsis-hidden').hide();
+        ellipses.hide();
         $('.original_content,.annotation-hidden').show();
       }
       else if(choice == 'hide') {
-        $('.layered-ellipsis-hidden').show();
-        $('.annotation-hidden').hide();
-        $('.annotation-hidden').parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
-        $.each($('.layered-ellipsis-hidden'), function(a, b) {
+        ellipses.show();
+        $('.annotation-hidden')
+          .hide()
+          .parents('.original_content')
+          .filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))')
+          .hide();
+
+        $.each(ellipses, function(a, b) {
+          //This is mostly copied from the annotator.sh2o.js annotationsLoaded event handler
           var annotation_id = $(b).data('layered');
           $.each($('.annotation-' + annotation_id).parents('.original_content').filter(':not(.original_content *)'), function(i, j) {
             var has_text_node = false;
             $.each($(j).contents(), function(k, l) {
               if(l.nodeType == 3 && $(l).text() != ' ') {
                 has_text_node = true;
+                return;
               }
             });
             if(has_text_node) {
@@ -396,9 +403,7 @@ var export_functions = {
       }
     });
     $('#printhighlights').change(function() {
-        //console.log("-------- #printhighlights firing");
         var choice = $(this).val();
-
         $('.collage-content').each(function(i, el) {
             var id = $(el).data('id');
             var data = all_collage_data["collage" + id];
@@ -511,7 +516,6 @@ var export_functions = {
 
         html = annotation.annotation;
       } else if(annotation.link) {
-        console.log('LINK: ' + annotation.link);
         html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
         klass = 'annotation-link';
       }
@@ -579,19 +583,19 @@ var export_functions = {
     });
 
     $.each(highlights, function(i, j) {
-      $(cssId + ' .annotator-wrapper .layer-' + collages.clean_layer(i)).addClass('highlight-' + collages.clean_layer(i));
+      var clean_layer = collages.clean_layer(i);
+      $(cssId + ' .annotator-wrapper .layer-' + clean_layer).addClass('highlight-' + clean_layer);
     });
 
     $.each(highlights_only, function(i, j) {
-      var nodes = $(cssId + ' .annotator-wrapper .layer-hex-' + j);
-      nodes.addClass('highlight-hex-' + j);
+      $(cssId + ' .annotator-wrapper .layer-hex-' + j).addClass('highlight-hex-' + j);
     });
 
     var total_selectors = [];
     $.each($(cssId + ' .annotator-wrapper .annotator-hl'), function(i, child) {
       var this_selector = '';
       var parent_class = '';
-      var classes = $(child).attr('class').split(' ');  //BOOP: is this where it's now grabbing the wrong class and sucking?
+      var classes = $(child).attr('class').split(' ');
       for(var j = 0; j<classes.length; j++) {
         if(classes[j].match(/^highlight/)) {
           parent_class += '.' + classes[j];
@@ -653,10 +657,11 @@ var export_functions = {
         updated[selector] = 1;
       }
     }
-    var keys_arr = new Array();
-    $.each(updated, function(key, value) {
-      keys_arr.push(key);
-    });
+    //Not sure what this ever did
+    // var keys_arr = new Array();
+    // $.each(updated, function(key, value) {
+    //   keys_arr.push(key);
+    // });
   }
 };
 
