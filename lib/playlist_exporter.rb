@@ -5,11 +5,14 @@ class PlaylistExporter
 
   # No translation value here means we just pass the form field value straight through
   # Some cookies are just here to make them available to PhantomJS
+  # TODO: translate all values, rather than only translating the one value that signals
+  # export.js to do the thing that is "not the default."
   FORM_COOKIE_MAP = {
     'theme' => {'cookie_name' => 'print_theme'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
     'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
+    'printlinks' => {'cookie_name' => 'print_links' },
     'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
     'printhighlights' => {'cookie_name' => 'print_highlights'},
     'fontface' => {'cookie_name' => 'print_font_face'},

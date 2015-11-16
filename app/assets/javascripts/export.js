@@ -74,7 +74,15 @@ var collages = {
     return $('<div>');
   },
   loadState: function(collage_id, data) {
-    //NOTE: This gets called once for EACH collage.
+    //NOTE: This is called once for EACH collage. This means that anything
+    //in this function that does not contrain itself to this specific collage
+    //is doing too much work and is therefore at risk of slowing down very
+    //large playlists with a lot of annotations. (Although I have not
+    //by how much.)
+    //TODO: For the code in this function that just shows|hides elements,
+    //there exists some kind of race condition that prevents us from just
+    //relying completely on a select's .change() handler. $('#printhighlights')
+    //is probably the best example of how I just could never make that work.
     console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
@@ -87,40 +95,16 @@ var collages = {
       data.highlight_only_highlights
     );
 
-    $.each(all_collage_data[idString].annotations, function(i, ann) {
-      var annotation = $.parseJSON(ann);
-      var html, target_node;
-      if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
-      var klass;
-        html = annotation.annotation;
-        klass = 'Annotation-textChar annotation-content';
-      } else if(annotation.link) {
-        console.log('LINK: ' + annotation.link);
-        html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
-        klass = 'annotation-link';
-      }
-      //TODO:::::::::::::;; Manage the classes here to distinguish between an
-      //annotation and a link to prevent the annotation selectbox UI from still
-      //hiding/showing links
-      //BUG: when loading the page, the select can show No when links are actually
-      //being displayed. Is this just a refresh issue that we can ignore?
-      if (html) {
-        $('<span>')
-          .addClass(klass + ' annotation-content annotation-content-' + annotation.id)
-          .html(html)
-          .insertAfter($('.annotation-' + annotation.id + ':last'));
-      }
-    });
+    export_functions.injectAnnotations(all_collage_data[idString].annotations);
 
-    //BUG: Because this gets called multiple times, I think calling these
-    //handlers like this is a ton of redundant work compared to callng .show()
-    //on a single selector (as the #printannotations test does below.)
+    //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
-      $(idCss + ' span.annotation-content').show();
+      $(idCss + ' .annotation-content').filter(':not(.annotation-link)').show();
     }
     if($('#printlinks').val() == 'yes') {
       $('#printlinks').change();
+      //console.log('PL? ' + $('#printlinks').val());
     }
     if($('#hiddentext').val() == 'show') {
       //$('#hiddentext').change();
@@ -129,17 +113,20 @@ var collages = {
     }
 
     //We need to fire this .change() here (doing it in document.ready is not enough)
-    // to correctly control highlights for all export formats.
+    // to correctly control highlights for all export formats. Moving this somewhere
+    // where it will be called less frequently (in order to reduce overhead when
+    // loading a very large number of collages/annotations) will very likely break
+    // something subtle.
     $('#printhighlights').change();
 
-    if($('#printhighlights').val() == 'all') {
+    //if($('#printhighlights').val() == 'all') {
       //We don't need this here now that the above .change is getting called.
        // export_functions.highlightAnnotatedItem(
        //   collage_id,
        //   all_collage_data[idString].layer_data,
        //   all_collage_data[idString].highlights_only
        // );
-    }
+    //}
   }
 };
 
@@ -262,8 +249,14 @@ var export_functions = {
         */
     } ,
     init_user_settings: function() {
+      //This function only looks to change the default behavior. I.g. if the
+      //default is to *not* show annotations, this function only looks to see if
+      //the non-default option for showing annotations has been selected, then
+      //it does that work. This can create a bug if you change the default behavior
+      //of any of these settings in the view, etc.
+
       //TODO: Do we need this? This is probably now a no-op since we ditched JSB selectboxes
-      $('#printhighlights').val('original')
+      $('#printhighlights').val('original');
 
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no').change();
@@ -282,8 +275,10 @@ var export_functions = {
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes').change();
       }
-      if($.cookie('print_links') == 'true') {
-        $('#printlinks').val('yes').change();
+      if($.cookie('print_links') == 'yes') {
+        $('#printlinks').val($.cookie('print_links')).change();
+      } else {
+        $('#printlinks').val('no').change();
       }
       if($.cookie('hidden_text_display') == 'true') {
         $('#hiddentext').val('show').change();
@@ -342,7 +337,7 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
-      var sel = $('.annotation-content');
+      var sel = $('.annotation-content').filter(':not(.annotation-link)');
       if($(this).val() == 'yes') {
         sel.show();
       } else {
@@ -350,6 +345,7 @@ var export_functions = {
       }
     });
     $('#printlinks').change(function() {
+      console.log('PL.change firing with val: ' + $(this).val());
       var sel = $('.annotation-link');
       if($(this).val() == 'yes') {
         sel.show();
@@ -502,6 +498,31 @@ var export_functions = {
     $('.collage-content').each(function(i, el) {
       var id = $(el).data('id');
       export_functions.loadAnnotator(id);
+    });
+  },
+  injectAnnotations: function(annotations) {
+    $.each(annotations, function(i, ann) {
+      //NOTE: These elements are all hidden by default as per export.css
+      var annotation = $.parseJSON(ann);
+      var html;
+      var klass = '';
+      if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
+
+        html = annotation.annotation;
+      } else if(annotation.link) {
+        console.log('LINK: ' + annotation.link);
+        html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
+        klass = 'annotation-link';
+      }
+      //BUG: when loading the page, the select can show No when links are actually
+      //being displayed. Is this just a refresh issue that we can ignore?
+      if (html) {
+        var newEl = $('<span>')
+          .addClass(klass + ' Annotation-textChar annotation-content annotation-content-' + annotation.id)
+          .html(html)
+          .insertAfter($('.annotation-' + annotation.id + ':last'));
+        //TODO: do the show/hide logic here?
+      }
     });
   },
   loadAnnotator: function(id) {
@@ -661,6 +682,22 @@ $(document).ready(function(){
     if (!$.cookie('export_format')) {
       export_functions.init_theme_picker_listener();
     }
+
+  //TODO: It could be useful to have a custom_change() method that could optionally
+  //apply a prefix to the code that already runs in a select's change handler. That
+  //select's current change handler would pass a null prefix, indicating it should
+  //operate on the entire document. Conversely, the code in loadState that loads for
+  //a single collage would pass an ID prefix to custom_change(), indicating it
+  //should only operate under that ID. This lets us re-use the change handler code
+  //in a way that is (theoretically) not wildly inefficient.
+  //In other news, perhaps those event handlers could be a little faster if they
+  //specifically targeted only what they would change, based on visibility. E.g.
+  //$('.annotation-link:hidden').show();   //only show the hidden ones. do not try to show the ones already visible
+  //FASTER SYNTAX USING pure CSS selector $('.annotation-link').filter(':hidden').show();
+
+  //Also note that we could see a speed improvement showing/hiding things using
+  // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
+  //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
   console.log('BOOP: document.ready done');
   // if ($.cookie('export_format') == 'pdf') {
