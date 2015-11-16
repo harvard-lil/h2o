@@ -300,8 +300,11 @@ H2O = (function() {
         $('.annotator-listing input#link').focus();
       }
     });
-    
+
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
+      //TODO: Can we explicitly skip any of this work in this method for print
+      //export? (Based on existence of #print-options?)
+
       try {
         phunk_start = phunk_start || new Date();
         phunk_last = phunk_last || new Date();
@@ -311,9 +314,7 @@ H2O = (function() {
         phunk_last = now;
         var incTimeSeconds = incTime / 1000;
         var elapsed = parseInt((now - phunk_start)/1000);
-        console.log('aSH2O:annotationsLoaded (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id + ' - total: ' + elapsed + 's');
-
-        //return;
+        //console.log('aSH2O:annotationsLoaded (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id + ' - total: ' + elapsed + 's');
       } catch(e){}
 
       $('#annotator-field-0').addClass('no_tinymce');
@@ -365,7 +366,18 @@ H2O = (function() {
       }
 
       if($('#print-options').size() > 0) {
-        collages.loadState(this.plugins.H2O.annotated_item_id, all_collage_data["collage" + this.plugins.H2O.annotated_item_id].data);
+        //TODO: Merge resolution: Kent's code uses annotated_item_id where mine uses collage_id. Make sure this all shakes out in the end.
+        collages.loadState(
+          this.plugins.H2O.annotated_item_id,
+          all_collage_data["collage" + this.plugins.H2O.annotated_item_id].data
+        );
+      } else {
+        console.log('Missing #print-options');
+      }
+
+      //loadState has to be before listenTo
+      if(!h2o_annotator.options.readOnly) {
+        collages.listenToRecordAnnotatedItemState();
       }
 
       $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
@@ -387,12 +399,13 @@ H2O = (function() {
       try {
         incTime = (new Date() - phunk_last);
         incTimeSeconds = incTime / 1000;
-        //console.log('aDONE:ANNOTATIONSLOADED (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id);
-      }catch(e) {}
+        //console.log('!SH2O:ANNOTATIONSLOADED (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id);
+      } catch(e) {}
 
-      //Exports need to know when all the collages' annotations are done loading
+      //Track the loading of all the collages' annotations
       all_collage_data["collage" + this.plugins.H2O.collage_id].done_loading = true;
 
+      //TODO: encapsulate this loading_done? check into its own function
       var done_loading = true;
       $.each(all_collage_data, function(id, annotation) {
         if (!annotation.done_loading) {
@@ -401,9 +414,8 @@ H2O = (function() {
         }
       });
 
-      if (done_loading) {
-        console.log('DONE LOADING AND NOW SETTING WINDOW.STATUS');
-        window.status = 'annotation_load_complete';
+      if (done_loading && export_functions) {
+        export_functions.loadAllAnnotationsComplete();
       }
     });
 

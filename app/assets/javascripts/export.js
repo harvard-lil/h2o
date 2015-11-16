@@ -75,7 +75,7 @@ var collages = {
   },
   loadState: function(collage_id, data) {
     //NOTE: This gets called once for EACH collage.
-    //console.log('EXPORT:loadState1 - ' + (new Date).toString() + ' for collage_id: ' + collage_id);
+    console.log('~~~~~~~~ loadState run for collage_id: ' + collage_id);
 
     //TODO: How does this really differ from the highlightAnnotatedItem at the end of this method?
     export_functions.highlightAnnotatedItem(
@@ -100,7 +100,6 @@ var collages = {
       }
     });
 
-
     //BUG: Because this gets called multiple times, I think calling these handlers like this is
     //a ton of redundant work compared to callng .show() on a single selector (as the
     // #printannotations test does below.)
@@ -115,13 +114,13 @@ var collages = {
       //$(idCss + ' span.annotation-content').show();
     //}
     if($('#hiddentext').val() == 'show') {
-      $('#hiddentext').change();
+      //$('#hiddentext').change();
       $(idCss + ' .layered-ellipsis-hidden').hide();
       $(idCss + ' .original_content,' + idCss + ' .annotation-hidden').show();
     }
 
-    //We need to fire this .change() here to correctly control highlights for DOC export
-    $('#printhighlights').change();  //TODO: Was just this, which worked for DOC export, but may have been too slow for large playlists
+    //We need to fire this .change() AT LEAST ONCE to correctly control highlights for DOC export.
+    //$('#printhighlights').change();
 
     if($('#printhighlights').val() == 'all') {
       // $('#printhighlights').change();
@@ -138,6 +137,7 @@ var collages = {
 };
 
 var export_functions = {
+  //TODO: extract TOC functions into their own top level object
     set_toc: function(levels) {
         var toc_node = $('#' + tocId);
         toc_node.remove();
@@ -255,8 +255,8 @@ var export_functions = {
         */
     } ,
     init_user_settings: function() {
-      //TODO: Do we need this? Does this do anything that can't be done with a "selected" in the HTML?
-      $('#printhighlights').val('original').change();
+      //TODO: Do we need this? This is probably now a no-op since we ditched JSB selectboxes
+      $('#printhighlights').val('original')
 
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no').change();
@@ -395,7 +395,7 @@ var export_functions = {
       }
     });
     $('#printhighlights').change(function() {
-      console.log("-------- #printhighlights firing");
+      //console.log("-------- #printhighlights firing");
         var choice = $(this).val();
 
         $('.collage-content').each(function(i, el) {
@@ -470,18 +470,35 @@ var export_functions = {
     $('#additional_styles').text('');
     $.rule(rules).appendTo('#additional_styles');
   },
-  loadAllAnnotations: function() {
-    console.log('Loading annotations...');
+  loadAllAnnotationsComplete: function() {
+    //Callback that gets called once after all annotations for all collages in
+    //a playlist are done loading, including the a asynchronous work done in
+    //the annotationsLoaded event handler (in annotator.sh2o.js)
+    if (!$.cookie('export_format')) {return;}
 
+    // Remove things that would otherwise trip up any of our exporter backends
+    $('#print-options').remove();
+    $('#toc-container').show();  //TODO: Do we still need this?
+
+    // Reset margins because export back-end will manage them
+    //NEW: technically, we only need to do this for PDF exports, because PDF
+    //exports set margins outside of javascript/HTML completely.
+    var div = $('.wrapper');
+    div.removeAttr('style');
+    div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
+
+    //REMINDER: This will remove any hidden dom nodes we want to .show() in phantomjs
+    $("body *").filter(":hidden").not("script").remove();
+    console.log('DONE LOADING');
+    window.status = 'annotation_load_complete';
+  },
+  loadAllAnnotations: function() {
     //Annotation system looks for original_content class
     $('div.article *:not(.paragraph-numbering)').addClass('original_content');
-
-
     $('.collage-content').each(function(i, el) {
       var id = $(el).data('id');
       export_functions.loadAnnotator(id);
     });
-    console.log('Done loading annotations.');
   },
   loadAnnotator: function(id) {
     //TODO: Can we exit fast if the annotation is empty or anything?
@@ -637,29 +654,11 @@ $(document).ready(function(){
 
   export_functions.loadAllAnnotations();
 
-    if ($.cookie('export_format')) {
-        // Remove things that would otherwise trip up any of our exporter backends
-        $('#print-options').remove();
-        $('#toc-container').show();  //TODO: Do we still need this?
-
-        // Reset margins because export back-end will manage them
-        //NEW: technically, we only need to do this for PDF exports, because PDF
-        //exports set margins outside of javascript/HTML completely.
-
-        var div = $('.wrapper');
-        div.removeAttr('style');
-        div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
-
-        //TODO: Reminder: This will remove any hidden dom nodes we want to .show() in phantomjs
-      $("body *").filter(":hidden").not("script").remove();
-    }
-  else {
+    if (!$.cookie('export_format')) {
       export_functions.init_theme_picker_listener();
-  }
+    }
 
-  //NOTE: for gigantic playlists, we are not guaranteed that all annotations will have loaded by now
   console.log('BOOP: document.ready done');
-
   // if ($.cookie('export_format') == 'pdf') {
   //   console.log($('html').html());
   // }

@@ -23,7 +23,7 @@ var set_cookies = function(address, options_file) {
         console.error('Error reading/parsing JSON options file: ' + e);
         phantom.exit(1);
     }
-    console.log('json_file: ' + json_string);
+    //console.log('json_file: ' + json_string);
 
     Object.keys(json).forEach(function(name) {
         cookies[name] = json[name];
@@ -57,21 +57,71 @@ page.onError = function(msg, trace) {
 };
 
 console.log('Opening: ' + address );
-page.open(address, function (status) {
-    if (status !== 'success') {
-        console.log('Unable to load page. Status was: ' + status);
-        phantom.exit(1);
-    }
+page.open(address, function(status) {
+  if (status !== 'success') {
+    console.log('Unable to load page. Status was: ' + status);
+    phantom.exit(1);
+  }
 
-    window.setTimeout(function () {
-        //Standard PhantomJS pattern: Do everything inside a setTimeout to ensure
-        // everything loads and runs inside the page.
+  //Note: loadstate is never getting called for 36037!!!!
+  setTimeout(function() {
+    waitFor(
+      function() {  //"test condition" function
+        console.log('TESTing------------------------');
+        return page.evaluate(function() {
+          console.log('window.status: ' + window.status);
+          return window.status == 'annotation_load_complete';
+        });
+      },
+      function() {  //thing to do when it's ready function
+        console.log('READY GOGOGO');
         set_styling(page);
         set_toc(cookies['toc_levels']);
+        //TODO: Do export post-processing work here
         write_file(output_file, page.content);
-        phantom.exit();
-    }, 5000);  //TODO: There is probably no reason to keep this larger than 200ms or so.
+
+        //Instead of using the old-school outer setInterval we've always used, seems to
+        // be creating a very small doc.
+        //But it does seem to be giving enough time for loadState to
+        //fire for 36037, but that could be a red herring....
+        window.setTimeout(function () {
+          console.log('would phantom.exit here');
+          phantom.exit();
+        }, 2000);
+      });
+  }, 10);
 });
+
+/**
+ * @param testFx javascript condition that evaluates to a boolean,
+ * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
+ * as a callback function.
+ * @param onReady what to do when testFx condition is fulfilled,
+ * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
+ * as a callback function.
+ * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
+ */
+var waitFor = function(testFx, onReady, timeOutMillis) {
+  var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 9900;
+  var start = new Date().getTime();
+  var condition = false;
+  var interval = setInterval(function() {
+    if ( (new Date().getTime() - start < maxtimeOutMillis) && !condition ) {
+      // If not time-out yet and condition not yet fulfilled
+      condition = (typeof(testFx) === "string" ? eval(testFx) : testFx());
+    } else {
+      if(!condition) {
+        console.log("'waitFor()' timeout");
+        phantom.exit(1);
+      } else {
+        // Condition fulfilled (timeout and/or condition is true)
+        console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
+        typeof(onReady) === "string" ? eval(onReady) : onReady();
+        clearInterval(interval);
+      }
+    }
+  }, 300); //< repeat check every X milliseconds
+};
 
 var set_toc = function(maxLevel) {
   if (!maxLevel) {return;}
