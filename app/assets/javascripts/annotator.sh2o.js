@@ -397,26 +397,29 @@ H2O = (function() {
       h2o_global.slideToAnnotation();
 
       try {
+        //This only exists on the export page
         incTime = (new Date() - phunk_last);
         incTimeSeconds = incTime / 1000;
         //console.log('!SH2O:ANNOTATIONSLOADED (' + incTimeSeconds + 's) for collage_id: ' + this.plugins.H2O.collage_id);
-      } catch(e) {}
 
-      //Track the loading of all the collages' annotations
-      all_collage_data["collage" + this.plugins.H2O.collage_id].done_loading = true;
+        //Track the loading of all the collages' annotations
+        all_collage_data["collage" + this.plugins.H2O.collage_id].done_loading = true;
 
-      //TODO: encapsulate this loading_done? check into its own function
-      var done_loading = true;
-      $.each(all_collage_data, function(id, annotation) {
-        if (!annotation.done_loading) {
-          done_loading = false;
-          return;
+        //TODO: encapsulate this loading_done? check into its own function
+        var done_loading = true;
+        $.each(all_collage_data, function(id, annotation) {
+          if (!annotation.done_loading) {
+            done_loading = false;
+            return;
+          }
+        });
+
+        if (done_loading && export_functions) {
+          export_functions.loadAllAnnotationsComplete();
         }
-      });
+      } catch(e) {console.log('warning: ' + e);}
 
-      if (done_loading && export_functions) {
-        export_functions.loadAllAnnotationsComplete();
-      }
+
     });
 
     this.annotator.subscribe("annotationEditorSubmit", function(editor) {
