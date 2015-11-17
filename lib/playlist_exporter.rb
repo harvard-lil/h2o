@@ -3,6 +3,8 @@ require 'uri'
 
 class PlaylistExporter
 
+  class ExportException < StandardError; end
+
   # No translation value here means we just pass the form field value straight through
   # Some cookies are just here to make them available to PhantomJS
   # TODO: translate all values, rather than only translating the one value that signals
@@ -79,7 +81,6 @@ class PlaylistExporter
       exit_code = nil
       command_output = ''
       Open3.popen2e(*command) do |i, out_err, wait_thread|
-        #out_err.each {|line| command_output += "PHANTOMJS: #{line}"}
         out_err.each {|line| Rails.logger.debug "PHANTOMJS: #{line.rstrip}"}
         exit_code = wait_thread.value.exitstatus
       end
@@ -91,6 +92,7 @@ class PlaylistExporter
         out_file.tap {|x| Rails.logger.debug "Created #{x}" }
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
+        raise ExportException, command_output
       end
     end
 
@@ -134,7 +136,7 @@ class PlaylistExporter
         command.last
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
-        false
+        raise ExportException, command_output
       end
     end
 
