@@ -130,25 +130,24 @@ var collages = {
   }
 };
 
-var export_functions = {
-  //TODO: extract TOC functions into their own top level object
+var table_of_contents = {
     set_toc: function(levels) {
         var toc_node = $('#' + tocId);
         toc_node.remove();
         if (levels) {
-            export_functions.generate_toc(levels);
+            table_of_contents.generate_toc(levels);
             $('#toc-container').show();
         } else {
             $('#toc-container').hide();
         }
     },
     generate_toc: function(toc_levels) {
-        var toc_nodes = export_functions.build_toc_branch();
-        var flat_results = export_functions.flatten(toc_nodes)
+        var toc_nodes = table_of_contents.build_toc_branch();
+        var flat_results = table_of_contents.flatten(toc_nodes)
         var toc = $('<ol/>', { id: tocId });
         var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
-            var toc_line = export_functions.toc_entry_text(flat_results[i])
+            var toc_line = table_of_contents.toc_entry_text(flat_results[i])
           toc.append($('<li/>', { html: toc_line }));
             toc.appendTo(toc_root_node);
         }
@@ -168,7 +167,7 @@ var export_functions = {
                 nodes.push( child );
             }
             else {
-                nodes.push( export_functions.build_toc_branch( child, depth+1 ) );
+                nodes.push( table_of_contents.build_toc_branch( child, depth+1 ) );
             }
         });
         return nodes;
@@ -185,9 +184,13 @@ var export_functions = {
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
-            return flat.concat(Array.isArray(toFlatten) ? export_functions.flatten(toFlatten) : toFlatten);
+            return flat.concat(Array.isArray(toFlatten) ? table_of_contents.flatten(toFlatten) : toFlatten);
         }, []);
     },
+};
+
+var export_functions = {
+  //TODO: extract TOC functions into their own top level object
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
   },
@@ -436,7 +439,7 @@ var export_functions = {
         }
     },
     setTocLevels: function(toc_levels) {
-        export_functions.set_toc(toc_levels);
+        table_of_contents.set_toc(toc_levels);
         //Just control the cookie from this select box until we add a user preferences control for it
         //That will also fix the path, which is incorrect for this cookie at the moment
         $.cookie('toc_levels', toc_levels);
