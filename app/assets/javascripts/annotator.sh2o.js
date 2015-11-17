@@ -302,8 +302,8 @@ H2O = (function() {
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
-      var collage_id = this.plugins.H2O.collage_id;
-
+      //var collage_id = this.plugins.H2O.collage_id;
+      var collage_id = this.plugins.H2O.annotated_item_id
 
       $('#annotator-field-0').addClass('no_tinymce');
 
@@ -401,7 +401,6 @@ H2O = (function() {
         phunk_last = now;
         var incTimeSeconds = incTime / 1000;
         var elapsed = parseInt((now - phunk_start)/1000);
-        //console.log('annotationsLoaded:Start (' + incTimeSeconds + 's) for collage_id: ' + collage_id + ' - total: ' + elapsed + 's');
 
         //Track the loading of all the collages' annotations
         all_collage_data["collage" + collage_id].done_loading = true;

@@ -481,8 +481,8 @@ var export_functions = {
   },
   loadAllAnnotationsComplete: function() {
     //Callback that gets called once after all annotations for all collages in
-    //a playlist are done loading, including the a asynchronous work done in
-    //the annotationsLoaded event handler (in annotator.sh2o.js)
+    //a playlist are done loading, including the a asynchronous work done by
+    //the annotationsLoaded event handler in annotator.sh2o.js
     if (!$.cookie('export_format')) {return;}
 
     // Remove things that would otherwise trip up any of our exporter backends
@@ -494,11 +494,12 @@ var export_functions = {
     //exports set margins outside of javascript/HTML completely.
     var div = $('.wrapper');
     div.removeAttr('style');
-    div.css('margin-top', '0px');  //Remove margin previously occupied by #print-options
+    //Remove margin previously occupied by #print-options
+    div.css('margin-top', '0px');
 
-    //REMINDER: This will remove any hidden dom nodes we want to .show() in phantomjs
+    //Clean up a bunch of DOM nodes that can cause problems in various export formats
     $("body *").filter(":hidden").not("script").remove();
-    console.log('DONE LOADING');
+    console.log('STATUS: annotation_load_complete');
     window.status = 'annotation_load_complete';
   },
   loadAllAnnotations: function() {
@@ -510,6 +511,7 @@ var export_functions = {
     });
   },
   injectAnnotations: function(annotations) {
+    //console.log('Injecting ' + Object.keys(annotations).length + ' annotations');
     $.each(annotations, function(i, ann) {
       //NOTE: These elements are all hidden by default as per export.css
       var annotation = $.parseJSON(ann);
@@ -541,18 +543,17 @@ var export_functions = {
     layer_data = collage_data.layer_data || {};
     highlights_only = collage_data.highlights_only || {};
 
-    var elem = $('#' + idString + ' div.article');
     var factory = new Annotator.Factory();
-    var Store = Annotator.Plugin.fetch('Store');  //TODO: delete. (left over copy paste from collages, I think.)
     var h2o = Annotator.Plugin.fetch('H2O');
     var report_options = { "report": false, "feedback": false, "discuss": false, "respond": false };
     h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only, report_options).getInstance();
-    h2o_annotator.expected_collage_count = h2o_annotator.expected_collage_count || Object.keys(all_collage_data).length
-    h2o_annotator.attach(elem, 'print_export_annotation');
+    h2o_annotator.expected_collage_count = h2o_annotator.expected_collage_count || Object.keys(all_collage_data).length;
+    h2o_annotator.attach($('#' + idString + ' div.article'), 'print_export_annotation');
+    //TODO: delete this merge artifact?    h2o_annotator.attach(elem, 'print_export_annotation');
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },
   filteredLayerData: function(layer_data) {
-    var filtered_layer_data = {}; 
+    var filtered_layer_data = {};
     $.each(layer_data, function(i, j) {
       filtered_layer_data[collages.clean_layer(i)] = j;
     });
