@@ -161,6 +161,25 @@ class Collage < ActiveRecord::Base
     return layers
   end
 
+  def annotations_as_export_json
+    attrs = %i[
+                      id
+                      collage_id
+                      annotation
+                      xpath_start
+                      xpath_end
+                      start_offset
+                      end_offset
+                      link
+                      hidden
+                      highlight_only
+                     ]
+    self.annotations.inject({}) {|h, a|
+      h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
+      h
+    }.to_json
+  end
+
   def printable_content
     self.editable_content(true)
   end
