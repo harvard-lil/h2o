@@ -63,11 +63,13 @@ page.open(address, function(status) {
     phantom.exit(1);
   }
 
-  //Note: loadstate is never getting called for 36037!!!!
+  //waitFor does not work exactly as advertised due to a bug in PhantomJS.
+  //It only fires once, and only at the end of the page load completing.
+  //We might need an additional setTimeout around this one, but the
+  //internet is reporting mixed results with that workaround.
   setTimeout(function() {
     waitFor(
       function() {  //"test condition" function
-        console.log('TESTing------------------------');
         return page.evaluate(function() {
           console.log('window.status: ' + window.status);
           return window.status == 'annotation_load_complete';
@@ -80,15 +82,12 @@ page.open(address, function(status) {
         //TODO: Do export post-processing work here
         write_file(output_file, page.content);
 
-        //Instead of using the old-school outer setInterval we've always used, seems to
-        // be creating a very small doc.
-        //But it does seem to be giving enough time for loadState to
-        //fire for 36037, but that could be a red herring....
         window.setTimeout(function () {
-          console.log('would phantom.exit here');
           phantom.exit();
         }, 2000);
-      });
+      },
+      1200000  //Arbitrarily huge number of seconds to let giant playlists finish
+    );
   }, 10);
 });
 
@@ -99,14 +98,14 @@ page.open(address, function(status) {
  * @param onReady what to do when testFx condition is fulfilled,
  * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
  * as a callback function.
- * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
+ * @param timeOutMillis the max amount of time to wait.
  */
 var waitFor = function(testFx, onReady, timeOutMillis) {
-  var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 9900;
+  var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 20000;
   var start = new Date().getTime();
   var condition = false;
   var interval = setInterval(function() {
-    if ( (new Date().getTime() - start < maxtimeOutMillis) && !condition ) {
+    if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
       // If not time-out yet and condition not yet fulfilled
       condition = (typeof(testFx) === "string" ? eval(testFx) : testFx());
     } else {
