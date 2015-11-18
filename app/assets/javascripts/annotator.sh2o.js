@@ -302,8 +302,8 @@ H2O = (function() {
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
-      //var collage_id = this.plugins.H2O.collage_id;
-      var collage_id = this.plugins.H2O.annotated_item_id
+      var collage_id = this.plugins.H2O.collage_id;
+      //var starttime = new Date();
 
       $('#annotator-field-0').addClass('no_tinymce');
 
@@ -317,9 +317,11 @@ H2O = (function() {
 
       this.initialized = true;
 
+      console.log('Annotations count: ' + Object.keys(annotations).length);
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setLayeredBorders(annotation);
 
+        var single_anno_start = new Date();
         if(annotation.hidden) {
           $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
           var anno_nodes = $('.annotation-' + annotation.id);
@@ -328,20 +330,27 @@ H2O = (function() {
           anno_nodes_oc_parents.filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
 
           $.each(anno_nodes_oc_parents.filter(':not(.original_content *)'), function(i, j) {
+            var j_node = $(j);
             var has_text_node = false;
-            $.each($(j).contents(), function(k, l) {
+            $.each(j_node.contents(), function(k, l) {
               if(l.nodeType == 3 && $(l).text() != ' ') {
                 has_text_node = true;
                 return;
               }
             });
             if(has_text_node) {
-              $(j).show();
+              j_node.show();
             }
           });
         } else {
           H2O.prototype.setHighlights(annotation, false);
         }
+
+        //NOTE: The timing info below shows the first annotation in annotations
+        //almost always takes roughly 550ms, while the subsequent ones usually
+        //take an average of 15ms. If that data is accurate, can that trend be
+        //explained by 
+        //console.log('single_anno_^^^^^: ' + ((new Date() - single_anno_start)/1000) + 's');
 
         if (!$('#print-options').length) {
           H2O.prototype.addAnnotationIndicator(annotation);
@@ -418,6 +427,7 @@ H2O = (function() {
           }
         });
 
+        //console.log('al_duration: ' + ((new Date() - starttime)/1000) + 's');
         console.log('annotationsLoaded for collage_id ' + collage_id +
                     ' - ' + incTimeSeconds + 's of ' +
                     elapsed + 's total ' +
