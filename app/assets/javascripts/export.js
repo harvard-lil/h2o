@@ -1,5 +1,4 @@
 var phunk_start, phunk_last, phunk_end;
-//var all_tts;
 var annotations;
 var original_data = {};
 var layer_data;
@@ -627,6 +626,9 @@ var export_functions = {
         total_selectors.push(this_selector.replace(/ $/, ''));
       }
     });
+
+    //TODO: just init updated to be empty, skip the below loop, and use === true or false for your "unique only" logic
+    //Also, be aware that there could be layer stuff in there that we don't know about b/c we don't know much about layers...
     var updated = {};
     for(var i = 0; i<total_selectors.length; i++) {
       updated[total_selectors[i]] = 0;
@@ -634,6 +636,9 @@ var export_functions = {
 
     for(var i = 0; i<total_selectors.length; i++) {
       var selector = total_selectors[i];
+      // console.log('selector: ' + selector);
+
+      //TODO: just bail on loop (is that possible?) if $seen[selector]. 
       if(updated[selector] == 0) {
         var unique_layers = {};
         var layer_count = 0;
@@ -647,21 +652,33 @@ var export_functions = {
             }
           }
         }
-        var current_hex = '#FFFFFF';
+        //TODO: is this just a weird way of counting Object.keys(unique_layers) ?
         var key_length = 0;
         $.each(unique_layers, function(key, value) {
           key_length++;
         });
+
         var opacity = 0.6 / key_length;
+        var current_hex = '#FFFFFF';
+        var doodle;
         $.each(unique_layers, function(key, value) {
           var hex_arg = key.match(/^hex-/) ? key.replace(/^hex-/, '') : layer_data[key];
           current_hex = $.xcolor.opacity(current_hex, hex_arg, opacity).getHex();
         });
-        $.rule(cssId + ' ' + selector + ' { border-bottom: 2px solid ' + current_hex + '; }').appendTo('#highlight_styles');
+
+        //also, should we remove the cssId b/c it doesn't actually do anything that we care about?
+        var full_selector = cssId + ' ' + selector;
+        if (!$('#highlight_styles').cssText().match(full_selector)) {
+          $.rule(
+            full_selector + ' { border-bottom: 2px solid ' + current_hex + '; }'
+          ).appendTo('#highlight_styles');
+        }
+
         updated[selector] = 1;
       }
     }
-    //Not sure what this ever did
+    console.log('HS: ' + $('#highlight_styles').cssText());
+    //TODO: Delete, I think. Not sure what this ever did?
     // var keys_arr = new Array();
     // $.each(updated, function(key, value) {
     //   keys_arr.push(key);

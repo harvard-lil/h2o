@@ -323,6 +323,8 @@ H2O = (function() {
 
         var single_anno_start = new Date();
         if(annotation.hidden) {
+          //hidden text annotations with large amounts of text can be very slow here.
+          //E.g. A hidden annotation with 2KB of text took 2.1 seconds to completely load in my tests.
           $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
           var anno_nodes = $('.annotation-' + annotation.id);
           anno_nodes.addClass('annotation-hidden').hide();
@@ -348,8 +350,9 @@ H2O = (function() {
 
         //NOTE: The timing info below shows the first annotation in annotations
         //almost always takes roughly 550ms, while the subsequent ones usually
-        //take an average of 15ms. If that data is accurate, can that trend be
-        //explained by 
+        //take an average of 15ms. That might actually just be an error in how
+        //we're logging the time. I haven't really looked into it.
+
         //console.log('single_anno_^^^^^: ' + ((new Date() - single_anno_start)/1000) + 's');
 
         if (!$('#print-options').length) {
