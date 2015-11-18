@@ -317,7 +317,8 @@ H2O = (function() {
 
       this.initialized = true;
 
-      console.log('Annotations count: ' + Object.keys(annotations).length);
+      var annotations_count = Object.keys(annotations).length;
+      //console.log('Annotations count: ' + annotations_count);
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setLayeredBorders(annotation);
 
@@ -431,9 +432,10 @@ H2O = (function() {
         });
 
         //console.log('al_duration: ' + ((new Date() - starttime)/1000) + 's');
-        console.log('annotationsLoaded for collage_id ' + collage_id +
-                    ' - ' + incTimeSeconds + 's of ' +
-                    elapsed + 's total ' +
+        console.log('annotationsLoaded for collage_id: ' + collage_id +
+                    ' - ' + annotations_count + ' in ' +
+                    incTimeSeconds + 's of ' +
+                    elapsed + 's total' +
                     ' - (' + done_count + '/' + Object.keys(all_collage_data).length + ')'
                    );
 
