@@ -627,6 +627,14 @@ var export_functions = {
       }
     });
 
+    export_functions.insertHightlightCss(cssId, total_selectors);
+    //TODO: Delete, I think. Not sure what this ever did?
+    // var keys_arr = new Array();
+    // $.each(updated, function(key, value) {
+    //   keys_arr.push(key);
+    // });
+  },
+  insertHightlightCss: function(cssId, total_selectors) {
     //TODO: just init updated to be empty, skip the below loop, and use === true or false for your "unique only" logic
     //Also, be aware that there could be layer stuff in there that we don't know about b/c we don't know much about layers...
     var updated = {};
@@ -678,13 +686,9 @@ var export_functions = {
       }
     }
     console.log('HS: ' + $('#highlight_styles').cssText());
-    //TODO: Delete, I think. Not sure what this ever did?
-    // var keys_arr = new Array();
-    // $.each(updated, function(key, value) {
-    //   keys_arr.push(key);
-    // });
-  }
-};
+  },
+};  //end export_functions
+
 
 $(document).ready(function(){
   console.log('BOOP: document.ready starting');
