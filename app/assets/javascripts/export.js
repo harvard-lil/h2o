@@ -638,16 +638,17 @@ var export_functions = {
     //TODO: just init updated to be empty, skip the below loop, and use === true or false for your "unique only" logic
     //Also, be aware that there could be layer stuff in there that we don't know about b/c we don't know much about layers...
     var updated = {};
-    for(var i = 0; i<total_selectors.length; i++) {
-      updated[total_selectors[i]] = 0;
-    }
+    // for(var i = 0; i<total_selectors.length; i++) {
+    //   updated[total_selectors[i]] = 0;
+    // }
 
     for(var i = 0; i<total_selectors.length; i++) {
       var selector = total_selectors[i];
       // console.log('selector: ' + selector);
 
       //TODO: just bail on loop (is that possible?) if $seen[selector]. 
-      if(updated[selector] == 0) {
+      if(!updated[selector]) {
+        updated[selector] = true;
         var unique_layers = {};
         var layer_count = 0;
         var x = selector.split(' ');
@@ -660,11 +661,11 @@ var export_functions = {
             }
           }
         }
-        //TODO: is this just a weird way of counting Object.keys(unique_layers) ?
-        var key_length = 0;
-        $.each(unique_layers, function(key, value) {
-          key_length++;
-        });
+
+        var key_length = Object.keys(unique_layers).length;
+        // $.each(unique_layers, function(key, value) {
+        //   key_length++;
+        // });
 
         var opacity = 0.6 / key_length;
         var current_hex = '#FFFFFF';
@@ -682,10 +683,9 @@ var export_functions = {
           ).appendTo('#highlight_styles');
         }
 
-        updated[selector] = 1;
       }
     }
-    console.log('HS: ' + $('#highlight_styles').cssText());
+    //console.log('HS: ' + $('#highlight_styles').cssText());
   },
 };  //end export_functions
 
@@ -731,9 +731,12 @@ $(document).ready(function(){
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
   console.log('BOOP: document.ready done');
-  // if ($.cookie('export_format') == 'pdf') {
-  //   console.log($('html').html());
-  // }
+  setTimeout(
+    function() {
+      console.log('HS: ' + $('#highlight_styles').cssText());
+    },
+    6000
+  );
 });
 
 
