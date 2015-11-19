@@ -1,4 +1,5 @@
 var phunk_start, phunk_last, phunk_end;
+var highlight_css_cache = {};
 var annotations;
 var original_data = {};
 var layer_data;
@@ -479,9 +480,13 @@ var export_functions = {
     $.rule(rules).appendTo('#additional_styles');
   },
   loadAllAnnotationsComplete: function() {
-    //Callback that gets called once after all annotations for all collages in
+    //Callback that gets called *once* after all annotations for all collages in
     //a playlist are done loading, including the a asynchronous work done by
-    //the annotationsLoaded event handler in annotator.sh2o.js
+    //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
+    //cases, this will fire after document.ready has run and finished.
+
+    export_highlighter.applyStyles($.cookie('export_format'));
+
     if (!$.cookie('export_format')) {return;}
 
     // Remove things that would otherwise trip up any of our exporter backends
@@ -627,49 +632,50 @@ var export_functions = {
       }
     });
 
-    export_functions.insertHightlightCss(cssId, total_selectors);
-    //TODO: Delete, I think. Not sure what this ever did?
-    // var keys_arr = new Array();
-    // $.each(updated, function(key, value) {
-    //   keys_arr.push(key);
-    // });
+    export_highlighter.cacheCss(cssId, total_selectors);
   },
-  insertHightlightCss: function(cssId, total_selectors) {
-    //TODO: just init updated to be empty, skip the below loop, and use === true or false for your "unique only" logic
-    //Also, be aware that there could be layer stuff in there that we don't know about b/c we don't know much about layers...
+
+};  //end export_functions
+
+var export_highlighter = {
+  applyStyles: function(export_format) {
+    //TODO: force all colors to specific value for DOC export
+    var rules = $.map(highlight_css_cache, function(v,sel) {return sel + ' ' + v;}).join("\n");
+    // console.log('highlight_css_cache: ', highlight_css_cache);
+    // console.log('rules: ' + rules);
+    $.rule(rules).appendTo('#highlight_styles');
+  },
+  cacheCss: function(cssId, total_selectors) {
+    //Also, be aware that there is definitely layer stuff in there that we don't
+    // know about b/c we don't know much about layers...
+    //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+    //console.profile('total_selectors');
     var updated = {};
-    // for(var i = 0; i<total_selectors.length; i++) {
-    //   updated[total_selectors[i]] = 0;
-    // }
+    $.each(total_selectors, function(i, selector) {
+      //TODO: Cache this calculation
+      //console.log('selector: ' + selector);
+      if (updated[selector]) {
+        return;
+      }
+      updated[selector] = true;
 
-    for(var i = 0; i<total_selectors.length; i++) {
-      var selector = total_selectors[i];
-      // console.log('selector: ' + selector);
+      var unique_layers = {};
+      var x = selector.split(' ');
 
-      //TODO: just bail on loop (is that possible?) if $seen[selector]. 
-      if(!updated[selector]) {
-        updated[selector] = true;
-        var unique_layers = {};
-        var layer_count = 0;
-        var x = selector.split(' ');
-        for(var a = 0; a < x.length; a++) {
-          var y = x[a].split('.');
-          for(var b = 0; b < y.length; b++) {
-            var key = y[b].replace(/^highlight-/, '');
-            if(key != '') {
-              unique_layers[key] = 1;
-            }
+      //console.log('    ' + x);
+      for(var a = 0; a < x.length; a++) {
+        var y = x[a].split('.');
+        for(var b = 0; b < y.length; b++) {
+          var key = y[b].replace(/^highlight-/, '');
+          if(key != '') {
+            unique_layers[key] = 1;
           }
         }
+      }
 
-        var key_length = Object.keys(unique_layers).length;
-        // $.each(unique_layers, function(key, value) {
-        //   key_length++;
-        // });
-
-        var opacity = 0.6 / key_length;
-        var current_hex = '#FFFFFF';
-        var doodle;
+      var opacity = 0.6 / Object.keys(unique_layers).length;
+      var current_hex = '#FFFFFF';
         $.each(unique_layers, function(key, value) {
           var hex_arg = key.match(/^hex-/) ? key.replace(/^hex-/, '') : layer_data[key];
           current_hex = $.xcolor.opacity(current_hex, hex_arg, opacity).getHex();
@@ -682,13 +688,31 @@ var export_functions = {
             full_selector + ' { border-bottom: 2px solid ' + current_hex + '; }'
           ).appendTo('#highlight_styles');
         }
+      });
 
+      var full_selector = selector.match(/^\.highlight-hex-/) ? selector : cssId + ' ' + selector;
+      //TODO: only store color
+      var rule = ' {border-bottom: 2px solid ' + current_hex + ';}';
+
+      //add a warning if it does exist but the contents are different (should never happen, but
+      //annotations be crazy. In the callback. Dump that entire hash to $.rule.
+      if (!highlight_css_cache[full_selector]) {
+        highlight_css_cache[full_selector] = rule;
+      } else {
+        export_highlighter.mismatched_highlight_check(full_selector, rule);
       }
-    }
-    //console.log('HS: ' + $('#highlight_styles').cssText());
+    }); //end selector loop
+    console.profileEnd('total_selectors');
   },
-};  //end export_functions
-
+  mismatched_highlight_check: function(full_selector, rule) {
+    //TODO: This is for dev/debug purposes only. OK to delete before deploying.
+    if (highlight_css_cache[full_selector] != rule) {
+      console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ rule mismatch');
+      console.warn('previous: ' + highlight_css_cache[full_selector]);
+      console.warn('new rule: ' + rule);
+    }
+  },
+}; //end export_highlighter
 
 $(document).ready(function(){
   console.log('BOOP: document.ready starting');
@@ -735,7 +759,7 @@ $(document).ready(function(){
     function() {
       console.log('HS: ' + $('#highlight_styles').cssText());
     },
-    6000
+    2000
   );
 });
 
