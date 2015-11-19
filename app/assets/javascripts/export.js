@@ -147,9 +147,9 @@ var table_of_contents = {
         var toc = $('<ol/>', { id: tocId });
         var toc_root_node = $('#toc-container');
         for(var i = 0; i<flat_results.length; i++) {
-            var toc_line = table_of_contents.toc_entry_text(flat_results[i])
+          var toc_line = table_of_contents.toc_entry_text(flat_results[i]);
           toc.append($('<li/>', { html: toc_line }));
-            toc.appendTo(toc_root_node);
+          toc.appendTo(toc_root_node);
         }
 
     },
@@ -573,7 +573,6 @@ var export_highlighter = {
 
     var collage_data = all_collage_data["collage" + collage_id];
     var cssId = '#collage' + collage_id;
-
     layer_data = export_functions.filteredLayerData(collage_data.layer_data);
 
     // Removing highlights from tagged + color
@@ -590,7 +589,7 @@ var export_highlighter = {
     //Removing highlights from color only
     $.each(collage_data.highlights_only, function(i, j) {
       if($.inArray(j, highlights_only) == -1) {
-        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j);  //TODO: This had a trailing:  + ' '  and I don't know why.
+        $(cssId + ' .layer-hex-' + j).removeClass('highlight-hex-' + j);
       }
     });
 
@@ -642,12 +641,12 @@ var export_highlighter = {
     //Also, be aware that there is definitely layer stuff in there that we don't
     // know about b/c we don't know much about layers...
     //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+    //TODO: I think this is running way too much. I added a single tag to a single
+    //collage in my playlist with 4 itmes, and now I'm seeing that tag go through this method 6 times?
 
-    //console.profile('total_selectors');
     var updated = {};
     $.each(total_selectors, function(i, selector) {
       //TODO: Cache this calculation
-      //console.log('selector: ' + selector);
       if (updated[selector]) {
         return;
       }
@@ -655,14 +654,13 @@ var export_highlighter = {
 
       var unique_layers = {};
       var x = selector.split(' ');
-
-      //console.log('    ' + x);
       for(var a = 0; a < x.length; a++) {
         var y = x[a].split('.');
         for(var b = 0; b < y.length; b++) {
           var key = y[b].replace(/^highlight-/, '');
           if(key != '') {
             unique_layers[key] = 1;
+            //console.log('UlKEY: ' + key);
           }
         }
       }
@@ -683,41 +681,37 @@ var export_highlighter = {
         }
       });
 
+      //Strip ID from highlight-hex-?????? selectors. We don't need them to be
+      //collage-specific, and they end up producing fewer unique CSS rules this way.
       var full_selector = selector.match(/^\.highlight-hex-/) ? selector : cssId + ' ' + selector;
-      //TODO: only store color
-      var rule = ' {border-bottom: 2px solid ' + current_hex + ';}';
 
-      //add a warning if it does exist but the contents are different (should never happen, but
-      //annotations be crazy. In the callback. Dump that entire hash to $.rule.
       if (!highlight_css_cache[full_selector]) {
-        highlight_css_cache[full_selector] = rule;
+        highlight_css_cache[full_selector] = current_hex;
       } else {
-        export_highlighter.mismatched_highlight_check(full_selector, rule);
+        export_highlighter.mismatched_highlight_check(full_selector, current_hex);
       }
     }); //end selector loop
-    console.profileEnd('total_selectors');
+
   },
   applyStyles: function(export_format) {
-    //TODO: force all colors to specific value for DOC export
+    //Force all colors to dark-blue-ish for export so they show up better when printed
+    var forced_color = export_format ? '#2e00ff' : null;
     var rules = $.map(highlight_css_cache, function(v,sel) {
-      return sel + ' ' + v;
+      return sel + ' {border-bottom: 2px solid ' + (forced_color || v) + ';}';
     }).join("\n");
-    console.log('rules: ' + rules);
+
     $.rule(rules).appendTo('#highlight_styles');
   },
   mismatched_highlight_check: function(full_selector, rule) {
     //TODO: This is for dev/debug purposes only. OK to delete before deploying.
-    if (highlight_css_cache[full_selector] != rule) {
-      console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ rule mismatch');
-      console.warn('previous: ' + highlight_css_cache[full_selector]);
-      console.warn('new rule: ' + rule);
-    }
+    if (highlight_css_cache[full_selector] == rule) {return;}
+    console.warn('@_@ rule mismatch @_@');
+    console.warn('previous: ' + highlight_css_cache[full_selector]);
+    console.warn('new rule: ' + rule);
   },
 }; //end export_highlighter
 
 $(document).ready(function(){
-  console.log('BOOP: document.ready starting');
-
   //export_functions.debug_cookies();
   //export_functions.init_missing_cookies();
   export_functions.init_listeners();
@@ -756,12 +750,12 @@ $(document).ready(function(){
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
   console.log('BOOP: document.ready done');
-  setTimeout(
-    function() {
-      console.log('HS: ' + $('#highlight_styles').cssText());
-    },
-    2000
-  );
+  // setTimeout(
+  //   function() {
+  //     console.log('HS: ' + $('#highlight_styles').cssText());
+  //   },
+  //   2000
+  // );
 });
 
 
