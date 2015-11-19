@@ -372,10 +372,12 @@ H2O = (function() {
       editor.annotation.link = $('input#link').val();
       editor.annotation.layer_hexes = [];
       editor.annotation.highlight_only = undefined;
+      var old_layer = false
 
       /* Layer with color mapping */
       $.each($('.annotator-editor li.annotator-checkbox input:not(#show_annotation)'), function(_i, el) {
         if($(el).is(':checked')) {
+          old_layer = true;
           var layer_name = $(el).attr('id').replace(/^layer-/, '');
           layer_name = collages.revert_clean_layer(layer_name);
           editor.annotation.layer_hexes.push({ layer: layer_name, hex: h2o_annotator.plugins.H2O.layer_map[layer_name], is_new: false });
@@ -383,13 +385,17 @@ H2O = (function() {
       });
 
       var hex = $('.annotator-listing .hexes .active');
-      if($('input#new_layer').val() != '' && hex.size() > 0) {
+      var new_layer = !old_layer && $('input#new_layer').val() != '' && (hex.size() > 0 || $('.annotator-editor').data('type') == 'highlight')
+      if(new_layer) {
+        if(hex.size() < 1) {
+          hex = $($('.annotator-listing .hexes a:not(.inactive)')[0]);
+        }
         editor.annotation.layer_hexes = [{ layer: $('input#new_layer').val().toLowerCase(), hex: hex.text(), is_new: true }];
         h2o_annotator.plugins.H2O.layer_map[$('input#new_layer').val().toLowerCase()] = hex.text();
       }
 
       /* Highlight Only */
-      if($('input#new_layer').val() == '' && hex.size() == 1) {
+      if(!old_layer && !new_layer && hex.size() == 1) {
         editor.annotation.layer_hexes = [];
         editor.annotation.highlight_only = hex.text();
       }
@@ -398,6 +404,13 @@ H2O = (function() {
           editor.annotation.highlight_only = $(el).attr('id').replace(/^highlight-only-/, '');
         }
       });
+      if(!old_layer && !new_layer && $('.annotator-editor').data('type') == 'highlight' && editor.annotation.highlight_only == undefined) {
+        var default_hex = $($('.annotator-listing .hexes a:not(.inactive)')[0]);
+        if(default_hex.length < 1) {
+          default_hex = $($('.annotator-listing .hexes a')[0]);
+        }
+        editor.annotation.highlight_only = default_hex.text();
+      }
 
       var node = $('.layered-ellipsis-' + editor.annotation.id)
       if(node.length > 0) {
