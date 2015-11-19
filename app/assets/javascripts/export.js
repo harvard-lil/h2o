@@ -89,7 +89,7 @@ var collages = {
 
     //TODO: How does this really differ from the highlightAnnotatedItem
     //at the end of this method or in the #printhighlights.change() handler?
-    export_functions.highlightAnnotatedItem(
+    export_highlighter.highlightAnnotatedItem(
       collage_id,
       data.highlights,
       data.highlight_only_highlights
@@ -121,7 +121,7 @@ var collages = {
 
     //if($('#printhighlights').val() == 'all') {
       //We don't need this here now that the above .change is getting called.
-       // export_functions.highlightAnnotatedItem(
+       // export_highlighter.highlightAnnotatedItem(
        //   collage_id,
        //   all_collage_data[idString].layer_data,
        //   all_collage_data[idString].highlights_only
@@ -418,7 +418,7 @@ var export_functions = {
             } else {  //"none"
                 args = [{}, {}];
             }
-            export_functions.highlightAnnotatedItem(id, args[0], args[1]);
+            export_highlighter.highlightAnnotatedItem(id, args[0], args[1]);
         });
     });
     $('#theme').change(function() {
@@ -563,6 +563,10 @@ var export_functions = {
     });
     return filtered_layer_data;
   },
+
+};  //end export_functions
+
+var export_highlighter = {
   highlightAnnotatedItem: function(collage_id, highlights, highlights_only) {
     highlights = highlights || {};
     highlights_only = highlights_only || {};
@@ -634,17 +638,6 @@ var export_functions = {
 
     export_highlighter.cacheCss(cssId, total_selectors);
   },
-
-};  //end export_functions
-
-var export_highlighter = {
-  applyStyles: function(export_format) {
-    //TODO: force all colors to specific value for DOC export
-    var rules = $.map(highlight_css_cache, function(v,sel) {return sel + ' ' + v;}).join("\n");
-    // console.log('highlight_css_cache: ', highlight_css_cache);
-    // console.log('rules: ' + rules);
-    $.rule(rules).appendTo('#highlight_styles');
-  },
   cacheCss: function(cssId, total_selectors) {
     //Also, be aware that there is definitely layer stuff in there that we don't
     // know about b/c we don't know much about layers...
@@ -703,6 +696,14 @@ var export_highlighter = {
       }
     }); //end selector loop
     console.profileEnd('total_selectors');
+  },
+  applyStyles: function(export_format) {
+    //TODO: force all colors to specific value for DOC export
+    var rules = $.map(highlight_css_cache, function(v,sel) {
+      return sel + ' ' + v;
+    }).join("\n");
+    console.log('rules: ' + rules);
+    $.rule(rules).appendTo('#highlight_styles');
   },
   mismatched_highlight_check: function(full_selector, rule) {
     //TODO: This is for dev/debug purposes only. OK to delete before deploying.
