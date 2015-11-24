@@ -2,6 +2,7 @@
 	<hgroup class="description">
         <div class="Playlist-title scale1-5 vh1"><%= raw @playlist.name %></div>
 	</hgroup>
+    <p class="MsoToc1" id="toc-container"></p>
 	<div class="details">
 		<div id="description" class="item_description">
           <div class="Playlist-notes">
@@ -9,6 +10,5 @@
 		  </div>
 		</div>
 	</div>
-    <p class="MsoToc1" id="toc-container"></p>
 	<%= render :partial => 'playlist_items/playlist_items_block_print', :locals => {:playlist => @playlist} %>
 </div>
