@@ -97,6 +97,11 @@ var collages = {
 
     export_functions.injectAnnotations(all_collage_data[idString].annotations);
 
+    /*
+     * TODO: move all of these to loadAllAnnotationsComplete, with consideration
+     * to our future plans to load X annotations directly (as done here) and >X
+     * annotations asynchronously.
+     */
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
@@ -151,7 +156,6 @@ var table_of_contents = {
           toc.append($('<li/>', { html: toc_line }));
           toc.appendTo(toc_root_node);
         }
-
     },
     build_toc_branch: function(parent, depth) {
         parent = parent || $(':root');
@@ -642,15 +646,12 @@ var export_highlighter = {
     export_highlighter.cacheCss(cssId, total_selectors);
   },
   cacheCss: function(cssId, total_selectors) {
-    //Also, be aware that there is definitely layer stuff in there that we don't
-    // know about b/c we don't know much about layers...
-    //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
     //TODO: I think this is running way too much. I added a single tag to a single
     //collage in my playlist with 4 itmes, and now I'm seeing that tag go through this method 6 times?
 
     var updated = {};
     $.each(total_selectors, function(i, selector) {
-      //TODO: Cache this calculation
+      //TODO: Cache this calculation in a page-level cache object
       if (updated[selector]) {
         return;
       }
@@ -664,7 +665,6 @@ var export_highlighter = {
           var key = y[b].replace(/^highlight-/, '');
           if(key != '') {
             unique_layers[key] = 1;
-            //console.log('UlKEY: ' + key);
           }
         }
       }
@@ -692,7 +692,7 @@ var export_highlighter = {
       if (!highlight_css_cache[full_selector]) {
         highlight_css_cache[full_selector] = current_hex;
       } else {
-        export_highlighter.mismatched_highlight_check(full_selector, current_hex);
+        export_highlighter.mismatchedHighlightCheck(full_selector, current_hex);
       }
     }); //end selector loop
 
@@ -702,15 +702,14 @@ var export_highlighter = {
     if (!Object.keys(highlight_css_cache).length) {return;}
 
     var forced_color = export_format ? '#2e00ff' : null;
-    console.log('highlight_css_cache: ' , highlight_css_cache);
     var rules = $.map(highlight_css_cache, function(v,sel) {
       return sel + ' {border-bottom: 2px solid ' + (forced_color || v) + ';}';
     }).join("\n");
 
     $.rule(rules).appendTo('#highlight_styles');
   },
-  mismatched_highlight_check: function(full_selector, rule) {
-    //TODO: This is for dev/debug purposes only. OK to delete before deploying.
+  mismatchedHighlightCheck: function(full_selector, rule) {
+    //This probably never happens and is here for debug purposes only. OK to delete.
     if (highlight_css_cache[full_selector] == rule) {return;}
     console.warn('@_@ rule mismatch @_@');
     console.warn('previous: ' + highlight_css_cache[full_selector]);
