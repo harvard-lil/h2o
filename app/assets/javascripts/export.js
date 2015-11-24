@@ -480,30 +480,34 @@ var export_functions = {
     $.rule(rules).appendTo('#additional_styles');
   },
   loadAllAnnotationsComplete: function() {
-    //Callback that gets called *once* after all annotations for all collages in
-    //a playlist are done loading, including the a asynchronous work done by
-    //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
-    //cases, this will fire after document.ready has run and finished.
+    try {
+      //Callback that gets called *once* after all annotations for all collages in
+      //a playlist are done loading, including the a asynchronous work done by
+      //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
+      //cases, this will fire after document.ready has run and finished.
 
-    export_highlighter.applyStyles($.cookie('export_format'));
+      export_highlighter.applyStyles($.cookie('export_format'));
 
-    if (!$.cookie('export_format')) {return;}
+      if (!$.cookie('export_format')) {return;}
 
-    // Remove things that would otherwise trip up any of our exporter backends
-    $('#print-options').remove();
-    $('#toc-container').show();  //TODO: Do we still need this?
+      // Remove things that would otherwise trip up any of our exporter backends
+      $('#print-options').remove();
+      $('#toc-container').show();  //TODO: Do we still need this?
 
-    // Reset margins because export back-end will manage them
-    //NEW: technically, we only need to do this for PDF exports, because PDF
-    //exports set margins outside of javascript/HTML completely.
-    var div = $('.wrapper');
-    div.removeAttr('style');
-    //Remove margin previously occupied by #print-options
-    div.css('margin-top', '0px');
+      // Reset margins because export back-end will manage them
+      //NEW: technically, we only need to do this for PDF exports, because PDF
+      //exports set margins outside of javascript/HTML completely.
+      var div = $('.wrapper');
+      div.removeAttr('style');
+      //Remove margin previously occupied by #print-options
+      div.css('margin-top', '0px');
 
-    //Clean up a bunch of DOM nodes that can cause problems in various export formats
-    $("body *").filter(":hidden").not("script").remove();
-    console.log('STATUS: annotation_load_complete');
+      //Clean up a bunch of DOM nodes that can cause problems in various export formats
+      $("body *").filter(":hidden").not("script").remove();
+      console.log('loadAllAnnotationsComplete: annotation_load_complete');
+    } catch(e) {
+      console.log('loadAllAnnotationsComplete warning: ' + e);
+    }
     window.status = 'annotation_load_complete';
   },
   loadAllAnnotations: function() {
@@ -695,7 +699,10 @@ var export_highlighter = {
   },
   applyStyles: function(export_format) {
     //Force all colors to dark-blue-ish for export so they show up better when printed
+    if (!Object.keys(highlight_css_cache).length) {return;}
+
     var forced_color = export_format ? '#2e00ff' : null;
+    console.log('highlight_css_cache: ' , highlight_css_cache);
     var rules = $.map(highlight_css_cache, function(v,sel) {
       return sel + ' {border-bottom: 2px solid ' + (forced_color || v) + ';}';
     }).join("\n");

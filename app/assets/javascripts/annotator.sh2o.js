@@ -442,7 +442,7 @@ H2O = (function() {
         if (done_loading && export_functions) {
           export_functions.loadAllAnnotationsComplete();
         }
-      } catch(e) {console.log('warning: ' + e);}
+      } catch(e) {console.log('annotationsLoaded warning: ' + e);}
 
     });
 
