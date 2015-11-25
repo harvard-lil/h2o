@@ -98,18 +98,28 @@ var collages = {
     export_functions.injectAnnotations(all_collage_data[idString].annotations);
 
     /*
-     * TODO: move all of these to loadAllAnnotationsComplete, with consideration
-     * to our future plans to load X annotations directly (as done here) and >X
-     * annotations asynchronously.
+      TODO: move all of these to loadAllAnnotationsComplete, with consideration
+      to our future plans to load X annotations directly (as done here) and >X
+      annotations asynchronously. We could look at how many annotations are .done_loading
+      and if it's < X, fire the wrapper function that we'll throw the below code into.
+      We can probably make idCss an options argument to that function so it can
+      behave as a targeted thing or a shotgun-approach kind of thing. We could also
+      add filters [.filter(':hidden') or its faster equiv] to the selectors used so it
+      only gets called on the right elements.
+      Related Idea: We can call this idea once for every collage < the Xth one, or
+      we can just call it once when we hit the Xth one. The next call to this would be
+      the last one, when the "all done with every annotation" callback fires. I like
+      calling it every collage < the Xth one, keeping X less than 10.
      */
+//The code below this line in this method takes up ~40% of the load time of playlist #22368.
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
+      //This could be changed to use the Word style we are now defining
       $(idCss + ' .annotation-content').filter(':not(.annotation-link)').show();
     }
     if($('#printlinks').val() == 'yes') {
       $('#printlinks').change();
-      //console.log('PL? ' + $('#printlinks').val());
     }
     if($('#hiddentext').val() == 'show') {
       //$('#hiddentext').change();
