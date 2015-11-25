@@ -548,9 +548,10 @@ var export_functions = {
       }
       //BUG: when loading the page, the select can show No when links are actually
       //being displayed. Is this just a refresh issue that we can ignore?
+      //NOTE: Annotation-textChar needs to be the first class so Word will see it.
       if (html) {
         var newEl = $('<span>')
-          .addClass(klass + ' Annotation-textChar annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-textChar ' + klass + '  annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
         //TODO: do the show/hide logic here?
