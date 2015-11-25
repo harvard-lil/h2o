@@ -8,9 +8,13 @@
 
   <!-- this is the H tag the javascript TOC preview uses -->
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
-    <span class="number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span>
+    <span class="<%= item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar'%>
+                 number"
+          ><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span>
 
-    <span class="<%= item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar'%> hcontent"><%= item.name %></span>
+    <span class="<%= item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar'%>
+                 hcontent"
+          ><%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
     <div class="Item-text">
@@ -23,12 +27,12 @@
     </div>
   <% end -%>
   <div class="item_description scale0-8">
-    <div class="Playlist-notes">
+    <div class="Item-description">
       <%= raw item.print_formatted(:description) %>
     </div>
   </div>
   <% if item.notes.to_s != '' && item.public_notes -%>
-    <div class="notes scale0-8">
+    <div class="Item-description notes scale0-8">
       <b class="scale0-8">Notes:</b>
       <%= item.formatted(:notes) %>
     </div>

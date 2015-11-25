@@ -10,7 +10,6 @@
 	mso-style-link:Foo;
     }
 */
-
 p.Annotation-text, li.Annotation-text, div.Annotation-text
 	{mso-style-name:Annotation-text;
 	mso-style-priority:1;
@@ -297,8 +296,8 @@ span.Item-titleChar
 	color:black;
 	mso-themecolor:text1;
 	mso-font-kerning:14.0pt;}
-p.Playlist-notes, li.Playlist-notes, div.Playlist-notes
-	{mso-style-name:Playlist-notes;
+p.Item-description, li.Item-description, div.Item-description
+	{mso-style-name:Item-description;
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
