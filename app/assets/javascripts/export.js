@@ -354,7 +354,7 @@ var export_functions = {
         export_functions.setMargins();
     });
     $('#printannotations').change(function() {
-      var sel = $('.annotation-content').filter(':not(.annotation-link)');
+      var sel = $('.annotation-content').not('.annotation-link');
       if($(this).val() == 'yes') {
         sel.show();
       } else {
@@ -494,12 +494,11 @@ var export_functions = {
     $.rule(rules).appendTo('#additional_styles');
   },
   loadAllAnnotationsComplete: function() {
-    try {
       //Callback that gets called *once* after all annotations for all collages in
-      //a playlist are done loading, including the a asynchronous work done by
+      //a playlist are done loading, including the asynchronous work done by
       //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
       //cases, this will fire after document.ready has run and finished.
-
+    try {
       export_highlighter.applyStyles($.cookie('export_format'));
 
       if (!$.cookie('export_format')) {return;}
@@ -516,8 +515,26 @@ var export_functions = {
       //Remove margin previously occupied by #print-options
       div.css('margin-top', '0px');
 
+      //This is a couple of failed attempts at getting annotation comments to display as a block
+      //level element in Word.
+      //$.each($('.annotation-content').not('.annotation-link'), function(i, node) {
+        //var newNode = $('<div>BOOP: ' + node.innerHTML + '</div>');
+        //newNode.addClass($(node).attr('class'));
+        //$(node).html("<br/>" + $(node).html() + "<br/>");
+        //      console.log('new: ' + node.html());
+        //$(node).replaceWith(newNode);
+      //});
+
+      //NOTE: Does not yet work for footnotes with annotation tags in them, such 
+      //as footnotes inside hidden text.
+      $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
+        $(node).removeClass('Item-text');
+        $(node).attr('class', 'Footnote ' + $(node).attr('class'));
+      });
+
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
+
       console.log('loadAllAnnotationsComplete: annotation_load_complete');
     } catch(e) {
       console.log('loadAllAnnotationsComplete warning: ' + e);
