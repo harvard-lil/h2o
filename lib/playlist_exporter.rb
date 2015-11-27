@@ -42,7 +42,7 @@ class PlaylistExporter
       result = nil
       begin
         if export_format == 'doc'
-          result = export_as_doc(request_url, cookies, params)
+          result = export_as_doc(request_url, params)
         elsif export_format == 'pdf'
           result = export_as_pdf(request_url, params)
         else
@@ -59,8 +59,8 @@ class PlaylistExporter
                                      )
     end
 
-    def export_as_doc(request_url, cookies, params)
-      convert_to_mime_file(fetch_playlist_html(request_url, cookies, params))
+    def export_as_doc(request_url, params)
+      convert_to_mime_file(fetch_playlist_html(request_url, params))
     end
 
     def json_options_file(params)
@@ -72,7 +72,7 @@ class PlaylistExporter
       file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
     end
 
-    def fetch_playlist_html(request_url, cookies, params)
+    def fetch_playlist_html(request_url, params)
       #TODO: clean up code/names here
       target_url = get_target_url(request_url, params[:id])
 
@@ -311,7 +311,6 @@ class PlaylistExporter
       target_url = get_target_url(request_url, object_id)
 
       Rails.logger.debug output_file_path
-      #Rails.logger.debug output_file_url
       [
        binary,
        global_options,
