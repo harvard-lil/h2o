@@ -532,6 +532,12 @@ var export_functions = {
         $(node).attr('class', 'Footnote ' + $(node).attr('class'));
       });
 
+      //Highlights don't work in DOC, so we fake it with underlined text.
+      if ($.cookie('export_format') == 'doc') {
+        $.each( $("span[class*=highlight-]"), function(i, node) {
+          console.log( $(node).css('text-decoration', 'underline') );
+        });
+      }
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
 
