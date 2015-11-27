@@ -151,19 +151,18 @@ class PlaylistsController < BaseController
   end
 
   def export_as
-    logger.debug "BEEP: #{current_user.inspect}"
-    #TODO: catch PlaylistExporter::ExportException
-    #TODO: name the file @playlist.name.parameterize.underscore
-    #file_name = PlaylistExporter.export_filename(params)
-    export_result = PlaylistExporter.export_as(request.url, cookies, params)
-    #For now: false == failed, non-falsey == path to file
-    if export_result
+    result = PlaylistExporter.export_as(request.url, cookies, params)
+    # logger.debug "result.success?: " + result.success?.to_s
+    # logger.debug "result.class: " + result.class.to_s
+    # logger.debug "result.content_path: " + result.content_path.to_s
+    # logger.debug "result.suggested_filename: " + result.suggested_filename.to_s
+    if result.success?
       send_file(
-              export_result,
-              filename: File.basename(export_result),
-              )
+                result.content_path,
+                filename: result.suggested_filename,
+                )
     else
-      render :text => "Sorry, there was an unexpected error.", :status => :error
+      render :text => result.error_message, :status => :error
     end
   end
 
