@@ -3,16 +3,16 @@
 console.log('htmlize.js running...');
 
 var system = require('system');
-var address = system.args[1];
+var export_url = system.args[1];
 var output_file = system.args[2];
 var options_file = system.args[3];
 var page = require('webpage').create();
 var filesystem = require('fs');
 var cookies = {};
 
-var set_cookies = function(address, options_file) {
+var set_cookies = function(export_url, options_file) {
     var parser = document.createElement('a');
-    parser.href = address;
+    parser.href = export_url;
     var cookie_domain = parser.hostname;
     var json_string, json;
 
@@ -36,28 +36,36 @@ var set_cookies = function(address, options_file) {
         //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
     });
+  //console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2));
 }
 
-set_cookies(address, options_file);
-//console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2));
-
-page.onConsoleMessage = function(msg) {
+var set_page_callbacks = function(page) {
+  page.onConsoleMessage = function(msg) {
     console.log(msg);
-};
-
-page.onError = function(msg, trace) {
+  };
+  page.onError = function(msg, trace) {
     var msgStack = ['ERROR: ' + msg];
     if (trace && trace.length) {
-        msgStack.push('TRACE:');
-        trace.forEach(function(t) {
-          msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
-        });
+      msgStack.push('TRACE:');
+      trace.forEach(function(t) {
+        msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
+      });
     }
     console.error(msgStack.join('\n'));
-};
+  };
+  page.onNavigationRequested = function(requested_url, type, willNavigate, main) {
+    if (main && requested_url != export_url) {
+      console.log('Unexpected redirect to: ' + requested_url);
+      phantom.exit(1);
+    }
+  };
+}
 
-console.log('Opening: ' + address );
-page.open(address, function(status) {
+set_cookies(export_url, options_file);
+set_page_callbacks(page);
+
+console.log('Opening: ' + export_url);
+page.open(export_url, function(status) {
   if (status !== 'success') {
     console.log('Unable to load page. Status was: ' + status);
     phantom.exit(1);
@@ -86,9 +94,10 @@ page.open(address, function(status) {
           phantom.exit();
         }, 2000);
       },
-      1200000  //Arbitrarily huge number of seconds to let giant playlists finish
+      //1200000  //Arbitrarily huge number of seconds to let giant playlists finish
+      3200  //Arbitrarily huge number of seconds to let giant playlists finish
     );
-  }, 10);
+  }, 200);
 });
 
 /**
@@ -253,31 +262,4 @@ var write_file = function(output_file, content) {
     }
 }
 
-/*
-var get_css = function(stylesheets) {
-    var content = [];
-  for (var i in stylesheets) {
-        var url = stylesheets[i];
-
-        var page2 = require('webpage').create();
-        page2.onConsoleMessage = function(msg) {
-            console.log(msg);
-        };
-
-        console.log( 'GC: ' + url);
-        page2.open(url, function(status) {
-            console.log('L1');
-            if (status !== 'success') {
-                console.log('Unable to load CSS (' + url + '). Status was: ' + status);
-                phantom.exit(1);
-            }
-
-            content.push(page2.content);
-            console.log(url + ' => ' + page2.content);
-            //page2.close();
-        });
-    }
-  return(content.join("\n"));
-}
-  */
 

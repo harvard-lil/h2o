@@ -502,16 +502,19 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from CanCan::AccessDenied do |exception|
+    logger.debug "Access denied on #{exception.action} #{exception.subject.inspect} " +
+      "for user: #{current_user.try(:id) || '(none)'}"
+
     if request.xhr?
-      # JSON response 
-      render :json => { :success => false, :message => "We could not perform this action. Please confirm that you are<br />logged in with cookies enabled.", :error => true }
+      render :json => {
+        :success => false,
+        :message => "We could not perform this action. Please confirm that you are<br />logged in with cookies enabled.",
+        :error => true,
+      }
     else
       flash[:notice] = "You are not authorized to access this page."
-      if current_user.present?
-        redirect_to "/users/#{current_user.id}"
-      else
-        redirect_to "/user_sessions/new"
-      end
+      url = current_user.present? ? "/users/#{current_user.id}" : "/user_sessions/new"
+      redirect_to url
     end
   end
 

@@ -151,8 +151,11 @@ class PlaylistsController < BaseController
   end
 
   def export_as
+    logger.debug "BEEP: #{current_user.inspect}"
+    #TODO: catch PlaylistExporter::ExportException
     #TODO: name the file @playlist.name.parameterize.underscore
-    export_result = PlaylistExporter.export_as(request.url, params)
+    #file_name = PlaylistExporter.export_filename(params)
+    export_result = PlaylistExporter.export_as(request.url, cookies, params)
     #For now: false == failed, non-falsey == path to file
     if export_result
       send_file(

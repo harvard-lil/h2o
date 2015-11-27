@@ -74,7 +74,7 @@ class Ability
       can :access, :rails_admin
       can :dashboard, :all
       can [:import, :submit_import], :playlists
-      can [:index, :export, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
+      can [:index, :export, :export_as, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
            :update, :position_update, :update_notes, :delete_inherited_annotations, :save_readable_state],
         :all
       can :aggregate_items, [Collage, Media, Playlist, TextBlock, Default, User]
@@ -107,7 +107,7 @@ class Ability
       associated_user_ids = user_ids.flatten.uniq
       can :access, :rails_admin
       can :dashboard, :all
-      can [:index, :show, :export, :view_in_app], [Playlist, Collage, TextBlock, Media, Default], :user_id => associated_user_ids
+      can [:index, :show, :export, :export_as, :view_in_app], [Playlist, Collage, TextBlock, Media, Default], :user_id => associated_user_ids
     end
   end
 end

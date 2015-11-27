@@ -30,11 +30,13 @@ class PlaylistExporter
 
   class << self
 
-    def export_as(request_url, params)
+    def export_as(request_url, cookies, params)
+      Rails.logger.debug "BLEEP: #{cookies[:_h2o_session].inspect}"
+
       export_format = params[:export_format]
 
       if export_format == 'doc'
-        return export_as_doc(request_url, params)
+        return export_as_doc(request_url, cookies, params)
       elsif export_format == 'pdf'
         pdf_file = export_as_pdf(request_url, params)
         return pdf_file
@@ -46,8 +48,8 @@ class PlaylistExporter
       end
     end
 
-    def export_as_doc(request_url, params)
-      convert_to_mime_file(fetch_playlist_html(request_url, params))
+    def export_as_doc(request_url, cookies, params)
+      convert_to_mime_file(fetch_playlist_html(request_url, cookies, params))
     end
 
     def json_options_file(params)
@@ -59,7 +61,13 @@ class PlaylistExporter
       file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
     end
 
-    def fetch_playlist_html(request_url, params)
+
+    #TODO: push session cookie (get name from Rails config) all the way through to both export format processes
+    # or................
+    #TODO: get rails to render the PL to a string and load the resulting HTML locally rather than via HTTP
+
+
+    def fetch_playlist_html(request_url, cookies, params)
       #TODO: clean up code/names here
       target_url = get_target_url(request_url, params[:id])
 
