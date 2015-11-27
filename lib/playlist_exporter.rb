@@ -10,6 +10,7 @@ class PlaylistExporter
   # TODO: translate all values, rather than only translating the one value that signals
   # export.js to do the thing that is "not the default."
   FORM_COOKIE_MAP = {
+    '_h2o_session' => {'cookie_name' => '_h2o_session'},
     'theme' => {'cookie_name' => 'print_theme'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
@@ -75,10 +76,10 @@ class PlaylistExporter
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
       out_file = Dir::Tmpname.create(params[:id], base_dir) {|path| path}
 
-      options_file = json_options_file(params)
+      options_file = json_options_file(params.merge(:_h2o_session => cookies[:_h2o_session]))
       command = [
                  'bin/phantomjs',
-                 #'--debug=true',
+                 '--debug=true',
                  'bin/htmlize.js',
                  target_url,
                  out_file,
@@ -205,7 +206,6 @@ class PlaylistExporter
 
       FORM_COOKIE_MAP.each do |field, v|
         if params[field].present?
-          #Rails.logger.debug "FtCookie got: #{field} -> '#{params[field]}'"
           if params[field] == v['formval']
             #translate it
             cookies[v['cookie_name']] = v['cookval']
