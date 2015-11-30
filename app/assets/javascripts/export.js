@@ -68,7 +68,14 @@ var collages = {
     if(layer_name === undefined) {
       return '';
     }
-    return layer_name.replace(/ /g, 'whitespace').replace(/\./g, 'specialsymbol').replace(/'/g, 'apostrophe').replace(/\(/g, 'leftparen').replace(/\)/g, 'rightparen').replace(/,/g, 'c0mma').replace(/\&/g, 'amp3r');
+    return layer_name
+      .replace(/ /g, 'whitespace')
+      .replace(/\./g, 'specialsymbol')
+      .replace(/'/g, 'apostrophe')
+      .replace(/\(/g, 'leftparen')
+      .replace(/\)/g, 'rightparen')
+      .replace(/,/g, 'c0mma')
+      .replace(/\&/g, 'amp3r');
   },
   getHexes: function() {
     return $('<div>');
