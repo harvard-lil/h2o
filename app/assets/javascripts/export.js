@@ -118,6 +118,7 @@ var collages = {
       the last one, when the "all done with every annotation" callback fires. I like
       calling it every collage < the Xth one, keeping X less than 10.
      */
+    /*
 //The code below this line in this method takes up ~40% of the load time of playlist #22368.
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
@@ -149,6 +150,7 @@ var collages = {
        //   all_collage_data[idString].highlights_only
        // );
     //}
+    */
   }
 };
 
@@ -500,6 +502,39 @@ var export_functions = {
     $('#additional_styles').text('');
     $.rule(rules).appendTo('#additional_styles');
   },
+  setAnnotationsVisibility: function() {
+    console.log('setAnnotationsVisibility firing');
+    //annotations (really comments here) and links are hidden by CSS by default
+    if($('#printannotations').val() == 'yes') {
+      //$('#printannotations').change();
+      //This could be changed to use the Word style we are now defining
+      $('.annotation-content').filter(':not(.annotation-link)').show();
+    }
+    if($('#printlinks').val() == 'yes') {
+      $('#printlinks').change();
+    }
+    if($('#hiddentext').val() == 'show') {
+      //$('#hiddentext').change();
+      $('.layered-ellipsis-hidden').hide();
+      $('.original_content,.annotation-hidden').show();
+    }
+
+    //We need to fire this .change() here (doing it in document.ready is not enough)
+    // to correctly control highlights for all export formats. Moving this somewhere
+    // where it will be called less frequently (in order to reduce overhead when
+    // loading a very large number of collages/annotations) will very likely break
+    // something subtle.
+    $('#printhighlights').change();
+
+    //if($('#printhighlights').val() == 'all') {
+    //We don't need this here now that the above .change is getting called.
+    // export_highlighter.highlightAnnotatedItem(
+    //   collage_id,
+    //   all_collage_data[idString].layer_data,
+    //   all_collage_data[idString].highlights_only
+    // );
+    //}
+  },
   loadAllAnnotationsComplete: function() {
       //Callback that gets called *once* after all annotations for all collages in
       //a playlist are done loading, including the asynchronous work done by
@@ -507,6 +542,9 @@ var export_functions = {
       //cases, this will fire after document.ready has run and finished.
     try {
       export_highlighter.applyStyles($.cookie('export_format'));
+      console.profile('setAnnotationsVisibility');
+      export_functions.setAnnotationsVisibility();
+      console.profileEnd('setAnnotationsVisibility');
 
       if (!$.cookie('export_format')) {return;}
 
