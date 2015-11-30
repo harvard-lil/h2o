@@ -94,6 +94,8 @@ var collages = {
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
+    export_functions.updateLoadingDisplay();
+
     //TODO: How does this really differ from the highlightAnnotatedItem
     //at the end of this method or in the #printhighlights.change() handler?
     export_highlighter.highlightAnnotatedItem(
@@ -103,7 +105,6 @@ var collages = {
     );
 
     export_functions.injectAnnotations(all_collage_data[idString].annotations);
-
     /*
       TODO: move all of these to loadAllAnnotationsComplete, with consideration
       to our future plans to load X annotations directly (as done here) and >X
@@ -213,7 +214,16 @@ var table_of_contents = {
 };
 
 var export_functions = {
-  //TODO: extract TOC functions into their own top level object
+  updateLoadingDisplay: function() {
+    var done_count = 0;
+    $.each(all_collage_data, function(id, annotation) {
+      if (annotation.done_loading) {
+        done_count++;
+      }
+    });
+    $('#anno-load-current').text(done_count);
+    $('#anno-load-total').text(Object.keys(all_collage_data).length);
+  },
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
   },
@@ -503,6 +513,7 @@ var export_functions = {
     $.rule(rules).appendTo('#additional_styles');
   },
   setAnnotationsVisibility: function() {
+    //TODO: Can we just call the relevant .change() handlers
     console.log('setAnnotationsVisibility firing');
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
