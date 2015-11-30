@@ -536,21 +536,18 @@ var export_functions = {
     //}
   },
   loadAllAnnotationsComplete: function() {
-      //Callback that gets called *once* after all annotations for all collages in
-      //a playlist are done loading, including the asynchronous work done by
-      //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
-      //cases, this will fire after document.ready has run and finished.
+    //Callback that gets called *once* after all annotations for all collages in
+    //a playlist are done loading, including the asynchronous work done by
+    //the annotationsLoaded event handler in annotator.sh2o.js. In almost all
+    //cases, this will fire after document.ready has run and finished.
     try {
       export_highlighter.applyStyles($.cookie('export_format'));
-      console.profile('setAnnotationsVisibility');
       export_functions.setAnnotationsVisibility();
-      console.profileEnd('setAnnotationsVisibility');
 
       if (!$.cookie('export_format')) {return;}
 
       // Remove things that would otherwise trip up any of our exporter backends
       $('#print-options').remove();
-      $('#toc-container').show();  //TODO: Do we still need this?
 
       // Reset margins because export back-end will manage them
       //NEW: technically, we only need to do this for PDF exports, because PDF
@@ -570,7 +567,7 @@ var export_functions = {
         //$(node).replaceWith(newNode);
       //});
 
-      //NOTE: Does not yet work for footnotes with annotation tags in them, such 
+      //NOTE: Does not yet work for footnotes with annotation tags in them, such
       //as footnotes inside hidden text.
       $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
         $(node).removeClass('Item-text');
