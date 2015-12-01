@@ -170,7 +170,7 @@ class PlaylistsController < BaseController
     all_actual_object_ids = @playlist.all_actual_object_ids
     @preloaded_collages = prepare_collage_export(all_actual_object_ids[:Collage])
     @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])
-
+    @playlist_items_limit = nil
     render :layout => 'print'
   end
 
