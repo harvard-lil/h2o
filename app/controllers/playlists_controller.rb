@@ -168,23 +168,8 @@ class PlaylistsController < BaseController
 
   def export
     all_actual_object_ids = @playlist.all_actual_object_ids
-    @preloaded_collages = @preloaded_cases = {}
-    [Collage, Case].each do |model|
-      item_ids = all_actual_object_ids[model.to_s.to_sym]
-      if item_ids.any?
-        if model == Collage
-          items = model.includes(:annotatable, :color_mappings, :annotations => [:layers, :taggings => :tag]).where(id: item_ids)
-          items.each do |item|
-            @preloaded_collages["collage#{item.id}"] = item
-          end
-        elsif model == Case
-          items = model.includes(:case_citations, :case_docket_numbers).where(id: item_ids)
-          items.each do |item|
-            @preloaded_cases["case#{item.id}"] = item
-          end
-        end
-      end
-    end
+    @preloaded_collages = prepare_collage_export(all_actual_object_ids[:Collage])
+    @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])
 
     render :layout => 'print'
   end
@@ -192,6 +177,7 @@ class PlaylistsController < BaseController
   def public_notes
     update_notes(true, @playlist)
   end
+
   def private_notes
     update_notes(false, @playlist)
   end
@@ -334,6 +320,21 @@ class PlaylistsController < BaseController
   end
 
   private
+
+  def prepare_collage_export(item_ids)
+    return {} if item_ids.nil?
+
+    items = Collage.includes(:annotatable, :color_mappings, :annotations => [:layers, :taggings => :tag]).where(id: item_ids)
+    items.inject({}) {|mem, item| mem["collage#{item.id}"] = item; mem }
+  end
+
+  def prepare_case_export(item_ids)
+    return {} if item_ids.nil?
+
+    items = Case.includes(:case_citations, :case_docket_numbers).where(id: item_ids)
+    items.inject({}) {|mem, item| mem["case#{item.id}"] = item; mem }
+  end
+
   def playlist_params
     params.require(:playlist).permit(:name, :public, :primary, :tag_list, :description, :counter_start, :featured)
   end
