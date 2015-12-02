@@ -824,9 +824,9 @@ $(document).ready(function(){
 
   export_functions.loadAllAnnotations();
 
-    if (!$.cookie('export_format')) {
-      export_functions.init_theme_picker_listener();
-    }
+  if (!$.cookie('export_format')) {
+    export_functions.init_theme_picker_listener();
+  }
 
   //TODO: It could be useful to have a custom_change() method that could optionally
   //apply a prefix to the code that already runs in a select's change handler. That
@@ -845,12 +845,6 @@ $(document).ready(function(){
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
   console.log('BOOP: document.ready done');
-  // setTimeout(
-  //   function() {
-  //     console.log('HS: ' + $('#highlight_styles').cssText());
-  //   },
-  //   2000
-  // );
 });
 
 
