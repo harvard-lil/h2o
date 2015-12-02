@@ -1,3 +1,6 @@
+<% return if @playlist_items_limit && @playlist_items_count >= @playlist_items_limit %>
+<% @playlist_items_count += 1%>
+
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>" style="mso-list:l0 level1 lfo1;">
 <% h_tag = "h#{recursive_level+1}" %>
 <% if item.actual_object.present? -%>

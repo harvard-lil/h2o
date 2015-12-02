@@ -1,3 +1,4 @@
+<%# This query might supply slightly more items than the partial uses, but this still helps. %>
 <section class="playlists">
 	<ul>
 		<% playlist.playlist_items.limit(playlist_items_limit).each_with_index do |item, index| -%>

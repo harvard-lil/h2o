@@ -173,6 +173,7 @@ class PlaylistsController < BaseController
     if (!params[:load_all])
       @playlist_items_limit = 2
     end
+    @playlist_items_count = 0
 
     render :layout => 'print'
   end
