@@ -171,7 +171,7 @@ class PlaylistsController < BaseController
     @preloaded_collages = prepare_collage_export(all_actual_object_ids[:Collage])
     @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])
     if (!params[:load_all])
-      @playlist_items_limit = 2
+      @playlist_items_limit = 15
     end
     @playlist_items_count = 0
 
