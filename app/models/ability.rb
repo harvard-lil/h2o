@@ -11,9 +11,9 @@ class Ability
     can :index, [:collages, :playlists, :cases, :text_blocks, :medias, :defaults]
 
     can [:show, :export, :export_as], Playlist, :public => true
-    can [:show, :export, :export_unique], Collage, :public => true
-    can [:show, :export], Case, :public => true
-    can [:show, :export], TextBlock, :public => true
+    can [:show, :export, :export_as, :export_unique], Collage, :public => true
+    can [:show, :export, :export_as], Case, :public => true
+    can [:show, :export, :export_as], TextBlock, :public => true
     can :show, Media, :public => true
     can :show, PlaylistItem
 
@@ -43,7 +43,7 @@ class Ability
 
       # Can do things on owned items
       if !user.has_role? :superadmin
-        can [:edit, :show, :update, :destroy], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
+        can [:edit, :show, :update, :destroy, :export, :export_as], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
       end
       can [:position_update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :user_id => user.id 
       can [:delete_inherited_annotations, :save_readable_state], Collage, :user_id => user.id
@@ -92,9 +92,9 @@ class Ability
 
       can :show, BulkUpload
     elsif user.has_role? :case_admin
-      can [:new, :edit, :update, :show, :destroy], Case
+      can [:new, :edit, :update, :show, :export, :export_as, :destroy], Case
       can :create, :cases
-     
+
       can :approve, Case
       can [:new], CaseJurisdiction
       can [:create], :case_jurisdictions
