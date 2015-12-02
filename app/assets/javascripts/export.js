@@ -215,6 +215,7 @@ var table_of_contents = {
 
 var export_functions = {
   updateLoadingDisplay: function() {
+    setTimeout(function() {
     var done_count = 0;
     $.each(all_collage_data, function(id, annotation) {
       if (annotation.done_loading) {
@@ -223,6 +224,7 @@ var export_functions = {
     });
     $('#anno-load-current').text(done_count);
     $('#anno-load-total').text(Object.keys(all_collage_data).length);
+    }, 5);
   },
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
