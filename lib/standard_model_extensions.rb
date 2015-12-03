@@ -121,7 +121,11 @@ module StandardModelExtensions
       doc.to_html,
       :tags => WHITELISTED_TAGS,
       :attributes => WHITELISTED_ATTRIBUTES
-    )
+      )
+
+    # catch unicode non-breaking space sandwiched by junk html
+    return '' if /^<p>[[:space:]]<br><\/p>$/.match(output)
+
     if output.scan('<p>').length == 1
       # A single <p> tag. Get rid of it.
       if output[0..2] == "<p>" then output = output[3..-1] end
@@ -134,13 +138,14 @@ module StandardModelExtensions
     def insert_column_names
       self.columns.reject{|col| col.name == "id"}.map(&:name)
     end
-  
+
     def insert_value_names(options = {})
       overrides = options[:overrides]
       table_name = options[:table_name] || self.table_name
       results = self.insert_column_names.map{|name| "#{table_name}.#{name}"}
-      results[self.insert_column_names.index("updated_at")] = "\'#{Time.now.to_formatted_s(:db)}\' AS updated_at"
-      results[self.insert_column_names.index("created_at")] = "\'#{Time.now.to_formatted_s(:db)}\' AS created_at"
+      db_time = Time.now.to_formatted_s(:db)
+      results[self.insert_column_names.index("updated_at")] = "\'#{db_time}\' AS updated_at"
+      results[self.insert_column_names.index("created_at")] = "\'#{db_time}\' AS created_at"
       if overrides
         overrides.each_pair do |key, value|
           results[self.insert_column_names.index(key.to_s)] = ActiveRecord::Base.connection.quote(value)
