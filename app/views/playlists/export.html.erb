@@ -16,4 +16,11 @@
         :playlist_items_limit => @playlist_items_limit,
       }
     %>
+
+    <% if @playlist_items_limit && @playlist_items_count >= @playlist_items_limit %>
+    <div id="playlist_items_limit_warning_end">
+      <%= link_to "You've reached the bottom of your content preview. To load the rest in your browser, click here.", export_playlist_url(@playlist, load_all: 1)%>   <br/>
+      (Large playlists may temporarily freeze your browser while loading.)
+    </div>
+    <%end%>
 </div>

@@ -214,6 +214,8 @@ var table_of_contents = {
 };
 
 var export_functions = {
+  //BUG: This doesn't update the screen until pretty much all the annotations are
+  //loaded, which defeats the purpose of having a counter.
   updateLoadingDisplay: function() {
     setTimeout(function() {
     var done_count = 0;
@@ -224,7 +226,7 @@ var export_functions = {
     });
     $('#anno-load-current').text(done_count);
     $('#anno-load-total').text(Object.keys(all_collage_data).length);
-    }, 5);
+    }, 0);
   },
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
@@ -650,7 +652,6 @@ var export_functions = {
     h2o_annotator = factory.addPlugin(h2o, layer_data, highlights_only, report_options).getInstance();
     h2o_annotator.expected_collage_count = h2o_annotator.expected_collage_count || Object.keys(all_collage_data).length;
     h2o_annotator.attach($('#' + idString + ' div.article'), 'print_export_annotation');
-    //TODO: delete this merge artifact?    h2o_annotator.attach(elem, 'print_export_annotation');
     h2o_annotator.plugins.H2O.loadAnnotations(id, annotations, true);
   },
   filteredLayerData: function(layer_data) {
