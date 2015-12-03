@@ -2,8 +2,13 @@
 	<hgroup class="description">
         <div class="Playlist-title scale1-5 vh1"><%= raw @playlist.name %></div>
 	</hgroup>
+
     <div class="sidebar-box">
-    <div class="MsoToc1" id="toc-container"><div class="text-fade"></div></div>
+    <div class="MsoToc1" id="toc-container">
+      <% if params[:load_all] %>
+        <div class="text-fade"></div>
+      <% end %>
+    </div>
     </div>
 
 <style>
