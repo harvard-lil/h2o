@@ -122,7 +122,7 @@ class PlaylistExporter
       lines << ""
       lines << Base64.encode64(File.read(input_file))
 
-      tempfile = '/tmp/last-encoded-file.doc'  #TODO: Use a real tempfile filename for this
+      tempfile = input_file + '.doc'
       #Note: only the last boundary seems to need the final trailing "--" ?
       delim = "\n"
       File.write(tempfile, lines.join(delim) + delim + "--" + boundary + "--")
