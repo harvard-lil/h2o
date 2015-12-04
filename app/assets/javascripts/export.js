@@ -805,7 +805,7 @@ var export_highlighter = {
 }; //end export_highlighter
 
 $(document).ready(function(){
-  export_functions.debug_cookies();
+  //export_functions.debug_cookies();
   //export_functions.init_missing_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();

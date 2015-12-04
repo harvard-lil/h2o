@@ -23,7 +23,6 @@ var set_cookies = function(export_url, options_file) {
         console.error('Error reading/parsing JSON options file: ' + e);
         phantom.exit(1);
     }
-    //console.log('json_file: ' + json_string);
 
     Object.keys(json).forEach(function(name) {
         cookies[name] = json[name];
@@ -183,7 +182,6 @@ var get_doc_styles = function() {
 
 var set_styling = function(page) {
   var doc_styles = get_doc_styles();
-  //console.log('STYLES: ' + doc_styles);
 
   page.evaluate(function(doc_styles, cookies) {
 
@@ -222,7 +220,6 @@ var set_styling = function(page) {
           "--></style>",
         ].join("\n");
 
-        //console.log('header reader: ' + header);
         $('title').after($(header));
 
         var sheets = [];
