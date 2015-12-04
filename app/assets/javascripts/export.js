@@ -518,7 +518,6 @@ var export_functions = {
   },
   setAnnotationsVisibility: function() {
     //TODO: Can we just call the relevant .change() handlers
-    console.log('setAnnotationsVisibility firing');
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
@@ -589,11 +588,14 @@ var export_functions = {
         $(node).attr('class', 'Footnote ' + $(node).attr('class'));
       });
 
-      //Highlights don't work in DOC, so we fake it with underlined text.
       if ($.cookie('export_format') == 'doc') {
+        //Highlights don't work in DOC, so we fake it with underlined text.
+        //TODO: do we need to iterate explicitly like this?
         $.each( $("span[class*=highlight-]"), function(i, node) {
-          console.log( $(node).css('text-decoration', 'underline') );
+          $(node).css('text-decoration', 'underline');
         });
+
+        $( "div.page-break" ).replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
       }
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
