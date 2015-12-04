@@ -8,14 +8,14 @@ var h2o_fonts = {
 	  'proxima' : 'proxima-nova',
 	  'verdana' : 'Verdana'
   },
-  font_map_fallbacks: {  //TODO: Comic Sans is only here to serve as red flag during testing
-	  'goudy' : '"sorts-mill-goudy", "Sorts Mill Goudy", "Goudy", "Goudy Old Style", "Comic Sans MS"',
-	  'leitura' : '"leitura-news", "Leitura News", "Comic Sans MS"',
-	  'garamond' : '"adobe-garamond-pro", "Garamond", "Adobe Garamond Pro", "GaramondNo8", "Comic Sans MS"',
-	  'futura' : '"futura-pt", "Futura PT", "Futura", "Comic Sans MS"',
-	  'dagny' : '"ff-dagny-web-pro", "FF Dagny Web Pro", "FF Dagny Pro", "FF Dagny", "Comic Sans MS"',
-	  'proxima' : '"proxima-nova", "Proxima Nova", "Comic Sans MS"',
-	  'verdana' : '"Verdana", "Arial", "Helvetica", "sans-serif"'
+  font_map_fallbacks: {
+	'goudy' : '"sorts-mill-goudy", "Sorts Mill Goudy", "Goudy", "Goudy Old Style"',
+	'leitura' : '"leitura-news", "Leitura News"',
+	'garamond' : '"adobe-garamond-pro", "Garamond", "Adobe Garamond Pro", "GaramondNo8"',
+	'futura' : '"futura-pt", "Futura PT", "Futura"',
+	'dagny' : '"ff-dagny-web-pro", "FF Dagny Web Pro", "FF Dagny Pro", "FF Dagny"',
+	'proxima' : '"proxima-nova", "Proxima Nova"',
+	'verdana' : '"Verdana", "Arial", "Helvetica", "sans-serif"',
   },
   //sizes are in pixels
   base_font_sizes: {
