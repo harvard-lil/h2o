@@ -4,9 +4,9 @@ var playlists_import = {
   initialize: function() {
     $('#playlist_input textarea').autosize();
     $('#playlist_input textarea').on('keyup', function() {
-      playlists_import.render_playlist_html(playlists_import.generate_data(true)); 
+      playlists_import.prep_and_render_playlist(playlists_import.generate_data(true));
     });
-    playlists_import.render_playlist_html(playlists_import.generate_data(true)); 
+    playlists_import.prep_and_render_playlist(playlists_import.generate_data(true));
     $('#import_playlist').on('click', function(e) {
       $('#success_message').remove();
       e.preventDefault();
@@ -63,7 +63,8 @@ var playlists_import = {
     var working_content = '';
     for(var i = 0; i < lines.length; i++) {
       var line = lines[i];
-      if(line.match(/^name:/) ||
+      if(line.match(/^user_id:/) ||
+         line.match(/^name:/) ||
          line.match(/^description:/) || 
          line.match(/^h2o_item:/) || 
          line.match(/^collage_item:/) || 
@@ -76,6 +77,8 @@ var playlists_import = {
         if(working_content.match(/^url:/)) {
           current_item.url = working_content.replace(/^url:/, '');
           current_item.has_url = true;
+        } else if(working_content.match(/^user_id:/)) {
+          current_item.user_id = working_content.replace(/^user_id:/, '');
         } else if(working_content.match(/^name:/) || working_content.match(/^description:/) || working_content.match(/^media_type:/) || working_content.match(/^content:/)) {
           if(current_item['h2o_item_id'] === undefined) {
             var key = working_content.split(':')[0];
@@ -94,7 +97,7 @@ var playlists_import = {
             }
           }
         } else if(working_content.match(/^h2o_item:/)) {
-          var full_link = working_content.split(':https:\/\/')[1];
+          var full_link = working_content.split(/:https?:\/\//)[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {
@@ -107,7 +110,7 @@ var playlists_import = {
           current_item['name'] = "Inherited Name (Link to Existing Item)";
         } else if(working_content.match(/^collage_item:/)) {
           current_item.collage_item = true;
-          var full_link = working_content.split(':https:\/\/')[1];
+          var full_link = working_content.split(/:https?:\/\//)[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {
@@ -123,7 +126,7 @@ var playlists_import = {
           current_item['name'] = 'Inherited Name (Annotated)';
         } else if(working_content.match(/^clone_item:/)) {
           current_item.clone_item = true;
-          var full_link = working_content.split(':https:\/\/')[1];
+          var full_link = working_content.split(/:https?:\/\//)[1];
           var relative_link = '';
           $.each(full_link.split('/'), function(i, j) {
             if(j.match(/law.harvard.edu/)) {
@@ -195,6 +198,24 @@ var playlists_import = {
       level += 1;
     }
   },
+  prep_and_render_playlist: function(data) {
+    if(data[0]["user_id"]) {
+      $.get(
+        '/admin/user.json?associated_collection=user&current_action=create&source_abstract_model=playlist&utf8=%E2%9C%93&f%5Bid%5D%5B63074%5D%5Bo%5D=default&f%5Bid%5D%5B63074%5D%5Bv%5D%5B%5D=' + data[0]["user_id"] + '&f%5Bid%5D%5B63074%5D%5Bv%5D%5B%5D=&f%5Bid%5D%5B63074%5D%5Bv%5D%5B%5D=&query=',
+        function(d) {
+          if(d.length > 0) {
+            data[0]['attribution'] = d[0]['attribution'] ? d[0]['attribution'] : d[0]['email_address'];
+          } else {
+            data[0]['attribution'] = 'Not Found!';
+          }
+          playlists_import.render_playlist_html(data);
+        }
+      ).error(function() {data[0]['attribution'] = 'SERVER ERROR'; playlists_import.render_playlist_html(data);});
+    } else {
+      data[0]['attribution'] = 'No User ID!';
+      playlists_import.render_playlist_html(data);
+    }
+  },
   render_playlist_html: function(data) {
     $('#playlist_render #render').fadeOut(50, function() {
       $('#playlist_render #render').html('');
@@ -257,7 +278,7 @@ var playlists_import = {
 {{#root}}\
 <div id="main_details">\
 <h1>{{root_name}}</h1>\
-<h3>by: <span>{{user}}</span></h3>\
+<h3>by: <span>{{attribution}}</span></h3>\
 </div>\
 <div id="description">{{root_description}}</div>\
 <ul id="root">\
@@ -287,7 +308,7 @@ var playlists_import = {
 <div class="collage_item" data-collage_item_type="{{collage_item_type}}">Note: {{collage_item_type}} with id {{collage_item_id}} will be collaged.</div>\
 {{/collage_item}}\
 {{#clone_item}}\
-<div class="clone_item" data-collage_item_type="{{clone_item_type}}">Note: {{clone_item_type}} with id {{clone_item_id}} will be cloneed.</div>\
+<div class="clone_item" data-collage_item_type="{{clone_item_type}}">Note: {{clone_item_type}} with id {{clone_item_id}} will be cloned.</div>\
 {{/clone_item}}\
 {{#has_children}}\
 <ul>\
