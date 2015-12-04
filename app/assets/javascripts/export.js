@@ -590,10 +590,7 @@ var export_functions = {
 
       if ($.cookie('export_format') == 'doc') {
         //Highlights don't work in DOC, so we fake it with underlined text.
-        //TODO: do we need to iterate explicitly like this?
-        $.each( $("span[class*=highlight-]"), function(i, node) {
-          $(node).css('text-decoration', 'underline');
-        });
+        $("span[class*=highlight-]").css('text-decoration', 'underline');
 
         $( "div.page-break" ).replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
       }
