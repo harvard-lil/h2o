@@ -12,8 +12,7 @@
   <!-- this is the H tag the javascript TOC preview uses -->
   <% heading_word_style = item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar' %>
   <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
-    <span class="<%= heading_word_style%> number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span>
-    <span class="<%= heading_word_style%> hcontent"><%= item.name %></span>
+    <span class="<%= heading_word_style%> number"><a name="playlist_item_<%= item.id %>"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %></a></span><span class="<%= heading_word_style%> hcontent"> <%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
     <div class="Item-text">
