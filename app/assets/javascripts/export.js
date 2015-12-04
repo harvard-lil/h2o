@@ -788,9 +788,15 @@ var export_highlighter = {
 
   },
   applyStyles: function(export_format) {
-    //Force all colors to dark-blue-ish for export so they show up better when printed
     if (!Object.keys(highlight_css_cache).length) {return;}
 
+    //TODO: if export_format == PDF, then we can actually stack alllll the selectors into one
+    //big rule.
+    //TODO: maybe dont even bother getting all the hex values in cacheCss if !!export_format
+    //because we're going to ignore them one way or another!
+    //TODO: if export_format == DOC, do nothing because DOC export uses text-decoration instead
+
+    //Force all colors to dark-blue-ish for export so they show up better when printed
     var forced_color = export_format ? '#2e00ff' : null;
     var rules = $.map(highlight_css_cache, function(v,sel) {
       return sel + ' {border-bottom: 2px solid ' + (forced_color || v) + ';}';

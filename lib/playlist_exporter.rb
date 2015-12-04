@@ -330,10 +330,11 @@ class PlaylistExporter
     def get_target_url(request_url, id)
       uri = URI(request_url)
       Rails.application.routes.url_helpers.export_playlist_url(
-                          :id => id,
-                          :host => uri.host,  #murk: '128.103.64.117',
-                          :port => uri.port
-                          )
+        :id => id,
+        :host => uri.host,  #murk: '128.103.64.117',
+        :port => uri.port,
+        :load_all => 1,
+        )
     end
 
     def output_filename(object_id)

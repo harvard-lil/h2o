@@ -5,7 +5,7 @@ module ExportService
     attr_reader :content_path, :playlist_name, :format
 
     def initialize(opts={})
-      Rails.logger.debug "BLOOP: #{opts}"
+      # Rails.logger.debug "BLOOP: #{opts}"
       @content_path = opts[:content_path]
       @playlist_name = opts[:playlist_name]
       @format = opts[:format]
