@@ -397,31 +397,21 @@ class ApplicationController < ActionController::Base
   end
 
   def apply_user_preferences(user, on_create)
-    if user
-      cookies[:user_id] = user.id
+    return unless user
 
-      [:default_font_size, :default_font, :tab_open_new_items,
-       :simple_display, :print_titles, :print_dates_details, 
-       :print_paragraph_numbers, :print_annotations, :print_highlights,
-       :print_font_face, :print_font_size, :tab_open_new_items, :hidden_text_display,
-       :default_show_comments, :default_show_paragraph_numbers].each do |attr|
-        cookies[attr] = user.send(attr)
-      end
-
-      if on_create
-        cookies[:bookmarks] = "[]"
-      else
-        cookies[:bookmarks] = user.bookmarks_map.to_json
-      end
+    # Use ||= to allow cookies coming from playlist exporter to override
+    # whatever is in the database for this user.
+    common_user_preference_attrs.each do |attr|
+      cookies[attr] ||= user.send(attr)
     end
+
+    cookies[:bookmarks] = on_create ? "[]" : user.bookmarks_map.to_json
   end
 
   def destroy_user_preferences
-    [:default_font_size, :default_font, :tab_open_new_items,
-     :user_id, :bookmarks, :simple_display,
-     :print_titles, :print_dates_details, :print_paragraph_numbers,
-     :print_annotations, :print_highlights, :print_font_face, :hidden_text_display,
-     :print_font_size, :default_show_comments, :default_show_paragraph_numbers].each do |attr|
+    #TODO: We don't use print_dates_details anymore, so we can drop the column from the DB
+    names = [:bookmarks, :print_dates_details] + common_user_preference_attrs
+    names.each do |attr|
       cookies.delete(attr)
     end
   end
@@ -447,6 +437,16 @@ class ApplicationController < ActionController::Base
   end
 
   private
+  def common_user_preference_attrs
+    [
+      :user_id,
+      :default_font_size, :default_font, :tab_open_new_items, :simple_display,
+      :print_titles, :print_paragraph_numbers, :print_annotations,
+      :print_highlights, :print_font_face, :print_font_size, :default_show_comments,
+      :default_show_paragraph_numbers, :hidden_text_display,
+    ]
+  end
+
   def verify_captcha(item)
     if verify_recaptcha(:model => item, :message => '')
       item.valid_recaptcha = true

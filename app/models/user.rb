@@ -301,10 +301,6 @@ class User < ActiveRecord::Base
     permission_assignments.collect { |pa| pa.user_collection.collages.select { |p| !p.public } }.flatten
   end
 
-  def has_dropbox_token?
-    File.exists?(dropbox_access_token_file_path)
-  end
-
   def dropbox_access_token_file_path
     DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
   end
@@ -314,7 +310,7 @@ class User < ActiveRecord::Base
   end
 
   def dropbox_access_token
-    return unless File.exists?(dropbox_access_token_file_path)
+    return unless has_dropbox_token?
     @dropbox_access_token ||= File.read(dropbox_access_token_file_path)
   end
 

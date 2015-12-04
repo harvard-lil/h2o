@@ -38,7 +38,7 @@ class PlaylistExporter
     def export_as(request_url, cookies, params)
       export_format = params[:export_format]
 
-      # params.merge!(:_h2o_session => cookies[:_h2o_session])
+      params.merge!(:_h2o_session => cookies[:_h2o_session])
       result = nil
       begin
         if export_format == 'doc'
