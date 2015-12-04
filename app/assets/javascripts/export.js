@@ -89,7 +89,6 @@ var collages = {
     //there exists some kind of race condition that prevents us from just
     //relying completely on a select's .change() handler. $('#printhighlights')
     //is probably the best example of how I just could never make that work.
-    //console.log('~~~~~~~~ loadState for collage_id: ' + collage_id);
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
@@ -250,7 +249,6 @@ var export_functions = {
     custom_hide: function(selector) {
         //The export process needs to remove elements, not just hide them.
         if ($.cookie('export_format')) {
-            //console.log('custom_hiding: ' + selector);
             $(selector).remove();
         }
     },
@@ -380,7 +378,6 @@ var export_functions = {
       }
     });
     $('#printlinks').change(function() {
-      //console.log('PL.change firing with val: ' + $(this).val());
       var sel = $('.annotation-link');
       if($(this).val() == 'yes') {
         sel.show();
@@ -493,8 +490,8 @@ var export_functions = {
 
     $('#fontface_mapped').val(mapped_font_face);
     $('#fontsize_mapped').val(base_font_size + 'px');
-    console.log('fontface: ' + $('#fontface').val());
-    console.log('faceMapped: ' + $('#fontface_mapped').val());
+    // console.log('fontface: ' + $('#fontface').val());
+    // console.log('faceMapped: ' + $('#fontface_mapped').val());
 
     var base = 'body#' + $('body').attr('id') + ' .singleitem';
     var rules = [
@@ -844,11 +841,6 @@ $(document).ready(function(){
   //Also note that we could see a speed improvement showing/hiding things using
   // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
-
-  console.log('~~~~~~~ SFP manual: ' + $.cookie('print_font_face'));
-  console.log('do we have a print-options?: ' + !!$('#print-options').length);
-  //  export_functions.setFontPrint();
-  //$('#fontface').change();
 
   console.log('BOOP: document.ready done');
 });

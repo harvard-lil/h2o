@@ -1,6 +1,8 @@
 require 'tempfile'
 require 'uri'
 
+#TODO: This should be broken out into format specific exporter classes
+# now that we have 2 formats actually working nicely. E.g.
 # class ExportService
 #   class ExportService::[Doc]Exporter
 #   class ExportService::[Pdf]Exporter
@@ -15,7 +17,6 @@ class PlaylistExporter
   # export.js to do the thing that is "not the default."
   FORM_COOKIE_MAP = {
     '_h2o_session' => {'cookie_name' => '_h2o_session'},
-    'theme' => {'cookie_name' => 'print_theme'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
     'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },

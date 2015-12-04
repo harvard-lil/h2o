@@ -156,7 +156,6 @@ var set_toc = function(maxLevel) {
 }
 
 var get_doc_styles = function() {
-  var theme = cookies['print_theme'];
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
 
