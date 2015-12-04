@@ -131,7 +131,9 @@ module StandardModelExtensions
       if output[0..2] == "<p>" then output = output[3..-1] end
       if output[-4..-1] == "</p>" then output = output[0..-5] end
     end
-    output.gsub(/&#8217;/, "'")
+
+    # &#x27; are smart quotes, I *think*
+    output.gsub(/(&#8217;|&#x27;)/, "'")
   end
 
   module ClassMethods
