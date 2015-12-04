@@ -38,7 +38,7 @@ class PlaylistExporter
     def export_as(request_url, cookies, params)
       export_format = params[:export_format]
 
-      params.merge!(:_h2o_session => cookies[:_h2o_session])
+      # params.merge!(:_h2o_session => cookies[:_h2o_session])
       result = nil
       begin
         if export_format == 'doc'
@@ -137,6 +137,7 @@ class PlaylistExporter
 
       exit_code = nil
       command_output = ''
+      #TODO: replace missing capture command_output inside popen2e block
       Open3.popen2e(*command) do |i, out_err, wait_thread|
         out_err.each {|line| Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"}
         exit_code = wait_thread.value.exitstatus
@@ -183,18 +184,19 @@ class PlaylistExporter
     end
 
     def forwarded_cookies(params)
+      skip_list = []
       if params[:export_format] == 'pdf'
-        skip_list = [
-                     'print_margin_top',
-                     'print_margin_right',
-                     'print_margin_bottom',
-                     'print_margin_left',
-                    ]
-      else
-        skip_list = []
+        skip_list << %w(
+                     print_margin_top,
+                     print_margin_right,
+                     print_margin_bottom,
+                     print_margin_left,
+                    )
       end
-      cookies = forwarded_cookies_hash(params).except(*skip_list)
-      # Rails.logger.debug "Using cookies: #{cookies}"
+      # if params[:export_format] == 'doc'
+      #   skip_list << []
+      # end
+      cookies = forwarded_cookies_hash(params).except(*skip_list.flatten)
       cookies.map {|k,v|
         "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
       }.join(' ')
@@ -218,7 +220,7 @@ class PlaylistExporter
           end
         end
       end
-      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
+      cookies.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
     def generate_toc_levels_css(depth)
@@ -243,7 +245,7 @@ class PlaylistExporter
     end
 
     def generate_toc_general_css(params)
-      "font-family: #{params['fontface_mapped']}, \"Comic Sans MS\"; " +
+      "font-family: #{params['fontface_mapped']}; " +
       "font-size: #{params['fontsize_mapped']};"
     end
 
@@ -254,10 +256,10 @@ class PlaylistExporter
         :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
       }
       ApplicationController.new.render_to_string(
-                                                 "playlists/toc.xsl",
-                                                 :layout => false,
-                                                 :locals => vars,
-                                                 )  #.tap {|x| Rails.logger.debug x}
+        "playlists/toc.xsl",
+        :layout => false,
+        :locals => vars,
+        )  #.tap {|x| Rails.logger.debug "TOCBLOCK: #{x}"}
     end
 
     def generate_toc_options(params)
@@ -284,7 +286,7 @@ class PlaylistExporter
 
       #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
       # javascript special effects still run, then you didn't need it any more.
-      options << "--no-stop-slow-scripts --debug-javascript"
+      options << "--no-stop-slow-scripts --debug-javascript"  # --javascript-delay 1000
       options << "--window-status annotation_load_complete"
       options << "--print-media-type"  #TODO: remove this & retest. DOC export doesn't support it.
 

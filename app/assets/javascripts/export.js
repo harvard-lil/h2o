@@ -16,7 +16,6 @@ var cookies = [
     'print_font_face',
     'print_font_size',
     'print_highlights',
-    'print_margin_size',
     'print_paragraph_numbers',
     'print_titles',
     'toc_levels',
@@ -261,12 +260,8 @@ var export_functions = {
         $('h1').css("color", new_color)
         $('h1 > .number a').css("color", new_color)
     },
-
     debug_cookies: function() {
-        $.each(cookies, function(i, cookie) {
-            var c = $.cookie(cookie);
-            console.log("Cookie: " + cookie + ": " + (c == null ? '' : c));
-        });
+      console.log(document.cookie.split('; ').join("\n"));
     },
     init_missing_cookies: function() {
         return;
@@ -498,8 +493,8 @@ var export_functions = {
 
     $('#fontface_mapped').val(mapped_font_face);
     $('#fontsize_mapped').val(base_font_size + 'px');
-    //console.log('faceMapped: ' + $('#fontface_mapped').val());
-    //console.log('sizeMapped: ' + $('#fontsize_mapped').val());
+    console.log('fontface: ' + $('#fontface').val());
+    console.log('faceMapped: ' + $('#fontface_mapped').val());
 
     var base = 'body#' + $('body').attr('id') + ' .singleitem';
     var rules = [
@@ -813,7 +808,7 @@ var export_highlighter = {
 }; //end export_highlighter
 
 $(document).ready(function(){
-  //export_functions.debug_cookies();
+  export_functions.debug_cookies();
   //export_functions.init_missing_cookies();
   export_functions.init_listeners();
   export_functions.init_hash_detail();
@@ -849,6 +844,11 @@ $(document).ready(function(){
   //Also note that we could see a speed improvement showing/hiding things using
   // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
+
+  console.log('~~~~~~~ SFP manual: ' + $.cookie('print_font_face'));
+  console.log('do we have a print-options?: ' + !!$('#print-options').length);
+  //  export_functions.setFontPrint();
+  //$('#fontface').change();
 
   console.log('BOOP: document.ready done');
 });
