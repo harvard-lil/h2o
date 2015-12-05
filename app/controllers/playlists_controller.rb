@@ -173,7 +173,7 @@ class PlaylistsController < BaseController
     if (!params[:load_all])
       #load arbitrary number of items to give the user some idea of how things look
       #set to nil to not set any limit
-      @playlist_items_limit = nil
+      @playlist_items_limit = 15
     end
     @playlist_items_count = 0
 

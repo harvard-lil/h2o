@@ -48,9 +48,12 @@
     %>
 
     <% if @playlist_items_limit && @playlist_items_count >= @playlist_items_limit %>
-    <div id="playlist_items_limit_warning_end">
-      <%= link_to "You've reached the bottom of your content preview. To load the rest in your browser, click here.", export_playlist_url(@playlist, load_all: 1)%>   <br/>
-      (Large playlists may temporarily freeze your browser while loading.)
+    <div id="playlist-items-limit-warning-end">
+      You've reached the bottom of your content preview.<br/> 
+      <%= link_to raw("To <b>view</b> the rest in your browser, click here."), export_playlist_url(@playlist, load_all: 1)%>   <br/>
+      To <b>export</b> the full content in DOC or PDF format, click the blue export button in the upper right corner of this page.<br>
+      <br>
+      (Note: If you view the entire playlist, any changes you've made to export settings will be lost. Large playlists may temporarily freeze your browser while loading, as well.)
     </div>
     <%end%>
 
