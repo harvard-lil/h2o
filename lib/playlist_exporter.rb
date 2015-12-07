@@ -15,6 +15,8 @@ class PlaylistExporter
   # Some cookies are just here to make them available to PhantomJS
   # TODO: translate all values, rather than only translating the one value that signals
   # export.js to do the thing that is "not the default."
+  #If you want to forwad a cookie from the print header all the way through to one
+  #of the exporters, it needs to be listed here.
   FORM_COOKIE_MAP = {
     '_h2o_session' => {'cookie_name' => '_h2o_session'},
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },

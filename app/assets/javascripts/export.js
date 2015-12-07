@@ -212,40 +212,73 @@ var table_of_contents = {
 };
 
 var export_functions = {
+  preExportVerification: function() {
+    if (!$.cookie('user_id')) {
+      var msg = 'The export feature is only available to users that are signed in.';
+      var newItemNode = $('<div id="generic-node"></div>').html(msg);
+      $(newItemNode).dialog({
+        title: 'Please sign into H2O to use this export feature.',
+        modal: true,
+        width: '700',
+        height: 'auto',
+        open: function(event, ui) {},
+        buttons: {
+          'Ok': function() {
+            $(newItemNode).remove();
+          }
+        }
+      }).dialog('open');
+      return false;
+    }
+    return true;
+  },
   fireExport: function() {
     console.log('fireExport fireExporting');
-    if (!$.cookie('user_id')) {
-      alert('This export feature is only available to logged in users.');
+    if (!export_functions.preExportVerification()) {
+      console.log('preExportVerification says no.');
       return;
     }
-    if (!$('#export_format').val()) {
+
+    var format = $('#export_format').val();
+    if (!format) {
       alert('Please select an export format');
       return;
     }
 
     var form = $('#export-form');
-
-    if ($.cookie('force_sync_export') == 'true') {
+    if(document.location.hash.match('force_sync_export=1')) {
+      //Allow synchronous usage as a special lever for admin/developers
       form.submit();
       return;
     }
 
-    var valuesToSubmit = $(form).serialize();
-    console.log(valuesToSubmit);
     $.ajax({
       type: 'POST',
-//      dataType: 'JSON',
-      data: valuesToSubmit,
+      dataType: 'JSON',
+      data: $(form).serialize(),
       url: form.attr('action'),
-      beforeSend: function(){
-        //h2o_global.showGlobalSpinnerNode();
+      error: function(xhr) {
+        console.log('POSTerror: ', xhr.responseText.substring(0, 444));
       },
-      error: function(xhr){
-        console.log('PSOTerror: ', xhr.responseText.substring(0, 444));
-      },
-      success: function(html){
-        console.log('OK: ' + html)
-      }});
+      success: function(html) {
+        var msg = "You will receive an email with a download link when the " +
+          "export is complete. This email may take several minutes to arrive, " +
+          "so please be patient.";
+        var newItemNode = $('<div id="generic-node"></div>').html(msg);
+        $(newItemNode).dialog({
+          title: 'H2O is exporting your content to ' + format.toUpperCase() + ' format.',
+          modal: true,
+          width: '700',
+          height: 'auto',
+          open: function(event, ui) {},
+          buttons: {
+            'Ok': function() {
+              $(newItemNode).remove();
+            }
+          }
+        }).dialog('open');
+      }
+    });
   },
   updateLoadingDisplay: function() {
     //BUG: This doesn't update the screen until pretty much all the annotations are

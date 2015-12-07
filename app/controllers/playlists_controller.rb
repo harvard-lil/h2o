@@ -151,23 +151,22 @@ class PlaylistsController < BaseController
   end
 
   def export_as
-#    result = PlaylistExporter.export_as(request.url, cookies, params)
-    # logger.debug "result.success?: " + result.success?.to_s
-    # logger.debug "result.class: " + result.class.to_s
-    # logger.debug "result.content_path: " + result.content_path.to_s
-    # logger.debug "result.suggested_filename: " + result.suggested_filename.to_s
-    #TODO: Render json error when catching an Exception
-    render :json => {}
-
-    result = PlaylistExporter.export_as(request.url, cookies, params)
-    if result.success?
-      send_file(
-                result.content_path,
-                filename: result.suggested_filename,
-                )
+    if request.xhr?
+      status = :ok
+      begin
+#        PlaylistExporter.delay.export_as(request.url, cookies, params)
+      rescue Exception => e
+        status = :error
+      end
+      render :json => {}, :status => status
     else
-      #render :json => { :error => "TODO: Unknown error." }, :status => :error
-      Rails.logger.debug "Export failed."
+      result = PlaylistExporter.export_as(request.url, cookies, params)
+      if result.success?
+        send_file(result.content_path, filename: result.suggested_filename)
+      else
+        logger.debug "Export failed."
+        render :text => result.error_message
+      end
     end
   end
 
