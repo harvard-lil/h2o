@@ -212,18 +212,53 @@ var table_of_contents = {
 };
 
 var export_functions = {
-  //BUG: This doesn't update the screen until pretty much all the annotations are
-  //loaded, which defeats the purpose of having a counter.
+  fireExport: function() {
+    console.log('fireExport fireExporting');
+    if (!$.cookie('user_id')) {
+      alert('This export feature is only available to logged in users.');
+      return;
+    }
+    if (!$('#export_format').val()) {
+      alert('Please select an export format');
+      return;
+    }
+
+    var form = $('#export-form');
+
+    if ($.cookie('force_sync_export') == 'true') {
+      form.submit();
+      return;
+    }
+
+    var valuesToSubmit = $(form).serialize();
+    console.log(valuesToSubmit);
+    $.ajax({
+      type: 'POST',
+//      dataType: 'JSON',
+      data: valuesToSubmit,
+      url: form.attr('action'),
+      beforeSend: function(){
+        //h2o_global.showGlobalSpinnerNode();
+      },
+      error: function(xhr){
+        console.log('PSOTerror: ', xhr.responseText.substring(0, 444));
+      },
+      success: function(html){
+        console.log('OK: ' + html)
+      }});
+  },
   updateLoadingDisplay: function() {
+    //BUG: This doesn't update the screen until pretty much all the annotations are
+    //loaded, which defeats the purpose of having a counter.
     setTimeout(function() {
-    var done_count = 0;
-    $.each(all_collage_data, function(id, annotation) {
-      if (annotation.done_loading) {
-        done_count++;
-      }
-    });
-    $('#anno-load-current').text(done_count);
-    $('#anno-load-total').text(Object.keys(all_collage_data).length);
+      var done_count = 0;
+      $.each(all_collage_data, function(id, annotation) {
+        if (annotation.done_loading) {
+          done_count++;
+        }
+      });
+      $('#anno-load-current').text(done_count);
+      $('#anno-load-total').text(Object.keys(all_collage_data).length);
     }, 0);
   },
   initiate_collage_data: function(id, data) {
@@ -351,11 +386,7 @@ var export_functions = {
   init_listeners: function() {
     $('#export-form-submit').click(function(e) {
       e.preventDefault();
-      if (!$('#export_format').val()) {
-        alert('Please select an export format');
-        return false;
-      }
-      $('#export-form').submit();
+      export_functions.fireExport();
     });
     $('#toc_levels').change(function() {
       export_functions.setTocLevels($(this).val());

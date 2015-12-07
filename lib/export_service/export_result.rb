@@ -5,7 +5,6 @@ module ExportService
     attr_reader :content_path, :playlist_name, :format
 
     def initialize(opts={})
-      # Rails.logger.debug "BLOOP: #{opts}"
       @content_path = opts[:content_path]
       @playlist_name = opts[:playlist_name]
       @format = opts[:format]
@@ -24,6 +23,9 @@ module ExportService
       "Sorry, there was an unexpected error."
     end
 
+    def to_s
+      "#{self.content_path} (self.suggested_filename)"
+    end
   end
 
 end
