@@ -38,31 +38,47 @@ class PlaylistExporter
 
   class << self
 
-    def export_as(request_url, cookies, params)
-      export_format = params[:export_format]
+    def export_as(opts)
+      request_url = opts[:request_url]
+      params = opts[:params]
+      session_cookie = opts[:session_cookie]
+      user_id = opts[:user_id]
 
-      params.merge!(:_h2o_session => cookies[:_h2o_session])
-      result = nil
+      params.merge!(:_h2o_session => session_cookie)
+
+      export_format = params[:export_format]
+      exported_file = nil
       begin
         if export_format == 'doc'
-          result = export_as_doc(request_url, params)
+          exported_file = export_as_doc(request_url, params)
         elsif export_format == 'pdf'
-          result = export_as_pdf(request_url, params)
+          exported_file = export_as_pdf(request_url, params)
         else
-          #TODO: handle NameError from unknown exporter
-          raise "Unsupported export_format #{export_format}"
+          raise "Unsupported export_format '#{export_format}'"
         end
       rescue ExportException => e
       end
 
-      ExportService::ExportResult.new(
-                                       content_path: result,
-                                       playlist_name: params['playlist_name'],
-                                       format: params[:export_format],
-                                     )
+      export_result = ExportService::ExportResult.new(
+        content_path: exported_file,
+        playlist_name: params['playlist_name'],
+        format: params['export_format'],
+        )
+
+      if opts[:send_email]
+        email_download_link(export_result, user_id)
+      end
+
+      export_result
     end
 
-    def export_as_doc(request_url, params)
+    def email_download_link(export_result, email_address)
+      download_url = 'na'  #http://h2o.harvard.edu:/public/hjksdhkfsd-23425-asdfasdf/iii_reading_torts.doc
+      # send_file(result.content_path, filename: result.suggested_filename)
+      Notifier.export_download_link(download_url, email_address).deliver
+    end
+
+    def export_as_doc(request_url, params)  #_doc
       convert_to_mime_file(fetch_playlist_html(request_url, params))
     end
 
@@ -75,15 +91,22 @@ class PlaylistExporter
       file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
     end
 
-    def fetch_playlist_html(request_url, params)
-      #TODO: clean up code/names here
-      target_url = get_target_url(request_url, params[:id])
-
-      base_dir = Rails.root.join('tmp/phantomjs')
+    def output_file_path(params)  #_base
+      base_dir = Rails.root.join('public/exports')
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
-      out_file = Dir::Tmpname.create(params[:id], base_dir) {|path| path}
 
+      out_dir = Dir::Tmpname.create(params[:id], base_dir) {|path| path}
+      FileUtils.mkdir(out_dir) unless File.exist?(out_dir)
+
+      filename = (params[:playlist_name].to_s || "download").parameterize.underscore
+      out_dir + '/' + filename + '.' + params[:export_format]
+    end
+
+    def fetch_playlist_html(request_url, params)  #_doc
+      target_url = get_target_url(request_url, params[:id])
       options_file = json_options_file(params)
+      out_file = output_file_path(params)
+
       command = [
                  'bin/phantomjs',
                  #'--debug=true',
@@ -101,7 +124,7 @@ class PlaylistExporter
         exit_code = wait_thread.value.exitstatus
       end
 
-      File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
+      # File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
       Rails.logger.debug command_output
 
       if exit_code == 0
@@ -112,7 +135,7 @@ class PlaylistExporter
       end
     end
 
-    def convert_to_mime_file(input_file)
+    def convert_to_mime_file(input_file)  #_doc
       boundary = "----=_NextPart_ZROIIZO.ZCZYUACXV.ZARTUI"
       lines = []
       lines << "MIME-Version: 1.0"
@@ -132,11 +155,11 @@ class PlaylistExporter
       return tempfile
     end
 
-    def export_as_pdf(request_url, params)
+    def export_as_pdf(request_url, params)  #_pdf
       #request_url will actually be the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       # target_url = "http://sskardal03.murk.law.harvard.edu:8000/playlists/19763/export"
-      command = generate_command(request_url, params)
+      command = generate_pdf_command(request_url, params)
 
       exit_code = nil
       command_output = ''
@@ -223,7 +246,7 @@ class PlaylistExporter
           end
         end
       end
-      cookies.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
+      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
     def generate_toc_levels_css(depth)
@@ -300,8 +323,7 @@ class PlaylistExporter
       options
     end
 
-
-    def generate_command(request_url, params)
+    def generate_pdf_command(request_url, params)  #_pdf
       object_id = params['id']
       binary = 'wkhtmltopdf'
 
@@ -311,7 +333,8 @@ class PlaylistExporter
       toc_options = generate_toc_options(params)
       page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
-      output_file_path = output_filename(object_id)
+      output_file_path = output_file_path(params)
+
       prep_output_file_path(output_file_path)
       target_url = get_target_url(request_url, object_id)
 
@@ -328,11 +351,11 @@ class PlaylistExporter
       ].flatten.join(' ').split
     end
 
-    def prep_output_file_path(output_file_path)
+    def prep_output_file_path(output_file_path)  #_pdf
       FileUtils.mkdir_p(File.dirname(output_file_path))
     end
 
-    def get_target_url(request_url, id)
+    def get_target_url(request_url, id)  #_base
       uri = URI(request_url)
       Rails.application.routes.url_helpers.export_playlist_url(
         :id => id,
@@ -342,17 +365,19 @@ class PlaylistExporter
         )
     end
 
-    def output_filename(object_id)
-      object_id.gsub!(/\D/, '')
-      #TODO: adjust this path to match the current export URL style
-      filename_hash = SecureRandom.hex(4)
-      Rails.root.join(
-                      'public',
-                      'playlists',
-                      object_id.to_s,
-                      "playlist-#{object_id}-#{filename_hash}.pdf"
-                      ).to_s
-    end
+    #     def output_filename(object_id)  #_pdf
+    #       # TODO: juse use output_file_path(params)  #_base
+    #       object_id.gsub!(/\D/, '')
+    #       #TODO: adjust this path to match the current export URL style
+    #       filename_hash = SecureRandom.hex(4)
+    # #      base_dir = Rails.root.join('public/exports')
+    #       Rails.root.join(
+    #                       'public',
+    #                       'playlists',
+    #                       object_id.to_s,
+    #                       "playlist-#{object_id}-#{filename_hash}.pdf"
+    #                       ).to_s
+    #     end
 
     def encode_cookie_value(val)
        ERB::Util.url_encode(val)
