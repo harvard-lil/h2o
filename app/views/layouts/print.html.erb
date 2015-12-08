@@ -12,7 +12,6 @@
 
     <style type="text/css" id="export-styles"></style>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
-    <!-- TODO: typekit disabled just for dev testing -->
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
@@ -21,8 +20,6 @@
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div id="print-options">
       <div id="print-options-new2">
-<!-- <div class="singleton-element" style="background: rgba(0, 0, 0, 0.4); position: absolute; top: -80px; left: -220px; width: 600px; height: 28px; margin: 0px; padding: 10px; font-size: 24px; text-align: center; color: rgb(255, 255, 255); font-family: 'trebuchet ms',verdana,arial,sans-serif; transform: rotate(-45deg); transform-origin: 50% 0px 0px; border: 1px solid transparent; z-index: 1200;">Preview</div> -->
-
           <%= form_tag(export_as_playlist_path(@playlist), method: "post", id: "export-form" ) do %>
           <%= hidden_field_tag "playlist_name", @playlist.name %>
           <%= hidden_field_tag "fontface_mapped" %>

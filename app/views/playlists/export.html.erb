@@ -1,4 +1,12 @@
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
+
+   <% if !@load_all %>
+   <div id="playlist-items-limit-notice">
+    This is a preview of how your content will look on export. To <b>export</b> the complete content
+    in DOC or PDF format, click the blue export button in the upper right corner of this page.
+  </div>
+   <% end %>
+
 	<hgroup class="description">
         <div class="Playlist-title scale1-5 vh1"><%= raw @playlist.name %></div>
 	</hgroup>
@@ -23,10 +31,9 @@
     text-align: center;
     margin: 0;
     height: 50px;
-
-  background-image: -moz-linear-gradient(top, transparent, white);
-  Xbackground-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, transparent), color-stop(1, white));
-  background-image: linear-gradient(180deg, transparent, white);
+    background-image: -moz-linear-gradient(top, transparent, white);
+    Xbackground-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, transparent), color-stop(1, white));
+    background-image: linear-gradient(180deg, transparent, white);
   }
 </style>
 
@@ -46,8 +53,8 @@
       }
     %>
 
-    <% if @playlist_items_limit && @playlist_items_count >= @playlist_items_limit %>
-    <div id="playlist-items-limit-warning-end">
+    <% if !@load_all %>
+    <div id="playlist-items-limit-notice">
       You've reached the bottom of your content preview.<br/> 
       <%= link_to raw("To <b>view</b> the rest in your browser, click here."), export_playlist_url(@playlist, load_all: 1)%>   <br/>
       To <b>export</b> the full content in DOC or PDF format, click the blue export button in the upper right corner of this page.<br>

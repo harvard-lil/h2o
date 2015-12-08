@@ -172,10 +172,13 @@ class PlaylistsController < BaseController
   end
 
   def export
+    #TODO: Update cache key for load_all == 1|nil
     all_actual_object_ids = @playlist.all_actual_object_ids
     @preloaded_collages = prepare_collage_export(all_actual_object_ids[:Collage])
     @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])
-    if (!params[:load_all])
+
+    @load_all = params[:load_all]
+    if (!@load_all)
       #load arbitrary number of items to give the user some idea of how things look
       #set to nil to not set any limit
       @playlist_items_limit = 15
