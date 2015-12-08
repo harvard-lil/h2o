@@ -158,8 +158,7 @@ class PlaylistsController < BaseController
           request_url: request.url,
           params: params,
           session_cookie: cookies[:_h2o_session],
-          user_id: current_user.id,
-          send_email: true
+          email_to: current_user.email_address,
           )
       rescue Exception => e
         status = :error

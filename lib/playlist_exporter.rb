@@ -42,7 +42,7 @@ class PlaylistExporter
       request_url = opts[:request_url]
       params = opts[:params]
       session_cookie = opts[:session_cookie]
-      user_id = opts[:user_id]
+      email_address = opts[:email_to]
 
       params.merge!(:_h2o_session => session_cookie)
 
@@ -65,14 +65,14 @@ class PlaylistExporter
         format: params['export_format'],
         )
 
-      if opts[:send_email]
-        email_download_link(export_result.content_path, user_id)
+      if email_address
+        email_download_link(export_result.content_path, email_address)
       end
 
       export_result
     end
 
-    def email_download_link(content_path, email_address)
+    def email_download_link(content_path, email_address)  #_base
       Notifier.export_download_link(content_path, email_address).deliver
     end
 
