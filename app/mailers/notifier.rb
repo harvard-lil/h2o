@@ -1,7 +1,22 @@
 class Notifier < ActionMailer::Base
   default from: 'noreply@berkmancenter.org',
           sent_on: Proc.new { Time.now }
-          
+
+  def export_download_link(download_path, email_address)
+    #NOTE: This assumes the download URL can be parsed from the full path this way
+    download_path = download_path.sub(/^#{Rails.root}/, '')
+    host = ActionMailer::Base.default_url_options[:host]
+    port = ActionMailer::Base.default_url_options[:port]
+    port = port.blank? ? '' : ":#{port}"
+
+    #BUG: in dev, this has two problems: this is https and the host is wrong
+    #TODO: change that in development.rb (get hostfrom Rails.root.last and set https to http.
+    #maybe just set a top level rails config value rather than go through ActionMailer?
+
+    @download_url = "https://#{host}#{port}#{download_path}"
+    mail(to: email_address, subject: "Your H2O export is ready")
+  end
+
   def case_notify_approved(case_obj, case_request)
     @case = case_obj
     mail(to: case_request.user.email_address, subject: "Case Request Approved")

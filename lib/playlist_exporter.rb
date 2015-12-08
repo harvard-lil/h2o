@@ -66,16 +66,14 @@ class PlaylistExporter
         )
 
       if opts[:send_email]
-        email_download_link(export_result, user_id)
+        email_download_link(export_result.content_path, user_id)
       end
 
       export_result
     end
 
-    def email_download_link(export_result, email_address)
-      download_url = 'na'  #http://h2o.harvard.edu:/public/hjksdhkfsd-23425-asdfasdf/iii_reading_torts.doc
-      # send_file(result.content_path, filename: result.suggested_filename)
-      Notifier.export_download_link(download_url, email_address).deliver
+    def email_download_link(content_path, email_address)
+      Notifier.export_download_link(content_path, email_address).deliver
     end
 
     def export_as_doc(request_url, params)  #_doc
