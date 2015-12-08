@@ -92,8 +92,6 @@ var collages = {
     var idString = "collage" + collage_id;
     var idCss = "#" + idString;
 
-    export_functions.updateLoadingDisplay();
-
     //TODO: How does this really differ from the highlightAnnotatedItem
     //at the end of this method or in the #printhighlights.change() handler?
     export_highlighter.highlightAnnotatedItem(
@@ -233,9 +231,7 @@ var export_functions = {
     return true;
   },
   fireExport: function() {
-    console.log('fireExport fireExporting');
     if (!export_functions.preExportVerification()) {
-      console.log('preExportVerification says no.');
       return;
     }
 
@@ -279,20 +275,6 @@ var export_functions = {
         }).dialog('open');
       }
     });
-  },
-  updateLoadingDisplay: function() {
-    //BUG: This doesn't update the screen until pretty much all the annotations are
-    //loaded, which defeats the purpose of having a counter.
-    setTimeout(function() {
-      var done_count = 0;
-      $.each(all_collage_data, function(id, annotation) {
-        if (annotation.done_loading) {
-          done_count++;
-        }
-      });
-      $('#anno-load-current').text(done_count);
-      $('#anno-load-total').text(Object.keys(all_collage_data).length);
-    }, 0);
   },
   initiate_collage_data: function(id, data) {
     all_collage_data["collage" + id] = data;
