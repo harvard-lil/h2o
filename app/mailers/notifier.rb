@@ -9,11 +9,7 @@ class Notifier < ActionMailer::Base
     port = ActionMailer::Base.default_url_options[:port]
     port = port.blank? ? '' : ":#{port}"
 
-    #BUG: in dev, this has two problems: this is https and the host is wrong
-    #TODO: change that in development.rb (get hostfrom Rails.root.last and set https to http.
-    #maybe just set a top level rails config value rather than go through ActionMailer?
-
-    @download_url = "https://#{host}#{port}#{download_path}"
+    @download_url = "http://#{host}#{port}#{download_path}"
     mail(to: email_address, subject: "Your H2O export is ready")
   end
 

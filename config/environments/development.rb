@@ -27,5 +27,9 @@ H2o::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
-  config.action_mailer.default_url_options = { :host => 'sskardal.murk.law.harvard.edu:8000' }
+  #TODO: It's a little strange to have the port number embedded in the host
+  #like that, but we don't have time to remove it and re-test everywhere.
+  host = File.basename(Rails.root.to_s) + '.murk.law.harvard.edu:8000'
+  config.action_mailer.default_url_options = { :host => host }
+
 end
