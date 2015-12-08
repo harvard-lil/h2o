@@ -32,4 +32,12 @@ H2o::Application.configure do
   host = File.basename(Rails.root.to_s) + '.murk.law.harvard.edu:8000'
   config.action_mailer.default_url_options = { :host => host }
 
+  config.middleware.use ExceptionNotification::Rack,
+    :ignore_exceptions => ['ActionController::BadRequest'] + ExceptionNotifier.ignored_exceptions,
+    :email => {
+      :email_prefix => "[H2Odev] ",
+      :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
+      :exception_recipients => %w{endpoint@endpoint.com}
+    }
+
 end

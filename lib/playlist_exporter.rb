@@ -44,6 +44,7 @@ class PlaylistExporter
       session_cookie = opts[:session_cookie]
       email_address = opts[:email_to]
 
+      #required for owners to export their own private content
       params.merge!(:_h2o_session => session_cookie)
 
       export_format = params[:export_format]
@@ -80,7 +81,7 @@ class PlaylistExporter
       convert_to_mime_file(fetch_playlist_html(request_url, params))
     end
 
-    def json_options_file(params)
+    def json_options_file(params)  #_doc
       #TODO: use Tempfile.new when done debugging
       #file = Tempfile.new(['phantomjs-args-', '.json'])
       file = File.new('tmp/phantomjs/last-phantomjs-options.json', 'w')
@@ -104,6 +105,7 @@ class PlaylistExporter
       target_url = get_target_url(request_url, params[:id])
       options_file = json_options_file(params)
       out_file = output_file_path(params)
+      out_file.sub!(/#{File.extname(out_file)}$/, '.html')
 
       command = [
                  'bin/phantomjs',
@@ -146,11 +148,14 @@ class PlaylistExporter
       lines << ""
       lines << Base64.encode64(File.read(input_file))
 
-      tempfile = input_file + '.doc'
-      #Note: only the last boundary seems to need the final trailing "--" ?
+      output_file = input_file.sub!(/#{File.extname(input_file)}$/, '.doc')
+
+      #TODO: We could delete input_file after we write output_file
+      #Note: only the last boundary seems to need the final trailing "--". That
+      # could just be Word being, well, Word. *sigh*
       delim = "\n"
-      File.write(tempfile, lines.join(delim) + delim + "--" + boundary + "--")
-      return tempfile
+      File.write(output_file, lines.join(delim) + delim + "--" + boundary + "--")
+      return output_file
     end
 
     def export_as_pdf(request_url, params)  #_pdf
@@ -247,7 +252,7 @@ class PlaylistExporter
       cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
     end
 
-    def generate_toc_levels_css(depth)
+    def generate_toc_levels_css(depth)  #_doc
       # TODO: Could we use this instead?
       #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
       # <li class="book-toc-item level_{count(ancestor::outline:item)}">
@@ -268,12 +273,12 @@ class PlaylistExporter
       css.join("\n")
     end
 
-    def generate_toc_general_css(params)
+    def generate_toc_general_css(params)  #_doc
       "font-family: #{params['fontface_mapped']}; " +
       "font-size: #{params['fontsize_mapped']};"
     end
 
-    def render_toc(params)
+    def render_toc(params)  #_doc
       vars = {
         :title => params['playlist_name'],
         :general_css => generate_toc_general_css(params),
@@ -286,7 +291,7 @@ class PlaylistExporter
         )  #.tap {|x| Rails.logger.debug "TOCBLOCK: #{x}"}
     end
 
-    def generate_toc_options(params)
+    def generate_toc_options(params)  #_doc
       options = ["--no-outline"]
       if params['toc_levels'].present?
         options << "toc --xsl-style-sheet " + toc_file(params)
@@ -294,7 +299,7 @@ class PlaylistExporter
       options
     end
 
-    def toc_file(params)
+    def toc_file(params)  #_doc
       #NOTE: There may be a risk tempfile will unlink this file before it gets used,
       #so we probably need a regular IO file that we unlink or clear some other way.
       file = Tempfile.new(['export_toc', '.xsl'])
@@ -303,7 +308,7 @@ class PlaylistExporter
       file.path
     end
 
-    def generate_page_options(params)
+    def generate_page_options(params)  #_pdf
       # The order of options is important with respect to options that are passed to
       # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
       options = []
@@ -349,7 +354,7 @@ class PlaylistExporter
       ].flatten.join(' ').split
     end
 
-    def prep_output_file_path(output_file_path)  #_pdf
+    def prep_output_file_path(output_file_path)  #_pdf or _base if useful there
       FileUtils.mkdir_p(File.dirname(output_file_path))
     end
 
