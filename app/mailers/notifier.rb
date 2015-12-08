@@ -3,8 +3,8 @@ class Notifier < ActionMailer::Base
           sent_on: Proc.new { Time.now }
 
   def export_download_link(download_path, email_address)
-    #NOTE: This assumes the download URL can be parsed from the full path this way
-    download_path = download_path.sub(/^#{Rails.root}/, '')
+    #NOTE: This makes some assumptions about where this app is mounted
+    download_path = download_path.sub(/^#{Rails.root}\/public/, '')
     host = ActionMailer::Base.default_url_options[:host]
     port = ActionMailer::Base.default_url_options[:port]
     port = port.blank? ? '' : ":#{port}"
