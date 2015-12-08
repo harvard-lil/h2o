@@ -57,7 +57,9 @@ class PlaylistExporter
         else
           raise "Unsupported export_format '#{export_format}'"
         end
-      rescue ExportException => e
+      rescue Exception => e
+        ExceptionNotifier.notify_exception(e)
+        raise e
       end
 
       export_result = ExportService::ExportResult.new(

@@ -151,30 +151,21 @@ class PlaylistsController < BaseController
   end
 
   def export_as
+    base_args = {
+      request_url: request.url,
+      params: params,
+      session_cookie: cookies[:_h2o_session],
+    }
     if request.xhr?
-      status = :ok
-      begin
-        PlaylistExporter.delay.export_as(
-          request_url: request.url,
-          params: params,
-          session_cookie: cookies[:_h2o_session],
-          email_to: current_user.email_address,
-          )
-      rescue Exception => e
-        status = :error
-      end
-      render :json => {}, :status => status
+      render :json => {}
+      base_args[:email_to] = current_user.email_address
+      PlaylistExporter.delay.export_as(base_args)
     else
-      # result = PlaylistExporter.export_as(request.url, cookies, params)
-      result = PlaylistExporter.export_as(
-        request_url: request.url,
-        session_cookie: cookies[:_h2o_session],
-        params: params
-        )
+      result = PlaylistExporter.export_as(base_args)
       if result.success?
         send_file(result.content_path, filename: result.suggested_filename)
       else
-        logger.debug "Export failed."
+        logger.debug "Export failed: #{result.error_message}"
         render :text => result.error_message
       end
     end

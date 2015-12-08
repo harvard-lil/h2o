@@ -13,6 +13,8 @@ H2o::Application.configure do
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
 
+  config.action_mailer.delivery_method = :sendmail
+  config.action_mailer.perform_deliveries = true
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
@@ -37,7 +39,7 @@ H2o::Application.configure do
     :email => {
       :email_prefix => "[H2Odev] ",
       :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
-      :exception_recipients => %w{endpoint@endpoint.com}
+      :exception_recipients => %w{berkman@endpoint.com}
     }
 
 end
