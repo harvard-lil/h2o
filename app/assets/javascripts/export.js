@@ -193,14 +193,13 @@ var table_of_contents = {
         return nodes;
     },
     toc_entry_text: function(node) {
-        var header_node = node.children('h' + node.toc_level).first();;
-        var content = header_node.children('.hcontent');
-        var anchor = header_node.children('.number').children('a');
+      var header_node = node.children('h' + node.toc_level).first();
+      var content = header_node.children('.hcontent');
+      var anchor = header_node.prev('a').first();
 
-      return '<span class="toc_level' + node.toc_level + '">' +
-        (Array( (node.toc_level-1) * 6 )).join('&nbsp;') +
-        '<a href="#' + anchor.attr('name') + '" style="color: #000000">' +
-        anchor.text() + ' ' + content.text() + '</a></span>';
+      return (Array((node.toc_level-1) * 6)).join('&nbsp;') +
+        '<a href="#' + anchor.attr('name') + '" style="color: #000000;">' +
+        content.text() + '</a>';
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
@@ -630,7 +629,11 @@ var export_functions = {
         //Highlights don't work in DOC, so we fake it with underlined text.
         $("span[class*=highlight-]").css('text-decoration', 'underline');
 
-        $( "div.page-break" ).replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
+        $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
+
+        $.each($('#toc').find('a'), function(i, node) {
+          $(node).replaceWith($(node).text());
+        });
       }
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
