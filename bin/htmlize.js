@@ -165,8 +165,8 @@ var get_doc_styles = function() {
 
   var font_size_replacer = function (match, p1, p2, p3, offset, string) {
     var scaling_name = cookies['print_font_size'];
-    // This is the same 4px jump from fonts.js, converted to pt, assuming the base
-    // Doc style is sized as medium and thus requires no scaling.
+    // This is the same 4px jump from fonts.js, converted to pt (=3pt), assuming
+    // the base Doc style is sized as medium and thus requires no scaling.
     var size_conversion = {
       small: -3,
       medium: 0,
@@ -227,7 +227,7 @@ var set_styling = function(page) {
             sheets.push( el );
         });
 
-        //Word can't use external stylesheets, so we inject them into existing
+        //Word ignores external stylesheets, so we inject them into the DOM.
         for (var i in sheets) {
             var sheet = sheets[i];
             $('#export-styles').append($(sheet).cssText());
@@ -238,8 +238,9 @@ var set_styling = function(page) {
 
         //TODO: Remove media^=screen nodes
 
-        // Forcibly remove bullets from LI tags and undo Word's LI indentation
-        $('li').attr('style', 'mso-list:l0 level1; ');
+        // Forcibly remove bullets from LI tags and fix TOC item indentation
+        $('li:not(.listitem)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
+
   }, doc_styles, cookies);
 }
 
