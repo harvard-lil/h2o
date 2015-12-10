@@ -58,7 +58,8 @@ class PlaylistExporter
           raise "Unsupported export_format '#{export_format}'"
         end
       rescue Exception => e
-        ExceptionNotifier.notify_exception(e)
+        Rails.logger.debug "~~export_as exception: #{e}"
+#        ExceptionNotifier.notify_exception(e)
         raise e
       end
 
@@ -120,20 +121,24 @@ class PlaylistExporter
       Rails.logger.debug command.join(' ')
 
       exit_code = nil
-      command_output = ''
+      command_output = []
       Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| Rails.logger.debug "PHANTOMJS: #{line.rstrip}"}
+        out_err.each {|line|
+          Rails.logger.debug "PHANTOMJS: #{line.rstrip}"
+          command_output << line
+        }
         exit_code = wait_thread.value.exitstatus
       end
+      command_text = command_output.join("\n")
 
       # File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
-      Rails.logger.debug command_output
+      #Rails.logger.debug command_text
 
       if exit_code == 0
         out_file.tap {|x| Rails.logger.debug "Created #{x}" }
       else
-        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
-        raise ExportException, command_output
+        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
+        raise ExportException, command_text
       end
     end
 
@@ -150,7 +155,7 @@ class PlaylistExporter
       lines << ""
       lines << Base64.encode64(File.read(input_file))
 
-      output_file = input_file.sub!(/#{File.extname(input_file)}$/, '.doc')
+      output_file = input_file.sub(/#{File.extname(input_file)}$/, '.doc')
 
       #TODO: We could delete input_file after we write output_file
       #Note: only the last boundary seems to need the final trailing "--". That
@@ -161,22 +166,32 @@ class PlaylistExporter
     end
 
     def export_as_pdf(request_url, params)  #_pdf
-      #request_url will actually be the full request URI that is posting TO this page. We need
-      # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
-      # target_url = "http://sskardal03.murk.law.harvard.edu:8000/playlists/19763/export"
       command = generate_pdf_command(request_url, params)
 
       exit_code = nil
       command_output = ''
-      #TODO: replace missing capture command_output inside popen2e block
-      Open3.popen2e(*command) do |i, out_err, wait_thread|
-        out_err.each {|line| Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"}
-        exit_code = wait_thread.value.exitstatus
+      logfile = command.last.sub(/\.pdf$/, '.html')
+      html_started = false
+      html_finished = false
+
+      # Capture rendered HTML the same way we get it for free with phantomjs
+      File.open(logfile, 'w') do |logfile|
+        Open3.popen2e(*command) do |i, out_err, wait_thread|
+          out_err.each {|line|
+            html_started = true if line.match(/<head\b/i)
+            html_finished = true if html_started && line.match(/<\/body>/i)
+
+            if html_started && !html_finished
+              logfile.write(line)
+            else
+              Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"
+            end
+          }
+          exit_code = wait_thread.value.exitstatus
+        end
       end
 
-      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
-      #Rails.logger.debug command_output
-
+      # File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
       if exit_code == 0
         command.last
       else
@@ -329,30 +344,30 @@ class PlaylistExporter
     end
 
     def generate_pdf_command(request_url, params)  #_pdf
+      #request_url is the full request URI that is posting TO this page. We need
+      # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       object_id = params['id']
-      binary = 'wkhtmltopdf'
-
       global_options = %w[margin-top margin-right margin-bottom margin-left].map {|name|
         "--#{name} #{params[name]}"
       }.join(' ')
+
       toc_options = generate_toc_options(params)
+      target_url = get_target_url(request_url, object_id)
       page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_file_path(params)
 
       prep_output_file_path(output_file_path)
-      target_url = get_target_url(request_url, object_id)
 
-      Rails.logger.debug output_file_path
       [
-       binary,
-       global_options,
-       toc_options,
-       'page',
-       target_url,
-       page_options,
-       cookie_string,
-       output_file_path,  #This always has to be last in this array
+        'wkhtmltopdf',
+        global_options,
+        toc_options,
+        'page',
+        target_url,
+        page_options,
+        cookie_string,
+        output_file_path,  #This always has to be last in this array
       ].flatten.join(' ').split
     end
 
@@ -369,20 +384,6 @@ class PlaylistExporter
         :load_all => 1,
         )
     end
-
-    #     def output_filename(object_id)  #_pdf
-    #       # TODO: juse use output_file_path(params)  #_base
-    #       object_id.gsub!(/\D/, '')
-    #       #TODO: adjust this path to match the current export URL style
-    #       filename_hash = SecureRandom.hex(4)
-    # #      base_dir = Rails.root.join('public/exports')
-    #       Rails.root.join(
-    #                       'public',
-    #                       'playlists',
-    #                       object_id.to_s,
-    #                       "playlist-#{object_id}-#{filename_hash}.pdf"
-    #                       ).to_s
-    #     end
 
     def encode_cookie_value(val)
        ERB::Util.url_encode(val)

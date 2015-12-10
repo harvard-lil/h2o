@@ -227,17 +227,16 @@ var set_styling = function(page) {
             sheets.push( el );
         });
 
-        //TODO: Remove ui.css <link> node just in case
+        //Word can't use external stylesheets, so we inject them into existing
         for (var i in sheets) {
             var sheet = sheets[i];
             $('#export-styles').append($(sheet).cssText());
             $(sheet).remove();  //prevents "missing asset" error in Word
         }
         $('#additional_styles').append($('#additional_styles').cssText());
-
-        //var foo = ".highlight-hex-ff3800 { text-decoration: underline; }";
-        //$('#highlight_styles').append(foo);
         $('#highlight_styles').append($('#highlight_styles').cssText());
+
+        //TODO: Remove media^=screen nodes
 
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
         $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');

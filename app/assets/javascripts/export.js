@@ -635,8 +635,14 @@ var export_functions = {
           $(node).replaceWith($(node).text());
         });
       }
+
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
+
+      if ($.cookie('export_format') == 'pdf') {
+        //Used to log rendered content on the back end.
+        console.log("\n" + $(':root').html());
+      }
 
       console.log('loadAllAnnotationsComplete: annotation_load_complete');
     } catch(e) {
