@@ -239,7 +239,7 @@ var set_styling = function(page) {
         //TODO: Remove media^=screen nodes
 
         // Forcibly remove bullets from LI tags and undo Word's LI indentation
-        $('li').attr('style', 'mso-list:l0 level1; margin-left: -.5in;');
+        $('li').attr('style', 'mso-list:l0 level1; ');
   }, doc_styles, cookies);
 }
 
