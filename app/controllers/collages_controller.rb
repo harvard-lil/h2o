@@ -127,6 +127,8 @@ class CollagesController < BaseController
   end
 
   def export
+    @export_path = export_as_collage_path(@collage)
+    @item = @collage  #trans
     render :layout => 'print'
   end
 

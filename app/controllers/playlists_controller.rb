@@ -173,6 +173,8 @@ class PlaylistsController < BaseController
 
   def export
     #TODO: Update cache key for load_all == 1|nil
+    @export_path = export_as_playlist_path(@playlist)
+    @item = @playlist  #trans
     all_actual_object_ids = @playlist.all_actual_object_ids
     @preloaded_collages = prepare_collage_export(all_actual_object_ids[:Collage])
     @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])

@@ -376,7 +376,8 @@ var collages = {
     });
   },
   observePrintListeners: function() {
-    $('#fixed_print,#quickbar_print').click(function(e) {
+    //$('#fixed_print,#quickbar_print').click(function(e) {
+    $('#quickbar_print').click(function(e) {
       e.preventDefault();
       $('#collage_print').submit();
     });

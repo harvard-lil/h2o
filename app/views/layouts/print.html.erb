@@ -20,14 +20,12 @@
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div id="print-options">
       <div id="print-options-new2">
-          <%= form_tag(export_as_playlist_path(@playlist), method: "post", id: "export-form" ) do %>
-          <%= hidden_field_tag "playlist_name", @playlist.name %>
+          <%= form_tag(@export_path, method: "post", id: "export-form" ) do %>
+
+          <%= hidden_field_tag "playlist_name", @item.name %>
           <%= hidden_field_tag "fontface_mapped" %>
           <%= hidden_field_tag "fontsize_mapped" %>
 
-          <% if ["collages", "playlists", "cases", "text_blocks"].include?(params[:controller]) -%>
-          <!-- USE JAVASCRIPT! Needs to control: font face, font size -->
-          <% end %>
           <div id="print-options-left">
             <div class="print-options-title">
               STYLES
