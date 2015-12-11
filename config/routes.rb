@@ -49,6 +49,7 @@ H2o::Application.routes.draw do
     resources :annotations
     member do
       get 'export'
+      post 'export_as'
     end
     collection do
       get 'embedded_pager'

@@ -898,7 +898,7 @@ $(document).ready(function(){
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
   //For content that never has annotations, fire the callback so the exporter knows the doc is done.
-  non_annotateds = ['cases'];
+  non_annotateds = ['cases', 'text_blocks'];
   if (non_annotateds.indexOf($('body').data('controller')) > -1) {
     export_functions.loadAllAnnotationsComplete();
   }

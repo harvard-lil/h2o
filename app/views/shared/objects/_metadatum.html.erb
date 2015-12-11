@@ -1,8 +1,8 @@
 <% Metadatum::DISPLAY_FIELDS.each do |col| %>
-<% unless metadatum.send(col).blank? %>
-<p>
-<label><%= col.to_s.titleize %>:</label>
-<span><%= metadatum.send(col) %></span>
-</p>
-<% end %>
+  <% if (col_value = metadatum.send(col)).present? %>
+    <p>
+      <label><%= col.to_s.titleize %>:</label>
+      <span><%= col_value %></span>
+    </p>
+  <% end %>
 <% end %>
