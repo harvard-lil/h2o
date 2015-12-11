@@ -1,6 +1,6 @@
 <div class="collage-content singleitem anno-redundant" id="collage<%= @collage.id %>" data-id="<%= @collage.id %>">
-  <h1 id="singlecollage" class="scale1-5"><%= @collage.name %></h1>
-<% if (item_desc = @collage.formatted(:description)) != '' %>
+  <div class="Item-title scale1-5 vh1" ><%= raw @collage.name %></div>
+  <% if (item_desc = @collage.formatted(:description)) != '' %>
 	<div class="details">
 		<div id="description" class="item_description">
           <div class="Item-description">
@@ -8,6 +8,8 @@
 		  </div>
 		</div>
 	</div>
-<% end %>
+  <% end %>
 
-<%= render :partial => 'shared/objects/collage_print', :locals => {:collage => @collage} %>
+  <%= render :partial => 'shared/objects/collage_print', :locals => {:collage => @collage} %>
+
+</div>
