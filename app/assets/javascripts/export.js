@@ -253,7 +253,7 @@ var export_functions = {
       data: $(form).serialize(),
       url: form.attr('action'),
       error: function(xhr) {
-        console.log('POSTerror: ', xhr.responseText.substring(0, 444));
+        console.log('POSTerror: ', xhr.responseText.substring(0, 333));
       },
       success: function(html) {
         var msg = "You will receive an email with a download link when the " +
