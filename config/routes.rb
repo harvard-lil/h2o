@@ -119,6 +119,7 @@ H2o::Application.routes.draw do
     member do
       get 'access_level'
       get 'export'
+      post 'export_as'
       get 'embedded_pager'
       post 'approve'
     end

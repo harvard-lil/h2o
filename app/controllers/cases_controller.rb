@@ -18,20 +18,35 @@ class CasesController < BaseController
   end
 
   def access_level
-    if current_user
-      render :json => {
-        :can_edit => can?(:edit, @case),
-        :custom_block => 'case_afterload'
-      }
+    render :json => {
+      :can_edit => current_user ? can?(:edit, @case) : false,
+      :custom_block => 'case_afterload'
+    }
+  end
+
+  def export_as
+    base_args = {
+      request_url: request.url,
+      params: params,
+      session_cookie: cookies[:_h2o_session],
+    }
+    if request.xhr?
+      render :json => {}
+      base_args[:email_to] = current_user.email_address
+      PlaylistExporter.delay.export_as(base_args)
     else
-      render :json => {
-        :can_edit => false,
-        :custom_block => 'case_afterload'
-      }
+      result = PlaylistExporter.export_as(base_args)
+      if result.success?
+        send_file(result.content_path, filename: result.suggested_filename)
+      else
+        logger.debug "Export failed: #{result.error_message}"
+        render :text => result.error_message
+      end
     end
   end
 
   def export
+    @item = @case  #trans
     render :layout => 'print'
   end
 
