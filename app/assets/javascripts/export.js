@@ -897,6 +897,11 @@ $(document).ready(function(){
   // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
+  //For content that never has annotations, fire the callback so the exporter knows the doc is done.
+  non_annotateds = ['cases'];
+  if (non_annotateds.indexOf($('body').data('controller')) > -1) {
+    export_functions.loadAllAnnotationsComplete();
+  }
   console.log('BOOP: document.ready done');
 });
 
