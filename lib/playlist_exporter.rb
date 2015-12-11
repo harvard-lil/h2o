@@ -65,7 +65,7 @@ class PlaylistExporter
 
       export_result = ExportService::ExportResult.new(
         content_path: exported_file,
-        playlist_name: params['playlist_name'],
+        item_name: params['item_name'],
         format: params['export_format'],
         )
 
@@ -100,7 +100,7 @@ class PlaylistExporter
       out_dir = Dir::Tmpname.create(params[:id], base_dir) {|path| path}
       FileUtils.mkdir(out_dir) unless File.exist?(out_dir)
 
-      filename = (params[:playlist_name].to_s || "download").parameterize.underscore
+      filename = (params[:item_name].to_s || "download").parameterize.underscore
       out_dir + '/' + filename + '.' + params[:export_format]
     end
 
@@ -297,7 +297,7 @@ class PlaylistExporter
 
     def render_toc(params)  #_doc
       vars = {
-        :title => params['playlist_name'],
+        :title => params['item_name'],
         :general_css => generate_toc_general_css(params),
         :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
       }

@@ -2,16 +2,16 @@ module ExportService
 
   class ExportResult
 
-    attr_reader :content_path, :playlist_name, :format
+    attr_reader :content_path, :item_name, :format
 
     def initialize(opts={})
       @content_path = opts[:content_path]
-      @playlist_name = opts[:playlist_name]
+      @item_name = opts[:item_name]
       @format = opts[:format]
     end
 
     def suggested_filename
-      self.playlist_name.parameterize.underscore + '.' + self.format
+      self.item_name.parameterize.underscore + '.' + self.format
     end
 
     def success?
