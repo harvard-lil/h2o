@@ -191,7 +191,7 @@ class PlaylistExporter
         end
       end
 
-      # File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
+      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
       if exit_code == 0
         command.last
       else
@@ -376,14 +376,22 @@ class PlaylistExporter
     end
 
     def get_target_url(request_url, id)  #_base
-      uri = URI(request_url)
-      Rails.application.routes.url_helpers.export_playlist_url(
-        :id => id,
-        :host => uri.host,  #murk: '128.103.64.117',
-        :port => uri.port,
-        :load_all => 1,
-        )
+      url = request_url.sub(/export_as$/, 'export')
+      if request_url.match(/\/playlists\//)
+        url += '?load_all=1'
+      end
+      url
     end
+
+    # def get_target_url_orig(request_url, id)  #_base
+    #   uri = URI(request_url)
+    #   Rails.application.routes.url_helpers.export_playlist_url(
+    #     :id => id,
+    #     :host => uri.host,  #murk: '128.103.64.117',
+    #     :port => uri.port,
+    #     :load_all => 1,
+    #     )
+    # end
 
     def encode_cookie_value(val)
        ERB::Util.url_encode(val)
