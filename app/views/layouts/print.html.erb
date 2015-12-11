@@ -20,7 +20,7 @@
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div id="print-options">
       <div id="print-options-new2">
-          <%= form_tag(@export_path, method: "post", id: "export-form" ) do %>
+          <%= form_tag(polymorphic_url(@item, action: :export_as), method: "post", id: "export-form") do %>
 
           <%= hidden_field_tag "playlist_name", @item.name %>
           <%= hidden_field_tag "fontface_mapped" %>

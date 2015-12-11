@@ -127,7 +127,6 @@ class CollagesController < BaseController
   end
 
   def export
-    @export_path = export_as_collage_path(@collage)
     @item = @collage  #trans
     render :layout => 'print'
   end
@@ -135,6 +134,21 @@ class CollagesController < BaseController
   def export_unique
     render :action => 'export', :layout => 'print'
   end
+
+  def export_as
+    result = PlaylistExporter.export_as(
+      request_url: request.url,
+      params: params,
+      session_cookie: cookies[:_h2o_session],
+      )
+      if result.success?
+        send_file(result.content_path, filename: result.suggested_filename)
+      else
+        logger.debug "Export failed: #{result.error_message}"
+        render :text => result.error_message
+      end
+  end
+
 
   def collage_lookup
     render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }
