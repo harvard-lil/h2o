@@ -163,17 +163,17 @@ class Collage < ActiveRecord::Base
 
   def annotations_as_export_json
     attrs = %i[
-                      id
-                      collage_id
-                      annotation
-                      xpath_start
-                      xpath_end
-                      start_offset
-                      end_offset
-                      link
-                      hidden
-                      highlight_only
-                     ]
+      id
+      collage_id
+      annotation
+      xpath_start
+      xpath_end
+      start_offset
+      end_offset
+      link
+      hidden
+      highlight_only
+    ]
     self.annotations.inject({}) {|h, a|
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h

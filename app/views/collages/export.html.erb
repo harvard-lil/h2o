@@ -1,23 +1,13 @@
-<div id="collage<%= @collage.id %>" class="collage-content singleitem" data-id="<%= @collage.id %>">
+<div class="collage-content singleitem anno-redundant" id="collage<%= @collage.id %>" data-id="<%= @collage.id %>">
   <h1 id="singlecollage" class="scale1-5"><%= @collage.name %></h1>
-  <div class="details">
-    <p class="info scale0-8"><%= @collage.updated_at.strftime("%B %d, %Y") %> by <%= link_to(@collage.user.display, user_path(@collage.user)) %></p>
-    <p class="item_description scale0-8"><%= raw @collage.formatted(:description) %></p>
-  </div>
-	<div class="article">
-	<% cache(["editable-content", @collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
-	<%= raw @collage.editable_content %>
-	<% end -%>
+<% if (item_desc = @collage.formatted(:description)) != '' %>
+	<div class="details">
+		<div id="description" class="item_description">
+          <div class="Item-description">
+			<%= raw item_desc %>
+		  </div>
+		</div>
 	</div>
-</div>
+<% end %>
 
-<script type="text/javascript">
-document.addEventListener("DOMContentLoaded", function() {
-  export_functions.initiate_collage_data(<%= @collage.id %>, {
-    data: <%= raw(params[:state] || @collage.readable_state || "{}") %>,
-    annotations: <%= raw @collage.annotations.inject({}) { |h, a| h["a#{a.id}"] =  a.to_json(:include => :layers); h }.to_json %>,
-    layer_data: <%= raw @collage.layer_data.to_json %>,
-    highlights_only: <%= raw @collage.highlights_only.to_json %>
-  });
-});
-</script>
+<%= render :partial => 'shared/objects/collage_print', :locals => {:collage => @collage} %>

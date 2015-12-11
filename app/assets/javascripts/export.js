@@ -653,7 +653,7 @@ var export_functions = {
   loadAllAnnotations: function() {
     //Annotation system looks for original_content class
     $('div.article *:not(.paragraph-numbering)').addClass('original_content');
-    $('.collage-content').each(function(i, el) {
+    $('.collage-content').filter(':not(.anno-redundant)').each(function(i, el) {
       var id = $(el).data('id');
       export_functions.loadAnnotator(id);
     });
