@@ -1,3 +1,4 @@
+
 <table width="100%" id="user_form_markup">
   <tr>
     <td valign="top" id="firstcol">
@@ -31,6 +32,7 @@
       </p>
     </td>
     <td valign="top" id="secondcol">
+      <p>Default display settings:</p>
       <% if !@user.new_record? -%>
         <p>
           <%= form.label :default_show_comments, "Show Comments" %>
@@ -46,7 +48,7 @@
         </p>
         <p>
           <%= form.label :default_font %>
-          <%= form.select :default_font, [['Futura', 'futura'], ['Leitura', 'leitura'], ['Garamond', 'garamond'], ['Verdana', 'verdana'], ['Proxima Nova', 'proxima'], ['Dagny Web', 'dagny']], :selected => @user.default_font.to_s %>
+          <%= form.select :default_font, [['Futura', 'futura'], ['Leitura', 'leitura'], ['Garamond', 'garamond'], ['Goudy', 'goudy'], ['Verdana', 'verdana'], ['Proxima Nova', 'proxima'], ['Dagny Web', 'dagny']], :selected => @user.default_font.to_s %>
         </p>
         <% if @user.canvas_id.present? -%>
         <p>
@@ -83,22 +85,30 @@
     </td>
     <% if !@user.new_record? -%>
     <td valign="top" id="thirdcol">
-      <p>Control your default print setting values below.</p>
+      <p>Default print display settings:</p>
+      <p>
+        <%= form.label :print_export_format %>
+        <%= form.select :print_export_format, [['Word DOC', 'doc'], ['Adobe PDF', 'pdf']] %>
+      </p>
       <p>
         <%= form.label :print_titles %>
         <%= form.select :print_titles, [['Yes', true], ['No', false]] %>
       </p>
       <p>
-        <%= form.label :print_dates_details %>
-        <%= form.select :print_dates_details, [['Yes', true], ['No', false]] %>
+        <%= form.label :toc_levels, "TOC Levels" %>
+        <%= form.select :toc_levels, [['None', ''], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']] %>
       </p>
       <p>
         <%= form.label :print_paragraph_numbers %>
         <%= form.select :print_paragraph_numbers, [['Yes', true], ['No', false]] %>
       </p>
       <p>
-        <%= form.label :print_annotations, "Print Comments/Links" %>
+        <%= form.label :print_annotations, "Print Comments" %>
         <%= form.select :print_annotations, [['Yes', true], ['No', false]] %>
+      </p>
+      <p>
+        <%= form.label :print_links, "Print Links" %>
+        <%= form.select :print_links, [['Yes', true], ['No', false]] %>
       </p>
       <p>
         <%= form.label :print_highlights %>
@@ -110,7 +120,7 @@
       </p>
       <p>
         <%= form.label :print_font_face %>
-        <%= form.select :print_font_face, [['futura', 'futura'], ['leitura', 'leitura'], ['garamond', 'garamond'], ['verdana', 'verdana'], ['proxima', 'proxima'], ['dagny', 'dagny']], :selected => @user.print_font_face %>
+        <%= form.select :print_font_face, [['futura', 'futura'], ['leitura', 'leitura'], ['garamond', 'garamond'], ['goudy', 'goudy'], ['verdana', 'verdana'], ['proxima', 'proxima'], ['dagny', 'dagny']], :selected => @user.print_font_face %>
       </p>
       <p>
         <%= form.label :print_font_size %>

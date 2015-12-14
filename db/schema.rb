@@ -746,6 +746,9 @@ ActiveRecord::Schema.define(version: 20150415162129) do
     t.boolean  "default_show_comments",          default: false,      null: false
     t.boolean  "default_show_paragraph_numbers", default: true,       null: false
     t.boolean  "hidden_text_display",            default: false,      null: false
+    t.boolean  "print_links",                    default: true,       null: false
+    t.string   "toc_levels",                     default: "",         null: false
+    t.string   "print_export_format",            default: "",         null: false
   end
 
   add_index "users", ["email_address"], name: "index_users_on_email_address", using: :btree

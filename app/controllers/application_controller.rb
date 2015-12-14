@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include UserPreferenceExtensions
   # Important that check_auth happens after load_single_resource
   before_filter :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
@@ -396,26 +397,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def apply_user_preferences(user, on_create)
-    return unless user
-
-    # Use ||= to allow cookies coming from playlist exporter to override
-    # whatever is in the database for this user.
-    common_user_preference_attrs.each do |attr|
-      cookies[attr] ||= user.send(attr)
-    end
-
-    cookies[:bookmarks] = on_create ? "[]" : user.bookmarks_map.to_json
-  end
-
-  def destroy_user_preferences
-    #TODO: We don't use print_dates_details anymore, so we can drop the column from the DB
-    names = [:bookmarks, :print_dates_details] + common_user_preference_attrs
-    names.each do |attr|
-      cookies.delete(attr)
-    end
-  end
-
   def verbose
     Rails.logger.warn "ApplicationController#verbose hit"
   end
@@ -437,15 +418,15 @@ class ApplicationController < ActionController::Base
   end
 
   private
-  def common_user_preference_attrs
-    [
-      :user_id,
-      :default_font_size, :default_font, :tab_open_new_items, :simple_display,
-      :print_titles, :print_paragraph_numbers, :print_annotations,
-      :print_highlights, :print_font_face, :print_font_size, :default_show_comments,
-      :default_show_paragraph_numbers, :hidden_text_display,
-    ]
-  end
+  # def common_user_preference_attrs
+  #   [
+  #     :user_id,
+  #     :default_font_size, :default_font, :tab_open_new_items, :simple_display,
+  #     :print_titles, :print_paragraph_numbers, :print_annotations,
+  #     :print_highlights, :print_font_face, :print_font_size, :default_show_comments,
+  #     :default_show_paragraph_numbers, :hidden_text_display, :print_links,
+  #   ]
+  # end
 
   def verify_captcha(item)
     if verify_recaptcha(:model => item, :message => '')

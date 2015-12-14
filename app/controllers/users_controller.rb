@@ -213,24 +213,25 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user = @current_user # makes our views "cleaner" and more consistent
+    @user = @current_user
 
     if @user.update_attributes(users_params)
-      [:default_font_size, :default_font, :tab_open_new_items,
-       :simple_display, :print_titles, :print_dates_details, 
-       :print_paragraph_numbers, :print_annotations, :print_highlights,
-       :print_font_face, :print_font_size, :tab_open_new_items, :hidden_text_display,
-       :default_show_comments, :default_show_paragraph_numbers].each do |attr|
-        cookies[attr] = @user.send(attr)
-      end
+      apply_user_preferences(@user, false, :force_overwrite => true)
+
       profile_content = render_to_string("shared/_author_stats.html.erb", :locals => { :user => @user })
       settings_content = render_to_string("users/_settings.html.erb", :locals => { :user => @user })
-      render :json => { :error => false, 
-                        :custom_block => "update_user_settings", 
-                        :settings_content => settings_content,
-                        :profile_content => profile_content }
+
+      render :json => {
+        :error => false,
+        :custom_block => "update_user_settings",
+        :settings_content => settings_content,
+        :profile_content => profile_content
+      }
     else
-      render :json => { :error => true, :message => "Could not update user, with errors: #{@user.errors.full_messages.join(', ')}" }
+      render :json => {
+        :error => true,
+        :message => "Could not update user, with errors: #{@user.errors.full_messages.join(', ')}"
+      }
     end
   end
 
@@ -302,13 +303,11 @@ class UsersController < ApplicationController
 
   private
   def users_params
-    params.require(:user).permit(:id, :name, :login, :password, :password_confirmation, 
-                                 :email_address, :tz_name, :attribution, :title, 
-                                 :url, :affiliation, :description, :tab_open_new_items, 
-                                 :default_show_comments, :default_font_size, :default_font, :terms,
-                                 :print_titles, :print_dates_details, :print_paragraph_numbers,
-                                 :print_annotations, :print_highlights, :print_font_face, :hidden_text_display,
-                                 :print_font_size, :default_show_paragraph_numbers)
+    common_attrs = common_user_preference_attrs.reject {|attr| attr == :user_id}
+    params.require(:user).permit(:id, :name, :login, :password, :password_confirmation,
+                                 :email_address, :tz_name, :attribution, :title,
+                                 :url, :affiliation, :description, :terms, *common_attrs
+                                 )
   end
 
   def default_show_types_method

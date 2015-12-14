@@ -340,6 +340,12 @@ var export_functions = {
       //TODO: Do we need this? This is probably now a no-op since we ditched JSB selectboxes
       $('#printhighlights').val('original');
 
+      if($.cookie('print_export_format') != null) {
+        $('#export_format').val($.cookie('print_export_format'));
+      }
+      if($.cookie('toc_levels') != null) {
+        $('#toc_levels').val($.cookie('toc_levels')).change();
+      }
       if($.cookie('print_titles') == 'false') {
         $('#printtitle').val('no').change();
         export_functions.set_titles_visible(false);
@@ -403,7 +409,7 @@ var export_functions = {
       export_functions.fireExport();
     });
     $('#toc_levels').change(function() {
-      export_functions.setTocLevels($(this).val());
+      table_of_contents.set_toc($(this).val());
     });
     $('#fontface').change(function() {
       export_functions.setFontPrint();
@@ -511,12 +517,6 @@ var export_functions = {
                 $(sel).val(value).change();
             });
         }
-    },
-    setTocLevels: function(toc_levels) {
-        table_of_contents.set_toc(toc_levels);
-        //Just control the cookie from this select box until we add a user preferences control for it
-        //That will also fix the path, which is incorrect for this cookie at the moment
-        $.cookie('toc_levels', toc_levels);
     },
     setMargins: function() {
         //TODO SOMEDAY: Set .wrapper margin-top while also accounting for built in margin value it needs for print-options
