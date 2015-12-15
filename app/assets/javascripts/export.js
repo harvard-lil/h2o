@@ -363,8 +363,8 @@ var export_functions = {
       if($.cookie('print_annotations') == 'true') {
         $('#printannotations').val('yes').change();
       }
-      if($.cookie('print_links') == 'yes') {
-        $('#printlinks').val($.cookie('print_links')).change();
+      if($.cookie('print_links') == 'true') {
+        $('#printlinks').val('yes').change();
       } else {
         $('#printlinks').val('no').change();
       }
