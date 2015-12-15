@@ -131,8 +131,6 @@ class Collage < ActiveRecord::Base
   end
 
   def display_name
-
-Rails.logger.warn "stephie: #{self.inspect}"
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end
   alias :to_s :display_name
