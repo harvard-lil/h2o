@@ -448,9 +448,6 @@ class ApplicationController < ActionController::Base
 
   private
   def verify_captcha(item)
-    # TODO: REmove:
-    item.valid_recaptcha = true
-
     if verify_recaptcha(:model => item, :message => '')
       item.valid_recaptcha = true
     end
