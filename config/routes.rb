@@ -75,6 +75,7 @@ H2o::Application.routes.draw do
       post 'copy'
       get 'access_level'
       get 'export'
+      get 'export_all' => 'playlists#export', load_all: '1'
       post 'export_as'
       post 'private_notes'
       post 'public_notes'

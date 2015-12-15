@@ -2,7 +2,7 @@ class CasesController < BaseController
   protect_from_forgery except: [:approve, :destroy]
 
   cache_sweeper :case_sweeper
-  caches_page :show, :if => Proc.new { |c| c.instance_variable_get('@case').public }
+  caches_page :show, :if => Proc.new { |c| c.instance_variable_get('@case').public? }
 
   def embedded_pager
     super Case
@@ -24,29 +24,8 @@ class CasesController < BaseController
     }
   end
 
-  def export_as
-    base_args = {
-      request_url: request.url,
-      params: params,
-      session_cookie: cookies[:_h2o_session],
-    }
-    if request.xhr?
-      render :json => {}
-      base_args[:email_to] = current_user.email_address
-      PlaylistExporter.delay.export_as(base_args)
-    else
-      result = PlaylistExporter.export_as(base_args)
-      if result.success?
-        send_file(result.content_path, filename: result.suggested_filename)
-      else
-        logger.debug "Export failed: #{result.error_message}"
-        render :text => result.error_message
-      end
-    end
-  end
-
   def export
-    @item = @case  #trans
+    @item = @case
     render :layout => 'print'
   end
 

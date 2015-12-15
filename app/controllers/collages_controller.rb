@@ -4,6 +4,7 @@ class CollagesController < BaseController
   before_filter :limit_missing_item, :only => :destroy
   
   protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
+  #TODO: MERGE: caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').try(:public?)}
 
   def embedded_pager
     if params.has_key?(:for_annotation)
@@ -127,50 +128,13 @@ class CollagesController < BaseController
   end
 
   def export
-    @item = @collage  #trans
+    @item = @collage
     render :layout => 'print'
   end
 
   def export_unique
     render :action => 'export', :layout => 'print'
   end
-
-  def export_as
-    #TODO: Copied straight from playlists_controller#export_as
-    base_args = {
-      request_url: request.url,
-      params: params,
-      session_cookie: cookies[:_h2o_session],
-    }
-    if request.xhr?
-      render :json => {}
-      base_args[:email_to] = current_user.email_address
-      PlaylistExporter.delay.export_as(base_args)
-    else
-      result = PlaylistExporter.export_as(base_args)
-      if result.success?
-        send_file(result.content_path, filename: result.suggested_filename)
-      else
-        logger.debug "Export failed: #{result.error_message}"
-        render :text => result.error_message
-      end
-    end
-  end
-
-  def export_as_working
-    result = PlaylistExporter.export_as(
-      request_url: request.url,
-      params: params,
-      session_cookie: cookies[:_h2o_session],
-      )
-      if result.success?
-        send_file(result.content_path, filename: result.suggested_filename)
-      else
-        logger.debug "Export failed: #{result.error_message}"
-        render :text => result.error_message
-      end
-  end
-
 
   def collage_lookup
     render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }

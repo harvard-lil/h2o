@@ -105,7 +105,7 @@ class PlaylistExporter
     end
 
     def fetch_playlist_html(request_url, params)  #_doc
-      target_url = get_target_url(request_url, params[:id])
+      target_url = get_target_url(request_url)
       options_file = json_options_file(params)
       out_file = output_file_path(params)
       out_file.sub!(/#{File.extname(out_file)}$/, '.html')
@@ -223,7 +223,7 @@ class PlaylistExporter
 
     def inject_doc_styles(doc)
       #NOTE: Using doc.css("center").wrap(...) here broke annotations
-      doc.css("center").add_class("Case-header")  #.each {|n| n['class'] = "Case-header " + n['class'].to_s }
+      doc.css("center").add_class("Case-header")
       doc.css("p").add_class("Item-text")
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).wrap('<div class="Case-internal-header"></div>')
@@ -352,7 +352,7 @@ class PlaylistExporter
       }.join(' ')
 
       toc_options = generate_toc_options(params)
-      target_url = get_target_url(request_url, object_id)
+      target_url = get_target_url(request_url)
       page_options = generate_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_file_path(params)
@@ -375,23 +375,10 @@ class PlaylistExporter
       FileUtils.mkdir_p(File.dirname(output_file_path))
     end
 
-    def get_target_url(request_url, id)  #_base
-      url = request_url.sub(/export_as$/, 'export')
-      if request_url.match(/\/playlists\//)
-        url += '?load_all=1'
-      end
-      url
+    def get_target_url(request_url)  #_base
+      page_name = request_url.match(/\/playlists\//) ? 'export_all' : 'export'
+      request_url.sub(/export_as$/, page_name)
     end
-
-    # def get_target_url_orig(request_url, id)  #_base
-    #   uri = URI(request_url)
-    #   Rails.application.routes.url_helpers.export_playlist_url(
-    #     :id => id,
-    #     :host => uri.host,  #murk: '128.103.64.117',
-    #     :port => uri.port,
-    #     :load_all => 1,
-    #     )
-    # end
 
     def encode_cookie_value(val)
        ERB::Util.url_encode(val)

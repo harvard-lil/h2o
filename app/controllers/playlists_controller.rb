@@ -3,9 +3,9 @@ require 'uri'
 
 class PlaylistsController < BaseController
   protect_from_forgery except: [:position_update, :private_notes, :public_notes, :destroy, :copy, :toggle_nested_private, :submit_import]
-  
+
   cache_sweeper :playlist_sweeper
-  caches_page :show, :export, :if => Proc.new { |c| c.instance_variable_get('@playlist').present? && c.instance_variable_get('@playlist').public? }
+  caches_page :show, :export, :export_all, :if => Proc.new { |c| c.instance_variable_get('@playlist').try(:public?) }
 
   def embedded_pager
     super Playlist
@@ -148,27 +148,6 @@ class PlaylistsController < BaseController
     end
 
     render :json => {}
-  end
-
-  def export_as
-    base_args = {
-      request_url: request.url,
-      params: params,
-      session_cookie: cookies[:_h2o_session],
-    }
-    if request.xhr?
-      render :json => {}
-      base_args[:email_to] = current_user.email_address
-      PlaylistExporter.delay.export_as(base_args)
-    else
-      result = PlaylistExporter.export_as(base_args)
-      if result.success?
-        send_file(result.content_path, filename: result.suggested_filename)
-      else
-        logger.debug "Export failed: #{result.error_message}"
-        render :text => result.error_message
-      end
-    end
   end
 
   def export

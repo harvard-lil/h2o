@@ -56,7 +56,7 @@
     <% if !@load_all %>
     <div id="playlist-items-limit-notice">
       You've reached the bottom of your content preview.<br/> 
-      <%= link_to raw("To <b>view</b> the rest in your browser, click here."), export_playlist_url(@playlist, load_all: 1)%>   <br/>
+      <%= link_to raw("To <b>view</b> the rest in your browser, click here."), export_all_playlist_url(@playlist)%>   <br/>
       To <b>export</b> the full content in DOC or PDF format, click the blue export button in the upper right corner of this page.<br>
       <br>
       (Note: If you view the entire playlist, any changes you've made to export settings will be lost. Large playlists may temporarily freeze your browser while loading, as well.)
