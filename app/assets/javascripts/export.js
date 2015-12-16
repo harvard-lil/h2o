@@ -608,6 +608,9 @@ var export_functions = {
       //Remove margin previously occupied by #print-options
       div.css('margin-top', '0px');
 
+      //Remove padding that makes top margin look too big on export
+      $('.singleitem:first').css('padding-top', '0px');
+
       //This is a couple of failed attempts at getting annotation comments to display as a block
       //level element in Word.
       //$.each($('.annotation-content').not('.annotation-link'), function(i, node) {
