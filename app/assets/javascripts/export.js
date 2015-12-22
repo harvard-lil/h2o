@@ -749,7 +749,11 @@ var export_highlighter = {
       $(cssId + ' .annotator-wrapper .layer-hex-' + j).addClass('highlight-hex-' + j);
     });
 
-    var total_selectors = [];
+    var total_selectors = export_highlighter.collectHighlightSelectors(cssId);
+    export_highlighter.cacheCss(cssId, total_selectors);
+  },
+  collectHighlightSelectors: function(cssId) {
+    var selectors = [];
     $.each($(cssId + ' .annotator-wrapper .annotator-hl'), function(i, child) {
       var this_selector = '';
       var parent_class = '';
@@ -770,7 +774,7 @@ var export_highlighter = {
           for(var j = 0; j<classes.length; j++) {
             if(classes[j].match(/^highlight/)) {
               selector_class += '.' + classes[j];
-           }
+            }
           }
           if(selector_class != '') {
             this_selector = selector_class + ' ' + this_selector;
@@ -778,16 +782,14 @@ var export_highlighter = {
         }
       });
       if(this_selector != '') {
-        total_selectors.push(this_selector.replace(/ $/, ''));
+        selectors.push(this_selector.replace(/ $/, ''));
       }
     });
-
-    export_highlighter.cacheCss(cssId, total_selectors);
+    return selectors;
   },
   cacheCss: function(cssId, total_selectors) {
     //TODO: I think this is running way too much. I added a single tag to a single
     //collage in my playlist with 4 items, and now I'm seeing that tag go through this method 6 times?
-
     var updated = {};
     $.each(total_selectors, function(i, selector) {
       //TODO: Cache this calculation in a page-level cache object
@@ -810,18 +812,10 @@ var export_highlighter = {
 
       var opacity = 0.6 / Object.keys(unique_layers).length;
       var current_hex = '#FFFFFF';
-        $.each(unique_layers, function(key, value) {
-          var hex_arg = key.match(/^hex-/) ? key.replace(/^hex-/, '') : layer_data[key];
-          current_hex = $.xcolor.opacity(current_hex, hex_arg, opacity).getHex();
-        });
-
-        //also, should we remove the cssId b/c it doesn't actually do anything that we care about?
-        var full_selector = cssId + ' ' + selector;
-        if (!$('#highlight_styles').cssText().match(full_selector)) {
-          $.rule(
-            full_selector + ' { border-bottom: 2px solid ' + current_hex + '; }'
-          ).appendTo('#highlight_styles');
-        }
+      $.each(unique_layers, function(key, value) {
+        var hex_arg = key.match(/^hex-/) ? key.replace(/^hex-/, '') : layer_data[key];
+        current_hex = $.xcolor.opacity(current_hex, hex_arg, opacity).getHex();
+      });
 
       //Strip ID from highlight-hex-?????? selectors. We don't need them to be
       //collage-specific, and they end up producing fewer unique CSS rules this way.
