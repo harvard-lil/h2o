@@ -53,7 +53,7 @@ class Notifier < ActionMailer::Base
 
   def cases_list
     attachments['cases_list.csv'] = File.read("#{Rails.root}/tmp/cases_list.csv")
-    mail(to: ['h2o@cyber.law.harvard.edu', 'awenner@cyber.law.harvard.edu', 'mmckay@law.harvard.edu', 'steph@endpoint.com'],
+    mail(to: ['h2o@cyber.law.harvard.edu', 'awenner@cyber.law.harvard.edu', 'mmckay@law.harvard.edu', 'berkman@endpoint.con'],
          subject: "List of All Cases #{Time.now.to_s(:simpledate)}")
   end
 
