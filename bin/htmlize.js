@@ -239,7 +239,7 @@ var set_styling = function(page) {
         //TODO: Remove media^=screen nodes
 
         // Forcibly remove bullets from LI tags and fix TOC item indentation
-        $('li:not(.listitem)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
+        $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
 
   }, doc_styles, cookies);
 }

@@ -153,11 +153,13 @@ var collages = {
 
 var table_of_contents = {
     set_toc: function(levels) {
+      //Avoid doubling the TOC for PDF exports
+      if ($.cookie('export_format') == 'pdf') {return;}
+
         var toc_node = $('#' + tocId);
         toc_node.remove();
         if (levels) {
             table_of_contents.generate_toc(levels);
-            $('#toc-container').show();
         } else {
             $('#toc-container').hide();
         }
@@ -172,6 +174,7 @@ var table_of_contents = {
           toc.append($('<li/>', { html: toc_line }));
           toc.appendTo(toc_root_node);
         }
+      toc_root_node.show();
     },
     build_toc_branch: function(parent, depth) {
         parent = parent || $(':root');
@@ -382,9 +385,6 @@ var export_functions = {
       }
       if ($.cookie('print_font_size') !== null) {
           $('#fontsize').val($.cookie('print_font_size')).change();
-      }
-      if($.cookie('toc_levels') && $.cookie('export_format') != 'pdf') {
-          $('#toc_levels').val($.cookie('toc_levels')).change();
       }
 
       //These newer options may not have cookies defined yet

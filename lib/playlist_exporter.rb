@@ -1,12 +1,6 @@
 require 'tempfile'
 require 'uri'
 
-#TODO: This should be broken out into format specific exporter classes
-# now that we have 2 formats actually working nicely. E.g.
-# class ExportService
-#   class ExportService::[Doc]Exporter
-#   class ExportService::[Pdf]Exporter
-
 class PlaylistExporter
 
   class ExportException < StandardError; end
@@ -57,9 +51,9 @@ class PlaylistExporter
         else
           raise "Unsupported export_format '#{export_format}'"
         end
-      rescue Exception => e
+      rescue StandardError => e
         Rails.logger.debug "~~export_as exception: #{e}"
-#        ExceptionNotifier.notify_exception(e)
+        #ExceptionNotifier.notify_exception(e)
         raise e
       end
 
@@ -122,7 +116,7 @@ class PlaylistExporter
 
       exit_code = nil
       command_output = []
-      Open3.popen2e(*command) do |i, out_err, wait_thread|
+      Open3.popen2e(*command) do |_, out_err, wait_thread|
         out_err.each {|line|
           Rails.logger.debug "PHANTOMJS: #{line.rstrip}"
           command_output << line
@@ -162,7 +156,7 @@ class PlaylistExporter
       # could just be Word being, well, Word. *sigh*
       delim = "\n"
       File.write(output_file, lines.join(delim) + delim + "--" + boundary + "--")
-      return output_file
+      output_file
     end
 
     def export_as_pdf(request_url, params)  #_pdf
@@ -175,14 +169,14 @@ class PlaylistExporter
       html_finished = false
 
       # Capture rendered HTML the same way we get it for free with phantomjs
-      File.open(logfile, 'w') do |logfile|
-        Open3.popen2e(*command) do |i, out_err, wait_thread|
+      File.open(logfile, 'w') do |log|
+        Open3.popen2e(*command) do |_, out_err, wait_thread|
           out_err.each {|line|
             html_started = true if line.match(/<head\b/i)
             html_finished = true if html_started && line.match(/<\/body>/i)
 
             if html_started && !html_finished
-              logfile.write(line)
+              log.write(line)
             else
               Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"
             end
@@ -277,9 +271,9 @@ class PlaylistExporter
 
       # This starting css defines basic indentation for all levels that do get displayed
       css = [
-             "ul {padding-left: 0em;}",
-             "ul ul {padding-left: 1em;}",
-            ]
+        "ul {padding-left: 0em;}",
+        "ul ul {padding-left: 1em;}",
+      ]
 
       # Add CSS to hide any levels that are > depth
       (1..6).each do |i|
@@ -326,8 +320,6 @@ class PlaylistExporter
     end
 
     def generate_page_options(params)  #_pdf
-      # The order of options is important with respect to options that are passed to
-      # the "toc" (aka "TOC options" in the wkhtmltopdf docs) versus global options.
       options = []
 
       #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
@@ -335,18 +327,12 @@ class PlaylistExporter
       options << "--no-stop-slow-scripts --debug-javascript"  # --javascript-delay 1000
       options << "--window-status annotation_load_complete"
       options << "--print-media-type"  #TODO: remove this & retest. DOC export doesn't support it.
-
-      # The below is only needed if you do not have a DNS or /etc/hosts entry for
-      # this dev server. However, it will probably break the typekit JS call
-      #hostname = URI(request_url).host  #"sskardal03.murk.law.harvard.edu"
-      #options << "--custom-header-propagation --custom-header host #{hostname}"
       options
     end
 
     def generate_pdf_command(request_url, params)  #_pdf
       #request_url is the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
-      object_id = params['id']
       global_options = %w[margin-top margin-right margin-bottom margin-left].map {|name|
         "--#{name} #{params[name]}"
       }.join(' ')
