@@ -302,8 +302,7 @@ H2O = (function() {
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
-      var collage_id = this.plugins.H2O.collage_id;
-      //var starttime = new Date();
+      var annotated_item_id = this.plugins.H2O.annotated_item_id;
 
       $('#annotator-field-0').addClass('no_tinymce');
 
@@ -318,14 +317,12 @@ H2O = (function() {
       this.initialized = true;
 
       var annotations_count = Object.keys(annotations).length;
-      //console.log('Annotations count: ' + annotations_count);
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setLayeredBorders(annotation);
 
         var single_anno_start = new Date();
         if(annotation.hidden) {
-          //hidden text annotations with large amounts of text can be very slow here.
-          //E.g. A hidden annotation with 2KB of text took 2.1 seconds to completely load in my tests.
+          //NOTE: hidden text annotations with large amounts of text can be very slow here.
           $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
           var anno_nodes = $('.annotation-' + annotation.id);
           anno_nodes.addClass('annotation-hidden').hide();
@@ -374,8 +371,8 @@ H2O = (function() {
       if (!!$('#print-options').length) {
         //TODO: Merge resolution: Kent's code uses annotated_item_id where mine uses collage_id. Make sure this all shakes out in the end.
         collages.loadState(
-          this.plugins.H2O.annotated_item_id,
-          all_collage_data["collage" + this.plugins.H2O.annotated_item_id].data
+          annotated_item_id,
+          all_collage_data["collage" + annotated_item_id].data
         );
       } else {
         console.log('Missing #print-options');
@@ -416,7 +413,7 @@ H2O = (function() {
         var elapsed = parseInt((now - phunk_start)/1000);
 
         //Track the loading of all the collages' annotations
-        all_collage_data["collage" + collage_id].done_loading = true;
+        all_collage_data["collage" + annotated_item_id].done_loading = true;
 
         var done_count = 0;
 
@@ -432,7 +429,7 @@ H2O = (function() {
         });
 
         //console.log('al_duration: ' + ((new Date() - starttime)/1000) + 's');
-        console.log('annotationsLoaded for collage_id: ' + collage_id +
+        console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
                     ' - ' + annotations_count + ' in ' +
                     incTimeSeconds + 's of ' +
                     elapsed + 's total' +
