@@ -786,7 +786,7 @@ var export_highlighter = {
   },
   cacheCss: function(cssId, total_selectors) {
     //TODO: I think this is running way too much. I added a single tag to a single
-    //collage in my playlist with 4 itmes, and now I'm seeing that tag go through this method 6 times?
+    //collage in my playlist with 4 items, and now I'm seeing that tag go through this method 6 times?
 
     var updated = {};
     $.each(total_selectors, function(i, selector) {
@@ -822,7 +822,6 @@ var export_highlighter = {
             full_selector + ' { border-bottom: 2px solid ' + current_hex + '; }'
           ).appendTo('#highlight_styles');
         }
-      });
 
       //Strip ID from highlight-hex-?????? selectors. We don't need them to be
       //collage-specific, and they end up producing fewer unique CSS rules this way.
@@ -834,7 +833,6 @@ var export_highlighter = {
         export_highlighter.mismatchedHighlightCheck(full_selector, current_hex);
       }
     }); //end selector loop
-
   },
   applyStyles: function(export_format) {
     if (!Object.keys(highlight_css_cache).length) {return;}
