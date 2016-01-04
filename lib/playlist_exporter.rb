@@ -54,7 +54,7 @@ class PlaylistExporter
           raise "Unsupported export_format '#{export_format}'"
         end
       rescue StandardError => e
-        Rails.logger.debug "~~export_as exception: #{e}"
+        Rails.logger.warn "~~export_as exception: #{e}"
         #ExceptionNotifier.notify_exception(e)
         raise e
       end
@@ -82,10 +82,9 @@ class PlaylistExporter
 
     def json_options_file(params)  #_doc
       file = Tempfile.new(['phantomjs-args-', '.json'])
-      # file = File.new('tmp/phantomjs/last-phantomjs-options.json', 'w')
       file.write forwarded_cookies_hash(params).to_json
       file.close
-      file.tap {|x| Rails.logger.debug "JSONXXX: #{x.path}" }
+      file  #.tap {|x| Rails.logger.debug "JSON: #{x.path}" }
     end
 
     def output_file_path(params)  #_base
@@ -119,7 +118,7 @@ class PlaylistExporter
       command_output = []
       Open3.popen2e(*command) do |_, out_err, wait_thread|
         out_err.each {|line|
-          Rails.logger.debug "PHANTOMJS: #{line.rstrip}"
+          Rails.logger.info "PHANTOMJS: #{line.rstrip}"
           command_output << line
         }
         exit_code = wait_thread.value.exitstatus
@@ -127,7 +126,7 @@ class PlaylistExporter
       command_text = command_output.join("\n")
 
       if exit_code == 0
-        out_file.tap {|x| Rails.logger.debug "Created #{x}" }
+        out_file.tap {|x| Rails.logger.info "Created #{x}" }
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
         raise ExportException, command_text
@@ -162,13 +161,13 @@ class PlaylistExporter
 
       exit_code = nil
       command_output = ''
-      logfile = command.last.sub(/\.pdf$/, '.html')
+      html_file = command.last.sub(/\.pdf$/, '.html')
       html_started = false
       html_finished = false
 
       Rails.logger.info command.join(' ')
       # Capture rendered HTML the same way we get it for free with phantomjs
-      File.open(logfile, 'w') do |log|
+      File.open(html_file, 'w') do |log|
         Open3.popen2e(*command) do |_, out_err, wait_thread|
           out_err.each {|line|
             html_started = true if line.match(/<head\b/i)
@@ -177,7 +176,7 @@ class PlaylistExporter
             if html_started && !html_finished
               log.write(line)
             else
-              Rails.logger.debug "WKHTMLTOPDF: #{line.rstrip}"
+              Rails.logger.info "WKHTMLTOPDF: #{line.rstrip}"
             end
           }
           exit_code = wait_thread.value.exitstatus
@@ -192,7 +191,7 @@ class PlaylistExporter
       end
     end
 
-    def convert_h_tags(doc)
+    def convert_h_tags(doc)  #_doc
       # Accepts text or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
@@ -213,7 +212,7 @@ class PlaylistExporter
       doc
     end
 
-    def inject_doc_styles(doc)
+    def inject_doc_styles(doc)  #_doc
       #NOTE: Using doc.css("center").wrap(...) here broke annotations
       doc.css("center").add_class("Case-header")
       doc.css("p").add_class("Item-text")
@@ -255,7 +254,7 @@ class PlaylistExporter
           end
         end
       end
-      cookies  #.tap {|x| Rails.logger.debug "FTC created:\n#{x}"}
+      cookies
     end
 
     def generate_toc_levels_css(depth)  #_doc
