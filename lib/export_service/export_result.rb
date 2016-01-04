@@ -24,7 +24,7 @@ module ExportService
     end
 
     def to_s
-      "#{self.content_path} (self.suggested_filename)"
+      "#{self.content_path} #{self.suggested_filename}"
     end
   end
 
