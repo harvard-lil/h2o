@@ -1,6 +1,8 @@
 require 'tempfile'
 require 'uri'
 
+# TODO: Now that it's stable, this would benefit from bundle of refacting into
+#   the intended ExportService class.
 class PlaylistExporter
 
   class ExportException < StandardError; end
@@ -125,9 +127,6 @@ class PlaylistExporter
       end
       command_text = command_output.join("\n")
 
-      # File.write('/tmp/last-phantomjs-call', command.join(' '))  #TODO: remove
-      #Rails.logger.debug command_text
-
       if exit_code == 0
         out_file.tap {|x| Rails.logger.debug "Created #{x}" }
       else
@@ -160,7 +159,7 @@ class PlaylistExporter
     end
 
     def export_as_pdf(request_url, params)  #_pdf
-      command = generate_pdf_command(request_url, params)
+      command = pdf_command(request_url, params)
 
       exit_code = nil
       command_output = ''
@@ -233,9 +232,6 @@ class PlaylistExporter
                      print_margin_left,
                     )
       end
-      # if params[:export_format] == 'doc'
-      #   skip_list << []
-      # end
       cookies = forwarded_cookies_hash(params).except(*skip_list.flatten)
       cookies.map {|k,v|
         "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
@@ -319,18 +315,15 @@ class PlaylistExporter
       file.path
     end
 
-    def generate_page_options(params)  #_pdf
-      options = []
-
-      #TODO: See if we can get rid of --javascript-delay. If you remove it and all the
-      # javascript special effects still run, then you didn't need it any more.
-      options << "--no-stop-slow-scripts --debug-javascript"  # --javascript-delay 1000
-      options << "--window-status annotation_load_complete"
-      options << "--print-media-type"  #TODO: remove this & retest. DOC export doesn't support it.
-      options
+    def pdf_page_options(params)  #_pdf
+      [
+        "--no-stop-slow-scripts --debug-javascript",  # --javascript-delay 1000
+        "--window-status annotation_load_complete",
+        "--print-media-type",  # NOTE: DOC export ignores this.
+      ]
     end
 
-    def generate_pdf_command(request_url, params)  #_pdf
+    def pdf_command(request_url, params)  #_pdf
       #request_url is the full request URI that is posting TO this page. We need
       # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
       global_options = %w[margin-top margin-right margin-bottom margin-left].map {|name|
@@ -339,7 +332,7 @@ class PlaylistExporter
 
       toc_options = generate_toc_options(params)
       target_url = get_target_url(request_url)
-      page_options = generate_page_options(params)
+      page_options = pdf_page_options(params)
       cookie_string = forwarded_cookies(params)
       output_file_path = output_file_path(params)
 
