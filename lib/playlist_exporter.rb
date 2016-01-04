@@ -107,7 +107,7 @@ class PlaylistExporter
       out_file.sub!(/#{File.extname(out_file)}$/, '.html')
 
       command = [
-                 'bin/phantomjs',
+                 'phantomjs',
                  #'--debug=true',
                  'bin/htmlize.js',
                  target_url,
