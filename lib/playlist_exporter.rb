@@ -81,12 +81,11 @@ class PlaylistExporter
     end
 
     def json_options_file(params)  #_doc
-      #TODO: use Tempfile.new when done debugging
-      #file = Tempfile.new(['phantomjs-args-', '.json'])
-      file = File.new('tmp/phantomjs/last-phantomjs-options.json', 'w')
+      file = Tempfile.new(['phantomjs-args-', '.json'])
+      # file = File.new('tmp/phantomjs/last-phantomjs-options.json', 'w')
       file.write forwarded_cookies_hash(params).to_json
       file.close
-      file.path  #.tap {|x| Rails.logger.debug "JSON: #{x}" }
+      file.tap {|x| Rails.logger.debug "JSONXXX: #{x.path}" }
     end
 
     def output_file_path(params)  #_base
@@ -102,7 +101,7 @@ class PlaylistExporter
 
     def fetch_playlist_html(request_url, params)  #_doc
       target_url = get_target_url(request_url)
-      options_file = json_options_file(params)
+      options_tempfile = json_options_file(params)
       out_file = output_file_path(params)
       out_file.sub!(/#{File.extname(out_file)}$/, '.html')
 
@@ -112,9 +111,9 @@ class PlaylistExporter
                  'bin/htmlize.js',
                  target_url,
                  out_file,
-                 options_file,
+                 options_tempfile.path,
                 ]
-      Rails.logger.debug command.join(' ')
+      Rails.logger.info command.join(' ')
 
       exit_code = nil
       command_output = []
@@ -167,6 +166,7 @@ class PlaylistExporter
       html_started = false
       html_finished = false
 
+      Rails.logger.info command.join(' ')
       # Capture rendered HTML the same way we get it for free with phantomjs
       File.open(logfile, 'w') do |log|
         Open3.popen2e(*command) do |_, out_err, wait_thread|
@@ -184,7 +184,6 @@ class PlaylistExporter
         end
       end
 
-      File.write('/tmp/last-wkhtmltopdf-call', command.join(' '))  #TODO: remove
       if exit_code == 0
         command.last
       else
@@ -206,7 +205,7 @@ class PlaylistExporter
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        #BUG: This loses any classes the H tag had.
+        #BUG: This loses any classes the H tag originall had.
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end
