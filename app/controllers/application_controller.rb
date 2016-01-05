@@ -379,7 +379,8 @@ class ApplicationController < ActionController::Base
     }
     if request.xhr?
       render :json => {}
-      base_args[:email_to] = current_user.email_address
+      # HACK: This needs to be smarter about how it handles a nil current_user, even though it should never happen
+      base_args[:email_to] = current_user.try(:email_address)
       PlaylistExporter.delay.export_as(base_args)
     else
       result = PlaylistExporter.export_as(base_args)
