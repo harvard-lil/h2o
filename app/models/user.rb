@@ -289,8 +289,8 @@ class User < ActiveRecord::Base
 
   def shared_private_playlists
     p = Permission.where(key: "view_private_playlist").first
-    logger.warn "DEFAULT_SHOW_TYPES: current_user? #{current_user}"
-    logger.warn "DEFAULT_SHOW_TYPES: permission? #{p}"
+    # logger.warn "DEFAULT_SHOW_TYPES: current_user? #{current_user}"
+    # logger.warn "DEFAULT_SHOW_TYPES: permission? #{p}"
     permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:playlists])
     permission_assignments.collect { |pa| pa.user_collection.playlists.select { |p| !p.public } }.flatten
   end

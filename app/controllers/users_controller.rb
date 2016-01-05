@@ -347,15 +347,15 @@ class UsersController < ApplicationController
 
   def build_user_page_content(params)
     @types = DEFAULT_SHOW_TYPES.dup
-    logger.warn "DEFAULT_SHOW_TYPES @types: #{@types}"
-    logger.warn "DEFAULT_SHOW_TYPES current_user: '#{current_user}'"
-    logger.warn "DEFAULT_SHOW_TYPES @user: '#{@user}'"
+    # logger.warn "DEFAULT_SHOW_TYPES @types: #{@types}"
+    # logger.warn "DEFAULT_SHOW_TYPES current_user: '#{current_user}'"
+    # logger.warn "DEFAULT_SHOW_TYPES @user: '#{@user}'"
 
     #Reset @types to avoid the bug I suspect is lurking in production-only
     @types = default_show_types_method
 
     if current_user && @user == current_user
-      logger.warn "DEFAULT_SHOW_TYPES: option A"
+      # logger.warn "DEFAULT_SHOW_TYPES: option A"
       @page_title = "Dashboard | H2O Classroom Tools"
       @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
@@ -369,7 +369,7 @@ class UsersController < ApplicationController
         @types[:case_requests][:display] = true
       end
     else
-      logger.warn "DEFAULT_SHOW_TYPES: option B"
+      # logger.warn "DEFAULT_SHOW_TYPES: option B"
       @page_title = "User #{@user.simple_display} | H2O Classroom Tools"
     end
 
