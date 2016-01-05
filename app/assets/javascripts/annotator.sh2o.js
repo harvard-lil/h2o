@@ -369,7 +369,6 @@ H2O = (function() {
         collages.loadState($('.singleitem').data('itemid'), original_data);
       }
       if (!!$('#print-options').length) {
-        //TODO: Merge resolution: Kent's code uses annotated_item_id where mine uses collage_id. Make sure this all shakes out in the end.
         collages.loadState(
           annotated_item_id,
           all_collage_data["collage" + annotated_item_id].data
@@ -413,6 +412,7 @@ H2O = (function() {
         var elapsed = parseInt((now - phunk_start)/1000);
 
         //Track the loading of all the collages' annotations
+        console.log('Marking collage done_loading: ' + "collage" + annotated_item_id);
         all_collage_data["collage" + annotated_item_id].done_loading = true;
 
         var done_count = 0;
@@ -1007,8 +1007,7 @@ H2O = (function() {
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
-      if(!$('#print-options').length) {
-        //TODO: TEST
+      if(!!$('#print-options').length) {
         //Export doesn't need event handlers on things it will never display
         return;
       }
