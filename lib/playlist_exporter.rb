@@ -112,13 +112,13 @@ class PlaylistExporter
                  out_file,
                  options_tempfile.path,
                 ]
-      Rails.logger.info command.join(' ')
+      Rails.logger.warn command.join(' ')
 
       exit_code = nil
       command_output = []
       Open3.popen2e(*command) do |_, out_err, wait_thread|
         out_err.each {|line|
-          Rails.logger.info "PHANTOMJS: #{line.rstrip}"
+          Rails.logger.warn "PHANTOMJS: #{line.rstrip}"
           command_output << line
         }
         exit_code = wait_thread.value.exitstatus
@@ -126,7 +126,7 @@ class PlaylistExporter
       command_text = command_output.join("\n")
 
       if exit_code == 0
-        out_file.tap {|x| Rails.logger.info "Created #{x}" }
+        out_file.tap {|x| Rails.logger.warn "Created #{x}" }
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
         raise ExportException, command_text
@@ -165,7 +165,7 @@ class PlaylistExporter
       html_started = false
       html_finished = false
 
-      Rails.logger.info command.join(' ')
+      Rails.logger.warn command.join(' ')
       # Capture rendered HTML the same way we get it for free with phantomjs
       File.open(html_file, 'w') do |log|
         Open3.popen2e(*command) do |_, out_err, wait_thread|
@@ -176,7 +176,7 @@ class PlaylistExporter
             if html_started && !html_finished
               log.write(line)
             else
-              Rails.logger.info "WKHTMLTOPDF: #{line.rstrip}"
+              Rails.logger.warn "WKHTMLTOPDF: #{line.rstrip}"
             end
           }
           exit_code = wait_thread.value.exitstatus
