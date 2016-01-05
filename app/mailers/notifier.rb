@@ -9,7 +9,14 @@ class Notifier < ActionMailer::Base
     port = ActionMailer::Base.default_url_options[:port]
     port = port.blank? ? '' : ":#{port}"
 
-    @download_url = "https://#{host}#{port}#{download_path}"
+    # NOTE: Not a perfect heuristic
+    if Rails.env.production? || port.to_s == '443'
+      protocol = 'https'
+    else
+      protocol = 'http'
+    end
+
+    @download_url = "#{protocol}://#{host}#{port}#{download_path}"
     mail(to: email_address, subject: "Your H2O export is ready")
   end
 
