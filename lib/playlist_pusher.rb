@@ -131,7 +131,7 @@ class PlaylistPusher
     select_statements = actual_objects.inject([]) do |arr, ao|
       tn = ao.class.table_name
       new_collages.each do |new_collage|
-        sql = "SELECT #{ao.class.insert_value_names(:overrides => {:pushed_from_id => ao.id, :collage_id => new_collage.id, :cloned => true}).join(', ')} FROM #{tn}, users
+        sql = "SELECT #{ao.class.insert_value_names(overrides: {pushed_from_id: ao.id, collage_id: new_collage.id, cloned: true, annotated_item_id: new_collage.id, annotated_item_type: new_collage.class.to_s}).join(', ')} FROM #{tn}, users
                WHERE #{tn}.id = #{ao.id} AND users.id = #{new_collage.user_id};"
         arr << sql
       end
