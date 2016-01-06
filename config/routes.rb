@@ -105,7 +105,6 @@ H2o::Application.routes.draw do
       get 'delete_inherited_annotations'
       get 'export_unique'
       post 'export_unique'
-
       get 'export'
       post 'export_as'
       post 'save_readable_state'

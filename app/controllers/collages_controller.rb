@@ -2,9 +2,8 @@ class CollagesController < BaseController
   cache_sweeper :collage_sweeper
 
   before_filter :limit_missing_item, :only => :destroy
-  
+
   protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
-  #TODO: MERGE: caches_page :show, :if => Proc.new{|c| c.instance_variable_get('@collage').try(:public?)}
 
   def embedded_pager
     if params.has_key?(:for_annotation)
@@ -133,6 +132,7 @@ class CollagesController < BaseController
   end
 
   def export_unique
+    @item = @collage
     render :action => 'export', :layout => 'print'
   end
 
