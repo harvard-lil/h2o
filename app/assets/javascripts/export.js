@@ -651,6 +651,7 @@ var export_functions = {
     } catch(e) {
       console.log('loadAllAnnotationsComplete warning: ' + e);
     }
+    console.log('DONE: Setting window.status to annotation_load_complete');
     window.status = 'annotation_load_complete';
   },
   loadAllAnnotations: function() {
@@ -892,11 +893,16 @@ $(document).ready(function(){
   // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
   //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
 
+  //Some annotatable content may have no annotations. We still need to signal
+  //the exporters that the doc is 'done' loading. Otherwise they'll spin forever.
+  var has_zero_annotations = Object.keys(all_collage_data).length == 0;
+
   //For content that never has annotations, fire the callback so the exporter knows the doc is done.
   non_annotateds = ['cases', 'text_blocks'];
-  if (non_annotateds.indexOf($('body').data('controller')) > -1) {
+  if (has_zero_annotations || non_annotateds.indexOf($('body').data('controller')) > -1) {
     export_functions.loadAllAnnotationsComplete();
   }
+
   console.log('BOOP: document.ready done');
 });
 

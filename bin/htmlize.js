@@ -83,10 +83,9 @@ page.open(export_url, function(status) {
         });
       },
       function() {  //thing to do when it's ready function
-        console.log('READY GOGOGO');
+        console.log('READY');
         set_styling(page);
         set_toc(cookies['toc_levels']);
-        //TODO: Do export post-processing work here
         write_file(output_file, page.content);
 
         window.setTimeout(function () {
