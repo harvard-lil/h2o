@@ -53,7 +53,7 @@ class PlaylistExporter
         else
           raise "Unsupported export_format '#{export_format}'"
         end
-      rescue StandardError => e
+      rescue => e
         Rails.logger.warn "~~export_as exception: #{e}"
         #ExceptionNotifier.notify_exception(e)
         raise e
@@ -156,38 +156,49 @@ class PlaylistExporter
       output_file
     end
 
+    def html_head_open?(line)
+      line.match(/<head\b/i)
+    end
+
+    def html_body_close?(line)
+      line.match(/<\/body>/i)
+    end
+
     def export_as_pdf(request_url, params)  #_pdf
       command = pdf_command(request_url, params)
+      Rails.logger.warn command.join(' ')
 
       exit_code = nil
-      command_output = ''
+      command_output = []
       html_file = command.last.sub(/\.pdf$/, '.html')
-      html_started = false
-      html_finished = false
+      html_has_started = false
+      html_has_finished = false
 
-      Rails.logger.warn command.join(' ')
-      # Capture rendered HTML the same way we get it for free with phantomjs
       File.open(html_file, 'w') do |log|
+        # In addition to running the exporter, this captures the rendered HTML
+        # the exporter is seeing, the same way we get it for free with phantomjs.
         Open3.popen2e(*command) do |_, out_err, wait_thread|
           out_err.each {|line|
-            html_started = true if line.match(/<head\b/i)
-            html_finished = true if html_started && line.match(/<\/body>/i)
+            html_has_started = true if html_head_open?(line)
+            html_has_finished = true if html_body_close?(line)
 
-            if html_started && !html_finished
+            if html_has_started && (!html_has_finished || html_body_close?(line))
               log.write(line)
             else
               Rails.logger.warn "WKHTMLTOPDF: #{line.rstrip}"
+              command_output << line
             end
           }
           exit_code = wait_thread.value.exitstatus
         end
       end
+      command_text = command_output.join
 
       if exit_code == 0
         command.last
       else
-        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_output}"
-        raise ExportException, command_output
+        Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
+        raise ExportException, command_text
       end
     end
 
@@ -315,10 +326,20 @@ class PlaylistExporter
 
     def pdf_page_options(params)  #_pdf
       [
-        "--no-stop-slow-scripts --debug-javascript",  # --javascript-delay 1000
-        "--window-status annotation_load_complete",
-        "--print-media-type",  # NOTE: DOC export ignores this.
+        '--no-stop-slow-scripts',
+        '--debug-javascript',
+        '--javascript-delay 1000',
+        '--window-status annotation_load_complete',
+        '--print-media-type',  # NOTE: DOC export ignores this.
+        pdf_javascript_deadman_switch('annotation_load_complete'),
       ]
+    end
+
+    def pdf_javascript_deadman_switch(status)  #_pdf
+      # This works with the --window-status switch to prevent wkhtmltopdf from
+      # hanging forever if something goes wrong in the page. Note that this won't  make
+      # it through our system call correctly if there are spaces inside the JS. Seriously.
+      "--run-script if(window.status!='loading_h2o'&&window.status!='#{status}'){window.status='#{status}'};"
     end
 
     def pdf_command(request_url, params)  #_pdf

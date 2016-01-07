@@ -645,8 +645,8 @@ var export_functions = {
       if ($.cookie('export_format') == 'pdf') {
         //Used to log rendered content on the back end.
         console.log("\n" + $(':root').html());
+        //console.log('Skipping PDF logging output during production debugging...');
       }
-
       console.log('loadAllAnnotationsComplete: annotation_load_complete');
     } catch(e) {
       console.log('loadAllAnnotationsComplete warning: ' + e);
@@ -856,6 +856,10 @@ var export_highlighter = {
 }; //end export_highlighter
 
 $(document).ready(function(){
+  // Back-end exporter code relies on this window.status value
+  window.status = 'loading_h2o';
+  console.log('BOOP: document.ready start');
+
   //export_functions.debug_cookies();
   //export_functions.init_missing_cookies();
   export_functions.init_listeners();
