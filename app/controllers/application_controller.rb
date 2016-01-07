@@ -378,22 +378,36 @@ class ApplicationController < ActionController::Base
       session_cookie: cookies[:_h2o_session],
     }
     if request.xhr?
-      render :json => {}
-      # HACK: This needs to be smarter about how it handles a nil current_user, even though it should never happen
-      base_args[:email_to] = current_user.try(:email_address)
-      PlaylistExporter.delay.export_as(base_args)
+      export_content_async(base_args)
     else
-      result = PlaylistExporter.export_as(base_args)
-      if result.success?
-        send_file(result.content_path, filename: result.suggested_filename)
-      else
-        logger.debug "Export failed: #{result.error_message}"
-        render :text => result.error_message
-      end
+      export_content(base_args)
     end
   end
 
   protected
+
+  def export_content_async(base_args)
+    logger.warn "XHR request for export_as with base_args: #{base_args.inspect}"
+    if !current_user
+      render :text => "Sorry. Export is available for logged in users only."
+      return
+    end
+
+    render :json => {}
+    base_args[:email_to] = current_user.email_address
+    PlaylistExporter.delay.export_as(base_args)
+  end
+
+  def export_content(base_args)
+    logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
+    result = PlaylistExporter.export_as(base_args)
+    if result.success?
+      send_file(result.content_path, filename: result.suggested_filename)
+    else
+      logger.warn "Export failed: #{result.error_message}"
+      render :text => result.error_message
+    end
+  end
 
   def generate_sort_list(sort_fields)
     if params.has_key?(:sort)
