@@ -106,7 +106,7 @@ class PlaylistExporter
 
       command = [
                  'phantomjs',
-                 #'--debug=true',
+                 # '--debug=true',
                  'bin/htmlize.js',
                  target_url,
                  out_file,
@@ -148,7 +148,6 @@ class PlaylistExporter
 
       output_file = input_file.sub(/#{File.extname(input_file)}$/, '.doc')
 
-      #TODO: We could delete input_file after we write output_file
       #Note: only the last boundary seems to need the final trailing "--". That
       # could just be Word being, well, Word. *sigh*
       delim = "\n"
@@ -166,6 +165,7 @@ class PlaylistExporter
 
     def export_as_pdf(request_url, params)  #_pdf
       command = pdf_command(request_url, params)
+      output_file = command.last
       Rails.logger.warn command.join(' ')
 
       exit_code = nil
@@ -178,7 +178,9 @@ class PlaylistExporter
         # In addition to running the exporter, this captures the rendered HTML
         # the exporter is seeing, the same way we get it for free with phantomjs.
         Open3.popen2e(*command) do |_, out_err, wait_thread|
-          out_err.each {|line|
+          Rails.logger.warn "WKHTMLTOPDF: Iterating over output:"
+
+          out_err.each do |line|
             html_has_started = true if html_head_open?(line)
             html_has_finished = true if html_body_close?(line)
 
@@ -188,14 +190,15 @@ class PlaylistExporter
               Rails.logger.warn "WKHTMLTOPDF: #{line.rstrip}"
               command_output << line
             end
-          }
+          end
+
           exit_code = wait_thread.value.exitstatus
         end
       end
       command_text = command_output.join
 
       if exit_code == 0
-        command.last
+        output_file
       else
         Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
         raise ExportException, command_text
