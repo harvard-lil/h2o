@@ -18,4 +18,6 @@
 //= require jquery.cookie
 //= require annotator
 //= require annotator.sh2o
+//= require annotator.store
 //= require export
+console.log('application-printLASTLINE');
