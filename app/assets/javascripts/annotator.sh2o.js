@@ -412,7 +412,6 @@ H2O = (function() {
         var elapsed = parseInt((now - phunk_start)/1000);
 
         //Track the loading of all the collages' annotations
-        console.log('Marking collage done_loading: ' + "collage" + annotated_item_id);
         all_collage_data["collage" + annotated_item_id].done_loading = true;
 
         var done_count = 0;

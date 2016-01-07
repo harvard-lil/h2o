@@ -1,3 +1,7 @@
+console.log('EXPORTJSSTART');
+
+try {
+    window.status = 'loading_h2o';  //No need to wait until document.ready for this
 var phunk_start, phunk_last, phunk_end;
 var highlight_css_cache = {};
 var annotations;
@@ -873,7 +877,6 @@ var export_highlighter = {
 $(document).ready(function(){
   try {
     // Exporters rely on this window.status value
-    window.status = 'loading_h2o';
     console.log('BOOP: document.ready start');
 
     //export_functions.debug_cookies();
@@ -907,4 +910,11 @@ $(document).ready(function(){
   }
 });
 
+} catch(e) {
+  //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
+  console.log('OUTER catch CAUGHT: ' + e);
+  console.log(e);
+  console.log('OUTER catch CAUGHTDONE: ');
+} 
 
+console.log('EXPORTJSEND');
