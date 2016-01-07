@@ -595,7 +595,10 @@ var export_functions = {
       export_highlighter.applyStyles($.cookie('export_format'));
       export_functions.setAnnotationsVisibility();
 
-      if (!$.cookie('export_format')) {return;}
+      if (!$.cookie('export_format')) {
+        export_functions.signalAnnotationLoadDone();
+        return;
+      }
 
       // Remove things that would otherwise trip up any of our exporter backends
       $('#print-options').remove();
@@ -647,11 +650,14 @@ var export_functions = {
         console.log("\n" + $(':root').html());
         //console.log('Skipping PDF logging output during production debugging...');
       }
-      console.log('loadAllAnnotationsComplete: annotation_load_complete');
+      console.log('loadAllAnnotationsComplete: Finished');
     } catch(e) {
       console.log('loadAllAnnotationsComplete warning: ' + e);
     }
-    console.log('DONE: Setting window.status to annotation_load_complete');
+    export_functions.signalAnnotationLoadDone();
+  },
+  signalAnnotationLoadDone: function() {
+    console.log('Setting window.status to annotation_load_complete');
     window.status = 'annotation_load_complete';
   },
   loadAllAnnotations: function() {
@@ -711,7 +717,16 @@ var export_functions = {
     });
     return filtered_layer_data;
   },
+  addScaleClasses: function() {
+    $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
 
+    // Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
+    //   from this list, but it shows up in setFontPrint()
+    $('article h1, div.article h1, .new-h1').addClass('scale1-4');
+    $('article h2, div.article h2, .new-h2').addClass('scale1-3');
+    $('article h3, div.article h3, .new-h3').addClass('scale1-2');
+    $('article h4, div.article h4, .new-h4').addClass('scale1-1');
+  },
 };  //end export_functions
 
 var export_highlighter = {
@@ -856,58 +871,40 @@ var export_highlighter = {
 }; //end export_highlighter
 
 $(document).ready(function(){
-  // Back-end exporter code relies on this window.status value
-  window.status = 'loading_h2o';
-  console.log('BOOP: document.ready start');
+  try {
+    // Exporters rely on this window.status value
+    window.status = 'loading_h2o';
+    console.log('BOOP: document.ready start');
 
-  //export_functions.debug_cookies();
-  //export_functions.init_missing_cookies();
-  export_functions.init_listeners();
-  export_functions.init_hash_detail();
-  export_functions.init_user_settings();
+    //export_functions.debug_cookies();
+    //export_functions.init_missing_cookies();
+    export_functions.init_listeners();
+    export_functions.init_hash_detail();
+    export_functions.init_user_settings();
+    export_functions.addScaleClasses();
+    export_functions.loadAllAnnotations();
 
-  $('article sub, article sup, div.article sub, div.article sup').addClass('scale0-8');
+    if (!$.cookie('export_format')) {
+      export_functions.init_theme_picker_listener();
+    }
 
-  // Should h1 actually be scale1-5 here? scale1-5 does seem conspicuously absent
-  //   from this list, but it shows up in setFontPrint()
-  $('article h1, div.article h1, .new-h1').addClass('scale1-4');
-  $('article h2, div.article h2, .new-h2').addClass('scale1-3');
-  $('article h3, div.article h3, .new-h3').addClass('scale1-2');
-  $('article h4, div.article h4, .new-h4').addClass('scale1-1');
+    //Some annotatable content may have no annotations. We still need to signal
+    //the exporters that the doc is 'done' loading. Otherwise they'll spin forever.
+    var has_zero_annotations = Object.keys(all_collage_data).length == 0;
 
-  export_functions.loadAllAnnotations();
+    //For content that never has annotations, fire the callback so the exporter knows the doc is done.
+    non_annotateds = ['cases', 'text_blocks'];
+    if (has_zero_annotations || non_annotateds.indexOf($('body').data('controller')) > -1) {
+      export_functions.loadAllAnnotationsComplete();
+    }
 
-  if (!$.cookie('export_format')) {
-    export_functions.init_theme_picker_listener();
+    console.log('BOOP: document.ready done');
+  } catch(e) {
+    //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
+    console.log('BOOP: document.ready CAUGHT: ' + e);
+    console.log(e);
+    export_functions.signalAnnotationLoadDone();
   }
-
-  //TODO: It could be useful to have a custom_change() method that could optionally
-  //apply a prefix to the code that already runs in a select's change handler. That
-  //select's current change handler would pass a null prefix, indicating it should
-  //operate on the entire document. Conversely, the code in loadState that loads for
-  //a single collage would pass an ID prefix to custom_change(), indicating it
-  //should only operate under that ID. This lets us re-use the change handler code
-  //in a way that is (theoretically) not wildly inefficient.
-  //In other news, perhaps those event handlers could be a little faster if they
-  //specifically targeted only what they would change, based on visibility. E.g.
-  //$('.annotation-link:hidden').show();   //only show the hidden ones. do not try to show the ones already visible
-  //FASTER SYNTAX USING pure CSS selector $('.annotation-link').filter(':hidden').show();
-
-  //Also note that we could see a speed improvement showing/hiding things using
-  // .addClass(), .removeClass()  or  .css('display', ''), .css('display', 'none')
-  //fast vis test: return !(/none/i.test(element.css('display'))) && !(/hidden/i.test(element.css('visibility')));
-
-  //Some annotatable content may have no annotations. We still need to signal
-  //the exporters that the doc is 'done' loading. Otherwise they'll spin forever.
-  var has_zero_annotations = Object.keys(all_collage_data).length == 0;
-
-  //For content that never has annotations, fire the callback so the exporter knows the doc is done.
-  non_annotateds = ['cases', 'text_blocks'];
-  if (has_zero_annotations || non_annotateds.indexOf($('body').data('controller')) > -1) {
-    export_functions.loadAllAnnotationsComplete();
-  }
-
-  console.log('BOOP: document.ready done');
 });
 
 
