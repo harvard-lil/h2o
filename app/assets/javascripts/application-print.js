@@ -10,6 +10,7 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require bind_shim
 //= require jquery
 //= require jquery-ui
 //= require fonts

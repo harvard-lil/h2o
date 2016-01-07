@@ -11,6 +11,16 @@
     <style type="text/css" id="export-styles"></style>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
+<script type="text/javascript">
+  console.log('shimming....');
+  //This also exists in bind_shim.js. You can remove one of them once you're sure which one is safe to remove.
+  Function.prototype.bind = Function.prototype.bind || function (thisp) {
+  var fn = this;
+  return function () {
+    return fn.apply(thisp, arguments);
+  };
+};
+</script>
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
