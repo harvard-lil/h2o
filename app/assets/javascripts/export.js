@@ -1,4 +1,6 @@
 console.log('EXPORTJSSTART');
+console.warn('warn:EXPORTJSSTART');
+window.console.warn('window.console.warn:EXPORTJSSTART');
 
 try {
     window.status = 'loading_h2o';  //No need to wait until document.ready for this
