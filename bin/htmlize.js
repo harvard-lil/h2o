@@ -42,6 +42,10 @@ var set_page_callbacks = function(page) {
   page.onConsoleMessage = function(msg) {
     console.log(msg);
   };
+  page.onResourceError = function(resourceError) {
+    console.log('Unable to load resource (#' + resourceError.id + 'URL:' + resourceError.url + ')');
+    console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
+  };
   page.onError = function(msg, trace) {
     var msgStack = ['ERROR: ' + msg];
     if (trace && trace.length) {
@@ -117,7 +121,7 @@ var waitFor = function(testFx, onReady, timeOutMillis) {
       condition = (typeof(testFx) === "string" ? eval(testFx) : testFx());
     } else {
       if(!condition) {
-        console.log("'waitFor()' timeout");
+        console.log("'waitFor()' timeout after " + maxtimeOutMillis + "ms");
         phantom.exit(1);
       } else {
         // Condition fulfilled (timeout and/or condition is true)
@@ -126,7 +130,7 @@ var waitFor = function(testFx, onReady, timeOutMillis) {
         clearInterval(interval);
       }
     }
-  }, 300); //< repeat check every X milliseconds
+  }, 10000); // repeat check every X milliseconds
 };
 
 var set_toc = function(maxLevel) {
