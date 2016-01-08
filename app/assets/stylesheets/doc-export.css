@@ -1,15 +1,3 @@
-/* Used for PhantomJS script that converts to DOC format */
-/* To take a Word style that's defined for p, li and div and make it also work
-   for a span *without* showing up as a separate Word style in the Word UI:
-   Given: p.Foo, li.Foo, div.Foo
-   {mso-style-name:Foo;
-	mso-style-link:"Foo Char";  <-- Add this to the *existing* style.
-    }
-    span.FooChar  <-- define this *new* style
-	{mso-style-name:"Foo Char";
-	mso-style-link:Foo;
-    }
-*/
 p.Annotation-text, li.Annotation-text, div.Annotation-text
 	{mso-style-name:Annotation-text;
 	mso-style-priority:1;
@@ -23,10 +11,10 @@ p.Annotation-text, li.Annotation-text, div.Annotation-text
 	mso-pagination:widow-orphan;
 	font-size:14.0pt;
 	mso-bidi-font-size:11.0pt;
-	font-family:Garamond,;
+	font-family:Garamond;
 	mso-fareast-font-family:Calibri;
 	mso-bidi-font-family:Calibri;
-	color:#2E74B5
+	color:#2E74B5;
 	mso-themecolor:accent6;
 	mso-themeshade:191;
 	font-style:italic;
@@ -43,7 +31,7 @@ span.Annotation-textChar
 	mso-fareast-font-family:Calibri;
 	mso-hansi-font-family:Garamond;
 	mso-bidi-font-family:Calibri;
-	color:#2E74B5
+	color:#2E74B5;
 	mso-themecolor:accent6;
 	mso-themeshade:191;
 	font-style:italic;
