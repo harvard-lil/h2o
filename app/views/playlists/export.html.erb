@@ -1,6 +1,6 @@
 <div id="playlist" class="singleitem" data-itemid="<%= @playlist.id %>">
 
-   <% if !@load_all && !@playlist_items_limit.nil?%>
+   <% if !@load_all %>
    <div id="playlist-items-limit-notice">
     This is a preview of how your content will look on export. To <b>export</b> the complete content
     in DOC or PDF format, click the blue export button in the upper right corner of this page.
@@ -53,7 +53,7 @@
       }
     %>
 
-    <% if !@load_all && !@playlist_items_limit.nil? %>
+    <% if !@load_all %>
     <div id="playlist-items-limit-notice">
       You've reached the bottom of your content preview.<br/> 
       <%= link_to raw("To <b>view</b> the rest in your browser, click here."), export_all_playlist_url(@playlist)%>   <br/>
