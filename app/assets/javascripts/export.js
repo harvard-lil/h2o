@@ -24,7 +24,7 @@ var cookies = [
     'print_highlights',
     'print_paragraph_numbers',
     'print_titles',
-    'toc_levels',
+    'toc_levels'
 ]
 var h2o_themes = {
     'default' : {
@@ -36,7 +36,7 @@ var h2o_themes = {
         '#margin-top': '0.75in',
         '#margin-right': '0.75in',
         '#margin-bottom': '0.75in',
-        '#margin-left': '0.75in',
+        '#margin-left': '0.75in'
     },
     'classic' : {
         '#toc_levels': '5',
@@ -47,7 +47,7 @@ var h2o_themes = {
         '#margin-top': '1.0in',
         '#margin-right': '1.5in',
         '#margin-bottom': '1.0in',
-        '#margin-left': '0.75in',
+        '#margin-left': '0.75in'
     },
     'modern' : {
         '#toc_levels': '5',
@@ -58,7 +58,7 @@ var h2o_themes = {
         '#margin-top': '0.75in',
         '#margin-right': '0.75in',
         '#margin-bottom': '0.75in',
-        '#margin-left': '0.75in',
+        '#margin-left': '0.75in'
     },
 };
 
@@ -214,7 +214,7 @@ var table_of_contents = {
         return arr.reduce(function (flat, toFlatten) {
             return flat.concat(Array.isArray(toFlatten) ? table_of_contents.flatten(toFlatten) : toFlatten);
         }, []);
-    },
+    }
 };
 
 var export_functions = {
@@ -327,7 +327,7 @@ var export_functions = {
             print_margin_left: 'margin-left',
             print_margin_top: 'margin-top',
             print_margin_right: 'margin-right',
-            print_margin_bottom: 'margin-bottom',
+            print_margin_bottom: 'margin-bottom'
         };
         Object.keys(defaults).forEach(function(name) {
             $.cookie(name, $.cookie(name) || $('#' + defaults[name]).val() );
@@ -338,7 +338,7 @@ var export_functions = {
         // $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
         // $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
         */
-    } ,
+    },
     init_user_settings: function() {
       //This function only looks to change the default behavior. I.g. if the
       //default is to *not* show annotations, this function only looks to see if
@@ -553,7 +553,7 @@ var export_functions = {
       base + ' *.scale1-2 { font-size: ' + base_font_size * 1.2 + 'px; }',
       base + ' *.scale1-1 { font-size: ' + base_font_size * 1.1 + 'px; }',
       base + ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
-      base + ' *.scale0-8,' + base + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }',
+      base + ' *.scale0-8,' + base + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }'
     ].join("\n");
 
     $('#additional_styles').text('');
@@ -732,7 +732,7 @@ var export_functions = {
     $('article h2, div.article h2, .new-h2').addClass('scale1-3');
     $('article h3, div.article h3, .new-h3').addClass('scale1-2');
     $('article h4, div.article h4, .new-h4').addClass('scale1-1');
-  },
+  }
 };  //end export_functions
 
 var export_highlighter = {
@@ -873,7 +873,7 @@ var export_highlighter = {
     console.warn('@_@ rule mismatch @_@');
     console.warn('previous: ' + highlight_css_cache[full_selector]);
     console.warn('new rule: ' + rule);
-  },
+  }
 }; //end export_highlighter
 
 $(document).ready(function(){
@@ -913,7 +913,7 @@ $(document).ready(function(){
 });
 
 } catch(e) {
-  //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
+  //If anything goes wrong, we need to set window.status. Otherwise the exporters will hang.
   console.log('OUTER catch CAUGHT: ' + e);
   console.log(e);
   console.log('OUTER catch CAUGHTDONE: ');
