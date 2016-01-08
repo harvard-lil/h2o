@@ -1,5 +1,5 @@
 class CasesController < BaseController
-  protect_from_forgery except: [:approve, :destroy]
+  protect_from_forgery except: [:export, :export_all, :export_as, :approve, :destroy]
 
   cache_sweeper :case_sweeper
   caches_page :show, :if => Proc.new { |c| c.instance_variable_get('@case').public? }

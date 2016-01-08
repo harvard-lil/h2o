@@ -3,7 +3,7 @@ class CollagesController < BaseController
 
   before_filter :limit_missing_item, :only => :destroy
 
-  protect_from_forgery :except => [:export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
+  protect_from_forgery :except => [:export, :export_all, :export_as, :export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
 
   def embedded_pager
     if params.has_key?(:for_annotation)
