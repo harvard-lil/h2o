@@ -12,7 +12,9 @@
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
     <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
 <script type="text/javascript">
-  console.log('shimming....');
+  console.log('inline-shimming....');
+  console.warn('inline-warn-shimming....');
+  console.warn(document.cookie);
   //This also exists in bind_shim.js. You can remove one of them once you're sure which one is safe to remove.
   Function.prototype.bind = Function.prototype.bind || function (thisp) {
   var fn = this;
@@ -21,6 +23,7 @@
   };
 };
 </script>
+
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -230,7 +233,7 @@
     </div>
    </div>
 
-    <%= javascript_include_tag "application-print" %>
+    <%= javascript_include_tag "application-print", type: "text/javascript" %>
     <%= render "shared/google_analytics" %>
 
   </body>
