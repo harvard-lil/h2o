@@ -96,8 +96,7 @@ page.open(export_url, function(status) {
           phantom.exit();
         }, 2000);
       },
-      600000  //Arbitrarily huge number of seconds to let giant playlists finish
-      //3200  //Arbitrarily huge number of seconds to let giant playlists finish
+      1200000  //Arbitrarily huge number of milliseconds to let giant playlists finish
     );
   }, 200);
 });
