@@ -310,17 +310,12 @@ H2O = (function() {
         $(annotation._local.highlights).addClass('annotation-' + annotation.id);
       });
 
-      if(this.initialized) {
-        return;
-      }
-
+      if (this.initialized) {return;}
       this.initialized = true;
 
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setLayeredBorders(annotation);
-
-        var single_anno_start = new Date();
-        if(annotation.hidden) {
+        if (annotation.hidden) {
           H2O.prototype.applyHiddenAnnotation(annotation);
         } else {
           H2O.prototype.setHighlights(annotation, false);
@@ -341,21 +336,16 @@ H2O = (function() {
       if (!!$('#collage_print').length) {
         collages.loadState($('.singleitem').data('itemid'), original_data);
       }
+
       if (!!$('#print-options').length) {
         collages.loadState(
           annotated_item_id,
           all_collage_data["collage" + annotated_item_id].data
         );
+        H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
       } else {
-        //console.log('Missing #print-options');
-      }
-
-      if (!$('#print-options').length) {
-        //Skip extraneous work that doesn't apply to print-options. Might be able to skip
-        //this for collage_print too, but I didn't have time to prove that.
-
-        //loadState has to be before listenTo
-        if(!h2o_annotator.options.readOnly) {
+        //Might be able to skip this block for collage_print too. I didn't have time to look.
+        if (!h2o_annotator.options.readOnly) {
           collages.listenToRecordAnnotatedItemState();
         }
 
@@ -369,12 +359,7 @@ H2O = (function() {
         $('.annotator-checkbox input').prop('checked', false);
         $('.annotator-controls a, #h2o_delete').show();
         $('#link').val('');
-      }
-
-      h2o_global.slideToAnnotation();
-
-      if (typeof(all_collage_data) != 'undefined') {
-        H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
+        h2o_global.slideToAnnotation();
       }
     });
 
