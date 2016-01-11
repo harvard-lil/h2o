@@ -165,6 +165,8 @@ class Collage < ActiveRecord::Base
     attrs = %i[
       id
       collage_id
+      annotated_item_id
+      annotated_item_type
       annotation
       xpath_start
       xpath_end
@@ -174,6 +176,9 @@ class Collage < ActiveRecord::Base
       hidden
       highlight_only
     ]
+
+    # TODO: Fix N+1 error with this. UNTESTED
+    # self.annotations.includes([:layers, :taggings => :tag]).inject({}) {|h, a|
     self.annotations.inject({}) {|h, a|
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
