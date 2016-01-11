@@ -4,7 +4,6 @@ window.console.warn('window.console.warn:EXPORTJSSTART');
 
 try {
     window.status = 'loading_h2o';  //No need to wait until document.ready for this
-var phunk_start, phunk_last, phunk_end;
 var highlight_css_cache = {};
 var annotations;
 var original_data = {};

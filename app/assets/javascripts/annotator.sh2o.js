@@ -316,7 +316,6 @@ H2O = (function() {
 
       this.initialized = true;
 
-      var annotations_count = Object.keys(annotations).length;
       $.each(annotations, function(i, annotation) {
         H2O.prototype.setLayeredBorders(annotation);
 
@@ -348,7 +347,7 @@ H2O = (function() {
           all_collage_data["collage" + annotated_item_id].data
         );
       } else {
-        console.log('Missing #print-options');
+        //console.log('Missing #print-options');
       }
 
       if (!$('#print-options').length) {
@@ -374,46 +373,9 @@ H2O = (function() {
 
       h2o_global.slideToAnnotation();
 
-      try {
-        //TODO: rename these vars and make them attributes of the H2O object
-        phunk_start = phunk_start || new Date();
-        phunk_last = phunk_last || new Date();
-
-        var now = new Date()
-        var incTime = (now - phunk_last);
-        phunk_last = now;
-        var incTimeSeconds = incTime / 1000;
-        var elapsed = parseInt((now - phunk_start)/1000);
-
-        //Track the loading of all the collages' annotations
-        all_collage_data["collage" + annotated_item_id].done_loading = true;
-
-        var done_count = 0;
-
-        //TODO: encapsulate this loading_done? check into its own function
-        var done_loading = true;
-        $.each(all_collage_data, function(id, annotation) {
-          if (!annotation.done_loading) {
-            done_loading = false;
-            return;
-          } else {
-            done_count++;
-          }
-        });
-
-        //console.log('al_duration: ' + ((new Date() - starttime)/1000) + 's');
-        console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
-                    ' - ' + annotations_count + ' in ' +
-                    incTimeSeconds + 's of ' +
-                    elapsed + 's total' +
-                    ' - (' + done_count + '/' + Object.keys(all_collage_data).length + ')'
-                   );
-
-        if (done_loading && export_functions) {
-          export_functions.loadAllAnnotationsComplete();
-        }
-      } catch(e) {console.log('annotationsLoaded warning: ' + e);}
-
+      if (typeof(all_collage_data) != 'undefined') {
+        H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
+      }
     });
 
     this.annotator.subscribe("annotationEditorSubmit", function(editor) {
@@ -1029,7 +991,7 @@ H2O = (function() {
   };
 
   H2O.prototype.applyHiddenAnnotation = function(annotation) {
-    console.log(annotation);
+    //console.log(annotation);
     //NOTE: hidden text annotations with large amounts of text can be very slow here.
     $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
     var anno_nodes = $('.annotation-' + annotation.id);
@@ -1053,6 +1015,41 @@ H2O = (function() {
 
   };
 
+  H2O.prototype.markAnnotationLoaded = function(all_collage_data, annotated_item_id) {
+    all_collage_data["collage" + annotated_item_id].done_loading = true;
+
+    if (typeof(exportAnnotationLoadStart) == 'undefined') {exportAnnotationLoadStart = new Date();}
+    if (typeof(exportAnnotationLoadLast) == 'undefined') {exportAnnotationLoadLast = new Date();}
+
+    var done_count = 0;
+    var done_loading = true;
+    $.each(all_collage_data, function(id, annotation) {
+      if (!annotation.done_loading) {
+        done_loading = false;
+        return;
+      } else {
+        done_count++;
+      }
+    });
+
+    var now = new Date()
+    var incTime = (now - exportAnnotationLoadLast);
+    exportAnnotationLoadLast = now;
+    var incTimeSeconds = (incTime / 1000).toPrecision(2);
+    var elapsed = parseFloat((now - exportAnnotationLoadStart)/1000);
+    var elapsedDisplay = (elapsed < 100) ? elapsed.toPrecision(2) : parseInt(elapsed);
+    var annotations_count = Object.keys(annotations).length;
+    console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
+                ' - ' + annotations_count + ' in ' +
+                incTimeSeconds + 's of ' +
+                elapsedDisplay + 's total' +
+                ' - (' + done_count + '/' + Object.keys(all_collage_data).length + ')'
+               );
+
+    if (done_loading) {
+      export_functions.loadAllAnnotationsComplete();
+    }
+  };
 
   H2O.prototype.updateEditor = function(field, annotation) {
     $('.annotator-checkbox input').prop('checked', false);
