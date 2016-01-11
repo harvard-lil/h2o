@@ -322,36 +322,10 @@ H2O = (function() {
 
         var single_anno_start = new Date();
         if(annotation.hidden) {
-          //NOTE: hidden text annotations with large amounts of text can be very slow here.
-          $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
-          var anno_nodes = $('.annotation-' + annotation.id);
-          anno_nodes.addClass('annotation-hidden').hide();
-          var anno_nodes_oc_parents = anno_nodes.parents('.original_content');
-          anno_nodes_oc_parents.filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
-
-          $.each(anno_nodes_oc_parents.filter(':not(.original_content *)'), function(i, j) {
-            var j_node = $(j);
-            var has_text_node = false;
-            $.each(j_node.contents(), function(k, l) {
-              if(l.nodeType == 3 && $(l).text() != ' ') {
-                has_text_node = true;
-                return;
-              }
-            });
-            if(has_text_node) {
-              j_node.show();
-            }
-          });
+          H2O.prototype.applyHiddenAnnotation(annotation);
         } else {
           H2O.prototype.setHighlights(annotation, false);
         }
-
-        //NOTE: The timing info below shows the first annotation in annotations
-        //almost always takes roughly 550ms, while the subsequent ones usually
-        //take an average of 15ms. That might actually just be an error in how
-        //we're logging the time. I haven't really looked into it.
-
-        //console.log('single_anno_^^^^^: ' + ((new Date() - single_anno_start)/1000) + 's');
 
         if (!$('#print-options').length) {
           H2O.prototype.addAnnotationIndicator(annotation);
@@ -1052,9 +1026,33 @@ H2O = (function() {
         } 
       });
     }
-
-    return;
   };
+
+  H2O.prototype.applyHiddenAnnotation = function(annotation) {
+    console.log(annotation);
+    //NOTE: hidden text annotations with large amounts of text can be very slow here.
+    $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
+    var anno_nodes = $('.annotation-' + annotation.id);
+    anno_nodes.addClass('annotation-hidden').hide();
+    var anno_nodes_oc_parents = anno_nodes.parents('.original_content');
+    anno_nodes_oc_parents.filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
+
+    $.each(anno_nodes_oc_parents.filter(':not(.original_content *)'), function(i, j) {
+      var j_node = $(j);
+      var has_text_node = false;
+      $.each(j_node.contents(), function(k, l) {
+        if(l.nodeType == 3 && $(l).text() != ' ') {
+          has_text_node = true;
+          return;
+        }
+      });
+      if(has_text_node) {
+        j_node.show();
+      }
+    });
+
+  };
+
 
   H2O.prototype.updateEditor = function(field, annotation) {
     $('.annotator-checkbox input').prop('checked', false);
