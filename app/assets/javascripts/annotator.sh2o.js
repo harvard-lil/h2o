@@ -995,14 +995,15 @@ H2O = (function() {
     if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
       layer_class = 'hex-' + annotation.highlight_only;
     }
-    var clean_layer = collages.clean_layer(layer_class);
-
     var start_node = $('.annotation-' + _id + ':first');
-    var text = annotation.text.length > 0 ? annotation.text : '...';
-    $('<a href="#" class="layered-control-start layered-control-start-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '">[' + text + ']</a>').insertBefore(start_node);
+    var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
+    var clean_layer = collages.clean_layer(layer_class);
+    var fooble = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
+
+    $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
     var end_node = $('.annotation-' + _id + ':last');
-    $('<a href="#" class="layered-control-end layered-control-end-' + _id + ' ' + clean_layer + '" data-layered="' + _id + '" data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
+    $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
