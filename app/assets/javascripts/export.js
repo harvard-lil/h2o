@@ -1,9 +1,6 @@
 console.log('EXPORTJSSTART');
-console.warn('warn:EXPORTJSSTART');
-window.console.warn('window.console.warn:EXPORTJSSTART');
+window.status = 'loading_h2o';
 
-try {
-    window.status = 'loading_h2o';  //No need to wait until document.ready for this
 var highlight_css_cache = {};
 var annotations;
 var original_data = {};
@@ -58,7 +55,7 @@ var h2o_themes = {
         '#margin-right': '0.75in',
         '#margin-bottom': '0.75in',
         '#margin-left': '0.75in'
-    },
+    }
 };
 
 var collages = {
@@ -121,7 +118,7 @@ var collages = {
       calling it every collage < the Xth one, keeping X less than 10.
      */
     /*
-//The code below this line in this method takes up ~40% of the load time of playlist #22368.
+    //The code below this line in this method takes up ~40% of the load time of playlist #22368.
     //annotations (really comments here) and links are hidden by CSS by default
     if($('#printannotations').val() == 'yes') {
       //$('#printannotations').change();
@@ -261,6 +258,7 @@ var export_functions = {
       data: $(form).serialize(),
       url: form.attr('action'),
       error: function(xhr) {
+        alert('Sorry, there was an unexpected error.');
         console.log('POSTerror: ', xhr.responseText.substring(0, 333));
       },
       success: function(html) {
@@ -897,7 +895,7 @@ $(document).ready(function(){
     var has_zero_annotations = Object.keys(all_collage_data).length == 0;
 
     //For content that never has annotations, fire the callback so the exporter knows the doc is done.
-    non_annotateds = ['cases', 'text_blocks'];
+    var non_annotateds = ['cases', 'text_blocks'];
     if (has_zero_annotations || non_annotateds.indexOf($('body').data('controller')) > -1) {
       export_functions.loadAllAnnotationsComplete();
     }
@@ -910,12 +908,5 @@ $(document).ready(function(){
     export_functions.signalAnnotationLoadDone();
   }
 });
-
-} catch(e) {
-  //If anything goes wrong, we need to set window.status. Otherwise the exporters will hang.
-  console.log('OUTER catch CAUGHT: ' + e);
-  console.log(e);
-  console.log('OUTER catch CAUGHTDONE: ');
-} 
 
 console.log('EXPORTJSEND');

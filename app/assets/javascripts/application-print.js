@@ -19,6 +19,5 @@
 //= require jquery.cookie
 //= require annotator
 //= require annotator.sh2o
-//= require annotator.store
-//= require export
-console.log('application-printLASTLINE');
+// do not require export here. It will break under wkhtmltopdf.
+console.log('application-printLASTLINE2');
