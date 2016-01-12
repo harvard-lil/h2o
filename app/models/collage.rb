@@ -158,7 +158,7 @@ class Collage < ActiveRecord::Base
         layers[l.id][:annotation_count] = layers[l.id][:annotation_count].to_i + 1
       end
     end
-    return layers
+    layers
   end
 
   def annotations_as_export_json
@@ -179,7 +179,11 @@ class Collage < ActiveRecord::Base
 
     # TODO: Fix N+1 error with this. UNTESTED
     # self.annotations.includes([:layers, :taggings => :tag]).inject({}) {|h, a|
+    # Tweak xpath selectors to work with similarly tweaked DOM present during export
+    new_h2 = "/div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
     self.annotations.inject({}) {|h, a|
+      a.xpath_start.sub!(/\/h2/, new_h2)
+      a.xpath_end.sub!(  /\/h2/, new_h2)
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
     }.to_json
