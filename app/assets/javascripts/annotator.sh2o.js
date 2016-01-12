@@ -303,63 +303,69 @@ H2O = (function() {
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
       var annotated_item_id = this.plugins.H2O.annotated_item_id;
+      try {
+        $('#annotator-field-0').addClass('no_tinymce');
+        $.each(annotations, function(i, annotation) {
+          $(annotation._local.highlights).addClass('annotation-' + annotation.id);
+        });
 
-      $('#annotator-field-0').addClass('no_tinymce');
+        if (this.initialized) {return;}
+        this.initialized = true;
 
-      $.each(annotations, function(i, annotation) {
-        $(annotation._local.highlights).addClass('annotation-' + annotation.id);
-      });
+        $.each(annotations, function(i, annotation) {
+          H2O.prototype.setLayeredBorders(annotation);
+          if (annotation.hidden) {
+            H2O.prototype.applyHiddenAnnotation(annotation);
+          } else {
+            H2O.prototype.setHighlights(annotation, false);
+          }
 
-      if (this.initialized) {return;}
-      this.initialized = true;
+          if (!$('#print-options').length) {
+            H2O.prototype.addAnnotationIndicator(annotation);
+            h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
+          }
+        });
 
-      $.each(annotations, function(i, annotation) {
-        H2O.prototype.setLayeredBorders(annotation);
-        if (annotation.hidden) {
-          H2O.prototype.applyHiddenAnnotation(annotation);
+        collages.rehighlight();
+
+        if (h2o_annotator.options.readOnly) {
+          access_results = { can_edit: false };
+        }
+
+        if (!!$('#collage_print').length) {
+          collages.loadState($('.singleitem').data('itemid'), original_data);
+        }
+
+        if (!!$('#print-options').length) {
+          collages.loadState(
+            annotated_item_id,
+            all_collage_data["collage" + annotated_item_id].data
+          );
+          H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
         } else {
-          H2O.prototype.setHighlights(annotation, false);
+          //Might be able to skip this block for collage_print too. I didn't have time to look.
+          if (!h2o_annotator.options.readOnly) {
+            collages.listenToRecordAnnotatedItemState();
+          }
+
+          $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
+          $('#show_annotation').hide().parent().addClass('annotation_hidden_property');
+
+          collages.getHexes().insertAfter($('#new_layer'));
+
+          $('<a>').attr('id', 'remove_edit_quicklink').html('Remove edit?').insertAfter($('input#show_annotation'));
+          $('.annotator-listing li').hide();
+          $('.annotator-checkbox input').prop('checked', false);
+          $('.annotator-controls a, #h2o_delete').show();
+          $('#link').val('');
+          h2o_global.slideToAnnotation();
         }
-
-        if (!$('#print-options').length) {
-          H2O.prototype.addAnnotationIndicator(annotation);
-          h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
+      } catch(e) {
+        if (!!$('#print-options').length) {
+          // Always mark annotation loaded. This prevents the exporters from hanging
+          // because they think there are still annotations waiting to load.
+          H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
         }
-      });
-
-      collages.rehighlight();
-
-      if (h2o_annotator.options.readOnly) {
-        access_results = { can_edit: false };
-      }
-
-      if (!!$('#collage_print').length) {
-        collages.loadState($('.singleitem').data('itemid'), original_data);
-      }
-
-      if (!!$('#print-options').length) {
-        collages.loadState(
-          annotated_item_id,
-          all_collage_data["collage" + annotated_item_id].data
-        );
-        H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
-      } else {
-        //Might be able to skip this block for collage_print too. I didn't have time to look.
-        if (!h2o_annotator.options.readOnly) {
-          collages.listenToRecordAnnotatedItemState();
-        }
-
-        $('.annotator-edit,.annotator-delete').css('opacity', 0.0);
-        $('#show_annotation').hide().parent().addClass('annotation_hidden_property');
-
-        collages.getHexes().insertAfter($('#new_layer'));
-
-        $('<a>').attr('id', 'remove_edit_quicklink').html('Remove edit?').insertAfter($('input#show_annotation'));
-        $('.annotator-listing li').hide();
-        $('.annotator-checkbox input').prop('checked', false);
-        $('.annotator-controls a, #h2o_delete').show();
-        $('#link').val('');
-        h2o_global.slideToAnnotation();
       }
     });
 
@@ -905,6 +911,8 @@ H2O = (function() {
   };
 
   H2O.prototype.setLayeredBorders = function(annotation) {
+    // NOTE: This poorly named function actually creates [...] for a hidden annotation
+    //   and sets click event handlers on it.
     var _id = annotation.id;
     if(_id === undefined) {
       _id = 'noid';
@@ -916,10 +924,11 @@ H2O = (function() {
     if(annotation.highlight_only !== null && annotation.highlight_only !== undefined) {
       layer_class = 'hex-' + annotation.highlight_only;
     }
+
     var start_node = $('.annotation-' + _id + ':first');
     if (!start_node.length) {
-      // TODO: We could probably bail out at this point, but I haven't tested that.
       console.warn('Could not find start_node for annotation: ' + _id);
+      return;
     }
 
     var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
@@ -928,18 +937,22 @@ H2O = (function() {
 
     $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
     $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
+
     var end_node = $('.annotation-' + _id + ':last');
     if (!end_node.length) {
-      // TODO: We could probably bail out at this point, but I haven't tested that.
+      // TODO: We should probably bail out at this point, but I haven't tested
+      // that and we might still need to set click handlers. I doubt anything
+      // is going to work if end_node is null, though.
       console.warn('Could not find end_node for annotation: ' + _id);
     }
 
     $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
+    // NOTE: Does this set the same event handler every time we create an annotation in the DOM?
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
       if(!!$('#print-options').length) {
-        //Export doesn't need event handlers on things it will never display
+        // Export doesn't need to do anything more than ignore the click
         return;
       }
       var _id = $(this).data('layered');
