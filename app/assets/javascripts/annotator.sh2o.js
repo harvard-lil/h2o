@@ -917,6 +917,11 @@ H2O = (function() {
       layer_class = 'hex-' + annotation.highlight_only;
     }
     var start_node = $('.annotation-' + _id + ':first');
+    if (!start_node.length) {
+      // TODO: We could probably bail out at this point, but I haven't tested that.
+      console.warn('Could not find start_node for annotation: ' + _id);
+    }
+
     var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
     var clean_layer = collages.clean_layer(layer_class);
     var fooble = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
@@ -924,6 +929,11 @@ H2O = (function() {
     $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
     $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
     var end_node = $('.annotation-' + _id + ':last');
+    if (!end_node.length) {
+      // TODO: We could probably bail out at this point, but I haven't tested that.
+      console.warn('Could not find end_node for annotation: ' + _id);
+    }
+
     $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
