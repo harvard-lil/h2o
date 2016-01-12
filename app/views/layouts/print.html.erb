@@ -5,8 +5,8 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <title><%= raw @page_title ? "Export #{raw @page_title}" : "H2O Classroom Tools" %></title>
 
-    <%= stylesheet_link_tag "application-print", media: "all" %>
-    <%= stylesheet_link_tag "print", media: "print" %>
+    <%= stylesheet_link_tag "application-print", media: "all", class: "stylesheet-link-tag" %>
+    <%= stylesheet_link_tag "print", media: "print", class: "stylesheet-link-tag" %>
 
     <style type="text/css" id="export-styles"></style>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
