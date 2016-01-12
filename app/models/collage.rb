@@ -185,8 +185,11 @@ class Collage < ActiveRecord::Base
     # xpath_start: "/center[3]/p[1]", xpath_end: "/h2[1]"  #not supported
     new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
     self.annotations.inject({}) {|h, a|
+      # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
       a.xpath_start.sub!('h2', new_h2)
       a.xpath_end.sub!(  'h2', new_h2)
+      # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
+      # logger.debug a.inspect  if a.id == 289604
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
     }.to_json
@@ -203,6 +206,7 @@ class Collage < ActiveRecord::Base
     if self.version == self.annotatable.version
       original_content = self.annotatable.content
     else
+      # BUG: Is that supposed to be an assignment or a comparison?
       original_content = self.annotatable.frozen_items.detect { |f| f.version = self.version }.content
     end
 
