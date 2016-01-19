@@ -186,10 +186,9 @@ class Collage < ActiveRecord::Base
     new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
     self.annotations.inject({}) {|h, a|
       # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
-      a.xpath_start.sub!('h2', new_h2)
-      a.xpath_end.sub!(  'h2', new_h2)
+      a.xpath_start.to_s.sub!('h2', new_h2)
+      a.xpath_end.to_s.sub!(  'h2', new_h2)
       # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
-      # logger.debug a.inspect  if a.id == 289604
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
     }.to_json
