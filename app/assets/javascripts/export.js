@@ -1,4 +1,3 @@
-console.log('EXPORTJSSTART');
 window.status = 'loading_h2o';
 
 var highlight_css_cache = {};
@@ -648,6 +647,9 @@ var export_functions = {
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       $("body *").filter(":hidden").not("script").remove();
 
+      //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file
+      $("script").remove();
+
       if ($.cookie('export_format') == 'pdf') {
         //Used to log rendered content on the back end.
         console.log("\n" + $(':root').html());
@@ -909,4 +911,3 @@ $(document).ready(function(){
   }
 });
 
-console.log('EXPORTJSEND');
