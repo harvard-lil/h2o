@@ -204,6 +204,7 @@ var set_styling = function(page) {
       var font_face_string = cookies['print_font_face_mapped'];
       var font_size_string = cookies['print_font_size_mapped'];
 
+        //NOTE: Some of these rules work with the non-Microsoft-specific CSS we inject, too.
         var header = [
             "<!--[if gte mso 9]>",
             "<xml><w:WordDocument><w:View>Print</w:View>",
@@ -213,7 +214,6 @@ var set_styling = function(page) {
             "<style><!-- ",
             "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
-            //NOTE: This works in conjunction with the non-Microsoft-specific CSS we inject, too.
             "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
             "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
@@ -224,22 +224,23 @@ var set_styling = function(page) {
 
         $('title').after($(header));
 
-        //TODO: Can probably remove un-needed media filter
         var sheets = [];
-        $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
-            sheets.push(el);
+        $('.stylesheet-link-tag').each(function(i, el) {
+          sheets.push(el);
         });
 
         //Word ignores external stylesheets, so we inject their CSS inline into the DOM
         //and remove the actual stylesheet tags to prevent errors when Word tries to
         //load that over the network or something silly like that.
-        var injectable_css = [];
+        var injectable_stylesheets = [];
         for (var i in sheets) {
           var sheet = sheets[i];
-          injectable_css.push( $(sheet).cssText() );
+          if (sheet.attr('media') != 'screen') {
+            injectable_stylesheets.push( $(sheet).cssText() );
+          }
           $(sheet).remove();
         }
-        $('#export-styles').append(injectable_css.join("\n"));
+        $('#export-styles').append(injectable_stylesheets.join("\n"));
 
         $('#additional_styles').append($('#additional_styles').cssText());
         $('#highlight_styles').append($('#highlight_styles').cssText());
