@@ -1,15 +1,5 @@
 .popup, .playlist .icon-type { display: none; }
-/* .page-break { page-break-after: always; } */
 #print-options { display: none; }
-.collage-content {
-  padding-left: 35px;
-}
-.wrapper {
-/*  //turning these off to clarify phantomjs styling issues
-  max-width: 7.5in !important;
-  width: 7.5in !important;
-  margin-left: 0px !important;
-  padding-bottom: 0px;
-  */
-}
+.collage-content { padding-left: 35px; }
+
 
