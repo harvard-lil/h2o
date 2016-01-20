@@ -107,7 +107,7 @@ class PlaylistExporter
       command = [
                  'phantomjs',
                  # '--debug=true',
-                 'bin/htmlize.js',
+                 'app/assets/javascripts/phantomjs-export.js',
                  target_url,
                  out_file,
                  options_tempfile.path,

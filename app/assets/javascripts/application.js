@@ -16,3 +16,4 @@
 //= require ui
 //= require_tree .
 //= stub export
+//= stub phantomjs-export
