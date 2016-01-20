@@ -1,8 +1,8 @@
 require 'tempfile'
 require 'uri'
 
-# TODO: Now that it's stable, this would benefit from bundle of refacting into
-#   the intended ExportService class.
+# TODO: Now that it's stable, this would benefit from refactoring into the
+#   intended ExportService class.
 class PlaylistExporter
 
   class ExportException < StandardError; end
@@ -18,7 +18,7 @@ class PlaylistExporter
     'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
     'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
     'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
-    'printlinks' => {'cookie_name' => 'print_links' },
+    'printlinks' => {'cookie_name' => 'print_links', 'cookval' => 'true', 'formval' => 'yes', },
     'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
     'printhighlights' => {'cookie_name' => 'print_highlights'},
     'fontface' => {'cookie_name' => 'print_font_face'},
