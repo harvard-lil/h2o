@@ -313,6 +313,7 @@ var export_functions = {
         $('h1 > .number a').css("color", new_color)
     },
     debug_cookies: function() {
+      console.log('Cookie dump:');
       console.log(document.cookie.split('; ').join("\n"));
     },
     init_missing_cookies: function() {
@@ -880,7 +881,7 @@ $(document).ready(function(){
     // Exporters rely on this window.status value
     console.log('BOOP: document.ready start');
 
-    //export_functions.debug_cookies();
+    export_functions.debug_cookies();
     //export_functions.init_missing_cookies();
     export_functions.init_listeners();
     export_functions.init_hash_detail();
