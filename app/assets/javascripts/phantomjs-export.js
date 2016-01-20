@@ -224,23 +224,22 @@ var set_styling = function(page) {
 
         $('title').after($(header));
 
+        //Word ignores external stylesheets, so we inject their CSS inline into the DOM
+        //and remove the actual stylesheet tags to prevent errors when Word tries to
+        //load that over the network or something silly like that.
         var sheets = [];
         $('.stylesheet-link-tag').each(function(i, el) {
           sheets.push(el);
         });
-
-        //Word ignores external stylesheets, so we inject their CSS inline into the DOM
-        //and remove the actual stylesheet tags to prevent errors when Word tries to
-        //load that over the network or something silly like that.
-        var injectable_stylesheets = [];
+        var injectable_css = [];
         for (var i in sheets) {
-          var sheet = sheets[i];
+          var sheet = $(sheets[i]);
           if (sheet.attr('media') != 'screen') {
-            injectable_stylesheets.push( $(sheet).cssText() );
+            injectable_css.push( sheet.cssText() );
           }
-          $(sheet).remove();
+          sheet.remove();
         }
-        $('#export-styles').append(injectable_stylesheets.join("\n"));
+        $('#export-styles').append(injectable_css.join("\n"));
 
         $('#additional_styles').append($('#additional_styles').cssText());
         $('#highlight_styles').append($('#highlight_styles').cssText());
