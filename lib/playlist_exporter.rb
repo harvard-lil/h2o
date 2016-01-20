@@ -155,11 +155,11 @@ class PlaylistExporter
       output_file
     end
 
-    def html_head_open?(line)
+    def html_head_open?(line)  #_pdf
       line.match(/<head\b/i)
     end
 
-    def html_body_close?(line)
+    def html_body_close?(line)  #_pdf
       line.match(/<\/body>/i)
     end
 

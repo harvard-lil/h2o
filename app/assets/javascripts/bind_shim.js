@@ -1,4 +1,4 @@
-//This is required for the wkhtmltopdf exporter to work correctly in production with compiled assets
+//This helps prevent masking JavaScript error messages as wkhtmltopdf reports them
 Function.prototype.bind = Function.prototype.bind || function (thisp) {
   var fn = this;
   return function () {

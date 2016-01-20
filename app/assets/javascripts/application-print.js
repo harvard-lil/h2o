@@ -20,4 +20,4 @@
 //= require annotator
 //= require annotator.sh2o
 // do not require export here. It will break under wkhtmltopdf.
-console.log('application-printLASTLINE2');
+
