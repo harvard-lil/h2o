@@ -224,21 +224,25 @@ var set_styling = function(page) {
 
         $('title').after($(header));
 
+        //TODO: Can probably remove un-needed media filter
         var sheets = [];
         $('.stylesheet-link-tag').not("[media^=screen]").each(function(i, el) {
-            sheets.push( el );
+            sheets.push(el);
         });
 
-        //Word ignores external stylesheets, so we inject them into the DOM.
+        //Word ignores external stylesheets, so we inject their CSS inline into the DOM
+        //and remove the actual stylesheet tags to prevent errors when Word tries to
+        //load that over the network or something silly like that.
+        var injectable_css = [];
         for (var i in sheets) {
-            var sheet = sheets[i];
-            $('#export-styles').append($(sheet).cssText());
-            $(sheet).remove();  //prevents "missing asset" error in Word
+          var sheet = sheets[i];
+          injectable_css.push( $(sheet).cssText() );
+          $(sheet).remove();
         }
+        $('#export-styles').append(injectable_css.join("\n"));
+
         $('#additional_styles').append($('#additional_styles').cssText());
         $('#highlight_styles').append($('#highlight_styles').cssText());
-
-        //TODO: Remove media^=screen nodes
 
         // Forcibly remove bullets from LI tags and fix TOC item indentation
         $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
