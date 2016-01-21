@@ -3,13 +3,15 @@ module UserPreferenceExtensions
 
   def apply_user_preferences(user, on_create, options={})
     return unless user
+
     # The special handling here allows cookies coming from playlist exporter to
     # override whatever is in the database for this user.
     common_user_preference_attrs.each do |attr|
       if options[:force_overwrite]
         cookie_value = user.send(attr)
       else
-        cookie_value ||= user.send(attr)
+        # Exports may have some cookies defined at this point. Those take precedence.
+        cookie_value = cookies[attr].present? ? cookies[attr] : user.send(attr)
       end
       cookies[attr] = cookie_value
     end
