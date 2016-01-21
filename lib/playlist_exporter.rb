@@ -7,43 +7,17 @@ class PlaylistExporter
 
   class ExportException < StandardError; end
 
-  # No translation value here means we just pass the form field value straight through
-  # Some cookies are just here to make them available to PhantomJS
-  # TODO: translate all values, rather than only translating the one value that signals
-  # export.js to do the thing that is "not the default."
-  #If you want to forwad a cookie from the print header all the way through to one
-  #of the exporters, it needs to be listed here.
-  FORM_COOKIE_MAP = {
-    '_h2o_session' => {'cookie_name' => '_h2o_session'},
-    'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
-    'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
-    'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
-    'printlinks' => {'cookie_name' => 'print_links', 'cookval' => 'true', 'formval' => 'yes', },
-    'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
-    'printhighlights' => {'cookie_name' => 'print_highlights'},
-    'fontface' => {'cookie_name' => 'print_font_face'},
-    'fontsize' => {'cookie_name' => 'print_font_size'},
-    'fontface_mapped' => {'cookie_name' => 'print_font_face_mapped'},
-    'fontsize_mapped' => {'cookie_name' => 'print_font_size_mapped'},
-    'margin-top' => {'cookie_name' => 'print_margin_top'},
-    'margin-right' => {'cookie_name' => 'print_margin_right'},
-    'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
-    'margin-left' => {'cookie_name' => 'print_margin_left'},
-    'toc_levels' => {'cookie_name' => 'toc_levels'},
-  }
-
   class << self
 
     def export_as(opts)
       request_url = opts[:request_url]
       params = opts[:params]
-      session_cookie = opts[:session_cookie]
       email_address = opts[:email_to]
 
       #required for owners to export their own private content
-      params.merge!(:_h2o_session => session_cookie)
-
+      params.merge!(:_h2o_session => opts[:session_cookie])
       export_format = params[:export_format]
+
       exported_file = nil
       begin
         if export_format == 'doc'
@@ -80,13 +54,6 @@ class PlaylistExporter
       convert_to_mime_file(fetch_playlist_html(request_url, params))
     end
 
-    def json_options_file(params)  #_doc
-      file = Tempfile.new(['phantomjs-args-', '.json'])
-      file.write forwarded_cookies_hash(params).to_json
-      file.close
-      file  #.tap {|x| Rails.logger.debug "JSON: #{x.path}" }
-    end
-
     def output_file_path(params)  #_base
       base_dir = Rails.root.join('public/exports')
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
@@ -100,7 +67,7 @@ class PlaylistExporter
 
     def fetch_playlist_html(request_url, params)  #_doc
       target_url = get_target_url(request_url)
-      options_tempfile = json_options_file(params)
+      options_tempfile = ExportService::CookieService.phantomjs_options_file(params)
       out_file = output_file_path(params)
       out_file.sub!(/#{File.extname(out_file)}$/, '.html')
 
@@ -234,43 +201,6 @@ class PlaylistExporter
       doc.xpath(cih_selector).wrap('<div class="Case-internal-header"></div>')
     end
 
-    def forwarded_cookies(params)
-      skip_list = []
-      if params[:export_format] == 'pdf'
-        skip_list << %w(
-                     print_margin_top,
-                     print_margin_right,
-                     print_margin_bottom,
-                     print_margin_left,
-                    )
-      end
-      cookies = forwarded_cookies_hash(params).except(*skip_list.flatten)
-      cookies.map {|k,v|
-        "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
-      }.join(' ')
-    end
-
-    def forwarded_cookies_hash(params)
-      # This performs the reverse of export.js:init_user_settings() by mapping
-      # form field names to cookie names while also translating values.
-      # Ideally we would just consolidate the form field names to match cookie names
-      # as well as no longer using multiple forms of true and false.
-      # Note: We don't send marginsize because margins are set via the wkhtmltopdf command line
-      cookies = {'export_format' => params[:export_format]}
-
-      FORM_COOKIE_MAP.each do |field, v|
-        if params[field].present?
-          if params[field] == v['formval']
-            #translate it
-            cookies[v['cookie_name']] = v['cookval']
-          elsif v['cookval'].nil?
-            cookies[v['cookie_name']] = params[field]
-          end
-        end
-      end
-      cookies
-    end
-
     def generate_toc_levels_css(depth)  #_doc
       # TODO: Could we use this instead?
       #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
@@ -355,7 +285,7 @@ class PlaylistExporter
       toc_options = generate_toc_options(params)
       target_url = get_target_url(request_url)
       page_options = pdf_page_options(params)
-      cookie_string = forwarded_cookies(params)
+      cookie_string = ExportService::CookieService.forwarded_pdf_cookies(params)
       output_file_path = output_file_path(params)
 
       prep_output_file_path(output_file_path)
@@ -379,10 +309,6 @@ class PlaylistExporter
     def get_target_url(request_url)  #_base
       page_name = request_url.match(/\/playlists\//) ? 'export_all' : 'export'
       request_url.sub(/export_as$/, page_name)
-    end
-
-    def encode_cookie_value(val)
-       ERB::Util.url_encode(val)
     end
 
   end
