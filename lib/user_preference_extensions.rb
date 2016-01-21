@@ -11,7 +11,9 @@ module UserPreferenceExtensions
         cookie_value = user.send(attr)
       else
         # Exports may have some cookies defined at this point. Those take precedence.
-        cookie_value = cookies[attr].present? ? cookies[attr] : user.send(attr)
+        # Use of .to_s is extra defensive approach to handling cookies with a boolean
+        # false value. It's possible it's not actually needed.
+        cookie_value = cookies[attr].to_s.present? ? cookies[attr] : user.send(attr)
       end
       cookies[attr] = cookie_value
     end
