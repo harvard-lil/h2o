@@ -6,10 +6,8 @@ module ExportService
 
     # No translation value here means we just pass the form field value straight through
     # Some cookies are just here to make them available to PhantomJS
-    # TODO: translate all values, rather than only translating the one value that signals
-    # export.js to do the thing that is "not the default."
-    #If you want to forwad a cookie from the print header all the way through to one
-    #of the exporters, it needs to be listed here.
+    # If you want to forwad a cookie from the print header all the way through to one
+    # of the exporters, it needs to be listed here.
     FORM_COOKIE_MAP = {
       '_h2o_session' => {'cookie_name' => '_h2o_session'},
       'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
@@ -30,15 +28,12 @@ module ExportService
     }
 
     def self.forwarded_pdf_cookies(params)
-      skip_list = []
-      if params[:export_format] == 'pdf'
-        skip_list << %w[
+      skip_list = %w[
                      print_margin_top
                      print_margin_right
                      print_margin_bottom
                      print_margin_left
                     ]
-      end
       cookies = forwarded_cookies_hash(params).except(*skip_list.flatten)
       cookies.map {|k,v|
         "--cookie #{k} #{encode_cookie_value(v)}" if v.present?
@@ -50,17 +45,21 @@ module ExportService
       # form field names to cookie names while also translating values.
       # Ideally we would just consolidate the form field names to match cookie names
       # as well as no longer using multiple forms of true and false.
+      # BUG: This needs to translate all valid values for each cookie. Right now,
+      #   it only does one of them, but export.js only looks for values that
+      #   contradict the default behavior of the form and its input change handlers.
+      #   That causes some pretty confusing behavior when you're debugging.
       cookies = {'export_format' => params[:export_format]}
       FORM_COOKIE_MAP.each do |field, v|
         next unless params[field].present?
-#        if params[field].present?
-          if params[field] == v['formval']
-            #translate it
-            cookies[v['cookie_name']] = v['cookval']
-          elsif v['cookval'].nil?
-            cookies[v['cookie_name']] = params[field]
-          end
- #       end
+
+        if params[field] == v['formval']
+          # translate form value to its cookie representation
+          cookies[v['cookie_name']] = v['cookval']
+        elsif v['cookval'].nil?
+          # pass the form value through, unchanged
+          cookies[v['cookie_name']] = params[field]
+        end
       end
       cookies
     end
