@@ -1,6 +1,5 @@
-//PhantomJS script
-
-console.log('htmlize.js running...');
+//PhantomJS script fired by back-end exporter
+console.log('PhantomJS exporter running...');
 
 var system = require('system');
 var export_url = system.args[1];
