@@ -1,3 +1,4 @@
+// Exporters rely on this window.status value
 window.status = 'loading_h2o';
 
 var highlight_css_cache = {};
@@ -878,10 +879,9 @@ var export_highlighter = {
 
 $(document).ready(function(){
   try {
-    // Exporters rely on this window.status value
     console.log('BOOP: document.ready start');
 
-    export_functions.debug_cookies();
+    //export_functions.debug_cookies();
     //export_functions.init_missing_cookies();
     export_functions.init_listeners();
     export_functions.init_hash_detail();
@@ -907,7 +907,6 @@ $(document).ready(function(){
   } catch(e) {
     //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
     console.log('BOOP: document.ready CAUGHT: ' + e);
-    console.log(e);
     export_functions.signalAnnotationLoadDone();
   }
 });
