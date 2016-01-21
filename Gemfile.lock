@@ -64,6 +64,7 @@ GEM
     delayed_job_active_record (4.0.2)
       activerecord (>= 3.0, < 4.2)
       delayed_job (>= 3.0, < 4.1)
+    diff-lcs (1.2.5)
     dropbox-sdk (1.6.4)
       json
     erubis (2.7.0)
@@ -166,6 +167,23 @@ GEM
     request_store (1.1.0)
     rsolr (1.0.10)
       builder (>= 2.1.2)
+    rspec-core (3.4.1)
+      rspec-support (~> 3.4.0)
+    rspec-expectations (3.4.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.4.0)
+    rspec-mocks (3.4.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.4.0)
+    rspec-rails (3.4.0)
+      actionpack (>= 3.0, < 4.3)
+      activesupport (>= 3.0, < 4.3)
+      railties (>= 3.0, < 4.3)
+      rspec-core (~> 3.4.0)
+      rspec-expectations (~> 3.4.0)
+      rspec-mocks (~> 3.4.0)
+      rspec-support (~> 3.4.0)
+    rspec-support (3.4.1)
     safe_yaml (1.0.4)
     sass (3.2.19)
     sass-rails (4.0.4)
@@ -242,6 +260,7 @@ DEPENDENCIES
   rails_admin
   rails_admin_import (= 0.1.9)
   recaptcha
+  rspec-rails
   sass-rails (~> 4.0.0)
   scrypt
   sunspot_rails

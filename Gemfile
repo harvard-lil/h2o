@@ -40,6 +40,7 @@ gem 'warden'
 group :development do
   gem 'sunspot_solr'
   gem 'quiet_assets'
+  gem 'rspec-rails'
 end
 
 gem 'bcrypt'

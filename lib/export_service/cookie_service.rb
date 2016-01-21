@@ -8,14 +8,16 @@ module ExportService
     # Some cookies are just here to make them available to PhantomJS
     # If you want to forwad a cookie from the print header all the way through to one
     # of the exporters, it needs to be listed here.
+    COMMON_TRANS = {'yes' => 'true', 'no' => 'false'}
+
     FORM_COOKIE_MAP = {
-      '_h2o_session' => {'cookie_name' => '_h2o_session'},
-      'printtitle' => {'cookie_name' => 'print_titles', 'cookval' => 'false', 'formval' => 'no', },
-      'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'cookval' => 'false', 'formval' => 'no', },
-      'printannotations' => {'cookie_name' => 'print_annotations', 'cookval' => 'true', 'formval' => 'yes', },
-      'printlinks' => {'cookie_name' => 'print_links', 'cookval' => 'true', 'formval' => 'yes', },
-      'hiddentext' => {'cookie_name' => 'hidden_text_display', 'cookval' => 'true', 'formval' => 'show', },
+      'printtitle' => {'cookie_name' => 'print_titles', 'trans' => COMMON_TRANS },
+      'printparagraphnumbers' => {'cookie_name' => 'print_paragraph_numbers', 'trans' => COMMON_TRANS },
+      'printannotations' => {'cookie_name' => 'print_annotations', 'trans' => COMMON_TRANS },
+      'printlinks' => {'cookie_name' => 'print_links', 'trans' => COMMON_TRANS },
+      'hiddentext' => {'cookie_name' => 'hidden_text_display', 'trans' => {'show' => 'true', 'hide' => 'false'} },
       'printhighlights' => {'cookie_name' => 'print_highlights'},
+      'toc_levels' => {'cookie_name' => 'toc_levels'},
       'fontface' => {'cookie_name' => 'print_font_face'},
       'fontsize' => {'cookie_name' => 'print_font_size'},
       'fontface_mapped' => {'cookie_name' => 'print_font_face_mapped'},
@@ -24,8 +26,34 @@ module ExportService
       'margin-right' => {'cookie_name' => 'print_margin_right'},
       'margin-bottom' => {'cookie_name' => 'print_margin_bottom'},
       'margin-left' => {'cookie_name' => 'print_margin_left'},
-      'toc_levels' => {'cookie_name' => 'toc_levels'},
+      '_h2o_session' => {'cookie_name' => '_h2o_session'},
     }
+
+    def self.forwarded_cookies_hash(params)
+      # This performs the reverse of export.js:init_user_settings() by mapping
+      # form field names to cookie names while also translating values.
+      # It was too much work to just consolidate expected values for cookies and
+      # and the form.
+      cookies = {'export_format' => params['export_format']}
+
+      FORM_COOKIE_MAP.each do |field, mapping|
+        param = params[field]
+        next if param.to_s == ''
+
+        if mapping['trans']
+          cookie_value = mapping['trans'][param]
+          if cookie_value.nil?
+            Rails.logger.warn "Couldn't find expected cookie mapping for param: #{field}"
+          end
+        else
+          cookie_value = param
+        end
+
+        cookies[mapping['cookie_name']] = cookie_value if cookie_value
+      end
+
+      cookies
+    end
 
     def self.forwarded_pdf_cookies(params)
       skip_list = %w[
@@ -40,30 +68,6 @@ module ExportService
       }.join(' ')
     end
 
-    def self.forwarded_cookies_hash(params)  #_both
-      # This performs the reverse of export.js:init_user_settings() by mapping
-      # form field names to cookie names while also translating values.
-      # Ideally we would just consolidate the form field names to match cookie names
-      # as well as no longer using multiple forms of true and false.
-      # BUG: This needs to translate all valid values for each cookie. Right now,
-      #   it only does one of them, but export.js only looks for values that
-      #   contradict the default behavior of the form and its input change handlers.
-      #   That causes some pretty confusing behavior when you're debugging.
-      cookies = {'export_format' => params[:export_format]}
-      FORM_COOKIE_MAP.each do |field, v|
-        next unless params[field].present?
-
-        if params[field] == v['formval']
-          # translate form value to its cookie representation
-          cookies[v['cookie_name']] = v['cookval']
-        elsif v['cookval'].nil?
-          # pass the form value through, unchanged
-          cookies[v['cookie_name']] = params[field]
-        end
-      end
-      cookies
-    end
-
     def self.phantomjs_options_file(params)  #_doc
       file = Tempfile.new(['phantomjs-args-', '.json'])
       file.write forwarded_cookies_hash(params).to_json
@@ -72,9 +76,8 @@ module ExportService
     end
 
     def self.encode_cookie_value(val)
-       ERB::Util.url_encode(val)
+      ERB::Util.url_encode(val)
     end
-
 
   end
 
