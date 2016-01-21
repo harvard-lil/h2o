@@ -539,23 +539,24 @@ var export_functions = {
 
     $('#fontface_mapped').val(mapped_font_face);
     $('#fontsize_mapped').val(base_font_size + 'px');
-    // console.log('fontface: ' + $('#fontface').val());
-    // console.log('faceMapped: ' + $('#fontface_mapped').val());
 
     var base = 'body#' + $('body').attr('id') + ' .singleitem';
     var rules = [
       base + ' * { font-family: ' + mapped_font_face + '; font-size: ' + base_font_size + 'px; }',
-      base + ' *.scale1-5 { font-size: ' + base_font_size * 1.5 + 'px; }',
-      base + ' *.scale1-4 { font-size: ' + base_font_size * 1.4 + 'px; }',
-      base + ' *.scale1-3 { font-size: ' + base_font_size * 1.3 + 'px; }',
-      base + ' *.scale1-2 { font-size: ' + base_font_size * 1.2 + 'px; }',
-      base + ' *.scale1-1 { font-size: ' + base_font_size * 1.1 + 'px; }',
-      base + ' *.scale0-9 { font-size: ' + base_font_size * 0.9 + 'px; }',
-      base + ' *.scale0-8,' + base + ' *.scale0-8 * { font-size: ' + base_font_size * 0.8 + 'px; }'
+      base + ' *.scale1-5 ' + export_functions.fontSizeCss(base_font_size, 1.5),
+      base + ' *.scale1-4 ' + export_functions.fontSizeCss(base_font_size, 1.4),
+      base + ' *.scale1-3 ' + export_functions.fontSizeCss(base_font_size, 1.3),
+      base + ' *.scale1-2 ' + export_functions.fontSizeCss(base_font_size, 1.2),
+      base + ' *.scale1-1 ' + export_functions.fontSizeCss(base_font_size, 1.1),
+      base + ' *.scale0-9 ' + export_functions.fontSizeCss(base_font_size, 0.9),
+      base + ' *.scale0-8,' + base + ' *.scale0-8 * ' + export_functions.fontSizeCss(base_font_size, 0.8)
     ].join("\n");
 
     $('#additional_styles').text('');
     $.rule(rules).appendTo('#additional_styles');
+  },
+  fontSizeCss: function(base, multiplier) {
+    return '{ font-size: ' + Math.ceil(base * multiplier) + 'px; }';
   },
   setAnnotationsVisibility: function() {
     //TODO: Can we just call the relevant .change() handlers
