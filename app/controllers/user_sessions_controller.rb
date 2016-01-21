@@ -10,7 +10,7 @@ class UserSessionsController < ApplicationController
     redirect_to root_url and return if current_user.present?
 
     @user_session = UserSession.new
-    render :layout => (request.xhr?) ? false : true
+    render :layout => !request.xhr?
   end
 
   def create
@@ -33,7 +33,7 @@ class UserSessionsController < ApplicationController
           end
         end
       else
-        render :action => :new, :layout => (request.xhr?) ? false : true, :status => :unprocessable_entity
+        render :action => :new, :layout => !request.xhr?, :status => :unprocessable_entity
       end
     end
   end

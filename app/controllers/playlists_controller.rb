@@ -157,7 +157,7 @@ class PlaylistsController < BaseController
     @preloaded_cases = prepare_case_export(all_actual_object_ids[:Case])
 
     @load_all = params[:load_all]
-    if (!@load_all)
+    if !@load_all
       #load arbitrary number of items to give the user some idea of how things look
       #set to nil to not set any limit
       @playlist_items_limit = 15
