@@ -68,11 +68,10 @@ module ExportService
       }.join(' ')
     end
 
-    def self.phantomjs_options_file(params)  #_doc
-      file = Tempfile.new(['phantomjs-args-', '.json'])
-      file.write forwarded_cookies_hash(params).to_json
-      file.close
-      file  #.tap {|x| Rails.logger.debug "JSON: #{x.path}" }
+    def self.phantomjs_options_file(directory, params)  #_doc
+      filename = File.join(directory, 'phantomjs-args.json')
+      File.write(filename, forwarded_cookies_hash(params).to_json)
+      filename
     end
 
     def self.encode_cookie_value(val)

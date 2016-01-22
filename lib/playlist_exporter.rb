@@ -65,11 +65,19 @@ class PlaylistExporter
       out_dir + '/' + filename + '.' + params[:export_format]
     end
 
+    def create_phantomjs_options_file(directory, params)
+      ExportService::CookieService.phantomjs_options_file(directory, params)
+    end
+
     def fetch_playlist_html(request_url, params)  #_doc
       target_url = get_target_url(request_url)
-      options_tempfile = ExportService::CookieService.phantomjs_options_file(params)
       out_file = output_file_path(params)
       out_file.sub!(/#{File.extname(out_file)}$/, '.html')
+
+      options_tempfile = create_phantomjs_options_file(
+        File.dirname(out_file),
+        params
+        )
 
       command = [
                  'phantomjs',
@@ -77,7 +85,7 @@ class PlaylistExporter
                  'app/assets/javascripts/phantomjs-export.js',
                  target_url,
                  out_file,
-                 options_tempfile.path,
+                 options_tempfile,
                 ]
       Rails.logger.warn command.join(' ')
 
@@ -145,8 +153,6 @@ class PlaylistExporter
         # In addition to running the exporter, this captures the rendered HTML
         # the exporter is seeing, the same way we get it for free with phantomjs.
         Open3.popen2e(*command) do |_, out_err, wait_thread|
-          Rails.logger.warn "WKHTMLTOPDF: Iterating over output:"
-
           out_err.each do |line|
             html_has_started = true if html_head_open?(line)
             html_has_finished = true if html_body_close?(line)
