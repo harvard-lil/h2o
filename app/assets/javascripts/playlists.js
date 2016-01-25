@@ -41,7 +41,7 @@ h2o_global.playlist_afterload = function(results) {
   
         $(document).delegate('#nested_public', 'click', function(e) {
           e.preventDefault();
-          var creator = $('#main_details h3 a:first').html().replace(/ \(.*/, '');
+          var creator = $('#main_details h6 a:first').html().replace(/ \(.*/, '');
           var node = $('<p>').html('You have chosen to set all nested resources owned by ' + creator + ' to public.</p><p><b>Note this will not set items owned by other users to public.</b></p>');
           $(node).dialog({
             title: 'Set Nested Resources to Public',
