@@ -6,7 +6,7 @@ var h2o_fonts = {
 	futura: 'futura-pt',
 	dagny: 'ff-dagny-web-pro',
 	proxima: 'proxima-nova',
-	verdana: 'Verdana',
+	verdana: 'Verdana'
   },
   font_map_fallbacks: {
 	goudy: ["sorts-mill-goudy", "Sorts Mill Goudy", "Goudy", "Goudy Old Style"].join(', '),
@@ -15,7 +15,7 @@ var h2o_fonts = {
 	futura: ["futura-pt", "Futura PT", "Futura"].join(', '),
 	dagny: ["ff-dagny-web-pro", "FF Dagny Web Pro", "FF Dagny Pro", "FF Dagny", "Verdana", "Arial", "Helvetica", "sans-serif"].join(', '),
 	proxima: ["proxima-nova", "Proxima Nova", "futura-pt", "Futura PT", "Futura"].join(', '),
-	verdana: ["Verdana", "Arial", "Helvetica", "sans-serif"].join(', '),
+	verdana: ["Verdana", "Arial", "Helvetica", "sans-serif"].join(', ')
   },
   //sizes are in pixels
   base_font_sizes: {
