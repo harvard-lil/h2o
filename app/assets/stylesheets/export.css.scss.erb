@@ -124,17 +124,12 @@
   #text_block div.article p { margin-bottom: 20px; }
   
   /* Print */
-  @media print {
-    #toc {
-      page-break-after: always;
-    }
-    /* Untested: page break before every top level playlist (maybe other objects too?)
-    except for the first one
-    */
-    /*
-    .playlist .level0:first-of-type {      page-break-before: never    }
-    */
+  #toc {
+    page-break-after: always;
   }
+  /* Untested: page break before every top level playlist (maybe other objects too?)
+  except for the first one
+  */
 
   #toc-container {
     display: none;
