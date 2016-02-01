@@ -179,19 +179,17 @@ class PlaylistExporter
     end
 
     def convert_h_tags(doc)  #_doc
-      # Accepts text or Nokogiri document
+      # Accepts a string or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
         #NOTE: This situation needs to be handled better because this method
         #changes $doc by reference if it's already a Nokogiri doc, despite
         #how it also returns the resulting doc
-        return '' if doc == '' || doc == '<br>'
-
+        return '' if doc.in?(['', '<br>'])
         doc = Nokogiri::HTML.parse(doc)
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        #BUG: This loses any classes the H tag originall had.
         node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
         node.name = 'div'
       end
@@ -199,12 +197,21 @@ class PlaylistExporter
       doc
     end
 
-    def inject_doc_styles(doc)  #_doc
-      #NOTE: Using doc.css("center").wrap(...) here broke annotations
+    def inject_doc_styles(doc)  #_both
+      # NOTE: Using doc.css("center").wrap(...) here broke annotations, probably because
+      #   it added another layer to the local DOM, which meant xpath_start and/or xpath_end
+      #   values in the relevant annotation didn't match up with the DOM any more.
       doc.css("center").add_class("Case-header")
       doc.css("p").add_class("Item-text")
+
+      # NOTE: We convert this div to a <p> tag because that's the only way Word
+      #   will apply font-weight: bold like it's supposed to. This probably should
+      #   be done elsewhere in the doc as well
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
-      doc.xpath(cih_selector).wrap('<div class="Case-internal-header"></div>')
+      doc.xpath(cih_selector).each do |el|
+        el['class'] = "Case-internal-header " + el['class'].to_s
+        el.name = 'p'
+      end
     end
 
     def generate_toc_levels_css(depth)  #_doc
