@@ -210,7 +210,10 @@ class PlaylistExporter
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).each do |el|
         el['class'] = "Case-internal-header " + el['class'].to_s
-        el.name = 'p'
+        # BUG: if we do this, we need adjust xpath_(start|end) similarly. It's
+        #   probably much safer at that point to convert this div to a P in
+        #   phantomJS instead.
+        # el.name = 'p'  
       end
     end
 
