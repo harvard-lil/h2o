@@ -183,12 +183,20 @@ class Collage < ActiveRecord::Base
     # NOTE: This needs to be tweaked to work correctly with xpath selectors that
     # contain h2 tags *and* don't start with the same node selector thingy. E.g.
     # xpath_start: "/center[3]/p[1]", xpath_end: "/h2[1]"  #not supported
+
+    # NOTE: This was put in place to fix annotations that start and end in
+    #   what used to be the same H2 tag (before the exporter code converted
+    #   it to a div with class new-h2.) If the annotation spans beyond the end
+    #   of the starting H2 tag, this won't fix the annotation and it might even
+    #   make things worse elsewhere in the document. That idea is un-tested.
     new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
+    debug_id = 353175
     self.annotations.inject({}) {|h, a|
-      # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
+      # logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
       a.xpath_start.to_s.sub!('h2', new_h2)
       a.xpath_end.to_s.sub!(  'h2', new_h2)
-      # logger.debug [a.xpath_start, a.xpath_end] if a.id == 289604
+      # logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
+
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
     }.to_json

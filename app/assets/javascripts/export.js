@@ -656,7 +656,6 @@ var export_functions = {
       if ($.cookie('export_format') == 'pdf') {
         //Used to log rendered content on the back end.
         console.log("\n" + $(':root').html());
-        //console.log('Skipping PDF logging output during production debugging.');
       }
       console.log('loadAllAnnotationsComplete: Finished');
     } catch(e) {

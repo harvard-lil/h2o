@@ -215,7 +215,7 @@ var set_styling = function(page) {
             "div.WordSection1 {page:WordSection1;}",
             "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
             "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
-            ".MsoChpDefault, h1, h2, h3, h4, h5, h6   { font-family:" + font_face_string + "; }",
+            ".MsoChpDefault, h1, h2, h3, h4, h5, h6 { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
             doc_styles,
           "--></style>",
@@ -244,6 +244,7 @@ var set_styling = function(page) {
         $('#highlight_styles').append($('#highlight_styles').cssText());
 
         // Forcibly remove bullets from LI tags and fix TOC item indentation
+        // The .listitem filter prevents this from out-denting LI items.
         $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
 
   }, doc_styles, cookies);

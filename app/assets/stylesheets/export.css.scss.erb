@@ -1,6 +1,5 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique {
-  /* This is applied to dom elements that were H2 before we converted them to divs for the print export feature */
 /* This zeros out the playlist indentation we were seeing in PDF exports */
 /* TODO: move it up top under the *_export section */
   ul,li {
@@ -95,8 +94,17 @@
   /* Collage Content */
   .collage-content { padding-left: 50px; clear: both; }
   .collage-content p { margin-bottom: 20px; }
-  .collage-content .annotation-content { color: #6B933D; font-style: italic; border: 1px solid #d4d4d4; padding: 2px 5px 2px 18px; margin: 3px;
-  background: url("<%= asset_path 'asterisk.jpg' %>") 2px 1px no-repeat; text-indent: 10px; width: 500px; display: none; }
+  .collage-content .annotation-content {
+      color: #6B933D;
+      font-style: italic;
+      border: 1px solid #d4d4d4;
+      padding: 2px 5px 2px 18px;
+      margin: 3px;
+      background: url("<%= asset_path 'asterisk.jpg' %>") 2px 1px no-repeat;
+      text-indent: 10px;
+      width: 500px;
+      display: none;
+  }
   .collage-content .annotation-ellipsis { padding-left: 5px; }
   .collage-content p,
   .collage-content center,
@@ -259,7 +267,6 @@
 
   #playlist-items-limit-notice {
       border: 2px dashed #036290;
-      Xmargin-top: 20px;
       margin-bottom: 10px;
       padding-right: 10px;
       padding-left: 10px;
