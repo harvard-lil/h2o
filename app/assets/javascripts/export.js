@@ -540,6 +540,11 @@ var export_functions = {
     $('#fontface_mapped').val(mapped_font_face);
     $('#fontsize_mapped').val(base_font_size + 'px');
 
+    // console.log('mff: ');
+    // console.log(mapped_font_face);
+    // console.log('Val: ');
+    // console.log($('#fontface_mapped').val());
+
     var base = 'body#' + $('body').attr('id') + ' .singleitem';
     var rules = [
       base + ' * { font-family: ' + mapped_font_face + '; font-size: ' + base_font_size + 'px; }',

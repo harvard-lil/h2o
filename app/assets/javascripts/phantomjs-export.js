@@ -159,6 +159,8 @@ var get_doc_styles = function() {
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
 
+  //  console.log('SETTTTTTTTTTTTTTTTTING: |' + font_face_string + '|');
+
   var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
     /(font-family:)(.+);/g,
     '$1' + font_face_string + ';'
@@ -174,7 +176,7 @@ var get_doc_styles = function() {
       large: 3,
       xlarge: 6,
     }
-    var new_size = parseInt(parseFloat(p2) + size_conversion[scaling_name]);
+    var new_size = Math.ceil(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
   }
 
