@@ -190,7 +190,10 @@ class PlaylistExporter
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] }"
+        # BUG: This might break annotations that apply to a div that follow or span one
+        #   of these H tags. (E.g. "/div[12]") because we are changing the number of
+        #   divs in the content here.
+        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] } xpath-nocount"
         node.name = 'div'
       end
 
