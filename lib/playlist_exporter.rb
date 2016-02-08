@@ -207,15 +207,13 @@ class PlaylistExporter
       doc.css("center").add_class("Case-header")
       doc.css("p").add_class("Item-text")
 
-      # NOTE: We convert this div to a <p> tag because that's the only way Word
-      #   will apply font-weight: bold like it's supposed to. This probably should
-      #   be done elsewhere in the doc as well
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).each do |el|
         el['class'] = "Case-internal-header " + el['class'].to_s
-        # BUG: if we do this, we need adjust xpath_(start|end) similarly. It's
-        #   probably much safer at that point to convert this div to a P in
-        #   phantomJS instead.
+        # NOTE: We want to convert this div to a <p> tag because that's the only way Word
+        #   will apply font-weight: bold like it's supposed to.
+        # BUG: Changing this to a P tag breaks any xpaths that count P tags or DIV tags.
+        #   This would need to be done by convert this div to a P in phantomJS instead.
         # el.name = 'p'  
       end
     end

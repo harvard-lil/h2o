@@ -245,6 +245,7 @@ var set_styling = function(page) {
         $('#additional_styles').append($('#additional_styles').cssText());
         $('#highlight_styles').append($('#highlight_styles').cssText());
 
+        // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
         // Forcibly remove bullets from LI tags and fix TOC item indentation
         // The .listitem filter prevents this from out-denting LI items.
         $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
