@@ -240,7 +240,22 @@ var set_styling = function(page) {
           }
           sheet.remove();
         }
-        $('#export-styles').append(injectable_css.join("\n"));
+
+    var background_url_remover = function(match, p1, p2, p3, p4, offset, string) {
+      console.log(match);
+      if (p2 == '' || p2 == ' ') {
+        // Don't create rules like this: .boop{background:}
+        return p4 == ';' ? '' : '}';
+      }
+      else {
+        return [p1, p2, p3, p4].join('');
+      }
+    }
+
+    var raw_css = injectable_css.join("\n");
+    raw_css = raw_css.replace(/(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g, background_url_remover);
+
+    $('#export-styles').append(raw_css);
 
         $('#additional_styles').append($('#additional_styles').cssText());
         $('#highlight_styles').append($('#highlight_styles').cssText());
