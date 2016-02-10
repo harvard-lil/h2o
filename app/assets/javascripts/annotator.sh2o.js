@@ -307,6 +307,7 @@ H2O = (function() {
         $('#annotator-field-0').addClass('no_tinymce');
         $.each(annotations, function(i, annotation) {
           $(annotation._local.highlights).addClass('annotation-' + annotation.id);
+          if (!$(annotation._local.highlights).length) {console.warn(annotation);}
         });
 
         if (this.initialized) {return;}
@@ -437,7 +438,6 @@ H2O = (function() {
       H2O.prototype.addAnnotationIndicator(annotation);
       h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
       H2O.prototype.setLayeredBorders(annotation);
-
       if(annotation.hidden) {
         if($('#show_text_edits .toggle-inner .toggle-on').hasClass('active')) {
           $('.annotation-' + annotation.id).addClass('annotation-hidden');
@@ -1134,7 +1134,10 @@ H2O = (function() {
           layers.push(annotation.layers[_j].name);
         }
       }
-      var formatted_annotation = { "id" : annotation.id,
+      var formatted_annotation = {
+        "debug_xpath_start" : annotation.xpath_start,
+        "debug_xpath_end" : annotation.xpath_end,
+        "id" : annotation.id,
         "text" : annotation.annotation,
         "ranges": ranges,
         "layers": layers,
