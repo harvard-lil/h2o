@@ -239,6 +239,7 @@ body.bbase_index footer { margin-top: 0px; }
   display: inline; 
   width:92px; 
   height:92px;
+  background:url('<%= asset_url 'h20-logo.png' %>');
   line-height: 0; 
   text-indent: -4000px;
 }
@@ -278,6 +279,7 @@ header #search table td {
   border: none;
   padding: 5px 9px 5px 25px;
   width: 150px;
+  background: #FFF url(<%= asset_url "search.png" %>) no-repeat 4px 1px;
   line-height: 18px;
 }
 #create_nav {
@@ -299,6 +301,7 @@ header #search table td {
   display: inline-block;
   width: 20px;
   height: 11px;
+  background: url(<%= asset_url "icons.png" %>) -167px -18px no-repeat;
   margin-left: 30px;
 }
 #create_all.active {
@@ -362,12 +365,14 @@ header #search table td {
     opacity: 0.3;
   }
   .previous_page {
+    background: url(<%= asset_url 'icons.png' %>) -543px -66px;
     text-indent: -10000px; 
     margin-right: 14px;
     width: 6px;
     height: 11px;
   }
   .next_page {
+    background: url(<%= asset_url 'icons.png' %>) -563px -66px;
     text-indent: -10000px; 
     width: 6px;
     height: 11px;
@@ -671,11 +676,13 @@ header #search table td {
 }
 #home_index #fal2013_playlists h3 span,
 #home_index #highlighted_playlists h3 span {
+  background: url(<%= asset_url 'icons.png' %>) -630px -111px no-repeat;
   border: none;
   position: relative;
   top: 2px;
 }
 #home_index #featured_users h3 span {
+  background: url(<%= asset_url 'icons.png' %>) -668px -114px no-repeat;
   border: none;
   position: relative;
   top: 2px;
@@ -1109,6 +1116,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   color: red;
   background-color: #FFF;
   text-indent: -4000px;
+  background-image: url(<%= asset_url 'icons.png' %>);
   height: 29px;
   width: 29px;
   z-index: 10;
@@ -1125,6 +1133,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width: 17px;
   height: 21px;
   padding-right: 8px;
+  background-image: url(<%= asset_url 'icons.png' %>);
 }
 #quickbar_edit_toggle.edit_mode {
   background-position: -701px -120px;
@@ -1297,6 +1306,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   position: absolute;
   left: -29px;
   top: 0px;
+  background: url(<%= asset_url 'close.png' %>) -1px 0px no-repeat;
   width: 26px;
   height: 71px;
   border: 2px solid #FFF;
@@ -1360,6 +1370,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   color:#333;
   font-weight:bold; 
   padding:0 8px; 
+  background:url(<%= asset_url 'arrow-search.png' %>) right 50% no-repeat; 
 }
 .jsb .jsb-moreButton { 
   position:absolute; 
@@ -1368,6 +1379,7 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width:120px;
   height:25px; 
   cursor:pointer; 
+  background:url(<%= asset_url 'transparent.gif' %>);
 }
 .jsb .jsb-list {
   position:absolute;
@@ -1495,7 +1507,6 @@ ul.user_captcha > li p.inline-errors { display: none; }
   width: 200px;
 }
 #results .jsb .jsb-currentItem {
-
 }
 #results .jsb .jsb-list {
   width: 200px !important;
@@ -1628,6 +1639,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   border: none;
   padding: 5px 9px 5px 25px;
   width: 150px;
+  background: #FFF url(<%= asset_url 'search.png' %>) no-repeat 4px 1px;
   line-height: 22px;
 }
 
@@ -1661,6 +1673,7 @@ div.stats_hover .barcode_breakdown .icon-bookmark {
   top: 0px;
   width: 100%;
   z-index: 1000;
+  background: transparent url(<%= asset_url 'quickbar.png' %>) bottom repeat-x;
   padding: 5px 0px;
   display: none;
 }
