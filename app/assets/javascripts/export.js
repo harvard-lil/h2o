@@ -215,24 +215,23 @@ var table_of_contents = {
 
 var export_functions = {
   preExportVerification: function() {
-    if (!$.cookie('user_id')) {
-      var msg = 'The export feature is only available to users that are signed in.';
-      var newItemNode = $('<div id="generic-node"></div>').html(msg);
-      $(newItemNode).dialog({
-        title: 'Please sign into H2O to use this export feature.',
-        modal: true,
-        width: '700',
-        height: 'auto',
-        open: function(event, ui) {},
-        buttons: {
-          'Ok': function() {
-            $(newItemNode).remove();
-          }
+    if (!!$.cookie('user_id')) {return true;}
+
+    var msg = 'The export feature is only available to users that are signed in.';
+    var newItemNode = $('<div id="generic-node"></div>').html(msg);
+    $(newItemNode).dialog({
+      title: 'Please sign into H2O to use this export feature.',
+      modal: true,
+      width: '700',
+      height: 'auto',
+      open: function(event, ui) {},
+      buttons: {
+        'Ok': function() {
+          $(newItemNode).remove();
         }
-      }).dialog('open');
-      return false;
-    }
-    return true;
+      }
+    }).dialog('open');
+    return false;
   },
   fireExport: function() {
     if (!export_functions.preExportVerification()) {
@@ -317,26 +316,6 @@ var export_functions = {
       console.log('Cookie dump:');
       console.log(document.cookie.split('; ').join("\n"));
     },
-    init_missing_cookies: function() {
-        return;
-      /*
-        //TODO: Set cookies the same way they are set in user control panel or don't set them at all
-        var defaults = {
-            print_margin_left: 'margin-left',
-            print_margin_top: 'margin-top',
-            print_margin_right: 'margin-right',
-            print_margin_bottom: 'margin-bottom'
-        };
-        Object.keys(defaults).forEach(function(name) {
-            $.cookie(name, $.cookie(name) || $('#' + defaults[name]).val() );
-        });
-
-        // $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
-        // $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
-        // $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
-        // $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
-        */
-    },
     init_user_settings: function() {
       //This function only looks to change the default behavior. I.g. if the
       //default is to *not* show annotations, this function only looks to see if
@@ -392,7 +371,6 @@ var export_functions = {
       }
 
       //These newer options may not have cookies defined yet
-      //TODO: finish init_missing_cookies()
       $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
       $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
       $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
@@ -887,7 +865,6 @@ $(document).ready(function(){
     console.log('BOOP: document.ready start');
 
     //export_functions.debug_cookies();
-    //export_functions.init_missing_cookies();
     export_functions.init_listeners();
     export_functions.init_hash_detail();
     export_functions.init_user_settings();
