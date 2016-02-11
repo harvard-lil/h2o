@@ -185,7 +185,7 @@ class Collage < ActiveRecord::Base
     # xpath_start: "/center[3]/p[1]", xpath_end: "/h2[1]"  #not supported
 
     # TODO: Change any xpath with that contains the string "div" to add something
-    #   to the selector that excludes class contains xpath-nocount (don't bother
+    #   to the selector that excludes class contains noxpath (don't bother
     #   normalizing spaces b/c we add this ourself.) This is how we will work
     #   around the fact that changing H? tags to divs elsewhere has now broken
 
@@ -194,10 +194,21 @@ class Collage < ActiveRecord::Base
     #   it to a div with class new-h2.) If the annotation spans beyond the end
     #   of the starting H2 tag, this won't fix the annotation and it might even
     #   make things worse elsewhere in the document. That idea is un-tested.
+    noxpath_selector = "not(contains(concat(' ', @class, ' '), ' noxpath '))"
     new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
-    debug_id = 1111086
+    # debug_id = 1111086
+    debug_id = 1111186  #collage id: 35633
+
+    # As a reminder, the normal (non-export) collage view does not use this method for its annotations
     self.annotations.inject({}) {|h, a|
       logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
+
+      if a.id == debug_id
+        # Rails.logger.debug "squueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeps!"
+        # a.xpath_start = '/div[4]'  #
+        # a.xpath_end = '/div[4]'  #
+      end
+
       a.xpath_start.to_s.sub!('h2', new_h2)
       a.xpath_end.to_s.sub!(  'h2', new_h2)
       logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
