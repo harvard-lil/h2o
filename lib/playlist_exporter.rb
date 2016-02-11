@@ -66,7 +66,7 @@ class PlaylistExporter
     end
 
     def create_phantomjs_options_file(directory, params)
-      ExportService::CookieService.phantomjs_options_file(directory, params)
+      ExportService::Cookies.phantomjs_options_file(directory, params)
     end
 
     def fetch_playlist_html(request_url, params)  #_doc
@@ -232,7 +232,7 @@ class PlaylistExporter
 
     def pdf_javascript_deadman_switch(status)  #_pdf
       # This works with the --window-status switch to prevent wkhtmltopdf from
-      # hanging forever if something goes wrong in the page. Note that this won't  make
+      # hanging forever if something goes wrong in the page. Note that this won't make
       # it through our system call correctly if there are spaces inside the JS. Seriously.
       "--run-script if(window.status!='loading_h2o'&&window.status!='#{status}'){window.status='#{status}'};"
     end
@@ -247,7 +247,7 @@ class PlaylistExporter
       toc_options = ExportService::TableOfContents::PDF.generate(request_url, params)
       target_url = get_target_url(request_url)
       page_options = pdf_page_options(params)
-      cookie_string = ExportService::CookieService.forwarded_pdf_cookies(params)
+      cookie_string = ExportService::Cookies.forwarded_pdf_cookies(params)
       output_file_path = output_file_path(params)
 
       prep_output_file_path(output_file_path)
