@@ -216,7 +216,8 @@ var set_styling = function(page) {
             "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
             "div.WordSection1 {page:WordSection1;}",
             "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
-            "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
+            "font-family:" + font_face_string + ";",
+            "font-size:" + font_size_string + "; }",
             ".MsoChpDefault, h1, h2, h3, h4, h5, h6 { font-family:" + font_face_string + "; }",
             "@list l0:level1 { mso-level-text: ''; }",
             doc_styles,
@@ -242,9 +243,9 @@ var set_styling = function(page) {
         }
 
     var background_url_remover = function(match, p1, p2, p3, p4, offset, string) {
-      console.log(match);
+      //console.log(match);
       if (p2 == '' || p2 == ' ') {
-        // Don't create rules like this: .boop{background:}
+        // Don't create invalid rules
         return p4 == ';' ? '' : '}';
       }
       else {
@@ -254,16 +255,22 @@ var set_styling = function(page) {
 
     var raw_css = injectable_css.join("\n");
     raw_css = raw_css.replace(/(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g, background_url_remover);
-
     $('#export-styles').append(raw_css);
+    $('#additional_styles').append($('#additional_styles').cssText());
+    $('#highlight_styles').append($('#highlight_styles').cssText());
 
-        $('#additional_styles').append($('#additional_styles').cssText());
-        $('#highlight_styles').append($('#highlight_styles').cssText());
+    // Word will only style this correctly if it is a P tag, not a div. #whoknowswhy
+    $.each($('div.Case-internal-header'), function(i, node) {
+      var divNode = $(node);
+      var newNode = $('<p/>');
+      newNode.attr('class', divNode.attr('class'));
+      divNode.contents().unwrap().wrap(newNode);
+    });
 
-        // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
-        // Forcibly remove bullets from LI tags and fix TOC item indentation
-        // The .listitem filter prevents this from out-denting LI items.
-        $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
+    // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
+    // Forcibly remove bullets from LI tags and fix TOC item indentation
+    // The .listitem filter prevents this from out-denting LI items.
+    $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
 
   }, doc_styles, cookies);
 }
