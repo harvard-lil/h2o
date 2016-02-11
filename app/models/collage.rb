@@ -161,7 +161,7 @@ class Collage < ActiveRecord::Base
     layers
   end
 
-  def annotations_as_export_json
+  def annotations_for_export
     attrs = %i[
       id
       collage_id
@@ -177,8 +177,6 @@ class Collage < ActiveRecord::Base
       highlight_only
     ]
 
-    # TODO: Fix the N+1 problem here with this. UNTESTED
-    # self.annotations.includes([:layers, :taggings => :tag]).inject({}) {|h, a|
     # Tweak xpath selectors to work with similarly tweaked DOM present during export
     # NOTE: This needs to be tweaked to work correctly with xpath selectors that
     # contain h2 tags *and* don't start with the same node selector thingy. E.g.
@@ -194,28 +192,28 @@ class Collage < ActiveRecord::Base
     #   it to a div with class new-h2.) If the annotation spans beyond the end
     #   of the starting H2 tag, this won't fix the annotation and it might even
     #   make things worse elsewhere in the document. That idea is un-tested.
-    noxpath_selector = "not(contains(concat(' ', @class, ' '), ' noxpath '))"
-    new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
-    # debug_id = 1111086
+    # noxpath_selector = "not(contains(concat(' ', @class, ' '), ' noxpath '))"
     debug_id = 1111186  #collage id: 35633
 
-    # As a reminder, the normal (non-export) collage view does not use this method for its annotations
-    self.annotations.inject({}) {|h, a|
+    new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
+    eager_loaded_annotations.inject({}) {|h, a|
       logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
-
-      if a.id == debug_id
-        # Rails.logger.debug "squueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeps!"
-        # a.xpath_start = '/div[4]'  #
-        # a.xpath_end = '/div[4]'  #
-      end
-
       a.xpath_start.to_s.sub!('h2', new_h2)
       a.xpath_end.to_s.sub!(  'h2', new_h2)
       logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
 
       h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
       h
-    }.to_json
+    }
+  end
+
+  def annotations_for_show
+    # TODO: consolidate this with annotations_for_export with an on/off switch
+    #   for the xpath translation.
+    eager_loaded_annotations.inject({}) {|h, a|
+      h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution)
+      h
+    }
   end
 
   def printable_content
@@ -303,4 +301,11 @@ class Collage < ActiveRecord::Base
   def annotated_label
     self.annotatable_type == "Case" ? "Annotated Case" : "Annotated Text"
   end
+
+  private
+
+  def eager_loaded_annotations
+    annotations.includes([:layers, :taggings => :tag])
+  end
+
 end
