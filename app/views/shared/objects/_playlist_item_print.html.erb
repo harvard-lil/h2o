@@ -3,15 +3,11 @@
 
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>" style="mso-list:l0 level1 lfo1;">
 <% h_tag = "h#{recursive_level+1}" %>
-<% if item.actual_object.present? -%>
-  <!-- item.class <%= item.class %> -->
-  <!-- item.id <%= item.id %> -->
-  <!-- actual_object_type <%= item.actual_object_type %> -->
-  <!-- actual_object.id <%= item.actual_object.id %> -->
 
+<% if item.actual_object.present? -%>
   <% heading_word_style = item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar' %>
   <a name="playlist_item_<%= item.id %>"></a>
-  <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
+  <<%= h_tag %> class="scale1-5 new-<%= h_tag %> noxpath">
     <span class="<%= heading_word_style%> hcontent"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %> <%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>

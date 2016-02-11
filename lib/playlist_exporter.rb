@@ -193,7 +193,8 @@ class PlaylistExporter
         # BUG: This might break annotations that apply to a div that follow or span one
         #   of these H tags. (E.g. "/div[12]") because we are changing the number of
         #   divs in the content here.
-        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] } xpath-nocount"
+        h_level = node.name.match(/h(\d)/)[1]
+        node['class'] = node['class'].to_s + " new-h#{h_level} noxpath"
         node.name = 'div'
       end
 
