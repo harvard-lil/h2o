@@ -258,15 +258,15 @@ class PlaylistExporter
         )  #.tap {|x| Rails.logger.debug "TOCBLOCK: #{x}"}
     end
 
-    def generate_toc_options(params)  #_doc
+    def generate_toc_options(request_url, params)  #_pdf
       options = ["--no-outline"]
-      if params['toc_levels'].present?
+      if params['toc_levels'].present? && request_url =~ %r(/playlists/\d+)
         options << "toc --xsl-style-sheet " + toc_file(params)
       end
       options
     end
 
-    def toc_file(params)  #_doc
+    def toc_file(params)  #_pdf
       #NOTE: There may be a risk tempfile will unlink this file before it gets used,
       #so we probably need a regular IO file that we unlink or clear some other way.
       file = Tempfile.new(['export_toc', '.xsl'])
@@ -300,7 +300,7 @@ class PlaylistExporter
         "--#{name} #{params[name]}"
       }.join(' ')
 
-      toc_options = generate_toc_options(params)
+      toc_options = generate_toc_options(request_url, params)
       target_url = get_target_url(request_url)
       page_options = pdf_page_options(params)
       cookie_string = ExportService::CookieService.forwarded_pdf_cookies(params)
