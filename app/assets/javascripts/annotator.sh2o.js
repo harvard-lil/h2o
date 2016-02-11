@@ -302,7 +302,7 @@ H2O = (function() {
     });
 
     this.annotator.subscribe('rangeNormalizeFail', function(annotation, r, e) {
-      console.warn('Error for annotation: ', annotation.id, ' -> ', e);
+      console.warn('Error for annotation: ', annotation.id, ' -> ', e.message);
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
