@@ -301,13 +301,16 @@ H2O = (function() {
       }
     });
 
+    this.annotator.subscribe('rangeNormalizeFail', function(annotation, r, e) {
+      console.warn('Error for annotation: ', annotation.id, ' -> ', e);
+    });
+
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
       var annotated_item_id = this.plugins.H2O.annotated_item_id;
       try {
         $('#annotator-field-0').addClass('no_tinymce');
         $.each(annotations, function(i, annotation) {
           $(annotation._local.highlights).addClass('annotation-' + annotation.id);
-          if (!$(annotation._local.highlights).length) {console.warn(annotation);}
         });
 
         if (this.initialized) {return;}
@@ -927,7 +930,7 @@ H2O = (function() {
 
     var start_node = $('.annotation-' + _id + ':first');
     if (!start_node.length) {
-      console.warn('Could not find start_node for annotation: ' + _id);
+      // Something is busted, so bail out.
       return;
     }
 
@@ -943,7 +946,7 @@ H2O = (function() {
       // TODO: We should probably bail out at this point, but I haven't tested
       // that and we might still need to set click handlers. I doubt anything
       // is going to work if end_node is null, though.
-      console.warn('Could not find end_node for annotation: ' + _id);
+      //console.warn('Could not find end_node for annotation: ' + _id);
     }
 
     $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
@@ -1163,10 +1166,9 @@ H2O = (function() {
       this.annotated_item_id = c_id;
     }
 
-    var data = this.format_annotations(current_annotations);
-    h2o_annotator.loadAnnotations(data);
+    h2o_annotator.loadAnnotations(this.format_annotations(current_annotations));
   }
- 
+
   H2O.prototype.removeAnnotationMarkupAndUnlayered = function(annotation) {
     h2o_annotator.publish('beforeAnnotationDeleted', [annotation]);
     this.removeAnnotationMarkup(annotation);
