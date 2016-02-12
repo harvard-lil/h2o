@@ -616,7 +616,7 @@ var export_functions = {
       //problem of Word 2011 on a Mac failing to open Doc exports because they had things
       //like background: url(...) CSS that used relative URLs. (Word would try to load them
       //off the local filesystem, which threw up a gigantic error for the user.)
-      $("body *").filter(":hidden").not("script").remove();
+      $("body *").filter(":hidden").not("script").not("br").remove();
 
       //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file
       $("script").remove();
