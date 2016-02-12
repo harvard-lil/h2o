@@ -588,7 +588,6 @@ var export_functions = {
         return;
       }
 
-      // Remove things that would otherwise trip up any of our exporter backends
       $('#print-options').remove();
 
       // Reset margins because export back-end will manage them
@@ -599,7 +598,7 @@ var export_functions = {
       //Remove margin previously occupied by #print-options
       div.css('margin-top', '0px');
 
-      //Remove padding that makes top margin look too big on export
+      //Remove padding that changes top margin on first page
       $('.singleitem:first').css('padding-top', '0px');
 
       //This is a couple of failed attempts at getting annotation comments to display as a block
@@ -612,25 +611,11 @@ var export_functions = {
         //$(node).replaceWith(newNode);
       //});
 
-      //NOTE: Does not yet work for footnotes with annotation tags in them, such
-      //as footnotes inside hidden text.
-      $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
-        $(node).removeClass('Item-text');
-        $(node).attr('class', 'Footnote ' + $(node).attr('class'));
-      });
-
-      if ($.cookie('export_format') == 'doc') {
-        //Highlights don't work in DOC, so we fake it with underlined text.
-        $("span[class*=highlight-]").css('text-decoration', 'underline');
-
-        $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
-
-        $.each($('#toc').find('a'), function(i, node) {
-          $(node).replaceWith($(node).text());
-        });
-      }
-
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
+      //Note that this might be too heavy handed. It was partly a reaction to the very opaque
+      //problem of Word 2011 on a Mac failing to open Doc exports because they had things
+      //like background: url(...) CSS that used relative URLs. (Word would try to load them
+      //off the local filesystem, which threw up a gigantic error for the user.)
       $("body *").filter(":hidden").not("script").remove();
 
       //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file

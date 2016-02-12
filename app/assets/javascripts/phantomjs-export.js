@@ -226,6 +226,35 @@ var set_styling = function(page) {
 
         $('title').after($(header));
 
+
+    //Highlights don't work in DOC, so we fake it with underlined text.
+    $("span[class*=highlight-]").css('text-decoration', 'underline');
+
+    //Get some whitespace where page breaks should go (but don't actually create a full-on page break
+    $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
+
+    // Word will only style this correctly if it is a P tag, not a div. #whoknowswhy
+    $.each($('div.Case-internal-header'), function(i, node) {
+      var divNode = $(node);
+      var newNode = $('<p/>');
+      newNode.attr('class', divNode.attr('class'));
+      divNode.contents().unwrap().wrap(newNode);
+    });
+
+    //Just use the text of each TOC link in the TOC. This helps avoid HTML color bugs between platforms.
+    $.each($('#toc').find('a'), function(i, node) {
+      $(node).replaceWith($(node).text());
+    });
+
+    //Make sure Footnote class is the first class for existing footnote nodes.
+    //NOTE: Does not work for footnotes with annotation tags in them, such
+    //as footnotes inside hidden text.
+    $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
+      var footNode = $(node);
+      footNode.removeClass('Item-text');
+      footNode.attr('class', 'Footnote ' + footNode.attr('class'));
+    });
+
         //Word ignores external stylesheets, so we inject their CSS inline into the DOM
         //and remove the actual stylesheet tags to prevent errors when Word tries to
         //load that over the network or something silly like that.
@@ -253,19 +282,16 @@ var set_styling = function(page) {
       }
     }
 
+    //Strip background URLs all the CSS to prevent fatal errors opening the exported
+    //Doc file in Word 2011 on a Mac.
     var raw_css = injectable_css.join("\n");
-    raw_css = raw_css.replace(/(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g, background_url_remover);
+    raw_css = raw_css.replace(
+      /(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g,
+      background_url_remover
+    );
     $('#export-styles').append(raw_css);
     $('#additional_styles').append($('#additional_styles').cssText());
     $('#highlight_styles').append($('#highlight_styles').cssText());
-
-    // Word will only style this correctly if it is a P tag, not a div. #whoknowswhy
-    $.each($('div.Case-internal-header'), function(i, node) {
-      var divNode = $(node);
-      var newNode = $('<p/>');
-      newNode.attr('class', divNode.attr('class'));
-      divNode.contents().unwrap().wrap(newNode);
-    });
 
     // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
     // Forcibly remove bullets from LI tags and fix TOC item indentation

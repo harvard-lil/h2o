@@ -217,7 +217,7 @@ class Collage < ActiveRecord::Base
   end
 
   def printable_content
-    self.editable_content(true)
+    editable_content(true)
   end
 
   def editable_content(convert_h_tags=false)
@@ -233,30 +233,14 @@ class Collage < ActiveRecord::Base
 
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
-    doc.xpath('//a[starts-with(@href, "#")]').each do |li|
-      li['class'] = 'footnote'
-    end
+    add_footnote_class(doc)
 
     children_nodes = doc.xpath('/html/body').children
     if children_nodes.size == 1 && self.annotatable.content.match('^<div>')
       children_nodes = children_nodes.first.children
     end
 
-    count = 1
-    children_nodes.each do |node|
-      if node.children.any? && node.text != ''
-        #first_child = node.children.first
-        control_node = Nokogiri::XML::Node.new('a', doc)
-        control_node['id'] = "paragraph#{count}"
-        control_node['href'] = "#p#{count}"
-        control_node['class'] = "paragraph-numbering scale0-9"
-        control_node.inner_html = "#{count}"
-        #TODO: Verify the change from first_child.add... to node.add... do not break anything outside of the print export
-        #first_child.add_previous_sibling(control_node)
-        node.add_previous_sibling(control_node)
-        count += 1
-      end
-    end
+    add_paragraph_numbers(doc, children_nodes)
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
@@ -303,6 +287,27 @@ class Collage < ActiveRecord::Base
   end
 
   private
+
+  def add_footnote_class(doc)
+    doc.xpath('//a[starts-with(@href, "#")]').each do |li|
+      li['class'] = 'footnote'
+    end
+  end
+
+  def add_paragraph_numbers(doc, children_nodes)
+    count = 1
+    children_nodes.each do |node|
+      next unless node.children.any? && node.text != ''
+      control_node = Nokogiri::XML::Node.new('a', doc)
+      control_node['id'] = "paragraph#{count}"
+      control_node['href'] = "#p#{count}"
+      control_node['class'] = "paragraph-numbering scale0-9"
+      control_node.inner_html = "#{count}"
+
+      node.add_previous_sibling(control_node)
+      count += 1
+    end
+  end
 
   def eager_loaded_annotations
     annotations.includes([:layers, :taggings => :tag])
