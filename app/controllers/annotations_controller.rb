@@ -145,7 +145,7 @@ class AnnotationsController < BaseController
 
       create_color_mappings if params[:layer_hexes].present?
       render :json => { :id => @annotation.id,
-                        :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :layers => @annotation.layers.map(&:name).to_json,
                         :highlight_only => @annotation.highlight_only,
                         :link => @annotation.link,
                         :text => @annotation.annotation }
@@ -171,17 +171,23 @@ class AnnotationsController < BaseController
     render :json => { :error => "There seems to have been a problem deleting that item. #{e.inspect}" }, :status => :unprocessable_entity
   end
 
+
   private
 
   def create_color_mappings
     params[:layer_hexes].each do |layer|
-      next if !layer["is_new"]
+      next unless layer["is_new"]
       tag = @annotation.layers.detect { |l| l.name == layer["layer"] }
-      c = ColorMapping.create(collage_id: @annotation.annotated_item_id, tag_id: tag.id, hex: layer[:hex])
+      next unless tag
+
+      ColorMapping.create(
+        collage_id: @annotation.annotated_item_id,
+        tag_id: tag.id,
+        hex: layer[:hex]
+        )
     end
   end
 
-  private
   def annotations_params
     params.require(:annotation).permit(:annotated_item_id, :annotated_item_type, :link, :xpath_end, :xpath_start, :start_offset,
                                        :end_offset, :annotation, :id, :layer_list, :hidden, :highlight_only, :error, :discussion,
