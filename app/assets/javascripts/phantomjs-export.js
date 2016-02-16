@@ -247,8 +247,7 @@ var set_styling = function(page) {
     });
 
     //Make sure Footnote class is the first class for existing footnote nodes.
-    //NOTE: Does not work for footnotes with annotation tags in them, such
-    //as footnotes inside hidden text.
+    //NOTE: Does not work for footnotes with annotation tags in them, such as footnotes inside hidden text.
     $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
       var footNode = $(node);
       footNode.removeClass('Item-text');
@@ -293,10 +292,13 @@ var set_styling = function(page) {
     $('#additional_styles').append($('#additional_styles').cssText());
     $('#highlight_styles').append($('#highlight_styles').cssText());
 
-    // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
-    // Forcibly remove bullets from LI tags and fix TOC item indentation
-    // The .listitem filter prevents this from out-denting LI items.
-    $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
+    // TOC: Forcibly remove bullets and prevent entire TOC <ol> from indenting 0.5in
+    $('.MsoToc1 li').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -0.5in;');
+
+    // Here is the HTML that is getting indented on Mac in Word 2011
+    // <section class="playlists">
+    //   <ul>
+    //     <li id="playlist_item_65932" class="playlist listitem level1 listitem65932" style="mso-list:l0 level1 lfo1;" data-itemid="65932">
 
   }, doc_styles, cookies);
 }
