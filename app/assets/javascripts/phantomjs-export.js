@@ -295,10 +295,8 @@ var set_styling = function(page) {
     // TOC: Forcibly remove bullets and prevent entire TOC <ol> from indenting 0.5in
     $('.MsoToc1 li').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -0.5in;');
 
-    // Here is the HTML that is getting indented on Mac in Word 2011
-    // <section class="playlists">
-    //   <ul>
-    //     <li id="playlist_item_65932" class="playlist listitem level1 listitem65932" style="mso-list:l0 level1 lfo1;" data-itemid="65932">
+    // This is a no-op on PC. Hopefully it fixes the Mac indentation issue
+    $('li.listitem').attr('style', 'mso-list:l0 level1 lfo1; margin-left: 0in;');
 
   }, doc_styles, cookies);
 }
