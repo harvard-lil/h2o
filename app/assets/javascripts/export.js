@@ -372,9 +372,9 @@ var export_functions = {
 
       //These newer options may not have cookies defined yet
       $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
-      $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
-      $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
-      $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
+      $('#margin-top').val($.cookie('print_margin_top') || $('#margin-top').val());
+      $('#margin-right').val($.cookie('print_margin_right') || $('#margin-right').val());
+      $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-bottom').val());
       $('#margin-left').change();
   },
   init_theme_picker_listener: function() {
