@@ -1,24 +1,6 @@
 #playlists_export, #collages_export, #text_blocks_export, 
 #cases_export, #collages_export_unique {
-/* This zeros out the playlist indentation we were seeing in PDF exports */
-/* TODO: move it up top under the *_export section */
-  ul,li {
-    list-style-type: none;
-    list-style-position:inside;
-    margin:0;
-    padding:0;
-  }
-  ol {
-    list-style-type: none;
-  }
 
-  /* I believe this is no longer needed
-  li.original_content {
-      margin-left: .5in;
-      list-style-type: disc;
-      list-style-position: outside;
-  }
-  */
   .vh1, .vh2 { font-weight: bold; }
   .annotator-adder {
     visibility: hidden !important;
@@ -311,3 +293,18 @@
   font-size: inherit !important
 }
 
+/* This zeros out the playlist indentation we were seeing in PDF exports */
+  ul,li {
+    list-style-type: none;
+    list-style-position:inside;
+    margin:0;
+    padding:0;
+  }
+  ol {
+    list-style-type: none;
+  }
+  li.original_content {
+      margin-left: .5in;
+      list-style-type: disc;
+      list-style-position: outside;
+  }
