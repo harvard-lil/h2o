@@ -298,6 +298,9 @@ var set_styling = function(page) {
     // This is a no-op on PC. Hopefully it fixes the Mac indentation issue
     $('li.listitem').attr('style', 'mso-list:l0 level1 lfo1; margin-left: 0in;');
 
+    // Remove all image tags. They are only going to cause trouble in a Doc export
+    $('img').remove();
+
   }, doc_styles, cookies);
 }
 
