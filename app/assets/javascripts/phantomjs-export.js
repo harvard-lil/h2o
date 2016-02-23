@@ -295,8 +295,13 @@ var set_styling = function(page) {
     // TOC: Forcibly remove bullets and prevent entire TOC <ol> from indenting 0.5in
     $('.MsoToc1 li').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -0.5in;');
 
-    // This is a no-op on PC. Hopefully it fixes the Mac indentation issue
-    $('li.listitem').attr('style', 'mso-list:l0 level1 lfo1; margin-left: 0in;');
+    // This seems to be required to avoid the issue where Word 2011 on a Mac indents
+    // playlist items. We avoid using .css(...) here because that would wipe out the
+    // Word-specific inline style that these nodes already have. That's important.
+    $.each($('li.listitem'), function(i, el) {
+      var newStyle = $(el).attr('style') + ' margin-left: 0in;';
+      $(el).attr('style', newStyle);
+    });
 
     // Remove all image tags. They are only going to cause trouble in a Doc export
     $('img').remove();
