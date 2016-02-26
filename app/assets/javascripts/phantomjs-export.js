@@ -271,7 +271,6 @@ var set_styling = function(page) {
         }
 
     var background_url_remover = function(match, p1, p2, p3, p4, offset, string) {
-      //console.log(match);
       if (p2 == '' || p2 == ' ') {
         // Don't create invalid rules
         return p4 == ';' ? '' : '}';
@@ -281,8 +280,8 @@ var set_styling = function(page) {
       }
     }
 
-    //Strip background URLs all the CSS to prevent fatal errors opening the exported
-    //Doc file in Word 2011 on a Mac.
+    // Strip background URLs in the CSS to prevent fatal errors opening the exported
+    // Doc file in Word 2011 on a Mac.
     var raw_css = injectable_css.join("\n");
     raw_css = raw_css.replace(
       /(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g,
