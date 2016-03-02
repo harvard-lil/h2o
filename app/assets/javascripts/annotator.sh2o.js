@@ -891,13 +891,12 @@ H2O = (function() {
       div.css({ 'right': (div.width() + 17)*-1, 'opacity': 1.0 });
       $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' ' + clean_layer);
       $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' ' + clean_layer);
-      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' layered-ellipsis-hidden ' + clean_layer);
-
-      //if changed from highlight only
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' ' + clean_layer + ' layered-ellipsis-hidden');
     }
   };
 
   H2O.prototype.annotationType = function(annotation) {
+    if (annotation.id == 17069) { console.warn(annotation); }
     if(annotation.error){
       return 'error';
     } else if(annotation.hidden) {
@@ -936,11 +935,12 @@ H2O = (function() {
 
     var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
     var clean_layer = collages.clean_layer(layer_class);
-    var fooble = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
+    var fragment = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
+    var annoType = H2O.prototype.annotationType(annotation);
 
-    $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
-    $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
+    $('<a href="#" class="layered-control-start layered-control-start-' + fragment + ' data-type="' + annoType + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fragment + '>[' + text + ']</a>').insertBefore(start_node);
+    $('<a href="#" class="layered-control-end layered-control-end-' + fragment + ' data-type="' + annoType + '"></a>').insertAfter(end_node);
 
     // NOTE: Does this set the same event handler every time we create an annotation in the DOM?
     $('.layered-ellipsis').off('click').on('click', function(e) {
@@ -1139,7 +1139,7 @@ H2O = (function() {
         "link" : annotation.link,
         "hidden" : annotation.hidden,
         "error" : annotation.error,
-        "discuss" : annotation.discussion,
+        "discuss" : annotation.discussion,  //should this really be 'discussion' to match up with annotationType?
         "feedback" : annotation.feedback,
         "highlight_only": annotation.highlight_only,
         "user_id" : annotation.user_id,
