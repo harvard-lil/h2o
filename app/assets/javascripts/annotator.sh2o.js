@@ -929,8 +929,8 @@ H2O = (function() {
     }
 
     var start_node = $('.annotation-' + _id + ':first');
-    if (!start_node.length) {
-      // Something is busted, so bail out.
+    var end_node = $('.annotation-' + _id + ':last');
+    if (!start_node.length || !end_node.length) {
       return;
     }
 
@@ -940,15 +940,6 @@ H2O = (function() {
 
     $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
     $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
-
-    var end_node = $('.annotation-' + _id + ':last');
-    if (!end_node.length) {
-      // TODO: We should probably bail out at this point, but I haven't tested
-      // that and we might still need to set click handlers. I doubt anything
-      // is going to work if end_node is null, though.
-      //console.warn('Could not find end_node for annotation: ' + _id);
-    }
-
     $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
 
     // NOTE: Does this set the same event handler every time we create an annotation in the DOM?
