@@ -162,21 +162,6 @@ class Collage < ActiveRecord::Base
   end
 
   def annotations_for_export
-    attrs = %i[
-      id
-      collage_id
-      annotated_item_id
-      annotated_item_type
-      annotation
-      xpath_start
-      xpath_end
-      start_offset
-      end_offset
-      link
-      hidden
-      highlight_only
-    ]
-
     # Tweak xpath selectors to work with similarly tweaked DOM present during export
     # NOTE: This needs to be tweaked to work correctly with xpath selectors that
     # contain h2 tags *and* don't start with the same node selector thingy. E.g.
@@ -202,7 +187,7 @@ class Collage < ActiveRecord::Base
       a.xpath_end.to_s.sub!(  'h2', new_h2)
       logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
 
-      h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
+      h["a#{a.id}"] = a.to_json(include: [:layers])
       h
     }
   end
