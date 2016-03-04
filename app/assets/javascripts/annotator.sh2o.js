@@ -896,7 +896,6 @@ H2O = (function() {
   };
 
   H2O.prototype.annotationType = function(annotation) {
-    if (annotation.id == 17069) { console.warn(annotation); }
     if(annotation.error){
       return 'error';
     } else if(annotation.hidden) {
@@ -909,6 +908,8 @@ H2O = (function() {
       return 'link';
     } else if(annotation.highlight_only !== null) {
       return 'highlight';
+    } else if(annotation.text && annotation.text.length > 0) {
+      return 'text';
     }
   };
 
@@ -933,16 +934,15 @@ H2O = (function() {
       return;
     }
 
-    var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
+    var annoType = H2O.prototype.annotationType(annotation);
+    var text = annoType == 'text' ? annotation.text : '...';
     var clean_layer = collages.clean_layer(layer_class);
     var fragment = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
-    var annoType = H2O.prototype.annotationType(annotation);
 
     $('<a href="#" class="layered-control-start layered-control-start-' + fragment + ' data-type="' + annoType + '"></a>').insertBefore(start_node);
     $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fragment + '>[' + text + ']</a>').insertBefore(start_node);
     $('<a href="#" class="layered-control-end layered-control-end-' + fragment + ' data-type="' + annoType + '"></a>').insertAfter(end_node);
 
-    // NOTE: Does this set the same event handler every time we create an annotation in the DOM?
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
       if(!!$('#print-options').length) {
@@ -950,6 +950,7 @@ H2O = (function() {
         return;
       }
       var _id = $(this).data('layered');
+
       $('.annotation-' + _id).show().parents('.original_content').show();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).css('display', 'inline-block');
       $(this).hide();
@@ -1139,7 +1140,7 @@ H2O = (function() {
         "link" : annotation.link,
         "hidden" : annotation.hidden,
         "error" : annotation.error,
-        "discuss" : annotation.discussion,  //should this really be 'discussion' to match up with annotationType?
+        "discuss" : annotation.discussion,
         "feedback" : annotation.feedback,
         "highlight_only": annotation.highlight_only,
         "user_id" : annotation.user_id,
