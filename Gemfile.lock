@@ -99,6 +99,10 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     libv8 (3.16.14.7)
+    loofah (2.0.3)
+      nokogiri (>= 1.5.9)
+    loofah-activerecord (1.2.0)
+      loofah (>= 1.0.0)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     mime-types (2.4.3)
@@ -250,6 +254,7 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails
   kaminari
+  loofah-activerecord (~> 1.2)
   nokogiri (~> 1.6)
   paperclip
   pg

@@ -36,17 +36,13 @@ gem 'recaptcha'
 gem 'paperclip'
 gem 'ckeditor'
 gem 'warden'
+gem 'bcrypt'
+gem 'scrypt'
+gem 'rails_admin_import', '0.1.9'
+gem 'loofah-activerecord', '~> 1.2'
 
 group :development do
   gem 'sunspot_solr'
   gem 'quiet_assets'
   gem 'rspec-rails'
 end
-
-gem 'bcrypt'
-gem 'scrypt'
-
-gem 'rails_admin_import', '0.1.9'
-# gem 'rails-perftest'
-
-# gem "skylight"
