@@ -58,7 +58,7 @@ class AnnotationsController < BaseController
   def create
     if params[:layer_hexes].present?
       params[:layer_hexes].each do |k|
-        k["layer"].downcase!
+        k["layer"] = strip_html_tags(k["layer"]).downcase
       end
     end
 
@@ -75,7 +75,7 @@ class AnnotationsController < BaseController
       :error => params[:error].present? ? params[:error] : false,
       :discussion => params[:discuss].present? ? params[:discuss] : false,
       :feedback => params[:feedback].present? ? params[:feedback] : false,
-      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil,
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].map { |l| l["layer"] }.join(', ') : nil,
       :user_id => current_user.id
     }
 
@@ -86,7 +86,7 @@ class AnnotationsController < BaseController
     end
 
     @annotation = Annotation.new(annotations_params)
- 
+
     if @annotation.save
       create_color_mappings if params[:layer_hexes].present?
 
@@ -117,14 +117,11 @@ class AnnotationsController < BaseController
       return
     end
 
-    # TODO: we need to sanitize these for creates too.
-    logger.debug "SANE: #{ActionView::Base.full_sanitizer.sanitize(params[:text], :tags => [])}"
-
     params[:annotation] = {
-      :annotation => params[:text],  #clean
-      :link => params[:link].present? ? params[:link] : nil,  #todo
+      :annotation => params[:text],
+      :link => params[:link].present? ? params[:link] : nil,
       :highlight_only => params[:highlight_only].present? ? params[:highlight_only] : nil,  #todo
-      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].map { |l| l["layer"] }.join(', ') : nil  #todo
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].map { |l| l["layer"] }.join(', ') : nil
     }
 
     current_layers = @annotation.layers

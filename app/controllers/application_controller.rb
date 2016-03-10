@@ -386,6 +386,10 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def strip_html_tags(string)
+    Loofah.fragment(string).scrub!(:strip).to_text
+  end
+
   def export_content_async(base_args)
     logger.warn "XHR request for export_as with base_args: #{base_args.inspect}"
     if !current_user

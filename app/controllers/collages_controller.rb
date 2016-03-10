@@ -106,23 +106,20 @@ class CollagesController < BaseController
   end
 
   def update
-    if @collage.update_attributes(collages_params)
-      render :json => { :type => 'collages', :id => @collage.id }
-    else
-      render :json => { :type => 'collages', :id => @collage.id }
-    end
+    @collage.update_attributes(collages_params)
+    render :json => { :type => 'collages', :id => @collage.id }
   end
 
   def destroy
-    if @collage.present?
-      @collage.destroy
-    end
-
+    @collage.destroy if @collage
     render :json => {}
   end
 
   def save_readable_state
-    @collage.update_columns({ :readable_state => params[:readable_state], :words_shown => params[:words_shown] })
+    @collage.update_columns(
+      :readable_state => clean_readable_state(params[:readable_state]),
+      :words_shown => params[:words_shown]
+      )
     render :json => { :time => Time.now.to_s(:simpledatetime) }
   end
 
@@ -137,10 +134,25 @@ class CollagesController < BaseController
   end
 
   def collage_lookup
-    render :json => { :items => @current_user.collages.collect { |p| { :display => p.name, :id => p.id } } }
+    render :json => {
+      :items => @current_user.collages.map { |p| { :display => p.name, :id => p.id } }
+    }
   end
 
   private
+
+  def clean_readable_state(readable_state)
+    return readable_state if !readable_state.match(/</)
+
+    state_hash = JSON.parse(readable_state)
+    state_hash['hide_tags'] = state_hash['hide_tags'].inject({}) do |h, (k, v)|
+      clean_key = strip_html_tags(k)
+      h[clean_key] = v
+      h
+    end
+    state_hash.to_json
+  end
+
   def collages_params
     params.require(:collage).permit(:name, :public, :tag_list, :description, :annotatable_type, :annotatable_id, :featured,
                                     :enable_feedback, :enable_discussions, :enable_responses)
