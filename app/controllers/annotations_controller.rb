@@ -91,7 +91,7 @@ class AnnotationsController < BaseController
       create_color_mappings if params[:layer_hexes].present?
 
       render :json => { :id => @annotation.id,
-                        :layers => @annotation.layers.collect { |l| l.name }.to_json,
+                        :layers => @annotation.layers.map(&:name).to_json,
                         :highlight_only => @annotation.highlight_only,
                         :text => @annotation.annotation,
                         :hidden => @annotation.hidden,
@@ -101,47 +101,38 @@ class AnnotationsController < BaseController
                         :link => @annotation.link,
                         :user_id => @annotation.user_id }
     else
-      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
+      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" },
              :status => :unprocessable_entity
     end
   end
 
   def update
     if params.has_key?(:force_destroy) && params[:force_destroy]
-      deleteable_tags = @annotation.annotated_item.deleteable_tags
-      @annotation.layers.each do |layer|
-        if deleteable_tags.include?(layer.id)
-          to_delete = @annotation.annotated_item.color_mappings.detect { |cm| cm.tag_id == layer.id } 
-          ColorMapping.destroy(to_delete) if to_delete
-        end
-      end
-      @annotation.destroy
-      render :json => { :id => @annotation.id, 
-                        :layers => [].to_json,
-                        :force_destroy => true }
+      destroy_single_annotation
+      render :json => {
+        :id => @annotation.id,
+        :layers => [].to_json,
+        :force_destroy => true
+      }
       return
     end
 
+    # TODO: we need to sanitize these for creates too.
+    logger.debug "SANE: #{ActionView::Base.full_sanitizer.sanitize(params[:text], :tags => [])}"
+
     params[:annotation] = {
-      :annotation => params[:text],
-      :link => params[:link].present? ? params[:link] : nil,
-      :highlight_only => params[:highlight_only].present? ? params[:highlight_only] : nil,
-      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].collect { |l| l["layer"] }.join(', ') : nil
+      :annotation => params[:text],  #clean
+      :link => params[:link].present? ? params[:link] : nil,  #todo
+      :highlight_only => params[:highlight_only].present? ? params[:highlight_only] : nil,  #todo
+      :layer_list => params[:layer_hexes].present? ? params[:layer_hexes].map { |l| l["layer"] }.join(', ') : nil  #todo
     }
 
     current_layers = @annotation.layers
 
     if @annotation.update_attributes(annotations_params)
-
       #Destroys color mappings for deleted layers that are deletable
       @annotation.reload
-      updated_layers = @annotation.layers
-      current_layers.each do |layer|
-        if !updated_layers.include?(layer) && !@annotation.annotated_item.layers.include?(layer)
-          to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id } 
-          ColorMapping.destroy(to_delete) if to_delete
-        end
-      end
+      destroy_deletable_color_mappings(@annotation, current_layers)
 
       create_color_mappings if params[:layer_hexes].present?
       render :json => { :id => @annotation.id,
@@ -150,21 +141,14 @@ class AnnotationsController < BaseController
                         :link => @annotation.link,
                         :text => @annotation.annotation }
     else
-      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" }, 
+      render :json => { :message => "We couldn't add that annotation. Sorry!<br/>#{@annotation.errors.full_messages.join('<br/>')}" },
              :status => :unprocessable_entity
     end
   end
 
-  def destroy
-    deleteable_tags = @annotation.annotated_item.deleteable_tags
-    @annotation.layers.each do |layer|
-      if deleteable_tags.include?(layer.id)
-        to_delete = @annotation.annotated_item.color_mappings.detect { |cm| cm.tag_id == layer.id } 
-        ColorMapping.destroy(to_delete) if to_delete
-      end
-    end
-    @annotation.destroy
 
+  def destroy
+    destroy_single_annotation
     render :json => {}
   rescue Exception => e
     logger.warn("Could not delete annotation: #{e.inspect}")
@@ -173,6 +157,24 @@ class AnnotationsController < BaseController
 
 
   private
+
+  def destroy_deletable_color_mappings(annotation, current_layers)
+    current_layers.each do |layer|
+      next unless !annotation.layers.include?(layer) && !@annotation.annotated_item.layers.include?(layer)
+      to_delete = @collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      ColorMapping.destroy(to_delete) if to_delete
+    end
+  end
+
+  def destroy_single_annotation
+    deleteable_tags = @annotation.annotated_item.deleteable_tags
+    @annotation.layers.each do |layer|
+      next unless deleteable_tags.include?(layer.id)
+      to_delete = @annotation.annotated_item.color_mappings.detect { |cm| cm.tag_id == layer.id }
+      ColorMapping.destroy(to_delete) if to_delete
+    end
+    @annotation.destroy
+  end
 
   def create_color_mappings
     params[:layer_hexes].each do |layer|
