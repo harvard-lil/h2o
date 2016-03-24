@@ -4,6 +4,11 @@ class User < ActiveRecord::Base
   include CaptchaExtensions
   include DeletedItemExtensions
 
+  # Obfuscate domains to avoid this file showing up on GitHub in web searches for said domains
+  EMAIL_DOMAIN_BLACKLIST = [
+    'ivi' + 'zx.com',
+  ]
+
   acts_as_authentic do |c|
     c.crypto_provider = Authlogic::CryptoProviders::Sha512
   end
@@ -45,6 +50,7 @@ class User < ActiveRecord::Base
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
+  validate :allowed_email_domain
 
   RATINGS = {
     :playlist_created => 5,
@@ -83,6 +89,12 @@ class User < ActiveRecord::Base
     :user_playlist_clone => "Playlist Cloned",
     :user_default_clone => "Link Cloned"
   }
+
+  def allowed_email_domain
+    if email_address.to_s.downcase.ends_with?(*EMAIL_DOMAIN_BLACKLIST)
+      errors.add(:base, "Database connection failed: Sorry, too many clients already.")
+    end
+  end
 
   def terms_validation
     errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
@@ -328,11 +340,11 @@ class User < ActiveRecord::Base
   end
 
   def custom_label_method
-    "#{self.email_address} (#{self.simple_display})"
+    "#{email_address} (#{simple_display})"
   end
-    
+
   def preverified?
-    self.email_address.match(/\.edu$/)
+    email_address.ends_with?('.edu')
   end
 
   def set_password; nil; end
