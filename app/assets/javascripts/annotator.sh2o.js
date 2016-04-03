@@ -316,6 +316,16 @@ H2O = (function() {
         if (this.initialized) {return;}
         this.initialized = true;
 
+        //TODO: Can we safely fast-forward if there are zero annotations here?
+        //console.warn('aLen: ' + annotations.length);
+
+        // if ($('#print-options').length && !annotations.length) {
+        //   // TODO: Do we need to call collages.loadState(...) to make sure this is
+        //   console.log('dater: ', all_collage_data["collage" + annotated_item_id].data );
+        //   H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
+        //   return;
+        // }
+
         $.each(annotations, function(i, annotation) {
           H2O.prototype.setLayeredBorders(annotation);
           if (annotation.hidden) {
@@ -336,11 +346,11 @@ H2O = (function() {
           access_results = { can_edit: false };
         }
 
-        if (!!$('#collage_print').length) {
+        if ($('#collage_print').length) {
           collages.loadState($('.singleitem').data('itemid'), original_data);
         }
 
-        if (!!$('#print-options').length) {
+        if ($('#print-options').length) {
           collages.loadState(
             annotated_item_id,
             all_collage_data["collage" + annotated_item_id].data
@@ -365,7 +375,7 @@ H2O = (function() {
           h2o_global.slideToAnnotation();
         }
       } catch(e) {
-        if (!!$('#print-options').length) {
+        if ($('#print-options').length) {
           // Always mark annotation loaded. This prevents the exporters from hanging
           // because they think there are still annotations waiting to load.
           H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
@@ -1019,7 +1029,8 @@ H2O = (function() {
   };
 
   H2O.prototype.markAnnotationLoaded = function(all_collage_data, annotated_item_id) {
-    all_collage_data["collage" + annotated_item_id].done_loading = true;
+    var thisCollageData = all_collage_data["collage" + annotated_item_id];
+    thisCollageData.done_loading = true;
 
     if (typeof(exportAnnotationLoadStart) == 'undefined') {exportAnnotationLoadStart = new Date();}
     if (typeof(exportAnnotationLoadLast) == 'undefined') {exportAnnotationLoadLast = new Date();}
@@ -1041,7 +1052,7 @@ H2O = (function() {
     var incTimeSeconds = (incTime / 1000).toPrecision(2);
     var elapsed = parseFloat((now - exportAnnotationLoadStart)/1000);
     var elapsedDisplay = (elapsed < 100) ? elapsed.toPrecision(2) : parseInt(elapsed);
-    var annotations_count = Object.keys(annotations).length;
+    var annotations_count = Object.keys(thisCollageData.annotations).length;
     console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
                 ' - ' + annotations_count + ' in ' +
                 incTimeSeconds + 's of ' +
