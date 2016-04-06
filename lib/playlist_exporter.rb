@@ -210,6 +210,7 @@ class PlaylistExporter
 
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).each do |el|
+        # Word style classes only work when they are the first class for a given element.
         el['class'] = "Case-internal-header " + el['class'].to_s
       end
     end
