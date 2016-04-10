@@ -251,6 +251,26 @@ var export_functions = {
       return;
     }
 
+    // Export feels faster if we show the confirmation immediately. There's
+    // no export error message that will ever be actionable by the user, and
+    // we will get an exception notification email if anything does go wrong.
+    var msg = "You will receive an email with a download link when the " +
+      "export is complete. This email may take several minutes to arrive, " +
+      "so please be patient.";
+    var newItemNode = $('<div id="generic-node"></div>').html(msg);
+    $(newItemNode).dialog({
+      title: 'H2O is exporting your content to ' + format.toUpperCase() + ' format.',
+      modal: true,
+      width: '700',
+      height: 'auto',
+      open: function(event, ui) {},
+      buttons: {
+        'Ok': function() {
+          $(newItemNode).remove();
+        }
+      }
+    }).dialog('open');
+
     $.ajax({
       type: 'POST',
       dataType: 'JSON',
@@ -260,24 +280,7 @@ var export_functions = {
         alert('Sorry, there was an unexpected error.');
         console.log('POSTerror: ', xhr.responseText.substring(0, 333));
       },
-      success: function(html) {
-        var msg = "You will receive an email with a download link when the " +
-          "export is complete. This email may take several minutes to arrive, " +
-          "so please be patient.";
-        var newItemNode = $('<div id="generic-node"></div>').html(msg);
-        $(newItemNode).dialog({
-          title: 'H2O is exporting your content to ' + format.toUpperCase() + ' format.',
-          modal: true,
-          width: '700',
-          height: 'auto',
-          open: function(event, ui) {},
-          buttons: {
-            'Ok': function() {
-              $(newItemNode).remove();
-            }
-          }
-        }).dialog('open');
-      }
+      success: function(html) {}
     });
   },
   initiate_collage_data: function(id, data) {
