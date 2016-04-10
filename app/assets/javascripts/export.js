@@ -591,8 +591,6 @@ var export_functions = {
       $('#print-options').remove();
 
       // Reset margins because export back-end will manage them
-      //NEW: technically, we only need to do this for PDF exports, because PDF
-      //exports set margins outside of javascript/HTML completely.
       var div = $('.wrapper');
       div.removeAttr('style');
       //Remove margin previously occupied by #print-options
@@ -601,22 +599,20 @@ var export_functions = {
       //Remove padding that changes top margin on first page
       $('.singleitem:first').css('padding-top', '0px');
 
-      //This is a couple of failed attempts at getting annotation comments to display as a block
-      //level element in Word.
-      //$.each($('.annotation-content').not('.annotation-link'), function(i, node) {
-        //var newNode = $('<div>BOOP: ' + node.innerHTML + '</div>');
-        //newNode.addClass($(node).attr('class'));
-        //$(node).html("<br/>" + $(node).html() + "<br/>");
-        //      console.log('new: ' + node.html());
-        //$(node).replaceWith(newNode);
-      //});
-
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
       //Note that this might be too heavy handed. It was partly a reaction to the very opaque
       //problem of Word 2011 on a Mac failing to open Doc exports because they had things
       //like background: url(...) CSS that used relative URLs. (Word would try to load them
       //off the local filesystem, which threw up a gigantic error for the user.)
-      $("body *").filter(":hidden").not("script").not("br").remove();
+      // Note: We exclude start and end control nodes to avoid the mysterious race condition
+      // that would remove different numbers of them based on the font size in the export
+      // (for Doc exports). That's what was creating a big diff in the intermediate HTML for
+      // Doc exports.
+      $("body *")
+        .filter(":hidden")
+        .not("br,script,.layered-control-start,.layered-control-end")
+        .remove();
+      $('em.original_content:empty,.layered-control-start,.layered-control-end').remove();
 
       //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file
       $("script").remove();
@@ -639,8 +635,7 @@ var export_functions = {
     //Annotation system looks for original_content class
     $('div.article *:not(.paragraph-numbering)').addClass('original_content');
     $('.collage-content').filter(':not(.anno-redundant)').each(function(i, el) {
-      var id = $(el).data('id');
-      export_functions.loadAnnotator(id);
+      export_functions.loadAnnotator($(el).data('id'));
     });
   },
   injectAnnotations: function(annotations) {
@@ -651,7 +646,6 @@ var export_functions = {
       var html;
       var klass = '';
       if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
-
         html = annotation.annotation;
       } else if(annotation.link) {
         html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
@@ -662,7 +656,7 @@ var export_functions = {
       //NOTE: Annotation-textChar needs to be the first class so Word will see it.
       if (html) {
         var newEl = $('<span>')
-          .addClass('Annotation-textChar ' + klass + '  annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-textChar ' + klass + ' annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
         //TODO: do the show/hide logic here?
@@ -673,9 +667,9 @@ var export_functions = {
     //TODO: Can we exit fast if the annotation is empty or anything?
     var idString = "collage" + id;
     var collage_data = all_collage_data[idString];
-    annotations = collage_data.annotations || {};
-    layer_data = collage_data.layer_data || {};
-    highlights_only = collage_data.highlights_only || {};
+    annotations = collage_data.annotations || {};  //NOTE: Global variable
+    layer_data = collage_data.layer_data || {};  //NOTE: Global variable
+    highlights_only = collage_data.highlights_only || {};  //NOTE: Global variable
 
     var factory = new Annotator.Factory();
     var h2o = Annotator.Plugin.fetch('H2O');
