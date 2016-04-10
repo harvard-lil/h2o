@@ -13,28 +13,26 @@ var set_cookies = function(export_url, options_file) {
     var parser = document.createElement('a');
     parser.href = export_url;
     var cookie_domain = parser.hostname;
-    var json_string, json;
+    var json_string, options;
 
     try {
         json_string = filesystem.read(options_file);
-        json = JSON.parse(json_string);
+        options = JSON.parse(json_string);
     } catch(e) {
         console.error('Error reading/parsing JSON options file: ' + e);
         phantom.exit(1);
     }
 
-    Object.keys(json).forEach(function(name) {
-        cookies[name] = json[name];
+    Object.keys(options).forEach(function(name) {
+        cookies[name] = options[name];
         var cookie = {
           name: name,
-          value: json[name],
+          value: options[name],
           domain: cookie_domain,
           path: '/',
         };
-        //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
     });
-  //console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2));
 }
 
 var set_page_callbacks = function(page) {
@@ -65,7 +63,6 @@ var set_page_callbacks = function(page) {
 
 set_cookies(export_url, options_file);
 set_page_callbacks(page);
-
 console.log('Opening: ' + export_url);
 page.open(export_url, function(status) {
   if (status !== 'success') {
@@ -128,7 +125,7 @@ var waitFor = function(testFx, onReady, timeOutMillis) {
         clearInterval(interval);
       }
     }
-  }, 10000); // repeat check every X milliseconds
+  }, 1000 * 10); // repeat check every X milliseconds
 };
 
 var set_toc = function(maxLevel) {
@@ -159,14 +156,7 @@ var get_doc_styles = function() {
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
 
-  //  console.log('SETTTTTTTTTTTTTTTTTING: |' + font_face_string + '|');
-
-  var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
-    /(font-family:)(.+);/g,
-    '$1' + font_face_string + ';'
-  );
-
-  var font_size_replacer = function (match, p1, p2, p3, offset, string) {
+  var font_size_scaler = function (match, p1, p2, p3, offset, string) {
     var scaling_name = cookies['print_font_size'];
     // This is the same 4px jump from fonts.js, converted to pt (=3pt), assuming
     // the base Doc style is sized as medium and thus requires no scaling.
@@ -176,18 +166,30 @@ var get_doc_styles = function() {
       large: 3,
       xlarge: 6,
     }
+    var test_size_conversion = {
+      small: -3,
+      medium: -2,
+      large: -1,
+      xlarge: 0,
+    }
     var new_size = Math.ceil(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
   }
 
-  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_replacer);
+  // Inject desired font face
+  var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
+    /(font-family:)(.+);/g,
+    '$1' + font_face_string + ';'
+  );
+
+  // Scale font sizes
+  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
 }
 
 var set_styling = function(page) {
   var doc_styles = get_doc_styles();
 
   page.evaluate(function(doc_styles, cookies) {
-
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
         html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');
@@ -206,6 +208,7 @@ var set_styling = function(page) {
       var font_size_string = cookies['print_font_size_mapped'];
 
         //NOTE: Some of these rules work with the non-Microsoft-specific CSS we inject, too.
+        //TODO: move this to doc-export.css and add margin parsing in get_doc_styles();
         var header = [
             "<!--[if gte mso 9]>",
             "<xml><w:WordDocument><w:View>Print</w:View>",
@@ -226,11 +229,12 @@ var set_styling = function(page) {
 
         $('title').after($(header));
 
-
     //Highlights don't work in DOC, so we fake it with underlined text.
+    //TODO: Move this to doc-export.css
+    //Note: This also underlines text that was highlighted as part of a comment - not just pure highlights.
     $("span[class*=highlight-]").css('text-decoration', 'underline');
 
-    //Get some whitespace where page breaks should go (but don't actually create a full-on page break
+    //Get some whitespace where page breaks should go (but don't actually create a full-on page break)
     $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
 
     // Word will only style this correctly if it is a P tag, not a div. #whoknowswhy
@@ -246,7 +250,7 @@ var set_styling = function(page) {
       $(node).replaceWith($(node).text());
     });
 
-    //Make sure Footnote class is the first class for existing footnote nodes.
+    //Make sure Footnote class is the first class for existing footnote nodes, for Doc export.
     //NOTE: Does not work for footnotes with annotation tags in them, such as footnotes inside hidden text.
     $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
       var footNode = $(node);
