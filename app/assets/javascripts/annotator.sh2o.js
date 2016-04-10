@@ -919,6 +919,7 @@ H2O = (function() {
     } else if(annotation.highlight_only !== null) {
       return 'highlight';
     } else if(annotation.text && annotation.text.length > 0) {
+      // AKA "a comment"
       return 'text';
     }
   };
@@ -945,17 +946,17 @@ H2O = (function() {
     }
 
     var annoType = H2O.prototype.annotationType(annotation);
-    var text = annoType == 'text' ? annotation.text : '...';
+    var text = annoType == 'text' ? '[' + annotation.text + ']' : '[...]';
     var clean_layer = collages.clean_layer(layer_class);
     var fragment = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
 
     $('<a href="#" class="layered-control-start layered-control-start-' + fragment + ' data-type="' + annoType + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fragment + '>[' + text + ']</a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fragment + '>' + text + '</a>').insertBefore(start_node);
     $('<a href="#" class="layered-control-end layered-control-end-' + fragment + ' data-type="' + annoType + '"></a>').insertAfter(end_node);
 
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
-      if(!!$('#print-options').length) {
+      if($('#print-options').length) {
         // Export doesn't need to do anything more than ignore the click
         return;
       }
