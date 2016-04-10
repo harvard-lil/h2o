@@ -1,3 +1,59 @@
+
+<link rel='File-List' href='boop_files/filelist.xml'>
+
+<!--[if gte mso 9]><xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:DoNotOptimizeForBrowser/>
+<w:TrackMoves>false</w:TrackMoves>
+<w:TrackFormatting/>
+<w:ValidateAgainstSchemas/>
+<w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+<w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+<w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+<w:DoNotPromoteQF/>
+<w:LidThemeOther>EN-US</w:LidThemeOther>
+<w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+<w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+<w:Compatibility>
+ <w:BreakWrappedTables/>
+ <w:SplitPgBreakAndParaMark/>
+</w:Compatibility>
+<m:mathPr>
+ <m:mathFont m:val="Cambria Math"/>
+ <m:brkBin m:val="before"/>
+ <m:brkBinSub m:val="&#45;-"/>
+ <m:smallFrac m:val="off"/>
+ <m:dispDef/>
+ <m:lMargin m:val="0"/>
+ <m:rMargin m:val="0"/>
+ <m:defJc m:val="centerGroup"/>
+ <m:wrapIndent m:val="1440"/>
+ <m:intLim m:val="subSup"/>
+ <m:naryLim m:val="undOvr"/>
+</m:mathPr>
+</w:WordDocument>
+</xml><![endif]-->
+
+<style><!--
+@page WordSection1 {
+    margin:MARGIN_PLACEHOLDER;
+    size:8.5in 11.0in;
+    mso-paper-source:0;
+}
+div.WordSection1 {
+    page:WordSection1;
+}
+p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 {
+    font-family:Garamond;
+    font-size:14.0pt;
+}
+.MsoChpDefault, h1, h2, h3, h4, h5, h6 {
+    font-family:Garamond;
+}
+@list l0:level1 {
+    mso-level-text: '';
+}
 p.Annotation-text, li.Annotation-text, div.Annotation-text
 	{mso-style-name:"Annotation text";
 	mso-style-priority:1;
@@ -311,3 +367,5 @@ p.Item-description, li.Item-description, div.Item-description
 	mso-font-kerning:14.0pt;
 	font-weight:bold;
 	mso-bidi-font-weight:normal;}
+-->
+</style>

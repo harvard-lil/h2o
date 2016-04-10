@@ -176,14 +176,21 @@ var get_doc_styles = function() {
     return p1 + new_size + p3;
   }
 
+  var margins = [
+    cookies['print_margin_top'],
+    cookies['print_margin_right'],
+    cookies['print_margin_bottom'],
+    cookies['print_margin_left'],
+  ].join(' ');
+
   // Inject desired font face
-  var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
-    /(font-family:)(.+);/g,
-    '$1' + font_face_string + ';'
-  );
+  return filesystem.read('app/assets/stylesheets/doc-export.css')
+    .replace(/(font-family:)(.+);/g, '$1' + font_face_string + ';')
+    .replace(/MARGIN_PLACEHOLDER/, margins)
+    .replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
 
   // Scale font sizes
-  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
+  //  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
 }
 
 var set_styling = function(page) {
@@ -196,35 +203,18 @@ var set_styling = function(page) {
         html.attr('xmlns:w', 'urn:schemas-microsoft-com:office:word');
         html.attr('xmlns:m', 'http://schemas.microsoft.com/office/2004/12/omml');
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
-
-        var margins = [
-            cookies['print_margin_top'],
-            cookies['print_margin_right'],
-            cookies['print_margin_bottom'],
-            cookies['print_margin_left'],
-        ].join(' ');
+        html.attr('xml:lang', 'en');
 
       var font_face_string = cookies['print_font_face_mapped'];
       var font_size_string = cookies['print_font_size_mapped'];
 
         //NOTE: Some of these rules work with the non-Microsoft-specific CSS we inject, too.
+
+
         //TODO: move this to doc-export.css and add margin parsing in get_doc_styles();
+    //TODO: grab a ton of the Word 2015 PC settings from rs2.b64.HTML and add tehm to doc stle.css
         var header = [
-            "<!--[if gte mso 9]>",
-            "<xml><w:WordDocument><w:View>Print</w:View>",
-            "<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
-            "<![endif]-->",
-            "<link rel='File-List' href='boop_files/filelist.xml'>",
-            "<style><!-- ",
-            "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
-            "div.WordSection1 {page:WordSection1;}",
-            "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
-            "font-family:" + font_face_string + ";",
-            "font-size:" + font_size_string + "; }",
-            ".MsoChpDefault, h1, h2, h3, h4, h5, h6 { font-family:" + font_face_string + "; }",
-            "@list l0:level1 { mso-level-text: ''; }",
             doc_styles,
-          "--></style>",
         ].join("\n");
 
         $('title').after($(header));
