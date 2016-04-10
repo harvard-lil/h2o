@@ -56,7 +56,7 @@
   <% elsif item.actual_object_type == 'Playlist' && recursive_level < 5 && item.actual_object.present? -%>
     <%# Don't count Playlists, just playlist_items %>
     <% @playlist_items_count -= 1%>
-    <section class="playlists">
+    <div class="playlists">
       <ul>
         <% item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item_print',
@@ -68,7 +68,7 @@
             } %>
         <% end -%>
       </ul>
-    </section>
+    </div>
   <% end -%>
 <% else -%>
   <<%= h_tag %> class="missing_item">

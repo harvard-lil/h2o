@@ -1,4 +1,4 @@
-<section class="playlists">
+<div class="playlists">
 	<ul>
 		<% playlist.playlist_items.limit(playlist_items_limit).each_with_index do |item, index| -%>
 		  <%= render :partial => 'shared/objects/playlist_item_print',
@@ -11,4 +11,4 @@
           %>
 		<% end -%>
 	</ul>
-</section>
+</div>
