@@ -86,11 +86,13 @@ page.open(export_url, function(status) {
         console.log('READY');
         set_styling(page);
         set_toc(cookies['toc_levels']);
-        write_file(output_file, page.content);
 
         window.setTimeout(function () {
+          //Give the previous set_* functions more time to finish their DOM
+          //  manipulation. Not proven to make a difference either way, yet.
+          write_file(output_file, page.content);
           phantom.exit();
-        }, 2000);
+        }, 60 * 1000);
       },
       1200000  //Arbitrarily huge number of milliseconds to let giant playlists finish
     );
@@ -168,9 +170,9 @@ var get_doc_styles = function() {
     }
     var test_size_conversion = {
       small: -3,
-      medium: -2,
-      large: -1,
-      xlarge: 0,
+      medium: -1,
+      large: 1,
+      xlarge: 3,
     }
     var new_size = Math.ceil(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
