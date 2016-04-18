@@ -615,10 +615,9 @@ var export_functions = {
         .filter(":hidden")
         .not("br,script,.layered-control-start,.layered-control-end")
         .remove();
-      $('em.original_content:empty,.layered-control-start,.layered-control-end').remove();
-
+      $('script,em.original_content:empty,.layered-control-start,.layered-control-end').remove();
       //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file
-      $("script").remove();
+      //$("script").remove();
 
       if ($.cookie('export_format') == 'pdf') {
         //Used to log rendered content on the back end.
@@ -631,8 +630,11 @@ var export_functions = {
     export_functions.signalAnnotationLoadDone();
   },
   signalAnnotationLoadDone: function() {
+    // var delaySeconds = 30;
+    // setTimeout(function() {
     console.log('Setting window.status to annotation_load_complete');
     window.status = 'annotation_load_complete';
+    // }, 1000 * delaySeconds);
   },
   loadAllAnnotations: function() {
     //Annotation system looks for original_content class
