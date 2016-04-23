@@ -178,18 +178,25 @@ class Collage < ActiveRecord::Base
     #   of the starting H2 tag, this won't fix the annotation and it might even
     #   make things worse elsewhere in the document. That idea is un-tested.
     # noxpath_selector = "not(contains(concat(' ', @class, ' '), ' noxpath '))"
-    debug_id = 1111186  #collage id: 35633
 
-    new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
     eager_loaded_annotations.inject({}) {|h, a|
-      logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
-      a.xpath_start.to_s.sub!('h2', new_h2)
-      a.xpath_end.to_s.sub!(  'h2', new_h2)
-      logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
+      logger.debug [a.xpath_start, a.xpath_end] if temp_debug?(a)
+      remap_xpath(a.xpath_start)
+      remap_xpath(a.xpath_end)
+      logger.debug [a.xpath_start, a.xpath_end] if temp_debug?(a)
 
       h["a#{a.id}"] = a.to_json(include: [:layers])
       h
     }
+  end
+
+  def remap_xpath(xpath)
+    # Annotations with H tags in their xpath_start or xpath_end need to be mapped
+    #   to their corresponding DIV tag because that is what the view does.
+    if (match = xpath.to_s.match(%r|\/(h\d)|))
+      h_tag = match[1]
+      xpath.sub!(match[0], "/div[contains(concat(' ', @class, ' '), ' new-#{h_tag} ')]" )
+    end
   end
 
   def annotations_for_show
@@ -272,6 +279,11 @@ class Collage < ActiveRecord::Base
   end
 
   private
+
+  def temp_debug?(a)
+    debug_id = 1118397
+    a.id == debug_id
+  end
 
   def add_footnote_class(doc)
     doc.xpath('//a[starts-with(@href, "#")]').each do |li|
