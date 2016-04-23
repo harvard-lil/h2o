@@ -178,7 +178,10 @@ class PlaylistExporter
       end
     end
 
-    def convert_h_tags(doc)  #_doc
+    def convert_h_tags(doc)
+      # Convert H tags to divs to let us control the H tags in a document, which
+      #   controls the H tags that are used on the table of contents, both in
+      #   Word export and in the JavaScript TOC code.
       # Accepts a string or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
@@ -190,11 +193,10 @@ class PlaylistExporter
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        # BUG: This might break annotations that apply to a div that follow or span one
-        #   of these H tags. (E.g. "/div[12]") because we are changing the number of
-        #   divs in the content here.
+        # NOTE: The nxp class is used to exclude this div from xpaths counts (e.g. /div[3])
+        #   because we are changing the number of divs in a document
         h_level = node.name.match(/h(\d)/)[1]
-        node['class'] = node['class'].to_s + " new-h#{h_level} noxpath"
+        node['class'] = node['class'].to_s + " new-h#{h_level} nxp"
         node.name = 'div'
       end
 

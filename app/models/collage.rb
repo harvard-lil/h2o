@@ -172,19 +172,9 @@ class Collage < ActiveRecord::Base
     #   normalizing spaces b/c we add this ourself.) This is how we will work
     #   around the fact that changing H? tags to divs elsewhere has now broken
 
-    # NOTE: This was put in place to fix annotations that start and end in
-    #   what used to be the same H2 tag (before the exporter code converted
-    #   it to a div with class new-h2.) If the annotation spans beyond the end
-    #   of the starting H2 tag, this won't fix the annotation and it might even
-    #   make things worse elsewhere in the document. That idea is un-tested.
-    # noxpath_selector = "not(contains(concat(' ', @class, ' '), ' noxpath '))"
-
     eager_loaded_annotations.inject({}) {|h, a|
-      logger.debug [a.xpath_start, a.xpath_end] if temp_debug?(a)
       remap_xpath(a.xpath_start)
       remap_xpath(a.xpath_end)
-      logger.debug [a.xpath_start, a.xpath_end] if temp_debug?(a)
-
       h["a#{a.id}"] = a.to_json(include: [:layers])
       h
     }
@@ -193,10 +183,26 @@ class Collage < ActiveRecord::Base
   def remap_xpath(xpath)
     # Annotations with H tags in their xpath_start or xpath_end need to be mapped
     #   to their corresponding DIV tag because that is what the view does.
-    if (match = xpath.to_s.match(%r|\/(h\d)|))
+    #   Annotations with DIV tags in their xpath_start or xpath_end need to be
+    #   mapped to exclude class 'nxp' for the same reasons.
+
+    # TODO: I think there are still issues with P tags missing their annotations due to
+    #   how aggressively we clean up junk lib/standard_model_extensions.rb. That might
+    #   not actually be relevant based on where that junk is getting cleared. If it's
+    #   not getting removed from inside the main text of the annotated item, then it
+    #   probably can't be breaking anything. This is a good type of lead, though.
+    logger.debug "XPATH-PRE: #{xpath}"
+
+    if (match = xpath.to_s.match(%r|(/div)(.+)|))
+      prefix = match[1]
+      suffix = match[2]
+      xpath.sub!(match[0], "#{prefix}[not(contains(concat(' ', @class, ' '), ' nxp '))]#{suffix}")
+    elsif (match = xpath.to_s.match(%r|/(h\d+)|))
       h_tag = match[1]
       xpath.sub!(match[0], "/div[contains(concat(' ', @class, ' '), ' new-#{h_tag} ')]" )
     end
+
+    logger.debug "XPATH-POST: #{xpath}"
   end
 
   def annotations_for_show
