@@ -922,6 +922,10 @@ H2O = (function() {
       // AKA "a comment"
       return 'text';
     }
+    else {
+      // I believe this will only happen for an empty comment.
+      return 'text';
+    }
   };
 
   H2O.prototype.setLayeredBorders = function(annotation) {
