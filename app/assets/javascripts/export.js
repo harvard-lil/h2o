@@ -495,7 +495,21 @@ var export_functions = {
 
     //TODO: Maybe we only need this if there is no font face or font size cookie data.
     export_functions.setFontPrint();
+
+    $(document).on('click', "span.annotator-hl, a.layered-ellipsis", (function(evt) {
+      // Dev helper
+      if (evt.ctrlKey) {
+        export_functions.debugAnnotation($(this));
+      }
+    }));
+
   },  //end init_listeners
+  debugAnnotation: function(node) {
+    var collageKey = node.parents("div.collage-content").first().attr('id');
+    var annoId = 'a' + (node.data('annotation-id') || node.data('layered'));
+    var bop = all_collage_data[collageKey].annotations[annoId];
+    console.log( JSON.parse(bop) );
+  },
     setTheme: function(themeId) {
         if (h2o_themes[themeId]) {
             $.each(h2o_themes[themeId], function(sel, value) {
