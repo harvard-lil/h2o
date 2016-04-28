@@ -234,6 +234,10 @@ var set_styling = function(page) {
       var divNode = $(node);
       var newNode = $('<p/>');
       newNode.attr('class', divNode.attr('class'));
+      if (divNode.attr('align') == 'center') {
+        // Convert align=center to something Word respects
+        newNode.css('text-align', 'center')
+      }
       divNode.contents().unwrap().wrap(newNode);
     });
 
