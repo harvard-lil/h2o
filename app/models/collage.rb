@@ -275,7 +275,7 @@ class Collage < ActiveRecord::Base
       { :hex => 'ff3800', :text => '#000000' }
     ]
   end
-  
+
   def self.get_single_resource(id)
     Collage.where(id: id).includes(:annotations => [:layers, :taggings => :tag]).first
   end
@@ -298,17 +298,17 @@ class Collage < ActiveRecord::Base
   end
 
   def add_paragraph_numbers(doc, children_nodes)
-    count = 1
-    children_nodes.each do |node|
+    children_nodes.each_with_index do |node, count|
       next unless node.children.any? && node.text != ''
+
+      count1 = count + 1
       control_node = Nokogiri::XML::Node.new('a', doc)
-      control_node['id'] = "paragraph#{count}"
-      control_node['href'] = "#p#{count}"
+      control_node['id'] = "paragraph#{count1}"
+      control_node['href'] = "#p#{count1}"
       control_node['class'] = "paragraph-numbering scale0-9"
-      control_node.inner_html = "#{count}"
+      control_node.inner_html = count1.to_s
 
       node.add_previous_sibling(control_node)
-      count += 1
     end
   end
 
