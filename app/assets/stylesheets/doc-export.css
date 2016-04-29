@@ -4,34 +4,8 @@
 <!--[if gte mso 9]><xml>
 <w:WordDocument>
 <w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
 <w:DoNotOptimizeForBrowser/>
-<w:TrackMoves>false</w:TrackMoves>
-<w:TrackFormatting/>
-<w:ValidateAgainstSchemas/>
-<w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
-<w:IgnoreMixedContent>false</w:IgnoreMixedContent>
-<w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
-<w:DoNotPromoteQF/>
-<w:LidThemeOther>EN-US</w:LidThemeOther>
-<w:LidThemeAsian>X-NONE</w:LidThemeAsian>
-<w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
-<w:Compatibility>
- <w:BreakWrappedTables/>
- <w:SplitPgBreakAndParaMark/>
-</w:Compatibility>
-<m:mathPr>
- <m:mathFont m:val="Cambria Math"/>
- <m:brkBin m:val="before"/>
- <m:brkBinSub m:val="&#45;-"/>
- <m:smallFrac m:val="off"/>
- <m:dispDef/>
- <m:lMargin m:val="0"/>
- <m:rMargin m:val="0"/>
- <m:defJc m:val="centerGroup"/>
- <m:wrapIndent m:val="1440"/>
- <m:intLim m:val="subSup"/>
- <m:naryLim m:val="undOvr"/>
-</m:mathPr>
 </w:WordDocument>
 </xml><![endif]-->
 
@@ -55,7 +29,7 @@ p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 {
     mso-level-text: '';
 }
 p.Annotation-text, li.Annotation-text, div.Annotation-text
-	{mso-style-name:"Annotation text";
+{mso-style-name:"Annotation text";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -76,7 +50,7 @@ p.Annotation-text, li.Annotation-text, div.Annotation-text
 	font-style:italic;
 	mso-bidi-font-style:normal;}
 span.Annotation-textChar
-	{mso-style-name:"Annotation textChar";
+{mso-style-name:"Annotation textChar";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-locked:yes;
@@ -93,7 +67,7 @@ span.Annotation-textChar
 	font-style:italic;
 	mso-bidi-font-style:normal;}
 p.Case-header, li.Case-header, div.Case-header, center.Case-header
-	{mso-style-name:"Case header";
+{mso-style-name:"Case header";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -110,7 +84,7 @@ p.Case-header, li.Case-header, div.Case-header, center.Case-header
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-internal-header, li.Case-internal-header, div.Case-internal-header
-	{mso-style-name:"Case internal header";
+{mso-style-name:"Case internal header";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -128,7 +102,7 @@ p.Case-internal-header, li.Case-internal-header, div.Case-internal-header
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-blockquote, li.Case-blockquote, div.Case-blockquote
-	{mso-style-name:"Case blockquote";
+{mso-style-name:"Case blockquote";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -144,7 +118,7 @@ p.Case-blockquote, li.Case-blockquote, div.Case-blockquote
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-lawyers, li.Case-lawyers, div.Case-lawyers
-	{mso-style-name:"Case lawyers";
+{mso-style-name:"Case lawyers";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -160,7 +134,7 @@ p.Case-lawyers, li.Case-lawyers, div.Case-lawyers
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-history, li.Case-history, div.Case-history
-	{mso-style-name:"Case history";
+{mso-style-name:"Case history";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -176,7 +150,7 @@ p.Case-history, li.Case-history, div.Case-history
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-judges, li.Case-judges, div.Case-judges
-	{mso-style-name:"Case judges";
+{mso-style-name:"Case judges";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -192,7 +166,7 @@ p.Case-judges, li.Case-judges, div.Case-judges
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-author, li.Case-author, div.Case-author
-	{mso-style-name:"Case author";
+{mso-style-name:"Case author";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -208,7 +182,7 @@ p.Case-author, li.Case-author, div.Case-author
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Item-text, li.Item-text, div.Item-text
-	{mso-style-name:"Item text";
+{mso-style-name:"Item text";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -224,7 +198,7 @@ p.Item-text, li.Item-text, div.Item-text
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Case-internal-citation, li.Case-internal-citation, div.Case-internal-citation
-	{mso-style-name:"Case internal citation";
+{mso-style-name:"Case internal citation";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -235,7 +209,7 @@ p.Case-internal-citation, li.Case-internal-citation, div.Case-internal-citation
 	font-style:italic;
 	mso-bidi-font-style:normal;}
 p.Footnote, li.Footnote, div.Footnote
-	{mso-style-name:"Footnote";
+{mso-style-name:"Footnote";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -251,7 +225,7 @@ p.Footnote, li.Footnote, div.Footnote
 	mso-bidi-font-family:Calibri;
 	color:black;}
 p.Playlist-title, li.Playlist-title, div.Playlist-title
-	{mso-style-name:"Playlist title";
+{mso-style-name:"Playlist title";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -275,7 +249,7 @@ p.Playlist-title, li.Playlist-title, div.Playlist-title
 	letter-spacing:.25pt;
 	mso-font-kerning:14.0pt;}
 span.Playlist-titleChar
-	{mso-style-name:"Playlist title Char";
+{mso-style-name:"Playlist title Char";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -297,7 +271,7 @@ span.Playlist-titleChar
 	mso-themecolor:text1;
 	mso-font-kerning:14.0pt;}
 p.Item-title, li.Item-title, div.Item-title
-	{mso-style-name:"Item title";
+{mso-style-name:"Item title";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -321,7 +295,7 @@ p.Item-title, li.Item-title, div.Item-title
 	letter-spacing:.25pt;
 	mso-font-kerning:14.0pt;}
 span.Item-titleChar
-	{mso-style-name:"Item title Char";
+{mso-style-name:"Item title Char";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
@@ -343,7 +317,7 @@ span.Item-titleChar
 	mso-themecolor:text1;
 	mso-font-kerning:14.0pt;}
 p.Item-description, li.Item-description, div.Item-description
-	{mso-style-name:"Item description";
+{mso-style-name:"Item description";
 	mso-style-priority:1;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
