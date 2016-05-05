@@ -191,7 +191,7 @@ class Collage < ActiveRecord::Base
     #   not actually be relevant based on where that junk is getting cleared. If it's
     #   not getting removed from inside the main text of the annotated item, then it
     #   probably can't be breaking anything. This is a good type of lead, though.
-    logger.debug "XPATH-PRE: #{xpath}"
+    #logger.debug "XPATH-PRE: #{xpath}"
 
     if (match = xpath.to_s.match(%r|(/div)(.+)|))
       prefix = match[1]
@@ -202,7 +202,7 @@ class Collage < ActiveRecord::Base
       xpath.sub!(match[0], "/div[contains(concat(' ', @class, ' '), ' new-#{h_tag} ')]" )
     end
 
-    logger.debug "XPATH-POST: #{xpath}"
+    #logger.debug "XPATH-POST: #{xpath}"
   end
 
   def annotations_for_show
@@ -308,7 +308,12 @@ class Collage < ActiveRecord::Base
       control_node['class'] = "paragraph-numbering scale0-9"
       control_node.inner_html = count1.to_s
 
+      #new school, which breaks the old weinberger anno in collage 35961
       node.add_previous_sibling(control_node)
+
+      #old school, but this probably breaks TOC links or TOC text in mac or something, which is why we would have changed it in the first place.
+      # this works in show and export view
+      #node.children.first.add_previous_sibling(control_node)
     end
   end
 
