@@ -167,15 +167,27 @@ var table_of_contents = {
         }
     },
     generate_toc: function(toc_levels) {
-        var toc_nodes = table_of_contents.build_toc_branch();
-        var flat_results = table_of_contents.flatten(toc_nodes)
-        var toc = $('<ol/>', { id: tocId });
-        var toc_root_node = $('#toc-container');
-        for(var i = 0; i<flat_results.length; i++) {
-          var toc_line = table_of_contents.toc_entry_text(flat_results[i]);
-          toc.append($('<li/>', { html: toc_line }));
-          toc.appendTo(toc_root_node);
+      var toc_nodes = table_of_contents.build_toc_branch();
+      var flat_results = table_of_contents.flatten(toc_nodes)
+      var toc = $('<ol/>', { id: tocId });
+      var toc_root_node = $('#toc-container');
+      var toc_limit = $.cookie('export_format') == 'doc' ? 12 : -1;
+      //toc_limit = -1;  //disable temporarily
+
+      for (var i = 0; i < flat_results.length; i++) {
+        var html = '';
+        if (i < toc_limit || toc_limit == -1) {
+          html = table_of_contents.toc_entry_text(flat_results[i]);
         }
+        else if (i == toc_limit) {
+          html = '(End of TOC Preview)'
+        }
+        if (html) {
+          toc.append($('<li/>', {html: html}));
+          toc.append('\n');  //break up long lines in case they are a Word 2011 problem
+        }
+      }
+      toc.appendTo(toc_root_node);
       toc_root_node.show();
     },
     build_toc_branch: function(parent, depth) {
@@ -202,9 +214,13 @@ var table_of_contents = {
       var content = header_node.children('.hcontent');
       var anchor = header_node.prev('a').first();
 
-      return (Array((node.toc_level-1) * 6)).join('&nbsp;') +
+      // Word 2011 on Mac can display an error if these chars are not encoded
+      var text = content.text();
+      text = text.replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+      return (Array((node.toc_level-1) * 3)).join('&nbsp;') +
         '<a href="#' + anchor.attr('name') + '" style="color: #000000;">' +
-        content.text() + '</a>';
+        text + '</a>';
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
