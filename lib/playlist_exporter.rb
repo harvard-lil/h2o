@@ -117,14 +117,14 @@ class PlaylistExporter
       lines << '--' + boundary
       lines << "Content-Location: file:///C:/boop.htm"
       lines << "Content-Transfer-Encoding: base64"
-      lines << "Content-Type: text/html; charset=\"utf-8\""
+      lines << "Content-Type: text/html; charset=\"UTF-8\""
       lines << ""
       lines << Base64.encode64(File.read(input_file))
 
       output_file = input_file.sub(/#{File.extname(input_file)}$/, '.doc')
 
       #Note: only the last boundary seems to need the final trailing "--". That
-      # could just be Word being, well, Word. *sigh*
+      # could just be Word being, well, Word.
       delim = "\n"
       File.write(output_file, lines.join(delim) + delim + "--" + boundary + "--")
       output_file
