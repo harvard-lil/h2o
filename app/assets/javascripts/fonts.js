@@ -10,12 +10,12 @@ var h2o_fonts = {
   },
   font_map_fallbacks: {
     // Double-quoting fonts with spaces in the name seems to cause errors for exports opened in Mac Word 2011
-	goudy: "sorts-mill-goudy,Sorts Mill Goudy,Goudy,Goudy Old Style",
+	goudy: "sorts-mill-goudy,Sorts Mill Goudy,Goudy,Goudy Old Style,Garamond",
 	leitura: "leitura-news,Leitura News,adobe-garamond-pro,Garamond,Adobe Garamond Pro,GaramondNo8",
 	garamond: "adobe-garamond-pro,Garamond,Adobe Garamond Pro,GaramondNo8",
-	futura: "futura-pt,Futura PT,Futura",
-	dagny: "ff-dagny-web-pro,FF Dagny Web Pro,FF Dagny Pro,FF Dagny,Verdana,Arial,Helvetica,sans-serif",
-	proxima: "proxima-nova,Proxima Nova,futura-pt,Futura PT,Futura",
+	futura: "futura-pt,Futura PT,Futura,Garamond",
+	dagny: "ff-dagny-web-pro,FF Dagny Web Pro,FF Dagny Pro,FF Dagny,Verdana,Arial,Helvetica,sans-serif,Garamond",
+	proxima: "proxima-nova,Proxima Nova,futura-pt,Futura PT,Futura,Garamond",
 	verdana: "Verdana,Arial,Helvetica,sans-serif"
   },
   //sizes are in pixels

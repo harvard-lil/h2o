@@ -191,8 +191,6 @@ class Collage < ActiveRecord::Base
     #   not actually be relevant based on where that junk is getting cleared. If it's
     #   not getting removed from inside the main text of the annotated item, then it
     #   probably can't be breaking anything. This is a good type of lead, though.
-    #logger.debug "XPATH-PRE: #{xpath}"
-
     if (match = xpath.to_s.match(%r|(/div)(.+)|))
       prefix = match[1]
       suffix = match[2]
@@ -201,8 +199,6 @@ class Collage < ActiveRecord::Base
       h_tag = match[1]
       xpath.sub!(match[0], "/div[contains(concat(' ', @class, ' '), ' new-#{h_tag} ')]" )
     end
-
-    #logger.debug "XPATH-POST: #{xpath}"
   end
 
   def annotations_for_show
