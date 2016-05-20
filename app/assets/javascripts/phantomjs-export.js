@@ -158,6 +158,16 @@ var get_doc_styles = function() {
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
 
+  var packed = [];
+  var fallbacks = font_face_string.split(',');
+  for(var x=0; x < fallbacks.length; x++) {
+    var font = fallbacks[x];
+    packed.push(
+      font.indexOf(' ') >= 0 ? '"' + font + '"' : font
+    );
+  }
+  var wrapped_font_face_string = packed.join(',');
+
   var font_size_scaler = function (match, p1, p2, p3, offset, string) {
     var scaling_name = cookies['print_font_size'];
     // This is the same 4px jump from fonts.js, converted to pt (=3pt), assuming
@@ -187,7 +197,7 @@ var get_doc_styles = function() {
 
   // Inject desired font face
   return filesystem.read('app/assets/stylesheets/doc-export.css')
-    .replace(/(font-family:)(.+);/g, '$1' + font_face_string + ';')
+    .replace(/(font-family:)(.+);/g, '$1' + wrapped_font_face_string + ';')
     .replace(/MARGIN_PLACEHOLDER/, margins)
     .replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
 
@@ -210,16 +220,9 @@ var set_styling = function(page) {
       var font_face_string = cookies['print_font_face_mapped'];
       var font_size_string = cookies['print_font_size_mapped'];
 
-        //NOTE: Some of these rules work with the non-Microsoft-specific CSS we inject, too.
-
-
-        //TODO: move this to doc-export.css and add margin parsing in get_doc_styles();
-    //TODO: grab a ton of the Word 2015 PC settings from rs2.b64.HTML and add tehm to doc stle.css
-        var header = [
-            doc_styles,
-        ].join("\n");
-
-        $('title').after($(header));
+      //TODO: reverse engineer some of the Word 2015 PC settings from rs2.b64.HTML
+      // and add them to doc stle.css
+      $('title').after($(doc_styles));
 
     //Highlights don't work in DOC, so we fake it with underlined text.
     //TODO: Move this to doc-export.css
@@ -229,7 +232,7 @@ var set_styling = function(page) {
     //Get some whitespace where page breaks should go (but don't actually create a full-on page break)
     $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
 
-    // Word will only style this correctly if it is a P tag, not a div. #whoknowswhy
+    // Word will only style this correctly if it is a P tag, not a div.
     $.each($('div.Case-internal-header'), function(i, node) {
       var divNode = $(node);
       var newNode = $('<p/>');
@@ -289,7 +292,6 @@ var set_styling = function(page) {
     );
     $('#export-styles').append(raw_css);
     $('#additional_styles').append($('#additional_styles').cssText());
-    $('#highlight_styles').append($('#highlight_styles').cssText());
 
     // TOC: Forcibly remove bullets and prevent entire TOC <ol> from indenting 0.5in
     $('.MsoToc1 li').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -0.5in;');
@@ -301,6 +303,15 @@ var set_styling = function(page) {
       var newStyle = $(el).attr('style') + ' margin-left: 0in;';
       $(el).attr('style', newStyle);
     });
+
+    // Remove un-needed TypeKit cruft that likely causes Word 2011 issues
+    $('link[rel=stylesheet][href*=typekit], style:contains(".tk-"), #annotator-dynamic-style, #highlight_styles, style[rel="alternate stylesheet"]').remove();
+
+    //NOTE: We might not need to remove that contains('.tk-') node, now that we know it is
+    //  probably the empty nodes around it that were breaking things.
+
+    // NOTE: Word 2011 can't parse empty <style> DOM elements correctly. They will mangle the doc structure.
+    $('style:empty').remove();
 
     // Remove all image tags. They are only going to cause trouble in a Doc export
     $('img').remove();
