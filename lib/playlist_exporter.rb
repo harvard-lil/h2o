@@ -242,11 +242,13 @@ class PlaylistExporter
         "--#{name} #{params[name]}"
       }.join(' ')
 
-      toc_options = ExportService::TableOfContents::PDF.generate(request_url, params)
+      output_file_path = output_file_path(params)
+      toc_params = params.merge('base_dir' => File.dirname(output_file_path))
+      toc_options = ExportService::TableOfContents::PDF.generate(request_url, toc_params)
+
       target_url = get_target_url(request_url)
       page_options = pdf_page_options(params)
       cookie_string = ExportService::Cookies.forwarded_pdf_cookies(params)
-      output_file_path = output_file_path(params)
 
       prep_output_file_path(output_file_path)
 

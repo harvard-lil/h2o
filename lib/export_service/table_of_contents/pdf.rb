@@ -12,16 +12,13 @@ module ExportService
         options
       end
 
-      def toc_file(params)  #_pdf
-        #NOTE: There may be a risk tempfile will unlink this file before it gets used,
-        #so we probably need a regular IO file that we unlink or clear some other way.
-        file = Tempfile.new(['export_toc', '.xsl'])
-        file.write render_toc(params)
-        file.close
-        file.path
+      def toc_file(params)
+        filename = "#{params['base_dir']}/toc.xsl"
+        File.write(filename, render_toc(params))
+        filename
       end
 
-      def render_toc(params)  #_pdf
+      def render_toc(params)
         vars = {
           :title => params['item_name'],
           :general_css => generate_toc_general_css(params),
@@ -31,15 +28,17 @@ module ExportService
           "playlists/toc.xsl",
           :layout => false,
           :locals => vars,
-          )  #.tap {|x| Rails.logger.debug "TOCBLOCK: #{x}"}
+          )
       end
 
-      def generate_toc_general_css(params)  #_pdf
-        "font-family: #{params['fontface_mapped']}; " +
-          "font-size: #{params['fontsize_mapped']};"
+      def generate_toc_general_css(params)
+        font_csv = params['fontface_mapped'].split(/,\s*/).map do |f|
+          f.index(' ') ? ('"' + f + '"') : f
+        end.join(',')
+        "font-family: #{font_csv}; font-size: #{params['fontsize_mapped']};"
       end
 
-      def generate_toc_levels_css(depth)  #_pdf
+      def generate_toc_levels_css(depth)
         # TODO: Could we use this instead?
         #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
         # <li class="book-toc-item level_{count(ancestor::outline:item)}">
