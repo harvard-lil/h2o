@@ -11740,7 +11740,6 @@ Editor = (function(_super) {
     controls = editor.find('.annotator-controls');
     throttle = false;
     onMousedown = function(event) {
-    console.log(event.pageY);
       if (event.target === this) {
         mousedown = {
           element: this,

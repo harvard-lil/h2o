@@ -1,21 +1,4 @@
-#playlists_export, #collages_export, #text_blocks_export, 
-#cases_export, #collages_export_unique {
-/* This zeros out the playlist indentation we were seeing in PDF exports */
-/* TODO: move it up top under the *_export section */
-  ul,li {
-    list-style-type: none;
-    list-style-position:inside;
-    margin:0;
-    padding:0;
-  }
-  ol {
-    list-style-type: none;
-  }
-  li.original_content {
-      margin-left: .5in;
-      list-style-type: disc;
-      list-style-position: outside;
-}
+#playlists_export, #collages_export, #text_blocks_export, #cases_export, #collages_export_unique {
   .vh1, .vh2 { font-weight: bold; }
   .annotator-adder {
     visibility: hidden !important;
@@ -308,3 +291,35 @@
   font-size: inherit !important
 }
 
+/* Start: Required for correct indentation in Doc export and MUST be at top SASS level */
+ul,li {
+  list-style-type: none;
+  list-style-position:inside;
+  margin:0;
+  padding:0;
+}
+ol {
+  list-style-type: none;
+}
+li.original_content {
+    margin-left: .5in;
+    list-style-type: disc;
+    list-style-position: outside;
+}
+/* End: Required for correct indentation in Doc export and MUST be at top SASS level */
+
+.sidebar-box {
+  position: relative;
+  overflow: hidden;
+}
+.text-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  height: 50px;
+  background-image: -moz-linear-gradient(top, transparent, white);
+  background-image: linear-gradient(180deg, transparent, white);
+}

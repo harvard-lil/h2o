@@ -1,8 +1,6 @@
 module ExportService
 
-  # This is a quick and dirty extract service refactoring from the PlaylistExporter model
-
-  class CookieService
+  module Cookies
 
     # No translation value here means we just pass the form field value straight through
     # Some cookies are just here to make them available to PhantomJS

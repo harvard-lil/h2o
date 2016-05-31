@@ -167,15 +167,27 @@ var table_of_contents = {
         }
     },
     generate_toc: function(toc_levels) {
-        var toc_nodes = table_of_contents.build_toc_branch();
-        var flat_results = table_of_contents.flatten(toc_nodes)
-        var toc = $('<ol/>', { id: tocId });
-        var toc_root_node = $('#toc-container');
-        for(var i = 0; i<flat_results.length; i++) {
-          var toc_line = table_of_contents.toc_entry_text(flat_results[i]);
-          toc.append($('<li/>', { html: toc_line }));
-          toc.appendTo(toc_root_node);
+      var toc_nodes = table_of_contents.build_toc_branch();
+      var flat_results = table_of_contents.flatten(toc_nodes)
+      var toc = $('<ol/>', { id: tocId });
+      var toc_root_node = $('#toc-container');
+      var toc_limit = $.cookie('export_format') == 'doc' ? 12 : -1;
+      //toc_limit = -1;  //disable temporarily
+
+      for (var i = 0; i < flat_results.length; i++) {
+        var html = '';
+        if (i < toc_limit || toc_limit == -1) {
+          html = table_of_contents.toc_entry_text(flat_results[i]);
         }
+        else if (i == toc_limit) {
+          html = '(End of TOC Preview)'
+        }
+        if (html) {
+          toc.append($('<li/>', {html: html}));
+          toc.append('\n');  //break up long lines in case they are a Word 2011 problem
+        }
+      }
+      toc.appendTo(toc_root_node);
       toc_root_node.show();
     },
     build_toc_branch: function(parent, depth) {
@@ -202,9 +214,13 @@ var table_of_contents = {
       var content = header_node.children('.hcontent');
       var anchor = header_node.prev('a').first();
 
-      return (Array((node.toc_level-1) * 6)).join('&nbsp;') +
+      // Word 2011 on Mac can display an error if these chars are not encoded
+      var text = content.text();
+      text = text.replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+      return (Array((node.toc_level-1) * 3)).join('&nbsp;') +
         '<a href="#' + anchor.attr('name') + '" style="color: #000000;">' +
-        content.text() + '</a>';
+        text + '</a>';
     },
     flatten: function(arr) {
         return arr.reduce(function (flat, toFlatten) {
@@ -215,24 +231,23 @@ var table_of_contents = {
 
 var export_functions = {
   preExportVerification: function() {
-    if (!$.cookie('user_id')) {
-      var msg = 'The export feature is only available to users that are signed in.';
-      var newItemNode = $('<div id="generic-node"></div>').html(msg);
-      $(newItemNode).dialog({
-        title: 'Please sign into H2O to use this export feature.',
-        modal: true,
-        width: '700',
-        height: 'auto',
-        open: function(event, ui) {},
-        buttons: {
-          'Ok': function() {
-            $(newItemNode).remove();
-          }
+    if (!!$.cookie('user_id')) {return true;}
+
+    var msg = 'The export feature is only available to users that are signed in.';
+    var newItemNode = $('<div id="generic-node"></div>').html(msg);
+    $(newItemNode).dialog({
+      title: 'Please sign into H2O to use this export feature.',
+      modal: true,
+      width: '700',
+      height: 'auto',
+      open: function(event, ui) {},
+      buttons: {
+        'Ok': function() {
+          $(newItemNode).remove();
         }
-      }).dialog('open');
-      return false;
-    }
-    return true;
+      }
+    }).dialog('open');
+    return false;
   },
   fireExport: function() {
     if (!export_functions.preExportVerification()) {
@@ -252,6 +267,26 @@ var export_functions = {
       return;
     }
 
+    // Export feels faster if we show the confirmation immediately. There's
+    // no export error message that will ever be actionable by the user, and
+    // we will get an exception notification email if anything does go wrong.
+    var msg = "You will receive an email with a download link when the " +
+      "export is complete. This email may take several minutes to arrive, " +
+      "so please be patient.";
+    var newItemNode = $('<div id="generic-node"></div>').html(msg);
+    $(newItemNode).dialog({
+      title: 'H2O is exporting your content to ' + format.toUpperCase() + ' format.',
+      modal: true,
+      width: '700',
+      height: 'auto',
+      open: function(event, ui) {},
+      buttons: {
+        'Ok': function() {
+          $(newItemNode).remove();
+        }
+      }
+    }).dialog('open');
+
     $.ajax({
       type: 'POST',
       dataType: 'JSON',
@@ -261,24 +296,7 @@ var export_functions = {
         alert('Sorry, there was an unexpected error.');
         console.log('POSTerror: ', xhr.responseText.substring(0, 333));
       },
-      success: function(html) {
-        var msg = "You will receive an email with a download link when the " +
-          "export is complete. This email may take several minutes to arrive, " +
-          "so please be patient.";
-        var newItemNode = $('<div id="generic-node"></div>').html(msg);
-        $(newItemNode).dialog({
-          title: 'H2O is exporting your content to ' + format.toUpperCase() + ' format.',
-          modal: true,
-          width: '700',
-          height: 'auto',
-          open: function(event, ui) {},
-          buttons: {
-            'Ok': function() {
-              $(newItemNode).remove();
-            }
-          }
-        }).dialog('open');
-      }
+      success: function(html) {}
     });
   },
   initiate_collage_data: function(id, data) {
@@ -316,26 +334,6 @@ var export_functions = {
     debug_cookies: function() {
       console.log('Cookie dump:');
       console.log(document.cookie.split('; ').join("\n"));
-    },
-    init_missing_cookies: function() {
-        return;
-      /*
-        //TODO: Set cookies the same way they are set in user control panel or don't set them at all
-        var defaults = {
-            print_margin_left: 'margin-left',
-            print_margin_top: 'margin-top',
-            print_margin_right: 'margin-right',
-            print_margin_bottom: 'margin-bottom'
-        };
-        Object.keys(defaults).forEach(function(name) {
-            $.cookie(name, $.cookie(name) || $('#' + defaults[name]).val() );
-        });
-
-        // $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
-        // $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
-        // $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
-        // $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
-        */
     },
     init_user_settings: function() {
       //This function only looks to change the default behavior. I.g. if the
@@ -392,11 +390,10 @@ var export_functions = {
       }
 
       //These newer options may not have cookies defined yet
-      //TODO: finish init_missing_cookies()
       $('#margin-left').val($.cookie('print_margin_left') || $('#margin-left').val());
-      $('#margin-top').val($.cookie('print_margin_top') || $('#margin-left').val());
-      $('#margin-right').val($.cookie('print_margin_right') || $('#margin-left').val());
-      $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-left').val());
+      $('#margin-top').val($.cookie('print_margin_top') || $('#margin-top').val());
+      $('#margin-right').val($.cookie('print_margin_right') || $('#margin-right').val());
+      $('#margin-bottom').val($.cookie('print_margin_bottom') || $('#margin-bottom').val());
       $('#margin-left').change();
   },
   init_theme_picker_listener: function() {
@@ -514,7 +511,21 @@ var export_functions = {
 
     //TODO: Maybe we only need this if there is no font face or font size cookie data.
     export_functions.setFontPrint();
+
+    $(document).on('click', "span.annotator-hl, a.layered-ellipsis", (function(evt) {
+      // Dev helper
+      if (evt.ctrlKey) {
+        export_functions.debugAnnotation($(this));
+      }
+    }));
+
   },  //end init_listeners
+  debugAnnotation: function(node) {
+    var collageKey = node.parents("div.collage-content").first().attr('id');
+    var annoId = 'a' + (node.data('annotation-id') || node.data('layered'));
+    var bop = all_collage_data[collageKey].annotations[annoId];
+    console.log( JSON.parse(bop) );
+  },
     setTheme: function(themeId) {
         if (h2o_themes[themeId]) {
             $.each(h2o_themes[themeId], function(sel, value) {
@@ -610,53 +621,33 @@ var export_functions = {
         return;
       }
 
-      // Remove things that would otherwise trip up any of our exporter backends
       $('#print-options').remove();
 
       // Reset margins because export back-end will manage them
-      //NEW: technically, we only need to do this for PDF exports, because PDF
-      //exports set margins outside of javascript/HTML completely.
       var div = $('.wrapper');
       div.removeAttr('style');
       //Remove margin previously occupied by #print-options
       div.css('margin-top', '0px');
 
-      //Remove padding that makes top margin look too big on export
+      //Remove padding that changes top margin on first page
       $('.singleitem:first').css('padding-top', '0px');
 
-      //This is a couple of failed attempts at getting annotation comments to display as a block
-      //level element in Word.
-      //$.each($('.annotation-content').not('.annotation-link'), function(i, node) {
-        //var newNode = $('<div>BOOP: ' + node.innerHTML + '</div>');
-        //newNode.addClass($(node).attr('class'));
-        //$(node).html("<br/>" + $(node).html() + "<br/>");
-        //      console.log('new: ' + node.html());
-        //$(node).replaceWith(newNode);
-      //});
-
-      //NOTE: Does not yet work for footnotes with annotation tags in them, such
-      //as footnotes inside hidden text.
-      $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
-        $(node).removeClass('Item-text');
-        $(node).attr('class', 'Footnote ' + $(node).attr('class'));
-      });
-
-      if ($.cookie('export_format') == 'doc') {
-        //Highlights don't work in DOC, so we fake it with underlined text.
-        $("span[class*=highlight-]").css('text-decoration', 'underline');
-
-        $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
-
-        $.each($('#toc').find('a'), function(i, node) {
-          $(node).replaceWith($(node).text());
-        });
-      }
-
       //Clean up a bunch of DOM nodes that can cause problems in various export formats
-      $("body *").filter(":hidden").not("script").remove();
-
+      //Note that this might be too heavy handed. It was partly a reaction to the very opaque
+      //problem of Word 2011 on a Mac failing to open Doc exports because they had things
+      //like background: url(...) CSS that used relative URLs. (Word would try to load them
+      //off the local filesystem, which threw up a gigantic error for the user.)
+      // Note: We exclude start and end control nodes to avoid the mysterious race condition
+      // that would remove different numbers of them based on the font size in the export
+      // (for Doc exports). That's what was creating a big diff in the intermediate HTML for
+      // Doc exports.
+      $("body *")
+        .filter(":hidden")
+        .not("br,script,.layered-control-start,.layered-control-end")
+        .remove();
+      $('script,em.original_content:empty,.layered-control-start,.layered-control-end').remove();
       //Prevent Word 2011 on Mac from trying to fetch/run scripts from inside a Doc file
-      $("script").remove();
+      //$("script").remove();
 
       if ($.cookie('export_format') == 'pdf') {
         //Used to log rendered content on the back end.
@@ -669,15 +660,17 @@ var export_functions = {
     export_functions.signalAnnotationLoadDone();
   },
   signalAnnotationLoadDone: function() {
+    // var delaySeconds = 30;
+    // setTimeout(function() {
     console.log('Setting window.status to annotation_load_complete');
     window.status = 'annotation_load_complete';
+    // }, 1000 * delaySeconds);
   },
   loadAllAnnotations: function() {
     //Annotation system looks for original_content class
     $('div.article *:not(.paragraph-numbering)').addClass('original_content');
     $('.collage-content').filter(':not(.anno-redundant)').each(function(i, el) {
-      var id = $(el).data('id');
-      export_functions.loadAnnotator(id);
+      export_functions.loadAnnotator($(el).data('id'));
     });
   },
   injectAnnotations: function(annotations) {
@@ -688,7 +681,6 @@ var export_functions = {
       var html;
       var klass = '';
       if(annotation.annotation != '' && !annotation.hidden && !annotation.error && !annotation.discussion && !annotation.feedback) {
-
         html = annotation.annotation;
       } else if(annotation.link) {
         html = '<a href="' + annotation.link + '">' + annotation.link + '</a>';
@@ -699,7 +691,7 @@ var export_functions = {
       //NOTE: Annotation-textChar needs to be the first class so Word will see it.
       if (html) {
         var newEl = $('<span>')
-          .addClass('Annotation-textChar ' + klass + '  annotation-content annotation-content-' + annotation.id)
+          .addClass('Annotation-textChar ' + klass + ' annotation-content annotation-content-' + annotation.id)
           .html(html)
           .insertAfter($('.annotation-' + annotation.id + ':last'));
         //TODO: do the show/hide logic here?
@@ -710,9 +702,9 @@ var export_functions = {
     //TODO: Can we exit fast if the annotation is empty or anything?
     var idString = "collage" + id;
     var collage_data = all_collage_data[idString];
-    annotations = collage_data.annotations || {};
-    layer_data = collage_data.layer_data || {};
-    highlights_only = collage_data.highlights_only || {};
+    annotations = collage_data.annotations || {};  //NOTE: Global variable
+    layer_data = collage_data.layer_data || {};  //NOTE: Global variable
+    highlights_only = collage_data.highlights_only || {};  //NOTE: Global variable
 
     var factory = new Annotator.Factory();
     var h2o = Annotator.Plugin.fetch('H2O');
@@ -887,7 +879,6 @@ $(document).ready(function(){
     console.log('BOOP: document.ready start');
 
     //export_functions.debug_cookies();
-    //export_functions.init_missing_cookies();
     export_functions.init_listeners();
     export_functions.init_hash_detail();
     export_functions.init_user_settings();

@@ -66,7 +66,7 @@ class PlaylistExporter
     end
 
     def create_phantomjs_options_file(directory, params)
-      ExportService::CookieService.phantomjs_options_file(directory, params)
+      ExportService::Cookies.phantomjs_options_file(directory, params)
     end
 
     def fetch_playlist_html(request_url, params)  #_doc
@@ -117,14 +117,14 @@ class PlaylistExporter
       lines << '--' + boundary
       lines << "Content-Location: file:///C:/boop.htm"
       lines << "Content-Transfer-Encoding: base64"
-      lines << "Content-Type: text/html; charset=\"utf-8\""
+      lines << "Content-Type: text/html; charset=\"UTF-8\""
       lines << ""
       lines << Base64.encode64(File.read(input_file))
 
       output_file = input_file.sub(/#{File.extname(input_file)}$/, '.doc')
 
       #Note: only the last boundary seems to need the final trailing "--". That
-      # could just be Word being, well, Word. *sigh*
+      # could just be Word being, well, Word.
       delim = "\n"
       File.write(output_file, lines.join(delim) + delim + "--" + boundary + "--")
       output_file
@@ -178,7 +178,10 @@ class PlaylistExporter
       end
     end
 
-    def convert_h_tags(doc)  #_doc
+    def convert_h_tags(doc)
+      # Convert H tags to divs to let us control the H tags in a document, which
+      #   controls the H tags that are used on the table of contents, both in
+      #   Word export and in the JavaScript TOC code.
       # Accepts a string or Nokogiri document
       if !doc.respond_to?(:xpath)
         doc.gsub!(/\r\n/, '')
@@ -190,10 +193,10 @@ class PlaylistExporter
       end
 
       doc.xpath("//h1 | //h2 | //h3 | //h4 | //h5 | //h6").each do |node|
-        # BUG: This might break annotations that apply to a div that follow or span one
-        #   of these H tags. (E.g. "/div[12]") because we are changing the number of
-        #   divs in the content here.
-        node['class'] = node['class'].to_s + " new-h#{ node.name.match(/h(\d)/)[1] } xpath-nocount"
+        # NOTE: The nxp class is used to exclude this div from xpaths counts (e.g. /div[3])
+        #   because we are changing the number of divs in a document
+        h_level = node.name.match(/h(\d)/)[1]
+        node['class'] = node['class'].to_s + " new-h#{h_level} nxp"
         node.name = 'div'
       end
 
@@ -209,69 +212,9 @@ class PlaylistExporter
 
       cih_selector = '//div[not(ancestor::center) and contains(concat(" ", normalize-space(@class), " "), "new-h2")]'
       doc.xpath(cih_selector).each do |el|
+        # Word style classes only work when they are the first class for a given element.
         el['class'] = "Case-internal-header " + el['class'].to_s
-        # NOTE: We want to convert this div to a <p> tag because that's the only way Word
-        #   will apply font-weight: bold like it's supposed to.
-        # BUG: Changing this to a P tag breaks any xpaths that count P tags or DIV tags.
-        #   This would need to be done by convert this div to a P in phantomJS instead.
-        # el.name = 'p'  
       end
-    end
-
-    def generate_toc_levels_css(depth)  #_doc
-      # TODO: Could we use this instead?
-      #    <xsl:template match="outline:item[count(ancestor::outline:item)<=2]">
-      # <li class="book-toc-item level_{count(ancestor::outline:item)}">
-      depth = depth.to_i
-
-      # This starting css defines basic indentation for all levels that do get displayed
-      css = [
-        "ul {padding-left: 0em;}",
-        "ul ul {padding-left: 1em;}",
-      ]
-
-      # Add CSS to hide any levels that are > depth
-      (1..6).each do |i|
-        if i > depth
-          css << ("ul " * i) + "{display: none;}"
-        end
-      end
-      css.join("\n")
-    end
-
-    def generate_toc_general_css(params)  #_doc
-      "font-family: #{params['fontface_mapped']}; " +
-      "font-size: #{params['fontsize_mapped']};"
-    end
-
-    def render_toc(params)  #_doc
-      vars = {
-        :title => params['item_name'],
-        :general_css => generate_toc_general_css(params),
-        :toc_levels_css => generate_toc_levels_css(params['toc_levels']),
-      }
-      ApplicationController.new.render_to_string(
-        "playlists/toc.xsl",
-        :layout => false,
-        :locals => vars,
-        )  #.tap {|x| Rails.logger.debug "TOCBLOCK: #{x}"}
-    end
-
-    def generate_toc_options(params)  #_doc
-      options = ["--no-outline"]
-      if params['toc_levels'].present?
-        options << "toc --xsl-style-sheet " + toc_file(params)
-      end
-      options
-    end
-
-    def toc_file(params)  #_doc
-      #NOTE: There may be a risk tempfile will unlink this file before it gets used,
-      #so we probably need a regular IO file that we unlink or clear some other way.
-      file = Tempfile.new(['export_toc', '.xsl'])
-      file.write render_toc(params)
-      file.close
-      file.path
     end
 
     def pdf_page_options(params)  #_pdf
@@ -287,7 +230,7 @@ class PlaylistExporter
 
     def pdf_javascript_deadman_switch(status)  #_pdf
       # This works with the --window-status switch to prevent wkhtmltopdf from
-      # hanging forever if something goes wrong in the page. Note that this won't  make
+      # hanging forever if something goes wrong in the page. Note that this won't make
       # it through our system call correctly if there are spaces inside the JS. Seriously.
       "--run-script if(window.status!='loading_h2o'&&window.status!='#{status}'){window.status='#{status}'};"
     end
@@ -299,11 +242,13 @@ class PlaylistExporter
         "--#{name} #{params[name]}"
       }.join(' ')
 
-      toc_options = generate_toc_options(params)
+      output_file_path = output_file_path(params)
+      toc_params = params.merge('base_dir' => File.dirname(output_file_path))
+      toc_options = ExportService::TableOfContents::PDF.generate(request_url, toc_params)
+
       target_url = get_target_url(request_url)
       page_options = pdf_page_options(params)
-      cookie_string = ExportService::CookieService.forwarded_pdf_cookies(params)
-      output_file_path = output_file_path(params)
+      cookie_string = ExportService::Cookies.forwarded_pdf_cookies(params)
 
       prep_output_file_path(output_file_path)
 

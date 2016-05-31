@@ -161,54 +161,57 @@ class Collage < ActiveRecord::Base
     layers
   end
 
-  def annotations_as_export_json
-    attrs = %i[
-      id
-      collage_id
-      annotated_item_id
-      annotated_item_type
-      annotation
-      xpath_start
-      xpath_end
-      start_offset
-      end_offset
-      link
-      hidden
-      highlight_only
-    ]
-
-    # TODO: Fix the N+1 problem here with this. UNTESTED
-    # self.annotations.includes([:layers, :taggings => :tag]).inject({}) {|h, a|
+  def annotations_for_export
     # Tweak xpath selectors to work with similarly tweaked DOM present during export
     # NOTE: This needs to be tweaked to work correctly with xpath selectors that
     # contain h2 tags *and* don't start with the same node selector thingy. E.g.
     # xpath_start: "/center[3]/p[1]", xpath_end: "/h2[1]"  #not supported
 
     # TODO: Change any xpath with that contains the string "div" to add something
-    #   to the selector that excludes class contains xpath-nocount (don't bother
+    #   to the selector that excludes class contains noxpath (don't bother
     #   normalizing spaces b/c we add this ourself.) This is how we will work
     #   around the fact that changing H? tags to divs elsewhere has now broken
 
-    # NOTE: This was put in place to fix annotations that start and end in
-    #   what used to be the same H2 tag (before the exporter code converted
-    #   it to a div with class new-h2.) If the annotation spans beyond the end
-    #   of the starting H2 tag, this won't fix the annotation and it might even
-    #   make things worse elsewhere in the document. That idea is un-tested.
-    new_h2 = "div[contains(concat(' ', @class, ' '), ' new-h2 ')]"
-    debug_id = 1111086
-    self.annotations.inject({}) {|h, a|
-      logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
-      a.xpath_start.to_s.sub!('h2', new_h2)
-      a.xpath_end.to_s.sub!(  'h2', new_h2)
-      logger.debug [a.xpath_start, a.xpath_end] if a.id == debug_id
-
-      h["a#{a.id}"] = a.to_json(only: attrs, include: [:layers])
+    eager_loaded_annotations.inject({}) {|h, a|
+      remap_xpath(a.xpath_start)
+      remap_xpath(a.xpath_end)
+      h["a#{a.id}"] = a.to_json(include: [:layers])
       h
-    }.to_json
+    }
+  end
+
+  def remap_xpath(xpath)
+    # Annotations with H tags in their xpath_start or xpath_end need to be mapped
+    #   to their corresponding DIV tag because that is what the view does.
+    #   Annotations with DIV tags in their xpath_start or xpath_end need to be
+    #   mapped to exclude class 'nxp' for the same reasons.
+
+    # TODO: I think there are still issues with P tags missing their annotations due to
+    #   how aggressively we clean up junk lib/standard_model_extensions.rb. That might
+    #   not actually be relevant based on where that junk is getting cleared. If it's
+    #   not getting removed from inside the main text of the annotated item, then it
+    #   probably can't be breaking anything. This is a good type of lead, though.
+    if (match = xpath.to_s.match(%r|(/div)(.+)|))
+      prefix = match[1]
+      suffix = match[2]
+      xpath.sub!(match[0], "#{prefix}[not(contains(concat(' ', @class, ' '), ' nxp '))]#{suffix}")
+    elsif (match = xpath.to_s.match(%r|/(h\d+)|))
+      h_tag = match[1]
+      xpath.sub!(match[0], "/div[contains(concat(' ', @class, ' '), ' new-#{h_tag} ')]" )
+    end
+  end
+
+  def annotations_for_show
+    # TODO: consolidate this with annotations_for_export with an on/off switch
+    #   for the xpath translation.
+    eager_loaded_annotations.inject({}) {|h, a|
+      h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution)
+      h
+    }
   end
 
   def printable_content
-    self.editable_content(true)
+    editable_content(true)
   end
 
   def editable_content(convert_h_tags=false)
@@ -224,30 +227,14 @@ class Collage < ActiveRecord::Base
 
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
-    doc.xpath('//a[starts-with(@href, "#")]').each do |li|
-      li['class'] = 'footnote'
-    end
+    add_footnote_class(doc)
 
     children_nodes = doc.xpath('/html/body').children
     if children_nodes.size == 1 && self.annotatable.content.match('^<div>')
       children_nodes = children_nodes.first.children
     end
 
-    count = 1
-    children_nodes.each do |node|
-      if node.children.any? && node.text != ''
-        #first_child = node.children.first
-        control_node = Nokogiri::XML::Node.new('a', doc)
-        control_node['id'] = "paragraph#{count}"
-        control_node['href'] = "#p#{count}"
-        control_node['class'] = "paragraph-numbering scale0-9"
-        control_node.inner_html = "#{count}"
-        #TODO: Verify the change from first_child.add... to node.add... do not break anything outside of the print export
-        #first_child.add_previous_sibling(control_node)
-        node.add_previous_sibling(control_node)
-        count += 1
-      end
-    end
+    add_paragraph_numbers(doc, children_nodes)
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
@@ -284,7 +271,7 @@ class Collage < ActiveRecord::Base
       { :hex => 'ff3800', :text => '#000000' }
     ]
   end
-  
+
   def self.get_single_resource(id)
     Collage.where(id: id).includes(:annotations => [:layers, :taggings => :tag]).first
   end
@@ -292,4 +279,42 @@ class Collage < ActiveRecord::Base
   def annotated_label
     self.annotatable_type == "Case" ? "Annotated Case" : "Annotated Text"
   end
+
+  private
+
+  def temp_debug?(a)
+    debug_id = 1118397
+    a.id == debug_id
+  end
+
+  def add_footnote_class(doc)
+    doc.xpath('//a[starts-with(@href, "#")]').each do |li|
+      li['class'] = 'footnote'
+    end
+  end
+
+  def add_paragraph_numbers(doc, children_nodes)
+    children_nodes.each_with_index do |node, count|
+      next unless node.children.any? && node.text != ''
+
+      count1 = count + 1
+      control_node = Nokogiri::XML::Node.new('a', doc)
+      control_node['id'] = "paragraph#{count1}"
+      control_node['href'] = "#p#{count1}"
+      control_node['class'] = "paragraph-numbering scale0-9"
+      control_node.inner_html = count1.to_s
+
+      #new school, which breaks the old weinberger anno in collage 35961
+      node.add_previous_sibling(control_node)
+
+      #old school, but this probably breaks TOC links or TOC text in mac or something, which is why we would have changed it in the first place.
+      # this works in show and export view
+      #node.children.first.add_previous_sibling(control_node)
+    end
+  end
+
+  def eager_loaded_annotations
+    annotations.includes([:layers, :taggings => :tag])
+  end
+
 end

@@ -16,6 +16,26 @@
     <style type="text/css" id="additional_styles"></style>
     <style type="text/css" id="highlight_styles"></style>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    <style type="text/css"><!--
+ul,li {
+  list-style-type: none;
+  list-style-position:inside;
+  margin:0;
+  padding:0;
+}
+ol {
+  list-style-type: none;
+}
+li.original_content {
+    margin-left: .5in;
+    list-style-type: disc;
+    list-style-position: outside;
+}
+--></style>
+
+    <style type="text/css" id="decoy"><!--
+      .decoy { font-size: 12px;}
+    --></style>
   </head>
   <body data-controller="<%= params[:controller] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>">
     <div id="print-options">
@@ -201,6 +221,7 @@
               <select id="export_format" name="export_format">
                 <option value="">Format</option>
                 <option value="doc" selected="selected">DOC</option>
+                <option value="pdf">PDF</option>
               </select><br/>
               <a href="#" id="export-form-submit"><%= image_tag 'export-button.png', id: "export-form-submit-button" %></a>
             </div>
@@ -208,8 +229,8 @@
 
           <% end %><!-- /form -->
 
-      </div> <!-- /print-options-new2 -->
-    </div> <!-- /print-options -->
+      </div>
+    </div>
 
    <div class="MsoNormal">
     <div class="WordSection1">

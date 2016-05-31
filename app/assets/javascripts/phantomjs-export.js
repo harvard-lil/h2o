@@ -13,28 +13,26 @@ var set_cookies = function(export_url, options_file) {
     var parser = document.createElement('a');
     parser.href = export_url;
     var cookie_domain = parser.hostname;
-    var json_string, json;
+    var json_string, options;
 
     try {
         json_string = filesystem.read(options_file);
-        json = JSON.parse(json_string);
+        options = JSON.parse(json_string);
     } catch(e) {
         console.error('Error reading/parsing JSON options file: ' + e);
         phantom.exit(1);
     }
 
-    Object.keys(json).forEach(function(name) {
-        cookies[name] = json[name];
+    Object.keys(options).forEach(function(name) {
+        cookies[name] = options[name];
         var cookie = {
           name: name,
-          value: json[name],
+          value: options[name],
           domain: cookie_domain,
           path: '/',
         };
-        //console.log('Baking: ',  JSON.stringify(cookie, null, 2) );
         phantom.addCookie(cookie);
     });
-  //console.log('c?: ' + JSON.stringify(phantom.cookies, null, 2));
 }
 
 var set_page_callbacks = function(page) {
@@ -65,7 +63,6 @@ var set_page_callbacks = function(page) {
 
 set_cookies(export_url, options_file);
 set_page_callbacks(page);
-
 console.log('Opening: ' + export_url);
 page.open(export_url, function(status) {
   if (status !== 'success') {
@@ -89,11 +86,13 @@ page.open(export_url, function(status) {
         console.log('READY');
         set_styling(page);
         set_toc(cookies['toc_levels']);
-        write_file(output_file, page.content);
 
         window.setTimeout(function () {
+          //Give the previous set_* functions more time to finish their DOM
+          //  manipulation. Not proven to make a difference either way, yet.
+          write_file(output_file, page.content);
           phantom.exit();
-        }, 2000);
+        }, 60 * 1000);
       },
       1200000  //Arbitrarily huge number of milliseconds to let giant playlists finish
     );
@@ -128,7 +127,7 @@ var waitFor = function(testFx, onReady, timeOutMillis) {
         clearInterval(interval);
       }
     }
-  }, 10000); // repeat check every X milliseconds
+  }, 1000 * 10); // repeat check every X milliseconds
 };
 
 var set_toc = function(maxLevel) {
@@ -159,14 +158,17 @@ var get_doc_styles = function() {
   var font_face_string = cookies['print_font_face_mapped'];
   var font_size_string = cookies['print_font_size_mapped'];
 
-  //  console.log('SETTTTTTTTTTTTTTTTTING: |' + font_face_string + '|');
+  var packed = [];
+  var fallbacks = font_face_string.split(',');
+  for(var x=0; x < fallbacks.length; x++) {
+    var font = fallbacks[x];
+    packed.push(
+      font.indexOf(' ') >= 0 ? '"' + font + '"' : font
+    );
+  }
+  var wrapped_font_face_string = packed.join(',');
 
-  var css = filesystem.read('app/assets/stylesheets/doc-export.css').replace(
-    /(font-family:)(.+);/g,
-    '$1' + font_face_string + ';'
-  );
-
-  var font_size_replacer = function (match, p1, p2, p3, offset, string) {
+  var font_size_scaler = function (match, p1, p2, p3, offset, string) {
     var scaling_name = cookies['print_font_size'];
     // This is the same 4px jump from fonts.js, converted to pt (=3pt), assuming
     // the base Doc style is sized as medium and thus requires no scaling.
@@ -176,54 +178,84 @@ var get_doc_styles = function() {
       large: 3,
       xlarge: 6,
     }
+    var test_size_conversion = {
+      small: -3,
+      medium: -1,
+      large: 1,
+      xlarge: 3,
+    }
     var new_size = Math.ceil(parseFloat(p2) + size_conversion[scaling_name]);
     return p1 + new_size + p3;
   }
 
-  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_replacer);
+  var margins = [
+    cookies['print_margin_top'],
+    cookies['print_margin_right'],
+    cookies['print_margin_bottom'],
+    cookies['print_margin_left'],
+  ].join(' ');
+
+  // Inject desired font face
+  return filesystem.read('app/assets/stylesheets/doc-export.css')
+    .replace(/(font-family:)(.+);/g, '$1' + wrapped_font_face_string + ';')
+    .replace(/MARGIN_PLACEHOLDER/, margins)
+    .replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
+
+  // Scale font sizes
+  //  return css.replace(/(font-size:)(.+)(pt;)/g, font_size_scaler);
 }
 
 var set_styling = function(page) {
   var doc_styles = get_doc_styles();
 
   page.evaluate(function(doc_styles, cookies) {
-
         var html = $('html');
         html.attr('xmlns:v', 'urn:schemas-microsoft-com:vml');
         html.attr('xmlns:o', 'urn:schemas-microsoft-com:office:office');
         html.attr('xmlns:w', 'urn:schemas-microsoft-com:office:word');
         html.attr('xmlns:m', 'http://schemas.microsoft.com/office/2004/12/omml');
         html.attr('xmlns', 'http://www.w3.org/TR/REC-html40');
-
-        var margins = [
-            cookies['print_margin_top'],
-            cookies['print_margin_right'],
-            cookies['print_margin_bottom'],
-            cookies['print_margin_left'],
-        ].join(' ');
+        html.attr('xml:lang', 'en');
 
       var font_face_string = cookies['print_font_face_mapped'];
       var font_size_string = cookies['print_font_size_mapped'];
 
-        //NOTE: Some of these rules work with the non-Microsoft-specific CSS we inject, too.
-        var header = [
-            "<!--[if gte mso 9]>",
-            "<xml><w:WordDocument><w:View>Print</w:View>",
-            "<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>",
-            "<![endif]-->",
-            "<link rel='File-List' href='boop_files/filelist.xml'>",
-            "<style><!-- ",
-            "@page WordSection1 {margin: " + margins + "; size:8.5in 11.0in; mso-paper-source:0;}",
-            "div.WordSection1 {page:WordSection1;}",
-            "p.MsoNormal, li.MsoNormal, div.MsoNormal, .MsoToc1 { ",
-            "font-family:" + font_face_string + "; font-size:" + font_size_string + "; }",
-            ".MsoChpDefault, h1, h2, h3, h4, h5, h6 { font-family:" + font_face_string + "; }",
-            "@list l0:level1 { mso-level-text: ''; }",
-            doc_styles,
-          "--></style>",
-        ].join("\n");
+      //TODO: reverse engineer some of the Word 2015 PC settings from rs2.b64.HTML
+      // and add them to doc stle.css
+      $('title').after($(doc_styles));
 
-        $('title').after($(header));
+    //Highlights don't work in DOC, so we fake it with underlined text.
+    //TODO: Move this to doc-export.css
+    //Note: This also underlines text that was highlighted as part of a comment - not just pure highlights.
+    $("span[class*=highlight-]").css('text-decoration', 'underline');
+
+    //Get some whitespace where page breaks should go (but don't actually create a full-on page break)
+    $("div.page-break").replaceWith( "<p class='Item-text'>&nbsp;</p>\n<p class='Item-text'>&nbsp;</p>" );
+
+    // Word will only style this correctly if it is a P tag, not a div.
+    $.each($('div.Case-internal-header'), function(i, node) {
+      var divNode = $(node);
+      var newNode = $('<p/>');
+      newNode.attr('class', divNode.attr('class'));
+      if (divNode.attr('align') == 'center') {
+        // Convert align=center to something Word respects
+        newNode.css('text-align', 'center')
+      }
+      divNode.contents().unwrap().wrap(newNode);
+    });
+
+    //Just use the text of each TOC link in the TOC. This helps avoid HTML color bugs between platforms.
+    $.each($('#toc').find('a'), function(i, node) {
+      $(node).replaceWith($(node).text());
+    });
+
+    //Make sure Footnote class is the first class for existing footnote nodes, for Doc export.
+    //NOTE: Does not work for footnotes with annotation tags in them, such as footnotes inside hidden text.
+    $.each( $('.footnote').parent('p.Item-text'), function(i, node) {
+      var footNode = $(node);
+      footNode.removeClass('Item-text');
+      footNode.attr('class', 'Footnote ' + footNode.attr('class'));
+    });
 
         //Word ignores external stylesheets, so we inject their CSS inline into the DOM
         //and remove the actual stylesheet tags to prevent errors when Word tries to
@@ -242,9 +274,8 @@ var set_styling = function(page) {
         }
 
     var background_url_remover = function(match, p1, p2, p3, p4, offset, string) {
-      console.log(match);
       if (p2 == '' || p2 == ' ') {
-        // Don't create rules like this: .boop{background:}
+        // Don't create invalid rules
         return p4 == ';' ? '' : '}';
       }
       else {
@@ -252,18 +283,38 @@ var set_styling = function(page) {
       }
     }
 
+    // Strip background URLs in the CSS to prevent fatal errors opening the exported
+    // Doc file in Word 2011 on a Mac.
     var raw_css = injectable_css.join("\n");
-    raw_css = raw_css.replace(/(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g, background_url_remover);
-
+    raw_css = raw_css.replace(
+      /(background(?:-image)?:)(.*?)url\(.*?\)([\s\S]*?)([;}])/g,
+      background_url_remover
+    );
     $('#export-styles').append(raw_css);
+    $('#additional_styles').append($('#additional_styles').cssText());
 
-        $('#additional_styles').append($('#additional_styles').cssText());
-        $('#highlight_styles').append($('#highlight_styles').cssText());
+    // TOC: Forcibly remove bullets and prevent entire TOC <ol> from indenting 0.5in
+    $('.MsoToc1 li').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -0.5in;');
 
-        // TODO: convert .Case-internal-header divs to P tags. See mention in playlist_exporter.rb
-        // Forcibly remove bullets from LI tags and fix TOC item indentation
-        // The .listitem filter prevents this from out-denting LI items.
-        $('li:not(.listitem):not(.original_content)').attr('style', 'mso-list:l0 level1 lfo1; margin-left: -.5in;');
+    // This seems to be required to avoid the issue where Word 2011 on a Mac indents
+    // playlist items. We avoid using .css(...) here because that would wipe out the
+    // Word-specific inline style that these nodes already have. That's important.
+    $.each($('li.listitem'), function(i, el) {
+      var newStyle = $(el).attr('style') + ' margin-left: 0in;';
+      $(el).attr('style', newStyle);
+    });
+
+    // Remove un-needed TypeKit cruft that likely causes Word 2011 issues
+    $('link[rel=stylesheet][href*=typekit], style:contains(".tk-"), #annotator-dynamic-style, #highlight_styles, style[rel="alternate stylesheet"]').remove();
+
+    //NOTE: We might not need to remove that contains('.tk-') node, now that we know it is
+    //  probably the empty nodes around it that were breaking things.
+
+    // NOTE: Word 2011 can't parse empty <style> DOM elements correctly. They will mangle the doc structure.
+    $('style:empty').remove();
+
+    // Remove all image tags. They are only going to cause trouble in a Doc export
+    $('img').remove();
 
   }, doc_styles, cookies);
 }

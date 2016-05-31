@@ -7,35 +7,12 @@
   </div>
    <% end %>
 
-	<hgroup class="description">
         <div class="Playlist-title scale1-5 vh1"><%= raw @playlist.name %></div>
-	</hgroup>
 
     <div class="sidebar-box">
     <div class="MsoToc1" id="toc-container"><% if !params[:load_all] -%><div class="text-fade"></div><% end -%>
     </div>
     </div>
-
-<style>
-  .sidebar-box {
-    Xmax-height: 120px;
-    position: relative;
-    Xpadding: 20px;
-    overflow: hidden;
-  }
-  .text-fade {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    margin: 0;
-    height: 50px;
-    background-image: -moz-linear-gradient(top, transparent, white);
-    Xbackground-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, transparent), color-stop(1, white));
-    background-image: linear-gradient(180deg, transparent, white);
-  }
-</style>
 
 <% if (item_desc = @playlist.formatted(:description)) != '' %>
 	<div class="details">

@@ -269,27 +269,27 @@ H2O = (function() {
       $('.annotator-editor').data('type', 'new_item');
       $('#link').val('');
 
-      //TODO: Change this to test
-      if($(this).attr('id') == 'adder_annotate' || $(this).attr('id') == 'adder_error' || $(this).attr('id') == 'adder_feedback' || $(this).attr('id') == 'adder_discuss' || $(this).attr('id') == 'adder_hide') {
-        $('.annotator-editor').data('type', $(this).attr('id').replace(/^adder_/, ''));
+      var thisId = $(this).attr('id');
+      if(thisId == 'adder_annotate' || thisId == 'adder_error' || thisId == 'adder_feedback' || thisId == 'adder_discuss' || thisId == 'adder_hide') {
+        $('.annotator-editor').data('type', thisId.replace(/^adder_/, ''));
         $('.annotator-listing textarea').parent().show();
         $('.annotator-adder button').trigger('click');
         $('.annotator-listing textarea').focus();
-        if($(this).attr('id') == 'adder_annotate') {
+        if(thisId == 'adder_annotate') {
           $('#annotator-field-0').attr('placeholder', 'Comments...');
-        } else if($(this).attr('id') == 'adder_error') {
+        } else if(thisId == 'adder_error') {
           $('#annotator-field-0').attr('placeholder', 'Report Error...');
-        } else if($(this).attr('id') == 'adder_feedback') {
+        } else if(thisId == 'adder_feedback') {
           $('#annotator-field-0').attr('placeholder', 'Report Feedback...');
-        } else if($(this).attr('id') == 'adder_hide' || $(this).attr('id') == 'adder_hide_one_click') {
+        } else if(thisId == 'adder_hide' || thisId == 'adder_hide_one_click') {
           $('#annotator-field-0').attr('placeholder', 'Enter replacement text...');
         }
-      } else if ($(this).attr('id') == 'adder_highlight') {
+      } else if (thisId == 'adder_highlight') {
         $('.annotator-editor').data('type', 'highlight');
         $('.annotator-listing .annotator-checkbox:not(.annotation_hidden_property), .annotator-listing .annotator-checkbox2').show();
         $('#new_layer').parent().show();
         $('.annotator-adder button').trigger('click');
-      } else if($(this).attr('id') == 'adder_hide_one_click') {
+      } else if(thisId == 'adder_hide_one_click') {
         $('.annotator-editor').data('type', 'hide');
         $('.annotator-adder button').trigger('click');
         $('.annotator-save').trigger('click');
@@ -299,6 +299,10 @@ H2O = (function() {
         $('.annotator-adder button').trigger('click');
         $('.annotator-listing input#link').focus();
       }
+    });
+
+    this.annotator.subscribe('rangeNormalizeFail', function(annotation, r, e) {
+      console.warn('Error for annotation: ' + annotation.id + ' -> ' + e.message);
     });
 
     this.annotator.subscribe("annotationsLoaded", function(annotations) {
@@ -311,6 +315,16 @@ H2O = (function() {
 
         if (this.initialized) {return;}
         this.initialized = true;
+
+        //TODO: Can we safely fast-forward if there are zero annotations here?
+        //console.warn('aLen: ' + annotations.length);
+
+        // if ($('#print-options').length && !annotations.length) {
+        //   // TODO: Do we need to call collages.loadState(...) to make sure this is
+        //   console.log('dater: ', all_collage_data["collage" + annotated_item_id].data );
+        //   H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
+        //   return;
+        // }
 
         $.each(annotations, function(i, annotation) {
           H2O.prototype.setLayeredBorders(annotation);
@@ -332,11 +346,11 @@ H2O = (function() {
           access_results = { can_edit: false };
         }
 
-        if (!!$('#collage_print').length) {
+        if ($('#collage_print').length) {
           collages.loadState($('.singleitem').data('itemid'), original_data);
         }
 
-        if (!!$('#print-options').length) {
+        if ($('#print-options').length) {
           collages.loadState(
             annotated_item_id,
             all_collage_data["collage" + annotated_item_id].data
@@ -361,7 +375,7 @@ H2O = (function() {
           h2o_global.slideToAnnotation();
         }
       } catch(e) {
-        if (!!$('#print-options').length) {
+        if ($('#print-options').length) {
           // Always mark annotation loaded. This prevents the exporters from hanging
           // because they think there are still annotations waiting to load.
           H2O.prototype.markAnnotationLoaded(all_collage_data, annotated_item_id);
@@ -437,7 +451,6 @@ H2O = (function() {
       H2O.prototype.addAnnotationIndicator(annotation);
       h2o_annotator.plugins.H2O.accessible_annotations[annotation.id] = annotation;
       H2O.prototype.setLayeredBorders(annotation);
-
       if(annotation.hidden) {
         if($('#show_text_edits .toggle-inner .toggle-on').hasClass('active')) {
           $('.annotation-' + annotation.id).addClass('annotation-hidden');
@@ -888,9 +901,7 @@ H2O = (function() {
       div.css({ 'right': (div.width() + 17)*-1, 'opacity': 1.0 });
       $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' ' + clean_layer);
       $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' ' + clean_layer);
-      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' layered-ellipsis-hidden ' + clean_layer);
-
-      //if changed from highlight only
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'scale1-3 layered-ellipsis layered-ellipsis-' + annotation.id + ' ' + clean_layer + ' layered-ellipsis-hidden');
     }
   };
 
@@ -907,6 +918,13 @@ H2O = (function() {
       return 'link';
     } else if(annotation.highlight_only !== null) {
       return 'highlight';
+    } else if(annotation.text && annotation.text.length > 0) {
+      // AKA "a comment"
+      return 'text';
+    }
+    else {
+      // I believe this will only happen for an empty comment.
+      return 'text';
     }
   };
 
@@ -926,36 +944,28 @@ H2O = (function() {
     }
 
     var start_node = $('.annotation-' + _id + ':first');
-    if (!start_node.length) {
-      console.warn('Could not find start_node for annotation: ' + _id);
+    var end_node = $('.annotation-' + _id + ':last');
+    if (!start_node.length || !end_node.length) {
       return;
     }
 
-    var text = (annotation.text && annotation.text.length > 0) ? annotation.text : '...';
+    var annoType = H2O.prototype.annotationType(annotation);
+    var text = annoType == 'text' ? '[' + annotation.text + ']' : '[...]';
     var clean_layer = collages.clean_layer(layer_class);
-    var fooble = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
+    var fragment = _id + ' ' + clean_layer + '" data-layered="' + _id + '"';
 
-    $('<a href="#" class="layered-control-start layered-control-start-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertBefore(start_node);
-    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fooble + '>[' + text + ']</a>').insertBefore(start_node);
+    $('<a href="#" class="layered-control-start layered-control-start-' + fragment + ' data-type="' + annoType + '"></a>').insertBefore(start_node);
+    $('<a href="#" class="scale1-3 layered-ellipsis layered-ellipsis-' + fragment + '>' + text + '</a>').insertBefore(start_node);
+    $('<a href="#" class="layered-control-end layered-control-end-' + fragment + ' data-type="' + annoType + '"></a>').insertAfter(end_node);
 
-    var end_node = $('.annotation-' + _id + ':last');
-    if (!end_node.length) {
-      // TODO: We should probably bail out at this point, but I haven't tested
-      // that and we might still need to set click handlers. I doubt anything
-      // is going to work if end_node is null, though.
-      console.warn('Could not find end_node for annotation: ' + _id);
-    }
-
-    $('<a href="#" class="layered-control-end layered-control-end-' + fooble + ' data-type="' + H2O.prototype.annotationType(annotation) + '"></a>').insertAfter(end_node);
-
-    // NOTE: Does this set the same event handler every time we create an annotation in the DOM?
     $('.layered-ellipsis').off('click').on('click', function(e) {
       e.preventDefault();
-      if(!!$('#print-options').length) {
+      if($('#print-options').length) {
         // Export doesn't need to do anything more than ignore the click
         return;
       }
       var _id = $(this).data('layered');
+
       $('.annotation-' + _id).show().parents('.original_content').show();
       $('.layered-control-start-' + _id + ',.layered-control-end-' + _id).css('display', 'inline-block');
       $(this).hide();
@@ -1024,7 +1034,8 @@ H2O = (function() {
   };
 
   H2O.prototype.markAnnotationLoaded = function(all_collage_data, annotated_item_id) {
-    all_collage_data["collage" + annotated_item_id].done_loading = true;
+    var thisCollageData = all_collage_data["collage" + annotated_item_id];
+    thisCollageData.done_loading = true;
 
     if (typeof(exportAnnotationLoadStart) == 'undefined') {exportAnnotationLoadStart = new Date();}
     if (typeof(exportAnnotationLoadLast) == 'undefined') {exportAnnotationLoadLast = new Date();}
@@ -1046,7 +1057,7 @@ H2O = (function() {
     var incTimeSeconds = (incTime / 1000).toPrecision(2);
     var elapsed = parseFloat((now - exportAnnotationLoadStart)/1000);
     var elapsedDisplay = (elapsed < 100) ? elapsed.toPrecision(2) : parseInt(elapsed);
-    var annotations_count = Object.keys(annotations).length;
+    var annotations_count = Object.keys(thisCollageData.annotations).length;
     console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
                 ' - ' + annotations_count + ' in ' +
                 incTimeSeconds + 's of ' +
@@ -1134,7 +1145,10 @@ H2O = (function() {
           layers.push(annotation.layers[_j].name);
         }
       }
-      var formatted_annotation = { "id" : annotation.id,
+      var formatted_annotation = {
+        "debug_xpath_start" : annotation.xpath_start,
+        "debug_xpath_end" : annotation.xpath_end,
+        "id" : annotation.id,
         "text" : annotation.annotation,
         "ranges": ranges,
         "layers": layers,
@@ -1160,10 +1174,9 @@ H2O = (function() {
       this.annotated_item_id = c_id;
     }
 
-    var data = this.format_annotations(current_annotations);
-    h2o_annotator.loadAnnotations(data);
+    h2o_annotator.loadAnnotations(this.format_annotations(current_annotations));
   }
- 
+
   H2O.prototype.removeAnnotationMarkupAndUnlayered = function(annotation) {
     h2o_annotator.publish('beforeAnnotationDeleted', [annotation]);
     this.removeAnnotationMarkup(annotation);

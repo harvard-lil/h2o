@@ -1,8 +1,8 @@
-require 'export_service/cookie_service'
+require 'export_service/cookies'
 
 module ExportService
 
-  RSpec.describe CookieService do
+  RSpec.describe Cookies do
 
     describe '#forwarded_cookies_hash' do
       let(:base_params) do

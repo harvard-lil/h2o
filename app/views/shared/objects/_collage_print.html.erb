@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
 if (typeof(export_functions) != 'undefined') {
   export_functions.initiate_collage_data(<%= collage.id %>, {
     data: <%= raw(params[:state] || collage.readable_state || "{}") %>,
-    annotations: <%= raw collage.annotations_as_export_json %>,
+    annotations: <%= raw collage.annotations_for_export.to_json %>,
     layer_data: <%= raw collage.layer_data.to_json %>,
     highlights_only: <%= raw collage.highlights_only.to_json %>,
   });

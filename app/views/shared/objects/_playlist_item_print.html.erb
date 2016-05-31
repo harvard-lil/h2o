@@ -3,15 +3,11 @@
 
 <li class="playlist listitem level<%= recursive_level %> listitem<%= item.id %>" id="playlist_item_<%= item.id %>" data-itemid="<%= item.id %>" style="mso-list:l0 level1 lfo1;">
 <% h_tag = "h#{recursive_level+1}" %>
-<% if item.actual_object.present? -%>
-  <!-- item.class <%= item.class %> -->
-  <!-- item.id <%= item.id %> -->
-  <!-- actual_object_type <%= item.actual_object_type %> -->
-  <!-- actual_object.id <%= item.actual_object.id %> -->
 
+<% if item.actual_object.present? -%>
   <% heading_word_style = item.actual_object_type == 'Playlist' ? 'Playlist-titleChar' : 'Item-titleChar' %>
   <a name="playlist_item_<%= item.id %>"></a>
-  <<%= h_tag %> class="scale1-5 new-<%= h_tag %>">
+  <<%= h_tag %> class="scale1-5 new-<%= h_tag %> noxpath">
     <span class="<%= heading_word_style%> hcontent"><%= parent_index == '' ? index : "#{parent_index}.#{index}" %> <%= item.name %></span>
   </<%= h_tag %>>
   <% if item.actual_object_type == 'Default' %>
@@ -60,7 +56,7 @@
   <% elsif item.actual_object_type == 'Playlist' && recursive_level < 5 && item.actual_object.present? -%>
     <%# Don't count Playlists, just playlist_items %>
     <% @playlist_items_count -= 1%>
-    <section class="playlists">
+    <div class="playlists">
       <ul>
         <% item.actual_object.playlist_items.each_with_index do |nested_item, nested_index| -%>
           <%= render :partial => 'shared/objects/playlist_item_print',
@@ -72,7 +68,7 @@
             } %>
         <% end -%>
       </ul>
-    </section>
+    </div>
   <% end -%>
 <% else -%>
   <<%= h_tag %> class="missing_item">
