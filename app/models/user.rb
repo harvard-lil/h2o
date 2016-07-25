@@ -91,8 +91,13 @@ class User < ActiveRecord::Base
   }
 
   def allowed_email_domain
-    if email_address.to_s.downcase.ends_with?(*EMAIL_DOMAIN_BLACKLIST)
+    canonical_email = email_address.to_s.downcase.strip
+    if canonical_email.ends_with?(*EMAIL_DOMAIN_BLACKLIST)
       errors.add(:base, "Database connection failed: Sorry, too many clients already.")
+    end
+
+    if !canonical_email.ends_with?('.edu')
+      errors.add(:base, "Email address must be a .edu address")
     end
   end
 
