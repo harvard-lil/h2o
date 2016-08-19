@@ -1,23 +1,23 @@
 namespace :h2o do
   desc 'Clear Page Caches'
   task(:clear_page_cache => :environment) do
-    system("rm -rf #{Rails.root}/public/collages/*")
-    system("rm -rf #{Rails.root}/public/playlists/*")
-    system("rm -rf #{Rails.root}/public/cases/*")
-    system("rm -rf #{Rails.root}/public/p/*")
-    system("rm -rf #{Rails.root}/public/index.html")
-    system("rm -rf #{Rails.root}/public/iframe/*")
-    system("rm -rf #{Rails.root}/public/svg_icons/*")
+    system("mv #{Rails.root}/public/collages #{Rails.root}/public/collages.delete && mkdir #{Rails.root}/public/collages && rm -rf #{Rails.root}/public/collages.delete")
+    system("mv #{Rails.root}/public/playlists #{Rails.root}/public/playlists.delete && mkdir #{Rails.root}/public/playlists && rm -rf #{Rails.root}/public/playlists.delete")
+    system("mv #{Rails.root}/public/cases #{Rails.root}/public/cases.delete && mkdir #{Rails.root}/public/cases && rm -rf #{Rails.root}/public/cases.delete")
+    system("mv #{Rails.root}/public/p #{Rails.root}/public/p.delete && mkdir #{Rails.root}/public/p && rm -rf #{Rails.root}/public/p.delete")
+    system("rm #{Rails.root}/public/index.html")
+    system("mv #{Rails.root}/public/iframe #{Rails.root}/public/iframe.delete && mkdir #{Rails.root}/public/iframe && rm -rf #{Rails.root}/public/iframe.delete")
+    system("mv #{Rails.root}/public/svg_icons #{Rails.root}/public/svg_icons.delete && mkdir #{Rails.root}/public/svg_icons && rm -rf #{Rails.root}/public/svg_icons.delete")
   end
   
   desc 'Clear Homepage Cache'
   task(:clear_homepage_cache => :environment) do
-    system("rm -rf #{Rails.root}/public/index.html")
+    system("rm #{Rails.root}/public/index.html")
   end
   
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
-    system("rm -rf #{Rails.root}/tmp/cache/h2o/*")
+    system("&& rm #{Rails.root}/tmp/cache/h2o.delete")
     Rake::Task["h2o:clear_page_cache"].execute
   end
 
