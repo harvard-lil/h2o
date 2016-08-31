@@ -46,6 +46,11 @@ class PlaylistsController < BaseController
     common_index Playlist
   end
 
+  def empty
+    sql = "select p.* from playlists p left join playlist_items pi ON p.id = pi.playlist_id where pi.id is null order by p.id desc"
+    @playlists = Playlist.find_by_sql(sql).paginate(:page => params[:page], :per_page => 75)
+  end
+
   def show
     return if redirect_bad_format
   

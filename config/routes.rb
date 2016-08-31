@@ -87,6 +87,7 @@ H2o::Application.routes.draw do
       get 'playlist_lookup'
       get 'import'
       post 'submit_import'
+      get 'empty'
     end
   end
   resources :playlist_items do

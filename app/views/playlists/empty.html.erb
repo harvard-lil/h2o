@@ -1,0 +1,36 @@
+<h1>Playlists with Zero Playlist Items - 1</h1>
+
+<br>
+<br>
+<%= will_paginate @playlists, container: false, :previous_label => 'Previous', :next_label => 'Next' %>
+
+<table id="empty-playlists">
+  <!-- playlist URL, playlist ID, title and description field. -->
+  <tr>
+    <th>ID</th><th>User</th><th>Title</th><th>Description</th><th></th><th></th>
+  </tr>
+
+<% @playlists.each do |playlist| %>
+  <tr>
+    <td class="url">
+      <%= link_to playlist_path(playlist), playlist_path(playlist), target: '_blank' %>
+    </td>
+    <td class="user">
+      <%= link_to(
+          raw("#{user_path(playlist.user)}<br>#{playlist.user.email_address}"),
+          user_path(playlist.user),
+          target: '_blank'
+          )%>
+    </td>
+    <td class="title">
+      <%= playlist.name %>
+    </td>
+    <td class="description">
+      <%= playlist.description %>
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<%= will_paginate @playlists, container: false, :previous_label => 'Previous', :next_label => 'Next' %>
+

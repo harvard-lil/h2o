@@ -73,7 +73,7 @@ class Ability
 
       can :access, :rails_admin
       can :dashboard, :all
-      can [:import, :submit_import], :playlists
+      can [:import, :submit_import, :empty], :playlists
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
            :update, :position_update, :update_notes, :delete_inherited_annotations, :save_readable_state],
         :all

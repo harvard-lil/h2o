@@ -150,7 +150,8 @@ end
 
 RailsAdmin.config do |config|
   config.navigation_static_links = {
-    'Playlist Importer' => '/playlists/import'
+    'Playlist Importer' => '/playlists/import',
+    'Empty Playlists' => '/playlists/empty',
   }
   config.current_user_method do
     current_user
