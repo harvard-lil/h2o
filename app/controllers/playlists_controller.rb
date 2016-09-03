@@ -48,7 +48,15 @@ class PlaylistsController < BaseController
 
   def empty
     sql = "select p.* from playlists p left join playlist_items pi ON p.id = pi.playlist_id where pi.id is null order by p.id desc"
-    @playlists = Playlist.find_by_sql(sql).paginate(:page => params[:page], :per_page => 75)
+    @playlists = Playlist.find_by_sql(sql)
+
+    respond_to do |format|
+      format.csv { send_data(csv_convert(@playlists)) }
+      format.html do
+        @playlists = @playlists.paginate(:page => params[:page], :per_page => 75)
+      end
+    end
+
   end
 
   def show
@@ -318,6 +326,24 @@ class PlaylistsController < BaseController
   end
 
   private
+
+  def csv_convert(playlists)
+    headers = ['Playlist URL', 'Playlist ID', 'Owner', 'Title', 'Description']
+
+    CSV.generate(headers: true) do |csv|
+      csv << headers
+
+      playlists.each do |playlist|
+        csv << [
+          view_context.playlist_url(playlist),
+          playlist.id,
+          playlist.user.email_address,
+          playlist.name,
+          playlist.description,
+        ]
+      end
+    end
+  end
 
   def prepare_collage_export(item_ids)
     return {} if item_ids.nil?
