@@ -20,9 +20,9 @@ class User < ActiveRecord::Base
   has_many :permission_assignments, :dependent => :destroy
   has_many :responses
 
+  has_many :collages, :dependent => :destroy  #must precede all annotated item associations
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
-  has_many :collages, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
   has_many :medias, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
