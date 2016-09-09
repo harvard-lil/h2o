@@ -1,4 +1,10 @@
 class TextBlock < ActiveRecord::Base
+
+  # NOTE: This absolutely must be called before all the includes below. If you
+  #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
+  #   exception when destroying a text block in some scenarios.
+  has_many :collages, :dependent => :destroy, :as => :annotatable
+
   include StandardModelExtensions
   include AnnotatableExtensions
   include MetadataExtensions
@@ -15,7 +21,6 @@ class TextBlock < ActiveRecord::Base
 
   acts_as_taggable_on :tags
 
-  has_many :collages, :as => :annotatable
   has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object
   has_many :frozen_items, :as => :item

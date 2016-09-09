@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :institutions 
   has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
-  has_many :responses
+  has_many :responses, :dependent => :destroy
 
   has_many :collages, :dependent => :destroy  #must precede all annotated item associations
   has_many :cases, :dependent => :destroy
