@@ -1,24 +1,36 @@
 namespace :h2o do
   desc 'Clear Page Caches'
   task(:clear_page_cache => :environment) do
-    system("mv #{Rails.root}/public/collages #{Rails.root}/public/collages.delete && mkdir #{Rails.root}/public/collages && rm -rf #{Rails.root}/public/collages.delete")
-    system("mv #{Rails.root}/public/playlists #{Rails.root}/public/playlists.delete && mkdir #{Rails.root}/public/playlists && rm -rf #{Rails.root}/public/playlists.delete")
-    system("mv #{Rails.root}/public/cases #{Rails.root}/public/cases.delete && mkdir #{Rails.root}/public/cases && rm -rf #{Rails.root}/public/cases.delete")
-    system("mv #{Rails.root}/public/p #{Rails.root}/public/p.delete && mkdir #{Rails.root}/public/p && rm -rf #{Rails.root}/public/p.delete")
-    system("rm #{Rails.root}/public/index.html")
-    system("mv #{Rails.root}/public/iframe #{Rails.root}/public/iframe.delete && mkdir #{Rails.root}/public/iframe && rm -rf #{Rails.root}/public/iframe.delete")
-    system("mv #{Rails.root}/public/svg_icons #{Rails.root}/public/svg_icons.delete && mkdir #{Rails.root}/public/svg_icons && rm -rf #{Rails.root}/public/svg_icons.delete")
+    dirs = %w[/public/collages /public/playlists /public/cases /public/p /public/iframe /public/svg_icons]
+    dirs.each do |dir|
+      puts "Moving #{dir} to #{dir}.delete"
+      system "mv #{Rails.root}#{dir} #{Rails.root}#{dir}.delete && mkdir #{Rails.root}#{dir}"
+    end
+
+    Rake::Task["h2o:clear_homepage_cache"].execute
+
+    dirs.each do |dir|
+      delete_dir = "#{dir}.delete"
+      puts "Deleting #{delete_dir}"
+      system "rm -rf #{Rails.root}#{delete_dir}"
+    end
   end
-  
+
   desc 'Clear Homepage Cache'
   task(:clear_homepage_cache => :environment) do
     system("rm #{Rails.root}/public/index.html")
   end
-  
+
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
-    system("mv #{Rails.root}/tmp/cache/h2o #{Rails.root}/tmp/cache/h2o.delete && mkdir #{Rails.root}/tmp/cache/h2o && rm -rf #{Rails.root}/tmp/cache/h2o.delete")
+    dir = "/tmp/cache/h2o"
+    puts "Moving #{dir} to #{dir}.delete"
+    system("mv #{Rails.root}#{dir} #{Rails.root}#{dir}.delete && mkdir #{Rails.root}#{dir}")
+
     Rake::Task["h2o:clear_page_cache"].execute
+
+    puts "Deleting #{dir}.delete (this may take a while)"
+    system("rm -rf #{Rails.root}#{dir}.delete")
   end
 
   desc 'Send cases list email'
