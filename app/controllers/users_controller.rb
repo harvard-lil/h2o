@@ -44,38 +44,37 @@ class UsersController < ApplicationController
     common_index User
   end
 
-  def verification_request
-    if current_user.present? && current_user = User.where(id: params[:id]).first
-      current_user.send_verification_request
-      flash[:notice] = 'An email has been sent to you for account verification. Please stay logged in and visit the link in the email to verify your account.'
-      redirect_to user_path(current_user)
-    end
-  end
+  # def verification_request
+  #   if current_user.present? && current_user = User.where(id: params[:id]).first
+  #     current_user.send_verification_request
+  #     flash[:notice] = 'An email has been sent to you for account verification. Please stay logged in and visit the link in the email to verify your account.'
+  #     redirect_to user_path(current_user)
+  #   end
+  # end
 
-  def verify
-    if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
-      current_user.update_column(:verified, true)
-      flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
-      redirect_to user_path(current_user)
-      return
-    end
-
-    if current_user
-      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
-      redirect_to user_path(current_user)
-    else
-      flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
-      redirect_to '/user_sessions/new'
-    end
-  end
+  # def verify
+  #   if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
+  #     current_user.update_column(:verified, true)
+  #     flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
+  #     redirect_to user_path(current_user)
+  #     return
+  #   end
+  #   if current_user
+  #     flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
+  #     redirect_to user_path(current_user)
+  #   else
+  #     flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
+  #     redirect_to '/user_sessions/new'
+  #   end
+  # end
 
   def create
     @user = User.new(users_params)
     verify_captcha(@user)
 
     if @user.save
-      @user.send_verification_request
-      flash[:notice] = "Account registered! Please verify your account by clicking the link provided in the verification email."
+      @user.send_verification_request_to_admin
+      flash[:notice] = "Account registered! You will be notified once an admin has verified your account."
       if first_time_canvas_login?
         save_canvas_id_to_user(@user)
         flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe

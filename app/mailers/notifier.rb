@@ -34,11 +34,18 @@ class Notifier < ActionMailer::Base
     @edit_password_reset_url = edit_password_reset_url(user.perishable_token)
     mail(to: user.email_address, subject: "H2O Password Reset Instructions")
   end
- 
-  def verification_request(user)
-    @user_login = user.login
-    @verification_url = verify_user_url(user, user.perishable_token)
-    mail(to: user.email_address, subject: "H2O User Verification")
+
+  def verification_notice(user)
+    mail(to: user.email_address, subject: "Welcome to H2O. Your account has been verified")
+  end
+
+  def admin_verification_request(user)
+    @user = user
+    @verification_url = rails_admin.edit_url(model_name: 'user', id: @user.id)
+    mail(
+      to: H2o::Application.config.user_verification_recipients,
+      subject: "New H2O account needs verification"
+    )
   end
 
   def logins(users)
@@ -60,8 +67,10 @@ class Notifier < ActionMailer::Base
 
   def cases_list
     attachments['cases_list.csv'] = File.read("#{Rails.root}/tmp/cases_list.csv")
-    mail(to: ['h2o@cyber.law.harvard.edu', 'awenner@cyber.law.harvard.edu', 'mmckay@law.harvard.edu', 'berkman@endpoint.con'],
-         subject: "List of All Cases #{Time.now.to_s(:simpledate)}")
+    mail(
+      to: ['h2o@cyber.law.harvard.edu', 'awenner@cyber.law.harvard.edu', 'mmckay@law.harvard.edu'],
+      subject: "List of All Cases #{Time.now.to_s(:simpledate)}"
+    )
   end
 
   def bulk_upload_completed(user, bulk_upload)

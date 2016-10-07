@@ -289,10 +289,14 @@ RailsAdmin.config do |config|
       field :login
       field :email_address
       field :created_at
+      field :verified
     end
 
-
     edit do
+      field :verified do
+        label "Is user verified?"
+        help "Setting a user to verified will automatically send them a welcome email."
+      end
       field :login
       field :email_address
       field :set_password do

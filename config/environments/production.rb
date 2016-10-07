@@ -88,4 +88,8 @@ H2o::Application.configure do
       :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
       :exception_recipients => %w{h2o-exceptions@endpoint.com} #later add h2o@cyber.law.harvard.edu
     }
+
+  # Admin email to recieve the 'new user needs verification' emails
+  config.user_verification_recipients = ['h2o@cyber.law.harvard.edu']
+
 end

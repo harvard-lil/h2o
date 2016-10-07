@@ -42,4 +42,7 @@ H2o::Application.configure do
       :exception_recipients => %w{h2o-exceptions@endpoint.com}
     }
 
+  # Admin email to recieve the 'new user needs verification' emails
+  config.user_verification_recipients = ['bgadoury@endpoint.com']
+
 end

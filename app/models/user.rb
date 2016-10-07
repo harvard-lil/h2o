@@ -29,21 +29,7 @@ class User < ActiveRecord::Base
   has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
 
-  def user_responses
-    content = self.collages.includes(:responses) + self.text_blocks.includes(:responses)
-    content.map(&:responses).flatten
-  end
-
-  # Deal with this later by replacing habtm with hm through
-  def users_roles
-    []
-  end
-  def users_user_collections
-    []
-  end
-  def users_institutions
-    []
-  end
+  after_save :send_verification_notice, :if => Proc.new {|u| u.verified_changed? && u.verified?}
 
   attr_accessor :terms
 
@@ -90,7 +76,25 @@ class User < ActiveRecord::Base
     :user_default_clone => "Link Cloned"
   }
 
+  def user_responses
+    content = self.collages.includes(:responses) + self.text_blocks.includes(:responses)
+    content.map(&:responses).flatten
+  end
+
+  # Deal with this later by replacing habtm with hm through
+  def users_roles
+    []
+  end
+  def users_user_collections
+    []
+  end
+  def users_institutions
+    []
+  end
+
   def allowed_email_domain
+    # Rails.logger.warn "SKIPPING DOMAIN VALIDATION FOR test purposes"
+    # return true
     canonical_email = email_address.to_s.downcase.strip
     if canonical_email.ends_with?(*EMAIL_DOMAIN_BLACKLIST)
       errors.add(:base, "Database connection failed: Sorry, too many clients already.")
@@ -197,9 +201,14 @@ class User < ActiveRecord::Base
     end
   end
 
-  def send_verification_request
+  # def send_verification_request
+  #   reset_perishable_token!
+  #   Notifier.verification_request(self).deliver
+  # end
+
+  def send_verification_request_to_admin
     reset_perishable_token!
-    Notifier.verification_request(self).deliver
+    Notifier.admin_verification_request(self).deliver
   end
 
   def deliver_password_reset_instructions!
@@ -349,15 +358,23 @@ class User < ActiveRecord::Base
   end
 
   def preverified?
-    email_address.ends_with?('.edu')
+    # We are no longer preverifying any users
+    return false
+    # email_address.ends_with?('.edu')
   end
 
   def set_password; nil; end
 
   def set_password=(value)
     return nil if value.blank?
-    self.password = value
-    self.password_confirmation = value
+    self.password = self.password_confirmation = value
   end
+
+  private
+
+  def send_verification_notice
+    Notifier.verification_notice(self).deliver
+  end
+
 
 end
