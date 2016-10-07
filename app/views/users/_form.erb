@@ -7,7 +7,7 @@
         <%= form.text_field :login %>
       </p>
       <p>
-        <%= form.label :email_address, 'Email Address (must be a .edu address)' %>
+        <%= form.label :email_address, ('Email Address (must be a .edu address)' if @user.new_record?) %>
         <%= form.text_field :email_address %>
       </p>
       <p>

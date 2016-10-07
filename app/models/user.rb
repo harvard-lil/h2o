@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
-  validate :allowed_email_domain
+  validate :allowed_email_domain, if: :new_record?
 
   RATINGS = {
     :playlist_created => 5,
