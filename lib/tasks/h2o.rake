@@ -24,7 +24,7 @@ namespace :h2o do
   desc 'Clear All Cache'
   task(:clear_all_cache => :environment) do
     dir = "/tmp/cache/h2o"
-    puts "Moving #{dir} to #{dir}.delete"
+    puts "Moving #{Rails.root}#{dir} to #{Rails.root}#{dir}.delete"
     system("mv #{Rails.root}#{dir} #{Rails.root}#{dir}.delete && mkdir #{Rails.root}#{dir}")
 
     Rake::Task["h2o:clear_page_cache"].execute
