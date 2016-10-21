@@ -469,9 +469,10 @@ class ApplicationController < ActionController::Base
   # end
 
   def verify_captcha(item)
-    if verify_recaptcha(:model => item, :message => '')
-      item.valid_recaptcha = true
-    end
+    # NOTE: verify_recaptcha is from the recaptcha gem
+    # if verify_recaptcha(:model => item, :message => '')
+    #   item.valid_recaptcha = true
+    # end
   end
 
   def current_user_session

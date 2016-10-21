@@ -32,6 +32,8 @@ gem 'daemons', '1.0.10'
 gem 'rails_admin'
 gem 'cancan'
 gem 'kaminari'
+# NOTE: recaptcha is no longer used, but we leave the gem here so the Recaptcha.configure
+#   call in the initializer (which is not in source control) does not blow up.
 gem 'recaptcha'
 gem 'paperclip'
 gem 'ckeditor'

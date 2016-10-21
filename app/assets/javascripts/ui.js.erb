@@ -32,9 +32,9 @@ var h2o_global = {
       $('#terms_require').html("<p class='inline-hints'>If this item is submitted as a non-public item, other users will not be able to see, copy, or create derivative works from it, unless you change the item's setting to \"Public.\" Note that making a previously \"public\" item non-public will not affect copies or derivatives made from that public version.</p>");
     }
   },
-  show_recaptcha: function() {
-    Recaptcha.create('<%= Recaptcha.configuration.public_key %>', 'captcha_div');
-  },
+  // show_recaptcha: function() {
+  //   Recaptcha.create('<%= Recaptcha.configuration.public_key %>', 'captcha_div');
+  // },
   run_page_initialize: function() {
     var body_id = $('body').attr('id');
     if(eval(body_id + '.initialize') !== undefined) {
@@ -1261,7 +1261,7 @@ var h2o_global = {
         html = $.mustache(clone_item_template, data);
       }
       h2o_global.generateGenericNode(html);
-      h2o_global.show_recaptcha();
+      // h2o_global.show_recaptcha();
     });
   },
   observeGenericControls: function(region){
@@ -1385,9 +1385,9 @@ var h2o_global = {
           $('#generic-node #error_block').html(data.message).show(); 
           h2o_global.hideGlobalSpinnerNode();
           buttons.removeClass('inactive');
-          if($('#captcha_div').length > 0) {
-            h2o_global.show_recaptcha();
-          }
+          // if($('#captcha_div').length > 0) {
+          //   h2o_global.show_recaptcha();
+          // }
         } else {
           if(data.custom_block) {
             eval('h2o_global.' + data.custom_block + '(data)');
