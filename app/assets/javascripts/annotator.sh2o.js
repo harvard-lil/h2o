@@ -433,8 +433,8 @@ H2O = (function() {
 
       var node = $('.layered-ellipsis-' + editor.annotation.id)
       if(node.length > 0) {
-        var text = editor.annotation.text.length > 0 ? editor.annotation.text : '...';
-        node.html('[' + text + ']');
+        var text = editor.annotation.text.length > 0 ? '[' + editor.annotation.text + ']' : '[...]';
+        node.html(text);
         $('.annotation-' + editor.annotation.id).hide();
       }
 
@@ -909,7 +909,12 @@ H2O = (function() {
     if(annotation.error){
       return 'error';
     } else if(annotation.hidden) {
-      return 'hidden';
+      // "Replace text" annotations will also have hidden == true, so text takes precedence here.
+      if(annotation.text && annotation.text.length > 0) {
+        return 'text';
+      } else {
+        return 'hidden';
+      }
     } else if(annotation.feedback) {
       return 'feedback';
     } else if(annotation.discussion) {
@@ -918,9 +923,6 @@ H2O = (function() {
       return 'link';
     } else if(annotation.highlight_only !== null) {
       return 'highlight';
-    } else if(annotation.text && annotation.text.length > 0) {
-      // AKA "a comment"
-      return 'text';
     }
     else {
       // I believe this will only happen for an empty comment.
@@ -929,8 +931,8 @@ H2O = (function() {
   };
 
   H2O.prototype.setLayeredBorders = function(annotation) {
-    // NOTE: This poorly named function actually creates [...] for a hidden annotation
-    //   and sets click event handlers on it.
+    // NOTE: This poorly named function decorates the DOM for a text or hidden
+    //   type annotation and sets click event handlers on it.
     var _id = annotation.id;
     if(_id === undefined) {
       _id = 'noid';
@@ -1009,7 +1011,6 @@ H2O = (function() {
   };
 
   H2O.prototype.applyHiddenAnnotation = function(annotation) {
-    //console.log(annotation);
     //NOTE: hidden text annotations with large amounts of text can be very slow here.
     $('.layered-ellipsis-' + annotation.id).addClass('layered-ellipsis-hidden').css('display', 'inline-block');
     var anno_nodes = $('.annotation-' + annotation.id);
