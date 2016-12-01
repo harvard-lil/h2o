@@ -4,36 +4,8 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   observe Playlist
 
   def playlist_clear(record, creation)
-    begin
-      return if creation || record.changed.empty?
-  
-      ActionController::Base.expire_page "/playlists/#{record.id}.html"
-      ActionController::Base.expire_page "/playlists/#{record.id}/export.html"
-      ActionController::Base.expire_page "/iframe/load/playlists/#{record.id}.html"
-      ActionController::Base.expire_page "/iframe/show/playlists/#{record.id}.html"
-  
-      record.relation_ids.each do |p|
-        ActionController::Base.expire_page "/playlists/#{p}.html"
-        ActionController::Base.expire_page "/playlists/#{p}/export.html"
-        ActionController::Base.expire_page "/iframe/load/playlists/#{p}.html"
-        ActionController::Base.expire_page "/iframe/show/playlists/#{p}.html"
-      end
-
-      if record.changed.include?("public")
-        [:playlists, :collages, :cases].each do |type|
-          record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
-        end
-        [:playlists, :collages].each do |type|
-          record.user.send(type).each do |i|
-            ActionController::Base.expire_page "/iframe/load/#{type.to_s}/#{i.id}.html"
-            ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html"
-          end
-        end
-        record.user.collages.update_all(updated_at: Time.now)
-      end
-    rescue Exception => e
-      Rails.logger.warn "Playlist sweeper error: #{e.inspect}"
-    end
+    return if creation || record.changed.empty?
+    record.clear_page_cache
   end
 
   def after_create(record)

@@ -7,14 +7,14 @@ class UserSweeper < ActionController::Caching::Sweeper
     if current_user
       Rails.cache.delete("user-bookmarks-#{current_user.id}")
       Rails.cache.delete("user-bookmarks-map-#{current_user.id}")
-	  end
+    end
   end
 
   def after_users_bookmark_item
     if current_user
       Rails.cache.delete("user-bookmarks-#{current_user.id}")
       Rails.cache.delete("user-bookmarks-map-#{current_user.id}")
-	  end
+    end
   end
 
   def after_update(record)
@@ -29,6 +29,10 @@ class UserSweeper < ActionController::Caching::Sweeper
 
       Sunspot.index record.all_items
       Sunspot.commit
+    end
+
+    if record.changed.include?("description")
+      record.playlists.each {|playlist| playlist.clear_page_cache}
     end
   end
 end

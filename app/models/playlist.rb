@@ -300,4 +300,37 @@ class Playlist < ActiveRecord::Base
     
     playlist_copy
   end
+
+  def clear_page_cache
+    Rails.logger.debug "Firing for playlist id: #{id}"
+    begin
+      ActionController::Base.expire_page "/playlists/#{id}.html"
+      ActionController::Base.expire_page "/playlists/#{id}/export.html"
+      ActionController::Base.expire_page "/iframe/load/playlists/#{id}.html"
+      ActionController::Base.expire_page "/iframe/show/playlists/#{id}.html"
+
+      relation_ids.each do |p|
+        ActionController::Base.expire_page "/playlists/#{p}.html"
+        ActionController::Base.expire_page "/playlists/#{p}/export.html"
+        ActionController::Base.expire_page "/iframe/load/playlists/#{p}.html"
+        ActionController::Base.expire_page "/iframe/show/playlists/#{p}.html"
+      end
+
+      if changed.include?("public")
+        [:playlists, :collages, :cases].each do |type|
+          user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
+        end
+        [:playlists, :collages].each do |type|
+          user.send(type).each do |i|
+            ActionController::Base.expire_page "/iframe/load/#{type.to_s}/#{i.id}.html"
+            ActionController::Base.expire_page "/iframe/show/#{type.to_s}/#{i.id}.html"
+          end
+        end
+        user.collages.update_all(updated_at: Time.now)
+      end
+    rescue Exception => e
+      Rails.logger.warn "Playlist sweeper error: #{e.inspect}"
+    end
+  end
+
 end
