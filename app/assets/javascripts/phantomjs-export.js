@@ -304,14 +304,13 @@ var set_styling = function(page) {
       $(el).attr('style', newStyle);
     });
 
-    // Remove un-needed TypeKit cruft that likely causes Word 2011 issues
-    $('link[rel=stylesheet][href*=typekit], style:contains(".tk-"), #annotator-dynamic-style, #highlight_styles, style[rel="alternate stylesheet"]').remove();
+    // Remove dynamic TypeKit cruft. It doesn't change any styling in Word Docs, and some
+    // or all of it has been proven to cause some docs to fail to open in Word 2011 on Mac.
+    $('link[rel=stylesheet][href*=typekit], style:contains(".tk-"), style:contains("@font-face")').remove();
 
-    //NOTE: We might not need to remove that contains('.tk-') node, now that we know it is
-    //  probably the empty nodes around it that were breaking things.
-
-    // NOTE: Word 2011 can't parse empty <style> DOM elements correctly. They will mangle the doc structure.
+    // Word 2011 can't parse empty <style> DOM elements correctly. They will mangle the doc structure.
     $('style:empty').remove();
+    $('#annotator-dynamic-style, #highlight_styles, style[rel="alternate stylesheet"]').remove();
 
     // Remove all image tags. They are only going to cause trouble in a Doc export
     $('img').remove();
