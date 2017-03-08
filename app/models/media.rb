@@ -1,3 +1,21 @@
+# == Schema Information
+#
+# Table name: medias
+#
+#  id                 :integer          not null, primary key
+#  name               :string(255)
+#  content            :text
+#  media_type_id      :integer
+#  public             :boolean          default(TRUE)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  description        :string(5242880)
+#  karma              :integer
+#  pushed_from_id     :integer
+#  user_id            :integer          default(0), not null
+#  created_via_import :boolean          default(FALSE), not null
+#
+
 class Media < ActiveRecord::Base
   self.table_name = "medias"
 

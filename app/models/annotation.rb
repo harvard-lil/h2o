@@ -1,3 +1,29 @@
+# == Schema Information
+#
+# Table name: annotations
+#
+#  id                  :integer          not null, primary key
+#  collage_id          :integer
+#  annotation          :string(10240)
+#  created_at          :datetime
+#  updated_at          :datetime
+#  pushed_from_id      :integer
+#  cloned              :boolean          default(FALSE), not null
+#  xpath_start         :string(255)
+#  xpath_end           :string(255)
+#  start_offset        :integer          default(0), not null
+#  end_offset          :integer          default(0), not null
+#  link                :string(255)
+#  hidden              :boolean          default(FALSE), not null
+#  highlight_only      :string(255)
+#  annotated_item_id   :integer          default(0), not null
+#  annotated_item_type :string(255)      default("Collage"), not null
+#  error               :boolean          default(FALSE), not null
+#  feedback            :boolean          default(FALSE), not null
+#  discussion          :boolean          default(FALSE), not null
+#  user_id             :integer
+#
+
 class Annotation < ActiveRecord::Base
   include StandardModelExtensions
 

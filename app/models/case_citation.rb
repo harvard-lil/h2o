@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: case_citations
+#
+#  id         :integer          not null, primary key
+#  case_id    :integer
+#  volume     :string(200)      not null
+#  reporter   :string(200)      not null
+#  page       :string(200)      not null
+#  created_at :datetime
+#  updated_at :datetime
+#
+
 class CaseCitation < ActiveRecord::Base
   belongs_to :case
 

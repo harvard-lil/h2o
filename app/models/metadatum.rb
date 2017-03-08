@@ -1,3 +1,29 @@
+# == Schema Information
+#
+# Table name: metadata
+#
+#  id                :integer          not null, primary key
+#  contributor       :string(255)
+#  coverage          :string(255)
+#  creator           :string(255)
+#  date              :date
+#  description       :string(5242880)
+#  format            :string(255)
+#  identifier        :string(255)
+#  language          :string(255)      default("en")
+#  publisher         :string(255)
+#  relation          :string(255)
+#  rights            :string(255)
+#  source            :string(255)
+#  subject           :string(255)
+#  title             :string(255)
+#  dc_type           :string(255)      default("Text")
+#  classifiable_type :string(255)
+#  classifiable_id   :integer
+#  created_at        :datetime
+#  updated_at        :datetime
+#
+
 class Metadatum < ActiveRecord::Base
   belongs_to :classifiable, :polymorphic => true
 

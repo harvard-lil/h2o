@@ -1,3 +1,22 @@
+# == Schema Information
+#
+# Table name: defaults
+#
+#  id                 :integer          not null, primary key
+#  name               :string(1024)
+#  url                :string(1024)     not null
+#  description        :string(5242880)
+#  public             :boolean          default(TRUE)
+#  karma              :integer
+#  created_at         :datetime
+#  updated_at         :datetime
+#  pushed_from_id     :integer
+#  content_type       :string(255)
+#  user_id            :integer          default(0), not null
+#  ancestry           :string(255)
+#  created_via_import :boolean          default(FALSE), not null
+#
+
 class Default < ActiveRecord::Base
   include StandardModelExtensions
   include AncestryExtensions

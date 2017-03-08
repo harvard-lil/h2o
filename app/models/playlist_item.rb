@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: playlist_items
+#
+#  id                 :integer          not null, primary key
+#  playlist_id        :integer
+#  position           :integer
+#  created_at         :datetime
+#  updated_at         :datetime
+#  notes              :text
+#  public_notes       :boolean          default(TRUE), not null
+#  pushed_from_id     :integer
+#  actual_object_type :string(255)
+#  actual_object_id   :integer
+#
+
 class PlaylistItem < ActiveRecord::Base
   include StandardModelExtensions
 

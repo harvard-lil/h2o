@@ -1,3 +1,31 @@
+# == Schema Information
+#
+# Table name: collages
+#
+#  id                 :integer          not null, primary key
+#  annotatable_type   :string(255)
+#  annotatable_id     :integer
+#  name               :string(250)      not null
+#  description        :string(5120)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  word_count         :integer
+#  ancestry           :string(255)
+#  public             :boolean          default(TRUE)
+#  readable_state     :string(5242880)
+#  words_shown        :integer
+#  karma              :integer
+#  pushed_from_id     :integer
+#  user_id            :integer          default(0), not null
+#  annotator_version  :integer          default(2), not null
+#  featured           :boolean          default(FALSE), not null
+#  created_via_import :boolean          default(FALSE), not null
+#  version            :integer          default(1), not null
+#  enable_feedback    :boolean          default(TRUE), not null
+#  enable_discussions :boolean          default(FALSE), not null
+#  enable_responses   :boolean          default(FALSE), not null
+#
+
 class Collage < ActiveRecord::Base
   include StandardModelExtensions
   include AncestryExtensions

@@ -1,3 +1,26 @@
+# == Schema Information
+#
+# Table name: playlists
+#
+#  id                 :integer          not null, primary key
+#  name               :string(1024)
+#  description        :text
+#  created_at         :datetime
+#  updated_at         :datetime
+#  public             :boolean          default(TRUE)
+#  ancestry           :string(255)
+#  position           :integer
+#  counter_start      :integer          default(1), not null
+#  karma              :integer
+#  pushed_from_id     :integer
+#  location_id        :integer
+#  when_taught        :string(255)
+#  user_id            :integer          default(0), not null
+#  primary            :boolean          default(FALSE), not null
+#  featured           :boolean          default(FALSE), not null
+#  created_via_import :boolean          default(FALSE), not null
+#
+
 class Playlist < ActiveRecord::Base
   include StandardModelExtensions
   include AncestryExtensions

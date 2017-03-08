@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: case_jurisdictions
+#
+#  id           :integer          not null, primary key
+#  abbreviation :string(150)
+#  name         :string(500)
+#  content      :text
+#  created_at   :datetime
+#  updated_at   :datetime
+#
+
 class CaseJurisdiction < ActiveRecord::Base
   has_many :cases
   has_many :case_requests

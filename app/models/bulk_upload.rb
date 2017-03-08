@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: bulk_uploads
+#
+#  id             :integer          not null, primary key
+#  created_at     :datetime
+#  updated_at     :datetime
+#  has_errors     :boolean
+#  delayed_job_id :integer
+#  user_id        :integer          default(0), not null
+#
+
 class BulkUpload < ActiveRecord::Base
   has_many :imports
   has_many :error_imports, -> { where status: 'Errored' }, class_name: "Import"

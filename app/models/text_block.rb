@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: text_blocks
+#
+#  id                 :integer          not null, primary key
+#  name               :string(255)      not null
+#  content            :string(5242880)  not null
+#  public             :boolean          default(TRUE)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  karma              :integer
+#  pushed_from_id     :integer
+#  user_id            :integer          default(0), not null
+#  created_via_import :boolean          default(FALSE), not null
+#  description        :string(5242880)
+#  version            :integer          default(1), not null
+#  enable_feedback    :boolean          default(TRUE), not null
+#  enable_discussions :boolean          default(FALSE), not null
+#  enable_responses   :boolean          default(FALSE), not null
+#
+
 class TextBlock < ActiveRecord::Base
 
   # NOTE: This absolutely must be called before all the includes below. If you

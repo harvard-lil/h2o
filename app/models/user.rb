@@ -1,3 +1,52 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  id                             :integer          not null, primary key
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  login                          :string(255)
+#  crypted_password               :string(255)
+#  password_salt                  :string(255)
+#  persistence_token              :string(255)      not null
+#  login_count                    :integer          default(0), not null
+#  last_request_at                :datetime
+#  last_login_at                  :datetime
+#  current_login_at               :datetime
+#  last_login_ip                  :string(255)
+#  current_login_ip               :string(255)
+#  oauth_token                    :string(255)
+#  oauth_secret                   :string(255)
+#  email_address                  :string(255)
+#  tz_name                        :string(255)
+#  bookmark_id                    :integer
+#  karma                          :integer
+#  attribution                    :string(255)
+#  perishable_token               :string(255)
+#  tab_open_new_items             :boolean          default(FALSE), not null
+#  default_font_size              :string(255)      default("10")
+#  title                          :string(255)
+#  affiliation                    :string(255)
+#  url                            :string(255)
+#  description                    :text
+#  canvas_id                      :string(255)
+#  verified                       :boolean          default(FALSE), not null
+#  default_font                   :string(255)      default("futura")
+#  print_titles                   :boolean          default(TRUE), not null
+#  print_dates_details            :boolean          default(TRUE), not null
+#  print_paragraph_numbers        :boolean          default(TRUE), not null
+#  print_annotations              :boolean          default(FALSE), not null
+#  print_highlights               :string(255)      default("original"), not null
+#  print_font_face                :string(255)      default("dagny"), not null
+#  print_font_size                :string(255)      default("small"), not null
+#  default_show_comments          :boolean          default(FALSE), not null
+#  default_show_paragraph_numbers :boolean          default(TRUE), not null
+#  hidden_text_display            :boolean          default(FALSE), not null
+#  print_links                    :boolean          default(TRUE), not null
+#  toc_levels                     :string(255)      default(""), not null
+#  print_export_format            :string(255)      default(""), not null
+#
+
 class User < ActiveRecord::Base
   include StandardModelExtensions
   include Rails.application.routes.url_helpers

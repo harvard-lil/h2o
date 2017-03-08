@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: imports
+#
+#  id                 :integer          not null, primary key
+#  bulk_upload_id     :integer
+#  actual_object_id   :integer
+#  actual_object_type :string(255)
+#  dropbox_filepath   :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  status             :string(255)
+#
+
 class Import < ActiveRecord::Base
   belongs_to :bulk_upload
   belongs_to :actual_object, :polymorphic => true
