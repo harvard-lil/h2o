@@ -57,13 +57,13 @@ module RailsAdmin
                 created_total = 0
                 deleted_total = 0
                 @dates.each do |date|
-                  @created[date] = [] if !@created.has_key?(date) 
+                  @created[date] = [] if !@created.has_key?(date)
                   created_total += @created[date].size
-                  @totals_created[date] = created_total 
-                  
-                  @deleted[date] = [] if !@deleted.has_key?(date) 
+                  @totals_created[date] = created_total
+
+                  @deleted[date] = [] if !@deleted.has_key?(date)
                   deleted_total += @deleted[date].size
-                  @totals_deleted[date] = deleted_total 
+                  @totals_deleted[date] = deleted_total
                 end
               end
             end
@@ -91,7 +91,7 @@ module RailsAdmin
         register_instance_option :member do
           true
         end
-        
+
         register_instance_option :controller do
           proc do
             if @object.is_a?(Media)
@@ -149,6 +149,7 @@ module RailsAdmin
 end
 
 RailsAdmin.config do |config|
+  config.parent_controller = '::ApplicationController'
   config.navigation_static_links = {
     'Playlist Importer' => '/playlists/import',
     'Empty Playlists' => '/playlists/empty',
@@ -164,7 +165,7 @@ RailsAdmin.config do |config|
     index                         # mandatory
     bulk_delete
 
-    aggregate_items 
+    aggregate_items
     import
     export
 
@@ -191,7 +192,7 @@ RailsAdmin.config do |config|
       field :footer_link do
         help "If checked, this will show in the footer navigation"
       end
-      field :footer_sort 
+      field :footer_sort
       field :footer_link_text do
         help "Anchor text for footer link"
       end
