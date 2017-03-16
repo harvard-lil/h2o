@@ -11,7 +11,7 @@ H2o::Application.configure do
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
-  config.action_controller.perform_caching = true
+  config.action_controller.perform_caching = false
 
   config.action_mailer.delivery_method = :sendmail
   config.action_mailer.perform_deliveries = true
@@ -39,10 +39,10 @@ H2o::Application.configure do
     :email => {
       :email_prefix => "[H2Odev] ",
       :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
-      :exception_recipients => %w{h2o-exceptions@endpoint.com}
+      :exception_recipients => %w{}
     }
 
   # Admin email to recieve the 'new user needs verification' emails
-  config.user_verification_recipients = ['bgadoury@endpoint.com']
+  config.user_verification_recipients = []
 
 end
