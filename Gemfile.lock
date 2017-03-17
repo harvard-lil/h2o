@@ -74,6 +74,7 @@ GEM
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.3)
+    byebug (9.0.6)
     cancan (1.6.10)
     capybara (2.8.0)
       addressable
@@ -232,6 +233,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
+      pry (~> 0.10)
     public_suffix (2.0.5)
     puma (3.8.2)
     quiet_assets (1.1.0)
@@ -391,6 +395,7 @@ DEPENDENCIES
   paperclip
   pg
   progress_bar
+  pry-byebug
   puma (~> 3.8)
   quiet_assets
   rails (= 4.1.7)

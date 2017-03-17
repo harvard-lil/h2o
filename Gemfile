@@ -69,6 +69,7 @@ group :development, :test do
   gem 'minitest-rails'
   gem 'minitest-rails-capybara'
   gem 'minitest-reporters'
+  gem 'pry-byebug'
   gem 'simplecov'
 
   gem 'wrong', git: 'git@github.com:pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
