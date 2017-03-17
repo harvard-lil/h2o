@@ -1,0 +1,5 @@
+case_admin:
+  login: case_admin
+  email_address: case_admin@example.edu
+  verified: true
+  persistence_token: abcd
