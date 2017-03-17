@@ -1,9 +1,19 @@
-public_case:
+public_case_1:
   short_name: District Case 1
   full_name: Case of the District Number 1
   decision_date: 1999-01-10
   author: Judge Person
   case_jurisdiction: district_jurisdiction
-  content: This is the body of the case.
+  content: This is the body of case 1.
+  public: true
+  user: case_admin
+
+public_case_2:
+  short_name: District Case 2
+  full_name: Case of the District Number 2
+  decision_date: 1999-01-10
+  author: Judge Person the Second
+  case_jurisdiction: district_jurisdiction
+  content: This is the body of case 2.
   public: true
   user: case_admin

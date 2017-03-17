@@ -1,0 +1,6 @@
+<% for n in 1..2 %>
+playlist_1_case_<%=n%>:
+  playlist: public_playlist_1
+  actual_object: public_case_<%=n%>
+  actual_object_type: Case
+<% end %>
