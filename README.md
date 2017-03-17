@@ -59,6 +59,10 @@ The dev server is now accessible at http://localhost:8000, but it likely won't l
 
 Since we're going to be heavily refactoring and likely removing a lot of code, the focus for now will be on high-level feature tests which will survive that. [cases_test.rb](test/features/cases_test.rb) is an example of the test pattern using Minitest and Capybara which exercises the full stack from a user's point of view.
 
+### Javascript
+
+Test scenarios marked with `js: true` will be run in a headless WebKit environment via Poltergeist. This requires the PhantomJS binary to be installed, e.g. `brew install phantomjs`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
+
 ### Guard testing
 
 Guard will automatically run all tests after booting Rails and (should) again after any test or app file is edited. Tests can also be run manually:

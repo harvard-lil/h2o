@@ -9,6 +9,14 @@ feature 'playlists' do
       assert_content public_playlist.name
       assert_content public_playlist.user.attribution
       assert_content cases(:public_case_1).name
+      assert_content public_playlist.user.affiliation
+
+    end
+    scenario "can't edit a playlist", js: true do
+      visit playlist_path(playlists :public_playlist_1)
+      # binding.pry
+      # TODO: This should not be done in javascript.
+      assert_no_link "EDIT PLAYLIST INFORMATION"
     end
   end
 end

@@ -2,4 +2,6 @@ case_admin:
   login: case_admin
   email_address: case_admin@example.edu
   verified: true
+  attribution: case_admin's Attribution
+  affiliation: case_admin's Affiliation
   persistence_token: abcd

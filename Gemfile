@@ -66,10 +66,12 @@ end
 
 group :development, :test do
   gem 'capybara', '2.8' # compat with minitest-capybara
+  gem 'launchy'
   gem 'minitest-rails'
   gem 'minitest-rails-capybara'
   gem 'minitest-reporters'
   gem 'pry-byebug'
+  gem 'poltergeist'
   gem 'simplecov'
 
   gem 'wrong', git: 'git@github.com:pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
