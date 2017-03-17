@@ -1,0 +1,12 @@
+production:
+  url: <%= ENV['DATABASE_URL'] %>
+
+development:
+  adapter: postgresql
+  database: h2o_dev
+  pool: 5
+
+test:
+  adapter: postgresql
+  database: h2o_test
+  pool: 5
