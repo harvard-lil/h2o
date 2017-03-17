@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 
-<html xmlns="//www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<html xmlns="//www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
@@ -37,9 +37,9 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
   </section>
 
 <%= render :partial => "shared/font_selectors" %>
-    
+
 <%= javascript_include_tag "application" %>
-<script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+<script src="//cdn.tinymce.com/4.1/tinymce.min.js"></script>
 <!-- <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script> -->
 
 <% flash.delete(:error) %>
