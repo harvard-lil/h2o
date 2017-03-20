@@ -59,7 +59,7 @@ group :development do
   gem 'guard-spring'
   gem 'guard-yield'
   gem 'guard-minitest'
-  gem 'guard-sunspot', git: 'git@github.com:smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
+  gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
 
   gem 'terminal-notifier-guard'
 end
@@ -74,5 +74,5 @@ group :development, :test do
   gem 'poltergeist'
   gem 'simplecov'
 
-  gem 'wrong', git: 'git@github.com:pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
+  gem 'wrong', git: 'https://github.com/pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
 end

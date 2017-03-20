@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:pludoni/wrong.git
+  remote: https://github.com/pludoni/wrong.git
   revision: be1ddcc214dd151b9530466f7c8ef7f52c8ec8f2
   ref: be1ddcc
   specs:
@@ -11,7 +11,7 @@ GIT
       sexp_processor (>= 4.0)
 
 GIT
-  remote: git@github.com:smit1625/guard-sunspot.git
+  remote: https://github.com/smit1625/guard-sunspot.git
   revision: d7b24d843c9f8d12f71f93274bd5d5a3072faef2
   ref: d7b24d8
   specs:
