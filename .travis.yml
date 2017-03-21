@@ -2,5 +2,5 @@ language: ruby
 cache: bundler
 rvm:
   - 2.3.3
-# comment to test bundle caching
+script: bundle exec rake test:all
 
