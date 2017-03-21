@@ -2,5 +2,6 @@ language: ruby
 cache: bundler
 rvm:
   - 2.3.3
+before_script: bundle exec rake db:create db:migrate
 script: bundle exec rake test:all
 
