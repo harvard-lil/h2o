@@ -1,8 +1,8 @@
 require "test_helper"
 
 feature 'playlists' do
-  describe 'anonymous user' do
-    scenario 'browsing a playlist' do
+  describe 'as an anonymous visitor' do
+    scenario 'viewing a playlist' do
       public_playlist = playlists :public_playlist_1
       visit playlist_path(public_playlist)
 
@@ -11,12 +11,37 @@ feature 'playlists' do
       assert_content cases(:public_case_1).name
       assert_content public_playlist.user.affiliation
 
+      # follow link to cases/texts/media
     end
-    scenario "can't edit a playlist", js: true do
-      visit playlist_path(playlists :public_playlist_1)
-      # binding.pry
-      # TODO: This should not be done in javascript.
-      assert_no_link "EDIT PLAYLIST INFORMATION"
+    scenario 'browsing playlists' do
+      # can see public playlists
+      # can't see private playlists
+    end
+    scenario 'searching playlists' do
+      # can search by title or contents (?)
+      # can find public playlists
+      # can't find private playlists
+    end
+  end
+  describe 'as a registered user' do
+    scenario 'browsing, searching, and viewing playlists' do
+      # DRY stuff from above
+      # can see prvate playlists that belong to user
+    end
+    scenario 'creating a playlist' do
+      skip
+    end
+    scenario 'cloning a playlist' do
+      skip
+    end
+    scenario 'editing a playlist', js: true do
+      skip
+      # adding cases
+      # adding texts
+      # adding links (in future, all "media" will be URLs)
+      # adding playlists (?)
+      # reordering material
+      # removing material
     end
   end
 end

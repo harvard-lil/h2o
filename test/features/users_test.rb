@@ -4,13 +4,15 @@ feature 'users' do
   describe 'as an anonymous visitor' do
     describe 'signing up for an account' do
       scenario 'succeeds with a valid username, password, and email' do
-        skip 'requires verification by an administrator to complete'
+        skip
+        # requires verification by an administrator to complete
       end
       scenario 'fails with an existing username or email' do
         skip
       end
       scenario 'fails with an invalid username, email, or password' do
-        skip 'only .edu accounts are allowed'
+        skip
+        # only .edu accounts are allowed
       end
     end
 
@@ -21,7 +23,7 @@ feature 'users' do
   describe 'as a registered user' do
     describe 'logging in' do
       scenario 'succeeds with a valid email and password' do
-
+        skip
       end
       scenario 'fails with a non-existent email or invalid password' do
         skip
