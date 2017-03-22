@@ -8,7 +8,7 @@ cache: bundler
 rvm:
   - 2.3.3
 before_script:
-  - bundle exec rake db:create db:schema:load
+  - bundle exec rake db:setup
   - bundle exec rake sunspot:solr:start
 script:
   - bundle exec rake test:all
