@@ -17,3 +17,18 @@ public_case_2:
   content: This is the body of case 2.
   public: true
   user: case_admin
+
+
+public_case_to_annotate:
+  short_name: District Case 2
+  full_name: Case of the District Number 2
+  decision_date: 1999-01-10
+  author: Judge Person the Second
+  case_jurisdiction: district_jurisdiction
+  content: >
+    highlighted: content to highlight;
+    elided: content to elide;
+    replaced: content to replace;
+    commented: content to comment;
+  public: true
+  user: case_admin
