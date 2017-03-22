@@ -22,11 +22,63 @@ feature 'texts' do
       # can see private cases that belong to user
     end
     scenario 'annotating a text', js: true do
-      # can be DRY with cases test?
-      # cloning
-      # highlighting
-      # commenting
-      # replacing/removing text
+      sign_in user = users(:verified_student)
+      visit case_path public_case = cases(:public_case_to_annotate)
+
+      click_link 'Clone and Annotate'
+      assert_xpath "//input[@value='#{public_case.short_name}']"
+
+      # TODO: make mce tests more intuitive than this
+      annotated_desc = "Test annotated case desc: #{random_token}"
+      within_frame find('#collage_description_input .mce-tinymce iframe') do
+        find('body').set annotated_desc
+      end
+
+      click_button 'Submit'
+
+      assert_link 'ANNOTATION DISPLAY'
+      assert_content annotated_desc
+
+      # TODO: make these buttons more accessible
+
+      # Highlighting
+      select_text 'content to highlight'
+      find('[title=highlight]').trigger 'click'
+      click_link 'ffee00'
+      click_link 'Save'
+      find('.highlight-hex-ffee00').assert_text 'content to highlight'
+
+      # Elision
+      select_text 'content to elide'
+      find('[title=hide]').trigger 'click'
+      assert_content 'elided: [...];'
+
+      # Replacement
+      select_text 'content to replace'
+      find('[title="replace text"]').trigger 'click'
+      fill_in placeholder: 'Enter replacement text...', with: 'replacement content'
+      click_link 'Save'
+      assert_content 'replaced: [replacement content];'
+
+      # Comments
+      select_text 'content to comment'
+      find('[title="annotate"]').trigger 'click'
+      fill_in placeholder: 'Comments...', with: 'comment content'
+      click_link 'Save'
+      find('.icon.icon-adder-annotate', visible: true).click
+      assert_content 'comment content'
+
+      # Annotations are still visible when logged out
+      click_link 'sign out'
+
+      assert_link 'sign in'
+      assert_content "#{public_case.short_name} by #{user.attribution}"
+
+      find('.highlight-hex-ffee00').assert_text 'content to highlight'
+      assert_content 'elided: [...];'
+      assert_content 'replaced: [replacement content];'
+      find('.icon.icon-adder-annotate', visible: true).click
+      assert_content 'comment content'
     end
     scenario 'creating a text' do
       sign_in users(:verified_student)
