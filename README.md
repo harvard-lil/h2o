@@ -63,12 +63,14 @@ Since we're going to be heavily refactoring and likely removing a lot of code, t
 
 Test scenarios marked with `js: true` will be run in a headless WebKit environment via Poltergeist. This requires the PhantomJS binary to be installed, e.g. `brew install phantomjs`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
 
+Guard will not automatically run these tests. This is less than ideal when working on a client-side feature, so you can mark a given test with `focus: true` to force Guard to run it. If no JS tests are enabled, PhantomJS will not boot, speeding up the whole test suite considerably.
+
 ### Guard testing
 
-Guard will automatically run all tests after booting Rails and (should) again after any test or app file is edited. Tests can also be run manually:
+Guard will automatically run all static tests after booting Rails and  again after any test or app file is edited. By default, Guard _won't_ run any tests that require JS, since they're so much slower. You can run those tests manually:
 
-1. `bin/rake test:all` runs all tests.
-1. `bin/rake test test/features/cases_test.rb` runs the case feature test, and so on.
+1. `bin/rake test:all` runs all tests, including JS tests.
+1. `bin/rake test test/features/cases_test.rb` runs the case feature test, and so on, including JS tests.
 
 ### Coverage
 
