@@ -5,3 +5,11 @@ case_admin:
   attribution: case_admin's Attribution
   affiliation: case_admin's Affiliation
   persistence_token: abcd
+
+verified_student:
+  login: verified_student
+  email_address: verified_student@example.edu
+  verified: true
+  attribution: verified_student's Attribution
+  affiliation: verified_student's Affiliation
+  persistence_token: abcd

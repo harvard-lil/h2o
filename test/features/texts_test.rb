@@ -29,7 +29,39 @@ feature 'texts' do
       # replacing/removing text
     end
     scenario 'creating a text' do
-      
+      sign_in users(:verified_student)
+
+      visit root_path
+
+      # TODO: make this more accessible
+      within '#create_all_popup' do
+        click_link 'Text'
+      end
+
+      assert_content 'Add New Text'
+
+      fill_in 'Name', with: text_name = "Test public text - #{random_token}"
+      # TODO: There are two fields with label 'Description'
+      # TODO: description replaces '-' with '–'
+      fill_in 'text_block[description]', with: text_desc = "Test public description: #{random_token}"
+      fill_in 'Content', with: text_content = "Test public content - #{random_token}"
+
+      click_button 'Save'
+
+      assert_content 'Text Block was successfully created'
+      assert_content text_name
+      assert_text text_desc
+      assert_content text_content
+
+      text_path = page.current_path
+      sign_out
+      visit text_path
+
+      assert_content 'sign in'
+      assert_content text_name
+    end
+    scenario 'creating rich content in a text', js: true do
+
     end
   end
 end
