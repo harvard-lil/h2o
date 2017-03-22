@@ -8,7 +8,7 @@ feature 'links' do
       # can't see private links
     end
     scenario 'following links' do
-      skip
+
     end
   end
   describe 'as a registered user' do
@@ -17,10 +17,10 @@ feature 'links' do
       # can see prvate links that belong to user
     end
     scenario 'creating a link' do
-      skip
+
     end
     scenario 'editing a link' do
-      skip
+
     end
   end
 end

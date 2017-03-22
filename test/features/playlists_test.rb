@@ -29,13 +29,13 @@ feature 'playlists' do
       # can see prvate playlists that belong to user
     end
     scenario 'creating a playlist' do
-      skip
+
     end
     scenario 'cloning a playlist' do
-      skip
+
     end
     scenario 'editing a playlist', js: true do
-      skip
+
       # adding cases
       # adding texts
       # adding links (in future, all "media" will be URLs)

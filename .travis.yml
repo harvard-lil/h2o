@@ -7,8 +7,11 @@ language: ruby
 cache: bundler
 rvm:
   - 2.3.3
-before_script: bundle exec rake db:create db:schema:load
-script: bundle exec rake test:all
+before_script:
+  - bundle exec rake db:setup
+  - bundle exec rake sunspot:solr:start
+script:
+  - bundle exec rake test:all
 
 after_success:
   - export DEPLOY_CONTENT='{"TRAVIS_BUILD_NUMBER":"'$TRAVIS_BUILD_NUMBER'","TRAVIS_COMMIT":"'$TRAVIS_COMMIT'"}'
