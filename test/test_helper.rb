@@ -18,7 +18,6 @@ Capybara.register_driver :poltergeist do |app|
     js_errors: true,
     url_blacklist: %w(use.typekit.net),
     extensions: %w(rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js).map {|p| File.expand_path("../helpers/phantomjs/#{p}", __FILE__)}
-
 end
 Capybara.javascript_driver = :poltergeist
 Capybara.default_max_wait_time = 2.seconds
@@ -35,6 +34,11 @@ class ActiveSupport::TestCase
   # Add more helper methods to be used by all tests here...
   after :each do
     TransactionalCapybara::AjaxHelpers.wait_for_ajax(page)
+  end
+  before :each do
+    if ENV['CAPYBARA_SKIP_JS'] && metadata[:js] && !metadata[:focus]
+      skip 'Automatic tests skip JavaScript. Run `bin/rake test:all`, or add `focus: true` to enable for this test.'
+    end
   end
 end
 
