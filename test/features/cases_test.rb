@@ -3,12 +3,10 @@ require "test_helper"
 feature 'cases' do
   describe 'as an anonymous user' do
     scenario 'browsing cases' do
-      skip
       # public cases are visible
       # non-public cases are not visible
     end
     scenario 'searching for a case' do
-      skip
       # this might take some fiddling with to make Solr play nice
     end
     scenario 'reading a case' do
@@ -25,33 +23,31 @@ feature 'cases' do
   end
   describe 'as a registered user' do
     scenario 'browsing, searching, and reading cases' do
-      skip
       # DRY stuff from above
       # can see private cases that belong to user
     end
     scenario 'annotating a case', js: true do
-      skip
       # cloning
       # highlighting
       # commenting
       # replacing/removing text
     end
     scenario 'requesting a case for import' do
-      skip
+
     end
   end
   describe 'as a case administrator' do
     scenario 'viewing case requests' do
-      skip
+
     end
     scenario 'adding a case for a request' do
-      skip
+
     end
     scenario 'rejecting a case request' do
-      skip
+
     end
     scenario 'editing a case' do
-      skip
+
     end
   end
 end
