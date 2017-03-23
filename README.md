@@ -4,9 +4,10 @@
 
 ## Contents
 
-1. [Live version](#live_version)
+1. [Live version](#live-version)
 2. [Development](#development)
 3. [Testing](#testing)
+3. [Contributions](#contributions)
 3. [License](#license)
 
 ## [Live version](https://h2o.law.harvard.edu/)
@@ -77,6 +78,33 @@ Guard will automatically run all static tests after booting Rails and  again aft
 1. `bin/rake test:coverage` will run all tests and generate a coverage report in `coverage/index.html`.
 
 > TODO: When coverage is a bit higher, add a git commit hook which runs the coverage report and fails if under some value.
+
+## Contributions
+
+Contributions to this project should be made in individual forks and then merged by pull request. Here's an outline:
+
+1. Fork and clone the project.
+1. Make a branch for your feature: `git branch feature-1`
+1. Commit your changes with `git add` and `git commit`. (`git diff  --staged` is handy here!)
+1. Push your branch to your fork: `git push origin feature-1`
+1. Submit a pull request to the upstream master through GitHub.
+
+Whenever possible, pull requests should be fast-forwarded (i.e., `Rebase and Merge`d). This creates a nice, linear record of commits, without ugly merge commits that lose context and history.
+
+In order to fast-forward a pull request, `upstream/master` shouldn't have any commits that aren't also on the fork in the same order— in other words, they have to agree about the history of the repo. This is a problem if upstream has changed since you created your branch!
+
+Rather than creating a merge commit which reconciles the changes, you'll want to `rebase` your branch to `upstream/master`. Rebasing simply means that you stash your new commits temporarily, fast-forward your local repo to the updated `upstream/master`, and then apply your changes on top,  pretending that your commits are the most recent changes.
+
+In general, GitHub can automatically rebase a pull request, but if there are any conflicts you'll need to resolve them manually with this process:
+
+1. Add the upstream repository with `git remote add upstream`
+1. Fetch the latest changes with `git fetch upstream`
+1. Rebase your branch to upstream: `git rebase upstream/master`
+1. (You can do both of these in one step with `git pull upstream master --rebase`)
+1. If `upstream/master` has changes that conflict with your commits, you'll need to amend them at this time.
+1. Push and pull request.
+
+In the case of particularly ugly conflicts, rebasing can be more trouble than it's worth to preserve history, and a big merge commit will be the best option, but that should be avoided whenever possible. Rebasing your local branch to `upstream/master` frequently is the best way to avoid headaches later on.
 
 ## License
 
