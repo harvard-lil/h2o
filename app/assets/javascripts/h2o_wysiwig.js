@@ -12,8 +12,8 @@ var h2o_mceInit = {
       theme_advanced_resize_horizontal:false,
       plugins:"fullscreen,link,charmap,textcolor,paste",
       add_form_submit_trigger: false,
-      skin_url: 'https://tinymce.cachefly.net/4.0/skins/lightgray',
-      content_css: '/h2o_tinymce.css',
+      skin_url: '/assets',
+      content_css: '/h2o_tinymce.css,/assets/tinymce.woff',
       editor_deselector: 'no_tinymce'
 };
 var h2o_mceInit_abbr = {
@@ -30,7 +30,7 @@ var h2o_mceInit_abbr = {
       theme_advanced_resize_horizontal:false,
       plugins:"link,charmap,paste",
       add_form_submit_trigger: false,
-      skin_url: 'https://tinymce.cachefly.net/4.0/skins/lightgray',
+      skin_url: '/assets',
       content_css: '/h2o_tinymce.css',
       editor_deselector: 'no_tinymce'
 };
@@ -61,7 +61,7 @@ jQuery(document).ready(function(){
       switchEditors.switchto(jQuery('.mce_switches .html').attr('id'));
     }
   });
- 
+
   if($('body').attr('id') == 'text_blocks_new') {
     $('li#text_block_description_input > div').hide();
     $('li#text_block_description_input > textarea').show();
