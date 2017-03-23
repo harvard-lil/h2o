@@ -21,12 +21,13 @@ feature 'texts' do
       # DRY stuff from above
       # can see private cases that belong to user
     end
+
     scenario 'annotating a text', js: true do
       sign_in user = users(:verified_student)
-      visit case_path public_case = cases(:public_case_to_annotate)
+      visit text_block_path public_text = text_blocks(:public_text_to_annotate)
 
       click_link 'Clone and Annotate'
-      assert_xpath "//input[@value='#{public_case.short_name}']"
+      assert_xpath "//input[@value='#{public_text.name}']"
 
       # TODO: make mce tests more intuitive than this
       annotated_desc = "Test annotated case desc: #{random_token}"
@@ -40,6 +41,7 @@ feature 'texts' do
       assert_content annotated_desc
 
       # TODO: make these buttons more accessible
+      # TODO: Annotations sometimes take a very long time. wait: 3.seconds seems to work reliably
 
       # Highlighting
       select_text 'content to highlight'
@@ -72,7 +74,7 @@ feature 'texts' do
       click_link 'sign out'
 
       assert_link 'sign in'
-      assert_content "#{public_case.short_name} by #{user.attribution}"
+      assert_content "#{public_text.name} by #{user.attribution}"
 
       find('.highlight-hex-ffee00').assert_text 'content to highlight'
       assert_content 'elided: [...];'
@@ -80,6 +82,7 @@ feature 'texts' do
       find('.icon.icon-adder-annotate', visible: true).click
       assert_content 'comment content'
     end
+
     scenario 'creating a text' do
       sign_in users(:verified_student)
 

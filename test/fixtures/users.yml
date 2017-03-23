@@ -13,3 +13,11 @@ verified_student:
   attribution: verified_student's Attribution
   affiliation: verified_student's Affiliation
   persistence_token: abcd
+
+verified_professor:
+  login: verified_professor
+  email_address: verified_professor@example.edu
+  verified: true
+  attribution: verified_professor's Attribution
+  affiliation: verified_professor's Affiliation
+  persistence_token: abcd
