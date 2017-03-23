@@ -16,7 +16,7 @@ require 'capybara/poltergeist'
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new app,
     js_errors: true,
-    url_blacklist: %w(use.typekit.net),
+    url_whitelist: %w(://127.0.0.1:*),
     extensions: %w(rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js).map {|p| File.expand_path("../helpers/phantomjs/#{p}", __FILE__)}
 end
 Capybara.javascript_driver = :poltergeist
