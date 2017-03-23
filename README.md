@@ -10,7 +10,10 @@
 3. [Contributions](#contributions)
 3. [License](#license)
 
-## [Live version](https://h2o.law.harvard.edu/)
+## [Live version](https://h2o-dev.lil.tools) &nbsp; [![Build Status](https://travis-ci.org/harvard-lil/h2o.svg?branch=master)](https://travis-ci.org/harvard-lil/h2o)
+
+Auto-deploy of the latest master. If the build is green, it's up-to-date.
+
 
 ## Development
 
