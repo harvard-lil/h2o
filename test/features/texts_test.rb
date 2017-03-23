@@ -30,7 +30,7 @@ feature 'texts' do
 
       # TODO: make mce tests more intuitive than this
       annotated_desc = "Test annotated case desc: #{random_token}"
-      within_frame find('#collage_description_input .mce-tinymce iframe') do
+      within_frame find('#collage_description_input .mce-tinymce iframe', visible: false) do
         find('body').set annotated_desc
       end
 
