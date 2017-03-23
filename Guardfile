@@ -31,7 +31,6 @@ end
 guard :minitest, spring: 'bin/rake test', env: {CAPYBARA_SKIP_JS: 'true'} do
   watch(%r{^test/(.*)\/?test_(.*)\.rb$})
   watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
-  watch(%r{^test/test_helper\.rb$})      { 'test' }
 
   watch(%r{^app/(.+)\.rb$}) { 'test' }# run all tests on app code change (for now)
   # watch(%r{^app/controllers/application_controller\.rb$}) { 'test/controllers' }

@@ -20,25 +20,30 @@ Capybara.register_driver :poltergeist do |app|
     extensions: %w(rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js).map {|p| File.expand_path("../helpers/phantomjs/#{p}", __FILE__)}
 end
 Capybara.javascript_driver = :poltergeist
-Capybara.default_max_wait_time = 2.seconds
+Capybara.default_max_wait_time = 3.seconds
 
-require "transactional_capybara"
-TransactionalCapybara.share_connection
+require 'database_cleaner'
 
 require 'minitest/reporters'
 Minitest::Reporters.use!
 
 class ActiveSupport::TestCase
-  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
+  self.use_transactional_fixtures = false
   fixtures :all
-  # Add more helper methods to be used by all tests here...
-  after :each do
-    TransactionalCapybara::AjaxHelpers.wait_for_ajax(page)
-  end
   before :each do
     if ENV['CAPYBARA_SKIP_JS'] && metadata[:js] && !metadata[:focus]
       skip 'Automatic tests skip JavaScript. Run `bin/rake test:all`, or add `focus: true` to enable for this test.'
+    else
+      if metadata[:js]
+        DatabaseCleaner.strategy = :truncation, {pre_count: true}
+      else
+        DatabaseCleaner.strategy = :transaction
+      end
+      DatabaseCleaner.start
     end
+  end
+  after :each do
+    DatabaseCleaner.clean
   end
 end
 
