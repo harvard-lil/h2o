@@ -66,6 +66,7 @@ end
 
 group :development, :test do
   gem 'capybara', '2.8' # compat with minitest-capybara
+  gem 'database_cleaner'
   gem 'launchy'
   gem 'minitest-rails-capybara'
   gem 'minitest-rails'
@@ -73,7 +74,6 @@ group :development, :test do
   gem 'poltergeist'
   gem 'pry-byebug'
   gem 'simplecov'
-  gem 'transactional_capybara'
 
   gem 'wrong', git: 'https://github.com/pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
 end
