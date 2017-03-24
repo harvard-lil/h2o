@@ -18,7 +18,6 @@ public_case_2:
   public: true
   user: case_admin
 
-
 public_case_to_annotate:
   short_name: District Case 2
   full_name: Case of the District Number 2
@@ -31,4 +30,27 @@ public_case_to_annotate:
     replaced: content to replace;
     commented: content to comment;
   public: true
+  user: case_admin
+
+<% for label in [*'XA'..'YZ'] %>
+haystack_case_<%=label%>:
+  short_name: Haystack Case (<%=label%>)
+  full_name: Case <%=label%> in the Haystack
+  decision_date: <% Date.today - rand(10000).days %>
+  author: Judge Haystack the <%=label%>th
+  case_jurisdiction: district_jurisdiction
+  content: >
+    This is haystack case labeled <%=label%>
+  public: <% if label.between?('XA', 'XZ') %>true<% else %>false<% end %>
+  user: case_admin
+<% end %>
+
+private_case_1:
+  short_name: Private Case 1
+  full_name: Case of the District Number 1
+  decision_date: 1999-01-10
+  author: Judge Person
+  case_jurisdiction: district_jurisdiction
+  content: This is the body of PRIVATE case 1.
+  public: false
   user: case_admin
