@@ -7,9 +7,42 @@ feature 'texts' do
       # public texts are visible
       # non-public texts are not visible
     end
-    scenario 'searching for a text' do
-      # this might take some fiddling with to make Solr play nice
+
+    scenario 'searching for a text', solr: true do
+      visit root_path
+      search_label = [*'XA'..'XZ'].sample
+      fill_in 'Keywords', with: "Text #{search_label}"
+      # click_link 'SEARCH' # TODO: This should not require JavaScript!
+      page.submit find('form.search')
+
+      assert_content "Search Results: Text #{search_label}"
+      assert_content "1 Text Total"
+
+      click_link "Haystack Text (#{search_label})"
+      assert_content "This is haystack text labeled #{search_label}"
+
+      # Can't find a private text!
+      # TODO: You really should be able to find a private text that belongs to you.
+      search_label = [*'YA'..'YZ'].sample
+      fill_in 'Keywords', with: "Text #{search_label}"
+      page.submit find('form.search')
+
+      assert_content "Search Results: Text #{search_label}"
+      assert_content "0 Results Total"
+
+      # Simulate a text edit
+      search_label = [*'XA'..'XZ'].sample
+      text_blocks(:"haystack_text_#{search_label}").update! name: "Updated Haystack Text (#{search_label})"
+      Sunspot.commit # TODO: Test this properly
+
+      fill_in 'Keywords', with: "Updated Haystack Text"
+      page.submit find('form.search')
+
+      assert_content "Search Results: Updated Haystack Text"
+      assert_content "1 Text Total"
+      assert_content "Updated Haystack Text (#{search_label})"
     end
+
     scenario 'reading a text' do
       # content visible
       # metadata visible
@@ -17,9 +50,9 @@ feature 'texts' do
     end
   end
   describe 'as a registered user' do
-    scenario 'browsing, searching, and reading cases' do
+    scenario 'browsing, searching, and reading texts' do
       # DRY stuff from above
-      # can see private cases that belong to user
+      # can see private texts that belong to user
     end
 
     scenario 'annotating a text', js: true do
@@ -30,7 +63,7 @@ feature 'texts' do
       assert_xpath "//input[@value='#{public_text.name}']"
 
       # TODO: make mce tests more intuitive than this
-      annotated_desc = "Test annotated case desc: #{random_token}"
+      annotated_desc = "Test annotated text desc: #{random_token}"
       within_frame find('#collage_description_input .mce-tinymce iframe', visible: false) do
         find('body').set annotated_desc
       end

@@ -7,3 +7,12 @@ public_text_to_annotate:
     commented: content to comment;
   public: true
   user: verified_professor
+
+<% for label in [*'XA'..'YZ'] %>
+haystack_text_<%=label%>:
+  name: Haystack Text (<%=label%>)
+  content: >
+    This is haystack text labeled <%=label%>
+  public: <% if label.between?('XA', 'XZ') %>true<% else %>false<% end %>
+  user: verified_professor
+<% end %>
