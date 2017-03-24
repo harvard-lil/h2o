@@ -39,9 +39,7 @@ feature 'texts' do
 
       assert_link 'ANNOTATION DISPLAY'
       assert_content annotated_desc
-
       # TODO: make these buttons more accessible
-      # TODO: Annotations sometimes take a very long time. wait: 3.seconds seems to work reliably
 
       # Highlighting
       select_text 'content to highlight'
@@ -69,6 +67,8 @@ feature 'texts' do
       click_link 'Save'
       find('.icon.icon-adder-annotate', visible: true).click
       assert_content 'comment content'
+
+      sleep 1.second # TODO: The JS is updating this on a setInterval.
 
       # Annotations are still visible when logged out
       click_link 'sign out'
