@@ -16,12 +16,12 @@ h2o_global.collage_afterload = function(results) {
     $('#description .delete-action').remove();
   }
   if(results.can_edit) {
-    h2o_global.initiate_annotator('collages', results.report_options, true);  
+    h2o_global.initiate_annotator('collages', results.report_options, true);
     $('.requires_edit').animate({ opacity: 1.0 });
     $('.edit-action').animate({ opacity: 1.0 });
     collages.listenToRecordAnnotatedItemState();
   } else {
-    h2o_global.initiate_annotator('collages', results.report_options, false);  
+    h2o_global.initiate_annotator('collages', results.report_options, false);
     $('.requires_edit').remove();
     $('.edit-action').remove();
   }
@@ -247,7 +247,7 @@ var collages = {
         $('.annotator-hl.layer-' + layer + ',a.indicator-highlight-' + layer).show();
         $('.annotator-hl.layer-' + layer).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').show();
       } else {
-        $('.layered-ellipsis.' + layer).show(); 
+        $('.layered-ellipsis.' + layer).show();
         $('.layered-control-start.' + layer + ',.layered-control-end.' + layer).hide();
         $('.annotator-hl.layer-' + layer + ',a.indicator-highlight-' + layer).hide();
         $('.annotator-hl.layer-' + layer).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
@@ -337,7 +337,7 @@ var collages = {
     });
     $(document).delegate('#layers_highlights li.user_layer .toggle', 'toggle', function(e, active) {
       var layer = $(this).parent().data('name');
-      if(active) { 
+      if(active) {
         $('span.layer-' + layer).addClass('highlight-' + layer);
 
         if($('.user_layer .toggle-on.active').length == $('.user_layer .toggle-on').length) {
@@ -357,7 +357,7 @@ var collages = {
     });
     $(document).delegate('#layers_highlights li.highlight_only_layer .toggle', 'toggle', function(e, active) {
       var hex = $(this).parent().data('hex');
-      if(active) { 
+      if(active) {
         $('span.layer-hex-' + hex).addClass('highlight-hex-' + hex);
         if($('.highlight_layer .toggle-on.active').length == $('.user_layer .toggle-on').length) {
           $('#highlight_all_li .toggle-inner').css({ "margin-left": 0 });
@@ -408,6 +408,9 @@ var collages = {
       url: h2o_global.root_path() + 'collages/' + h2o_global.getItemId() + '/save_readable_state',
       success: function(results){
         //Do nothing
+      },
+      error: function (e) {
+        throw new Error(JSON.stringify(e));
       }
     });
   },
@@ -445,7 +448,7 @@ var collages = {
         last_data = data;
         collages.recordAnnotatedItemState(JSON.stringify(data), true);
       }
-    }, 1000); 
+    }, 1000);
   },
   loadState: function(collage_id, data) {
     $.each(data, function(i, e) {
@@ -475,7 +478,7 @@ var collages = {
         collages.rehighlight();
       } else if(i == 'hide_tags') {
         $.each(e, function(layer, v) {
-          $('.layered-ellipsis.' + layer).show(); 
+          $('.layered-ellipsis.' + layer).show();
           $('.layered-control-start.' + layer + ',.layered-control-end.' + layer).hide();
           $('.annotator-hl.layer-' + layer + ',a.indicator-highlight-' + layer).hide();
           $('.annotator-hl.layer-' + layer).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
@@ -491,7 +494,7 @@ var collages = {
         collages.rehighlight();
       }
     });
-       
+
     if($('.user_layer .toggle-on.active').length == $('.user_layer .toggle').length) {
       $('#highlight_all_li .toggle').addClass('activated').toggles({ on: true, height: 15, width: 40 });
       $('#highlight_all_li .toggle-inner').css({ "margin-left": 0 });
@@ -530,7 +533,7 @@ var collages = {
       $(el).find('.toggle-on').addClass('active');
     });
     $('.toggle:not(.activated)').toggles({ height: 15, width: 40 });
-  } 
+  }
 };
 
 $(document).ready(function(){
@@ -539,7 +542,7 @@ $(document).ready(function(){
   }
 
   if($.browser.msie && $.browser.version < 9.0) {
-    $('<p id="nonsupported_browser">Annotation functionality is not supported by your browser. Please upgrade to IE9 or greater.</p>').dialog({ 
+    $('<p id="nonsupported_browser">Annotation functionality is not supported by your browser. Please upgrade to IE9 or greater.</p>').dialog({
       title: "Non-Supported Browser"
     }).dialog('open');
     $('.ui-dialog-titlebar-close').remove();
