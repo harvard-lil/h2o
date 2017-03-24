@@ -41,7 +41,7 @@ class ActiveSupport::TestCase
 
   before :each do
     if ENV['CAPYBARA_SKIP_JS'] && metadata[:js] && !metadata[:focus]
-      # TODO:
+      # TODO: Maybe gate Solr too? Those seem to be fast enough for now
       skip 'Automatic tests skip JavaScript. Run `bin/rake test:all`, or add `focus: true` to enable for this test.'
       return
     end
@@ -55,13 +55,13 @@ class ActiveSupport::TestCase
 
     if metadata[:solr]
       Sunspot.session = sunspot_test_session
-      metadata[:solr].each &:index
+      Sunspot.searchable.each &:solr_reindex
     end
   end
   after :each do
     DatabaseCleaner.clean
     if metadata[:solr]
-      metadata[:solr].each &:remove_all_from_index!
+      Sunspot.remove_all!
       Sunspot.session = sunspot_stub_session
     end
   end

@@ -7,15 +7,14 @@ feature 'cases' do
       # non-public cases are not visible
     end
 
-    scenario 'searching for a case', solr: [Case] do
-      # this might take some fiddling with to make Solr play nice
+    scenario 'searching for a case', solr: true do
       visit root_path
       search_label = [*'XA'..'XZ'].sample
-      fill_in 'Keywords', with: search_label
+      fill_in 'Keywords', with: "Case #{search_label}"
       # click_link 'SEARCH' # TODO: This should not require JavaScript!
       page.submit find('form.search')
 
-      assert_content "Search Results: #{search_label}"
+      assert_content "Search Results: Case #{search_label}"
       assert_content "1 Case Total"
 
       click_link "Haystack Case (#{search_label})"
@@ -24,10 +23,10 @@ feature 'cases' do
       # Can't find a private case!
       # TODO: You really should be able to find a private case that belongs to you.
       search_label = [*'YA'..'YZ'].sample
-      fill_in 'Keywords', with: search_label
+      fill_in 'Keywords', with: "Case #{search_label}"
       page.submit find('form.search')
 
-      assert_content "Search Results: #{search_label}"
+      assert_content "Search Results: Case #{search_label}"
       assert_content "0 Results Total"
 
       # Simulate a case edit
