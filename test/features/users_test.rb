@@ -39,6 +39,7 @@ feature 'users' do
         fill_in 'Password', with: users(:student_user).crypted_password
         fill_in 'Password confirmation', with: users(:student_user).crypted_password
         check 'Terms of Service'
+
         click_button 'Register'
 
         assert_content 'Email address must be a .edu address'
