@@ -1,6 +1,6 @@
 class PasswordResetsController < ApplicationController
-  before_filter :load_user_using_perishable_token, :only => [:edit, :update]
- # before_filter :display_first_time_canvas_notice
+  before_action :load_user_using_perishable_token, :only => [:edit, :update]
+ # before_action :display_first_time_canvas_notice
 
   def new
     render

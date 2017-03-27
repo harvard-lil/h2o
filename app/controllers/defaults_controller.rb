@@ -1,7 +1,7 @@
 class DefaultsController < BaseController
   cache_sweeper :default_sweeper
   protect_from_forgery :except => [:destroy, :copy]
-  before_filter :limit_missing_item, :only => :destroy
+  before_action :limit_missing_item, :only => :destroy
 
   def show
   end

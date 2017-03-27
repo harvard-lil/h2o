@@ -1,5 +1,5 @@
 class UserSessionsController < ApplicationController
-  before_filter :display_first_time_canvas_notice, :only => [:new]
+  before_action :display_first_time_canvas_notice, :only => [:new]
   protect_from_forgery :except => [:create]
 
   def index
