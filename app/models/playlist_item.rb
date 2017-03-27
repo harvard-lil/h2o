@@ -14,11 +14,11 @@
 #  actual_object_id   :integer
 #
 
-class PlaylistItem < ActiveRecord::Base
+class PlaylistItem < ApplicationRecord
   include StandardModelExtensions
 
   belongs_to :playlist
-  belongs_to :actual_object, :polymorphic => true 
+  belongs_to :actual_object, :polymorphic => true
   validate :not_infinite
 
   delegate :name, to: :actual_object, allow_nil: true

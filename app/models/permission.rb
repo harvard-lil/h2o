@@ -10,6 +10,6 @@
 #  permission_type :string(255)
 #
 
-class Permission < ActiveRecord::Base
+class Permission < ApplicationRecord
   validates_presence_of :key, :label
 end

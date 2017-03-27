@@ -26,7 +26,7 @@
 #  enable_responses   :boolean          default(FALSE), not null
 #
 
-class Collage < ActiveRecord::Base
+class Collage < ApplicationRecord
   include StandardModelExtensions
   include AncestryExtensions
   include MetadataExtensions
@@ -78,7 +78,7 @@ class Collage < ActiveRecord::Base
     string :root_user_display, :stored => true
     integer :root_user_id, :stored => true
     integer :karma
-    
+
     string :klass, :stored => true
     string :annotype, :stored => true
     boolean :primary do
@@ -147,7 +147,7 @@ class Collage < ActiveRecord::Base
         barcode_elements << { :type => "clone",
                               :date => child.created_at,
                               :title => "Cloned to #{child.name}",
-                              :link => collage_path(child), 
+                              :link => collage_path(child),
                               :rating => 5 }
       end
 
@@ -164,7 +164,7 @@ class Collage < ActiveRecord::Base
   alias :to_s :display_name
 
   def highlights_only
-    self.annotations.map(&:highlight_only).flatten.uniq.compact 
+    self.annotations.map(&:highlight_only).flatten.uniq.compact
   end
 
   def layers

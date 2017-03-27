@@ -21,7 +21,7 @@
 #  created_via_import :boolean          default(FALSE), not null
 #
 
-class Playlist < ActiveRecord::Base
+class Playlist < ApplicationRecord
   include StandardModelExtensions
   include AncestryExtensions
   include CaptchaExtensions

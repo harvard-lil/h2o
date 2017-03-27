@@ -9,7 +9,7 @@
 #  updated_at    :datetime
 #
 
-class CaseDocketNumber < ActiveRecord::Base
+class CaseDocketNumber < ApplicationRecord
   belongs_to :case
 
   validates_presence_of :docket_number

@@ -17,7 +17,7 @@
 #  created_via_import :boolean          default(FALSE), not null
 #
 
-class Default < ActiveRecord::Base
+class Default < ApplicationRecord
   include StandardModelExtensions
   include AncestryExtensions
   include MetadataExtensions

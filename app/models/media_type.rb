@@ -9,7 +9,7 @@
 #  updated_at :datetime
 #
 
-class MediaType < ActiveRecord::Base
+class MediaType < ApplicationRecord
   def to_s
     "#{self.label}"
   end
