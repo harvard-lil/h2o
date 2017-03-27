@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   before_action :set_sort_lists, :only => [:index, :tags]
   before_action :filter_tag_list, :only => [:update, :create]
 
-  after_filter :allow_iframe
+  after_action :allow_iframe
 
   layout :layout_switch
 
