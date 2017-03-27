@@ -1,6 +1,6 @@
 class UserSessionsController < ApplicationController
-  before_action :display_first_time_canvas_notice, :only => [:new]
   protect_from_forgery :except => [:create]
+  before_action :display_first_time_canvas_notice, :only => [:new]
 
   def index
     redirect_to root_url
@@ -16,7 +16,7 @@ class UserSessionsController < ApplicationController
   def create
     redirect_to root_url and return if current_user.present?
 
-    @user_session = UserSession.new(params[:user_session])
+    @user_session = UserSession.new(user_session_param)
     @user_session.save do |result|
       if result
         apply_user_preferences(@user_session.user, false)
@@ -44,5 +44,11 @@ class UserSessionsController < ApplicationController
       current_user_session.destroy
     end
     redirect_back_or_default "/"
+  end
+
+  private
+
+  def user_session_param
+    params.require(:user_session).permit(:login, :password, :remember_me)
   end
 end
