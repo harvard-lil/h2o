@@ -1,0 +1,43 @@
+collage_one:
+ id: 2
+ annotatable_type: "Case"
+ annotatable_id: 8
+ name: "Waters v. Coker"
+ description: "<p><br data-mce-bogus=\"1\"></p>"
+ word_count: nil
+ ancestry: nil
+ public: true
+ readable_state: "{\"highlights\":{},\"hide_tags\":{},\"highlight_only_hi..."
+ words_shown: 1216
+ karma: nil
+ pushed_from_id: nil
+ user_id: 2
+ annotator_version: 2
+ featured: false
+ created_via_import: false
+ version: 1
+ enable_feedback: true
+ enable_discussions: false
+ enable_responses: false
+
+collage_two:
+ id: 1
+ annotatable_type: "Case"
+ annotatable_id: 5
+ name: "Waters v. State"
+ description: "<p><br data-mce-bogus=\"1\"></p>"
+ word_count: nil
+ ancestry: nil
+ public: true
+ readable_state: "{\"highlights\":{},\"hide_tags\":{},\"highlight_only_hi..."
+ words_shown: 1134
+ karma: nil
+ pushed_from_id: nil
+ user_id: 2
+ annotator_version: 2
+ featured: false
+ created_via_import: false
+ version: 1
+ enable_feedback: true
+ enable_discussions: false
+ enable_responses: false

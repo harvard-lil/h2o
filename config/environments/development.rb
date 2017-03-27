@@ -43,6 +43,7 @@ H2o::Application.configure do
     }
 
   # Admin email to recieve the 'new user needs verification' emails
-  config.user_verification_recipients = []
+  config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
+
 
 end
