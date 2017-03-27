@@ -20,6 +20,7 @@ require 'wrong/adapters/minitest'
 require 'minitest/reporters'
 Minitest::Reporters.use!
 
+load "#{Rails.root}/db/seeds.rb"
 
 class ActiveSupport::TestCase
   def logger; Rails.logger; end
