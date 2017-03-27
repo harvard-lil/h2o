@@ -1,11 +1,11 @@
 class ApplicationController < ActionController::Base
   include UserPreferenceExtensions
   # Important that check_auth happens after load_single_resource
-  before_filter :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
+  before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
-  before_filter :set_sort_params, :only => [:index, :tags]
-  before_filter :set_sort_lists, :only => [:index, :tags]
-  before_filter :filter_tag_list, :only => [:update, :create]
+  before_action :set_sort_params, :only => [:index, :tags]
+  before_action :set_sort_lists, :only => [:index, :tags]
+  before_action :filter_tag_list, :only => [:update, :create]
 
   after_filter :allow_iframe
 
@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
 
     resource_type = params[:controller].gsub(/s$/, '').to_sym
     return if params[resource_type].nil?
-    
+
     return if params[resource_type][:tag_list].nil?
 
     params[resource_type][:tag_list].gsub!(/,/, '::::')
@@ -175,7 +175,7 @@ class ApplicationController < ActionController::Base
 
   def common_index(model)
     @page_title = "#{params.has_key?(:featured) ? "Featured " : ""}#{model.to_s.pluralize} | H2O Classroom Tools"
-    @type_lookup = model == Media ? :medias : model.to_s.tableize.to_sym 
+    @type_lookup = model == Media ? :medias : model.to_s.tableize.to_sym
     @label = model.to_s
     if model == Media
       @label = "Audio Items" if params[:media_type] == "audio"
@@ -244,7 +244,7 @@ class ApplicationController < ActionController::Base
         end
       end
       if params.has_key?(:annotype)
-        with :annotype, params[:annotype] 
+        with :annotype, params[:annotype]
       end
       if params.has_key?(:keywords)
         keywords params[:keywords]
@@ -350,12 +350,12 @@ class ApplicationController < ActionController::Base
           @queued_users << { :id => row.value, :count => row.count }
         end
       end
- 
+
       collection.facet(:klass).rows.each do |row|
         @klass_facet_display << { :value => row.value, :count => row.count }
       end
     end
-     
+
     b = collection.facet(:primary).rows.detect { |r| r.value }
     @primary_playlists = b.count if b.present?
     b = collection.facet(:secondary).rows.detect { |r| r.value }
@@ -367,7 +367,7 @@ class ApplicationController < ActionController::Base
     if params.has_key?(:user_ids)
       @user_facet_display.each { |b| b[:class] = "#{b[:class]} active" }
     end
-  
+
     @klass_facets = collection.facet(:klass).rows
   end
 

@@ -1,7 +1,7 @@
 class TextBlocksController < BaseController
   cache_sweeper :text_block_sweeper
   protect_from_forgery :except => [:export, :export_all, :export_as, :destroy]
-  before_filter :limit_missing_item, :only => :destroy
+  before_action :limit_missing_item, :only => :destroy
 
   def show
   end

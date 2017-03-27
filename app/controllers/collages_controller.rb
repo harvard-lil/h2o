@@ -1,7 +1,7 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
 
-  before_filter :limit_missing_item, :only => :destroy
+  before_action :limit_missing_item, :only => :destroy
 
   protect_from_forgery :except => [:export, :export_all, :export_as, :export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
 

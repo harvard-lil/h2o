@@ -1,6 +1,6 @@
 class SvgIconsController < ApplicationController
   ALLOWED_SIZES = [24, 28]
-  skip_before_filter :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
+  skip_before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                      :fix_cookies, :set_time_zone, :set_page_cache_indicator
 
   caches_page :show

@@ -1,6 +1,6 @@
 class BulkUploadsController < ApplicationController
-  before_filter :require_dropbox_session
-  before_filter :initialize_dropbox_client, :only => [:new, :show]
+  before_action :require_dropbox_session
+  before_action :initialize_dropbox_client, :only => [:new, :show]
 
   def show
   end

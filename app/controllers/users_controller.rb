@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
-  before_filter :display_first_time_canvas_notice, :only => [:new, :create]
+  before_action :display_first_time_canvas_notice, :only => [:new, :create]
   protect_from_forgery :except => [:disconnect_dropbox, :disconnect_canvas]
 
   DEFAULT_SHOW_TYPES = {

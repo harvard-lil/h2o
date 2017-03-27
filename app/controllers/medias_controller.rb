@@ -2,7 +2,7 @@ class MediasController < BaseController
   cache_sweeper :media_sweeper
   protect_from_forgery :except => [:destroy]
 
-  before_filter :limit_missing_item, :only => :destroy
+  before_action :limit_missing_item, :only => :destroy
   
   def index
     common_index Media
