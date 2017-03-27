@@ -5,21 +5,16 @@ feature 'users' do
     describe 'signing up for an account' do
       before do
         visit '/'
+        click_link 'sign in'
+        click_link 'SIGN UP NOW'
       end
 
       scenario 'succeeds with a valid username, password, and email' do
-        click_link 'sign in'
-
-        click_link 'SIGN UP NOW'
-
         fill_in 'user_login', with: 'student'
         fill_in 'user_email_address', with: 'test@law.harvard.edu'
         fill_in 'user_password', with: users(:student_user).crypted_password
         fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
-
-
         find('#user_terms[value="1"]').set(true)
-
         click_button 'Register'
 
         assert_content 'Account registered! You will be notified once an admin has verified your account.'
@@ -28,13 +23,10 @@ feature 'users' do
       end
 
       scenario 'fails with an existing username or email' do
-        skip
-        fill_in 'Login', with: users(:case_admin).login
-        fill_in 'Email Address (must be a .edu address)', with: users(:case_admin).email_address
-        fill_in 'Password', with: users(:case_admin).crypted_password
-        fill_in 'Password confirmation', with: users(:case_admin).crypted_password
-
-
+        fill_in 'user_login', with: users(:case_admin).login
+        fill_in 'user_email_address', with: users(:case_admin).email_address
+        fill_in 'user_password', with: users(:student_user).crypted_password
+        fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
         find('#user_terms[value="1"]').set(true)
 
         click_button 'Register'
@@ -43,11 +35,10 @@ feature 'users' do
       end
 
       scenario 'fails with an invalid username, email, or password' do
-        skip
-        fill_in 'Login', with: 'student'
-        fill_in 'Email Address (must be a .edu address)', with: 'student@gmail.com'
-        fill_in 'Password', with: users(:student_user).crypted_password
-        fill_in 'Password confirmation', with: users(:student_user).crypted_password
+        fill_in 'user_login', with: 'student'
+        fill_in 'user_email_address', with: 'student@gmail.com'
+        fill_in 'user_password', with: users(:student_user).crypted_password
+        fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
 
         find('#user_terms[value="1"]').set(true)
 
@@ -65,7 +56,7 @@ feature 'users' do
 
   describe 'as a registered user' do
     describe 'logging in' do
-      
+
       before do
         visit '/'
       end
