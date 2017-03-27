@@ -31,12 +31,3 @@ verified_professor:
   attribution: verified_professor's Attribution
   affiliation: verified_professor's Affiliation
   persistence_token: abcd
-
-student_user:
-  login: student_user
-  email_address: student@law.harvard.edu
-  verified: true
-  crypted_password: secretpassword
-  attribution: student_user's Attribution
-  affiliation: student_user's Affiliation
-  persistence_token: efgh
