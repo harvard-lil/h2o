@@ -19,7 +19,7 @@
 #  enable_responses   :boolean          default(FALSE), not null
 #
 
-class TextBlock < ActiveRecord::Base
+class TextBlock < ApplicationRecord
 
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed

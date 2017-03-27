@@ -10,7 +10,7 @@
 #  updated_at  :datetime
 #
 
-class UserCollection < ActiveRecord::Base
+class UserCollection < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :users
   has_and_belongs_to_many :playlists

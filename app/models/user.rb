@@ -47,7 +47,7 @@
 #  print_export_format            :string(255)      default(""), not null
 #
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include StandardModelExtensions
   include Rails.application.routes.url_helpers
   include CaptchaExtensions

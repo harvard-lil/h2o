@@ -8,7 +8,7 @@
 #  updated_at :datetime
 #
 
-class Institution < ActiveRecord::Base
+class Institution < ApplicationRecord
   validates_presence_of :name
   has_and_belongs_to_many :users
 end

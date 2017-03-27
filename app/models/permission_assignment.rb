@@ -10,7 +10,7 @@
 #  updated_at         :datetime
 #
 
-class PermissionAssignment < ActiveRecord::Base
+class PermissionAssignment < ApplicationRecord
   validates_presence_of :user_collection_id, :user_id, :permission_id
 
   belongs_to :permission

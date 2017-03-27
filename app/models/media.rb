@@ -16,7 +16,7 @@
 #  created_via_import :boolean          default(FALSE), not null
 #
 
-class Media < ActiveRecord::Base
+class Media < ApplicationRecord
   self.table_name = "medias"
 
   include StandardModelExtensions

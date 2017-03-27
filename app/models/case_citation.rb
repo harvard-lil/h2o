@@ -11,7 +11,7 @@
 #  updated_at :datetime
 #
 
-class CaseCitation < ActiveRecord::Base
+class CaseCitation < ApplicationRecord
   belongs_to :case
 
   validates_presence_of   :volume, :reporter, :page
