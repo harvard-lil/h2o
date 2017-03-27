@@ -24,7 +24,7 @@
 #  created_via_import   :boolean          default(FALSE), not null
 #
 
-class Case < ActiveRecord::Base
+class Case < ApplicationRecord
   include StandardModelExtensions
   include AnnotatableExtensions
   include Rails.application.routes.url_helpers
@@ -189,14 +189,14 @@ class Case < ActiveRecord::Base
   end
 
   private
-  
+
   def host_and_port
     host = ActionMailer::Base.default_url_options[:host]
     port = ActionMailer::Base.default_url_options[:port]
     port = port.blank? ? '' : ":#{port}"
     "#{host}#{port}"
   end
-  
+
   def assign_to_h2ocases
     self.user = User.where(login: 'h2ocases').first
   end

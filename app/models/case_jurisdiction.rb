@@ -10,7 +10,7 @@
 #  updated_at   :datetime
 #
 
-class CaseJurisdiction < ActiveRecord::Base
+class CaseJurisdiction < ApplicationRecord
   has_many :cases
   has_many :case_requests
 

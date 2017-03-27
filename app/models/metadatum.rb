@@ -24,7 +24,7 @@
 #  updated_at        :datetime
 #
 
-class Metadatum < ActiveRecord::Base
+class Metadatum < ApplicationRecord
   belongs_to :classifiable, :polymorphic => true
 
   DISPLAY_FIELDS = [:contributor, :coverage, :creator, :date, :description, :format, :identifier, :publisher, :relation, :rights, :subject, :source, :title]

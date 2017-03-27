@@ -16,7 +16,7 @@
 #  user_guide_link_text :string(255)
 #
 
-class Page < ActiveRecord::Base
+class Page < ApplicationRecord
   validates_presence_of :page_title, :slug
 
   after_save :clear_cached_page

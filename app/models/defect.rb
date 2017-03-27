@@ -11,7 +11,7 @@
 #  updated_at      :datetime
 #
 
-class Defect < ActiveRecord::Base  
+class Defect < ApplicationRecord  
   belongs_to :reportable, :polymorphic => true
   belongs_to :user
   validates_presence_of :reportable_id, :description, :user_id

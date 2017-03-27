@@ -24,7 +24,7 @@
 #  user_id             :integer
 #
 
-class Annotation < ActiveRecord::Base
+class Annotation < ApplicationRecord
   include StandardModelExtensions
 
   acts_as_taggable_on :layers

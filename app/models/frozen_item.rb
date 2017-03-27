@@ -11,7 +11,7 @@
 #  updated_at :datetime
 #
 
-class FrozenItem < ActiveRecord::Base
+class FrozenItem < ApplicationRecord
   validates_presence_of :content, :version, :item_type, :item_id
 
   belongs_to :item, :polymorphic => true
