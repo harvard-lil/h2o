@@ -29,6 +29,7 @@ require 'database_cleaner'
 require 'minitest/reporters'
 Minitest::Reporters.use!
 
+load "#{Rails.root}/db/seeds.rb"
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
