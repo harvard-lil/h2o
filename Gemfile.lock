@@ -399,6 +399,7 @@ DEPENDENCIES
   delayed_job
   delayed_job_active_record
   dropbox-sdk
+  erubi
   erubis
   exception_notification
   fastercsv
