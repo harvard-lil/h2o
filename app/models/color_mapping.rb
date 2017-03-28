@@ -11,6 +11,6 @@
 #
 
 class ColorMapping < ApplicationRecord
-  belongs_to :colllage
+  belongs_to :collage
   belongs_to :tag
 end

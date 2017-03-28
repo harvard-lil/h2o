@@ -43,10 +43,10 @@ class Playlist < ApplicationRecord
   has_many :playlist_items, -> { order("playlist_items.position") }, :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
   has_and_belongs_to_many :user_collections, :dependent => :destroy
-  belongs_to :location
+  belongs_to :location, optional: true
   belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
-  
+
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
 
@@ -110,7 +110,7 @@ class Playlist < ApplicationRecord
 
     time :created_at
     time :updated_at
-    
+
     string :klass, :stored => true
   end
 
@@ -181,7 +181,7 @@ class Playlist < ApplicationRecord
     end
     [shown_word_count, total_word_count]
   end
-  
+
   def all_actual_object_ids
     t = { :Collage => [], :Media => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
     self.playlist_items.each do |pi|
@@ -193,7 +193,7 @@ class Playlist < ApplicationRecord
     end
     t
   end
-  
+
   def all_actual_items
     t = []
     self.playlist_items.each do |pi|
@@ -254,7 +254,7 @@ class Playlist < ApplicationRecord
 
     all_nested_items.each do |item|
       can_delete = item.user == playlist.user
-     
+
       if [Collage, Default, Media, TextBlock].include?(item.class)
         playlist_users = item.playlist_items.collect { |pi| pi.playlist.user_id }.uniq
         if playlist_users.detect { |u| u != playlist.user_id }
@@ -281,7 +281,7 @@ class Playlist < ApplicationRecord
   end
 
   def users_by_permission
-    # Temporary override on users by permissions 
+    # Temporary override on users by permissions
     return []
 
     if self.name == "Your Bookmarks" || self.public
@@ -294,7 +294,7 @@ class Playlist < ApplicationRecord
     ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
   end
 
-  def self.clear_nonsiblings(id) 
+  def self.clear_nonsiblings(id)
     record = PlaylistItem.unscoped { Playlist.where(id: id) }.first
 
     ActionController::Base.expire_page "/playlists/#{record.id}.html"
@@ -320,7 +320,7 @@ class Playlist < ApplicationRecord
       new_playlist_item = playlist_item.dup
       playlist_copy.playlist_items << new_playlist_item
     end
-    
+
     playlist_copy
   end
 
