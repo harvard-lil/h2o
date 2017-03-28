@@ -73,31 +73,81 @@ feature 'users' do
         # assert_content "#{user.login} Dashboard".upcase # This is rendered by JavaScript?!
         assert_link "sign out"
       end
-      scenario 'fails with a non-existent email or invalid password' do
 
+      scenario 'fails with a non-existent login' do
+        click_link 'sign in'
+
+        fill_in 'Login', with: 'login'
+        fill_in 'Password', with: 'badpassword'
+
+        click_button 'Login'
+
+        assert_content 'Login is not valid'
       end
-      scenario 'sending a password reset email' do
 
+      scenario 'fails with an invalid password' do
+        user = users(:student_user)
+
+        click_link 'sign in'
+
+        fill_in 'Login', with: user.login
+        fill_in 'Password', with: 'badpassword'
+
+        click_button 'Login'
+
+        assert_content 'Password is not valid' 
+      end
+
+
+      scenario 'sending a password reset email' do
+        user = users(:student_user)
+
+        click_link 'sign in'
+        click_link 'Forgot your password?'
+
+        fill_in 'Login', with: user.login
+
+        click_button 'Reset my password'
+
+        assert_content 'Instructions to reset your password have been emailed to you. Please check your email.'
       end
     end
-    describe 'updating account' do
-      scenario 'changing email address' do
 
+    describe 'updating account' do
+      before do
+        user = users(:case_admin)
+        sign_in(user)
+        visit "/users/#{user.id}"
+        click_link 'Edit Profile'
       end
+
+      scenario 'changing email address' do
+        fill_in 'Email address', with: 'new_mail@law.harvard.edu'
+        click_button 'Submit'
+      end
+
       scenario 'changing password' do
+        fill_in 'Change password', with: 'newestpassword'
+        fill_in 'Password confirmation', with: 'newestpassword'
+        click_button 'Submit'
 
       end
       scenario 'changing profile information' do
-
+        fill_in 'Name', with: 'New name'
+        fill_in 'Title', with: 'New title'
+        fill_in 'Affiliation', with: 'New affiliation'
+        click_button 'Submit'
       end
     end
   end
   describe 'as an administrator' do
     scenario 'verifying a new user account' do
-
+      skip
+      # done manually
     end
     scenario 'rejecting a new user account' do
-
+      skip
+      #done manually
     end
   end
 end
