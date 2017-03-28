@@ -1,5 +1,5 @@
 <% if !current_user || @page_cache -%>
-<div id="login-popup" class="standard-form popup">
+<div id="login-popup" class="standard-form popup" style="display: none;">
   <div class="right">
     <h3>Returning user log in</h3>
     <%= form_for UserSession.new do |f| %>
