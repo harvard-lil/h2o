@@ -265,7 +265,104 @@ class User < ApplicationRecord
   end
 
   def save_version?
+<<<<<<< HEAD
     (self.saved_changes.keys - self.non_versioned_columns).any?
+=======
+    (self.changed - self.non_versioned_columns).any?
+  end
+
+  def barcode
+    Rails.cache.fetch("user-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
+      barcode_elements = []
+
+      item_types = ["collages", "playlists", "medias", "text_blocks"]
+      item_types << "cases" if self.login == "h2ocases"
+
+      item_types.each do |type|
+        single_type = type.singularize
+        created_type = "#{single_type}_created"
+        type_title = "#{single_type.capitalize}"
+
+        public_items = self.send(type).select { |i| i.public }
+
+        # Base Created
+        public_items.each do |item|
+          barcode_elements << { :type => created_type,
+                                :date => item.created_at,
+                                :title => "#{item.class} created: #{item.name}",
+                                :link => self.send(item.is_a?(Media) ? "medias_path" : "#{item.class.to_s.tableize.singularize}_path", item),
+                                :rating => User::RATINGS[created_type.to_sym] }
+        end
+
+        # Base Collaged
+        if ["cases", "text_blocks"].include?(type)
+          collaged_type = "user_#{type.singularize}_collaged"
+          public_items.each do |item|
+            item.collages.each do |collage|
+              next if collage.nil? || collage.user.nil? || collage.user == self
+              barcode_elements << { :type => collaged_type,
+                                    :date => collage.created_at,
+                                    :title => "#{item.class} #{item.name} collaged to #{collage.name}",
+                                    :link => collage_path(collage),
+                                    :rating => User::RATINGS[collaged_type.to_sym] }
+
+            end
+          end
+        end
+
+        # Bookmarked, or Incorporated
+        incorporated_items = PlaylistItem.where(actual_object_id: public_items.map(&:id), actual_object_type: type_title)
+        incorporated_items.each do |ii|
+          next if ii.playlist.nil?
+          playlist = ii.playlist
+          next if playlist.user == self
+          if playlist.name == "Your Bookmarks"
+            barcode_elements << { :type => "user_#{single_type}_bookmarked",
+                                  :date => ii.created_at,
+                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.user.display}",
+                                  :link => user_path(playlist.user),
+                                  :rating => 1 }
+          else
+            barcode_elements << { :type => "user_#{single_type}_added",
+                                  :date => ii.created_at,
+                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
+                                  :link => playlist_path(playlist),
+                                  :rating => User::RATINGS["user_#{single_type}_added".to_sym] }
+          end
+        end
+
+        if ["collages", "playlists"].include?(type)
+          public_items.each do |item|
+            item.public_children.each do |child|
+              next if child.nil? || child.user.nil? || child.user == self
+              barcode_elements << { :type => "user_#{single_type}_clone",
+                                    :date => child.created_at,
+                                    :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
+                                    :link => self.send("#{single_type}_path", child),
+                                    :rating => 2 }
+            end
+          end
+        end
+      end
+
+      self.defaults.each do |item|
+        item.public_children.each do |child|
+          next if child.nil? || child.user.nil? || child.user == self
+          barcode_elements << { :type => "user_default_clone",
+                                :date => child.created_at,
+                                :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
+                                :link => default_path(child),
+                                :rating => 1 }
+        end
+      end
+
+      # FIXME: If barcode is turned back on, fix this
+      #value = self.barcode.inject(0) { |sum, item| sum + item[:rating] }
+      #self.update_attribute(:karma, value)
+
+      barcode_elements.sort_by { |a| a[:date] }
+    end
+>>>>>>> rename attribute_changed? to saved_change_to_attribute
   end
 
   def shared_private_playlists
