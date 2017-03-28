@@ -29,7 +29,6 @@ require 'database_cleaner'
 require 'minitest/reporters'
 Minitest::Reporters.use!
 
-load "#{Rails.root}/db/seeds.rb"
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
@@ -53,6 +52,7 @@ class ActiveSupport::TestCase
       DatabaseCleaner.strategy = :transaction
     end
     DatabaseCleaner.start
+    load "#{Rails.root}/db/seeds.rb"
 
     if metadata[:solr]
       Sunspot.session = sunspot_test_session
@@ -65,5 +65,12 @@ class ActiveSupport::TestCase
       Sunspot.remove_all!
       Sunspot.session = sunspot_stub_session
     end
+  end
+end
+
+class Sunspot::Rails::StubSessionProxy::Search
+  def execute!
+  end
+  def each_hit_with_result
   end
 end
