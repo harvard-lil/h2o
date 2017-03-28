@@ -74,6 +74,7 @@ group :development, :test do
   gem 'poltergeist'
   gem 'pry-byebug'
   gem 'simplecov'
+  gem 'm'
 
   gem 'wrong', git: 'https://github.com/pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
 end
