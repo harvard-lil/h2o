@@ -3,11 +3,8 @@ link_one:
   url: http://www.nytimes.com/2013/03/29/us/long-prison-term-shortened-by-judges-regrets.html
   description: This New York Times article discusses a woman who was released early from jail after being sentenced under the mandatory sentencing guidelines.
   
-link_two:
+admin_link:
   name: David E. Sanger, Obama Ordered Sped Up Wave of Cyberattacks Against Iran, NY Times, Jun 1, 2012
   url: http://www.nytimes.com/2009/03/29/technology/29spy.html?_r=1&hp=&pagewanted=all
   description: An American program of increasingly sophisticated attacks on the computer systems that ran Iran’s main nuclear enrichment facilities, allegedly responsible for production of the Flame cyber collection platform and the Stuxnet cyber weapon.
-
-link_three:
-  name: A Pragmatic Guide to Conflicts
-  url: http://heinonline.org.ezp-prod1.hul.harvard.edu/HOL/Page?handle=hein.journals/bulr70&collection=journals&index=journals/bulr737&id=737#737
+  user: case_admin
