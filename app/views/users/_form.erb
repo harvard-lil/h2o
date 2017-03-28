@@ -136,8 +136,10 @@
   <% if form.object.new_record? -%>
   <tr>
     <td colspan="3" align="center" style="padding:10px 0px;">
-      <%= form.check_box :terms %>
-      I certify that I have read and agree to the <a href="/p/terms" target="_blank">Terms of Service</a>.
+      <label>
+        <%= form.check_box :terms %>
+        I certify that I have read and agree to the <a href="/p/terms" target="_blank">Terms of Service</a>.
+      </label>
     </td>
   </tr>
   <% end -%>
