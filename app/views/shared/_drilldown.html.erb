@@ -143,14 +143,14 @@
     <h3>
       Profile <span class="icon icon-profile"></span>
       <% if current_user && @user == current_user -%>
-      <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
+      <%= link_to 'Edit Profile', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
       <% end -%>
     </h3>
     <%= render :partial => "shared/author_stats", :locals => { :user => @user } %>  
     <% if current_user && @user == current_user -%>
       <h3>
         Settings <span class="icon icon-settings"></span>
-        <%= link_to 'Edit', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
+        <%= link_to 'Edit Settings', edit_user_path(@user), :class => "icon icon-edit-large edit-action" %>
       </h3>
       <%= render :partial => "users/settings", :locals => { :user => @user } %>
       <%= render "users/collections" %>
