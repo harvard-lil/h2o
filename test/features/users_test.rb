@@ -105,7 +105,7 @@ feature 'users' do
         click_link 'sign in'
         click_link 'Forgot your password?'
 
-        fill_in 'Login', with: user.login
+        fill_in 'Login:', with: user.login
 
         click_button 'Reset my password'
 
@@ -121,18 +121,18 @@ feature 'users' do
         click_link 'Edit Profile'
       end
 
-      scenario 'changing email address' do
+      scenario 'changing email address', js: true  do
         fill_in 'Email address', with: 'new_mail@law.harvard.edu'
         click_button 'Submit'
       end
 
-      scenario 'changing password' do
+      scenario 'changing password', js: true  do
         fill_in 'Change password', with: 'newestpassword'
         fill_in 'Password confirmation', with: 'newestpassword'
         click_button 'Submit'
 
       end
-      scenario 'changing profile information' do
+      scenario 'changing profile information', js: true  do
         fill_in 'Name', with: 'New name'
         fill_in 'Title', with: 'New title'
         fill_in 'Affiliation', with: 'New affiliation'
