@@ -151,8 +151,8 @@ GEM
     font-awesome-rails (4.7.0.1)
       railties (>= 3.2, < 5.1)
     formatador (0.2.5)
-    formtastic (2.3.1)
-      actionpack (>= 3.0)
+    formtastic (3.1.5)
+      actionpack (>= 3.2.13)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     guard (2.14.1)
@@ -424,7 +424,7 @@ DEPENDENCIES
   erubis
   exception_notification
   fastercsv
-  formtastic (~> 2.3.0.rc2)
+  formtastic
   guard
   guard-bundler
   guard-minitest
