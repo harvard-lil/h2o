@@ -6,28 +6,27 @@ feature 'users' do
       before do
         visit '/'
         click_link 'sign in'
-        click_link 'SIGN UP NOW'
+        # click_link 'SIGN UP NOW' # This link is only in the JS popup
+        click_link "If you don't have a login"
       end
 
       scenario 'succeeds with a valid username, password, and email' do
-        fill_in 'user_login', with: 'student'
-        fill_in 'user_email_address', with: 'test@law.harvard.edu'
-        fill_in 'user_password', with: users(:student_user).crypted_password
-        fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
-        find('#user_terms[value="1"]').set(true)
+        fill_in 'Login', with: 'student'
+        fill_in 'Email Address', with: 'test@law.harvard.edu'
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Password confirmation', with: users(:student_user).crypted_password
+        check 'Terms of Service' # This works as long as it's in a <label>
         click_button 'Register'
 
         assert_content 'Account registered! You will be notified once an admin has verified your account.'
-
-        # skip 'requires verification by an administrator to complete'
       end
 
       scenario 'fails with an existing username or email' do
-        fill_in 'user_login', with: users(:case_admin).login
-        fill_in 'user_email_address', with: users(:case_admin).email_address
-        fill_in 'user_password', with: users(:student_user).crypted_password
-        fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
-        find('#user_terms[value="1"]').set(true)
+        fill_in 'Login', with: users(:case_admin).login
+        fill_in 'Email Address', with: users(:case_admin).email_address
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Password confirmation', with: users(:student_user).crypted_password
+        check 'Terms of Service'
 
         click_button 'Register'
 
@@ -35,12 +34,11 @@ feature 'users' do
       end
 
       scenario 'fails with an invalid username, email, or password' do
-        fill_in 'user_login', with: 'student'
-        fill_in 'user_email_address', with: 'student@gmail.com'
-        fill_in 'user_password', with: users(:student_user).crypted_password
-        fill_in 'user_password_confirmation', with: users(:student_user).crypted_password
-
-        find('#user_terms[value="1"]').set(true)
+        fill_in 'Login', with: 'student'
+        fill_in 'Email Address', with: 'student@gmail.com'
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Password confirmation', with: users(:student_user).crypted_password
+        check 'Terms of Service'
 
         click_button 'Register'
 
@@ -62,21 +60,19 @@ feature 'users' do
       end
 
       scenario 'succeeds with a valid email and password' do
-        skip
-        # login/password not getting filled in before clicking login
-        user = User.new(login: 'test', email_address: 'email@law.harvard.edu',
-          crypted_password: 'secretpassword', verified: true)
+        user = User.new(login: 'test', email_address: 'email@law.harvard.edu', verified: true)
+        user.set_password = (password = 'password') # There's probably a better way to do this
+        user.save
 
         click_link "sign in"
 
-        within('div#login-popup div.right form#new_user_session') do
-          fill_in 'user_session_login', with: user.login
-          fill_in 'user_session_password', with: user.crypted_password
-        end
+        fill_in 'Login', with: user.login
+        fill_in 'Password', with: password
 
-        click_button 'Login'
-
-        assert_content "#{user.login} Dashboard"
+        # click_button 'LOGIN'
+        click_button 'Login' # Capitalization changes on the popup...
+        # assert_content "#{user.login} Dashboard".upcase # This is rendered by JavaScript?!
+        assert_link "sign out"
       end
       scenario 'fails with a non-existent email or invalid password' do
 
