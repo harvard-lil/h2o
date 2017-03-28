@@ -50,7 +50,6 @@ class TextBlock < ApplicationRecord
   belongs_to :user
 
   validates_presence_of :name
-  accepts_nested_attributes_for :metadatum
 
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
@@ -136,7 +135,7 @@ class TextBlock < ApplicationRecord
     text_copy.name = params[:name] if params.has_key?(:name)
     text_copy.description = params[:description] if params.has_key?(:description)
     text_copy.user = new_user
-    text_copy 
+    text_copy
   end
 
   def printable_content
