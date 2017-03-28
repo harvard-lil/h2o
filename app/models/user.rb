@@ -64,7 +64,7 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
-  has_and_belongs_to_many :institutions 
+  has_and_belongs_to_many :institutions
   has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
   has_many :responses, :dependent => :destroy
@@ -78,7 +78,7 @@ class User < ApplicationRecord
   has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
 
-  after_save :send_verification_notice, :if => Proc.new {|u| u.verified_changed? && u.verified?}
+  after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
 
   attr_accessor :terms
 
@@ -168,7 +168,7 @@ class User < ApplicationRecord
       true
     end
     date :updated_at
-   
+
     integer :user_id, :stored => true
     string :klass, :stored => true
   end
@@ -353,7 +353,7 @@ class User < ApplicationRecord
                                 :rating => 1 }
         end
       end
-   
+
       # FIXME: If barcode is turned back on, fix this
       #value = self.barcode.inject(0) { |sum, item| sum + item[:rating] }
       #self.update_attribute(:karma, value)
