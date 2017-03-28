@@ -131,8 +131,8 @@ feature 'users' do
         fill_in 'Change password', with: 'newestpassword'
         fill_in 'Password confirmation', with: 'newestpassword'
         click_button 'Submit'
-
       end
+      
       scenario 'changing profile information', js: true  do
         fill_in 'Name', with: 'New name'
         fill_in 'Title', with: 'New title'
