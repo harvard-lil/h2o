@@ -163,23 +163,6 @@ class Case < ApplicationRecord
      "https://#{host_and_port}/cases/#{self.id}"].join("\t")
   end
 
-  def barcode
-    Rails.cache.fetch("case-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.collages.each do |collage|
-        barcode_elements << { :type => "collaged",
-                              :date => collage.created_at,
-                              :title => "Annotated to #{collage.name}",
-                              :link => collage_path(collage),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
   def version
     1.0
   end

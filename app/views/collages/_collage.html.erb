@@ -10,7 +10,7 @@
 </div>
 
 <% unless iframe? %>
-<aside id="singleitem_barcode_toolbar">
+<aside id="singleitem_toolbar">
   <a href="<%= copy_collage_path(collage) %>" class="tooltip clone-action requires_logged_in" id="copy-collage" title="Clone <%= collage.name %>" data-type="collage" data-title="<%= collage.name %>" data-public="<%= collage.public %>">
     <span class="icon icon-clone-large"><span>Clone <%= collage.annotated_label %></span></span>
   </a>
@@ -95,7 +95,7 @@
 	  <% cache(["editable-content", collage.annotatable], :expires_in => 2.weeks, :compress => H2O_CACHE_COMPRESSION) do %>
     <% end -%>
   </div>
-  
+
   <% if current_user && current_user == collage.user && !iframe? -%>
   <div class="response-block">
     <% unless collage.responses.empty? %>
@@ -130,10 +130,10 @@
 <% end %>
 
 <div class="clear"></div>
-  
+
 <script type="text/javascript">
 <% editability_params = iframe? ? { iframe: true } : {} %>
-var editability_path = "<%= access_level_collage_path(collage, editability_params) %>"; 
+var editability_path = "<%= access_level_collage_path(collage, editability_params) %>";
 var original_data = <%= raw collage.readable_state || '{}' %>;
 var color_list = <%= raw Collage.color_list.to_json %>;
 var layer_data = <%= raw @layer_data.to_json %>;

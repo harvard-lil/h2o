@@ -111,24 +111,6 @@ class TextBlock < ApplicationRecord
     self.content.gsub!(/\p{Cc}/, "")
   end
 
-  def barcode
-    Rails.cache.fetch("textblock-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.collages.each do |collage|
-        barcode_elements << { :type => "collaged",
-                              :date => collage.created_at,
-                              :title => "Annotated to #{collage.name}",
-                              :link => collage_path(collage),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
-
   def h2o_clone(new_user, params)
     text_copy = self.dup
     text_copy.karma = 0
