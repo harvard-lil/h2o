@@ -7,7 +7,7 @@
 <% end %>
 
 <% unless iframe? %>
-<aside id="singleitem_barcode_toolbar">
+<aside id="singleitem_toolbar">
   <% if current_user -%>
   <%= link_to raw('<span class="icon icon-tocollage-large"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => text_block), :class => 'collage-this new-action tooltip', :title => "Clone and Annotate" %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => text_block.id, "data-type" => "text_block", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
@@ -30,7 +30,7 @@
   <div class="article">
     <%= raw text_block.sanitized_content %>
   </div>
-  
+
   <% if current_user && current_user == text_block.user && !iframe? -%>
   <div class="response-block">
     <% unless text_block.responses.empty? %>

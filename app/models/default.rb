@@ -41,7 +41,7 @@ class Default < ApplicationRecord
   before_save :filter_harvard_urls
 
   searchable(:include => [:metadatum, :tags]) do
-    text :display_name 
+    text :display_name
     string :display_name, :stored => true
     string :id, :stored => true
     text :url
@@ -57,7 +57,7 @@ class Default < ApplicationRecord
 
     time :created_at
     time :updated_at
-    
+
     string :klass, :stored => true
     boolean :primary do
       false
@@ -70,7 +70,7 @@ class Default < ApplicationRecord
   def url_format
     self.errors.add(:url, "must be an absolute path (it must contain http)") if !self.url.to_s.match(/^http/)
   end
-  
+
   def filter_harvard_urls
     if self.url.match(/wiki.harvard.edu/)
       self.url.gsub!(/\?[^"]*/, '')
@@ -93,29 +93,11 @@ class Default < ApplicationRecord
     default_copy
   end
 
-  def barcode
-    Rails.cache.fetch("default-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-
-      self.public_children.each do |child|
-        barcode_elements << { :type => "default_clone",
-                              :date => child.created_at,
-                              :title => "Cloned to Link #{child.name}",
-                              :link => default_path(child),
-                              :rating => 1 }
-      end
-      
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
 
   def self.content_types_options
     %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
-        
+
   def before_import_save(row, map)
     self.valid_recaptcha = true
   end

@@ -29,34 +29,8 @@ module StandardModelExtensions
     self.send(field)
   end
 
-  def barcode_breakdown
-    self.barcode.inject({}) { |h, b| h[b[:type].to_sym] ||= 0; h[b[:type].to_sym] += 1; h }
-  end
-
   def playlists_included_ids
     PlaylistItem.find(:all, :conditions => { :actual_object_type => self.class.to_s, :actual_object_id => self.id }, :select => :playlist_id)
-  end
-
-  def barcode_bookmarked_added
-    elements = []
-    PlaylistItem.where({ :actual_object_id => self.id, :actual_object_type => self.class.to_s }).each do |item|
-      next if item.playlist.nil?
-      playlist = item.playlist
-      if playlist.name == "Your Bookmarks"
-        elements << { :type => "bookmark",
-                      :date => item.created_at,
-                      :title => "Bookmarked by #{playlist.user.display}",
-                      :link => user_path(playlist.user),
-                      :rating => 1 }
-      elsif playlist.public
-        elements << { :type => "add",
-                      :date => item.created_at,
-                      :title => "Added to playlist #{playlist.name}",
-                      :link => playlist_path(playlist),
-                      :rating => 3 }
-      end
-    end
-    elements
   end
 
   def karma_display
@@ -85,25 +59,13 @@ module StandardModelExtensions
       return nil
     end
   end
-  
+
   def root_user_id
     begin
       self.root.user_id
     rescue ActiveRecord::RecordNotFound
       return self.user_id
     end
-  end
-
-  def visible_barcode
-    sum = 0
-    visible_barcode = []
-    i = 0
-    while sum < 200 && self.barcode[i].present?
-      visible_barcode << self.barcode[i]
-      sum = sum + (self.barcode[i][:rating]*3) + 1
-      i += 1
-    end
-    visible_barcode.reverse
   end
 
   def print_formatted(field)

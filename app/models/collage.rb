@@ -140,24 +140,6 @@ class Collage < ApplicationRecord
     h
   end
 
-  def barcode
-    Rails.cache.fetch("collage-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.public_children.each do |child|
-        barcode_elements << { :type => "clone",
-                              :date => child.created_at,
-                              :title => "Cloned to #{child.name}",
-                              :link => collage_path(child),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
-
   def display_name
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end

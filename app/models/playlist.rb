@@ -126,23 +126,6 @@ class Playlist < ApplicationRecord
   def secondary
     !self.primary
   end
-  def barcode
-    Rails.cache.fetch("playlist-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.public_children.each do |child|
-        barcode_elements << { :type => "clone",
-                              :date => child.created_at,
-                              :title => "Cloned to Playlist #{child.name}",
-                              :link => playlist_path(child),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
 
   def parents
     PlaylistItem.unscoped.where(actual_object_id: self.id, actual_object_type: "Playlist").collect { |p| p.playlist }.uniq
