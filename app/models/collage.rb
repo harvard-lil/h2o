@@ -52,7 +52,6 @@ class Collage < ApplicationRecord
   belongs_to :user
   has_many :annotations, -> { order(:created_at) }, :dependent => :destroy, :as => :annotated_item
   has_and_belongs_to_many :user_collections,  :dependent => :destroy
-  has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
