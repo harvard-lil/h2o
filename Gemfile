@@ -14,7 +14,7 @@ gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.
 gem 'ancestry'
 gem 'authlogic'
 gem 'bcrypt'
-gem 'cancan'
+gem 'cancancan'
 gem 'ckeditor'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
