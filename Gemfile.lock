@@ -225,10 +225,6 @@ GEM
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
-    kaminari-activerecord (1.0.1)
-      activerecord
-      kaminari-core (= 1.0.1)
-    kaminari-core (1.0.1)
     launchy (2.4.3)
       addressable (~> 2.3)
     libv8 (3.16.14.19)
