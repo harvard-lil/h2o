@@ -53,7 +53,7 @@ module ApplicationHelper
 
   def url_or_path_for_iframe(single_resource, action, method)
     case single_resource
-    when Playlist, Collage, TextBlock, Media, Case
+    when Playlist, Collage, TextBlock, Case
       send("iframe_#{action}_#{method}", type: single_resource.class.table_name, id: single_resource.id)
     else
       fail "Unknown single_resource type: #{single_resource.class}"

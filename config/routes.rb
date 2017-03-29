@@ -55,11 +55,6 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
-  resources :medias do
-    collection do
-      get 'embedded_pager'
-    end
-  end
   resources :defaults do
     member do
       post 'copy'
@@ -68,7 +63,7 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
-  
+
 
   resources :playlists do
     member do
@@ -144,7 +139,7 @@ H2o::Application.routes.draw do
     get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
   end
- 
+
   get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'
 end

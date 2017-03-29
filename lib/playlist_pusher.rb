@@ -39,7 +39,7 @@ class PlaylistPusher
     end
 
     puts "attempting to reindex"
-    [Case, Collage, Default, Media, Playlist, TextBlock].each do |klass|
+    [Case, Collage, Default, Playlist, TextBlock].each do |klass|
       Sunspot.index! klass.where(id: self.all_new_objects[klass])
     end
 
@@ -194,7 +194,7 @@ class PlaylistPusher
 
     return true if klass == Annotation
 
-    klass_table = klass == Media ? "medias" : klass.to_s.tableize
+    klass_table = klass.to_s.tableize
     increments = objects.size / self.user_ids.size
     i = 0
     1.upto(increments).each do |inc|
@@ -214,7 +214,7 @@ class PlaylistPusher
     return if @public_private_override.nil?
 
     klass = objects.first.class
-    klass_table = klass == Media ? "medias" : klass.to_s.tableize
+    klass_table = klass.to_s.tableize
     increments = objects.size / self.user_ids.size
     i = 0
     1.upto(increments).each do |inc|

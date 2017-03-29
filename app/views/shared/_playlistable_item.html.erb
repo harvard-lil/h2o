@@ -11,7 +11,7 @@
     <% @display_objects.each_with_index do |hit, i| -%>
     <li class="listing dd-item" data-index="<%= i %>" data-type="<%= hit.class.to_s.tableize %>" data-id="<%= hit.id %>" data-drop="new_item" id="listing_<%= hit.class.to_s.tableize %>_<%= hit.id %>">
       <div class="dd-handle">
-      <a class="tooltip icon icon-<%= hit.class == Media ? "media-#{hit.media_type.slug}" : hit.class.to_s.downcase %>" title="<%= hit.class == Media ? hit.media_type.label : hit.class %>"></a>
+      <a class="tooltip icon icon-<%= hit.class.to_s.downcase %>" title="<%= hit.class %>"></a>
       <h4><%= hit.display_name %></h4>
       </div>
     </li>

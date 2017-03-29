@@ -107,7 +107,7 @@ class UsersController < ApplicationController
       else
         content = @user.send(params["ajax_region"]).sort_by(&sorter)
       end
-     
+
       if(params[:order] == 'desc')
         content.reverse!
       end
@@ -123,14 +123,12 @@ class UsersController < ApplicationController
       primary_filtering = false
       secondary_filtering = false
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
-     
-      models = [Playlist, Collage, Case, Media, TextBlock, Default]
+
+      models = [Playlist, Collage, Case, TextBlock, Default]
       # models << UserCollection if @user == current_user
 
       if params.has_key?(:klass)
-        if params[:klass] == 'Media'
-          models = [Media]
-        elsif params[:klass] == 'Primary'
+        if params[:klass] == 'Primary'
           models = [Playlist]
           primary_filtering = true
         elsif params[:klass] == 'Secondary'
@@ -258,7 +256,7 @@ class UsersController < ApplicationController
     end
 
     begin
-      klass = params[:type] == 'media' ? Media : params[:type].classify.constantize
+      klass = params[:type].classify.constantize
 
       if playlist.contains_item?("#{klass.to_s}#{params[:id]}")
         render :json => { :already_bookmarked => true, :user_id => current_user.id }

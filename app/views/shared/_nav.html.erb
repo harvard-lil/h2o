@@ -20,10 +20,6 @@
 			<%= link_to raw('<span class="icon icon-collage">Annotated Items</span>'), collages_path, { :title => "Annotated Items", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-case">Cases</span>'), cases_path, { :title => "Cases", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-textblock">Texts</span>'), text_blocks_path, { :title => "Texts", :class => "nav-tooltip" } %>
-			<%= link_to raw('<span class="icon icon-media-image">Images</span>'), "/medias?media_type=image", { :title => "Images", :class => "nav-tooltip" } %>
-			<%= link_to raw('<span class="icon icon-media-audio">Audio</span>'), "/medias?media_type=audio", { :title => "Audio", :class => "nav-tooltip" } %>
-			<%= link_to raw('<span class="icon icon-media-pdf">PDFs</span>'), "/medias?media_type=pdf", { :title => "PDFs", :class => "nav-tooltip" } %>
-			<%= link_to raw('<span class="icon icon-media-video">Videos</span>'), "/medias?media_type=video", { :title => "Videos", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-default">Links</span>'), defaults_path, { :title => "Links", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-user">Users</span>'), users_path, { :title => "Users", :class => "nav-tooltip" } %>
 		</nav>
@@ -66,15 +62,11 @@
 		</form>
 		<div class="popup" id="create_all_popup">
 			<div class="left">
-			<%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %> 
+			<%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %>
 			<%= link_to raw('<span class="icon icon-collage"></span>Annotated Item'), quick_collage_base_index_path, :id => 'quick_collage' %>
 			<%= link_to raw('<span class="icon icon-textblock"></span>Text'), new_text_block_path %>
-			<%= link_to raw('<span class="icon icon-media-pdf"></span>PDF'), new_media_path, :class => "last" %> 
 			</div>
 			<div class="right">
-			<%= link_to raw('<span class="icon icon-media-audio"></span>Audio'), new_media_path %> 
-			<%= link_to raw('<span class="icon icon-media-image"></span>Image'), new_media_path %> 
-			<%= link_to raw('<span class="icon icon-media-video"></span>Video'), new_media_path %>
 			<%= link_to raw('<span class="icon icon-default"></span>Link'), new_default_path, :class => "last" %>
 			</div>
 		</div>
