@@ -42,11 +42,7 @@ class PlaylistItem < ApplicationRecord
   end
 
   def clean_type
-    if self.actual_object_type == 'Media'
-      return 'media-' + actual_object.media_type.slug
-    else
-      return actual_object_type.to_s.downcase
-    end
+    return actual_object_type.to_s.downcase
   end
   def type_label
     if self.actual_object_type == 'Media'

@@ -73,7 +73,6 @@ class User < ApplicationRecord
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
-  has_many :medias, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
   has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
@@ -182,7 +181,7 @@ class User < ApplicationRecord
   end
 
   def all_items
-    [self.playlists + self.cases + self.collages + self.medias + self.text_blocks].flatten
+    [self.playlists + self.cases + self.collages + self.text_blocks].flatten
   end
 
   def has_role?(role_name)

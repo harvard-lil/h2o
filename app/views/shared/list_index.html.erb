@@ -43,11 +43,7 @@
 	</ul>
 	<div class="search_details bottom">
 		<aside class="pagination standard_pagination">
-			<% if @type_lookup == :medias -%>
-			<%= will_paginate @collection.results, :container => false, :previous_label => 'Previous', :next_label => 'Next', :params => { :media_type => params[:media_type] } %>
-			<% else -%>
 			<%= will_paginate @collection.results, :container => false, :previous_label => 'Previous', :next_label => 'Next' %>
-			<% end -%>
 		</aside>
 	</div>
 </section>
