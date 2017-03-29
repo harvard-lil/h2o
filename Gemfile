@@ -51,7 +51,6 @@ gem 'will_paginate'
 # gem 'database_cleaner'
 # gem 'capybara', '2.8' # compat with minitest-capybara
 # gem 'minitest-rails-capybara'
-# gem 'minitest-rails'
 # gem 'quiet_assets'
 
 group :development do
@@ -73,9 +72,10 @@ end
 
 group :development, :test do
   gem 'launchy'
+  gem 'minitest-metadata', require: false
+  gem 'minitest-spec-rails'
   gem 'minitest-reporters'
   gem 'poltergeist'
-  gem 'byebug'
   gem 'pry-byebug'
   gem 'simplecov'
   gem 'm'

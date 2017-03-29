@@ -1,4 +1,4 @@
-require "test_helper"
+require 'application_system_test_case'
 
 feature 'links' do
   # FYI: Links are currently called "Defaults" (???)

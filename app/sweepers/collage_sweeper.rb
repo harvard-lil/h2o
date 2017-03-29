@@ -9,7 +9,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
       ActionController::Base.expire_page "/collages/#{record.id}/export.html"
       ActionController::Base.expire_page "/iframe/load/collages/#{record.id}.html"
       ActionController::Base.expire_page "/iframe/show/collages/#{record.id}.html"
- 
+
       #expire pages of ancestors, descendants, and siblings meta
       relations = [record.ancestor_ids, record.descendant_ids]
       relations.push(record.sibling_ids.select { |i| i != record.id }) if record.parent.present?
@@ -20,7 +20,7 @@ class CollageSweeper < ActionController::Caching::Sweeper
         ActionController::Base.expire_page "/iframe/show/collages/#{rel_id}.html"
       end
 
-      if record.changed.include?("public")
+      if record.saved_changes.keys.include?("public")
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
@@ -38,11 +38,11 @@ class CollageSweeper < ActionController::Caching::Sweeper
   end
 
   def after_save(record)
-    return true if record.changed.empty?
+    return true if record.saved_changes.keys.empty?
 
-    return true if record.changed.include?("created_at")
+    return true if record.saved_changes.keys.include?("created_at")
 
-    return true if record.changed.include?("readable_state")
+    return true if record.saved_changes.keys.include?("readable_state")
 
     collage_clear(record)
     notify_private(record)

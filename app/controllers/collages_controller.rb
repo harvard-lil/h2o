@@ -22,7 +22,7 @@ class CollagesController < BaseController
     }
   end
 
-  def access_level 
+  def access_level
     if current_user && params[:iframe].blank?
       render :json => {
         :can_edit             => can?(:edit, @collage),
@@ -95,7 +95,7 @@ class CollagesController < BaseController
     @collage = Collage.new(collages_params)
     @collage.user = current_user
     verify_captcha(@collage)
-    
+
     @collage.version = @collage.annotatable.is_a?(Case) ? 1.0 : @collage.annotatable.version
 
     if @collage.save
