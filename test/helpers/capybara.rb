@@ -38,6 +38,9 @@ class Capybara::Rails::TestCase
   def sign_out
       visit log_out_path
   end
+  def go_back
+    visit page.driver.request.env['HTTP_REFERER']
+  end
 end
 
 class Capybara::Session
