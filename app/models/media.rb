@@ -93,7 +93,7 @@ class Media < ApplicationRecord
     string :media_type do
       media_type.slug
     end
-    
+
     string :klass, :stored => true
     boolean :primary do
       false
@@ -103,23 +103,12 @@ class Media < ApplicationRecord
     end
   end
 
-  def barcode
-    Rails.cache.fetch("media-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added.sort_by { |a| a[:date] }
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements
-    end
-  end
-
   def h2o_clone(new_user, params)
     media_copy = self.dup
     media_copy.karma = 0
     media_copy.user = new_user
     media_copy.name = params[:name] if params.has_key?(:name)
     media_copy.description = params[:description] if params.has_key?(:description)
-    media_copy 
+    media_copy
   end
 end
