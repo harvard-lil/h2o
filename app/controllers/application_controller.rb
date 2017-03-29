@@ -159,7 +159,7 @@ class ApplicationController < ActionController::Base
         "user" => { :display => "SORT BY AUTHOR", :selected => false }
       }))
     else
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false }
       }))
     end

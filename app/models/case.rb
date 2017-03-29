@@ -44,7 +44,6 @@ class Case < ApplicationRecord
   belongs_to :user
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
-  has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object
 
   accepts_nested_attributes_for :case_citations,

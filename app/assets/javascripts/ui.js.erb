@@ -741,7 +741,6 @@ var h2o_global = {
         $('.leftcol, .right_panel').animate({ 'margin-top': '5px' });
       }
       $('#user_account').append($('<a>').html($.cookie('simple_display').replace(/\+/g, ' ') + ' Dashboard').attr('href', "/users/" + $.cookie('user_id')));
-      $('#defect_user_id').val($.cookie('user_id'));
       $('.requires_logged_in').animate({ opacity: 1.0 });
       $('#header_login').remove();
       if(h2o_global.class_type() == 'base') {
