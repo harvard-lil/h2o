@@ -12,7 +12,7 @@ module H2o::Test::Helpers::Drivers
     base.setup do
       if ENV['CAPYBARA_SKIP_JS'] && metadata[:js] && !metadata[:focus]
         # TODO: Maybe gate Solr too? Those seem to be fast enough for now
-        skip 'Automatic tests skip JavaScript. Run `bin/rake test:all`, or add `focus: true` to enable for this test.'
+        skip 'Automatic tests skip JavaScript. Run `bin/rails test`, or add `focus: true` to enable for this test.'
       end
     end
     base.setup do
