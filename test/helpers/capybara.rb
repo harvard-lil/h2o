@@ -1,5 +1,5 @@
-
-class Capybara::Rails::TestCase
+require 'securerandom'
+module H2o::Test::Helpers::Capybara
   include ActionView::Helpers::JavaScriptHelper
   def assert_path_changes
     # assert a redirect has occurred during block

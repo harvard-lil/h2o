@@ -5,7 +5,7 @@ class MediaSweeper < ActionController::Caching::Sweeper
 
   def media_clear(record)
     begin
-      if record.changed.include?("public")
+      if record.saved_changes.keys.include?("public")
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
           record.user.send(type).each { |i| ActionController::Base.expire_page "/iframe/load/#{type.to_s}/#{i.id}.html" }

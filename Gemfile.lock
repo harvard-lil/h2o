@@ -201,10 +201,6 @@ GEM
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
-    kaminari-activerecord (1.0.1)
-      activerecord
-      kaminari-core (= 1.0.1)
-    kaminari-core (1.0.1)
     launchy (2.4.3)
       addressable (~> 2.3)
     libv8 (3.16.14.19)
@@ -229,11 +225,16 @@ GEM
     mimemagic (0.3.2)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
+    minitest-metadata (0.6.0)
+      minitest (>= 4.7, < 6.0)
     minitest-reporters (1.1.14)
       ansi
       builder
       minitest (>= 5.0)
       ruby-progressbar
+    minitest-spec-rails (5.4.0)
+      minitest (~> 5.0)
+      rails (>= 4.1)
     multi_json (1.12.1)
     nenv (0.3.0)
     nested_form (0.3.2)
@@ -412,7 +413,6 @@ DEPENDENCIES
   annotate
   authlogic
   bcrypt
-  byebug
   cancan
   ckeditor
   coveralls
@@ -439,7 +439,9 @@ DEPENDENCIES
   launchy
   loofah-activerecord (~> 2.0.0)
   m
+  minitest-metadata
   minitest-reporters
+  minitest-spec-rails
   nokogiri (~> 1.6)
   paperclip
   pg

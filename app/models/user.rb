@@ -266,7 +266,7 @@ class User < ApplicationRecord
   end
 
   def save_version?
-    (self.changed - self.non_versioned_columns).any?
+    (self.saved_changes.keys - self.non_versioned_columns).any?
   end
 
   def barcode

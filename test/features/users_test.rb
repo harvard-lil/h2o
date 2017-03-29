@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'application_system_test_case'
 
 feature 'users' do
   describe 'as an anonymous visitor' do
@@ -95,7 +95,7 @@ feature 'users' do
 
         click_button 'Login'
 
-        assert_content 'Password is not valid' 
+        assert_content 'Password is not valid'
       end
 
 
@@ -142,11 +142,9 @@ feature 'users' do
   end
   describe 'as an administrator' do
     scenario 'verifying a new user account' do
-      skip
       # done manually
     end
     scenario 'rejecting a new user account' do
-      skip
       #done manually
     end
   end
