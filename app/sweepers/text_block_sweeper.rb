@@ -8,7 +8,7 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
       ActionController::Base.expire_page "/iframe/load/text_blocks/#{record.id}.html"
       ActionController::Base.expire_page "/iframe/show/text_blocks/#{record.id}.html"
 
-      if record.changed.include?("public")
+      if record.saved_changes.keys.include?("public")
         #TODO: Move this into SweeperHelper, but right now doesn't call
         [:playlists, :collages, :cases].each do |type|
           record.user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
@@ -22,7 +22,7 @@ class TextBlockSweeper < ActionController::Caching::Sweeper
   end
 
   def after_save(record)
-    return true if record.changed.include?("karma")
+    return true if record.saved_changes.keys.include?("karma")
 
     clear_text_block(record)
     notify_private(record)

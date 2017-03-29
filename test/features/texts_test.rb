@@ -1,4 +1,4 @@
-require "test_helper"
+require 'application_system_test_case'
 
 feature 'texts' do
   # FYI texts are called TextBlocks
