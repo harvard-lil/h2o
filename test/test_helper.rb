@@ -24,6 +24,9 @@ Minitest::Reporters.use!
 class ActiveSupport::TestCase
   self.use_transactional_tests = true
   fixtures :all
+  before :each do
+    Rails.cache.clear
+  end
 end
 
 module H2o

@@ -6,6 +6,7 @@ H2o::Application.configure do
   config.public_file_server.headers = {
     'Cache-Control' => "public, max-age=#{1.hour.seconds.to_i}"
   }
+  config.cache_store = :memory_store
 
   # config.action_view.raise_on_missing_translations = true
 
