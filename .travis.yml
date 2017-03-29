@@ -9,7 +9,7 @@ cache:
   directories:
     - travis_phantomjs
 rvm:
-  - 2.3.3
+  - 2.4.1
 before_script:
   - bundle exec rails db:setup
   - bundle exec rails sunspot:solr:start
