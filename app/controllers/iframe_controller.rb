@@ -13,7 +13,7 @@ class IframeController < ApplicationController
   def action_check
     :show
   end
-  
+
   def iframe?
     true
   end
@@ -24,8 +24,6 @@ class IframeController < ApplicationController
       case resource_type
       when 'playlists', 'collages', 'text_blocks', 'cases'
         resource_type.camelize.singularize.constantize.find(params.fetch(:id))
-      when 'medias'
-        Media.find(params.fetch(:id))
       else
         head :bad_request
       end
@@ -36,8 +34,6 @@ class IframeController < ApplicationController
     when Collage
       @layer_data = @single_resource.layer_data
       @editability_path = access_level_collage_path(@single_resource)
-    when Media
-      @type_label = @single_resource.media_type.label
     end
   end
 end

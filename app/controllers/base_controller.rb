@@ -9,12 +9,11 @@ class BaseController < ApplicationController
     set_sort_params
     set_sort_lists
     @list_key = model.present? ? model.to_s.tableize.to_sym : :all
-    @list_key = :medias if @list_key == :media
 
     params[:page] ||= 1
 
-    obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, Media, TextBlock, Default) : Sunspot.new_search(model)
-   
+    obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, TextBlock, Default) : Sunspot.new_search(model)
+
     obj.build do
       if params[:keywords].present?
         keywords params[:keywords]
@@ -69,12 +68,12 @@ class BaseController < ApplicationController
     else
       @author_playlists = [].paginate(:page => params[:page], :per_page => per_page)
     end
-        
+
     render :partial => "author_playlists"
   end
 
   def tags
-    if ["collages", "text_blocks", "playlists", "medias"].include?(params[:tklass])
+    if ["collages", "text_blocks", "playlists"].include?(params[:tklass])
       common_index params[:tklass].singularize.camelize.constantize
     else
       redirect_to root_url, :status => 301
@@ -97,8 +96,8 @@ class BaseController < ApplicationController
 
     set_sort_params
     set_sort_lists
-    @collection = build_search([Playlist, Collage, Media, TextBlock, Case, Default], params)
-  
+    @collection = build_search([Playlist, Collage, TextBlock, Case, Default], params)
+
     if request.xhr?
       render :partial => 'shared/generic_block'
     else

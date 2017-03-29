@@ -11,7 +11,7 @@ class PlaylistsController < BaseController
     super Playlist
   end
 
-  def access_level 
+  def access_level
     if current_user
       can_edit = can? :edit, @playlist
       playlist_items = PlaylistItem.unscoped.where(playlist_id: @playlist.id)
@@ -61,7 +61,7 @@ class PlaylistsController < BaseController
 
   def show
     return if redirect_bad_format
-  
+
     nested_ps = Playlist.includes(:playlist_items).where(id: @playlist.all_actual_object_ids[:Playlist])
     @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
 
@@ -118,7 +118,7 @@ class PlaylistsController < BaseController
   def push
     if request.get?
       @collections = current_user.present? ? current_user.collections : []
-    else    
+    else
       @collection = UserCollection.where(id: params[:user_collection_id]).first
       @playlist_pusher = PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
       @playlist_pusher.delay.push!
@@ -126,13 +126,13 @@ class PlaylistsController < BaseController
         format.json { render :json => {:custom_block => 'push_playlist'} }
         format.js { render :text => nil }
         format.html { redirect_to(playlists_url) }
-      end      
+      end
     end
   end
- 
+
   def copy
-    @playlist_pusher = PlaylistPusher.new(:playlist_id => params[:id], 
-                                          :user_ids => [current_user.id], 
+    @playlist_pusher = PlaylistPusher.new(:playlist_id => params[:id],
+                                          :user_ids => [current_user.id],
                                           :email_receiver => 'destination',
                                           :playlist_name_override => params[:playlist][:name],
                                           :public_private_override => params[:playlist][:public])
@@ -148,7 +148,7 @@ class PlaylistsController < BaseController
       updates["pi_#{v["id"]}"] = { :position => v["position"], :playlist_id => v["playlist_id"] }
       ids << v["id"]
     end
-  
+
     mod_playlists = []
     PlaylistItem.unscoped.includes(:playlist).where(id: ids).each do |playlist_item|
       mod_playlists << playlist_item.playlist_id
@@ -271,15 +271,11 @@ class PlaylistsController < BaseController
       end
     end
 
-    if data["type"] == 'media'
-      klass = Media
-    else
-      klass = data["type"].classify.constantize
-    end
+    klass = data["type"].classify.constantize
 
-    new_item = klass.new({ 
-      :name => data["name"], 
-      :description => data["description"], 
+    new_item = klass.new({
+      :name => data["name"],
+      :description => data["description"],
       :user_id => @creation_user.try(:id),
       :public => true,
       :created_via_import => true
@@ -288,10 +284,7 @@ class PlaylistsController < BaseController
     if new_item.is_a?(Default)
       new_item.url = data["url"]
     end
-    if new_item.is_a?(Media)
-      new_item.media_type = MediaType.where(slug: data["media_type"]).first
-    end
-    if [Media, TextBlock].any? { |t| new_item.is_a?(t) }
+    if [TextBlock].any? { |t| new_item.is_a?(t) }
       new_item.content = data["content"]
     end
     item_errors = []
@@ -315,8 +308,8 @@ class PlaylistsController < BaseController
       position = 0
       data["children"].each do |a, b|
         child_item = create_item_from_import(b)
-        playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id, 
-                                           :actual_object_type => child_item.class.to_s, 
+        playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id,
+                                           :actual_object_type => child_item.class.to_s,
                                            :position => position,
                                            :playlist_id => data["new_item"].id })
         position += 1

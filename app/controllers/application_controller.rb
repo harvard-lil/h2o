@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
   end
 
   def filter_tag_list
-    return if !["collages", "defaults", "playlists", "medias", "text_blocks"].include?(params[:controller])
+    return if !["collages", "defaults", "playlists", "text_blocks"].include?(params[:controller])
 
     resource_type = params[:controller].gsub(/s$/, '').to_sym
     return if params[resource_type].nil?
@@ -38,16 +38,12 @@ class ApplicationController < ActionController::Base
     return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
 
     if params[:action] == "new"
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      model = params[:controller].singularize.classify.constantize
       @single_resource = item = model.new
-      if model == Media
-        @media = item
-      else
-        instance_variable_set "@#{model.to_s.tableize.singularize}", item
-      end
+      instance_variable_set "@#{model.to_s.tableize.singularize}", item
       @page_title = "New #{model.to_s}"
     elsif params[:id].present?
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      model = params[:controller].singularize.classify.constantize
       if params[:action] == "new"
         item = model.new
       elsif ["access_level", "save_readable_state"].include?(params[:action])
@@ -61,11 +57,7 @@ class ApplicationController < ActionController::Base
         @single_resource = item
       elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
         @single_resource = item
-        if params[:controller] == "medias"
-          @media = item
-        else
-          instance_variable_set "@#{model.to_s.tableize.singularize}", item
-        end
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
         @page_title = item.name if item.respond_to?(:name)
       else
         render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
@@ -162,12 +154,12 @@ class ApplicationController < ActionController::Base
       "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
     if ["index", "search"].include?(params[:action])
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:media] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false },
         "user" => { :display => "SORT BY AUTHOR", :selected => false }
       }))
     else
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false }
       }))
     end
@@ -175,15 +167,9 @@ class ApplicationController < ActionController::Base
 
   def common_index(model)
     @page_title = "#{params.has_key?(:featured) ? "Featured " : ""}#{model.to_s.pluralize} | H2O Classroom Tools"
-    @type_lookup = model == Media ? :medias : model.to_s.tableize.to_sym
+    @type_lookup = model.to_s.tableize.to_sym
     @label = model.to_s
-    if model == Media
-      @label = "Audio Items" if params[:media_type] == "audio"
-      @label = "PDFs" if params[:media_type] == "pdf"
-      @label = "Images" if params[:media_type] == "image"
-      @label = "Videos" if params[:media_type] == "video"
-      @page_title = "#{@label} | H2O Classroom Tools"
-    elsif model == Default
+    if model == Default
       @label = "Links"
       @page_title = "Links | H2O Classroom Tools"
     elsif model == TextBlock
@@ -201,19 +187,6 @@ class ApplicationController < ActionController::Base
     params[:page] ||= 1
 
     @collection = build_search(model, params)
-
-    if @collection.results.total_entries <= 20 && @label == "Media"
-      media_types = {}
-      @collection.results.each do |hit|
-        media_types[hit.media_type.label] = 1
-      end
-      if media_types.keys.length == 1
-        @label = media_types.keys.first
-        @label = "Audio Item" if @label == "Audio"
-        @label = "#{@label}s" if @collection.results.total_entries != 1
-        @page_title = "#{@label} | H2O Classroom Tools"
-      end
-    end
 
     if request.xhr?
       render :partial => 'shared/generic_block'

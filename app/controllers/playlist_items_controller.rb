@@ -3,7 +3,7 @@ class PlaylistItemsController < BaseController
   protect_from_forgery except: :destroy
 
   def new
-    klass = params[:klass] == "media" ? Media : params[:klass].classify.constantize
+    klass = params[:klass].classify.constantize
     @actual_object = klass.where(id: params[:id]).first
 
     if @actual_object.nil?
@@ -64,13 +64,13 @@ class PlaylistItemsController < BaseController
         end
         content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => playlist_item,
           :actual_object => playlist_item.actual_object,
-          :parent_index => '', 
+          :parent_index => '',
           :index => '',
           :position => playlist_item_index,
           :recursive_level => 0 })
-  
-        render :json => { :playlist_item_id => playlist_item.id, 
-                          :error => false, 
+
+        render :json => { :playlist_item_id => playlist_item.id,
+                          :error => false,
                           :total_count => playlist_items.size,
                           :public_count => playlist_items.select { |pi| pi.public_notes }.size,
                           :private_count => playlist_items.select { |pi| !pi.public_notes }.size,
@@ -122,7 +122,7 @@ class PlaylistItemsController < BaseController
       @nested_playlists = {}
       content = render_to_string("shared/objects/_playlist_item.html.erb", :locals => { :item => @playlist_item,
         :actual_object => @playlist_item.actual_object,
-        :parent_index => '', 
+        :parent_index => '',
         :index => '',
         :position => @playlist_item.position,
         :recursive_level => 4 }
@@ -136,10 +136,10 @@ class PlaylistItemsController < BaseController
       render :json => { :error => @playlist_item.errors }
     end
   end
-  
+
   def destroy
     playlist_item = PlaylistItem.unscoped.where(id: params[:id]).first
-  
+
     if playlist_item.nil?
       render :json => {}
       return
@@ -153,7 +153,7 @@ class PlaylistItemsController < BaseController
       playlist_items.each do |pi|
         pi.update_column(:position, pi.position - 1)
       end
-      render :json => { :type => 'playlist_item', 
+      render :json => { :type => 'playlist_item',
                         :total_count => playlist_items.size,
                         :public_count => playlist_items.select { |pi| pi.public_notes }.size,
                         :private_count => playlist_items.select { |pi| !pi.public_notes }.size

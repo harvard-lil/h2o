@@ -166,7 +166,7 @@ class Playlist < ApplicationRecord
   end
 
   def all_actual_object_ids
-    t = { :Collage => [], :Media => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
+    t = { :Collage => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
     self.playlist_items.each do |pi|
       t[pi.actual_object_type.to_sym] << pi.actual_object.id if pi.actual_object.present?
       if pi.actual_object_type == "Playlist" && pi.actual_object.present?
@@ -238,7 +238,7 @@ class Playlist < ApplicationRecord
     all_nested_items.each do |item|
       can_delete = item.user == playlist.user
 
-      if [Collage, Default, Media, TextBlock].include?(item.class)
+      if [Collage, Default, TextBlock].include?(item.class)
         playlist_users = item.playlist_items.collect { |pi| pi.playlist.user_id }.uniq
         if playlist_users.detect { |u| u != playlist.user_id }
           can_delete = false
