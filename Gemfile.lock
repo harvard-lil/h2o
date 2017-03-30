@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/harvard-lil/ancestry.git
+  revision: 73941ad55405bf084d0f67c62c0a91f63f3ee2c5
+  ref: 73941ad
+  specs:
+    ancestry (2.2.2)
+      activerecord (>= 5.1.0.rc1)
+
+GIT
   remote: https://github.com/mbleigh/acts-as-taggable-on.git
   revision: 9bb57384398cd3e198c893b0345c7b26e3b5ad5e
   ref: 9bb5738
@@ -81,8 +89,6 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
-    ancestry (2.2.2)
-      activerecord (>= 3.0.0)
     annotate (2.7.1)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 12.0)
@@ -409,7 +415,7 @@ DEPENDENCIES
   RedCloth
   actionpack-page_caching
   acts-as-taggable-on!
-  ancestry
+  ancestry!
   annotate
   authlogic
   bcrypt
