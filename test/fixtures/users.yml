@@ -1,5 +1,5 @@
 case_admin:
-  login: case_admin
+  login: h2ocases
   email_address: case_admin@example.edu
   verified: true
   crypted_password: secretpassword

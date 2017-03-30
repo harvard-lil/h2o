@@ -22,6 +22,12 @@ class DropboxImporter
 
   def import!(path)
     puts "dropbox_importer.rb (32): import! message received with PATH: #{path.inspect}\n"
+
+    unless path =~ /\.xml$/
+      puts "dropbox_importer.rb (32): not XML, skipping path\n"
+      return
+    end
+
     new_instance = build_instance(path)
 
     puts "dropbox_importer.rb (34): new instance built for #{path.inspect}\n"

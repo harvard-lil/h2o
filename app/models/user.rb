@@ -282,32 +282,6 @@ class User < ApplicationRecord
     permission_assignments.collect { |pa| pa.user_collection.collages.select { |p| !p.public } }.flatten
   end
 
-  def dropbox_access_token_file_path
-    DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
-  end
-
-  def has_dropbox_token?
-    File.exists?(dropbox_access_token_file_path)
-  end
-
-  def dropbox_access_token
-    return unless has_dropbox_token?
-    @dropbox_access_token ||= File.read(dropbox_access_token_file_path)
-  end
-
-  def save_dropbox_access_token(token)
-    delete_access_token_file_if_it_already_exists
-    write_token_to_new_file(token)
-  end
-
-  def delete_access_token_file_if_it_already_exists
-    FileUtils.rm_f(dropbox_access_token_file_path)
-  end
-
-  def write_token_to_new_file(token)
-    File.open(dropbox_access_token_file_path, 'w') {|f| f.write(token) }
-  end
-
   def custom_label_method
     "#{email_address} (#{simple_display})"
   end

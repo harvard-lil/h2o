@@ -151,7 +151,8 @@ class Case < ApplicationRecord
     end
     new_case.delete(:jurisdiction)
     c = Case.new(new_case)
-    c.user = User.where(login: 'h2ocases').first
+    c.user = User.find_by_login 'h2ocases'
+    # c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
 
     c
   end
