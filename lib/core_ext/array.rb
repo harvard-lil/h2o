@@ -1,16 +1,6 @@
 require 'will_paginate/collection'
 
 class Array
-  def to_tsv
-    res = ''
-    self.each do |element|
-      FasterCSV.generate(res, :col_sep => "\t") do |csv|
-        csv << element.to_tsv
-      end
-    end
-    res
-  end
-
   def paginate(options = {})
     page     = options[:page] || 1
     per_page = options[:per_page] || WillPaginate.per_page
