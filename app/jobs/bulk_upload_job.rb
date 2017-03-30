@@ -4,17 +4,17 @@ class BulkUploadJob < ApplicationJob
   # BulkUploadsWorker.send_import(:dropbox_session => User.find(231).dropbox_access_token, :user_id => 231, :bulk_upload_id => 290)
 
   def perform(options)
-    logger.debug "START IMPORT******************************************"
-    logger.debug "bulkuploads_worker.rb (9): send import mesage received"
+    puts "START IMPORT******************************************\n"
+    puts "bulkuploads_worker.rb (9): send import mesage received\n"
     bulk_upload = BulkUpload.find(options[:bulk_upload_id])
-    logger.debug "bulkuploads_worker.rb (11): bulk upload found"
+    puts "bulkuploads_worker.rb (11): bulk upload found\n"
     user = User.find(options[:user_id])
-    logger.debug "bulkuploads_worker.rb (13): user found"
-    Dropbox::H2o.do_import(Case,
+    puts "bulkuploads_worker.rb (13): user found\n"
+    DropboxH2o.do_import(Case,
                         options[:dropbox_session],
                         bulk_upload,
                         user)
-    logger.debug "bulkuploads_worker.rb (18): do_import finished"
-    logger.debug "END IMPORT*******************************************"
+    puts "bulkuploads_worker.rb (18): do_import finished\n"
+    puts "END IMPORT*******************************************\n"
   end
 end
