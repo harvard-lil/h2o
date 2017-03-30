@@ -54,3 +54,13 @@ private_case_1:
   content: This is the body of PRIVATE case 1.
   public: false
   user: case_admin
+
+private_case_2:
+  short_name: Private Case 2
+  full_name: Case of the District Number 2
+  decision_date: 1999-01-12
+  author: Judge Person
+  case_jurisdiction: district_jurisdiction
+  content: This is the body of PRIVATE case 2.
+  public: false
+  user: case_admin
