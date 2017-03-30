@@ -11,7 +11,7 @@ gem 'puma', '~> 3.8'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
-gem 'ancestry'
+gem 'ancestry', git: 'https://github.com/harvard-lil/ancestry.git', ref: '73941ad'
 gem 'authlogic'
 gem 'bcrypt'
 gem 'cancancan'
