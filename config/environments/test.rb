@@ -7,6 +7,8 @@ H2o::Application.configure do
     'Cache-Control' => "public, max-age=#{1.hour.seconds.to_i}"
   }
   config.cache_store = :memory_store
+  
+  config.active_job.queue_adapter = :test
 
   # config.action_view.raise_on_missing_translations = true
 
