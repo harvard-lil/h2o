@@ -7,6 +7,6 @@ private_playlist_1:
   user: case_admin 
   public: false
 
-# student_playlist:
-#   name: Student Playlist
-#   user: student_user
+student_playlist:
+  name: Student Playlist
+  user: student_user
