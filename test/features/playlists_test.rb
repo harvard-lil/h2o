@@ -83,17 +83,20 @@ feature 'playlists' do
       click_button 'Submit'
 
       assert_content "Name of a new playlist! by #{@user.name}"
-
     end
-    scenario 'cloning a playlist', solor: true, js: true do
-      skip
-      visit playlists_path
-      assert_content playlists(:student_playlist).name
 
+    scenario 'cloning a playlist', solr: true, js: true do
+      visit playlist_path(@public_playlist.id)
 
+      click_link 'Clone Playlist'
 
+      fill_in 'Name*', with: "Clone of #{@public_playlist.name}"
+      click_button 'Submit'
 
+      assert_content 'The system is cloning the playlist and every item 
+        in the playlist. You will be emailed when the process has completed.'
     end
+
     scenario 'editing a playlist', js: true do
 
       # adding cases
