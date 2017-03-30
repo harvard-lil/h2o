@@ -13,7 +13,7 @@ module VerifiedUserExtensions
         self.errors.add(:base, "Your account must be verified to contribute to H2O.")
       end
     else
-      puts 'WARNING: Skipping user verification because Rails::Console is defined'
+      logger.warn 'WARNING: Skipping user verification because Rails::Console is defined'
     end
   end
 end

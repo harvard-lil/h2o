@@ -1,22 +1,26 @@
 class DropboxH2o
+  def self.logger
+    Rails.logger
+  end
+
   def initialize(dropbox_session)
     new_session = DropboxSession.deserialize(dropbox_session)
     @client = DropboxClient.new(new_session, DROPBOXCONFIG[:access_type])
   end
 
   def self.do_import(klass, dbsession, bulk_upload, user)
-    puts "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}\n"
+    logger.debug "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}"
     @dh2o = DropboxH2o.new(dbsession)
-    puts "dropbox_h2o.rb (19): new DropboxH2o created\n"
+    logger.debug "dropbox_h2o.rb (19): new DropboxH2o created"
     begin
-      puts "dropbox_h2o.rb (21): begin statement entered\n"
+      logger.debug "dropbox_h2o.rb (21): begin statement entered"
       @dh2o.import(klass, bulk_upload)
     rescue Exception => e
-      puts "dropbox_h2o.rb (24): EXCEPTION RAISED: #{e.message}\n"
+      logger.error "dropbox_h2o.rb (24): EXCEPTION RAISED: #{e.message}"
     end
-    puts "dropbox_h2o.rb (26): import finished\n"
+    logger.debug "dropbox_h2o.rb (26): import finished"
     Notifier.bulk_upload_completed(user, bulk_upload).deliver
-    puts "dropbox_h2o.rb (28): notifier email sent\n"
+    logger.debug "dropbox_h2o.rb (28): notifier email sent"
   end
 
   def copy_to_dir(dir, file_path)
