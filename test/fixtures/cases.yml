@@ -63,4 +63,4 @@ private_case_2:
   case_jurisdiction: district_jurisdiction
   content: This is the body of PRIVATE case 2.
   public: false
-  user: case_admin
+  user: student_user
