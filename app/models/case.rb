@@ -157,12 +157,6 @@ class Case < ApplicationRecord
     c
   end
 
-  def to_tsv
-    [self.short_name,
-     self.case_citations.first.to_s,
-     "https://#{host_and_port}/cases/#{self.id}"].join("\t")
-  end
-
   def version
     1.0
   end
