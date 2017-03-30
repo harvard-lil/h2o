@@ -59,11 +59,6 @@
           Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :class => "user-disconnect" %>
         </p>
         <% end %>
-        <% if @user.has_dropbox_token? -%>
-        <p>
-          Connected to Dropbox <%= link_to '(remove)', disconnect_dropbox_user_path(@user), :class => "user-disconnect" %>
-        </p>
-        <% end -%>
         <p>
           <%= form.check_box :tab_open_new_items %>
           Open new collages, media, texts, playlists, etc. in a new tab?
