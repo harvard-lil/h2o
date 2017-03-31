@@ -6,7 +6,6 @@ feature 'playlists' do
     @private_playlist = playlists(:private_playlist_1)
   end
   describe 'as an anonymous visitor' do
-
     scenario 'viewing a playlist', solr: true do
       visit playlist_path(@public_playlist)
 
@@ -53,6 +52,7 @@ feature 'playlists' do
   describe 'as a registered user' do
     before do
       @user = users(:student_user)
+      @student_playlist = playlists(:student_playlist)
       sign_in(@user)
     end
 
@@ -62,7 +62,7 @@ feature 'playlists' do
       # they can only see it on their dashboard
 
       visit user_path(@user.id)
-      assert_content playlists(:student_playlist).name
+      assert_content @student_playlist.name
     end
 
     scenario 'creating a playlist', solr: true, js: true do
@@ -97,14 +97,58 @@ feature 'playlists' do
         in the playlist. You will be emailed when the process has completed.'
     end
 
-    scenario 'editing a playlist', js: true do
+    scenario 'editing a playlist', solr: true, js: true do
+      public_case = cases(:public_case_1)
+      link = defaults(:link_one)
+      text_block = text_blocks(:public_text_to_annotate)
+
+      visit "/playlists/#{@student_playlist.id}"
+      playlist_list = page.find('.main_playlist')
+
+      # edit playlist information
+      click_link 'EDIT PLAYLIST INFORMATION'
+      fill_in 'Name', with: 'New name'
+      click_button 'Submit'
 
       # adding cases
+      fill_in 'add_item_term', with: public_case.short_name
+
+      click_link 'add_item_search'
+      case_listing = page.find('#listing_cases_1')
+      case_listing.drag_to(playlist_list)
+      click_button 'SUBMIT'
+
       # adding texts
+      fill_in 'add_item_term', with: text_block.name
+      click_link 'add_item_search'
+      text_block_listing = page.find('#listing_text_blocks_1')
+      text_block_listing.drag_to(playlist_list)
+      click_button 'SUBMIT'
+
       # adding links (in future, all "media" will be URLs)
-      # adding playlists (?)
+      fill_in 'add_item_term', with: link.name
+      click_link 'add_item_search'
+      link_listing = page.find('#listing_defaults_1')
+      link_listing.drag_to(playlist_list)
+      click_button 'SUBMIT'
+
+      # adding playlists
+      fill_in 'add_item_term', with: @public_playlist.name
+      click_link 'add_item_search'
+      playlist_listing = page.find('#listing_playlists_1')
+      playlist_listing.drag_to(playlist_list)
+      click_button 'SUBMIT'
+
       # reordering material
+      list_item_1 = page.find('#playlist_item_1')
+
       # removing material
+      # this is dependent that playlist_item_1 exists. If you delete an item they do
+      # not automatically reassign values
+      playlist_name = @student_playlist.playlist_item_1.name
+      assert_content "#{playlist_name}" 
+      click_link 'playlist_item_1 delete_playlist_item'
+      refute_conten "#{playlist_name}" 
     end
   end
 end
