@@ -17,6 +17,7 @@ class PlaylistExportJob < ApplicationJob
 
   def perform(opts)
     logger.debug "Export job is running."
+
     request_url = opts[:request_url]
     params = opts[:params]
     email_address = opts[:email_to]
