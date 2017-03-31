@@ -347,7 +347,7 @@ class ApplicationController < ActionController::Base
   def export_as
     base_args = {
       request_url: request.url,
-      params: params,
+      params: params.permit(:utf8, :item_name, :fontface_mapped, :fontsize_mapped, :theme, :fontface, :fontsize, :toc_levels, :printtitle, :printparagraphnumbers, :'margin-left', :'margin-top', :'margin-right', :'margin-bottom', :hiddentext, :printannotations, :printlinks, :printhighlights, :export_format, :controller, :action, :id).to_h,
       session_cookie: cookies[:_h2o_session],
     }
     if request.xhr?
@@ -370,14 +370,14 @@ class ApplicationController < ActionController::Base
       return
     end
 
-    render :json => {}
+    render :json => {success: true}
     base_args[:email_to] = current_user.email_address
-    PlaylistExporter.delay.export_as(base_args)
+    PlaylistExportJob.perform_later(base_args)
   end
 
   def export_content(base_args)
     logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
-    result = PlaylistExporter.export_as(base_args)
+    result = PlaylistExportJob.perform(base_args)
     if result.success?
       send_file(result.content_path, filename: result.suggested_filename)
     else
