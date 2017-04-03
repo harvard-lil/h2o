@@ -1,6 +1,11 @@
 if ENV['COVERAGE']
   require 'simplecov'
-  SimpleCov.start 'rails'
+  require 'coveralls'
+
+  SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+  SimpleCov.start do
+    add_filter 'app/secrets'
+  end
 end
 
 require 'securerandom'
