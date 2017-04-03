@@ -66,7 +66,6 @@ feature 'playlists' do
     end
 
     scenario 'creating a playlist', solr: true, js: true do
-      skip
       visit root_path
       click_link 'CREATE'
       click_link 'Playlist'
@@ -88,7 +87,7 @@ feature 'playlists' do
       execute_script 'h2o_global.submitGenericNode();'
       # click_button 'Submit'
 
-      assert_content "Name of a new playlist! by #{@user.name}"
+      assert_content "Name of a new playlist! by #{@user.login}"
     end
 
     scenario 'cloning a playlist', solr: true, js: true do
@@ -130,25 +129,37 @@ feature 'playlists' do
       assert_content "2 #{public_case.short_name}" # passes!
 
       # adding texts
-      fill_in 'add_item_term', with: text_block.name
+      fill_in 'add_item_term', with: "\"#{text_block.name}\"" 
+
       click_link 'add_item_search'
-      text_block_listing = page.find('#listing_text_blocks_1')
-      text_block_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist' 
+      click_link 'SUBMIT'
+
+      assert_content "2 #{text_block.name}" # passes!
 
       # adding links (in future, all "media" will be URLs)
-      fill_in 'add_item_term', with: link.name
+      fill_in 'add_item_term', with: "\"#{link.name}\""
+
       click_link 'add_item_search'
-      link_listing = page.find('#listing_defaults_1')
-      link_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist'
+     
+      puts body
+      click_link 'SUBMIT'
+
+      assert_content "2 #{link.name}" # passes!
 
       # adding playlists
-      fill_in 'add_item_term', with: @public_playlist.name
+      fill_in 'add_item_term', with: "\"#{@public_playlist.name}\"" 
+      
       click_link 'add_item_search'
-      playlist_listing = page.find('#listing_playlists_1')
-      playlist_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist'
+      
+      click_link 'SUBMIT'
+
+      assert_content "2 #{@public_playlist.name}" # passes!
 
       # reordering material
       list_item_1 = page.find('#playlist_item_1')
