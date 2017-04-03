@@ -15,6 +15,7 @@ before_script:
   - bundle exec rake sunspot:solr:start
 script:
   - bundle exec rake test:all
+  - bundle exec rake test:coverage
 after_success:
   - >
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ] ;
