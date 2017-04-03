@@ -4,7 +4,7 @@
  */
 ;(function($, window, document, undefined)
 {
-    var hasTouch = 'ontouchstart' in window;
+    var hasTouch = 'ontouchstart' in window && document.body.className.indexOf('no-touch') == -1;
 
     /**
      * Detect CSS pointer-events property

@@ -110,13 +110,18 @@ feature 'playlists' do
       fill_in 'Name', with: 'New name'
       click_button 'Submit'
 
+      assert_content "New name by #{@user.attribution}"
+
       # adding cases
-      fill_in 'add_item_term', with: public_case.short_name
+      fill_in 'add_item_term', with: "\"#{public_case.short_name}\"" # Use exact search to not pick up a bunch of cases
 
       click_link 'add_item_search'
-      case_listing = page.find('#listing_cases_1')
-      case_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result' # Make sure to wait for results  before dragging
+      simulate_drag "#listing_cases_#{public_case.id} .dd-handle", '.main_playlist' # custom drag handler that works with nesting library
+      assert_content 'You may not edit name or description' # make sure to wait for drag to finish
+      click_link 'SUBMIT'
+
+      assert_content "2 #{public_case.short_name}" # passes!
 
       # adding texts
       fill_in 'add_item_term', with: text_block.name
