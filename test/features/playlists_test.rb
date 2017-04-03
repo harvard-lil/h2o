@@ -66,23 +66,28 @@ feature 'playlists' do
     end
 
     scenario 'creating a playlist', solr: true, js: true do
-      skip
       visit root_path
       click_link 'CREATE'
       click_link 'Playlist'
 
       fill_in 'Name', with: 'Name of a new playlist!'
-      find('#playlist_description').set('This is a description about a playlist')
+      # find('#playlist_description').set('This is a description about a playlist')
+      # This is the pattern to edit inside the rich text box:
+      within_frame find('#playlist_description_input .mce-tinymce iframe', visible: false) do
+        find('body').set 'This is a description about a playlist'
+      end
 
-      ## I have no idea how the submit button is on this form. 
+      ## I have no idea how the submit button is on this form.
       # unlike the defaults/link form this form doesn't change
       # the url. This button must be added with jquery.. I don't
       # see where it's added. Either way the button doesn't show up
       # in the body
 
-      click_button 'Submit'
+      # I am not sure why clicking 'Submit' doesn't do this, but this works...
+      execute_script 'h2o_global.submitGenericNode();'
+      # click_button 'Submit'
 
-      assert_content "Name of a new playlist! by #{@user.name}"
+      assert_content "Name of a new playlist! by #{@user.login}"
     end
 
     scenario 'cloning a playlist', solr: true, js: true do
@@ -93,7 +98,7 @@ feature 'playlists' do
       fill_in 'Name*', with: "Clone of #{@public_playlist.name}"
       click_button 'Submit'
 
-      assert_content 'The system is cloning the playlist and every item 
+      assert_content 'The system is cloning the playlist and every item
         in the playlist. You will be emailed when the process has completed.'
     end
 
@@ -124,25 +129,37 @@ feature 'playlists' do
       assert_content "2 #{public_case.short_name}" # passes!
 
       # adding texts
-      fill_in 'add_item_term', with: text_block.name
+      fill_in 'add_item_term', with: "\"#{text_block.name}\"" 
+
       click_link 'add_item_search'
-      text_block_listing = page.find('#listing_text_blocks_1')
-      text_block_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist' 
+      click_link 'SUBMIT'
+
+      assert_content "2 #{text_block.name}" # passes!
 
       # adding links (in future, all "media" will be URLs)
-      fill_in 'add_item_term', with: link.name
+      fill_in 'add_item_term', with: "\"#{link.name}\""
+
       click_link 'add_item_search'
-      link_listing = page.find('#listing_defaults_1')
-      link_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist'
+     
+      puts body
+      click_link 'SUBMIT'
+
+      assert_content "2 #{link.name}" # passes!
 
       # adding playlists
-      fill_in 'add_item_term', with: @public_playlist.name
+      fill_in 'add_item_term', with: "\"#{@public_playlist.name}\"" 
+      
       click_link 'add_item_search'
-      playlist_listing = page.find('#listing_playlists_1')
-      playlist_listing.drag_to(playlist_list)
-      click_button 'SUBMIT'
+      assert_content '1 Result'
+      simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist'
+      
+      click_link 'SUBMIT'
+
+      assert_content "2 #{@public_playlist.name}" # passes!
 
       # reordering material
       list_item_1 = page.find('#playlist_item_1')
@@ -151,9 +168,9 @@ feature 'playlists' do
       # this is dependent that playlist_item_1 exists. If you delete an item they do
       # not automatically reassign values
       playlist_name = @student_playlist.playlist_item_1.name
-      assert_content "#{playlist_name}" 
+      assert_content "#{playlist_name}"
       click_link 'playlist_item_1 delete_playlist_item'
-      refute_conten "#{playlist_name}" 
+      refute_conten "#{playlist_name}"
     end
   end
 end
