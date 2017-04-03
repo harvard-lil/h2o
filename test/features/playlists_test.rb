@@ -66,21 +66,26 @@ feature 'playlists' do
     end
 
     scenario 'creating a playlist', solr: true, js: true do
-      skip
       visit root_path
       click_link 'CREATE'
       click_link 'Playlist'
 
       fill_in 'Name', with: 'Name of a new playlist!'
-      find('#playlist_description').set('This is a description about a playlist')
+      # find('#playlist_description').set('This is a description about a playlist')
+      # This is the pattern to edit inside the rich text box:
+      within_frame find('#playlist_description_input .mce-tinymce iframe', visible: false) do
+        find('body').set 'This is a description about a playlist'
+      end
 
-      ## I have no idea how the submit button is on this form. 
+      ## I have no idea how the submit button is on this form.
       # unlike the defaults/link form this form doesn't change
       # the url. This button must be added with jquery.. I don't
       # see where it's added. Either way the button doesn't show up
       # in the body
 
-      click_button 'Submit'
+      # I am not sure why clicking 'Submit' doesn't do this, but this works...
+      execute_script 'h2o_global.submitGenericNode();'
+      # click_button 'Submit'
 
       assert_content "Name of a new playlist! by #{@user.name}"
     end
@@ -93,7 +98,7 @@ feature 'playlists' do
       fill_in 'Name*', with: "Clone of #{@public_playlist.name}"
       click_button 'Submit'
 
-      assert_content 'The system is cloning the playlist and every item 
+      assert_content 'The system is cloning the playlist and every item
         in the playlist. You will be emailed when the process has completed.'
     end
 
@@ -151,9 +156,9 @@ feature 'playlists' do
       # this is dependent that playlist_item_1 exists. If you delete an item they do
       # not automatically reassign values
       playlist_name = @student_playlist.playlist_item_1.name
-      assert_content "#{playlist_name}" 
+      assert_content "#{playlist_name}"
       click_link 'playlist_item_1 delete_playlist_item'
-      refute_conten "#{playlist_name}" 
+      refute_conten "#{playlist_name}"
     end
   end
 end
