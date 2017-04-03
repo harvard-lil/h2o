@@ -41,6 +41,26 @@ class Capybara::Rails::TestCase
   def go_back
     visit page.driver.request.env['HTTP_REFERER']
   end
+  def simulate_mouse_event(selector, event_name, xy={})
+    # Trigger an event with options
+    page.execute_script <<-JS
+    var event = document.createEvent('MouseEvent');
+    event.initMouseEvent('#{event_name}', true, true, window,
+                     {}, 0, 0, #{xy['x']}, #{xy['y']},
+                     false, false,false,false,
+                     0, null);
+      $('#{selector}')[0].dispatchEvent(event);
+    JS
+  end
+  def simulate_drag src, targ
+    drag_xy = page.find(src).click
+    drop_xy = page.find(targ).click
+
+    simulate_mouse_event src, :mousedown, drag_xy['position']
+    simulate_mouse_event src, :mousemove, drop_xy['position']
+    simulate_mouse_event src, :mousemove, drop_xy['position']
+    simulate_mouse_event src, :mouseup, drop_xy['position']
+  end
 end
 
 class Capybara::Session
