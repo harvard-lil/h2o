@@ -1,4 +1,4 @@
-class DropboxErrorLog
+class Dropbox::ErrorLog
   ERROR_LOG_NAME = 'error.log'
   ERROR_LOG_PATH = "/#{ERROR_LOG_NAME}"
 

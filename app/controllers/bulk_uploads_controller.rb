@@ -27,7 +27,7 @@ class BulkUploadsController < ApplicationController
 
   def initialize_dropbox_client
     begin
-      @dh2o = DropboxH2o.new(current_dropbox_session)
+      @dh2o = Dropbox::H2o.new(current_dropbox_session)
     rescue DropboxAuthError
       redirect_to dropbox_sessions_path
     end
