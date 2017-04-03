@@ -67,7 +67,6 @@ feature 'playlists' do
     end
 
     scenario 'creating a playlist', solr: true, js: true do
-      skip
       visit root_path
       click_link 'CREATE'
       click_link 'Playlist'
