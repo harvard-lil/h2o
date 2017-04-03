@@ -23,6 +23,7 @@ Minitest::Reporters.use!
 load "#{Rails.root}/db/seeds.rb"
 
 class ActiveSupport::TestCase
+  def logger; Rails.logger; end
   self.use_transactional_tests = true
   fixtures :all
   before :each do
