@@ -11,6 +11,7 @@
 3. [License](#license)
 
 ## [Live version](https://h2o-dev.lil.tools) &nbsp; [![Build Status](https://travis-ci.org/harvard-lil/h2o.svg?branch=master)](https://travis-ci.org/harvard-lil/h2o)
+## [![Coverage Status](https://coveralls.io/repos/harvard-lil/h2o/badge.png?branch=master)](https://coveralls.io/r/harvard-lil/h2o?branch=master)
 
 Auto-deploy of the latest master. If the build is green, it's up-to-date.
 
