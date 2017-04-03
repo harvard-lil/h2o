@@ -7,6 +7,15 @@ module H2o::Test::Helpers::Capybara
     yield
     assert_no_current_path path
   end
+  def assert_links_to test_url
+    begin
+      yield
+    rescue ActionController::RoutingError => e
+      # Swallow routing errors, allowing offsite url asserts in Rack::Test
+      logger.warn "A RoutingError was suppressed by `assert_links_to`: #{e.inspect}"
+    end
+    assert { current_url == test_url }
+  end
   def random_token
     # generate a short random string
     SecureRandom.base64 8

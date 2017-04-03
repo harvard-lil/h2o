@@ -16,14 +16,12 @@ feature 'links' do
       assert_content link.name
     end
     scenario 'following links', solr: true do
-      skip
       link = defaults(:link_one)
 
-      # not sure what testing following links is
-      # because click_link doesn't work b/c no route matches it
-      # and if you did visit(link.name) you're doing the work of click
-      click_link link.name
-
+      # This helper catches the routing error and asserts on the resulting URL (even though it didn't load). This could also be tested natively by Phantom, but this way works fine
+      assert_links_to link.url do
+        click_link link.name
+      end
     end
   end
 

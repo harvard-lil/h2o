@@ -22,6 +22,7 @@ Minitest::Reporters.use!
 
 
 class ActiveSupport::TestCase
+  def logger; Rails.logger; end
   self.use_transactional_tests = true
   fixtures :all
   before :each do
