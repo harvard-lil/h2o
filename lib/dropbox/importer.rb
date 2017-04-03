@@ -1,4 +1,4 @@
-class DropboxImporter
+class Dropbox::Importer
   FAILED_DIR_FILE_PATH = '/failed'
   def logger
     Rails.logger
@@ -95,7 +95,7 @@ class DropboxImporter
 
   def excluded_file_paths
     [FAILED_DIR_FILE_PATH,
-     DropboxErrorLog::ERROR_LOG_PATH,
+     Dropbox::ErrorLog::ERROR_LOG_PATH,
      '/parser_archive',
      '/parser_input',
      '/parser_output']

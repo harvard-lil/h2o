@@ -10,7 +10,7 @@ class BulkUploadJob < ApplicationJob
     logger.debug "bulkuploads_worker.rb (11): bulk upload found"
     user = User.find(options[:user_id])
     logger.debug "bulkuploads_worker.rb (13): user found"
-    DropboxH2o.do_import(Case,
+    Dropbox::H2o.do_import(Case,
                         options[:dropbox_session],
                         bulk_upload,
                         user)
