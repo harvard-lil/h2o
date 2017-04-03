@@ -1,4 +1,4 @@
-class DropboxH2o
+class Dropbox::H2o
   def self.logger
     Rails.logger
   end
@@ -10,8 +10,8 @@ class DropboxH2o
 
   def self.do_import(klass, dbsession, bulk_upload, user)
     logger.debug "dropbox_h2o.rb (17): do_import message received with KLASS:#{klass.inspect}, DBSESSION: #{dbsession.inspect} BULK_UPLOAD: #{bulk_upload.inspect} USER: #{user.inspect}"
-    @dh2o = DropboxH2o.new(dbsession)
-    logger.debug "dropbox_h2o.rb (19): new DropboxH2o created"
+    @dh2o = Dropbox::H2o.new(dbsession)
+    logger.debug "dropbox_h2o.rb (19): new Dropbox::H2o created"
     begin
       logger.debug "dropbox_h2o.rb (21): begin statement entered"
       @dh2o.import(klass, bulk_upload)
@@ -36,12 +36,12 @@ class DropboxH2o
   end
 
   def write_error(path, error_messages)
-    del =DropboxErrorLog.new(@client)
+    del =Dropbox::ErrorLog.new(@client)
     del.write(path, error_messages)
   end
 
   def importer
-    @importer = DropboxImporter.new(self) unless defined?(@importer)
+    @importer = Dropbox::Importer.new(self) unless defined?(@importer)
     @importer
   end
 

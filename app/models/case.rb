@@ -142,7 +142,7 @@ class Case < ApplicationRecord
   end
 
   def self.new_from_xml_file(file)
-    cxp = CaseXmlParser.new(file)
+    cxp = CaseParser::XmlParser.new(file)
 
     new_case = cxp.xml_to_case_attributes
     cj = CaseJurisdiction.where(name: new_case[:jurisdiction].gsub('.', '')).first

@@ -25,7 +25,7 @@ module H2o
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    config.autoload_paths += %W(#{config.root}/lib #{config.root}/lib/core_ext #{config.root}/lib/dropbox #{config.root}/app/models/ckeditor)
+    config.autoload_paths += %W(#{config.root}/lib)
     config.action_controller.page_cache_directory = "#{Rails.root}/public"
 
     config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"

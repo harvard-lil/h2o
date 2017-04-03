@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'nokogiri'
 
-class CaseXmlParser
+class CaseParser::XmlParser
   def initialize(file_contents)
     @doc = Nokogiri::XML(file_contents)
   end
