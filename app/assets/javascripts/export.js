@@ -660,11 +660,7 @@ var export_functions = {
     export_functions.signalAnnotationLoadDone();
   },
   signalAnnotationLoadDone: function() {
-    // var delaySeconds = 30;
-    // setTimeout(function() {
-    console.log('Setting window.status to annotation_load_complete');
     window.status = 'annotation_load_complete';
-    // }, 1000 * delaySeconds);
   },
   loadAllAnnotations: function() {
     //Annotation system looks for original_content class
@@ -876,8 +872,6 @@ var export_highlighter = {
 
 $(document).ready(function(){
   try {
-    console.log('BOOP: document.ready start');
-
     //export_functions.debug_cookies();
     export_functions.init_listeners();
     export_functions.init_hash_detail();
@@ -898,12 +892,9 @@ $(document).ready(function(){
     if (has_zero_annotations || non_annotateds.indexOf($('body').data('controller')) > -1) {
       export_functions.loadAllAnnotationsComplete();
     }
-
-    console.log('BOOP: document.ready done');
   } catch(e) {
     //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
     console.log('BOOP: document.ready CAUGHT: ' + e);
     export_functions.signalAnnotationLoadDone();
   }
 });
-
