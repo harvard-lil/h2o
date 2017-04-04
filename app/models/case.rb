@@ -125,8 +125,8 @@ class Case < ApplicationRecord
 
   def printable_content
     doc = Nokogiri::HTML.parse(self.content)
-    PlaylistExporter.convert_h_tags(doc)
-    PlaylistExporter.inject_doc_styles(doc)
+    PlaylistExportJob.new.convert_h_tags(doc)
+    PlaylistExportJob.new.inject_doc_styles(doc)
     doc.xpath("/html/body/*").to_s
   end
 

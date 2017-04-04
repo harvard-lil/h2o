@@ -20,6 +20,18 @@ module H2o::Test::Helpers::Capybara
     # generate a short random string
     SecureRandom.base64 8
   end
+  def download_file url, to:
+    downloads_dir = Rails.root.join("tmp/downloads")
+    out_path = downloads_dir.join(to)
+    Dir.mkdir downloads_dir unless File.exists?(downloads_dir)
+
+    if !system %W{curl -s #{url} -o #{out_path}}.shelljoin
+      binding.pry
+      raise Exception, "Failed to download #{url} to #{out_path}"
+    end
+
+    out_path
+  end
   def select_text text
     node = page.execute_script <<-JS
         var range = rangy.createRange();

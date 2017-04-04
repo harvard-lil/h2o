@@ -345,6 +345,7 @@ class ApplicationController < ActionController::Base
   end
 
   def export_as
+    # TODO: These implementations are now fast enough to provide the link by ajax.
     base_args = {
       request_url: request.url,
       params: params.permit(:utf8, :item_name, :fontface_mapped, :fontsize_mapped, :theme, :fontface, :fontsize, :toc_levels, :printtitle, :printparagraphnumbers, :'margin-left', :'margin-top', :'margin-right', :'margin-bottom', :hiddentext, :printannotations, :printlinks, :printhighlights, :export_format, :controller, :action, :id).to_h,

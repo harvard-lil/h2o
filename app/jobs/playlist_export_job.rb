@@ -1,13 +1,22 @@
 require 'tempfile'
 require 'uri'
+require 'shellwords'
 
-# TODO: Now that it's stable, this would benefit from refactoring into the
-#   intended ExportService class.
+# TODO: This export implementation has been disabled. It must be reimplemented in a more performant way.
+
+
 class PlaylistExportJob < ApplicationJob
+  def logger; Rails.logger; end
+  rescue_from Exception do |e|
+    logger.error "Export error: #{e.inspect}"
+    e.backtrace.each &logger.method(:debug)
+    raise e
+  end
 
   class ExportException < StandardError; end
 
   def perform(opts)
+    logger.debug "Export job is running."
     request_url = opts[:request_url]
     params = opts[:params]
     email_address = opts[:email_to]
@@ -15,26 +24,18 @@ class PlaylistExportJob < ApplicationJob
     #required for owners to export their own private content
     params.merge!(:_h2o_session => opts[:session_cookie])
     export_format = params[:export_format]
-
-    exported_file = nil
-    begin
-      if export_format == 'doc'
-        exported_file = export_as_doc(request_url, params)
-      elsif export_format == 'pdf'
-        exported_file = export_as_pdf(request_url, params)
-      else
-        raise "Unsupported export_format '#{export_format}'"
-      end
-    rescue => e
-      Rails.logger.warn "~~export_as exception: #{e}"
-      #ExceptionNotifier.notify_exception(e)
-      raise e
+    if export_format == 'docx'
+      exported_file = export_as_docx(request_url, params)
+    elsif export_format == 'pdf'
+      exported_file = export_as_pdf(request_url, params)
+    else
+      raise ExportException, "Unsupported export_format '#{export_format}'"
     end
 
     export_result = ExportService::ExportResult.new(
-    content_path: exported_file,
-    item_name: params['item_name'],
-    format: params['export_format'],
+      content_path: exported_file,
+      item_name: params['item_name'],
+      format: params['export_format'],
     )
 
     if email_address
@@ -48,8 +49,10 @@ class PlaylistExportJob < ApplicationJob
     Notifier.export_download_link(content_path, email_address).deliver
   end
 
-  def export_as_doc(request_url, params)  #_doc
-    convert_to_mime_file(fetch_playlist_html(request_url, params))
+  def export_as_docx(request_url, params)  #_doc
+    out_path = output_file_path(params)
+    convert_to_docx(generate_html(request_url, params), out_path)
+    out_path
   end
 
   def output_file_path(params)  #_base
@@ -67,65 +70,75 @@ class PlaylistExportJob < ApplicationJob
     ExportService::Cookies.phantomjs_options_file(directory, params)
   end
 
-  def fetch_playlist_html(request_url, params)  #_doc
-    target_url = get_target_url(request_url)
-    out_file = output_file_path(params)
-    out_file.sub!(/#{File.extname(out_file)}$/, '.html')
+  # TODO: This HTML generation must be implemented without requiring a headless browser.
+  def generate_html(request_url, params)
+    out_path = Rails.root.join "tmp/export-#{SecureRandom.uuid}.html"
 
-    options_tempfile = create_phantomjs_options_file(
-      File.dirname(out_file),
-      params
-      )
-
-    command = [
-               'phantomjs',
-               # '--debug=true',
-               'app/assets/javascripts/phantomjs-export.js',
-               target_url,
-               out_file,
-               options_tempfile,
-              ]
-    Rails.logger.warn command.join(' ')
-
-    exit_code = nil
-    command_output = []
-    Open3.popen2e(*command) do |_, out_err, wait_thread|
-      out_err.each {|line|
-        Rails.logger.warn "PHANTOMJS: #{line.rstrip}"
-        command_output << line
-      }
-      exit_code = wait_thread.value.exitstatus
+    if Rails.env.in? %w{test development}
+      File.write out_path, <<-HTML
+        <html>
+          <body>
+            <h1>TEST EXPORT:  #{params['item_name']}</h1>
+            <h2>Export has been disabled. This is a temporary output to test the interface.</h2>
+            <p>Controller: #{params['controller']}</p>
+            <p>Format: #{params['export_format']}</p>
+          </body>
+        </html>
+      HTML
+      return out_path
     end
-    command_text = command_output.join("\n")
-
-    if exit_code == 0
-      out_file.tap {|x| Rails.logger.warn "Created #{x}" }
-    else
-      Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
-      raise ExportException, command_text
-    end
+    raise NotImplementedError
+    # target_url = get_target_url(request_url)
+    # out_file.sub!(/#{File.extname(out_file)}$/, '.html')
+    #
+    # options_tempfile = create_phantomjs_options_file(
+    #   File.dirname(out_file),
+    #   params
+    #   )
+    #
+    # command = [
+    #            'phantomjs',
+    #            # '--debug=true',
+    #            'app/assets/javascripts/phantomjs-export.js',
+    #            target_url,
+    #            out_file,
+    #            options_tempfile,
+    #           ]
+    # Rails.logger.warn command.join(' ')
+    #
+    # exit_code = nil
+    # command_output = []
+    # Open3.popen2e(*command) do |_, out_err, wait_thread|
+    #   out_err.each {|line|
+    #     Rails.logger.warn "PHANTOMJS: #{line.rstrip}"
+    #     command_output << line
+    #   }
+    #   exit_code = wait_thread.value.exitstatus
+    # end
+    # command_text = command_output.join("\n")
+    #
+    # if exit_code == 0
+    #   out_file.tap {|x| Rails.logger.warn "Created #{x}" }
+    # else
+    #   Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
+    #   raise ExportException, command_text
+    # end
   end
 
-  def convert_to_mime_file(input_file)  #_doc
-    boundary = "----=_NextPart_ZROIIZO.ZCZYUACXV.ZARTUI"
-    lines = []
-    lines << "MIME-Version: 1.0"
-    lines << "Content-Type: multipart/related; boundary=\"#{boundary}\""
-    lines << ""
-    lines << '--' + boundary
-    lines << "Content-Location: file:///C:/boop.htm"
-    lines << "Content-Transfer-Encoding: base64"
-    lines << "Content-Type: text/html; charset=\"UTF-8\""
-    lines << ""
-    lines << Base64.encode64(File.read(input_file))
-
-    output_file = input_file.sub(/#{File.extname(input_file)}$/, '.doc')
-
-    #Note: only the last boundary seems to need the final trailing "--". That
-    # could just be Word being, well, Word.
-    delim = "\n"
-    File.write(output_file, lines.join(delim) + delim + "--" + boundary + "--")
-    output_file
+  # AIUI this is simply a .docx header instructing Word to parse encoded HTML.
+  # No conversion is needed for this approach, but it should be reevaluated
+  def convert_to_docx(in_path, out_path)
+    env = if Rails.env == 'test'
+      {'HTMLTOWORD_DETERMINISTIC' => 'true'}
+    else
+      {}
+    end
+    command = %W{htmltoword #{in_path} #{out_path}}
+    if system env, command.shelljoin
+      out_path
+    else
+      raise ExportException, $?.inspect
+    end
   end
 
   def html_head_open?(line)  #_pdf
@@ -137,43 +150,55 @@ class PlaylistExportJob < ApplicationJob
   end
 
   def export_as_pdf(request_url, params)  #_pdf
-    command = pdf_command(request_url, params)
-    output_file = command.last
-    Rails.logger.warn command.join(' ')
+    in_path = generate_html(request_url, params)
 
-    exit_code = nil
-    command_output = []
-    html_file = command.last.sub(/\.pdf$/, '.html')
-    html_has_started = false
-    html_has_finished = false
-
-    File.open(html_file, 'w') do |log|
-      # In addition to running the exporter, this captures the rendered HTML
-      # the exporter is seeing, the same way we get it for free with phantomjs.
-      Open3.popen2e(*command) do |_, out_err, wait_thread|
-        out_err.each do |line|
-          html_has_started = true if html_head_open?(line)
-          html_has_finished = true if html_body_close?(line)
-
-          if html_has_started && (!html_has_finished || html_body_close?(line))
-            log.write(line)
-          else
-            Rails.logger.warn "WKHTMLTOPDF: #{line.rstrip}"
-            command_output << line
-          end
-        end
-
-        exit_code = wait_thread.value.exitstatus
+    command = pdf_command(in_path, request_url, params)
+    out_path = command.last
+    logger.debug "Running PDF generation: #{command.inspect}"
+    if system command.shelljoin
+      if Rails.env == 'test'
+        # Remove creation date for deterministic tests
+        system({'LANG' => 'C', 'LC_CTYPE' => 'C'}, "sed -i.bak 's@/CreationDate (D:[^)]*)@@' #{out_path}")
+        system "rm #{out_path}.bak"
       end
-    end
-    command_text = command_output.join
-
-    if exit_code == 0
-      output_file
+      return out_path
     else
-      Rails.logger.warn "Export failed for command: #{command.join(' ')}\nOutput: #{command_text}"
-      raise ExportException, command_text
+      raise ExportException, $?.inspect
     end
+    # Rails.logger.warn command.join(' ')
+
+    # exit_code = nil
+    # command_output = []
+    # html_file = command.last.sub(/\.pdf$/, '.html')
+    # html_has_started = false
+    # html_has_finished = false
+    # Since we will generate HTML statically, this is unnecessary.
+    # File.open(html_file, 'w') do |log|
+    #   # In addition to running the exporter, this captures the rendered HTML
+    #   # the exporter is seeing, the same way we get it for free with phantomjs.
+    #   Open3.popen2e(*command) do |_, out_err, wait_thread|
+    #     out_err.each do |line|
+    #       html_has_started = true if html_head_open?(line)
+    #       html_has_finished = true if html_body_close?(line)
+    #
+    #       if html_has_started && (!html_has_finished || html_body_close?(line))
+    #         log.write(line)
+    #       else
+    #         Rails.logger.warn "WKHTMLTOPDF: #{line.rstrip}"
+    #         command_output << line
+    #       end
+    #     end
+    #
+    #     exit_code = wait_thread.value.exitstatus
+    #   end
+    # end
+    # command_text = command_output.join
+    #
+    # if exit_code == 0
+    #   out_path
+    # else
+    #   raise ExportException
+    # end
   end
 
   def convert_h_tags(doc)
@@ -222,48 +247,35 @@ class PlaylistExportJob < ApplicationJob
       '--javascript-delay 1000',
       '--window-status annotation_load_complete',
       '--print-media-type',  # NOTE: DOC export ignores this.
-      pdf_javascript_deadman_switch('annotation_load_complete'),
     ]
   end
 
-  def pdf_javascript_deadman_switch(status)  #_pdf
-    # This works with the --window-status switch to prevent wkhtmltopdf from
-    # hanging forever if something goes wrong in the page. Note that this won't make
-    # it through our system call correctly if there are spaces inside the JS. Seriously.
-    "--run-script if(window.status!='loading_h2o'&&window.status!='#{status}'){window.status='#{status}'};"
-  end
-
-  def pdf_command(request_url, params)  #_pdf
+  # TODO: make this run the same static html as the .doc exporter
+  def pdf_command(in_path, request_url, params)  #_pdf
     #request_url is the full request URI that is posting TO this page. We need
     # pieces of that that to construct the URL we are going to pass to wkhtmltopdf
     global_options = %w[margin-top margin-right margin-bottom margin-left].map {|name|
-      "--#{name} #{params[name]}"
-    }.join(' ')
+      %W{--#{name} #{params[name]}}
+    }.flatten
 
-    output_file_path = output_file_path(params)
-    toc_params = params.merge('base_dir' => File.dirname(output_file_path))
+    out_path = output_file_path(params)
+    toc_params = params.merge('base_dir' => File.dirname(out_path))
     toc_options = ExportService::TableOfContents::PDF.generate(request_url, toc_params)
 
-    target_url = get_target_url(request_url)
     page_options = pdf_page_options(params)
-    cookie_string = ExportService::Cookies.forwarded_pdf_cookies(params)
 
-    prep_output_file_path(output_file_path)
-
+    prep_output_file_path(out_path)
     [
       'wkhtmltopdf',
-      global_options,
-      toc_options,
-      'page',
-      target_url,
-      page_options,
-      cookie_string,
-      output_file_path,  #This always has to be last in this array
-    ].flatten.join(' ').split
+      *global_options,
+      *toc_options,
+      in_path,
+      out_path,  #This always has to be last in this array
+    ]
   end
 
-  def prep_output_file_path(output_file_path)  #_pdf or _base if useful there
-    FileUtils.mkdir_p(File.dirname(output_file_path))
+  def prep_output_file_path(out_path)  #_pdf or _base if useful there
+    FileUtils.mkdir_p(File.dirname(out_path))
   end
 
   def get_target_url(request_url)  #_base
