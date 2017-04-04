@@ -240,4 +240,24 @@ feature 'exporting' do
     assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_text.pdf'))
     assert_equal Digest::SHA256.file(expected_file_path('test_export_text.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
+
+    scenario 'exporting a case', js:true do
+      sign_in users(:verified_student)
+      visit playlist_path public_playlist = cases(:public_playlist_1)
+
+      click_link 'Print'
+
+      assert_content public_playlist.name
+
+      select 'DOC', from: 'export_format'
+
+      # TODO: Actual exporting is very hard to test. Should be rebuilt
+      assert_enqueued_jobs 1 do
+        click_link 'export-form-submit'
+        assert_content 'H2O is exporting your content to DOC format.'
+        sleep 0.1
+      end
+
+      visit root_path
+  end
 end
