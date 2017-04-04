@@ -30,6 +30,7 @@ class ActiveSupport::TestCase
   fixtures :all
   before :each do
     Rails.cache.clear
+    ActionMailer::Base.deliveries.clear
   end
 end
 

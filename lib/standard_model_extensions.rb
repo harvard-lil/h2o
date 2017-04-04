@@ -69,7 +69,7 @@ module StandardModelExtensions
   end
 
   def print_formatted(field)
-    converted = PlaylistExporter.convert_h_tags(formatted(field))
+    converted = PlaylistExportJob.new.convert_h_tags(formatted(field))
     converted.respond_to?(:xpath) ? converted.xpath("/html/body/*").to_s : converted.to_s
   end
 
