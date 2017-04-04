@@ -70,6 +70,7 @@ module H2o::Test::Helpers::Capybara
     simulate_mouse_event src, :mousemove, drop_xy['position']
     simulate_mouse_event src, :mousemove, drop_xy['position']
     simulate_mouse_event src, :mouseup, drop_xy['position']
+  end
   def wait_for_ajax
     Timeout.timeout(Capybara.default_max_wait_time) do
       active = page.evaluate_script('jQuery.active')
