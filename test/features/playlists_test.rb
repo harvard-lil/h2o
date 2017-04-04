@@ -87,7 +87,7 @@ feature 'playlists' do
       execute_script 'h2o_global.submitGenericNode();'
       # click_button 'Submit'
 
-      assert_content "Name of a new playlist! by #{@user.login}"
+      assert_content "Name of a new playlist! by #{@user.attribution}"
     end
 
     scenario 'cloning a playlist', solr: true, js: true do
