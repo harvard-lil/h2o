@@ -61,6 +61,17 @@ class Capybara::Rails::TestCase
     simulate_mouse_event src, :mousemove, drop_xy['position']
     simulate_mouse_event src, :mouseup, drop_xy['position']
   end
+
+  def simulate_reorder src, targ
+    ### unsure how much effort you wanted to put in for DRY 
+    drag_xy = page.find_all(src)[1].click
+    drop_xy = page.find(targ).click
+
+    simulate_mouse_event src, :mousedown, drag_xy['position']
+    simulate_mouse_event src, :mousemove, drop_xy['position']
+    simulate_mouse_event src, :mousemove, drop_xy['position']
+    simulate_mouse_event src, :mouseup, drop_xy['position']
+  end
 end
 
 class Capybara::Session
