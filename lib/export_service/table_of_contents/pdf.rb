@@ -7,7 +7,7 @@ module ExportService
       def generate(request_url, params)
         options = ["--no-outline"]
         if params['toc_levels'].present? && request_url =~ %r(/playlists/\d+)
-          options << "toc --xsl-style-sheet " + toc_file(params)
+          options += %w{toc --xsl-style-sheet} + [toc_file(params)]
         end
         options
       end

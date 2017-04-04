@@ -247,8 +247,8 @@ class Collage < ApplicationRecord
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
-      PlaylistExporter.convert_h_tags(doc)
-      PlaylistExporter.inject_doc_styles(doc)
+      PlaylistExportJob.new.convert_h_tags(doc)
+      PlaylistExportJob.new.inject_doc_styles(doc)
     end
     html = doc.xpath("/html/body/*").to_s
 
