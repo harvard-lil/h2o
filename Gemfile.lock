@@ -478,6 +478,7 @@ DEPENDENCIES
   poltergeist
   progress_bar
   pry-byebug
+  pry-remote!
   puma (~> 3.8)
   rails (= 5.1.0.rc1)
   rails-html-sanitizer
