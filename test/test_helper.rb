@@ -2,8 +2,11 @@ if ENV['COVERAGE']
   require 'simplecov'
   require 'coveralls'
 
-  SimpleCov.formatter = Coveralls::SimpleCov::Formatter
-  SimpleCov.start do
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+    SimpleCov::Formatter::HTMLFormatter,
+    Coveralls::SimpleCov::Formatter
+  ]
+  SimpleCov.start 'rails' do
     add_filter 'app/secrets'
   end
 end
