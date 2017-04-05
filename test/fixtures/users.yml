@@ -3,8 +3,17 @@ case_admin:
   email_address: case_admin@example.edu
   verified: true
   crypted_password: secretpassword
-  attribution: case_admin 
+  attribution: case_admin
   affiliation: case_admin's Affiliation
+  persistence_token: abcd
+
+site_admin:
+  login: site_admin
+  email_address: site_admin@example.edu
+  verified: true
+  crypted_password: secretpassword
+  attribution: site_admin
+  affiliation: site_admin's Affiliation
   persistence_token: abcd
 
 student_user:

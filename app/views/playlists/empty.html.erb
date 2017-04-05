@@ -16,11 +16,13 @@
       <%= link_to playlist_path(playlist), playlist_path(playlist), target: '_blank' %>
     </td>
     <td class="user">
-      <%= link_to(
-          raw("#{user_path(playlist.user)}<br>#{playlist.user.email_address}"),
-          user_path(playlist.user),
-          target: '_blank'
-          )%>
+      <% if playlist.user %>
+        <%= link_to(
+            raw("#{user_path(playlist.user)}<br>#{playlist.user.email_address}"),
+            user_path(playlist.user),
+            target: '_blank'
+            )%>
+      <% end %>
     </td>
     <td class="title">
       <%= playlist.name %>
@@ -33,4 +35,3 @@
 </table>
 
 <%= will_paginate @playlists, container: false, :previous_label => 'Previous', :next_label => 'Next' %>
-
