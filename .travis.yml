@@ -14,7 +14,7 @@ before_script:
   - bundle exec rails db:setup
   - bundle exec rails sunspot:solr:start
 script:
-  - bundle exec rails test:coverage
+  - bundle exec rails test
 after_success:
   - >
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ] ;

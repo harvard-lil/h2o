@@ -1,4 +1,4 @@
-if ENV['COVERAGE']
+if !ENV['CAPYBARA_SKIP_JS']
   require 'simplecov'
   require 'coveralls'
 
