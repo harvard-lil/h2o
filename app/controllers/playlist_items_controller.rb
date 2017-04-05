@@ -20,7 +20,7 @@ class PlaylistItemsController < BaseController
   end
 
   def create
-    playlist_item = PlaylistItem.new(playlist_item_params)
+    playlist_item = PlaylistItem.new(playlist_item_params.reject {|k, v| k.in? ['name', 'description']})
     playlist_item.position ||= playlist_item.playlist.total_count
     playlist_item_index = playlist_item.position
     playlist_item.position += playlist_item.playlist.counter_start
@@ -53,7 +53,7 @@ class PlaylistItemsController < BaseController
 
         playlist_items.each_with_index do |pi, index|
           if pi != playlist_item && (index + 1) >= playlist_item.position
-            pi.update_column(:position, pi.position + 1)
+            pi.update_column(:position, (pi.position || 0) + 1)
           end
         end
 

@@ -129,11 +129,11 @@ feature 'playlists' do
       assert_content "2 #{public_case.short_name}" # passes!
 
       # adding texts
-      fill_in 'add_item_term', with: "\"#{text_block.name}\"" 
+      fill_in 'add_item_term', with: "\"#{text_block.name}\""
 
       click_link 'add_item_search'
       assert_content '1 Result'
-      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist' 
+      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist'
       click_link 'SUBMIT'
 
       assert_content "2 #{text_block.name}" # passes!
@@ -142,33 +142,35 @@ feature 'playlists' do
       fill_in 'add_item_term', with: "\"#{link.name}\""
 
       click_link 'add_item_search'
-      assert_content '1 Result'
-    
-      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist'
-     
-      click_link 'SUBMIT'
 
-      assert_content "2 #{link.name}" # passes!
+      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist'
+
+      click_link 'SUBMIT', wait: 30.seconds
+      assert_no_link 'SUBMIT'
+
+      assert_content "2 Show/Hide More #{link.name}" # passes!
+
+      # binding.pry
 
       # adding playlists
-      #### it looks like the dragging doesn't work -- at one point i thought
-      #### the submit button wasn't showing because the new playlist form
-      #### prob not it but keep it in mind
-      # fill_in 'add_item_term', with: "\"#{@public_playlist.name}\"" 
+      fill_in 'add_item_term', with: "\"#{@public_playlist.name}\""
+
+      click_link 'add_item_search'
+      fill_in 'add_item_term', with: ""
+      assert_content "\"#{@public_playlist.name}\""
+
+
+      simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist li:first-child'
+
+      click_link 'SUBMIT'
+
+      assert_content "1 Show/Hide More #{@public_playlist.name}" # passes!
       
-      # click_link 'add_item_search'
-      # assert_content '1 Result'
-
-      # simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist'
-      
-      # click_button 'Submit'
-
-      # assert_content "2 #{@public_playlist.name}" # passes!
-
       # reordering material
-      simulate_reorder 'li.dd-item', '.main_playlist'
-      ### not sure how to assert this test 
-      ### it doesn't actually change the playlist_item.position value
+      assert_content "5 District Case 1"
+      item_id = find('.main_playlist > ol > li.dd-item:last-child')[:id]
+      simulate_drag "\##{item_id} .dd-handle", '.main_playlist > ol > li.dd-item:first-child'
+      assert_content "2 District Case 1"
 
       # removing material
       playlist_item = @student_playlist.playlist_items.first
