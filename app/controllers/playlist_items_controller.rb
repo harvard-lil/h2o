@@ -11,16 +11,16 @@ class PlaylistItemsController < BaseController
       return
     end
 
-    @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id], 
-                                        :position => params[:position], 
-                                        :actual_object_type => @actual_object.class.to_s, 
+    @playlist_item = PlaylistItem.new({ :playlist_id => params[:playlist_id],
+                                        :position => params[:position],
+                                        :actual_object_type => @actual_object.class.to_s,
                                         :actual_object_id => @actual_object.id })
 
     render :partial => "shared/forms/playlist_item"
   end
 
   def create
-    playlist_item = PlaylistItem.new(playlist_item_params)
+    playlist_item = PlaylistItem.new(playlist_item_params.reject {|k, v| k.in? ['name', 'description']})
     playlist_item.position ||= playlist_item.playlist.total_count
     playlist_item_index = playlist_item.position
     playlist_item.position += playlist_item.playlist.counter_start
@@ -53,10 +53,10 @@ class PlaylistItemsController < BaseController
 
         playlist_items.each_with_index do |pi, index|
           if pi != playlist_item && (index + 1) >= playlist_item.position
-            pi.update_column(:position, pi.position + 1)
+            pi.update_column(:position, (pi.position || 0) + 1)
           end
         end
- 
+
         if playlist_item.actual_object_type == "Playlist"
           nested_ps = Playlist.includes(:playlist_items).where(id: playlist_item.actual_object.all_actual_object_ids[:Playlist])
           @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
@@ -170,7 +170,7 @@ class PlaylistItemsController < BaseController
 
   private
   def playlist_item_params
-    params.require(:playlist_item).permit(:position, :playlist_id, :notes, :public_notes, 
-                                          :actual_object_type, :actual_object_id)
+    params.require(:playlist_item).permit(:position, :playlist_id, :notes, :public_notes,
+                                          :actual_object_type, :actual_object_id, :name, :description)
   end
 end
