@@ -67,21 +67,22 @@ module H2o::Test::Helpers::Capybara
     page.execute_script <<-JS
     var event = document.createEvent('MouseEvent');
     event.initMouseEvent('#{event_name}', true, true, window,
-                     {}, 0, 0, #{xy['x']}, #{xy['y']},
+                     {}, 0, 0, #{xy[:x]}, #{xy[:y]},
                      false, false,false,false,
                      0, null);
       $('#{selector}')[0].dispatchEvent(event);
     JS
   end
   def simulate_drag src, targ
-    drag_xy = page.find(src).click
-    drop_xy = page.find(targ).click
-    puts "dragging from",drag_xy, 'to', drop_xy
+    drag_rect = evaluate_script "document.querySelector('#{src}').getBoundingClientRect()"
+    drop_rect = evaluate_script "document.querySelector('#{targ}').getBoundingClientRect()"
+    drag_xy = {x: drag_rect['left'] + drag_rect['width']/2, y:  drag_rect['top'] + drag_rect['height']/2}
+    drop_xy = {x: drop_rect['left'] + drop_rect['width']/2, y:  drop_rect['top'] + drop_rect['height']/2}
 
-    simulate_mouse_event src, :mousedown, drag_xy['position']
-    simulate_mouse_event src, :mousemove, drop_xy['position']
-    simulate_mouse_event src, :mousemove, drop_xy['position']
-    simulate_mouse_event src, :mouseup, drop_xy['position']
+    simulate_mouse_event src, :mousedown, drag_xy
+    simulate_mouse_event src, :mousemove, drop_xy
+    simulate_mouse_event src, :mousemove, drop_xy
+    simulate_mouse_event src, :mouseup, drop_xy
   end
   def wait_for_ajax
     Timeout.timeout(Capybara.default_max_wait_time) do
