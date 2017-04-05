@@ -158,8 +158,7 @@ class PlaylistExportJob < ApplicationJob
     if system command.shelljoin
       if Rails.env == 'test'
         # Remove creation date for deterministic tests
-        system({'LANG' => 'C', 'LC_CTYPE' => 'C'}, "sed -i.bak 's@/CreationDate (D:[^)]*)@@' #{out_path}")
-        system "rm #{out_path}.bak"
+        IO.binwrite(out_path, File.open(out_path, 'r:ASCII-8BIT') {|f| f.read.sub /\/CreationDate \(D:[^)]*\)/, '' })
       end
       return out_path
     else
