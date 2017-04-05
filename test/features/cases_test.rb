@@ -59,7 +59,7 @@ feature 'cases' do
       # DRY stuff from above
       # can see private cases that belong to user
     end
-
+    
     scenario 'annotating a case', js: true do
       # This is literally a copy-paste of the text annotation path... Makes one wonder
       sign_in user = users(:verified_student)
@@ -111,6 +111,24 @@ feature 'cases' do
 
       sleep 1.second # TODO: The JS is updating this on a setInterval.
 
+      # add an annotation
+      visit current_path
+      assert_content "#{public_case.short_name} by #{user.attribution}"
+      find('.highlight-hex-ffee00').assert_text 'content to highlight'
+
+      select_text 'second highlight content'
+      find('[title=highlight]').trigger 'click'
+      click_link 'ff3800'
+      click_link 'Save'
+      find('.highlight-hex-ff3800').assert_text 'second highlight content'
+
+      # remove an annotation
+      find('.indicator-highlight-hex-ff3800').click
+      click_link 'Delete'
+      refute_selector '.highlight-hex-ff3800'
+
+      sleep 1.second # TODO: The JS is updating this on a setInterval.
+
       # Annotations are still visible when logged out
       click_link 'sign out'
 
@@ -118,6 +136,8 @@ feature 'cases' do
       assert_content "#{public_case.short_name} by #{user.attribution}"
 
       find('.highlight-hex-ffee00').assert_text 'content to highlight'
+      refute_selector '.highlight-hex-ff3800'
+      # find('.highlight-hex-ff3800').assert_text 'second highlight content'
       assert_content 'elided: [...];'
       assert_content 'replaced: [replacement content];'
       find('.icon.icon-adder-annotate', visible: true).click
