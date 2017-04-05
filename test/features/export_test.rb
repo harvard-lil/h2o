@@ -27,8 +27,8 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.docx)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_case.docx'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_case.docx'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_case.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_case.docx'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_case.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 
   scenario 'exporting a playlist to .docx', js:true do
@@ -53,8 +53,8 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.docx)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_playlist.docx'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_playlist.docx'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_playlist.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_playlist.docx'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_playlist.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 
   scenario 'exporting a case to .pdf', js:true do
@@ -80,8 +80,8 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.pdf)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_case.pdf'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_case.pdf'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_case.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_case.pdf'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_case.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 
   scenario 'exporting a playlist to .pdf', js:true do
@@ -106,8 +106,8 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.pdf)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_playlist.pdf'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_playlist.pdf'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_playlist.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_playlist.pdf'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_playlist.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 
   scenario 'exporting a text to .docx', js:true do
@@ -133,8 +133,8 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.docx)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_text.docx'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_text.docx'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_text.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_text.docx'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_text.docx')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 
   scenario 'exporting a text to .pdf', js:true do
@@ -160,7 +160,7 @@ feature 'exporting' do
     exported_file_url = email.body.match(/(http.+?\.pdf)/)[1]
 
     downloaded_path = download_file exported_file_url, to: 'test_export_text.pdf'
-    assert_equal File.size?(downloaded_path), File.size?(Rails.root.join('test/files/test_export_text.pdf'))
-    assert_equal Digest::SHA256.file(Rails.root.join('test/files/test_export_text.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_text.pdf'))
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_text.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
 end
