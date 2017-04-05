@@ -322,7 +322,7 @@ class Playlist < ApplicationRecord
         ActionController::Base.expire_page "/iframe/show/playlists/#{p}.html"
       end
 
-      if changed.include?("public")
+      if saved_changes.keys.include?(:public)
         [:playlists, :collages, :cases].each do |type|
           user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end
