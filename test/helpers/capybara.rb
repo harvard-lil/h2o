@@ -55,6 +55,7 @@ class Capybara::Rails::TestCase
   def simulate_drag src, targ
     drag_xy = page.find(src).click
     drop_xy = page.find(targ).click
+    puts "dragging from",drag_xy, 'to', drop_xy
 
     simulate_mouse_event src, :mousedown, drag_xy['position']
     simulate_mouse_event src, :mousemove, drop_xy['position']
