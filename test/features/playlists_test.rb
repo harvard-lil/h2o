@@ -132,8 +132,10 @@ feature 'playlists' do
       fill_in 'add_item_term', with: "\"#{text_block.name}\""
 
       click_link 'add_item_search'
-      assert_content '1 Result'
-      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist'
+      fill_in 'add_item_term', with: ''
+      assert_content "#{text_block.name}"
+
+      simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist li:first-child'
       click_link 'SUBMIT'
 
       assert_content "2 #{text_block.name}" # passes!
@@ -142,15 +144,15 @@ feature 'playlists' do
       fill_in 'add_item_term', with: "\"#{link.name}\""
 
       click_link 'add_item_search'
+      fill_in 'add_item_term', with: ''
+      assert_content "#{link.name}"
 
-      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist'
+      simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist li:first-child'
 
-      click_link 'SUBMIT', wait: 30.seconds
+      click_link 'SUBMIT'
       assert_no_link 'SUBMIT'
 
       assert_content "2 Show/Hide More #{link.name}" # passes!
-
-      # binding.pry
 
       # adding playlists
       fill_in 'add_item_term', with: "\"#{@public_playlist.name}\""
@@ -159,18 +161,17 @@ feature 'playlists' do
       fill_in 'add_item_term', with: ""
       assert_content "\"#{@public_playlist.name}\""
 
-
       simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist li:first-child'
 
       click_link 'SUBMIT'
 
-      assert_content "1 Show/Hide More #{@public_playlist.name}" # passes!
+      assert_content "2 Show/Hide More #{@public_playlist.name}" # passes!
 
       # reordering material
       assert_content "5 District Case 1"
       item_id = find('.main_playlist > ol > li.dd-item:last-child')[:id]
       simulate_drag "\##{item_id} .dd-handle", '.main_playlist > ol > li.dd-item:first-child'
-      assert_content "2 District Case 1"
+      assert_content "1 District Case 1"
 
       # removing material
       playlist_item = @student_playlist.playlist_items.first
