@@ -17,10 +17,10 @@ cache:
 rvm:
   - 2.4.1
 before_script:
-  - bundle exec rails db:setup
-  - bundle exec rails sunspot:solr:start
+  - bundle exec bin/rails db:setup
+  - bundle exec bin/rails sunspot:solr:start
 script:
-  - bundle exec rails test
+  - bundle exec bin/rails test
 after_success:
   - >
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ] ;
