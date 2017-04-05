@@ -18,7 +18,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
 </head>
 
-<body data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>" class="<%= @page_cache ? 'cached_page' : '' %> <%= Rails.env = 'test' ? 'no-touch' : '' %>">
+<body data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>" class="<%= @page_cache ? 'cached_page' : '' %> <%= Rails.env == 'test' ? 'no-touch' : '' %>">
 	<section id="shell">
     <%= render :partial => "shared/quickbar" %>
     <%= render :partial => "shared/nav" %>
