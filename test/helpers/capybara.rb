@@ -24,12 +24,7 @@ module H2o::Test::Helpers::Capybara
     downloads_dir = Rails.root.join("tmp/downloads")
     out_path = downloads_dir.join(to)
     Dir.mkdir downloads_dir unless File.exists?(downloads_dir)
-
-    if !system %W{curl -s #{url} -o #{out_path}}.shelljoin
-      binding.pry
-      raise Exception, "Failed to download #{url} to #{out_path}"
-    end
-
+    IO.copy_stream(open(url), out_path)
     out_path
   end
   def select_text text
