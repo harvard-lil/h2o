@@ -1,6 +1,7 @@
 site_admin_superadmin:
   user: site_admin
   role: superadmin
+
 case_admin_caseadmin:
   user: case_admin
   role: caseadmin

@@ -224,4 +224,18 @@ feature 'playlists' do
       assert_content empty_playlist.user.email_address
     end
   end
+
+  describe 'as admin' do
+    before do
+      sign_in @user = users(:site_admin)
+    end
+    scenario 'viewing empty playlists' do
+      visit empty_playlists_path
+
+      empty_playlist = playlists :empty_playlist
+      assert_content "Playlists with Zero Playlist Items"
+      assert_content empty_playlist.name
+      assert_content empty_playlist.user.email_address
+    end
+  end
 end
