@@ -165,7 +165,7 @@ feature 'playlists' do
       click_link 'SUBMIT'
 
       assert_content "1 Show/Hide More #{@public_playlist.name}" # passes!
-      
+
       # reordering material
       assert_content "5 District Case 1"
       item_id = find('.main_playlist > ol > li.dd-item:last-child')[:id]
