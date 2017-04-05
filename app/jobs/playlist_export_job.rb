@@ -46,7 +46,7 @@ class PlaylistExportJob < ApplicationJob
   end
 
   def email_download_link(content_path, email_address)  #_base
-    Notifier.export_download_link(content_path, email_address).deliver
+    Notifier.export_download_link(content_path, email_address).deliver_now
   end
 
   def export_as_docx(request_url, params)  #_doc
