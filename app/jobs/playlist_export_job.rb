@@ -134,7 +134,7 @@ class PlaylistExportJob < ApplicationJob
       {}
     end
     command = %W{htmltoword #{in_path} #{out_path}}
-    if system env, command.shelljoin
+    if system env, command.shelljoin + " >> #{Rails.root.join 'log/htmltoword.log'} 2>&1"
       out_path
     else
       raise ExportException, $?.inspect
@@ -155,7 +155,7 @@ class PlaylistExportJob < ApplicationJob
     command = pdf_command(in_path, request_url, params)
     out_path = command.last
     logger.debug "Running PDF generation: #{command.inspect}"
-    if system command.shelljoin
+    if system command.shelljoin + " >> #{Rails.root.join 'log/wkhtmltopdf.log'} 2>&1"
       if Rails.env == 'test'
         # Remove creation date for deterministic tests
         IO.binwrite(out_path, File.open(out_path, 'r:ASCII-8BIT') {|f| f.read.sub /\/CreationDate \(D:[^)]*\)/, '' })
