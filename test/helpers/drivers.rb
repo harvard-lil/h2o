@@ -2,10 +2,13 @@ module H2o::Test::Helpers::Drivers
   def self.included(base)
     Capybara.register_driver :poltergeist do |app|
       Capybara::Poltergeist::Driver.new app,
+        screen_size: [1280, 800],
+        window_size: [1280, 800],
         js_errors: true,
         url_whitelist: %w(://127.0.0.1:*),
         extensions: %w(rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
     end
+    Capybara.save_path = Rails.root.join 'tmp/screenshots'
     javascript_driver = base.driven_by :poltergeist
     static_driver = base.driven_by :rack_test
 
