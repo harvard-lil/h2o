@@ -4,7 +4,7 @@ public_playlist_1:
 
 private_playlist_1:
   name: Private Playlist 1
-  user: case_admin 
+  user: case_admin
   public: false
 
 student_playlist:
