@@ -2,41 +2,30 @@ require "test_helper"
 
 feature 'bookmarks' do
 	describe 'as a signed in user' do
-		before do 
-	    @user = users(:student_user)
-      sign_in(@user)
+		scenario 'bookmark and unbookmark a playlist', solr: true, js: true do
+			skip
+			## Not sure if this is needed anymore
+			# page.driver.set_cookie('bookmarks', '%5B%5D')
+      user = users(:student_user)
+      sign_in(user)
 
-      @playlist = playlists(:public_playlist_1)
-			visit playlist_path @playlist
-		end
+      playlist = playlists(:public_playlist_1)
+			visit playlist_path playlist
 
-		scenario 'bookmark and unbookmark a playlist', js: true do
-			# there are two Bookmark Playlist links b/c of the quickbar
-			find_all('a.bookmark-action').first.click
+			click_link "Bookmark #{playlist.name}"
 
-			click_link "#{@user.attribution} Dashboard"
+			### TODO click_link should trigger event itself
+			execute_script("h2o_global.observeBookmarkControls();")
 
-			assert_content @playlist.name
+			find_link "Unbookmark #{playlist.name}"	
 
-			# playlist name shows up under bookmark section
+			visit user_path user
+			assert_content 'Bookmarks' 
+			assert_content playlist.name
 
-			#click playlist name
+			click_link 'UN-BOOKMARK'
 
-			# unbookmark playlist 
-
-			# assert some content
-		end
-
-		scenario 'cannot view another user\'s bookmarks' do
-			# need playlist owned by student user 
-			# playlist = playlists(:public_playlist_1)
-
-		end
-	end
-
-	describe 'as an anonymous user' do
-		scenario 'cannnot bookmark playlists' do
-			# icon doesn't show up 
+			refute_content @playlist.name
 		end
 	end
 end
