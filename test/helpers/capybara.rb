@@ -75,9 +75,13 @@ module H2o::Test::Helpers::Capybara
     drop_xy = {x: drop_rect['left'] + drop_rect['width']/2, y:  drop_rect['top'] + drop_rect['height']/2}
 
     simulate_mouse_event src, :mousedown, drag_xy
+    sleep 0.05
     simulate_mouse_event src, :mousemove, drop_xy
+    sleep 0.05
     simulate_mouse_event src, :mousemove, drop_xy
+    sleep 0.05
     simulate_mouse_event src, :mouseup, drop_xy
+    sleep 0.05
   end
   def wait_for_ajax
     Timeout.timeout(Capybara.default_max_wait_time) do
