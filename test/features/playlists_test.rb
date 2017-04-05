@@ -108,7 +108,7 @@ feature 'playlists' do
       text_block = text_blocks(:public_text_to_annotate)
 
       visit "/playlists/#{@student_playlist.id}"
-      playlist_list = page.find('.main_playlist')
+      page.find('.main_playlist')
 
       # edit playlist information
       click_link 'EDIT PLAYLIST INFORMATION'
@@ -178,10 +178,39 @@ feature 'playlists' do
       assert_content playlist_item.name
 
       find("li.listitem#{playlist_item.id} a.delete-playlist-item").click
+      click_link 'YES'
+      refute_content playlist_item.name
 
+      # nested content to public
+      click_link "Set nested item(s) owned by you to public"
+      assert_content "Set Nested Resources to Public"
+      click_button "Yes"
+      assert_no_content "Set Nested Resources to Public"
+      assert_no_link "Set nested item(s) owned by you to public"
+
+      # set to public/private
+      assert_content '(0/4 playlist item notes are private)'
+      click_link 'MAKE ALL NOTES PRIVATE'
+      assert_content '(4/4 playlist item notes are private)'
+      assert_content '(0/4 playlist item notes are public)'
+      click_link 'MAKE ALL NOTES PUBLIC'
+      assert_content '(4/4 playlist item notes are public)'
+    end
+
+    scenario 'delete a playlist', solr: true, js: true do
+      visit user_path @user
+
+      assert_content @student_playlist.name
+      within "\#listitem_playlist#{@student_playlist.id}" do
+        click_link 'DELETE'
+      end
+      assert_content 'Are you sure you want to delete this item?'
       click_link 'YES'
 
-      refute_content playlist_item.name
+      assert_no_content @student_playlist.name
+      visit user_path @user
+
+      assert_no_content @student_playlist.name
     end
   end
 
