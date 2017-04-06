@@ -59,7 +59,7 @@ feature 'cases' do
       # DRY stuff from above
       # can see private cases that belong to user
     end
-    
+
     scenario 'annotating a case', js: true do
       # This is literally a copy-paste of the text annotation path... Makes one wonder
       sign_in user = users(:verified_student)
@@ -149,14 +149,35 @@ feature 'cases' do
     end
   end
   describe 'as a case administrator' do
-    scenario 'viewing case requests' do
-
+    before do
+      sign_in @user = users(:case_admin)
     end
-    scenario 'adding a case for a request' do
 
-    end
-    scenario 'rejecting a case request' do
+    scenario 'adding a case for a request', js: true, solr: true do
+      visit user_path @user
+      assert_content 'Case Request 1'
+      find('.create-case-from-request', visible: false).trigger('click')
+      assert_content 'Add a new Case'
+      fill_in 'Short name', with: 'Requested Case Name'
+      execute_script "tinyMCE.activeEditor.setContent('#{'This is the case that was requested.'}');"
+      click_button 'SAVE'
 
+      assert_content 'Case was successfully created. It must be approved before it is visible.'
+      new_case = Case.last
+
+      visit user_path @user
+      within '#results_pending_cases' do
+        assert_content new_case.name
+        within ".listitem#{new_case.id}" do
+          click_link 'APPROVE'
+        end
+        assert_no_content new_case.name
+      end
+
+      visit user_path @user
+      within '#results_set' do
+        assert_content new_case.name
+      end
     end
     scenario 'editing a case' do
 

@@ -3,15 +3,15 @@
 		<h3>
 			<%= case_request.full_name %>
       <%= link_to "DELETE", case_request_path(case_request), :class => "icon icon-delete tooltip", "data-type" => "case_request", "data-id" => case_request.id %>
-      <%= link_to "CREATE CASE FROM THIS REQUEST", new_case_path(:case_request_id => case_request.id), :class => "action" %>
+      <%= link_to "CREATE CASE FROM THIS REQUEST", new_case_path(:case_request_id => case_request.id), :class => "action create-case-from-request" %>
 		</h3>
-		
+
 		<p class="cases_details">
       <% if case_request.user.present? -%>
       requested by: <%= case_request.user.display %> (<%= case_request.user.email_address %>)<br />
       <% end -%>
       <% [:decision_date, :author, :case_jurisdiction, :docket_number, :volume, :reporter, :page, :bluebook_citation].each do |f| -%>
-			<%= f %>: <%= case_request.send(f) %><br /> 
+			<%= f %>: <%= case_request.send(f) %><br />
       <% end -%>
 		</p>
 	</div>
