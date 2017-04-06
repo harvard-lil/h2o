@@ -38,7 +38,6 @@ class PlaylistPusher
       new_playlists.first.update_attribute(:name, @playlist_name_override)
     end
 
-    puts "attempting to reindex"
     [Case, Collage, Default, Playlist, TextBlock].each do |klass|
       Sunspot.index! klass.where(id: self.all_new_objects[klass])
     end
@@ -81,7 +80,7 @@ class PlaylistPusher
     elsif self.email_receiver == 'destination' && self.user_ids.length == 1
       recipient = User.where(id: self.user_ids.first).first
     end
-    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver if recipient.present?
+    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver_now if recipient.present?
   end
 
   def build_playlist_sql(source_playlist)

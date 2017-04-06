@@ -2,6 +2,11 @@ public_playlist_1:
   name: Public Playlist 1
   user: case_admin
 
+playlist_to_clone:
+  name: Clonable Playlist 1
+  user: verified_professor
+  public: true
+
 private_playlist_1:
   name: Private Playlist 1
   user: case_admin
@@ -14,3 +19,8 @@ student_playlist:
 empty_playlist:
   name: Empty Playlist
   user: student_user
+
+taught_playlist:
+  name: june 2010 playlist
+  when_taught: june 2010
+  user: verified_professor

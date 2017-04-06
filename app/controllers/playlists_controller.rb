@@ -121,7 +121,7 @@ class PlaylistsController < BaseController
     else
       @collection = UserCollection.where(id: params[:user_collection_id]).first
       @playlist_pusher = PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
-      @playlist_pusher.delay.push!
+      @playlist_pusher.push!
       respond_to do |format|
         format.json { render :json => {:custom_block => 'push_playlist'} }
         format.js { render :text => nil }

@@ -91,15 +91,18 @@ feature 'playlists' do
     end
 
     scenario 'cloning a playlist', solr: true, js: true do
-      visit playlist_path(@public_playlist.id)
+      playlist_to_clone = playlists :playlist_to_clone
+      visit playlist_path(playlist_to_clone.id)
 
       click_link 'Clone Playlist'
 
-      fill_in 'Name*', with: "Clone of #{@public_playlist.name}"
-      click_button 'Submit'
-
-      assert_content 'The system is cloning the playlist and every item
+      fill_in 'Name*', with: "Clone of #{playlist_to_clone.name}"
+      perform_enqueued_jobs do
+        click_button 'Submit'
+        assert_content 'The system is cloning the playlist and every item
         in the playlist. You will be emailed when the process has completed.'
+        assert_sends_emails 1, wait: 10.seconds # This needs to be in the block for some reason
+      end
     end
 
     scenario 'editing a playlist', solr: true, js: true do
@@ -185,19 +188,21 @@ feature 'playlists' do
     end
 
     scenario 'delete a playlist', solr: true, js: true do
-      visit user_path @user
+      playlist_to_delete = playlists :playlist_to_clone
+      sign_in user = playlist_to_clone.user
+      visit user_path user
 
-      assert_content @student_playlist.name
-      within "\#listitem_playlist#{@student_playlist.id}" do
+      assert_content playlist_to_delete.name
+      within "\#listitem_playlist#{playlist_to_delete.id}" do
         click_link 'DELETE'
       end
       assert_content 'Are you sure you want to delete this item?'
       click_link 'YES'
 
-      assert_no_content @student_playlist.name
-      visit user_path @user
+      assert_no_content playlist_to_delete.name
+      visit user_path user
 
-      assert_no_content @student_playlist.name
+      assert_no_content playlist_to_delete.name
     end
   end
 

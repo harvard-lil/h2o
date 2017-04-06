@@ -8,6 +8,7 @@ module H2o::Test::Helpers::Drivers
         url_whitelist: %w(://127.0.0.1:*),
         extensions: %w(rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
     end
+    Capybara.default_max_wait_time = 10.seconds
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
     javascript_driver = base.driven_by :poltergeist
     static_driver = base.driven_by :rack_test
