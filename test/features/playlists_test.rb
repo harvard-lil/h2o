@@ -201,9 +201,8 @@ feature 'playlists' do
     end
 
     scenario 'delete a playlist', solr: true, js: true do
-      playlist_to_delete = playlists :playlist_to_clone
-      sign_in user = playlist_to_clone.user
-      visit user_path user
+      playlist_to_delete = playlists :playlist_to_delete
+      visit user_path @user
 
       assert_content playlist_to_delete.name
       within "\#listitem_playlist#{playlist_to_delete.id}" do
@@ -213,7 +212,7 @@ feature 'playlists' do
       click_link 'YES'
 
       assert_no_content playlist_to_delete.name
-      visit user_path user
+      visit user_path @user
 
       assert_no_content playlist_to_delete.name
     end

@@ -41,8 +41,7 @@ module H2o::Test::Helpers::Capybara
     # Don't use this when testing login itself!
     user.set_password = password = random_token
     user.save!
-    case page.driver
-    when Capybara::RackTest::Driver
+    if page.driver.is_a? Capybara::RackTest::Driver
       page.driver.post user_sessions_path, user_session: {login: user.login, password: password}
     else # e.g. Capybara::Selenium::Driver
       visit new_user_session_path
