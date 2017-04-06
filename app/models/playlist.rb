@@ -194,19 +194,6 @@ class Playlist < ApplicationRecord
     self.playlist_items.map { |pi| "#{pi.actual_object_type}#{pi.actual_object_id}" }.include?(item_key)
   end
 
-  # TODO: remove
-  # def push!(options = {})
-  #   if options[:recipient]
-  #     push_to_recipient!(options[:recipient])
-  #   elsif options[:recipients]
-  #     options[:recipients].each do |r|
-  #       push_to_recipient!(r)
-  #     end
-  #   else
-  #     false
-  #   end
-  # end
-
   def public_count
     self.playlist_items.select { |pi| pi.public_notes }.count
   end
