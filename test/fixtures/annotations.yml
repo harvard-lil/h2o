@@ -1,5 +1,5 @@
 annotation_hightlight:
-  annotation: 
+  annotation:
   cloned: false
   xpath_start: /mets[1]/amdsec[1]/digiprovmd[1]/mdwrap[1]/xmldata...
   xpath_end: /mets[1]/amdsec[1]/digiprovmd[3]/mdwrap[1]/xmldata...
@@ -7,7 +7,7 @@ annotation_hightlight:
   end_offset: 8
   hidden: false
   highlight_only: 9e00ff
-  annotated_item_id: 1
+  annotated_item: collage_1
   annotated_item_type: Collage
   error: false
   feedback: false
@@ -15,7 +15,7 @@ annotation_hightlight:
   user: student_user
 
 annotation_link:
-  annotation: 
+  annotation:
   cloned: false
   xpath_start: /mets[1]/amdsec[1]/digiprovmd[4]/mdwrap[1]/xmldata...
   xpath_end: /mets[1]/amdsec[1]/digiprovmd[4]/mdwrap[1]/xmldata...
@@ -23,7 +23,7 @@ annotation_link:
   end_offset: 15
   link: https://law.harvard.edu
   hidden: false
-  annotated_item_id: 1
+  annotated_item: collage_one
   annotated_item_type: Collage
   error: false
   feedback: false
@@ -38,7 +38,7 @@ annotation_replacement_text:
   start_offset: 151
   end_offset: 33
   hidden: true
-  annotated_item_id: 1
+  annotated_item: collage_one
   annotated_item_type: Collage
   error: false
   feedback: false
@@ -46,14 +46,14 @@ annotation_replacement_text:
   user: student_user
 
 annotation_comment:
- annotation: COMMENTS! 
+ annotation: COMMENTS!
  cloned: false
  xpath_start: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
  xpath_end: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
  start_offset: 51
  end_offset: 24
  hidden: false
- annotated_item_id: 1
+ annotated_item: collage_one
  annotated_item_type: Collage
  error: false
  feedback: false

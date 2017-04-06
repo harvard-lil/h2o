@@ -12,6 +12,9 @@ require 'helpers/files'
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include MiniTest::Metadata
+  include ActiveJob::TestHelper
+  include ActionMailer::TestHelper
+
   include H2o::Test::Helpers::Capybara
   include H2o::Test::Helpers::Drivers
   include H2o::Test::Helpers::DSL
