@@ -90,8 +90,7 @@ class ApplicationController < ActionController::Base
       # This exists to prevent garbage exceptions in the Rails log caused by
       # spam links pointing to this non-existent route, and returns a 404 specifically
       # to detract from spam links' Google juice
-      render :text => "Not found", :status => 404, :layout => false
-      true
+      raise ActionController::RoutingError.new('Not Found')
     end
   end
 
@@ -354,7 +353,7 @@ class ApplicationController < ActionController::Base
     if request.xhr?
       export_content_async(base_args)
     else
-      export_content(base_args)
+      # export_content(base_args)
     end
   end
 
@@ -376,16 +375,16 @@ class ApplicationController < ActionController::Base
     PlaylistExportJob.perform_later(base_args)
   end
 
-  def export_content(base_args)
-    logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
-    result = PlaylistExportJob.perform(base_args)
-    if result.success?
-      send_file(result.content_path, filename: result.suggested_filename)
-    else
-      logger.warn "Export failed: #{result.error_message}"
-      render :text => result.error_message
-    end
-  end
+  # def export_content(base_args)
+  #   logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
+  #   result = PlaylistExportJob.perform(base_args)
+  #   if result.success?
+  #     send_file(result.content_path, filename: result.suggested_filename)
+  #   else
+  #     logger.warn "Export failed: #{result.error_message}"
+  #     render :text => result.error_message
+  #   end
+  # end
 
   def generate_sort_list(sort_fields)
     if params.has_key?(:sort)
@@ -409,10 +408,6 @@ class ApplicationController < ActionController::Base
     if current_user.present? && cookies[:user_id].nil?
       apply_user_preferences(current_user, false)
     end
-  end
-
-  def verbose
-    Rails.logger.warn "ApplicationController#verbose hit"
   end
 
   def limit_missing_item

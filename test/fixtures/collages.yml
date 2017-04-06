@@ -1,6 +1,6 @@
 collage_one:
   annotatable_type: "Case"
-  annotatable_id: 8
+  annotatable: public_case_1
   name: "Waters v. Coker"
   description: "<p><br data-mce-bogus=\"1\"></p>"
   word_count: null
@@ -10,7 +10,28 @@ collage_one:
   words_shown: 1216
   karma: null
   pushed_from_id: null
-  user: verified_student
+  user: student_user
+  annotator_version: 2
+  featured: false
+  created_via_import: false
+  version: 1
+  enable_feedback: true
+  enable_discussions: false
+  enable_responses: false
+
+private_collage_1:
+  annotatable_type: "Case"
+  annotatable: case_to_delete
+  name: "Private Collage 1"
+  description: "<p><br data-mce-bogus=\"1\"></p>"
+  word_count: null
+  ancestry: null
+  public: false
+  readable_state: "{\"highlights\":{},\"hide_tags\":{},\"highlight_only_hi..."
+  words_shown: 1216
+  karma: null
+  pushed_from_id: null
+  user: student_user
   annotator_version: 2
   featured: false
   created_via_import: false
@@ -21,7 +42,7 @@ collage_one:
 
 collage_two:
   annotatable_type: "Case"
-  annotatable_id: 5
+  annotatable: private_case_2
   name: "Waters v. State"
   description: "<p><br data-mce-bogus=\"1\"></p>"
   word_count: null
@@ -31,7 +52,7 @@ collage_two:
   words_shown: 1134
   karma: null
   pushed_from_id: null
-  user: verified_student
+  user: student_user
   annotator_version: 2
   featured: false
   created_via_import: false
