@@ -209,114 +209,115 @@ class PlaylistsController < BaseController
     render :json => { :updated_count => @playlist.nested_private_resources.count }
   end
 
-  def import
-  end
-
-  def submit_import
-    results = validate_nested(params["data"]["0"])
-    if results[:errors].any?
-      render :json => { :success => false, :message => results[:errors].join('. ') }
-    else
-      parent_playlist = create_item_from_import(params["data"]["0"])
-      render :json => { :playlist_id => parent_playlist.id, :success => true }
-    end
-  end
-
-  def validate_nested(data)
-    if data.has_key?("user_id")
-      if @creation_user
-        return { :errors => ["Multiple User IDs submitted: #{@creation_user.id} #{data["user_id"]}"] }
-      end
-      @creation_user = User.where(id: data["user_id"]).first
-      if !@creation_user
-        return { :errors => ["User not found: #{data["user_id"]}"] }
-      end
-    end
-    if data.has_key?("h2o_item_id")
-      existing_item = data["type"].classify.constantize.where(id: data["h2o_item_id"])
-      if existing_item.empty?
-        return { :errors => ["Could not find #{data["type"]} with id #{data["h2o_item_id"]}"], :data => data }
-      else
-        # MAYBE TODO: Add error message if item is private and not owned by current user
-        data["new_item"] = existing_item.first
-        return { :errors => [], :data => data }
-      end
-    end
-
-    if data.has_key?("collage_item_id")
-      existing_item = data["collage_item_type"].classify.constantize.where(id: data["collage_item_id"])
-      if existing_item.empty?
-        return { :errors => ["Could not find #{data["collage_item_type"]} with id #{data["collage_item_id"]} to collage"], :data => data }
-      else
-        # MAYBE TODO: Add error message if item is private and not owned by current user
-        data["new_item"] = Collage.new({ :name => existing_item.first.is_a?(Case) ? existing_item.first.short_name : existing_item.first.name,
-                                         :public => true,
-                                         :annotatable_type => data["collage_item_type"].classify,
-                                         :annotatable_id => data["collage_item_id"],
-                                         :user_id => @creation_user.try(:id) })
-        data["new_item"].valid_recaptcha = true
-        return { :errors => [], :data => data }
-      end
-    end
-
-    if data.has_key?("clone_item_id")
-      existing_item = data["clone_item_type"].classify.constantize.where(id: data["clone_item_id"])
-      if existing_item.empty?
-        return { :errors => ["Could not find #{data["clone_item_type"]} with id #{data["clone_item_id"]} to clone"], :data => data }
-      else
-        existing_item = existing_item.first
-        data["new_item"] = existing_item.h2o_clone(@creation_user, { :name => existing_item.name, :description => existing_item.description, :public => true })
-        data["new_item"].valid_recaptcha = true
-        return { :errors => [], :data => data }
-      end
-    end
-
-    klass = data["type"].classify.constantize
-
-    new_item = klass.new({
-      :name => data["name"],
-      :description => data["description"],
-      :user_id => @creation_user.try(:id),
-      :public => true,
-      :created_via_import => true
-    })
-    new_item.valid_recaptcha = true
-    if new_item.is_a?(Default)
-      new_item.url = data["url"]
-    end
-    if [TextBlock].any? { |t| new_item.is_a?(t) }
-      new_item.content = data["content"]
-    end
-    item_errors = []
-    if !new_item.valid?
-      item_errors << "For #{klass.to_s} '#{data["name"]}', #{new_item.errors.full_messages.join(', ')}"
-    end
-    if data["has_children"] == "true" && data["type"] == "playlist"
-      data["children"].each do |a, b|
-        results = validate_nested(b)
-        item_errors << results[:errors]
-      end
-    end
-    data["new_item"] = new_item
-    return { :errors => ["Please supply a User: user_id:XXXXX"] } unless @creation_user
-    return { :errors => item_errors.flatten, :data => data }
-  end
-
-  def create_item_from_import(data)
-    data["new_item"].save
-    if data["has_children"] == "true" && data["type"] == "playlist"
-      position = 0
-      data["children"].each do |a, b|
-        child_item = create_item_from_import(b)
-        playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id,
-                                           :actual_object_type => child_item.class.to_s,
-                                           :position => position,
-                                           :playlist_id => data["new_item"].id })
-        position += 1
-      end
-    end
-    return data["new_item"]
-  end
+  # TODO: remove
+  # def import
+  # end
+  #
+  # def submit_import
+  #   results = validate_nested(params["data"]["0"])
+  #   if results[:errors].any?
+  #     render :json => { :success => false, :message => results[:errors].join('. ') }
+  #   else
+  #     parent_playlist = create_item_from_import(params["data"]["0"])
+  #     render :json => { :playlist_id => parent_playlist.id, :success => true }
+  #   end
+  # end
+  #
+  # def validate_nested(data)
+  #   if data.has_key?("user_id")
+  #     if @creation_user
+  #       return { :errors => ["Multiple User IDs submitted: #{@creation_user.id} #{data["user_id"]}"] }
+  #     end
+  #     @creation_user = User.where(id: data["user_id"]).first
+  #     if !@creation_user
+  #       return { :errors => ["User not found: #{data["user_id"]}"] }
+  #     end
+  #   end
+  #   if data.has_key?("h2o_item_id")
+  #     existing_item = data["type"].classify.constantize.where(id: data["h2o_item_id"])
+  #     if existing_item.empty?
+  #       return { :errors => ["Could not find #{data["type"]} with id #{data["h2o_item_id"]}"], :data => data }
+  #     else
+  #       # MAYBE TODO: Add error message if item is private and not owned by current user
+  #       data["new_item"] = existing_item.first
+  #       return { :errors => [], :data => data }
+  #     end
+  #   end
+  #
+  #   if data.has_key?("collage_item_id")
+  #     existing_item = data["collage_item_type"].classify.constantize.where(id: data["collage_item_id"])
+  #     if existing_item.empty?
+  #       return { :errors => ["Could not find #{data["collage_item_type"]} with id #{data["collage_item_id"]} to collage"], :data => data }
+  #     else
+  #       # MAYBE TODO: Add error message if item is private and not owned by current user
+  #       data["new_item"] = Collage.new({ :name => existing_item.first.is_a?(Case) ? existing_item.first.short_name : existing_item.first.name,
+  #                                        :public => true,
+  #                                        :annotatable_type => data["collage_item_type"].classify,
+  #                                        :annotatable_id => data["collage_item_id"],
+  #                                        :user_id => @creation_user.try(:id) })
+  #       data["new_item"].valid_recaptcha = true
+  #       return { :errors => [], :data => data }
+  #     end
+  #   end
+  #
+  #   if data.has_key?("clone_item_id")
+  #     existing_item = data["clone_item_type"].classify.constantize.where(id: data["clone_item_id"])
+  #     if existing_item.empty?
+  #       return { :errors => ["Could not find #{data["clone_item_type"]} with id #{data["clone_item_id"]} to clone"], :data => data }
+  #     else
+  #       existing_item = existing_item.first
+  #       data["new_item"] = existing_item.h2o_clone(@creation_user, { :name => existing_item.name, :description => existing_item.description, :public => true })
+  #       data["new_item"].valid_recaptcha = true
+  #       return { :errors => [], :data => data }
+  #     end
+  #   end
+  #
+  #   klass = data["type"].classify.constantize
+  #
+  #   new_item = klass.new({
+  #     :name => data["name"],
+  #     :description => data["description"],
+  #     :user_id => @creation_user.try(:id),
+  #     :public => true,
+  #     :created_via_import => true
+  #   })
+  #   new_item.valid_recaptcha = true
+  #   if new_item.is_a?(Default)
+  #     new_item.url = data["url"]
+  #   end
+  #   if [TextBlock].any? { |t| new_item.is_a?(t) }
+  #     new_item.content = data["content"]
+  #   end
+  #   item_errors = []
+  #   if !new_item.valid?
+  #     item_errors << "For #{klass.to_s} '#{data["name"]}', #{new_item.errors.full_messages.join(', ')}"
+  #   end
+  #   if data["has_children"] == "true" && data["type"] == "playlist"
+  #     data["children"].each do |a, b|
+  #       results = validate_nested(b)
+  #       item_errors << results[:errors]
+  #     end
+  #   end
+  #   data["new_item"] = new_item
+  #   return { :errors => ["Please supply a User: user_id:XXXXX"] } unless @creation_user
+  #   return { :errors => item_errors.flatten, :data => data }
+  # end
+  #
+  # def create_item_from_import(data)
+  #   data["new_item"].save
+  #   if data["has_children"] == "true" && data["type"] == "playlist"
+  #     position = 0
+  #     data["children"].each do |a, b|
+  #       child_item = create_item_from_import(b)
+  #       playlist_item = PlaylistItem.create({ :actual_object_id => child_item.id,
+  #                                          :actual_object_type => child_item.class.to_s,
+  #                                          :position => position,
+  #                                          :playlist_id => data["new_item"].id })
+  #       position += 1
+  #     end
+  #   end
+  #   return data["new_item"]
+  # end
 
   private
 
