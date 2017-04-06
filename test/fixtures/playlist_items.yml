@@ -38,6 +38,27 @@ playlist_<%=operation%>_playlist:
   actual_object_type: Playlist
 <% end %>
 
+playlist_clone_text:
+  playlist: playlist_to_clone
+  actual_object: public_text_1
+  actual_object_type: TextBlock
+playlist_clone_link:
+  playlist: playlist_to_clone
+  actual_object: link_one
+  actual_object_type: Default
+playlist_clone_case:
+  playlist: playlist_to_clone
+  actual_object: public_case_1
+  actual_object_type: Case
+playlist_clone_collage:
+  playlist: playlist_to_clone
+  actual_object: collage_one
+  actual_object_type: Collage
+playlist_clone_playlist:
+  playlist: playlist_to_clone
+  actual_object: public_playlist_1
+  actual_object_type: Playlist
+
 <% for n in 1..2 %>
 playlist_2_case_<%=n%>:
   playlist: private_playlist_1
