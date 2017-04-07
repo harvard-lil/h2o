@@ -6,55 +6,6 @@ class AnnotationsController < BaseController
     super Annotation
   end
 
-  def metadata
-    @annotation[:object_type] = @annotation.class.to_s
-    @annotation[:child_object_name] = 'annotation'
-    @annotation[:child_object_plural] = 'annotations'
-    @annotation[:child_object_count] = nil
-    @annotation[:child_object_type] = 'Annotation'
-    @annotation[:child_object_ids] = nil
-    @annotation[:title] = @annotation.display_name
-    render :xml => @annotation.to_xml(:skip_types => true)
-  end
-
-  def show
-    @color_map = {}
-    @annotation.collage.layers.each do |layer|
-      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
-      @color_map[layer.name] = map.hex if map
-    end
-
-    @required_layer = @annotation.collage.layers.detect { |l| l.name.downcase == "required" }
-    @other_layers = @required_layer.present? ? @annotation.collage.layers.select { |t| t.id != @required_layer.id } : @annotation.collage.layers
-    @color_list = Collage.color_list
-  end
-
-  def new
-    @annotation.collage_id = params[:collage_id]
-    
-    @color_map = {}
-    @annotation.collage.layers.each do |layer|
-      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
-      @color_map[layer.name] = map.hex if map
-    end
-
-    @required_layer = @annotation.collage.layers.detect { |l| l.name.downcase == "required" }
-    @other_layers = @required_layer.present? ? @annotation.collage.layers.select { |t| t.id != @required_layer.id } : @annotation.collage.layers
-    @color_list = Collage.color_list
-
-    [:collage_id].each do |p|
-      @annotation[p] = (params[p] == 'null') ? nil : params[p]
-    end
-  end
-
-  def edit
-    @color_map = {}
-    @annotation.collage.layers.each do |layer|
-      map = @annotation.collage.color_mappings.detect { |cm| cm.tag_id == layer.id }
-      @color_map[layer.name] = map.hex if map
-    end
-  end
-
   def create
     if params[:layer_hexes].present?
       params[:layer_hexes].each do |k|
