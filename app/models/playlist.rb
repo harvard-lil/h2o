@@ -52,40 +52,9 @@ class Playlist < ApplicationRecord
 
   before_destroy :collapse_children
 
-  validate :when_taught_validation
-
   # For Rails Admin delete purposes only
   def playlists_user_collections
     []
-  end
-
-  def when_taught_validation
-    self.when_taught = self.when_taught.to_s.downcase.gsub(/ /, '')
-
-    # return if empty
-    return if self.when_taught == ""
-
-    # return if "other"
-    return if self.when_taught == "other"
-
-    # return if match on year 20**
-    return if self.when_taught.match(/^20\d{2}$/).present?
-
-    # return if match on year range 20**-20**
-    return if self.when_taught.match(/^20\d{2}-20\d{2}$/).present?
-
-    # return if match on comma delimited years, 20**(,20**)
-    return if self.when_taught.match(/^20\d{2}(,20\d{2})+$/).present?
-
-    # return if match on semester, or month, plus year
-    if self.when_taught.match(/^(spring|summer|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december)(20\d{2})?$/).present?
-      if $2.present?
-        self.when_taught = "#{$1} #{$2}"
-      end
-      return
-    end
-
-    errors.add(:when_taught, "is not valid. Please read instructiosn below to learn valid options.")
   end
 
   searchable(:include => [:tags], :if => :not_bookmark?) do

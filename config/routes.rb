@@ -10,7 +10,6 @@ H2o::Application.routes.draw do
   resources :bulk_uploads, only: [:show, :new, :create]
   resources :case_jurisdictions, only: [:new, :create]
   resources :case_requests, only: [:new, :create, :destroy]
-  resources :login_notifiers, only: [:new, :create]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :user_sessions, only: [:new, :create, :destroy, :index]
 
@@ -34,7 +33,6 @@ H2o::Application.routes.draw do
   resources :users do
     member do
       get 'playlists'
-      post 'disconnect_canvas'
       # post 'disconnect_dropbox'
       # get 'verification_request'
       # get 'verify/:token' => 'users#verify', as: :verify
