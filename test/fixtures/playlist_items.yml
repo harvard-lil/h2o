@@ -3,6 +3,16 @@ playlist_1_case_<%=n%>:
   playlist: public_playlist_1
   actual_object: public_case_<%=n%>
   actual_object_type: Case
+
+playlist_viewable_case_<%=n%>:
+  playlist: playlist_to_view
+  actual_object: public_case_<%=n%>
+  actual_object_type: Case
+
+playlist_2_case_<%=n%>:
+  playlist: private_playlist_1
+  actual_object: private_case_<%=n%>
+  actual_object_type: Case
 <% end %>
 
 <% for operation in %w{delete clone} %>
@@ -26,13 +36,6 @@ playlist_<%=operation%>_playlist:
   playlist: playlist_to_clone
   actual_object: public_playlist_1
   actual_object_type: Playlist
-<% end %>
-
-<% for n in 1..2 %>
-playlist_2_case_<%=n%>:
-  playlist: private_playlist_1
-  actual_object: private_case_<%=n%>
-  actual_object_type: Case
 <% end %>
 
 student_playlist_case_1:

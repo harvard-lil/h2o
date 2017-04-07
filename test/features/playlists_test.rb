@@ -5,12 +5,13 @@ feature 'playlists' do
     @public_playlist = playlists(:public_playlist_1)
     @private_playlist = playlists(:private_playlist_1)
   end
+  
   describe 'as an anonymous visitor' do
     scenario 'viewing a playlist', solr: true do
-      visit playlist_path(@public_playlist)
+      visit playlist_path viewable_playlist = playlists(:playlist_to_view)
 
-      assert_content @public_playlist.name
-      assert_content @public_playlist.user.attribution
+      assert_content viewable_playlist.name
+      assert_content viewable_playlist.user.attribution
       assert_content cases(:public_case_1).name
       assert_content cases(:public_case_2).name
 
@@ -19,7 +20,7 @@ feature 'playlists' do
       click_link "#{cases(:public_case_2).name}"
       go_back
 
-      assert_content @public_playlist.name
+      assert_content viewable_playlist.name
       # follow link to cases/texts/media
     end
     scenario 'browsing playlists', solr: true do

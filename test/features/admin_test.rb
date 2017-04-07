@@ -4,7 +4,6 @@ feature 'admin' do
   before do
     sign_in @user = users(:site_admin)
   end
-  focus
   scenario 'creating a new page', js: true do
     visit rails_admin_path
 
