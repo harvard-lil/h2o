@@ -70,6 +70,8 @@ class Ability
       can [:edit, :update], User
 
       can :access, :rails_admin
+      can [:create], :"ckeditor/pictures"
+      can [:create], :"ckeditor/assets"
       can :dashboard, :all
       can [:import, :submit_import, :empty], :playlists
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,

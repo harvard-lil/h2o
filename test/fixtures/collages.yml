@@ -64,7 +64,7 @@ collage_two:
 text_collage:
   annotatable_type: "Text"
   annotatable: collaged_text
-  name: "Private Collage 1"
+  name: "Collaged Text 1"
   description: "<p><br data-mce-bogus=\"1\"></p>"
   word_count: null
   ancestry: null

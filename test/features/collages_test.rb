@@ -9,7 +9,7 @@ feature 'collages' do
     end
   end
 
-  scenario 'delete a playlist', solr: true, js: true do
+  scenario 'delete a collage', solr: true, js: true do
     collage_to_delete = collages :private_collage_1
     sign_in collage_to_delete.user
     visit user_path collage_to_delete.user
