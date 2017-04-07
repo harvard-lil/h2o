@@ -122,10 +122,27 @@ feature 'cases' do
       click_link 'Save'
       find('.highlight-hex-ff3800').assert_text 'second highlight content'
 
-      # remove an annotation
+      sleep 1.second # TODO: The JS is updating this on a setInterval.
+
+      # update an annotation
+      visit current_path
+      assert_content "#{public_case.short_name} by #{user.attribution}"
+      find('.highlight-hex-ff3800').assert_text 'second highlight content'
+
       find('.indicator-highlight-hex-ff3800').click
+      click_link '05ff00'
+      click_link 'Save'
+
+      sleep 1.second # TODO: The JS is updating this on a setInterval.
+
+      visit current_path
+      find('.highlight-hex-05ff00').assert_text 'second highlight content'
+
+      # remove an annotation
+      assert_selector '.highlight-hex-05ff00'
+      find('.indicator-highlight-hex-05ff00').click
       click_link 'Delete'
-      refute_selector '.highlight-hex-ff3800'
+      refute_selector '.highlight-hex-05ff00'
 
       sleep 1.second # TODO: The JS is updating this on a setInterval.
 
