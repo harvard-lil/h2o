@@ -454,34 +454,8 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.record
   end
 
-  def display_first_time_canvas_notice
-    if first_time_canvas_login?
-      notice =
-        "You are logging into H2o directly from Canvas for the first time.<br/><br/>
-         After you login your Canvas id will be attached to your H2o id
-         and the next time you initiate an H2o session from Canvas you'll be logged in
-         automatically."
-      if flash[:notice].blank?
-        flash[:notice] = notice.html_safe
-      else
-        flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
-      end
-    end
-  end
   def redirect_back_or_default(default)
     redirect_to(cookies[:return_to] || default)
-  end
-  def first_time_canvas_login?
-    session.key?(:canvas_user_id)
-  end
-
-  def save_canvas_id_to_user(user)
-    user.update_attribute(:canvas_id, session.fetch(:canvas_user_id))
-    clear_canvas_id_from_session
-  end
-
-  def clear_canvas_id_from_session
-    session[:canvas_user_id] = nil
   end
 
   def iframe?

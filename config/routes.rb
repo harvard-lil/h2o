@@ -34,7 +34,6 @@ H2o::Application.routes.draw do
   resources :users do
     member do
       get 'playlists'
-      post 'disconnect_canvas'
       # post 'disconnect_dropbox'
       # get 'verification_request'
       # get 'verify/:token' => 'users#verify', as: :verify

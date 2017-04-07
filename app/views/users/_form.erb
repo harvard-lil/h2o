@@ -54,11 +54,6 @@
           <%= form.label :default_font %>
           <%= form.select :default_font, [['Futura', 'futura'], ['Leitura', 'leitura'], ['Garamond', 'garamond'], ['Goudy', 'goudy'], ['Verdana', 'verdana'], ['Proxima Nova', 'proxima'], ['Dagny Web', 'dagny']], :selected => @user.default_font.to_s %>
         </p>
-        <% if @user.canvas_id.present? -%>
-        <p>
-          Connected to Canvas <%= link_to '(remove)', disconnect_canvas_user_path(@user), :class => "user-disconnect" %>
-        </p>
-        <% end %>
         <p>
           <%= form.check_box :tab_open_new_items %>
           Open new collages, media, texts, playlists, etc. in a new tab?
