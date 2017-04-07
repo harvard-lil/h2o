@@ -29,8 +29,3 @@ student_playlist:
 empty_playlist:
   name: Empty Playlist
   user: student_user
-
-taught_playlist:
-  name: june 2010 playlist
-  when_taught: june 2010
-  user: verified_professor
