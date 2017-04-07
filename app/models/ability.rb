@@ -91,6 +91,7 @@ class Ability
       can :show, BulkUpload
     elsif user.has_role? :case_admin
       can [:new, :edit, :update, :show, :export, :export_as, :destroy], Case
+      can [:destroy], CaseRequest
       can :create, :cases
 
       can :approve, Case
