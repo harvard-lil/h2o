@@ -8,13 +8,12 @@ class Ability
     can [:new, :create, :edit, :update], :password_resets
     can [:new, :create], :login_notifiers
     can [:new, :create], :user_sessions
-    can :index, [:collages, :playlists, :cases, :text_blocks, :medias, :defaults]
+    can :index, [:collages, :playlists, :cases, :text_blocks, :defaults]
 
     can [:show, :export, :export_as], Playlist, :public => true
     can [:show, :export, :export_as, :export_unique], Collage, :public => true
     can [:show, :export, :export_as], Case, :public => true
     can [:show, :export, :export_as], TextBlock, :public => true
-    can :show, Media, :public => true
     can :show, PlaylistItem
 
     if user.nil?
@@ -23,15 +22,14 @@ class Ability
     else
       can [:playlist_lookup], :playlists
       can :collage_lookup, :collages
-      can [:user_lookup, :playlists, :disconnect_canvas, :disconnect_dropbox], :users
-      can :create, :defects
+      can [:user_lookup, :playlists, :disconnect_dropbox], :users
       can :quick_collage, :base
       can :create, :responses
 
       can :destroy, :user_sessions
       can [:bookmark_item, :delete_bookmark_item, :verification_request, :verify], :users
-      can :new, [Playlist, Collage, Media, TextBlock, Default, CaseRequest, PlaylistItem]
-      can :create, [:playlists, :collages, :medias, :text_blocks, :defaults, :case_requests, :bulk_uploads, :playlist_items, :annotations]
+      can :new, [Playlist, Collage, TextBlock, Default, CaseRequest, PlaylistItem]
+      can :create, [:playlists, :collages, :text_blocks, :defaults, :case_requests, :bulk_uploads, :playlist_items, :annotations]
       can :copy, Playlist, :public => true
       can :copy, Collage, :public => true
       can :copy, Default, :public => true
@@ -43,9 +41,9 @@ class Ability
 
       # Can do things on owned items
       if !user.has_role? :superadmin
-        can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [Playlist, Collage, TextBlock, Media, Default], :user_id => user.id
+        can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [Playlist, Collage, TextBlock, Default], :user_id => user.id
       end
-      can [:position_update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :user_id => user.id 
+      can [:position_update, :public_notes, :private_notes, :toggle_nested_private], Playlist, :user_id => user.id
       can [:delete_inherited_annotations, :save_readable_state], Collage, :user_id => user.id
       can [:update, :edit, :destroy], PlaylistItem do |playlist_item|
         playlist_item.playlist.user == user
@@ -72,12 +70,15 @@ class Ability
       can [:edit, :update], User
 
       can :access, :rails_admin
+      can [:create], :"ckeditor/pictures"
+      can [:create], :"ckeditor/assets"
+      can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
       can [:import, :submit_import, :empty], :playlists
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
            :update, :position_update, :update_notes, :delete_inherited_annotations, :save_readable_state],
         :all
-      can :aggregate_items, [Collage, Media, Playlist, TextBlock, Default, User]
+      can :aggregate_items, [Collage, Playlist, TextBlock, Default, User]
       can :delete_playlist_nested, Playlist
       can [:show, :edit, :new], Institution
       cannot [:view_in_app, :edit_in_app], Institution
@@ -93,6 +94,7 @@ class Ability
       can :show, BulkUpload
     elsif user.has_role? :case_admin
       can [:new, :edit, :update, :show, :export, :export_as, :destroy], Case
+      can [:destroy], CaseRequest
       can :create, :cases
 
       can :approve, Case
@@ -107,7 +109,7 @@ class Ability
       associated_user_ids = user_ids.flatten.uniq
       can :access, :rails_admin
       can :dashboard, :all
-      can [:index, :show, :export, :export_as, :export_unique, :view_in_app], [Playlist, Collage, TextBlock, Media, Default], :user_id => associated_user_ids
+      can [:index, :show, :export, :export_as, :export_unique, :view_in_app], [Playlist, Collage, TextBlock, Default], :user_id => associated_user_ids
     end
   end
 end

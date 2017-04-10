@@ -10,7 +10,7 @@ end
 # Run local solr on launch and whenever sunspot config changes.
 %w(development test).each do |env|
   guard 'sunspot', environment: env do
-    watch('Gemfile.lock')
+    # watch('Gemfile.lock') # gems don't usually affect sunspot, so be careful to check this manually
     watch('config/sunspot.yml')
   end
 end
@@ -28,7 +28,7 @@ guard :rails, port: 8000, host: '0.0.0.0', server: :puma do
 end
 
 # Rerun tests whenever test or app code changes.
-guard :minitest, spring: 'bin/rake test', env: {CAPYBARA_SKIP_JS: 'true'} do
+guard :minitest, spring: 'bin/rails test', env: {CAPYBARA_SKIP_JS: 'true'} do
   watch(%r{^test/(.*)\/?test_(.*)\.rb$})
   watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
 

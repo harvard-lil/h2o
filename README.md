@@ -11,7 +11,7 @@
 3. [License](#license)
 
 ## [Live version](https://h2o-dev.lil.tools) &nbsp; [![Build Status](https://travis-ci.org/harvard-lil/h2o.svg?branch=master)](https://travis-ci.org/harvard-lil/h2o)
-[![Coverage Status](https://coveralls.io/repos/github/harvard-lil/h2o/badge.svg?branch=master)](https://coveralls.io/github/harvard-lil/h2o?branch=master)
+## [![Coverage Status](https://coveralls.io/repos/harvard-lil/h2o/badge.png?branch=master)](https://coveralls.io/r/harvard-lil/h2o?branch=master)
 
 Auto-deploy of the latest master. If the build is green, it's up-to-date.
 
@@ -74,12 +74,12 @@ Guard will not automatically run these tests. This is less than ideal when worki
 
 Guard will automatically run all static tests after booting Rails and  again after any test or app file is edited. By default, Guard _won't_ run any tests that require JS, since they're so much slower. You can run those tests manually:
 
-1. `bin/rake test:all` runs all tests, including JS tests.
-1. `bin/rake test test/features/cases_test.rb` runs the case feature test, and so on, including JS tests.
+1. `bin/rails test` runs all tests, including JS tests.
+1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on, including JS tests.
 
 ### Coverage
 
-1. `bin/rake test:coverage` will run all tests and generate a coverage report in `coverage/index.html`.
+1. `bin/rails test:coverage` will run all tests and generate a coverage report in `coverage/index.html`.
 
 > TODO: When coverage is a bit higher, add a git commit hook which runs the coverage report and fails if under some value.
 

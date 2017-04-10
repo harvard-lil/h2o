@@ -26,7 +26,7 @@
 #  enable_responses   :boolean          default(FALSE), not null
 #
 
-class Collage < ActiveRecord::Base
+class Collage < ApplicationRecord
   include StandardModelExtensions
   include AncestryExtensions
   include MetadataExtensions
@@ -52,7 +52,6 @@ class Collage < ActiveRecord::Base
   belongs_to :user
   has_many :annotations, -> { order(:created_at) }, :dependent => :destroy, :as => :annotated_item
   has_and_belongs_to_many :user_collections,  :dependent => :destroy
-  has_many :defects, :as => :reportable
   has_many :color_mappings
   has_many :playlist_items, :as => :actual_object
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
@@ -78,7 +77,7 @@ class Collage < ActiveRecord::Base
     string :root_user_display, :stored => true
     integer :root_user_id, :stored => true
     integer :karma
-    
+
     string :klass, :stored => true
     string :annotype, :stored => true
     boolean :primary do
@@ -140,31 +139,13 @@ class Collage < ActiveRecord::Base
     h
   end
 
-  def barcode
-    Rails.cache.fetch("collage-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.public_children.each do |child|
-        barcode_elements << { :type => "clone",
-                              :date => child.created_at,
-                              :title => "Cloned to #{child.name}",
-                              :link => collage_path(child), 
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
-
   def display_name
     "#{self.name}, #{self.created_at.to_s(:simpledatetime)}#{(self.user.nil?) ? '' : ' by ' + self.user.login}"
   end
   alias :to_s :display_name
 
   def highlights_only
-    self.annotations.map(&:highlight_only).flatten.uniq.compact 
+    self.annotations.map(&:highlight_only).flatten.uniq.compact
   end
 
   def layers
@@ -266,8 +247,8 @@ class Collage < ActiveRecord::Base
 
     #This is kind of a hack to avoid re-parsing everything in printable_content()
     if convert_h_tags
-      PlaylistExporter.convert_h_tags(doc)
-      PlaylistExporter.inject_doc_styles(doc)
+      PlaylistExportJob.new.convert_h_tags(doc)
+      PlaylistExportJob.new.inject_doc_styles(doc)
     end
     html = doc.xpath("/html/body/*").to_s
 

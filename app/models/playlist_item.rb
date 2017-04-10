@@ -14,11 +14,11 @@
 #  actual_object_id   :integer
 #
 
-class PlaylistItem < ActiveRecord::Base
+class PlaylistItem < ApplicationRecord
   include StandardModelExtensions
 
   belongs_to :playlist
-  belongs_to :actual_object, :polymorphic => true 
+  belongs_to :actual_object, :polymorphic => true
   validate :not_infinite
 
   delegate :name, to: :actual_object, allow_nil: true
@@ -42,11 +42,7 @@ class PlaylistItem < ActiveRecord::Base
   end
 
   def clean_type
-    if self.actual_object_type == 'Media'
-      return 'media-' + actual_object.media_type.slug
-    else
-      return actual_object_type.to_s.downcase
-    end
+    return actual_object_type.to_s.downcase
   end
   def type_label
     if self.actual_object_type == 'Media'

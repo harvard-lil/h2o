@@ -1,6 +1,16 @@
   <div class="standard-form">
     <div id="case-error" style="display:none;" class="error"></div>
     <h1 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h1>
+    <% if @case.errors.any? -%>
+    <div id="case-error" class="error">
+      <ul>
+        <% @case.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+    <% end -%>
+
     <%= semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
       <%= form.inputs do %>
         <%= form.input :short_name %>
@@ -36,9 +46,9 @@
             <a href="#" id="case_content-html" class="html">HTML</a>
             <a href="#" id="case_content-tmce" class="current">Visual</a>
           </div>
-          <%= form.input :content, 
-            :as => :text, 
-            :required => true 
+          <%= form.input :content,
+            :as => :text,
+            :required => true
           %>
         <% end -%>
         <% if current_user.has_role?(:case_admin) -%>

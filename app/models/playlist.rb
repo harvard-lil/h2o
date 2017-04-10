@@ -21,7 +21,7 @@
 #  created_via_import :boolean          default(FALSE), not null
 #
 
-class Playlist < ActiveRecord::Base
+class Playlist < ApplicationRecord
   include StandardModelExtensions
   include AncestryExtensions
   include CaptchaExtensions
@@ -43,49 +43,18 @@ class Playlist < ActiveRecord::Base
   has_many :playlist_items, -> { order("playlist_items.position") }, :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
   has_and_belongs_to_many :user_collections, :dependent => :destroy
-  belongs_to :location
+  belongs_to :location, optional: true
   belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
-  
+
   validates_presence_of :name
   validates_length_of :name, :in => 1..250
 
   before_destroy :collapse_children
 
-  validate :when_taught_validation
-
   # For Rails Admin delete purposes only
   def playlists_user_collections
     []
-  end
-
-  def when_taught_validation
-    self.when_taught = self.when_taught.to_s.downcase.gsub(/ /, '')
-
-    # return if empty
-    return if self.when_taught == ""
-
-    # return if "other"
-    return if self.when_taught == "other"
-
-    # return if match on year 20**
-    return if self.when_taught.match(/^20\d{2}$/).present?
-
-    # return if match on year range 20**-20**
-    return if self.when_taught.match(/^20\d{2}-20\d{2}$/).present?
-
-    # return if match on comma delimited years, 20**(,20**)
-    return if self.when_taught.match(/^20\d{2}(,20\d{2})+$/).present?
-
-    # return if match on semester, or month, plus year
-    if self.when_taught.match(/^(spring|summer|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december)(20\d{2})?$/).present?
-      if $2.present?
-        self.when_taught = "#{$1} #{$2}"
-      end
-      return
-    end
-
-    errors.add(:when_taught, "is not valid. Please read instructiosn below to learn valid options.")
   end
 
   searchable(:include => [:tags], :if => :not_bookmark?) do
@@ -110,7 +79,7 @@ class Playlist < ActiveRecord::Base
 
     time :created_at
     time :updated_at
-    
+
     string :klass, :stored => true
   end
 
@@ -125,23 +94,6 @@ class Playlist < ActiveRecord::Base
 
   def secondary
     !self.primary
-  end
-  def barcode
-    Rails.cache.fetch("playlist-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.public_children.each do |child|
-        barcode_elements << { :type => "clone",
-                              :date => child.created_at,
-                              :title => "Cloned to Playlist #{child.name}",
-                              :link => playlist_path(child),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
   end
 
   def parents
@@ -181,9 +133,9 @@ class Playlist < ActiveRecord::Base
     end
     [shown_word_count, total_word_count]
   end
-  
+
   def all_actual_object_ids
-    t = { :Collage => [], :Media => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
+    t = { :Collage => [], :Playlist => [], :Default => [], :Case => [], :TextBlock => [] }
     self.playlist_items.each do |pi|
       t[pi.actual_object_type.to_sym] << pi.actual_object.id if pi.actual_object.present?
       if pi.actual_object_type == "Playlist" && pi.actual_object.present?
@@ -193,7 +145,7 @@ class Playlist < ActiveRecord::Base
     end
     t
   end
-  
+
   def all_actual_items
     t = []
     self.playlist_items.each do |pi|
@@ -209,18 +161,6 @@ class Playlist < ActiveRecord::Base
 
   def contains_item?(item_key)
     self.playlist_items.map { |pi| "#{pi.actual_object_type}#{pi.actual_object_id}" }.include?(item_key)
-  end
-
-  def push!(options = {})
-    if options[:recipient]
-      push_to_recipient!(options[:recipient])
-    elsif options[:recipients]
-      options[:recipients].each do |r|
-        push_to_recipient!(r)
-      end
-    else
-      false
-    end
   end
 
   def public_count
@@ -254,8 +194,8 @@ class Playlist < ActiveRecord::Base
 
     all_nested_items.each do |item|
       can_delete = item.user == playlist.user
-     
-      if [Collage, Default, Media, TextBlock].include?(item.class)
+
+      if [Collage, Default, TextBlock].include?(item.class)
         playlist_users = item.playlist_items.collect { |pi| pi.playlist.user_id }.uniq
         if playlist_users.detect { |u| u != playlist.user_id }
           can_delete = false
@@ -281,7 +221,7 @@ class Playlist < ActiveRecord::Base
   end
 
   def users_by_permission
-    # Temporary override on users by permissions 
+    # Temporary override on users by permissions
     return []
 
     if self.name == "Your Bookmarks" || self.public
@@ -294,7 +234,7 @@ class Playlist < ActiveRecord::Base
     ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
   end
 
-  def self.clear_nonsiblings(id) 
+  def self.clear_nonsiblings(id)
     record = PlaylistItem.unscoped { Playlist.where(id: id) }.first
 
     ActionController::Base.expire_page "/playlists/#{record.id}.html"
@@ -320,7 +260,7 @@ class Playlist < ActiveRecord::Base
       new_playlist_item = playlist_item.dup
       playlist_copy.playlist_items << new_playlist_item
     end
-    
+
     playlist_copy
   end
 
@@ -339,7 +279,7 @@ class Playlist < ActiveRecord::Base
         ActionController::Base.expire_page "/iframe/show/playlists/#{p}.html"
       end
 
-      if changed.include?("public")
+      if saved_changes.keys.include?(:public)
         [:playlists, :collages, :cases].each do |type|
           user.send(type).each { |i| ActionController::Base.expire_page "/#{type.to_s}/#{i.id}.html" }
         end

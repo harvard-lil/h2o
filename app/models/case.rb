@@ -24,7 +24,7 @@
 #  created_via_import   :boolean          default(FALSE), not null
 #
 
-class Case < ActiveRecord::Base
+class Case < ApplicationRecord
   include StandardModelExtensions
   include AnnotatableExtensions
   include Rails.application.routes.url_helpers
@@ -39,12 +39,11 @@ class Case < ActiveRecord::Base
 
   has_many :case_citations
   has_many :case_docket_numbers
-  belongs_to :case_request
-  belongs_to :case_jurisdiction
+  belongs_to :case_request, optional: true
+  belongs_to :case_jurisdiction, optional: true
   belongs_to :user
   has_many :annotations, :through => :collages
   has_many :collages, :as => :annotatable, :dependent => :destroy
-  has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object
 
   accepts_nested_attributes_for :case_citations,
@@ -126,8 +125,8 @@ class Case < ActiveRecord::Base
 
   def printable_content
     doc = Nokogiri::HTML.parse(self.content)
-    PlaylistExporter.convert_h_tags(doc)
-    PlaylistExporter.inject_doc_styles(doc)
+    PlaylistExportJob.new.convert_h_tags(doc)
+    PlaylistExportJob.new.inject_doc_styles(doc)
     doc.xpath("/html/body/*").to_s
   end
 
@@ -143,7 +142,7 @@ class Case < ActiveRecord::Base
   end
 
   def self.new_from_xml_file(file)
-    cxp = CaseXmlParser.new(file)
+    cxp = CaseParser::XmlParser.new(file)
 
     new_case = cxp.xml_to_case_attributes
     cj = CaseJurisdiction.where(name: new_case[:jurisdiction].gsub('.', '')).first
@@ -152,34 +151,12 @@ class Case < ActiveRecord::Base
     end
     new_case.delete(:jurisdiction)
     c = Case.new(new_case)
-    c.user = User.where(login: 'h2ocases').first
+    c.user = User.find_by_login 'h2ocases'
+    # c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
 
     c
   end
 
-  def to_tsv
-    [self.short_name,
-     self.case_citations.first.to_s,
-     "https://#{host_and_port}/cases/#{self.id}"].join("\t")
-  end
-
-  def barcode
-    Rails.cache.fetch("case-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.collages.each do |collage|
-        barcode_elements << { :type => "collaged",
-                              :date => collage.created_at,
-                              :title => "Annotated to #{collage.name}",
-                              :link => collage_path(collage),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
   def version
     1.0
   end
@@ -189,14 +166,14 @@ class Case < ActiveRecord::Base
   end
 
   private
-  
+
   def host_and_port
     host = ActionMailer::Base.default_url_options[:host]
     port = ActionMailer::Base.default_url_options[:port]
     port = port.blank? ? '' : ":#{port}"
     "#{host}#{port}"
   end
-  
+
   def assign_to_h2ocases
     self.user = User.where(login: 'h2ocases').first
   end

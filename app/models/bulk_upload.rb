@@ -10,7 +10,7 @@
 #  user_id        :integer          default(0), not null
 #
 
-class BulkUpload < ActiveRecord::Base
+class BulkUpload < ApplicationRecord
   has_many :imports
   has_many :error_imports, -> { where status: 'Errored' }, class_name: "Import"
   has_many :dupe_imports, -> { where status: 'Dupe Detected' }, class_name: "Import"

@@ -1,7 +1,7 @@
 class CollagesController < BaseController
   cache_sweeper :collage_sweeper
 
-  before_filter :limit_missing_item, :only => :destroy
+  before_action :limit_missing_item, :only => :destroy
 
   protect_from_forgery :except => [:export, :export_all, :export_as, :export_unique, :save_readable_state, :upgrade_annotator, :copy, :destroy, :collage_list]
 
@@ -22,7 +22,7 @@ class CollagesController < BaseController
     }
   end
 
-  def access_level 
+  def access_level
     if current_user && params[:iframe].blank?
       render :json => {
         :can_edit             => can?(:edit, @collage),
@@ -95,7 +95,7 @@ class CollagesController < BaseController
     @collage = Collage.new(collages_params)
     @collage.user = current_user
     verify_captcha(@collage)
-    
+
     @collage.version = @collage.annotatable.is_a?(Case) ? 1.0 : @collage.annotatable.version
 
     if @collage.save

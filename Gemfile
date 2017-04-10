@@ -1,55 +1,65 @@
 source 'https://rubygems.org'
 
 gem 'pg'
-gem 'rails', '4.1.7'
+gem 'rails', '5.1.0.rc1'
 gem 'puma', '~> 3.8'
 
-gem 'coffee-rails', '~> 4.0.0'
-gem 'jbuilder', '~> 1.2'
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
-gem 'sass-rails', '~> 4.0.0'
-gem 'therubyracer', platforms: :ruby
-gem 'uglifier', '>= 1.3.0'
+# Gems disabled for rails 5.1
+# gem 'coffee-rails', '~> 4.0.0'
+# gem 'jquery-rails'
+# gem 'jquery-ui-rails'
 
 gem 'actionpack-page_caching'
-gem 'acts-as-taggable-on', '~> 3.1.1' # Note: 3.2.1. has a bug that causes chain of UPDATE/DELETEs on annotations tagged when required tag removed
-gem 'ancestry'
+gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
+gem 'ancestry', git: 'https://github.com/harvard-lil/ancestry.git', ref: '73941ad'
 gem 'authlogic'
 gem 'bcrypt'
-gem 'cancan'
-gem 'ckeditor'
+gem 'cancancan'
+gem 'ckeditor', git: 'https://github.com/harvard-lil/ckeditor.git', branch: 'rails-5-1', ref: '8f6ff82'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
 gem 'delayed_job_active_record'
 gem 'delayed_job'
 gem 'dropbox-sdk'
+gem 'erubi'
+gem 'erubis'
 gem 'exception_notification'
 gem 'fastercsv'
-gem 'formtastic', '~> 2.3.0.rc2'
+gem 'formtastic'
+gem 'jbuilder', '~> 2.6.3'
 gem 'json', '1.8.6'
 gem 'kaminari'
-gem 'loofah-activerecord', '~> 1.2'
+gem 'loofah-activerecord', '~> 2.0.0'
 gem 'nokogiri', '~> 1.6'
 gem 'paperclip'
 gem 'progress_bar'
-gem 'rails_admin_import', '0.1.9'
+gem 'rails-observers', git: 'https://github.com/rails/rails-observers.git', ref:'953b641'
 gem 'rails_admin'
-gem 'rails-observers'
+gem 'rails_admin_import'
+gem 'rails-html-sanitizer'
 gem 'RedCloth'
+gem 'sass-rails', '~> 5.0.6'
 gem 'scrypt'
 gem 'sunspot_rails'
+gem 'therubyracer', platforms: :ruby
+gem 'uglifier', '>= 1.3.0'
 gem 'warden'
-gem 'will_paginate'
+gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e1c0e0'
 
-# NOTE: recaptcha is no longer used, but we leave the gem here so the Recaptcha.configure
-#   call in the initializer (which is not in source control) does not blow up.
-#   You have to be kidding.
-gem 'recaptcha'
+# export binary gems
+gem 'htmltoword', require: false, git: 'https://github.com/harvard-lil/htmltoword.git', branch: 'deterministic', ref: '62402206'
+gem 'methadone', require: false
+gem 'rmultimarkdown', require: false
+gem 'wkhtmltopdf-binary', require: false
+
+# Gems disabled for rails 5.1
+# gem 'database_cleaner'
+# gem 'capybara', '2.8' # compat with minitest-capybara
+# gem 'minitest-rails-capybara'
+# gem 'quiet_assets'
 
 group :development do
   gem 'annotate'
-  gem 'quiet_assets'
   gem 'sunspot_solr'
   gem 'web-console'
 
@@ -66,11 +76,9 @@ group :development do
 end
 
 group :development, :test do
-  gem 'capybara', '2.8' # compat with minitest-capybara
-  gem 'database_cleaner'
   gem 'launchy'
-  gem 'minitest-rails-capybara'
-  gem 'minitest-rails'
+  gem 'minitest-metadata', require: false
+  gem 'minitest-spec-rails'
   gem 'minitest-reporters'
   gem 'poltergeist'
   gem 'pry-byebug'

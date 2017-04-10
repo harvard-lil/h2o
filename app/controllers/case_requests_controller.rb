@@ -7,7 +7,7 @@ class CaseRequestsController < ApplicationController
   def create
     @case_request = CaseRequest.new(case_requests_params)
     @case_request.user = current_user
-    
+
     if @case_request.save
       flash[:notice] = 'Case Request was successfully created.'
       redirect_to cases_path
@@ -17,7 +17,7 @@ class CaseRequestsController < ApplicationController
   end
 
   def destroy
-    Notifier.case_request_notify_rejected(@case_request).deliver
+    Notifier.case_request_notify_rejected(@case_request).deliver_later
     @case_request.destroy
     respond_to do |format|
       format.html { redirect_to(cases_url) }

@@ -18,7 +18,7 @@
 #  user_id              :integer          default(0), not null
 #
 
-class CaseRequest < ActiveRecord::Base
+class CaseRequest < ApplicationRecord
   validates_presence_of :full_name, :author, :bluebook_citation,
                         :docket_number, :volume, :reporter, :page,
                         :reporter, :page, :status, :decision_date

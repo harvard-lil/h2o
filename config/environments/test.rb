@@ -1,4 +1,17 @@
 H2o::Application.configure do
+  # rails 5.1 configs:
+  config.action_mailer.perform_caching = false
+  # Configure public file server for tests with Cache-Control for performance.
+  config.public_file_server.enabled = true
+  config.public_file_server.headers = {
+    'Cache-Control' => "public, max-age=#{1.hour.seconds.to_i}"
+  }
+  config.cache_store = :memory_store
+  
+  config.active_job.queue_adapter = :test
+
+  # config.action_view.raise_on_missing_translations = true
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # The test environment is used exclusively to run your application's
@@ -13,9 +26,9 @@ H2o::Application.configure do
   config.eager_load = false
 
   # Configure static asset server for tests with Cache-Control for performance.
-  config.serve_static_assets  = true
+  # config.serve_static_assets  = true
   # config.assets.debug = true
-  config.static_cache_control = "public, max-age=3600"
+  # config.static_cache_control = "public, max-age=3600"
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -24,8 +37,8 @@ H2o::Application.configure do
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false
 
-  # Disable request forgery protection in test environment.
-  config.action_controller.allow_forgery_protection = false
+  # Include forgery protection for system tests
+  config.action_controller.allow_forgery_protection = true
 
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the

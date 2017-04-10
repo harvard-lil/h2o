@@ -19,7 +19,7 @@
 #  enable_responses   :boolean          default(FALSE), not null
 #
 
-class TextBlock < ActiveRecord::Base
+class TextBlock < ApplicationRecord
 
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
@@ -50,7 +50,6 @@ class TextBlock < ActiveRecord::Base
   belongs_to :user
 
   validates_presence_of :name
-  accepts_nested_attributes_for :metadatum
 
   def self.tag_list
     Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
@@ -112,31 +111,13 @@ class TextBlock < ActiveRecord::Base
     self.content.gsub!(/\p{Cc}/, "")
   end
 
-  def barcode
-    Rails.cache.fetch("textblock-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = self.barcode_bookmarked_added
-      self.collages.each do |collage|
-        barcode_elements << { :type => "collaged",
-                              :date => collage.created_at,
-                              :title => "Annotated to #{collage.name}",
-                              :link => collage_path(collage),
-                              :rating => 5 }
-      end
-
-      value = barcode_elements.inject(0) { |sum, item| sum + item[:rating] }
-      self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
-  end
-
   def h2o_clone(new_user, params)
     text_copy = self.dup
     text_copy.karma = 0
     text_copy.name = params[:name] if params.has_key?(:name)
     text_copy.description = params[:description] if params.has_key?(:description)
     text_copy.user = new_user
-    text_copy 
+    text_copy
   end
 
   def printable_content

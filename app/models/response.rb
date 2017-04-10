@@ -10,7 +10,7 @@
 #  created_at    :datetime
 #
 
-class Response < ActiveRecord::Base
+class Response < ApplicationRecord
   belongs_to :resource, :polymorphic => true
   belongs_to :user
 

@@ -1,5 +1,4 @@
 class UserSessionsController < ApplicationController
-  before_filter :display_first_time_canvas_notice, :only => [:new]
   protect_from_forgery :except => [:create]
 
   def index
@@ -16,7 +15,7 @@ class UserSessionsController < ApplicationController
   def create
     redirect_to root_url and return if current_user.present?
 
-    @user_session = UserSession.new(params[:user_session])
+    @user_session = UserSession.new(user_session_param)
     @user_session.save do |result|
       if result
         apply_user_preferences(@user_session.user, false)
@@ -24,13 +23,7 @@ class UserSessionsController < ApplicationController
           #Text doesn't matter, status code does.
           render :text => 'Success!', :layout => false
         else
-          if first_time_canvas_login?
-            save_canvas_id_to_user(@user_session.user)
-            flash[:notice] = "You canvas id was attached to this account"
-            redirect_to user_path(@user_session.user)
-          else
-            redirect_back_or_default "/"
-          end
+          redirect_back_or_default "/"
         end
       else
         render :action => :new, :layout => !request.xhr?, :status => :unprocessable_entity
@@ -44,5 +37,11 @@ class UserSessionsController < ApplicationController
       current_user_session.destroy
     end
     redirect_back_or_default "/"
+  end
+
+  private
+
+  def user_session_param
+    params.require(:user_session).permit(:login, :password, :remember_me)
   end
 end

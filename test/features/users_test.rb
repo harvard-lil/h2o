@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'application_system_test_case'
 
 feature 'users' do
   describe 'as an anonymous visitor' do
@@ -44,10 +44,22 @@ feature 'users' do
         assert_content 'Email address must be a .edu address'
       end
     end
+    scenario 'browsing users', solr: true do
+      visit users_path
+      assert_content "student_user"
+    end
+    scenario 'browsing a non-user' do
+      visit user_path(:nonID)
+      assert_current_path '/'
+    end
+    scenario 'browsing a user with content', solr: true, js: true do
+      visit user_path users(:case_admin)
 
-    scenario 'browsing users' do
-      # do users have public profile pages? what are they used for?
-      ## see their playlists
+      within '#advanced-search-content' do
+        click_link 'Case'
+      end
+      assert_content 'District Case 1'
+      assert_no_content 'Private Case 1'
     end
   end
 
@@ -95,7 +107,7 @@ feature 'users' do
 
         click_button 'Login'
 
-        assert_content 'Password is not valid' 
+        assert_content 'Password is not valid'
       end
 
 
@@ -142,11 +154,9 @@ feature 'users' do
   end
   describe 'as an administrator' do
     scenario 'verifying a new user account' do
-      skip
       # done manually
     end
     scenario 'rejecting a new user account' do
-      skip
       #done manually
     end
   end

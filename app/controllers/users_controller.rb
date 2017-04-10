@@ -1,7 +1,6 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
-  before_filter :display_first_time_canvas_notice, :only => [:new, :create]
-  protect_from_forgery :except => [:disconnect_dropbox, :disconnect_canvas]
+  protect_from_forgery :except => [:disconnect_dropbox]
 
   DEFAULT_SHOW_TYPES = {
     :shared_private_playlists => {
@@ -75,10 +74,6 @@ class UsersController < ApplicationController
     if @user.save
       @user.send_verification_request_to_admin
       flash[:notice] = "Account registered! You will be notified once an admin has verified your account."
-      if first_time_canvas_login?
-        save_canvas_id_to_user(@user)
-        flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
-      end
       redirect_to user_path(@user)
     else
       render :action => :new
@@ -107,7 +102,7 @@ class UsersController < ApplicationController
       else
         content = @user.send(params["ajax_region"]).sort_by(&sorter)
       end
-     
+
       if(params[:order] == 'desc')
         content.reverse!
       end
@@ -123,14 +118,12 @@ class UsersController < ApplicationController
       primary_filtering = false
       secondary_filtering = false
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
-     
-      models = [Playlist, Collage, Case, Media, TextBlock, Default]
+
+      models = [Playlist, Collage, Case, TextBlock, Default]
       # models << UserCollection if @user == current_user
 
       if params.has_key?(:klass)
-        if params[:klass] == 'Media'
-          models = [Media]
-        elsif params[:klass] == 'Primary'
+        if params[:klass] == 'Primary'
           models = [Playlist]
           primary_filtering = true
         elsif params[:klass] == 'Secondary'
@@ -258,7 +251,7 @@ class UsersController < ApplicationController
     end
 
     begin
-      klass = params[:type] == 'media' ? Media : params[:type].classify.constantize
+      klass = params[:type].classify.constantize
 
       if playlist.contains_item?("#{klass.to_s}#{params[:id]}")
         render :json => { :already_bookmarked => true, :user_id => current_user.id }
@@ -285,13 +278,6 @@ class UsersController < ApplicationController
 
   def playlists
     render :json => { :playlists => User.where(id: params[:id]).first.playlists.select { |p| p.name != 'Your Bookmarks' }.to_json(:only => [:id, :name]) }
-  end
-
-  def disconnect_canvas
-    @user = @current_user
-    @user.update_attribute(:canvas_id, nil)
-    redirect_to edit_user_path(@user)
-    render :json => {}
   end
 
   def disconnect_dropbox

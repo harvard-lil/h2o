@@ -15,11 +15,6 @@
       <%= link_to item.actual_object.url, item.actual_object.url, :target => '_blank' %>
     </div>
   <% end -%>
-  <% if item.actual_object_type == 'Media' %>
-    <div class="Item-text">
-      <%= link_to media_url(item.actual_object), media_url(item.actual_object), :target => '_blank' %>
-    </div>
-  <% end -%>
   <div class="item_description scale0-8">
     <div class="Item-description">
       <%= raw item.print_formatted(:description) %>
@@ -78,4 +73,3 @@
   </<%= h_tag %>>
 <% end -%>
 </li>
-

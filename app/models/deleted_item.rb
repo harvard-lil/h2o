@@ -8,7 +8,7 @@
 #  deleted_at :datetime
 #
 
-class DeletedItem < ActiveRecord::Base
+class DeletedItem < ApplicationRecord
   def month
     self.deleted_at.strftime('%Y-%m')
   end

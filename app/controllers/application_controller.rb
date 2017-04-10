@@ -1,13 +1,13 @@
 class ApplicationController < ActionController::Base
   include UserPreferenceExtensions
   # Important that check_auth happens after load_single_resource
-  before_filter :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
+  before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
-  before_filter :set_sort_params, :only => [:index, :tags]
-  before_filter :set_sort_lists, :only => [:index, :tags]
-  before_filter :filter_tag_list, :only => [:update, :create]
+  before_action :set_sort_params, :only => [:index, :tags]
+  before_action :set_sort_lists, :only => [:index, :tags]
+  before_action :filter_tag_list, :only => [:update, :create]
 
-  after_filter :allow_iframe
+  after_action :allow_iframe
 
   layout :layout_switch
 
@@ -22,11 +22,11 @@ class ApplicationController < ActionController::Base
   end
 
   def filter_tag_list
-    return if !["collages", "defaults", "playlists", "medias", "text_blocks"].include?(params[:controller])
+    return if !["collages", "defaults", "playlists", "text_blocks"].include?(params[:controller])
 
     resource_type = params[:controller].gsub(/s$/, '').to_sym
     return if params[resource_type].nil?
-    
+
     return if params[resource_type][:tag_list].nil?
 
     params[resource_type][:tag_list].gsub!(/,/, '::::')
@@ -38,16 +38,12 @@ class ApplicationController < ActionController::Base
     return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
 
     if params[:action] == "new"
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      model = params[:controller].singularize.classify.constantize
       @single_resource = item = model.new
-      if model == Media
-        @media = item
-      else
-        instance_variable_set "@#{model.to_s.tableize.singularize}", item
-      end
+      instance_variable_set "@#{model.to_s.tableize.singularize}", item
       @page_title = "New #{model.to_s}"
     elsif params[:id].present?
-      model = params[:controller] == "medias" ? Media : params[:controller].singularize.classify.constantize
+      model = params[:controller].singularize.classify.constantize
       if params[:action] == "new"
         item = model.new
       elsif ["access_level", "save_readable_state"].include?(params[:action])
@@ -61,11 +57,7 @@ class ApplicationController < ActionController::Base
         @single_resource = item
       elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
         @single_resource = item
-        if params[:controller] == "medias"
-          @media = item
-        else
-          instance_variable_set "@#{model.to_s.tableize.singularize}", item
-        end
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
         @page_title = item.name if item.respond_to?(:name)
       else
         render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
@@ -98,8 +90,7 @@ class ApplicationController < ActionController::Base
       # This exists to prevent garbage exceptions in the Rails log caused by
       # spam links pointing to this non-existent route, and returns a 404 specifically
       # to detract from spam links' Google juice
-      render :text => "Not found", :status => 404, :layout => false
-      true
+      raise ActionController::RoutingError.new('Not Found')
     end
   end
 
@@ -162,12 +153,12 @@ class ApplicationController < ActionController::Base
       "user" => { :display => "SORT BY AUTHOR", :selected => false }
     }))
     if ["index", "search"].include?(params[:action])
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:media] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false },
         "user" => { :display => "SORT BY AUTHOR", :selected => false }
       }))
     else
-      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = @sort_lists[:medias] = @sort_lists[:defects] = generate_sort_list(base_sort.merge({
+      @sort_lists[:defaults] = @sort_lists[:playlists] = @sort_lists[:collages] = generate_sort_list(base_sort.merge({
         "created_at" => { :display => "SORT BY DATE", :selected => false }
       }))
     end
@@ -175,15 +166,9 @@ class ApplicationController < ActionController::Base
 
   def common_index(model)
     @page_title = "#{params.has_key?(:featured) ? "Featured " : ""}#{model.to_s.pluralize} | H2O Classroom Tools"
-    @type_lookup = model == Media ? :medias : model.to_s.tableize.to_sym 
+    @type_lookup = model.to_s.tableize.to_sym
     @label = model.to_s
-    if model == Media
-      @label = "Audio Items" if params[:media_type] == "audio"
-      @label = "PDFs" if params[:media_type] == "pdf"
-      @label = "Images" if params[:media_type] == "image"
-      @label = "Videos" if params[:media_type] == "video"
-      @page_title = "#{@label} | H2O Classroom Tools"
-    elsif model == Default
+    if model == Default
       @label = "Links"
       @page_title = "Links | H2O Classroom Tools"
     elsif model == TextBlock
@@ -201,19 +186,6 @@ class ApplicationController < ActionController::Base
     params[:page] ||= 1
 
     @collection = build_search(model, params)
-
-    if @collection.results.total_entries <= 20 && @label == "Media"
-      media_types = {}
-      @collection.results.each do |hit|
-        media_types[hit.media_type.label] = 1
-      end
-      if media_types.keys.length == 1
-        @label = media_types.keys.first
-        @label = "Audio Item" if @label == "Audio"
-        @label = "#{@label}s" if @collection.results.total_entries != 1
-        @page_title = "#{@label} | H2O Classroom Tools"
-      end
-    end
 
     if request.xhr?
       render :partial => 'shared/generic_block'
@@ -244,7 +216,7 @@ class ApplicationController < ActionController::Base
         end
       end
       if params.has_key?(:annotype)
-        with :annotype, params[:annotype] 
+        with :annotype, params[:annotype]
       end
       if params.has_key?(:keywords)
         keywords params[:keywords]
@@ -350,12 +322,12 @@ class ApplicationController < ActionController::Base
           @queued_users << { :id => row.value, :count => row.count }
         end
       end
- 
+
       collection.facet(:klass).rows.each do |row|
         @klass_facet_display << { :value => row.value, :count => row.count }
       end
     end
-     
+
     b = collection.facet(:primary).rows.detect { |r| r.value }
     @primary_playlists = b.count if b.present?
     b = collection.facet(:secondary).rows.detect { |r| r.value }
@@ -367,20 +339,21 @@ class ApplicationController < ActionController::Base
     if params.has_key?(:user_ids)
       @user_facet_display.each { |b| b[:class] = "#{b[:class]} active" }
     end
-  
+
     @klass_facets = collection.facet(:klass).rows
   end
 
   def export_as
+    # TODO: These implementations are now fast enough to provide the link by ajax.
     base_args = {
       request_url: request.url,
-      params: params,
+      params: params.permit(:utf8, :item_name, :fontface_mapped, :fontsize_mapped, :theme, :fontface, :fontsize, :toc_levels, :printtitle, :printparagraphnumbers, :'margin-left', :'margin-top', :'margin-right', :'margin-bottom', :hiddentext, :printannotations, :printlinks, :printhighlights, :export_format, :controller, :action, :id).to_h,
       session_cookie: cookies[:_h2o_session],
     }
     if request.xhr?
       export_content_async(base_args)
     else
-      export_content(base_args)
+      # export_content(base_args)
     end
   end
 
@@ -397,21 +370,21 @@ class ApplicationController < ActionController::Base
       return
     end
 
-    render :json => {}
+    render :json => {success: true}
     base_args[:email_to] = current_user.email_address
-    PlaylistExporter.delay.export_as(base_args)
+    PlaylistExportJob.perform_later(base_args)
   end
 
-  def export_content(base_args)
-    logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
-    result = PlaylistExporter.export_as(base_args)
-    if result.success?
-      send_file(result.content_path, filename: result.suggested_filename)
-    else
-      logger.warn "Export failed: #{result.error_message}"
-      render :text => result.error_message
-    end
-  end
+  # def export_content(base_args)
+  #   logger.warn "Sync request for export_as with base_args: #{base_args.inspect}"
+  #   result = PlaylistExportJob.perform(base_args)
+  #   if result.success?
+  #     send_file(result.content_path, filename: result.suggested_filename)
+  #   else
+  #     logger.warn "Export failed: #{result.error_message}"
+  #     render :text => result.error_message
+  #   end
+  # end
 
   def generate_sort_list(sort_fields)
     if params.has_key?(:sort)
@@ -435,10 +408,6 @@ class ApplicationController < ActionController::Base
     if current_user.present? && cookies[:user_id].nil?
       apply_user_preferences(current_user, false)
     end
-  end
-
-  def verbose
-    Rails.logger.warn "ApplicationController#verbose hit"
   end
 
   def limit_missing_item
@@ -485,34 +454,8 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.record
   end
 
-  def display_first_time_canvas_notice
-    if first_time_canvas_login?
-      notice =
-        "You are logging into H2o directly from Canvas for the first time.<br/><br/>
-         After you login your Canvas id will be attached to your H2o id
-         and the next time you initiate an H2o session from Canvas you'll be logged in
-         automatically."
-      if flash[:notice].blank?
-        flash[:notice] = notice.html_safe
-      else
-        flash[:notice] = flash[:notice].html_safe + "<br/><br/>#{notice}".html_safe
-      end
-    end
-  end
   def redirect_back_or_default(default)
     redirect_to(cookies[:return_to] || default)
-  end
-  def first_time_canvas_login?
-    session.key?(:canvas_user_id)
-  end
-
-  def save_canvas_id_to_user(user)
-    user.update_attribute(:canvas_id, session.fetch(:canvas_user_id))
-    clear_canvas_id_from_session
-  end
-
-  def clear_canvas_id_from_session
-    session[:canvas_user_id] = nil
   end
 
   def iframe?

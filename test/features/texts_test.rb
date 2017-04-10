@@ -1,11 +1,12 @@
-require "test_helper"
+require 'application_system_test_case'
 
 feature 'texts' do
   # FYI texts are called TextBlocks
   describe 'as an anonymous user' do
-    scenario 'browsing texts' do
-      # public texts are visible
-      # non-public texts are not visible
+    scenario 'browsing texts', solr: true do
+      visit text_blocks_path
+      assert_content 'Public Text 1'
+      assert_no_content 'Private Text 1'
     end
 
     scenario 'searching for a text', solr: true do
@@ -148,8 +149,33 @@ feature 'texts' do
       assert_content 'sign in'
       assert_content text_name
     end
-    scenario 'creating rich content in a text', js: true do
 
+    scenario 'responding to a text', js: true do
+      sign_in users(:verified_student)
+      visit text_block_path text_blocks(:text_to_respond)
+
+      find('#responses textarea').set 'Test response text'
+      click_link 'Submit'
+      assert_content 'Thanks for your response!'
+
+      sign_out
+
+      sign_in users(:verified_professor)
+      visit text_block_path text_blocks(:text_to_respond)
+
+      assert_content 'Responses'
+      assert_content 'Test response text'
+    end
+    scenario 'editing a text', js: true do
+      sign_in users(:verified_professor)
+      visit text_block_path text_blocks(:collaged_text)
+
+      click_link 'EDIT TEXT INFORMATION'
+
+      execute_script "tinyMCE.activeEditor.setContent('#{updated_text = 'This is some updated text.'}');"
+      click_button 'Save'
+      assert_content 'Text Block was successfully updated.'
+      assert_content updated_text
     end
   end
 end

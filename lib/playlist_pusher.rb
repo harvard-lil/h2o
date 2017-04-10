@@ -3,8 +3,7 @@ class PlaylistPusher
               :source_playlist_id,
               :email_receiver,
               :playlist_name_override,
-              :public_private_override,
-              :barcode_clear_users
+              :public_private_override
   attr_accessor :ownership_sql,
               :featured_sql,
               :all_new_objects,
@@ -17,7 +16,6 @@ class PlaylistPusher
     @ownership_sql = ''
     @featured_sql = ''
     @public_private_sql = ''
-    @barcode_clear_users = []
     @created_playlist_ids = []
     @all_new_objects = {}
     if options.has_key?(:playlist_name_override)
@@ -35,17 +33,12 @@ class PlaylistPusher
     execute!(self.ownership_sql)
     execute!(self.featured_sql)
     execute!(self.public_private_sql)
-    self.barcode_clear_users.uniq.each do |user|
-      Rails.cache.delete("user-barcode-#{user.id}", :compress => H2O_CACHE_COMPRESSION) 
-      Rails.cache.delete("views/user-barcode-html-#{user.id}", :compress => H2O_CACHE_COMPRESSION)
-    end
 
     if @playlist_name_override && self.user_ids.length == 1
       new_playlists.first.update_attribute(:name, @playlist_name_override)
     end
 
-    puts "attempting to reindex"
-    [Case, Collage, Default, Media, Playlist, TextBlock].each do |klass|
+    [Case, Collage, Default, Playlist, TextBlock].each do |klass|
       Sunspot.index! klass.where(id: self.all_new_objects[klass])
     end
 
@@ -62,7 +55,6 @@ class PlaylistPusher
     new_playlists = Playlist.where(id: created_playlist_ids)
     self.generate_ownership_sql!(new_playlists)
     self.generate_public_private_sql!(new_playlists)
-    self.barcode_clear_users << source_playlist.user if source_playlist.user.present?
 
     return new_playlists if recursive_level > 4
 
@@ -88,12 +80,10 @@ class PlaylistPusher
     elsif self.email_receiver == 'destination' && self.user_ids.length == 1
       recipient = User.where(id: self.user_ids.first).first
     end
-    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver if recipient.present?
+    Notifier.playlist_push_completed(recipient, playlist.name, new_playlists.first.id).deliver_now if recipient.present?
   end
 
   def build_playlist_sql(source_playlist)
-    @barcode_clear_users << source_playlist.user if source_playlist.user.present?
-
     sql = "INSERT INTO playlists (\"#{Playlist.insert_column_names.join('", "')}\") "
     sql += "SELECT #{Playlist.insert_value_names(:overrides => {:pushed_from_id => source_playlist.id, :karma => 0, :ancestry => (source_playlist.ancestry.blank? ? source_playlist.id : "#{source_playlist.ancestry}/#{source_playlist.id}") }).join(", ")} FROM playlists, users "
     sql += "WHERE playlists.id = #{source_playlist.id} AND users.id IN (#{self.user_ids.join(", ")}) "
@@ -103,7 +93,6 @@ class PlaylistPusher
 
   def create_actual_object(actual_object)
     create_sql = self.create_select_for_actual_object(actual_object)
-    self.barcode_clear_users << actual_object.user if actual_object.user.present?
 
     returned_object_ids = execute!(create_sql)
     created_actual_objects = actual_object.class.where(id: returned_object_ids)
@@ -193,9 +182,9 @@ class PlaylistPusher
         struct.klass = klass
         struct.insert_sql = self.create_selects_for_actual_objects(klass_objects, new_collages)
         arr << struct
-      end 
-      arr 
-    end 
+      end
+      arr
+    end
     struct_array.nil? ? [] : struct_array
   end
 
@@ -204,7 +193,7 @@ class PlaylistPusher
 
     return true if klass == Annotation
 
-    klass_table = klass == Media ? "medias" : klass.to_s.tableize
+    klass_table = klass.to_s.tableize
     increments = objects.size / self.user_ids.size
     i = 0
     1.upto(increments).each do |inc|
@@ -224,9 +213,9 @@ class PlaylistPusher
     return if @public_private_override.nil?
 
     klass = objects.first.class
-    klass_table = klass == Media ? "medias" : klass.to_s.tableize
+    klass_table = klass.to_s.tableize
     increments = objects.size / self.user_ids.size
-    i = 0 
+    i = 0
     1.upto(increments).each do |inc|
       self.user_ids.each do |user_id|
         self.public_private_sql << "UPDATE #{klass_table} SET public = #{@public_private_override} WHERE id = #{objects[i].id};"

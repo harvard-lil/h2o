@@ -8,6 +8,20 @@ public_text_to_annotate:
   public: true
   user: verified_professor
 
+public_text_1:
+  name: Public Text 1
+  content: >
+    This is some content.
+  public: true
+  user: verified_professor
+
+private_text_1:
+  name: Private Text 1
+  content: >
+    This is some content.
+  public: false
+  user: verified_professor
+
 <% for label in [*'XA'..'YZ'] %>
 haystack_text_<%=label%>:
   name: Haystack Text (<%=label%>)
@@ -16,3 +30,19 @@ haystack_text_<%=label%>:
   public: <% if label.between?('XA', 'XZ') %>true<% else %>false<% end %>
   user: verified_professor
 <% end %>
+
+text_to_respond:
+  name: Respondable Text
+  content: >
+    This is some content.
+  public: true
+  user: verified_professor
+  enable_responses: true
+
+
+collaged_text:
+  name: Collaged Text
+  content: >
+    This is a text with a collage.
+  public: true
+  user: verified_professor

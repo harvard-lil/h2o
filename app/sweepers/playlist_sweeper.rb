@@ -4,7 +4,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   observe Playlist
 
   def playlist_clear(record, creation)
-    return if creation || record.changed.empty?
+    return if creation || record.saved_changes.keys.empty?
     record.clear_page_cache
   end
 
@@ -13,7 +13,7 @@ class PlaylistSweeper < ActionController::Caching::Sweeper
   end
 
   def after_update(record)
-    return true if record.changed.include?("karma")
+    return true if record.saved_changes.keys.include?("karma")
 
     playlist_clear(record, false)
     notify_private(record)

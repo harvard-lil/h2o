@@ -1,6 +1,5 @@
 class PasswordResetsController < ApplicationController
-  before_filter :load_user_using_perishable_token, :only => [:edit, :update]
- # before_filter :display_first_time_canvas_notice
+  before_action :load_user_using_perishable_token, :only => [:edit, :update]
 
   def new
     render
@@ -28,10 +27,6 @@ class PasswordResetsController < ApplicationController
     @user.password_confirmation = params[:user][:password_confirmation]
     if @user.save
       flash[:notice] = "Password successfully updated"
-      # if first_time_canvas_login?
-      #  save_canvas_id_to_user(@user)
-      #  flash[:notice] += "<br/>Your canvas id was attached to this account.".html_safe
-      # end
       redirect_to user_path(@user.id)
     else
 

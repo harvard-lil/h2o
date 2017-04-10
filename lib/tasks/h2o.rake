@@ -32,11 +32,4 @@ namespace :h2o do
     puts "Deleting #{dir}.delete (this may take a while)"
     system("rm -rf #{Rails.root}#{dir}.delete")
   end
-
-  desc 'Send cases list email'
-  task(:send_cases_list_email => :environment) do
-    body = Case.all.collect { |c| c.to_tsv }.join("\n")
-    File.open("#{Rails.root}/tmp/cases_list.csv", 'w') { |file| file.write(body) }
-    Notifier.cases_list.deliver
-  end
 end

@@ -94,9 +94,7 @@ module RailsAdmin
 
         register_instance_option :controller do
           proc do
-            if @object.is_a?(Media)
-              redirect_to main_app.media_path(@object)
-            elsif @object.is_a?(Page)
+            if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
             else
               redirect_to main_app.url_for(@object)
@@ -178,7 +176,7 @@ RailsAdmin.config do |config|
     view_in_app
   end
 
-  config.included_models = ['Playlist', 'Collage', 'Case', 'User', 'TextBlock', 'Media', 'Default', 'Institution', 'Page']
+  config.included_models = ['Playlist', 'Collage', 'Case', 'User', 'TextBlock', 'Default', 'Institution', 'Page']
 
   config.model 'Page' do
     list do
@@ -220,17 +218,6 @@ RailsAdmin.config do |config|
   end
 
   config.model 'Playlist' do
-    list do
-      field :name
-      field :public
-      field :user do
-        searchable [:login, :email_address]
-      end
-      field :created_at
-    end
-  end
-
-  config.model 'Media' do
     list do
       field :name
       field :public

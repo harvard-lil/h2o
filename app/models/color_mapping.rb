@@ -10,7 +10,7 @@
 #  updated_at :datetime
 #
 
-class ColorMapping < ActiveRecord::Base
-  belongs_to :colllage
+class ColorMapping < ApplicationRecord
+  belongs_to :collage
   belongs_to :tag
 end

@@ -1,10 +1,19 @@
 case_admin:
-  login: case_admin
+  login: h2ocases
   email_address: case_admin@example.edu
   verified: true
   crypted_password: secretpassword
-  attribution: case_admin's Attribution
+  attribution: case_admin
   affiliation: case_admin's Affiliation
+  persistence_token: abcd
+
+site_admin:
+  login: site_admin
+  email_address: site_admin@example.edu
+  verified: true
+  crypted_password: secretpassword
+  attribution: site_admin
+  affiliation: site_admin's Affiliation
   persistence_token: abcd
 
 student_user:
@@ -12,7 +21,7 @@ student_user:
   email_address: student@law.harvard.edu
   verified: true
   crypted_password: secretpassword
-  attribution: student_user's Attribution
+  attribution: student_user
   affiliation: student_user's Affiliation
   persistence_token: efgh
 
@@ -20,7 +29,7 @@ verified_student:
   login: verified_student
   email_address: verified_student@example.edu
   verified: true
-  attribution: verified_student's Attribution
+  attribution: verified_student
   affiliation: verified_student's Affiliation
   persistence_token: abcd
 
@@ -28,6 +37,6 @@ verified_professor:
   login: verified_professor
   email_address: verified_professor@example.edu
   verified: true
-  attribution: verified_professor's Attribution
+  attribution: verified_professor
   affiliation: verified_professor's Affiliation
   persistence_token: abcd

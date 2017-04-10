@@ -4,10 +4,14 @@ require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
-Bundler.require(:default, Rails.env)
+Bundler.require(*Rails.groups)
+
 
 module H2o
   class Application < Rails::Application
+    # upgrade to 5.1:
+    config.load_defaults 5.1
+
     # Rails.env = ActiveSupport::StringInquirer.new('production')
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -21,7 +25,7 @@ module H2o
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    config.autoload_paths += %W(#{config.root}/lib #{config.root}/lib/core_ext #{config.root}/lib/dropbox #{config.root}/app/models/ckeditor)
+    config.autoload_paths += %W(#{config.root}/lib)
     config.action_controller.page_cache_directory = "#{Rails.root}/public"
 
     config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"

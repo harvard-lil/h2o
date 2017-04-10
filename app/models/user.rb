@@ -47,7 +47,7 @@
 #  print_export_format            :string(255)      default(""), not null
 #
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include StandardModelExtensions
   include Rails.application.routes.url_helpers
   include CaptchaExtensions
@@ -64,7 +64,7 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :user_collections
-  has_and_belongs_to_many :institutions 
+  has_and_belongs_to_many :institutions
   has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
   has_many :permission_assignments, :dependent => :destroy
   has_many :responses, :dependent => :destroy
@@ -73,12 +73,11 @@ class User < ActiveRecord::Base
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
-  has_many :medias, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
   has_many :playlists, :dependent => :destroy
   alias :textblocks :text_blocks
 
-  after_save :send_verification_notice, :if => Proc.new {|u| u.verified_changed? && u.verified?}
+  after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
 
   attr_accessor :terms
 
@@ -168,7 +167,7 @@ class User < ActiveRecord::Base
       true
     end
     date :updated_at
-   
+
     integer :user_id, :stored => true
     string :klass, :stored => true
   end
@@ -182,7 +181,7 @@ class User < ActiveRecord::Base
   end
 
   def all_items
-    [self.playlists + self.cases + self.collages + self.medias + self.text_blocks].flatten
+    [self.playlists + self.cases + self.collages + self.text_blocks].flatten
   end
 
   def has_role?(role_name)
@@ -266,100 +265,7 @@ class User < ActiveRecord::Base
   end
 
   def save_version?
-    (self.changed - self.non_versioned_columns).any?
-  end
-
-  def barcode
-    Rails.cache.fetch("user-barcode-#{self.id}", :compress => H2O_CACHE_COMPRESSION) do
-      barcode_elements = []
-
-      item_types = ["collages", "playlists", "medias", "text_blocks"]
-      item_types << "cases" if self.login == "h2ocases"
-
-      item_types.each do |type|
-        single_type = type.singularize
-        created_type = "#{single_type}_created"
-        type_title = "#{single_type.capitalize}"
-
-        public_items = self.send(type).select { |i| i.public }
-
-        # Base Created
-        public_items.each do |item|
-          barcode_elements << { :type => created_type,
-                                :date => item.created_at,
-                                :title => "#{item.class} created: #{item.name}",
-                                :link => self.send(item.is_a?(Media) ? "medias_path" : "#{item.class.to_s.tableize.singularize}_path", item),
-                                :rating => User::RATINGS[created_type.to_sym] }
-        end
-
-        # Base Collaged
-        if ["cases", "text_blocks"].include?(type)
-          collaged_type = "user_#{type.singularize}_collaged"
-          public_items.each do |item|
-            item.collages.each do |collage|
-              next if collage.nil? || collage.user.nil? || collage.user == self
-              barcode_elements << { :type => collaged_type,
-                                    :date => collage.created_at,
-                                    :title => "#{item.class} #{item.name} collaged to #{collage.name}",
-                                    :link => collage_path(collage),
-                                    :rating => User::RATINGS[collaged_type.to_sym] }
-
-            end
-          end
-        end
-
-        # Bookmarked, or Incorporated
-        incorporated_items = PlaylistItem.where(actual_object_id: public_items.map(&:id), actual_object_type: type_title)
-        incorporated_items.each do |ii|
-          next if ii.playlist.nil?
-          playlist = ii.playlist
-          next if playlist.user == self
-          if playlist.name == "Your Bookmarks"
-            barcode_elements << { :type => "user_#{single_type}_bookmarked",
-                                  :date => ii.created_at,
-                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} bookmarked by #{playlist.user.display}",
-                                  :link => user_path(playlist.user),
-                                  :rating => 1 }
-          else
-            barcode_elements << { :type => "user_#{single_type}_added",
-                                  :date => ii.created_at,
-                                  :title => "#{type_title} #{ii.name.gsub(/"/, '')} added to playlist #{playlist.name}",
-                                  :link => playlist_path(playlist),
-                                  :rating => User::RATINGS["user_#{single_type}_added".to_sym] }
-          end
-        end
-
-        if ["collages", "playlists"].include?(type)
-          public_items.each do |item|
-            item.public_children.each do |child|
-              next if child.nil? || child.user.nil? || child.user == self
-              barcode_elements << { :type => "user_#{single_type}_clone",
-                                    :date => child.created_at,
-                                    :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                    :link => self.send("#{single_type}_path", child),
-                                    :rating => 2 }
-            end
-          end
-        end
-      end
-
-      self.defaults.each do |item|
-        item.public_children.each do |child|
-          next if child.nil? || child.user.nil? || child.user == self
-          barcode_elements << { :type => "user_default_clone",
-                                :date => child.created_at,
-                                :title => "#{item.name.gsub(/"/, '')} forked to #{child.name}",
-                                :link => default_path(child),
-                                :rating => 1 }
-        end
-      end
-   
-      # FIXME: If barcode is turned back on, fix this
-      #value = self.barcode.inject(0) { |sum, item| sum + item[:rating] }
-      #self.update_attribute(:karma, value)
-
-      barcode_elements.sort_by { |a| a[:date] }
-    end
+    (self.saved_changes.keys - self.non_versioned_columns).any?
   end
 
   def shared_private_playlists
@@ -374,32 +280,6 @@ class User < ActiveRecord::Base
     p = Permission.where(key: "view_private_collage").first
     permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:collages])
     permission_assignments.collect { |pa| pa.user_collection.collages.select { |p| !p.public } }.flatten
-  end
-
-  def dropbox_access_token_file_path
-    DROPBOX_ACCESS_TOKEN_DIR + "/#{self.id.to_s}"
-  end
-
-  def has_dropbox_token?
-    File.exists?(dropbox_access_token_file_path)
-  end
-
-  def dropbox_access_token
-    return unless has_dropbox_token?
-    @dropbox_access_token ||= File.read(dropbox_access_token_file_path)
-  end
-
-  def save_dropbox_access_token(token)
-    delete_access_token_file_if_it_already_exists
-    write_token_to_new_file(token)
-  end
-
-  def delete_access_token_file_if_it_already_exists
-    FileUtils.rm_f(dropbox_access_token_file_path)
-  end
-
-  def write_token_to_new_file(token)
-    File.open(dropbox_access_token_file_path, 'w') {|f| f.write(token) }
   end
 
   def custom_label_method
