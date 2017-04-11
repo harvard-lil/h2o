@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'links' do
+class LinkSystemTest < ApplicationSystemTestCase
   # FYI: Links are currently called "Defaults" (???)
   # Public links attr doesn't have existing functionality
   describe 'as an anonymous visitor' do

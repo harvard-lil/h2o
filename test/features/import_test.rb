@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'import cases' do
+class CaseImportSystemTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
 
   scenario 'importing from dropbox', js: true do

@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'cases' do
+class CaseSystemTest < ApplicationSystemTestCase
   describe 'as an anonymous user' do
     scenario 'browsing cases' do
       # public cases are visible
