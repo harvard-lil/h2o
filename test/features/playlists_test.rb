@@ -5,12 +5,13 @@ feature 'playlists' do
     @public_playlist = playlists(:public_playlist_1)
     @private_playlist = playlists(:private_playlist_1)
   end
+
   describe 'as an anonymous visitor' do
     scenario 'viewing a playlist', solr: true do
-      visit playlist_path(@public_playlist)
+      visit playlist_path viewable_playlist = playlists(:playlist_to_view)
 
-      assert_content @public_playlist.name
-      assert_content @public_playlist.user.attribution
+      assert_content viewable_playlist.name
+      assert_content viewable_playlist.user.attribution
       assert_content cases(:public_case_1).name
       assert_content cases(:public_case_2).name
 
@@ -19,7 +20,7 @@ feature 'playlists' do
       click_link "#{cases(:public_case_2).name}"
       go_back
 
-      assert_content @public_playlist.name
+      assert_content viewable_playlist.name
       # follow link to cases/texts/media
     end
     scenario 'browsing playlists', solr: true do
@@ -122,52 +123,39 @@ feature 'playlists' do
 
       # adding cases
       fill_in 'add_item_term', with: "\"#{public_case.short_name}\"" # Use exact search to not pick up a bunch of cases
-
       click_link 'add_item_search'
       assert_content '1 Result' # Make sure to wait for results  before dragging
       simulate_drag "#listing_cases_#{public_case.id} .dd-handle", '.main_playlist' # custom drag handler that works with nesting library
       assert_content 'You may not edit name or description' # make sure to wait for drag to finish
       click_link 'SUBMIT'
-
       assert_content "2 #{public_case.short_name}" # passes!
 
       # adding texts
       fill_in 'add_item_term', with: "\"#{text_block.name}\""
-
       click_link 'add_item_search'
       fill_in 'add_item_term', with: ''
       assert_content "#{text_block.name}"
-
       simulate_drag "#listing_text_blocks_#{text_block.id} .dd-handle", '.main_playlist li:first-child'
       click_link 'SUBMIT'
-
       assert_content "2 #{text_block.name}" # passes!
 
       # adding links (in future, all "media" will be URLs)
       fill_in 'add_item_term', with: "\"#{link.name}\""
-
       click_link 'add_item_search'
       fill_in 'add_item_term', with: ''
       assert_content "#{link.name}"
-
       simulate_drag "#listing_defaults_#{link.id} .dd-handle", '.main_playlist li:first-child'
-
       click_link 'SUBMIT'
       assert_no_link 'SUBMIT'
-
       assert_content "2 Show/Hide More #{link.name}" # passes!
 
       # adding playlists
       fill_in 'add_item_term', with: "\"#{@public_playlist.name}\""
-
       click_link 'add_item_search'
       fill_in 'add_item_term', with: ""
       assert_content "\"#{@public_playlist.name}\""
-
       simulate_drag "#listing_playlists_#{@public_playlist.id} .dd-handle", '.main_playlist li:first-child'
-
       click_link 'SUBMIT'
-
       assert_content "2 Show/Hide More #{@public_playlist.name}" # passes!
 
       # reordering material
@@ -179,9 +167,10 @@ feature 'playlists' do
       # removing material
       playlist_item = @student_playlist.playlist_items.first
       assert_content playlist_item.name
-
       find("li.listitem#{playlist_item.id} a.delete-playlist-item").click
-      click_link 'YES'
+      assert_content "Are you sure you want to delete this playlist item?"
+      find('#playlist_item_delete').click
+      find('#playlist_item_delete').click
       refute_content playlist_item.name
 
       # nested content to public

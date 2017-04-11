@@ -178,5 +178,16 @@ feature 'texts' do
       assert_content 'Responses'
       assert_content 'Test response text'
     end
+    scenario 'editing a text', js: true do
+      sign_in users(:verified_professor)
+      visit text_block_path text_blocks(:collaged_text)
+
+      click_link 'EDIT TEXT INFORMATION'
+
+      execute_script "tinyMCE.activeEditor.setContent('#{updated_text = 'This is some updated text.'}');"
+      click_button 'Save'
+      assert_content 'Text Block was successfully updated.'
+      assert_content updated_text
+    end
   end
 end

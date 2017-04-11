@@ -14,6 +14,16 @@ GIT
       activerecord (>= 5.1.0.rc1)
 
 GIT
+  remote: https://github.com/harvard-lil/ckeditor.git
+  revision: 8f6ff8256d9fd0a699196224a9aee5ce72e9b732
+  ref: 8f6ff82
+  branch: rails-5-1
+  specs:
+    ckeditor (4.2.2)
+      cocaine
+      orm_adapter (~> 0.5.0)
+
+GIT
   remote: https://github.com/harvard-lil/htmltoword.git
   revision: 62402206daff0b7d1928dadc35024925c663a179
   ref: 62402206
@@ -128,9 +138,6 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
-    ckeditor (4.2.2)
-      cocaine
-      orm_adapter (~> 0.5.0)
     climate_control (0.1.0)
     cliver (0.3.2)
     cocaine (0.5.8)
@@ -442,7 +449,7 @@ DEPENDENCIES
   authlogic
   bcrypt
   cancancan
-  ckeditor
+  ckeditor!
   coveralls
   daemons (= 1.0.10)
   delayed_job

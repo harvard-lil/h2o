@@ -6,7 +6,7 @@
   <span>
     <%= link_to(
       @single_resource.name,
-      iframe_show_path(params.slice(:id, :type)),
+      iframe_show_path(params.permit(:id, :type).to_h.map {|k, v| sanitize v}),
       class: 'btn Button Button--small',
       data: data_for(@single_resource)
     ) %>

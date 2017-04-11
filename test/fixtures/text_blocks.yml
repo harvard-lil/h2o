@@ -38,3 +38,11 @@ text_to_respond:
   public: true
   user: verified_professor
   enable_responses: true
+
+
+collaged_text:
+  name: Collaged Text
+  content: >
+    This is a text with a collage.
+  public: true
+  user: verified_professor

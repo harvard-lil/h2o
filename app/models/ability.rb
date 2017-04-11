@@ -22,7 +22,7 @@ class Ability
     else
       can [:playlist_lookup], :playlists
       can :collage_lookup, :collages
-      can [:user_lookup, :playlists, :disconnect_canvas, :disconnect_dropbox], :users
+      can [:user_lookup, :playlists, :disconnect_dropbox], :users
       can :quick_collage, :base
       can :create, :responses
 
@@ -70,6 +70,9 @@ class Ability
       can [:edit, :update], User
 
       can :access, :rails_admin
+      can [:create], :"ckeditor/pictures"
+      can [:create], :"ckeditor/assets"
+      can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
       can [:import, :submit_import, :empty], :playlists
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
@@ -91,6 +94,7 @@ class Ability
       can :show, BulkUpload
     elsif user.has_role? :case_admin
       can [:new, :edit, :update, :show, :export, :export_as, :destroy], Case
+      can [:destroy], CaseRequest
       can :create, :cases
 
       can :approve, Case

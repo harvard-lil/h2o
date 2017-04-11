@@ -171,6 +171,6 @@ class PlaylistItemsController < BaseController
   private
   def playlist_item_params
     params.require(:playlist_item).permit(:position, :playlist_id, :notes, :public_notes,
-                                          :actual_object_type, :actual_object_id)
+                                          :actual_object_type, :actual_object_id, :name, :description)
   end
 end
