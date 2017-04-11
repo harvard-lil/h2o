@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'iframes' do
+class IFrameSystemTest < ApplicationSystemTestCase
   {case: :public_case_1, playlist: :public_playlist_1, collage: :collage_one}.each do |key, fixture|
     scenario "iframe for a #{key}" do
       fixture = send(:"#{key}s", fixture)

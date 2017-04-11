@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'content' do
+class ContentSystemTest < ApplicationSystemTestCase
   scenario 'landing page' do
     visit root_path
 

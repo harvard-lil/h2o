@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'bookmarks' do
+class BookmarkSystemTest < ApplicationSystemTestCase
 	describe 'as a signed in user' do
 		before do
       @user = users(:student_user)

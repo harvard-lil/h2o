@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'search' do
+class SearchSystemTest < ApplicationSystemTestCase
   describe 'as an anonymous user' do
     scenario 'listing models', solr: true, js: true do
       visit search_all_path

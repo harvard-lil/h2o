@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'texts' do
+class TextsSystemTest < ApplicationSystemTestCase
   # FYI texts are called TextBlocks
   describe 'as an anonymous user' do
     scenario 'browsing texts', solr: true do

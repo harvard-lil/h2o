@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'exporting' do
+class ExportSystemTest < ApplicationSystemTestCase
   scenario 'exporting a case to .docx', js:true do
     sign_in user = users(:verified_student)
     visit case_path public_case = cases(:public_case_1)

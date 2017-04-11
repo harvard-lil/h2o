@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'collages' do
+class CollageSystemTest < ApplicationSystemTestCase
   describe 'as an anonymous user' do
     scenario 'browsing collages', solr: true do
       visit collages_path

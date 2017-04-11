@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'redirects' do
+class RedirectSystemTest < ApplicationSystemTestCase
   scenario 'bad formats' do
     visit '/anything.php'
     assert_current_path '/'

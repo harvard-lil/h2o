@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'users' do
+class UserSystemTest < ApplicationSystemTestCase
   describe 'as an anonymous visitor' do
     describe 'signing up for an account' do
       before do
@@ -144,7 +144,7 @@ feature 'users' do
         fill_in 'Password confirmation', with: 'newestpassword'
         click_button 'Submit'
       end
-      
+
       scenario 'changing profile information', js: true  do
         fill_in 'Name', with: 'New name'
         fill_in 'Title', with: 'New title'

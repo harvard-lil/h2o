@@ -21,6 +21,4 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::Sunspot
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
-
-  top_level_feature_blocks
 end

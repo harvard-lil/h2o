@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'playlists' do
+class PlaylistSystemTest < ApplicationSystemTestCase
   before do
     @public_playlist = playlists(:public_playlist_1)
     @private_playlist = playlists(:private_playlist_1)

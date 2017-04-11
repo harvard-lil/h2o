@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-feature 'admin' do
+class AdminSystemTest < ApplicationSystemTestCase
   before do
     sign_in @user = users(:site_admin)
   end
