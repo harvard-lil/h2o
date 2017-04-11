@@ -90,6 +90,9 @@ module H2o::Test::Helpers::Capybara
       end
     end
   end
+  def reload_page
+    page.evaluate_script("window.location.reload()")
+  end
 end
 
 class Capybara::Session

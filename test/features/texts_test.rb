@@ -45,15 +45,27 @@ feature 'texts' do
     end
 
     scenario 'reading a text' do
-      # content visible
-      # metadata visible
-      # annotations are visible
+      text = text_blocks(:public_text_1)
+
+      visit text_block_path text
+      assert_content text.name
+      assert_content text.content
+      assert_content text.user
     end
   end
   describe 'as a registered user' do
     scenario 'browsing, searching, and reading texts' do
-      # DRY stuff from above
-      # can see private texts that belong to user
+      text = text_blocks(:private_text_1)
+      visit text_block_path text_blocks(:private_text_1)
+
+      assert_content 'You are not authorized to access this page.'
+      refute_content text.content
+
+      sign_in users(:verified_professor)
+
+      visit text_block_path text_blocks(:private_text_1)
+
+      assert_content text.content
     end
 
     scenario 'annotating a text', js: true do

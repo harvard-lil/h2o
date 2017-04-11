@@ -39,6 +39,7 @@ feature 'users' do
         fill_in 'Password', with: users(:student_user).crypted_password
         fill_in 'Password confirmation', with: users(:student_user).crypted_password
         check 'Terms of Service'
+
         click_button 'Register'
 
         assert_content 'Email address must be a .edu address'
@@ -142,8 +143,8 @@ feature 'users' do
         fill_in 'Change password', with: 'newestpassword'
         fill_in 'Password confirmation', with: 'newestpassword'
         click_button 'Submit'
-
       end
+      
       scenario 'changing profile information', js: true  do
         fill_in 'Name', with: 'New name'
         fill_in 'Title', with: 'New title'

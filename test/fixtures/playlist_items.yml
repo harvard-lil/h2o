@@ -38,6 +38,13 @@ playlist_<%=operation%>_playlist:
   actual_object_type: Playlist
 <% end %>
 
+<% for n in 1..2 %>
+playlist_2_case_<%=n%>:
+  playlist: private_playlist_1
+  actual_object: private_case_<%=n%>
+  actual_object_type: Case
+<% end %>
+
 student_playlist_case_1:
   playlist: student_playlist
   actual_object: private_case_2

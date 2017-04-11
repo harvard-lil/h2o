@@ -5,7 +5,7 @@ feature 'playlists' do
     @public_playlist = playlists(:public_playlist_1)
     @private_playlist = playlists(:private_playlist_1)
   end
-  
+
   describe 'as an anonymous visitor' do
     scenario 'viewing a playlist', solr: true do
       visit playlist_path viewable_playlist = playlists(:playlist_to_view)

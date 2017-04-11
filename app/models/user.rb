@@ -304,6 +304,4 @@ class User < ApplicationRecord
   def send_verification_notice
     Notifier.verification_notice(self).deliver
   end
-
-
 end
