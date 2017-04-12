@@ -240,4 +240,30 @@ class ExportSystemTest < ApplicationSystemTestCase
     assert_equal File.size?(downloaded_path), File.size?(expected_file_path('test_export_text.pdf'))
     assert_equal Digest::SHA256.file(expected_file_path('test_export_text.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
   end
+
+  scenario 'exporting a collage to .pdf', js:true do
+    sign_in user = users(:student_user) # TODO: This fails unless user has write privs
+    visit collage_path collage = collages(:collage_one)
+
+    click_link 'Print'
+
+    assert_content collage.name
+
+    select 'PDF', from: 'export_format'
+
+    perform_enqueued_jobs do
+      click_link 'export-form-submit'
+      assert_content 'H2O is exporting your content to PDF format.'
+      assert_sends_emails 1, wait: 10.seconds # This needs to be in the block for some reason
+    end
+
+    email = ActionMailer::Base.deliveries.first
+    assert { email.to.include? user.email_address }
+    assert { email.body.match(/(http.+?\.pdf)/) }
+    exported_file_url = email.body.match(/(http.+?\.pdf)/)[1]
+
+    downloaded_path = download_file exported_file_url, to: 'test_export_collage.pdf'
+    assert_equal File.size?(expected_file_path('test_export_collage.pdf')), File.size?(downloaded_path)
+    assert_equal Digest::SHA256.file(expected_file_path('test_export_collage.pdf')).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+  end
 end
