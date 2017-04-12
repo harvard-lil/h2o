@@ -42,7 +42,6 @@ class Playlist < ApplicationRecord
 
   has_many :playlist_items, -> { order("playlist_items.position") }, :dependent => :destroy
   has_many :roles, :as => :authorizable, :dependent => :destroy
-  has_and_belongs_to_many :user_collections, :dependent => :destroy
   belongs_to :location, optional: true
   belongs_to :user
   has_many :playlist_items_as_actual_object, :as => :actual_object, :class_name => "PlaylistItem"
@@ -51,11 +50,6 @@ class Playlist < ApplicationRecord
   validates_length_of :name, :in => 1..250
 
   before_destroy :collapse_children
-
-  # For Rails Admin delete purposes only
-  def playlists_user_collections
-    []
-  end
 
   searchable(:include => [:tags], :if => :not_bookmark?) do
     text :display_name
@@ -70,7 +64,6 @@ class Playlist < ApplicationRecord
     string :root_user_display, :stored => true
     integer :root_user_id, :stored => true
     integer :karma
-    string :users_by_permission, :stored => true, :multiple => true
 
     boolean :featured
     boolean :public
@@ -218,20 +211,6 @@ class Playlist < ApplicationRecord
     self.nested_private_resources.select { |i| i.user_id == self.user_id }.each do |item|
       item.update_attribute(:public, true)
     end
-  end
-
-  def users_by_permission
-    # Temporary override on users by permissions
-    return []
-
-    if self.name == "Your Bookmarks" || self.public
-      return []
-    end
-
-    # TODO: Figure out a better way to do this logic, or cache, and sweep
-    p = Permission.where(key: "view_private")
-    pas = self.user_collections.collect { |uc| uc.permission_assignments }.flatten.select { |pr| pr.permission_id = p.id }
-    ( pas.collect { |pr| pr.user }.flatten.collect { |u| u.login } + [self.user.login] ).flatten.uniq
   end
 
   def self.clear_nonsiblings(id)

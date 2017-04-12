@@ -114,22 +114,6 @@ class PlaylistsController < BaseController
     render :json => { :success => false, :error => "Could not delete #{e.inspect}" }
   end
 
-  # TODO: Is this used?
-  def push
-    if request.get?
-      @collections = current_user.present? ? current_user.collections : []
-    else
-      @collection = UserCollection.where(id: params[:user_collection_id]).first
-      @playlist_pusher = ::PlaylistPusher.new(:playlist_id => @playlist.id, :user_ids => @collection.users.map(&:id))
-      @playlist_pusher.push!
-      respond_to do |format|
-        format.json { render :json => {:custom_block => 'push_playlist'} }
-        format.js { render :text => nil }
-        format.html { redirect_to(playlists_url) }
-      end
-    end
-  end
-
   def copy
     @playlist_pusher = PlaylistPusher.new(:playlist_id => params[:id],
                                           :user_ids => [current_user.id],

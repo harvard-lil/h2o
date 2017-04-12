@@ -188,7 +188,7 @@ class CaseSystemTest < ApplicationSystemTestCase
     before do
       sign_in @user = users(:case_admin)
     end
-
+    
     scenario 'adding a case for a request', js: true, solr: true do
       visit user_path @user
       assert_content 'Case Request 1'
@@ -210,6 +210,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       new_case = Case.last
 
       visit user_path @user
+
       within '#results_pending_cases' do
         assert_content new_case.name
         within ".listitem#{new_case.id}" do

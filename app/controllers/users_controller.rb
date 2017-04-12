@@ -3,16 +3,6 @@ class UsersController < ApplicationController
   protect_from_forgery :except => [:disconnect_dropbox]
 
   DEFAULT_SHOW_TYPES = {
-    :shared_private_playlists => {
-      :display => false,
-      :header => "Shared Private Playlists",
-      :partial => "playlist"
-    },
-    :shared_private_collages => {
-      :display => false,
-      :header => "Shared Private Collages",
-      :partial => "collage"
-    },
     :pending_cases => {
       :display => false,
       :header => "Pending Cases",
@@ -120,7 +110,6 @@ class UsersController < ApplicationController
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
 
       models = [Playlist, Collage, Case, TextBlock, Default]
-      # models << UserCollection if @user == current_user
 
       if params.has_key?(:klass)
         if params[:klass] == 'Primary'
@@ -297,16 +286,6 @@ class UsersController < ApplicationController
 
   def default_show_types_method
     {
-      :shared_private_playlists => {
-        :display => false,
-        :header => "Shared Private Playlists",
-        :partial => "playlist"
-      },
-      :shared_private_collages => {
-        :display => false,
-        :header => "Shared Private Collages",
-        :partial => "collage"
-      },
       :pending_cases => {
         :display => false,
         :header => "Pending Cases",
@@ -344,8 +323,6 @@ class UsersController < ApplicationController
       @page_title = "Dashboard | H2O Classroom Tools"
       @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
-      @types[:shared_private_playlists][:display] = true
-      @types[:shared_private_collages][:display] = true
       @types[:pending_cases][:display] = true
       @types[:content_errors][:display] = true
       @types[:user_responses][:display] = true
