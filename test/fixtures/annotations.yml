@@ -1,13 +1,13 @@
 annotation_hightlight:
   annotation:
   cloned: false
-  xpath_start: /mets[1]/amdsec[1]/digiprovmd[1]/mdwrap[1]/xmldata...
-  xpath_end: /mets[1]/amdsec[1]/digiprovmd[3]/mdwrap[1]/xmldata...
-  start_offset: 8
-  end_offset: 8
+  xpath_start: "/p[1]"
+  xpath_end: "/p[1]"
+  start_offset: 43
+  end_offset: 59
   hidden: false
   highlight_only: 9e00ff
-  annotated_item: collage_1
+  annotated_item: collage_one
   annotated_item_type: Collage
   error: false
   feedback: false
@@ -17,10 +17,10 @@ annotation_hightlight:
 annotation_link:
   annotation:
   cloned: false
-  xpath_start: /mets[1]/amdsec[1]/digiprovmd[4]/mdwrap[1]/xmldata...
-  xpath_end: /mets[1]/amdsec[1]/digiprovmd[4]/mdwrap[1]/xmldata...
-  start_offset: 0
-  end_offset: 15
+  xpath_start: "/p[1]"
+  xpath_end: "/p[1]"
+  start_offset: 71
+  end_offset: 89
   link: https://law.harvard.edu
   hidden: false
   annotated_item: collage_one
@@ -33,10 +33,10 @@ annotation_link:
 annotation_replacement_text:
   annotation: replacement text
   cloned: false
-  xpath_start: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
-  xpath_end: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
-  start_offset: 151
-  end_offset: 33
+  xpath_start: "/p[1]"
+  xpath_end: "/p[1]"
+  start_offset: 102
+  end_offset: 120
   hidden: true
   annotated_item: collage_one
   annotated_item_type: Collage
@@ -46,16 +46,16 @@ annotation_replacement_text:
   user: student_user
 
 annotation_comment:
- annotation: COMMENTS!
- cloned: false
- xpath_start: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
- xpath_end: /mets[1]/filesec[1]/filegrp[4]/file[1]/fcontent[1]...
- start_offset: 51
- end_offset: 24
- hidden: false
- annotated_item: collage_one
- annotated_item_type: Collage
- error: false
- feedback: false
- discussion: false
- user: student_user
+  annotation: COMMENTS!
+  cloned: false
+  xpath_start: "/p[1]"
+  xpath_end: "/p[1]"
+  start_offset: 136
+  end_offset: 160
+  hidden: false
+  annotated_item: collage_one
+  annotated_item_type: Collage
+  error: false
+  feedback: false
+  discussion: false
+  user: student_user

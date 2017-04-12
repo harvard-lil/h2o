@@ -1,14 +1,14 @@
 collage_one:
   annotatable_type: "Case"
-  annotatable: public_case_1
+  annotatable: public_case_to_annotate
   name: "Waters v. Coker"
   description: "<p><br data-mce-bogus=\"1\"></p>"
   word_count: null
   ancestry: null
   public: true
-  readable_state: "{\"highlights\":{},\"hide_tags\":{},\"highlight_only_hi..."
   words_shown: 1216
   karma: null
+  readable_state: "{\"highlights\":{\"test-tag\":\"ff0080\"},\"hide_tags\":{},\"highlight_only_highlights\":[]}"
   pushed_from_id: null
   user: student_user
   annotator_version: 2
