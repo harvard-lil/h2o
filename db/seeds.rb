@@ -5,9 +5,3 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
-
-permissions = Permission.create([
-  {label: "View Private Playlist", key: "view_private_playlist"},
-  {label: "View Private Collage", key: "view_private_collage"},
-
-  ])

@@ -242,7 +242,6 @@ class ApplicationController < ActionController::Base
 
       if model == Playlist && current_user
         any_of do
-          with :users_by_permission, current_user.login
           with :public, true
         end
       else
@@ -286,7 +285,6 @@ class ApplicationController < ActionController::Base
     @queued_users = []
     @klass_label_map = {
       'Default' => 'Link',
-      'UserCollection' => 'User Collection',
       'TextBlock' => 'Text',
       'Collage' => 'Annotated Item'
     }

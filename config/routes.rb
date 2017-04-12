@@ -122,16 +122,6 @@ H2o::Application.routes.draw do
     end
   end
 
-  resources :user_collections do
-    member do
-      patch 'update_permissions'
-      get 'manage_users'
-      get 'manage_playlists'
-      get 'manage_collages'
-      get 'manage_permissions'
-    end
-  end
-
   scope :iframe, controller: 'iframe' do
     get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'

@@ -63,10 +63,7 @@ class User < ApplicationRecord
   end
 
   has_and_belongs_to_many :roles
-  has_and_belongs_to_many :user_collections
   has_and_belongs_to_many :institutions
-  has_many :collections, :foreign_key => "user_id", :class_name => "UserCollection"
-  has_many :permission_assignments, :dependent => :destroy
   has_many :responses, :dependent => :destroy
 
   has_many :collages, :dependent => :destroy  #must precede all annotated item associations
@@ -131,9 +128,6 @@ class User < ApplicationRecord
 
   # Deal with this later by replacing habtm with hm through
   def users_roles
-    []
-  end
-  def users_user_collections
     []
   end
   def users_institutions
@@ -266,20 +260,6 @@ class User < ApplicationRecord
 
   def save_version?
     (self.saved_changes.keys - self.non_versioned_columns).any?
-  end
-
-  def shared_private_playlists
-    p = Permission.where(key: "view_private_playlist").first
-    # logger.warn "DEFAULT_SHOW_TYPES: current_user? #{current_user}"
-    # logger.warn "DEFAULT_SHOW_TYPES: permission? #{p}"
-    permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:playlists])
-    permission_assignments.collect { |pa| pa.user_collection.playlists.select { |p| !p.public } }.flatten
-  end
-
-  def shared_private_collages
-    p = Permission.where(key: "view_private_collage").first
-    permission_assignments = PermissionAssignment.where(user_id: current_user.id, permission_id: p.id).includes(:user_collection => [:collages])
-    permission_assignments.collect { |pa| pa.user_collection.collages.select { |p| !p.public } }.flatten
   end
 
   def custom_label_method
