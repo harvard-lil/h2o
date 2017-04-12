@@ -74,7 +74,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       click_button 'Submit Case Request'
       assert_content "Case Request was successfully created."
     end
-
+    
     scenario 'annotating a case', js: true do
       # This is literally a copy-paste of the text annotation path... Makes one wonder
       sign_in user = users(:verified_student)
@@ -188,7 +188,7 @@ class CaseSystemTest < ApplicationSystemTestCase
     before do
       sign_in @user = users(:case_admin)
     end
-    
+
     scenario 'adding a case for a request', js: true, solr: true do
       visit user_path @user
       assert_content 'Case Request 1'

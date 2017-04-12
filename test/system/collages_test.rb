@@ -39,4 +39,18 @@ class CollageSystemTest < ApplicationSystemTestCase
     visit user_path collage_undeletable.user
     assert_content collage_undeletable.name
   end
+
+  scenario 'cloning a collage', solr: true, js: true do
+    sign_in users(:verified_professor)
+    collage_to_clone = collages :collage_one
+    visit collage_path(collage_to_clone.id)
+
+    click_link "Clone #{collage_to_clone.name}"
+
+    fill_in 'Name*', with: "Clone of #{collage_to_clone.name}"
+    click_button 'Submit'
+
+    assert_content "Clone of #{collage_to_clone.name}"
+    assert_content "Original Creator: #{collage_to_clone.user.attribution}"
+  end
 end
