@@ -16,6 +16,7 @@ class AdminSystemTest < ApplicationSystemTestCase
 
     fill_in 'Slug', with: 'test-page'
     wait_until(wait: 10.seconds) {evaluate_script "CKEDITOR.instances['page_content'].loaded"}
+    sleep 1 # trying to make this a bit more reliable
     evaluate_script "CKEDITOR.instances['page_content'].insertHtml('This is some page content.')"
     assert { evaluate_script("CKEDITOR.instances['page_content'].execCommand('image')") }
     assert_content 'Image Properties'

@@ -20,7 +20,7 @@ before_script:
   - bundle exec bin/rails db:setup
   - bundle exec bin/rails sunspot:solr:start
 script:
-  - bundle exec bin/rails test
+  - bundle exec bin/rails test:system
 after_success:
   - >
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ] ;
