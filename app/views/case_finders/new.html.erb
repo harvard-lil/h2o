@@ -1,12 +1,12 @@
 <%= form_for :case_finder, url: { action: "create" } do |f| %>
-	Name: <%= f.text_field :name %><br />
-	Name Abbreviation: <%= f.text_field :name_abbreviation %><br />
-	Cap API Url: <%= f.text_field :url %><br />
-	Jurisdiction Id: <%= f.text_field :jurisdiction_id %><br />
-	Jurisdication Name: <%= f.text_field :jurisdiction_name %><br />
-	Docket Number: <%= f.text_field :docket_number %><br />
-	Decision Date (Original): <%= f.text_field :decisiondate_original %><br />
-	Court Name: <%= f.text_field :court_name %><br />
-	Court Id:<%= f.text_field :court_id %><br />
-	<%= f.submit %>
+  Name: <%= f.text_field :name %><br />
+  Name Abbreviation: <%= f.text_field :name_abbreviation %><br />
+  Cap API Url: <%= f.text_field :url %><br />
+  Jurisdiction Id: <%= f.text_field :jurisdiction_id %><br />
+  Jurisdication Name: <%= f.text_field :jurisdiction_name %><br />
+  Docket Number: <%= f.text_field :docket_number %><br />
+  Decision Date (Original): <%= f.text_field :decisiondate_original %><br />
+  Court Name: <%= f.text_field :court_name %><br />
+  Court Id:<%= f.text_field :court_id %><br />
+  <%= f.submit %>
 <% end %>

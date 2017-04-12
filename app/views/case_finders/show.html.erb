@@ -1,31 +1,31 @@
 <%= form_tag "case_finder/download", method: :put do %>
-	Enter your token: <%= text_field_tag "cap_token" %>
-	<table>
-		<thead>
-			<tr>
-				<th>Download</th>
-				<th>Name Abbreviation></th>
-				<th>Name</th>
-				<th>Jurisdiction Name</th>
-				<th>Descision Date (Original)</th>
-				<th>Courst Name</th>
-				<th>Court Id</th>
-			</tr>
-		</thead>
-		
-		<tbody>
-			<% @cases.each do |kase| %>
-				<tr>
-					<td><%= radio_button_tag "case", kase %></td>
-					<td><%= kase["name_abbreviation"] %></td>
-					<td><%= kase["name"] %></td>
-					<td><%= kase["jurisdiction_name"] %></td>
-					<td><%= kase["decisiondate_original"] %></td>
-					<td><%= kase["court_name"] %></td>
-					<td><%= kase["court_id"] %></td>
-				</tr>
-			<% end %>
-		</tbody>
-	</table>
-	<%= submit_tag "Download new case" %>
+  Enter your token: <%= text_field_tag "cap_token" %>
+  <table>
+    <thead>
+      <tr>
+        <th>Download</th>
+        <th>Name Abbreviation></th>
+        <th>Name</th>
+        <th>Jurisdiction Name</th>
+        <th>Descision Date (Original)</th>
+        <th>Courst Name</th>
+        <th>Court Id</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+      <% @cases.each do |kase| %>
+        <tr>
+          <td><%= radio_button_tag "case", kase %></td>
+          <td><%= kase["name_abbreviation"] %></td>
+          <td><%= kase["name"] %></td>
+          <td><%= kase["jurisdiction_name"] %></td>
+          <td><%= kase["decisiondate_original"] %></td>
+          <td><%= kase["court_name"] %></td>
+          <td><%= kase["court_id"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= submit_tag "Download new case" %>
 <% end %>
