@@ -43,7 +43,6 @@ H2o::Application.routes.draw do
   end
   resources :text_blocks do
     resources :responses, :only => [:create, :destroy]
-    resources :annotations
     member do
       get 'export'
       post 'export_as'
