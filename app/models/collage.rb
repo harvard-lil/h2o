@@ -150,20 +150,6 @@ class Collage < ApplicationRecord
     self.layers.map(&:name)
   end
 
-  def layer_report
-    layers = {}
-    self.annotations.each do |ann|
-      ann.layers.each do |l|
-        if layers[l.id].blank?
-          layers[l.id] = {:count => 0, :name => l.name, :annotation_count => 0}
-        end
-        layers[l.id][:count] = layers[l.id][:count].to_i + ann.word_count
-        layers[l.id][:annotation_count] = layers[l.id][:annotation_count].to_i + 1
-      end
-    end
-    layers
-  end
-
   def annotations_for_export
     # Tweak xpath selectors to work with similarly tweaked DOM present during export
     # NOTE: This needs to be tweaked to work correctly with xpath selectors that
