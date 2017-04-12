@@ -36,7 +36,8 @@ class Ability
       can :copy, Playlist, :user_id => user.id
       can :copy, Collage, :user_id => user.id
       can :copy, Default, :user_id => user.id
-
+      can [:new, :create, :download], :case_finders
+      
       can [:embedded_pager, :access_level], :all
 
       # Can do things on owned items
