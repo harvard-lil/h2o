@@ -44,7 +44,6 @@ class TextBlock < ApplicationRecord
 
   has_many :defects, :as => :reportable
   has_many :playlist_items, :as => :actual_object
-  has_many :frozen_items, :as => :item
   has_many :annotations, -> { order(:created_at) }, :dependent => :destroy, :as => :annotated_item
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
   belongs_to :user
