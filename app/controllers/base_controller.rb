@@ -58,28 +58,6 @@ class BaseController < ApplicationController
     render :partial => view
   end
 
-  def author_playlists
-    per_page = 5
-    params[:page] ||= 1
-
-    playlist = Playlist.where(id: params[:id]).first
-    if playlist.present? && playlist.user.present?
-      @author_playlists = playlist.user.playlists.paginate(:page => params[:page], :per_page => per_page)
-    else
-      @author_playlists = [].paginate(:page => params[:page], :per_page => per_page)
-    end
-
-    render :partial => "author_playlists"
-  end
-
-  def tags
-    if ["collages", "text_blocks", "playlists"].include?(params[:tklass])
-      common_index params[:tklass].singularize.camelize.constantize
-    else
-      redirect_to root_url, :status => 301
-    end
-  end
-
   def index
     @page_cache = true
     @page_title = 'H2O Classroom Tools'
@@ -116,11 +94,6 @@ class BaseController < ApplicationController
     else
       render :partial => 'base/quick_collage'
     end
-  end
-
-  def load_more_users
-    users = User.where(id: params[:display].split(',')).inject({}) { |h, u| h[u.id] = u.simple_display; h }
-    render :json => { :users => users }
   end
 
   def error

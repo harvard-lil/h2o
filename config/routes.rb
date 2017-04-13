@@ -22,12 +22,9 @@ H2o::Application.routes.draw do
   resources :base do
     collection do
       get 'embedded_pager'
-      get 'load_more_users'
       get 'quick_collage', as: :quick_collage
     end
   end
-  get '/:tklass/tag/:tag' => 'base#tags', as: :tag
-  get 'author_playlists' => 'base#author_playlists', as: :author_playlists
   get 'all_materials' => 'base#search', as: :search_all
 
   resources :users do
