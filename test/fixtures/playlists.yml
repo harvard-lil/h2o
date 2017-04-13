@@ -11,6 +11,11 @@ playlist_to_clone:
   name: Clonable Playlist 1
   user: verified_professor
   public: true
+  
+playlist_to_update:
+  name: Updatable Playlist 1
+  user: verified_professor
+  public: true
 
 playlist_to_delete:
   name: Deletable Playlist 1

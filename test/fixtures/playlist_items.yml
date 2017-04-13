@@ -15,7 +15,7 @@ playlist_2_case_<%=n%>:
   actual_object_type: Case
 <% end %>
 
-<% for operation in %w{delete clone} %>
+<% for operation in %w{delete clone update} %>
 playlist_<%=operation%>_text:
   playlist: playlist_to_<%=operation%>
   actual_object: public_text_1

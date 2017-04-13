@@ -205,6 +205,24 @@ class PlaylistSystemTest < ApplicationSystemTestCase
 
       assert_no_content playlist_to_delete.name
     end
+
+  end
+  describe 'as a playlist owner' do
+    scenario 'update a playlist', solr: true, js: true do
+      playlist_to_update = playlists :playlist_to_update
+      sign_in playlist_to_update.user
+      visit playlist_path playlist_to_update
+
+      assert_content playlist_to_update.name
+      assert_content 'EDIT PLAYLIST INFORMATION'
+      find_all('a.edit-playlist-item').first.click
+
+      fill_in 'Name', with: 'Updated Item Name'
+      sleep 1
+      click_link 'SUBMIT'
+
+      assert_content '1 Updated Item Name'
+    end
   end
 
   describe 'as admin' do
