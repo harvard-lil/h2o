@@ -119,9 +119,22 @@ class UserSystemTest < ApplicationSystemTestCase
 
         fill_in 'Login:', with: user.login
 
-        click_button 'Reset my password'
+        perform_enqueued_jobs do
+          click_button 'Reset my password'
+          assert_sends_emails 1, wait: 10.seconds
+        end
 
         assert_content 'Instructions to reset your password have been emailed to you. Please check your email.'
+
+        match = ActionMailer::Base.deliveries.last.body.match %r{(/password_resets/.+/edit)}
+        assert { match.present? }
+        visit match[1]
+
+        fill_in 'Password', with: 'newestpassword'
+        fill_in 'Password confirmation', with: 'newestpassword'
+        click_button 'Update my password'
+
+        assert_content 'Password successfully updated'
       end
 
       scenario 'browsing workshop content', js: true, solr: true do
@@ -155,6 +168,8 @@ class UserSystemTest < ApplicationSystemTestCase
         fill_in 'Change password', with: 'newestpassword'
         fill_in 'Password confirmation', with: 'newestpassword'
         click_button 'Submit'
+
+        assert_content 'Your account has been updated.'
       end
 
       scenario 'changing profile information', js: true  do
