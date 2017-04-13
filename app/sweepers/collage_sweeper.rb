@@ -52,14 +52,4 @@ class CollageSweeper < ActionController::Caching::Sweeper
     clear_playlists(record.playlist_items)
     collage_clear(record)
   end
-
-  def after_collages_save_readable_state
-    ActionController::Base.expire_page "/collages/#{params[:id]}.html"
-    ActionController::Base.expire_page "/collages/#{params[:id]}/export.html"
-    ActionController::Base.expire_page "/iframe/load/collages/#{params[:id]}.html"
-    ActionController::Base.expire_page "/iframe/show/collages/#{params[:id]}.html"
-
-    playlist_items = PlaylistItem.where({ :actual_object_type => 'Collage', :actual_object_id => params[:id] })
-    PlaylistItem.clear_playlists(playlist_items)
-  end
 end
