@@ -67,7 +67,6 @@ class Dropbox::Importer
     logger.error "file didn't save"
     self.bulk_upload.update_attribute('has_errors', true)
     @dh2o.copy_to_failed_dir(path)
-    @dh2o.write_error(path, new_instance.errors.full_messages.join(", "))
     record_import(:bulk_upload => self.bulk_upload,
                   :dropbox_filepath => path,
                   :status => 'Errored')
@@ -95,7 +94,6 @@ class Dropbox::Importer
 
   def excluded_file_paths
     [FAILED_DIR_FILE_PATH,
-     Dropbox::ErrorLog::ERROR_LOG_PATH,
      '/parser_archive',
      '/parser_input',
      '/parser_output']
