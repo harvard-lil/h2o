@@ -101,9 +101,9 @@ H2O = (function() {
     $(document).delegate('body', 'click', function(e) {
       if($(e.target).hasClass('icon-edit') ||
          $(e.target).hasClass('icon-delete') ||
-         $(e.target).parent().hasClass('annotator-adder') || 
-         $(e.target).hasClass('annotator-edit') || 
-         $(e.target).hasClass('annotation-indicator') || 
+         $(e.target).parent().hasClass('annotator-adder') ||
+         $(e.target).hasClass('annotator-edit') ||
+         $(e.target).hasClass('annotation-indicator') ||
          $(e.target).parent().hasClass('annotation-indicator')) {
         return;
       }
@@ -134,7 +134,7 @@ H2O = (function() {
         var height_offset = $('div#stats').data('height_offset');
         $.each($('.edit-annotate:visible, .edit-link:visible, .delete-feedback:visible, .readonly-link'), function(i, el) {
           if($(el).offset().top < height_offset) {
-            $(el).hide(); 
+            $(el).hide();
           }
         });
         $('#stats_expand').hide();
@@ -176,7 +176,7 @@ H2O = (function() {
       $(document).delegate('.edit-annotate .icon-edit,.edit-link .icon-edit', 'click', function(e) {
         e.preventDefault();
         var annotation = h2o_annotator.plugins.H2O.accessible_annotations[$(this).parent().parent().data('id')];
-     
+
         var position = $(this).parent().parent().position();
         position.top += 4;
 
@@ -237,7 +237,7 @@ H2O = (function() {
         if($(this).find('span.icon-adder-link').size() > 0) {
           $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
           $(this).find('span.readonly-link').css('z-index', 100).toggle();
-        } 
+        }
         if($(this).find('span.icon-adder-annotate').size() > 0) {
           $('span.readonly-link,span.readonly-annotate').css('z-index', 99);
           $(this).find('span.readonly-annotate').css('z-index', 100).toggle();
@@ -481,7 +481,7 @@ H2O = (function() {
           $('.annotation-' + annotation.id + ',#annotation-indicator-' + annotation.id + ',#annotation-bar-indicator-' + annotation.id).hide();
           $('.layered-ellipsis-' + annotation.id).css('display', 'inline-block');
           $('.annotation-' + annotation.id).parents('.original_content').filter(':not(.original_content *):not(:has(.annotator-hl:visible,.layered-ellipsis:visible))').hide();
-        } 
+        }
       }
 
       //Manage layers before highlights
@@ -521,10 +521,10 @@ H2O = (function() {
     });
     this.annotator.editor.subscribe("hide", function() {
       if($('.annotator-editor').data('type') == 'annotate' && $('#show_comments .toggle-on').hasClass('active')) {
-        $('span.edit-annotate, span.edit-annotate .icon-edit').show();  
+        $('span.edit-annotate, span.edit-annotate .icon-edit').show();
       }
       if($('.annotator-editor').data('type') == 'link' && $('#show_links .toggle-on').hasClass('active')) {
-        $('span.edit-link, span.edit-link .icon-edit').show();  
+        $('span.edit-link, span.edit-link .icon-edit').show();
       }
 
       $('.annotator-listing li').hide();
@@ -781,12 +781,12 @@ H2O = (function() {
               label: layer,
               value: layer
             });
-            
+
             //Manage li options
             var data = { hex: h2o_annotator.plugins.H2O.layer_map[layer], layer: layer, clean_layer: collages.clean_layer(layer) };
             var new_node = $(jQuery.mustache(layer_tools_highlights, data));
             new_node.appendTo($('#layers_highlights'));
-  
+
             collages.turn_on_initial_highlight('name', clean_layer);
             collages.set_highlights(data);
           }
@@ -804,7 +804,7 @@ H2O = (function() {
           var data = { hex: annotation.highlight_only };
           var new_node = $(jQuery.mustache(layer_tools_highlight_only, data));
           new_node.appendTo($('#layers_highlights'));
-  
+
           collages.turn_on_initial_highlight('hex', annotation.highlight_only);
           collages.set_highlights_for_highlight_only(annotation.highlight_only);
         }
@@ -815,7 +815,7 @@ H2O = (function() {
           label: 'Enter Tag Name (optional)'
         });
         var hexes = collages.getHexes();
-        hexes.insertAfter($('#new_layer')); 
+        hexes.insertAfter($('#new_layer'));
         $('.annotator-listing li').hide();
       }
     }
@@ -860,7 +860,7 @@ H2O = (function() {
     }
     return;
   };
-  
+
   H2O.prototype.updateAnnotationMarkup = function(annotation) {
     if($('#annotation-indicator-' + annotation.id).hasClass('icon-adder-show')) {
       var clean_layer = collages.clean_layer(annotation.layers[0]);
@@ -881,9 +881,9 @@ H2O = (function() {
         class_string += ' highlight-hex-' + annotation.highlight_only;
       }
       $('.annotation-' + annotation.id).attr('class', class_string);
-      $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' hex-' + annotation.highlight_only); 
-      $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' hex-' + annotation.highlight_only); 
-      $('.layered-ellipsis-' + annotation.id).attr('class', 'layered-ellipsis layered-ellipsis-' + annotation.id + ' hex-' + annotation.highlight_only); 
+      $('.layered-control-start-' + annotation.id).attr('class', 'layered-control-start layered-control-start-' + annotation.id + ' hex-' + annotation.highlight_only);
+      $('.layered-control-end-' + annotation.id).attr('class', 'layered-control-end layered-control-end-' + annotation.id + ' hex-' + annotation.highlight_only);
+      $('.layered-ellipsis-' + annotation.id).attr('class', 'layered-ellipsis layered-ellipsis-' + annotation.id + ' hex-' + annotation.highlight_only);
 
       $('#annotation-indicator-' + annotation.id).attr('class', 'annotation-indicator icon icon-adder-highlight-only indicator-highlight-hex-' + annotation.highlight_only).html('').css({ 'right' : '-30px', 'opacity' : 0.5 });
     } else {
@@ -1005,7 +1005,7 @@ H2O = (function() {
         }
         if(created || $('li.highlight_only_layer[data-hex="' + clean_layer.replace(/hex-/, '') + '"] .toggle-on').hasClass('active')) {
           _results.push(h.className = h.className + ' highlight-' + clean_layer);
-        } 
+        }
       });
     }
   };
@@ -1059,12 +1059,6 @@ H2O = (function() {
     var elapsed = parseFloat((now - exportAnnotationLoadStart)/1000);
     var elapsedDisplay = (elapsed < 100) ? elapsed.toPrecision(2) : parseInt(elapsed);
     var annotations_count = Object.keys(thisCollageData.annotations).length;
-    console.log('annotationsLoaded for annotated_item_id: ' + annotated_item_id +
-                ' - ' + annotations_count + ' in ' +
-                incTimeSeconds + 's of ' +
-                elapsedDisplay + 's total' +
-                ' - (' + done_count + '/' + Object.keys(all_collage_data).length + ')'
-               );
 
     if (done_loading) {
       export_functions.loadAllAnnotationsComplete();
@@ -1093,7 +1087,7 @@ H2O = (function() {
   H2O.prototype.updateViewer = function(field, annotation) {
     $('.annotator-viewer').css({ 'opacity': 0.0 });
     var indicator = $('#annotation-indicator-' + annotation.id);
-    
+
     if($('#print-options').size() > 0) {
       return;
     }
@@ -1110,7 +1104,7 @@ H2O = (function() {
     field.addClass('annotator-collage').hide();
 
     if(annotation.text != '') {
-      $('.annotator-annotation > div').show(); 
+      $('.annotator-annotation > div').show();
     } else {
       $('.annotator-annotation > div').hide();
     }
@@ -1185,7 +1179,7 @@ H2O = (function() {
 
   H2O.prototype.removeAnnotationMarkup = function(annotation) {
     var child, h, _k, _len2, _ref1;
-    var highlights = $('.annotation-' + annotation.id); 
+    var highlights = $('.annotation-' + annotation.id);
     _ref1 = highlights;
     for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
       h = _ref1[_k];
