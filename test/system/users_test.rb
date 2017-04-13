@@ -111,7 +111,6 @@ class UserSystemTest < ApplicationSystemTestCase
         assert_content 'Password is not valid'
       end
 
-
       scenario 'sending a password reset email' do
         user = users(:student_user)
 
@@ -123,6 +122,19 @@ class UserSystemTest < ApplicationSystemTestCase
         click_button 'Reset my password'
 
         assert_content 'Instructions to reset your password have been emailed to you. Please check your email.'
+      end
+
+      scenario 'browsing workshop content', js: true, solr: true do
+        sign_in user = users(:case_admin)
+        visit user_path(user)
+
+        assert_content 'My Workshop'
+        assert_content cases(:public_case_1).name
+
+        within '#bookshelf_panel .pagination' do
+          click_link '6'
+        end
+        assert_content defaults(:admin_link).name
       end
     end
 

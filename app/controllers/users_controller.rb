@@ -85,22 +85,7 @@ class UsersController < ApplicationController
       return
     end
 
-    if request.xhr? && params.has_key?(:ajax_region)
-      sorter = Proc.new { |p| p.send(params[:sort]).to_s.downcase }
-      if params["ajax_region"] == "case_requests"
-        content = CaseRequest.all.sort_by(&sorter)
-      else
-        content = @user.send(params["ajax_region"]).sort_by(&sorter)
-      end
-
-      if(params[:order] == 'desc')
-        content.reverse!
-      end
-      @collection = content.paginate(:page => params[:page], :per_page => 10)
-
-      render :partial => params[:ajax_region] == "bookmarks" ? 'shared/bookmark_block' : 'shared/generic_block'
-      return
-    end
+    # TODO: Fix pagination for user bookmarks
 
     if !params.has_key?("ajax_region")
       user_id_filter = @user.id
