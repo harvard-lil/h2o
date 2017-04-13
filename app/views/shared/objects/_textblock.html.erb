@@ -11,9 +11,6 @@
       by
       <%= link_to hit.stored(:user_display), "/users/#{hit.stored(:user_id)}" %>
       <% end -%>
-      <% if textblock.tag_list.any? -%>
-      | <%= raw textblock.tag_list.collect { |tag| link_to(tag, tag_path("text_blocks", CGI.escape(tag))) }.join(', ') %>
-      <% end -%>
     </p>
 	</div>
   <div class="right_details">
@@ -22,7 +19,7 @@
     <%= link_to raw('<span class="icon icon-collage-this"></span>CLONE AND ANNOTATE'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => textblock), :class => "new-action link-collage" %>
     <a data-item_id="<%= textblock.id %>" data-type="text_block" href="#" class="link-add"><span class="icon icon-add"></span>ADD</a>
     <%= link_to raw('<span class="icon icon-favorite"></span>BOOKMARK'), '#',
-      :class => "link-bookmark bookmark-action", 
+      :class => "link-bookmark bookmark-action",
       "data-itemid" => textblock.id,
       "data-type" => "text_block" %>
 	</div>

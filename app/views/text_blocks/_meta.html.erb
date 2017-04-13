@@ -6,14 +6,3 @@
 <% if text_block.metadatum -%>
 <%= render :partial => "shared/objects/metadatum", :object => text_block.metadatum %>
 <% end -%>
-
-<% cache(["tags", text_block], :compress => H2O_CACHE_COMPRESSION) do -%>
-<% if text_block.tags.any? -%>
-<p>
-  <label>Tags:</label>
-  <% text_block.tags.each do |tag| -%>
-  <%= link_to tag.name, tag_path("text_blocks", CGI.escape(tag.name)) %>
-  <% end -%>
-</p>
-<% end -%>
-<% end -%>

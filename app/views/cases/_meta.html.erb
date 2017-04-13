@@ -12,25 +12,25 @@
   <label>Author:</label>
   <%= court_case.author %>
 </p>
-<% end -%>
+<% end %>
 
 <% unless court_case.case_citations.blank? %>
 <p>
   <label>Citations:</label>
   <%= court_case.case_citations.collect{|cc| cc.display_name}.join(', ') %>
-</p> 
+</p>
 <% end %>
 
 <% unless court_case.case_docket_numbers.blank? %>
 <p>
   <label>Docket Numbers:</label>
   <%= court_case.case_docket_numbers.collect{|cc| cc.display_name}.join(', ') %>
-</p> 
+</p>
 <% end %>
 
 <% unless court_case.case_jurisdiction.blank? %>
 <p>
   <label>Jurisdiction:</label>
   <%= court_case.case_jurisdiction.display_name %>
-</p> 
+</p>
 <% end %>

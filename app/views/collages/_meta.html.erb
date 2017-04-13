@@ -2,14 +2,6 @@
   <label>Last Updated:</label>
   <span id="autosave"><%= collage.updated_at.strftime("%B %d, %Y") %></span>
 </p>
-<% if collage.tags.any? -%>
-<p>
-  <label>Tags:</label>
-  <% collage.tags.each do |tag| -%>
-  <%= link_to tag.name, tag_path("collages", CGI.escape(tag.name)) %>
-  <% end -%>
-</p>
-<% end -%>
 <% if collage.annotatable.present? -%>
 <p><label>Original Item:</label>
 <% if collage.annotatable_type == 'Case' %>

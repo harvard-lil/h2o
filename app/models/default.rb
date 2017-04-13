@@ -49,7 +49,6 @@ class Default < ApplicationRecord
     integer :karma
     integer :user_id, :stored => true
 
-    string :tag_list, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
 
     string :user
