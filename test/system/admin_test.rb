@@ -22,6 +22,7 @@ class AdminSystemTest < ApplicationSystemTestCase
     assert { evaluate_script("CKEDITOR.instances['page_content'].execCommand('image')") }
     assert_content 'Image Properties'
     click_link 'Upload'
+    click_link 'Upload' # ?
     within_frame find('iframe.cke_dialog_ui_input_file') do
       attach_file 'upload', upload_file_path('page-image.png')
     end
