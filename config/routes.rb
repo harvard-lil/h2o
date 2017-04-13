@@ -19,10 +19,9 @@ H2o::Application.routes.draw do
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
   get '/p/:id' => 'pages#show'
 
-  resources :base do
+  resources :base, only: [] do
     collection do
       get 'embedded_pager'
-      get 'quick_collage', as: :quick_collage
     end
   end
   get 'all_materials' => 'base#search', as: :search_all

@@ -23,7 +23,6 @@ class Ability
       can [:playlist_lookup], :playlists
       can :collage_lookup, :collages
       can [:user_lookup, :playlists, :disconnect_dropbox], :users
-      can :quick_collage, :base
       can :create, :responses
 
       can :destroy, :user_sessions

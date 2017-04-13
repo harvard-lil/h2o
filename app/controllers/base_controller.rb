@@ -83,19 +83,6 @@ class BaseController < ApplicationController
     end
   end
 
-  def quick_collage
-    set_sort_params
-    set_sort_lists
-    params[:per_page] = 5
-    @collection = build_search([TextBlock, Case, Collage], params)
-
-    if params.has_key?(:ajax)
-      render :partial => 'shared/generic_block'
-    else
-      render :partial => 'base/quick_collage'
-    end
-  end
-
   def error
     redirect_to root_url, :status => 301
   end
