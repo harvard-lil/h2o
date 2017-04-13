@@ -271,11 +271,6 @@ class Collage < ApplicationRecord
 
   private
 
-  def temp_debug?(a)
-    debug_id = 1118397
-    a.id == debug_id
-  end
-
   def add_footnote_class(doc)
     doc.xpath('//a[starts-with(@href, "#")]').each do |li|
       li['class'] = 'footnote'
