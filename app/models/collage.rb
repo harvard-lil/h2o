@@ -206,13 +206,7 @@ class Collage < ApplicationRecord
   def editable_content(convert_h_tags=false)
     return '' if self.annotatable.nil?
 
-    original_content = ''
-    if self.version == self.annotatable.version
-      original_content = self.annotatable.content
-    else
-      # BUG: Is that supposed to be an assignment or a comparison?
-      original_content = self.annotatable.frozen_items.detect { |f| f.version = self.version }.content
-    end
+    original_content = self.annotatable.content
 
     doc = Nokogiri::HTML.parse(original_content.gsub(/\r\n/, ''))
 
