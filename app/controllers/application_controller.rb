@@ -3,8 +3,8 @@ class ApplicationController < ActionController::Base
   # Important that check_auth happens after load_single_resource
   before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
-  before_action :set_sort_params, :only => [:index, :tags]
-  before_action :set_sort_lists, :only => [:index, :tags]
+  before_action :set_sort_params, :only => [:index]
+  before_action :set_sort_lists, :only => [:index]
   before_action :filter_tag_list, :only => [:update, :create]
 
   after_action :allow_iframe
@@ -223,18 +223,6 @@ class ApplicationController < ActionController::Base
       end
       if params.has_key?(:within)
         keywords params[:within]
-      end
-      if params.has_key?(:tags) && model != Case
-        if params.has_key?(:any)
-          any_of do
-            params[:tags].each { |t| with :tag_list, t }
-          end
-        else
-          params[:tags].each { |t| with :tag_list, t }
-        end
-      end
-      if params.has_key?(:tag) && model != Case
-        with :tag_list, CGI.unescape(params[:tag])
       end
       if params.has_key?(:media_type)
         with :media_type, params[:media_type]
