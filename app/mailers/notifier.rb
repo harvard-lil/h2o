@@ -31,6 +31,7 @@ class Notifier < ActionMailer::Base
   end
 
   def password_reset_instructions(user)
+    @token = user.perishable_token
     @edit_password_reset_url = edit_password_reset_url(user.perishable_token)
     mail(to: user.email_address, subject: "H2O Password Reset Instructions")
   end
@@ -53,7 +54,7 @@ class Notifier < ActionMailer::Base
     @users = users
     mail(to: users.map(&:email_address).uniq, subject: "H2O Logins")
   end
-  
+
   def playlist_push_completed(user, playlist_name, new_playlist_id)
     @playlist_id = new_playlist_id
     mail(to: user.email_address, subject: "Push of Playlist #{playlist_name} completed")
