@@ -21,13 +21,6 @@
             :required => true,
             :input_html => { :rows => 3, :class => "no_tinymce" },
             :hint => raw('You can add media items by pasting the URL or HTML embed code in the box above.<br /><span class="error">All embedded items must be from a secure (https) site. If content is not secure, <a href="/defaults/new">create a link</a> instead.</span>') %>
-        <%= form.input :tag_list,
-          :as => :string,
-          :hint => 'Please define the tags for this media in a comma-separated list.',
-          :label => 'Tags',
-          :input_html => {:class => 'tagging-autofill-tags', :value => @media.tags.collect { |t| t.name }.join(',') },
-          :required => false
-        %>
         <%= render :partial => 'shared/forms/visibility_selectors', :locals => { :form => form } %>
         <%= render :partial => 'shared/captcha', :locals => { :single_resource => @media } %>
       <% end %>

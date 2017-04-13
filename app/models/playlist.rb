@@ -57,7 +57,6 @@ class Playlist < ApplicationRecord
     string :id, :stored => true
     text :description
     text :name
-    string :tag_list, :stored => true, :multiple => true
     string :user
     string :user_display, :stored => true
     integer :user_id, :stored => true

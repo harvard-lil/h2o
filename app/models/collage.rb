@@ -68,7 +68,6 @@ class Collage < ApplicationRecord
     boolean :public
     time :created_at
     time :updated_at
-    string :tag_list, :stored => true, :multiple => true
 
     string :user
     string :user_display, :stored => true

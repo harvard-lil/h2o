@@ -5,7 +5,6 @@ class ApplicationController < ActionController::Base
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
   before_action :set_sort_params, :only => [:index]
   before_action :set_sort_lists, :only => [:index]
-  before_action :filter_tag_list, :only => [:update, :create]
 
   after_action :allow_iframe
 
@@ -19,17 +18,6 @@ class ApplicationController < ActionController::Base
   # Layout is always false for ajax calls
   def layout_switch
     return false if request.xhr?
-  end
-
-  def filter_tag_list
-    return if !["collages", "defaults", "playlists", "text_blocks"].include?(params[:controller])
-
-    resource_type = params[:controller].gsub(/s$/, '').to_sym
-    return if params[resource_type].nil?
-
-    return if params[resource_type][:tag_list].nil?
-
-    params[resource_type][:tag_list].gsub!(/,/, '::::')
   end
 
   def load_single_resource

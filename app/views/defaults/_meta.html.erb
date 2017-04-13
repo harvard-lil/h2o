@@ -2,14 +2,3 @@
   <label>Last Updated:</label>
   <%= @default.updated_at.strftime("%B %d, %Y") %>
 </p>
-
-<% cache(["tags", @default], :compress => H2O_CACHE_COMPRESSION) do -%>
-<% if @default.tags.any? -%>
-<p>
-  <label>Tags:</label>
-  <% @default.tags.each do |tag| -%>
-  <%= link_to tag.name, tag_path("medias", CGI.escape(tag.name)) %>
-  <% end -%>
-</p>
-<% end -%>
-<% end -%>

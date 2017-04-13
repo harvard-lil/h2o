@@ -90,7 +90,6 @@ class TextBlock < ApplicationRecord
     string :user_display, :stored => true
     integer :user_id, :stored => true
 
-    string :tag_list, :stored => true, :multiple => true
     string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
 
