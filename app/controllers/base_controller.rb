@@ -1,4 +1,6 @@
 class BaseController < ApplicationController
+  layout 'main', only: %s{index}
+
   caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
 
   def embedded_pager(model = nil, view = 'shared/playlistable_item')

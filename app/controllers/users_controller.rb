@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
   protect_from_forgery :except => [:disconnect_dropbox]
+  layout 'main', only: [:new, :create, :show]
 
   DEFAULT_SHOW_TYPES = {
     :pending_cases => {
@@ -63,7 +64,7 @@ class UsersController < ApplicationController
 
     if @user.save
       @user.send_verification_request_to_admin
-      flash[:notice] = "Account registered! You will be notified once an admin has verified your account."
+      flash[:success] = I18n.t 'users.sign-up.flash.success'
       redirect_to user_path(@user)
     else
       render :action => :new
@@ -263,7 +264,7 @@ class UsersController < ApplicationController
   private
   def users_params
     common_attrs = common_user_preference_attrs.reject {|attr| attr == :user_id}
-    params.require(:user).permit(:id, :name, :login, :password, :password_confirmation,
+    params.fetch(:user, {}).permit(:id, :name, :login, :password, :password_confirmation,
                                  :email_address, :tz_name, :attribution, :title,
                                  :url, :affiliation, :description, :terms, *common_attrs
                                  )

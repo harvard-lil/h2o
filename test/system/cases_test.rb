@@ -8,7 +8,7 @@ class CaseSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'searching for a case', solr: true do
-      visit root_path
+      visit search_all_path
       search_label = [*'XA'..'XZ'].sample
       fill_in 'Keywords', with: "Case #{search_label}"
       # click_link 'SEARCH' # TODO: This should not require JavaScript!
@@ -74,7 +74,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       click_button 'Submit Case Request'
       assert_content "Case Request was successfully created."
     end
-    
+
     scenario 'annotating a case', js: true do
       # This is literally a copy-paste of the text annotation path... Makes one wonder
       sign_in user = users(:verified_student)

@@ -150,6 +150,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
+    commonjs (0.2.7)
     concurrent-ruby (1.0.5)
     coveralls (0.8.20)
       json (>= 1.8, < 3)
@@ -217,6 +218,10 @@ GEM
       guard-compat (~> 1.0)
     haml (4.0.7)
       tilt
+    hamlit (2.8.1)
+      temple (>= 0.8.0)
+      thor
+      tilt
     highline (1.7.8)
     i18n (0.8.1)
     jbuilder (2.6.3)
@@ -234,6 +239,13 @@ GEM
       activesupport (>= 3.0.0)
     launchy (2.4.3)
       addressable (~> 2.3)
+    less (2.6.0)
+      commonjs (~> 0.2.7)
+    less-rails (2.8.0)
+      actionpack (>= 4.0)
+      less (~> 2.6.0)
+      sprockets (> 2, < 4)
+      tilt
     libv8 (3.16.14.19)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -383,6 +395,9 @@ GEM
       ffi-compiler (>= 1.0, < 2.0)
     sexp_processor (4.8.0)
     shellany (0.0.1)
+    simple_form (3.4.0)
+      actionpack (> 4, < 5.1)
+      activemodel (> 4, < 5.1)
     simple_xlsx_reader (1.0.2)
       nokogiri
       rubyzip
@@ -409,6 +424,7 @@ GEM
       rails (>= 3)
       sunspot (= 2.2.7)
     sunspot_solr (2.2.7)
+    temple (0.8.0)
     term-ansicolor (1.5.0)
       tins (~> 1.0)
     terminal-notifier-guard (1.7.0)
@@ -419,6 +435,9 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.7)
     tins (1.13.2)
+    turbolinks (5.0.1)
+      turbolinks-source (~> 5)
+    turbolinks-source (5.0.0)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uglifier (3.1.11)
@@ -430,6 +449,10 @@ GEM
       activemodel (>= 5.0)
       debug_inspector
       railties (>= 5.0)
+    webpacker (1.1)
+      activesupport (>= 4.2)
+      multi_json (~> 1.2)
+      railties (>= 4.2)
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -468,11 +491,13 @@ DEPENDENCIES
   guard-spring
   guard-sunspot!
   guard-yield
+  hamlit
   htmltoword!
   jbuilder (~> 2.6.3)
   json (= 1.8.6)
   kaminari
   launchy
+  less-rails
   loofah-activerecord (~> 2.0.0)
   m
   methadone
@@ -492,16 +517,18 @@ DEPENDENCIES
   rails_admin
   rails_admin_import
   rmultimarkdown
-  sass-rails (~> 5.0.6)
   scrypt
+  simple_form
   simplecov
   sunspot_rails
   sunspot_solr
   terminal-notifier-guard
   therubyracer
+  turbolinks
   uglifier (>= 1.3.0)
   warden
   web-console
+  webpacker
   will_paginate!
   wkhtmltopdf-binary
   wrong!

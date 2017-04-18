@@ -1,0 +1,47 @@
+body {
+  .container-fluid();
+
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+main {
+  margin-top: 20px;
+}
+
+main > section, main > header {
+  .make-row();
+  > .content {
+    .container();
+    > .layout {
+      .make-row();
+    }
+  }
+}
+
+section#flash {
+  .flash-message {
+    .alert();
+
+    margin: 5px 0;
+    padding: 5px 12px;
+
+    &.flash-success {
+      .alert-success();
+    }
+    &.flash-notice {
+      .alert-info();
+    }
+    &.flash-error {
+      .alert-danger();
+    }
+  }
+}

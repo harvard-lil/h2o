@@ -30,6 +30,7 @@ gem 'hamlit'
 gem 'jbuilder', '~> 2.6.3'
 gem 'json', '1.8.6'
 gem 'kaminari'
+gem 'less-rails'
 gem 'loofah-activerecord', '~> 2.0.0'
 gem 'nokogiri', '~> 1.6'
 gem 'paperclip'
@@ -39,12 +40,14 @@ gem 'rails_admin'
 gem 'rails_admin_import'
 gem 'rails-html-sanitizer'
 gem 'RedCloth'
-gem 'sass-rails', '~> 5.0.6'
 gem 'scrypt'
+gem 'simple_form'
 gem 'sunspot_rails'
 gem 'therubyracer', platforms: :ruby
+gem 'turbolinks'
 gem 'uglifier', '>= 1.3.0'
 gem 'warden'
+gem 'webpacker'
 gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e1c0e0'
 
 # export binary gems
@@ -72,7 +75,6 @@ group :development do
   gem 'guard-yield'
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
-
   gem 'terminal-notifier-guard'
 end
 

@@ -9,10 +9,10 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require_tree .
- *= stub export
- *= stub print
- *= stub doc-export
- *= stub content.min
- *= stub skin.min
+ *= require_tree ./old
+ *= stub old/export
+ *= stub old/print
+ *= stub old/doc-export
+ *= stub old/content.min
+ *= stub old/skin.min
  */

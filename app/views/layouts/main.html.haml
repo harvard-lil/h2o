@@ -5,8 +5,16 @@
     = render 'layouts/meta_tags'
     = render 'layouts/favicon'
     = stylesheet_link_tag 'main', media: 'all'
-  %body{class: "controller-#{controller_name.parameterize}"}
+  %body{class: "view-#{controller_name.parameterize}-#{action_name.parameterize}"}
+    .overlay
     %header= render 'layouts/header'
-    %main= yield
-    = javascript_include_tag 'main'
+    %main
+      - if flash.present?
+        %section#flash
+          .content
+            - flash.each do |kind, message|
+              .flash-message{class: "flash-#{kind}"}= message
+      = yield
+    %footer= render 'layouts/footer'
+    = javascript_pack_tag 'main', data: {'turbolinks-eval': "false"}
     = render 'layouts/analytics'

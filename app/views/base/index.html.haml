@@ -1,0 +1,41 @@
+%section.hero
+  .content
+    %h1
+      %em= t 'landing.hero.hook'
+      = t 'landing.hero.description'
+    %a.call-to-action{href: root_path}= t 'landing.hero.call-to-action'
+%section.preview
+  .content
+    .layout
+      .features
+        - t('landing.preview.features').each do |feature|
+          %section
+            %h2= feature[:label]
+            %p= feature[:summary]
+        %section
+          %a.call-to-action{href: root_path}= t('landing.preview.call-to-action')
+      .screenshot
+        .image-wrapper
+          = image_tag 'landing-demo.png'
+%section.endorsements
+  .content
+    %h1= t 'landing.endorsements.header'
+    .layout
+      - t('landing.endorsements.endorsers').each do |endorsement|
+        .endorser
+          .photo
+            = image_tag endorsement[:photo]
+          .name= endorsement[:name]
+          .institution= endorsement[:institution]
+          .link= link_to endorsement[:link][:text], endorsement[:link][:url]
+    .testimonial
+      .quote= t 'landing.endorsements.testimonial.text'
+      .source= t 'landing.endorsements.testimonial.source'
+%section.schools
+  %h2= t 'landing.used-by.header'
+  - t('landing.used-by.schools').each do |school|
+    = image_tag school[:image], title: school[:name]
+%section.stinger
+  = image_tag 'logo.png', title: t('header.brand')
+  %h1= t 'landing.stinger.pitch'
+  %a.call-to-action= t 'landing.stinger.call-to-action'

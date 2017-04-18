@@ -12,6 +12,8 @@ module H2o
     # upgrade to 5.1:
     config.load_defaults 5.1
 
+    config.middleware.use Rack::ContentLength
+
     # Rails.env = ActiveSupport::StringInquirer.new('production')
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -22,8 +24,8 @@ module H2o
     # config.time_zone = 'Central Time (US & Canada)'
 
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
-    # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
+    config.i18n.load_path += Dir[Rails.root.join('lib', 'locales', '*', '*.yml').to_s]
+    config.i18n.default_locale = :en
 
     config.autoload_paths += %W(#{config.root}/lib)
     config.action_controller.page_cache_directory = "#{Rails.root}/public"
@@ -31,6 +33,9 @@ module H2o
     config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"
     config.cache_store = :file_store, "tmp/cache/h2o/"
     # config.skylight.environments << 'development'
+
+    config.less.paths << Rails.root.join('app/assets/stylesheets/bootstrap')
+    config.less.compress = true
 
     config.action_mailer.default_url_options = { :host => 'localhost' }
     config.user_verification_recipients = ['cgruppioni@law.harvard.edu']

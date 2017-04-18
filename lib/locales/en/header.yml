@@ -1,0 +1,13 @@
+en:
+  header:
+    brand: H2O
+    links:
+      create-casebook: Create a casebook
+      browse: Browse
+      about: About
+      help: Help
+      sign-up: Sign up for free
+      sign-in: Sign in
+    user:
+      unverified: 'Email needs verification'
+      verified: 'Verified User'

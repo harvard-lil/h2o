@@ -60,6 +60,7 @@ class User < ApplicationRecord
 
   acts_as_authentic do |c|
     c.crypto_provider = Authlogic::CryptoProviders::Sha512
+    c.login_field = :email_address
   end
 
   has_and_belongs_to_many :roles
@@ -82,6 +83,9 @@ class User < ApplicationRecord
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :terms_validation
   validate :allowed_email_domain, if: :new_record?
+  validates_presence_of :email_address
+
+  alias_attribute :login, :email_address
 
   RATINGS = {
     :playlist_created => 5,
@@ -152,7 +156,6 @@ class User < ApplicationRecord
   end
 
   searchable :if => :not_anonymous do
-    text :login
     text :simple_display
     string :display_name, :stored => true
     text :affiliation
@@ -171,7 +174,7 @@ class User < ApplicationRecord
   end
 
   def not_anonymous
-    !self.login.match(/^anon_/).present?
+    attribution.present?
   end
 
   def all_items
@@ -194,27 +197,24 @@ class User < ApplicationRecord
     []
   end
 
+  def portrait_url
+    'ui/portrait-anonymous.png'
+  end
+
   def to_s
-    (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
+
+  end
+
+  def anonymous_name
+    "user\##{id}"
   end
 
   def display
-    if login.match(/^anon_[a-f,\d]+/)
-      return 'anonymous'
-    elsif attribution.present?
-      return attribution #"#{attribution} #{karma_display.blank? ? '' : "(#{karma_display})"}"
-    else
-      return login #"#{login} #{karma_display.blank? ? '' : "(#{karma_display})"}"
-    end
+    attribution || anonymous_name
   end
+
   def simple_display
-    if login.match(/^anon_[a-f,\d]+/)
-      return 'anonymous'
-    elsif attribution.present?
-      return attribution
-    else
-      return login
-    end
+    display
   end
   alias :display_name :simple_display
 

@@ -10,7 +10,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'searching for a text', solr: true do
-      visit root_path
+      visit search_all_path
       search_label = [*'XA'..'XZ'].sample
       fill_in 'Keywords', with: "Text #{search_label}"
       # click_link 'SEARCH' # TODO: This should not require JavaScript!
@@ -132,7 +132,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     scenario 'creating a text' do
       sign_in users(:verified_student)
 
-      visit root_path
+      visit search_all_path
 
       # TODO: make this more accessible
       within '#create_all_popup' do

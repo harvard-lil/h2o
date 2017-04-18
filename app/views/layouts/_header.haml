@@ -1,5 +1,25 @@
 %nav
-- if flash.present?
-  #flash
-    - flash.each do |kind, message|
-      .flash-message{class: "flash-#{kind}"}= message
+  .content
+    .brand
+      %a.wrapper.logo{href: root_path}= t 'header.brand'
+    .links
+      - if current_user.present?
+        = link_to t('header.links.create-casebook'), :root, class: 'create-casebook'
+        = link_to t('header.links.browse'), :root
+        = link_to t('header.links.help'), :root
+      - else
+        = link_to t('header.links.browse'), :root
+        = link_to t('header.links.about'), :root
+    .user
+      - if current_user.present?
+        %a.wrapper{href: user_path(current_user)}
+          .current-user
+            - if current_user.verified?
+              .verified= t 'header.user.verified'
+            - else
+              .unverified= t 'header.user.unverified'
+            .name= current_user.attribution
+            .portrait= image_tag current_user.portrait_url
+      - else
+        %a.sign-up{href: new_user_path}= t 'header.links.sign-up'
+        %a.sign-in{href: new_user_session_path}= t 'header.links.sign-in'

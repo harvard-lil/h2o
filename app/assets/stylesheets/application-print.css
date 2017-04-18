@@ -8,10 +8,10 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= stub ui
- *= stub jquery.ui.custom
- *= require export
- *= stub icons
- *= stub print
- *= stub doc-export
+ *= stub old/ui
+ *= stub old/jquery.ui.custom
+ *= require old/export
+ *= stub old/icons
+ *= stub old/print
+ *= stub old/doc-export
  */

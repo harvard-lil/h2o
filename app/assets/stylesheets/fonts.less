@@ -1,0 +1,53 @@
+@bold: 700;
+@medium: 600;
+@regular: 400;
+@light: 300;
+
+.load-font(@family, @style, @weight, @path){
+    font-family: @family;
+    font-style: @style;
+    font-weight: @weight;
+    src: asset-url('@{path}.eot');
+    src: asset-url('@{path}.eot') format('embedded-opentype'),
+      asset-url('@{path}.woff') format('woff'),
+      asset-url('@{path}.svg') format('svg');
+}
+
+.set-font(@family, @weight, @size, @height) {
+  font-family: @family;
+  font-weight: @weight;
+  font-size: @size;
+  line-height: @height;
+}
+
+@font-face {
+  .load-font('Atlas Grotesk', normal, @bold, 'AtlasGrotesk-Medium');
+}
+
+@font-face {
+  .load-font('Atlas Grotesk', normal, @regular, 'AtlasGrotesk-Regular');
+}
+
+@font-face {
+  .load-font('Atlas Grotesk', normal, @light, 'AtlasGrotesk-Light');
+}
+
+@font-face {
+  .load-font('Chronicle Text G3', normal, @regular, 'ChronicleTextG3-Roman');
+}
+
+.sans-serif(@weight, @size, @height) {
+  .set-font('Atlas Grotesk', monospace; @weight; @size; @height);
+}
+
+.serif-headline(@weight, @size, @height) {
+  .set-font('Portrait', serif; @weight; @size; @height);
+}
+
+.serif-text(@weight, @size, @height) {
+  .set-font('Chronicle Text G3', serif; @weight; @size; @height);
+}
+
+.mono(@weight, @size, @height) {
+  .set-font('Roboto Mono', serif; @weight; @size; @height);
+}

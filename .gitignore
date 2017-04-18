@@ -28,4 +28,5 @@ solr/data/
 solr/pids/
 tmp/
 
-guard-sunspot/
+guard-sunspot//public/packs
+/node_modules

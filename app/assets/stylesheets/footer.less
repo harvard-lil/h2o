@@ -1,0 +1,47 @@
+body > footer {
+  .make-row();
+
+  margin-top: 105px;
+  padding: 40px 0 50px;
+
+  background-color: @light-blue;
+  color: white;
+
+  a {
+    .sans-serif(@bold, 14px, 20px);
+    .link-color(@white);
+  }
+  .link {
+    display: block;
+  }
+  .content {
+    .container();
+  }
+  .layout {
+    .make-row()
+  }
+  .brand {
+    background-image: asset-url('logo-white.png');
+    background-position: left;
+    height: 26px;
+    margin: 10px 0;
+    color: transparent;
+  }
+  .link-group {
+    &:first-child {
+      .make-md-column(2);
+    }
+    &:nth-child(2) {
+      .make-md-column(3);
+    }
+  }
+  .info {
+    .make-md-column(3);
+    .pull-right();
+    text-align: right;
+    .copyright {
+      margin-top: 15px;
+      .sans-serif(@bold, 10px, 16px);
+    }
+  }
+}

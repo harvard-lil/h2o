@@ -33,7 +33,7 @@ class PlaylistSystemTest < ApplicationSystemTestCase
       # can't see private playlists
     end
     scenario 'searching playlists', solr: true do
-      visit root_path
+      visit search_all_path
 
       # search by title
       # can find public playlists
@@ -67,7 +67,7 @@ class PlaylistSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'creating a playlist', solr: true, js: true do
-      visit root_path
+      visit search_all_path
       click_link 'CREATE'
       click_link 'Playlist'
 

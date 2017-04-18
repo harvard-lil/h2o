@@ -1,0 +1,29 @@
+en:
+  simple_form:
+    labels:
+      user:
+        email: Email Address
+        attribution: Display name
+        password: Password
+        password_confirmation: 'Confirm password'
+        sign-up: 'Sign up'
+  users:
+    sign-up:
+      header: Sign up now — it's free forever!
+      edu-only_html: Registration is restricted to email addresses that end in <code>.edu</code>.
+      pitch:
+        header: What can you do after signing up?
+        features:
+          - Bookmark and track your favorite content.
+          - Create and publish your own casebooks from a comprehensive database of public-domain American caselaw.
+          - Highlight, copy, edit and annotate one of the thousands of casebooks and treatises in our public collection.
+      flash:
+        success: Account registered! Only verified .edu addresses are allowed. Please check your email for your verification link.
+    sign-in:
+      header: 'Sign in'
+    profile:
+      verified: Verified .edu email
+      unverified:
+        header: Email needs verification
+        text: You will need to verify your .edu email address before you can access parts of the site reserved for registered users.
+        resend: Resend verification email

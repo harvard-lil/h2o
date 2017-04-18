@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
                 :fix_cookies, :set_time_zone, :set_page_cache_indicator
   before_action :set_sort_params, :only => [:index]
   before_action :set_sort_lists, :only => [:index]
+  after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
 
   after_action :allow_iframe
 

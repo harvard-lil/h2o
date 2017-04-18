@@ -1,0 +1,15 @@
+a {
+  text-decoration: none !important;
+  border-bottom: 2px solid transparent;
+  &:active {
+    border-bottom-color: @light-blue;
+  }
+  &.wrapper, &.wrapper:hover, &.wrapper:active {
+    border: none !important;
+    color: inherit;
+  }
+}
+
+h1 {
+  .sans-serif(@regular, 25px, 25px);
+}
