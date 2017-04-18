@@ -1,0 +1,5 @@
+%nav
+- if flash.present?
+  #flash
+    - flash.each do |kind, message|
+      .flash-message{class: "flash-#{kind}"}= message
