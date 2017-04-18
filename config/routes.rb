@@ -12,6 +12,9 @@ H2o::Application.routes.draw do
   resources :case_requests, only: [:new, :create, :destroy]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :user_sessions, only: [:new, :create, :destroy, :index]
+  resource :case_finder, only: [:new, :create, :show] do
+    get 'download'
+  end
 
   get 'log_out' => 'user_sessions#destroy', as: :log_out
   get '/bookmark_item/:type/:id' => 'users#bookmark_item', as: :bookmark_item
@@ -56,7 +59,6 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
-
 
   resources :playlists do
     member do
