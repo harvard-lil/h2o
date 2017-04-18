@@ -79,4 +79,10 @@ class Notifier < ActionMailer::Base
     @bulk_upload_url = bulk_upload_url(bulk_upload)
     mail(to: user.email_address, subject: "Bulk Upload Completed")
   end
+
+  def case_import_failure(cap_api_case, errors)
+    @case = cap_api_case
+    @errors = errors 
+    mail(to: 'h2o@cyber.law.harvard.edu', subject: 'Case import failed')
+  end
 end
