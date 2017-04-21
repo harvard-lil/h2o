@@ -87,5 +87,6 @@ group :development, :test do
   gem 'simplecov'
   gem 'm'
 
+  gem 'webmock'
   gem 'wrong', git: 'https://github.com/pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
 end

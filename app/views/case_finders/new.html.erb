@@ -1,15 +1,10 @@
-<%= form_for :case_finder, method: 'get' do |f| %>
-  Name: <%= f.text_field :name %><br />
-  Name Abbreviation: <%= f.text_field :name_abbreviation %><br />
-  Cap API Url: <%= f.text_field :url %><br />
-  Jurisdiction Id: <%= f.text_field :jurisdiction_id %><br />
-  Jurisdication Name: <%= f.text_field :jurisdiction_name %><br />
-  Docket Number: <%= f.text_field :docket_number %><br />
-  Decision Date (Original): <%= f.text_field :decisiondate_original %><br />
-  Court Name: <%= f.text_field :court_name %><br />
-  Court Id:<%= f.text_field :court_id %><br />
-  <%= f.submit %>
-<% end %>
+<div class='standard-form case-finder-search-form'>
+  <%= form_for :case_finder, method: 'get', html: { class: 'formtastic' } do |f| %>
+    <%= f.label :name %><%= f.text_field :name %><br />
+    <%= f.label :citation %><%= f.text_field :citation %><br />
+    <%= f.submit 'Search', class: 'button' %>
+  <% end %>
+</div>
 
 <% if @cases %>
   <%= render :partial => 'cases' %> 
