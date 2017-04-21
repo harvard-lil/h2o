@@ -1,7 +1,12 @@
-Axios = require 'axios'
-serialize = require 'form-serialize'
 Turbolinks = require 'turbolinks'
 Turbolinks.start()
+
+morphdom = require 'morphdom'
+Turbolinks.SnapshotRenderer::assignNewBody = ->
+  morphdom(document.body,@newBody,{})
+
+Axios = require 'axios'
+serialize = require 'form-serialize'
 
 document.addEventListener 'submit', (e)->
   console.log 'submit', arguments

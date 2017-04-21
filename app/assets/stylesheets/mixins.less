@@ -14,3 +14,10 @@
 .link-color(@base) {
   .link-color-full(@base, lighten(@base, 10%), darken(@base, 10%));
 }
+
+.transition(...) {
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
+}

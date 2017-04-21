@@ -198,6 +198,19 @@ module SimpleForm
     end
   end
 end
-
 SimpleForm::Components::Labels.prepend SimpleForm::Components::LabelNecessity
 SimpleForm::Components::Labels::ClassMethods.include SimpleForm::Components::LabelNecessity::ClassMethods
+
+module SimpleForm
+  module Components
+    module Errors
+      def error(wrapper_options = nil)
+        if has_errors?
+          error_text
+        else
+          '&nbsp;'.html_safe
+        end
+      end
+    end
+  end
+end

@@ -64,7 +64,7 @@ class UsersController < ApplicationController
 
     if @user.save
       @user.send_verification_request_to_admin
-      flash[:success] = I18n.t 'users.sign-up.flash.success.h'
+      flash[:success] = I18n.t('users.sign-up.flash.success.html').html_safe
       redirect_to user_path(@user)
     else
       render :action => :new

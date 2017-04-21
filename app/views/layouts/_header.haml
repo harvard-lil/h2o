@@ -18,7 +18,7 @@
               .verified= t 'header.user.verified'
             - else
               .unverified= t 'header.user.unverified'
-            .name= current_user.attribution
+            .name= current_user.display_name
             .portrait= image_tag current_user.portrait_url
       - else
         %a.sign-up{href: new_user_path}= t 'header.links.sign-up'

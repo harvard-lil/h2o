@@ -9,11 +9,10 @@
     .overlay
     %header= render 'layouts/header'
     %main
-      - if flash.present?
-        %section#flash
-          .content
-            - flash.each do |kind, message|
-              .flash-message{class: "flash-#{kind}"}= message
+      %section#flash{style: "height: #{flash.keys.length * 40}px"}
+        .content
+          - flash.each do |kind, message|
+            .flash-message{class: "flash-#{kind}"}= message
       = yield
     %footer= render 'layouts/footer'
     = javascript_pack_tag 'main', data: {'turbolinks-eval': "false"}

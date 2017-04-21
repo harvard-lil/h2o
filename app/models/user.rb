@@ -201,7 +201,12 @@ class User < ApplicationRecord
   end
 
   def anonymous_name
-    "user\##{id}"
+    "#{email_domain}\##{id}"
+  end
+
+  def email_domain
+    m = email_address.match /@(.+)$/
+    m.try(:[], 1) || '?.edu'
   end
 
   def display
