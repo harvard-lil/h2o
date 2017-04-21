@@ -1,8 +1,5 @@
-<% if flash[:error] %>
-  <%= flash[:error] %>
-<% end %>
 
-<%= form_tag "/case_finder/download", method: :get do %>
+<%= form_tag "/case_finder", method: :post do %>
   <table>
     <thead>
       <tr>
@@ -19,7 +16,7 @@
     <tbody>
       <% @cases.each do |kase| %>
         <tr>
-          <td><%= radio_button_tag "case", kase %></td>
+          <td><%= radio_button_tag "case", JSON.dump(kase.slice("decisiondate_original", "jurisdiction_id", "name", "slug")) %></td>
           <td><%= kase["name_abbreviation"] %></td>
           <td><%= kase["name"] %></td>
           <td><%= kase["jurisdiction_name"] %></td>
