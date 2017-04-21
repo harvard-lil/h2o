@@ -4,8 +4,6 @@
 
 admin_user = User.create( login: 'admin_user', email_address: 'admin_user@example.edu', verified: true, password: 'asdf098asd0f98asd09fasdf', 
 	password_confirmation: 'asdf098asd0f98asd09fasdf', persistence_token: 'abcd' )
-student_user = User.create(login: 'student_user', email_address: 'student@example.edu', verified: true, password: 'asdfasdfasd99999', 
-	password_confirmation: 'asdfasdfasd99999', persistence_token: 'abcd1234')
 
 ## Cases in this playlist are missing content
 legal_history_playlist = Playlist.create( name: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, user_id: admin_user.id )
