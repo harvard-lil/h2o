@@ -44,7 +44,7 @@ legal_history_playlist = Playlist.create( name: 'Legal History: History of Ameri
 			public: true, user_id: admin_user.id)
 		PlaylistItem.create( playlist_id: playlist_2, position: 4, actual_object_type: 'Default', actual_object_id: default_2_2.id )
 
-		text_block_2_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), Chapter 3.', user_id: admin_user.id, public: true)
+		text_block_2_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), Chapter 3.', content: '', user_id: admin_user.id, public: true)
 		PlaylistItem.create( playlist_id: playlist_2, position: 5, actual_object_type: 'TextBlock', actual_object_id: text_block_2_1.id )
 
 	playlist_3 = Playlist.create(name: 'III. Lawyers and the Constitutional Law of Regulation', public: true, user_id: admin_user.id)
@@ -71,7 +71,7 @@ legal_history_playlist = Playlist.create( name: 'Legal History: History of Ameri
 		default_4_3 = Default.create(name: 'Hendrik Hartog, Pigs and Positivism, 1985 Wisconsin Law Review 899', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HartogPigsandPositivism.pdf', public: true, user_id: admin_user.id)
 		PlaylistItem.create( playlist_id: playlist_4, position: 3, actual_object_type: 'Default', actual_object_id: default_4_3.id)
 
-		text_block_4_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), pp. 213-233', public: true, user_id: admin_user.id)
+		text_block_4_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), pp. 213-233', content: '', public: true, user_id: admin_user.id)
 		PlaylistItem.create( playlist_id: playlist_4, position: 4, actual_object_type: 'TextBlock', actual_object_id: text_block_4_1.id)
 
 
