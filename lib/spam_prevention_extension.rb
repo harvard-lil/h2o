@@ -3,7 +3,7 @@ module SpamPreventionExtension
 
   included do
     attr_accessor :spam_prevention
-    validate :spam_check
+    # validate :spam_check
   end
 
   def spam_check

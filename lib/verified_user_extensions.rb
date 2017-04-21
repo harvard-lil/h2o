@@ -3,7 +3,7 @@ module VerifiedUserExtensions
 
   included do
     attr_accessor :verified_user
-    validate :verify_user, :if => Proc.new { |f| f.new_record? }
+    # validate :verify_user, :if => Proc.new { |f| f.new_record? }
   end
 
   def verify_user
