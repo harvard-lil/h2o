@@ -81,7 +81,6 @@ class User < ApplicationRecord
 
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
-  validate :terms_validation
   validate :allowed_email_domain, if: :new_record?
   validates_presence_of :email_address
 
@@ -147,12 +146,8 @@ class User < ApplicationRecord
     end
 
     if !canonical_email.ends_with?('.edu')
-      errors.add(:base, "Email address must be a .edu address")
+      errors.add(:email_address, I18n.t('users.edu-only-error'))
     end
-  end
-
-  def terms_validation
-    errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
   end
 
   searchable :if => :not_anonymous do

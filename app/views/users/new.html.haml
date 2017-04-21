@@ -12,6 +12,7 @@
           = f.input :password, required: true
           = f.input :password_confirmation, required: true
           = f.button :submit, t('simple_form.labels.user.sign-up')
+          = f.hint t 'users.sign-up.terms-of-service.html'
       .pitch
         %h2= t 'users.sign-up.pitch.header'
         %ul

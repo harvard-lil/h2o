@@ -21,17 +21,17 @@ header.users {
   }
 }
 
-section.sign-up {
+section.sign-up, section.sign-in, section.reset-password {
   .form {
-    .make-md-column(6);
+    .make-md-column(6.5);
     > form {
       background-color: @light-gray;
       padding: 20px;
     }
   }
-  .pitch {
-    .make-md-column(5);
-    .make-md-column-offset(1);
+  .pitch,
+  .help {
+    .make-md-column(5.5);
   }
 }
 

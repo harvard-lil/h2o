@@ -1,21 +1,32 @@
 class PasswordResetsController < ApplicationController
   before_action :load_user_using_perishable_token, :only => [:edit, :update]
+  layout 'main', only: [:new, :create]
 
   def new
-    render
+    @user = {email_address: params.fetch(:email_address, '')}
   end
 
+  def html_safe x
+    x.html_safe
+  end
+
+
   def create
-    @user = User.where(login: params[:login]).first
-    if @user
-      @user.deliver_password_reset_instructions!
-      flash[:notice] = "Instructions to reset your password have been emailed to you. " +
-        "Please check your email."
-      redirect_to new_user_session_path
-    else
-      flash[:notice] = "No user was found with that login"
-      render :action => :new
+    account_email = params.fetch(:user, {}).fetch(:email_address, nil)
+    if account_email.blank?
+      flash[:error] = I18n.t('users.reset-password.blank.html', sent_to: account_email, sign_up_path: new_user_path(email_address: account_email)).html_safe
+      return redirect_to new_password_reset_path
     end
+
+    @user = User.where(email_address: account_email).first
+    if @user.nil?
+      flash[:error] = I18n.t('users.reset-password.not-found.html', sent_to: account_email, sign_up_path: new_user_path(user: {email_address: account_email})).html_safe
+      return redirect_to new_password_reset_path(email_address: account_email)
+    end
+
+    @user.deliver_password_reset_instructions!
+    flash[:success] = I18n.t('users.reset-password.success.html', sent_to: @user.email_address).html_safe
+    redirect_to new_user_session_path(email_address: @user.email_address)
   end
 
   def edit

@@ -27,7 +27,7 @@ class UsersController < ApplicationController
   }
 
   def new
-    @user = User.new
+    @user = User.new params.fetch(:user, {}).permit(:email_address, :attribution)
   end
 
   def index
@@ -64,7 +64,7 @@ class UsersController < ApplicationController
 
     if @user.save
       @user.send_verification_request_to_admin
-      flash[:success] = I18n.t 'users.sign-up.flash.success'
+      flash[:success] = I18n.t 'users.sign-up.flash.success.h'
       redirect_to user_path(@user)
     else
       render :action => :new
