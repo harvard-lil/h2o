@@ -6,15 +6,17 @@
 @navbar-padding-vertical: 7px;
 @navbar-padding-horizontal: 0px;
 
-body, body > div[data-reactroot] {
+body {
   > header {
     .make-row();
     background-color: white;
   }
-
-  > header > nav {
+  &.view-base-index > header > nav {
     margin-top: 35px;
+  }
+  > header > nav {
     .container();
+    margin-top: 18px;
     > .content {
       .navbar();
       .navbar-default();
@@ -23,7 +25,7 @@ body, body > div[data-reactroot] {
       .navbar-header();
       .logo {
         .navbar-brand();
-        .mono(bold, 40px, 40px);
+        .monospace(bold, 40px, 40px);
 
         width: 85px;
         margin-right: 10px;

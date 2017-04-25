@@ -1,0 +1,29 @@
+:ruby
+  @casebook_class = 'casebook-' + if @casebook.nil?
+    'none'
+  elsif @casebook.public?
+    'public'
+  else
+    'draft'
+  end
+
+- if @casebook_class == 'casebook-draft'
+  - content_for :banner do
+    .banner{class: @casebook_class}
+      .banner-inner= t 'casebooks.edit.draft-banner.html', publish_path: edit_casebook_path(@casebook)
+
+- content_for :nested_layout do
+  %header.casebook{class: @casebook_class}
+    .content
+      .casebook-inner
+        = render 'playlists/search'
+        .tabs
+          = yield :tabs
+  %section.casebook{class: @casebook_class}
+    .content
+      .casebook-inner
+        .top-strip
+        = yield
+      %aside.casebook-actions
+
+= render template: 'layouts/main'

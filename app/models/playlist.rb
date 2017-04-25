@@ -151,6 +151,9 @@ class Playlist < ApplicationRecord
     t
   end
 
+  def subtitle; ''; end
+  def subtitle= x; end
+
   def contains_item?(item_key)
     self.playlist_items.map { |pi| "#{pi.actual_object_type}#{pi.actual_object_id}" }.include?(item_key)
   end

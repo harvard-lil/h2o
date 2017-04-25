@@ -1,0 +1,109 @@
+main > .casebook .casebook-inner {
+  .make-md-column(9.5);
+  .make-md-column-offset(1.25);
+}
+
+main > section.casebook {
+  background-color: @light-gray;
+  .top-strip {
+    margin: 1px 0 10px;;
+    height: 20px;
+  }
+  &.casebook-draft .top-strip {
+    background-color: @yellow;
+  }
+}
+
+main > header.casebook {
+  margin-top: 20px;
+  padding: 0 40px;
+
+  .tabs {
+    .tab {
+      .btn();
+      .button-variant(@black; @white; @light-gray);
+      border: 2px solid @light-gray;
+      padding: 12px 25px;
+    }
+  }
+  &.casebook-draft {
+    .tabs .tab.active {
+      color: @white;
+      background-color: @yellow;
+      border-color: @yellow;
+    }
+  }
+}
+
+.casebook-inner {
+  section.headnote, header {
+    padding: 0 40px;
+  }
+  input#playlist_name {
+    .sans-serif(@medium, 36px, 36px);
+    padding: 32px 20px 25px;
+  }
+  .collaborators {
+    .add-collaborator {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+
+      color: transparent;
+      background-image: asset-url('add-icon.png');
+      background-size: auto;
+    }
+    .user {
+      .sans-serif(@medium, 14px, 14px);
+      display: inline-block;
+      &.verified::before {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+
+        content: '';
+        background: asset-url('ui/verified.png') no-repeat;
+      }
+    }
+  }
+
+  .table-of-contents {
+
+    .chapter-listing, .material-listing {
+      padding: 14px 10px 25px;
+      margin-top: 8px;
+      .chapter-number {
+        .monospace(@regular, 11px, 12px);
+        display: inline-block;
+        vertical-align: middle;
+        width: 20px;
+      }
+      .chapter-title {
+        .sans-serif(@bold, 14px, 14px);
+        display: inline-block;
+      }
+    }
+    .chapter-listing {
+      background-color: black;
+      .chapter-title {
+        font-weight: @medium;
+      }
+      .chapter-number, .chapter-title {
+        color: white
+      }
+    }
+    .material-listing {
+      background-color: white;
+      border: 1px solid black;
+      .chapter-number, .chapter-title {
+        color: black;
+      }
+    }
+    .chapter-contents {
+      border-left: 8px solid @light-blue;
+      padding-left: 16px;
+    }
+  }
+}

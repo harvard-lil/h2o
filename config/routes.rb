@@ -58,7 +58,7 @@ H2o::Application.routes.draw do
   end
 
 
-  resources :playlists do
+  resources :playlists, as: :casebooks do
     member do
       post 'copy'
       get 'access_level'

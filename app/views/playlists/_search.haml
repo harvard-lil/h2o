@@ -1,0 +1,4 @@
+%header.casebooks-search
+  .content
+    = simple_form_for :search, url: :search_all, method: :get do |f|
+      = f.input :search, placeholder: t('casebooks.search.placeholder'), label: false

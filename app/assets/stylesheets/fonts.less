@@ -1,5 +1,5 @@
 @bold: 700;
-@medium: 600;
+@medium: 500;
 @regular: 400;
 @light: 300;
 
@@ -38,6 +38,8 @@
   .load-font(@font-family-serif, normal, @regular, 'ChronicleTextG3-Roman');
 }
 
+@font-family-monospace: 'Roboto Mono', Menlo, Monaco, Consolas, "Courier New", monospace;
+
 .sans-serif(@weight, @size, @height) {
   .set-font(@font-family-sans-serif, monospace; @weight; @size; @height);
 }
@@ -50,6 +52,6 @@
   .set-font(@font-family-serif, serif; @weight; @size; @height);
 }
 
-.mono(@weight, @size, @height) {
-  .set-font('Roboto Mono', serif; @weight; @size; @height);
+.monospace(@weight, @size, @height) {
+  .set-font(@font-family-monospace, serif; @weight; @size; @height);
 }

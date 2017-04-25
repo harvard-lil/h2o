@@ -49,3 +49,33 @@ section#flash {
     }
   }
 }
+
+.banner {
+  height: 40px;
+
+  text-align: center;
+  &.casebook-draft {
+    background-color: @yellow;
+    .banner-inner {
+    }
+  }
+  .banner-inner {
+    .sans-serif(@bold, 14px, 14px);
+    padding: 7px 100px;
+    background-position: -50px center;
+    a {
+      .link-color(@black);
+      border-bottom-color: @black;
+      border-bottom-width: 1px;
+    }
+    &::before {
+      display: inline-block;
+      width: 30px;
+      height: 33px;
+      vertical-align: middle;
+
+      content: "";
+      background: asset-url('banner-draft-icon.png') no-repeat;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+en:
+  simple_form:
+    labels:
+      playlist:
+        name: Give your casebook a concise title.
+        subtitle: Subtitle (optional)
+        description: Any additional details to help readers find or use this casebook
+        password: Password
+        password_confirmation: Confirm password
+  casebooks:
+    tabs:
+      layout: Layout
+      edit: Edit & Annotate
+      details: Casebook details
+    search:
+      placeholder: Find casebooks, cases, or other resources.
+    show:
+      headnote: Headnote
+    edit:
+      add-collaborator: Add collaborator
+      draft-banner:
+        html: This casebook is a draft and is visible only to collaborators. <a href="%{publish_path}">Publish it</a> to make it public.

@@ -7,6 +7,13 @@ class PlaylistsController < BaseController
   cache_sweeper :playlist_sweeper
   caches_page :show, :export, :export_all, :if => Proc.new { |c| c.instance_variable_get('@playlist').try(:public?) }
 
+  layout 'casebooks', only: [:new, :edit]
+  before_action :find_casebook, only: [:edit]
+
+  def casebook_class
+
+  end
+
   def embedded_pager
     super Playlist
   end
@@ -71,7 +78,9 @@ class PlaylistsController < BaseController
   end
 
   def new
-    @playlist = Playlist.new
+    @casebook = Playlist.where(user: current_user).where(["created_at = updated_at"])
+      .first_or_create name: 'Untitled casebook', user: current_user, public: false
+    redirect_to edit_casebook_path @casebook
   end
 
   def edit
@@ -194,6 +203,10 @@ class PlaylistsController < BaseController
   end
 
   private
+
+  def find_casebook
+    @casebook = Playlist.find params[:id]
+  end
 
   def csv_convert(playlists)
     headers = ['Playlist URL', 'Playlist ID', 'Owner', 'Title', 'Description']

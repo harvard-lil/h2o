@@ -7,13 +7,19 @@
     = stylesheet_link_tag 'main', media: 'all'
   %body{class: "view-#{controller_name.parameterize}-#{action_name.parameterize}"}
     .overlay
-    %header= render 'layouts/header'
+    - if content_for? :banner
+      = yield(:banner)
+    %header
+      = render 'layouts/header'
     %main
       %section#flash{style: "height: #{flash.keys.length * 40}px"}
         .content
           - flash.each do |kind, message|
             .flash-message{class: "flash-#{kind}"}= message
-      = yield
+      - if content_for? :nested_layout
+        = yield :nested_layout
+      - else
+        = yield
     %footer= render 'layouts/footer'
     = javascript_pack_tag 'main', data: {'turbolinks-eval': "false"}
     = render 'layouts/analytics'
