@@ -65,3 +65,13 @@ private_case_2:
   content: This is the body of PRIVATE case 2.
   public: false
   user: student_user
+
+case_with_citation: 
+  short_name: Case With Citation
+  full_name: Case of the District Number 1
+  decision_date: 1999-08-18
+  author: Judge Person
+  case_jurisdiction: district_jurisdiction
+  content: This is the body of case with citation.
+  public: true
+  user: case_admin
