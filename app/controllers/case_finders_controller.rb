@@ -45,11 +45,10 @@ class CaseFindersController < BaseController
   def download_case_content(cap_api_output)
     entry = Zip::InputStream.open(StringIO.new(cap_api_output)).get_next_entry
     case_content = entry.get_input_stream.read
-    puts "about to create case"
-    # short_name: case_params["name_abbreviation"]
-    new_case = Case.new(full_name: case_params["name"],
+    new_case = Case.create(short_name: case_params["name_abbreviation"], full_name: case_params["name"],
                            decision_date: case_params["decisiondate_original"], case_jurisdiction_id: case_params["jurisdiction_id"],
                            content: case_content, user_id: current_user.id, created_via_import: true, public: true)
-    new_case.save
+    ## Add citation creation
+    # CaseCitation.create(case_id: new_case.id, )
   end
 end
