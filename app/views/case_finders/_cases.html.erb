@@ -16,7 +16,7 @@
     <tbody>
       <% @cases.each do |kase| %>
         <tr>
-          <td><%= radio_button_tag "case", JSON.dump(kase.slice("decisiondate_original", "jurisdiction_id", "name", "slug")) %></td>
+          <td><%= radio_button_tag "case", JSON.dump(kase) %></td>
           <td><%= kase["name_abbreviation"] %></td>
           <td><%= kase["name"] %></td>
           <td><%= kase["jurisdiction_name"] %></td>
