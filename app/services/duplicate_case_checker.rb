@@ -9,21 +9,9 @@ class DuplicateCaseChecker
 
 	def perform
     cases.take(10).each do |kase|
-    	full_citation = kase["citation"]
-
-    	volume = full_citation.scan(/[0-9]+/).first
-    	reporter = full_citation.scan(/[A-Z].*(?<![0-9])/).first.chomp(' ')
-    	page = full_citation.scan(/[0-9]+/).last
-
-
-    	######### Make this join work.... case#short_name
-    	if CaseCitation.where({ volume: volume, reporter: reporter, page: page }).joins(:case).exists?
-    		puts 'it exists and is deleting'
+    	if case_already_exists?(kase)
     		cases.delete(kase)
-    	end
-
-    	#
-
+  		end 
     end
     cases
 	end
@@ -31,4 +19,13 @@ class DuplicateCaseChecker
 	private
 
 	attr_reader :cases
+
+	def case_already_exists?(kase)
+		full_citation = kase["citation"]
+  	volume = full_citation.scan(/[0-9]+/).first
+  	reporter = full_citation.scan(/[A-Z].*(?<![0-9])/).first.chomp(' ')
+  	page = full_citation.scan(/[0-9]+/).last
+
+		CaseCitation.all.joins(:case).where(case_citations: { volume: volume, reporter: reporter, page: page  }, cases: { short_name:  kase["name_abbreviation"]}).any?	
+	end
 end
