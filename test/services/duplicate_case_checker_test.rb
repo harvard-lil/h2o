@@ -5,9 +5,6 @@ class DuplicateCaseCheckerTest < ApplicationSystemTestCase
 		duplicate_case = cases(:case_with_citation)
 		duplicate_citation = duplicate_case.case_citations.first
 
-		puts "!(*@)!(*@)!(*@"
-		puts duplicate_citation.to_s
-
 		cases = [{'id'=>621573,
 	    'name_abbreviation'=>'Comer v. Titan Tool, Inc.',
 	    'citation'=>'875 F. Supp. 255'},
