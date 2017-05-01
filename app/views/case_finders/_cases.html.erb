@@ -1,5 +1,5 @@
 
-<%= form_tag "/case_finder", method: :post do %>
+<%= form_tag '/case_finder', method: :post do %>
   <table>
     <thead>
       <tr>
@@ -17,15 +17,15 @@
       <% @cases.each do |kase| %>
         <tr>
           <td><%= radio_button_tag "case", JSON.dump(kase) %></td>
-          <td><%= kase["name_abbreviation"] %></td>
-          <td><%= kase["name"] %></td>
-          <td><%= kase["jurisdiction_name"] %></td>
-          <td><%= kase["decisiondate_original"] %></td>
-          <td><%= kase["court_name"] %></td>
-          <td><%= kase["court_id"] %></td>
+          <td><%= kase['name_abbreviation'] %></td>
+          <td><%= kase['name'] %></td>
+          <td><%= kase['jurisdiction_name'] %></td>
+          <td><%= kase['decisiondate_original'] %></td>
+          <td><%= kase['court_name'] %></td>
+          <td><%= kase['court_id'] %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
-  <%= submit_tag "Download new case" %>
+  <%= submit_tag 'Download new case' %>
 <% end %>
