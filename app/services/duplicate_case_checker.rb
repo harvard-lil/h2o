@@ -8,12 +8,7 @@ class DuplicateCaseChecker
 	end
 
 	def perform
-    cases.take(10).each do |kase|
-    	if case_already_exists?(kase)
-    		cases.delete(kase)
-  		end 
-    end
-    cases
+		cases.reject { |kase| case_already_exists?(kase) }
 	end
 
 	private
