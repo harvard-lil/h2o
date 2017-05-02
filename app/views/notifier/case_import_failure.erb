@@ -1,7 +1,5 @@
-<!-- Case import failed for <%= user.email_address %>  -->
 Case import failed
 
-Case Id: <%= @cap_case_attrs["id"] %>
-Case Name: <%= @cap_case_attrs["name_abbreviation"] %>
-Decision Date: <%= @cap_case_attrs["decisiondate_original"] %>
-Error Message: <%= @errors %> 
+User: <%= @user.inspect %>
+Case Metadata: <%= @case_metadata.inspect %>
+Other Data: <%= @options.inspect %>
