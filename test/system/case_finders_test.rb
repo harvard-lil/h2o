@@ -29,7 +29,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			stub_request(:get, "https://capapi.org/api/v1/cases/#{case_metadata["slug"]}/?type=download&max=1").
 				with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
-				to_return(status: 200, body: File.read('cases.zip'), 
+				to_return(status: 200, body: File.read('test/fixtures/cases.zip'), 
 					headers: {'Content-Type' => 'application/xml'})
 
 			click_button 'Download new case'

@@ -1,4 +1,4 @@
-module H2o::Test::Helpers::CaseDownloaderData
+module H2o::Test::Helpers::CaseFinderData
 	def new_case_search_response_body
 		{ 'results'=> 
 			[{'id'=>621573,
