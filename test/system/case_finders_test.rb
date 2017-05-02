@@ -27,7 +27,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			choose "case"
 
-			download_case_successfully(@case_metadata)
+			download_case(@case_metadata)
 
 			click_button 'Download new case'
 
@@ -51,7 +51,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			choose "case"
 
-			download_case_failure(@case_metadata)
+			download_case_failed_attempt(@case_metadata)
 
 			click_button 'Download new case'
 
