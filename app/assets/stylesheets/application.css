@@ -9,10 +9,10 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require_tree ./old
- *= stub old/export
- *= stub old/print
- *= stub old/doc-export
- *= stub old/content.min
- *= stub old/skin.min
+ *= require_tree ./old_tree
+ *= require ui
+ *= require jquery.ui.custom
+ *= stub old_tree/export
+ *= stub print
+ *= stub old_tree/doc-export
  */

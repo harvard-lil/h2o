@@ -42,6 +42,7 @@ class AdminSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'deleting playlist and nested material', js: true do
+      skip 'removing playlists'
       deletable_playlist = playlists :playlist_to_delete
       visit rails_admin_path
       within '.sidebar-nav' do

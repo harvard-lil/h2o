@@ -72,7 +72,10 @@ class User < ApplicationRecord
   has_many :text_blocks, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
-  has_many :playlists, :dependent => :destroy
+
+  has_many :collaborations, class_name: 'Casebook::Collaborator', primary_key: :id
+  has_many :books, class_name: 'Casebook::Book', through: :collaborations, source: :casebook, primary_key: :id
+
   alias :textblocks :text_blocks
 
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
@@ -197,7 +200,7 @@ class User < ApplicationRecord
   end
 
   def to_s
-
+    display_name
   end
 
   def anonymous_name

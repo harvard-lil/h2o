@@ -1,0 +1,26 @@
+_fixture:
+  model_class: Casebook::Fixture
+
+public_casebook:
+  title: Public Casebook 1
+  public: true
+
+public_casebook_section_1:
+  root: public_casebook
+  ordinals: [1]
+
+public_casebook_section_1.1:
+  root: public_casebook
+  ordinals: [1,1]
+
+private_casebook:
+  title: Private Casebook 1
+  public: false
+
+empty_casebook:
+  title: Empty Casebook
+  public: true
+
+student_casebook:
+  title: Student Casebook
+  public: true

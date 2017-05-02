@@ -42,12 +42,12 @@ module H2o::Test::Helpers::Capybara
     user.set_password = password = random_token
     user.save!
     if page.driver.is_a? Capybara::RackTest::Driver
-      page.driver.post user_sessions_path, user_session: {login: user.login, password: password}
+      page.driver.post user_sessions_path, user_session: {email_address: user.email_address, password: password}
     else # e.g. Capybara::Selenium::Driver
       visit new_user_session_path
-      fill_in 'Login', with: user.login
+      fill_in 'Email address', with: user.email_address
       fill_in 'Password', with: password
-      click_button 'Login'
+      click_button 'Sign in'
     end
   end
   def sign_out

@@ -1,0 +1,14 @@
+_fixture:
+  model_class: Casebook::Collaborator
+
+public_casebook_owner:
+  casebook: public_casebook
+  user: verified_professor
+
+private_casebook_owner:
+  casebook: private_casebook
+  user: verified_professor
+
+student_casebook_owner:
+  casebook: student_casebook
+  user: student_user

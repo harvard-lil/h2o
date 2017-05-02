@@ -9,5 +9,7 @@ en:
       sign-up: Sign up for free
       sign-in: Sign in
     user:
-      unverified: 'Email needs verification'
-      verified: 'Verified User'
+      unverified: Email needs verification
+      verified: Verified User
+      view-profile: View profile
+      sign-out: Sign out

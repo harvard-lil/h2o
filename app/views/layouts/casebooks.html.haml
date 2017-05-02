@@ -1,29 +1,34 @@
 :ruby
-  @casebook_class = 'casebook-' + if @casebook.nil?
+  @book_class = 'casebook-' + if @book.nil?
     'none'
-  elsif @casebook.public?
+  elsif @book.public?
     'public'
   else
     'draft'
   end
 
-- if @casebook_class == 'casebook-draft'
+- if @book_class == 'casebook-draft'
   - content_for :banner do
-    .banner{class: @casebook_class}
-      .banner-inner= t 'casebooks.edit.draft-banner.html', publish_path: edit_casebook_path(@casebook)
+    .banner{class: @book_class}
+      .banner-inner= t 'casebooks.edit.draft-banner.html', publish_path: edit_book_path(@book)
 
 - content_for :nested_layout do
-  %header.casebook{class: @casebook_class}
+  %header.casebook{class: @book_class}
     .content
       .casebook-inner
-        = render 'playlists/search'
+        = render 'casebooks/search'
         .tabs
-          = yield :tabs
-  %section.casebook{class: @casebook_class}
+          = render 'casebooks/tabs'
+  %section.casebook{class: @book_class}
     .content
       .casebook-inner
         .top-strip
         = yield
       %aside.casebook-actions
+        = yield :actions
 
 = render template: 'layouts/main'
+- if @book
+  :coffeescript
+    window.RAILS_ROUTES ?= []
+    RAILS_ROUTES.book_section_path = (sectionId)->'#{j book_section_path(@book, '$CHAPTER_ID$')}'.replace('$CHAPTER_ID$', sectionId)

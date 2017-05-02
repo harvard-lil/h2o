@@ -25,6 +25,7 @@ class CaseImportSystemTest < ApplicationSystemTestCase
 
     assert_content 'Download started.'
 
+
     # TODO: Implement and test proper job queue
     # TODO: Test the notification email
 

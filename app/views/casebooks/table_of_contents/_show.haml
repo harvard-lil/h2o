@@ -1,0 +1,38 @@
+- contents.each do |object|
+  - if object.is_a? Casebook::Resource
+    .listing-wrapper{data: {ordinals: object.ordinal_string}}
+      %a.listing.material{href: book_section_path(object.root, object), draggable: true, data: {ordinals: object.ordinal_string}}
+        .section-number= object.ordinal_string
+        .section-title= object.title
+        .material-date
+          = object.try(:date_year) || t('casebooks.material.date.not-applicable')
+        - if object.is_a? Casebook::Resource
+          - if object.material.is_a? Case
+            .material-case= object.material.short_name
+          - elsif object.material.is_a? TextBlock
+            .material-type= t 'casebooks.material.type.text'
+          - elsif object.material.is_a? Default
+            .material_type= t "casebooks.material.type.#{object.material.content_type.parameterize}"
+          - else
+            .material-type
+              .not-applicable= t "casebooks.material.type.not-applicable"
+      - if editable && object.can_delete?
+        .actions
+          = button_to t('casebooks.edit.delete-section'), book_section_path(object.root, object), method: :delete, class: 'action-delete'
+
+  - elsif object.is_a? Casebook::Section
+    - if @edit_section == object
+      = render partial: 'casebooks/sections/form', locals: {section: object}
+    - else
+      .listing-wrapper{draggable: true, data: {ordinals: object.ordinal_string}}
+        %a.listing.section{href: book_section_path(object.root, object), draggable: true, data: {ordinals: object.ordinal_string}}
+          .section-number= object.ordinal_string
+          .section-title= object.title
+        - if editable && object.can_delete?
+          .actions
+            = button_to t('casebooks.edit.delete-section'), book_section_path(object.root, object), method: :delete, class: 'action-delete'
+
+  - elsif object.is_a? Enumerable
+    .section-wrapper
+      .section-contents
+        = render partial: 'casebooks/table_of_contents/show', locals: {contents: object, editable: editable}

@@ -19,6 +19,7 @@ require 'rails/test_help'
 require 'wrong/adapters/minitest'
 require 'minitest/reporters'
 Minitest::Reporters.use!
+Rails.backtrace_cleaner.remove_silencers! if ENV['DEBUG']
 
 load "#{Rails.root}/db/seeds.rb"
 

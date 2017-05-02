@@ -50,7 +50,7 @@ class TextsSystemTest < ApplicationSystemTestCase
       visit text_block_path text
       assert_content text.name
       assert_content text.content
-      assert_content text.user
+      assert_content text.user.display_name
     end
   end
   describe 'as a registered user' do

@@ -6,13 +6,6 @@ class SearchSystemTest < ApplicationSystemTestCase
       visit search_all_path
 
       within '#advanced-search-content' do
-        click_link 'Playlist'
-      end
-      assert_content 'Public Playlist 1'
-      assert_no_content 'Private Playlist 1'
-
-      within '#advanced-search-content' do
-        click_link 'Clear'
         click_link 'Text'
       end
       assert_content 'Public Text 1'

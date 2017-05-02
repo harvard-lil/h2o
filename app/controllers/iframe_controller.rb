@@ -1,4 +1,4 @@
-class IframeController < ApplicationController
+class IframeController < BaseController
   caches_page :load, :show, :if => Proc.new { |c| c.instance_variable_get('@single_resource').try(:public?) }
 
   def load

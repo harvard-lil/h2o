@@ -38,7 +38,7 @@ H2o::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = true
+  config.assets.debug = false
 
   #TODO: It's a little strange to have the port number embedded in the host
   #like that, but we don't have time to remove it and re-test everywhere.

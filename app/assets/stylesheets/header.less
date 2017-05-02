@@ -51,6 +51,7 @@ body {
       .current-user {
         .sans-serif(@bold, 16px, 16px);
         color: black;
+        position: relative;
         .name {
           display: inline-block;
           padding: 10px 4px 0 0px;
@@ -73,6 +74,39 @@ body {
           display: inline-block;
           padding-top: 5px;
           margin-right: 10px;
+        }
+        &:hover .user-links {
+          max-height: 180px;
+          right: -20px;
+          padding: 10px 20px 30px;
+        }
+        .user-links {
+          .transition(max-height 0.05s linear;);
+          position: absolute;
+          top: 0;
+          right: 0px;
+          margin-top: 30px;
+          padding-top: 10px;
+          max-height: 0px;
+          background-color: fade(white, 10%);
+          overflow: hidden;
+
+          .user-link {
+            .sans-serif(@bold, 14px, 14px);
+
+            display: block;
+            width: 100%;
+            margin: 2px 0;
+            padding: 10px 20px;
+
+            text-align: right;
+            color: black;
+            background-color: @light-gray;
+          }
+          a.user-link {
+            padding-top: 12px;
+            padding-bottom: 6px;
+          }
         }
       }
       .sign-up {

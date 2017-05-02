@@ -7,20 +7,18 @@ Turbolinks.SnapshotRenderer::assignNewBody = ->
 
 Axios = require 'axios'
 serialize = require 'form-serialize'
+querystring = require 'query-string'
 
-document.addEventListener 'submit', (e)->
-  console.log 'submit', arguments
-  form = e.target
-  if !form.getAttribute('data-remote')
-    return
+module.exports = ui =
+  request: (url, method, {data})->
+    data ?= {}
 
-  e.preventDefault()
-  method = form.method or 'get'
-  if method is 'post'
-    console.log  serialize(form, hash: true)
     progressBar = new Turbolinks.ProgressBar
     progressBar.show()
-    Axios.post form.action,  serialize(form, hash: true),
+
+    Axios[method] url, data,
+      headers:
+        'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
       onDownloadProgress: (progress)->
         progressBar.setValue progress.loaded / (progress.total or 10000)
     .catch (e)->e.response or throw e
@@ -28,8 +26,18 @@ document.addEventListener 'submit', (e)->
       html = response.data
       location = response.request.responseURL
       Turbolinks.controller.cache.put Turbolinks.Location.wrap(location), Turbolinks.Snapshot.fromHTML(html)
-      Turbolinks.visit location, action: 'restore'
+      Turbolinks.visit location, action: 'restore', scroll: false
     .finally -> progressBar.hide()
     .done()
-  else if method is 'get'
+  post: (url, options = {})->ui.request url, 'post', options
+  patch: (url, options = {})->ui.request url, 'patch', options
+
+document.addEventListener 'submit', (e)->
+  console.log 'submit', arguments
+  form = e.target
+  return if form.getAttribute('data-turbolinks-disable')
+  e.preventDefault()
+  if form.method is 'post'
+    ui.post form.action, data: serialize(form)
+  else if form.method is 'get'
     Turbolinks.visit "#{form.action}?#{serialize form}"

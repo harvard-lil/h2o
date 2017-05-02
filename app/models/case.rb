@@ -37,6 +37,8 @@ class Case < ApplicationRecord
 
   acts_as_taggable_on :tags
 
+  has_many :casebooks, inverse_of: :material
+
   has_many :case_citations
   has_many :case_docket_numbers
   belongs_to :case_request, optional: true
@@ -59,6 +61,12 @@ class Case < ApplicationRecord
   end
   def description
     nil
+  end
+  def title
+    full_name
+  end
+  def date_year
+    decision_date.try :year
   end
   def score
     0
@@ -151,8 +159,8 @@ class Case < ApplicationRecord
     end
     new_case.delete(:jurisdiction)
     c = Case.new(new_case)
-    c.user = User.find_by_login 'h2ocases'
-    # c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
+    # c.user = User.find_by_login 'h2ocases'
+    c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
 
     c
   end

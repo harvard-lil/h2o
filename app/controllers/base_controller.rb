@@ -1,7 +1,57 @@
 class BaseController < ApplicationController
-  layout 'main', only: %s{index}
-
+  before_action :load_single_resource, :check_authorization_h2o
   caches_page :index, :if => Proc.new { |c| c.instance_variable_get('@page_cache') }
+
+  layout :layout_switch
+
+  def landing
+    render 'base/index', layout: 'main'
+  end
+
+  def check_authorization_h2o
+    return true if params[:controller] == "rails_admin/main"
+
+    if @single_resource.present?
+      authorize! action_check, @single_resource
+    else
+      authorize! action_check, params[:controller].to_sym
+    end
+
+    return true
+  end
+
+  def load_single_resource
+    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
+
+    return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
+
+    if params[:action] == "new"
+      model = params[:controller].singularize.classify.constantize
+      @single_resource = item = model.new
+      instance_variable_set "@#{model.to_s.tableize.singularize}", item
+      @page_title = "New #{model.to_s}"
+    elsif params[:id].present?
+      model = params[:controller].singularize.classify.constantize
+      if params[:action] == "new"
+        item = model.new
+      elsif ["access_level", "save_readable_state"].include?(params[:action])
+        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
+      elsif model.respond_to?(:get_single_resource)
+        item = model.get_single_resource(params[:id])
+      else
+        item = model.where(id: params[:id]).first
+      end
+      if item.present? && item.is_a?(User)
+        @single_resource = item
+      elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
+        @single_resource = item
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
+        @page_title = item.name if item.respond_to?(:name)
+      else
+        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
+      end
+    end
+  end
 
   def embedded_pager(model = nil, view = 'shared/playlistable_item')
     if model.present?
@@ -14,7 +64,7 @@ class BaseController < ApplicationController
 
     params[:page] ||= 1
 
-    obj = model.nil? ? Sunspot.new_search(Playlist, Collage, Case, TextBlock, Default) : Sunspot.new_search(model)
+    obj = model.nil? ? Sunspot.new_search(Collage, Case, TextBlock, Default) : Sunspot.new_search(model)
 
     obj.build do
       if params[:keywords].present?
@@ -67,7 +117,7 @@ class BaseController < ApplicationController
 
   def search
     @type_lookup = :all
-    @page_title = "All Materials | H2O Classroom Tools"
+    @page_title = "All Resources | H2O Classroom Tools"
 
     params[:keywords] = CGI::escapeHTML(params[:keywords].to_s)
     if params.has_key?(:keywords) && params[:keywords].present? && params[:keywords].length > 50
@@ -76,7 +126,7 @@ class BaseController < ApplicationController
 
     set_sort_params
     set_sort_lists
-    @collection = build_search([Playlist, Collage, TextBlock, Case, Default], params)
+    @collection = build_search([Collage, TextBlock, Case, Default], params)
 
     if request.xhr?
       render :partial => 'shared/generic_block'
@@ -91,5 +141,10 @@ class BaseController < ApplicationController
 
   def not_found
     render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
+  end
+
+  # Layout is always false for ajax calls
+  def layout_switch
+    return false if request.xhr?
   end
 end

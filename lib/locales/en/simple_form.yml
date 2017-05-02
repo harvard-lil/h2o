@@ -13,6 +13,16 @@ en:
       # html: '<abbr title="required">*</abbr>'
     error_notification:
       default_message: There was an error with your submission.
+    labels:
+      search:
+        query: Search for cases and other material
+        submit: Search
+      link:
+        url: URL to off-site resource
+        save: Save
+      text:
+        content: Enter your own text content
+        save: Save
     # Examples
     # labels:
     #   defaults:

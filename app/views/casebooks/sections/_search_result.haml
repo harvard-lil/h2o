@@ -1,0 +1,20 @@
+.listing-wrapper
+  %a.listing.material{href: case_path(result)}
+    .section-number= idx + 1
+    .section-title= result.title
+    .material-date
+      = result.try(:date_year) || t('casebooks.material.date.not-applicable')
+    - if result.is_a? Case
+      .material-case= result.short_name
+    - elsif result.is_a? TextBlock
+      .material-type= t 'casebooks.material.type.text'
+    - elsif result.is_a? Default
+      .material-type= t "casebooks.material.type.#{object.material.content_type.parameterize}"
+    - else
+      .material-type
+        .not-applicable= t "casebooks.material.type.not-applicable"
+  .actions
+    - if @section.present?
+      = button_to t('casebooks.material.add-to-section'), book_sections_path(@book), params: {material_id: result.id, parent: @section.ordinal_string}, method: :post, class: 'action-add-material'
+    - else
+      = button_to t('casebooks.material.add-to-book'), book_sections_path(@book), params: {material_id: result.id}, method: :post, class: 'action-add-material'

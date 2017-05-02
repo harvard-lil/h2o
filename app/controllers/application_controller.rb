@@ -1,15 +1,12 @@
 class ApplicationController < ActionController::Base
   include UserPreferenceExtensions
   # Important that check_auth happens after load_single_resource
-  before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
-                :fix_cookies, :set_time_zone, :set_page_cache_indicator
+  before_action :set_time_zone, :set_page_cache_indicator, :redirect_bad_format
   before_action :set_sort_params, :only => [:index]
   before_action :set_sort_lists, :only => [:index]
   after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
 
   after_action :allow_iframe
-
-  layout :layout_switch
 
   protect_from_forgery with: :exception
 
@@ -21,53 +18,8 @@ class ApplicationController < ActionController::Base
     return false if request.xhr?
   end
 
-  def load_single_resource
-    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
-
-    return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
-
-    if params[:action] == "new"
-      model = params[:controller].singularize.classify.constantize
-      @single_resource = item = model.new
-      instance_variable_set "@#{model.to_s.tableize.singularize}", item
-      @page_title = "New #{model.to_s}"
-    elsif params[:id].present?
-      model = params[:controller].singularize.classify.constantize
-      if params[:action] == "new"
-        item = model.new
-      elsif ["access_level", "save_readable_state"].include?(params[:action])
-        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
-      elsif model.respond_to?(:get_single_resource)
-        item = model.get_single_resource(params[:id])
-      else
-        item = model.where(id: params[:id]).first
-      end
-      if item.present? && item.is_a?(User)
-        @single_resource = item
-      elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
-        @single_resource = item
-        instance_variable_set "@#{model.to_s.tableize.singularize}", item
-        @page_title = item.name if item.respond_to?(:name)
-      else
-        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
-      end
-    end
-  end
-
   def action_check
     params.fetch(:action).to_sym
-  end
-
-  def check_authorization_h2o
-    return true if params[:controller] == "rails_admin/main"
-
-    if @single_resource.present?
-      authorize! action_check, @single_resource
-    else
-      authorize! action_check, params[:controller].to_sym
-    end
-
-    return true
   end
 
   def redirect_bad_format

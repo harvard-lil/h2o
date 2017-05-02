@@ -1,3 +1,5 @@
+@import 'casebooks/dragging';
+
 main > .casebook .casebook-inner {
   .make-md-column(9.5);
   .make-md-column-offset(1.25);
@@ -6,7 +8,7 @@ main > .casebook .casebook-inner {
 main > section.casebook {
   background-color: @light-gray;
   .top-strip {
-    margin: 1px 0 10px;;
+    margin-top: 1px;
     height: 20px;
   }
   &.casebook-draft .top-strip {
@@ -23,6 +25,7 @@ main > header.casebook {
       .btn();
       .button-variant(@black; @white; @light-gray);
       border: 2px solid @light-gray;
+      border-bottom-width: 0;
       padding: 12px 25px;
     }
   }
@@ -35,9 +38,121 @@ main > header.casebook {
   }
 }
 
+.casebook-actions {
+  .make-md-column(1.25);
+  position: relative;
+  top: -40px;
+
+  a.action {
+    padding-top: 16px !important;
+  }
+  input.action, a.action {
+    .sans-serif(@bold, 14px, 14px);
+    .transition(background-size 0.05s linear, background-position 0.05s linear;);
+    display: block;
+    height: 60px;
+    padding: 3px 0 0 60px;
+    position: relative;
+
+    color: @light-blue;
+    white-space: normal;
+
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 50px;
+    background-position: 3px center;
+
+    &:hover {
+      background-size: 55px;
+      background-position: 0 center;
+    }
+    &:active {
+      background-size: 48px;
+      background-position: 4px center;
+    }
+    &:focus {
+      outline: none;
+      text-decoration: underline;
+    }
+    &.one-line {
+      padding-top: 6px;
+    }
+    &.add-material {
+      background-image: asset-url('ui/casebook/add-material.png');
+    }
+    &.add-section {
+      background-image: asset-url('ui/casebook/add-section.png');
+    }
+    &.publish {
+      background-image: asset-url('ui/casebook/publish.png');
+    }
+  }
+}
+
 .casebook-inner {
-  section.headnote, header {
-    padding: 0 40px;
+  section.headnote, header.casebook, section.material-search {
+    padding: 20px 40px;
+  }
+  header.casebook {
+    background-color: @white;
+    .book-header {
+      height: 25px;
+      .book-title {
+        .sans-serif(@bold, 18px, 18px);
+        .link-color(@black);
+        float: left;
+      }
+      .collaborators {
+        float: right;
+      }
+    }
+    h1 {
+      margin-top: 5px;
+    }
+    .breadcrumbs {
+      margin-top: 15px;
+      .monospace(@regular, 14px, 14px);
+      .breadcrumb {
+        .size(20px);
+        display: inline-block;
+        padding: 4px;
+
+        color: @light-blue;
+        &.active {
+          color: black;
+          font-weight: bold;
+          background-color: transparent !important;
+        }
+        &:hover {
+          background-color: @light-gray;
+        }
+      }
+      .separator {
+        display: inline-block;
+        width: 0;
+        padding: 0;
+        margin-left: -12px;
+        pointer-events: none;
+      }
+    }
+  }
+  section.headnote {
+    .sans-serif(@regular, 18px, 31px);
+    h3 {
+      .sans-serif(@medium, 24px, 27px);
+      margin: 10px 0;
+      color: @orange;
+    }
+  }
+  section.material-search {
+    .tabs .tab {
+      .btn();
+      .button-variant(@black; @white; @white);
+      &.active {
+        border: 1px solid black;
+        border-bottom-color: transparent;
+      }
+    }
   }
   input#playlist_name {
     .sans-serif(@medium, 36px, 36px);
@@ -45,9 +160,8 @@ main > header.casebook {
   }
   .collaborators {
     .add-collaborator {
+      .size(20px);
       display: inline-block;
-      width: 20px;
-      height: 20px;
       vertical-align: middle;
 
       color: transparent;
@@ -58,9 +172,8 @@ main > header.casebook {
       .sans-serif(@medium, 14px, 14px);
       display: inline-block;
       &.verified::before {
+        .size(16px);
         display: inline-block;
-        width: 16px;
-        height: 16px;
         vertical-align: middle;
 
         content: '';
@@ -69,39 +182,121 @@ main > header.casebook {
     }
   }
 
-  .table-of-contents {
+  .material {
+    padding: 40px;
+    background-color: white;
+    p {
+      .serif-text(@regular, 19px, 34px);
+    }
+    strong {
+      .sans-serif(@bold, 18px, 40px);
+    }
+  }
 
-    .chapter-listing, .material-listing {
-      padding: 14px 10px 25px;
+  .table-of-contents, .search-results {
+    .listing-wrapper {
+      position: relative;
+
+      .actions {
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        > form > input[type=submit] {
+          .size(50px);
+          display: block;
+          margin: 4px 0;
+          color: transparent;
+          background-color: transparent;
+          background-position: 0 center;
+          background-repeat: no-repeat;
+          background-size: auto;
+          &.action-delete {
+            background-image: asset-url('ui/edit/elide.png');
+          }
+          &.action-add-material {
+            .sans-serif(@bold, 14px, 14px);
+            position: absolute;
+            top: 0;
+            left: -35px;
+            width: 150px;
+            padding-left: 40px;
+            padding-top: 6px;
+
+            background-image: asset-url('ui/edit/add.png');
+            &:hover {
+              color: @light-blue;
+            }
+          }
+        }
+      }
+    }
+    .listing {
+      display: block;
+      width: 100%;
+      padding: 14px 50px 25px 10px;
       margin-top: 8px;
-      .chapter-number {
+      border: 1px solid black;
+
+      &:hover {
+        border-color: @light-blue;
+      }
+      &.section {
+        background-color: black;
+        &:active {
+          background-color: @dark-gray;
+        }
+        .section-title {
+          font-weight: @medium;
+        }
+        .section-number, .section-title {
+          color: white
+        }
+      }
+      &.material {
+        background-color: white;
+        &:active {
+          background-color: @light-gray;
+        }
+        .section-number, .section-title {
+          color: black;
+        }
+      }
+      &.empty {
+        border: 1px dashed @gray;
+        text-align: center;
+        color: @dark-gray;
+        background: transparent;
+        padding: 60px;
+      }
+      .section-number {
         .monospace(@regular, 11px, 12px);
         display: inline-block;
+        margin-right: 4px;
         vertical-align: middle;
-        width: 20px;
       }
-      .chapter-title {
+      .section-title {
         .sans-serif(@bold, 14px, 14px);
         display: inline-block;
       }
-    }
-    .chapter-listing {
-      background-color: black;
-      .chapter-title {
-        font-weight: @medium;
+      .material-type, .material-case, .material-date {
+        .sans-serif(@light, 14px, 14px);
+        float: right;
+        display: inline-block;
+        padding: 0 10px;
+
+        text-align: right;
+        color: @black;
       }
-      .chapter-number, .chapter-title {
-        color: white
+      .material-date {
+        width: 40px;
+      }
+      .material-type {
+        border: 1px solid @light-blue;
+        color: @light-blue;
       }
     }
-    .material-listing {
-      background-color: white;
-      border: 1px solid black;
-      .chapter-number, .chapter-title {
-        color: black;
-      }
-    }
-    .chapter-contents {
+    .section-contents {
       border-left: 8px solid @light-blue;
       padding-left: 16px;
     }

@@ -5,7 +5,7 @@ H2o::Application.routes.draw do
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
 
-  root 'base#index'
+  root 'base#landing'
 
   resources :bulk_uploads, only: [:show, :new, :create]
   resources :case_jurisdictions, only: [:new, :create]
@@ -58,26 +58,12 @@ H2o::Application.routes.draw do
   end
 
 
-  resources :playlists, as: :casebooks do
-    member do
-      post 'copy'
-      get 'access_level'
-      get 'export'
-      get 'export_all' => 'playlists#export', load_all: '1'
-      post 'export_as'
-      post 'private_notes'
-      post 'public_notes'
-      post 'toggle_nested_private'
-      post 'position_update'
-    end
-    collection do
-      get 'embedded_pager'
-      get 'playlist_lookup'
-      get 'import'
-      post 'submit_import'
-      get 'empty'
+  scope module: 'casebooks' do
+    resources :books, path: 'casebooks' do
+      resources :sections, id: /.*/
     end
   end
+
   resources :playlist_items do
     member do
       get 'delete'

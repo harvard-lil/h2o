@@ -1,0 +1,32 @@
+:ruby
+  active_tab =
+    if action_name == 'new'
+      'new'
+    elsif action_name == 'edit'
+      'details'
+    elsif @casebook.is_a? Casebook::Resource
+      'edit'
+    else
+      'layout'
+    end
+- if @section.present?
+  - if @section.is_a? Casebook::Resource
+    - if @section.section.is_a? Casebook::Book
+      %a.tab{href: book_sections_path(@book, @section), class: active_tab == 'layout' ? 'active' : ''}= t 'casebooks.tabs.layout'
+    - else
+      %a.tab{href: book_section_path(@book, @section.section), class: active_tab == 'layout' ? 'active' : ''}= t 'casebooks.tabs.layout'
+    %a.tab{href: book_section_path(@book, @section), class: active_tab == 'edit' ? 'active' : ''}= t 'casebooks.tabs.edit'
+  - else
+    %a.tab{href: book_section_path(@book, @section), class: active_tab == 'layout' ? 'active' : ''}= t 'casebooks.tabs.layout'
+    - if @section.material.any?
+      %a.tab{href: book_section_path(@book, @section.material.first), class: active_tab == 'edit' ? 'active' : ''}= t 'casebooks.tabs.edit'
+    - else
+      %a.tab{href: book_section_path(@book, @section), class: active_tab == 'edit' ? 'active' : ''}= t 'casebooks.tabs.edit'
+  %a.tab{href: edit_book_section_path(@book, @section), class: active_tab == 'details' ? 'active' : ''}= t 'casebooks.tabs.section-details'
+- else
+  %a.tab{href: book_sections_path(@book), class: active_tab == 'layout' ? 'active' : ''}= t 'casebooks.tabs.layout'
+  - if @book.material.any?
+    %a.tab{href: book_section_path(@book, @book.material.first), class: active_tab == 'edit' ? 'active' : ''}= t 'casebooks.tabs.edit'
+  - else
+    %a.tab{href: book_sections_path(@book), class: active_tab == 'edit' ? 'active' : ''}= t 'casebooks.tabs.edit'
+  %a.tab{href: edit_book_path(@book), class: active_tab == 'details' ? 'active' : ''}= t 'casebooks.tabs.book-details'
