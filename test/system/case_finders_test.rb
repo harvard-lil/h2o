@@ -3,7 +3,7 @@ require 'minitest/mock'
 
 class CaseFinderSystemTest < ApplicationSystemTestCase
 	describe 'as a logged in user' do
-		scenario 'search for a case by name and see results' do
+		scenario 'search for a case by name, view results and download a selected case' do
 			sign_in user = users(:verified_professor)
 
 			case_name = 'Comer v. Titan Tool, Inc.'
@@ -34,10 +34,10 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			click_button 'Download new case'
 
-			assert_content 'Import succesful'
+			assert_content 'Import successful'
 		end
 
-		scenario 'case import fails' do
+		scenario 'can see an error message when there is a failed case download' do
 			sign_in user = users(:verified_professor)
 
 			case_name = 'Comer v. Titan Tool, Inc.'

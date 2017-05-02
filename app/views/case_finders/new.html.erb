@@ -1,3 +1,11 @@
+<% if flash[:notice] %>
+	<div class='notice'><%= flash[:notice] %></div>
+<% end %>
+
+<% if flash[:error] %>
+	<div class='error'><%= flash[:error] %></div>
+<% end %>
+
 <div class='standard-form case-finder-search-form'>
   <%= form_for :case_finder, method: 'get', html: { class: 'formtastic' } do |f| %>
     <%= f.label :name %><%= f.text_field :name %><br />
