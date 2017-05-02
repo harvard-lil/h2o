@@ -3,7 +3,13 @@ module H2o::Test::Helpers::CaseFinder
     stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
       to_return(status: 200, body: new_case_search_response_body.to_json,
                 headers: {'Content-Type' => 'application/json'})
-      end
+  end
+
+  def search_for_case_with_no_results(params)
+    stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
+      to_return(status: 200, body: empty_search_results.to_json,
+                headers: {'Content-Type' => 'application/json'})
+  end
 
   def download_case(metadata)
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
@@ -16,6 +22,10 @@ module H2o::Test::Helpers::CaseFinder
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
       with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
       to_return(status: 500)
+  end
+
+  def empty_search_results
+    { 'results'=> [] }
   end
 
   def new_case_search_response_body
@@ -46,9 +56,7 @@ module H2o::Test::Helpers::CaseFinder
   def case_params
     {"id"=>621573, "slug"=>"comer-v-titan-tool-inc-2293",
      "url"=>"https://capapi.org/api/v1/cases/comer-v-titan-tool-inc-2293/?format=json",
-     "name"=>"Delores A. COMER and Patricia V. Edelson, Individually and as Personal Representatives and
-        Co-Administrators of the Estate of Michael T. Comer, Deceased, Plaintiffs, v. TITAN TOOL, INC., 
-        Defendant; TITAN TOOL, INC., Third-Party Plaintiff, v. ROCK & WATERSCAPE SYSTEMS, INC., Third-Party Defendant", 
+     "name"=>"Delores A. COMER and Patricia V. Edelson, Individually and as Personal Representatives and Co-Administrators of the Estate of Michael T. Comer, Deceased, Plaintiffs, v. TITAN TOOL, INC., Defendant; TITAN TOOL, INC., Third-Party Plaintiff, v. ROCK & WATERSCAPE SYSTEMS, INC., Third-Party Defendant", 
      "name_abbreviation"=>"Comer v. Titan Tool, Inc.",
      "citation"=>"875 F. Supp. 255",
      "firstpage"=>255,
@@ -88,5 +96,10 @@ module H2o::Test::Helpers::CaseFinder
      "reporter_name"=>"Federal Supplement",
      "reporter_id"=>982,
      "volume"=>875}
+  end
+
+  def expected_search_results
+    expected_results = []
+    expected_results << case_params
   end
 end
