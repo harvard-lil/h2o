@@ -26,7 +26,7 @@ class CaseDownloader
       case_content = unzip_response(response)
       save_case(case_content)
     else
-      log_failure
+      log_failure(response)
       false
     end
   end
@@ -44,8 +44,8 @@ class CaseDownloader
     )
   end
 
-  def log_failure
-    Notifier.case_import_failure(current_user, case_metadata)
+  def log_failure(options = {})
+    Notifier.case_import_failure(current_user, case_metadata, options).deliver
   end
 
   def unzip_response(response)
@@ -60,7 +60,11 @@ class CaseDownloader
     new_case_citation = CaseCitation.create(case_id: new_case.id, volume: volume, reporter: reporter, page: page)
     new_case_docket_number = CaseDocketNumber.create(case_id: new_case.id, docket_number: docket_number)
 
-    new_case && new_case_citation && new_case_docket_number
-    ## send errors to mailer 
+    if new_case.valid? && new_case_citation.valid? && new_case_docket_number.valid?
+      true
+    else
+      log_failure
+      false
+    end
   end
 end

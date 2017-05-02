@@ -1,26 +1,35 @@
 require 'application_system_test_case'
 
-class CaseDownloader < ApplicationSystemTestCase
-	scenario 'unzips zip file that has one case in it' do
-		metadata = {'id'=>621573,
-	    'name_abbreviation'=>'Comer v. Titan Tool, Inc.',
-	    'citation'=>'875 F. Supp. 255'
-	  	'decisiondate_origin' => '1995-02-17'}
+class CaseDownloaderTest < ApplicationSystemTestCase
+	scenario 'Returns true if successfully creates a new case' do
+		current_user = users(:verified_professor)
+		previous_number_of_cases = Case.count
 
-		CaseDownloader.perform(zip_file, metadata)
+		download_case(case_params)
 
-		duplicate_case = cases(:case_with_citation)
-		duplicate_citation = duplicate_case.case_citations.first
+		case_downloader = CaseDownloader.perform(current_user, case_params)
 
-		cases = [{'id'=>621573,
-	    'name_abbreviation'=>'Comer v. Titan Tool, Inc.',
-	    'citation'=>'875 F. Supp. 255'},
-	    {'id'=>duplicate_case.id,
-	    	'name_abbreviation'=>duplicate_case.short_name,
-	    	'citation'=>duplicate_citation.display_name}] 
+		new_number_of_cases = Case.count
+		refute_equal new_number_of_cases, previous_number_of_cases
 
-	  checked_cases = DuplicateCaseChecker.perform(cases)
+		assert_equal case_downloader, true
+	end
 
-	  assert_equal(1, checked_cases.count)
+	scenario 'Returns false if creating a case fails and sends a notifier mailer' do
+		current_user = users(:verified_professor)
+		previous_number_of_cases = Case.count
+
+		download_case(incomplete_case_params)
+
+		case_downloader = CaseDownloader.perform(current_user, incomplete_case_params)
+
+		new_number_of_cases = Case.count
+		assert_equal new_number_of_cases, previous_number_of_cases
+
+		assert_equal case_downloader, false
+
+		mail = ActionMailer::Base.deliveries.last
+
+		assert_equal H2o::Application.config.admin_email, mail['to'].to_s
 	end
 end
