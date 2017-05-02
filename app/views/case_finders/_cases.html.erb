@@ -4,12 +4,11 @@
     <thead>
       <tr>
         <th>Download</th>
-        <th>Name Abbreviation></th>
-        <th>Name</th>
-        <th>Jurisdiction Name</th>
+        <th>Short Name></th>
+        <th>Full Name</th>
+        <th>Citation</th>
         <th>Descision Date (Original)</th>
-        <th>Courst Name</th>
-        <th>Court Id</th>
+        <th>Court Name</th>
       </tr>
     </thead>
     
@@ -19,10 +18,9 @@
           <td><%= radio_button_tag "case", JSON.dump(kase) %></td>
           <td><%= kase['name_abbreviation'] %></td>
           <td><%= kase['name'] %></td>
-          <td><%= kase['jurisdiction_name'] %></td>
+          <td><%= kase['citation'] %></td>
           <td><%= kase['decisiondate_original'] %></td>
           <td><%= kase['court_name'] %></td>
-          <td><%= kase['court_id'] %></td>
         </tr>
       <% end %>
     </tbody>

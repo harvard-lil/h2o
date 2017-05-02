@@ -13,6 +13,10 @@ class CaseDownloader
     @full_name = case_metadata["name"]
     @decision_date = case_metadata["decisiondate_original"]
     @case_jurisdiction_id = case_metadata["jurisdiction_id"]
+    @docket_number = case_metadata["docketnumber"]
+    @volume = case_metadata["volume"]
+    @reporter = case_metadata["reporter_name"]
+    @page = case_metadata["firstpage"]
   end
 
   def perform
@@ -30,7 +34,7 @@ class CaseDownloader
   private
 
   attr_reader :current_user, :case_metadata, :slug, :short_name, :full_name, 
-    :decision_date, :case_jurisdiction_id
+    :decision_date, :case_jurisdiction_id, :docket_number, :volume, :reporter, :page
 
   def make_api_request
     HTTParty.get(
@@ -50,11 +54,13 @@ class CaseDownloader
   end
 
   def save_case(case_content)
-    Case.create(short_name: short_name, full_name: full_name, decision_date: decision_date, 
+    new_case = Case.create(short_name: short_name, full_name: full_name, decision_date: decision_date, 
                            case_jurisdiction_id: case_jurisdiction_id, user_id: current_user.id, 
                            content: case_content, public: true)
-     
-    ### add save citation
-    ## does this surface errors 
+    new_case_citation = CaseCitation.create(case_id: new_case.id, volume: volume, reporter: reporter, page: page)
+    new_case_docket_number = CaseDocketNumber.create(case_id: new_case.id, docket_number: docket_number)
+
+    new_case && new_case_citation && new_case_docket_number
+    ## send errors to mailer 
   end
 end
