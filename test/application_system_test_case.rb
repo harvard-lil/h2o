@@ -9,7 +9,7 @@ require 'helpers/dsl'
 require 'helpers/sunspot'
 require 'helpers/email'
 require 'helpers/files'
-require 'helpers/case_finder_data'
+require 'helpers/case_finder'
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include MiniTest::Metadata
@@ -22,5 +22,5 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::Sunspot
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
-  include H2o::Test::Helpers::CaseFinderData
+  include H2o::Test::Helpers::CaseFinder
 end

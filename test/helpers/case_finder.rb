@@ -1,4 +1,23 @@
-module H2o::Test::Helpers::CaseFinderData
+module H2o::Test::Helpers::CaseFinder
+	def search_for_cases(params)
+		stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
+			to_return(status: 200, body: new_case_search_response_body.to_json, 
+			headers: {'Content-Type' => 'application/json'})
+	end
+
+	def download_case_successfully(metadata)
+		stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
+				with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
+				to_return(status: 200, body: File.read('test/fixtures/cases.zip'), 
+					headers: {'Content-Type' => 'application/xml'})
+	end
+
+	def download_case_failure(metadata)
+		stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
+			with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
+			to_return(status: 500)
+	end
+
 	def new_case_search_response_body
 		{ 'results'=> 
 			[{'id'=>621573,

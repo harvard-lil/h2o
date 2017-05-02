@@ -3,34 +3,31 @@ require 'minitest/mock'
 
 class CaseFinderSystemTest < ApplicationSystemTestCase
 	describe 'as a logged in user' do
+		before do
+			@case_name = 'Comer v. Titan Tool, Inc.'
+			@case_citation = '875 F. Supp. 255'
+			@case_metadata = { 'slug' => 'comer-v-titan-tool-inc-2293' }
+			@query_params = { name: @case_name, citation: @case_citation }
+		end
+
 		scenario 'search for a case by name, view results and download a selected case' do
 			sign_in user = users(:verified_professor)
-
-			case_name = 'Comer v. Titan Tool, Inc.'
-			case_citation = '875 F. Supp. 255'
-			case_metadata = { 'slug' => 'comer-v-titan-tool-inc-2293' }
-			query_params = { name: case_name, citation: case_citation }
 
 			sign_in users(:student_user)
 			visit new_case_finder_path
 
-			fill_in 'Name', with: case_name
-			fill_in 'Citation', with: case_citation
+			fill_in 'Name', with: @case_name
+			fill_in 'Citation', with: @case_citation
 
-			stub_request(:get, "https://capapi.org/api/v1/cases/?#{query_params.to_query}&format=json").
-				to_return(status: 200, body: new_case_search_response_body.to_json, 
-					headers: {'Content-Type' => 'application/json'})
+			search_for_cases(@query_params)
 
 			click_button 'Search'
 
-			assert_content case_name
+			assert_content @case_name
 
 			choose "case"
 
-			stub_request(:get, "https://capapi.org/api/v1/cases/#{case_metadata["slug"]}/?type=download&max=1").
-				with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
-				to_return(status: 200, body: File.read('test/fixtures/cases.zip'), 
-					headers: {'Content-Type' => 'application/xml'})
+			download_case_successfully(@case_metadata)
 
 			click_button 'Download new case'
 
@@ -40,30 +37,21 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 		scenario 'can see an error message when there is a failed case download' do
 			sign_in user = users(:verified_professor)
 
-			case_name = 'Comer v. Titan Tool, Inc.'
-			case_citation = '875 F. Supp. 255'
-			case_metadata = { 'slug' => 'comer-v-titan-tool-inc-2293' }
-			query_params = { name: case_name, citation: case_citation }
-
 			sign_in users(:student_user)
 			visit new_case_finder_path
 
-			fill_in 'Name', with: case_name
-			fill_in 'Citation', with: case_citation
+			fill_in 'Name', with: @case_name
+			fill_in 'Citation', with: @case_citation
 
-			stub_request(:get, "https://capapi.org/api/v1/cases/?#{query_params.to_query}&format=json").
-				to_return(status: 200, body: new_case_search_response_body.to_json, 
-					headers: {'Content-Type' => 'application/json'})
+			search_for_cases(@query_params)
 
 			click_button 'Search'
 
-			assert_content case_name
+			assert_content @case_name
 
 			choose "case"
 
-			stub_request(:get, "https://capapi.org/api/v1/cases/#{case_metadata["slug"]}/?type=download&max=1").
-				with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
-				to_return(status: 500)
+			download_case_failure(@case_metadata)
 
 			click_button 'Download new case'
 
