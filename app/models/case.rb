@@ -121,6 +121,7 @@ class Case < ApplicationRecord
 
   def clean_content
     self.content.encode.gsub!(/\p{Cc}/, "")
+    # encode needed for cap api import
   end
 
   def printable_content
