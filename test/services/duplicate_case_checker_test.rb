@@ -1,19 +1,15 @@
 require 'application_system_test_case'
 
 class DuplicateCaseCheckerTest < ApplicationSystemTestCase
-	scenario 'deletes duplicate cases from a hash' do
-		duplicate_case = cases(:case_with_citation)
-		duplicate_citation = duplicate_case.case_citations.first
+	scenario 'returns array with duplicate cases removed' do
+	  checked_cases = DuplicateCaseChecker.perform(search_results_with_duplicate)
 
-		cases = [{'id'=>621573,
-	    'name_abbreviation'=>'Comer v. Titan Tool, Inc.',
-	    'citation'=>'875 F. Supp. 255'},
-	    {'id'=>duplicate_case.id,
-	    	'name_abbreviation'=>duplicate_case.short_name,
-	    	'citation'=>duplicate_citation.display_name}] 
+	  assert_equal checked_cases.count, 1
+	end
 
-	  checked_cases = DuplicateCaseChecker.perform(cases)
+	scenario 'returns array untouched if there are no duplicates' do
+	  checked_cases = DuplicateCaseChecker.perform(two_search_results)
 
-	  assert_equal(1, checked_cases.count)
+	  assert_equal checked_cases.count, 2
 	end
 end
