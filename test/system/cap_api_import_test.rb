@@ -1,7 +1,7 @@
 require 'application_system_test_case'
 require 'minitest/mock'
 
-class CaseFinderSystemTest < ApplicationSystemTestCase
+class CapApiImportSystemTest < ApplicationSystemTestCase
 	describe 'as a logged in user' do
 		before do
 			@case_name = 'Comer v. Titan Tool, Inc.'
@@ -13,7 +13,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 		scenario 'search for a case by name, view results and download a selected case' do
 			sign_in users(:verified_professor)
 
-			visit new_case_finder_path
+			visit new_cap_api_import_path
 
 			fill_in 'Name', with: @case_name
 			fill_in 'Citation', with: @case_citation
@@ -36,7 +36,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 		scenario 'can see an error message when there is a failed case download' do
 			sign_in user = users(:verified_professor)
 
-			visit new_case_finder_path
+			visit new_cap_api_import_path
 
 			fill_in 'Name', with: @case_name
 			fill_in 'Citation', with: @case_citation

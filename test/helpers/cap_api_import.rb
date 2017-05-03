@@ -1,4 +1,4 @@
-module H2o::Test::Helpers::CaseFinder
+module H2o::Test::Helpers::CapApiImport
   def search_for_cases(params)
     stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
       to_return(status: 200, body: search_response_body.to_json,

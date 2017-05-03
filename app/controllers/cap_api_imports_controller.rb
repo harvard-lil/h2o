@@ -1,5 +1,6 @@
-class CaseFindersController < BaseController
-  protect_from_forgery unless: -> { request.format.json? } ### is this necessary?
+class CapApiImportsController < BaseController
+  protect_from_forgery unless: -> { request.format.json? } 
+  ### is this necessary?
 
   def new
     if case_search_initiated?
@@ -10,21 +11,21 @@ class CaseFindersController < BaseController
   def create
     if case_downloaded?
       flash[:notice] = "Import successful"
-      redirect_back(fallback_location: new_case_finder_path)
+      redirect_back(fallback_location: new_cap_api_import_path)
     else
       flash[:error] = 'Case import failed'
-      redirect_back(fallback_location: new_case_finder_path)
+      redirect_back(fallback_location: new_cap_api_import_path)
     end
   end
 
   private
 
   def case_search_params
-    params.require(:case_finder).permit(:name, :citation)
+    params.require(:cap_api_import).permit(:name, :citation)
   end
 
   def case_search_initiated?
-    params[:case_finder].present?
+    params[:cap_api_import].present?
   end
 
   def case_metadata
