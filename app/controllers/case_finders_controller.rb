@@ -3,14 +3,13 @@ class CaseFindersController < BaseController
 
   def new
     if case_search_initiated?
-      @cases = CapApiSearchResults.perform(case_finder_params)
+      @cases = CapApiSearchResults.perform(case_search_params)
     end
   end
 
   def create
-    if case_download?
+    if case_downloaded?
       flash[:notice] = "Import successful"
-      ## pass new_case_id so that there can be a link to the new case
       redirect_back(fallback_location: new_case_finder_path)
     else
       flash[:error] = 'Case import failed'
@@ -20,7 +19,7 @@ class CaseFindersController < BaseController
 
   private
 
-  def case_finder_params
+  def case_search_params
     params.require(:case_finder).permit(:name, :citation)
   end
 
@@ -32,7 +31,8 @@ class CaseFindersController < BaseController
     JSON.parse(params[:case])
   end
 
-  def case_download?
+  def case_downloaded?
     CaseDownloader.perform(current_user, case_metadata)
+    ## TODO pass back new_case_id so that there can be a link to the new case
   end
 end

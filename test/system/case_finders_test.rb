@@ -11,9 +11,8 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 		end
 
 		scenario 'search for a case by name, view results and download a selected case' do
-			sign_in user = users(:verified_professor)
+			sign_in users(:verified_professor)
 
-			sign_in users(:student_user)
 			visit new_case_finder_path
 
 			fill_in 'Name', with: @case_name
@@ -27,7 +26,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			choose "case"
 
-			download_case(@case_metadata)
+			import_case_from_cap(@case_metadata)
 
 			click_button 'Download new case'
 
@@ -37,7 +36,6 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 		scenario 'can see an error message when there is a failed case download' do
 			sign_in user = users(:verified_professor)
 
-			sign_in users(:student_user)
 			visit new_case_finder_path
 
 			fill_in 'Name', with: @case_name
@@ -51,7 +49,7 @@ class CaseFinderSystemTest < ApplicationSystemTestCase
 
 			choose "case"
 
-			download_case_failed_attempt(@case_metadata)
+			import_case_from_cap_failed_attempt(@case_metadata)
 
 			click_button 'Download new case'
 

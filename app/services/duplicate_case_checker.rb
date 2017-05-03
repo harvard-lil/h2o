@@ -16,11 +16,7 @@ class DuplicateCaseChecker
 	attr_reader :cases
 
 	def case_already_exists?(kase)
-		full_citation = kase["citation"]
-  	volume = full_citation.scan(/[0-9]+/).first
-  	reporter = full_citation.scan(/[A-Z].*(?<![0-9])/).first.chomp(' ')
-  	page = full_citation.scan(/[0-9]+/).last
-
-		CaseCitation.all.joins(:case).where(case_citations: { volume: volume, reporter: reporter, page: page  }, cases: { short_name:  kase["name_abbreviation"]}).any?	
+		CaseCitation.all.joins(:case).where(case_citations: { volume: kase['volume'], 
+			reporter: kase['reporter_abbreviation'], page: kase['page']  }, cases: { short_name: kase["name_abbreviation"]}).any?	
 	end
 end

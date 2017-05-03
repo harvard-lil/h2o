@@ -15,7 +15,7 @@ class CaseDownloader
     @case_jurisdiction_id = case_metadata["jurisdiction_id"]
     @docket_number = case_metadata["docketnumber"]
     @volume = case_metadata["volume"]
-    @reporter = case_metadata["reporter_name"]
+    @reporter = case_metadata["reporter_abbreviation"]
     @page = case_metadata["firstpage"]
   end
 
