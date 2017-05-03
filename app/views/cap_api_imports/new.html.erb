@@ -6,8 +6,8 @@
 	<div class='error'><%= flash[:error] %></div>
 <% end %>
 
-<div class='standard-form case-finder-search-form'>
-  <%= form_for :case_finder, method: 'get', html: { class: 'formtastic' } do |f| %>
+<div class='standard-form cap-api-import-search-form'>
+  <%= form_for :cap_api_import, method: 'get', html: { class: 'formtastic' } do |f| %>
     <%= f.label :name %><%= f.text_field :name %><br />
     <%= f.label :citation %><%= f.text_field :citation %><br />
     <%= f.submit 'Search', class: 'button' %>

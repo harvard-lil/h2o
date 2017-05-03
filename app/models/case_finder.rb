@@ -1,2 +1,0 @@
-class CaseFinder < ApplicationRecord
-end
