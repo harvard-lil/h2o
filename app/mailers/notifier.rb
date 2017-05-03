@@ -79,4 +79,11 @@ class Notifier < ActionMailer::Base
     @bulk_upload_url = bulk_upload_url(bulk_upload)
     mail(to: user.email_address, subject: "Bulk Upload Completed")
   end
+
+  def case_import_failure(user, case_metadata, options)
+    @user = user 
+    @case_metadata = case_metadata 
+    @options = options
+    mail(to: H2o::Application.config.admin_email, subject: 'Case import failed')
+  end
 end

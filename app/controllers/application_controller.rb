@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   end
 
   def load_single_resource
-    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main'].include?(params[:controller])
+    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main', 'cap_api_imports'].include?(params[:controller])
 
     return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
 

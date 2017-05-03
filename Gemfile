@@ -26,6 +26,7 @@ gem 'erubis'
 gem 'exception_notification'
 gem 'fastercsv'
 gem 'formtastic'
+gem 'httparty'
 gem 'jbuilder', '~> 2.6.3'
 gem 'json', '1.8.6'
 gem 'kaminari'
@@ -38,6 +39,7 @@ gem 'rails_admin'
 gem 'rails_admin_import'
 gem 'rails-html-sanitizer'
 gem 'RedCloth'
+gem 'rubyzip'
 gem 'sass-rails', '~> 5.0.6'
 gem 'scrypt'
 gem 'sunspot_rails'
@@ -85,5 +87,6 @@ group :development, :test do
   gem 'simplecov'
   gem 'm'
 
+  gem 'webmock'
   gem 'wrong', git: 'https://github.com/pludoni/wrong.git', ref: 'be1ddcc' # fork with Rails 4 support
 end

@@ -9,6 +9,7 @@ require 'helpers/dsl'
 require 'helpers/sunspot'
 require 'helpers/email'
 require 'helpers/files'
+require 'helpers/cap_api_import'
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include MiniTest::Metadata
@@ -21,4 +22,5 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::Sunspot
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
+  include H2o::Test::Helpers::CapApiImport
 end

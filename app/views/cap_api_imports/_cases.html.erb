@@ -1,0 +1,29 @@
+
+<%= form_tag '/cap_api_import', method: :post do %>
+  <table>
+    <thead>
+      <tr>
+        <th>Download</th>
+        <th>Short Name></th>
+        <th>Full Name</th>
+        <th>Citation</th>
+        <th>Descision Date (Original)</th>
+        <th>Court Name</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+      <% @cases.each do |kase| %>
+        <tr>
+          <td><%= radio_button_tag "case", JSON.dump(kase) %></td>
+          <td><%= kase['name_abbreviation'] %></td>
+          <td><%= kase['name'] %></td>
+          <td><%= kase['citation'] %></td>
+          <td><%= kase['decisiondate_original'] %></td>
+          <td><%= kase['court_name'] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= submit_tag 'Download new case' %>
+<% end %>
