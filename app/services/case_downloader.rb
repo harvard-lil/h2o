@@ -63,6 +63,7 @@ class CaseDownloader
     if new_case.valid? && new_case_citation.valid? && new_case_docket_number.valid?
       true
     else
+      # TODO send error messages into log_failure
       log_failure
       false
     end

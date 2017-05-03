@@ -57,7 +57,6 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
-
   resources :playlists do
     member do
       post 'copy'
