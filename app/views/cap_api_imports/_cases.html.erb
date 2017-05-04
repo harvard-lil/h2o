@@ -13,14 +13,14 @@
     </thead>
     
     <tbody>
-      <% @cases.each do |kase| %>
+      <% @cases.each do |case_metadata| %>
         <tr>
-          <td><%= radio_button_tag "case", JSON.dump(kase) %></td>
-          <td><%= kase['name_abbreviation'] %></td>
-          <td><%= kase['name'] %></td>
-          <td><%= kase['citation'] %></td>
-          <td><%= kase['decisiondate_original'] %></td>
-          <td><%= kase['court_name'] %></td>
+          <td><%= radio_button_tag "case", JSON.dump(case_metadata) %></td>
+          <td><%= case_metadata['name_abbreviation'] %></td>
+          <td><%= case_metadata['name'] %></td>
+          <td><%= case_metadata['citation'] %></td>
+          <td><%= case_metadata['decisiondate_original'] %></td>
+          <td><%= case_metadata['court_name'] %></td>
         </tr>
       <% end %>
     </tbody>

@@ -8,7 +8,7 @@ class CaseDownloaderTest < ApplicationSystemTestCase
   scenario 'Returns true if successfully creates a new case' do
     previous_number_of_cases = Case.count
 
-    import_case_from_cap(case_metadata)
+    stub_case_import_from_cap_api(case_metadata)
     case_downloader = CaseDownloader.perform(@current_user, case_metadata)
     new_number_of_cases = Case.count
     
@@ -19,7 +19,7 @@ class CaseDownloaderTest < ApplicationSystemTestCase
   scenario 'Returns false if creating a case fails and sends a notifier mailer' do
     previous_number_of_cases = Case.count
 
-    import_case_from_cap(incomplete_case_metadata)
+    stub_case_import_from_cap_api(incomplete_case_metadata)
     case_downloader = CaseDownloader.perform(@current_user, incomplete_case_metadata)
     new_number_of_cases = Case.count
     mail = ActionMailer::Base.deliveries.last

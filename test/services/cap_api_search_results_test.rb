@@ -4,7 +4,7 @@ class CapApiSearchResultsTest < ApplicationSystemTestCase
   scenario 'returns an array of cases' do 
     search_params = { name: 'Comer v. Titan Tool, Inc.', citation: '875 F. Supp. 255' }
 
-    search_for_cases(search_params)
+    stub_case_search(search_params)
     results = CapApiSearchResults.perform(search_params)
 
     assert_equal results, search_result
@@ -13,7 +13,7 @@ class CapApiSearchResultsTest < ApplicationSystemTestCase
   scenario 'returns empty array if cap api call fails' do
     search_params = { name: 'not a case', citation: 'invalid citation' }
 
-    search_for_case_with_no_results(search_params)
+    stub_case_search_with_no_results(search_params)
     results = CapApiSearchResults.perform(search_params)
 
     assert_equal results, []
