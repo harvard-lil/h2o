@@ -34,7 +34,5 @@ module H2o
 
     config.action_mailer.default_url_options = { :host => 'localhost' }
     config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
-    config.admin_email = 'cgruppioni@law.harvard.edu'
-    config.cap_api_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
   end
 end
