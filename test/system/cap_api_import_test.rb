@@ -18,7 +18,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
       fill_in 'Name', with: @case_name
       fill_in 'Citation', with: @case_citation
 
-      search_for_cases(@query_params)
+      stub_case_search(@query_params)
 
       click_button 'Search'
 
@@ -26,7 +26,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
 
       choose "case"
 
-      import_case_from_cap(@case_metadata)
+      stub_case_import_from_cap_api(@case_metadata)
 
       click_button 'Download new case'
 
@@ -41,7 +41,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
       fill_in 'Name', with: @case_name
       fill_in 'Citation', with: @case_citation
 
-      search_for_cases(@query_params)
+      stub_case_search(@query_params)
 
       click_button 'Search'
 
@@ -49,7 +49,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
 
       choose "case"
 
-      import_case_from_cap_failed_attempt(@case_metadata)
+      stub_case_import_from_cap_api_failed_attempt(@case_metadata)
 
       click_button 'Download new case'
 

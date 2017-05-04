@@ -8,15 +8,15 @@ class DuplicateCaseChecker
   end
 
   def perform
-    cases.reject { |kase| case_already_exists?(kase) }
+    cases.reject { |case_metadata| case_already_exists?(case_metadata) }
   end
 
   private
 
   attr_reader :cases
 
-  def case_already_exists?(kase)
-    CaseCitation.all.joins(:case).where(case_citations: { volume: kase['volume'], 
-      reporter: kase['reporter_abbreviation'], page: kase['page']  }, cases: { short_name: kase["name_abbreviation"]}).any? 
+  def case_already_exists?(case_metadata)
+    CaseCitation.all.joins(:case).where(case_citations: { volume: case_metadata['volume'], 
+      reporter: case_metadata['reporter_abbreviation'], page: case_metadata['page']  }, cases: { short_name: case_metadata["name_abbreviation"]}).any? 
   end
 end

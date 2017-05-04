@@ -1,23 +1,23 @@
 module H2o::Test::Helpers::CapApiImport
-  def search_for_cases(params)
+  def stub_case_search(params)
     stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
       to_return(status: 200, body: search_response_body.to_json,
                 headers: {"Content-Type" => "application/json"})
   end
 
-  def search_for_case_with_no_results(params)
+  def stub_case_search_with_no_results(params)
     stub_request(:get, "https://capapi.org/api/v1/cases/?#{params.to_query}&format=json").
       to_return(status: 200, body: { "results"=> [] }.to_json,
                 headers: {"Content-Type" => "application/json"})
   end
 
-  def import_case_from_cap(metadata)
+  def stub_case_import_from_cap_api(metadata)
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
       with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
       to_return(status: 200, body: File.read("test/fixtures/case_download.zip"), headers: {"Content-Type" => "application/xml"})
   end
 
-  def import_case_from_cap_failed_attempt(metadata)
+  def stub_case_import_from_cap_api_failed_attempt(metadata)
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
       with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
       to_return(status: 500)
