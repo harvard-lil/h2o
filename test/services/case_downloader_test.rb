@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-class CaseDownloaderTest < ApplicationSystemTestCase
+class CaseDownloaderTest < ServiceTestCase
   before do
     @current_user = users(:verified_professor)
   end

@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-class CapApiSearchResultsTest < ApplicationSystemTestCase
+class CapApiSearchResultsTest < ServiceTestCase
   scenario 'returns an array of cases' do 
     search_params = { name: 'Comer v. Titan Tool, Inc.', citation: '875 F. Supp. 255' }
 

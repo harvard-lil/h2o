@@ -1,6 +1,6 @@
 require 'application_system_test_case'
 
-class DuplicateCaseCheckerTest < ApplicationSystemTestCase
+class DuplicateCaseCheckerTest < ServiceTestCase
   scenario 'returns array with duplicate cases removed' do
     checked_cases = DuplicateCaseChecker.perform(search_results_with_duplicate)
 
