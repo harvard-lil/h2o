@@ -3,25 +3,25 @@
 # Table name: casebooks
 #
 #  id            :integer          not null, primary key
-#  title         :string           default("Untitled casebook"), not null
+#  title         :string
 #  slug          :string
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  root_id       :integer
+#  book_id       :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean
-#  material_type :string
-#  material_id   :integer
+#  resource_type :string
+#  resource_id   :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #
 
 class Casebook::Section < Casebook::Contents
-  default_scope {where(material_id: nil)}
+  default_scope {where(resource_id: nil)}
 
-  has_many :contents, ->(section) {where(['ordinals[1:?] = ARRAY[?]', section.ordinals.length, section.ordinals]).where.not(id: section.id).order :ordinals}, class_name: 'Casebook::Contents', primary_key: :root_id, foreign_key: :root_id
+  has_many :contents, ->(section) {where(['ordinals[1:?] = ARRAY[?]', section.ordinals.length, section.ordinals]).where.not(id: section.id).order :ordinals}, class_name: 'Casebook::Contents', primary_key: :book_id, foreign_key: :book_id
   include Casebook::Concerns::Contents
 
   def title

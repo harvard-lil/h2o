@@ -5,8 +5,8 @@ module Casebook::Concerns::Contents
     contents.where(['array_length(casebooks.ordinals, 1) = ?', ordinals.length + 1])
   end
 
-  def material
-    contents.where.not(material_id: nil)
+  def resources
+    contents.where.not(resource_id: nil)
   end
 
   def can_delete?

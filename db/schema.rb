@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170425181309) do
+ActiveRecord::Schema.define(version: 20170505175349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -132,18 +132,18 @@ ActiveRecord::Schema.define(version: 20170425181309) do
     t.string "subtitle"
     t.text "headnote"
     t.boolean "public", default: true, null: false
-    t.bigint "root_id"
+    t.bigint "book_id"
     t.integer "ordinals", default: [], null: false, array: true
     t.bigint "copy_of_id"
     t.boolean "is_alias"
-    t.string "material_type"
-    t.bigint "material_id"
+    t.string "resource_type"
+    t.bigint "resource_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["book_id", "ordinals"], name: "index_casebooks_on_book_id_and_ordinals", using: :gin
+    t.index ["book_id"], name: "index_casebooks_on_book_id"
     t.index ["copy_of_id"], name: "index_casebooks_on_copy_of_id"
-    t.index ["material_type", "material_id"], name: "index_casebooks_on_material_type_and_material_id"
-    t.index ["root_id", "ordinals"], name: "index_casebooks_on_root_id_and_ordinals", using: :gin
-    t.index ["root_id"], name: "index_casebooks_on_root_id"
+    t.index ["resource_type", "resource_id"], name: "index_casebooks_on_resource_type_and_resource_id"
   end
 
   create_table "cases", id: :serial, force: :cascade do |t|
@@ -784,6 +784,6 @@ ActiveRecord::Schema.define(version: 20170425181309) do
 
   add_foreign_key "casebook_collaborators", "casebooks"
   add_foreign_key "casebook_collaborators", "users"
+  add_foreign_key "casebooks", "casebooks", column: "book_id"
   add_foreign_key "casebooks", "casebooks", column: "copy_of_id"
-  add_foreign_key "casebooks", "casebooks", column: "root_id"
 end

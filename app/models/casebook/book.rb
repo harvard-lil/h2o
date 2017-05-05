@@ -3,28 +3,28 @@
 # Table name: casebooks
 #
 #  id            :integer          not null, primary key
-#  title         :string           default("Untitled casebook"), not null
+#  title         :string
 #  slug          :string
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  root_id       :integer
+#  book_id       :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean
-#  material_type :string
-#  material_id   :integer
+#  resource_type :string
+#  resource_id   :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #
 
 class Casebook::Book < Casebook::Generic
-  default_scope {where(root_id: nil)}
+  default_scope {where(book_id: nil)}
 
-  validates :root_id, presence: false
+  validates :book_id, presence: false
   validates_length_of :ordinals, is: 0
 
-  has_many :contents, -> {order :ordinals}, class_name: 'Casebook::Contents', inverse_of: :root, foreign_key: :root_id
+  has_many :contents, -> {order :ordinals}, class_name: 'Casebook::Contents', inverse_of: :book, foreign_key: :book_id
 
   has_many :collaborators, class_name: 'Casebook::Collaborator', dependent: :destroy, inverse_of: :casebook, foreign_key: :casebook_id
   include Casebook::Concerns::Collaborators

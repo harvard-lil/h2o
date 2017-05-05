@@ -1,12 +1,10 @@
-- content_for :actions do
-  %a.action.publish= t 'casebooks.actions.publish'
-
-= simple_form_for @casebook, url: @section.present? ? book_section_path(@book, @section) : book_path(@book) do |f|
+= simple_form_for @casebook, url: @section.present? ? book_section_path(@book, @section) : book_path(@book), class: 'casebook-details' do |f|
+  - if @section.present?
+    %header.book-header
+      %a.book-title{href: edit_book_path(@book)}= @book.title
+      .collaborators= render partial: 'casebooks/collaborators', locals: {casebook: @book}
   %header.casebook
     - if @section.present?
-      .book-header
-        %a.book-title{href: edit_book_path(@book)}= @book.title
-        .collaborators= render partial: 'casebooks/collaborators', locals: {casebook: @book}
       .breadcrumbs
         = t 'casebooks.show.section'
         - @section.ordinals.each_with_index do |ordinal, idx|
@@ -15,8 +13,8 @@
             %span.separator .
           - else
             %span.breadcrumb.active= ordinal
-    = f.input :title, label: false, placeholder: t('simple_form.labels.casebook.name')
-    = f.input :subtitle, as: :string, label: false, placeholder: t('simple_form.labels.casebook.subtitle')
+    = f.input :title, placeholder: t('simple_form.labels.casebook.name')
+    = f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle')
     - if @section.nil?
       .collaborators
         - @casebook.users.each do |user|
@@ -31,6 +29,6 @@
 - if @casebook.respond_to? :contents
   %section.table-of-contents
     = render partial: 'casebooks/table_of_contents/show', locals: {contents: @casebook.tree, editable: false}
-- elsif @casebook.respond_to? :material
-  %section.material
-    = render partial: 'casebooks/material/show', locals: {material: @casebook.material, editable: false}
+- elsif @casebook.respond_to? :resource
+  %section.resource
+    = render partial: 'casebooks/resources/show', locals: {resource: @casebook.resource, editable: false}

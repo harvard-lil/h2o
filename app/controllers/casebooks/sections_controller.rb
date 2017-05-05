@@ -18,11 +18,11 @@ class Casebooks::SectionsController < ApplicationController
 
   def create
     child_ordinals = @parent.ordinals + [@parent.contents.length + 1]
-    if params[:material_id]
-      material = Case.find params[:material_id]
-      @section = Casebook::Resource.create! ordinals: child_ordinals, root: @book, material: material
+    if params[:resource_id]
+      resource = Case.find params[:resource_id]
+      @section = Casebook::Resource.create! ordinals: child_ordinals, book: @book, resource: resource
     else
-      @section = Casebook::Section.create! ordinals: child_ordinals, root: @book
+      @section = Casebook::Section.create! ordinals: child_ordinals, book: @book
     end
     redirect_to edit_book_section_path @book, @section
   end
@@ -79,7 +79,7 @@ class Casebooks::SectionsController < ApplicationController
   end
 
   def section_params
-    (params[:casebook_section] || params[:casebook_material]).permit(:title, :subtitle, :headnote, ordinals: [])
+    (params[:casebook_section] || params[:casebook_resource]).permit(:title, :subtitle, :headnote, ordinals: [])
   end
 
   def disable_turbolinks_cache

@@ -1,19 +1,9 @@
 - if @section.present?
-  - content_for :actions do
-    = button_to t('casebooks.actions.publish'), book_sections_path(@book), method: :post, class: 'action publish one-line'
-    = button_to t('casebooks.actions.add-section'), book_sections_path(@book, parent: @section.ordinal_string), method: :post, class: 'action add-section'
-    = link_to t('casebooks.actions.add-material'), new_book_section_path(@book, parent: @section.ordinal_string), class: 'action add-material'
-- else
-  - content_for :actions do
-    = button_to t('casebooks.actions.publish'), book_sections_path(@book), method: :post, class: 'action publish one-line'
-    = button_to t('casebooks.actions.add-section'), book_sections_path(@book), method: :post, class: 'action add-section'
-    = link_to t('casebooks.actions.add-material'), new_book_section_path(@book), class: 'action add-material'
-
+  %header.book-header
+    %a.book-title{href: book_path(@book)}= @book.title
+    .collaborators= render partial: 'casebooks/collaborators', locals: {casebook: @book}
 %header.casebook
   - if @section.present?
-    .book-header
-      %a.book-title{href: book_path(@book)}= @book.title
-      .collaborators= render partial: 'casebooks/collaborators', locals: {casebook: @book}
     .breadcrumbs
       = t 'casebooks.show.section'
       - @section.ordinals.each_with_index do |ordinal, idx|
@@ -28,12 +18,14 @@
     %h2= @casebook.subtitle
   - if @section.nil?
     .collaborators= render partial: 'casebooks/collaborators', locals: {casebook: @book}
-%section.headnote
-  - if @casebook.headnote
+- if @casebook.headnote || @casebook.subtitle
+  %section.headnote
     %h5= t 'casebooks.show.headnote'
-  - if @section.present?
-    %h3= @casebook.subtitle
-  %p= @casebook.headnote
+    - if @section.present?
+      %h3= @casebook.subtitle
+    %p= @casebook.headnote
+- else
+  %section.no-headnote
 %section.table-of-contents
   - if @casebook.respond_to? :contents
     %h5
@@ -47,7 +39,7 @@
       .listing.empty
         - if @edit_layout
           - if @section.present?
-            = t 'casebooks.edit.empty-section.html', add_material_button: link_to(t('casebooks.edit.empty-section.add-button'), new_book_section_path(@book, parent: @section.ordinal_string))
+            = t 'casebooks.edit.empty-section.html', add_resource_button: link_to(t('casebooks.edit.empty-section.add-button'), new_book_section_path(@book, parent: @section.ordinal_string))
           - else
             = t 'casebooks.edit.empty-book.html', add_section_button: button_to(t('casebooks.edit.empty-book.add-button'), book_sections_path(@book), method: :post)
         - else
@@ -55,6 +47,6 @@
             = t 'casebooks.show.empty-section'
           - else
             = t 'casebooks.show.empty-book'
-  - elsif @casebook.respond_to? :material
-    %section.material
-      = render partial: 'casebooks/material/show', locals: {material: @casebook.material, editable: false}
+  - elsif @casebook.respond_to? :resource
+    %section.resource
+      = render partial: 'casebooks/resources/show', locals: {resource: @casebook.resource, editable: false}

@@ -37,7 +37,7 @@ class Case < ApplicationRecord
 
   acts_as_taggable_on :tags
 
-  has_many :casebooks, inverse_of: :material
+  has_many :casebooks, inverse_of: :resource
 
   has_many :case_citations
   has_many :case_docket_numbers

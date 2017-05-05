@@ -3,17 +3,17 @@
 # Table name: casebooks
 #
 #  id            :integer          not null, primary key
-#  title         :string           default("Untitled casebook"), not null
+#  title         :string
 #  slug          :string
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  root_id       :integer
+#  book_id       :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean
-#  material_type :string
-#  material_id   :integer
+#  resource_type :string
+#  resource_id   :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #
@@ -32,47 +32,13 @@ class Casebook::Generic < ApplicationRecord
     super || self.title.parameterize
   end
 
-  def reflow_contents
-    reflow_tree tree, ordinals
-  end
-
-  def reflow_tree tree, prefix = []
-    ord_index = ordinals.length
-    ord = 1
-    tree.each do |element|
-      if element.is_a? Enumerable
-        reflow_tree element, ord == 1 ? prefix : prefix + [ord-1]
-      else
-        element.update_column :ordinals, prefix + [ord]
-        ord += 1
-      end
-    end
-  end
-
-  # Transform a flat sorted array of casebooks into an array tree
-  # [1, 1.1, 1.1.1, 1.2, 2, 2.1, 2.1.1] => [1, [1.1, [1.1.1], 1.2], 2, [2.1, [2.1.1]]]
-  def tree
-    tables = []
-    table = []
-    n_ords = ordinals.length + 1
-    contents.each do |casebook|
-      if casebook.ordinals.length > n_ords
-        tables.push table.push(table = [])
-      elsif casebook.ordinals.length < n_ords
-        table = tables.pop until tables.length < casebook.ordinals.length
-      end
-      n_ords = casebook.ordinals.length
-      table.push casebook
-    end
-    tables.first || table
-  end
-
   private
 
+  # find the appropriate Casebook subclass for this record.
   def self.discriminate_class_for_record(record)
-    if record['root_id'].nil?
+    if record['book_id'].nil?
       Casebook::Book
-    elsif record['material_id'].nil?
+    elsif record['resource_id'].nil?
       Casebook::Section
     else
       Casebook::Resource

@@ -25,10 +25,10 @@
         .top-strip
         = yield
       %aside.casebook-actions
-        = yield :actions
+        = render 'casebooks/actions'
+  - if @book
+    :coffeescript
+      window.RAILS_ROUTES ?= []
+      RAILS_ROUTES.book_section_path = (sectionId)->'#{j book_section_path(@book, '$CHAPTER_ID$')}'.replace('$CHAPTER_ID$', sectionId)
 
 = render template: 'layouts/main'
-- if @book
-  :coffeescript
-    window.RAILS_ROUTES ?= []
-    RAILS_ROUTES.book_section_path = (sectionId)->'#{j book_section_path(@book, '$CHAPTER_ID$')}'.replace('$CHAPTER_ID$', sectionId)

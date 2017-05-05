@@ -1,6 +1,8 @@
 ui = require 'ui/turbolinks'
 draggingOrdinals = null
 
+
+
 assignDragLocation = (el, e)->
   rect = el.getBoundingClientRect()
   if e.clientY >= rect.top + rect.height / 2
@@ -41,7 +43,7 @@ document.addEventListener 'dragstart', (e)->
 document.addEventListener 'dragend', (e)->
   return unless e.target.parentElement.classList.contains 'drag-from'
 
-  document.querySelectorAll('.droppable, .undroppable').forEach resetDragClasses
+  resetDragClasses(el) for el in document.querySelectorAll('.droppable, .undroppable')
   e.preventDefault()
   e.stopPropagation()
 
@@ -51,16 +53,14 @@ document.addEventListener 'dragend', (e)->
   draggingOrdinals = null
 
 document.addEventListener 'dragenter', (e)->
-    return unless e.target.classList.contains('listing-wrapper')
-    e.preventDefault()
-    e.stopPropagation()
+  return unless e.target.classList.contains('listing-wrapper')
+  e.preventDefault()
+  e.stopPropagation()
 
-    return if e.target.classList.contains('drag-from')
-    return e.target.classList.add('undroppable') if e.target.getAttribute('data-ordinals').startsWith draggingOrdinals
+  return if e.target.classList.contains('drag-from')
+  return e.target.classList.add('undroppable') if e.target.getAttribute('data-ordinals').startsWith draggingOrdinals
 
-    console.log 'drag from', e.target.getAttribute('data-ordinals'), draggingOrdinals
-
-    assignDragLocation e.target, e
+  assignDragLocation e.target, e
 
 document.addEventListener 'dragover', (e)->
   if e.target.classList.contains('droppable')
@@ -71,11 +71,12 @@ document.addEventListener 'dragover', (e)->
     assignDragLocation e.target, e
 
 document.addEventListener 'dragleave', (e)->
-    if e.target.classList.contains 'listing-wrapper'
-      e.preventDefault()
-      e.stopPropagation()
+  console.log 'drag leave happened', e.target.className
+  if e.target.classList.contains 'listing-wrapper'
+    e.preventDefault()
+    e.stopPropagation()
 
-      resetDragClasses e.target
+    resetDragClasses e.target
 
 document.addEventListener 'drop', (e)->
   if e.target.classList.contains('droppable')

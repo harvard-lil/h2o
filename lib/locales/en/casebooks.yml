@@ -13,12 +13,13 @@ en:
     actions:
       publish: Publish
       add-section: Add Section
-      add-material: Add Resource
+      add-resource: Add Resource
     tabs:
       layout: Layout
       edit: Edit & Annotate
       book-details: Casebook details
       section-details: Section details
+      resource-details: Resource details
     search:
       placeholder: Find casebooks, cases, or other resources.
     show:
@@ -32,12 +33,12 @@ en:
       draft-banner:
         html: This casebook is a draft and is visible only to collaborators. <a href="%{publish_path}">Publish it</a> to make it public.
       empty-section:
-        html: "This section has no content yet. %{add_material_button}"
+        html: "This section has no content yet. %{add_resource_button}"
         add-button: Click here to add a resource.
       empty-book:
         html: "This casebook has no content yet. %{add_section_button}"
         add-button: Click here to add a section.
-    material:
+    resource:
       type:
         text: Text
         not-applicable: —
@@ -49,7 +50,7 @@ en:
       add-to-section: Add a resource to this section
       add-to-book: Add a resource to this casebook
       tabs:
-        search: Search for material
+        search: Search for resource
         link: Add a URL
         text: Create a text
     untitled-book: "Untitled casebook #%{id}"
