@@ -6,12 +6,26 @@ public_casebook:
   public: true
 
 public_casebook_section_1:
-  root: public_casebook
+  book: public_casebook
+  title: Section One
+  headnote: >
+    This is the first chapter of the casebook.
   ordinals: [1]
 
 public_casebook_section_1.1:
-  root: public_casebook
+  book: public_casebook
+  headnote: >
+    This is the first resource in the casebook.
+  resource: public_case_1
+  resource_type: Case
   ordinals: [1,1]
+
+public_casebook_section_2:
+  book: public_casebook
+  title: Section Two
+  headnote: >
+    This is the second chapter of the casebook.
+  ordinals: [2]
 
 private_casebook:
   title: Private Casebook 1
