@@ -10,7 +10,7 @@ class Ability
     can [:new, :create], :user_sessions
     can :index, [:collages, :playlists, :cases, :text_blocks, :defaults]
 
-    can [:show, :export, :export_as], Casebook::Generic, :public => true
+    can [:show, :export, :export_as], Content::Node, :public => true
     can [:show, :export, :export_as, :export_unique], Collage, :public => true
     can [:show, :export, :export_as], Case, :public => true
     can [:show, :export, :export_as], TextBlock, :public => true
@@ -27,7 +27,7 @@ class Ability
 
       can :destroy, :user_sessions
       can [:bookmark_item, :delete_bookmark_item, :verification_request, :verify], :users
-      can :new, [Casebook::Book, Collage, TextBlock, Default, CaseRequest]
+      can :new, [Content::Casebook, Collage, TextBlock, Default, CaseRequest]
       can :create, [:casebooks, :collages, :text_blocks, :defaults, :case_requests, :bulk_uploads, :playlist_items, :annotations]
       can :copy, Playlist, :public => true
       can :copy, Collage, :public => true

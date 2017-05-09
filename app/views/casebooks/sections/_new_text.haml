@@ -1,5 +1,0 @@
-= simple_form_for :text, url: book_sections_path(@book), method: :post do |f|
-  - if @section.present?
-    = f.input :parent, as: :hidden, input_html: {value: @section.ordinal_string}
-  = f.input :content, as: :text, placeholder: t('simple_form.labels.text.content'), label: false
-  = f.submit t('simple_form.labels.text.save')

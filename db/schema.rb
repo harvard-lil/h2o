@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170505175349) do
+ActiveRecord::Schema.define(version: 20170508204725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -115,37 +115,6 @@ ActiveRecord::Schema.define(version: 20170505175349) do
     t.integer "user_id", default: 0, null: false
   end
 
-  create_table "casebook_collaborators", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "casebook_id"
-    t.string "role"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["casebook_id"], name: "index_casebook_collaborators_on_casebook_id"
-    t.index ["user_id", "casebook_id"], name: "index_casebook_collaborators_on_user_id_and_casebook_id", unique: true
-    t.index ["user_id"], name: "index_casebook_collaborators_on_user_id"
-  end
-
-  create_table "casebooks", force: :cascade do |t|
-    t.string "title"
-    t.string "slug"
-    t.string "subtitle"
-    t.text "headnote"
-    t.boolean "public", default: true, null: false
-    t.bigint "book_id"
-    t.integer "ordinals", default: [], null: false, array: true
-    t.bigint "copy_of_id"
-    t.boolean "is_alias"
-    t.string "resource_type"
-    t.bigint "resource_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["book_id", "ordinals"], name: "index_casebooks_on_book_id_and_ordinals", using: :gin
-    t.index ["book_id"], name: "index_casebooks_on_book_id"
-    t.index ["copy_of_id"], name: "index_casebooks_on_copy_of_id"
-    t.index ["resource_type", "resource_id"], name: "index_casebooks_on_resource_type_and_resource_id"
-  end
-
   create_table "cases", id: :serial, force: :cascade do |t|
     t.boolean "current_opinion", default: true
     t.string "short_name", limit: 150, null: false
@@ -237,6 +206,17 @@ ActiveRecord::Schema.define(version: 20170505175349) do
     t.datetime "updated_at"
   end
 
+  create_table "content_collaborators", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "content_id"
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_content_collaborators_on_content_id"
+    t.index ["user_id", "content_id"], name: "index_content_collaborators_on_user_id_and_content_id", unique: true
+    t.index ["user_id"], name: "index_content_collaborators_on_user_id"
+  end
+
   create_table "content_images", id: :serial, force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "page_id"
@@ -246,6 +226,26 @@ ActiveRecord::Schema.define(version: 20170505175349) do
     t.string "image_content_type", limit: 255
     t.integer "image_file_size"
     t.datetime "image_updated_at"
+  end
+
+  create_table "content_nodes", force: :cascade do |t|
+    t.string "title"
+    t.string "slug"
+    t.string "subtitle"
+    t.text "headnote"
+    t.boolean "public", default: true, null: false
+    t.bigint "casebook_id"
+    t.integer "ordinals", default: [], null: false, array: true
+    t.bigint "copy_of_id"
+    t.boolean "is_alias"
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
+    t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
+    t.index ["copy_of_id"], name: "index_content_nodes_on_copy_of_id"
+    t.index ["resource_type", "resource_id"], name: "index_content_nodes_on_resource_type_and_resource_id"
   end
 
   create_table "defaults", id: :serial, force: :cascade do |t|
@@ -782,8 +782,8 @@ ActiveRecord::Schema.define(version: 20170505175349) do
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
-  add_foreign_key "casebook_collaborators", "casebooks"
-  add_foreign_key "casebook_collaborators", "users"
-  add_foreign_key "casebooks", "casebooks", column: "book_id"
-  add_foreign_key "casebooks", "casebooks", column: "copy_of_id"
+  add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
+  add_foreign_key "content_collaborators", "users"
+  add_foreign_key "content_nodes", "content_nodes", column: "casebook_id"
+  add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id"
 end

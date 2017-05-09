@@ -73,8 +73,8 @@ class User < ApplicationRecord
   has_many :defaults, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
 
-  has_many :collaborations, class_name: 'Casebook::Collaborator', primary_key: :id
-  has_many :books, class_name: 'Casebook::Book', through: :collaborations, source: :casebook, primary_key: :id
+  has_many :collaborations, class_name: 'Content::Collaborator', primary_key: :id
+  has_many :casebooks, class_name: 'Content::Casebook', through: :collaborations, source: :content, primary_key: :id
 
   alias :textblocks :text_blocks
 

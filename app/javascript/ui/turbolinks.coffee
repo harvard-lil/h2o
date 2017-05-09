@@ -16,8 +16,9 @@ module.exports = ui =
     progressBar = new Turbolinks.ProgressBar
     progressBar.show()
 
-    Axios[method] url, data,
+    Axios.post url, data,
       headers:
+        'X-HTTP-Method-Override': method,
         'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
       onDownloadProgress: (progress)->
         progressBar.setValue progress.loaded / (progress.total or 10000)
@@ -33,7 +34,6 @@ module.exports = ui =
   patch: (url, options = {})->ui.request url, 'patch', options
 
 document.addEventListener 'submit', (e)->
-  console.log 'submit', arguments
   form = e.target
   return if form.getAttribute('data-turbolinks-disable')
   e.preventDefault()

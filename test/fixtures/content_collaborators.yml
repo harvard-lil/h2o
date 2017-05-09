@@ -1,0 +1,17 @@
+_fixture:
+  model_class: Content::Collaborator
+
+public_casebook_owner:
+  content: public_casebook
+  user: verified_professor
+  role: owner
+
+private_casebook_owner:
+  content: private_casebook
+  user: verified_professor
+  role: owner
+
+student_casebook_owner:
+  content: student_casebook
+  user: student_user
+  role: owner

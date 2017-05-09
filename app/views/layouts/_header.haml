@@ -4,7 +4,7 @@
       %a.wrapper.logo{href: root_path}= t 'header.brand'
     .links
       - if current_user.present?
-        = link_to t('header.links.create-casebook'), :new_book, class: 'create-casebook'
+        = link_to t('header.links.create-casebook'), :new_casebook, class: 'create-casebook'
         = link_to t('header.links.browse'), :root
         = link_to t('header.links.help'), :root
       - else

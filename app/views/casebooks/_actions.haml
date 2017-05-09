@@ -1,9 +1,0 @@
-- if @section.present?
-  = button_to t('casebooks.actions.publish'), book_sections_path(@book), method: :post, class: 'action publish one-line'
-  - if @section.is_a? Casebook::Section
-    = button_to t('casebooks.actions.add-section'), book_sections_path(@book, parent: @section.ordinal_string), method: :post, class: 'action add-section'
-    = link_to t('casebooks.actions.add-resource'), new_book_section_path(@book, parent: @section.ordinal_string), class: 'action add-resource'
-- else
-  = button_to t('casebooks.actions.publish'), book_sections_path(@book), method: :post, class: 'action publish one-line'
-  = button_to t('casebooks.actions.add-section'), book_sections_path(@book), method: :post, class: 'action add-section'
-  = link_to t('casebooks.actions.add-resource'), new_book_section_path(@book), class: 'action add-resource'

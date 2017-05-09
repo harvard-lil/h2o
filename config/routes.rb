@@ -58,9 +58,11 @@ H2o::Application.routes.draw do
   end
 
 
-  scope module: 'casebooks' do
-    resources :books, path: 'casebooks' do
-      resources :sections, id: /.*/
+  scope module: 'content' do
+    resources :casebooks, param: :casebook_id do
+      member do
+        resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
+      end
     end
   end
 

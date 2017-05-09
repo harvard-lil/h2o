@@ -2,4 +2,4 @@
 
 require 'polyfills/promises'
 require 'ui/turbolinks'
-require 'ui/casebooks/dragging'
+require 'ui/content/dragging'

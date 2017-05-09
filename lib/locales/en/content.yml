@@ -1,0 +1,72 @@
+en:
+  simple_form:
+    labels:
+      casebook:
+        name: Give your casebook a concise title.
+        subtitle: Subtitle (optional)
+        description: Any additional details to help readers find or use this casebook
+        password: Password
+        password_confirmation: Confirm password
+        save: Save changes
+        revert: Reset changes
+  content:
+    errors:
+      not-signed-in: You must sign in to access that page.
+      unauthorized: That page is only available to casebook editors.
+    actions:
+      publish: Publish
+      add-section: Add Section
+      add-resource: Add Resource
+    tabs:
+      layout: Layout
+      edit: Edit & Annotate
+      casebook-details: Casebook details
+      section-details: Section details
+      resource-details: Resource details
+    search:
+      placeholder: Find casebooks, cases, or other resources.
+    show:
+      headnote: Headnote
+      ordinals-separator: .
+      empty-section: This section has no content yet.
+      empty-casebook: This casebook has no content yet.
+    edit:
+      add-collaborator: Add collaborator
+      save-section: Save
+      draft-banner:
+        html: This casebook is a draft and is visible only to collaborators. <a href="%{publish_path}">Publish it</a> to make it public.
+      empty-section:
+        html: "This section has no content yet. %{add_resource_button}"
+        add-button: Click here to add a resource.
+      empty-casebook:
+        html: "This casebook has no content yet. %{add_section_button}"
+        add-button: Click here to add a section.
+    resource:
+      type:
+        text: Text
+        not-applicable: —
+      date:
+        not-applicable: —
+      add-to-section: Add to section
+      add-to-casebook: Add to casebook
+    new:
+      add-to-section: Add a resource to this section
+      add-to-casebook: Add a resource to this casebook
+      tabs:
+        search: Search for resource
+        link: Add a URL
+        text: Create a text
+    untitled-casebook: "Untitled casebook #%{id}"
+    section-words:
+      - Section
+      - Subsection
+      - Part
+    titles:
+      casebooks:
+        show: "Read | %{casebook_title}"
+        edit: "Edit | %{casebook_title}"
+        index: Books
+      sections:
+        show: "Read | %{casebook_title} | %{ordinal_string}: %{section_title}"
+        edit: "Edit | %{casebook_title} | %{ordinal_string}: %{section_title}"
+        index: "Read | %{casebook_title} | Table of Contents"

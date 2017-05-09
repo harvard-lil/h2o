@@ -1,6 +1,0 @@
-= simple_form_for section, url: section.persisted? ? book_section_path(@book, section) : book_sections_path(@book), method: section.persisted? ? :patch : :post do |f|
-  = f.input :ordinals, as: :hidden
-  .listing.section
-    .section-number= section.ordinal_string
-    = f.input :title, label: false
-    = f.submit t 'casebooks.edit.save-section'

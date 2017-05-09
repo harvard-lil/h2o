@@ -78,9 +78,9 @@ class PlaylistsController < BaseController
   end
 
   def new
-    @book = Playlist.where(user: current_user).where(["created_at = updated_at"])
+    @casebook = Playlist.where(user: current_user).where(["created_at = updated_at"])
       .first_or_create name: 'Untitled casebook', user: current_user, public: false
-    redirect_to edit_book_path @book
+    redirect_to edit_casebook_path @casebook
   end
 
   def edit
@@ -205,7 +205,7 @@ class PlaylistsController < BaseController
   private
 
   def find_casebook
-    @book = Playlist.find params[:id]
+    @casebook = Playlist.find params[:id]
   end
 
   def csv_convert(playlists)
