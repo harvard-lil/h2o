@@ -31,5 +31,8 @@ module H2o
     config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"
     config.cache_store = :file_store, "tmp/cache/h2o/"
     # config.skylight.environments << 'development'
+
+    config.action_mailer.default_url_options = { :host => 'localhost' }
+    config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
   end
 end
