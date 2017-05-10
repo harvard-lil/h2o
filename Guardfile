@@ -42,22 +42,3 @@ guard :minitest, spring: 'bin/rails test', env: {CAPYBARA_SKIP_JS: 'true'} do
   watch(%r{^test/fixtures/.+\.yml$})
   watch(%r{^test/test_helper\.rb$}) { 'test' }
 end
-
-# Run a webpack watcher
-webpack_dev_pid = nil
-start_webpack_dev = Proc.new do
-  webpack_dev_pid = fork do
-    system 'bin/webpack-dev-server'
-  end
-end
-stop_webpack_dev = Proc.new do
-  webpack_dev_pid.try :kill
-  webpack_dev_pid = nil
-end
-restart_webpack_dev = Proc.new do
-  stop_webpack_dev
-  start_webpack_dev
-end
-guard :yield, start: start_webpack_dev, stop: stop_webpack_dev, run_on_changes: restart_webpack_dev do
-  watch(%r{^config/webpack/(.*)$})
-end

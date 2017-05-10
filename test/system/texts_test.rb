@@ -69,6 +69,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'annotating a text', js: true do
+      skip 'replacing annotating with casebook code'
       sign_in user = users(:verified_student)
       visit text_block_path public_text = text_blocks(:public_text_to_annotate)
 

@@ -244,6 +244,8 @@ class ExportSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'exporting a collage to .pdf', js:true do
+    skip 'replacing annotating with casebook code'
+    
     sign_in user = users(:student_user) # TODO: This fails unless user has write privs
     visit collage_path collage = collages(:collage_one)
 

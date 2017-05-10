@@ -3,15 +3,16 @@
     "autoprefixer": "^6.7.7",
     "axios": "^0.16.1",
     "babel-core": "^6.24.1",
-    "babel-loader": "^6.4.1",
+    "babel-plugin-transform-strict-mode": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.4.0",
     "babel-preset-react": "^6.24.1",
     "bluebird": "^3.5.0",
+    "classlist-polyfill": "^1.2.0",
     "coffee-loader": "^0.7.3",
     "coffee-script": "^1.12.5",
-    "compression-webpack-plugin": "^0.4.0",
     "css-loader": "^0.28.0",
-    "extract-text-webpack-plugin": "^2.1.0",
+    "es6-symbol": "^3.1.1",
     "file-loader": "^0.11.1",
     "form-serialize": "^0.7.1",
     "glob": "^7.1.1",
@@ -23,17 +24,10 @@
     "postcss-smart-import": "^0.6.11",
     "precss": "^1.4.0",
     "query-string": "^4.3.4",
-    "rails-erb-loader": "^5.0.0",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
-    "sass-loader": "^6.0.3",
     "style-loader": "^0.16.1",
-    "turbolinks": "^5.0.0",
-    "webpack": "^2.4.1",
-    "webpack-manifest-plugin": "^1.1.0",
-    "webpack-merge": "^4.1.0"
+    "turbolinks": "^5.0.0"
   },
-  "devDependencies": {
-    "webpack-dev-server": "^2.4.2"
-  }
+  "devDependencies": {}
 }

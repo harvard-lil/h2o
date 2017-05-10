@@ -43,12 +43,12 @@ gem 'rails-html-sanitizer'
 gem 'RedCloth'
 gem 'scrypt'
 gem 'simple_form'
+gem 'sprockets-commoner'
 gem 'sunspot_rails'
 gem 'therubyracer', platforms: :ruby
 gem 'turbolinks'
 gem 'uglifier', '>= 1.3.0'
 gem 'warden'
-gem 'webpacker'
 gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e1c0e0'
 
 # export binary gems

@@ -13,7 +13,7 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
-//= require ui
-//= require_tree .
-//= stub export
-//= stub phantomjs-export
+//= require old_tree/fonts
+//= require export
+//= require old_tree/ui
+//= require_tree ./old_tree

@@ -292,13 +292,13 @@ module.exports = _dereq_('./backbone-events-standalone');
   }
 })(function () {
   "use strict";
-  
+
   // mini-underscore
   var _ = {
     has: function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     },
-  
+
     extend: function(obj) {
       for (var i=1; i<arguments.length; ++i) {
         var source = arguments[i];
@@ -11300,7 +11300,7 @@ Annotator = (function(_super) {
     }).done((function(_this) {
       return function(annotation) {
         return _this.publish('annotationCreated', [annotation]);
-      }; 
+      };
     })(this)).fail(this.cleanupAnnotation);
   };
 
@@ -11618,7 +11618,7 @@ Editor = (function(_super) {
         }
         if($('input#layer-' + collages.clean_layer($('input#new_layer').val())).size() > 0) {
           error_msg = 'Tag name is already taken.';
-        } 
+        }
       }
     }
     if($('.annotator-editor').hasClass('link')) {
@@ -12632,7 +12632,7 @@ Util.uuid = (function() {
 
 Util.getGlobal = function() {
   return (function() {
-    return this;
+    return window;
   })();
 };
 
@@ -12660,7 +12660,7 @@ Util.mousePosition = function(e, offsetEl) {
     offsetEl = $(offsetEl).offsetParent()[0];
   }
   offset = $(offsetEl).offset();
- 
+
   //H2O Customization for adjustment
   return {
     top: e.pageY - offset.top - 25,

@@ -392,6 +392,7 @@ GEM
       sprockets (>= 2.8, < 4.0)
       sprockets-rails (>= 2.0, < 4.0)
       tilt (>= 1.1, < 3)
+    schmooze (0.1.6)
     scrypt (3.0.5)
       ffi-compiler (>= 1.0, < 2.0)
     sexp_processor (4.8.0)
@@ -413,6 +414,9 @@ GEM
     sprockets (3.7.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
+    sprockets-commoner (0.6.4)
+      schmooze (~> 0.1.6)
+      sprockets (>= 3, < 5)
     sprockets-rails (3.2.0)
       actionpack (>= 4.0)
       activesupport (>= 4.0)
@@ -450,10 +454,6 @@ GEM
       activemodel (>= 5.0)
       debug_inspector
       railties (>= 5.0)
-    webpacker (1.1)
-      activesupport (>= 4.2)
-      multi_json (~> 1.2)
-      railties (>= 4.2)
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -522,6 +522,7 @@ DEPENDENCIES
   scrypt
   simple_form
   simplecov
+  sprockets-commoner
   sunspot_rails
   sunspot_solr
   terminal-notifier-guard
@@ -530,7 +531,6 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   warden
   web-console
-  webpacker
   will_paginate!
   wkhtmltopdf-binary
   wrong!

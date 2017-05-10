@@ -57,6 +57,9 @@ class Content::NodeController < ApplicationController
 
   def find_section
     @content = @section = @casebook.contents.find_by_ordinals parse_ordinals(params[:id_ordinals].split('-')[0])
+    unless @section.present?
+      return redirect_to casebook_path(@casebook)
+    end
   end
 
   def find_parent
