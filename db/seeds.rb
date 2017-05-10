@@ -9,68 +9,74 @@ admin_user = User.create( login: 'admin_user', email_address: 'admin_user@exampl
 legal_history_playlist = Playlist.create( name: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, user_id: admin_user.id )
 
 	playlist_1 = Playlist.create( name: 'Law and the Economy: Contract and Regulation', public: true, user_id: admin_user.id )
-		default_1_1 = Default.create(public: true, name: 'Morton J. Horwitz, The Triumph of Contract, in his Transformation of American Law, 1780-1860, pp. 160-70, 173-92, 201.', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HorwitzTriumphOfContract.pdf', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_1, position: 1, actual_object_type: 'Default', actual_object_id: default_1_1.id)
+	PlaylistItem.create(playlist_id: legal_history_playlist.id, position: 1, actual_object_type: 'Playlist', actual_object_id: playlist_1.id)
+		default_1_1 = Default.create(public: true, name: 'Morton J. Horwitz, The Triumph of Contract, in his Transformation of American Law, 
+			1780-1860, pp. 160-70, 173-92, 201.', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HorwitzTriumphOfContract.pdf', 
+			user_id: admin_user.id)
+		PlaylistItem.create( playlist_id: playlist_1.id, position: 1, actual_object_type: 'Default', actual_object_id: default_1_1.id)
 		
 		default_1_2 = Default.create( public: true, name: 'R.H. Coase, Adam Smith’s View of Man, 19 Journal of Law and Economics 529 (1976)', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/CoaseAdamSmithsView.pdf', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_1, position: 2, actual_object_type: 'Default', actual_object_id: default_1_2.id )
+		PlaylistItem.create( playlist_id: playlist_1.id, position: 2, actual_object_type: 'Default', actual_object_id: default_1_2.id )
 
 		default_1_3 = Default.create(public: true, name: 'Roy Kreitner, Calculating Promises: The Emergence of Modern American Contract Doctrine 97-99, 100-01, 156-59 (2007)', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/KreitnerCalculating.pdf',
 			user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_1, position: 3, actual_object_type: 'Default', actual_object_id: default_1_3.id )
+		PlaylistItem.create( playlist_id: playlist_1.id, position: 3, actual_object_type: 'Default', actual_object_id: default_1_3.id )
 
 		default_1_4 = Default.create(public: true, name: 'William Cronon, Nature’s Metropolis: Chicago and the Great West 123-132, 136-138, 143-146', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/CrononNature.pdf', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_1, position: 4, actual_object_type: 'Default', actual_object_id: default_1_4.id )
+		PlaylistItem.create( playlist_id: playlist_1.id, position: 4, actual_object_type: 'Default', actual_object_id: default_1_4.id )
 		
 		case_1_1 = Case.create( short_name: 'Board of Trade of the City of Chicago v. Christie Grain & Stock Co.', public: true, full_name: 'BOARD OF TRADE OF THE CITY OF CHICAGO v. CHRISTIE GRAIN AND STOCK COMPANY. L.A. KINSEY COMPANY v. 
 			BOARD OF TRADE OF THE CITY OF CHICAGO.', decision_date: '1905-05-08', case_jurisdiction_id: 1, content: '', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_1, position: 5, actual_object_type: 'Case', actual_object_id: case_1_1.id )
+		PlaylistItem.create( playlist_id: playlist_1.id, position: 5, actual_object_type: 'Case', actual_object_id: case_1_1.id )
 
 	playlist_2 = Playlist.create(name: 'II. The Rise of the Business Corporation: From Public to Private?', public: true, user_id: admin_user.id)
+	PlaylistItem.create(playlist_id: legal_history_playlist.id, position: 2, actual_object_type: 'Playlist', actual_object_id: playlist_2.id)
 		default_2_1 = Default.create(name: 'Melvin Urofsky, The Case of the Rival Steamboat Operators, in his Supreme Decisions, 33-37', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/UrofskyCaseofRivalSteamboat.pdf',
 			public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_2, position: 1, actual_object_type: 'Default', actual_object_id: default_2_1.id )
+		PlaylistItem.create( playlist_id: playlist_2.id, position: 1, actual_object_type: 'Default', actual_object_id: default_2_1.id )
 
 		case_2_1 = Case.create(short_name: 'Livingston v. Van Ingen', full_name: 'ROBERT R. LIVINGSTON AND ROBERT FULTON, Appellants, v. JAMES VAN INGEN, H. BOYD AND TWENTY OTHERS, Respondents.', decision_date: '1812-03-01', 
 			case_jurisdiction_id: 28, content: '', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_2, position: 2, actual_object_type: 'Case', actual_object_id: case_2_1.id )
+		PlaylistItem.create( playlist_id: playlist_2.id, position: 2, actual_object_type: 'Case', actual_object_id: case_2_1.id )
 
 		case_2_2 = Case.create(short_name: 'Farwell v. Boston & Worcester Rail Road Corp.', full_name: 'NICHOLAS FARWELL v. THE BOSTON AND WORCESTER RAIL ROAD CORPORATION.', decision_date: '1842-03-01', case_jurisdiction_id: 3, content: '', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_2, position: 3, actual_object_type: 'Case', actual_object_id: case_2_2.id )
+		PlaylistItem.create( playlist_id: playlist_2.id, position: 3, actual_object_type: 'Case', actual_object_id: case_2_2.id )
 
 		default_2_2 = Default.create(name: 'Christopher Tomlins, Law, Labor and Ideology in the Early American Republic, 294-305', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/TomlinsLawLaborIdeology.pdf',
 			public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_2, position: 4, actual_object_type: 'Default', actual_object_id: default_2_2.id )
+		PlaylistItem.create( playlist_id: playlist_2.id, position: 4, actual_object_type: 'Default', actual_object_id: default_2_2.id )
 
 		text_block_2_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), Chapter 3.', content: '', user_id: admin_user.id, public: true)
-		PlaylistItem.create( playlist_id: playlist_2, position: 5, actual_object_type: 'TextBlock', actual_object_id: text_block_2_1.id )
+		PlaylistItem.create( playlist_id: playlist_2.id, position: 5, actual_object_type: 'TextBlock', actual_object_id: text_block_2_1.id )
 
 	playlist_3 = Playlist.create(name: 'III. Lawyers and the Constitutional Law of Regulation', public: true, user_id: admin_user.id)
+	PlaylistItem.create(playlist_id: legal_history_playlist.id, position: 3, actual_object_type: 'Playlist', actual_object_id: playlist_3.id)
 		default_3_1 = Default.create(name: 'Alexis de Tocqueville, Causes Which Mitigate Tyranny of the Majority in the United States (in his Democracy in America)', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/TocquevilleDemocracyInAmerica.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_3, position: 1, actual_object_type: 'Default', actual_object_id: default_3_1.id )
+		PlaylistItem.create( playlist_id: playlist_3.id, position: 1, actual_object_type: 'Default', actual_object_id: default_3_1.id )
 
 		default_3_2 = Default.create(name: 'Note on David Dudley Field', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/NoteDavidDudleyField.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_3, position: 2, actual_object_type: 'Default', actual_object_id: default_3_2.id )
+		PlaylistItem.create( playlist_id: playlist_3.id, position: 2, actual_object_type: 'Default', actual_object_id: default_3_2.id )
 		
 		default_3_3 = Default.create(name: 'Herbert Hovenkamp, Enterprise and American Law, 96-99, 199-203', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HovemkampEnterpriseAmLaw96to99%26199to203.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_3, position: 3, actual_object_type: 'Default', actual_object_id: default_3_3.id )
+		PlaylistItem.create( playlist_id: playlist_3.id, position: 3, actual_object_type: 'Default', actual_object_id: default_3_3.id )
 		
 		case_3_1 = Case.create(short_name: "Live-Stock Dealers' & Butchers' Ass'n v. Crescent City Live-Stock Landing & Slaughter-House Co.", full_name: "LIVE-STOCK DEALERS' & BUTCHERS' ASS'N v. CRESCENT CITY LIVE-STOCK LANDING & SLAUGHTER-HOUSE CO. et al.",
 				decision_date: '1870-06-10', case_jurisdiction_id: 15, content: '', user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_3, position: 4, actual_object_type: 'Case', actual_object_id: case_3_1.id )
+		PlaylistItem.create( playlist_id: playlist_3.id, position: 4, actual_object_type: 'Case', actual_object_id: case_3_1.id )
 
 	playlist_4 = Playlist.create(name: 'IV. Regulation and Administrative Law to 1937', public: true, user_id: admin_user.id)
+	PlaylistItem.create(playlist_id: legal_history_playlist.id, position: 4, actual_object_type: 'Playlist', actual_object_id: playlist_4.id)
 		default_4_1 = Default.create(name: 'Herbert Hovenkamp, Enterprise and American Law, 1836-1937, pp. 125-30', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HovenkampEnterppriseAmLaw125to130.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_4, position: 1, actual_object_type: 'Default', actual_object_id: default_4_1.id )
+		PlaylistItem.create( playlist_id: playlist_4.id, position: 1, actual_object_type: 'Default', actual_object_id: default_4_1.id )
 		
 		default_4_2 = Default.create(name: 'Robin Einhorn, Property Rules, 14-19', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/EinhornPropertyRules.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_4, position: 2, actual_object_type: 'Default', actual_object_id: default_4_2.id)
+		PlaylistItem.create( playlist_id: playlist_4.id, position: 2, actual_object_type: 'Default', actual_object_id: default_4_2.id)
 
 		default_4_3 = Default.create(name: 'Hendrik Hartog, Pigs and Positivism, 1985 Wisconsin Law Review 899', url: 'https://wiki.harvard.edu/confluence/download/attachments/162433009/HartogPigsandPositivism.pdf', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_4, position: 3, actual_object_type: 'Default', actual_object_id: default_4_3.id)
+		PlaylistItem.create( playlist_id: playlist_4.id, position: 3, actual_object_type: 'Default', actual_object_id: default_4_3.id)
 
 		text_block_4_1 = TextBlock.create(name: 'Read: Horwitz (Transformation II), pp. 213-233', content: '', public: true, user_id: admin_user.id)
-		PlaylistItem.create( playlist_id: playlist_4, position: 4, actual_object_type: 'TextBlock', actual_object_id: text_block_4_1.id)
+		PlaylistItem.create( playlist_id: playlist_4.id, position: 4, actual_object_type: 'TextBlock', actual_object_id: text_block_4_1.id)
 
 
 ### This data isn't an actual cohesive playlist
@@ -102,7 +108,7 @@ collage = Collage.create( annotatable_type: 'Case', name: "Casey v. Sudden Valle
 	readable_state: '{\'highlights\':{},\'hide_tags\':{},\'highlight_only_highlights\':[\'ff0080\']}', words_shown: 1148, user_id: admin_user.id, annotator_version: 2, featured: false, created_via_import: false, 
 	version: 1, enable_feedback: true, enable_discussions: false, enable_responses: false )
 
-american_legal_playlist = Playlist.create( name: 'American Legal History', description: '<p><br data-mce-bogus=\'1\'></p>', public: true, counter_start: 1, user_id: admin_user.id, primary: false, featured: false, 
+american_legal_playlist = Playlist.create( name: 'Law 204', description: '<p><br data-mce-bogus=\'1\'></p>', public: true, counter_start: 1, user_id: admin_user.id, primary: false, featured: false, 
 	created_via_import: false )
 
 prohibition_playlist = Playlist.create( name: 'Prohibition', description: '<p><br data-mce-bogus=\'1\'></p>', public: true, counter_start: 1, pushed_from_id: nil, user_id: admin_user.id, primary: false, 
