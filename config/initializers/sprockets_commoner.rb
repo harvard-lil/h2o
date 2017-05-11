@@ -4,9 +4,14 @@ Rails.application.config.assets.configure do |env|
     # Explicitly list paths to include. The default is `[env.root]`
     # include: ['app/assets/javascripts'],
     # List files to ignore and not process require calls or apply any Babel transforms to. Default is ['vendor/bundle'].
-    exclude: [%r{app/assets/javascripts/(application|export|old_tree)}],
+    exclude: ['vendor/bundle',
+      'app/assets/javascripts/application',
+      'app/assets/javascripts/export',
+      'app/assets/javascripts/old_tree',
+    ]
     # Anything listed in babel_exclude has its require calls resolved, but no transforms listed in .babelrc applied.
     # Default is [/node_modules/]
     # babel_exclude: [/node_modules/]
   )
+  puts "Commoner exclude paths: #{env.postprocessors.first.second.first.exclude.inspect}"
 end

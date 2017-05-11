@@ -14,6 +14,6 @@
 //= require jquery-ui
 //= require jquery_ujs
 //= require old_tree/fonts
-//= require export
 //= require old_tree/ui
+//= require export
 //= require_tree ./old_tree

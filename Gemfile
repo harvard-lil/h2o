@@ -6,8 +6,8 @@ gem 'puma', '~> 3.8'
 
 # Gems disabled for rails 5.1
 # gem 'coffee-rails', '~> 4.0.0'
-# gem 'jquery-rails'
-# gem 'jquery-ui-rails'
+gem 'jquery-rails'
+gem 'jquery-ui-rails'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
