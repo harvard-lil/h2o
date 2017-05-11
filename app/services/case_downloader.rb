@@ -63,8 +63,10 @@ class CaseDownloader
     if new_case.valid? && new_case_citation.valid? && new_case_docket_number.valid?
       true
     else
+      error_messages = { case: new_cases.errors.full_messages, citation: new_case_citation.errors.full_messages, 
+        docket_number: new_case_docket_number.errors.full_messages }
       # TODO send error messages into log_failure
-      log_failure
+      log_failure(error_messages)
       false
     end
   end
