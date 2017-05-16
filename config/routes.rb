@@ -64,6 +64,10 @@ H2o::Application.routes.draw do
         resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
       end
     end
+
+    resources :resources, only: [] do
+      resources :annotations, only: [:create]
+    end
   end
 
   resources :playlist_items do

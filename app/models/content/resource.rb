@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: casebooks
+# Table name: content_nodes
 #
 #  id            :integer          not null, primary key
 #  title         :string
@@ -8,7 +8,7 @@
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  casebook_id       :integer
+#  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean
@@ -26,10 +26,29 @@ class Content::Resource < Content::Child
   default_scope {where.not(resource_id: nil)}
 
   belongs_to :resource, polymorphic: true, inverse_of: :casebooks, required: true
+  has_many :annotations, class_name: 'Content::Annotation'
 
   def can_delete?
     true
   end
+
+  def paragraph_nodes
+    html = Nokogiri::HTML resource.content {|config| config.noblanks}
+    html.xpath('//p')
+  end
+
+  def annotated_paragraphs
+    nodes = paragraph_nodes
+
+    annotations.all.each_with_index do |annotation|
+      nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx| 
+        annotation.apply_to_node p_node, p_idx + annotation.start_p
+      end
+    end
+
+    nodes.map &:inner_html
+  end
+
   def title
     super || resource.title
   end

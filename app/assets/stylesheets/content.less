@@ -1,4 +1,5 @@
 @import 'content/dragging';
+@import 'content/annotations';
 
 main > .casebook .casebook-inner {
   .make-md-column(9.5);
@@ -313,5 +314,26 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       border-left: 8px solid @light-blue;
       padding-left: 16px;
     }
+  }
+}
+
+.case-text {
+  .p-handle {
+    .size(0px, 10px);
+
+    user-select: none;
+
+    float: left;
+    position: relative;
+    top: 10px;
+  }
+  .p-number {
+    .sans-serif(@regular, 12px, 12px);
+
+    position: absolute;
+    right: 45px;
+
+    color: @light-blue;
+    text-align: right;
   }
 }

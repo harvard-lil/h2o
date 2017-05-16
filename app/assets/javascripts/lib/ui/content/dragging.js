@@ -124,9 +124,7 @@ document.addEventListener('drop', e => {
   if (ordinals.from.join('.') === ordinals.to.join('.')) { return; } // no change
 
   patch(RAILS_ROUTES.casebook_section_path(ordinals.from.join('.')), {
-    data: {
-      content_section: { ordinals: ordinals.to },
-      reorder: true
-    }
-  });
+    content_section: { ordinals: ordinals.to },
+    reorder: true
+  }, { scroll: false });
 });

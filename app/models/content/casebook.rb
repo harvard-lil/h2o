@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: casebooks
+# Table name: content_nodes
 #
 #  id            :integer          not null, primary key
 #  title         :string
@@ -8,7 +8,7 @@
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  casebook_id       :integer
+#  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean

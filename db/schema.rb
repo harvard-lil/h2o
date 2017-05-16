@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170508204725) do
+ActiveRecord::Schema.define(version: 20170512023512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -204,6 +204,20 @@ ActiveRecord::Schema.define(version: 20170508204725) do
     t.string "hex", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "content_annotations", force: :cascade do |t|
+    t.bigint "resource_id", null: false
+    t.integer "start_p", null: false
+    t.integer "end_p"
+    t.integer "start_offset", null: false
+    t.integer "end_offset", null: false
+    t.string "kind", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_id", "start_p"], name: "index_content_annotations_on_resource_id_and_start_p"
+    t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end
 
   create_table "content_collaborators", force: :cascade do |t|
@@ -782,6 +796,7 @@ ActiveRecord::Schema.define(version: 20170508204725) do
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
+  add_foreign_key "content_annotations", "content_nodes", column: "resource_id"
   add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
   add_foreign_key "content_collaborators", "users"
   add_foreign_key "content_nodes", "content_nodes", column: "casebook_id"

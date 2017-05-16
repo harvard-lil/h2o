@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: casebooks
+# Table name: content_nodes
 #
 #  id            :integer          not null, primary key
 #  title         :string
@@ -8,7 +8,7 @@
 #  subtitle      :string
 #  headnote      :text
 #  public        :boolean          default(TRUE), not null
-#  casebook_id       :integer
+#  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
 #  is_alias      :boolean
@@ -24,8 +24,6 @@
 # - can be a copy of another Node
 # - has a title, subtitle, headnote, public status
 class Content::Node < ApplicationRecord
-  self.table_name = :content_nodes
-
   validates_format_of :slug, with: /\A[a-z\-]*\z/, if: :slug?
 
   belongs_to :copy_of, class_name: 'Content::Node', inverse_of: :copies, optional: true

@@ -49,4 +49,4 @@
             = t 'content.show.empty-casebook'
   - elsif @content.respond_to? :resource
     %section.resource
-      = render partial: 'content/resources/show', locals: {resource: @content.resource, editable: false}
+      = render partial: 'content/resources/show', locals: {resource: @content, editable: false}
