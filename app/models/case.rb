@@ -71,7 +71,6 @@ class Case < ApplicationRecord
 
   validates_presence_of   :short_name,      :content
   validates_length_of     :short_name,      :in => 1..150, :allow_blank => true, :allow_nil => true
-  validates_length_of     :full_name,       :in => 1..500,            :allow_blank => true, :allow_nil => true
   validates_length_of     :party_header,    :in => 1..(10.kilobytes), :allow_blank => true, :allow_nil => true
   validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes),  :allow_blank => true, :allow_nil => true
   validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
