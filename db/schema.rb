@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170410174236) do
+ActiveRecord::Schema.define(version: 20170522160848) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "btree_gin"
 
   create_table "annotations", id: :serial, force: :cascade do |t|
     t.integer "collage_id"
@@ -114,10 +115,41 @@ ActiveRecord::Schema.define(version: 20170410174236) do
     t.integer "user_id", default: 0, null: false
   end
 
+  create_table "casebook_collaborators", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "casebook_id"
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["casebook_id"], name: "index_casebook_collaborators_on_casebook_id"
+    t.index ["user_id", "casebook_id"], name: "index_casebook_collaborators_on_user_id_and_casebook_id", unique: true
+    t.index ["user_id"], name: "index_casebook_collaborators_on_user_id"
+  end
+
+  create_table "casebooks", force: :cascade do |t|
+    t.string "title"
+    t.string "slug"
+    t.string "subtitle"
+    t.text "headnote"
+    t.boolean "public", default: true, null: false
+    t.bigint "root_id"
+    t.integer "ordinals", default: [], null: false, array: true
+    t.bigint "copy_of_id"
+    t.boolean "is_alias"
+    t.string "material_type"
+    t.bigint "material_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["copy_of_id"], name: "index_casebooks_on_copy_of_id"
+    t.index ["material_type", "material_id"], name: "index_casebooks_on_material_type_and_material_id"
+    t.index ["root_id", "ordinals"], name: "index_casebooks_on_root_id_and_ordinals", using: :gin
+    t.index ["root_id"], name: "index_casebooks_on_root_id"
+  end
+
   create_table "cases", id: :serial, force: :cascade do |t|
     t.boolean "current_opinion", default: true
     t.string "short_name", limit: 150, null: false
-    t.string "full_name", limit: 500
+    t.string "full_name"
     t.date "decision_date"
     t.string "author", limit: 150
     t.integer "case_jurisdiction_id"
@@ -750,4 +782,8 @@ ActiveRecord::Schema.define(version: 20170410174236) do
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
+  add_foreign_key "casebook_collaborators", "casebooks"
+  add_foreign_key "casebook_collaborators", "users"
+  add_foreign_key "casebooks", "casebooks", column: "copy_of_id"
+  add_foreign_key "casebooks", "casebooks", column: "root_id"
 end
