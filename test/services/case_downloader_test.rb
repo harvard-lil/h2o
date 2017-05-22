@@ -1,4 +1,4 @@
-require 'application_system_test_case'
+require 'service_test_case'
 
 class CaseDownloaderTest < ServiceTestCase
   before do
