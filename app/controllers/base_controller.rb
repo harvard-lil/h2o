@@ -5,7 +5,12 @@ class BaseController < ApplicationController
   layout :layout_switch
 
   def landing
-    render 'base/index', layout: 'main'
+    if current_user
+      @user = current_user
+      render 'content/dashboard', layout: 'main'
+    else
+      render 'base/index', layout: 'main'
+    end
   end
 
   def check_authorization_h2o

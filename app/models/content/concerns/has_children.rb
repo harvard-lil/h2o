@@ -28,8 +28,10 @@ module Content::Concerns::HasChildren
       if element.is_a? Enumerable
         reflow_tree element, ord == 1 ? prefix : prefix + [ord-1]
       else
-        element.update_column :ordinals, prefix + [ord]
-        ord += 1
+        unless element.destroyed?
+          element.update_column :ordinals, prefix + [ord]
+          ord += 1
+        end
       end
     end
   end

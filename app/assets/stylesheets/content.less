@@ -1,12 +1,12 @@
 @import 'content/dragging';
 @import 'content/annotations';
 
-main > .casebook .casebook-inner {
+main > .casebook .casebook-inner, main > .dashboard .content-inner {
   .make-md-column(9.5);
   .make-md-column-offset(1.25);
 }
 
-main > section.casebook {
+main > section.casebook, main > section.dashboard {
   background-color: @light-gray;
   .top-strip {
     margin-top: 1px;
@@ -17,7 +17,7 @@ main > section.casebook {
   }
 }
 
-main > header.casebook {
+main > header.casebook, main > header.dashboard {
   margin-top: 20px;
   padding: 0 40px;
 
@@ -87,6 +87,9 @@ main > header.casebook {
     &.publish {
       background-image: asset-url('ui/casebook/publish.png');
     }
+    &.clone-casebook {
+      background-image: asset-url('ui/casebook/clone.png');
+    }
   }
 }
 
@@ -96,8 +99,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
 }
 
-.casebook-inner {
-  section.headnote, header.content, section.resource-search {
+.casebook-inner, .dashboard-inner {
+  section.headnote, header.content, header.inner, section.resource-search {
     padding: 20px 40px;
   }
   section.no-headnote {

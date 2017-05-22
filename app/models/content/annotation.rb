@@ -20,6 +20,17 @@ class Content::Annotation < ApplicationRecord
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
 
+  after_create :copy_resource_annotations, if: -> {resource.is_alias}
+
+  def copy_resource_annotations
+    return unless resource.is_alias
+
+    resource.update_attributes is_alias: false
+    resource.copy_of.annotations.map(&:dup).each do |annotation|
+      annotation.update_attributes resource: resource
+    end
+  end
+
   def apply_to_node p_node, p_idx
     if p_idx != start_p && p_idx != end_p
       # wrap entire p node in annotation
@@ -48,13 +59,13 @@ class Content::Annotation < ApplicationRecord
           if p_idx == end_p && node_offset + node.text.length >= end_offset
             # wrap within this node
             inner = annotate_html node.text[start_offset - node_offset...end_offset - node_offset]
-            node.replace "#{node.text[0...start_offset - node_offset]}<span class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}#{node.text[end_offset - node_offset..-1]}"
+            node.replace "#{node.text[0...start_offset - node_offset]}<span data-annotation-id='#{id}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}#{node.text[end_offset - node_offset..-1]}"
             break # done annotating
           else
             # wrap the rest of this node from start_offset and continue annotating
             annotating = true
             inner = annotate_html node.text[start_offset - node_offset..-1]
-            node.replace "#{node.text[0...start_offset - node_offset]}<span class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}"
+            node.replace "#{node.text[0...start_offset - node_offset]}<span data-annotation-id='#{id}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}"
           end
         else
           # don't start annotating yet

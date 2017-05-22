@@ -27,6 +27,7 @@ class Content::Node < ApplicationRecord
   validates_format_of :slug, with: /\A[a-z\-]*\z/, if: :slug?
 
   belongs_to :copy_of, class_name: 'Content::Node', inverse_of: :copies, optional: true
+  has_many :copies, class_name: 'Content::Node', inverse_of: :copy_of
 
   scope :owned, -> {where content_collaborators: {role: 'owner'}}
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}

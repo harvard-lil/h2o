@@ -15,6 +15,7 @@ en:
       unauthorized: That page is only available to casebook editors.
     actions:
       publish: Publish
+      clone-casebook: Clone
       add-section: Add Section
       add-resource: Add Resource
     tabs:

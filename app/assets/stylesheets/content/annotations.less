@@ -83,6 +83,13 @@
       border-radius: 3px;
       background-color: @light-gray;
       color: @light-blue;
+      &:empty::before {
+        content: 'Enter text to replace...';
+        color: @dark-gray;
+      }
+      &:empty:focus::before {
+        content: ' ';
+      }
     }
     &.elided, &.replaced {
       display: none;

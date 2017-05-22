@@ -26,7 +26,7 @@ class Content::Resource < Content::Child
   default_scope {where.not(resource_id: nil)}
 
   belongs_to :resource, polymorphic: true, inverse_of: :casebooks, required: true
-  has_many :annotations, class_name: 'Content::Annotation'
+  has_many :annotations, class_name: 'Content::Annotation', dependent: :destroy
 
   def can_delete?
     true
@@ -41,12 +41,20 @@ class Content::Resource < Content::Child
     nodes = paragraph_nodes
 
     annotations.all.each_with_index do |annotation|
-      nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx| 
+      nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
         annotation.apply_to_node p_node, p_idx + annotation.start_p
       end
     end
 
     nodes.map &:inner_html
+  end
+
+  def annotations
+    if is_alias?
+      copy_of.annotations
+    else
+      super
+    end
   end
 
   def title

@@ -62,6 +62,7 @@ H2o::Application.routes.draw do
     resources :casebooks, param: :casebook_id do
       member do
         resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
+        post :clone
       end
     end
 

@@ -4,6 +4,7 @@ import Axios from 'axios';
 export function request (url, method, data = {}, options = {scroll: true}) {
     let progressBar = new Turbolinks.ProgressBar;
     progressBar.show();
+
     let promise = Axios.post(url, data, {
       headers: {
         'X-HTTP-Method-Override': method,
@@ -13,6 +14,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
         progressBar.setValue(progress.loaded / (progress.total || 10000))
       }
     });
+
     promise.catch(e => {
       if (e.response) return e.response;
       throw e;
@@ -28,6 +30,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
     })
     .finally(_ => progressBar.hide())
     .done();
+
     return promise;
 }
 export var get = (url, data = {}, options = {}) => request(url, 'get', data, options)

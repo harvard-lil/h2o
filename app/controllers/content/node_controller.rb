@@ -7,8 +7,8 @@ class Content::NodeController < ApplicationController
   before_action :find_casebook, if: lambda {params[:casebook_id].present?}
   before_action :find_section, if: lambda {params[:id_ordinals].present?}
 
-  before_action :check_public, only: [:show, :index]
-  before_action :check_authorized, except: [:show, :index, :new]
+  before_action :check_public, only: [:show, :index, :clone]
+  before_action :check_authorized, except: [:show, :index, :new, :clone]
 
   before_action :set_page_title
   before_action :canonical_redirect, only: [:show, :index]
@@ -52,7 +52,7 @@ class Content::NodeController < ApplicationController
   end
 
   def find_casebook
-    @content = @casebook = Content::Casebook.find params[:casebook_id] || params[:casebook_id]
+    @content = @casebook = Content::Casebook.find params[:casebook_id]
   end
 
   def find_section

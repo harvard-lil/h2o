@@ -19,6 +19,12 @@ class Content::CasebooksController < Content::NodeController
     render 'content/show'
   end
 
+  def clone
+    @clone = current_user.casebooks.owned.where(copy_of: @casebook).first ||
+      @casebook.clone(owner: current_user)
+    redirect_to casebook_path(@clone)
+  end
+
   def update
     @casebook.update content_params
     return redirect_to casebook_section_index_path @casebook if @casebook.valid?

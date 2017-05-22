@@ -35,6 +35,25 @@ class Content::Casebook < Content::Node
   include Content::Concerns::HasCollaborators
   include Content::Concerns::HasChildren
 
+  after_create :clone_contents, if: -> {copy_of.present?}
+
+  def clone owner:
+    cloned_casebook = dup
+    cloned_casebook.update_attributes copy_of: self,
+      collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')],
+      public: false
+    cloned_casebook
+  end
+
+  def clone_contents
+    copy_of.contents.each do |node|
+      cloned_node = node.dup
+      cloned_node.update_attributes casebook_id: id,
+        copy_of: node,
+        is_alias: true
+    end
+  end
+
   def owner
     owners.first
   end

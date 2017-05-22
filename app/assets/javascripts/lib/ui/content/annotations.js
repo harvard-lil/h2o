@@ -2,11 +2,12 @@ import {html} from 'es6-string-html-template';
 import {post} from 'lib/turbolinks/requests';
 import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
+import delegate from 'delegate';
 
 let annotator = null;
 
 document.addEventListener('turbolinks:load', e => {
-  if (!document.querySelector('.case-text')) {
+  if (!document.querySelector('.resource-wrapper')) {
     annotator && annotator.destroy();
     annotator = null;
     return;
@@ -14,8 +15,29 @@ document.addEventListener('turbolinks:load', e => {
 
   pushAnnotationHandles();
   annotator = new Annotator();
+  makeReplacementsContenteditable();
 });
 
+delegate(document, '.annotate.replacement', 'focus', e => {
+  annotator.edit(e.target.previousElementSibling);
+});
+
+delegate(document, '.annotate.replacement', 'input', e => {
+  let text = e.target.innerText;
+
+  let selection = window.getSelection();
+  let cachedOffset = getCaretCharacterOffsetWithin(e.target);
+
+  e.target.innerText = text;
+
+  selection.removeAllRanges();
+  selection.addRange(cachedRange);
+});
+
+function makeReplacementsContenteditable() {
+  let replacements = document.querySelectorAll('.resource-wrapper .annotate.replacement');
+  for (let el of replacements) { el.contentEditable = true; }
+}
 
 document.addEventListener('selectionchange', e => {
   if (!annotator) { return; }
@@ -36,7 +58,7 @@ window.addEventListener('scroll', e => {
 });
 
 class Annotator extends Component {
-  constructor (marker) {
+  constructor () {
     super({
       id: 'annotator',
       events: {
@@ -44,8 +66,6 @@ class Annotator extends Component {
       }
     });
 
-
-    this.marker = new SelectionMarker();
     this.updateScroll = throttle(this.render, 100, {leading: true, trailing: true});
 
     document.querySelector('.resource-wrapper').appendChild(this.el);
@@ -72,9 +92,13 @@ class Annotator extends Component {
   calcTopOffset() {
     let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
     let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-    return Math.min(Math.max(this.marker.offsets.start,
+
+    let target = this.range || this.handle;
+    this.targetRect = target ? target.getBoundingClientRect() : this.targetRect || {top: 0, bottom: 0};
+
+    return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
       viewportTop + 20),
-      this.marker.offsets.end);
+      this.targetRect.bottom - wrapperRect.top);
   }
 
   activate (range) {
@@ -83,13 +107,20 @@ class Annotator extends Component {
     this.offsets = offsetsForRange(range);
     if (!this.offsets) { return this.deactivate(); }
 
-    this.marker.markRange(range);
+    this.range = range;
 
     this.render();
   }
 
+  edit (handle) {
+    this.active = true;
+    this.handle = handle;
+  }
+
   deactivate () {
     this.active = false;
+    this.handle = null;
+    this.range = null;
     this.updateScroll.cancel();
 
     this.render();
@@ -112,40 +143,6 @@ class Annotator extends Component {
       }
     }, { scroll: false })
     .then( _ => window.getSelection().empty());
-  }
-}
-
-class SelectionMarker extends Component {
-  constructor () {
-    super({});
-
-    this.startEl = this.findOrCreateElement('annotation-marker-start');
-    this.endEl = this.findOrCreateElement('annotation-marker-end');
-    this.offsets = {start: 0, end: 0};
-  }
-  markRange (range) {
-    // Rejoin split text nodes left at markers
-    let parents = [this.startEl.parentElement, this.endEl.parentElement];
-    this.releaseElements();
-    for (let parent of parents) { parent && parent.normalize(); }
-
-    range.insertNode(this.startEl);
-
-    let endRange = range.cloneRange();
-    endRange.collapse(false);
-    endRange.insertNode(this.endEl);
-
-    this.calcOffsets();
-  }
-  releaseElements () {
-    this.startEl.parentElement && this.startEl.parentElement.removeChild(this.startEl);
-    this.endEl.parentElement && this.endEl.parentElement.removeChild(this.endEl);
-  }
-  calcOffsets () {
-    this.offsets = {
-      start: this.startEl.offsetTop,
-      end: this.endEl.offsetTop
-    };
   }
 }
 
@@ -195,6 +192,31 @@ function closestP(node) {
   } else {
     return node.closest('p');
   }
+}
+
+
+function getCaretCharacterOffsetWithin(element) {
+    var caretOffset = 0;
+    var doc = element.ownerDocument || element.document;
+    var win = doc.defaultView || doc.parentWindow;
+    var sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            var range = win.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            caretOffset = preCaretRange.toString().length;
+        }
+    } else if ( (sel = doc.selection) && sel.type != "Control") {
+        var textRange = sel.createRange();
+        var preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        caretOffset = preCaretTextRange.text.length;
+    }
+    return caretOffset;
 }
 
 // Find the paragraph offset for an offset relative to the given text node
