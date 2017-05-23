@@ -12,8 +12,8 @@ class CaseDownloaderTest < ServiceTestCase
     case_downloader = CaseDownloader.perform(@current_user, case_metadata)
     new_number_of_cases = Case.count
     
-    refute_equal new_number_of_cases, previous_number_of_cases
-    assert_equal case_downloader, true
+    refute_equal previous_number_of_cases, new_number_of_cases
+    assert_equal true, case_downloader
   end
 
   scenario 'Returns false if creating a case fails and sends a notifier mailer' do
@@ -24,8 +24,8 @@ class CaseDownloaderTest < ServiceTestCase
     new_number_of_cases = Case.count
     mail = ActionMailer::Base.deliveries.last
     
-    assert_equal new_number_of_cases, previous_number_of_cases
-    assert_equal case_downloader, false
+    assert_equal previous_number_of_cases, new_number_of_cases
+    assert_equal false, case_downloader
     assert_equal H2o::Application.config.admin_email, mail['to'].to_s
   end
 end
