@@ -28,3 +28,4 @@ public/svg_icons/
 solr/data/
 solr/pids/
 tmp/
+guard-sunspot/
