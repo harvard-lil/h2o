@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      <%= "H2O | #{@page_title || controller_name}" %>
+    </title>
+    <%= render 'layouts/meta_tags' %>
+    <%= render 'layouts/favicon' %>
+    <%= stylesheet_link_tag 'main', media: 'all' %>
+  </head>
+  <body class="view-<%= controller_name.parameterize %>-<%= action_name.parameterize %>">
+    <div class="overlay"></div>
+    <% if content_for? :banner %>
+      <%= yield(:banner) %>
+    <% end %>
+    <header>
+      <%= render 'layouts/header' %>
+    </header>
+    <main>
+      <section id="flash" style="height: <%= flash.keys.length * 40 %>px">
+        <div class="content">
+          <% flash.each do |kind, message| %>
+            <div class="flash-<%= kind %> flash-message">
+              <%= message %>
+            </div>
+          <% end %>
+        </div>
+      </section>
+      <% if content_for? :nested_layout %>
+        <%= yield :nested_layout %>
+      <% else %>
+        <%= yield %>
+      <% end %>
+    </main>
+    <footer>
+      <%= render 'layouts/footer' %>
+    </footer>
+    <%= javascript_include_tag :main, data: {'turbolinks-eval': "false"} %>
+    <%= render 'layouts/analytics' %>
+  </body>
+</html>
