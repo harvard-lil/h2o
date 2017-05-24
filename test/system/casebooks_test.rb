@@ -71,5 +71,14 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content "2.1 #{resource.title}"
     end
 
+    scenario 'annotating a casebook', js: true do
+      casebook = content_nodes(:public_casebook)
+      resource = content_nodes(:'public_casebook_section_1.1')
+
+      visit casebook_section_path casebook, resource
+      # binding.pry
+    end
+
   end
+
 end
