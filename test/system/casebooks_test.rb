@@ -73,10 +73,32 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     scenario 'annotating a casebook', js: true do
       casebook = content_nodes(:public_casebook)
-      resource = content_nodes(:'public_casebook_section_1.1')
+      resource = content_nodes(:'public_casebook_section_1.2')
 
       visit casebook_section_path casebook, resource
-      # binding.pry
+
+      select_text 'content to highlight'
+      find('a[data-annotate-action=highlight]').click
+
+      select_text 'content to highlight'
+      find('a[data-annotate-action=highlight]').click # ?
+
+      assert_selector('.annotate.highlighted')
+      find('.annotate.highlighted').assert_text 'content to highlight'
+
+      select_text 'content to elide'
+      find('a[data-annotate-action=elide]').click
+
+      select_text 'content to elide'
+      find('a[data-annotate-action=elide]').click # ?
+
+      assert_no_content 'content to elide'
+      assert_content 'elided: Annotate'
+
+      visit casebook_section_path casebook, resource
+
+      find('.annotate.highlighted').assert_text 'content to highlight'
+      assert_content 'elided: Annotate'
     end
 
   end

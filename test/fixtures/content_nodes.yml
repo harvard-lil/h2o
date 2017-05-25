@@ -21,6 +21,14 @@ public_casebook_section_1.1:
   resource_type: Case
   ordinals: [1,1]
 
+public_casebook_section_1.2:
+  casebook: public_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1,2]
+
 public_casebook_section_2:
   casebook: public_casebook
   title: Section Two

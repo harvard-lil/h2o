@@ -1,0 +1,15 @@
+
+%header.dashboard
+  .content
+    .content-inner
+      = render 'content/search'
+
+%section.dashboard
+  .content
+    %h3= t 'content.dashboard.headers.updates'
+  .content
+    %h3= t 'content.dashboard.headers.casebooks'
+  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.editable-casebooks')}
+  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.saved-cases')}
+  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks')}
+  -# -# %script{type: 'text/template'}= render partial: 'content/dashboard/content_browser'
