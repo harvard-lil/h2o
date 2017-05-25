@@ -3,19 +3,19 @@ class AutoClone < ActiveRecord::Migration
     conxn = ActiveRecord::Base.connection
     conxn.execute "UPDATE playlist_items SET name = REGEXP_REPLACE(name, '\s+', '') WHERe name LIKE ' %'"
 
-    [Media, Default, TextBlock, Playlist, Collage].each do |klass|
+    [Media, Default, TextBlock, Collage].each do |klass|
       table_name = klass == Media ? "medias" : klass.to_s.tableize
       conxn.execute "UPDATE #{table_name} SET name = REGEXP_REPLACE(name, '\s+', '') WHERE name LIKE ' %'"
       results = conxn.select_rows("SELECT pi.id FROM playlist_items pi
-        JOIN #{table_name} m ON m.id = pi.actual_object_id 
-        WHERE pi.actual_object_type = '#{klass.to_s}' 
-          AND (pi.name != m.name OR  
+        JOIN #{table_name} m ON m.id = pi.actual_object_id
+        WHERE pi.actual_object_type = '#{klass.to_s}'
+          AND (pi.name != m.name OR
                (COALESCE(pi.description, '') != '' AND COALESCE(pi.description, '') != m.description)
               )")
       if klass == Collage
         results = conxn.select_rows("SELECT pi.id FROM playlist_items pi
-          JOIN #{table_name} m ON m.id = pi.actual_object_id 
-          WHERE pi.actual_object_type = '#{klass.to_s}' 
+          JOIN #{table_name} m ON m.id = pi.actual_object_id
+          WHERE pi.actual_object_type = '#{klass.to_s}'
             AND (pi.name != m.name OR pi.description != m.description)")
       end
       PlaylistItem.where(id: results.flatten).find_in_batches do |set|

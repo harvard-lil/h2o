@@ -9,7 +9,3 @@ en:
         menu: "Created / Deleted Stats"
         breadcrumb: "Created / Deleted Stats"
         title: "Created / Deleted Stats"
-      delete_playlist_nested:
-        menu: "Delete Playlist and Nested Elements"
-        breadcrumb: "Delete Playlist and Nested Elements"
-        title: "Delete Playlist and Nested Elements"

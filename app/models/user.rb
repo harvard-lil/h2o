@@ -67,7 +67,6 @@ class User < ApplicationRecord
   has_and_belongs_to_many :institutions
   has_many :responses, :dependent => :destroy
 
-  has_many :collages, :dependent => :destroy  #must precede all annotated item associations
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
@@ -128,7 +127,7 @@ class User < ApplicationRecord
   }
 
   def user_responses
-    content = self.collages.includes(:responses) + self.text_blocks.includes(:responses)
+    content = self.text_blocks.includes(:responses)
     content.map(&:responses).flatten
   end
 
@@ -176,7 +175,7 @@ class User < ApplicationRecord
   end
 
   def all_items
-    [self.playlists + self.cases + self.collages + self.text_blocks].flatten
+    [self.cases + self.text_blocks].flatten
   end
 
   def has_role?(role_name)
@@ -225,16 +224,9 @@ class User < ApplicationRecord
     self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
   end
 
-  def content_errors
-    content = self.collages.includes(:annotations) + self.text_blocks.includes(:annotations)
-    content.map {|item|
-      item.annotations.select { |a| a.error || a.feedback }
-    }.flatten
-  end
-
   def bookmarks
     if self.bookmark_id
-      PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
+      # PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
     else
       []
     end

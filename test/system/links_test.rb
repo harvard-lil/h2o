@@ -35,7 +35,7 @@ class LinkSystemTest < ApplicationSystemTestCase
     scenario 'creating a link', solr: true do
       visit search_all_path
       click_link 'CREATE'
-      click_link 'Link'
+      find('a[href="/defaults/new"]').click
 
       fill_in 'Name', with: 'Name of a new link'
       fill_in 'Url', with: 'https://newlink.com/link'

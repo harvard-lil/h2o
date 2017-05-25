@@ -14,11 +14,6 @@ class UsersController < ApplicationController
       :header => "Case Requests",
       :partial => "case_request"
     },
-    :content_errors => {
-      :display => false,
-      :header => "Feedback",
-      :partial => "content_error"
-    },
     :user_responses => {
       :display => false,
       :header => "User Responses",
@@ -95,18 +90,10 @@ class UsersController < ApplicationController
       secondary_filtering = false
       bookmarks_id = @user.present? ? @user.bookmark_id : 0
 
-      models = [Playlist, Collage, Case, TextBlock, Default]
+      models = [Case, TextBlock, Default]
 
       if params.has_key?(:klass)
-        if params[:klass] == 'Primary'
-          models = [Playlist]
-          primary_filtering = true
-        elsif params[:klass] == 'Secondary'
-          models = [Playlist]
-          secondary_filtering = true
-        else
-          models = [params[:klass].singularize.classify.constantize]
-        end
+        models = [params[:klass].singularize.classify.constantize]
       end
 
       @collection = Sunspot.new_search(models)
@@ -208,7 +195,7 @@ class UsersController < ApplicationController
       return
     end
 
-    playlist_item_to_delete = PlaylistItem.where(playlist_id: current_user.bookmark_id, actual_object_type: params[:type].classify, actual_object_id: params[:id].to_i).first
+    # playlist_item_to_delete = PlaylistItem.where(playlist_id: current_user.bookmark_id, actual_object_type: params[:type].classify, actual_object_id: params[:id].to_i).first
     if playlist_item_to_delete && playlist_item_to_delete.destroy
       render :json => { :success => true }
     else
@@ -217,27 +204,15 @@ class UsersController < ApplicationController
   end
 
   def bookmark_item
-    playlist = current_user.bookmark_id.present? ? Playlist.where(id: current_user.bookmark_id).first : nil
+    # playlist = current_user.bookmark_id.present? ? Playlist.where(id: current_user.bookmark_id).first : nil
     if playlist.nil?
-      playlist = Playlist.new({ :name => "Your Bookmarks", :public => false, :user_id => current_user.id })
-      playlist.valid_recaptcha = true
-      playlist.save
-      current_user.update_attribute(:bookmark_id, playlist.id)
+      # playlist = Playlist.new({ :name => "Your Bookmarks", :public => false, :user_id => current_user.id })
     end
 
     begin
-      klass = params[:type].classify.constantize
-
-      if playlist.contains_item?("#{klass.to_s}#{params[:id]}")
+      if true
         render :json => { :already_bookmarked => true, :user_id => current_user.id }
       else
-        actual_object = klass.where(id: params[:id]).first
-        playlist_item = PlaylistItem.new(:playlist_id => playlist.id,
-          :actual_object_type => actual_object.class.to_s,
-          :actual_object_id => actual_object.id,
-          :position => playlist.playlist_items.count)
-        playlist_item.save
-
         render :json => { :already_bookmarked => false, :user_id => current_user.id }
       end
     rescue Exception => e
@@ -282,11 +257,6 @@ class UsersController < ApplicationController
         :header => "Case Requests",
         :partial => "case_request"
       },
-      :content_errors => {
-        :display => false,
-        :header => "Feedback",
-        :partial => "content_error"
-      },
       :user_responses => {
         :display => false,
         :header => "User Responses",
@@ -310,7 +280,6 @@ class UsersController < ApplicationController
       @paginated_bookmarks = @user.bookmarks.paginate(:page => params[:page], :per_page => 10)
 
       @types[:pending_cases][:display] = true
-      @types[:content_errors][:display] = true
       @types[:user_responses][:display] = true
 
       if @user.has_role?(:case_admin)

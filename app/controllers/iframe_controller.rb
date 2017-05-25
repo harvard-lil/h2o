@@ -22,18 +22,10 @@ class IframeController < BaseController
     resource_type = params.fetch(:type)
     @single_resource =
       case resource_type
-      when 'playlists', 'collages', 'text_blocks', 'cases'
+      when 'text_blocks', 'cases'
         resource_type.camelize.singularize.constantize.find(params.fetch(:id))
       else
         head :bad_request
       end
-    case @single_resource
-    when Playlist
-      nested_ps = Playlist.includes(:playlist_items).where(id: @single_resource.all_actual_object_ids[:Playlist])
-      @nested_playlists = nested_ps.inject({}) { |h, p| h["Playlist-#{p.id}"] = p; h }
-    when Collage
-      @layer_data = @single_resource.layer_data
-      @editability_path = access_level_collage_path(@single_resource)
-    end
   end
 end

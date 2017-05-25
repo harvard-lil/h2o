@@ -20,13 +20,6 @@ class SearchSystemTest < ApplicationSystemTestCase
 
       within '#advanced-search-content' do
         click_link 'Clear'
-        click_link 'Annotated Item'
-      end
-      assert_content "Waters v. Coker"
-      assert_no_content 'Private Collage 1'
-
-      within '#advanced-search-content' do
-        click_link 'Clear'
         click_link 'Link'
       end
       assert_content "Long Prison Term Is Less So Thanks to Regrets by a Judge"

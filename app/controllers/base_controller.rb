@@ -48,7 +48,7 @@ class BaseController < ApplicationController
       end
       if item.present? && item.is_a?(User)
         @single_resource = item
-      elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
+      elsif item.present? && ((item.respond_to?(:user) && item.user.present?))
         @single_resource = item
         instance_variable_set "@#{model.to_s.tableize.singularize}", item
         @page_title = item.name if item.respond_to?(:name)
@@ -69,7 +69,7 @@ class BaseController < ApplicationController
 
     params[:page] ||= 1
 
-    obj = model.nil? ? Sunspot.new_search(Collage, Case, TextBlock, Default) : Sunspot.new_search(model)
+    obj = model.nil? ? Sunspot.new_search(Case, TextBlock, Default) : Sunspot.new_search(model)
 
     obj.build do
       if params[:keywords].present?
@@ -131,7 +131,7 @@ class BaseController < ApplicationController
 
     set_sort_params
     set_sort_lists
-    @collection = build_search([Collage, TextBlock, Case, Default], params)
+    @collection = build_search([TextBlock, Case, Default], params)
 
     if request.xhr?
       render :partial => 'shared/generic_block'

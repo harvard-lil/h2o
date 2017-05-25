@@ -181,7 +181,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
     scenario 'editing a text', js: true do
       sign_in users(:verified_professor)
-      visit text_block_path text_blocks(:collaged_text)
+      visit text_block_path text_blocks(:public_text_1)
 
       click_link 'EDIT TEXT INFORMATION'
 

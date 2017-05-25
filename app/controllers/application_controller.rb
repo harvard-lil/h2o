@@ -115,8 +115,6 @@ class ApplicationController < ActionController::Base
     elsif model == TextBlock
       @label = "Texts"
       @page_title = "Texts | H2O Classroom Tools"
-    elsif model == Collage
-      @page_title = "Annotated Items | H2O Classroom Tools"
     end
     @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
 
@@ -140,15 +138,7 @@ class ApplicationController < ActionController::Base
 
     items.build do
       if params.has_key?(:klass)
-        if params[:klass] == "Primary"
-          with :klass, "Playlist"
-          with :primary, true
-        elsif params[:klass] == "Secondary"
-          with :klass, "Playlist"
-          with :secondary, true
-        else
-          with :klass, params[:klass]
-        end
+        with :klass, params[:klass]
       end
       if params.has_key?(:user_ids)
         user_ids = params[:user_ids].split(',')
@@ -169,17 +159,13 @@ class ApplicationController < ActionController::Base
         with :media_type, params[:media_type]
       end
 
-      if model == Playlist && current_user
-        any_of do
-          with :public, true
-        end
-      else
+      # if model == Playlist && current_user
+      #   any_of do
+      #     with :public, true
+      #   end
+      # else
         with :public, true
-      end
-
-      if [Collage,Playlist].include?(model) && params.has_key?(:featured)
-        with :featured, true
-      end
+      # end
 
       facet(:user_id)
       facet(:klass)
@@ -187,10 +173,7 @@ class ApplicationController < ActionController::Base
         facet(:primary)
         facet(:secondary)
       end
-      if model == Collage
-        facet(:annotype)
-      end
-
+      
       paginate :page => params[:page], :per_page => params[:per_page]
       order_by params[:sort].to_sym, params[:order].to_sym
     end
@@ -214,8 +197,7 @@ class ApplicationController < ActionController::Base
     @queued_users = []
     @klass_label_map = {
       'Default' => 'Link',
-      'TextBlock' => 'Text',
-      'Collage' => 'Annotated Item'
+      'TextBlock' => 'Text'
     }
 
     if collection.results.total_entries == 0
@@ -260,9 +242,6 @@ class ApplicationController < ActionController::Base
     b = collection.facet(:secondary).rows.detect { |r| r.value }
     @secondary_playlists = b.count if b.present?
 
-    if params.has_key?(:klass) && params[:klass] == 'PrimaryPlaylist'
-      @klass_facet_display.delete_if { |a| a[:value] == 'Playlist' }
-    end
     if params.has_key?(:user_ids)
       @user_facet_display.each { |b| b[:class] = "#{b[:class]} active" }
     end

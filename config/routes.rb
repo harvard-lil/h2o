@@ -28,7 +28,6 @@ H2o::Application.routes.draw do
 
   resources :users do
     member do
-      get 'playlists'
       # post 'disconnect_dropbox'
       # get 'verification_request'
       # get 'verify/:token' => 'users#verify', as: :verify
@@ -39,7 +38,6 @@ H2o::Application.routes.draw do
   end
   resources :text_blocks do
     resources :responses, :only => [:create, :destroy]
-    resources :annotations
     member do
       get 'export'
       post 'export_as'
@@ -71,33 +69,6 @@ H2o::Application.routes.draw do
     end
   end
 
-  resources :playlist_items do
-    member do
-      get 'delete'
-    end
-    collection do
-      get 'block'
-    end
-  end
-  resources :collages do
-    resources :responses, :only => [:create, :destroy]
-    resources :annotations
-    member do
-      get 'access_level'
-      get 'delete_inherited_annotations'
-      get 'export_unique'
-      post 'export_unique'
-      get 'export'
-      post 'export_as'
-      post 'save_readable_state'
-      post 'copy'
-      get 'collage_list'
-    end
-    collection do
-      get 'embedded_pager'
-      get 'collage_lookup'
-    end
-  end
   resources :cases do
     member do
       get 'access_level'

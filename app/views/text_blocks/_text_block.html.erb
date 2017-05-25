@@ -9,7 +9,6 @@
 <% unless iframe? %>
 <aside id="singleitem_toolbar">
   <% if current_user -%>
-  <%= link_to raw('<span class="icon icon-tocollage-large"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => text_block), :class => 'collage-this new-action tooltip', :title => "Clone and Annotate" %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => text_block.id, "data-type" => "text_block", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Text</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{text_block.name}", "data-type" => "text_block", "data-itemid" => text_block.id %>
   <% end -%>
@@ -71,13 +70,11 @@
 var can_edit = true;
 var report_options = <%= { report: [text_block.enable_feedback, text_block.enable_discussions, text_block.enable_responses].any?, feedback: text_block.enable_feedback, discuss: text_block.enable_discussions, respond: text_block.enable_responses }.to_json.html_safe %>;
 var raw_annotations = {
-  "single": <%= raw text_block.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution); h }.to_json %>
 };
 <% elsif current_user -%>
 var can_edit = false;
 var report_options = <%= { report: [text_block.enable_feedback, text_block.enable_discussions, text_block.enable_responses].any?, feedback: text_block.enable_feedback, discuss: text_block.enable_discussions, respond: text_block.enable_responses }.to_json.html_safe %>;
 var raw_annotations = {
-  "single": <%= raw text_block.annotations.inject({}) { |h, a| h["a#{a.id}"] = a.to_json(include: :layers, methods: :user_attribution) if current_user.id == a.user_id; h }.to_json %>
 };
 <% else -%>
 var raw_annotations = {};

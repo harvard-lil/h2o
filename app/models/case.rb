@@ -44,9 +44,6 @@ class Case < ApplicationRecord
   belongs_to :case_request, optional: true
   belongs_to :case_jurisdiction, optional: true
   belongs_to :user
-  has_many :annotations, :through => :collages
-  has_many :collages, :as => :annotatable, :dependent => :destroy
-  has_many :playlist_items, :as => :actual_object
 
   accepts_nested_attributes_for :case_citations,
     :allow_destroy => true,
