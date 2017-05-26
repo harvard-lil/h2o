@@ -25,6 +25,7 @@ end
 guard :rails, port: 8000, host: '0.0.0.0', server: :puma do
   watch('Gemfile.lock')
   watch(%r{^(config|lib)/.*})
+  ignore %r{^lib/locales/(.*)\.yml}
 end
 
 # Rerun tests whenever test or app code changes.

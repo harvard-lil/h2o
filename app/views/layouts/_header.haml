@@ -1,0 +1,29 @@
+%nav
+  .content
+    .brand
+      %a.wrapper.logo{href: root_path}= t 'header.brand'
+    .links
+      - if current_user.present?
+        = link_to t('header.links.create-casebook'), :new_casebook, class: 'create-casebook'
+        = link_to t('header.links.browse'), :root
+        = link_to t('header.links.help'), :root
+      - else
+        = link_to t('header.links.browse'), :root
+        = link_to t('header.links.about'), :root
+    .user
+      - if current_user.present?
+        .current-user
+          - if current_user.verified?
+            .verified= t 'header.user.verified'
+          - else
+            .unverified= t 'header.user.unverified'
+          %a.wrapper{href: user_path(current_user)}
+            .name= current_user.display_name
+            .portrait= image_tag current_user.portrait_url
+          .user-links
+            %a.user-link{href: user_path(current_user)}= t 'header.user.view-profile'
+            = button_to t('header.user.sign-out'), user_session_path(current_user_session), method: 'delete', class: 'user-link'
+
+      - else
+        %a.sign-up{href: new_user_path}= t 'header.links.sign-up'
+        %a.sign-in{href: new_user_session_path}= t 'header.links.sign-in'

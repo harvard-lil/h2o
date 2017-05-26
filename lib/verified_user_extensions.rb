@@ -11,7 +11,7 @@ module VerifiedUserExtensions
     if defined?(Rails::Console)
       logger.warn 'WARNING: Skipping user verification because Rails::Console is defined' and return
     end
-    if !(current_user && current_user.verified) && !(self.class == Playlist && self.name == "Your Bookmarks")
+    if !(current_user && current_user.verified)
       self.errors.add(:base, "Your account must be verified to contribute to H2O.")
     end
   end

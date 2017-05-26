@@ -1,7 +1,0 @@
-<% if @objects -%>
-<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
-  <% @display_objects.each do |hit| -%>
-  <a href="#" class="add-collage-button" data-id="<%= hit.id %>"><%= hit.display_name %></a>
-  <% end %>
-<%= will_paginate @objects, :previous_label => 'Previous', :next_label => 'Next' %>
-<% end %>

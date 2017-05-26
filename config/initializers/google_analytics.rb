@@ -1,5 +1,5 @@
 if Rails.env == 'production'
-  GOOGLE_ANALYTICS_CODE = 'UA-223559-15'
+  GOOGLE_ANALYTICS_CODE = nil
 elsif Rails.env == 'test'
     GOOGLE_ANALYTICS_CODE = nil
 else

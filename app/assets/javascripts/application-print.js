@@ -10,14 +10,13 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require bind_shim
+//= require old_tree/bind_shim
 //= require jquery
 //= require jquery-ui
-//= require fonts
-//= require jquery.rule
-//= require jquery.xcolor
-//= require jquery.cookie
-//= require annotator
-//= require annotator.sh2o
+//= require old_tree/fonts
+//= require old_tree/jquery.rule
+//= require old_tree/jquery.xcolor
+//= require old_tree/jquery.cookie
+//= require old_tree/annotator
+//= require old_tree/annotator.sh2o
 // do not require export here. It will break under wkhtmltopdf.
-

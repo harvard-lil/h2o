@@ -1,14 +1,12 @@
 class ApplicationController < ActionController::Base
   include UserPreferenceExtensions
   # Important that check_auth happens after load_single_resource
-  before_action :redirect_bad_format, :load_single_resource, :check_authorization_h2o,
-                :fix_cookies, :set_time_zone, :set_page_cache_indicator
+  before_action :set_time_zone, :set_page_cache_indicator, :redirect_bad_format
   before_action :set_sort_params, :only => [:index]
   before_action :set_sort_lists, :only => [:index]
+  after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
 
   after_action :allow_iframe
-
-  layout :layout_switch
 
   protect_from_forgery with: :exception
 
@@ -55,18 +53,6 @@ class ApplicationController < ActionController::Base
 
   def action_check
     params.fetch(:action).to_sym
-  end
-
-  def check_authorization_h2o
-    return true if params[:controller] == "rails_admin/main"
-
-    if @single_resource.present?
-      authorize! action_check, @single_resource
-    else
-      authorize! action_check, params[:controller].to_sym
-    end
-
-    return true
   end
 
   def redirect_bad_format
@@ -162,8 +148,6 @@ class ApplicationController < ActionController::Base
     elsif model == TextBlock
       @label = "Texts"
       @page_title = "Texts | H2O Classroom Tools"
-    elsif model == Collage
-      @page_title = "Annotated Items | H2O Classroom Tools"
     end
     @view = model == Case ? 'case_obj' : "#{model.to_s.downcase}"
 
@@ -187,15 +171,7 @@ class ApplicationController < ActionController::Base
 
     items.build do
       if params.has_key?(:klass)
-        if params[:klass] == "Primary"
-          with :klass, "Playlist"
-          with :primary, true
-        elsif params[:klass] == "Secondary"
-          with :klass, "Playlist"
-          with :secondary, true
-        else
-          with :klass, params[:klass]
-        end
+        with :klass, params[:klass]
       end
       if params.has_key?(:user_ids)
         user_ids = params[:user_ids].split(',')
@@ -216,26 +192,19 @@ class ApplicationController < ActionController::Base
         with :media_type, params[:media_type]
       end
 
-      if model == Playlist && current_user
-        any_of do
-          with :public, true
-        end
-      else
+      # if model == Playlist && current_user
+      #   any_of do
+      #     with :public, true
+      #   end
+      # else
         with :public, true
-      end
-
-      if [Collage,Playlist].include?(model) && params.has_key?(:featured)
-        with :featured, true
-      end
+      # end
 
       facet(:user_id)
       facet(:klass)
       if model != User
         facet(:primary)
         facet(:secondary)
-      end
-      if model == Collage
-        facet(:annotype)
       end
 
       paginate :page => params[:page], :per_page => params[:per_page]
@@ -261,8 +230,7 @@ class ApplicationController < ActionController::Base
     @queued_users = []
     @klass_label_map = {
       'Default' => 'Link',
-      'TextBlock' => 'Text',
-      'Collage' => 'Annotated Item'
+      'TextBlock' => 'Text'
     }
 
     if collection.results.total_entries == 0
@@ -307,9 +275,6 @@ class ApplicationController < ActionController::Base
     b = collection.facet(:secondary).rows.detect { |r| r.value }
     @secondary_playlists = b.count if b.present?
 
-    if params.has_key?(:klass) && params[:klass] == 'PrimaryPlaylist'
-      @klass_facet_display.delete_if { |a| a[:value] == 'Playlist' }
-    end
     if params.has_key?(:user_ids)
       @user_facet_display.each { |b| b[:class] = "#{b[:class]} active" }
     end

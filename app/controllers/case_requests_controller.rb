@@ -1,4 +1,4 @@
-class CaseRequestsController < ApplicationController
+class CaseRequestsController < BaseController
   protect_from_forgery :except => [:destroy]
 
   def new

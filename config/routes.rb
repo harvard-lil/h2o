@@ -5,7 +5,7 @@ H2o::Application.routes.draw do
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
 
-  root 'base#index'
+  root 'base#landing'
 
   resources :bulk_uploads, only: [:show, :new, :create]
   resources :case_jurisdictions, only: [:new, :create]
@@ -29,7 +29,6 @@ H2o::Application.routes.draw do
 
   resources :users do
     member do
-      get 'playlists'
       # post 'disconnect_dropbox'
       # get 'verification_request'
       # get 'verify/:token' => 'users#verify', as: :verify
@@ -40,7 +39,6 @@ H2o::Application.routes.draw do
   end
   resources :text_blocks do
     resources :responses, :only => [:create, :destroy]
-    resources :annotations
     member do
       get 'export'
       post 'export_as'
@@ -57,53 +55,21 @@ H2o::Application.routes.draw do
       get 'embedded_pager'
     end
   end
-  resources :playlists do
-    member do
-      post 'copy'
-      get 'access_level'
-      get 'export'
-      get 'export_all' => 'playlists#export', load_all: '1'
-      post 'export_as'
-      post 'private_notes'
-      post 'public_notes'
-      post 'toggle_nested_private'
-      post 'position_update'
+
+
+  scope module: 'content' do
+    resources :casebooks, param: :casebook_id do
+      member do
+        resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
+        post :clone
+      end
     end
-    collection do
-      get 'embedded_pager'
-      get 'playlist_lookup'
-      get 'import'
-      post 'submit_import'
-      get 'empty'
+
+    resources :resources, only: [] do
+      resources :annotations, only: [:create]
     end
   end
-  resources :playlist_items do
-    member do
-      get 'delete'
-    end
-    collection do
-      get 'block'
-    end
-  end
-  resources :collages do
-    resources :responses, :only => [:create, :destroy]
-    resources :annotations
-    member do
-      get 'access_level'
-      get 'delete_inherited_annotations'
-      get 'export_unique'
-      post 'export_unique'
-      get 'export'
-      post 'export_as'
-      post 'save_readable_state'
-      post 'copy'
-      get 'collage_list'
-    end
-    collection do
-      get 'embedded_pager'
-      get 'collage_lookup'
-    end
-  end
+
   resources :cases do
     member do
       get 'access_level'

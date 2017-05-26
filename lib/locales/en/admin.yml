@@ -1,0 +1,11 @@
+en:
+  admin:
+    actions:
+      edit_in_app:
+        menu: "Edit in H2O"
+      view_in_app:
+        menu: "View in H2O"
+      aggregate_items:
+        menu: "Created / Deleted Stats"
+        breadcrumb: "Created / Deleted Stats"
+        title: "Created / Deleted Stats"

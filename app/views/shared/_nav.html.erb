@@ -16,8 +16,6 @@
 			<div class="clear"></div>
 		</nav>
 		<nav id="object_types" class="light_hover">
-			<%= link_to raw('<span class="icon icon-playlist">Playlists</span>'), playlists_path, { :title => "Playlists", :class => "nav-tooltip" } %>
-			<%= link_to raw('<span class="icon icon-collage">Annotated Items</span>'), collages_path, { :title => "Annotated Items", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-case">Cases</span>'), cases_path, { :title => "Cases", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-textblock">Texts</span>'), text_blocks_path, { :title => "Texts", :class => "nav-tooltip" } %>
 			<%= link_to raw('<span class="icon icon-default">Links</span>'), defaults_path, { :title => "Links", :class => "nav-tooltip" } %>
@@ -62,7 +60,6 @@
 		</form>
 		<div class="popup" id="create_all_popup">
 			<div class="left">
-			<%= link_to raw('<span class="icon icon-playlist"></span>Playlist'), new_playlist_path, :class => "new-action" %>
 			<%= link_to raw('<span class="icon icon-textblock"></span>Text'), new_text_block_path %>
 			</div>
 			<div class="right">

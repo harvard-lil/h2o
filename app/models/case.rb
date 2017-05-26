@@ -37,14 +37,13 @@ class Case < ApplicationRecord
 
   acts_as_taggable_on :tags
 
+  has_many :casebooks, inverse_of: :resource
+
   has_many :case_citations
   has_many :case_docket_numbers
   belongs_to :case_request, optional: true
   belongs_to :case_jurisdiction, optional: true
   belongs_to :user
-  has_many :annotations, :through => :collages
-  has_many :collages, :as => :annotatable, :dependent => :destroy
-  has_many :playlist_items, :as => :actual_object
 
   accepts_nested_attributes_for :case_citations,
     :allow_destroy => true,
@@ -59,6 +58,12 @@ class Case < ApplicationRecord
   end
   def description
     nil
+  end
+  def title
+    full_name
+  end
+  def date_year
+    decision_date.try :year
   end
   def score
     0
@@ -152,8 +157,8 @@ class Case < ApplicationRecord
     end
     new_case.delete(:jurisdiction)
     c = Case.new(new_case)
-    c.user = User.find_by_login 'h2ocases'
-    # c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
+    # c.user = User.find_by_login 'h2ocases'
+    c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
 
     c
   end

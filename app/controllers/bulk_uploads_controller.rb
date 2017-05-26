@@ -1,4 +1,4 @@
-class BulkUploadsController < ApplicationController
+class BulkUploadsController < BaseController
   before_action :require_dropbox_session
   before_action :initialize_dropbox_client, :only => [:new, :show]
 

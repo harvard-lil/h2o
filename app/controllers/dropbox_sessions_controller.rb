@@ -1,4 +1,4 @@
-class DropboxSessionsController < ApplicationController
+class DropboxSessionsController < BaseController
   def create
     if not params[:oauth_token] then
       dbsession = DropboxSession.new(DROPBOXCONFIG[:app_key], DROPBOXCONFIG[:app_secret])

@@ -1,0 +1,21 @@
+%header.users
+  .content
+    %h1= t 'users.sign-up.header'
+%section.sign-up
+  .content
+    .layout
+      .form
+        = simple_form_for @user, url: users_path, html: {data: {remote: true}} do |f|
+          .error-transition{class: @user.errors.any? ? '' : 'hide'}
+            = f.error_notification
+          = f.input :email_address, hint: t('users.sign-up.edu-only_html')
+          = f.input :attribution, hint: t('simple_form.public')
+          = f.input :password, required: true
+          = f.input :password_confirmation, required: true
+          = f.button :submit, t('simple_form.labels.user.sign-up')
+          = f.hint t 'users.sign-up.terms-of-service.html'
+      .pitch
+        %h2= t 'users.sign-up.pitch.header'
+        %ul
+          - t('users.sign-up.pitch.features').each do |feature|
+            %li= feature

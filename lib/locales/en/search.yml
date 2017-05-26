@@ -1,0 +1,4 @@
+en:
+  search:
+    zero-results: No results found.
+    n-results: "%{n} results found:"

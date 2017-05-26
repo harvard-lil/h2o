@@ -11,6 +11,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'search for a case by name, view results and download a selected case' do
+      skip "missing db schema"
       sign_in users(:verified_professor)
 
       visit new_cap_api_import_path
@@ -34,6 +35,7 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'can see an error message when there is a failed case download' do
+      skip "missing db schema"
       sign_in user = users(:verified_professor)
 
       visit new_cap_api_import_path

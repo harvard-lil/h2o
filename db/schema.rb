@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170410174236) do
+ActiveRecord::Schema.define(version: 20170512023512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "btree_gin"
 
   create_table "annotations", id: :serial, force: :cascade do |t|
     t.integer "collage_id"
@@ -205,6 +206,31 @@ ActiveRecord::Schema.define(version: 20170410174236) do
     t.datetime "updated_at"
   end
 
+  create_table "content_annotations", force: :cascade do |t|
+    t.bigint "resource_id", null: false
+    t.integer "start_p", null: false
+    t.integer "end_p"
+    t.integer "start_offset", null: false
+    t.integer "end_offset", null: false
+    t.string "kind", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_id", "start_p"], name: "index_content_annotations_on_resource_id_and_start_p"
+    t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
+  end
+
+  create_table "content_collaborators", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "content_id"
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_content_collaborators_on_content_id"
+    t.index ["user_id", "content_id"], name: "index_content_collaborators_on_user_id_and_content_id", unique: true
+    t.index ["user_id"], name: "index_content_collaborators_on_user_id"
+  end
+
   create_table "content_images", id: :serial, force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "page_id"
@@ -214,6 +240,26 @@ ActiveRecord::Schema.define(version: 20170410174236) do
     t.string "image_content_type", limit: 255
     t.integer "image_file_size"
     t.datetime "image_updated_at"
+  end
+
+  create_table "content_nodes", force: :cascade do |t|
+    t.string "title"
+    t.string "slug"
+    t.string "subtitle"
+    t.text "headnote"
+    t.boolean "public", default: true, null: false
+    t.bigint "casebook_id"
+    t.integer "ordinals", default: [], null: false, array: true
+    t.bigint "copy_of_id"
+    t.boolean "is_alias"
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
+    t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
+    t.index ["copy_of_id"], name: "index_content_nodes_on_copy_of_id"
+    t.index ["resource_type", "resource_id"], name: "index_content_nodes_on_resource_type_and_resource_id"
   end
 
   create_table "defaults", id: :serial, force: :cascade do |t|
@@ -750,4 +796,9 @@ ActiveRecord::Schema.define(version: 20170410174236) do
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
+  add_foreign_key "content_annotations", "content_nodes", column: "resource_id"
+  add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
+  add_foreign_key "content_collaborators", "users"
+  add_foreign_key "content_nodes", "content_nodes", column: "casebook_id"
+  add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id"
 end

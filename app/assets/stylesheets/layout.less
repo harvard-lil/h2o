@@ -1,0 +1,81 @@
+body {
+  .container-fluid();
+
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+main {
+  margin-top: 20px;
+}
+
+main > section, main > header {
+  .make-row();
+  > .content {
+    .container();
+    > .layout {
+      .make-row();
+    }
+  }
+}
+
+section#flash {
+  .transition(height 0.25s linear);
+  height: 0px;
+  overflow: hidden;
+
+  .flash-message {
+    .alert();
+
+    margin: 5px 0;
+    padding: 5px 12px;
+
+    &.flash-success {
+      .alert-success();
+    }
+    &.flash-notice {
+      .alert-info();
+    }
+    &.flash-error {
+      .alert-danger();
+    }
+  }
+}
+
+.banner {
+  height: 40px;
+
+  text-align: center;
+  &.casebook-draft {
+    background-color: @yellow;
+    .banner-inner {
+    }
+  }
+  .banner-inner {
+    .sans-serif(@bold, 14px, 14px);
+    padding: 7px 100px;
+    background-position: -50px center;
+    a {
+      .link-color(@black);
+      border-bottom-color: @black;
+      border-bottom-width: 1px;
+    }
+    &::before {
+      display: inline-block;
+      width: 30px;
+      height: 33px;
+      vertical-align: middle;
+
+      content: "";
+      background: asset-url('banner-draft-icon.png') no-repeat;
+    }
+  }
+}

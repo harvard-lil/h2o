@@ -6,8 +6,8 @@ gem 'puma', '~> 3.8'
 
 # Gems disabled for rails 5.1
 # gem 'coffee-rails', '~> 4.0.0'
-# gem 'jquery-rails'
-# gem 'jquery-ui-rails'
+gem 'jquery-rails'
+gem 'jquery-ui-rails'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
@@ -26,10 +26,13 @@ gem 'erubis'
 gem 'exception_notification'
 gem 'fastercsv'
 gem 'formtastic'
+gem 'hamlit'
+gem 'humanize'
 gem 'httparty'
 gem 'jbuilder', '~> 2.6.3'
 gem 'json', '1.8.6'
 gem 'kaminari'
+gem 'less-rails'
 gem 'loofah-activerecord', '~> 2.0.0'
 gem 'nokogiri', '~> 1.6'
 gem 'paperclip'
@@ -42,8 +45,11 @@ gem 'RedCloth'
 gem 'rubyzip'
 gem 'sass-rails', '~> 5.0.6'
 gem 'scrypt'
+gem 'simple_form'
+gem 'sprockets-commoner'
 gem 'sunspot_rails'
 gem 'therubyracer', platforms: :ruby
+gem 'turbolinks'
 gem 'uglifier', '>= 1.3.0'
 gem 'warden'
 gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e1c0e0'
@@ -73,7 +79,6 @@ group :development do
   gem 'guard-yield'
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
-
   gem 'terminal-notifier-guard'
 end
 

@@ -19,9 +19,6 @@ class UserSweeper < ActionController::Caching::Sweeper
 
   def after_update(record)
     if record.saved_changes.keys.include?("attribution")
-      record.collages.each do |collage|
-        ActionController::Base.expire_page "/collages/#{collage.id}.html"
-      end
       record.playlists.each do |playlist|
         ActionController::Base.expire_page "/playlists/#{playlist.id}.html"
         ActionController::Base.expire_page "/playlists/#{playlist.id}/export.html"

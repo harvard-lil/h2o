@@ -42,12 +42,7 @@ class TextBlocksController < BaseController
   end
 
   def update
-    # versionify
-    if @text_block.content != params[:text_block][:content] && @text_block.collages.detect { |c| c.version == @text_block.version }
-      FrozenItem.create({ :content => @text_block.content, :version => @text_block.version, :item_id => @text_block.id, :item_type => "TextBlock" })
-      params[:text_block][:version] = @text_block.version + 1
-    end
-
+    # versionif
     if @text_block.update_attributes(text_blocks_params)
       flash[:notice] = 'Text Block was successfully updated.'
       redirect_to "/text_blocks/#{@text_block.id}"
@@ -57,12 +52,8 @@ class TextBlocksController < BaseController
   end
 
   def destroy
-    if @text_block.collages.any?
-      render :json => { :error => true, :message => "Text blocks that have been collaged can not be deleted." }
-    else
-      @text_block.destroy
-      render :json => {}
-    end
+    @text_block.destroy
+    render :json => {}
   end
 
   private
@@ -72,7 +63,7 @@ class TextBlocksController < BaseController
                                        metadatum_attributes: [:contributor, :coverage, :creator, :date,
                                                               :description, :format, :identifier, :language,
                                                               :publisher, :relation, :rights, :source,
-                                                              :subject, :title, :dc_type, :classifiable_type, 
+                                                              :subject, :title, :dc_type, :classifiable_type,
                                                               :classifiable_id ])
   end
 end

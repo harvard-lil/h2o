@@ -1,0 +1,13 @@
+%header.users
+  .content
+    %h1= t 'users.reset-password.header'
+%section.reset-password
+  .content
+    .layout
+      .form
+        = simple_form_for :user, url: password_resets_path, html: {data: {remote: true}} do |f|
+          = f.input :email_address, input_html: {value: params.fetch(:email_address, '')}
+          = f.button :submit, t('simple_form.labels.user.reset-password')
+          = f.hint t 'users.reset-password.terms-of-service.html', terms_path: root_path
+      .help
+        %p= t 'users.reset-password.help.html'

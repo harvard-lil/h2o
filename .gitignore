@@ -10,6 +10,7 @@ config/skylight.yml
 coverage/
 locals/
 log/
+node_modules/
 public/assets/
 public/base.html
 public/cases/
@@ -27,5 +28,3 @@ public/svg_icons/
 solr/data/
 solr/pids/
 tmp/
-
-guard-sunspot/

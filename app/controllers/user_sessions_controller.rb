@@ -1,5 +1,6 @@
 class UserSessionsController < ApplicationController
   protect_from_forgery :except => [:create]
+  layout 'main', only: [:new, :create]
 
   def index
     redirect_to root_url
@@ -8,7 +9,7 @@ class UserSessionsController < ApplicationController
   def new
     redirect_to root_url and return if current_user.present?
 
-    @user_session = UserSession.new
+    @user_session = UserSession.new params.permit(:email_address)
     render :layout => !request.xhr?
   end
 
@@ -19,14 +20,9 @@ class UserSessionsController < ApplicationController
     @user_session.save do |result|
       if result
         apply_user_preferences(@user_session.user, false)
-        if request.xhr?
-          #Text doesn't matter, status code does.
-          render :text => 'Success!', :layout => false
-        else
-          redirect_back_or_default "/"
-        end
+        redirect_back_or_default "/"
       else
-        render :action => :new, :layout => !request.xhr?, :status => :unprocessable_entity
+        render :action => :new
       end
     end
   end
@@ -42,6 +38,6 @@ class UserSessionsController < ApplicationController
   private
 
   def user_session_param
-    params.require(:user_session).permit(:login, :password, :remember_me)
+    params.fetch(:user_session, {}).permit(:email_address, :password, :remember_me)
   end
 end

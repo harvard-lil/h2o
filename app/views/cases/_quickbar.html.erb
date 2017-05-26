@@ -20,7 +20,6 @@
       <a href="<%= export_case_path(@case) %>" class="icon icon-black-print" id="quickbar_print" title="Print <%= @case.name %>"><span>Print</span></a>
       <%= link_to raw('<span class="icon icon-black-favorite"><span>Bookmark Case</span></span>'), '#', :class => "bookmark-action requires_logged_in", :title => "Bookmark #{@case.name}", "data-type" => "case", "data-itemid" => @case.id %>
       <a href="#" class="icon icon-black-font" id="quickbar_font" title="Change the size of the text"><span>Font Settings</span></a>
-      <%= link_to raw('<span class="icon icon-tocollage-black"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => @case), :class => 'collage-this new-action requires_logged_in', :title => "Clone and Annotate" %>
     </div>
     <div class="clear"></div>
   </div>

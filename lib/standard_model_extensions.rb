@@ -30,7 +30,7 @@ module StandardModelExtensions
   end
 
   def playlists_included_ids
-    PlaylistItem.find(:all, :conditions => { :actual_object_type => self.class.to_s, :actual_object_id => self.id }, :select => :playlist_id)
+    logger.warn 'Removed playlists'
   end
 
   def karma_display

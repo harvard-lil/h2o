@@ -40,24 +40,4 @@ class AdminSystemTest < ApplicationSystemTestCase
 
     click_button 'Save'
   end
-
-  scenario 'deleting playlist and nested material', js: true do
-      deletable_playlist = playlists :playlist_to_delete
-      visit rails_admin_path
-      within '.sidebar-nav' do
-        click_link 'Playlists'
-      end
-      assert_content 'List of Playlists'
-
-      assert_content deletable_playlist.name
-      find_all('a').to_a.find { |tag| tag[:href] =~ %r{playlist/#{deletable_playlist.id}/edit} }.click
-      assert_content "Edit Playlist '#{deletable_playlist.name}'"
-      click_link 'Delete Playlist and Nested Elements'
-      assert_content 'Are you sure you want to delete this playlist'
-      click_button "Yes, I'm sure"
-      assert_content "Playlist #{deletable_playlist.name} and nested items have been deleted"
-      within '#list' do
-        assert_no_content deletable_playlist.name
-      end
-  end
 end

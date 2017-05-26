@@ -1,0 +1,42 @@
+@import (multiple) "bootstrap/forms";
+
+@input-height-base: 32px;
+@input-color: @dark-gray;
+@input-border-radius: 0px;
+@input-border: black;
+
+.form-control {
+  padding: 25px 25px;
+  font-size: 18px;
+}
+
+label > .necessity {
+  .sans-serif(@bold, 11px, 12px);
+  color: @gray;
+}
+
+form .form-error-message {
+  .alert();
+  .alert-danger();
+}
+
+.error-wrapper {
+  .transition(height .25s linear, margin .25s linear;);
+  height: 0px;
+  margin: 0px;
+  overflow: hidden;
+
+  .has-error > & {
+    margin: 5px 0 0px;
+    height: 25px;
+  }
+}
+
+.error-transition {
+  .transition(max-height .25s linear);
+
+  max-height: 50px;
+  &.hide {
+    max-height: 0px;
+  }
+}
