@@ -42,7 +42,9 @@ class TextBlock < ApplicationRecord
 
   has_many :defects, :as => :reportable
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
-  belongs_to :user
+  belongs_to :user, optional: true
+
+  has_many :casebooks, inverse_of: :resource
 
   validates_presence_of :name
 
@@ -59,6 +61,10 @@ class TextBlock < ApplicationRecord
   end
 
   def display_name
+    name
+  end
+
+  def title
     name
   end
 

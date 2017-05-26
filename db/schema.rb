@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170523135903) do
-
+ActiveRecord::Schema.define(version: 20170526200505) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -133,7 +132,7 @@ ActiveRecord::Schema.define(version: 20170523135903) do
     t.integer "karma"
     t.integer "pushed_from_id"
     t.boolean "sent_in_cases_list", default: false
-    t.integer "user_id", default: 0, null: false
+    t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.index ["author"], name: "index_cases_on_author"
     t.index ["case_jurisdiction_id"], name: "index_cases_on_case_jurisdiction_id"
@@ -271,7 +270,7 @@ ActiveRecord::Schema.define(version: 20170523135903) do
     t.datetime "updated_at"
     t.integer "pushed_from_id"
     t.string "content_type", limit: 255
-    t.integer "user_id", default: 0, null: false
+    t.integer "user_id", default: 0
     t.string "ancestry", limit: 255
     t.boolean "created_via_import", default: false, null: false
   end
@@ -706,7 +705,7 @@ ActiveRecord::Schema.define(version: 20170523135903) do
     t.datetime "updated_at"
     t.integer "karma"
     t.integer "pushed_from_id"
-    t.integer "user_id", default: 0, null: false
+    t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.string "description", limit: 5242880
     t.integer "version", default: 1, null: false

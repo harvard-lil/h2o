@@ -5,8 +5,19 @@ module Content::Concerns::HasCollaborators
 
   included do
       has_many :users, class_name: 'User', through: :collaborators, source: :user, inverse_of: :collaborations
-      has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user
+
+      has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user do
+        def << (*users)
+          binding.pry
+          collaborators << users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
+        end
+      end
+      def owners= (users)
+        collaborators = (collaborators || []).reject {|c| c.role == 'owner'} + users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
+      end
+
       has_many :editors, -> {where content_collaborators: {role: 'editor'}}, class_name: 'User', through: :collaborators, source: :user
       has_many :reviewers, -> {where content_collaborators: {role: 'reviewer'}}, class_name: 'User', through: :collaborators, source: :user
+
   end
 end
