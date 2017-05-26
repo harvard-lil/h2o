@@ -18,6 +18,39 @@ class ApplicationController < ActionController::Base
     return false if request.xhr?
   end
 
+  def load_single_resource
+    return if ['user_sessions', 'password_resets', 'login_notifiers', 'base', 'pages', 'rails_admin/main', 'cap_api_imports'].include?(params[:controller])
+
+    return if params[:controller] == 'users' && !['edit', 'update'].include?(params[:action])
+
+    if params[:action] == "new"
+      model = params[:controller].singularize.classify.constantize
+      @single_resource = item = model.new
+      instance_variable_set "@#{model.to_s.tableize.singularize}", item
+      @page_title = "New #{model.to_s}"
+    elsif params[:id].present?
+      model = params[:controller].singularize.classify.constantize
+      if params[:action] == "new"
+        item = model.new
+      elsif ["access_level", "save_readable_state"].include?(params[:action])
+        item = model.unscoped.where(id: params[:id].to_i).includes(:user).first
+      elsif model.respond_to?(:get_single_resource)
+        item = model.get_single_resource(params[:id])
+      else
+        item = model.where(id: params[:id]).first
+      end
+      if item.present? && item.is_a?(User)
+        @single_resource = item
+      elsif item.present? && ((item.respond_to?(:user) && item.user.present?) || item.is_a?(Annotation))
+        @single_resource = item
+        instance_variable_set "@#{model.to_s.tableize.singularize}", item
+        @page_title = item.name if item.respond_to?(:name)
+      else
+        render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
+      end
+    end
+  end
+
   def action_check
     params.fetch(:action).to_sym
   end
@@ -173,7 +206,7 @@ class ApplicationController < ActionController::Base
         facet(:primary)
         facet(:secondary)
       end
-      
+
       paginate :page => params[:page], :per_page => params[:per_page]
       order_by params[:sort].to_sym, params[:order].to_sym
     end

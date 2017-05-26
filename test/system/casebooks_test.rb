@@ -78,19 +78,15 @@ class CasebookSystemTest < ApplicationSystemTestCase
       visit casebook_section_path casebook, resource
 
       select_text 'content to highlight'
+      sleep 0.1
       find('a[data-annotate-action=highlight]').click
-
-      select_text 'content to highlight'
-      find('a[data-annotate-action=highlight]').click # ?
 
       assert_selector('.annotate.highlighted')
       find('.annotate.highlighted').assert_text 'content to highlight'
 
       select_text 'content to elide'
+      sleep 0.1
       find('a[data-annotate-action=elide]').click
-
-      select_text 'content to elide'
-      find('a[data-annotate-action=elide]').click # ?
 
       assert_no_content 'content to elide'
       assert_content 'elided: Annotate'

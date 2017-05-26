@@ -2,6 +2,7 @@ module H2o::Test::Helpers::Drivers
   def self.included(base)
     Capybara.register_driver :poltergeist do |app|
       Capybara::Poltergeist::Driver.new app,
+        timeout: 1.minute,
         screen_size: [1280, 800],
         window_size: [1280, 800],
         js_errors: true,

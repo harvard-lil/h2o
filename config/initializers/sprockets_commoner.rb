@@ -13,5 +13,4 @@ Rails.application.config.assets.configure do |env|
     # Default is [/node_modules/]
     # babel_exclude: [/node_modules/]
   )
-  puts "Commoner exclude paths: #{env.postprocessors.first.second.first.exclude.inspect}"
 end

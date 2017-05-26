@@ -18,8 +18,9 @@ cache:
 rvm:
   - 2.4.1
 before_script:
-  - bundle exec bin/rails db:setup
   - bundle exec bin/rails sunspot:solr:start
+  - bundle exec bin/rails db:setup
+  - bundle exec bin/rails assets:precompile
 script:
   - bundle exec bin/rails test:system
 after_success:

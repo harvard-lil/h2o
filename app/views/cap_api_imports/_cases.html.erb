@@ -1,0 +1,29 @@
+<!-- TODO show all fields with a better view -->
+<%= form_tag '/cap_api_import', method: :post do %>
+  <table>
+    <thead>
+      <tr>
+        <th>Download</th>
+        <th>Short Name></th>
+        <th>Full Name</th>
+        <th>Citation</th>
+        <th>Descision Date (Original)</th>
+        <th>Court Name</th>
+      </tr>
+    </thead>
+    
+    <tbody>
+      <% @cases.each do |case_metadata| %>
+        <tr>
+          <td><%= radio_button_tag "case", JSON.dump(case_metadata) %></td>
+          <td><%= case_metadata['name_abbreviation'] %></td>
+          <td><%= case_metadata['name'] %></td>
+          <td><%= case_metadata['citation'] %></td>
+          <td><%= case_metadata['decisiondate_original'] %></td>
+          <td><%= case_metadata['court_name'] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= submit_tag 'Download new case' %>
+<% end %>

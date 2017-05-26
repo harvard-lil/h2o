@@ -18,10 +18,13 @@ require File.expand_path("../../config/environment", __FILE__)
 require 'rails/test_help'
 require 'wrong/adapters/minitest'
 require 'minitest/reporters'
+require 'webmock/minitest'
+
+WebMock.disable_net_connect!(allow_localhost: true)
 Minitest::Reporters.use!
 Rails.backtrace_cleaner.remove_silencers! if ENV['DEBUG']
 
-load "#{Rails.root}/db/seeds.rb"
+# load "#{Rails.root}/db/seeds.rb"
 
 class ActiveSupport::TestCase
   def logger; Rails.logger; end
