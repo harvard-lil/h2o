@@ -1,0 +1,92 @@
+<% if @section.present? %>
+  <header class="casebook-header">
+    <a class="casebook-title" href="<%= casebook_path(@casebook) %>">
+      <%= @casebook.title %>
+    </a>
+    <div class="collaborators">
+      <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
+    </div>
+  </header>
+<% end %>
+<header class="content">
+  <% if @section.present? %>
+    <div class="breadcrumbs">
+      <%= t 'content.show.section' %>
+      <%= @section.ordinals.each_with_index do |ordinal, idx| %>
+        <% unless idx == @section.ordinals.length-1 %>
+          <a class="breadcrumb" href="<%= casebook_section_path(@casebook, @section.ordinals[0..idx].join('.')) %>"><%= ordinal %></a>
+          <span class="separator">.</span>
+        <% else %>
+          <span class="breadcrumb active"><%= ordinal %></span>
+          <span class="separator">:</span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <h1>
+    <%= @content.title %>
+    <% if @section.nil? %>
+      <h2>
+        <%= @content.subtitle %>
+      </h2>
+    <% end %>
+    <% if @section.nil? %>
+      <div class="collaborators">
+        <%= render partial: 'content/collaborators', locals: {content: @content} %>
+      </div>
+    <% end %>
+  </h1>
+</header>
+<% if @content.headnote.present? || @content.subtitle.present? %>
+  <section class="headnote">
+    <h5>
+      <%= t 'content.show.headnote' %>
+    </h5>
+    <% if @section.present? %>
+      <h3>
+        <%= @content.subtitle %>
+      </h3>
+    <% end %>
+    <p>
+      <%= @content.headnote %>
+    </p>
+  </section>
+<% else %>
+  <section class="no-headnote"></section>
+<% end %>
+<section class="table-of-contents">
+  <% if @content.respond_to? :contents %>
+    <h5>
+      <% if @section.present? %>
+        <%= t 'content.show.section-contents' %>
+      <% else %>
+        <%= t 'content.show.table-of-contents' %>
+      <% end %>
+    </h5>
+    <% if @content.contents.any? %>
+      <%= render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: @edit_layout} %>
+    <% else %>
+      <div class="listing empty">
+      <% if @edit_layout %>
+        <% if @section.present? %>
+          <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_casebook_section_path(@casebook, parent: @section.ordinal_string)) %>
+        <% else %>
+          <%= t 'content.edit.empty-casebook.html', add_section_button: button_to(t('content.edit.empty-casebook.add-button'), casebook_section_index_path(@casebook), method: :post) %>
+        <% end %>
+      <% else %>
+        <% if @section.present? %>
+          <%= t 'content.show.empty-section' %>
+        <% else %>
+          <%= t 'content.show.empty-casebook' %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% elsif @content.respond_to? :resource %>
+    <section class="resource">
+      <%= render partial: 'content/resources/show', locals: {resource: @content, editable: false} %>
+    </section>
+  <% end %>
+</section>
+
+
+
