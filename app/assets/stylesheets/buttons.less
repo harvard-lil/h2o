@@ -1,0 +1,39 @@
+@btn-border-radius-base: 0;
+
+@btn-default-color: @white;
+@btn-default-bg: @light-blue;
+
+@btn-primary-color: @white;
+@btn-primary-bg: @green;
+
+@padding-base-vertical: 12px;
+@padding-base-horizontal: 17px;
+
+.btn() {
+  .sans-serif(@regular, 16px, 16px);
+  padding: 12px 17px 11px;
+  border-width: 0px;
+  text-decoration: none;
+  .box-shadow(none) !important;
+}
+
+.btn-white() {
+  .button-variant(@black; @white; transparent);
+  font-weight: @bold;
+}
+
+.simple_form input[type=submit] {
+  .btn();
+  .btn-primary();
+}
+
+.button_to input[type=submit] {
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+a.reset-button {
+  .btn();
+  .btn-warning();
+}

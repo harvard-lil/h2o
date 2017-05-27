@@ -24,7 +24,6 @@ class TextBlock < ApplicationRecord
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
   #   exception when destroying a text block in some scenarios.
-  has_many :collages, :dependent => :destroy, :as => :annotatable
 
   include StandardModelExtensions
   include AnnotatableExtensions
@@ -35,7 +34,6 @@ class TextBlock < ApplicationRecord
   include DeletedItemExtensions
 
   RATINGS_DISPLAY = {
-    :collaged => "Annotated",
     :bookmark => "Bookmarked",
     :add => "Added to"
   }
@@ -43,8 +41,6 @@ class TextBlock < ApplicationRecord
   acts_as_taggable_on :tags
 
   has_many :defects, :as => :reportable
-  has_many :playlist_items, :as => :actual_object
-  has_many :annotations, -> { order(:created_at) }, :dependent => :destroy, :as => :annotated_item
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
   belongs_to :user
 
@@ -78,7 +74,7 @@ class TextBlock < ApplicationRecord
 
   alias :to_s :display_name
 
-  searchable(:include => [:metadatum, :collages, :tags]) do
+  searchable(:include => [:metadatum, :tags]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -90,7 +86,6 @@ class TextBlock < ApplicationRecord
     string :user_display, :stored => true
     integer :user_id, :stored => true
 
-    string :collages, :stored => true, :multiple => true
     string :metadatum, :stored => true, :multiple => true
 
     time :created_at

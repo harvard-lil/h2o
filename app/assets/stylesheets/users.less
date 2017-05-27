@@ -1,0 +1,42 @@
+header.users {
+  .verified {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 8px;
+
+    background-image: asset-url('ui/verified-large.png');
+    color: transparent;
+  }
+  .unverified {
+    .sans-serif(@bold, 16px, 16px);
+    padding: 20px;
+    background-color: @light-orange;
+    color: black;
+
+    a {
+      .btn();
+      .btn-default();
+    }
+  }
+}
+
+section.sign-up, section.sign-in, section.reset-password {
+  .form {
+    .make-md-column(6.5);
+    > form {
+      background-color: @light-gray;
+      padding: 20px;
+    }
+  }
+  .pitch,
+  .help {
+    .make-md-column(5.5);
+  }
+}
+
+section.profile {
+  > .content {
+    background-color: @light-gray;
+  }
+}

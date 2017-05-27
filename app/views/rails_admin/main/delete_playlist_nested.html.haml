@@ -8,14 +8,3 @@
 
 - if false
   %ul= render partial: "delete_notice", object: @object
-
-= form_for(@object, url: delete_playlist_nested_path(model_name: @abstract_model.to_param, id: @object.id), html: {method: "delete_playlist_nested"}, authenticity_token: true) do
-  = hidden_field_tag :authenticity_token, form_authenticity_token
-  %input{type: :hidden, name: 'return_to', value: (params[:return_to].presence || request.referer)}
-  .form-actions
-    %button.btn.btn-danger{type: "submit", :'data-disable-with' => t("admin.form.confirmation")}
-      %i.icon-white.icon-ok
-      = t("admin.form.confirmation")
-    %button.btn{type: "submit", name: "_continue", :'data-disable-with' => t("admin.form.cancel")}
-      %i.icon-remove
-      = t("admin.form.cancel")

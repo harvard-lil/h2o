@@ -8,7 +8,8 @@ var layer_data;
 var collage_id;
 var tocId = 'toc';
 var h2o_annotator;
-var h2o_global = { slideToAnnotation: function() {} };
+var h2o_global = h2o_global || {};
+h2o_global.slideToAnnotation = function() {};
 var all_collage_data = {};
 var page_width_inches = 8.5;
 var ignore_theme_change = false;
@@ -545,6 +546,7 @@ var export_functions = {
     // font face and font size change pretty much at the same time.)
     var font_face = $('#fontface').val();
     var font_size = $('#fontsize').val();
+    if (!(font_face && font_size)) { return; }
     var mapped_font_face = h2o_fonts.font_map_fallbacks[font_face];
     var base_font_size = h2o_fonts.base_font_sizes[font_face][font_size];
 
@@ -894,7 +896,7 @@ $(document).ready(function(){
     }
   } catch(e) {
     //If anything goes wrong, we need to set window.status. Otherwise, the exporters will hang.
-    console.log('BOOP: document.ready CAUGHT: ' + e);
     export_functions.signalAnnotationLoadDone();
+    throw e;
   }
 });

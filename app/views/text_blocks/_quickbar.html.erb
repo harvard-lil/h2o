@@ -16,7 +16,6 @@
       <a href="<%= export_text_block_path(@text_block) %>" class="icon icon-black-print" id="quickbar_print" title="Print <%= @text_block.name %>"><span>Print</span></a>
       <%= link_to raw('<span class="icon icon-black-favorite"><span>Bookmark Text</span></span>'), '#', :class => "bookmark-action requires_logged_in", :title => "Bookmark #{@text_block.name}", "data-type" => "text_block", "data-itemid" => @text_block.id %>
       <a href="#" class="icon icon-black-font" id="quickbar_font" title="Change the size of the text"><span>Font Settings</span></a>
-      <%= link_to raw('<span class="icon icon-tocollage-black"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'TextBlock', :annotatable_id => @text_block), :class => 'collage-this new-action tooltip', :title => "Clone and Annotate" %>
     </div>
     <div class="clear"></div>
   </div>

@@ -5,7 +5,7 @@ class LinkSystemTest < ApplicationSystemTestCase
   # Public links attr doesn't have existing functionality
   describe 'as an anonymous visitor' do
     before do
-      visit '/defaults'
+      visit defaults_path
     end
 
     scenario 'browsing links', solr: true do
@@ -33,9 +33,9 @@ class LinkSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'creating a link', solr: true do
-      visit '/'
+      visit search_all_path
       click_link 'CREATE'
-      click_link 'Link'
+      find('a[href="/defaults/new"]').click
 
       fill_in 'Name', with: 'Name of a new link'
       fill_in 'Url', with: 'https://newlink.com/link'
@@ -48,7 +48,7 @@ class LinkSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'fails without a valid url', solr: true do
-      visit '/defaults/new'
+      visit new_default_path
 
       fill_in 'Url', with: 'badurl.com'
 
@@ -60,7 +60,7 @@ class LinkSystemTest < ApplicationSystemTestCase
     scenario 'editing a link', solr: true do
       link = defaults(:admin_link)
 
-      visit "/defaults/#{link.id}/edit"
+      visit edit_default_path link
 
       fill_in 'Name', with: 'New name'
 

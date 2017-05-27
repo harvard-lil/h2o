@@ -1,0 +1,15 @@
+= form_tag new_casebook_section_path(@casebook), method: :get, class: 'simple_form' do
+  - if @section.present?
+    = hidden_field_tag :parent, @section.ordinal_string
+  .form-group.string
+    = text_field_tag :q, params[:q], placeholder: t('simple_form.labels.search.query'), class: 'form-control'
+  = submit_tag t('simple_form.labels.search.submit'), class: 'save-button'
+
+- if params[:q]
+  .search-results
+    - if @results.empty?
+      = t 'search.zero-results'
+    - else
+      = t 'search.n-results', n: @results.count
+    - @results.each_with_index do |result, idx|
+      .search-result= render partial: 'search_result', locals: {result: result, idx: idx}

@@ -6,10 +6,10 @@ module AnnotatableExtensions
   end
 
   def deleteable?
-    self.collages.empty?
+    # self.collages.empty?
   end
 
   def content_editable?
-    self.collages.empty?
+    # self.collages.empty?
   end
 end

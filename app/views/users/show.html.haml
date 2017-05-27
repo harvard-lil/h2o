@@ -1,0 +1,14 @@
+%header.users
+  .content
+    %h1
+      = @user.display_name
+      - if @user.verified?
+        .verified= t 'users.profile.verified'
+    - if !@user.verified && @user == current_user
+      .unverified
+        %h2= t 'users.profile.unverified.header'
+        %p= t 'users.profile.unverified.text'
+        %a{href: root_path}= t 'users.profile.unverified.resend'
+
+%section.profile
+  .content

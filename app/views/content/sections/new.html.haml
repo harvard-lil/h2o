@@ -1,0 +1,53 @@
+%header.casebook
+  - if @section.present?
+    .casebook-header
+      %a.casebook-title{href: casebook_path(@casebook)}= @casebook.title
+    .collaborators= render partial: 'content/collaborators', locals: {content: @content}
+    .breadcrumbs
+      = t 'content.show.section'
+      - @section.ordinals.each_with_index do |ordinal, idx|
+        - unless idx == @section.ordinals.length-1
+          %a.breadcrumb{href: casebook_section_path(@casebook, @section.ordinals[0..idx].join('.'))}= ordinal
+          %span.separator .
+        - else
+          %span.breadcrumb.active= ordinal
+  %h1= @content.title
+  - if @content.subtitle
+    %h2= @content.subtitle
+  - if @section.nil?
+    .collaborators= render partial: 'content/collaborators', locals: {content: @content}
+%section.resource-search
+  - if @section.present?
+    %h2= t 'content.new.add-to-section'
+  - else
+    %h2= t 'content.new.add-to-casebook'
+  .tabs
+    %a.tab{href: new_casebook_section_path(@casebook), class: params[:kind].blank? ? 'active' : ''}= t 'content.new.tabs.search'
+    %a.tab{href: new_casebook_section_path(@casebook, kind: 'link'), class: params[:kind] == 'link' ? 'active' : ''}= t 'content.new.tabs.link'
+    %a.tab{href: new_casebook_section_path(@casebook, kind: 'text'), class: params[:kind] == 'text' ? 'active' : ''}= t 'content.new.tabs.text'
+  - if params[:kind] == 'text'
+    = render 'new_text'
+  - elsif params[:kind] == 'link'
+    = render 'new_link'
+  - else
+    = render 'new_search'
+%section.table-of-contents
+  %h5
+    - if @section.present?
+      = t 'content.show.section-contents'
+    - else
+      = t 'content.show.table-of-contents'
+  - if @content.contents.any?
+    = render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: @edit_layout}
+  - else
+    .listing.empty
+      - if @edit_layout
+        - if @section.present?
+          = t 'content.edit.empty-section.html', add_resource_button: button_to(t('content.edit.empty-section.add-button'), casebook_section_index_path(@casebook), method: :post)
+        - else
+          = t 'content.edit.empty-casebook.html', add_section_button: button_to(t('content.edit.empty-casebook.add-button'), casebook_section_index_path(@casebook), method: :post)
+      - else
+        - if @section.present?
+          = t 'content.show.empty-section'
+        - else
+          = t 'content.show.empty-casebook'

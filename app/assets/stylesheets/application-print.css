@@ -10,8 +10,9 @@
  *
  *= stub ui
  *= stub jquery.ui.custom
- *= require export
- *= stub icons
+ *= require old_tree/export
+ *= require content.min
+ *= stub old_tree/icons
  *= stub print
- *= stub doc-export
+ *= stub old_tree/doc-export
  */

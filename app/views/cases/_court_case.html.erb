@@ -6,7 +6,6 @@
 </div>
 
 <aside id="singleitem_toolbar">
-  <%= link_to raw('<span class="icon icon-tocollage-large"><span>Clone and Annotate</span></span>'), new_collage_path(:annotatable_type => 'Case', :annotatable_id => court_case), :class => 'collage-this new-action tooltip requires_logged_in', :title => "Clone and Annotate" %>
   <%= link_to raw('<span class="icon icon-add-large"><span>Add to Playlist</span></span>'), '#', "data-item_id" => court_case.id, "data-type" => "case", :class => 'link-add tooltip requires_logged_in', :title => "Add to a Playlist" %>
   <%= link_to raw('<span class="icon icon-favorite-large"><span>Bookmark Case</span></span>'), '#', :class => "bookmark-action tooltip requires_logged_in", :title => "Bookmark #{court_case.name}", "data-type" => "case", "data-itemid" => court_case.id %>
 </aside>

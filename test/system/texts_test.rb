@@ -10,7 +10,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'searching for a text', solr: true do
-      visit root_path
+      visit search_all_path
       search_label = [*'XA'..'XZ'].sample
       fill_in 'Keywords', with: "Text #{search_label}"
       # click_link 'SEARCH' # TODO: This should not require JavaScript!
@@ -50,7 +50,7 @@ class TextsSystemTest < ApplicationSystemTestCase
       visit text_block_path text
       assert_content text.name
       assert_content text.content
-      assert_content text.user
+      assert_content text.user.display_name
     end
   end
   describe 'as a registered user' do
@@ -69,6 +69,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'annotating a text', js: true do
+      skip 'replacing annotating with casebook code'
       sign_in user = users(:verified_student)
       visit text_block_path public_text = text_blocks(:public_text_to_annotate)
 
@@ -132,7 +133,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     scenario 'creating a text' do
       sign_in users(:verified_student)
 
-      visit root_path
+      visit search_all_path
 
       # TODO: make this more accessible
       within '#create_all_popup' do
@@ -180,7 +181,7 @@ class TextsSystemTest < ApplicationSystemTestCase
     end
     scenario 'editing a text', js: true do
       sign_in users(:verified_professor)
-      visit text_block_path text_blocks(:collaged_text)
+      visit text_block_path text_blocks(:public_text_1)
 
       click_link 'EDIT TEXT INFORMATION'
 

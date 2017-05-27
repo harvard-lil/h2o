@@ -4,18 +4,15 @@ class ResponsesController < ApplicationController
   def create
     params[:response] = {
       :user_id => current_user.id,
-      :content => params[:content] 
+      :content => params[:content]
     }
     if params.has_key?(:text_block_id)
       params[:response][:resource_type] = 'TextBlock'
       params[:response][:resource_id] = params[:text_block_id]
-    else
-      params[:response][:resource_type] = 'Collage'
-      params[:response][:resource_id] = params[:collage_id]
     end
 
     response = Response.new(responses_params)
-  
+
     if response.save
       render :json => {}
     else
@@ -24,7 +21,7 @@ class ResponsesController < ApplicationController
   rescue Exception => e
     render :json => { :error => true }
   end
-  
+
   def destroy
     @response.destroy
 

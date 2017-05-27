@@ -60,18 +60,21 @@ class User < ApplicationRecord
 
   acts_as_authentic do |c|
     c.crypto_provider = Authlogic::CryptoProviders::Sha512
+    c.login_field = :email_address
   end
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :institutions
   has_many :responses, :dependent => :destroy
 
-  has_many :collages, :dependent => :destroy  #must precede all annotated item associations
   has_many :cases, :dependent => :destroy
   has_many :text_blocks, :dependent => :destroy
   has_many :defaults, :dependent => :destroy
   has_many :case_requests, :dependent => :destroy
-  has_many :playlists, :dependent => :destroy
+
+  has_many :collaborations, class_name: 'Content::Collaborator', primary_key: :id
+  has_many :casebooks, class_name: 'Content::Casebook', through: :collaborations, source: :content, primary_key: :id
+
   alias :textblocks :text_blocks
 
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
@@ -80,8 +83,10 @@ class User < ApplicationRecord
 
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
-  validate :terms_validation
   validate :allowed_email_domain, if: :new_record?
+  validates_presence_of :email_address
+
+  alias_attribute :login, :email_address
 
   RATINGS = {
     :playlist_created => 5,
@@ -122,7 +127,7 @@ class User < ApplicationRecord
   }
 
   def user_responses
-    content = self.collages.includes(:responses) + self.text_blocks.includes(:responses)
+    content = self.text_blocks.includes(:responses)
     content.map(&:responses).flatten
   end
 
@@ -143,16 +148,11 @@ class User < ApplicationRecord
     end
 
     if !canonical_email.ends_with?('.edu')
-      errors.add(:base, "Email address must be a .edu address")
+      errors.add(:email_address, I18n.t('users.edu-only-error'))
     end
   end
 
-  def terms_validation
-    errors.add(:base, "You must agree to the Terms of Service.") if self.new_record? && terms == "0"
-  end
-
   searchable :if => :not_anonymous do
-    text :login
     text :simple_display
     string :display_name, :stored => true
     text :affiliation
@@ -171,11 +171,11 @@ class User < ApplicationRecord
   end
 
   def not_anonymous
-    !self.login.match(/^anon_/).present?
+    attribution.present?
   end
 
   def all_items
-    [self.playlists + self.cases + self.collages + self.text_blocks].flatten
+    [self.cases + self.text_blocks].flatten
   end
 
   def has_role?(role_name)
@@ -194,27 +194,29 @@ class User < ApplicationRecord
     []
   end
 
+  def portrait_url
+    'ui/portrait-anonymous.png'
+  end
+
   def to_s
-    (login.match(/^anon_[a-f,\d]+/) ? 'anonymous' : login)
+    display_name
+  end
+
+  def anonymous_name
+    "#{email_domain}\##{id}"
+  end
+
+  def email_domain
+    m = email_address.match /@(.+)$/
+    m.try(:[], 1) || '?.edu'
   end
 
   def display
-    if login.match(/^anon_[a-f,\d]+/)
-      return 'anonymous'
-    elsif attribution.present?
-      return attribution #"#{attribution} #{karma_display.blank? ? '' : "(#{karma_display})"}"
-    else
-      return login #"#{login} #{karma_display.blank? ? '' : "(#{karma_display})"}"
-    end
+    attribution || anonymous_name
   end
+
   def simple_display
-    if login.match(/^anon_[a-f,\d]+/)
-      return 'anonymous'
-    elsif attribution.present?
-      return attribution
-    else
-      return login
-    end
+    display
   end
   alias :display_name :simple_display
 
@@ -222,16 +224,9 @@ class User < ApplicationRecord
     self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
   end
 
-  def content_errors
-    content = self.collages.includes(:annotations) + self.text_blocks.includes(:annotations)
-    content.map {|item|
-      item.annotations.select { |a| a.error || a.feedback }
-    }.flatten
-  end
-
   def bookmarks
     if self.bookmark_id
-      PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
+      # PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
     else
       []
     end

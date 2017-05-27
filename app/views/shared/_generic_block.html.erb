@@ -3,10 +3,6 @@
 <% @collection.each do |result| -%>
   <%= render :partial => "shared/objects/pending_case", :locals => { :pending_case => result, :hit => result } %>
 <% end -%>
-<% elsif params.has_key?(:ajax_region) && params[:ajax_region] == 'content_errors' -%>
-<% @collection.each do |result| -%>
-  <%= render :partial => "shared/objects/content_error", :locals => { content_error: result, hit: result } %>
-<% end -%>
 <% else -%>
 <% @collection.each do |result| -%>
   <%= render :partial => "shared/objects/#{result.klass_partial}", :locals => { result.klass_sym => result, :hit => result } %>

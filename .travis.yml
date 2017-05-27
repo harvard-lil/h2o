@@ -12,6 +12,7 @@ addons:
 language: ruby
 cache:
   bundler: true
+  yarn: true
   directories:
     - travis_phantomjs
 rvm:
@@ -19,6 +20,7 @@ rvm:
 before_script:
   - bundle exec bin/rails sunspot:solr:start
   - bundle exec bin/rails db:setup
+  - bundle exec bin/rails assets:precompile
 script:
   - bundle exec bin/rails test:system
 after_success:
@@ -29,7 +31,6 @@ after_success:
     export DEPLOY_SIG="sha1=`echo -n "$DEPLOY_CONTENT" | openssl sha1 -hmac $DEPLOY_KEY | sed 's/^.* //'`" ;
     curl -X POST "$DEPLOY_URL" --data "$DEPLOY_CONTENT" -H "Content-Type: application/json" -H "X-Travis-Signature: $DEPLOY_SIG" ;
     fi
-
 before_install:
   - export TRAVIS_PHANTOMJS_INSTALL_PATH="$PWD/travis_phantomjs"
   - export TRAVIS_PHANTOMJS_VERSION_NAME="phantomjs-2.1.1-linux-x86_64"
@@ -37,3 +38,5 @@ before_install:
   - hash -d phantomjs || true
   - echo "phantomjs version is $(phantomjs --version)"
   - if [ $(phantomjs --version) != '2.1.1' ]; then $PWD/bin/travis_get_updated_phantomjs; hash -d phantomjs || true; echo "updated phantomjs version is $(phantomjs --version)"; fi
+  - nvm install 6
+  - npm install yarn -g && yarn install

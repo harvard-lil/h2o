@@ -39,6 +39,7 @@ class Dropbox::Importer
       handle_import_success(path, new_instance)
     else
       logger.error "dropbox_importer.rb (39): new instance save failed"
+      logger.error new_instance.errors.inspect
       handle_import_error(path, new_instance)
     end
   end

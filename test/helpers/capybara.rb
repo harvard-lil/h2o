@@ -42,12 +42,13 @@ module H2o::Test::Helpers::Capybara
     user.set_password = password = random_token
     user.save!
     if page.driver.is_a? Capybara::RackTest::Driver
-      page.driver.post user_sessions_path, user_session: {login: user.login, password: password}
+      page.driver.post user_sessions_path, user_session: {email_address: user.email_address, password: password}
     else # e.g. Capybara::Selenium::Driver
       visit new_user_session_path
-      fill_in 'Login', with: user.login
+      fill_in 'Email address', with: user.email_address
       fill_in 'Password', with: password
-      click_button 'Login'
+      click_button 'Sign in'
+      assert_content user.display_name
     end
   end
   def sign_out
@@ -81,6 +82,32 @@ module H2o::Test::Helpers::Capybara
     sleep 0.05
     simulate_mouse_event src, :mouseup, drop_xy
     sleep 0.05
+  end
+  def simulate_drag_drop source, target, position: :top
+    execute_script <<-JS
+      var source = document.querySelector('#{source}');
+      var target = document.querySelector('#{target}');
+      window.ACTIVE_DRAGMOCK = dragMock
+      .dragStart(source)
+      .dragEnter(target)
+    JS
+
+    drop_rect = evaluate_script "document.querySelector('#{target}').getBoundingClientRect()"
+    drop_position = {
+      clientX: drop_rect['left'] + drop_rect['width'] / 2,
+      clientY: drop_rect['top'] + drop_rect['height'] / 2
+    }
+    if position == :top
+      drop_position[:clientY] -= 5
+    elsif position == :bottom
+      drop_position[:clientY] += 5
+    end
+
+    execute_script <<-JS
+      var target = document.querySelector('#{target}');
+      ACTIVE_DRAGMOCK.dragOver(target, #{drop_position.to_json})
+      .drop(target, #{drop_position.to_json});
+    JS
   end
   def wait_for_ajax
     Timeout.timeout(Capybara.default_max_wait_time) do

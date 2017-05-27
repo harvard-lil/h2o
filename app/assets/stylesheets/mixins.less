@@ -1,0 +1,37 @@
+.link-color-full(@normal; @hover; @active) {
+  color: @normal;
+  border-bottom-color: transparent;
+  &:hover {
+    color: @hover;
+    border-bottom-color: @hover;
+  }
+  &:active {
+    color: @active;
+    border-bottom-color: @active;
+  }
+}
+
+.link-color(@base) {
+  .link-color-full(@base, lighten(@base, 10%), darken(@base, 10%));
+}
+
+.transition(...) {
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
+}
+
+.size(@square) {
+  width: @square;
+  height: @square;
+}
+
+.size(@width; @height) {
+  width: @width;
+  height: @height;
+}
+
+.hide {
+  display: none;
+}

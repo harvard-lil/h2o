@@ -22,6 +22,7 @@ require 'webmock/minitest'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 Minitest::Reporters.use!
+Rails.backtrace_cleaner.remove_silencers! if ENV['DEBUG']
 
 # load "#{Rails.root}/db/seeds.rb"
 
