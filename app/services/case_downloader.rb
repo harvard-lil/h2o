@@ -54,18 +54,15 @@ class CaseDownloader
   end
 
   def save_case(case_content)
-    new_case = Case.create(short_name: short_name, full_name: full_name, decision_date: decision_date, 
-                           case_jurisdiction_id: case_jurisdiction_id, user_id: current_user.id, 
-                           content: case_content, public: true)
-    new_case_citation = CaseCitation.create(case_id: new_case.id, volume: volume, reporter: reporter, page: page)
-    new_case_docket_number = CaseDocketNumber.create(case_id: new_case.id, docket_number: docket_number)
-
-    if new_case.valid? && new_case_citation.valid? && new_case_docket_number.valid?
+    new_case = Case.new(short_name: short_name, full_name: full_name, decision_date: decision_date, 
+                       case_jurisdiction_id: case_jurisdiction_id, user_id: current_user.id, 
+                       content: case_content, public: true, case_citations: [CaseCitation.new(volume: volume, 
+                        reporter: reporter, page: page)], case_docket_numbers: [CaseDocketNumber.new(docket_number: docket_number)])
+    if new_case.save
       true
     else
-      error_messages = { case: new_cases.errors.full_messages, citation: new_case_citation.errors.full_messages, 
-        docket_number: new_case_docket_number.errors.full_messages }
-      # TODO send error messages into log_failure
+      error_messages = { case: new_case.errors.full_messages, citation: new_case.case_citations.first.errors.full_messages, 
+        docket_number: new_case.case_docket_numbers.first.errors.full_messages }
       log_failure(error_messages)
       false
     end

@@ -118,7 +118,7 @@ ActiveRecord::Schema.define(version: 20170512023512) do
   create_table "cases", id: :serial, force: :cascade do |t|
     t.boolean "current_opinion", default: true
     t.string "short_name", limit: 150, null: false
-    t.string "full_name", limit: 500
+    t.string "full_name"
     t.date "decision_date"
     t.string "author", limit: 150
     t.integer "case_jurisdiction_id"
@@ -140,7 +140,6 @@ ActiveRecord::Schema.define(version: 20170512023512) do
     t.index ["created_at"], name: "index_cases_on_created_at"
     t.index ["current_opinion"], name: "index_cases_on_current_opinion"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
-    t.index ["full_name"], name: "index_cases_on_full_name"
     t.index ["public"], name: "index_cases_on_public"
     t.index ["short_name"], name: "index_cases_on_short_name"
     t.index ["updated_at"], name: "index_cases_on_updated_at"
@@ -795,7 +794,7 @@ ActiveRecord::Schema.define(version: 20170512023512) do
     t.index ["voter_id", "voter_type", "voteable_id", "voteable_type"], name: "uniq_one_vote_only", unique: true
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
-
+  
   add_foreign_key "content_annotations", "content_nodes", column: "resource_id"
   add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
   add_foreign_key "content_collaborators", "users"
