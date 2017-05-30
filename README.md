@@ -51,12 +51,8 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 
 ### Configure the local domain
 
-The dev server is now accessible at http://localhost:8000, but it likely won't look quite right because Typekit isn't loading. To fix:
-
-1. e.g. OS X: `echo 127.0.0.1 h2o.murk.law.harvard.edu | sudo tee -a /etc/hosts`
-2. Go to [http://h2o.murk.law.harvard.edu:8000](http://h2o.murk.law.harvard.edu:8000)
-
-> TODO: Change this to something more like `h2o.local` and add that to Typekit :)
+1. e.g. OS X: `echo 127.0.0.1 h2o-dev.local | sudo tee -a /etc/hosts`
+2. Go to [http://h2o-dev.local:8000](http://h2o-dev.local:8000)
 
 ## Testing
 

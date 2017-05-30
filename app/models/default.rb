@@ -35,10 +35,12 @@ class Default < ApplicationRecord
 
   acts_as_taggable_on :tags
   has_many :playlist_items, :as => :actual_object
-  belongs_to :user
+  belongs_to :user, optional: true
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
   before_save :filter_harvard_urls
+
+  has_many :casebooks, inverse_of: :resource
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name
@@ -76,8 +78,16 @@ class Default < ApplicationRecord
     end
   end
 
+  def content_type
+    super || 'html'
+  end
+
   def display_name
     self.name
+  end
+
+  def title
+    name
   end
 
   def h2o_clone(default_user, params)
