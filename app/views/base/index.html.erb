@@ -1,0 +1,91 @@
+<section class="hero">
+  <div class="content">
+    <h1>
+      <em>
+        <%= t 'landing.hero.hook' %>
+      </em>
+      <%= t 'landing.hero.description' %>
+    </h1>
+    <a class="call-to-action" href="<%= root_path %>">
+      <%= t 'landing.hero.call-to-action' %>
+    </a>
+  </div>
+</section>
+<section class="preview">
+  <div class="content">
+    <div class="layout">
+      <div class="features">
+        <% t('landing.preview.features').each do |feature| %>
+          <section>
+            <h2>
+              <%= feature[:label] %>
+            </h2>
+            <p>
+              <%= feature[:summary] %>
+            </p>
+          </section>
+        <% end %>
+        <section>
+          <a class="call-to-action" href="<%= root_path %>">
+            <%= t('landing.preview.call-to-action') %>
+          </a>
+        </section>
+      </div>
+      <div class="screenshot">
+        <div class="image-wrapper">
+          <%= image_tag 'landing-demo.png' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="endorsements">
+  <div class="content">
+    <h1>
+      <%= t 'landing.endorsements.header' %>
+    </h1>
+    <div class="layout">
+      <% t('landing.endorsements.endorsers').each do |endorsement| %>
+        <div class="endorser">
+          <div class="photo">
+            <%= image_tag endorsement[:photo] %>
+          </div>
+          <div class="name">
+            <%= endorsement[:name] %>
+          </div>
+          <div class="institution">
+            <%= endorsement[:institution] %>
+          </div>
+          <div class="link">
+            <%= link_to endorsement[:link][:text], endorsement[:link][:url] %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="testimonial">
+      <div class="quote">
+        <%= t 'landing.endorsements.testimonial.text' %>
+      </div>
+      <div class="source">
+        <%= t 'landing.endorsements.testimonial.source' %>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="schools">
+  <h2>
+    <%= t 'landing.used-by.header' %>
+  </h2>
+  <% t('landing.used-by.schools').each do |school| %>
+    <%= image_tag school[:image], title: school[:name] %>
+  <% end %>
+</section>
+<section class="stinger">
+  <%= image_tag 'logo.png', title: t('header.brand') %>
+  <h1>
+    <%= t 'landing.stinger.pitch' %>
+  </h1>
+  <a class="call-to-action">
+    <%= t 'landing.stinger.call-to-action' %>
+  </a>
+</section>
