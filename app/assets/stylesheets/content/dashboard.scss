@@ -1,0 +1,74 @@
+.content-browser {
+  clear: both;
+
+  .content-page, .header-spacer, .create-button {
+    @include size(225px, 320px);
+    float: left;
+    margin-right: 10px;
+  }
+
+  .content-page {
+    position: relative;
+    padding: 10px;
+
+    background-color: white;
+    border-left: 15px solid $gray;
+    .top {
+      height: 200px;
+    }
+    .state {
+      @include sans-serif($medium, 10px, 10px);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .title {
+      @include sans-serif($medium, 20px, 20px);
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      @include sans-serif($light, 18px, 18px);
+    }
+    .owner {
+      @include sans-serif($medium, 16px, 16px);
+    }
+    &.public {
+      border-left-color: $light-blue;
+      .state { color: $light-blue; }
+      .subtitle { color: $light-blue; }
+    }
+    &.draft {
+      border-left-color: $yellow;
+      &::after {
+        @include size(15px, 25px);
+        @include absolute(-15px, 0);
+        content: '';
+        background-image: asset-url('banner-draft-icon.png');
+        background-position: -15px 0;
+        background-size: 15px;
+      }
+      .state { color: $red; }
+      .subtitle { color: $yellow; }
+    }
+  }
+  .create-button {
+    border: 1px dashed black;
+    text-align: center;
+    cursor: pointer;
+    .icon {
+      @include size(100%, 55px);
+      margin: 100px 0 10px;
+      background-image: asset-url('ui/casebook/create.png');
+      background-position: center;
+      background-size: contain;
+    }
+    .label {
+      @include sans-serif($medium, 14px, 16px);
+    }
+  }
+  .header-spacer {
+    h3 {
+      @include sans-serif($medium, 18px, 20px);
+      margin-top: 0px;
+    }
+  }
+}

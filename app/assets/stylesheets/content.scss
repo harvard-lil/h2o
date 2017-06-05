@@ -25,8 +25,8 @@ main > header.casebook, main > header.dashboard {
 
   .tabs {
     .tab {
-      @include btn();
-      @include button-variant($black; $white; $light-gray);
+      @extend .btn;
+      @include button-variant($black, $white, $light-gray);
       border: 2px solid $light-gray;
       border-bottom-width: 0;
       padding: 12px 25px;
@@ -51,7 +51,7 @@ main > header.casebook, main > header.dashboard {
   }
   input.action, a.action {
     @include sans-serif($bold, 14px, 14px);
-    @include transition(background-size 0.05s linear, background-position 0.05s linear;);
+    @include transition(background-size 0.05s linear, background-position 0.05s linear);
     display: block;
     height: 60px;
     padding: 3px 0 0 60px;
@@ -132,7 +132,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       margin-top: 15px;
       @include monospace($regular, 14px, 14px);
       .breadcrumb {
-        @include size(20px);
+        @include square(20px);
         display: inline-block;
         padding: 4px;
 
@@ -165,8 +165,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   section.resource-search {
     .tabs .tab {
-      @include btn();
-      @include button-variant($black; $white; $white);
+      @extend .btn;
+      @include button-variant($black, $white, $white);
       &.active {
         border: 1px solid black;
         border-bottom-color: transparent;
@@ -179,7 +179,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   .collaborators {
     .add-collaborator {
-      @include size(20px);
+      @include square(20px);
       display: inline-block;
       vertical-align: middle;
 
@@ -191,7 +191,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       @include sans-serif($medium, 14px, 14px);
       display: inline-block;
       &.verified::before {
-        @include size(16px);
+        @include square(16px);
         display: inline-block;
         vertical-align: middle;
 
@@ -222,7 +222,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         right: 0;
 
         > form > input[type=submit] {
-          @include size(50px);
+          @include square(50px);
           display: block;
           margin: 4px 0;
           color: transparent;

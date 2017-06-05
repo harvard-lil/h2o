@@ -1,5 +1,5 @@
 body {
-  @include container-fluid();
+  @extend .container-fluid;
 
   margin: 0;
   padding: 0;
@@ -20,7 +20,7 @@ main {
 main > section, main > header {
   @include make-row();
   > .content {
-    @include container();
+    @extend .container;
     > .layout {
       @include make-row();
     }
@@ -33,19 +33,19 @@ section#flash {
   overflow: hidden;
 
   .flash-message {
-    @include alert();
+    @extend .alert;
 
     margin: 5px 0;
     padding: 5px 12px;
 
     &.flash-success {
-      @include alert-success();
+      @extend .alert-success;
     }
     &.flash-notice {
-      @include alert-info();
+      @extend .alert-info;
     }
     &.flash-error {
-      @include alert-danger();
+      @extend .alert-danger;
     }
   }
 }

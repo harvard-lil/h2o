@@ -1,7 +1,7 @@
 // import bootstrap mixins to build semantic styles
-@import (reference) "bootstrap/bootstrap";
-@import (multiple) "bootstrap/scaffolding";
-@import (multiple) "bootstrap/normalize";
+@import "bootstrap/bootstrap";
+@import "bootstrap/scaffolding";
+@import "bootstrap/normalize";
 
 // shared variables
 @import "fonts";

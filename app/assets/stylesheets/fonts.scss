@@ -8,10 +8,10 @@ $light: 300;
     font-family: $family;
     font-style: $style;
     font-weight: $weight;
-    src: asset-url('${path}.eot');
-    src: asset-url('${path}.eot') format('embedded-opentype'),
-      asset-url('${path}.woff') format('woff'),
-      asset-url('${path}.svg') format('svg');
+    src: assert-url('${path}.eot');
+    src: assert-url('${path}.eot') format('embedded-opentype'),
+      assert-url('${path}.woff') format('woff'),
+      assert-url('${path}.svg') format('svg');
 }
 
 @mixin set-font($family, $weight, $size, $height)
@@ -44,20 +44,20 @@ $font-family-monospace: 'Roboto Mono', Menlo, Monaco, Consolas, "Courier New", m
 
 @mixin sans-serif($weight, $size, $height)
 {
-  @include set-font($font-family-sans-serif, monospace; $weight; $size; $height);
+  @include set-font($font-family-sans-serif, $weight, $size, $height);
 }
 
 @mixin serif-headline($weight, $size, $height)
 {
-  @include set-font('Portrait', serif; $weight; $size; $height);
+  @include set-font('Portrait', $weight, $size, $height);
 }
 
 @mixin serif-text($weight, $size, $height)
 {
-  @include set-font($font-family-serif, serif; $weight; $size; $height);
+  @include set-font($font-family-serif, $weight, $size, $height);
 }
 
 @mixin monospace($weight, $size, $height)
 {
-  @include set-font($font-family-monospace, serif; $weight; $size; $height);
+  @include set-font($font-family-monospace, $weight, $size, $height);
 }
