@@ -1,0 +1,42 @@
+@mixin link-color-full($normal; $hover; $active)
+{
+  color: $normal;
+  border-bottom-color: transparent;
+  &:hover {
+    color: $hover;
+    border-bottom-color: $hover;
+  }
+  &:active {
+    color: $active;
+    border-bottom-color: $active;
+  }
+}
+
+@mixin link-color($base)
+{
+  @include link-color-full($base, lighten($base, 10%), darken($base, 10%));
+}
+
+@mixin transition(...)
+{
+  -webkit-transition: $arguments;
+  -moz-transition: $arguments;
+  -o-transition: $arguments;
+  transition: $arguments;
+}
+
+@mixin size($square)
+{
+  width: $square;
+  height: $square;
+}
+
+@mixin size($width; $height)
+{
+  width: $width;
+  height: $height;
+}
+
+.hide {
+  display: none;
+}

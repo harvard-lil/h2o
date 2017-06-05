@@ -1,5 +1,5 @@
 body {
-  .container-fluid();
+  @include container-fluid();
 
   margin: 0;
   padding: 0;
@@ -18,34 +18,34 @@ main {
 }
 
 main > section, main > header {
-  .make-row();
-  > .content, > form > .content {
-    .container();
+  @include make-row();
+  > .content {
+    @include container();
     > .layout {
-      .make-row();
+      @include make-row();
     }
   }
 }
 
 section#flash {
-  .transition(height 0.25s linear);
+  @include transition(height 0.25s linear);
   height: 0px;
   overflow: hidden;
 
   .flash-message {
-    .alert();
+    @include alert();
 
     margin: 5px 0;
     padding: 5px 12px;
 
     &.flash-success {
-      .alert-success();
+      @include alert-success();
     }
     &.flash-notice {
-      .alert-info();
+      @include alert-info();
     }
     &.flash-error {
-      .alert-danger();
+      @include alert-danger();
     }
   }
 }
@@ -55,17 +55,17 @@ section#flash {
 
   text-align: center;
   &.casebook-draft {
-    background-color: @yellow;
+    background-color: $yellow;
     .banner-inner {
     }
   }
   .banner-inner {
-    .sans-serif(@bold, 14px, 14px);
+    @include sans-serif($bold, 14px, 14px);
     padding: 7px 100px;
     background-position: -50px center;
     a {
-      .link-color(@black);
-      border-bottom-color: @black;
+      @include link-color($black);
+      border-bottom-color: $black;
       border-bottom-width: 1px;
     }
     &::before {

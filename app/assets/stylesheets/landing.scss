@@ -7,15 +7,15 @@ section.hero {
   padding-bottom: 80px;
 
   h1 {
-    .serif-headline(@regular, 82px, 78px);
+    @include serif-headline($regular, 82px, 78px);
 
     margin: 40px 0px 35px;
 
     em {
-      .serif-headline(@regular, 81px, 105px);
+      @include serif-headline($regular, 81px, 105px);
       display: block;
       font-style: normal;
-      color: @light-blue;
+      color: $light-blue;
     }
   }
 }
@@ -23,28 +23,28 @@ section.hero {
 section.preview {
   padding-top: 30px;
 
-  background-color: @light-blue;
-  color: @white;
+  background-color: $light-blue;
+  color: $white;
 
   .features {
-    .make-md-column(5);
+    @include make-md-column(5);
 
     > section {
-      .make-row();
+      @include make-row();
       padding-left: 14px;
       margin: 15px 0 27px;
     }
     h2 {
-      .sans-serif(@bold, 24px, 18px);
+      @include sans-serif($bold, 24px, 18px);
       margin: 5px 0;
     }
     p {
-      .sans-serif(@regular, 18px, 24px);
+      @include sans-serif($regular, 18px, 24px);
       margin: 10px 0;
     }
   }
   .screenshot {
-    .make-md-column(7);
+    @include make-md-column(7);
 
     overflow: visible;
 
@@ -69,28 +69,28 @@ section.endorsements {
   text-align: center;
 
   h1 {
-    .sans-serif(@light, 32px, 32px);
+    @include sans-serif($light, 32px, 32px);
     margin: 35px 0 50px;
   }
   .endorser {
-    .make-md-column(4);
+    @include make-md-column(4);
 
     > .photo {
       margin-bottom: 18px;
     }
     > .name {
-      .sans-serif(@regular, 14px, 14px);
+      @include sans-serif($regular, 14px, 14px);
       margin: 4px 0;
     }
     > .institution {
-      .sans-serif(@bold, 14px, 14px);
+      @include sans-serif($bold, 14px, 14px);
       padding: 0 10px;
     }
     > .link {
       margin: 18px 0;
       > a {
-        .sans-serif(@bold, 14px, 14px);
-        .link-color(@light-blue);
+        @include sans-serif($bold, 14px, 14px);
+        @include link-color($light-blue);
         &::after {
           padding-left: 5px;
           content: "\276f";
@@ -102,13 +102,13 @@ section.endorsements {
     margin: 42px 0;
     padding: 0 150px;
     .quote {
-      .sans-serif(@light, 32px, 36px);
-      color: @orange;
+      @include sans-serif($light, 32px, 36px);
+      color: $orange;
       &::before {content: '\201c';}
       &::after {content: '\201d';}
     }
     .source {
-      .sans-serif(@medium, 14px, 14px);
+      @include sans-serif($medium, 14px, 14px);
       margin: 10px;
     }
   }
@@ -119,11 +119,11 @@ section.schools {
   margin-top: 15px;
   padding: 20px 0 35px;
 
-  border: 4px solid @light-gray;
+  border: 4px solid $light-gray;
   border-width: 4px 0 4px;
 
   h2 {
-    .sans-serif(@bold, 18px, 18px);
+    @include sans-serif($bold, 18px, 18px);
       margin-bottom: 40px;
   }
   img {
@@ -136,6 +136,6 @@ section.stinger {
   text-align: center;
   margin-top: 75px;
   h1 {
-    .sans-serif(@light, 32px, 32px);
+    @include sans-serif($light, 32px, 32px);
   }
 }

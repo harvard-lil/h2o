@@ -1,17 +1,17 @@
 @import (multiple) "bootstrap/type";
 
-@headings-font-family: @font-family-sans-serif;
-@headings-font-weight: @regular;
-@font-size-h1: 30px;
-@font-size-h2: 24px;
-@font-size-h3: 18px;
-@font-size-h4: 16px;
-@font-size-h5: 16px;
+$headings-font-family: $font-family-sans-serif;
+$headings-font-weight: $regular;
+$font-size-h1: 30px;
+$font-size-h2: 24px;
+$font-size-h3: 18px;
+$font-size-h4: 16px;
+$font-size-h5: 16px;
 
 h5 {
-  .sans-serif(@regular, 12px, 12px);
+  @include sans-serif($regular, 12px, 12px);
   text-transform: uppercase;
-  color: @orange;
+  color: $orange;
 }
 
 body {
@@ -22,7 +22,7 @@ a {
   text-decoration: none !important;
   border-bottom: 2px solid transparent;
   &:active {
-    border-bottom-color: @light-blue;
+    border-bottom-color: $light-blue;
   }
   &.wrapper, &.wrapper:hover, &.wrapper:active {
     border: none !important;

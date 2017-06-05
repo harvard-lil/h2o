@@ -1,0 +1,41 @@
+$btn-border-radius-base: 0;
+
+$btn-default-color: $white;
+$btn-default-bg: $light-blue;
+
+$btn-primary-color: $white;
+$btn-primary-bg: $green;
+
+$padding-base-vertical: 12px;
+$padding-base-horizontal: 17px;
+
+@mixin btn()
+{
+  @include sans-serif($regular, 16px, 16px);
+  padding: 12px 17px 11px;
+  border-width: 0px;
+  text-decoration: none;
+  .box-shadow(none) !important;
+}
+
+@mixin btn-white()
+{
+  @include button-variant($black; $white; transparent);
+  font-weight: $bold;
+}
+
+.simple_form input[type=submit] {
+  @include btn();
+  @include btn-primary();
+}
+
+.button_to input[type=submit] {
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+a.reset-button {
+  @include btn();
+  @include btn-warning();
+}
