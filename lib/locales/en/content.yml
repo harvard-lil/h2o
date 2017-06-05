@@ -19,6 +19,11 @@ en:
       headers:
         owned-casebooks: Your Casebooks
         followed-casebooks: Casebooks you follow
+      new-casebook-modal:
+        title: Create a new casebook.
+        body: Would you like to create a casebook from scratch or adapt an existing casebook?
+        from-scratch: From Scratch
+        adapt-existing: Adapt Existing
     errors:
       not-signed-in: You must sign in to access that page.
       unauthorized: That page is only available to casebook editors.

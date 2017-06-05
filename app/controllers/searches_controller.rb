@@ -3,12 +3,13 @@ class SearchesController < ApplicationController
 
   def show
     @query = params[:q]
+    @type = params[:type] || 'casebooks'
     @results = if @query
       result_groups @query
     else
       result_groups '*'
     end
-    @main_group = @results[params[:type].to_sym || :casebooks]
+    @main_group = @results[@type.to_sym]
   end
 
   def index

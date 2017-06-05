@@ -1,5 +1,6 @@
 class PagesController < ApplicationController
   caches_page :show
+  layout 'casebooks'
 
   def show
     @page_cache = true

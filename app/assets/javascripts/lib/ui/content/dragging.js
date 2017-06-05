@@ -33,9 +33,8 @@ function listingChildren (sectionListing) {
   return Array.prototype.filter.call(sectionWrapper.firstElementChild.children, el => el.classList.contains('listing-wrapper'))
 }
 
-
 document.addEventListener('dragstart', e => {
-  if (!e.target.classList.contains('listing')) { return; }
+  if (!e.target.classList.contains('listing') || !e.target.dataset.editable) { return; }
   e.stopPropagation();
 
   e.target.parentElement.classList.add('drag-from');

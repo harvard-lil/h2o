@@ -15,5 +15,5 @@ class Role < ApplicationRecord
   has_many :roles_users
   has_one :user, :through => :roles_users
 
-  belongs_to :authorizable, :polymorphic => true
+  belongs_to :authorizable, :polymorphic => true, optional: true
 end

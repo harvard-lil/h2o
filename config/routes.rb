@@ -58,6 +58,8 @@ H2o::Application.routes.draw do
 
 
   scope module: 'content' do
+    resources :cases, only: [:show], param: :case_id
+
     resources :casebooks, param: :casebook_id do
       member do
         resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
@@ -90,6 +92,8 @@ H2o::Application.routes.draw do
     get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
   end
+  
+  get '/help', to: 'pages#show', defaults: {id: 'help'}
 
   get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'

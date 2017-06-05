@@ -14,43 +14,68 @@
   <div class="content">
     <% if @results %>
       <div class="search-tabs">
-        <a href="<%= search_path(q: @query, type: 'casebooks') %>" class="search-tab">
-          <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
-        </a>
-        <a href="<%= search_path(q: @query, type: 'cases') %>" class="search-tab">
-          <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
-        </a>
-        <a href="<%= search_path(q: @query, type: 'users') %>" class="search-tab">
-          <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
-        </a>
+        <div class="search-tab <% if @type == 'casebooks' %>active<% end %>">
+          <a href="<%= search_path(q: @query, type: 'casebooks') %>" class="wrapper">
+            <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
+          </a>
+        </div>
+        <div class="search-tab <% if @type == 'cases' %>active<% end %>">
+          <a href="<%= search_path(q: @query, type: 'cases') %>" class="wrapper">
+            <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
+          </a>
+        </div>
+        <div class="search-tab <% if @type == 'users' %>active<% end %>">
+          <a href="<%= search_path(q: @query, type: 'users') %>" class="wrapper">
+            <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
+          </a>
+        </div>
       </div>
-      <%= t 'search.n-results', n: @main_groupcount %>
       <% if @main_group %>
         <div class="results-list">
           <% @main_group.results.each do |result| %>
             <% if result.is_a? Content::Casebook %>
-              <div class="results-entry">
-                <a href="<%= casebook_path(result.id) %>">
-                  <%= result.display_name %>
-                  <% if result.respond_to?(:owner) && result.owner %>
-                    <%= result.owner.display_name %>
-                  <% end %>
-                </a>
-              </div>
+              <a href="<%= casebook_path(result.id) %>" class="wrapper">
+                <div class="results-entry">
+                  <div class="title">
+                    <%= result.display_name %>
+                  </div>
+                  <div class="owner">
+                    <% if result.respond_to?(:owner) && result.owner %>
+                      <%= result.owner.display_name %>
+                    <% end %>
+                  </div>
+                  <div class="date">
+                    <%= result.created_at.year %>
+                  </div>
+                </div>
+              </a>
             <% elsif result.is_a? Case %>
-              <div class="results-entry">
-                <a href="<%= case_path(result.id) %>">
-                  <%= result.full_name %>
-                  <%= result.decision_date %>
-                </a>
-              </div>
+              <a href="<%= case_path(result.id) %>" class="wrapper">
+                <div class="results-entry">
+                  <div class="title">
+                    <%= result.full_name %>
+                  </div>
+                  <div class="owner">
+                  </div>
+                  <div class="date">
+                    <%= result.decision_date %>
+                  </div>
+                </div>
+              </a>
             <% elsif result.is_a? User %>
-              <div class="results-entry">
-                <a href="<%= user_path(result.id) %>">
-                  <%= result.display_name %>
-                  <%= t 'search.results.user-casebook-count', count: result.casebooks.count %>
-                </a>
-              </div>
+              <a href="<%= user_path(result.id) %>" class="wrapper">
+                <div class="results-entry">
+                  <div class="profile-image">
+                    <%= image_tag result.image.url(:thumb) %>
+                  </div>
+                  <div class="title">
+                    <%= result.display_name %>
+                  </div>
+                  <div class="casebook-count">
+                    <%= t 'search.results.user-casebook-count', count: result.casebooks.count %>
+                  </div>
+                </div>
+              </a>
             <% end %>
           <% end %>
 

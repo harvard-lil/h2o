@@ -20,9 +20,11 @@
     <div class="content">
       <div class="casebook-inner">
         <%= render 'content/search' %>
-        <div class="tabs">
-          <%= render 'content/tabs' %>
-        </div>
+        <% if @casebook.present? %>
+          <div class="tabs">
+            <%= render 'content/tabs' %>
+          </div>
+        <% end %>
       </div>
     </div>
   </header>
@@ -32,9 +34,11 @@
         <div class="top-strip"></div>
         <%= yield %>
       </div>
-      <aside class="casebook-actions">
-        <%= render 'content/actions' %>
-      </aside>
+      <% if @casebook.present? %>
+        <aside class="casebook-actions">
+          <%= render 'content/actions' %>
+        </aside>
+      <% end %>
     </div>
   </section>
   <% if @casebook %>
@@ -43,7 +47,7 @@
       RAILS_ROUTES.casebook_section_path = function (sectionId){ return '<%= j casebook_section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
     </script>
   <% end %>
-  <% if @section.try :is_a?, Content::Resource %>
+  <% if @section.try(:is_a?, Content::Resource) && @section.persisted? %>
     <script>
       window.RAILS_ROUTES = {};
       RAILS_ROUTES.resource_annotations_path = function () { return '<%= j resource_annotations_path(@section.id)%>' };

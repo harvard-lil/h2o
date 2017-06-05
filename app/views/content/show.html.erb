@@ -1,4 +1,4 @@
-<% if @section.present? %>
+<% if @section.present? && @casebook.present? %>
   <header class="casebook-header">
     <a class="casebook-title" href="<%= casebook_path(@casebook) %>">
       <%= @casebook.title %>
@@ -9,7 +9,7 @@
   </header>
 <% end %>
 <header class="content">
-  <% if @section.present? %>
+  <% if @section.present? && @casebook.present? %>
     <div class="breadcrumbs">
       <%= t 'content.show.section' %>
       <%= @section.ordinals.each_with_index do |ordinal, idx| %>
@@ -87,6 +87,3 @@
     </section>
   <% end %>
 </section>
-
-
-

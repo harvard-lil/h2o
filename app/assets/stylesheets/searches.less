@@ -1,0 +1,50 @@
+main > section.search-results {
+  background-color: @light-gray;
+  .content {
+    padding: 20px 40px;
+    margin-top: 25px;
+
+    background-color: @white;
+    border: 1px solid @dark-gray;
+  }
+}
+
+.search-tabs {
+  .make-row();
+  margin-bottom: 20px;
+
+  .search-tab {
+    .make-md-column(4);
+    .sans-serif(@regular, 18px, 18px);
+
+    padding-bottom: 10px;
+
+    text-align: center;
+    color: @black;
+    &.active {
+      border-bottom: 4px solid @light-blue;
+    }
+  }
+}
+
+.results-list {
+  .results-entry {
+    .make-row();
+    // margin: 15px 0;
+    padding: 10px 0;
+
+    border-top: 1px solid @dark-gray;
+
+    .title {
+      .make-md-column(9);
+      .sans-serif(@bold, 18px, 18px);
+      float: left;
+    }
+    .owner, .casebook-count {
+      .make-md-column(2);
+    }
+    .date, .profile-image {
+      .make-md-column(1);
+    }
+  }
+}
