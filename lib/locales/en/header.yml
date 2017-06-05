@@ -11,5 +11,5 @@ en:
     user:
       unverified: Email needs verification
       verified: Verified User
-      view-profile: View profile
+      edit-profile: Edit profile
       sign-out: Sign out

@@ -32,6 +32,16 @@
   height: @height;
 }
 
+.absolute(@x; @y) {
+  position: absolute;
+  left: @x;
+  top: @y;
+}
+
+.absolute(@offset) {
+  .absolute(@offset, @offset);
+}
+
 .hide {
   display: none;
 }

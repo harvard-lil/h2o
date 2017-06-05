@@ -75,6 +75,9 @@ class User < ApplicationRecord
   has_many :collaborations, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :collaborations, source: :content, primary_key: :id
 
+  has_attached_file :image, styles: { medium: "300x300>", thumb: "33x33#" }, default_url: "/assets/ui/portrait-anonymous-:style.png"
+  validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+
   alias :textblocks :text_blocks
 
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
@@ -163,7 +166,7 @@ class User < ApplicationRecord
     date :updated_at
 
     integer :user_id, :stored => true
-    string :klass, :stored => true
+    string(:klass, stored: true) { 'User' }
   end
 
   def user_id
@@ -238,15 +241,15 @@ class User < ApplicationRecord
     end
   end
 
-  # def send_verification_request
-  #   reset_perishable_token!
-  #   Notifier.verification_request(self).deliver
-  # end
-
-  def send_verification_request_to_admin
+  def send_verification_request
     reset_perishable_token!
-    Notifier.admin_verification_request(self).deliver
+    Notifier.verification_request(self).deliver
   end
+
+  # def send_verification_request_to_admin
+  #   reset_perishable_token!
+  #   Notifier.admin_verification_request(self).deliver
+  # end
 
   def deliver_password_reset_instructions!
     reset_perishable_token!

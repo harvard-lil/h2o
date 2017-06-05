@@ -10,6 +10,15 @@ en:
         save: Save changes
         revert: Reset changes
   content:
+    dashboard:
+      links:
+        create-new-casebook: 'Create a new casebook'
+      casebooks:
+        published: Published
+        draft: Draft
+      headers:
+        owned-casebooks: Your Casebooks
+        followed-casebooks: Casebooks you follow
     errors:
       not-signed-in: You must sign in to access that page.
       unauthorized: That page is only available to casebook editors.

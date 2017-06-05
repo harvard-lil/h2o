@@ -1,4 +1,13 @@
 en:
   search:
-    zero-results: No results found.
-    n-results: "%{n} results found:"
+    results:
+      no-results: No results found.
+      n-results: "%{n} results found:"
+      n-casebook-results: "Casebooks (%{n})"
+      n-case-results: "Cases (%{n})"
+      n-user-results: "Users (%{n})"
+      user-casebook-count: "%{count} casebooks"
+    labels:
+      query:
+        placeholder: Find casebooks, cases, or other resources.
+      sort-by: Sort by

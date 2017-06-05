@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170526200505) do
+ActiveRecord::Schema.define(version: 20170605093900) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -773,6 +774,10 @@ ActiveRecord::Schema.define(version: 20170526200505) do
     t.boolean "print_links", default: true, null: false
     t.string "toc_levels", limit: 255, default: "", null: false
     t.string "print_export_format", limit: 255, default: "", null: false
+    t.string "image_file_name"
+    t.string "image_content_type"
+    t.integer "image_file_size"
+    t.datetime "image_updated_at"
     t.index ["email_address"], name: "index_users_on_email_address"
     t.index ["last_request_at"], name: "index_users_on_last_request_at"
     t.index ["login"], name: "index_users_on_login"

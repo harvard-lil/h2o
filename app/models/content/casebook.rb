@@ -37,6 +37,25 @@ class Content::Casebook < Content::Node
 
   after_create :clone_contents, if: -> {copy_of.present?}
 
+  searchable do
+    text :title, boost: 3.0
+    text :subtitle
+    text :headnote
+    text :content do
+      if self.is_a? Content::Resource
+        resource.content
+      end
+    end
+
+    string(:klass, stored: true) { self.class.name }
+    string(:display_name, stored: true) { title }
+    boolean :public
+
+    integer :owner_ids, stored: true, multiple: true do
+      owners.map &:id
+    end
+  end
+
   def clone owner:
     cloned_casebook = dup
     cloned_casebook.update_attributes copy_of: self,
@@ -52,6 +71,10 @@ class Content::Casebook < Content::Node
         copy_of: node,
         is_alias: true
     end
+  end
+
+  def display_name
+    title
   end
 
   def owner

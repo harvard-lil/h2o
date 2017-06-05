@@ -31,7 +31,7 @@ H2o::Application.routes.draw do
     member do
       # post 'disconnect_dropbox'
       # get 'verification_request'
-      # get 'verify/:token' => 'users#verify', as: :verify
+      get 'verify/:token' => 'users#verify', as: :verify
     end
     collection do
       get 'user_lookup'
@@ -69,6 +69,9 @@ H2o::Application.routes.draw do
       resources :annotations, only: [:create]
     end
   end
+
+  resource :search, only: [:show, :index]
+  get '/browse', to: 'searches#index'
 
   resources :cases do
     member do

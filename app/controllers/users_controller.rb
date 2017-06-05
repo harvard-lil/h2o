@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   cache_sweeper :user_sweeper
   protect_from_forgery :except => [:disconnect_dropbox]
-  layout 'main', only: [:new, :create, :show]
+  layout 'main', only: [:new, :create, :show, :edit, :update]
 
   DEFAULT_SHOW_TYPES = {
     :pending_cases => {
@@ -26,39 +26,32 @@ class UsersController < ApplicationController
   end
 
   def index
-    common_index User
+    redirect_to search_path(type: 'users')
+    # common_index User
   end
 
-  # def verification_request
-  #   if current_user.present? && current_user = User.where(id: params[:id]).first
-  #     current_user.send_verification_request
-  #     flash[:notice] = 'An email has been sent to you for account verification. Please stay logged in and visit the link in the email to verify your account.'
-  #     redirect_to user_path(current_user)
-  #   end
-  # end
-
-  # def verify
-  #   if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
-  #     current_user.update_column(:verified, true)
-  #     flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
-  #     redirect_to user_path(current_user)
-  #     return
-  #   end
-  #   if current_user
-  #     flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
-  #     redirect_to user_path(current_user)
-  #   else
-  #     flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
-  #     redirect_to '/user_sessions/new'
-  #   end
-  # end
+  def verify
+    if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
+      current_user.update_column(:verified, true)
+      flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
+      redirect_to user_path(current_user)
+      return
+    end
+    if current_user
+      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
+      redirect_to user_path(current_user)
+    else
+      flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
+      redirect_to '/user_sessions/new'
+    end
+  end
 
   def create
-    @user = User.new(users_params)
+    @user = User.new(permitted_user_params)
     verify_captcha(@user)
 
     if @user.save
-      @user.send_verification_request_to_admin
+      @user.send_verification_request
       flash[:success] = I18n.t('users.sign-up.flash.success.html').html_safe
       redirect_to user_path(@user)
     else
@@ -71,121 +64,31 @@ class UsersController < ApplicationController
   end
 
   def show
-    set_sort_params
-    set_sort_lists
-    params[:page] ||= 1
-
-    @user = params[:id] == 'create_anon' ? @current_user : User.where(id: params[:id]).first
-    if @user.nil?
-      redirect_to root_url, :status => 301
-      return
-    end
-
-    # TODO: Fix pagination for user bookmarks
-
-    if !params.has_key?("ajax_region")
-      user_id_filter = @user.id
-      public_filtering = !(current_user && @user == current_user)
-      primary_filtering = false
-      secondary_filtering = false
-      bookmarks_id = @user.present? ? @user.bookmark_id : 0
-
-      models = [Case, TextBlock, Default]
-
-      if params.has_key?(:klass)
-        models = [params[:klass].singularize.classify.constantize]
-      end
-
-      @collection = Sunspot.new_search(models)
-      @collection.build do
-        paginate :page => params[:page], :per_page => 10
-        with :user_id, user_id_filter
-
-        if public_filtering
-          with :public, true
-        end
-
-        if primary_filtering
-          with :primary, true
-        end
-        if secondary_filtering
-          with :secondary, true
-        end
-
-        if params.has_key?(:within)
-          keywords params[:within]
-        end
-
-        facet(:user_id)
-        facet(:klass)
-        facet(:primary)
-        facet(:secondary)
-
-        order_by params[:sort].to_sym, params[:order].to_sym
-      end
-
-      @collection.execute!
-      build_facet_display(@collection)
-
-      if primary_filtering
-        @klass_facets = []
-      end
-    end
-
-    if !request.xhr?
-      set_sort_lists
-      @sort_lists[:all]["updated_at"] = @sort_lists[:all]["created_at"]
-      @sort_lists[:all]["updated_at"][:display] = "SORT BY MOST RECENT ACTIVITY"
-      @sort_lists[:all].delete "created_at"
-      if params[:sort]
-        @sort_lists[:all]["updated_at"][:selected] = true
-      end
-      if params["controller"] == "users" && params["action"] == "show"
-        @sort_lists.each do |k, v|
-          v.delete("user")
-        end
-      end
-
-      build_user_page_content(params)
-    end
-
-    if request.xhr?
-      render :partial => 'shared/generic_block'
-    else
-      render 'show'
-    end
+    @user = User.find(params[:id])
+    render 'content/dashboard'
   end
 
   def edit
-    if current_user && request.xhr?
+    if current_user
       @user = current_user
-    elsif current_user && !request.xhr?
-      redirect_to "/users/#{current_user.id}"
-    else
-      redirect_to root_url
     end
   end
 
   def update
     @user = @current_user
 
-    if @user.update_attributes(users_params)
-      apply_user_preferences(@user, false, :force_overwrite => true)
+    user_params = permitted_user_params
+    if user_params[:password].present? && !@user.valid_password?(user_params[:current_password])
+      flash[:error] = "Current password is incorrect."
+      return render :edit
+    end
+    user_params.delete :current_password
 
-      profile_content = render_to_string("shared/_author_stats.html.erb", :locals => { :user => @user })
-      settings_content = render_to_string("users/_settings.html.erb", :locals => { :user => @user })
-
-      render :json => {
-        :error => false,
-        :custom_block => "update_user_settings",
-        :settings_content => settings_content,
-        :profile_content => profile_content
-      }
+    if @user.update_attributes(user_params)
+      flash[:success] = 'Profile updated.'
+      redirect_to edit_user_path(@user)
     else
-      render :json => {
-        :error => true,
-        :message => "Could not update user, with errors: #{@user.errors.full_messages.join(', ')}"
-      }
+      render :edit
     end
   end
 
@@ -237,9 +140,10 @@ class UsersController < ApplicationController
   end
 
   private
-  def users_params
+  def permitted_user_params
     common_attrs = common_user_preference_attrs.reject {|attr| attr == :user_id}
     params.fetch(:user, {}).permit(:id, :name, :login, :password, :password_confirmation,
+                                  :current_password, :image,
                                  :email_address, :tz_name, :attribution, :title,
                                  :url, :affiliation, :description, :terms, *common_attrs
                                  )

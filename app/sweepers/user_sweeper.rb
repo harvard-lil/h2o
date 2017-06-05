@@ -19,11 +19,6 @@ class UserSweeper < ActionController::Caching::Sweeper
 
   def after_update(record)
     if record.saved_changes.keys.include?("attribution")
-      record.playlists.each do |playlist|
-        ActionController::Base.expire_page "/playlists/#{playlist.id}.html"
-        ActionController::Base.expire_page "/playlists/#{playlist.id}/export.html"
-      end
-
       Sunspot.index record.all_items
       Sunspot.commit
     end

@@ -1,0 +1,65 @@
+<header>
+    <div class="content">
+      <%= simple_form_for :search, url: :search, method: :get do |f| %>
+        <div class="narrow-inner">
+          <%= text_field_tag :q, @query, class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
+        </div>
+        <div class="search-advanced">
+          <%= f.select :sort, placeholder: t('search.labels.sort-by'), label: false %>
+        </div>
+      <% end %>
+    </div>
+</header>
+<section class="search-results">
+  <div class="content">
+    <% if @results %>
+      <div class="search-tabs">
+        <a href="<%= search_path(q: @query, type: 'casebooks') %>" class="search-tab">
+          <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
+        </a>
+        <a href="<%= search_path(q: @query, type: 'cases') %>" class="search-tab">
+          <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
+        </a>
+        <a href="<%= search_path(q: @query, type: 'users') %>" class="search-tab">
+          <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
+        </a>
+      </div>
+      <%= t 'search.n-results', n: @main_groupcount %>
+      <% if @main_group %>
+        <div class="results-list">
+          <% @main_group.results.each do |result| %>
+            <% if result.is_a? Content::Casebook %>
+              <div class="results-entry">
+                <a href="<%= casebook_path(result.id) %>">
+                  <%= result.display_name %>
+                  <% if result.respond_to?(:owner) && result.owner %>
+                    <%= result.owner.display_name %>
+                  <% end %>
+                </a>
+              </div>
+            <% elsif result.is_a? Case %>
+              <div class="results-entry">
+                <a href="<%= case_path(result.id) %>">
+                  <%= result.full_name %>
+                  <%= result.decision_date %>
+                </a>
+              </div>
+            <% elsif result.is_a? User %>
+              <div class="results-entry">
+                <a href="<%= user_path(result.id) %>">
+                  <%= result.display_name %>
+                  <%= t 'search.results.user-casebook-count', count: result.casebooks.count %>
+                </a>
+              </div>
+            <% end %>
+          <% end %>
+
+        </div>
+      <% else %>
+        <div class="no-results">
+          <%= t 'search.results.no-results' %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</section>

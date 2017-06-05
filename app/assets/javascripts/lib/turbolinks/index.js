@@ -16,7 +16,7 @@ document.addEventListener('submit', e => {
   if (form.getAttribute('data-turbolinks-disable')) return;
   e.preventDefault();
   if (form.method === 'post') {
-    post(form.action, serialize(form));
+    post(form.action, new FormData(form));
   } else if (form.method === 'get') {
     Turbolinks.visit(`${form.action}?${serialize(form)}`);
   }
@@ -25,8 +25,7 @@ document.addEventListener('submit', e => {
 // Monkey patch for section ordinals
 Turbolinks.Location.prototype.isHTML = function () {
   let extension = this.getExtension();
-  return extension == null ||
-    extension.match(/^\.\d/);
+  return extension == null || extension == '' || extension.match(/^\.\d/);
 };
 
 // Monkey patch for scroll persistence
