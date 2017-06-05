@@ -1,0 +1,24 @@
+<div class="content">
+  <div class="brand">
+    <%= t 'footer.brand' %>
+  </div>
+  <div class="layout">
+    <% t('footer.links').in_groups_of(4, false) do |group_links| %>
+      <div class="link-group">
+        <% group_links.each do |link| %>
+          <div class="link">
+            <%= link_to link[:text], link[:route] %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <div class="info">
+      <div class="link">
+        <%= link_to t('footer.contact-link'), :root %>
+      </div>
+      <div class="copyright">
+        <%= t 'footer.copyright' %>
+      </div>
+    </div>
+  </div>
+</div>

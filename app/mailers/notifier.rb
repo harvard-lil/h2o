@@ -36,6 +36,12 @@ class Notifier < ActionMailer::Base
     mail(to: user.email_address, subject: "H2O Password Reset Instructions")
   end
 
+  def verification_request(user)
+    @verification_url = verify_user_url(user, token: user.perishable_token)
+    @user_name = user.display_name
+    mail(to: user.email_address, subject: "H2O: Verify your email address")
+  end
+
   def verification_notice(user)
     mail(to: user.email_address, subject: "Welcome to H2O. Your account has been verified")
   end
@@ -81,8 +87,8 @@ class Notifier < ActionMailer::Base
   end
 
   def case_import_failure(user, case_metadata, options)
-    @user = user 
-    @case_metadata = case_metadata 
+    @user = user
+    @case_metadata = case_metadata
     @options = options
     mail(to: H2o::Application.config.admin_email, subject: 'Case import failed')
   end

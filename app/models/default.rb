@@ -83,11 +83,11 @@ class Default < ApplicationRecord
   end
 
   def display_name
-    self.name
+    self.name || self.url
   end
 
   def title
-    name
+    display_name
   end
 
   def h2o_clone(default_user, params)

@@ -1,0 +1,55 @@
+<nav>
+  <div class="content">
+    <div class="brand">
+      <a class="wrapper logo" href="<%= root_path %>">
+        <%= t 'header.brand' %>
+      </a>
+    </div>
+    <div class="links">
+      <% if current_user.present? %>
+        <%= link_to t('header.links.create-casebook'), :new_casebook, class: 'create-casebook' %>
+        <%= link_to t('header.links.browse'), :browse %>
+        <%= link_to t('header.links.help'), :root %>
+      <% else %>
+        <%= link_to t('header.links.browse'), :browse %>
+        <%= link_to t('header.links.about'), :root %>
+      <% end %>
+    </div>
+    <div class="user">
+      <% if current_user.present? %>
+        <div class="current-user">
+          <% if current_user.verified? %>
+            <div class="verified">
+              <%= t 'header.user.verified' %>
+            </div>
+          <% else %>
+            <div class="unverified">
+              <%= t 'header.user.unverified' %>
+            </div>
+          <% end %>
+          <a class="wrapper" href="<%= user_path(current_user) %>">
+            <div class="name">
+              <%= current_user.display_name %>
+            </div>
+            <div class="portrait">
+              <%= image_tag current_user.image.url :thumb %>
+            </div>
+          </a>
+          <div class="user-links">
+            <a class="user-link" href="<%= edit_user_path(current_user) %>">
+              <%= t 'header.user.edit-profile' %>
+            </a>
+            <%= button_to t('header.user.sign-out'), user_session_path(current_user_session), method: 'delete', class: 'user-link' %>
+          </div>
+        </div>
+      <% else %>
+        <a class="sign-up" href="<%= new_user_path %>">
+          <%= t 'header.links.sign-up' %>
+        </a>
+        <a class="sign-in" href="<%= new_user_session_path %>">
+          <%= t 'header.links.sign-in' %>
+        </a>
+      <% end %>
+    </div>
+  </div>
+</nav>

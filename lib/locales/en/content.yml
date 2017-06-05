@@ -10,11 +10,49 @@ en:
         save: Save changes
         revert: Reset changes
   content:
+    add-resource-modal:
+      title: Add Resource
+      tabs:
+        case: Case
+        text: Text
+        link: Link
+      case-search:
+        search-button: Search
+        query-placeholder: Search for a case to import
+      new-text:
+        title-label: Text title
+        content-label: Text body
+        content-placeholder: Add and format text
+      new-link:
+        header: Enter the URL of any asset to link from the web.
+        examples: 'Some examples: YouTube videos, PDFs, JPG, PNG, or GIF images'
+        url-placeholder: Enter a URL to add it to your casebook
+        save-button: Add linked resource
+    publish-modal:
+      title: Confirm Publish
+      body: Are you ready to share this book with the world?
+      confirm: 'Yes'
+      cancel: 'No'
+    dashboard:
+      links:
+        create-new-casebook: 'Create a new casebook'
+      casebooks:
+        published: Published
+        draft: Draft
+      headers:
+        owned-casebooks: Your Casebooks
+        followed-casebooks: Casebooks you follow
+      new-casebook-modal:
+        title: Create a new casebook.
+        body: Would you like to create a casebook from scratch or adapt an existing casebook?
+        from-scratch: From Scratch
+        adapt-existing: Adapt Existing
     errors:
       not-signed-in: You must sign in to access that page.
       unauthorized: That page is only available to casebook editors.
     actions:
       publish: Publish
+      edit: Edit
       clone-casebook: Clone
       add-section: Add Section
       add-resource: Add Resource
@@ -50,6 +88,10 @@ en:
         not-applicable: —
       add-to-section: Add to section
       add-to-casebook: Add to casebook
+    text-block:
+      save-changes: Update content
+    link:
+      follow-link: 'Click here to view this linked resource off-site:'
     new:
       add-to-section: Add a resource to this section
       add-to-casebook: Add a resource to this casebook

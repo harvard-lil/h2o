@@ -6,10 +6,10 @@
 
 %section.dashboard
   .content
-    %h3= t 'content.dashboard.headers.updates'
+    %h2= t 'content.dashboard.headers.updates'
   .content
-    %h3= t 'content.dashboard.headers.casebooks'
-  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.editable-casebooks')}
-  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.saved-cases')}
-  -#   = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks')}
+    %h2= t 'content.dashboard.headers.casebooks'
+    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.owned-casebooks'), content: @user.casebooks.owned, create_button: true}
+    -# = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.saved-cases'), content: @user.casebooks.cases}
+    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks'), content: @user.casebooks.followed}
   -# -# %script{type: 'text/template'}= render partial: 'content/dashboard/content_browser'

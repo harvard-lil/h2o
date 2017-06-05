@@ -1,6 +1,25 @@
-<div class="content-page <%= content.className %>">
-  <div class="title"><%= content.title %></div>
-  <div class="subtitle"><%= content.subtitle %></div>
-
-  <div class="user"><%= content.owner.display_name %></div>
+<div class="content-browser">
+  <div class="header-spacer">
+    <h3> <%= header %> </h3>
+  </div>
+  <% if defined?(create_button) %>
+    <div class="create-button" data-action="show-casebook-modal">
+      <div class="icon"></div>
+      <div class="label">
+        <%= t 'content.dashboard.links.create-new-casebook' %>
+      </div>
+    </div>
+  <% end %>
+  <% content.each do |casebook| %>
+    <a href="<%= casebook_url(casebook) %>" class="wrapper">
+      <div class="content-page <% if casebook.public %>public<% else %>draft<% end %>">
+        <div class="top">
+          <div class="state"><%= casebook.public ? t('content.dashboard.casebooks.published') : t('content.dashboard.casebooks.draft') %></div>
+          <div class="title"><%= casebook.title %></div>
+          <div class="subtitle"><%= casebook.subtitle %></div>
+        </div>
+        <div class="owner"><%= casebook.owners.first.display_name %></div>
+      </div>
+    </a>
+    <% end %>
 </div>

@@ -1,0 +1,59 @@
+<% if @casebook.nil? %>
+  <% @casebook_class = 'casebook-none' %>
+<% elsif @casebook.public? %>
+  <% @casebook_class = 'casebook-public' %>
+<% else %>
+  <% @casebook_class = 'casebook-draft' %>
+<% end %>
+
+<% if @casebook_class == 'casebook-draft' %>
+  <% content_for :banner do %>
+    <div class="<%= @casebook_class %> banner">
+      <div class="banner-inner">
+        <%= t 'content.edit.draft-banner.html', publish_path: edit_casebook_path(@casebook) %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+<% content_for :nested_layout do %>
+  <header class="<%= @casebook_class %> casebook" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:ordinal_string) %>">
+    <div class="content">
+      <div class="casebook-inner">
+        <%= render 'content/search' %>
+        <% if @casebook.present? %>
+          <div class="tabs">
+            <%= render 'content/tabs' %>
+          </div>
+        <% else %>
+        <% end %>
+      </div>
+    </div>
+  </header>
+  <section class="<%= @casebook_class %> casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <%= yield %>
+      </div>
+      <% if @casebook.present? %>
+        <aside class="casebook-actions">
+          <%= render 'content/actions' %>
+        </aside>
+      <% end %>
+    </div>
+  </section>
+  <% if @casebook %>
+    <script>
+      window.RAILS_ROUTES = {};
+      RAILS_ROUTES.casebook_path = function (){ return '<%= j casebook_path(@casebook) %>'};
+      RAILS_ROUTES.casebook_section_path = function (sectionId){ return '<%= j casebook_section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
+    </script>
+  <% end %>
+  <% if @section.try(:is_a?, Content::Resource) && @section.persisted? %>
+    <script>
+      window.RAILS_ROUTES = {};
+      RAILS_ROUTES.resource_annotations_path = function () { return '<%= j resource_annotations_path(@section.id)%>' };
+    </script>
+  <% end %>
+<% end %>
+<%= render template: 'layouts/main' %>

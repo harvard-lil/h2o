@@ -8,9 +8,16 @@ en:
         password_confirmation: Confirm password
         sign-up: Sign up
         sign-in: Sign in
+        save-changes: Save changes
+        change-password: Change password
         reset-password: Send reset email
+        image: Profile image
   users:
     edu-only-error: Email address is not .edu.
+    edit-profile:
+      header: Edit your profile
+    change-password:
+      header: Change your password
     reset-password:
       success:
         html:

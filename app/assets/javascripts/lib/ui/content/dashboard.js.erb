@@ -1,0 +1,55 @@
+import {html} from 'es6-string-html-template';
+import delegate from 'delegate';
+import Component from 'lib/ui/component';
+
+
+delegate(document, '[data-action="show-casebook-modal"]', 'click', showCasebookModal);
+
+let modal = null;
+
+document.addEventListener("turbolinks:before-cache", function() {
+  if (modal) { modal.destroy(); }
+});
+
+function showCasebookModal () {
+  modal = new NewCasebookModal;
+}
+
+class NewCasebookModal extends Component {
+  constructor () {
+    super({
+      id: 'new-casebook-modal',
+      events: {
+        'click #new-casebook-modal': (e) => { if (e.target.id === 'new-casebook-modal') this.destroy()},
+        'click .close': (e) => { this.destroy() },
+      }
+    });
+    document.body.appendChild(this.el);
+    this.render();
+  }
+
+  destroy () {
+    super.destroy();
+    modal = null;
+  }
+
+  template () {
+    return html`<div class="modal fade in" id="new-casebook-modal" style="display: block">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close"><span>&times;</span></button>
+            <h4 class="modal-title"><%= t 'content.dashboard.new-casebook-modal.title' %></h4>
+          </div>
+          <div class="modal-body">
+            <%= I18n.t 'content.dashboard.new-casebook-modal.body' %>
+          </div>
+          <div class="modal-footer">
+            <%= link_to t('content.dashboard.new-casebook-modal.from-scratch'), :new_casebook, class: 'modal-button' %>
+            <%= link_to t('content.dashboard.new-casebook-modal.adapt-existing'), :search, class: 'modal-button' %>
+          </div>
+        </div>
+      </div>
+    </div>`
+  }
+}

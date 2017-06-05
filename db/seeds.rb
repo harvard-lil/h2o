@@ -1,5 +1,10 @@
+Page.create! page_title: "H2O Help", slug: "help", content: "<p>Here is some information about using H2O:</p>"
+
+Role.create!(name: 'superadmin')
+Role.create!(name: 'case_admin')
+
 admin_user = User.create!( login: 'admin_user', email_address: 'admin_user@example.edu', verified: true, password: 'asdf098asd0f98asd09fasdf',
-  password_confirmation: 'asdf098asd0f98asd09fasdf', persistence_token: 'abcd' )
+  password_confirmation: 'asdf098asd0f98asd09fasdf', persistence_token: 'abcd', roles: [Role.find_by_name('superadmin')] )
 
 
 # ## Cases in this casebook are missing content
