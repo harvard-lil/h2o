@@ -1,0 +1,63 @@
+$bold: 700;
+$medium: 500;
+$regular: 400;
+$light: 300;
+
+@mixin load-font($family, $style, $weight, $path)
+{
+    font-family: $family;
+    font-style: $style;
+    font-weight: $weight;
+    src: asset-url('${path}.eot');
+    src: asset-url('${path}.eot') format('embedded-opentype'),
+      asset-url('${path}.woff') format('woff'),
+      asset-url('${path}.svg') format('svg');
+}
+
+@mixin set-font($family, $weight, $size, $height)
+{
+  font-family: $family;
+  font-weight: $weight;
+  font-size: $size;
+  line-height: $height;
+}
+
+$font-family-sans-serif: 'Atlas Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+@font-face {
+  @include load-font($font-family-sans-serif, normal, $bold, 'AtlasGrotesk-Medium');
+}
+
+@font-face {
+  @include load-font($font-family-sans-serif, normal, $regular, 'AtlasGrotesk-Regular');
+}
+
+@font-face {
+  @include load-font($font-family-sans-serif, normal, $light, 'AtlasGrotesk-Light');
+}
+
+$font-family-serif: 'Chronicle Text G3', Georgia, 'Times New Roman', Times, serif;
+@font-face {
+  @include load-font($font-family-serif, normal, $regular, 'ChronicleTextG3-Roman');
+}
+
+$font-family-monospace: 'Roboto Mono', Menlo, Monaco, Consolas, "Courier New", monospace;
+
+@mixin sans-serif($weight, $size, $height)
+{
+  @include set-font($font-family-sans-serif, monospace; $weight; $size; $height);
+}
+
+@mixin serif-headline($weight, $size, $height)
+{
+  @include set-font('Portrait', serif; $weight; $size; $height);
+}
+
+@mixin serif-text($weight, $size, $height)
+{
+  @include set-font($font-family-serif, serif; $weight; $size; $height);
+}
+
+@mixin monospace($weight, $size, $height)
+{
+  @include set-font($font-family-monospace, serif; $weight; $size; $height);
+}

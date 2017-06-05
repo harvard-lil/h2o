@@ -3,21 +3,21 @@ body > main > section:last-child {
 }
 body {
   > footer {
-    .make-row();
+    @include make-row();
     padding: 40px 0 50px;
 
-    background-color: @light-blue;
+    background-color: $light-blue;
     color: white;
 
     a {
-      .sans-serif(@bold, 14px, 20px);
-      .link-color(@white);
+      @include sans-serif($bold, 14px, 20px);
+      @include link-color($white);
     }
     .link {
       display: block;
     }
     .content {
-      .container();
+      @include container();
     }
     .layout {
       .make-row()
@@ -31,19 +31,19 @@ body {
     }
     .link-group {
       &:first-child {
-        .make-md-column(2);
+        @include make-md-column(2);
       }
       &:nth-child(2) {
-        .make-md-column(3);
+        @include make-md-column(3);
       }
     }
     .info {
-      .make-md-column(3);
-      .pull-right();
+      @include make-md-column(3);
+      @include pull-right();
       text-align: right;
       .copyright {
         margin-top: 15px;
-        .sans-serif(@bold, 10px, 16px);
+        @include sans-serif($bold, 10px, 16px);
       }
     }
   }

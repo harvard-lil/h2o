@@ -1,31 +1,31 @@
-@navbar-default-bg: transparent;
-@navbar-default-border: transparent;
-@navbar-border-radius: 0;
-@navbar-height: 35px;
-@navbar-margin-bottom: 0;
-@navbar-padding-vertical: 7px;
-@navbar-padding-horizontal: 0px;
+$navbar-default-bg: transparent;
+$navbar-default-border: transparent;
+$navbar-border-radius: 0;
+$navbar-height: 35px;
+$navbar-margin-bottom: 0;
+$navbar-padding-vertical: 7px;
+$navbar-padding-horizontal: 0px;
 
 body {
   > header {
-    .make-row();
+    @include make-row();
     background-color: white;
   }
   &.view-base-index > header > nav {
     margin-top: 35px;
   }
   > header > nav {
-    .container();
+    @include container();
     margin-top: 18px;
     > .content {
-      .navbar();
-      .navbar-default();
+      @include navbar();
+      @include navbar-default();
     }
     .brand {
-      .navbar-header();
+      @include navbar-header();
       .logo {
-        .navbar-brand();
-        .monospace(bold, 40px, 40px);
+        @include navbar-brand();
+        @include monospace(bold, 40px, 40px);
 
         width: 85px;
         margin-right: 10px;
@@ -36,20 +36,20 @@ body {
       }
     }
     .links {
-      .pull-left();
+      @include pull-left();
       > a {
-        .btn();
-        .btn-white();
+        @include btn();
+        @include btn-white();
         &.create-casebook {
-          .btn-default();
+          @include btn-default();
         }
         // line-height: 40px;
       }
     }
     .user {
-      .pull-right();
+      @include pull-right();
       .current-user {
-        .sans-serif(@bold, 16px, 16px);
+        @include sans-serif($bold, 16px, 16px);
         color: black;
         position: relative;
         .name {
@@ -69,8 +69,8 @@ body {
           color: transparent;
         }
         .unverified {
-          .label();
-          .label-warning();
+          @include label();
+          @include label-warning();
           display: inline-block;
           padding-top: 5px;
           margin-right: 10px;
@@ -81,7 +81,7 @@ body {
           padding: 10px 20px 30px;
         }
         .user-links {
-          .transition(max-height 0.05s linear;);
+          @include transition(max-height 0.05s linear;);
           position: absolute;
           top: 0;
           right: 0px;
@@ -92,7 +92,7 @@ body {
           overflow: hidden;
 
           .user-link {
-            .sans-serif(@bold, 14px, 14px);
+            @include sans-serif($bold, 14px, 14px);
 
             display: block;
             width: 100%;
@@ -101,7 +101,7 @@ body {
 
             text-align: right;
             color: black;
-            background-color: @light-gray;
+            background-color: $light-gray;
           }
           a.user-link {
             padding-top: 12px;
@@ -110,12 +110,12 @@ body {
         }
       }
       .sign-up {
-        .btn();
-        .btn-default();
+        @include btn();
+        @include btn-default();
       }
       .sign-in {
-        .btn();
-        .btn-white();
+        @include btn();
+        @include btn-white();
       }
     }
   }
