@@ -15,18 +15,18 @@ $padding-base-horizontal: 17px;
   padding: 12px 17px 11px;
   border-width: 0px;
   text-decoration: none;
-  .box-shadow(none) !important;
+  box-shadow: none;
 }
 
 @mixin btn-white()
 {
-  @include button-variant($black; $white; transparent);
+  @include button-variant($black, $white, transparent);
   font-weight: $bold;
 }
 
 .simple_form input[type=submit] {
-  @include btn();
-  @include btn-primary();
+  @extend .btn;
+  @extend .btn-primary;
 }
 
 .button_to input[type=submit] {
@@ -36,6 +36,6 @@ $padding-base-horizontal: 17px;
 }
 
 a.reset-button {
-  @include btn();
-  @include btn-warning();
+  @extend .btn;
+  @extend .btn-warning;
 }

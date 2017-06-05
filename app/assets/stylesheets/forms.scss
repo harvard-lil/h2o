@@ -1,4 +1,4 @@
-@import (multiple) "bootstrap/forms";
+@import "bootstrap/forms";
 
 $input-height-base: 32px;
 $input-color: $dark-gray;
@@ -16,12 +16,12 @@ label > .necessity {
 }
 
 form .form-error-message {
-  @include alert();
-  @include alert-danger();
+  @extend .alert;
+  @extend .alert-danger;
 }
 
 .error-wrapper {
-  @include transition(height .25s linear, margin .25s linear;);
+  @include transition(height .25s linear, margin .25s linear);
   height: 0px;
   margin: 0px;
   overflow: hidden;

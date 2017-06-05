@@ -1,4 +1,4 @@
-@mixin link-color-full($normal; $hover; $active)
+@mixin link-color-full($normal, $hover, $active)
 {
   color: $normal;
   border-bottom-color: transparent;
@@ -17,7 +17,7 @@
   @include link-color-full($base, lighten($base, 10%), darken($base, 10%));
 }
 
-@mixin transition(...)
+@mixin transition($arguments...)
 {
   -webkit-transition: $arguments;
   -moz-transition: $arguments;
@@ -31,7 +31,7 @@
   height: $square;
 }
 
-@mixin size($width; $height)
+@mixin size($width, $height)
 {
   width: $width;
   height: $height;

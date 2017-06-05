@@ -15,8 +15,8 @@ header.users {
     color: black;
 
     a {
-      @include btn();
-      @include btn-default();
+      @extend .btn;
+      @extend .btn-default;
     }
   }
 }

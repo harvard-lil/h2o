@@ -15,16 +15,16 @@ body {
     margin-top: 35px;
   }
   > header > nav {
-    @include container();
+    @extend .container;
     margin-top: 18px;
     > .content {
-      @include navbar();
-      @include navbar-default();
+      @extend .navbar;
+      @extend .navbar-default;
     }
     .brand {
-      @include navbar-header();
+      @extend .navbar-header;
       .logo {
-        @include navbar-brand();
+        @extend .navbar-brand;
         @include monospace(bold, 40px, 40px);
 
         width: 85px;
@@ -36,18 +36,18 @@ body {
       }
     }
     .links {
-      @include pull-left();
+      @extend .pull-left;
       > a {
-        @include btn();
+        @extend .btn;
         @include btn-white();
         &.create-casebook {
-          @include btn-default();
+          @extend .btn-default;
         }
         // line-height: 40px;
       }
     }
     .user {
-      @include pull-right();
+      @extend .pull-right;
       .current-user {
         @include sans-serif($bold, 16px, 16px);
         color: black;
@@ -69,8 +69,8 @@ body {
           color: transparent;
         }
         .unverified {
-          @include label();
-          @include label-warning();
+          @extend .label;
+          @extend .label-warning;
           display: inline-block;
           padding-top: 5px;
           margin-right: 10px;
@@ -81,7 +81,7 @@ body {
           padding: 10px 20px 30px;
         }
         .user-links {
-          @include transition(max-height 0.05s linear;);
+          @include transition(max-height 0.05s linear);
           position: absolute;
           top: 0;
           right: 0px;
@@ -110,11 +110,11 @@ body {
         }
       }
       .sign-up {
-        @include btn();
-        @include btn-default();
+        @extend .btn;
+        @extend .btn-default;
       }
       .sign-in {
-        @include btn();
+        @extend .btn;
         @include btn-white();
       }
     }

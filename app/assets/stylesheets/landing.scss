@@ -1,6 +1,6 @@
 a.call-to-action {
-  .btn;
-  .btn-primary;
+  @extend .btn;
+  @extend .btn-primary;
 }
 
 section.hero {
