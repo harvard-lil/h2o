@@ -34,7 +34,7 @@ function listingChildren (sectionListing) {
 }
 
 document.addEventListener('dragstart', e => {
-  if (!e.target.classList.contains('listing') || !e.target.dataset.editable) { return; }
+  if (!e.target.classList.contains('listing') || e.target.dataset.editable === undefined) { return; }
   e.stopPropagation();
 
   e.target.parentElement.classList.add('drag-from');

@@ -11,7 +11,7 @@
 <% if @section.present? %>
   <% if @section.is_a? Content::Resource %>
     <% if @section.section.is_a? Content::Casebook %>
-      <a class="tab <%= active_tab == 'layout' ? 'active' : '' %>" href="<% casebook_section_index_path(@casebook, @section) %>""><%= t 'content.tabs.layout' %></a>
+      <a class="tab <%= active_tab == 'layout' ? 'active' : '' %>" href="<% casebook_section_index_path(@casebook, @section) %>"><%= t 'content.tabs.layout' %></a>
     <% else %>
       <a class="tab <%= active_tab == 'layout' ? 'active' : '' %>" href="<% casebook_section_path(@casebook, @section.section) %>"><%= t 'content.tabs.layout' %></a>
     <% end %>
@@ -20,7 +20,7 @@
     <a class="tab <%= active_tab == 'details' ? 'active' : '' %>" href="<%= edit_casebook_section_path(@casebook, @section) %>"><%= t 'content.tabs.resource-details' %></a>
   <% elsif @section.is_a? Content::Section %>
     <a class="tab <%= active_tab == 'layout' ? 'active' : '' %>" href="<%= casebook_section_path(@casebook, @section) %>"><%= t 'content.tabs.layout' %></a>
-    
+
     <% if @section.resources.any? %>
       <a class="tab <%= active_tab == 'edit' ? 'active' : '' %>" href="<%= casebook_section_path(@casebook, @section.resources.first) %>"><%= t 'content.tabs.edit' %></a>
     <% else %>
@@ -31,7 +31,7 @@
   <% end %>
 <% else %>
   <a class="tab <%= active_tab == 'layout' ? 'active' : '' %>" href="<%= casebook_section_index_path(@casebook) %>"><%= t 'content.tabs.layout' %></a>
-  
+
   <% if @casebook.resources.any? %>
     <a class="tab <%= active_tab == 'edit' ? 'active' : '' %>" href="<%= casebook_section_path(@casebook, @casebook.resources.first) %>"><%= t 'content.tabs.edit' %></a>
   <% else %>
@@ -40,4 +40,3 @@
 
   <a class="tab <%= active_tab == 'details' ? 'active' : '' %>" href="<%= edit_casebook_path(@casebook) %>"><%= t 'content.tabs.casebook-details' %></a>
 <% end %>
-

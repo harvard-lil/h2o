@@ -10,6 +10,9 @@ class SearchesController < ApplicationController
       result_groups '*'
     end
     @main_group = @results[@type.to_sym]
+    if params[:partial]
+      render partial: 'results', layout: false, locals: {results: @main_group.results}
+    end
   end
 
   def index

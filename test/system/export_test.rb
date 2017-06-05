@@ -1,6 +1,10 @@
 require 'application_system_test_case'
 
 class ExportSystemTest < ApplicationSystemTestCase
+  before :each do
+    skip 'no export tests'
+  end
+
   scenario 'exporting a case to .docx', js:true do
     sign_in user = users(:verified_student)
     visit case_path public_case = cases(:public_case_1)
@@ -28,7 +32,6 @@ class ExportSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'exporting a playlist to .docx', js:true do
-    skip 'no playlist tests'
     sign_in user = users(:verified_student)
     visit playlist_path public_playlist = playlists(:public_playlist_1)
 
@@ -82,7 +85,6 @@ class ExportSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'exporting a playlist to .pdf', js:true do
-    skip 'no playlist tests'
     sign_in user = users(:verified_student)
     visit playlist_path public_playlist = playlists(:public_playlist_1)
 
@@ -163,7 +165,6 @@ class ExportSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'exporting a playlist to .pdf', js:true do
-    skip 'no playlist tests'
     sign_in user = users(:verified_student)
     visit playlist_path public_playlist = playlists(:public_playlist_1)
 

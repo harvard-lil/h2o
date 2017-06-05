@@ -11,10 +11,16 @@ class Content::SectionsController < Content::NodeController
   end
 
   def create
-    child_ordinals = @parent.ordinals + [@parent.contents.length + 1]
+    child_ordinals = @parent.ordinals + [@parent.children.length + 1]
     if params[:resource_id]
       resource = Case.find params[:resource_id]
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: resource
+    elsif params[:text]
+      text = TextBlock.create(name: params[:text][:title], content: params[:text][:content])
+      @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: text
+    elsif params[:link]
+      link = Default.create(url: params[:link][:url])
+      @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: link
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
@@ -47,6 +53,12 @@ class Content::SectionsController < Content::NodeController
 
   def update
     @section.update content_params
+    if params[:text_content] && @section.is_a?(Content::Resource) && @section.resource.is_a?(TextBlock)
+      @section.resource.update_attribute :content, params[:text_content]
+    end
+    if params[:link_url] && @section.is_a?(Content::Resource) && @section.resource.is_a?(Default)
+      @section.resource.update_attribute :url, params[:link_url]
+    end
     if params[:reorder]
       redirect_back fallback_location: casebook_section_index_path(@casebook)
     else

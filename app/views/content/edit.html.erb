@@ -53,7 +53,8 @@
 	  </section>
 	<% elsif @content.respond_to? :resource %>
 	  <section class="resource">
-	    <%= render partial: 'content/resources/show', locals: {resource: @content, editable: false} %>
+	    <%= render partial: 'content/resources/show', locals: {resource: @content, editable: true} %>
 	  </section>
 	<% end %>
+
 <% end %>

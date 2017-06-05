@@ -63,7 +63,7 @@ class Content::NodeController < ApplicationController
   end
 
   def find_parent
-    @parent = if params[:parent]
+    @parent = if params[:parent].present?
       @section = @casebook.contents.find_by_ordinals parse_ordinals(params[:parent])
     else
       @casebook

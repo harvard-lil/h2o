@@ -1,3 +1,2 @@
-import 'lib/ui/content/dragging';
-import 'lib/ui/content/annotations';
-import 'lib/ui/content/dashboard';
+import 'lib/ui/content'
+import 'lib/ui/search'

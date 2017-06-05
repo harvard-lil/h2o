@@ -64,7 +64,10 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user = User.find(params[:id])
+    @user = User.find_by_id(params[:id])
+    if !@user
+      redirect_to :root and return
+    end
     render 'content/dashboard'
   end
 
