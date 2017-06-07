@@ -1,3 +1,6 @@
+@import "bootstrap/buttons";
+@import "bootstrap/navbar";
+
 $navbar-default-bg: transparent;
 $navbar-default-border: transparent;
 $navbar-border-radius: 0;
@@ -19,7 +22,9 @@ body {
     margin-top: 18px;
     > .content {
       @extend .navbar;
-      @extend .navbar-default;
+      display: flex;
+      align-items: center;
+      // @extend .navbar-default;
     }
     .brand {
       @extend .navbar-header;
@@ -38,7 +43,7 @@ body {
     .links {
       @extend .pull-left;
       > a {
-        @extend .btn;
+        @include btn();
         @include btn-white();
         &.create-casebook {
           @extend .btn-default;
@@ -47,7 +52,8 @@ body {
       }
     }
     .user {
-      @extend .pull-right;
+      // @extend .pull-right;
+      margin-left: auto;
       .current-user {
         @include sans-serif($bold, 16px, 16px);
         color: black;
