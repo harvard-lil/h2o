@@ -1,5 +1,4 @@
-@mixin link-color-full($normal, $hover, $active)
-{
+@mixin link-color-full($normal, $hover, $active){
   color: $normal;
   border-bottom-color: transparent;
   &:hover {
@@ -12,31 +11,37 @@
   }
 }
 
-@mixin link-color($base)
-{
+@mixin link-color($base){
   @include link-color-full($base, lighten($base, 10%), darken($base, 10%));
 }
 
-@mixin transition($arguments...)
-{
+@mixin transition($arguments...){
   -webkit-transition: $arguments;
   -moz-transition: $arguments;
   -o-transition: $arguments;
   transition: $arguments;
 }
 
-@mixin size($square)
-{
+@mixin size($square){
   width: $square;
   height: $square;
 }
 
-@mixin size($width, $height)
-{
+@mixin size($width, $height){
   width: $width;
   height: $height;
 }
 
-.hide {
+@mixin absolute($x, $y) {
+  position: absolute;
+  left: $x;
+  top: $y;
+}
+
+@mixin absolute-offset($offset) {
+  @include absolute($offset, $offset);
+}
+
+@mixin hide {
   display: none;
 }
