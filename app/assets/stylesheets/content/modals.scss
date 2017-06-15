@@ -1,0 +1,6 @@
+@import "bootstrap/modals";
+
+.modal-button {
+  @extend .btn;
+  @extend .btn-default;
+}
