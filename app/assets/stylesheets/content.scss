@@ -25,7 +25,7 @@ main > header.casebook, main > header.dashboard {
 
   .tabs {
     .tab {
-      @extend .btn;
+      @include btn();
       @include button-variant($black, $white, $light-gray);
       border: 2px solid $light-gray;
       border-bottom-width: 0;
