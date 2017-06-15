@@ -4,8 +4,8 @@
 @import 'content/modals';
 
 main > .casebook .casebook-inner, main > .dashboard .content-inner {
-  @include make-md-column(9.5);
-  @include make-md-column-offset(1.25);
+  @include make-md-column(8.25);
+  @include make-md-column-offset(2);
 }
 
 main > section.casebook, main > section.dashboard {
@@ -127,6 +127,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     background-color: $white;
     h1 {
       margin-top: 5px;
+      // @include serif-headline($regular, 81px, 105px);
     }
     .breadcrumbs {
       margin-top: 15px;

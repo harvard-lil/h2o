@@ -34,6 +34,9 @@ body {
     }
     .links {
       @extend .pull-left;
+      > a.create-casebook {
+        padding: 9px 10px;
+      }
       > a {
         @include btn();
         @include btn-white();
