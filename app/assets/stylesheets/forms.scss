@@ -1,13 +1,13 @@
 @import "bootstrap/forms";
 
-$input-height-base: 32px;
-$input-color: $dark-gray;
-$input-border-radius: 0px;
-$input-border: black;
-
 .form-control {
   padding: 25px 25px;
   font-size: 18px;
+}
+
+header.casebooks-search > .content > form > .form-group > input {
+  border-width: 1.5px;
+
 }
 
 label > .necessity {
