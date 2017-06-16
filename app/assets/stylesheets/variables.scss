@@ -1,3 +1,17 @@
+// colors
+$black: #000;
+$white: #FFF;
+$dark-gray: #333;
+$gray: #9B9B9B;
+$light-gray: #F5F4EC;
+$light-blue: #3E72D8;
+$red: #F00;
+$orange: #DB6F4C;
+$light-orange: lighten($orange, 20%);
+$yellow: #F8BA1C;
+$green: #17AC10;
+
+// navbar
 $navbar-default-bg: transparent;
 $navbar-default-border: transparent;
 $navbar-border-radius: 0;
@@ -5,3 +19,9 @@ $navbar-height: 35px;
 $navbar-margin-bottom: 0;
 $navbar-padding-vertical: 7px;
 $navbar-padding-horizontal: 0px;
+
+// form control
+$input-height-base: 32px;
+$input-color: $dark-gray;
+$input-border-radius: 0px;
+$input-border: black;
