@@ -3,7 +3,7 @@
 
 body {
   > header {
-    @include make-row();
+    @include make-row(2);
     background-color: white;
   }
   &.view-base-index > header > nav {
@@ -50,7 +50,7 @@ body {
       // @extend .pull-right;
       margin-left: auto;
       .current-user {
-        @include sans-serif($bold, 16px, 16px);
+        @include sans-serif($bold, 13px, 16px);
         color: black;
         position: relative;
         .name {
