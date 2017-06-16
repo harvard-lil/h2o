@@ -11,7 +11,7 @@ $padding-base-horizontal: 17px;
 
 @mixin btn()
 {
-  @include sans-serif($regular, 16px, 16px);
+  @include sans-serif($regular, 13px, 16px);
   padding: 12px 17px 11px;
   border-width: 0px;
   text-decoration: none;
