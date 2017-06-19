@@ -1,14 +1,3 @@
-$btn-border-radius-base: 0;
-
-$btn-default-color: $white;
-$btn-default-bg: $light-blue;
-
-$btn-primary-color: $white;
-$btn-primary-bg: $green;
-
-$padding-base-vertical: 12px;
-$padding-base-horizontal: 17px;
-
 @mixin btn()
 {
   @include sans-serif($regular, 13px, 16px);
