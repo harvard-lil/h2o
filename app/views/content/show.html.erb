@@ -59,8 +59,6 @@
     <h5>
       <% if @section.present? %>
         <%= t 'content.show.section-contents' %>
-      <% else %>
-        <%= t 'content.show.table-of-contents' %>
       <% end %>
     </h5>
     <% if @content.contents.any? %>
