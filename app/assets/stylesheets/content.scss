@@ -35,13 +35,11 @@ main > header.casebook, main > header.dashboard {
       border: 2px solid $light-gray;
       border-bottom-width: 0;
       padding: 12px 25px;
-      font-weight: lighter;
     }
     .tab.active {
       color: white !important;
       background-color: $light-blue !important;
       border: none !important;
-      font-weight: lighter;
     }
   }
   &.casebook-draft {
