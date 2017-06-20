@@ -25,7 +25,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
     scenario 'creating a casebook', solr: true do
       visit root_path
 
-      click_link 'Create a casebook'
+      click_link 'Create casebook'
 
       fill_in 'Title', with: 'Test casebook title'
       fill_in 'Subtitle', with: 'Test casebook subtitle'
