@@ -24,7 +24,14 @@
     </div>
   <% end %>
   <h1 class="title">
-    <%= @content.title %>
+    <% if @content.resource_type %>
+      <div class="<%= @content.resource_type.downcase %>">
+        <%= @content.title %> <span class="year">(<%= @case.decision_date.year %>)</span>
+      </div>
+    <% else %>
+      <%= @content.title %>
+    <% end %>
+
     <% if @section.nil? %>
       <h2 class="subtitle">
         <%= @content.subtitle %>
