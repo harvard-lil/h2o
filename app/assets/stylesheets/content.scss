@@ -28,18 +28,27 @@ main > header.casebook, main > header.dashboard {
 
   .tabs {
     display: flex;
+    height: 38px;
+
 
     .tab {
       @include btn();
       @include button-variant($black, $white, $light-gray);
       border: 2px solid $light-gray;
       border-bottom-width: 0;
-      padding: 12px 25px;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      padding: 0;
+      flex-basis: 137px;
     }
     .tab.active {
-      color: white !important;
-      background-color: $light-blue !important;
-      border: none !important;
+      color: white;
+      background-color: $light-blue;
+      border: none;
+    }
+    .empty-tab {
+      flex-grow: 4;
     }
   }
   &.casebook-draft {
@@ -350,6 +359,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       .resource-type {
         border: 1px solid $light-blue;
         color: $light-blue;
+        width: 65px;
+        display: flex;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
       }
     }
     .section-contents {
