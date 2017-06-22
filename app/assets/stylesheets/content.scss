@@ -128,7 +128,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     background-color: $white;
 
     .casebook-title {
-      @include sans-serif($bold, 18px, 18px);
+      @include sans-serif($bold, 15px, 18px);
       @include link-color($black);
       float: left;
     }
@@ -224,7 +224,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       background-size: auto;
     }
     .user {
-      @include sans-serif($medium, 14px, 14px);
+      @include sans-serif($medium, 14px, 16px);
+      font-weight: bold;
       display: inline-block;
       &.verified::before {
         @include square(16px);
