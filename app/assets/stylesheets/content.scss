@@ -142,7 +142,18 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       margin: 0px;
       .case {
         @include serif-headline($regular, 43px, 51px);
-        span.year {
+        .title-metadata {
+          font-weight: bold;
+          color: $light-blue;
+          margin-bottom: 15px;
+          @include sans-serif($regular, 12px, 12px);
+        }
+        .resource-type {
+          border: 0.5px solid $light-blue;
+          padding: 4px 20px;
+          margin-right: 10px;
+        }
+        .year {
           @include sans-serif($regular, 22px, 12px);
         }
       }
