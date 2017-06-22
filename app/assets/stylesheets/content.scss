@@ -20,6 +20,9 @@ main > section.casebook, main > section.dashboard {
   &.casebook-public .top-strip {
     background-color: $light-blue;
   }
+  &.casebook-draft .subtitle {
+    color: $yellow;
+  }
 }
 
 main > header.casebook, main > header.dashboard {
@@ -143,6 +146,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
     .collaborators {
       float: right;
+      font-size: 12px;
     }
   }
   header.content {
@@ -172,8 +176,10 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .subtitle {
       color: $light-blue;
       font-weight: 200;
-      margin: 10px 0px 15px 2px;
+      margin: 6px 0px 15px 2px;
+      font-size: 24px;
     }
+
     .breadcrumbs {
       @include monospace($regular, 14px, 14px);
       .breadcrumb {
@@ -240,7 +246,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         @include square(16px);
         display: inline-block;
         vertical-align: middle;
-
+        margin-right: -3px;
         content: '';
         background: asset-url('ui/verified.png') no-repeat;
       }
