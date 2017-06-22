@@ -6,6 +6,10 @@
   <% @casebook_class = 'casebook-draft' %>
 <% end %>
 
+<% if @content.resource_type == 'Case' %>
+  <% @casebook_class = 'casebook-public' %>
+<% end %>
+
 <% if @casebook_class == 'casebook-draft' %>
   <% content_for :banner do %>
     <div class="<%= @casebook_class %> banner">
