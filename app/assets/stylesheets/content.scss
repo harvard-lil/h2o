@@ -123,7 +123,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   header.casebook-header {
     margin-bottom: 2px;
-    padding: 20px 40px;
+    padding: 20px 40px 35px 40px;
 
     background-color: $white;
 
@@ -166,7 +166,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       margin: 10px 0px 15px 2px;
     }
     .breadcrumbs {
-      margin-top: 15px;
       @include monospace($regular, 14px, 14px);
       .breadcrumb {
         @include square(20px);
