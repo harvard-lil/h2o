@@ -32,6 +32,13 @@ main > header.casebook, main > header.dashboard {
   .tabs {
     display: flex;
     height: 38px;
+
+    @media (max-width: $screen-xs) {
+      flex-direction: column;
+      flex-grow: 1;
+      height: 150px;
+    }
+
     .tab {
       @include btn();
       @include button-variant($black, $white, $light-gray);
@@ -42,7 +49,10 @@ main > header.casebook, main > header.dashboard {
       display: flex;
       padding: 0;
       flex-basis: 137px;
-      // max-width: 25%;
+
+      @media (max-width: $screen-xs) {
+        flex-basis: 50px;
+      }
     }
     .tab.active {
       color: white;
