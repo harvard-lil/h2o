@@ -12,11 +12,8 @@ class Content::CasesController < ApplicationController
       redirect_to :root and return
     end
 
-    @citation = CaseCitation.where(case_id: @case.id).first
-
     @section = Content::Resource.new resource: @case
     @content = @section
     render 'content/show'
   end
-
 end
