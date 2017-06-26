@@ -9,7 +9,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_link (section_1 = content_nodes(:public_casebook_section_1)).title
       assert_content section_1.headnote
 
-      click_link (resource_1 = content_nodes(:'public_casebook_section_1.1')).title
+      click_link (resource_1 = content_nodes(:'public_casebook_section_1.1')).resource.short_name
       assert_content resource_1.headnote
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content
@@ -65,10 +65,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       visit casebook_section_index_path casebook
 
-      assert_content "1.1 #{resource.title}"
+      assert_content "1.1 #{resource.resource.short_name}"
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
-      assert_content "2.1 #{resource.title}"
+      assert_content "2.1 #{resource.resource.short_name}"
     end
 
     scenario 'annotating a casebook', js: true do
@@ -98,7 +98,5 @@ class CasebookSystemTest < ApplicationSystemTestCase
       find('.annotate.highlighted').assert_text 'content to highlight'
       assert_content 'elided: Annotate'
     end
-
   end
-
 end
