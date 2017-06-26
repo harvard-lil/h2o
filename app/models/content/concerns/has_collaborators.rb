@@ -8,7 +8,6 @@ module Content::Concerns::HasCollaborators
 
       has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user do
         def << (*users)
-          binding.pry
           collaborators << users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
         end
       end
