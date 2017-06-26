@@ -10,6 +10,8 @@ main > .casebook .casebook-inner, main > .dashboard .content-inner {
 
 main > section.casebook, main > section.dashboard {
   background-color: $light-gray;
+  padding-bottom: 20px;
+
   .top-strip {
     margin-top: 1px;
     height: 20px;

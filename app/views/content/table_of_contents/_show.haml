@@ -3,12 +3,16 @@
     .listing-wrapper{data: {ordinals: content.ordinal_string}}
       %a.listing.resource{href: casebook_section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
         .section-number= content.ordinal_string
-        .section-title= content.title
-        .resource-date
-          = content.try(:date_year) || t('content.resource.date.not-applicable')
         - if content.is_a? Content::Resource
           - if content.resource.is_a? Case
-            .resource-case= content.resource.short_name
+            .section-title= content.resource.short_name
+            .resource-date
+              = content.resource.try(:date_year) || t('content.resource.date.not-applicable')
+          - else 
+            .section-title= content.title
+        - if content.is_a? Content::Resource
+          - if content.resource.is_a? Case
+            .resource-case= content.resource.case_citations.first
           - elsif content.resource.is_a? TextBlock
             .resource-type= t 'content.resource.type.text'
           - elsif content.resource.is_a? Default
