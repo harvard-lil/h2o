@@ -47,14 +47,4 @@
 	  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
 	  <%= link_to t('simple_form.labels.casebook.revert'), casebook_path(@casebook), class: 'reset-button' %>
 	</section>
-	<% if @content.respond_to? :contents %>
-	  <section class="table-of-contents">
-	    <%= render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: false} %>
-	  </section>
-	<% elsif @content.respond_to? :resource %>
-	  <section class="resource">
-	    <%= render partial: 'content/resources/show', locals: {resource: @content, editable: true} %>
-	  </section>
-	<% end %>
-
 <% end %>
