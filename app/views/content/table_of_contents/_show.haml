@@ -20,7 +20,7 @@
           - else
             .resource-type
               .not-applicable= t "content.resource.type.not-applicable"
-      - if editable && content.can_delete?
+      - if content.can_delete?
         .actions
           = button_to t('content.edit.delete-section'), casebook_section_path(content.casebook, content), method: :delete, class: 'action-delete'
 
