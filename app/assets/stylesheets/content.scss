@@ -323,6 +323,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         border-color: $light-blue;
       }
       &.section {
+        display: flex;
+        align-items: center;
         background-color: black;
         &:active {
           background-color: $dark-gray;
@@ -336,6 +338,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       &.resource {
         background-color: white;
+        display: flex;
+        align-items: center;
         &:active {
           background-color: $light-gray;
         }
@@ -351,10 +355,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         padding: 60px;
       }
       .section-number {
-        @include monospace($regular, 11px, 12px);
-        display: inline-block;
-        margin-right: 4px;
+        // @include monospace($regular, 11px, 12px);
+        // display: inline-block;
+        margin-right: 6px;
         vertical-align: middle;
+        font-size: 12px;
       }
       .section-title {
         @include sans-serif($bold, 14px, 14px);
@@ -371,6 +376,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       .resource-date {
         width: 40px;
+        margin-left: auto;
       }
       .resource-type {
         border: 1px solid $light-blue;
@@ -380,6 +386,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         justify-content: center;
         font-size: 12px;
         font-weight: bold;
+        align-self: flex-end;
+        margin-left: auto;
       }
     }
     .section-contents {
