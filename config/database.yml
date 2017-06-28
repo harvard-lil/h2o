@@ -1,4 +1,4 @@
-production:
+production: &production_defaults
   adapter: postgresql
   encoding: unicode
   database: <%= ENV['DB_NAME'] %>
@@ -6,6 +6,9 @@ production:
   password: <%= ENV['DB_PASSWORD'] %>
   host: <%= ENV['DB_HOSTNAME'] %>
   pool: 5
+
+staging:
+  <<: *production_defaults
 
 development:
   adapter: postgresql

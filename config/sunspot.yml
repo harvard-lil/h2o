@@ -1,4 +1,4 @@
-production:
+production: &production_defaults
   solr:
     hostname: localhost
     port: 8983
@@ -6,6 +6,9 @@ production:
     path: /solr/production
     # read_timeout: 2
     # open_timeout: 0.5
+
+staging:
+  <<: *production_defaults
 
 development:
   solr:
