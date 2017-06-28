@@ -9,6 +9,8 @@ class UserSessionsController < ApplicationController
   def new
     redirect_to root_url and return if current_user.present?
 
+    session[:return_to] = request.referrer
+
     @user_session = UserSession.new params.permit(:email_address)
     render :layout => !request.xhr?
   end
