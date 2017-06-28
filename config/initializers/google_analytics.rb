@@ -1,4 +1,4 @@
-if Rails.env == 'production'
+if Rails.env == 'production' || Rails.env == 'staging'
   GOOGLE_ANALYTICS_CODE = nil
 elsif Rails.env == 'test'
     GOOGLE_ANALYTICS_CODE = nil
