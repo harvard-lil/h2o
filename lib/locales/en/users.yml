@@ -16,6 +16,7 @@ en:
     edu-only-error: Email address is not .edu.
     edit-profile:
       header: Edit your profile
+    self-verify: Verify this account
     change-password:
       header: Change your password
     reset-password:

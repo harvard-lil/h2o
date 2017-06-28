@@ -144,12 +144,14 @@ class UsersController < ApplicationController
 
   private
   def permitted_user_params
-    common_attrs = common_user_preference_attrs.reject {|attr| attr == :user_id}
-    params.fetch(:user, {}).permit(:id, :name, :login, :password, :password_confirmation,
+    permitted_fields = [:id, :name, :login, :password, :password_confirmation,
                                   :current_password, :image,
                                  :email_address, :tz_name, :attribution, :title,
-                                 :url, :affiliation, :description, :terms, *common_attrs
-                                 )
+                                 :url, :affiliation, :description, :terms]
+    if Rails.configuration.disable_verification
+      permitted_fields.push :verified
+    end
+    params.fetch(:user, {}).permit(*permitted_fields)
   end
 
   def default_show_types_method
