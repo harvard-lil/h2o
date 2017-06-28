@@ -33,6 +33,8 @@ H2o::Application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # allow users without verified .edu addresses
+  config.disable_verification = true
 
   # Old configs:
   # Settings specified here will take precedence over those in config/application.rb.
@@ -113,7 +115,7 @@ H2o::Application.configure do
 
   config.action_mailer.default_url_options = { :host => 'h2o.law.harvard.edu' }
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = { 
+  config.action_mailer.smtp_settings = {
     address: ENV["SMTP_HOST"],
     authentication: :login,
     domain: "h2o-dev.lil.tools",
