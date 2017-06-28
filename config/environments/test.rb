@@ -7,7 +7,7 @@ H2o::Application.configure do
     'Cache-Control' => "public, max-age=#{1.hour.seconds.to_i}"
   }
   config.cache_store = :memory_store
-  
+
   config.active_job.queue_adapter = :test
 
   # config.action_view.raise_on_missing_translations = true
@@ -29,6 +29,9 @@ H2o::Application.configure do
   # config.serve_static_assets  = true
   # config.assets.debug = true
   # config.static_cache_control = "public, max-age=3600"
+
+  # do not allow unverified users
+  config.disable_verification = false
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true

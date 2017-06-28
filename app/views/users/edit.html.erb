@@ -8,6 +8,11 @@
 <section class="sign-up">
   <div class="content">
     <div class="layout">
+      <% if !@user.verified && Rails.configuration.disable_verification %>
+        <div class="form">
+          <%= button_to t('users.self-verify'), user_path(@user), method: :patch, params: {user: {verified: true}}, class: 'btn btn-default' %>
+        </div>
+      <% end %>
       <div class="form">
         <%= simple_form_for @user, url: user_path(@user), html: {data: {remote: true}} do |f| %>
           <div class="error-transition <%= @user.errors.any? ? '' : 'hide' %>"><%= f.error_notification %></div>

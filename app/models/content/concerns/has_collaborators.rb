@@ -8,11 +8,11 @@ module Content::Concerns::HasCollaborators
 
       has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user do
         def << (*users)
-          collaborators << users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
+          self.collaborators << users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
         end
       end
       def owners= (users)
-        collaborators = (collaborators || []).reject {|c| c.role == 'owner'} + users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
+        self.collaborators = (self.collaborators || []).reject {|c| c.role == 'owner'} + users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
       end
 
       has_many :editors, -> {where content_collaborators: {role: 'editor'}}, class_name: 'User', through: :collaborators, source: :user

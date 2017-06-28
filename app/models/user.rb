@@ -83,6 +83,7 @@ class User < ApplicationRecord
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified? && u.verified?}
 
   attr_accessor :terms
+  attr_accessor :bypass_verification
 
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
