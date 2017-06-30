@@ -32,8 +32,8 @@
           </a>
         </div>
       </div>
-      <% if @main_group %>
-        <%= render partial: 'results', locals: {results: @main_group.results} %>
+      <% if @pagination %>
+        <%= render partial: 'results', locals: {pagination: @pagination} %>
       <% else %>
         <div class="no-results">
           <%= t 'search.results.no-results' %>
