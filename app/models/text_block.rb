@@ -10,7 +10,7 @@
 #  updated_at         :datetime
 #  karma              :integer
 #  pushed_from_id     :integer
-#  user_id            :integer          default(0), not null
+#  user_id            :integer          default(0)
 #  created_via_import :boolean          default(FALSE), not null
 #  description        :string(5242880)
 #  version            :integer          default(1), not null
