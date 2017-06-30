@@ -12,7 +12,7 @@
 #  updated_at         :datetime
 #  pushed_from_id     :integer
 #  content_type       :string(255)
-#  user_id            :integer          default(0), not null
+#  user_id            :integer          default(0)
 #  ancestry           :string(255)
 #  created_via_import :boolean          default(FALSE), not null
 #
