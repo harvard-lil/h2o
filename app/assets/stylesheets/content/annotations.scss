@@ -25,14 +25,15 @@
     background-color: $white;
     border: 1px solid black;
 
-    .annotator-button {
+    .annotator-action {
       @include sans-serif($regular, 12px, 14px);
 
       cursor: pointer;
+      white-space: nowrap;
 
       background-color: $white;
       &:hover {
-        background-color: $yellow;
+        background-color: $highlight;
       }
     }
   }
@@ -60,8 +61,11 @@
 
     .annotation-button {
       @include square(28px);
+      @include relative(55px, 0);
       display: block;
-      margin-left: 55px;
+
+      overflow: hidden;
+      cursor: pointer;
 
       background-image: asset-url('ui/annotate/annotation-icon.png');
       color: transparent;
@@ -72,7 +76,8 @@
     display: inline;
 
     &.highlighted {
-      background-color: $yellow;
+      padding: 9px 0 4px;
+      background-color: $highlight;
     }
     &.replacement {
       @include sans-serif($regular, 12px, 12px);
@@ -86,13 +91,24 @@
       &:empty::before {
         content: 'Enter text to replace...';
         color: $dark-gray;
+        pointer-events: none;
       }
-      &:empty:focus::before {
+      &.active:empty::before {
         content: ' ';
+        pointer-events: none;
       }
     }
     &.elided, &.replaced {
       display: none;
+      &.revealed {
+        padding: 7px;
+        display: inline;
+
+        color: #555;
+
+        border-radius: 3px;
+        background-color: $light-gray;
+      }
     }
     &.elide {
       display: inline-block;
@@ -105,6 +121,41 @@
 
       &::before {
         content: '...';
+      }
+      &.revealed::before {
+        content: 'hide';
+      }
+    }
+    &.note-icon {
+      @include square(20px);
+      display: inline-block;
+
+      color: transparent;
+      overflow: hidden;
+
+      background-image: asset-url('ui/annotate/note-icon.png');
+    }
+    &.note-content-wrapper {
+      @include square(0);
+      position: absolute;
+      right: -40px;
+
+      overflow: visible;
+
+      display: none;
+      &.revealed {
+        display: block;
+      }
+
+      .note-content {
+        width: 150px;
+        padding: 10px;
+
+        position: relative;
+        top: -20px;
+
+        background-color: $highlight;
+        color: black;
       }
     }
   }
