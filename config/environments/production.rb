@@ -33,8 +33,8 @@ H2o::Application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  # allow users without verified .edu addresses
-  config.disable_verification = true
+  # do not allow users without verified .edu addresses
+  config.disable_verification = false
 
   # Old configs:
   # Settings specified here will take precedence over those in config/application.rb.
