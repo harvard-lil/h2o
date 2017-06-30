@@ -1,6 +1,6 @@
 <header class="casebooks-search">
   <div class="content">
-    <%= simple_form_for :search, url: :search_all, method: :get do |f| %>
+    <%= simple_form_for :search, url: :search, method: :get do |f| %>
       <%= f.input :search, placeholder: t('content.search.placeholder'), label: false %>
     <% end %>
   </div>
