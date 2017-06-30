@@ -38,6 +38,12 @@
   top: $y;
 }
 
+@mixin relative($x, $y) {
+  position: relative;
+  left: $x;
+  top: $y;
+}
+
 @mixin absolute-offset($offset) {
   @include absolute($offset, $offset);
 }

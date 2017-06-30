@@ -68,7 +68,7 @@ H2o::Application.routes.draw do
     end
 
     resources :resources, only: [] do
-      resources :annotations, only: [:create]
+      resources :annotations, only: [:create, :destroy, :update]
     end
   end
 
@@ -92,7 +92,7 @@ H2o::Application.routes.draw do
     get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
   end
-  
+
   get '/help', to: 'pages#show', defaults: {id: 'help'}
 
   get '/:controller/:id/copy', :to => 'base#not_found'

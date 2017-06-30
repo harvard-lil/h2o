@@ -35,4 +35,5 @@ export function request (url, method, data = {}, options = {scroll: true}) {
 }
 export var get = (url, data = {}, options = {}) => request(url, 'get', data, options)
 export var post = (url, data = {}, options = {}) => request(url, 'post', data, options)
+export var rest_delete = (url, data = {}, options = {}) => request(url, 'delete', data, options)
 export var patch = (url, data = {}, options = {}) => request(url, 'patch', data, options)
