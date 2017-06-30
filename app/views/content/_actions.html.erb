@@ -14,7 +14,7 @@
       <%= link_to t('content.actions.add-resource'), new_casebook_section_path(@casebook), class: 'action add-resource' %>
     <% else %>
       <%= button_to t('content.actions.clone-casebook'), clone_casebook_path(@casebook), method: :post, class: 'action clone-casebook' %>
-      <%= button_to t('content.actions.edit'), casebook_path(@casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line' %>
+      <%= button_to t('content.actions.edit'), casebook_path(@casebook), class: 'action edit one-line' %>
     <% end %>
   <% end %>
 <% elsif current_user.present? %>
