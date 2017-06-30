@@ -5,6 +5,10 @@ import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'input.action.publish', 'click', showPublishModal);
 
+function casebook_path(resourceId, format = 'pdf') {
+  return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
+}
+
 let modal = null;
 
 document.addEventListener("turbolinks:before-cache", function() {
@@ -26,7 +30,8 @@ class PublishModal extends Component {
         'click .close': (e) => { this.destroy() },
         'click .cancel': (e) => { this.destroy() },
         'click .confirm': (e) => {
-          patch(RAILS_ROUTES.casebook_path(), {content_casebook: {public: true}});
+          let casebookId = document.querySelector('main > header').dataset.casebookId;
+          patch(casebook_path(casebookId), {content_casebook: {public: true}});
         },
       }
     });
