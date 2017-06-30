@@ -1,0 +1,15 @@
+@import '../export.css';
+
+.annotate.highlight, .annotate.highlighted {
+}
+
+.annotate.elide,
+.annotate.replacement,
+.annotate.note {
+  display: none;
+}
+
+.annotate.link {
+  color: black;
+  text-decoration: none;
+}

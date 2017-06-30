@@ -4,11 +4,11 @@ require 'uri'
 # Abstract controller for behavior shared between Casebook and Section/Resource views
 class Content::NodeController < ApplicationController
   layout 'casebooks'
-  before_action :find_casebook, if: lambda {params[:casebook_id].present?}
+  before_action :find_casebook, if: lambda {params[:casebook_id].present? || params[:casebook_casebook_id].present?}
   before_action :find_section, if: lambda {params[:id_ordinals].present?}
 
-  before_action :check_public, only: [:show, :index, :clone]
-  before_action :check_authorized, except: [:show, :index, :new, :clone]
+  before_action :check_public, only: [:show, :index, :clone, :export]
+  before_action :check_authorized, except: [:show, :index, :new, :clone, :export]
 
   before_action :set_page_title
   before_action :canonical_redirect, only: [:show, :index]
@@ -52,13 +52,17 @@ class Content::NodeController < ApplicationController
   end
 
   def find_casebook
-    @content = @casebook = Content::Casebook.find params[:casebook_id]
+    @content = @casebook = Content::Casebook.find params[:casebook_id] || params[:casebook_casebook_id]
   end
 
   def find_section
     @content = @section = @casebook.contents.find_by_ordinals parse_ordinals(params[:id_ordinals].split('-')[0])
     unless @section.present?
       return redirect_to casebook_path(@casebook)
+    end
+
+    if @section.is_a? Content::Resource
+      @resource = @section
     end
   end
 

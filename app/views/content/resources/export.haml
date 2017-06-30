@@ -1,0 +1,4 @@
+%h1= @resource.title
+%h2= @resource.subtitle
+%p= @resource.headnote
+= render partial: 'show', locals: {resource: @resource, editable: false}
