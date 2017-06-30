@@ -133,7 +133,7 @@ H2o::Application.configure do
     :email => {
       :email_prefix => "[H2O] ",
       :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
-      :exception_recipients => %w{bsteinberg@law.harvard.edu} #later add h2o@cyber.law.harvard.edu
+      :exception_recipients => %W{bsteinberg@law.harvard.edu} + (ENV['CONTRACTOR_EMAIL_ADDRESSES'] || '').split(' ') #later add h2o@cyber.law.harvard.edu
     }
 
   # Admin email to recieve the 'new user needs verification' emails
