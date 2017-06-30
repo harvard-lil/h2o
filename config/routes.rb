@@ -61,6 +61,7 @@ H2o::Application.routes.draw do
     resources :cases, only: [:show], param: :case_id
 
     resources :casebooks, param: :casebook_id do
+      get 'export'
       member do
         resources :sections, as: 'casebook_section', param: :id_ordinals, id_ordinals: /.*/
         post :clone
@@ -68,6 +69,7 @@ H2o::Application.routes.draw do
     end
 
     resources :resources, only: [] do
+      get 'export'
       resources :annotations, only: [:create, :destroy, :update]
     end
   end

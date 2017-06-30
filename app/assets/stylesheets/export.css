@@ -1,0 +1,24 @@
+body {
+  margin: 0.5in;
+}
+
+.annotation-handle,
+.annotate.note-icon {
+  display: none;
+}
+
+.p-handle {
+  width: 0px;
+  height: 10px;
+  float: left;
+
+  position: relative;
+}
+
+.p-number {
+  position: absolute;
+  right: 20px;
+
+  color: #777;
+  text-align: right;
+}
