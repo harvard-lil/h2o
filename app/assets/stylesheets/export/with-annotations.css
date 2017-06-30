@@ -1,0 +1,27 @@
+@import '../export.css';
+
+.annotate.highlight, .annotate.highlighted {
+  background-color: yellow;
+}
+
+.annotate.elide::before {
+  content: '[ ... ]';
+}
+
+.annotate.replacement {
+  padding: 0 4px;
+  color: #555;
+}
+
+.annotate.replacement::before {
+  content: '[ ';
+}
+
+.annotate.replacement::after {
+  content: ' ]';
+}
+
+.annotate.elided,
+.annotate.replaced {
+  display: inline;
+}

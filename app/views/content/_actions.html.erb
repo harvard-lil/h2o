@@ -20,3 +20,12 @@
 <% elsif current_user.present? %>
   <%= button_to t('content.actions.clone-casebook'), clone_casebook_path(@casebook), method: :post, class: 'action clone-casebook' %>
 <% end %>
+<% if current_user.present? %>
+  <% if @section.present? %>
+    <% if @section.is_a? Content::Resource %>
+      <%= link_to t('content.actions.export'), resource_export_path(@section.id), class: 'action one-line add-section export' %>
+    <% end %>
+  <% else %>
+    <%= link_to t('content.actions.export'), casebook_export_path(@casebook), class: 'action one-line add-section export' %>
+  <% end %>
+<% end %>
