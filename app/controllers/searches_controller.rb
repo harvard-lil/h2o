@@ -29,8 +29,8 @@ class SearchesController < ApplicationController
   private
 
   def paginate_group group
-    WillPaginate::Collection.create(@page, PER_PAGE, group.total) do |pager|
-       pager.replace(group.results)
+    WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
+       pager.replace(group.try(:results) || [])
     end
   end
 
