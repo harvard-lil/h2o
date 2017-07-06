@@ -15,8 +15,14 @@ main > header.dashboard {
   padding: 0 40px;
 }
 
-.dashboard-inner {
+.dashboard > .content > hr {
+  background-color: $light-blue;
+  height: 2px;
+  margin-bottom: 16px;
+}
 
+h2.casebooks {
+  @include sans-serif($light, 32px, 14px);
 }
 
 .content-browser {
@@ -90,7 +96,7 @@ main > header.dashboard {
   }
   .header-spacer {
     h3 {
-      @include sans-serif($medium, 18px, 20px);
+      @include sans-serif($medium, 21px, 20px);
       margin-top: 0px;
     }
   }
