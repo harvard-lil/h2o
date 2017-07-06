@@ -1,0 +1,30 @@
+- if action_name == 'new'
+  - active_tab = 'new'
+- elsif action_name == 'edit'
+  - active_tab = 'details'
+- elsif @casebook.is_a? Content::Resource
+  - active_tab = 'edit'
+- else
+  - active_tab = 'layout'
+- if @section.present?
+  - if @section.is_a? Content::Resource
+    - if @section.section.is_a? Content::Casebook
+      %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => "casebook_section_index_path(@casebook, @section)"}= t 'content.tabs.layout'
+    - else
+      %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => "casebook_section_path(@casebook, @section.section)"}= t 'content.tabs.layout'
+    %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => "#{casebook_section_path(@casebook, @section)}"}= t 'content.tabs.edit'
+    %a{:class => "tab #{active_tab == 'details' ? 'active' : ''}", :href => "#{edit_casebook_section_path(@casebook, @section)}"}= t 'content.tabs.resource-details'
+  - elsif @section.is_a? Content::Section
+    %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => "#{casebook_section_path(@casebook, @section)}"}= t 'content.tabs.layout'
+    - if @section.resources.any?
+      %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => "#{casebook_section_path(@casebook, @section.resources.first)}"}= t 'content.tabs.edit'
+    - else
+      %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => "#{casebook_section_path(@casebook, @section)}"}= t 'content.tabs.edit'
+    %a{:class => "tab #{active_tab == 'details' ? 'active' : ''}", :href => "#{edit_casebook_section_path(@casebook, @section)}"}= t 'content.tabs.section-details'
+- else
+  %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => "#{casebook_section_index_path(@casebook)}"}= t 'content.tabs.layout'
+  - if @casebook.resources.any?
+    %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => "#{casebook_section_path(@casebook, @casebook.resources.first)}"}= t 'content.tabs.edit'
+  - else
+    %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => "#{casebook_section_index_path(@casebook)}"}= t 'content.tabs.edit'
+  %a{:class => "tab #{active_tab == 'details' ? 'active' : ''}", :href => "#{edit_casebook_path(@casebook)}"}= t 'content.tabs.casebook-details'
