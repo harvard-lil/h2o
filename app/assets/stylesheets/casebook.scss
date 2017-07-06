@@ -1,14 +1,13 @@
 @import 'content/dragging';
 @import 'content/annotations';
-@import 'content/dashboard';
 @import 'content/modals';
 
-main > .casebook .casebook-inner, main > .dashboard .content-inner {
+main > .casebook .casebook-inner {
   @include make-md-column(8.25);
   @include make-md-column-offset(2);
 }
 
-main > section.casebook, main > section.dashboard {
+main > section.casebook {
   background-color: $light-gray;
   padding-bottom: 20px;
 
@@ -16,10 +15,7 @@ main > section.casebook, main > section.dashboard {
     margin-top: 1px;
     height: 20px;
   }
-  &.casebook-draft .top-strip {
-    background-color: $yellow;
-  }
-  &.casebook-public .top-strip {
+  &.casebook-draft .top-strip {background-color: $yellow; } &.casebook-public .top-strip {
     background-color: $light-blue;
   }
   &.casebook-draft .subtitle {
@@ -27,7 +23,7 @@ main > section.casebook, main > section.dashboard {
   }
 }
 
-main > header.casebook, main > header.dashboard {
+main > header.casebook {
   margin-top: 20px;
   padding: 0 40px;
 
@@ -131,7 +127,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
 }
 
-.casebook-inner, .dashboard-inner {
+.casebook-inner {
   header.casebooks-search {
     margin-bottom: 30px;
   }
