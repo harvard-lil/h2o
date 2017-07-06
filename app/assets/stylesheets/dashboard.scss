@@ -1,3 +1,24 @@
+@import 'content/modals';
+
+main > .dashboard .content-inner {
+  @include make-md-column(8.25);
+  @include make-md-column-offset(2);
+}
+
+main > section.dashboard {
+  background-color: $light-gray;
+  padding-bottom: 20px;
+}
+
+main > header.dashboard {
+  margin: 20px 0 53px 0;
+  padding: 0 40px;
+}
+
+.dashboard-inner {
+
+}
+
 .content-browser {
   clear: both;
 
@@ -63,6 +84,8 @@
     }
     .label {
       @include sans-serif($medium, 14px, 16px);
+      color: black;
+      font-weight: bold;
     }
   }
   .header-spacer {
