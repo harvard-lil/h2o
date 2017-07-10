@@ -15,7 +15,10 @@ main > section.casebook {
     margin-top: 1px;
     height: 20px;
   }
-  &.casebook-draft .top-strip {background-color: $yellow; } &.casebook-public .top-strip {
+  &.casebook-draft .top-strip {
+    background-color: $yellow; 
+  } 
+  &.casebook-public .top-strip {
     background-color: $light-blue;
   }
   &.casebook-draft .subtitle {
