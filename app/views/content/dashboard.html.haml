@@ -1,4 +1,3 @@
-
 %header.dashboard
   .content
     .content-inner
@@ -7,8 +6,6 @@
 %section.dashboard
   .content
     %h2.casebooks= t 'content.dashboard.headers.casebooks'
-    %hr
-    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.owned-casebooks'), content: @user.casebooks.owned, create_button: true}
-    %hr
-    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks'), content: @user.casebooks.followed}
+    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.owned-casebooks'), content: @user.casebooks.owned, create_button: true, section: 'owned'}
+    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks'), content: @user.casebooks.followed, section: 'followed'}
   -# -# %script{type: 'text/template'}= render partial: 'content/dashboard/content_browser'

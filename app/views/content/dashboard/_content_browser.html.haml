@@ -1,0 +1,22 @@
+.content-browser
+  %hr{:class => "#{section}"}
+  .header-spacer
+    %h3
+      = header
+  - if defined?(create_button)
+    .create-button{"data-action" => "show-casebook-modal"}
+      .icon
+      .label
+        = t 'content.dashboard.links.create-new-casebook'
+  - content.each do |casebook|
+    %a.wrapper{:href => "#{casebook_url(casebook)}"}
+      - if casebook.public
+        - version_type = 'public'
+      - else
+        - version_type = 'draft'
+      %div{:class => "content-page #{version_type}"}
+        .top
+          .state= casebook.public ? t('content.dashboard.casebooks.published') : t('content.dashboard.casebooks.draft')
+          .title= casebook.title
+          .subtitle= casebook.subtitle
+        .owner= casebook.owners.first.display_name
