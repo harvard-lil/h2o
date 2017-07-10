@@ -32,6 +32,7 @@ h2.casebooks {
     @include size(225px, 320px);
     float: left;
     margin-right: 10px;
+    margin-bottom: 15px;
   }
 
   .content-page {
@@ -95,6 +96,8 @@ h2.casebooks {
     }
   }
   .header-spacer {
+    height: 340px;
+
     h3 {
       @include sans-serif($medium, 21px, 20px);
       margin-top: 0px;
