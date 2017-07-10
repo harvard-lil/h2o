@@ -15,18 +15,25 @@ main > header.dashboard {
   padding: 0 40px;
 }
 
-.dashboard > .content > hr {
-  background-color: $light-blue;
-  height: 2px;
-  margin-bottom: 16px;
-}
-
 h2.casebooks {
   @include sans-serif($light, 32px, 14px);
 }
 
 .content-browser {
   clear: both;
+
+  hr {
+    height: 2px;
+    margin-bottom: 16px;
+
+    &.owned {
+      background-color: $light-blue;
+    }
+
+    &.followed {
+      background-color: $red;
+    }
+  }
 
   .content-page, .header-spacer, .create-button {
     @include size(225px, 320px);
