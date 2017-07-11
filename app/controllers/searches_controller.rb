@@ -13,8 +13,11 @@ class SearchesController < ApplicationController
     else
       result_groups '*'
     end
-    @pagination = paginate_group @results[@type.to_sym]
 
+    @pagination = paginate_group @results[@type.to_sym]
+    @main_group = @results[@type.to_sym]
+    @authors = @results[:users].results.map { |user| user.attribution }
+    
     if params[:partial]
       render partial: 'results', layout: false, locals: {pagination: @pagination}
     end
@@ -23,6 +26,8 @@ class SearchesController < ApplicationController
   def index
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
+    @main_group = @results[:casebooks]
+    @authors = @results[:users].results.map { |user| user.attribution }
     render 'searches/show'
   end
 
@@ -69,5 +74,4 @@ class SearchesController < ApplicationController
       end
     end
   end
-
 end
