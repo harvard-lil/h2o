@@ -18,6 +18,28 @@ header.advanced-search {
   }
 }
 
+.narrow-inner {
+  float: none;
+}
+
+.search-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search_sort {
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  label {
+    padding-right: 8px;
+    margin: 0;
+  }
+}
+
 .search-tabs {
   @include make-row();
   margin-bottom: 20px;
