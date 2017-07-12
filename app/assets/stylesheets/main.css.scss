@@ -1,10 +1,11 @@
+@import "variables";
+
 // import bootstrap mixins to build semantic styles
 @import "bootstrap/bootstrap";
 @import "bootstrap/scaffolding";
 @import "bootstrap/normalize";
 
 // shared variables
-@import "variables";
 @import "fonts";
 @import "mixins";
 

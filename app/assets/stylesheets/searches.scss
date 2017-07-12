@@ -19,7 +19,9 @@ header.advanced-search {
 }
 
 .narrow-inner {
-  float: none;
+  @include make-md-column(7.5);
+  float: none !important;
+  margin: auto;
 }
 
 .search-options {
