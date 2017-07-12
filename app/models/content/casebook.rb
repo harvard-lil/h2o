@@ -54,6 +54,10 @@ class Content::Casebook < Content::Node
     integer :owner_ids, stored: true, multiple: true do
       owners.map &:id
     end
+
+    string :owner_attributions, stored: true, multiple: true do
+      owners.map &:attribution
+    end
   end
 
   def clone owner:
@@ -87,7 +91,7 @@ class Content::Casebook < Content::Node
   end
 
   def owner
-    owners.first
+  owners.first
   end
 
   def owner= user

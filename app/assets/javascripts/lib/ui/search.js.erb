@@ -1,6 +1,7 @@
 import delegate from 'delegate';
 
 delegate(document, '.advanced-search .search-options #search_sort', 'change', doSearch);
+delegate(document, '.advanced-search .search-options #search_author', 'change', doSearch);
 
 function doSearch (e) {
   e.target.closest('form').submit();
