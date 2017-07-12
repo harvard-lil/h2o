@@ -17,7 +17,7 @@ class SearchesController < ApplicationController
     @pagination = paginate_group @results[@type.to_sym]
     @main_group = @results[@type.to_sym]
     @authors = @results[:users].results.map { |user| user.attribution }
-    
+
     if params[:partial]
       render partial: 'results', layout: false, locals: {pagination: @pagination}
     end
@@ -27,7 +27,6 @@ class SearchesController < ApplicationController
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
     @main_group = @results[:casebooks]
-    @authors = @results[:users].results.map { |user| user.attribution }
     render 'searches/show'
   end
 
@@ -43,6 +42,10 @@ class SearchesController < ApplicationController
     @page = (params[:page] || 1).to_i
   end
 
+  def authors
+    User.all.map { |collaborator| collaborator.attribution }
+  end
+
   def result_groups query
     groups = search_query(@query).group(:klass).groups
     return {
@@ -55,14 +58,16 @@ class SearchesController < ApplicationController
   def search_query query
     page = @page
     Sunspot.search Case, Content::Casebook, User do
-      keywords query
+      keywords query, fields: [:title, :subtitle, :owner_attributions]
 
       any_of do
         with :public, true
-        if current_user.present?
-          with :user_id, current_user.id
-        end
+        # if current_user.present?
+        #   with :user_id, current_user.id ## need to use collaborate relationship
+        # end
       end
+
+      # with :owner_ids, params[:author] if params[:author].present?
 
       order_by (params[:sort] || 'display_name').to_sym
       group :klass do
