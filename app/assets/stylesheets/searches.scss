@@ -28,17 +28,17 @@ header.advanced-search {
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.search_sort {
-  margin-top: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .form-group {
+    margin-top: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  label {
-    padding-right: 8px;
-    margin: 0;
+    label {
+      padding-right: 8px;
+      margin: 0;
+    }
   }
 }
 
