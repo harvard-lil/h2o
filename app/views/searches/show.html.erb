@@ -5,7 +5,7 @@
     </div>
     <div class="search-options">
       <%= f.input :sort, collection: {'Name': 'display_name', 'Date': 'updated_at', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', input_html: { name: 'sort' } %>
-      <%= f.input :author, collection: @authors %>
+      <%= f.input :author, collection: @authors, label: 'Author Name' %>
     </div>
   <% end %>
 </header>
