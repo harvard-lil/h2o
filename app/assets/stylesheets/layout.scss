@@ -92,8 +92,3 @@ section#flash {
     }
   }
 }
-
-.narrow-inner {
-  @include make-md-column(9.5);
-  @include make-md-column-offset(1.25);
-}
