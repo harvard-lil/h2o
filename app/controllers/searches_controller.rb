@@ -24,6 +24,7 @@ class SearchesController < ApplicationController
   end
 
   def index
+    @type = params[:type] || 'casebooks'
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
     @main_group = @results[:casebooks]
