@@ -85,9 +85,22 @@
       padding: 5px 10px;
       margin: 0 5px;
 
+      cursor: zoom-in;
+
       border-radius: 3px;
       background-color: $light-gray;
       color: $light-blue;
+
+      .text {
+        pointer-events: none;
+      }
+      &.revealed .text {
+        display: none;
+      }
+      &.revealed::before {
+        content: 'hide';
+        cursor: zoom-out;
+      }
       &:empty::before {
         content: 'Enter text to replace...';
         color: $dark-gray;
@@ -114,6 +127,8 @@
       display: inline-block;
       padding: 0 10px;
 
+      cursor: zoom-in;
+
       border-radius: 3px;
       background-color: $light-gray;
       color: $light-blue;
@@ -124,6 +139,7 @@
       }
       &.revealed::before {
         content: 'hide';
+        cursor: zoom-out;
       }
     }
     &.note-icon {
@@ -148,6 +164,7 @@
       }
 
       .note-content {
+        display: block;
         width: 150px;
         padding: 10px;
 

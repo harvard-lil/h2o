@@ -7,17 +7,17 @@ class Content::AnnotationsController < ApplicationController
 
   def create
     Content::Annotation.create! annotation_params.merge(resource: @resource)
-    redirect_to casebook_section_path(@resource.casebook, @resource)
+    redirect_to annotate_resource_path(@resource.casebook, @resource)
   end
 
   def destroy
     @annotation.destroy
-    redirect_to casebook_section_path(@resource.casebook, @resource)
+    redirect_to annotate_resource_path(@resource.casebook, @resource)
   end
 
   def update
     @annotation.update_attributes annotation_params
-    redirect_to casebook_section_path(@resource.casebook, @resource)
+    redirect_to annotate_resource_path(@resource.casebook, @resource)
   end
 
   private

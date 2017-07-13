@@ -5,11 +5,6 @@ class Content::SectionsController < Content::NodeController
   before_action :find_parent, only: [:new, :create]
   before_action :disable_turbolinks_cache, only: [:new]
 
-  def show
-    @edit_layout = @casebook.owners.include? current_user
-    render 'content/show'
-  end
-
   def create
     child_ordinals = @parent.ordinals + [@parent.children.length + 1]
     if params[:resource_id]
@@ -24,16 +19,11 @@ class Content::SectionsController < Content::NodeController
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
-    redirect_to edit_casebook_section_path @casebook, @section
+    redirect_to edit_section_path @casebook, @section
   end
 
-  def edit
-    render 'content/edit'
-  end
-
-  def index
-    @edit_layout = @casebook.owners.include? current_user
-    render 'content/show'
+  def show
+    render 'content/layout'
   end
 
   def new
@@ -60,9 +50,9 @@ class Content::SectionsController < Content::NodeController
       @section.resource.update_attribute :url, params[:link_url]
     end
     if params[:reorder]
-      redirect_back fallback_location: casebook_section_index_path(@casebook)
+      redirect_back fallback_location: sections_path(@casebook)
     else
-      return redirect_to casebook_section_path(@casebook, @section) if @section.valid?
+      return redirect_to section_path(@casebook, @section) if @section.valid?
       render 'content/content/edit'
     end
   end
@@ -71,7 +61,7 @@ class Content::SectionsController < Content::NodeController
     if !@section.destroy
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end
-    redirect_to casebook_section_index_path @casebook
+    redirect_to sections_path @casebook
   end
 
   private

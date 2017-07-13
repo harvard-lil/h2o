@@ -8,8 +8,8 @@ delegate(document, 'a.action.export', 'click', showExportModal);
 function resource_export_path(resourceId, format = 'pdf') {
   return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
 }
-function casebook_export_path(casebookId, format = 'pdf') {
-  return '<%= j casebook_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
+function export_casebook_path(casebookId, format = 'pdf') {
+  return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
 let modal = null;
@@ -40,7 +40,7 @@ class ExportModal extends Component {
           if (resourceId)  {
             window.open(resource_export_path(resourceId, format) + (includeAnnotations ? '' : '?annotations=false'));
           } else {
-            window.open(casebook_export_path(casebookId, format) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(export_casebook_path(casebookId, format) + (includeAnnotations ? '' : '?annotations=false'));
           }
         },
       }

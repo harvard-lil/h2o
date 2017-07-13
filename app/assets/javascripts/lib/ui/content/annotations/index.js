@@ -13,7 +13,7 @@ import 'lib/ui/content/annotations/note';
 let annotator = null;
 
 document.addEventListener('turbolinks:load', e => {
-  if (!document.querySelector('.resource-wrapper')) {
+  if (!document.querySelector('.resource-wrapper') || !isEditable()) {
     annotator && annotator.destroy();
     annotator = null;
     return;
@@ -43,6 +43,10 @@ export function updateAnnotation(handle, attrs) {
 
   annotator.edit(handle);
   annotator.updateAnnotation(handle.dataset.annotationId, attrs);
+}
+
+export function isEditable () {
+  return document.querySelector('header.casebook').dataset.editable ? true : false;
 }
 
 function makeReplacementsContenteditable() {

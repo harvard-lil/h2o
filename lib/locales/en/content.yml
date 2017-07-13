@@ -80,6 +80,8 @@ en:
       save-section: Save
       draft-banner:
         html: This casebook is a draft and is visible only to collaborators. <a href="%{publish_path}">Publish it</a> to make it public.
+      preview-banner:
+        html: You are viewing a preview of a private casebook. <a href="%{edit_path}">Make changes or publish it</a> to make it public.
       empty-section:
         html: "This section has no content yet. %{add_resource_button}"
         add-button: Click here to add a resource.

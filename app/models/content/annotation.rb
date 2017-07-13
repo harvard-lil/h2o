@@ -31,10 +31,15 @@ class Content::Annotation < ApplicationRecord
     end
   end
 
-  def apply_to_node p_node, p_idx
-    if p_idx != start_p && p_idx != end_p
+  def apply_to_node p_node, p_idx, editable: false
+    p_node['data-p-idx'] = p_idx
+
+    if (p_idx != start_p && p_idx != end_p) || (p_idx == end_p && p_idx != start_p && end_offset == p_node.text.length)
       # wrap entire p node in annotation
       p_node.children = annotate_html(p_node.inner_html, handle: false)
+      if kind.in? %w{elide replace}
+        p_node['data-elided-annotation'] = id
+      end
       return
     end
 
@@ -56,16 +61,21 @@ class Content::Annotation < ApplicationRecord
         end
       else
         if node_offset + node.text.length >= start_offset
+          handle_html = if editable
+            "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
+          else
+            ''
+          end
           if p_idx == end_p && node_offset + node.text.length >= end_offset
             # wrap within this node
             inner = annotate_html node.text[start_offset - node_offset...end_offset - node_offset], final: true
-            node.replace "#{node.text[0...start_offset - node_offset]}<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}#{node.text[end_offset - node_offset..-1]}"
+            node.replace "#{node.text[0...start_offset - node_offset]}#{handle_html}#{inner}#{node.text[end_offset - node_offset..-1]}"
             break # done annotating
           else
             # wrap the rest of this node from start_offset and continue annotating
             annotating = true
             inner = annotate_html node.text[start_offset - node_offset..-1]
-            node.replace "#{node.text[0...start_offset - node_offset]}<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>#{inner}"
+            node.replace "#{node.text[0...start_offset - node_offset]}#{handle_html}#{inner}"
           end
         else
           # don't start annotating yet
@@ -83,7 +93,7 @@ class Content::Annotation < ApplicationRecord
     when 'elide' then
       "#{handle ? "<span class='annotate elide' data-annotation-id='#{id}'></span>" : ''}<span class='annotate elided' data-annotation-id='#{id}'>#{inner}</span>"
     when 'replace' then
-      "#{handle ? "<span class='annotate replacement' data-annotation-id='#{id}'>#{escaped_content}</span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
+      "#{handle ? "<span class='annotate replacement' data-annotation-id='#{id}'><span class='text'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
     when 'highlight' then
       "<span class='annotate highlighted' data-annotation-id='#{id}'>#{inner}</span>"
     when 'link' then

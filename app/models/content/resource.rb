@@ -37,16 +37,16 @@ class Content::Resource < Content::Child
     html.xpath('//p')
   end
 
-  def annotated_paragraphs
+  def annotated_paragraphs editable: false
     nodes = paragraph_nodes
 
     annotations.all.each_with_index do |annotation|
       nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
-        annotation.apply_to_node p_node, p_idx + annotation.start_p
+        annotation.apply_to_node p_node, p_idx + annotation.start_p, editable: editable
       end
     end
 
-    nodes.map &:inner_html
+    nodes
   end
 
   def annotations

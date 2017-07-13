@@ -2,6 +2,8 @@ require 'net/http'
 require 'uri'
 
 class Content::CasebooksController < Content::NodeController
+  before_action :set_editable, only: [:show, :index]
+
   def new
     @casebook = current_user.casebooks.owned.unmodified.first ||
       Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
@@ -27,7 +29,7 @@ class Content::CasebooksController < Content::NodeController
 
   def update
     @casebook.update content_params
-    return redirect_to casebook_section_index_path @casebook if @casebook.valid?
+    return redirect_to sections_path @casebook if @casebook.valid?
     render 'content/casebooks/edit'
   end
 
@@ -45,6 +47,10 @@ class Content::CasebooksController < Content::NodeController
   end
 
   private
+
+  def set_editable
+    @edit_layout = !@preview && !@casebook.public && @casebook.owners.include?(current_user)
+  end
 
   def page_title
     if @casebook.present?

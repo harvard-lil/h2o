@@ -1,4 +1,4 @@
-<%= simple_form_for :link, url: casebook_section_index_path(@casebook), method: :post do |f| %>
+<%= simple_form_for :link, url: sections_path(@casebook), method: :post do |f| %>
   <% if @section.present? %>
     <%= f.input :parent, as: :hidden, input_html: {value: @section.ordinal_string} %>
   <% end %>
