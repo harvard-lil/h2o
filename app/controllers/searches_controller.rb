@@ -5,6 +5,7 @@ class SearchesController < ApplicationController
   before_action :read_page
 
   def show
+    @authors = User.all 
     @query = params[:q]
     @type = params[:type] || 'casebooks'
 
@@ -24,6 +25,7 @@ class SearchesController < ApplicationController
   end
 
   def index
+    @authors = User.all
     @type = params[:type] || 'casebooks'
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
@@ -63,12 +65,12 @@ class SearchesController < ApplicationController
 
       any_of do
         with :public, true
-        # if current_user.present?
-        #   with :user_id, current_user.id ## need to use collaborate relationship
-        # end
+        if current_user.present?
+          with :owner_ids, current_user.id 
+        end
       end
 
-      # with :owner_ids, params[:author] if params[:author].present?
+      with :owner_ids, params[:author] if params[:author].present?
 
       order_by (params[:sort] || 'display_name').to_sym
       group :klass do
