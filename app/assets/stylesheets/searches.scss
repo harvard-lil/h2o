@@ -42,6 +42,10 @@ header.advanced-search {
   }
 }
 
+.results-container {
+  padding: 0 50px 0 50px;
+}
+
 .search-tabs {
   @include make-row();
   margin-bottom: 20px;
@@ -49,13 +53,14 @@ header.advanced-search {
   .search-tab {
     @include make-md-column(4);
     @include sans-serif($regular, 18px, 18px);
-
     padding-bottom: 10px;
-
     text-align: center;
     color: $black;
+
     &.active {
       border-bottom: 4px solid $light-blue;
+      color: $light-blue;
+      font-weight: bold;
     }
   }
 }
@@ -63,18 +68,23 @@ header.advanced-search {
 .results-list {
   .results-entry {
     @include make-row();
-    // margin: 15px 0;
     padding: 10px 0;
-
     border-top: 1px solid $dark-gray;
+    display: flex;
+    align-items: center;
 
     .title {
       @include make-md-column(9);
-      @include sans-serif($bold, 18px, 18px);
+      font-weight: bold;
+      font-size: 14px;
+      font-family: $font-family-sans-serif;
       float: left;
     }
     .owner, .casebook-count {
       @include make-md-column(2);
+    }
+    .owner {
+      font-size: 13px;
     }
     .date, .profile-image {
       @include make-md-column(1);
