@@ -17,22 +17,31 @@
 <section class="search-results">
   <div class="content">
     <% if @results %>
-      <div class="search-tabs">
-        <div class="search-tab <% if @type == 'casebooks' %>active<% end %>">
-          <a href="<%= search_path(q: @query, type: 'casebooks') %>" class="wrapper">
-            <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
-          </a>
+      <div class="results-container">
+        <div class="search-tabs">
+          <div class="search-tab <% if @type == 'casebooks' %>active<% end %>">
+            <a href="<%= search_path(q: @query, type: 'casebooks') %>" class="wrapper">
+              <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
+            </a>
+          </div>
+          <div class="search-tab <% if @type == 'cases' %>active<% end %>">
+            <a href="<%= search_path(q: @query, type: 'cases') %>" class="wrapper">
+              <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
+            </a>
+          </div>
+          <div class="search-tab <% if @type == 'users' %>active<% end %>">
+            <a href="<%= search_path(q: @query, type: 'users') %>" class="wrapper">
+              <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
+            </a>
+          </div>
         </div>
-        <div class="search-tab <% if @type == 'cases' %>active<% end %>">
-          <a href="<%= search_path(q: @query, type: 'cases') %>" class="wrapper">
-            <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
-          </a>
-        </div>
-        <div class="search-tab <% if @type == 'users' %>active<% end %>">
-          <a href="<%= search_path(q: @query, type: 'users') %>" class="wrapper">
-            <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
-          </a>
-        </div>
+        <% if @main_group %>
+          <%= render partial: 'results', locals: {results: @main_group.results} %>
+        <% else %>
+          <div class="no-results">
+            <%= t 'search.results.no-results' %>
+          </div>
+        <% end %>
       </div>
       <% if @pagination %>
         <%= render partial: 'results', locals: {pagination: @pagination} %>
