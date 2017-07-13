@@ -6,6 +6,7 @@ class SearchesController < ApplicationController
 
   def show
     @authors = User.all 
+    @schools = schools
     @query = params[:q]
     @type = params[:type] || 'casebooks'
 
@@ -26,6 +27,7 @@ class SearchesController < ApplicationController
 
   def index
     @authors = User.all
+    @schools = schools
     @type = params[:type] || 'casebooks'
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
@@ -47,6 +49,10 @@ class SearchesController < ApplicationController
 
   def authors
     User.all.map { |collaborator| collaborator.attribution }
+  end
+
+  def schools
+    a = User.all.map { |user| user.affiliation }.uniq
   end
 
   def result_groups query
@@ -71,6 +77,7 @@ class SearchesController < ApplicationController
       end
 
       with :owner_ids, params[:author] if params[:author].present?
+      with :owner_affiliation, params[:school] if params[:school].present?
 
       order_by (params[:sort] || 'display_name').to_sym
       group :klass do

@@ -55,8 +55,8 @@ class Content::Casebook < Content::Node
       owners.map &:id
     end
 
-    string :owner_attributions, stored: true, multiple: true do
-      owners.map &:attribution
+    string :owner_affiliation, stored: true, multiple: true do
+      owners.map &:affiliation
     end
   end
 
