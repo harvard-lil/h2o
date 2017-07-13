@@ -24,24 +24,11 @@
     </div>
   <% end %>
   <h1 class="title">
-    <% if @content.resource_type == 'Case' %>
-      <div class="<%= @content.resource_type.downcase %>">
-        <div class="title-metadata">
-          <span class="resource-type"><%= @content.resource_type %></span>
-          <span class="citation"><%= @content.resource.case_citations.first %></span>
-        </div>
-        <%= @content.title %>
-      </div>
-    <% else %>
-      <%= @content.title %>
-    <% end %>
-
+    <%= @content.title %>
     <% if @section.nil? %>
       <h2 class="subtitle">
         <%= @content.subtitle %>
       </h2>
-    <% end %>
-    <% if @section.nil? %>
       <div class="collaborators">
         <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
@@ -66,33 +53,27 @@
   <section class="no-headnote"></section>
 <% end %>
 <section class="table-of-contents">
-  <% if @content.respond_to? :contents %>
-    <h5>
+  <h5>
+    <% if @section.present? %>
+      <%= t 'content.show.section-contents' %>
+    <% end %>
+  </h5>
+  <% if @content.contents.any? %>
+    <%= render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: @editable} %>
+  <% else %>
+    <div class="listing empty">
+    <% if @edit_layout %>
       <% if @section.present? %>
-        <%= t 'content.show.section-contents' %>
-      <% end %>
-    </h5>
-    <% if @content.contents.any? %>
-      <%= render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: @edit_layout} %>
-    <% else %>
-      <div class="listing empty">
-      <% if @edit_layout %>
-        <% if @section.present? %>
-          <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_section_path(@casebook, parent: @section.ordinal_string)) %>
-        <% else %>
-          <%= t 'content.edit.empty-casebook.html', add_section_button: button_to(t('content.edit.empty-casebook.add-button'), sections_path(@casebook), method: :post) %>
-        <% end %>
+        <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_section_path(@casebook, parent: @section.ordinal_string)) %>
       <% else %>
-        <% if @section.present? %>
-          <%= t 'content.show.empty-section' %>
-        <% else %>
-          <%= t 'content.show.empty-casebook' %>
-        <% end %>
+        <%= t 'content.edit.empty-casebook.html', add_section_button: button_to(t('content.edit.empty-casebook.add-button'), sections_path(@casebook), method: :post) %>
+      <% end %>
+    <% else %>
+      <% if @section.present? %>
+        <%= t 'content.show.empty-section' %>
+      <% else %>
+        <%= t 'content.show.empty-casebook' %>
       <% end %>
     <% end %>
-  <% elsif @content.respond_to? :resource %>
-    <section class="resource">
-      <%= render partial: 'content/resources/show', locals: {resource: @content, editable: false} %>
-    </section>
   <% end %>
 </section>

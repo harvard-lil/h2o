@@ -180,7 +180,7 @@ export class Annotator extends Component {
   }
 
   saveAnnotation (type, offsets, content = null) {
-    post(RAILS_ROUTES.resource_annotations_path(), {
+    post(this.annotationsPath(), {
       annotation: {
         kind: type,
         content: content,
@@ -194,7 +194,7 @@ export class Annotator extends Component {
   }
 
   convertAnnotation (annotationId, type) {
-    patch(RAILS_ROUTES.resource_annotation_path(annotationId), {
+    patch(this.annotationPath(annotationId), {
       annotation: {
         kind: type
       }
@@ -203,15 +203,27 @@ export class Annotator extends Component {
   }
 
   updateAnnotation (annotationId, attrs) {
-    patch(RAILS_ROUTES.resource_annotation_path(annotationId), {
+    patch(this.annotationPath(annotationId), {
       annotation: attrs
     }, { scroll: false })
     .then( _ => window.getSelection().empty());
   }
 
   destroyAnnotation (annotationId) {
-    rest_delete(RAILS_ROUTES.resource_annotation_path(annotationId), {}, { scroll: false })
+    rest_delete(this.annotationPath(annotationId), {}, { scroll: false })
     .then( _ => window.getSelection().empty());
+  }
+
+  annotationsPath () {
+    return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId());
+  }
+
+  annotationPath (annotationId) {
+    return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId()).replace('$ANNOTATION_ID', annotationId);
+  }
+
+  resourceId () {
+    return document.querySelector('header.casebook').dataset.resourceId;
   }
 }
 

@@ -1,14 +1,14 @@
 - contents.each do |content|
   - if content.is_a? Content::Resource
     .listing-wrapper{data: {ordinals: content.ordinal_string}}
-      %a.listing.resource{href: casebook_section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
+      %a.listing.resource{href: resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
         .section-number= content.ordinal_string
         - if content.is_a? Content::Resource
           - if content.resource.is_a? Case
             .section-title= content.resource.short_name
             .resource-date
               = content.resource.try(:date_year) || t('content.resource.date.not-applicable')
-          - else 
+          - else
             .section-title= content.title
         - if content.is_a? Content::Resource
           - if content.resource.is_a? Case
@@ -20,21 +20,21 @@
           - else
             .resource-type
               .not-applicable= t "content.resource.type.not-applicable"
-      - if content.can_delete?
+      - if content.can_delete? && editable
         .actions
-          = button_to t('content.edit.delete-section'), casebook_section_path(content.casebook, content), method: :delete, class: 'action-delete'
+          = button_to t('content.edit.delete-section'), section_path(content.casebook, content), method: :delete, class: 'action-delete'
 
   - elsif content.is_a? Content::Section
     - if @edit_section == content
       = render partial: 'content/sections/form', locals: {section: content}
     - else
       .listing-wrapper{draggable: true, data: {ordinals: content.ordinal_string}}
-        %a.listing.section{href: casebook_section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
+        %a.listing.section{href: section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
           .section-number= content.ordinal_string
           .section-title= content.title
         - if editable && content.can_delete?
           .actions
-            = button_to t('content.edit.delete-section'), casebook_section_path(content.casebook, content), method: :delete, class: 'action-delete'
+            = button_to t('content.edit.delete-section'), section_path(content.casebook, content), method: :delete, class: 'action-delete'
 
   - elsif content.is_a? Enumerable
     .section-wrapper

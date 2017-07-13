@@ -1,6 +1,6 @@
 <% if @casebook.nil? %>
   <% @casebook_class = 'casebook-none' %>
-<% elsif @casebook.public? %>
+<% elsif @casebook.public? || @preview %>
   <% @casebook_class = 'casebook-public' %>
 <% else %>
   <% @casebook_class = 'casebook-draft' %>
@@ -14,9 +14,17 @@
       </div>
     </div>
   <% end %>
+<% elsif @preview %>
+  <% content_for :banner do %>
+    <div class="preview banner">
+      <div class="banner-inner">
+        <%= t 'content.edit.preview-banner.html', edit_path: casebook_path(@casebook) %>
+      </div>
+    </div>
+  <% end %>
 <% end %>
 <% content_for :nested_layout do %>
-  <header class="<%= @casebook_class %> casebook" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:ordinal_string) %>" data-resource-id="<%= @resource.try(:id) %>">
+  <header class="<%= @casebook_class %> casebook"  data-editable="<%= @editable || '' %>" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:ordinal_string) %>" data-resource-id="<%= @resource.try(:id) %>">
     <div class="content">
       <div class="casebook-inner">
         <%= render 'content/search' %>
@@ -46,7 +54,7 @@
     <script>
       window.RAILS_ROUTES = {};
       RAILS_ROUTES.casebook_path = function (){ return '<%= j casebook_path(@casebook) %>'};
-      RAILS_ROUTES.casebook_section_path = function (sectionId){ return '<%= j casebook_section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
+      RAILS_ROUTES.section_path = function (sectionId){ return '<%= j section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
     </script>
   <% end %>
   <% if @section.try(:is_a?, Content::Resource) && @section.persisted? %>

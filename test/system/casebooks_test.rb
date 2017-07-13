@@ -65,7 +65,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       casebook = content_nodes(:public_casebook)
       resource = content_nodes(:'public_casebook_section_1.1')
 
-      visit casebook_section_index_path casebook
+      visit sections_path casebook
 
       assert_content "1.1 #{resource.resource.short_name}"
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
@@ -79,7 +79,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       casebook = content_nodes(:public_casebook)
       resource = content_nodes(:'public_casebook_section_1.2')
 
-      visit casebook_section_path casebook, resource
+      visit section_path casebook, resource
 
       select_text 'content to highlight'
       sleep 0.1
@@ -95,7 +95,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_no_content 'content to elide'
       assert_content 'elided: Annotate'
 
-      visit casebook_section_path casebook, resource
+      visit section_path casebook, resource
 
       find('.annotate.highlighted').assert_text 'content to highlight'
       assert_content 'elided: Annotate'

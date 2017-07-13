@@ -38,7 +38,7 @@ class AddResourceModal extends Component {
         'submit form.new-text': (e) => {
           e.preventDefault();
           e.stopPropagation();
-          post('<%= casebook_section_index_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
+          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
             resource_id: e.delegateTarget.dataset.resultId,
             parent: this.sectionId(),
             text: {
@@ -50,7 +50,7 @@ class AddResourceModal extends Component {
         'submit form.new-link': (e) => {
           e.preventDefault();
           e.stopPropagation();
-          post('<%= casebook_section_index_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
+          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
             resource_id: e.delegateTarget.dataset.resultId,
             parent: this.sectionId(),
             link: {
@@ -78,7 +78,7 @@ class AddResourceModal extends Component {
           e.stopPropagation();
           e.preventDefault();
 
-          post('<%= casebook_section_index_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()})
+          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()})
         }
       }
     });

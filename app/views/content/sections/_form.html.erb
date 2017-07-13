@@ -1,4 +1,4 @@
-<%= simple_form_for section, url: section.persisted? ? casebook_section_path(@casebook, section) : casebook_section_index_path(@casebook), method: section.persisted? ? :patch : :post do |f| %>
+<%= simple_form_for section, url: section.persisted? ? section_path(@casebook, section) : sections_path(@casebook), method: section.persisted? ? :patch : :post do |f| %>
   <%= f.input :ordinals, as: :hidden %>
   <div class="listing section">
     <div class="section-number">

@@ -1,4 +1,5 @@
 body > .overlay {
+  display: none;
   position: absolute;
   left: 0;
   top: 0;
@@ -16,5 +17,5 @@ body.view-base-index > .overlay {
 }
 
 body.view-playlists-edit > .overlay {
-  background-image: asset-url('mockups/new-casebook.png');
+  // background-image: asset-url('mockups/new-casebook.png');
 }

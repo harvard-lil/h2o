@@ -122,7 +122,7 @@ document.addEventListener('drop', e => {
 
   if (ordinals.from.join('.') === ordinals.to.join('.')) { return; } // no change
 
-  patch(RAILS_ROUTES.casebook_section_path(ordinals.from.join('.')), {
+  patch(RAILS_ROUTES.section_path(ordinals.from.join('.')), {
     content_section: { ordinals: ordinals.to },
     reorder: true
   }, { scroll: false });
