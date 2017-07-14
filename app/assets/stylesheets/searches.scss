@@ -1,9 +1,9 @@
 main > section.search-results {
   background-color: $light-gray;
+  
   .content {
     padding: 20px 40px;
     margin-top: 25px;
-
     background-color: $white;
     border: 1px solid $dark-gray;
   }
@@ -18,7 +18,7 @@ header.advanced-search {
   }
 }
 
-.narrow-inner, .search-options {
+.narrow-inner {
   @include make-md-column(7.5);
   float: none !important;
   margin: auto;
@@ -28,13 +28,16 @@ header.advanced-search {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: $container-md;
+  margin: auto;
+  margin-top: 20px;
 
   .form-group {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
-    flex-grow: 1;
+    // flex-grow: 1;
     // overflow: hidden;
 
     label {
@@ -45,22 +48,40 @@ header.advanced-search {
     select {
       flex-grow: 1;
       font-size: 16px;
-      padding: 10px;
-      height: 60px;
-      // width: 163px;
+    //   padding: 10px;
+      // height: 60px;
+    //   // width: 163px;
       box-shadow: none;
+    //   border: none;
+    //   appearance: none;
+    //   -moz-appearance: none;
+    //   -webkit-appearance: none;
+    //   background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 60px center;
+    //   // background: transparent;
+    //   // color: #000;
+    // }
+
+      /* styling */
+      // background-color: white;
       border: none;
-      appearance: none;
-      -moz-appearance: none;
+      border-radius: 4px;
+      display: inline-block;
+      font: inherit;
+      line-height: 1.5em;
+      padding: 0.5em 3.5em 0.5em 1em;
+
+      /* reset */
+      margin: 0;      
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
       -webkit-appearance: none;
-      background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 60px center;
-      // background: transparent;
-      // color: #000;
+      -moz-appearance: none;
     }
   }
 
   .search_school {
-    flex-grow: 2;
+    flex-grow: 0.3;
   }
 }
 
@@ -114,11 +135,10 @@ header.advanced-search {
   }
 }
 
-select.minimal {
+.minimal {
   background-image:
     linear-gradient(45deg, transparent 50%, gray 50%),
-    linear-gradient(135deg, gray 50%, transparent 50%),
-    linear-gradient(to right, #ccc, #ccc);
+    linear-gradient(135deg, gray 50%, transparent 50%);
   background-position:
     calc(100% - 20px) calc(1em + 2px),
     calc(100% - 15px) calc(1em + 2px),
@@ -130,11 +150,10 @@ select.minimal {
   background-repeat: no-repeat;
 }
 
-select.minimal:focus {
+.minimal:focus {
   background-image:
     linear-gradient(45deg, green 50%, transparent 50%),
-    linear-gradient(135deg, transparent 50%, green 50%),
-    linear-gradient(to right, #ccc, #ccc);
+    linear-gradient(135deg, transparent 50%, green 50%);
   background-position:
     calc(100% - 15px) 1em,
     calc(100% - 20px) 1em,
