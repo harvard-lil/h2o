@@ -27,8 +27,8 @@ header.advanced-search {
 .search-options {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: $container-md;
+  justify-content: space-around;
+  width: $container-md - ($container-md * 0.1);
   margin: auto;
   margin-top: 20px;
 
@@ -37,8 +37,7 @@ header.advanced-search {
     align-items: center;
     justify-content: center;
     margin: 0;
-    // flex-grow: 1;
-    // overflow: hidden;
+    flex-grow: 1;
 
     label {
       padding-right: 8px;
@@ -50,21 +49,7 @@ header.advanced-search {
       text-align: center;
       flex-grow: 1;
       font-size: 16px;
-    //   padding: 10px;
-      // height: 60px;
-    //   // width: 163px;
       box-shadow: none;
-    //   border: none;
-    //   appearance: none;
-    //   -moz-appearance: none;
-    //   -webkit-appearance: none;
-    //   background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 60px center;
-    //   // background: transparent;
-    //   // color: #000;
-    // }
-
-      /* styling */
-      // background-color: white;
       border: none;
       border-radius: 4px;
       display: inline-block;
@@ -80,10 +65,6 @@ header.advanced-search {
       -webkit-appearance: none;
       -moz-appearance: none;
     }
-  }
-
-  .search_school {
-    flex-grow: 0.3;
   }
 }
 
@@ -150,21 +131,4 @@ header.advanced-search {
     5px 5px,
     1px 1.5em;
   background-repeat: no-repeat;
-}
-
-.minimal:focus {
-  // background-image:
-  //   linear-gradient(45deg, green 50%, transparent 50%),
-  //   linear-gradient(135deg, transparent 50%, green 50%);
-  // background-position:
-  //   calc(100% - 15px) 1em,
-  //   calc(100% - 20px) 1em,
-  //   calc(100% - 2.5em) 0.5em;
-  // background-size:
-  //   5px 5px,
-  //   5px 5px,
-  //   1px 1.5em;
-  // background-repeat: no-repeat;
-  // border-color: green;
-  // outline: 0;
 }
