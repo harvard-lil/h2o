@@ -18,7 +18,7 @@ header.advanced-search {
   }
 }
 
-.narrow-inner {
+.narrow-inner, .search-options {
   @include make-md-column(7.5);
   float: none !important;
   margin: auto;
@@ -30,13 +30,12 @@ header.advanced-search {
   justify-content: center;
 
   .form-group {
-    margin-top: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
-    // flex-grow: 1;
+    margin: 0;
+    flex-grow: 1;
     // overflow: hidden;
-    // background: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat right;
 
     label {
       padding-right: 8px;
@@ -44,16 +43,24 @@ header.advanced-search {
     }
 
     select {
-      height: 75px;
-      width: 125px;
+      flex-grow: 1;
+      font-size: 16px;
+      padding: 10px;
+      height: 60px;
+      // width: 163px;
       box-shadow: none;
       border: none;
       appearance: none;
       -moz-appearance: none;
       -webkit-appearance: none;
+      background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 60px center;
       // background: transparent;
       // color: #000;
     }
+  }
+
+  .search_school {
+    flex-grow: 2;
   }
 }
 

@@ -36,6 +36,7 @@ body {
       @extend .pull-left;
       > a.create-casebook {
         padding: 9px 10px;
+        font-size: 16px;
       }
       > a {
         @include btn();
@@ -54,6 +55,7 @@ body {
         color: black;
         position: relative;
         .name {
+          font-size: 16px;
           display: inline-block;
           padding: 10px 4px 0 0px;
         }
@@ -75,6 +77,7 @@ body {
           display: inline-block;
           padding-top: 5px;
           margin-right: 10px;
+          font-size: 100%;
         }
         &:hover .user-links {
           max-height: 180px;
