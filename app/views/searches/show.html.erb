@@ -29,9 +29,9 @@
               <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
             </a>
           </div>
-          <div class="search-tab <% if @type == 'users' %>active<% end %>">
+          <div class="type-tab <% if @type == 'users' %>active<% end %>">
             <a href="<%= search_path(q: @query, type: 'users') %>" class="wrapper">
-              <%= t 'type.results.n-user-results', n: @results[:users].try(:total) || 0 %>
+              <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
             </a>
           </div>
         </div>
