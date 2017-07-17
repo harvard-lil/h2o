@@ -18,7 +18,7 @@ class SearchesController < ApplicationController
 
     @pagination = paginate_group @results[@type.to_sym]
     @main_group = @results[@type.to_sym]
-    @authors = @results[:users].results.map { |user| user.attribution }
+    @authors = User.all
 
     if params[:partial]
       render partial: 'results', layout: false, locals: {pagination: @pagination}
