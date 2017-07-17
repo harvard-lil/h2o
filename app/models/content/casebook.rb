@@ -91,7 +91,7 @@ class Content::Casebook < Content::Node
   end
 
   def owner
-  owners.first
+    owners.first
   end
 
   def owner= user

@@ -17,7 +17,6 @@ class SearchesController < ApplicationController
     end
 
     @pagination = paginate_group @results[@type.to_sym]
-    @main_group = @results[@type.to_sym]
     @authors = User.all
 
     if params[:partial]
@@ -31,7 +30,6 @@ class SearchesController < ApplicationController
     @type = params[:type] || 'casebooks'
     @results = result_groups '*'
     @pagination = paginate_group @results[:casebooks]
-    @main_group = @results[:casebooks]
     render 'searches/show'
   end
 
