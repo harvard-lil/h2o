@@ -1,8 +1,8 @@
-- editable = false
-- content = show
+- editable = true
+- content = edit
 - if content.is_a? Content::Resource
   .listing-wrapper{data: {ordinals: content.ordinal_string}}
-    %a.listing.resource{href: resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
+    %a.listing.resource{href: annotate_resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
       .section-number= content.ordinal_string
       - if content.is_a? Content::Resource
         - if content.resource.is_a? Case
@@ -30,7 +30,7 @@
     = render partial: 'content/sections/form', locals: {section: content}
   - else
     .listing-wrapper{draggable: true, data: {ordinals: content.ordinal_string}}
-      %a.listing.section{href: section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
+      %a.listing.section{href: layout_section_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
         .section-number= content.ordinal_string
         .section-title= content.title
       - if editable && content.can_delete?

@@ -37,4 +37,9 @@ class Content::Section < Content::Child
     words.fill words.last, words.length..(ordinals.length - 1)
     words.zip(ordinals.map(&:humanize).map(&:capitalize)).map {|pair| pair.join ' '}.join ', '
   end
+
+  belongs_to :resource, polymorphic: true, optional: true
+  def resource
+    raise NoMethodError
+  end
 end

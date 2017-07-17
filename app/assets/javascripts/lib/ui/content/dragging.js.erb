@@ -2,6 +2,11 @@ import {patch} from 'lib/turbolinks/requests';
 
 let draggingOrdinals = null;
 
+
+function reorder_path(ordinals) {
+  return '<%= j reorder_casebook_path('_CASEBOOK_ID', '_CHILD_ORDINALS') %>'.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_CHILD_ORDINALS', ordinals);
+}
+
 function assignDragLocation (el, e) {
   let rect = el.getBoundingClientRect();
   if (e.clientY >= rect.top + rect.height / 2) {
@@ -122,8 +127,8 @@ document.addEventListener('drop', e => {
 
   if (ordinals.from.join('.') === ordinals.to.join('.')) { return; } // no change
 
-  patch(RAILS_ROUTES.section_path(ordinals.from.join('.')), {
-    content_section: { ordinals: ordinals.to },
+  patch(reorder_path(ordinals.from.join('.')), {
+    child: { ordinals: ordinals.to },
     reorder: true
   }, { scroll: false });
 });

@@ -66,6 +66,7 @@ H2o::Application.routes.draw do
         get 'export'
         get 'layout'
         get 'details'
+        patch 'reorder/:child_ordinals', as: :reorder, action: :reorder, child_ordinals: /.*/
         resources :sections, param: :section_ordinals, section_ordinals: /.*/ do
           member do
             get 'details'

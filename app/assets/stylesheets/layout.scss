@@ -56,7 +56,20 @@ section#flash {
   text-align: center;
   &.casebook-draft {
     background-color: $yellow;
-    .banner-inner {
+    a {
+      @include link-color($black);
+      border-bottom-color: $black;
+      border-bottom-width: 1px;
+    }
+  }
+  &.casebook-preview {
+    background-color: $light-blue;
+    color: white;
+
+    .banner-inner a {
+      @include link-color($white);
+      border-bottom-color: $white;
+      border-bottom-width: 1px;
     }
   }
   .banner-inner {

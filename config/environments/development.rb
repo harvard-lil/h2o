@@ -2,8 +2,10 @@ H2o::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # rails 5 configs:
-  config.action_controller.perform_caching = false
-  config.cache_store = :null_store
+  # config.action_controller.perform_caching = false
+  # config.cache_store = :null_store
+  config.action_controller.perform_caching = true
+  config.cache_store = :memory_store, { size: 64.megabytes }
 
   config.action_mailer.perform_caching = false
   config.assets.quiet = true

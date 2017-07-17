@@ -59,10 +59,10 @@
     <% end %>
   </h5>
   <% if @content.contents.any? %>
-    <%= render partial: 'content/table_of_contents/show', locals: {contents: @content.tree, editable: @editable} %>
+    <%= render partial: 'content/table_of_contents/edit', collection: @content.tree %>
   <% else %>
     <div class="listing empty">
-    <% if @edit_layout %>
+    <% if @editable %>
       <% if @section.present? %>
         <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_section_path(@casebook, parent: @section.ordinal_string)) %>
       <% else %>

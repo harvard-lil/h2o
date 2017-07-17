@@ -30,8 +30,6 @@ module H2o
     config.autoload_paths += %W(#{config.root}/lib)
     config.action_controller.page_cache_directory = "#{Rails.root}/public"
 
-    config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"
-    config.cache_store = :file_store, "tmp/cache/h2o/"
     # config.skylight.environments << 'development'
 
     config.less.paths << Rails.root.join('app/assets/stylesheets/bootstrap')

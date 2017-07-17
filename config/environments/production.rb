@@ -9,6 +9,9 @@ H2o::Application.configure do
   # config.action_controller.asset_host = 'http://assets.example.com'
   # `config.assets.precompile` and `config.assets.version` have moved to config/initializers/assets.rb
 
+    config.action_controller.cache_store = :file_store, "tmp/cache/h2o/"
+    config.cache_store = :file_store, "tmp/cache/h2o/"
+
   # Mount Action Cable outside main process or domain
   # config.action_cable.mount_path = nil
   # config.action_cable.url = 'wss://example.com/cable'
