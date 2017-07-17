@@ -19,11 +19,15 @@ class Content::SectionsController < Content::NodeController
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
-    redirect_to annotate_resource_path @casebook, @section
+    if @section.is_a? Content::Resource
+      redirect_to annotate_resource_path @casebook, @section
+    else
+      redirect_to edit_section_path @casebook, @section
+    end
   end
 
   def show
-    render 'content/layout'
+    render 'content/show'
   end
 
   def new
@@ -43,7 +47,7 @@ class Content::SectionsController < Content::NodeController
 
   def update
     @section.update content_params
-    return redirect_to section_path(@casebook, @section) if @section.valid?
+    return redirect_to layout_section_path(@casebook, @section) if @section.valid?
   end
 
   def destroy

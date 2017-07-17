@@ -12,8 +12,8 @@ class Content::CasesController < ApplicationController
       redirect_to :root and return
     end
 
-    @section = Content::Resource.new resource: @case
-    @content = @section
-    render 'content/show'
+    @resource = Content::Resource.new resource: @case
+    @content = @resource
+    render 'content/resources/show'
   end
 end

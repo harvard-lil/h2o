@@ -16,8 +16,8 @@ main > section.casebook {
     height: 20px;
   }
   &.casebook-draft .top-strip {
-    background-color: $yellow; 
-  } 
+    background-color: $yellow;
+  }
   &.casebook-public .top-strip {
     background-color: $light-blue;
   }
@@ -53,6 +53,9 @@ main > header.casebook {
 
       @media (max-width: $screen-xs) {
         flex-basis: 50px;
+      }
+      &.disabled {
+        background-color: $light-gray;
       }
     }
     .tab.active {
@@ -414,7 +417,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     float: left;
     position: relative;
     top: 10px;
-    
+
     &[data-elided-annotation] {
       display: none;
     }

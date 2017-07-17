@@ -65,8 +65,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
       casebook = content_nodes(:public_casebook)
       resource = content_nodes(:'public_casebook_section_1.1')
 
-      visit sections_path casebook
+      visit layout_casebook_path casebook
+      click_button 'Edit Draft'
 
+      assert_content 'This casebook is a draft'
       assert_content "1.1 #{resource.resource.short_name}"
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
