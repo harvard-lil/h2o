@@ -50,7 +50,7 @@ export function isEditable () {
 }
 
 function makeReplacementsContenteditable() {
-  let replacements = document.querySelectorAll('.resource-wrapper .annotate.replacement');
+  let replacements = document.querySelectorAll('.resource-wrapper .annotate.replacement .text');
   for (let el of replacements) { el.contentEditable = true; }
 }
 
