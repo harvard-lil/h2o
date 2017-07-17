@@ -2,3 +2,4 @@
 import 'polyfills';
 import 'lib/turbolinks';
 import 'lib/ui';
+import 'lib/ckeditor';

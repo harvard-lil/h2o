@@ -3,17 +3,13 @@ require 'uri'
 
 class Content::CasebooksController < Content::NodeController
   before_action :set_editable, only: [:show, :index]
+  before_action :require_user, only: [:clone]
 
   def new
     @casebook = current_user.casebooks.owned.unmodified.first ||
       Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
     logger.debug @casebook.errors.inspect
     redirect_to edit_casebook_path @casebook
-  end
-
-  def edit
-    @content = @casebook
-    render 'content/edit'
   end
 
   def show
@@ -24,13 +20,18 @@ class Content::CasebooksController < Content::NodeController
   def clone
     @clone = current_user.casebooks.owned.where(copy_of: @casebook).first ||
       @casebook.clone(owner: current_user)
-    redirect_to casebook_path(@clone)
+    redirect_to layout_casebook_path(@clone)
+  end
+
+  def reorder
+    @child = @casebook.contents.find_by_ordinals parse_ordinals(params[:child_ordinals])
+    @child.update_attributes ordinals: params[:child][:ordinals]
+    redirect_to layout_casebook_path(@casebook)
   end
 
   def update
     @casebook.update content_params
-    return redirect_to sections_path @casebook if @casebook.valid?
-    render 'content/casebooks/edit'
+    return redirect_to layout_casebook_path @casebook if @casebook.valid?
   end
 
   def export
@@ -61,6 +62,13 @@ class Content::CasebooksController < Content::NodeController
       end
     else
       I18n.t 'content.titles.casebooks.index'
+    end
+  end
+
+  def require_user
+    if current_user.nil?
+      session[:return_to] = request.referer
+      redirect_to new_user_path
     end
   end
 end

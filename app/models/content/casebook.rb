@@ -65,12 +65,21 @@ class Content::Casebook < Content::Node
   end
 
   def clone_contents
-    copy_of.contents.each do |node|
-      cloned_node = node.dup
-      cloned_node.update_attributes casebook_id: id,
-        copy_of: node,
-        is_alias: true
-    end
+    connection = ActiveRecord::Base.connection
+    columns = self.class.column_names - %w{id casebook_id copy_of_id is_alias}
+    query = <<-SQL
+      INSERT INTO content_nodes(#{columns.join ', '},
+        copy_of_id,
+        casebook_id,
+        is_alias
+      )
+      SELECT #{columns.join ', '},
+        id,
+        #{connection.quote(id)},
+        #{connection.quote(true)}
+      FROM content_nodes WHERE casebook_id=#{connection.quote(copy_of.id)};
+    SQL
+    ActiveRecord::Base.connection.execute(query)
   end
 
   def display_name

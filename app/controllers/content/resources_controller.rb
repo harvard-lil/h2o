@@ -7,6 +7,9 @@ class Content::ResourcesController < Content::NodeController
 
   def annotate
     @editable = true
+    if @casebook.public
+      return redirect_to resource_path(@casebook, @resource)
+    end
     render 'show'
   end
 
@@ -23,6 +26,16 @@ class Content::ResourcesController < Content::NodeController
       }
       format.html { render body: html, layout: false }
     end
+  end
+
+  def update
+    if params[:text_content] && @resource.resource.is_a?(TextBlock)
+      @resource.resource.update_attribute :content, params[:text_content]
+    end
+    if params[:link_url] && @resource.resource.is_a?(Default)
+      @resource.resource.update_attribute :url, params[:link_url]
+    end
+    redirect_to annotate_resource_path(@casebook, @resource)
   end
 
   private

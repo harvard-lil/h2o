@@ -32,7 +32,6 @@
 		    <% @casebook.users.each do |user| %>
 		    	<div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
 		    <% end %>
-		    <a class="add-collaborator"><%= t 'content.edit.add-collaborator' %></a>
 		  </div>
 		<% end %>
 

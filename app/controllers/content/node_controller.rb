@@ -11,8 +11,8 @@ class Content::NodeController < ApplicationController
   before_action :set_preview, only: [:show, :index, :details]
   before_action :set_editable, only: [:edit, :layout, :annotate]
 
-  before_action :check_public, only: [:show, :index, :clone, :export]
-  before_action :check_authorized, except: [:show, :index, :new, :clone, :export]
+  before_action :check_public, only: [:show, :index, :details, :clone, :export]
+  before_action :check_authorized, except: [:show, :index, :details, :new, :clone, :export]
 
   before_action :set_page_title
   before_action :canonical_redirect, only: [:show, :index]
@@ -20,6 +20,9 @@ class Content::NodeController < ApplicationController
   layout 'casebooks'
 
   def edit
+    if @casebook.public
+      return redirect_to details_casebook_path(@casebook)
+    end
     render 'content/edit_details'
   end
 
@@ -28,6 +31,9 @@ class Content::NodeController < ApplicationController
   end
 
   def layout
+    if @casebook.public
+      return redirect_to casebook_path(@casebook)
+    end
     @editable = true
     render 'content/layout'
   end
@@ -79,18 +85,18 @@ class Content::NodeController < ApplicationController
   end
 
   def find_casebook
-    @content = @casebook = Content::Casebook.find params[:casebook_id] || params[:casebook_casebook_id]
+    @content = @casebook = Content::Casebook.includes(contents: [:resource]).find params[:casebook_id] || params[:casebook_casebook_id]
   end
 
   def find_section
-    @content = @section = @casebook.contents.find_by_ordinals parse_ordinals(params[:section_ordinals])
+    @content = @child = @section = @casebook.contents.find_by_ordinals parse_ordinals(params[:section_ordinals])
     unless @section.present?
       return redirect_to casebook_path(@casebook)
     end
   end
 
   def find_resource
-    @content = @resource = @casebook.contents.find_by_ordinals parse_ordinals(params[:resource_ordinals])
+    @content = @child = @resource = @casebook.contents.find_by_ordinals parse_ordinals(params[:resource_ordinals])
     unless @resource.present?
       return redirect_to casebook_path(@casebook)
     end

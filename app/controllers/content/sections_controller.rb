@@ -19,7 +19,7 @@ class Content::SectionsController < Content::NodeController
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
-    redirect_to edit_section_path @casebook, @section
+    redirect_to annotate_resource_path @casebook, @section
   end
 
   def show
@@ -43,25 +43,14 @@ class Content::SectionsController < Content::NodeController
 
   def update
     @section.update content_params
-    if params[:text_content] && @section.is_a?(Content::Resource) && @section.resource.is_a?(TextBlock)
-      @section.resource.update_attribute :content, params[:text_content]
-    end
-    if params[:link_url] && @section.is_a?(Content::Resource) && @section.resource.is_a?(Default)
-      @section.resource.update_attribute :url, params[:link_url]
-    end
-    if params[:reorder]
-      redirect_back fallback_location: sections_path(@casebook)
-    else
-      return redirect_to section_path(@casebook, @section) if @section.valid?
-      render 'content/content/edit'
-    end
+    return redirect_to section_path(@casebook, @section) if @section.valid?
   end
 
   def destroy
     if !@section.destroy
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end
-    redirect_to sections_path @casebook
+    redirect_to layout_casebook_path @casebook
   end
 
   private

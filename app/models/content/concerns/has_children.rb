@@ -11,7 +11,9 @@ module Content::Concerns::HasChildren
   end
 
   def can_delete?
-    children.count == 0
+    Rails.cache.fetch "content_section_is_empty_#{id}_#{updated_at.to_param}", expires_in: 24.hours do
+      children.count == 0
+    end
   end
 
   def present?

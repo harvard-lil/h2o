@@ -16,9 +16,9 @@
   <% end %>
 <% elsif @preview %>
   <% content_for :banner do %>
-    <div class="preview banner">
+    <div class="casebook-preview banner">
       <div class="banner-inner">
-        <%= t 'content.edit.preview-banner.html', edit_path: casebook_path(@casebook) %>
+        <%= t 'content.edit.preview-banner.html', edit_path: layout_casebook_path(@casebook) %>
       </div>
     </div>
   <% end %>
