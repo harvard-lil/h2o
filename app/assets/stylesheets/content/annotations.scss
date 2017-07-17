@@ -101,12 +101,12 @@
         content: 'hide';
         cursor: zoom-out;
       }
-      &:empty::before {
+      .text:empty::before {
         content: 'Enter text to replace...';
         color: $dark-gray;
         pointer-events: none;
       }
-      &.active:empty::before {
+      &.active .text:empty::before {
         content: ' ';
         pointer-events: none;
       }

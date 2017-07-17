@@ -13,6 +13,8 @@ class Content::ResourcesController < Content::NodeController
     render 'show'
   end
 
+  skip_before_action :set_page_title, only: [:export]
+  skip_before_action :check_public, only: [:export]
   def export
     @resource = Content::Resource.find params[:resource_id]
 

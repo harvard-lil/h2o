@@ -40,6 +40,10 @@ class Content::Resource < Content::Child
   def annotated_paragraphs editable: false
     nodes = paragraph_nodes
 
+    nodes.each_with_index do |p_node, p_idx|
+      p_node['data-p-idx'] = p_idx
+    end
+
     annotations.all.each_with_index do |annotation|
       nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
         annotation.apply_to_node p_node, p_idx + annotation.start_p, editable: editable
