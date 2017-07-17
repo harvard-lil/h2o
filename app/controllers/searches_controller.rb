@@ -47,10 +47,6 @@ class SearchesController < ApplicationController
     @page = (params[:page] || 1).to_i
   end
 
-  def authors
-    User.all.map { |collaborator| collaborator.attribution }
-  end
-
   def schools
     a = User.all.map { |user| user.affiliation }.uniq
   end
