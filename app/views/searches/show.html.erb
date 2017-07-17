@@ -8,7 +8,7 @@
       <% if @type == 'casebooks' %>
         <%= f.input :author, collection: @authors, label_method: :attribution, value_method: :id, selected: params[:author] || 'All Authors', include_blank: 'All Authors', input_html: { name: 'author', class: 'minimal' }, label: false %>
       <% end %>
-      <% if @type == 'casebooks' || 'users' %>
+      <% if @type == ('casebooks' || 'users') %>
         <%= f.input :school, collection: @schools, selected: params[:school] || 'All Schools', include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
       <% end %>
     </div>
