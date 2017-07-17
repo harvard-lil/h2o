@@ -1,5 +1,5 @@
 <div class="results-list">
-  <% results.each do |result| %>
+  <% @pagination.each do |result| %>
     <% if result.is_a? Content::Casebook %>
       <a href="<%= casebook_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
         <div class="results-entry">
@@ -45,5 +45,6 @@
       </a>
     <% end %>
   <% end %>
-
 </div>
+
+<%= will_paginate @pagination %>

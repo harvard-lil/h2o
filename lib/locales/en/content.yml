@@ -50,6 +50,12 @@ en:
     errors:
       not-signed-in: You must sign in to access that page.
       unauthorized: That page is only available to casebook editors.
+    export-modal:
+      title: Export Casebook
+      body: [ export preview ]
+      export: Export
+      include-annotations: Including annotations
+      format: "Format:"
     actions:
       publish: Publish
       edit: Edit
@@ -58,7 +64,7 @@ en:
       add-resource: Add Resource
     tabs:
       layout: Layout
-      edit: Annotate
+      edit: Edit & Annotate
       casebook-details: Casebook details
       section-details: Section details
       resource-details: Resource details

@@ -45,6 +45,10 @@
 #  print_links                    :boolean          default(TRUE), not null
 #  toc_levels                     :string(255)      default(""), not null
 #  print_export_format            :string(255)      default(""), not null
+#  image_file_name                :string
+#  image_content_type             :string
+#  image_file_size                :integer
+#  image_updated_at               :datetime
 #
 
 class User < ApplicationRecord

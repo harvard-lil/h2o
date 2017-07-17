@@ -52,8 +52,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content 'Search for resource'
 
       case_to_find = cases(:public_case_1)
-      fill_in 'q', with: "\"#{case_to_find.short_name}\""
-      click_button 'Search'
+      within '.resource-search' do
+        fill_in 'q', with: "\"#{case_to_find.short_name}\""
+        click_button 'Search'
+      end
 
       assert_content case_to_find.title
       click_button 'Add to section'

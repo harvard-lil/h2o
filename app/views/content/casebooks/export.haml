@@ -1,0 +1,14 @@
+%h1= @casebook.title
+%h3= @casebook.subtitle
+- @casebook.contents.each do |content|
+  - if content.is_a? Content::Section
+    %h3= content.ordinal_string
+    %h2= content.title
+    %h4= content.subtitle
+    %p= content.headnote
+  - elsif content.is_a? Content::Resource
+    %h4= content.ordinal_string
+    %h3= content.title
+    %h5= content.subtitle
+    %p= content.headnote
+    = render partial: 'content/resources/show', locals: {resource: content, editable: false}
