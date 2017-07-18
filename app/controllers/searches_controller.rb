@@ -61,7 +61,7 @@ class SearchesController < ApplicationController
   def search_query query
     page = @page
     Sunspot.search Case, Content::Casebook, User do
-      keywords query, fields: [:title, :subtitle, :owner_attributions]
+      keywords query
 
       any_of do
         with :public, true
