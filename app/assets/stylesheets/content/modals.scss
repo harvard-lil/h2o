@@ -4,3 +4,9 @@
   @extend .btn;
   @extend .btn-default;
 }
+
+.modal-body .results-list {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 600px;
+}

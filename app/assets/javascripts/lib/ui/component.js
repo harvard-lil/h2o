@@ -11,9 +11,13 @@ export default class Component {
     }
   }
 
-  bindEvent (eventName, callback) {
-    let [event, ...selector] = eventName.split(' ');
-    this.addEventDelegate(selector.join(' '), event, callback);
+  bindEvent (eventNames, callback) {
+    eventNames = eventNames.split(/, ?/g);
+    for (let eventName of eventNames) {
+      let [event, ...selector] = eventName.split(' ');
+      this.addEventDelegate(selector.join(' '), event, callback);
+      console.log('bound', selector.join(' '), event)
+    }
   }
 
   render () {
