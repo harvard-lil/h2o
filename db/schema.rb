@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(version: 20170717164424) do
     t.index ["created_at"], name: "index_cases_on_created_at"
     t.index ["current_opinion"], name: "index_cases_on_current_opinion"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
+    t.index ["full_name"], name: "index_cases_on_full_name"
     t.index ["public"], name: "index_cases_on_public"
     t.index ["short_name"], name: "index_cases_on_short_name"
     t.index ["updated_at"], name: "index_cases_on_updated_at"
