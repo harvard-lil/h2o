@@ -164,8 +164,9 @@
       }
 
       .note-content {
+        @include sans-serif($regular, 14px, 20px);
         display: block;
-        width: 150px;
+        width: 200px;
         padding: 10px;
 
         position: relative;
