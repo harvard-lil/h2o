@@ -28,6 +28,7 @@ module H2o
     config.i18n.default_locale = :en
 
     config.autoload_paths += %W(#{config.root}/lib)
+    config.eager_load_paths << "#{Rails.root}/lib"
     config.action_controller.page_cache_directory = "#{Rails.root}/public"
 
     # config.skylight.environments << 'development'
