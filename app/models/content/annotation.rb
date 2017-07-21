@@ -50,6 +50,10 @@ class Content::Annotation < ApplicationRecord
     p_node.traverse do |node|
       next unless node.text?
 
+      if node.parent['class'].in? %w{annotation-button}
+        next
+      end
+
       if annotating
         if p_idx != end_p || end_offset > node_offset + node.text.length
           # wrap this entire node
