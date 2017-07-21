@@ -31,7 +31,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       fill_in 'Subtitle', with: 'Test casebook subtitle'
       fill_in 'Headnote', with: 'Test casebook headnote'
 
-      click_button 'Save changes'
+      click_button 'Save'
 
       assert_content 'Test casebook title'
       assert_content 'Test casebook subtitle'
@@ -41,7 +41,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_button 'Click here to add a section.'
 
       fill_in 'Title', with: 'Test Section One'
-      click_button 'Save changes'
+      click_button 'Save'
 
       assert_content 'Test Section One'
       assert_content 'This section has no content yet.'

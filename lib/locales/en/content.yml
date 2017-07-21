@@ -13,9 +13,9 @@ en:
     add-resource-modal:
       title: Add Resource
       tabs:
-        case: Case
-        text: Text
-        link: Link
+        case: Find Case
+        text: Create Text
+        link: Add Link
       case-search:
         search-button: Search
         query-placeholder: Search for a case to import
@@ -33,6 +33,14 @@ en:
       body: Are you ready to share this book with the world?
       confirm: 'Yes'
       cancel: 'No'
+    delete-modal:
+      title: Confirm Delete
+      body:
+        html: "Are you sure you want to delete <strong>%{section_name}</strong> from this casebook?"
+        nested:
+          html: "Are you sure you want to delete <strong>%{section_name}</strong> and <strong>%{nested_items} nested items</strong> from this casebook?"
+      confirm: 'Delete'
+      cancel: 'Cancel'
     dashboard:
       links:
         create-new-casebook: 'Create a new casebook'
