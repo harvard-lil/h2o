@@ -12,6 +12,8 @@ import 'lib/ui/content/annotations/note';
 
 let annotator = null;
 
+//
+
 document.addEventListener('turbolinks:load', e => {
   if (!document.querySelector('.resource-wrapper') || !isEditable()) {
     annotator && annotator.destroy();
@@ -38,11 +40,17 @@ export function editAnnotationHandle(handle) {
   annotator.edit(handle);
 }
 
-export function updateAnnotation(handle, attrs) {
+export function stageChangeToAnnotation(handle, attrs) {
   if (!annotator) { return; }
 
   annotator.edit(handle);
-  annotator.updateAnnotation(handle.dataset.annotationId, attrs);
+  annotator.changeAnnotation(handle.dataset.annotationId, attrs);
+}
+
+export function stagePreviousContent(content) {
+  if (!annotator) { return; }
+
+  annotator.previousContent = content;
 }
 
 export function isEditable () {
