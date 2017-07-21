@@ -17,7 +17,7 @@
         - elsif content.resource.is_a? TextBlock
           .resource-type= t 'content.resource.type.text'
         - elsif content.resource.is_a? Default
-          .resource_type= t "content.resource.type.#{content.resource.content_type.parameterize}"
+          .resource-type= t "content.resource.type.#{content.resource.content_type.parameterize}"
         - else
           .resource-type
             .not-applicable= t "content.resource.type.not-applicable"

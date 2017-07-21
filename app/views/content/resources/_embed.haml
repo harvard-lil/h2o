@@ -6,22 +6,12 @@
           .p-number= p_idx + 1
         = p_node.to_html.html_safe
 - elsif resource.resource.is_a? TextBlock
-  - if editable
-    = form_for resource, url: resource_path(@casebook, resource), method: :patch do |f|
-      %textarea#resource_textblock_content.form-control{name: 'text_content', data: {ckeditor: true}}= resource.resource.content
-      %input.form-control{type: 'submit', value: t('content.text-block.save-changes')}
-  - else
-    .resource-wrapper
-      .case-text
-        - resource.annotated_paragraphs(editable: editable).each_with_index do |p_node, p_idx|
-          .p-handle{data: {'elided-annotation': p_node['data-elided-annotation']}}
-            .p-number= p_idx + 1
-          = p_node.to_html.html_safe
+  .resource-wrapper
+    .case-text
+      - resource.annotated_paragraphs(editable: editable).each_with_index do |p_node, p_idx|
+        .p-handle{data: {'elided-annotation': p_node['data-elided-annotation']}}
+          .p-number= p_idx + 1
+        = p_node.to_html.html_safe
 - elsif resource.resource.is_a? Default
-  - if editable
-    = form_for :resource, url: resource_path(@casebook, resource), method: :patch do
-      %input.form-control{name: 'link_url', value: resource.resource.url}
-      %input.form-control{type: 'submit', value: t('content.text-block.save-changes')}
-  - else
-    = t 'content.link.follow-link'
-    = link_to resource.resource.display_name, resource.resource.url, target: '_blank'
+  = t 'content.link.follow-link'
+  = link_to resource.resource.display_name, resource.resource.url, target: '_blank'

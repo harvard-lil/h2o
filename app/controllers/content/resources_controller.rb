@@ -33,11 +33,14 @@ class Content::ResourcesController < Content::NodeController
   def update
     if params[:text_content] && @resource.resource.is_a?(TextBlock)
       @resource.resource.update_attribute :content, params[:text_content]
-    end
-    if params[:link_url] && @resource.resource.is_a?(Default)
+      flash[:success] = "Text updated."
+    elsif params[:link_url] && @resource.resource.is_a?(Default)
       @resource.resource.update_attribute :url, params[:link_url]
+      flash[:success] = "URL updated."
+    else
+      @resource.update content_params
     end
-    redirect_to annotate_resource_path(@casebook, @resource)
+    redirect_to edit_resource_path(@casebook, @resource)
   end
 
   private
