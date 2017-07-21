@@ -1,8 +1,15 @@
+import AxiosConfig from 'axios';
 import {html, raw} from 'es6-string-html-template';
 import {post, patch, rest_delete} from 'lib/turbolinks/requests';
 import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 import delegate from 'delegate';
+
+let Axios = AxiosConfig.create({
+  headers: {
+    'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+  },
+});
 
 export class Annotator extends Component {
   constructor () {
@@ -40,6 +47,9 @@ export class Annotator extends Component {
     case 'new-form':
       inner = this.newTemplate();
       break;
+    case 'save-changes':
+      inner = this.saveTemplate();
+      break;
     }
     return html`<div id="annotator" class="${this.mode == 'inactive' ? 'hide' : ''}" style="top: ${this.calcTopOffset().toString(10)}px">
       <div class="annotator-inner">
@@ -48,53 +58,60 @@ export class Annotator extends Component {
     </div>`;
   }
 
-    editTemplate () {
-      switch (this.handle.dataset.annotationType) {
-      case 'highlight':
-        return html`
-          <a class="annotator-action" data-annotate-action="destroy">Remove highlight</a>
-          <a class="annotator-action" data-annotate-action="convert" data-annotation-type="note">Add note</a>
-        `;
-      case 'elide':
-        return html`
-          <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
-          <a class="annotator-action" data-annotate-action="convert" data-annotation-type="replace">Replace text</a>
-        `;
-      case 'replace':
-        return html`
-          <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
-          <a class="annotator-action" data-annotate-action="convert" data-annotation-type="elide">Elide text</a>
-        `;
-      case 'link':
-        return html`
-          <a class="annotator-action" data-annotate-action="destroy">Remove link</a>
-          <a class="annotator-action" data-annotate-action="convert" data-annotation-type="link">Edit link</a>
-        `;
-      case 'note':
-        return html`
-          <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
-          <a class="annotator-action" data-annotate-action="convert" data-annotation-type="elide">Elide text</a>
-        `;
-      }
+  editTemplate () {
+    switch (this.handle.dataset.annotationType) {
+    case 'highlight':
+      return html`
+        <a class="annotator-action" data-annotate-action="destroy">Remove highlight</a>
+      `;
+      // <a class="annotator-action" data-annotate-action="convert" data-annotation-type="note">Add note</a>
+    case 'elide':
+      return html`
+        <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
+        <a class="annotator-action" data-annotate-action="convert" data-annotation-type="replace">Replace text</a>
+      `;
+    case 'replace':
+      return html`
+        <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
+        <a class="annotator-action" data-annotate-action="convert" data-annotation-type="elide">Elide text</a>
+      `;
+    case 'link':
+      return html`
+        <a class="annotator-action" data-annotate-action="destroy">Remove link</a>
+        <a class="annotator-action" data-annotate-action="convert" data-annotation-type="link">Edit link</a>
+      `;
+    case 'note':
+      return html`
+        <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
+        <a class="annotator-action" data-annotate-action="convert" data-annotation-type="elide">Elide text</a>
+      `;
     }
+  }
 
-    newTemplate () {
-      switch (this.newAnnotationType) {
-      case 'link':
-        return html`
-          <form class="create-form" data-annotation-type="link">
-            <input name="content" placeholder="Url to link to..."  />
-          </form>
-        `;
-      case 'note':
-        return html`
-          <form class="create-form" data-annotation-type="note">
-            <textarea name="content" placeholder="Note text..."></textarea>
-            <input type="submit" value="Save note" />
-          </form>
-        `;
-      }
+  saveTemplate () {
+    return html`
+      <a class="annotator-action" data-annotate-action="save-changes">Save</a>
+      <a class="annotator-action" data-annotate-action="cancel-changes" data-annotation-type="elide">Cancel</a>
+    `;
+  }
+
+  newTemplate () {
+    switch (this.newAnnotationType) {
+    case 'link':
+      return html`
+        <form class="create-form" data-annotation-type="link">
+          <input name="content" placeholder="Url to link to..."  />
+        </form>
+      `;
+    case 'note':
+      return html`
+        <form class="create-form" data-annotation-type="note">
+          <textarea name="content" placeholder="Note text..."></textarea>
+          <input type="submit" value="Save note" />
+        </form>
+      `;
     }
+  }
 
   menuTemplate () {
     return html`
@@ -168,6 +185,14 @@ export class Annotator extends Component {
     case 'new':
       this.new(e.target.dataset.annotationType);
       return;
+    case 'save-changes':
+      this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
+      return;
+    case 'cancel-changes':
+      if (this.handle.dataset.annotationType === 'replace') {
+        this.handle.nextElementSibling.querySelector('.text').innerText = this.previousContent;
+      }
+      break;
     }
     this.deactivate();
   }
@@ -175,7 +200,6 @@ export class Annotator extends Component {
   submitAnnotationForm (e) {
     let field = e.target.querySelector('[name=content]');
     this.saveAnnotation(e.target.dataset.annotationType, this.offsets, field.value);
-
     this.deactivate();
   }
 
@@ -202,11 +226,23 @@ export class Annotator extends Component {
     .then( _ => window.getSelection().empty());
   }
 
+  changeAnnotation (annotationId, attrs) {
+    this.stagedChanges = attrs;
+    this.mode = 'save-changes';
+    this.render();
+  }
+
+  changeAnnotation (annotationId, attrs) {
+    this.stagedChanges = attrs;
+    this.mode = 'save-changes';
+    this.render();
+  }
+
   updateAnnotation (annotationId, attrs) {
-    patch(this.annotationPath(annotationId), {
+    Axios.patch(this.annotationPath(annotationId + '.json'), {
       annotation: attrs
-    }, { scroll: false })
-    .then( _ => window.getSelection().empty());
+    })
+    .then( _ => this.deactivate() );
   }
 
   destroyAnnotation (annotationId) {

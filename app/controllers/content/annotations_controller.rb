@@ -17,7 +17,10 @@ class Content::AnnotationsController < ApplicationController
 
   def update
     @annotation.update_attributes annotation_params
-    redirect_to annotate_resource_path(@resource.casebook, @resource)
+    respond_to do |format|
+      format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
+      format.json { head :no_content }
+    end
   end
 
   private
