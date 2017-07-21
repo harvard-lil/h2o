@@ -252,12 +252,12 @@ function offsetsForRange(range) {
   };
 }
 
-// Find the closest containing P tag for the given element or text node
+// Find the closest containing tag for the given element or text node
 function closestP(node) {
   if (node.nodeType === document.TEXT_NODE) {
-    return node.parentElement.closest('p');
+    return node.parentElement.closest('.case-text > *');
   } else {
-    return node.closest('p');
+    return node.closest('.case-text > *');
   }
 }
 
