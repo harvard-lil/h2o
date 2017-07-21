@@ -83,7 +83,7 @@ class Default < ApplicationRecord
   end
 
   def display_name
-    self.name || self.url
+    self.name || "Link to #{URI::parse(self.url).host}"
   end
 
   def title

@@ -95,6 +95,7 @@ en:
     resource:
       type:
         text: Text
+        html: HTML
         not-applicable: —
       date:
         not-applicable: —
@@ -102,6 +103,8 @@ en:
       add-to-casebook: Add to casebook
     text-block:
       save-changes: Update content
+    default:
+      save-changes: Update URL
     link:
       follow-link: 'Click here to view this linked resource off-site:'
     new:

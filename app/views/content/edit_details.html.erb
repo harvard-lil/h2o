@@ -1,4 +1,4 @@
-<%= simple_form_for @content, url: @section.present? ? section_path(@casebook, @section) : casebook_path(@casebook), class: 'casebook-details' do |f| %>
+<%= simple_form_for @content, url: @section.present? ? section_path(@casebook, @section) : @resource.present? ? resource_path(@casebook, @resource) : casebook_path(@casebook), class: 'casebook-details' do |f| %>
 	<% if @section.present? %>
 	  <header class="casebook-header">
 	    <a class="casebook-title" href="<%= edit_casebook_path(@casebook) %>">
@@ -45,5 +45,22 @@
 	<section class="edit-actions">
 	  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
 	  <%= link_to t('simple_form.labels.casebook.revert'), casebook_path(@casebook), class: 'reset-button' %>
+	</section>
+<% end %>
+<% if @resource %>
+	<section class="edit-content">
+		<% if @resource.resource.is_a? TextBlock %>
+		<%= form_for @resource, url: resource_path(@casebook, @resource), method: :patch do |f| %>
+		<textarea id="resource_textblock_content" class="form-control" name="text_content" data-ckeditor="true">
+			<%= @resource.resource.content %>
+		</textarea>
+		<input class="form-control" type="submit" value="<%=t('content.text-block.save-changes')%>" />
+		<% end %>
+		<% elsif @resource.resource.is_a? Default %>
+		<%= form_for @resource, url: resource_path(@casebook, @resource), method: :patch do |f| %>
+		<input class="form-control" name="link_url" value="<%= @resource.resource.url %>" />
+		<input class="form-control" type="submit" value="<%=t('content.default.save-changes')%>" />
+		<% end %>
+		<% end %>
 	</section>
 <% end %>
