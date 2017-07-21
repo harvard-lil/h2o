@@ -339,7 +339,7 @@ function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       false
     );
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (node.parentElement.classList.contains('annotation-button')) { continue; }
+      if (node.parentElement.classList.contains('annotation-button') || node.parentElement.classList.contains('note-icon')) { continue; }
       nodeOffset += node.length;
       // if (walked++ > 100) throw new Error;
     }
