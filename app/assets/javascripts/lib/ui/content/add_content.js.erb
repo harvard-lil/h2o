@@ -10,7 +10,7 @@ let Axios = AxiosConfig.create({
   },
 });
 
-delegate(document, '.action.add-resource', 'click', showResourceModal);
+delegate(document, '.action.add-resource, .listing .add-resource', 'click', showResourceModal);
 
 let modal = null;
 
@@ -58,18 +58,23 @@ class AddResourceModal extends Component {
             }
           });
         },
-        'submit form.case-search': (e) => {
+        'submit form.case-search, click .pagination > a': (e) => {
           e.preventDefault();
           e.stopPropagation();
-          this.q = e.target.querySelector('input[name=q]').value;
-          Axios.get('<%= j search_path %>', {
-            params: {
-              partial: true,
-              type: 'cases',
-              q: this.q
-            }
-          })
-          .then((res) => {
+          let request;
+          if (e.target.href) {
+            request = Axios.get(e.target.href);
+          } else {
+            this.q = e.target.querySelector('input[name=q]').value;
+            request = Axios.get('<%= j search_path %>', {
+              params: {
+                partial: true,
+                type: 'cases',
+                q: this.q
+              }
+            });
+          }
+          request.then((res) => {
             this.caseResultHtml = res.data;
             this.render();
           })
@@ -85,6 +90,15 @@ class AddResourceModal extends Component {
     document.body.appendChild(this.el);
     this.activeType = 'case';
     this.render();
+  }
+
+  render () {
+    let instance = CKEDITOR.instances['add_resource_text_content']
+    if (instance) { instance.destroy(true); }
+    super.render();
+    if (this.activeType === 'text') {
+      CKEDITOR.replace('add_resource_text_content', {toolbar: 'mini'});
+    }
   }
 
   casebookId () {
@@ -148,7 +162,7 @@ class AddResourceModal extends Component {
           <div class="form-group">
             <label>
               <%= t 'content.add-resource-modal.new-text.content-label' %>
-              <textarea class="form-control" name="content" placeholder="<%= t 'content.add-resource-modal.new-text.content-placeholder' %>"></textarea>
+              <textarea id="add_resource_text_content" class="form-control" name="content" placeholder="<%= t 'content.add-resource-modal.new-text.content-placeholder' %>"></textarea>
             </label>
           </div>
           <input class="save-button" type="submit" value="Save text" />
@@ -162,7 +176,6 @@ class AddResourceModal extends Component {
           <input class="form-control" name="url" placeholder="<%= t 'content.add-resource-modal.new-link.url-placeholder' %>" />
           <input class="search-button" type="submit" value="<%= t 'content.add-resource-modal.new-link.save-button' %>" />
         </form>
-        ${raw(this.caseResultHtml || '')}
       </div>`;
     }
   }
