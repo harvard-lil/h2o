@@ -34,7 +34,9 @@ class Content::Resource < Content::Child
 
   def paragraph_nodes
     html = Nokogiri::HTML resource.content {|config| config.noblanks}
-    html.xpath('//p')
+    html.xpath('//div')
+      .each { |div| div.replace div.children }
+    html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
   end
 
   def annotated_paragraphs editable: false
