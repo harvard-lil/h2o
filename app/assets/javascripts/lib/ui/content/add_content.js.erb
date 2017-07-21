@@ -145,7 +145,7 @@ class AddResourceModal extends Component {
     if (this.activeType === 'case') {
       return html`<div class="add-resource-body">
         <form class="case-search">
-          <input class="form-control" name="q" value="${this.q}" placeholder="<%= t 'content.add-resource-modal.case-search.query-placeholder' %>" />
+          <input class="form-control" name="q" type="text" value="${this.q}" placeholder="<%= t 'content.add-resource-modal.case-search.query-placeholder' %>" />
           <input class="search-button" type="submit" value="<%= t 'content.add-resource-modal.case-search.search-button' %>" />
         </form>
         ${raw(this.caseResultHtml || '')}
@@ -156,7 +156,7 @@ class AddResourceModal extends Component {
           <div class="form-group">
             <label>
               <%= t 'content.add-resource-modal.new-text.title-label' %>
-              <input class="form-control" name="title" />
+              <input class="form-control" name="title" type="text" />
             </label>
           </div>
           <div class="form-group">
@@ -173,7 +173,7 @@ class AddResourceModal extends Component {
         <h3><%= t 'content.add-resource-modal.new-link.header' %></h3>
         <h4><%= t 'content.add-resource-modal.new-link.examples' %></h4>
         <form class="new-link">
-          <input class="form-control" name="url" placeholder="<%= t 'content.add-resource-modal.new-link.url-placeholder' %>" />
+          <input class="form-control" name="url" type="text" placeholder="<%= t 'content.add-resource-modal.new-link.url-placeholder' %>" />
           <input class="search-button" type="submit" value="<%= t 'content.add-resource-modal.new-link.save-button' %>" />
         </form>
       </div>`;

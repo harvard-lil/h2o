@@ -51,6 +51,8 @@ class Content::SectionsController < Content::NodeController
   end
 
   def destroy
+    @section.try(:contents).try(:destroy_all)
+
     if !@section.destroy
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end

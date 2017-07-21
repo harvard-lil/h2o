@@ -10,3 +10,39 @@
   overflow-x: hidden;
   max-height: 600px;
 }
+
+.modal-body {
+  .search-tabs {
+    @include make-row();
+
+    margin-bottom: 15px;
+
+    .search-tab {
+      @include make-md-column(3.5);
+      @include sans-serif($bold, 14px, 14px);
+      padding: 5px;
+      margin: 5px;
+
+      text-align: center;
+      cursor: pointer;
+      border-bottom: 2px solid black;
+
+      &.active {
+        border-bottom-color: $light-blue;
+        color: $light-blue;
+      }
+    }
+  }
+  .case-search, .new-text, .new-link {
+    margin: 15px 0;
+    input[type=text] {
+      display: inline-block;
+      width: 85%;
+    }
+    input[type=submit] {
+      @extend .btn;
+      @extend .btn-primary;
+      width: 14%;
+    }
+  }
+}

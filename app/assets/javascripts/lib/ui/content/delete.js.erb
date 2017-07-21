@@ -1,0 +1,92 @@
+import {html, raw} from 'es6-string-html-template';
+import delegate from 'delegate';
+import Component from 'lib/ui/component';
+import {patch} from 'lib/turbolinks/requests';
+
+delegate(document, 'input.action-delete', 'click', showDeleteModal);
+
+function casebook_path(resourceId, format = 'pdf') {
+  return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
+}
+
+let modal = null;
+
+document.addEventListener("turbolinks:before-cache", function() {
+  if (modal) { modal.destroy(); }
+});
+
+function showDeleteModal (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  modal = new DeleteModal(e.target.parentElement);
+}
+
+class DeleteModal extends Component {
+  constructor (form) {
+    super({
+      id: 'delete-modal',
+      events: {
+        'click #delete-modal': (e) => { if (e.target.id === 'delete-modal') this.destroy()},
+        'click .close': (e) => { this.destroy() },
+        'click .cancel': (e) => { this.destroy() },
+        'click .confirm': (e) => {
+          this.deleteForm.submit();
+        },
+      }
+    });
+    this.deleteForm = form;
+    document.body.appendChild(this.el);
+    this.render();
+  }
+
+  casebookId () {
+    return document.querySelector('header.casebook').dataset.casebookId;
+  }
+
+  sectionId () {
+    return document.querySelector('header.casebook').dataset.sectionId;
+  }
+
+  destroy () {
+    super.destroy();
+    modal = null;
+  }
+
+  nestedItems () {
+    let section = this.deleteForm.closest('.listing-wrapper').nextElementSibling;
+    if (!section || !section.classList.contains('section-wrapper')) { return 0 };
+    return section.querySelectorAll('.listing-wrapper').length;
+  }
+
+  sectionTitle () {
+    return this.deleteForm.closest('.listing-wrapper').querySelector('.section-title').innerText;
+  }
+
+  warningMessage () {
+    if (this.nestedItems() === 0) {
+      return "<%= j(I18n.t 'content.delete-modal.body.html', section_name: '_TITLE')%>".replace('_TITLE', this.sectionTitle());
+    } else {
+      return "<%= j(I18n.t 'content.delete-modal.body.nested.html', section_name: '_TITLE', nested_items: '_ITEMS')%>".replace('_TITLE', this.sectionTitle()).replace('_ITEMS', this.nestedItems());
+    }
+  }
+
+  template () {
+    return html`<div class="modal fade in" id="delete-modal" style="display: block">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close"><span>&times;</span></button>
+            <h4 class="modal-title"><%= t 'content.delete-modal.title' %></h4>
+          </div>
+          <div class="modal-body">
+            ${raw(this.warningMessage())}
+          </div>
+          <div class="modal-footer">
+            <%= link_to t('content.delete-modal.cancel'), '', class: 'modal-button cancel' %>
+            <%= link_to t('content.delete-modal.confirm'), '', class: 'modal-button confirm' %>
+          </div>
+        </div>
+      </div>
+    </div>`
+  }
+}
