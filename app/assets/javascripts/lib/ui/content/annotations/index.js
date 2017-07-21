@@ -88,11 +88,16 @@ window.addEventListener('scroll', e => {
 function setAnnotationHandleOffsets() {
   let handles = document.querySelectorAll('.annotation-handle');
   let prevRect = null;
+  let count = 0;
   for (let handle of handles) {
     let rect = handle.getBoundingClientRect();
     if (prevRect && rect.top === prevRect.top) {
-      handle.style.right = `${0 - (prevRect.left + prevRect.width - rect.left + 2)}px`;
+      count += 1;
+      handle.style.right = `${-55 - (count * 30)}px`;
       rect = handle.getBoundingClientRect();
+    } else {
+      count = 0;
+      handle.style.right = '-55px';
     }
     prevRect = rect;
   }

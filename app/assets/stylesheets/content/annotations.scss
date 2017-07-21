@@ -61,7 +61,7 @@
 
     .annotation-button {
       @include square(28px);
-      @include relative(55px, 0);
+      // @include relative(55px, 0);
       display: block;
 
       overflow: hidden;
