@@ -82,11 +82,12 @@ class Case < ApplicationRecord
   validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
   searchable do
-    text :display_name, :boost => 3.0
+    text :full_name, :boost => 3.0
+    text :short_name
     text :indexable_case_citations, :boost => 3.0
-    text :clean_content
     text :indexable_case_docket_numbers
-    text :case_jurisdiction
+    text :indexable_case_jurisdiction
+    # text :clean_content
 
     string :display_name, :stored => true
     string :id, :stored => true

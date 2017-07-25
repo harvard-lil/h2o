@@ -41,11 +41,17 @@ class Content::Casebook < Content::Node
     text :title, boost: 3.0
     text :subtitle
     text :headnote
-    text :content do
-      if self.is_a? Content::Resource
-        resource.content
-      end
+    text :owner do
+      owners.map do |owner|
+        "#{owners.first.attribution} #{owners.first.affiliation}"
+      end.join '\n'
     end
+
+    # text :content do
+    #   if self.is_a? Content::Resource
+    #     resource.content
+    #   end
+    # end
 
     string(:klass, stored: true) { self.class.name }
     string(:display_name, stored: true) { title }
