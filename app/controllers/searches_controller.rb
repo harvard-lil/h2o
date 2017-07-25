@@ -5,39 +5,52 @@ class SearchesController < ApplicationController
   before_action :read_page
 
   def show
-    @authors = User.all
-    @schools = schools
     @query = params[:q]
     @type = params[:type] || 'casebooks'
 
     @results = if @query
-      result_groups @query
+      type_groups @query
     else
-      result_groups '*'
+      type_groups '*'
     end
 
     if @results[@type.to_sym].nil? && !params[:partial]
       @type = @results.select { |key, value| value.present? }.keys.first.to_s || 'casebooks'
     end
 
-    @pagination = paginate_group @results[@type.to_sym]
-    @authors = User.all
+    @paginated_group = paginate_group @results[@type.to_sym]
+    @filters = {authors: [], schools: []}
 
     if params[:partial]
-      render partial: 'results', layout: false, locals: {pagination: @pagination}
+      render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
     end
   end
 
   def index
-    @authors = User.all
-    @schools = schools
     @type = params[:type] || 'casebooks'
-    @results = result_groups '*'
-    @pagination = paginate_group @results[:casebooks]
+    @results = type_groups '*'
+    @casebook_results = @results[:casebooks]
+
+    @filters = build_filters @casebook_results
+    @paginated_group = paginate_group @casebook_results
+
     render 'searches/show'
   end
 
   private
+
+  def build_filters results
+    results_group = results.try(:results)
+    authors = []
+    schools = []
+
+    results_group.map do |result|
+      authors.push result.owner.attribution unless authors.include?(result.owner.attribution)
+      schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+    end 
+
+    { authors: authors, schools: schools }
+  end
 
   def paginate_group group
     WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
@@ -53,7 +66,7 @@ class SearchesController < ApplicationController
     a = User.all.map { |user| user.affiliation }.uniq
   end
 
-  def result_groups query
+  def type_groups query
     groups = search_query(@query).group(:klass).groups
     return {
       casebooks: groups.find {|r| r.value == 'Content::Casebook'},
