@@ -8,7 +8,7 @@ professor_user = User.create!( email_address: 'professor@example.edu', verified:
 student_user = User.create!( email_address: 'student@example.edu', verified: true, password: 'password', password_confirmation: 'password' )
 
 # ## Cases in this casebook are missing content
-legal_history_casebook = Content::Casebook.create!( title: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, owners: [professor_user])
+legal_history_casebook = Content::Casebook.create!( title: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, collaborators: Content::Collaborator.new(user: professor_user, role: 'owner'))
 
 Content::Section.create!(casebook: legal_history_casebook, ordinals: [1], title: 'Law and the Economy: Contract and Regulation')
 Content::Resource.create!(casebook: legal_history_casebook, ordinals: [1, 1], resource:
@@ -98,7 +98,7 @@ cases = Case.create!([
 		content: barrels_of_whiskey_case_content.first,  public: true, sent_in_cases_list: false, created_via_import: true }
 ])
 
-american_legal_casebook = Content::Casebook.create!(title: 'Law 204', public: true, owners: [professor_user])
+american_legal_casebook = Content::Casebook.create!(title: 'Law 204', public: true, collaborators: Content::Collaborator.new(user: professor_user, role: 'owner'))
 Content::Resource.create!(casebook: american_legal_casebook, ordinals: [1], resource: text_block)
 
 Content::Section.create!(casebook: american_legal_casebook, ordinals: [2], title: 'Prohibition')
