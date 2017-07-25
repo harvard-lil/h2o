@@ -5,7 +5,7 @@ class SearchesController < ApplicationController
   before_action :read_page
 
   def show
-    @authors = User.all 
+    @authors = User.all
     @schools = schools
     @query = params[:q]
     @type = params[:type] || 'casebooks'
@@ -14,6 +14,10 @@ class SearchesController < ApplicationController
       result_groups @query
     else
       result_groups '*'
+    end
+
+    if @results[@type.to_sym].nil? && !params[:partial]
+      @type = @results.select { |key, value| value.present? }.keys.first.to_s || 'casebooks'
     end
 
     @pagination = paginate_group @results[@type.to_sym]
@@ -66,7 +70,7 @@ class SearchesController < ApplicationController
       any_of do
         with :public, true
         if current_user.present?
-          with :owner_ids, current_user.id 
+          with :owner_ids, current_user.id
         end
       end
 
