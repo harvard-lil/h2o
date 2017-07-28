@@ -25,8 +25,8 @@ GIT
 
 GIT
   remote: https://github.com/harvard-lil/htmltoword.git
-  revision: 62402206daff0b7d1928dadc35024925c663a179
-  ref: 62402206
+  revision: 7e48af69214591e00a2d4b8383ff94ff9b6b3343
+  ref: 7e48af6
   branch: deterministic
   specs:
     htmltoword (0.6.0)

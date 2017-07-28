@@ -11,4 +11,10 @@
     %h3= content.title
     %h5= content.subtitle
     %p= content.headnote
-    = render partial: 'content/resources/embed', locals: {resource: content, editable: false}
+    - if content.resource.class.in? [Case, TextBlock]
+      - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
+        = p_node.to_html.html_safe
+    - elsif content.resource.is_a? Default
+      %p
+        = t 'content.link.follow-link'
+        = link_to content.resource.display_name, content.resource.url, target: '_blank'

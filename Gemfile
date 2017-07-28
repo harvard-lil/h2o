@@ -55,7 +55,7 @@ gem 'warden'
 gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e1c0e0'
 
 # export binary gems
-gem 'htmltoword', require: false, git: 'https://github.com/harvard-lil/htmltoword.git', branch: 'deterministic', ref: '62402206'
+gem 'htmltoword', require: true, git: 'https://github.com/harvard-lil/htmltoword.git', branch: 'deterministic', ref: '7e48af6'
 gem 'methadone', require: false
 gem 'rmultimarkdown', require: false
 gem 'wkhtmltopdf-binary', require: false
