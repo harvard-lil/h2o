@@ -16,6 +16,9 @@
                 exclude-result-prefixes="java msxsl ext w o v WX aml w10"
                 extension-element-prefixes="func">
   <xsl:output method="xml" encoding="utf-8" omit-xml-declaration="yes" indent="yes" />
+
+   <xsl:include href="./h2o/export.xslt"/>
+
   <xsl:include href="./functions.xslt"/>
   <xsl:include href="./tables.xslt"/>
   <xsl:include href="./links.xslt"/>
@@ -102,7 +105,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="p[not(ancestor::li)]">
+  <xsl:template match="p[not(ancestor::li|parent::main)]">
     <w:p>
       <xsl:call-template name="text-alignment" />
       <xsl:apply-templates />

@@ -1,20 +1,24 @@
-%h1= @casebook.title
-%h3= @casebook.subtitle
+%header.CasebookTitle= @casebook.title
+%header.CasebookSubtitle= @casebook.subtitle
 - @casebook.contents.each do |content|
   - if content.is_a? Content::Section
-    %h3= content.ordinal_string
-    %h2= content.title
-    %h4= content.subtitle
-    %p= content.headnote
+    %header.SectionNumber= content.ordinal_string
+    %header.SectionTitle= content.title
+    - if content.subtitle.present?
+      %header.SectionSubtitle= content.subtitle
+    - if content.headnote.present?
+      %header.SectionHeadnote= content.headnote
   - elsif content.is_a? Content::Resource
-    %h4= content.ordinal_string
-    %h3= content.title
-    %h5= content.subtitle
-    %p= content.headnote
+    %header.ResourceNumber= content.ordinal_string
+    %header.ResourceTitle= content.title
+    - if content.subtitle.present?
+      %header.ResourceSubtitle= content.subtitle
+    - if content.headnote.present?
+      %header.ResourceHeadnote= content.headnote
     - if content.resource.class.in? [Case, TextBlock]
-      - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
-        = p_node.to_html.html_safe
+      %main
+        - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
+          = p_node.to_html.html_safe
     - elsif content.resource.is_a? Default
       %p
-        = t 'content.link.follow-link'
         = link_to content.resource.display_name, content.resource.url, target: '_blank'
