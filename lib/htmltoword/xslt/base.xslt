@@ -18,10 +18,10 @@
   <xsl:output method="xml" encoding="utf-8" omit-xml-declaration="yes" indent="yes" />
 
    <xsl:include href="./h2o/export.xslt"/>
+   <xsl:include href="./h2o/links.xslt"/>
 
   <xsl:include href="./functions.xslt"/>
   <xsl:include href="./tables.xslt"/>
-  <xsl:include href="./links.xslt"/>
 
   <xsl:template match="/">
     <xsl:apply-templates />

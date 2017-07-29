@@ -5,6 +5,26 @@
                 exclude-result-prefixes="ext"
                 extension-element-prefixes="func">
 
+  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate elide ')]">
+    <w:r>
+      <w:rPr>
+        <w:rStyle w:val="Elision"/>
+      </w:rPr>
+      <w:t xml:space="preserve">[ ... ]</w:t>
+    </w:r>
+  </xsl:template>
+
+  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
+
+  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
+    <w:r>
+      <w:rPr>
+        <w:highlight w:val="yellow" />
+      </w:rPr>
+        <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
+    </w:r>
+  </xsl:template>
+
   <xsl:template match="body/main/p">
     <w:p>
       <w:pPr>
