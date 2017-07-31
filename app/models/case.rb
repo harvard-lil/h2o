@@ -37,12 +37,12 @@ class Case < ApplicationRecord
 
   acts_as_taggable_on :tags
 
-  has_many :casebooks, inverse_of: :resource
+  has_many :casebooks, inverse_of: :resource, class_name: 'Content::Casebook'
 
-  has_many :case_citations
-  has_many :case_docket_numbers
-  belongs_to :case_request, optional: true
-  belongs_to :case_jurisdiction, optional: true
+  has_many :case_citations, inverse_of: :case
+  has_many :case_docket_numbers, inverse_of: :case
+  belongs_to :case_request, optional: true, inverse_of: :case
+  belongs_to :case_jurisdiction, optional: true, inverse_of: :cases
   belongs_to :user, optional: true
 
   accepts_nested_attributes_for :case_citations,
@@ -52,6 +52,11 @@ class Case < ApplicationRecord
   accepts_nested_attributes_for :case_docket_numbers,
     :allow_destroy => true,
     :reject_if => proc { |att| att['docket_number'].blank? }
+
+  accepts_nested_attributes_for :case_jurisdiction,
+    :allow_destroy => true,
+    :reject_if => proc { |att| att['name'].blank? || att['abbreviation'].blank? }
+
 
   def display_name
     (short_name.blank?) ? full_name : short_name

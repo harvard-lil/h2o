@@ -74,6 +74,12 @@ class Ability
       can [:new], CaseJurisdiction
       can [:create], :case_jurisdictions
 
+
+      can [:new, :edit, :update, :show], Case
+      can [:new, :edit, :update, :show], CaseJurisdiction
+      can [:new, :edit, :update, :show], CaseCitation
+      can [:new, :edit, :update, :show], CaseDocketNumber
+
       can :show, BulkUpload
     elsif user.has_role? :case_admin
       can [:new, :edit, :update, :show, :export, :export_as, :destroy], Case

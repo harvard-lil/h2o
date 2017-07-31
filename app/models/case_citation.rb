@@ -12,7 +12,7 @@
 #
 
 class CaseCitation < ApplicationRecord
-  belongs_to :case
+  belongs_to :case, inverse_of: :case_citations
 
   validates_presence_of   :volume, :reporter, :page
   validates_length_of     :volume, :reporter, :page,  :in => 1..200
