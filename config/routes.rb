@@ -110,6 +110,7 @@ H2o::Application.routes.draw do
   end
 
   get '/help', to: 'pages#show', defaults: {id: 'help'}
+  get '/faq', to: 'pages#show', defaults: {id: 'faq'}
 
   get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'

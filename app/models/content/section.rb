@@ -40,6 +40,6 @@ class Content::Section < Content::Child
 
   belongs_to :resource, polymorphic: true, optional: true
   def resource
-    raise NoMethodError
+    raise Exception.new "Section #{ordinal_string} is not a Content::Resource"
   end
 end
