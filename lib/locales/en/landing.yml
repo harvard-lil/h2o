@@ -1,23 +1,21 @@
 en:
   landing:
     hero:
-      hook: Build the best casebook.
-      description: A simple, smart description of the service.
-      call-to-action: Request a demo
+      hook: Build a better casebook.
+      description: H2O helps law faculty create free digital textbooks. 
+      call-to-action: View a Book
     preview:
       call-to-action: Learn how it works
       features:
-        - label: Fast
+        - label: Free
           summary: >
             Collect materials, hide and annotate text, and distribute casebooks
             to your students quickly and reliably. H2O is free, simple, and easy
             to add to your class.
-        - label: Powerful
+        - label: Open
           summary: >
-            H2O includes native access to Free The Law — Harvard's complete
-            collection of American caselaw — a database featuring over
-            700,000 decisions available instantly.
-        - label: Professional
+            Access the Harvard Law Library's collection of digitized American caselaw. Adapt and remix open-licensed casebooks by prominent law faculty.            
+        - label: Powerful
           summary: >
             We understand what it takes to build a casebook because we’ve
             built them ourselves. H2O is made for professionals and based
@@ -63,4 +61,4 @@ en:
           image: school-logos/penn.png
     stinger:
       pitch: "Build coursebooks better, faster, and smarter — today."
-      call-to-action: Request a demo
+      call-to-action: Get started
