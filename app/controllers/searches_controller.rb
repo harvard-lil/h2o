@@ -15,11 +15,12 @@ class SearchesController < ApplicationController
     end
 
     if @results[@type.to_sym].nil? && !params[:partial]
-      @type = @results.select { |key, value| value.present? }.keys.first.to_s || 'casebooks'
+      @type = ( @results.select { |key, value| value.present? }.keys.first || 'casebooks' ).to_s
     end
 
     @paginated_group = paginate_group @results[@type.to_sym]
-    @filters = build_filters @results[:casebooks]
+    @filters = build_filters @results[@type.to_sym]
+
 
     if params[:partial]
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
@@ -40,13 +41,19 @@ class SearchesController < ApplicationController
   private
 
   def build_filters results
-    results_group = results.try(:results)
     authors = []
     schools = []
 
-    results_group.map do |result|
-      authors.push result.owner unless authors.include?(result.owner)
-      schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+    if results
+      results_group = results.try(:results)
+
+      results_group.map do |result|
+        authors.push result.owner unless authors.include?(result.owner)
+        schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+      end
+    else
+      authors.push User.find(params[:author]) if params[:author].present?
+      schools.push params[:school] if params[:school].present?
     end 
 
     { authors: authors, schools: schools }
