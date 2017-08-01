@@ -19,7 +19,7 @@ class SearchesController < ApplicationController
     end
 
     @paginated_group = paginate_group @results[@type.to_sym]
-    @filters = {authors: [], schools: []}
+    @filters = build_filters @results[:casebooks]
 
     if params[:partial]
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
@@ -45,7 +45,7 @@ class SearchesController < ApplicationController
     schools = []
 
     results_group.map do |result|
-      authors.push result.owner.attribution unless authors.include?(result.owner.attribution)
+      authors.push result.owner unless authors.include?(result.owner)
       schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
     end 
 
