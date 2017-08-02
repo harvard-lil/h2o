@@ -8,7 +8,7 @@ class SearchesController < ApplicationController
     @query = params[:q]
     @type = params[:type] || 'casebooks'
 
-    @results = if @query
+    @results = if @query.present?
       type_groups @query
     else
       type_groups '*'
@@ -19,8 +19,7 @@ class SearchesController < ApplicationController
     end
 
     @paginated_group = paginate_group @results[@type.to_sym]
-    @filters = build_filters @results[@type.to_sym]
-
+    @filters = build_filters @type, @results[@type.to_sym]
 
     if params[:partial]
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
@@ -32,7 +31,7 @@ class SearchesController < ApplicationController
     @results = type_groups '*'
     @casebook_results = @results[:casebooks]
 
-    @filters = build_filters @casebook_results
+    @filters = build_filters @type, @casebook_results
     @paginated_group = paginate_group @casebook_results
 
     render 'searches/show'
@@ -40,16 +39,23 @@ class SearchesController < ApplicationController
 
   private
 
-  def build_filters results
+  def build_filters type, results
     authors = []
     schools = []
 
-    if results
+    if results 
       results_group = results.try(:results)
-
-      results_group.map do |result|
-        authors.push result.owner unless authors.include?(result.owner)
-        schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+      
+      if type == 'casebooks'
+        results_group.map do |result|
+          authors.push result.owner unless authors.include?(result.owner)
+          schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+        end
+      end
+      if type == 'users'
+        results_group.map do |result|
+          schools.push result.affiliation unless schools.include?(result.affiliation)
+        end
       end
     else
       authors.push User.find(params[:author]) if params[:author].present?
@@ -95,7 +101,7 @@ class SearchesController < ApplicationController
       end
 
       with :owner_ids, params[:author] if params[:author].present?
-      with :owner_affiliation, params[:school] if params[:school].present?
+      with :affiliation, params[:school] if params[:school].present?
 
       order_by (params[:sort] || 'display_name').to_sym
       group :klass do
