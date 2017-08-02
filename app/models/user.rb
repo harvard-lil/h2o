@@ -164,6 +164,7 @@ class User < ApplicationRecord
     text :simple_display
     string :display_name, :stored => true
     text :affiliation
+    string(:affiliation, stored: true) { affiliation }
     integer :karma
     boolean :public do
       true
