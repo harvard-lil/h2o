@@ -18,6 +18,12 @@ section.hero {
       color: $light-blue;
     }
   }
+
+  h2 {
+    @include serif-headline($regular, 72px, 68px);
+
+    margin: 0px 0px 35px;
+  }
 }
 
 section.preview {
