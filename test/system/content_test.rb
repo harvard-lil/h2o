@@ -6,7 +6,7 @@ class ContentSystemTest < ApplicationSystemTestCase
 
     assert_content /Build a better casebook/i
     assert_link 'Sign up for free'
-    assert_link 'Request a demo'
+    assert_link 'View a book'
     assert_link 'Sign in'
   end
   scenario 'footer links' do
