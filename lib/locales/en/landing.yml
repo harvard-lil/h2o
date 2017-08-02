@@ -3,7 +3,7 @@ en:
     hero:
       hook: Build a better casebook.
       description: H2O helps law faculty create high quality, open-licensed digital textbooks for free. 
-      call-to-action: View a Book
+      call-to-action: View a book
     preview:
       call-to-action: Learn how it works
       features:
