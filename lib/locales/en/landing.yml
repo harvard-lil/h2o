@@ -7,19 +7,17 @@ en:
     preview:
       call-to-action: Learn how it works
       features:
-        - label: Free
+        - label: Fast, Simple and Free
           summary: >
             Collect materials, hide and annotate text, and distribute casebooks
-            to your students quickly and reliably. H2O is free, simple, and easy
+            to your students quickly and reliably. H2O is easy
             to add to your class.
-        - label: Open
+        - label: Open Access
           summary: >
-            Access the Harvard Law Library's collection of digitized American caselaw. Adapt and remix open-licensed casebooks by prominent law faculty.            
-        - label: Powerful
+            All materials in H2O are licensed CC-BY-NC and free to copy, reuse and remix.            
+        - label: Library-Powered
           summary: >
-            We understand what it takes to build a casebook because we’ve
-            built them ourselves. H2O is made for professionals and based
-            on real-life experience in the classroom and the courtroom.
+            H2O is made by the Harvard Law School Library and designed carefully to serve faculty and student needs.
     endorsements:
       header: Endorsements and Credentials
       endorsers:
@@ -45,7 +43,7 @@ en:
         text: Quote that establishes and strengthens the product claims.
         source: Professor of Note
     used-by:
-      header: Used by Law Schools across America
+      header: Used by Faculty in Law Schools Everywhere
       schools:
         - name: Harvard Law School
           image: school-logos/harvard.png
@@ -60,5 +58,5 @@ en:
         - name: University of Pennsylvania Law School
           image: school-logos/penn.png
     stinger:
-      pitch: "Build coursebooks better, faster, and smarter — today."
+      pitch: "Build coursebooks better, faster and smarter — today."
       call-to-action: Get started
