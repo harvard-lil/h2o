@@ -9,9 +9,7 @@
       <% if @type == 'casebooks' %>
         <%= f.input :author, collection: @filters[:authors], label_method: :attribution, value_method: :id, selected: params[:author] || 'All Authors', include_blank: 'All Authors', input_html: { name: 'author', class: 'minimal' }, label: false %>
         <%= f.input :school, collection: @filters[:schools], selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
-      <% end %>
-
-      <% if @type == 'users' %>
+      <% elsif @type == 'users' %>
         <%= f.input :school, collection: @filters[:schools], include_blank: 'All Schools', selected: params[:school], input_html: { name: 'school', class: 'minimal' }, label: false %>
       <% end %>
     </div>
@@ -28,12 +26,12 @@
             </a>
           </div>
           <div class="type-tab <% if @type == 'cases' %>active<% end %>">
-            <a href="<%= search_path(q: @query, type: 'cases') %>" class="wrapper">
+            <a href="<%= search_path(q: @query, type: 'cases', school: params[:school], author: params[:author]) %>" class="wrapper">
               <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
             </a>
           </div>
           <div class="type-tab <% if @type == 'users' %>active<% end %>">
-            <a href="<%= search_path(q: @query, type: 'users', school: params[:school], author: params[:author])) %>" class="wrapper">
+            <a href="<%= search_path(q: @query, type: 'users', school: params[:school], author: params[:author]) %>" class="wrapper">
               <%= t 'search.results.n-user-results', n: @results[:users].try(:total) || 0 %>
             </a>
           </div>
