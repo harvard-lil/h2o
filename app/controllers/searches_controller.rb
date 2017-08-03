@@ -45,15 +45,11 @@ class SearchesController < ApplicationController
 
     if results 
       results_group = results.try(:results)
-      
-      if type == 'casebooks'
-        results_group.map do |result|
+      results_group.map do |result|
+        if type == 'casebooks'
           authors.push result.owner unless authors.include?(result.owner)
           schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
-        end
-      end
-      if type == 'users'
-        results_group.map do |result|
+        elsif type == 'users'
           schools.push result.affiliation unless schools.include?(result.affiliation)
         end
       end
