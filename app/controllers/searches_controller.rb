@@ -14,10 +14,6 @@ class SearchesController < ApplicationController
       type_groups '*'
     end
 
-    if @results[@type.to_sym].nil? && !params[:partial]
-      @type = ( @results.select { |key, value| value.present? }.keys.first || 'casebooks' ).to_s
-    end
-
     @paginated_group = paginate_group @results[@type.to_sym]
     @filters = build_filters @type, @results[@type.to_sym]
 
