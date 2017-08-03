@@ -134,6 +134,21 @@ class User < ApplicationRecord
     :user_default_clone => "Link Cloned"
   }
 
+  searchable :if => :not_anonymous do
+    text :simple_display
+    string :display_name, :stored => true
+    text :affiliation
+    string(:affiliation, stored: true) { affiliation }
+    integer :karma
+    boolean :public do
+      true
+    end
+    date :updated_at
+
+    integer :user_id, :stored => true
+    string(:klass, stored: true) { 'User' }
+  end
+
   def user_responses
     content = self.text_blocks.includes(:responses)
     content.map(&:responses).flatten
@@ -158,21 +173,6 @@ class User < ApplicationRecord
     if !canonical_email.ends_with?('.edu')
       errors.add(:email_address, I18n.t('users.edu-only-error'))
     end
-  end
-
-  searchable :if => :not_anonymous do
-    text :simple_display
-    string :display_name, :stored => true
-    text :affiliation
-    string(:affiliation, stored: true) { affiliation }
-    integer :karma
-    boolean :public do
-      true
-    end
-    date :updated_at
-
-    integer :user_id, :stored => true
-    string(:klass, stored: true) { 'User' }
   end
 
   def user_id
