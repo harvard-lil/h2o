@@ -7,3 +7,8 @@ delegate(document, '.advanced-search .search-options #search_school', 'change', 
 function doSearch (e) {
   e.target.closest('form').submit();
 }
+
+document.addEventListener('turbolinks:load', e => {
+  let selects = document.querySelectorAll('select');
+  for (let el of selects) { el.value = el.value };
+});
