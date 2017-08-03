@@ -7,6 +7,7 @@
     <div class="search-options">
       <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'updated_at', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
       <% if @type == 'casebooks' %>
+        <%= f.label "Filters:" %>
         <%= f.input :author, collection: @filters[:authors], label_method: :attribution, value_method: :id, selected: params[:author] || 'All Authors', include_blank: 'All Authors', input_html: { name: 'author', class: 'minimal' }, label: false %>
         <%= f.input :school, collection: @filters[:schools], selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
       <% elsif @type == 'users' %>
