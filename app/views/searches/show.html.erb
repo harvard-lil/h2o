@@ -26,12 +26,18 @@
       <div class="results-container">
         <div class="type-tabs">
           <div class="type-tab <% if @type == 'casebooks' %>active<% end %>">
-            <a href="<%= search_path(q: @query, type: 'casebooks', school: params[:school], author: params[:author]) %>" class="wrapper">
+            <% if params[:sort].present? %>
+              <% params[:sort] = 'created_at' %>
+            <% end %>
+            <a href="<%= search_path(q: @query, type: 'casebooks', school: params[:school], author: params[:author], sort: params[:sort]) %>" class="wrapper">
               <%= t 'search.results.n-casebook-results', n: @results[:casebooks].try(:total) || 0 %>
             </a>
           </div>
           <div class="type-tab <% if @type == 'cases' %>active<% end %>">
-            <a href="<%= search_path(q: @query, type: 'cases', school: params[:school], author: params[:author]) %>" class="wrapper">
+            <% if params[:sort].present? %>
+              <% params[:sort] = 'decision_date' %>
+            <% end %>
+            <a href="<%= search_path(q: @query, type: 'cases', school: params[:school], author: params[:author], sort: params[:sort]) %>" class="wrapper">
               <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
             </a>
           </div>
