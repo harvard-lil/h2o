@@ -38,11 +38,11 @@
           </div>
         </div>
       </div>
-      <% if @paginated_group %>
+      <% if @paginated_group.present? %>
         <%= render partial: 'results', locals: {paginated_group: @paginated_group} %>
       <% else %>
         <div class="no-results">
-          <%= t 'search.results.no-results' %>
+          <h3><%= t 'search.results.no-results', type: @type.capitalize, query: @query %></h3>
         </div>
       <% end %>
     <% end %>
