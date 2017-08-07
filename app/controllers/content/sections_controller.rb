@@ -26,6 +26,24 @@ class Content::SectionsController < Content::NodeController
     end
   end
 
+  skip_before_action :set_page_title, only: [:export]
+  skip_before_action :check_public, only: [:export]
+  def export
+    @section = Content::Section.find params[:section_id]
+
+    html = render_to_string layout: 'export'
+    respond_to do |format|
+      format.pdf {
+        send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: helpers.truncate(@section.title, length: 45, omission: '-', separator: ' ') + '.pdf', disposition: :inline
+      }
+      format.docx {
+        render docx: 'export', filename: export_filename('docx')
+        # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
+      }
+      format.html { render body: html, layout: false }
+    end
+  end
+
   def show
     render 'content/show'
   end
@@ -60,6 +78,10 @@ class Content::SectionsController < Content::NodeController
   end
 
   private
+
+  def export_filename format
+    helpers.truncate(@section.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  end
 
   def page_title
     if @section.present?

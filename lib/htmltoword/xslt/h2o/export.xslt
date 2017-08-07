@@ -70,4 +70,31 @@
         select="ext:node-set($preprocess)/*"/>
   </xsl:template>
 
+        <!-- convert unprocessable tags to <p> -->
+    <xsl:template match="blockquote">
+      <!-- <xsl:param name="tagname" select="local-name()" /> -->
+
+      <xsl:variable name="preprocess">
+        <p class="unsupported-tag">
+          <xsl:value-of select="." />
+        </p>
+      </xsl:variable>
+
+        <xsl:apply-templates
+          select="ext:node-set($preprocess)/*"/>
+    </xsl:template>
+
+    <xsl:template match="font">
+      <!-- <xsl:param name="tagname" select="local-name()" /> -->
+      <xsl:comment>this is a font tag</xsl:comment>
+<!--
+      <xsl:variable name="preprocess">
+        <p class="unsupported-tag">
+          <xsl:value-of select="." />
+        </p>
+      </xsl:variable>
+
+        <xsl:apply-templates
+          select="ext:node-set($preprocess)/*"/> -->
+    </xsl:template>
 </xsl:stylesheet>

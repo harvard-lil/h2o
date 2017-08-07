@@ -48,6 +48,8 @@
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
+
+          <xsl:comment>body child no children</xsl:comment>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
@@ -100,6 +102,7 @@
         <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
       </w:pPr>
       <w:r>
+        <xsl:comment>body headers</xsl:comment>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
@@ -227,6 +230,7 @@
       </xsl:comment>
     <w:p>
       <w:r>
+        <xsl:comment>text no parent li</xsl:comment>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
@@ -251,6 +255,8 @@
             <w:rPr>
               <w:highlight w:val="{$color}"/>
             </w:rPr>
+
+              <xsl:comment>test preceding highilght</xsl:comment>
             <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
           </w:r>
         </w:p>
@@ -260,6 +266,7 @@
           <w:rPr>
             <w:highlight w:val="{$color}"/>
           </w:rPr>
+            <xsl:comment>test highlight </xsl:comment>
           <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
         </w:r>
       </xsl:otherwise>
@@ -310,6 +317,7 @@
             <w:vertAlign w:val="superscript"/>
           </w:rPr>
         </xsl:if>
+          <xsl:comment><xsl:copy-of select="." /></xsl:comment>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </xsl:if>

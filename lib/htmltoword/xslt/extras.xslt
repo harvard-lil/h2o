@@ -17,10 +17,10 @@
                 extension-element-prefixes="func">
 
   <!-- use block quotes for spacing (can be nested) -->
-  <xsl:template match="blockquote">
+  <!-- <xsl:template match="blockquote">
     <w:p>
       <w:r></w:r>
     </w:p>
     <xsl:apply-templates/>
-  </xsl:template>
+  </xsl:template> -->
 </xsl:stylesheet>

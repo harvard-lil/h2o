@@ -8,6 +8,9 @@ delegate(document, 'a.action.export', 'click', showExportModal);
 function resource_export_path(resourceId, format = 'pdf') {
   return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
 }
+function section_export_path(sectionId, format = 'pdf') {
+  return '<%= j section_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', sectionId).replace('_FORMAT', format);
+}
 function export_casebook_path(casebookId, format = 'pdf') {
   return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
@@ -34,11 +37,14 @@ class ExportModal extends Component {
         'click .cancel': (e) => { this.destroy() },
         'click .export': (e) => {
           let resourceId = document.querySelector('main > header').dataset.resourceId;
+          let sectionId = document.querySelector('main > header').dataset.sectionId;
           let casebookId = document.querySelector('main > header').dataset.casebookId;
           let includeAnnotations = this.el.querySelector('[name="include-annotations"]').checked;
           let format = this.el.querySelector('[name="export-format"]').value;
           if (resourceId)  {
             window.open(resource_export_path(resourceId, format) + (includeAnnotations ? '' : '?annotations=false'));
+          } else if (sectionId)  {
+            window.open(section_export_path(sectionId, format) + (includeAnnotations ? '' : '?annotations=false'));
           } else {
             window.open(export_casebook_path(casebookId, format) + (includeAnnotations ? '' : '?annotations=false'));
           }
@@ -81,8 +87,8 @@ class ExportModal extends Component {
             <label>
               <%= I18n.t 'content.export-modal.format' %>
               <select name="export-format">
-                <option value="pdf">PDF</option>
                 <option value="docx">Word</option>
+                <option value="pdf">PDF</option>
                 <option value="html">HTML</option>
               </select>
             </label>

@@ -1,6 +1,7 @@
-%header.CasebookTitle= @casebook.title
-%header.CasebookSubtitle= @casebook.subtitle
-- @casebook.contents.each do |content|
+%header.SectionNumber= @section.ordinal_string
+%header.CasebookTitle= @section.title
+%header.CasebookSubtitle= @section.subtitle
+- @section.contents.each do |content|
   - if content.is_a? Content::Section
     %header.SectionNumber= content.ordinal_string
     %header.SectionTitle= content.title

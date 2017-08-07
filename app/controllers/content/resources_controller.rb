@@ -24,7 +24,8 @@ class Content::ResourcesController < Content::NodeController
         send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.pdf', disposition: :inline
       }
       format.docx {
-        send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
+        render docx: 'export', filename: export_filename('docx')
+        # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
       }
       format.html { render body: html, layout: false }
     end
@@ -44,6 +45,10 @@ class Content::ResourcesController < Content::NodeController
   end
 
   private
+
+  def export_filename format
+    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  end
 
   def page_title
     if @resource.present?

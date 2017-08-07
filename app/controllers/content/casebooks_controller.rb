@@ -41,6 +41,7 @@ class Content::CasebooksController < Content::NodeController
         send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: export_filename('pdf'), disposition: :inline
       }
       format.docx {
+        Htmltoword::Document.create(html)
         render docx: 'export', filename: export_filename('docx')
         # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
       }
