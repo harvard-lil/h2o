@@ -61,7 +61,7 @@ class Content::Casebook < Content::Node
       owners.map &:id
     end
 
-    string(:affiliation, stored: true) { owners.first.affiliation }
+    string(:affiliation, stored: true) { owners.first.try(:affiliation) }
   end
 
   def clone owner:
