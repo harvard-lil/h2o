@@ -100,7 +100,7 @@ header.advanced-search {
     align-items: center;
 
     .title {
-      @include make-md-column(9);
+      @include make-md-column(8.5);
       font-weight: bold;
       font-size: 14px;
       font-family: $font-family-sans-serif;
@@ -114,6 +114,15 @@ header.advanced-search {
     }
     .date, .profile-image {
       @include make-md-column(1);
+    }
+
+    .date {
+      flex-grow: 1;
+      text-align: right;
+    }
+
+    .citation {
+      text-align: right;
     }
   }
 }
