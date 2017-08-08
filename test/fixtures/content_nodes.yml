@@ -40,9 +40,9 @@ private_casebook:
   title: Private Casebook 1
   public: false
 
-empty_casebook:
-  title: Empty Casebook
-  public: true
+# empty_casebook:
+#   title: Empty Casebook
+#   public: true
 
 student_casebook:
   title: Student Casebook
