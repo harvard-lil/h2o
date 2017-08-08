@@ -43,8 +43,9 @@ class SearchesController < ApplicationController
       results_group = results.try(:results)
       results_group.map do |result|
         if type == 'casebooks'
+
           authors.push result.owner unless authors.include?(result.owner)
-          schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+          schools.push result.owner&.affiliation unless schools.include?(result.owner&.affiliation)
         elsif type == 'users'
           schools.push result.affiliation unless schools.include?(result.affiliation)
         end
@@ -54,7 +55,7 @@ class SearchesController < ApplicationController
       schools.push params[:school] if params[:school].present?
     end 
 
-    { authors: authors, schools: schools }
+    { authors: authors.compact, schools: schools.compact }
   end
 
   def paginate_group group
