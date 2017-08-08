@@ -37,7 +37,7 @@ public_case_to_annotate:
 haystack_case_<%=label%>:
   short_name: Haystack Case (<%=label%>)
   full_name: Case <%=label%> in the Haystack
-  decision_date: <% Date.today - rand(10000).days %>
+  decision_date: <%= Date.today - rand(10000).days %>
   author: Judge Haystack the <%=label%>th
   case_jurisdiction: district_jurisdiction
   content: >
