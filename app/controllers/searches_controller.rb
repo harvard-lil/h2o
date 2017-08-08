@@ -44,7 +44,7 @@ class SearchesController < ApplicationController
       results_group.map do |result|
         if type == 'casebooks'
           authors.push result.owner unless authors.include?(result.owner)
-          schools.push result.owner.affiliation unless schools.include?(result.owner.affiliation)
+          schools.push result.owner.affiliation unless ( result.owner.affiliation.present? || schools.include?(result.owner.affiliation) )
         elsif type == 'users'
           schools.push result.affiliation unless schools.include?(result.affiliation)
         end
