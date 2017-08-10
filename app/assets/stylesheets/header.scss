@@ -33,12 +33,15 @@ body {
       }
     }
     .links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       @extend .pull-left;
-      > a.create-casebook {
+      > .create-casebook {
         padding: 9px 10px;
         font-size: 16px;
       }
-      > a {
+      > a, div {
         @include btn();
         @include btn-white();
         &.create-casebook {
