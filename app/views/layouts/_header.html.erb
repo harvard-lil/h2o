@@ -7,7 +7,7 @@
     </div>
     <div class="links">
       <% if current_user.present? %>
-        <%= link_to t('header.links.create-casebook'), :new_casebook, class: 'create-casebook' %>
+        <a class="create-casebook" data-action="show-casebook-modal"><%= t('header.links.create-casebook') %></a>
         <%= link_to t('header.links.browse'), :browse %>
         <%= link_to t('header.links.help'), :root %>
       <% else %>
