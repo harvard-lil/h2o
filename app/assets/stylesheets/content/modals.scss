@@ -35,14 +35,20 @@
   }
   .case-search, .new-text, .new-link {
     margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     input[type=text] {
       display: inline-block;
-      width: 85%;
+      width: 100%;
     }
     input[type=submit] {
       @extend .btn;
       @extend .btn-primary;
-      width: 14%;
+      width: 30%;
+      height: 52px;
+      margin-left: 5px;
     }
   }
 }
