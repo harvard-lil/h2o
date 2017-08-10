@@ -14,7 +14,8 @@ class Content::SectionsController < Content::NodeController
       text = TextBlock.create(name: params[:text][:title], content: params[:text][:content])
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: text
     elsif params[:link]
-      link = Default.create(url: params[:link][:url])
+      url = UrlDomainFormatter.format(params[:link][:url])
+      link = Default.create(url: url) 
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: link
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
