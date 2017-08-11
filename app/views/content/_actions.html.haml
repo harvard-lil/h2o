@@ -1,0 +1,33 @@
+- if action_name.in? %w{edit layout annotate}
+  = button_to t('content.actions.publish'), casebook_path(@casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line'
+  - if action_name == 'layout'
+    = button_to t('content.actions.add-section'), sections_path(@casebook, params: {parent: @section.try(:ordinal_string)}), method: :post, class: 'action add-section'
+    = link_to t('content.actions.add-resource'), new_section_path(@casebook), class: 'action add-resource'
+    - if @content.is_a? Content::Casebook
+      = link_to t('content.actions.preview'), casebook_path(@casebook), class: 'action one-line preview', target: '_blank'
+    - elsif @content.is_a? Content::Section
+      = link_to t('content.actions.preview'), section_path(@casebook, @section), class: 'action one-line preview', target: '_blank'
+  - if @content.is_a? Content::Resource
+    = link_to t('content.actions.preview'), resource_path(@casebook, @resource), class: 'action one-line preview', target: '_blank'
+- else
+  - if @casebook.owners.include?(current_user)
+    - if @casebook.public
+      = button_to t('content.actions.edit-draft'), clone_casebook_path(@casebook, params: {draft: true}), method: :post, class: 'action clone-casebook'
+    - else
+      - if action_name == 'details'
+        - if @content.is_a? Content::Casebook
+          = link_to t('content.actions.edit'), edit_casebook_path(@casebook), class: 'action edit one-line'
+        - elsif @content.is_a? Content::Section
+          = link_to t('content.actions.edit'), edit_section_path(@casebook, @section), class: 'action edit one-line'
+        - elsif @content.is_a? Content::Resource
+          = link_to t('content.actions.edit'), edit_resource_path(@casebook, @resource), class: 'action edit one-line'
+      - elsif action_name == 'show'
+        - if @content.is_a? Content::Casebook
+          = link_to t('content.actions.edit'), layout_casebook_path(@casebook), class: 'action edit one-line'
+        - elsif @content.is_a? Content::Section
+          = link_to t('content.actions.edit'), layout_section_path(@casebook, @section), class: 'action edit one-line'
+        - elsif @content.is_a? Content::Resource
+          = link_to t('content.actions.edit'), annotate_resource_path(@casebook, @resource), class: 'action edit one-line'
+  - else
+    = button_to t('content.actions.clone-casebook'), clone_casebook_path(@casebook), method: :post, class: 'action clone-casebook'
+  = link_to t('content.actions.export'), export_casebook_path(@casebook), class: 'action one-line export'
