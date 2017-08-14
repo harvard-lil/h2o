@@ -103,7 +103,7 @@ en:
     resource:
       type:
         text: Text
-        html: HTML
+        html: Link
         not-applicable: —
       date:
         not-applicable: —

@@ -395,12 +395,15 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         border: 1px solid $light-blue;
         color: $light-blue;
         width: 65px;
+        line-height: 14px;
+        vertical-align: middle;
         display: flex;
         justify-content: center;
         font-size: 12px;
         font-weight: bold;
         align-self: flex-end;
         margin-left: auto;
+        padding-top: 2px;
       }
     }
     .section-contents {
