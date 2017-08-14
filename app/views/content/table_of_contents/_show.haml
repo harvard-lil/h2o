@@ -14,6 +14,7 @@
       - if content.is_a? Content::Resource
         - if content.resource.is_a? Case
           .resource-case= content.resource.case_citations.first
+          .resource-type= t 'content.resource.type.case'
         - elsif content.resource.is_a? TextBlock
           .resource-type= t 'content.resource.type.text'
         - elsif content.resource.is_a? Default
