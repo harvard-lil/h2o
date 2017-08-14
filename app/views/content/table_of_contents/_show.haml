@@ -2,7 +2,7 @@
 - content = show
 - if content.is_a? Content::Resource
   .listing-wrapper{data: {ordinals: content.ordinal_string}}
-    %a.listing.resource{href: resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
+    %a.listing.resource{href: resource_path(content.casebook, content), draggable: false, data: {ordinals: content.ordinal_string, editable: editable}}
       .section-number= content.ordinal_string
       - if content.is_a? Content::Resource
         - if content.resource.is_a? Case
