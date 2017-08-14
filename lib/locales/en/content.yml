@@ -104,6 +104,7 @@ en:
       type:
         text: Text
         html: Link
+        case: Case
         not-applicable: —
       date:
         not-applicable: —
