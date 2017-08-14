@@ -344,7 +344,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           font-weight: $medium;
         }
         .section-number, .section-title {
-          color: white
+          color: white;
+          margin-right: 10px;
         }
       }
       &.resource {
@@ -356,6 +357,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         }
         .section-number, .section-title {
           color: black;
+          margin-right: 10px;
         }
       }
       &.empty {
