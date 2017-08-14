@@ -8,8 +8,7 @@
         - if content.resource.is_a? Case
           .section-title= content.resource.short_name
           .resource-case= content.resource.case_citations.first
-          .resource-date
-            = content.resource.try(:date_year) || t('content.resource.date.not-applicable')
+          .resource-date= content.resource.try(:date_year) || t('content.resource.date.not-applicable')
         - else
           .section-title= content.title
       - if content.is_a? Content::Resource
