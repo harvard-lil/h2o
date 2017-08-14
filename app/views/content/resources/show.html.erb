@@ -29,9 +29,11 @@
       <h2 class="subtitle">
         <%= @content.subtitle %>
       </h2>
+      <% if @content.resource_type != 'Case' %>
       <div class="collaborators">
         <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
+      <% end %>
     <% end %>
   </h1>
 </header>
