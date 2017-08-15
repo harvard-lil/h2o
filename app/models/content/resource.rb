@@ -34,8 +34,21 @@ class Content::Resource < Content::Child
 
   def paragraph_nodes
     html = Nokogiri::HTML resource.content {|config| config.noblanks}
+    # strip comments
+    html.xpath('//comment()').remove
+
+    # unwrap div tags
     html.xpath('//div')
       .each { |div| div.replace div.children }
+
+    # rewrap empty lists
+    html.xpath('//body/ul[not(*[li])]')
+      .each { |list| list.replace "<p>#{list.inner_html}</p>" }
+
+    # wrap bare inline tags
+    html.xpath('//body/*[not(self::p|self::center|self::blockquote|self::article)]')
+      .each { |inline_element| inline_element.replace "<p>#{inline_element.to_html}</p>" }
+
     html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
   end
 

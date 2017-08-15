@@ -3,25 +3,25 @@
 
   <xsl:strip-space elements="*"/>
 
-  <xsl:template match="node()|@*">
+  <xsl:template match="node()|@*" name="recursion">
     <xsl:copy>
-      <xsl:apply-templates select="@*|node()[1]"/>
+      <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
-    <xsl:apply-templates select="following-sibling::node()[1]"/>
+    <!-- <xsl:apply-templates select="following-sibling::node()[1]"/> -->
   </xsl:template>
 
   <!-- get first inline element of a sequence or text having block element siblings... -->
-  <xsl:template match="node()[self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()][parent::div|parent::li|parent::td]">
+  <!-- <xsl:template name="firstinline" match="node()[self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()][parent::div|parent::li|parent::td]">
     <div>
       <xsl:attribute name="class"><xsl:value-of select="../@class"/></xsl:attribute>
       <xsl:attribute name="style"><xsl:value-of select="../@style"/></xsl:attribute>
       <xsl:call-template name="inlineElement"/>
     </div>
     <xsl:apply-templates select="following-sibling::node()[not((self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text())[parent::div|parent::li|parent::td])][1]"/>
-  </xsl:template>
+  </xsl:template> -->
 
   <!-- get following inline elements... -->
-  <xsl:template match="
+  <!-- <xsl:template match="
      a[preceding-sibling::node()[1][self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()]]
     |b[preceding-sibling::node()[1][self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()]]
     |i[preceding-sibling::node()[1][self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()]]
@@ -36,5 +36,5 @@
       <xsl:apply-templates select="@*|node()[1]"/>
     </xsl:copy>
     <xsl:apply-templates select="following-sibling::node()[1][self::a|self::b|self::i|self::s|self::span|self::sub|self::sup|self::u|self::text()]"/>
-  </xsl:template>
+  </xsl:template> -->
 </xsl:stylesheet>

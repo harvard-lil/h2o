@@ -68,7 +68,7 @@
     </w:tc>
   </xsl:template>
 
-  <xsl:template match="td">
+  <xsl:template match="td[parent::tr]">
     <w:tc>
       <xsl:call-template name="table-cell-properties"/>
       <xsl:call-template name="block">
@@ -77,6 +77,19 @@
         <xsl:with-param name="style" select="@style" />
       </xsl:call-template>
     </w:tc>
+  </xsl:template>
+
+  <xsl:template match="td[not(parent::tr)]">
+    <w:tr>
+      <w:tc>
+        <xsl:call-template name="table-cell-properties"/>
+        <xsl:call-template name="block">
+          <xsl:with-param name="current" select="." />
+          <xsl:with-param name="class" select="@class" />
+          <xsl:with-param name="style" select="@style" />
+        </xsl:call-template>
+      </w:tc>
+    </w:tr>
   </xsl:template>
 
   <xsl:template name="block">

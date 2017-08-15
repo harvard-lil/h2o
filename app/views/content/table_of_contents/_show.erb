@@ -23,7 +23,7 @@
           <div class="section-title"> <%= content.title %> </div>
         <% end %>
 
-        - if content.is_a? Content::Resource
+        <!-- - if content.is_a? Content::Resource
           - if content.resource.is_a? Case
             .section-title= content.resource.short_name
             .resource-date
@@ -39,7 +39,7 @@
             .resource-type= t "content.resource.type.#{content.resource.content_type.parameterize}"
           - else
             .resource-type
-              .not-applicable= t "content.resource.type.not-applicable"
+              .not-applicable= t "content.resource.type.not-applicable" -->
       </a>
     </div>
   <% elsif content.is_a? Content::Section %>
