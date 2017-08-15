@@ -33,6 +33,11 @@ module H2o
 
     # config.skylight.environments << 'development'
 
+    # render all errors with the 'exception' layout
+    config.exception_handler = {
+      layouts: ((400..426).to_a + (500..510).to_a).map {|n| [n, 'main']}.to_h
+    }
+
     config.less.paths << Rails.root.join('app/assets/stylesheets/bootstrap')
     config.less.compress = true
 

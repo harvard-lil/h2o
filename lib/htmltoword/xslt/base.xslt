@@ -21,7 +21,7 @@
    <xsl:include href="./h2o/links.xslt"/>
 
   <xsl:include href="./functions.xslt"/>
-  <xsl:include href="./tables.xslt"/>
+  <!-- <xsl:include href="./tables.xslt"/> -->
 
   <xsl:template match="/">
     <xsl:apply-templates />
@@ -48,14 +48,14 @@
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
+        <xsl:call-template name="run-style" />
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
   </xsl:template>
 
 
-  <xsl:template match="br[not(ancestor::p) and not(ancestor::div) and not(ancestor::td|ancestor::li) or
-                          (preceding-sibling::div or following-sibling::div or preceding-sibling::p or following-sibling::p)]">
+  <xsl:template match="body/br">
     <w:p>
       <w:r></w:r>
     </w:p>
@@ -68,21 +68,31 @@
     </w:r>
   </xsl:template>
 
-  <xsl:template match="br">
-    <w:r>
-      <w:br />
-    </w:r>
-  </xsl:template>
-
-  <xsl:template match="pre">
+  <xsl:template match="pre[not(parent::td)]">
     <w:p>
+      <xsl:comment>pre</xsl:comment>
       <xsl:apply-templates />
     </w:p>
   </xsl:template>
 
-  <xsl:template match="div[not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre)]">
+  <xsl:template match="tr">
+    <w:p>
+      <xsl:comment>tr</xsl:comment>
+      <xsl:apply-templates />
+    </w:p>
+  </xsl:template>
+
+  <xsl:template match="td[not(parent::tr)]">
+    <w:p>
+      <xsl:comment>td</xsl:comment>
+      <xsl:apply-templates />
+    </w:p>
+  </xsl:template>
+
+  <xsl:template match="div[not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre)]">
     <xsl:comment>Divs should create a p if nothing above them has and nothing below them will</xsl:comment>
     <w:p>
+      <xsl:comment>div not ancestor</xsl:comment>
       <xsl:call-template name="text-alignment" />
       <xsl:apply-templates />
     </w:p>
@@ -92,25 +102,54 @@
     <xsl:apply-templates />
   </xsl:template>
 
-  <!-- TODO: make this prettier. Headings shouldn't enter in template from L51 -->
-  <xsl:template match="body/h1|body/h2|body/h3|body/h4|body/h5|body/h6|h1|h2|h3|h4|h5|h6">
-    <xsl:variable name="length" select="string-length(name(.))"/>
+  <xsl:template match="center[not(ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre)]">
+    <xsl:comment>Center should create a p if nothing above them has and nothing below them will</xsl:comment>
     <w:p>
+      <xsl:comment>center not ancestor</xsl:comment>
       <w:pPr>
-        <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
+        <w:jc w:val="center"/>
       </w:pPr>
-      <w:r>
-        <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
-      </w:r>
-    </w:p>
-  </xsl:template>
-
-  <xsl:template match="p[not(ancestor::li|parent::main)]">
-    <w:p>
-      <xsl:call-template name="text-alignment" />
       <xsl:apply-templates />
     </w:p>
   </xsl:template>
+
+    <xsl:template match="center">
+      <xsl:apply-templates />
+    </xsl:template>
+
+
+  <!-- TODO: make this prettier. Headings shouldn't enter in template from L51 -->
+  <xsl:template match="body/h1|body/h2|body/h3|body/h4|body/h5|body/h6|h1|h2|h3|h4|h5|h6">
+    <xsl:if test="not(ancestor::tr)">
+      <xsl:variable name="length" select="string-length(name(.))"/>
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
+          <xsl:if test="ancestor::center">
+            <w:jc w:val="center"/>
+          </xsl:if>
+          <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
+            <w:highlight w:val="yellow" />
+          </xsl:if>
+        </w:pPr>
+        <!-- <w:r>
+          <xsl:comment>body headers</xsl:comment>
+          <w:t xml:space="preserve"><xsl:value-of select="substring(name(.),$length)"/> <xsl:value-of select="$length"/> <xsl:value-of select="."/></w:t>
+        </w:r> -->
+        <xsl:apply-templates />
+      </w:p>
+    </xsl:if>
+  </xsl:template>
+
+  <!--
+  // overridden in h2o export
+  <xsl:template match="p[not(ancestor::li)]">
+    <w:p>
+      <xsl:comment>p not ancestor</xsl:comment>
+      <xsl:call-template name="text-alignment" />
+      <xsl:apply-templates />
+    </w:p>
+  </xsl:template> -->
 
   <xsl:template match="ol|ul">
     <xsl:param name="global_level" select="count(preceding::ol[not(ancestor::ol or ancestor::ul)]) + count(preceding::ul[not(ancestor::ol or ancestor::ul)]) + 1"/>
@@ -119,7 +158,7 @@
     </xsl:apply-templates>
   </xsl:template>
 
-  <xsl:template name="listItem" match="li">
+  <xsl:template name="listItem" match="li|ul[parent::ul]|text()[parent::ul]|span[parent::ul]">
     <xsl:param name="global_level" />
     <xsl:param name="preceding-siblings" select="0"/>
     <xsl:for-each select="node()">
@@ -203,6 +242,7 @@
         The div template will not create a w:p because the div contains a h2. Therefore we need to wrap the inline elements span|a|small in a p here.
       </xsl:comment>
     <w:p>
+      <xsl:comment>span not ancestor</xsl:comment>
       <xsl:choose>
         <xsl:when test="self::a[starts-with(@href, 'http://') or starts-with(@href, 'https://')]">
           <xsl:call-template name="link" />
@@ -214,7 +254,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="text()[not(parent::li) and not(parent::td) and not(parent::pre) and (preceding-sibling::h1 or preceding-sibling::h2 or preceding-sibling::h3 or preceding-sibling::h4 or preceding-sibling::h5 or preceding-sibling::h6 or preceding-sibling::table or preceding-sibling::p or preceding-sibling::ol or preceding-sibling::ul or preceding-sibling::div or following-sibling::h1 or following-sibling::h2 or following-sibling::h3 or following-sibling::h4 or following-sibling::h5 or following-sibling::h6 or following-sibling::table or following-sibling::p or following-sibling::ol or following-sibling::ul or following-sibling::div)]">
+  <xsl:template match="text()[not(parent::ul) and not(parent::li) and not(parent::td) and not(parent::pre) and (preceding-sibling::h1 or preceding-sibling::h2 or preceding-sibling::h3 or preceding-sibling::h4 or preceding-sibling::h5 or preceding-sibling::h6 or preceding-sibling::table or preceding-sibling::p or preceding-sibling::ol or preceding-sibling::ul or preceding-sibling::div or following-sibling::h1 or following-sibling::h2 or following-sibling::h3 or following-sibling::h4 or following-sibling::h5 or following-sibling::h6 or following-sibling::table or following-sibling::p or following-sibling::ol or following-sibling::ul or following-sibling::div)]">
     <xsl:comment>
         In the following situation:
 
@@ -227,7 +267,8 @@
       </xsl:comment>
     <w:p>
       <w:r>
-        <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
+        <xsl:call-template name="run-style" />
+        <w:t xml:space="preserve">text not parent and h2 - <xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
   </xsl:template>
@@ -277,42 +318,47 @@
 
   <xsl:template match="details" />
 
-  <xsl:template match="text()">
+
+
+  <xsl:template match="text()[not(parent::tr) and not(parent::ul)]">
     <xsl:if test="string-length(.) > 0">
       <w:r>
-        <xsl:if test="ancestor::i">
-          <w:rPr>
+        <w:rPr>
+          <xsl:if test="ancestor::i">
             <w:i />
-          </w:rPr>
-        </xsl:if>
-        <xsl:if test="ancestor::b">
-          <w:rPr>
+          </xsl:if>
+          <xsl:if test="ancestor::b">
             <w:b />
-          </w:rPr>
-        </xsl:if>
-        <xsl:if test="ancestor::u">
-          <w:rPr>
+          </xsl:if>
+          <xsl:if test="ancestor::u">
             <w:u w:val="single"/>
-          </w:rPr>
-        </xsl:if>
-        <xsl:if test="ancestor::s">
-          <w:rPr>
+          </xsl:if>
+          <xsl:if test="ancestor::s">
             <w:strike w:val="true"/>
-          </w:rPr>
-        </xsl:if>
-        <xsl:if test="ancestor::sub">
-          <w:rPr>
+          </xsl:if>
+          <xsl:if test="ancestor::sub">
             <w:vertAlign w:val="subscript"/>
-          </w:rPr>
-        </xsl:if>
-        <xsl:if test="ancestor::sup">
-          <w:rPr>
+          </xsl:if>
+          <xsl:if test="ancestor::sup">
             <w:vertAlign w:val="superscript"/>
-          </w:rPr>
-        </xsl:if>
+          </xsl:if>
+          <xsl:if test="ancestor::span[contains(@class, 'annotate highlighted')]">
+            <w:highlight w:val="yellow" />
+          </xsl:if>
+        </w:rPr>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="text()[parent::center[not(not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre))]]">
+    <w:p>
+      <xsl:comment>center text node</xsl:comment>
+      <w:pPr>
+        <w:jc w:val="center"/>
+      </w:pPr>
+      <xsl:value-of select="." />
+    </w:p>
   </xsl:template>
 
   <xsl:template match="*">
@@ -328,12 +374,21 @@
         <xsl:when test="contains(concat(' ', $class, ' '), ' right ') or contains(translate(normalize-space($style),' ',''), 'text-align:right')">right</xsl:when>
         <xsl:when test="contains(concat(' ', $class, ' '), ' left ') or contains(translate(normalize-space($style),' ',''), 'text-align:left')">left</xsl:when>
         <xsl:when test="contains(concat(' ', $class, ' '), ' justify ') or contains(translate(normalize-space($style),' ',''), 'text-align:justify')">both</xsl:when>
+        <xsl:when test="ancestor::center">center</xsl:when>
         <xsl:otherwise></xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:if test="string-length(normalize-space($alignment)) > 0">
       <w:pPr>
         <w:jc w:val="{$alignment}"/>
+      </w:pPr>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="run-style">
+    <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
+      <w:pPr>
+        <w:highlight w:val="yellow" />
       </w:pPr>
     </xsl:if>
   </xsl:template>
