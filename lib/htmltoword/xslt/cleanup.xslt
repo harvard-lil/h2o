@@ -21,7 +21,7 @@
   <xsl:template match="basefont"/>
   <xsl:template match="canvas"/>
   <xsl:template match="command"/>
-  <xsl:template match="font"/>
+  <!-- <xsl:template match="font"/> -->
   <xsl:template match="iframe"/>
   <xsl:template match="img"/>
   <xsl:template match="isindex"/>
@@ -42,11 +42,14 @@
   <xsl:template match="bdo"><xsl:apply-templates/></xsl:template>
   <xsl:template match="big"><xsl:apply-templates/></xsl:template>
   <xsl:template match="code"><xsl:apply-templates/></xsl:template>
+  <xsl:template match="font"><xsl:apply-templates/></xsl:template>
   <xsl:template match="kbd"><xsl:apply-templates/></xsl:template>
   <xsl:template match="samp"><xsl:apply-templates/></xsl:template>
   <xsl:template match="small"><xsl:apply-templates/></xsl:template>
   <xsl:template match="tt"><xsl:apply-templates/></xsl:template>
   <xsl:template match="var"><xsl:apply-templates/></xsl:template>
+  <xsl:template match="dt"><xsl:apply-templates/></xsl:template>
+  <xsl:template match="dd"><xsl:apply-templates/></xsl:template>
 
   <!-- Inline elements transformations -->
   <xsl:template match="cite"><i><xsl:apply-templates/></i></xsl:template>
@@ -62,6 +65,8 @@
   <!-- Block elements transformations -->
   <xsl:template match="section"><div class="{@class}" style="{@style}"><xsl:apply-templates/></div></xsl:template>
   <xsl:template match="article"><div  class="{@class}" style="{@style}"><xsl:apply-templates/></div></xsl:template>
+  <xsl:template match="dl"><div  class="{@class}" style="{@style}"><xsl:apply-templates/></div></xsl:template>
+  <xsl:template match="address"><div  class="{@class}" style="{@style}"><xsl:apply-templates/></div></xsl:template>
 
   <xsl:template match="@*|node()">
     <xsl:copy>

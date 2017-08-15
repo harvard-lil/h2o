@@ -5,7 +5,8 @@
                 exclude-result-prefixes="ext"
                 extension-element-prefixes="func">
 
-  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate elide ')]">
+
+  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elide ') and not(parent::table)]">
     <w:r>
       <w:rPr>
         <w:rStyle w:val="Elision"/>
@@ -14,18 +15,17 @@
     </w:r>
   </xsl:template>
 
-  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
 
-  <xsl:template match="//span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
+  <!-- <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate highlighted ') and not(ancestor::*[@data-elided-annotation]) and not(descendant::h1|descendant::h2|descendant::h3|descendant::h4|descendant::h5|descendant::h6)]">
     <w:r>
       <w:rPr>
         <w:highlight w:val="yellow" />
       </w:rPr>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
     </w:r>
-  </xsl:template>
+  </xsl:template> -->
 
-  <xsl:template match="body/main/p">
+  <xsl:template match="p[not(ancestor::li|ancestor::p|ancestor::tr|ancestor::center[not(ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not(descendant::pre)]) and not(@data-elided-annotation)]">
     <w:p>
       <w:pPr>
         <w:pStyle w:val="CaseText"/>
@@ -33,6 +33,8 @@
       <xsl:apply-templates />
     </w:p>
   </xsl:template>
+
+  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
 
   <xsl:template match="body/header">
     <xsl:param name="class" select="@class" />
@@ -46,28 +48,16 @@
     </w:p>
   </xsl:template>
 
-  <!-- If the center tag contains only text nodes, make it a p -->
-  <xsl:template match="center[text() and not(*[not(self::text())])]">
+    <xsl:template match="blockquote">
+
       <xsl:variable name="preprocess">
-        <p class="center">
+        <p class="unsupported-tag">
           <xsl:value-of select="." />
         </p>
       </xsl:variable>
 
-      <xsl:apply-templates
-        select="ext:node-set($preprocess)/*"/>
-  </xsl:template>
-
-  <!-- otherwise make it a div -->
-  <xsl:template match="center[*[not(self::text())]]">
-      <xsl:variable name="preprocess">
-        <div class="center">
-          <xsl:value-of select="." />
-        </div>
-      </xsl:variable>
-
-      <xsl:apply-templates
-        select="ext:node-set($preprocess)/*"/>
-  </xsl:template>
+        <xsl:apply-templates
+          select="ext:node-set($preprocess)/*"/>
+    </xsl:template>
 
 </xsl:stylesheet>
