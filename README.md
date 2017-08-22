@@ -31,12 +31,20 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 1. `gem install bundler && bundle install`
 2. (If Bundler complains about missing library dependencies, install them and `bundle install` until it succeeds.)
 
+### Install npm packages
+
+1. `npm install`
+
 ### Set up the Postgres database
 
 1. Install postgres (if missing) with e.g. `brew install postgres` for OS X.
+2. Start solr with `rails sunspot:solr:start`
 3. Create and initialize the database with `rake db:setup` (or `rake db:reset`)
+4. Stop solr with `rails sunspot:solr:stop`
 
-> TODO: Populate `seeds.rb`. Without certain seed data the app might still not be fully working.
+*Note:* If `rake db:setup` fails with a message like `Sunspot::Solr::Server::NotRunningError`, try
+`rails sunspot:solr:run` to see why solr failed to start. You may need to update your java installation
+with `brew cask install java`
 
 ### Run Guard
 
