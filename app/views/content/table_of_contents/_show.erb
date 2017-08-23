@@ -3,10 +3,11 @@
 <% contents.each do |content| %>
 
   <%# render separate opening and closing tags around sections %>
-  <% if content.ordinals.length > current_depth %>
+  <% (1..content.ordinals.length - current_depth).each do %>
     <div class="section-wrapper">
       <div class="section-contents">
-  <% elsif content.ordinals.length < current_depth %>
+  <% end %>
+  <% (1..current_depth - content.ordinals.length).each do %>
       </div>
     </div>
   <% end %>
