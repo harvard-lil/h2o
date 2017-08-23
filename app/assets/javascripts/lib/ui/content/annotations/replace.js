@@ -27,6 +27,7 @@ delegate(document, '.annotate.replacement .text', 'input', e => {
 });
 
 function setFocus(el) {
+    if (document.activeElement === el) { return; }
     var range = document.createRange();
     var sel = window.getSelection();
     range.setStart(el, 0);
