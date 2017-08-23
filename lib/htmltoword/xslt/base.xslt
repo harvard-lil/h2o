@@ -44,7 +44,7 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="body/*[not(*) and not(self::toc-ref)]">
+  <xsl:template match="body/*[not(*)]">
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
@@ -361,7 +361,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="*">
+  <xsl:template match="*[not(@data-elided-annotation or contains(concat(' ', @class, ' '), ' annotate replaced ') or contains(concat(' ', @class, ' '), ' annotate elided '))]">
     <xsl:apply-templates/>
   </xsl:template>
 

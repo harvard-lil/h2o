@@ -154,7 +154,8 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
+    <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
+    <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate replaced ')]"></xsl:template>
 
   <xsl:template match="body/header">
     <xsl:param name="class" select="@class" />
