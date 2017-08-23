@@ -361,7 +361,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="*[not(@data-elided-annotation or contains(concat(' ', @class, ' '), ' annotate replaced ') or contains(concat(' ', @class, ' '), ' annotate elided '))]">
+  <xsl:template match="*">
     <xsl:apply-templates/>
   </xsl:template>
 
