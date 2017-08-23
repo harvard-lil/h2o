@@ -1,16 +1,22 @@
 %header.CasebookTitle= @casebook.title
 %header.CasebookSubtitle= @casebook.subtitle
-- @casebook.contents.each do |content|
+
+%table-of-contents
+  - @casebook.contents.each_with_index do |content, idx|
+    %toc-entry{data: {depth: content.ordinals.length, idx: idx + 1}}
+      = content.ordinal_string
+      = content.title
+- @casebook.contents.each_with_index do |content, idx|
   - if content.is_a? Content::Section
-    %header.SectionNumber= content.ordinal_string
-    %header.SectionTitle= content.title
+    %header.SectionNumber{data: {'toc-idx': idx + 1}}=content.ordinal_string
+    %header.SectionTitle=content.title
     - if content.subtitle.present?
-      %header.SectionSubtitle= content.subtitle
+      %header.SectionSubtitle=content.subtitle
     - if content.headnote.present?
       %header.SectionHeadnote= content.headnote
   - elsif content.is_a? Content::Resource
-    %header.ResourceNumber= content.ordinal_string
-    %header.ResourceTitle= content.title
+    %header.ResourceNumber{data: {'toc-idx': idx + 1}}=content.ordinal_string
+    %header.ResourceTitle=content.title
     - if content.subtitle.present?
       %header.ResourceSubtitle= content.subtitle
     - if content.headnote.present?
