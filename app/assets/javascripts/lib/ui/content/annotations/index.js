@@ -68,7 +68,7 @@ document.addEventListener('selectionchange', e => {
   let selection = document.getSelection();
 
   let anchorElement = selection.anchorNode && selection.anchorNode.nodeType === document.TEXT_NODE ? selection.anchorNode.parentElement : selection.anchorNode;
-  if (!anchorElement || anchorElement.closest('form.create-form')) { return; }
+  if (!anchorElement || anchorElement.closest('form.create-form')  || anchorElement.closest('#annotator')) { return; }
 
   if (selection.isCollapsed) {
     if (annotator.handle) {
