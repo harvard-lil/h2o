@@ -1,5 +1,6 @@
 body {
   margin: 0.5in;
+  font-family: Garamond, "Times New Roman", serif;
 }
 
 .annotation-handle,
@@ -21,4 +22,26 @@ body {
 
   color: #777;
   text-align: right;
+}
+
+table-of-contents, toc-entry {
+  display: block;
+}
+
+header.CasebookTitle {
+  font-size: 30px;
+}
+header.CasebookSubtitle {
+  font-size: 26px;
+}
+header.SectionNumber, header.ResourceNumber {
+  font-size: 20px;
+}
+header.SectionTitle, header.ResourceTitle {
+  font-size: 26px;
+}
+
+p {
+  font-size: 14px;
+  line-height: 16px;
 }
