@@ -49,6 +49,12 @@ document.addEventListener('turbolinks:render', () => {
   Turbolinks.scroll = null;
 });
 
+document.addEventListener('turbolinks:click', (event) => {
+  if (event.target.getAttribute('href').charAt(0) === '#') {
+    return event.preventDefault()
+  }
+});
+
 // Monkey patch Turbolinks to render 403, 404 & 500 normally
 // See https://github.com/turbolinks/turbolinks/issues/179
 window.Turbolinks.HttpRequest.prototype.requestLoaded = function() {
