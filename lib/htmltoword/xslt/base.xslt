@@ -44,7 +44,7 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="body/*[not(*)]">
+  <xsl:template match="body/*[not(*) and not(self::toc-ref)]">
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
