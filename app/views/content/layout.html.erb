@@ -64,7 +64,7 @@
     <div class="listing empty">
     <% if @editable %>
       <% if @section.present? %>
-        <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_section_path(@casebook, parent: @section.ordinal_string), class: 'add-resource') %>
+        <%= t 'content.edit.empty-section.html', add_resource_button: link_to(t('content.edit.empty-section.add-button'), new_section_path(@casebook, parent: @section.id), class: 'add-resource') %>
       <% else %>
         <%= t 'content.edit.empty-casebook.html', add_section_button: button_to(t('content.edit.empty-casebook.add-button'), sections_path(@casebook), method: :post, class: 'add-resource') %>
       <% end %>
