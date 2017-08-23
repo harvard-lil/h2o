@@ -1,4 +1,4 @@
-@import '../export.css';
+//= require export.css
 
 .annotate.highlight, .annotate.highlighted {
 }
