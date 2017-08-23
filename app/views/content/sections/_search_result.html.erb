@@ -31,7 +31,7 @@
   </a>
   <div class="actions">
     <% if @section.present? %>
-      <%= button_to t('content.resource.add-to-section'), sections_path(@casebook), params: {resource_id: result.id, parent: @section.ordinal_string}, method: :post, class: 'action-add-resource' %>
+      <%= button_to t('content.resource.add-to-section'), sections_path(@casebook), params: {resource_id: result.id, parent: @section.id}, method: :post, class: 'action-add-resource' %>
     <% else %>
       <%= button_to t('content.resource.add-to-casebook'), sections_path(@casebook), params: {resource_id: result.id}, method: :post, class: 'action-add-resource' %>
     <% end %>
