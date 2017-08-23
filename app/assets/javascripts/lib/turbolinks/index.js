@@ -32,7 +32,10 @@ Turbolinks.Location.prototype.isHTML = function () {
 Turbolinks.scroll = {};
 
 Turbolinks.keepScrollPosition = function () {
-  Turbolinks.scroll['top'] = document.body.scrollTop;
+  Turbolinks.scroll = {
+    top: window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0,
+    left: window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0
+  }
 };
 
 delegate(document, '[data-turbolinks-scroll=false]', 'click', e => {
@@ -40,10 +43,10 @@ delegate(document, '[data-turbolinks-scroll=false]', 'click', e => {
 });
 
 document.addEventListener('turbolinks:render', () => {
-  if (Turbolinks.scroll['top']) {
-    document.body.scrollTop =Turbolinks.scroll['top'];
+  if (Turbolinks.scroll) {
+    window.scrollTo && window.scrollTo(Turbolinks.scroll.left, Turbolinks.scroll.top);
   }
-  Turbolinks.scroll = {};
+  Turbolinks.scroll = null;
 });
 
 // Monkey patch Turbolinks to render 403, 404 & 500 normally

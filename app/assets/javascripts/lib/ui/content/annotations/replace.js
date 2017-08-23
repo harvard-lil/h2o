@@ -10,6 +10,7 @@ delegate(document, '.annotate.replacement', 'click', e => {
   if (isEditable()) {
     editAnnotationHandle(e.target.previousElementSibling);
     stagePreviousContent(e.target.innerText);
+    setFocus(e.target.firstElementChild);
   } else {
     let annotationId = e.target.dataset.annotationId;
     let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
@@ -25,6 +26,12 @@ delegate(document, '.annotate.replacement .text', 'input', e => {
   stageChangeToAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
 });
 
-document.addEventListener('click', e => {
-  console.log(e.target);
-});
+function setFocus(el) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.setStart(el, 0);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    el.focus();
+}

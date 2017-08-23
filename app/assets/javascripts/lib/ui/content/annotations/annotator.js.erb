@@ -241,7 +241,7 @@ export class Annotator extends Component {
   updateAnnotation (annotationId, attrs) {
     Axios.patch(this.annotationPath(annotationId + '.json'), {
       annotation: attrs
-    })
+    }, { scroll: false })
     .then( _ => this.deactivate() );
   }
 
