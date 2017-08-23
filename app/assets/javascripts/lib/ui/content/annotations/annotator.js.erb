@@ -214,7 +214,7 @@ export class Annotator extends Component {
         end_offset: offsets.end.offset
       }
     }, { scroll: false })
-    .then( _ => window.getSelection().empty());
+    .then( _ => window.getSelection().removeAllRanges());
   }
 
   convertAnnotation (annotationId, type) {
@@ -223,7 +223,7 @@ export class Annotator extends Component {
         kind: type
       }
     }, { scroll: false })
-    .then( _ => window.getSelection().empty());
+    .then( _ => window.getSelection().removeAllRanges());
   }
 
   changeAnnotation (annotationId, attrs) {
@@ -247,7 +247,7 @@ export class Annotator extends Component {
 
   destroyAnnotation (annotationId) {
     rest_delete(this.annotationPath(annotationId), {}, { scroll: false })
-    .then( _ => window.getSelection().empty());
+    .then( _ => window.getSelection().removeAllRanges());
   }
 
   annotationsPath () {
