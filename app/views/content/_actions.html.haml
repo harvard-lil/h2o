@@ -12,7 +12,7 @@
 - else
   - if @casebook.owners.include?(current_user)
     - if @casebook.public
-      = link_to t('content.actions.edit'), edit_casebook_path(@casebook), class: 'action edit one-line'
+      = link_to t('content.actions.revise'), edit_casebook_path(@casebook), class: 'action edit one-line'
     - else
       - if action_name == 'details'
         - if @content.is_a? Content::Casebook
