@@ -148,11 +148,29 @@
   <xsl:template match="p[not(ancestor::li|ancestor::p|ancestor::tr|ancestor::center[not(ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not(descendant::pre)]) and not(@data-elided-annotation)]">
     <w:p>
       <w:pPr>
-        <w:pStyle w:val="CaseText"/>
+
+        <xsl:choose>
+        <xsl:when test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+          <w:pStyle w:val="CaseHeader"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <w:pStyle w:val="CaseText"/>
+        </xsl:otherwise>
+        </xsl:choose>
       </w:pPr>
       <xsl:apply-templates />
     </w:p>
   </xsl:template>
+
+  <!-- <xsl:template match="body/center[not(preceding-sibling::*[not(self::center | self::header)])]">
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaseHeader"/>
+      </w:pPr>
+      <w:r><w:t>CASE HEADER</w:t></w:r>
+      <xsl:apply-templates />
+    </w:p>
+  </xsl:template> -->
 
     <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
     <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate replaced ')]"></xsl:template>
