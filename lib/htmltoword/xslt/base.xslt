@@ -108,6 +108,9 @@
       <xsl:comment>center not ancestor</xsl:comment>
       <w:pPr>
         <w:jc w:val="center"/>
+        <xsl:if test="parent::body and not(preceding-sibling::*[not(self::center | self::header)])">
+          <w:pStyle w:val="CaseHeader"/>
+        </xsl:if>
       </w:pPr>
       <xsl:apply-templates />
     </w:p>
@@ -127,6 +130,9 @@
           <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
           <xsl:if test="ancestor::center">
             <w:jc w:val="center"/>
+            <xsl:if test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+              <w:pStyle w:val="CaseHeader"/>
+            </xsl:if>
           </xsl:if>
           <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
             <w:highlight w:val="yellow" />
@@ -381,6 +387,9 @@
     <xsl:if test="string-length(normalize-space($alignment)) > 0">
       <w:pPr>
         <w:jc w:val="{$alignment}"/>
+        <xsl:if test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+          <w:pStyle w:val="CaseHeader"/>
+        </xsl:if>
       </w:pPr>
     </xsl:if>
   </xsl:template>
