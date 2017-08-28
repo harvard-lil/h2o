@@ -17,6 +17,12 @@ class Content::CasebooksController < Content::NodeController
     render 'content/show'
   end
 
+  def edit
+    @casebook.update_attributes public: false
+    @content = @casebook
+    render 'content/edit_details'
+  end
+
   def clone
     @clone = current_user.casebooks.owned.where(copy_of: @casebook).first ||
       @casebook.clone(owner: current_user)
@@ -36,7 +42,6 @@ class Content::CasebooksController < Content::NodeController
 
   def export
     html = render_to_string layout: 'export'
-    # binding.pry
     html.gsub! /\\/, '\\\\\\'
     respond_to do |format|
       format.pdf {
