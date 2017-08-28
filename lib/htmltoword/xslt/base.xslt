@@ -351,6 +351,9 @@
           <xsl:if test="ancestor::span[contains(@class, 'annotate highlighted')]">
             <w:highlight w:val="yellow" />
           </xsl:if>
+          <xsl:if test="ancestor::span[contains(@class, 'annotate replacement')]">
+            <w:rStyle w:val="ReplacementText"/>
+          </xsl:if>
         </w:rPr>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
