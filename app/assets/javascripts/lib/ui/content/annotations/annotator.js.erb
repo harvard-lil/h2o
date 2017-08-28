@@ -67,12 +67,13 @@ export class Annotator extends Component {
       // <a class="annotator-action" data-annotate-action="convert" data-annotation-type="note">Add note</a>
     case 'elide':
       return html`
-        <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
+        <a class="annotator-action" data-annotate-action="destroy">Restore original</a>
         <a class="annotator-action" data-annotate-action="convert" data-annotation-type="replace">Replace text</a>
       `;
     case 'replace':
       return html`
-        <a class="annotator-action" data-annotate-action="destroy">Restore text</a>
+        <a class="annotator-action" data-annotate-action="reveal">Reveal text</a>
+        <a class="annotator-action" data-annotate-action="destroy">Restore original</a>
         <a class="annotator-action" data-annotate-action="convert" data-annotation-type="elide">Elide text</a>
       `;
     case 'link':
@@ -185,6 +186,9 @@ export class Annotator extends Component {
     case 'new':
       this.new(e.target.dataset.annotationType);
       return;
+    case 'reveal':
+      this.revealElidedText(this.handle.dataset.annotationId);
+      break;
     case 'save-changes':
       this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
       return;
@@ -195,6 +199,16 @@ export class Annotator extends Component {
       break;
     }
     this.deactivate();
+  }
+
+  revealElidedText(annotationId) {
+    let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
+    let replacement = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);
+
+    replacement.classList.toggle('revealed')
+    for (let el of elisions) {
+      el.classList.toggle('revealed');
+    }
   }
 
   submitAnnotationForm (e) {

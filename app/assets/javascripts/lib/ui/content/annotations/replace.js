@@ -11,7 +11,8 @@ delegate(document, '.annotate.replacement', 'click', e => {
     editAnnotationHandle(e.target.previousElementSibling);
     stagePreviousContent(e.target.innerText);
     setFocus(e.target.firstElementChild);
-  } else {
+  }
+  if (!isEditable() || e.target.classList.contains('revealed')) {
     let annotationId = e.target.dataset.annotationId;
     let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
 
