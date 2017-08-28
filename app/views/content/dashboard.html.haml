@@ -6,6 +6,8 @@
 %section.dashboard
   .content
     %h2.casebooks= t 'content.dashboard.headers.casebooks'
-    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.owned-casebooks'), content: @user.casebooks.owned, section: 'owned'}
-    = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.followed-casebooks'), content: @user.casebooks.followed, section: 'followed'}
+    - if @user == current_user
+      = render partial: 'content/dashboard/content_browser', locals: {header: t('content.dashboard.headers.owned-casebooks'), content: @user.casebooks.owned, section: 'owned'}
+    - else
+      = render partial: 'content/dashboard/content_browser', locals: {header: "#{@user.attribution}'s Casebooks", content: @user.casebooks.owned, section: 'owned'}
   -# -# %script{type: 'text/template'}= render partial: 'content/dashboard/content_browser'
