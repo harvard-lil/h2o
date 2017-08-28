@@ -19,21 +19,15 @@ h2.casebooks {
   @include sans-serif($light, 32px, 14px);
 }
 
+
+hr.owned {
+  height: 2px;
+  margin-bottom: 16px;
+  background-color: $light-blue;
+}
+
 .content-browser {
   clear: both;
-
-  hr {
-    height: 2px;
-    margin-bottom: 16px;
-
-    &.owned {
-      background-color: $light-blue;
-    }
-
-    &.followed {
-      background-color: $red;
-    }
-  }
 
   .content-page, .header-spacer {
     @include size(225px, 320px);
