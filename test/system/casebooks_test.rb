@@ -69,7 +69,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
       resource = content_nodes(:'public_casebook_section_1.1')
 
       visit layout_casebook_path casebook
-      click_button 'Edit Draft'
+      click_link 'Revise'
+      click_link 'Layout'
 
       assert_content 'This casebook is a draft'
       assert_content "1.1 #{resource.resource.short_name}"
