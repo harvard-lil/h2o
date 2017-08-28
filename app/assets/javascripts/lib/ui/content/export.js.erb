@@ -77,13 +77,14 @@ class ExportModal extends Component {
             <h4 class="modal-title"><%= t 'content.export-modal.title' %></h4>
           </div>
           <div class="modal-body">
-            <%= I18n.t 'content.export-modal.body' %>
-          </div>
-          <div class="modal-footer">
-            <label>
-              <input type="checkbox" name="include-annotations" checked />
+            <input type="hidden" name="include-annotations" value="yes" checked />
+            <% if false %>
+              <label>
+                <input type="checkbox" name="include-annotations" checked />
               <%= I18n.t 'content.export-modal.include-annotations' %>
-            </label>
+              </label>
+              <br />
+            <% end %>
             <label>
               <%= I18n.t 'content.export-modal.format' %>
               <select name="export-format">
@@ -92,6 +93,8 @@ class ExportModal extends Component {
                 <option value="html">HTML</option>
               </select>
             </label>
+          </div>
+          <div class="modal-footer">
             <%= link_to t('content.export-modal.export'), '#', class: 'modal-button export' %>
           </div>
         </div>
