@@ -1,8 +1,5 @@
 .content-browser
   %hr{:class => "#{section}"}
-  .header-spacer
-    %h3
-      = header
   - content.each do |casebook|
     - if casebook.public
       - version_type = 'public'
