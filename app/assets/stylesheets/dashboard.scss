@@ -35,7 +35,7 @@ h2.casebooks {
     }
   }
 
-  .content-page, .header-spacer, .create-button {
+  .content-page, .header-spacer {
     @include size(225px, 320px);
     float: left;
     margin-right: 10px;
@@ -83,23 +83,6 @@ h2.casebooks {
       }
       .state { color: $red; }
       .subtitle { color: $yellow; }
-    }
-  }
-  .create-button {
-    border: 1px dashed black;
-    text-align: center;
-    cursor: pointer;
-    .icon {
-      @include size(100%, 55px);
-      margin: 100px 0 10px;
-      background-image: asset-url('ui/casebook/create.png');
-      background-position: center;
-      background-size: contain;
-    }
-    .label {
-      @include sans-serif($medium, 14px, 16px);
-      color: black;
-      font-weight: bold;
     }
   }
   .header-spacer {
