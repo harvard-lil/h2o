@@ -28,6 +28,9 @@ hr.owned {
 
 .content-browser {
   clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 
   .content-page, .header-spacer {
     @include size(225px, 320px);
