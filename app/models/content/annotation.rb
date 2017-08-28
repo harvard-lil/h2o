@@ -50,7 +50,7 @@ class Content::Annotation < ApplicationRecord
     p_node.traverse do |node|
       next unless node.text?
 
-      if node.parent['class'].in? ['annotation-button', 'annotate note-icon']
+      if node.parent['class'].in? ['annotation-button', 'annotate note-icon', 'note-content', 'text']
         next
       end
 

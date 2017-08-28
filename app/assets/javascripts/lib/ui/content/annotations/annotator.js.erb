@@ -201,6 +201,8 @@ export class Annotator extends Component {
     let field = e.target.querySelector('[name=content]');
     this.saveAnnotation(e.target.dataset.annotationType, this.offsets, field.value);
     this.deactivate();
+    e.stopPropagation();
+    e.preventDefault();
   }
 
   saveAnnotation (type, offsets, content = null) {
@@ -338,8 +340,15 @@ function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       null,
       false
     );
+    let testAnnotatedText = (node) => {
+      for (let className of ['annotation-button', 'note-icon', 'note-content', 'text']) {
+        if (node.parentElement.classList.contains(className)) { return true; }
+      }
+      return false;
+    };
+
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (node.parentElement.classList.contains('annotation-button') || node.parentElement.classList.contains('note-icon')) { continue; }
+      if (testAnnotatedText(node)) { continue; }
       nodeOffset += node.length;
       // if (walked++ > 100) throw new Error;
     }
