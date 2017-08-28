@@ -1,0 +1,2 @@
+module Migrate
+end

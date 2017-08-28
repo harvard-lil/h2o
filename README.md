@@ -7,6 +7,7 @@
 1. [Live version](#live-version)
 2. [Development](#development)
 3. [Testing](#testing)
+3. [Migration](#migration)
 3. [Contributions](#contributions)
 3. [License](#license)
 
@@ -78,6 +79,26 @@ Guard will automatically run all static tests after booting Rails and  again aft
 Coverage will be generated automatically for all manually-run tests.
 
 > TODO: When coverage is a bit higher, add a git commit hook which runs the coverage report and fails if under some value.
+
+## Migration
+
+Legacy Playlists must be converted into Casebooks. To convert all un-migrated, use this rake task:
+
+`bin/rails h2o:migrate_playlists`
+
+Any Playlists that don't have a Casebook with a matching `created_at` date will be migrated.
+
+You can also migrate individual playlists from the rails console:
+
+```
+bin/rails c
+
+> Migrate::Playlist.find(52410).migrate
+=> #<Content::Casebook ... >
+
+> Migrate::Playlist.find([11494, 5456, 1496]).map &:migrate
+=> [#<Content::Casebook id: ...>, ...]
+```
 
 ## Contributions
 
