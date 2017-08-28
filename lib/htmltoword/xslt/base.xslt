@@ -102,15 +102,21 @@
     <xsl:apply-templates />
   </xsl:template>
 
-  <xsl:template match="center[not(ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre)]">
+  <xsl:template match="center[not(ancestor::blockquote|ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not (descendant::pre)]">
     <xsl:comment>Center should create a p if nothing above them has and nothing below them will</xsl:comment>
     <w:p>
       <xsl:comment>center not ancestor</xsl:comment>
       <w:pPr>
         <w:jc w:val="center"/>
-        <xsl:if test="parent::body and not(preceding-sibling::*[not(self::center | self::header)])">
-          <w:pStyle w:val="CaseHeader"/>
-        </xsl:if>
+
+        <xsl:choose>
+          <xsl:when test="parent::body and not(preceding-sibling::*[not(self::center | self::header)])">
+            <w:pStyle w:val="CaseHeader"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <w:pStyle w:val="CaseText"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </w:pPr>
       <xsl:apply-templates />
     </w:p>
