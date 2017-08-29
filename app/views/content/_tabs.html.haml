@@ -15,11 +15,6 @@
       %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @section.resources.first)}= t 'content.tabs.edit'
     - else
       %a{:class => "tab disabled #{active_tab == 'annotate' ? 'active' : ''}"}= t 'content.tabs.edit'
-  - else
-    - if @casebook.resources.any?
-      %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @casebook.resources.first)}= t 'content.tabs.edit'
-    - else
-      %a{:class => "tab disabled #{active_tab == 'annotate' ? 'active' : ''}"}= t 'content.tabs.edit'
 - else # published mode
   %a{:class => "tab #{active_tab == 'casebook' ? 'active' : ''}", :href => casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
