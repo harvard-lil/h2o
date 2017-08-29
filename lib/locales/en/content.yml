@@ -71,13 +71,9 @@ en:
       add-resource: Add Resource
     tabs:
       casebook: Casebook
-      contents: Contents
       annotate: Annotate
       edit: Edit
       read: Read
-      casebook-details: Casebook details
-      section-details: Section details
-      resource-details: Resource details
     search:
       placeholder: Find casebooks, cases, or other resources.
     show:
