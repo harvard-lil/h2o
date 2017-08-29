@@ -1,6 +1,6 @@
 - if action_name == 'show'
   - if @content.is_a?(Content::Casebook)
-    - active_tab = 'contents'
+    - active_tab = 'casebook'
   - else
     - active_tab = 'read'
 - else
@@ -21,13 +21,8 @@
     - else
       %a{:class => "tab disabled #{active_tab == 'annotate' ? 'active' : ''}"}= t 'content.tabs.edit'
 - else # published mode
-  %a{:class => "tab #{active_tab == 'contents' ? 'active' : ''}", :href => casebook_path(@casebook)}= t 'content.tabs.casebook'
+  %a{:class => "tab #{active_tab == 'casebook' ? 'active' : ''}", :href => casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
     %a{:class => "tab #{active_tab == 'read' ? 'active' : ''}", :href => resource_path(@casebook, @resource)}= t 'content.tabs.read'
   - elsif @section.present?
     %a{:class => "tab disabled #{active_tab == 'read' ? 'active' : ''}"}= t 'content.tabs.read'
-  - else
-    - if @casebook.resources.any?
-      %a{:class => "tab #{active_tab == 'read' ? 'active' : ''}", :href => resource_path(@casebook, @casebook.resources.first)}= t 'content.tabs.read'
-    - else
-      %a{:class => "tab disabled #{active_tab == 'read' ? 'active' : ''}"}= t 'content.tabs.read'
