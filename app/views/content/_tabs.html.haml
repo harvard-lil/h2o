@@ -6,8 +6,8 @@
 - else
   - active_tab = action_name
 
-- if active_tab.in? %w{edit layout annotate}
-  %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.layout'
+- if active_tab.in? %w{edit layout annotate} ## if in draft mode
+  %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
     %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @resource)}= t 'content.tabs.annotate'
     %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => edit_resource_path(@casebook, @resource)}= t 'content.tabs.resource-details'
@@ -23,8 +23,7 @@
     - else
       %a{:class => "tab disabled #{active_tab == 'annotate' ? 'active' : ''}"}= t 'content.tabs.edit'
     %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => edit_casebook_path(@casebook)}= t 'content.tabs.casebook-details'
-
-- else
+- else ## if it's contents or read? if published casebook
   %a{:class => "tab #{active_tab == 'contents' ? 'active' : ''}", :href => casebook_path(@casebook)}= t 'content.tabs.contents'
   - if @resource.present?
     %a{:class => "tab #{active_tab == 'read' ? 'active' : ''}", :href => resource_path(@casebook, @resource)}= t 'content.tabs.read'
