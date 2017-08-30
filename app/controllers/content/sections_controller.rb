@@ -15,7 +15,7 @@ class Content::SectionsController < Content::NodeController
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: text
     elsif params[:link]
       url = UrlDomainFormatter.format(params[:link][:url])
-      link = Default.create(url: url) 
+      link = Default.create(url: url)
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: link
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
