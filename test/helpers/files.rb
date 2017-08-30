@@ -11,3 +11,10 @@ module H2o::Test::Helpers::Files
     Rails.root.join( 'test/files/uploads', filename)
   end
 end
+
+# deterministic Word exports
+class Zip::DOSTime
+  def self.now
+    new '2017'
+  end
+end

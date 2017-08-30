@@ -12,8 +12,8 @@ end
 # require 'minitest/rails/capybara'
 # require 'capybara/poltergeist'
 
-
 ENV["RAILS_ENV"] = "test"
+
 require File.expand_path("../../config/environment", __FILE__)
 require 'rails/test_help'
 require 'wrong/adapters/minitest'
