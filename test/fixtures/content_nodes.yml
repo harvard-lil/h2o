@@ -36,6 +36,42 @@ public_casebook_section_2:
     This is the second chapter of the casebook.
   ordinals: [2]
 
+
+draft_casebook:
+  title: Draft Casebook 1
+  public: false
+  updated_at: <%= DateTime.now %>
+
+draft_casebook_section_1:
+  casebook: draft_casebook
+  title: Section One
+  headnote: >
+    This is the first chapter of the casebook.
+  ordinals: [1]
+
+draft_casebook_section_1.1:
+  casebook: draft_casebook
+  headnote: >
+    This is the first resource in the casebook.
+  resource: public_case_1
+  resource_type: Case
+  ordinals: [1,1]
+
+draft_casebook_section_1.2:
+  casebook: draft_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1,2]
+
+draft_casebook_section_2:
+  casebook: draft_casebook
+  title: Section Two
+  headnote: >
+    This is the second chapter of the casebook.
+  ordinals: [2]
+
 private_casebook:
   title: Private Casebook 1
   public: false

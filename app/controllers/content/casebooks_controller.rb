@@ -6,8 +6,7 @@ class Content::CasebooksController < Content::NodeController
   before_action :require_user, only: [:clone]
 
   def new
-    @casebook = current_user.casebooks.owned.unmodified.first ||
-      Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
+    @casebook = Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
     logger.debug @casebook.errors.inspect
     redirect_to edit_casebook_path @casebook
   end
