@@ -4,8 +4,8 @@ class CaseImportSystemTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
 
   scenario 'importing from dropbox', js: true do
-    skip
-    
+    skip 'Dropbox import is disabled.'
+
     # TODO: stub dropbox api?
     page.driver.browser.url_whitelist = %w(://127.0.0.1:* https://www.dropbox.com https://cfl.dropboxstatic.com)
 
