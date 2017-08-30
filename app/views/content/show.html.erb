@@ -96,7 +96,7 @@
     <% end %>
   <% elsif @content.respond_to? :resource %>
     <section class="resource">
-      <%= render partial: 'content/resources/_embed', locals: {resource: @content, editable: false} %>
+      <%= render partial: 'content/resources/embed', locals: {resource: @content, editable: false} %>
     </section>
   <% end %>
 </section>
