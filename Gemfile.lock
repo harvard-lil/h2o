@@ -24,17 +24,6 @@ GIT
       orm_adapter (~> 0.5.0)
 
 GIT
-  remote: https://github.com/harvard-lil/htmltoword.git
-  revision: 7e48af69214591e00a2d4b8383ff94ff9b6b3343
-  ref: 7e48af6
-  branch: deterministic
-  specs:
-    htmltoword (0.6.0)
-      actionpack
-      nokogiri
-      rubyzip (>= 1.0)
-
-GIT
   remote: https://github.com/mbleigh/acts-as-taggable-on.git
   revision: 9bb57384398cd3e198c893b0345c7b26e3b5ad5e
   ref: 9bb5738
@@ -246,9 +235,11 @@ GEM
       tilt
     hashdiff (0.3.7)
     highline (1.7.8)
-    http-cookie (1.0.3)
-      domain_name (~> 0.5)
-    httparty (0.15.6)
+    htmltoword (0.5.1)
+      actionpack
+      nokogiri
+      rubyzip (>= 1.0)
+    httparty (0.15.5)
       multi_xml (>= 0.5.2)
     humanize (1.4.0)
     i18n (0.9.0)
@@ -556,7 +547,7 @@ DEPENDENCIES
   guard-sunspot!
   guard-yield
   hamlit
-  htmltoword!
+  htmltoword
   httparty
   humanize
   jbuilder (~> 2.6.3)
