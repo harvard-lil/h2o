@@ -46,14 +46,12 @@ class UserSystemTest < ApplicationSystemTestCase
       assert_current_path root_path
     end
     scenario 'browsing a user with content', solr: true, js: true do
-      skip 'No user page'
-      visit user_path users(:case_admin)
+      public_casebook = content_nodes(:public_casebook)
+      private_casebook = content_nodes(:private_casebook)
+      visit user_path public_casebook.owners.first
 
-      within '#advanced-search-content' do
-        click_link 'Case'
-      end
-      assert_content 'District Case 1'
-      assert_no_content 'Private Case 1'
+      assert_content public_casebook.title
+      assert_no_content private_casebook.title
     end
   end
 
@@ -131,57 +129,42 @@ class UserSystemTest < ApplicationSystemTestCase
         assert_content 'Password successfully updated'
       end
 
-      scenario 'browsing workshop content', js: true, solr: true do
-        skip 'user page wip'
-        sign_in user = users(:case_admin)
+      scenario 'browsing owned casebooks' do
+        private_casebook = content_nodes(:private_casebook)
+        sign_in user = private_casebook.owners.first
         visit user_path(user)
 
-        assert_content 'My Workshop'
-        assert_content cases(:public_case_1).name
-
-        within '#bookshelf_panel .pagination' do
-          click_link '6'
-        end
-        assert_content defaults(:admin_link).name
+        assert_content private_casebook.title
       end
     end
 
     describe 'updating account' do
       before do
-        skip 'user page WIP'
-        user = users(:case_admin)
-        sign_in(user)
+        user = users(:verified_professor)
+        @password = sign_in(user)
         visit user_path user
-        click_link 'Edit Profile'
+        find('a.user-link', text: 'Edit profile').click
       end
 
-      scenario 'changing email address', js: true  do
+      scenario 'changing email address'  do
         fill_in 'Email address', with: 'new_mail@law.harvard.edu'
-        click_button 'Submit'
+        click_button 'Save changes'
       end
 
-      scenario 'changing password', js: true  do
-        fill_in 'Change password', with: 'newestpassword'
+      scenario 'changing password'  do
+        fill_in 'Current password', with: @password
+        fill_in 'Password', with: 'newestpassword'
         fill_in 'Confirm password', with: 'newestpassword'
-        click_button 'Submit'
+        click_button 'Change password'
 
-        assert_content 'Your account has been updated.'
+        assert_content 'Profile updated.'
       end
 
-      scenario 'changing profile information', js: true  do
-        fill_in 'Name', with: 'New name'
-        fill_in 'Title', with: 'New title'
+      scenario 'changing profile information'  do
+        fill_in 'Display name', with: 'New name'
         fill_in 'Affiliation', with: 'New affiliation'
-        click_button 'Submit'
+        click_button 'Save changes'
       end
-    end
-  end
-  describe 'as an administrator' do
-    scenario 'verifying a new user account' do
-      # done manually
-    end
-    scenario 'rejecting a new user account' do
-      #done manually
     end
   end
 end
