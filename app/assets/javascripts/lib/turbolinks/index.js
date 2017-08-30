@@ -14,6 +14,7 @@ Turbolinks.SnapshotRenderer.prototype.assignNewBody = function () {
 document.addEventListener('submit', e => {
   let form = e.target;
   if (form.getAttribute('data-turbolinks-disable')) return;
+  if (window.disableTurbolinks) return;
   e.preventDefault();
   if (form.method === 'post') {
     post(form.action, new FormData(form));

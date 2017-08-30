@@ -28,10 +28,12 @@ module H2o::Test::Helpers::Capybara
     out_path
   end
   def select_text text
-    node = page.execute_script <<-JS
+    page.execute_script <<-JS
         var range = rangy.createRange();
         range.findText('#{escape_javascript text}');
         rangy.getSelection().addRange(range);
+        var event = new Event('selectionchange');
+        document.dispatchEvent(event);
         range.startContainer.parentElement.className += ' selected-container';
     JS
     find('.selected-container').trigger :mouseup

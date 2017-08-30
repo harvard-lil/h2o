@@ -26,17 +26,15 @@ class CasebookSystemTest < ApplicationSystemTestCase
       sign_in @user = users(:verified_professor)
     end
 
-    scenario 'creating a casebook', solr: true do
-      skip 
+    scenario 'creating a casebook', solr: true, js: true do
       visit root_path
 
-      ### clicking create casebook opens a modal instad of page navigation
-      find('.create-casebook').click
+      find('.create-casebook').trigger 'click'
       click_link 'From Scratch'
 
-      fill_in 'Title', with: 'Test casebook title'
-      fill_in 'Subtitle', with: 'Test casebook subtitle'
-      fill_in 'Headnote', with: 'Test casebook headnote'
+      fill_in 'content_casebook_title', with: 'Test casebook title'
+      fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
+      fill_in 'content_casebook_headnote', with: 'Test casebook headnote'
 
       click_button 'Save'
 
@@ -47,32 +45,30 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content 'This casebook has no content yet.'
       click_button 'Click here to add a section.'
 
-      fill_in 'Title', with: 'Test Section One'
+      fill_in 'content_section_title', with: 'Test Section One'
       click_button 'Save'
 
-      assert_content 'Test Section One'
+      visit layout_casebook_path Content::Casebook.last
+      click_link 'Test Section One'
       assert_content 'This section has no content yet.'
 
       click_link 'Click here to add a resource.'
 
-      assert_content 'Add a resource to this section'
-      assert_content 'Search for resource'
-
       case_to_find = cases(:public_case_1)
-      within '.resource-search' do
+      within '.case-search' do
         fill_in 'q', with: "\"#{case_to_find.short_name}\""
         click_button 'Search'
       end
 
-      assert_content case_to_find.title
-      click_button 'Add to section'
+      find('.results-entry .title').click
     end
 
     scenario 'reordering casebook contents', js: true do
-      casebook = content_nodes(:public_casebook)
-      resource = content_nodes(:'public_casebook_section_1.1')
+      casebook = content_nodes(:draft_casebook)
+      resource = content_nodes(:'draft_casebook_section_1.1')
 
       visit layout_casebook_path casebook
+      
       click_link 'Revise'
 
       assert_content 'This casebook is a draft'
@@ -83,28 +79,26 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'annotating a casebook', js: true do
-      skip
-      ## TODO this broke after .less -> .scss change
-      casebook = content_nodes(:public_casebook)
-      resource = content_nodes(:'public_casebook_section_1.2')
+      casebook = content_nodes(:draft_casebook)
+      resource = content_nodes(:'draft_casebook_section_1.2')
 
-      visit section_path casebook, resource
+      visit annotate_resource_path casebook, resource
 
       select_text 'content to highlight'
       sleep 0.1
-      find('a[data-annotate-action=highlight]').click
+      find('a[data-annotation-type=highlight]').click
 
       assert_selector('.annotate.highlighted')
       find('.annotate.highlighted').assert_text 'content to highlight'
 
       select_text 'content to elide'
       sleep 0.1
-      find('a[data-annotate-action=elide]').click
+      find('a[data-annotation-type=elide]').click
 
       assert_no_content 'content to elide'
       assert_content 'elided: Annotate'
 
-      visit section_path casebook, resource
+      visit annotate_resource_path casebook, resource
 
       find('.annotate.highlighted').assert_text 'content to highlight'
       assert_content 'elided: Annotate'
