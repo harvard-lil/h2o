@@ -52,6 +52,7 @@ module H2o::Test::Helpers::Capybara
       click_button 'Sign in'
       assert_content user.display_name
     end
+    password
   end
   def sign_out
       visit log_out_path
