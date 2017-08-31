@@ -5,6 +5,10 @@
                 exclude-result-prefixes="ext"
                 extension-element-prefixes="func">
 
+  <xsl:template match="resource-body">
+    <xsl:apply-templates />
+  </xsl:template>
+
   <xsl:template match="table-of-contents">
     <w:sdt>
       <w:sdtPr>
@@ -150,7 +154,7 @@
       <w:pPr>
 
         <xsl:choose>
-        <xsl:when test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+        <xsl:when test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
           <w:pStyle w:val="CaseHeader"/>
         </xsl:when>
         <xsl:otherwise>

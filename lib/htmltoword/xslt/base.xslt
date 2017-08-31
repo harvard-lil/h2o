@@ -44,7 +44,7 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="body/*[not(*)]">
+  <xsl:template match="resource-body/*[not(*)]">
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
@@ -55,7 +55,7 @@
   </xsl:template>
 
 
-  <xsl:template match="body/br">
+  <xsl:template match="resource-body/br">
     <w:p>
       <w:r></w:r>
     </w:p>
@@ -110,7 +110,7 @@
         <w:jc w:val="center"/>
 
         <xsl:choose>
-          <xsl:when test="parent::body and not(preceding-sibling::*[not(self::center | self::header)])">
+          <xsl:when test="parent::resource-body and not(preceding-sibling::*[not(self::center | self::header)])">
             <w:pStyle w:val="CaseHeader"/>
           </xsl:when>
           <xsl:otherwise>
@@ -128,7 +128,7 @@
 
 
   <!-- TODO: make this prettier. Headings shouldn't enter in template from L51 -->
-  <xsl:template match="body/h1|body/h2|body/h3|body/h4|body/h5|body/h6|h1|h2|h3|h4|h5|h6">
+  <xsl:template match="resource-body/h1|resource-body/h2|resource-body/h3|resource-body/h4|resource-body/h5|resource-body/h6|h1|h2|h3|h4|h5|h6">
     <xsl:if test="not(ancestor::tr)">
       <xsl:variable name="length" select="string-length(name(.))"/>
       <w:p>
@@ -136,7 +136,7 @@
           <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
           <xsl:if test="ancestor::center">
             <w:jc w:val="center"/>
-            <xsl:if test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+            <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
               <w:pStyle w:val="CaseHeader"/>
             </xsl:if>
           </xsl:if>
@@ -396,7 +396,7 @@
     <xsl:if test="string-length(normalize-space($alignment)) > 0">
       <w:pPr>
         <w:jc w:val="{$alignment}"/>
-        <xsl:if test="ancestor::center[parent::body] and not(ancestor::center[parent::body][preceding-sibling::*[not(self::center | self::header)]])">
+        <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
           <w:pStyle w:val="CaseHeader"/>
         </xsl:if>
       </w:pPr>
