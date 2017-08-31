@@ -52,7 +52,6 @@
 #
 
 class User < ApplicationRecord
-  include StandardModelExtensions
   include Rails.application.routes.url_helpers
   include CaptchaExtensions
   include DeletedItemExtensions

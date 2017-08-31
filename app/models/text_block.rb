@@ -24,9 +24,6 @@ class TextBlock < ApplicationRecord
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
   #   exception when destroying a text block in some scenarios.
-
-  include StandardModelExtensions
-  include AnnotatableExtensions
   include MetadataExtensions
   include Rails.application.routes.url_helpers
   include CaptchaExtensions

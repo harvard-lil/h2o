@@ -25,8 +25,6 @@
 #
 
 class Case < ApplicationRecord
-  include StandardModelExtensions
-  include AnnotatableExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {

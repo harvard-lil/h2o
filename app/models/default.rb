@@ -18,7 +18,6 @@
 #
 
 class Default < ApplicationRecord
-  include StandardModelExtensions
   include AncestryExtensions
   include MetadataExtensions
   include CaptchaExtensions
