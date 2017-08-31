@@ -20,7 +20,6 @@
 class Default < ApplicationRecord
   include AncestryExtensions
   include MetadataExtensions
-  include CaptchaExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
   include DeletedItemExtensions
