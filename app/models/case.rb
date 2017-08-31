@@ -112,9 +112,7 @@ class Case < ApplicationRecord
       false
     end
   end
-
-  after_create :assign_to_h2ocases
-
+  
   alias :to_s :display_name
 
   def indexable_case_citations
@@ -130,13 +128,6 @@ class Case < ApplicationRecord
   def clean_content
     self.content.encode.gsub!(/\p{Cc}/, "")
     # encode needed for cap api import
-  end
-
-  def approve!
-    self.update_attribute(:public, true)
-    if self.case_request.present?
-      Notifier.case_notify_approved(self, self.case_request).deliver
-    end
   end
 
   # def self.new_from_xml_file(file)
@@ -155,10 +146,6 @@ class Case < ApplicationRecord
   #   c
   # end
 
-  def version
-    1.0
-  end
-
   def to_partial_path
     "cases/court_case"
   end
@@ -168,10 +155,6 @@ class Case < ApplicationRecord
   end
 
   private
-
-  def assign_to_h2ocases
-    self.user = User.where(login: 'h2ocases').first
-  end
 
   def date_check
     if !self.decision_date.blank? && self.decision_date > Date.today
