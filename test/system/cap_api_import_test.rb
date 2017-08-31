@@ -4,6 +4,7 @@ require 'minitest/mock'
 class CapApiImportSystemTest < ApplicationSystemTestCase
   describe 'as a logged in user' do
     before do
+      SimpleCov.add_filter %w{app/services/case_downloader app/controllers/cap_api_imports_controller.rb}
       skip "CAP API is disabled."
       @case_name = 'Comer v. Titan Tool, Inc.'
       @case_citation = '875 F. Supp. 255'
