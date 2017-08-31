@@ -44,7 +44,7 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="resource-body/*[not(*)]">
+  <xsl:template match="resource-body/*[not(*) and not(self::blockquote)]">
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
