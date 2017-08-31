@@ -26,7 +26,6 @@ class TextBlock < ApplicationRecord
   #   exception when destroying a text block in some scenarios.
   include MetadataExtensions
   include Rails.application.routes.url_helpers
-  include CaptchaExtensions
   include VerifiedUserExtensions
   include DeletedItemExtensions
 

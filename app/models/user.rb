@@ -53,7 +53,6 @@
 
 class User < ApplicationRecord
   include Rails.application.routes.url_helpers
-  include CaptchaExtensions
   include DeletedItemExtensions
 
   # Obfuscate domains to avoid this file showing up on GitHub in web searches for said domains
