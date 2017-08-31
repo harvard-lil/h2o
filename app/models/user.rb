@@ -147,19 +147,6 @@ class User < ApplicationRecord
     string(:klass, stored: true) { 'User' }
   end
 
-  def user_responses
-    content = self.text_blocks.includes(:responses)
-    content.map(&:responses).flatten
-  end
-
-  # Deal with this later by replacing habtm with hm through
-  def users_roles
-    []
-  end
-  def users_institutions
-    []
-  end
-
   def allowed_email_domain
     # Rails.logger.warn "SKIPPING DOMAIN VALIDATION FOR test purposes"
     # return true
@@ -231,20 +218,6 @@ class User < ApplicationRecord
     self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
   end
 
-  def bookmarks
-    if self.bookmark_id
-      # PlaylistItem.unscoped.where(playlist_id: self.bookmark_id)
-    else
-      []
-    end
-  end
-
-  # def bookmarks_map
-  #   Rails.cache.fetch([self, "bookmarks_map"], :compress => H2O_CACHE_COMPRESSION) do
-  #     self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
-  #   end
-  # end
-
   def send_verification_request
     reset_perishable_token!
     Notifier.verification_request(self).deliver
@@ -258,20 +231,6 @@ class User < ApplicationRecord
   def deliver_password_reset_instructions!
     reset_perishable_token!
     Notifier.password_reset_instructions(self).deliver
-  end
-
-  def save_version?
-    (self.saved_changes.keys - self.non_versioned_columns).any?
-  end
-
-  def custom_label_method
-    "#{email_address} (#{simple_display})"
-  end
-
-  def preverified?
-    # We are no longer preverifying any users
-    return false
-    # email_address.ends_with?('.edu')
   end
 
   def set_password; nil; end
