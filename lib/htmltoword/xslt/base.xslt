@@ -129,28 +129,33 @@
 
   <!-- TODO: make this prettier. Headings shouldn't enter in template from L51 -->
   <xsl:template match="resource-body/h1|resource-body/h2|resource-body/h3|resource-body/h4|resource-body/h5|resource-body/h6|h1|h2|h3|h4|h5|h6">
-    <xsl:if test="not(ancestor::tr)">
-      <xsl:variable name="length" select="string-length(name(.))"/>
-      <w:p>
-        <w:pPr>
-          <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
-          <xsl:if test="ancestor::center">
-            <w:jc w:val="center"/>
-            <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
-              <w:pStyle w:val="CaseHeader"/>
+    <xsl:choose>
+      <xsl:when test="not(ancestor::tr|ancestor::blockquote)">
+        <xsl:variable name="length" select="string-length(name(.))"/>
+        <w:p>
+          <w:pPr>
+            <w:pStyle w:val="Heading{substring(name(.),$length)}"/>
+            <xsl:if test="ancestor::center">
+              <w:jc w:val="center"/>
+              <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
+                <w:pStyle w:val="CaseHeader"/>
+              </xsl:if>
             </xsl:if>
-          </xsl:if>
-          <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
-            <w:highlight w:val="yellow" />
-          </xsl:if>
-        </w:pPr>
-        <!-- <w:r>
-          <xsl:comment>body headers</xsl:comment>
-          <w:t xml:space="preserve"><xsl:value-of select="substring(name(.),$length)"/> <xsl:value-of select="$length"/> <xsl:value-of select="."/></w:t>
-        </w:r> -->
+            <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
+              <w:highlight w:val="yellow" />
+            </xsl:if>
+          </w:pPr>
+          <!-- <w:r>
+            <xsl:comment>body headers</xsl:comment>
+            <w:t xml:space="preserve"><xsl:value-of select="substring(name(.),$length)"/> <xsl:value-of select="$length"/> <xsl:value-of select="."/></w:t>
+          </w:r> -->
+          <xsl:apply-templates />
+        </w:p>
+      </xsl:when>
+      <xsl:otherwise test="not(ancestor::tr|ancestor::blockquote)">
         <xsl:apply-templates />
-      </w:p>
-    </xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!--
