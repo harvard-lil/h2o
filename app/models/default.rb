@@ -18,7 +18,6 @@
 #
 
 class Default < ApplicationRecord
-  include AncestryExtensions
   include MetadataExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
