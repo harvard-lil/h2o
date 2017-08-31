@@ -4,6 +4,7 @@ class CaseImportSystemTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
 
   scenario 'importing from dropbox', js: true do
+    SimpleCov.add_filter %w{lib/dropbox app/controllers/dropbox_sessions_controller.rb app/controllers/bulk_uploads_controller.rb app/jobs/bulk_upload_job.rb}
     skip 'Dropbox import is disabled.'
 
     # TODO: stub dropbox api?

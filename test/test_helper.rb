@@ -5,6 +5,7 @@ if !ENV['CAPYBARA_SKIP_JS']
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new [SimpleCov::Formatter::HTMLFormatter, Coveralls::SimpleCov::Formatter]
   SimpleCov.start 'rails' do
     add_filter 'app/secrets'
+    add_filter %w{app/models/migrate lib/migrate}
   end
 end
 
