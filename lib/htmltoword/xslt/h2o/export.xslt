@@ -199,7 +199,7 @@
     </w:p>
   </xsl:template>
 
-    <xsl:template match="blockquote">
+    <xsl:template match="blockquote[not(parent::blockquote)]">
       <w:p>
         <w:pPr>
           <w:pStyle w:val="BlockQuote"/>
