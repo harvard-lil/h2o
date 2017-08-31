@@ -8,37 +8,34 @@ class CaseSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'searching for a case', solr: true do
-      visit root_path
+      visit browse_path
       search_label = [*'XA'..'XZ'].sample
-      fill_in 'Keywords', with: "Case #{search_label}"
-      # click_link 'SEARCH' # TODO: This should not require JavaScript!
+      fill_in 'q', with: "Case #{search_label}"
       page.submit find('form.search')
 
-      assert_content "Search Results: Case #{search_label}"
-      assert_content "1 Case Total"
+      assert_content "Cases (1)"
+      click_link "Cases (1)"
 
-      click_link "Haystack Case (#{search_label})"
-      assert_content "This is haystack case labeled #{search_label}"
+      find('div.title', text: "Case #{search_label} in the Haystack").click
 
       # Can't find a private case!
       # TODO: You really should be able to find a private case that belongs to you.
       search_label = [*'YA'..'YZ'].sample
-      fill_in 'Keywords', with: "Case #{search_label}"
+      fill_in 'q', with: "Case #{search_label}"
       page.submit find('form.search')
 
-      assert_content "Search Results: Case #{search_label}"
-      assert_content "0 Results Total"
+      assert_content "Cases (0)"
 
       # Simulate a case edit
       search_label = [*'XA'..'XZ'].sample
-      cases(:"haystack_case_#{search_label}").update! short_name: "Updated Haystack Case (#{search_label})"
+      cases(:"haystack_case_#{search_label}").update! full_name: "Updated Haystack Case (#{search_label})"
       Sunspot.commit # TODO: Test this properly
 
-      fill_in 'Keywords', with: "Updated Haystack Case"
+      fill_in 'q', with: "Updated Haystack Case"
       page.submit find('form.search')
 
-      assert_content "Search Results: Updated Haystack Case"
-      assert_content "1 Case Total"
+      assert_content "Cases (1)"
+      click_link "Cases (1)"
       assert_content "Updated Haystack Case (#{search_label})"
     end
 
@@ -46,10 +43,8 @@ class CaseSystemTest < ApplicationSystemTestCase
       public_case = cases :public_case_1
       visit case_path(public_case)
 
-      assert_content public_case.short_name
-      assert_content public_case.author
+      assert_content public_case.full_name
       assert_content public_case.content
-      assert_content public_case.case_jurisdiction.name
 
       # annotations are visible
     end
