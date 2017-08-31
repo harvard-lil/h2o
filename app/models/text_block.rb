@@ -105,21 +105,4 @@ class TextBlock < ApplicationRecord
   def clean_content
     self.content.gsub!(/\p{Cc}/, "")
   end
-
-  def h2o_clone(new_user, params)
-    text_copy = self.dup
-    text_copy.karma = 0
-    text_copy.name = params[:name] if params.has_key?(:name)
-    text_copy.description = params[:description] if params.has_key?(:description)
-    text_copy.user = new_user
-    text_copy
-  end
-
-  def printable_content
-    doc = Nokogiri::HTML.fragment(self.content)
-    doc.css("p").add_class("Item-text")
-    doc.to_html
-  end
-
-
 end
