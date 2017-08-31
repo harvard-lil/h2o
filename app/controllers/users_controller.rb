@@ -48,7 +48,6 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(permitted_user_params)
-    verify_captcha(@user)
 
     if @user.save
       @user.send_verification_request
