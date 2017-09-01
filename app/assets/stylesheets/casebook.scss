@@ -198,6 +198,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         display: inline-block;
         padding: 4px;
         color: $light-blue;
+        margin-right: 4px;
         &.active {
           color: black;
           font-weight: bold;
