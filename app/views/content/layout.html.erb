@@ -1,3 +1,8 @@
+<!-- FINDING OUT WHERE TO PUT CONTENT/EDIT_DETAILS PARTIAL -->
+
+
+
+<!-- If in a section -->
 <% if @section.present? && @casebook.present? %>
   <header class="casebook-header">
     <div class="casebook-title">
@@ -5,7 +10,9 @@
     </div>
   </header>
 <% end %>
+
 <header class="content">
+  <!-- if in a section -->
   <% if @section.present? && @casebook.present? %>
     <div class="breadcrumbs">
       <%= t 'content.show.section' %>
@@ -20,18 +27,10 @@
       <% end %>
     </div>
   <% end %>
-  <h1 class="title">
-    <%= @content.title %>
-    <% if @section.nil? %>
-      <h2 class="subtitle">
-        <%= @content.subtitle %>
-      </h2>
-      <div class="collaborators">
-        <%= render partial: 'content/collaborators', locals: {content: @content} %>
-      </div>
-    <% end %>
-  </h1>
+  <!-- if on the layout tab -->
+  <%= render partial: 'content/edit_details', locals: {content: @content} %>
 </header>
+
 <% if @content.headnote.present? || @content.subtitle.present? %>
   <section class="headnote">
     <h5>
@@ -49,6 +48,7 @@
 <% else %>
   <section class="no-headnote"></section>
 <% end %>
+
 <section class="table-of-contents">
   <h5>
     <% if @section.present? %>
