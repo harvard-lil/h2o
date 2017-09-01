@@ -152,17 +152,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   header.casebook-header {
     margin-bottom: 2px;
     padding: 20px 40px 20px 40px;
-
     background-color: $white;
 
     .casebook-title {
       @include sans-serif($bold, 14px, 18px);
-      // @include link-color($black);
-      float: center;
-    }
-    .collaborators {
-      float: right;
-      font-size: 12px;
+      text-align: center;
     }
   }
   header.content {
