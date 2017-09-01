@@ -7,9 +7,13 @@
   - active_tab = action_name
 
 - if active_tab.in? %w{edit layout annotate} # draft mode
-  %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
     %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @resource)}= t 'content.tabs.annotate'
+  - elsif @section.present?
+    %a{:class => "tab #{active_tab == ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
+  - else
+    %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
+
 - else # published mode
   %a{:class => "tab #{active_tab == 'casebook' ? 'active' : ''}", :href => casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
