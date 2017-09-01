@@ -10,7 +10,8 @@
   - if @resource.present?
     %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @resource)}= t 'content.tabs.annotate'
   - elsif @section.present?
-    %a{:class => "tab #{active_tab == ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
+    %a{:class => "tab #{active_tab == 'layout' ? '' : 'active'}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
+    %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}" }= t 'content.tabs.edit'
   - else
     %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
 
