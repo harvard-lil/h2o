@@ -151,18 +151,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   header.casebook-header {
     margin-bottom: 2px;
-    padding: 20px 40px 35px 40px;
-
+    padding: 20px 40px 20px 40px;
     background-color: $white;
 
     .casebook-title {
-      @include sans-serif($bold, 15px, 18px);
-      @include link-color($black);
-      float: left;
-    }
-    .collaborators {
-      float: right;
-      font-size: 12px;
+      @include sans-serif($bold, 14px, 18px);
+      text-align: center;
     }
   }
   header.content {
@@ -197,13 +191,14 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
 
     .breadcrumbs {
-      @include monospace($regular, 14px, 14px);
+      font-size: 24px;
+      font-weight: bold;
       .breadcrumb {
         @include square(20px);
         display: inline-block;
         padding: 4px;
-
         color: $light-blue;
+        margin-right: 4px;
         &.active {
           color: black;
           font-weight: bold;

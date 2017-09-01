@@ -1,10 +1,7 @@
 <% if @section.present? && @casebook.present? %>
   <header class="casebook-header">
-    <a class="casebook-title" href="<%= casebook_path(@casebook) %>">
+    <div class="casebook-title">
       <%= @casebook.title %>
-    </a>
-    <div class="collaborators">
-      <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
     </div>
   </header>
 <% end %>
