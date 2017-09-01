@@ -3,9 +3,6 @@
     <a class="casebook-title" href="<%= casebook_path(@casebook) %>">
       <%= @casebook.title %>
     </a>
-    <div class="collaborators">
-      <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
-    </div>
   </header>
 <% end %>
 <header class="content">
