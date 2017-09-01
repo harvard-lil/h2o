@@ -70,7 +70,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       visit layout_casebook_path casebook
       click_link 'Revise'
-      click_link 'Layout'
+      click_link 'Casebook'
 
       assert_content 'This casebook is a draft'
       assert_content "1.1 #{resource.resource.short_name}"
