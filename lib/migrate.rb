@@ -79,6 +79,9 @@ module Migrate
       end
     end
 
+    # Source annotations are located by xpaths, which can't be ordered for caching.
+    # Target nodes are located by the index of the paragraph, consistent with WordML etc.
+    # This finds the appropriate paragraph for the annotation's xpath.
     def migrate_annotations collage, resource
       return unless resource.resource.class.in? [Case, TextBlock]
 
@@ -97,10 +100,7 @@ module Migrate
         node['idx'] = idx
         idx += 1
       end
-      nodes.xpath('//div')
-        .each { |div| div.replace div.children }
-      nodes = nodes.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
-
+      nodes = resource.preprocess_nodes nodes
 
       collage.annotations.each do |annotation|
         content = nil
@@ -172,8 +172,6 @@ module Migrate
       unless target_p
         puts "no target p for #{xpath}"
         # puts "Got a bad p for \##{annotation.id}: Collage \##{annotation.collage.id} at #{annotation.xpath_start} -> #{annotation.xpath_end}"
-
-        binding.pry
         return
       end
       p_idx = nodes.find_index {|node| node['idx'] == target_p['idx']}
