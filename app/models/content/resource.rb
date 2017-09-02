@@ -34,6 +34,10 @@ class Content::Resource < Content::Child
 
   def paragraph_nodes
     html = Nokogiri::HTML resource.content {|config| config.noblanks}
+    preprocess_nodes html
+  end
+
+  def preprocess_nodes html
     # strip comments
     html.xpath('//comment()').remove
 
