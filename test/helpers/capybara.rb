@@ -28,10 +28,12 @@ module H2o::Test::Helpers::Capybara
     out_path
   end
   def select_text text
-    node = page.execute_script <<-JS
+    page.execute_script <<-JS
         var range = rangy.createRange();
         range.findText('#{escape_javascript text}');
         rangy.getSelection().addRange(range);
+        var event = new Event('selectionchange');
+        document.dispatchEvent(event);
         range.startContainer.parentElement.className += ' selected-container';
     JS
     find('.selected-container').trigger :mouseup
@@ -50,6 +52,7 @@ module H2o::Test::Helpers::Capybara
       click_button 'Sign in'
       assert_content user.display_name
     end
+    password
   end
   def sign_out
       visit log_out_path

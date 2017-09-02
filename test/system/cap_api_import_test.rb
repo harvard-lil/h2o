@@ -4,6 +4,8 @@ require 'minitest/mock'
 class CapApiImportSystemTest < ApplicationSystemTestCase
   describe 'as a logged in user' do
     before do
+      SimpleCov.add_filter %w{app/services/case_downloader app/controllers/cap_api_imports_controller.rb}
+      skip "CAP API is disabled."
       @case_name = 'Comer v. Titan Tool, Inc.'
       @case_citation = '875 F. Supp. 255'
       @case_metadata = { 'slug' => 'comer-v-titan-tool-inc-2293' }
@@ -11,7 +13,6 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'search for a case by name, view results and download a selected case' do
-      skip "missing db schema"
       sign_in users(:verified_professor)
 
       visit new_cap_api_import_path
@@ -35,7 +36,6 @@ class CapApiImportSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'can see an error message when there is a failed case download' do
-      skip "missing db schema"
       sign_in user = users(:verified_professor)
 
       visit new_cap_api_import_path

@@ -6,6 +6,11 @@ public_casebook_owner:
   user: verified_professor
   role: owner
 
+draft_casebook_owner:
+  content: draft_casebook
+  user: verified_professor
+  role: owner
+
 private_casebook_owner:
   content: private_casebook
   user: verified_professor

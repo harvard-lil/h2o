@@ -5,6 +5,7 @@ if !ENV['CAPYBARA_SKIP_JS']
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new [SimpleCov::Formatter::HTMLFormatter, Coveralls::SimpleCov::Formatter]
   SimpleCov.start 'rails' do
     add_filter 'app/secrets'
+    add_filter %w{app/models/migrate lib/migrate}
   end
 end
 
@@ -12,8 +13,8 @@ end
 # require 'minitest/rails/capybara'
 # require 'capybara/poltergeist'
 
-
 ENV["RAILS_ENV"] = "test"
+
 require File.expand_path("../../config/environment", __FILE__)
 require 'rails/test_help'
 require 'wrong/adapters/minitest'

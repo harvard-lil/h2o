@@ -15,7 +15,7 @@ class Content::SectionsController < Content::NodeController
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: text
     elsif params[:link]
       url = UrlDomainFormatter.format(params[:link][:url])
-      link = Default.create(url: url) 
+      link = Default.create(url: url)
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: link
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
@@ -39,7 +39,6 @@ class Content::SectionsController < Content::NodeController
       }
       format.docx {
         file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
-        binding.pry
         Htmltoword::Document.create_and_save(html, file_path)
         send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
         # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline

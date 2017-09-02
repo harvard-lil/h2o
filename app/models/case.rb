@@ -25,8 +25,6 @@
 #
 
 class Case < ApplicationRecord
-  include StandardModelExtensions
-  include AnnotatableExtensions
   include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {
@@ -114,9 +112,7 @@ class Case < ApplicationRecord
       false
     end
   end
-
-  after_create :assign_to_h2ocases
-
+  
   alias :to_s :display_name
 
   def indexable_case_citations
@@ -134,43 +130,21 @@ class Case < ApplicationRecord
     # encode needed for cap api import
   end
 
-  def printable_content
-    doc = Nokogiri::HTML.parse(self.content)
-    PlaylistExportJob.new.convert_h_tags(doc)
-    PlaylistExportJob.new.inject_doc_styles(doc)
-    doc.xpath("/html/body/*").to_s
-  end
-
-  def bookmark_name
-    self.short_name
-  end
-
-  def approve!
-    self.update_attribute(:public, true)
-    if self.case_request.present?
-      Notifier.case_notify_approved(self, self.case_request).deliver
-    end
-  end
-
-  def self.new_from_xml_file(file)
-    cxp = CaseParser::XmlParser.new(file)
-
-    new_case = cxp.xml_to_case_attributes
-    cj = CaseJurisdiction.where(name: new_case[:jurisdiction].gsub('.', '')).first
-    if cj
-      new_case[:case_jurisdiction_id] = cj.id
-    end
-    new_case.delete(:jurisdiction)
-    c = Case.new(new_case)
-    # c.user = User.find_by_login 'h2ocases'
-    c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
-
-    c
-  end
-
-  def version
-    1.0
-  end
+  # def self.new_from_xml_file(file)
+  #   cxp = CaseParser::XmlParser.new(file)
+  #
+  #   new_case = cxp.xml_to_case_attributes
+  #   cj = CaseJurisdiction.where(name: new_case[:jurisdiction].gsub('.', '')).first
+  #   if cj
+  #     new_case[:case_jurisdiction_id] = cj.id
+  #   end
+  #   new_case.delete(:jurisdiction)
+  #   c = Case.new(new_case)
+  #   # c.user = User.find_by_login 'h2ocases'
+  #   c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
+  #
+  #   c
+  # end
 
   def to_partial_path
     "cases/court_case"
@@ -181,17 +155,6 @@ class Case < ApplicationRecord
   end
 
   private
-
-  def host_and_port
-    host = ActionMailer::Base.default_url_options[:host]
-    port = ActionMailer::Base.default_url_options[:port]
-    port = port.blank? ? '' : ":#{port}"
-    "#{host}#{port}"
-  end
-
-  def assign_to_h2ocases
-    self.user = User.where(login: 'h2ocases').first
-  end
 
   def date_check
     if !self.decision_date.blank? && self.decision_date > Date.today
