@@ -140,10 +140,17 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 }
 
 .casebook-inner {
+  header.content{
+    padding: 10px;
+
+    .form-control{
+      font-size: 15px;
+    }
+  }
   header.casebooks-search {
     margin-bottom: 30px;
   }
-  section.headnote, header.content, header.inner, section.resource-search {
+  section.headnote, header.inner, section.resource-search {
     padding: 20px 40px;
   }
   section.no-headnote {
