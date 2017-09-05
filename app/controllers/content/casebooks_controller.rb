@@ -20,7 +20,7 @@ class Content::CasebooksController < Content::NodeController
   def edit
     @casebook.update_attributes public: false
     @content = @casebook
-    render 'content/edit_details'
+    redirect_to layout_casebook_path(@content)
   end
 
   def clone
