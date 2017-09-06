@@ -23,6 +23,7 @@
           = link_to t('content.actions.edit'), edit_resource_path(@casebook, @resource), class: 'action edit one-line'
       - elsif action_name == 'show' ## preview mode
         - if @content.is_a? Content::Casebook
+          = button_to t('content.actions.publish'), casebook_path(@casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line'
           = link_to t('content.actions.edit'), layout_casebook_path(@casebook), class: 'action edit one-line'
         - elsif @content.is_a? Content::Section
           = link_to t('content.actions.edit'), layout_section_path(@casebook, @section), class: 'action edit one-line'
