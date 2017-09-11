@@ -5,9 +5,6 @@
         <%= @casebook.title %>
       </a>
     </div>
-    <div class="collaborators">
-      <%= render partial: 'content/collaborators', locals: {content: @content} %>
-    </div>
     <div class="breadcrumbs">
       <%= t 'content.show.section' %>
       <% @section.ordinals.each_with_index do |ordinal, idx| %>
