@@ -2,24 +2,6 @@
   <%= render partial: 'content/edit_details', locals: {content: @content} %>
 </header>
 
-<% if @content.headnote.present? || @content.subtitle.present? %>
-  <section class="headnote">
-    <h5>
-      <%= t 'content.show.headnote' %>
-    </h5>
-    <% if @section.present? %>
-      <h3>
-        <%= @content.subtitle %>
-      </h3>
-    <% end %>
-    <p>
-      <%= @content.headnote %>
-    </p>
-  </section>
-<% else %>
-  <section class="no-headnote"></section>
-<% end %>
-
 <section class="table-of-contents">
   <h5>
     <% if @section.present? %>
