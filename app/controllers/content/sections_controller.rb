@@ -36,7 +36,6 @@ class Content::SectionsController < Content::NodeController
   skip_before_action :check_public, only: [:export]
   def export
     @section = Content::Section.find params[:section_id]
-    # binding.pry
     html = render_to_string layout: 'export'
     respond_to do |format|
       format.pdf {
