@@ -9,6 +9,7 @@ import {Annotator} from 'lib/ui/content/annotations/annotator';
 import 'lib/ui/content/annotations/elide';
 import 'lib/ui/content/annotations/replace';
 import 'lib/ui/content/annotations/note';
+import 'lib/ui/content/annotations/footnotes';
 
 let annotator = null;
 
