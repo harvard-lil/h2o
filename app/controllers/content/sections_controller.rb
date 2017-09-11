@@ -28,7 +28,7 @@ class Content::SectionsController < Content::NodeController
   end
 
   def edit
-    @casebook.update(public: false)
+    @casebook.update_attributes public: false
     redirect_to layout_section_path @casebook, @section
   end
 
