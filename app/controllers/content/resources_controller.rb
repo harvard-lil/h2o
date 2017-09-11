@@ -7,9 +7,7 @@ class Content::ResourcesController < Content::NodeController
 
   def annotate
     @editable = true
-    if @casebook.public
-      return redirect_to resource_path(@casebook, @resource)
-    end
+    @casebook.update_attributes public: false
     render 'show'
   end
 
