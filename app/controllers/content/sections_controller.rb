@@ -27,6 +27,11 @@ class Content::SectionsController < Content::NodeController
     end
   end
 
+  def edit
+    @casebook.update(public: false)
+    redirect_to layout_section_path @casebook, @section
+  end
+
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
   def export

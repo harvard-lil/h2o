@@ -13,9 +13,9 @@
   - if @casebook.owners.include?(current_user)
     - if @casebook.public ## published version
       - if @content.is_a? Content::Casebook
-        = link_to t('content.actions.revise'), layout_casebook_path(@casebook), class: 'action edit one-line'
+        = link_to t('content.actions.revise'), edit_casebook_path(@casebook), class: 'action edit one-line'
       - elsif @content.is_a? Content::Section
-        = link_to t('content.actions.revise'), layout_section_path(@casebook, @section), method: :patch, params: {content_casebook: {public: false}}, class: 'action edit one-line'
+        = link_to t('content.actions.revise'), edit_section_path(@casebook, @section), class: 'action edit one-line'
       - elsif @content.is_a? Content::Resource
         = link_to t('content.actions.revise'), annotate_resource_path(@casebook, @resource), class: 'action edit one-line'
     - elsif action_name == 'show' ## preview mode
