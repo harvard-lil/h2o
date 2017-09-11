@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170717164424) do
+ActiveRecord::Schema.define(version: 20170911044044) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(version: 20170717164424) do
     t.index ["created_at"], name: "index_cases_on_created_at"
     t.index ["current_opinion"], name: "index_cases_on_current_opinion"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
+    t.index ["full_name"], name: "index_cases_on_full_name"
     t.index ["public"], name: "index_cases_on_public"
     t.index ["short_name"], name: "index_cases_on_short_name"
     t.index ["updated_at"], name: "index_cases_on_updated_at"
@@ -802,8 +803,8 @@ ActiveRecord::Schema.define(version: 20170717164424) do
     t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
-  add_foreign_key "content_annotations", "content_nodes", column: "resource_id"
+  add_foreign_key "content_annotations", "content_nodes", column: "resource_id", on_delete: :cascade
   add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
-  add_foreign_key "content_nodes", "content_nodes", column: "casebook_id"
-  add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id"
+  add_foreign_key "content_nodes", "content_nodes", column: "casebook_id", on_delete: :cascade
+  add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id", on_delete: :nullify
 end

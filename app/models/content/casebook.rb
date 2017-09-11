@@ -29,7 +29,7 @@ class Content::Casebook < Content::Node
   validates :casebook_id, presence: false
   validates_length_of :ordinals, is: 0
 
-  has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id
+  has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id, dependent: :delete_all
 
   has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :content_id
   include Content::Concerns::HasCollaborators
