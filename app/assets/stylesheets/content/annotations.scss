@@ -72,12 +72,20 @@
     }
   }
 
+  p > .annotate.highlighted {
+    padding: 9px 0 4px;
+  }
+  h2 > .annotate.highlighted {
+    padding: 3px 0 3px;
+  } // etc
+
   .annotate {
     display: inline;
 
     &.highlighted {
-      padding: 9px 0 4px;
+      // padding: 9px 0 4px; // This needs to be set based on the line-height of the text
       background-color: $highlight;
+      box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
     }
     &.replacement {
       @include sans-serif($regular, 12px, 12px);
