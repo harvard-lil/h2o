@@ -1,7 +1,7 @@
 <header class="casebook-header">
-  <a class="casebook-title" href="<%= edit_casebook_path(@casebook) %>">
+  <div class="casebook-title" href="<%= edit_casebook_path(@casebook) %>">
     <%= @casebook.title %>
-  </a>
+  </div>
   <div class="collaborators">
     <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
   </div>
@@ -10,7 +10,6 @@
 <header class="content">
   <% if @section.present? %>
     <div class="breadcrumbs">
-      <%= t 'content.show.section' %>
       <% @section.ordinals.each_with_index do |ordinal, idx| %>
         <% unless idx == @section.ordinals.length-1 %>
           <a class="breadcrumb" href="<%= edit_section_path(@casebook, @section.ordinals[0..idx].join('.')) %>" %><%= ordinal %></a>

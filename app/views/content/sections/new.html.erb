@@ -1,9 +1,9 @@
 <header class="casebook">
   <% if @section.present? %>
     <div class="casebook-header">
-      <a class="casebook-title" href="<%= casebook_path(@casebook) %>">
+      <div class="casebook-title" href="<%= casebook_path(@casebook) %>">
         <%= @casebook.title %>
-      </a>
+      </div>
     </div>
     <div class="breadcrumbs">
       <%= t 'content.show.section' %>
