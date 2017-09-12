@@ -17,21 +17,20 @@
 
 		<%= f.input :title, placeholder: t('simple_form.labels.casebook.name') %>
 		<%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
-		<% if @section.nil? %>
-		  <div class="collaborators">
-		    <% @casebook.users.each do |user| %>
-		    	<div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
-		    <% end %>
-		  </div>
-		<% end %>
-
 	</header>
-	  <section class="headnote">
-		  <h5>
-		    <%= t 'content.show.headnote' %>
-		  </h5>
-		  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
-		</section>
+	<% if @section.nil? %>
+	  <div class="collaborators">
+	    <% @casebook.users.each do |user| %>
+	    	<div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
+	    <% end %>
+	  </div>
+	<% end %>
+  <section class="headnote">
+	  <h5>
+	    <%= t 'content.show.headnote' %>
+	  </h5>
+	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
+	</section>
 	<section class="edit-actions">
 	  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
 	  <%= link_to t('simple_form.labels.casebook.revert'), casebook_path(@casebook), class: 'reset-button' %>
