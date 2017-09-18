@@ -116,12 +116,12 @@ H2o::Application.configure do
   # Disable automatic flushing of the log to improve performance.
   # config.autoflush_log = false
 
-  config.action_mailer.default_url_options = { :host => 'h2o.law.harvard.edu' }
+  config.action_mailer.default_url_options = { :host => ENV["MAILER_HOST"] }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address: ENV["SMTP_HOST"],
     authentication: :login,
-    domain: "h2o-dev.lil.tools",
+    domain: ENV["MAILER_DOMAIN"],
     user_name: ENV["SMTP_USER"],
     password: ENV["SMTP_PW"],
     enable_starttls_auto: true,
@@ -135,13 +135,13 @@ H2o::Application.configure do
     :ignore_exceptions => ['ActionController::BadRequest', 'ActionView::MissingTemplate'] + ExceptionNotifier.ignored_exceptions,
     :email => {
       :email_prefix => "[H2O] ",
-      :sender_address => %{"H2O Exception" <h2o+errors@cyber.law.harvard.edu>},
-      :exception_recipients => %W{bsteinberg@law.harvard.edu} + (ENV['CONTRACTOR_EMAIL_ADDRESSES'] || '').split(' ') #later add h2o@cyber.law.harvard.edu
+      :sender_address => %Q{"H2O Exception" <#{ENV["EXCEPTION_EMAIL_SENDER"]}>},
+      :exception_recipients => ENV["EXCEPTION_RECIPIENTS"] || '').split(' ') + (ENV["CONTRACTOR_EMAIL_ADDRESSES"] || '').split(' ')
     }
 
-  # Admin email to recieve the 'new user needs verification' emails
-  config.user_verification_recipients = ['bsteinberg@law.harvard.edu']
+  # Admin email to receive the 'new user needs verification' emails
+  config.user_verification_recipients = ENV["USER_VERIFICATION_RECIPIENTS"] || '').split(' ')
 
-  config.admin_email = 'cgruppioni@law.harvard.edu'
-  config.cap_api_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
+  config.admin_email = ENV["ADMIN_EMAIL"]
+  config.cap_api_key = ENV["CAP_API_KEY"]
 end
