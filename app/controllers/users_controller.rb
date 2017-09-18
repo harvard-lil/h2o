@@ -35,7 +35,6 @@ class UsersController < ApplicationController
       current_user.update_column(:verified, true)
       flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
       redirect_to user_path(current_user)
-      return
     elsif current_user.present?
       flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verify_user_url(current_user)  + '" target="blank">here</a>.'
       redirect_to user_path(current_user)
