@@ -36,9 +36,8 @@ class UsersController < ApplicationController
       flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
       redirect_to user_path(current_user)
       return
-    end
-    if current_user
-      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verification_request_user_url(current_user)  + '" target="blank">here</a>.'
+    elsif current_user.present?
+      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verify_user_url(current_user)  + '" target="blank">here</a>.'
       redirect_to user_path(current_user)
     else
       flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
