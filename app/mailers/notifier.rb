@@ -1,5 +1,5 @@
 class Notifier < ActionMailer::Base
-  default from: 'noreply@opencasebook.org',
+  default from: ENV["EXCEPTION_EMAIL_SENDER"],
           sent_on: Proc.new { Time.now }
 
   def password_reset_instructions(user)
