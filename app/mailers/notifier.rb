@@ -1,5 +1,5 @@
 class Notifier < ActionMailer::Base
-  default from: ENV["EXCEPTION_EMAIL_SENDER"],
+  default from: 'noreply@opencasebook.org',
           sent_on: Proc.new { Time.now }
 
   def export_download_link(download_path, email_address)
