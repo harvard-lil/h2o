@@ -1,5 +1,5 @@
 class Notifier < ActionMailer::Base
-  default from: 'noreply@berkmancenter.org',
+  default from: ENV["EXCEPTION_EMAIL_SENDER"],
           sent_on: Proc.new { Time.now }
 
   def export_download_link(download_path, email_address)
