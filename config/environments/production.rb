@@ -136,11 +136,11 @@ H2o::Application.configure do
     :email => {
       :email_prefix => "[H2O] ",
       :sender_address => %Q{"H2O Exception" <#{ENV["EXCEPTION_EMAIL_SENDER"]}>},
-      :exception_recipients => ENV["EXCEPTION_RECIPIENTS"] || '').split(' ') + (ENV["CONTRACTOR_EMAIL_ADDRESSES"] || '').split(' ')
+      :exception_recipients => (ENV["EXCEPTION_RECIPIENTS"] || '').split(' ') + (ENV["CONTRACTOR_EMAIL_ADDRESSES"] || '').split(' ')
     }
 
   # Admin email to receive the 'new user needs verification' emails
-  config.user_verification_recipients = ENV["USER_VERIFICATION_RECIPIENTS"] || '').split(' ')
+  config.user_verification_recipients = (ENV["USER_VERIFICATION_RECIPIENTS"] || '').split(' ')
 
   config.admin_email = ENV["ADMIN_EMAIL"]
   config.cap_api_key = ENV["CAP_API_KEY"]
