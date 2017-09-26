@@ -3,6 +3,11 @@ body {
 
   margin: 0;
   padding: 0;
+
+  .modal-open {
+    overflow: hidden;
+    position: fixed;
+  }
 }
 
 * {
