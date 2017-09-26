@@ -88,6 +88,7 @@ class AddResourceModal extends Component {
       }
     });
     document.body.appendChild(this.el);
+    document.body.classList.add('modal-open');
     this.activeType = 'case';
     this.render();
   }
