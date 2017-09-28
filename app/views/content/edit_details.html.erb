@@ -42,7 +42,7 @@
 	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
 	</section>
 
-	<% if @resource.resource.is_a? Default || TextBlock %>
+	<% if @resource.resource.is_a?(Default) || @resource.resource.is_a?(TextBlock) %>
 		<section class="resource">
 			<% if @resource.resource.is_a? Default %>
 				<input class="form-control" name="link_url" value="<%= @resource.resource.url %>" />
