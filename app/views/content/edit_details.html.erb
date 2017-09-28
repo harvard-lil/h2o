@@ -42,18 +42,20 @@
 	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
 	</section>
 
-	<section class="resource">
-		<% if @resource.resource.is_a? Default %>
-			<input class="form-control" name="link_url" value="<%= @resource.resource.url %>" />
-		<% elsif @resource.resource.is_a? TextBlock %>
-			<textarea id="resource_textblock_content" class="form-control" name="text_content" data-ckeditor="true">
-				<%= @resource.resource.content %>
-			</textarea>
-		<% end %>
-	</section>
-		
-	<section class="edit-actions">
-	  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
-	  <%= link_to t('simple_form.labels.casebook.revert'), edit_resource_path(@casebook, @resource), class: 'reset-button' %>
-	</section>
+	<% if @resource.resource.is_a? Default || TextBlock %>
+		<section class="resource">
+			<% if @resource.resource.is_a? Default %>
+				<input class="form-control" name="link_url" value="<%= @resource.resource.url %>" />
+			<% elsif @resource.resource.is_a? TextBlock %>
+				<textarea id="resource_textblock_content" class="form-control" name="text_content" data-ckeditor="true">
+					<%= @resource.resource.content %>
+				</textarea>
+			<% end %>
+		</section>
+			
+		<section class="edit-actions">
+		  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
+		  <%= link_to t('simple_form.labels.casebook.revert'), edit_resource_path(@casebook, @resource), class: 'reset-button' %>
+		</section>
+	<% end %>
 <% end %>
