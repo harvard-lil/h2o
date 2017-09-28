@@ -1,0 +1,8 @@
+import delegate from 'delegate';
+
+delegate(document, '.submit-edit-details', 'click', submitEditDetailsForm);
+
+function submitEditDetailsForm (e) {
+  e.preventDefault();
+  document.querySelector('.edit_content_resource').submit();
+}
