@@ -9,9 +9,9 @@
 - if active_tab.in? %w{edit layout annotate} # draft mode
   %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}", :href => layout_casebook_path(@casebook)}= t 'content.tabs.casebook'
   - if @resource.present?
-    %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @resource)}= t 'content.tabs.annotate'
-    - if @resource.resource_type != 'Case'
-      %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => edit_resource_path(@casebook, @resource)}= t 'content.tabs.resource-details'
+    - if @resource.resource_type == 'Case' || 'TextBlock'
+      %a{:class => "tab #{active_tab == 'annotate' ? 'active' : ''}", :href => annotate_resource_path(@casebook, @resource)}= t 'content.tabs.annotate'
+    %a{:class => "tab #{active_tab == 'edit' ? 'active' : ''}", :href => edit_resource_path(@casebook, @resource)}= t 'content.tabs.resource-details'
   - elsif @section.present?
     %a{:class => "tab #{active_tab == 'layout' ? 'active' : ''}" }= t 'content.tabs.edit'
 
