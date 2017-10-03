@@ -13,12 +13,18 @@ function submitEditDetailsForm (e) {
   e.preventDefault();
 
   document.querySelector('.edit_content_resource').submit(); // resource details
-  
+
   let title = document.querySelector('.content_resource_title').value;
   let subtitle = document.querySelector('.content_resource_subtitle').value;
   let headnote = document.querySelector('.content_resource_headnote').value;
 
 
+  let casebookId = document.querySelector('header.casebook').dataset.casebookId;
+  let sectionId = document.querySelector('header.casebook').dataset.sectionId;
+  let resourceId = document.querySelector('header.casebook').dataset.resourceId;
 
-  document.querySelector('form.casebook-details').submit(); //casebook details // only makes the last line work 
+  Axios.patch('<%= resources_path('$CASEBOOK_ID', '$SECTION_ID', '$RESOURCE_ID') %>'.replace('$CASEBOOK_ID', casebookId), {title: title, subtitle: subtitle, headnote: headnote}).
+    then(window.alert());
+
+  document.querySelector('form.casebook-details').submit();
 }
