@@ -63,7 +63,6 @@ class AddResourceModal extends Component {
           e.stopPropagation();
           let request;
           if (e.target.href) {
-            debugger;
             request = Axios.get(e.target.href);
           } else {
             this.q = e.target.querySelector('input[name=q]').value;
@@ -74,7 +73,6 @@ class AddResourceModal extends Component {
                 q: this.q
               }
             });
-            debugger;
           }
           request.then((res) => {
             this.caseResultHtml = res.data;
@@ -84,8 +82,6 @@ class AddResourceModal extends Component {
         'click .results-list > a': (e) => {
           e.stopPropagation();
           e.preventDefault();
-
-          debugger;
 
           post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()})
         }
