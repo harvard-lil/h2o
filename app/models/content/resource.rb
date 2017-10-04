@@ -28,6 +28,8 @@ class Content::Resource < Content::Child
   belongs_to :resource, polymorphic: true, inverse_of: :casebooks, required: true
   has_many :annotations, class_name: 'Content::Annotation', dependent: :destroy
 
+  accepts_nested_attributes_for :resource
+
   def can_delete?
     true
   end
