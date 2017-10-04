@@ -16,7 +16,7 @@ export default class Component {
     for (let eventName of eventNames) {
       let [event, ...selector] = eventName.split(' ');
       this.addEventDelegate(selector.join(' '), event, callback);
-      console.log('bound', selector.join(' '), event)
+      // console.log('bound', selector.join(' '), event)
     }
   }
 
