@@ -5,3 +5,4 @@ import 'lib/ui/content/add_content';
 import 'lib/ui/content/publish';
 import 'lib/ui/content/delete';
 import 'lib/ui/content/export';
+import 'lib/ui/content/save_details';
