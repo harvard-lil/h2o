@@ -41,9 +41,10 @@ class Content::ResourcesController < Content::NodeController
     @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
       headnote: resource_params[:headnote])
 
-    ## use .assign_attributes to only save changed values 
-    if params[:text_content] && @resource.resource.is_a?(TextBlock)
-      # @resource.resource.update_attribute(content: resource_params.resource_attributes.link)
+    ## use .assign_attributes to only save changed values
+    ## if something fails don't save any of it  
+    if resource_params[:resource_attributes][:content] && @resource.resource.is_a?(TextBlock)
+      @resource.resource.update_attributes(content: resource_params[:resource_attributes][:content])
       flash[:success] = "Text updated."
     elsif resource_params[:resource_attributes][:url] && @resource.resource.is_a?(Default)
       @resource.resource.update_attributes(url: resource_params[:resource_attributes][:url])
@@ -57,7 +58,7 @@ class Content::ResourcesController < Content::NodeController
   private
 
   def resource_params
-    params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :id])
+    params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :id, :content])
   end
 
   def export_filename format
