@@ -38,11 +38,15 @@ class Content::ResourcesController < Content::NodeController
   end
 
   def update
+    @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
+      headnote: resource_params[:headnote])
+
+    ## use .assign_attributes to only save changed values 
     if params[:text_content] && @resource.resource.is_a?(TextBlock)
-      @resource.resource.update_attribute :content, params[:text_content]
+      # @resource.resource.update_attribute(content: resource_params.resource_attributes.link)
       flash[:success] = "Text updated."
-    elsif params[:link_url] && @resource.resource.is_a?(Default)
-      @resource.resource.update_attribute :url, params[:link_url]
+    elsif resource_params[:resource_attributes][:url] && @resource.resource.is_a?(Default)
+      @resource.resource.update_attributes(url: resource_params[:resource_attributes][:url])
       flash[:success] = "URL updated."
     else
       @resource.update content_params
@@ -51,6 +55,10 @@ class Content::ResourcesController < Content::NodeController
   end
 
   private
+
+  def resource_params
+    params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :id])
+  end
 
   def export_filename format
     helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.' + format
