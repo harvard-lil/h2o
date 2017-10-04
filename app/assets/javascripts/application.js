@@ -17,4 +17,3 @@
 //= require old_tree/ui
 //= require export
 //= require_tree ./old_tree
-//= require js-routes

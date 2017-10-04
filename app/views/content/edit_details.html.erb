@@ -35,6 +35,15 @@
 		  </div>
 		<% end %>
 
+		<%= @content.inspect %>
+		<%= @content.resource.inspect %>
+
+		There
+		<%= f.simple_fields_for :resource do |r| %>
+			Here
+				<%= r.input :url %>
+		<% end %>
+
 	</header>
 	  <section class="headnote">
 		  <h5>
