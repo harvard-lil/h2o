@@ -47,9 +47,7 @@
 			<% if @content.resource.is_a? Default %>
 				<%= r.input :url %> 
 			<% elsif @content.resource.is_a? TextBlock %>
-				<!-- <%= r.input :content, data-ckeditor ="true" %> -->
-				<!-- <textarea id="resource_textblock_content" class="form-control" name="text_content" data-ckeditor="true"> -->
-				<!-- </textarea> -->
+				<%= r.cktext_area :content, class: 'ckeditor form-control' %>
 			<% end %>
 		<% end %>
 	</section>
