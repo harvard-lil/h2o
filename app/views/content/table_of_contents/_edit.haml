@@ -4,23 +4,19 @@
   .listing-wrapper{data: {ordinals: content.ordinal_string}}
     %a.listing.resource{href: annotate_resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
       .section-number= content.ordinal_string
-      - if content.is_a? Content::Resource
-        - if content.resource.is_a? Case
-          .section-title= content.resource.short_name
-          .resource-case= content.resource.case_citations.first
-          .resource-date= content.resource.try(:date_year) || t('content.resource.date.not-applicable')
-        - else
-          .section-title= content.title
-      - if content.is_a? Content::Resource
-        - if content.resource.is_a? Case
-          .resource-type= t 'content.resource.type.case'
-        - elsif content.resource.is_a? TextBlock
-          .resource-type= t 'content.resource.type.text'
-        - elsif content.resource.is_a? Default
-          .resource-type= t "content.resource.type.#{content.resource.content_type.parameterize}"
-        - else
-          .resource-type
-            .not-applicable= t "content.resource.type.not-applicable"
+      .section-title= content.title
+      - if content.resource.is_a? Case
+        .section-title= content.resource.short_name
+        .resource-case= content.resource.case_citations.first
+        .resource-date= content.resource.try(:date_year) || t('content.resource.date.not-applicable')
+        .resource-type= t 'content.resource.type.case'
+      - elsif content.resource.is_a? TextBlock
+        .resource-type= t 'content.resource.type.text'
+      - elsif content.resource.is_a? Default
+        .resource-type= t "content.resource.type.#{content.resource.content_type.parameterize}"
+      - else
+        .resource-type
+          .not-applicable= t "content.resource.type.not-applicable"
     - if editable
       .actions
         = button_to t('content.edit.delete-section'), section_path(content.casebook, content), method: :delete, class: 'action-delete', 'data-n-children': content.try(:contents).try(:count)
