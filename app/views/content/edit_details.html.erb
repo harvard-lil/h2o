@@ -1,20 +1,20 @@
 <%= simple_form_for @content, url: @section.present? ? section_path(@casebook, @section) : @resource.present? ? resource_path(@casebook, @resource) : casebook_path(@casebook), class: 'casebook-details' do |f| %>
-	<% if @section.present? %>
-	  <header class="casebook-header">
-	    <a class="casebook-title" href="<%= edit_casebook_path(@casebook) %>">
-	      <%= @casebook.title %>
-	    </a>
-	    <div class="collaborators">
-	      <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
-	    </div>
-	  </header>
-	<% end %>
+  <% if @section.present? %>
+    <header class="casebook-header">
+      <a class="casebook-title" href="<%= edit_casebook_path(@casebook) %>">
+        <%= @casebook.title %>
+      </a>
+      <div class="collaborators">
+        <%= render partial: 'content/collaborators', locals: {content: @casebook} %>
+      </div>
+    </header>
+  <% end %>
 
-	<header class="content">
-	  <% if @section.present? %>
-	    <div class="breadcrumbs">
-	      <%= t 'content.show.section' %>
-	      <% @section.ordinals.each_with_index do |ordinal, idx| %>
+  <header class="content">
+    <% if @section.present? %>
+      <div class="breadcrumbs">
+        <%= t 'content.show.section' %>
+        <% @section.ordinals.each_with_index do |ordinal, idx| %>
           <% unless idx == @section.ordinals.length-1 %>
             <a class="breadcrumb" href="<%= edit_section_path(@casebook, @section.ordinals[0..idx].join('.')) %>" %><%= ordinal %></a>
             <span class="separator">.</span>
@@ -22,34 +22,34 @@
             <span class="breadcrumb active"><%= ordinal %>
          <% end %>
         <% end %>
-	    </div>
-	  <% end %>
-		<%= f.input :title, placeholder: t('simple_form.labels.casebook.name') %>
-		<%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
-		<% if @section.nil? %>
-		  <div class="collaborators">
-		    <% @casebook.users.each do |user| %>
-		    	<div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
-		    <% end %>
-		  </div>
-		<% end %>
-	</header>
+      </div>
+    <% end %>
+    <%= f.input :title, placeholder: t('simple_form.labels.casebook.name') %>
+    <%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
+    <% if @section.nil? %>
+      <div class="collaborators">
+        <% @casebook.users.each do |user| %>
+          <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
+        <% end %>
+      </div>
+    <% end %>
+  </header>
 
   <section class="headnote">
-	  <h5>
-	    <%= t 'content.show.headnote' %>
-	  </h5>
-	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
-	</section>
+    <h5>
+      <%= t 'content.show.headnote' %>
+    </h5>
+    <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
+  </section>
 
-	<section class="resource">
-		<%= f.simple_fields_for :resource do |r| %>
-			<% if @content.resource.is_a? Default %>
-				<%= r.input :url %> 
-			<% elsif @content.resource.is_a? TextBlock %>
-				<%= r.cktext_area :content, class: 'ckeditor form-control' %>
-			<% end %>
-		<% end %>
-	</section>
+  <section class="resource">
+    <%= f.simple_fields_for :resource do |r| %>
+      <% if @content.resource.is_a? Default %>
+        <%= r.input :url %> 
+      <% elsif @content.resource.is_a? TextBlock %>
+        <%= r.cktext_area :content, class: 'ckeditor form-control' %>
+      <% end %>
+    <% end %>
+  </section>
 
 <% end %>
