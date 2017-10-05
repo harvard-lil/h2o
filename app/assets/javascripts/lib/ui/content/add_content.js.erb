@@ -111,6 +111,7 @@ class AddResourceModal extends Component {
 
   destroy () {
     super.destroy();
+    document.body.classList.remove('modal-open');
     modal = null;
   }
 
