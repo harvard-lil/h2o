@@ -41,8 +41,6 @@ class Content::ResourcesController < Content::NodeController
     @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
       headnote: resource_params[:headnote])
 
-    ## use .assign_attributes to only save changed values
-    ## if something fails don't save any of it  
     if resource_params[:resource_attributes][:content] && @resource.resource.is_a?(TextBlock)
       @resource.resource.update_attributes(content: resource_params[:resource_attributes][:content])
       flash[:success] = "Text updated."
