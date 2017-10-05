@@ -127,8 +127,17 @@ main > header.casebook {
     &.export {
       background-image: asset-url('ui/casebook/export.png');
     }
-    &.more, &.edit, &.preview {
+    &.more, &.preview {
       background-image: asset-url('ui/casebook/more.png');
+    }
+    &.edit {
+      background-image: asset-url('ui/casebook/edit-icon.png');
+    }
+    &.save {
+      background-image: asset-url('ui/casebook/save-icon.png');
+    }
+    &.cancel {
+      background-image: asset-url('ui/casebook/cancel-icon.png');
     }
   }
 }
