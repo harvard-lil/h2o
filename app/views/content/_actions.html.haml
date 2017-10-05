@@ -9,7 +9,8 @@
     = button_to t('content.actions.add-section'), sections_path(@casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section'
   - if @content.is_a? Content::Resource
     = link_to t('content.actions.preview'), resource_path(@casebook, @resource), class: 'action one-line preview'
-    = link_to 'save', annotate_resource_path(@casebook, @resource), class: 'action one-line preview submit-edit-details'
+    = link_to 'save', edit_resource_path(@casebook, @resource), class: 'action one-line preview submit-edit-details'
+    = link_to 'reset', edit_resource_path(@casebook, @resource), class: 'action one-line preview'
 - else
   - if @casebook.owners.include?(current_user)
     - if @casebook.public ## published version
