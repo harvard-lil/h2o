@@ -31,8 +31,4 @@
 	  </h5>
 	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
 	</section>
-	<section class="edit-actions">
-	  <%= f.submit t('simple_form.labels.casebook.save'), class: 'save-button' %>
-	  <%= link_to t('simple_form.labels.casebook.revert'), casebook_path(@casebook), class: 'reset-button' %>
-	</section>
 <% end %>
