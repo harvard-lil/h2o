@@ -9,6 +9,8 @@
     <%= link_to t('content.actions.preview'), section_path(@casebook, @section), class: 'action one-line preview' %>
     <%= link_to t('content.actions.add-resource'), new_section_path(@casebook), class: 'action add-resource' %>
     <%= button_to t('content.actions.add-section'), sections_path(@casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section' %>
+    <%= link_to t('content.actions.save'), edit_section_path(@casebook, @section), class: 'action one-line save submit-edit-details' %>
+    <%= link_to t('content.actions.cancel'), edit_section_path(@casebook, @section), class: 'action one-line cancel' %>
   <% elsif @content.is_a? Content::Resource %>
     <%= link_to t('content.actions.preview'), resource_path(@casebook, @resource), class: 'action one-line preview' %>
     <% if action_name == 'edit' %>
