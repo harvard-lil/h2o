@@ -13,7 +13,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def show
-    @content = @casebook
+    @content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook})
     render 'content/show'
   end
 

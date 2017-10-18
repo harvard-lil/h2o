@@ -20,9 +20,12 @@ class Content::NodeController < ApplicationController
   layout 'casebooks'
 
   def edit
+    # editing a resource
     if @casebook.public
       return redirect_to details_casebook_path(@casebook)
     end
+    # this breaks the resource view
+    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
     render 'content/edit_details'
   end
 
@@ -31,10 +34,12 @@ class Content::NodeController < ApplicationController
   end
 
   def layout
+    # editing a casebook or section
     if @casebook.public
       return redirect_to casebook_path(@casebook)
     end
     @editable = true
+    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, resource: @resource})
     render 'content/layout'
   end
 
