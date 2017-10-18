@@ -20,6 +20,7 @@ gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
 gem 'delayed_job_active_record'
 gem 'delayed_job'
+gem 'draper'
 gem 'dropbox-sdk'
 gem 'erubi'
 gem 'erubis'
