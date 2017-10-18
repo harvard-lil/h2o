@@ -72,6 +72,7 @@ en:
       preview: Preview
       cancel: Cancel
       export: Export
+      save: Save
     tabs:
       casebook: Casebook
       annotate: Annotate
