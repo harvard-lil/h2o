@@ -69,6 +69,9 @@ en:
       edit-draft: Edit Draft
       add-section: Add Section
       add-resource: Add Resource
+      preview: Preview
+      cancel: Cancel
+      export: Export
     tabs:
       casebook: Casebook
       annotate: Annotate
