@@ -10,8 +10,6 @@ class Content::NodeDecorator < Draper::Decorator
     elsif 
       published_action_buttons
     end
-    button_to I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook'
-    link_to I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export'
   end
 
   private
@@ -27,26 +25,27 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_draft
-    ## only rendering last item
-    button_to I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line'
-    link_to I18n.t('content.actions.preview'), casebook_path(casebook), class: 'action one-line preview'
-    link_to I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource'
-    button_to I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section'
+    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
+    link_to(I18n.t('content.actions.preview'), casebook_path(casebook), class: 'action one-line preview') +
+    link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
+    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section')
   end
 
   def section_draft
-    link_to I18n.t('content.actions.preview'), section_path(casebook, section), class: 'action one-line preview'
-    link_to I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource'
-    button_to I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section'
-    link_to I18n.t('content.actions.save'), edit_section_path(casebook, section), class: 'action one-line save submit-section-details'
-    link_to I18n.t('content.actions.cancel'), edit_section_path(casebook, section), class: 'action one-line cancel'
+    link_to(I18n.t('content.actions.preview'), section_path(casebook, section), class: 'action one-line preview') +
+    link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
+    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section') +
+    link_to(I18n.t('content.actions.save'), edit_section_path(casebook, section), class: 'action one-line save submit-section-details') +
+    link_to(I18n.t('content.actions.cancel'), edit_section_path(casebook, section), class: 'action one-line cancel')
   end
 
   def resource_draft
-    link_to I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview'
     if action_name == 'edit'
-      link_to I18n.t('content.actions.save'), edit_resource_path(casebook, resource), class: 'action one-line save submit-edit-details'
-      link_to I18n.t('content.actions.cancel'), edit_resource_path(casebook, resource), class: 'action one-line cancel'
+      link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview') +
+      link_to(I18n.t('content.actions.save'), edit_resource_path(casebook, resource), class: 'action one-line save submit-edit-details') +
+      link_to(I18n.t('content.actions.cancel'), edit_resource_path(casebook, resource), class: 'action one-line cancel')
+    else
+      link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview')
     end
   end
 
@@ -61,8 +60,8 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_preview
-    button_to I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line'
-    link_to I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line'
+    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
+    link_to(I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line')
   end
 
   def section_preview
@@ -84,7 +83,9 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_published
-    link_to I8n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line'
+    link_to(I8n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line') +
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
   end
 
   def section_published
@@ -126,18 +127,4 @@ class Content::NodeDecorator < Draper::Decorator
   def owned
     self.owners.include(current_user)
   end
-
-  # def action_button_content 
-  #   if casebook and draft 
-  # end
-
-  # Define presentation-specific methods here. Helpers are accessed through
-  # `helpers` (aka `h`). You can override attributes, for example:
-  #
-  #   def created_at
-  #     helpers.content_tag :span, class: 'time' do
-  #       object.created_at.strftime("%a %m/%d/%y")
-  #     end
-  #   end
-
 end
