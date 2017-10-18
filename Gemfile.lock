@@ -106,6 +106,10 @@ GEM
       globalid (>= 0.3.6)
     activemodel (5.1.0.rc1)
       activesupport (= 5.1.0.rc1)
+    activemodel-serializers-xml (1.0.2)
+      activemodel (> 5.x)
+      activesupport (> 5.x)
+      builder (~> 3.1)
     activerecord (5.1.0.rc1)
       activemodel (= 5.1.0.rc1)
       activesupport (= 5.1.0.rc1)
@@ -169,6 +173,12 @@ GEM
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.2.5)
     docile (1.1.5)
+    draper (3.0.1)
+      actionpack (~> 5.0)
+      activemodel (~> 5.0)
+      activemodel-serializers-xml (~> 1.0)
+      activesupport (~> 5.0)
+      request_store (~> 1.0)
     dropbox-sdk (1.6.5)
       json
     erubi (1.6.0)
@@ -496,6 +506,7 @@ DEPENDENCIES
   daemons (= 1.0.10)
   delayed_job
   delayed_job_active_record
+  draper
   dropbox-sdk
   erubi
   erubis
