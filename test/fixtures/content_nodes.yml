@@ -39,6 +39,7 @@ public_casebook_section_2:
 private_casebook:
   title: Private Casebook 1
   public: false
+  slug: private-casebook
 
 # empty_casebook:
 #   title: Empty Casebook
