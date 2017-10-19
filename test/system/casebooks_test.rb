@@ -3,13 +3,17 @@ require 'application_system_test_case'
 class CasebookSystemTest < ApplicationSystemTestCase
   describe 'as an anonymous visitor' do
     scenario 'viewing a casebook', solr: true do
-      visit casebook_path casebook = content_nodes(:public_casebook)
+      casebook = content_nodes(:public_casebook)
+      section_1 = content_nodes(:public_casebook_section_1)
+      resource_1 = content_nodes(:'public_casebook_section_1.1')
+
+      visit casebook_path casebook
       assert_content casebook.title
 
-      click_link (section_1 = content_nodes(:public_casebook_section_1)).title
+      click_link section_1.title
       assert_content section_1.headnote
 
-      click_link (resource_1 = content_nodes(:'public_casebook_section_1.1')).resource.short_name
+      click_link resource_1.resource.short_name
       assert_content resource_1.headnote
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content

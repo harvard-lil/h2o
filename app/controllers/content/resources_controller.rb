@@ -3,6 +3,7 @@ require 'uri'
 
 class Content::ResourcesController < Content::NodeController
   def show
+    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
   end
 
   def annotate
