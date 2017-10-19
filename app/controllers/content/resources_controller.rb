@@ -3,12 +3,13 @@ require 'uri'
 
 class Content::ResourcesController < Content::NodeController
   def show
-    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
   end
 
   def annotate
     @editable = true
     @casebook.update_attributes public: false
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
     render 'show'
   end
 
