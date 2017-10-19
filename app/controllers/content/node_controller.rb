@@ -25,7 +25,7 @@ class Content::NodeController < ApplicationController
       return redirect_to details_casebook_path(@casebook)
     end
     # this breaks the resource view
-    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
     render 'content/edit_details'
   end
 
@@ -39,7 +39,7 @@ class Content::NodeController < ApplicationController
       return redirect_to casebook_path(@casebook)
     end
     @editable = true
-    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, resource: @resource})
     render 'content/layout'
   end
 

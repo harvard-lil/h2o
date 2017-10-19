@@ -29,6 +29,7 @@ class Content::SectionsController < Content::NodeController
 
   def edit
     @casebook.update_attributes public: false
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
     redirect_to layout_section_path @casebook, @section
   end
 
@@ -53,7 +54,7 @@ class Content::SectionsController < Content::NodeController
   end
 
   def show
-    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section})
     render 'content/show'
   end
 
