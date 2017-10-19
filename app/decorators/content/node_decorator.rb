@@ -141,7 +141,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def published_mode?
-    casebook.public && current_user.present?
+    casebook.public
   end
 
   def preview_mode?
