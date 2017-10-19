@@ -41,6 +41,21 @@ private_casebook:
   public: false
   slug: private-casebook
 
+private_casebook_section_1:
+  casebook: private_casebook
+  title: Section One
+  headnote: >
+    This is the first chapter of the casebook.
+  ordinals: [1]
+
+private_casebook_resource_1_1:
+  casebook: private_casebook
+  headnote: >
+    This is the first resource in the casebook.
+  resource: public_case_1
+  resource_type: Case
+  ordinals: [1,1]
+
 # empty_casebook:
 #   title: Empty Casebook
 #   public: true
