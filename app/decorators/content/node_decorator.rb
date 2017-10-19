@@ -59,7 +59,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_preview
-    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line')
+    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
     link_to(I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line') +
     button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
     link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') 
@@ -89,9 +89,9 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_published
     if owner?
-      link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line')
+      link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line') +
       button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
     else
       button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
       link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') 
@@ -100,9 +100,9 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if owner?
-      link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line')
+      link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line') +
       button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
     else
       button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
       link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
