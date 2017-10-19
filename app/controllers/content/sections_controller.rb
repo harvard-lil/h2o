@@ -53,6 +53,7 @@ class Content::SectionsController < Content::NodeController
   end
 
   def show
+    @content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section})
     render 'content/show'
   end
 

@@ -6,9 +6,9 @@ class Content::NodeDecorator < Draper::Decorator
     if draft_mode?
       draft_action_buttons
     elsif published_mode?
-      preview_action_buttons
-    elsif 
       published_action_buttons
+    elsif 
+      preview_action_buttons
     end
   end
 
@@ -60,8 +60,8 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_preview
-    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
-    link_to(I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line') +
+    button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line')
   end
 
   def section_preview
@@ -83,7 +83,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_published
-    link_to(I8n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line') +
+    link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line') +
     button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
     link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
   end
@@ -125,6 +125,6 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def owned
-    self.owners.include(current_user)
+    self.owners.include?(current_user)
   end
 end
