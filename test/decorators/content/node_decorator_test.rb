@@ -17,6 +17,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
       has_add_resource_link?(dom)
       has_add_section_link?(dom)
       has_export_link?(dom)
+      has_clone_link?(dom)
     end
 
     it 'renders section buttons' do
@@ -185,6 +186,6 @@ class Content::NodeDecoratorTest < ActionView::TestCase
   end
 
   def has_clone_link?(dom)
-    assert_select dom, 'form', class: 'clone'
+    assert_select dom, 'input.clone-casebook'
   end
 end
