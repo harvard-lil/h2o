@@ -18,6 +18,8 @@ class Content::NodeDecoratorTest < ActionView::TestCase
       has_add_section_link?(dom)
       has_export_link?(dom)
       has_clone_link?(dom)
+      has_save_link?(dom)
+      has_cancel_link?(dom)
     end
 
     it 'renders section buttons' do
