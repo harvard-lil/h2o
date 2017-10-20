@@ -27,7 +27,8 @@ class Content::NodeDecorator < Draper::Decorator
     button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
     link_to(I18n.t('content.actions.preview'), casebook_path(casebook), class: 'action one-line preview') +
     link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
-    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section')
+    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section') +
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
   end
 
   def section_draft
@@ -35,16 +36,19 @@ class Content::NodeDecorator < Draper::Decorator
     link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
     button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section') +
     link_to(I18n.t('content.actions.save'), edit_section_path(casebook, section), class: 'action one-line save submit-section-details') +
-    link_to(I18n.t('content.actions.cancel'), edit_section_path(casebook, section), class: 'action one-line cancel')
+    link_to(I18n.t('content.actions.cancel'), edit_section_path(casebook, section), class: 'action one-line cancel') +
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
   end
 
   def resource_draft
     if action_name == 'edit'
       link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview') +
       link_to(I18n.t('content.actions.save'), edit_resource_path(casebook, resource), class: 'action one-line save submit-edit-details') +
-      link_to(I18n.t('content.actions.cancel'), edit_resource_path(casebook, resource), class: 'action one-line cancel')
+      link_to(I18n.t('content.actions.cancel'), edit_resource_path(casebook, resource), class: 'action one-line cancel') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
     else
-      link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview')
+      link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
     end
   end
 
