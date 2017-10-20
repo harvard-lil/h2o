@@ -24,7 +24,6 @@ class Content::NodeController < ApplicationController
     if @casebook.public
       return redirect_to details_casebook_path(@casebook)
     end
-    # this breaks the resource view
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
     render 'content/edit_details'
   end
