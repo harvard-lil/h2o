@@ -16,6 +16,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
       has_preview_link?(dom)
       has_add_resource_link?(dom)
       has_add_section_link?(dom)
+      has_export_link?(dom)
     end
 
     it 'renders section buttons' do
@@ -27,6 +28,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
       has_add_section_link?(dom)
       has_save_link?(dom)
       has_cancel_link?(dom) 
+      has_export_link?(dom)
     end
 
     it 'renders resource buttons in edit' do
@@ -37,6 +39,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
       has_preview_link?(dom)
       has_save_link?(dom)
       has_cancel_link?(dom)
+      has_export_link?(dom)
     end
   end
 
@@ -174,7 +177,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
   end
 
   def has_export_link?(dom)
-    assert_select dom, 'a', class: 'Export'
+    assert_select dom, 'a', text: 'Export'
   end
 
   def has_revise_link?(dom)
