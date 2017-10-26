@@ -41,7 +41,7 @@
 - elsif content.is_a? Enumerable
   .section-wrapper
     - if editable
-      .section-contents
+      .section-contents.editable
         = render partial: 'content/table_of_contents/edit', collection: content
     - else
       .section-contents
