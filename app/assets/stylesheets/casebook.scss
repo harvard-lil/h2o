@@ -423,6 +423,10 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       border-left: 8px solid $light-blue;
       padding-left: 16px;
     }
+    .editable {
+      border-left: 8px solid $yellow;
+      padding-left: 16px;
+    }
   }
 }
 
