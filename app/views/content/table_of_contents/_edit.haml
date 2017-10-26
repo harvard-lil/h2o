@@ -40,8 +40,9 @@
 
 - elsif content.is_a? Enumerable
   .section-wrapper
-    .section-contents
-      - if editable
+    - if editable
+      .section-contents
         = render partial: 'content/table_of_contents/edit', collection: content
-      - else
+    - else
+      .section-contents
         = render partial: 'content/table_of_contents/show', collection: content
