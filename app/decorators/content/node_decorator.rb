@@ -29,7 +29,7 @@ class Content::NodeDecorator < Draper::Decorator
     link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
     button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section') +
     button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') +
     link_to(I18n.t('content.actions.save'), edit_casebook_path(casebook), class: 'action one-line save submit-casebook-details') +
     link_to(I18n.t('content.actions.cancel'), edit_casebook_path(casebook), class: 'action one-line cancel')
   end
