@@ -44,14 +44,14 @@ module Content::Concerns::HasChildren
     tables = []
     table = []
     n_ords = ordinals.length + 1
-    contents.each do |casebook|
-      if casebook.ordinals.length > n_ords
+    contents.each do |content|
+      if content.ordinals.length > n_ords
         tables.push table.push(table = [])
-      elsif casebook.ordinals.length < n_ords
-        table = tables.pop until tables.length < casebook.ordinals.length
+      elsif content.ordinals.length < n_ords
+        table = tables.pop until tables.length < content.ordinals.length
       end
-      n_ords = casebook.ordinals.length
-      table.push casebook
+      n_ords = content.ordinals.length
+      table.push content
     end
     tables.first || table
   end
