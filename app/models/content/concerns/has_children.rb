@@ -38,7 +38,7 @@ module Content::Concerns::HasChildren
     end
   end
 
-  # Transform a flat sorted array of casebooks into an array tree
+  # Transform a flat sorted array of content into an array tree
   # [1, 1.1, 1.1.1, 1.2, 2, 2.1, 2.1.1] => [1, [1.1, [1.1.1], 1.2], 2, [2.1, [2.1.1]]]
   def tree
     tables = []
