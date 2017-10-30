@@ -28,6 +28,7 @@ class Content::Node < ApplicationRecord
 
   belongs_to :copy_of, class_name: 'Content::Node', inverse_of: :copies, optional: true
   has_many :copies, class_name: 'Content::Node', inverse_of: :copy_of, foreign_key: :copy_of_id, dependent: :nullify
+  has_ancestry
 
   scope :published, -> {where public: true}
   scope :owned, -> {where content_collaborators: {role: 'owner'}}
