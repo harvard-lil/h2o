@@ -39,10 +39,7 @@ class Content::Node < ApplicationRecord
   end
 
   def root_owner
-    # Content::Collaborator.where( Content::Casebook.joins("INNER JOIN content_collaborators on content_collaborators.content_id = #{self.id} and content_collaborators.role = 'owner'")
-    # Content::Collaborator.joins("INNER JOIN content_nodes on content_node.id = collaborator.content_id and collaborator.role = 'owner'")
-   
-    User.find(Content::Collaborator.where("content_id = ? AND role = ?", self.id, 'owner').first.id).attribution
+    User.joins(:content_collaborators).where(content_collaborators: { content_id: self.id, role: 'owner' }).first.attribution
   end
 
   private
