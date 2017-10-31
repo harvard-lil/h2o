@@ -20,7 +20,13 @@
           </div>
         </div>
         <div class="owner">
-          <%= casebook.owners.first.display_name %>
+          <div class="user <%= casebook.owner.verified? ? 'verified' : '' %>"><%= casebook.owner.attribution %></div>
+        </div>
+        <div class="affiliation">
+          <%= casebook.owner.affiliation %>
+        </div>
+        <div class="root-attribution">
+          Original author: <%= casebook.root.root_owner %>
         </div>
       </div>
     </a>
