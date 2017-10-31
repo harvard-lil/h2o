@@ -47,6 +47,9 @@
         <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
     <% end %>
+    <div class="attribution">
+      Original author: <%= link_to @casebook.root.root_owner, user_path(@casebook.root.root_owner) %>
+    </div>
   </h1>
 </header>
 <% if @content.headnote.present? || @content.subtitle.present? %>
