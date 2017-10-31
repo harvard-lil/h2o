@@ -150,7 +150,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
 .casebook-inner {
   header.content{
-    padding: 10px 40px; 
+    padding: 10px 30px 20px 30px; 
 
     .form-control{
       font-size: 15px;
@@ -278,11 +278,16 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         @include square(13px);
         display: inline-block;
         vertical-align: middle;
-        margin-right: 5px;
         content: '';
         background: asset-url('ui/verified.png') no-repeat;
       }
     }
+  }
+
+  .attribution {
+    text-align: right;
+    margin-top: -20px;
+    font-size: 13px;
   }
 
   .resource {
