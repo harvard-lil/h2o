@@ -69,7 +69,6 @@ class Content::NodeDecoratorTest < ActionView::TestCase
 
       has_revise_link?(dom)
       has_clone_link?(dom)
-      has_export_link?(dom)
     end
 
     it 'renders resource buttons' do
@@ -79,7 +78,6 @@ class Content::NodeDecoratorTest < ActionView::TestCase
 
       has_revise_link?(dom)
       has_clone_link?(dom)
-      has_export_link?(dom)
     end
   end
 

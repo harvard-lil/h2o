@@ -74,14 +74,12 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_preview
     link_to(I18n.t('content.actions.revise'), layout_section_path(casebook, section), class: 'action edit one-line') +
-    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
   end
 
   def resource_preview
     link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line') +
-    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
   end
 
   def published_action_buttons
@@ -108,22 +106,18 @@ class Content::NodeDecorator < Draper::Decorator
   def section_published
     if owner?
       link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line') +
-      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
     else
-      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
     end
   end
 
   def resource_published
     if owner?
       link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line') +
-      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
     else
-      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
-      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
     end
   end
 
