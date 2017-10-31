@@ -24,14 +24,16 @@
 # - can have children
 # - can have collaborators of its own
 class Content::Casebook < Content::Node
+  has_ancestry :orphan_strategy => :adopt
+  
   default_scope {where(casebook_id: nil)}
 
   validates :casebook_id, presence: false
   validates_length_of :ordinals, is: 0
 
   has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id, dependent: :delete_all
-
   has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :content_id
+  
   include Content::Concerns::HasCollaborators
   include Content::Concerns::HasChildren
 
@@ -64,11 +66,9 @@ class Content::Casebook < Content::Node
     string(:affiliation, stored: true) { owners.first.try(:affiliation) }
   end
 
-  def clone owner:
+  def clone(owner:)
     cloned_casebook = dup
-    cloned_casebook.update_attributes copy_of: self,
-      collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')],
-      public: false
+    cloned_casebook.update_attributes(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self )
     cloned_casebook
   end
 
