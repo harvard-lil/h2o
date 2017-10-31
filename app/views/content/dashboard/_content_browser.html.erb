@@ -1,0 +1,28 @@
+<div class="content-browser">
+  <% content.each do |casebook| %>
+    <% if casebook.public %>
+      <% version_type = 'public' %>
+    <% else %>
+      <% version_type = 'draft' %>
+      <% action = 'layout' %>
+    <% end %>
+    <a class="wrapper" href="<%= casebook_url(casebook) %>/<%= action %>">
+      <div class="content-page <%= version_type %>">
+        <div class="top">
+          <div class="state">
+            <%= casebook.public ? t('content.dashboard.casebooks.published') : t('content.dashboard.casebooks.draft') %>
+          </div>
+          <div class="title">
+            <%= casebook.title %>
+          </div>
+          <div class="subtitle">
+            <%= casebook.subtitle %>
+          </div>
+        </div>
+        <div class="owner">
+          <%= casebook.owners.first.display_name %>
+        </div>
+      </div>
+    </a>
+  <% end %>
+</div>
