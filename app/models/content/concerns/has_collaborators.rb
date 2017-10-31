@@ -4,7 +4,7 @@ module Content::Concerns::HasCollaborators
   extend ActiveSupport::Concern
 
   included do
-      has_many :users, class_name: 'User', through: :collaborators, source: :user, inverse_of: :collaborations
+      has_many :users, class_name: 'User', through: :collaborators, source: :user, inverse_of: :content_collaborators
 
       has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user do
         def << (*users)
