@@ -1,0 +1,22 @@
+<header class="dashboard">
+  <div class="content">
+    <div class="content-inner">
+      <%= render 'content/search' %>
+    </div>
+  </div>
+</header>
+<section class="dashboard">
+  <div class="content">
+    <% if @user == current_user %>
+      <h2 class="casebooks">
+        <%= 'Your Casebooks' %>
+      </h2>
+    <% else %>
+      <h2 class="casebooks">
+        <%= "#{@user.attribution}'s Casebooks" %>
+      </h2>
+    <% end %>
+    <hr class="owned"/>
+    <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.casebooks.owned, section: 'owned'} %>
+  </div>
+</section>
