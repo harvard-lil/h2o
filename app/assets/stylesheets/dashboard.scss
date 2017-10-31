@@ -42,9 +42,9 @@ hr.owned {
   .content-page {
     position: relative;
     padding: 10px;
-
     background-color: white;
     border-left: 15px solid $gray;
+    
     .top {
       height: 200px;
     }
@@ -90,4 +90,12 @@ hr.owned {
       margin-top: 0px;
     }
   }
+}
+
+.verified::before {
+  @include square(13px);
+  display: inline-block;
+  vertical-align: middle;
+  content: '';
+  background: asset-url('ui/verified.png') no-repeat;
 }
