@@ -33,7 +33,7 @@
       <% end %>
     </div>
     <div class="root-attribution">
-      Original author: <%= @casebook.root.root_owner %>
+      Original author: <%= link_to @casebook.root.root_owner, user_path(@casebook.root.root_owner) %>
     </div>
   <% end %>
 <% end %>
