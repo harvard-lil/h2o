@@ -28,7 +28,9 @@
           </div>
         </div>
         <div class="root-attribution">
-          Original author: <%= casebook.root.root_owner %>
+          <% if casebook.ancestry %>
+            Original author: <%= casebook.root.root_owner %>
+          <% end %>
         </div>
       </div>
     </a>
