@@ -30,7 +30,6 @@ hr.owned {
   clear: both;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
 
   .content-page, .header-spacer {
     @include size(225px, 320px);
@@ -44,10 +43,11 @@ hr.owned {
     padding: 10px;
     background-color: white;
     border-left: 15px solid $gray;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
     
-    .top {
-      height: 200px;
-    }
     .state {
       @include sans-serif($medium, 10px, 10px);
       margin-bottom: 5px;
@@ -61,7 +61,7 @@ hr.owned {
       @include sans-serif($light, 18px, 18px);
     }
     .owner {
-      @include sans-serif($medium, 16px, 16px);
+      @include sans-serif($medium, 21px, 21px);
     }
     &.public {
       border-left-color: $light-blue;
@@ -90,12 +90,24 @@ hr.owned {
       margin-top: 0px;
     }
   }
+
+  .affiliation {
+    color: grey;
+    font-weight: 300;
+  }
+
+  .verified {
+    @include square(13px);
+    display: inline-block;
+    vertical-align: middle;
+    content: '';
+    background: asset-url('ui/verified.png') no-repeat;
+    margin-left: 3px;
+  }
+
+  .root-attribution {
+    font-size: 10px;
+    color: grey;
+  }
 }
 
-.verified::before {
-  @include square(13px);
-  display: inline-block;
-  vertical-align: middle;
-  content: '';
-  background: asset-url('ui/verified.png') no-repeat;
-}
