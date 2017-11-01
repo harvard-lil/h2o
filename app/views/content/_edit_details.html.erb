@@ -1,5 +1,5 @@
 <%= simple_form_for @content, url: @section.present? ? section_path(@casebook, @section) : @resource.present? ? resource_path(@casebook, @resource) : casebook_path(@casebook), class: 'casebook-details' do |f| %>
-	<header class="content">
+	<header class="casebook-info">
 	  <% if @section.present? %>
 	    <div class="breadcrumbs">
 	      <%= t 'content.show.section' %>
@@ -18,17 +18,22 @@
 		<%= f.input :title, placeholder: t('simple_form.labels.casebook.name') %>
 		<%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
 	</header>
-	<% if @section.nil? %>
-	  <div class="collaborators">
-	    <% @casebook.users.each do |user| %>
-	    	<div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
-	    <% end %>
-	  </div>
-	<% end %>
+
   <section class="headnote">
 	  <h5>
 	    <%= t 'content.show.headnote' %>
 	  </h5>
 	  <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
 	</section>
+
+  <% if @section.nil? %>
+    <div class="collaborators">
+      <% @casebook.users.each do |user| %>
+        <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
+      <% end %>
+    </div>
+    <div class="root-attribution">
+      Original author: <%= @casebook.root.root_owner %>
+    </div>
+  <% end %>
 <% end %>
