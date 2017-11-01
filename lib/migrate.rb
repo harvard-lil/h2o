@@ -18,7 +18,8 @@ module Migrate
           title: playlist.name, # + " [Playlist \##{playlist.id}]",
           headnote: sanitize(playlist.description),
           public: playlist.public,
-          owners: [playlist.user]
+          owners: [playlist.user],
+          ancestry: playlist.ancestry
 
         migrate_items playlist.playlist_items, path: [], casebook: casebook
         casebook
