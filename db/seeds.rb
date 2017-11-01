@@ -3,12 +3,12 @@ Page.create! page_title: "H2O Help", slug: "help", content: "<p>Here is some inf
 Role.create!(name: 'superadmin')
 Role.create!(name: 'case_admin')
 
-admin_user = User.create!( email_address: 'admin@example.edu', verified: true, password: 'password', password_confirmation: 'password', roles: [Role.find_by_name('superadmin')] )
-professor_user = User.create!( email_address: 'professor@example.edu', verified: true, password: 'password', password_confirmation: 'password' )
-student_user = User.create!( email_address: 'student@example.edu', verified: true, password: 'password', password_confirmation: 'password' )
+admin_user = User.create!( email_address: 'admin@example.edu', verified: true, password: 'password', password_confirmation: 'password', roles: [Role.find_by_name('superadmin')], attribution: 'Admin', affiliation: 'Admin University')
+professor_user = User.create!( email_address: 'professor@example.edu', verified: true, password: 'password', password_confirmation: 'password', attribution: 'Professor X', affiliation: 'Tufts University')
+student_user = User.create!( email_address: 'student@example.edu', verified: true, password: 'password', password_confirmation: 'password', attribution: 'Student', affiliation: 'Yale Law School')
 
 # ## Cases in this casebook are missing content
-legal_history_casebook = Content::Casebook.create!( title: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, owners: [professor_user])
+legal_history_casebook = Content::Casebook.create!( title: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, collaborators: Content::Collaborator.new(user: professor_user, role: 'owner'))
 
 Content::Section.create!(casebook: legal_history_casebook, ordinals: [1], title: 'Law and the Economy: Contract and Regulation')
 Content::Resource.create!(casebook: legal_history_casebook, ordinals: [1, 1], resource:
@@ -98,7 +98,7 @@ cases = Case.create!([
 		content: barrels_of_whiskey_case_content.first,  public: true, sent_in_cases_list: false, created_via_import: true }
 ])
 
-american_legal_casebook = Content::Casebook.create!(title: 'Law 204', public: true, owners: [professor_user])
+american_legal_casebook = Content::Casebook.create!(title: 'Law 204', public: true, collaborators: Content::Collaborator.new(user: professor_user, role: 'owner'))
 Content::Resource.create!(casebook: american_legal_casebook, ordinals: [1], resource: text_block)
 
 Content::Section.create!(casebook: american_legal_casebook, ordinals: [2], title: 'Prohibition')
