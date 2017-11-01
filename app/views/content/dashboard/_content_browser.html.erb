@@ -8,7 +8,7 @@
     <% end %>
     <a class="wrapper" href="<%= casebook_url(casebook) %>/<%= action %>">
       <div class="content-page <%= version_type %>">
-        <div class="top">
+        <div class="casebook-info">
           <div class="state">
             <%= casebook.public ? t('content.dashboard.casebooks.published') : t('content.dashboard.casebooks.draft') %>
           </div>
@@ -19,11 +19,13 @@
             <%= casebook.subtitle %>
           </div>
         </div>
-        <div class="owner">
-          <div class="user <%= casebook.owner.verified? ? 'verified' : '' %>"><%= casebook.owner.attribution %></div>
-        </div>
-        <div class="affiliation">
-          <%= casebook.owner.affiliation %>
+        <div class="author-info">
+          <div class="owner">
+            <%= casebook.owner.attribution %><span class="<%= casebook.owner.verified? ? 'verified' : '' %>"></span>
+          </div>
+          <div class="affiliation">
+            <%= casebook.owner.affiliation %>
+          </div>
         </div>
         <div class="root-attribution">
           Original author: <%= casebook.root.root_owner %>
