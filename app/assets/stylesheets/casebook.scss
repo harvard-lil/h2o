@@ -407,6 +407,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       .resource-date {
         width: 40px;
+        margin-right: 15px;
       }
       .resource-type {
         border: 1px solid $light-blue;
@@ -418,7 +419,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         justify-content: center;
         font-size: 12px;
         font-weight: bold;
-        align-self: flex-end;
         margin-left: auto;
         padding-top: 2px;
       }
