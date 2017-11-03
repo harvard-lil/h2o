@@ -20,8 +20,13 @@ class Content::SectionsController < Content::NodeController
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
-    if @section.is_a? Content::Resource
-      redirect_to annotate_resource_path @casebook, @section
+
+    if @section.is_a?(Content::Resource)
+      if @section.resource_type == 'Default'
+        redirect_to edit_resource_path @casebook, @section
+      else
+        redirect_to annotate_resource_path @casebook, @section
+      end
     else
       redirect_to edit_section_path @casebook, @section
     end
