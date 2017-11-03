@@ -24,7 +24,6 @@ class Content::ResourcesController < Content::NodeController
         send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.pdf', disposition: :inline
       }
       format.docx {
-        # binding.pry
         file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
         Htmltoword::Document.create_and_save(html, file_path)
