@@ -35,9 +35,6 @@
   }
   .case-search, .new-text, .new-link {
     margin: 15px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     input[type=text] {
       display: inline-block;
@@ -48,7 +45,11 @@
       @extend .btn-primary;
       width: 30%;
       height: 52px;
-      margin-left: 5px;
+      margin: 15px 0 0 5px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
     }
   }
 }
