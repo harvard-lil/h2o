@@ -24,8 +24,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def clone
-    @clone = current_user.casebooks.owned.where(copy_of: @casebook).first ||
-      @casebook.clone(owner: current_user)
+    @clone = @casebook.clone(owner: current_user)
     redirect_to layout_casebook_path(@clone)
   end
 
