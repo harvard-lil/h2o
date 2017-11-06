@@ -37,7 +37,6 @@ class Default < ApplicationRecord
   has_many :playlist_items, :as => :actual_object
   belongs_to :user, optional: true
   validate :url_format
-  has_ancestry :orphan_strategy => :adopt
   before_save :filter_harvard_urls
 
   has_many :casebooks, inverse_of: :resource
