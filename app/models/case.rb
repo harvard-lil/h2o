@@ -120,7 +120,7 @@ class Case < ApplicationRecord
   alias :to_s :display_name
 
   def indexable_case_citations
-    self.case_citations.map(&:display_name)
+    self.case_citations.map(&:display_name).join(" ")
   end
   def indexable_case_docket_numbers
     self.case_docket_numbers.map(&:docket_number)
