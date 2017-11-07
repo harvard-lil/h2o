@@ -29,7 +29,7 @@ module Migrate
     # recursive call to migrate section contents
     def migrate_items playlist_items, path:, casebook:
       playlist_items.order(:position).each_with_index do |item, index|
-        if item.actual_object_type.in? %w{Playlist Collage Media}
+        if item.actual_object_type.in? %w{Playlist Collage Media Default TextBlock}
           item.actual_object_type = "Migrate::#{item.actual_object_type}"
         end
         object = item.actual_object
