@@ -33,7 +33,11 @@ module Migrate
             playlist_id: playlist.id
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
-          update_ancestry(casebook)
+          
+          if casebook.ancestry.present?
+            update_ancestry(casebook)
+          end
+
           casebook
         end
       end
@@ -54,16 +58,18 @@ module Migrate
 
     def update_all_ancestry(casebooks, playlist_casebook_id_map)
       casebooks.each do |casebook| 
-        new_ancestry = []
-        old_ancestry = casebook.ancestry.split("/")
+        if casebook.ancestry.present?
+          new_ancestry = []
+          old_ancestry = casebook.ancestry.split("/")
 
-        old_ancestry.each do |ancestry_node|
-          casebook_id = playlist_casebook_id_map.select {|row| row[:playlist_id] = ancestry_node}.first[:casebook_id]
-          new_ancestry << casebook_id
+          old_ancestry.each do |ancestry_node|
+            casebook_id = playlist_casebook_id_map.select {|row| row[:playlist_id] = ancestry_node}.first[:casebook_id]
+            new_ancestry << casebook_id
+          end
+
+          ancestry = new_ancestry.join("/")
+          casebook.update(ancestry: ancestry)
         end
-
-        ancestry = new_ancestry.join("/")
-        casebook.update(ancestry: ancestry)
       end
     end
 
