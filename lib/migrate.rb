@@ -29,7 +29,7 @@ module Migrate
             headnote: sanitize(playlist.description),
             public: playlist.public,
             owners: [playlist.user],
-            ancestry: playlist.ancestry
+            ancestry: playlist.ancestry,
             playlist_id: playlist.id
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
