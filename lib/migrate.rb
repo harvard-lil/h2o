@@ -13,13 +13,11 @@ module Migrate
         playlist_casebook_id_map << { playlist_id: playlist.id, casebook_id: casebook.id }
       end
       
-      update_all_ancestry(casebook, playlist_casebook_id_map)
+      update_all_ancestry(casebooks, playlist_casebook_id_map)
     end
 
-    
-
     def migrate_playlist(playlist)
-      preexisting_casebook = Content::Casebook.find_by_created_at playlist.created_at
+      preexisting_casebook = Content::Casebook.find_by_created_at(playlist.created_at)
 
       if preexisting_casebook
         puts "Playlist #{playlist.id} is a duplicate of Casebook #{casebook}"
@@ -33,7 +31,7 @@ module Migrate
             owners: [playlist.user],
             ancestry: playlist.ancestry
 
-          migrate_items playlist.playlist_items, path: [], casebook: casebook
+          migrate_items(playlist.playlist_items, path: [], casebook: casebook)
           update_ancestry(casebook)
           casebook
         end
@@ -54,7 +52,7 @@ module Migrate
       casebook.update(ancestry: ancestry)
     end
 
-    def update_all_ancestry(casebook, playlist_casebook_id_map)
+    def update_all_ancestry(casebooks, playlist_casebook_id_map)
       casebooks.each do |casebook| 
         new_ancestry = []
         old_ancestry = casebook.ancestry.split("/")
