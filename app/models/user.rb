@@ -241,11 +241,11 @@ class User < ApplicationRecord
     end
   end
 
-  def bookmarks_map
-    Rails.cache.fetch([self, "bookmarks_map"], :compress => H2O_CACHE_COMPRESSION) do
-      self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
-    end
-  end
+  # def bookmarks_map
+  #   Rails.cache.fetch([self, "bookmarks_map"], :compress => H2O_CACHE_COMPRESSION) do
+  #     self.bookmarks.map { |i| "#{i.actual_object_type.to_s.underscore}#{i.actual_object_id}" }
+  #   end
+  # end
 
   def send_verification_request
     reset_perishable_token!
