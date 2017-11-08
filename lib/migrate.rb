@@ -1,33 +1,76 @@
 module Migrate
   class << self
     def migrate_all_playlists
-      puts 'Locating unmigrated playlists...'
+      playlist_casebook_id_map = []
+      casebooks = []
       playlists = unmigrated_playlists
-      puts "Migrating #{playlists.count} new playlists..."
-      playlists.each_with_index do |p, idx|
+
+      playlists.each_with_index do |playlist, index|
         puts "#{idx}: migrating #{p.id}"
-        migrate_playlist p
+        casebook = migrate_playlist(playlist)
         puts "#{idx}: #{p.id} migrated"
+        casebooks << casebook
+        playlist_casebook_id_map << { playlist_id: playlist.id, casebook_id: casebook.id }
+      end
+      
+      update_all_ancestry(casebook, playlist_casebook_id_map)
+    end
+
+    
+
+    def migrate_playlist(playlist)
+      preexisting_casebook = Content::Casebook.find_by_created_at playlist.created_at
+
+      if preexisting_casebook
+        puts "Playlist #{playlist.id} is a duplicate of Casebook #{casebook}"
+      else
+        # create casebook for playlist
+        ActiveRecord::Base.transaction do
+          casebook = Content::Casebook.create created_at: playlist.created_at,
+            title: playlist.name, # + " [Playlist \##{playlist.id}]",
+            headnote: sanitize(playlist.description),
+            public: playlist.public,
+            owners: [playlist.user],
+            ancestry: playlist.ancestry
+
+          migrate_items playlist.playlist_items, path: [], casebook: casebook
+          update_ancestry(casebook)
+          casebook
+        end
       end
     end
 
-    def migrate_playlist playlist
-      # create casebook for playlist
-      ActiveRecord::Base.transaction do
-        casebook = Content::Casebook.create created_at: playlist.created_at,
-          title: playlist.name, # + " [Playlist \##{playlist.id}]",
-          headnote: sanitize(playlist.description),
-          public: playlist.public,
-          owners: [playlist.user],
-          ancestry: playlist.ancestry
+    def update_ancestry(casebook)
+      new_ancestry = []
+      old_ancestry = casebook.ancestry.split("/")
 
-        migrate_items playlist.playlist_items, path: [], casebook: casebook
-        casebook
+      old_ancestry.each do |ancestry_node|
+        ancestry_playlist = Migrate::Playlist.find(ancestry_node)
+        casebook_id = Content::Casebook.find_by_created_at(ancestry_playlist.created_at).id
+        new_ancestry << casebook_id
+      end
+
+      ancestry = new_ancestry.join("/")
+      casebook.update(ancestry: ancestry)
+    end
+
+    def update_all_ancestry(casebook, playlist_casebook_id_map)
+      casebooks.each do |casebook| 
+        new_ancestry = []
+        old_ancestry = casebook.ancestry.split("/")
+
+        old_ancestry.each do |ancestry_node|
+          casebook_id = playlist_casebook_id_map.select {|row| row[:playlist_id] = ancestry_node}.first[:casebook_id]
+          new_ancestry << casebook_id
+        end
+
+        ancestry = new_ancestry.join("/")
+        casebook.update(ancestry: ancestry)
       end
     end
 
     # recursive call to migrate section contents
-    def migrate_items playlist_items, path:, casebook:
+    def migrate_items(playlist_items, path:, casebook: )
       playlist_items.order(:position).each_with_index do |item, index|
         if item.actual_object_type.in? %w{Playlist Collage Media}
           item.actual_object_type = "Migrate::#{item.actual_object_type}"
@@ -72,7 +115,7 @@ module Migrate
             ordinals: ordinals
 
           if object.is_a? Migrate::Collage
-            migrate_annotations object, resource
+            migrate_annotations(object, resource)
           end
 
           resource
@@ -83,7 +126,7 @@ module Migrate
     # Source annotations are located by xpaths, which can't be ordered for caching.
     # Target nodes are located by the index of the paragraph, consistent with WordML etc.
     # This finds the appropriate paragraph for the annotation's xpath.
-    def migrate_annotations collage, resource
+    def migrate_annotations(collage, resource)
       return unless resource.resource.class.in? [Case, TextBlock]
 
       document = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
