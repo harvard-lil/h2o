@@ -17,7 +17,7 @@ module Migrate
     end
 
     def migrate_playlist(playlist)
-      preexisting_casebook = Content::Casebook.find_by_created_at(playlist.created_at)
+      preexisting_casebook = Content::Casebook.find_by_playlist_id(playlist.id)
 
       if preexisting_casebook
         puts "Playlist #{playlist.id} is a duplicate of Casebook #{casebook}"
@@ -30,6 +30,7 @@ module Migrate
             public: playlist.public,
             owners: [playlist.user],
             ancestry: playlist.ancestry
+            playlist_id: playlist.id
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
           update_ancestry(casebook)
@@ -43,8 +44,7 @@ module Migrate
       old_ancestry = casebook.ancestry.split("/")
 
       old_ancestry.each do |ancestry_node|
-        ancestry_playlist = Migrate::Playlist.find(ancestry_node)
-        casebook_id = Content::Casebook.find_by_created_at(ancestry_playlist.created_at).id
+        casebook_id = Content::Casebook.find_by_playlist_id(ancestry_node).id
         new_ancestry << casebook_id
       end
 
@@ -235,7 +235,7 @@ module Migrate
 
     # associate original with migrated by creation date
     def unmigrated_playlists
-      root_playlists.reject {|p| Content::Casebook.find_by_created_at p.created_at }
+      root_playlists.reject {|playlist| Content::Casebook.find_by_playlist_id(playlist.id) }
     end
 
     def sanitize html
@@ -244,8 +244,8 @@ module Migrate
 
     # root playlists do not occur in playlistitems
     def root_playlists
-      Migrate::Playlist.all.reject {|p| Migrate::PlaylistItem.where(actual_object_type: 'Playlist').find_by_actual_object_id p.id}
-      .reject {|p| p.playlist_items.count == 0}
+      Migrate::Playlist.all.reject {|playlist| Migrate::PlaylistItem.where(actual_object_type: 'Playlist').find_by_actual_object_id playlist.id}
+      .reject {|playlist| playlist.playlist_items.count == 0}
     end
   end
 end
