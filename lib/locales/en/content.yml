@@ -2,9 +2,9 @@ en:
   simple_form:
     labels:
       casebook:
-        name: Give your casebook a concise title.
+        name: Enter a concise title.
         subtitle: Subtitle (optional)
-        description: Any additional details to help readers find or use this casebook
+        description: Enter any additional context about this casebook or section.
         password: Password
         password_confirmation: Confirm password
         save: Save
