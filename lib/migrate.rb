@@ -1,19 +1,14 @@
 module Migrate
   class << self
     def migrate_all_playlists
-      playlist_casebook_id_map = []
-      casebooks = []
+      puts 'Locating unmigrated playlists...'
       playlists = unmigrated_playlists
 
       playlists.each_with_index do |playlist, index|
-        puts "#{idx}: migrating #{p.id}"
-        casebook = migrate_playlist(playlist)
-        puts "#{idx}: #{p.id} migrated"
-        casebooks << casebook
-        playlist_casebook_id_map << { playlist_id: playlist.id, casebook_id: casebook.id }
+        puts "#{index}: migrating #{playlist.id}"
+        migrate_playlist(playlist)
+        puts "#{index}: #{playlist.id} migrated"
       end
-      
-      update_all_ancestry(casebooks, playlist_casebook_id_map)
     end
 
     def migrate_playlist(playlist)
@@ -33,42 +28,7 @@ module Migrate
             playlist_id: playlist.id
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
-          
-          if casebook.ancestry.present?
-            update_ancestry(casebook)
-          end
-
           casebook
-        end
-      end
-    end
-
-    def update_ancestry(casebook)
-      new_ancestry = []
-      old_ancestry = casebook.ancestry.split("/")
-
-      old_ancestry.each do |ancestry_node|
-        casebook_id = Content::Casebook.find_by_playlist_id(ancestry_node).id
-        new_ancestry << casebook_id
-      end
-
-      ancestry = new_ancestry.join("/")
-      casebook.update(ancestry: ancestry)
-    end
-
-    def update_all_ancestry(casebooks, playlist_casebook_id_map)
-      casebooks.each do |casebook| 
-        if casebook.ancestry.present?
-          new_ancestry = []
-          old_ancestry = casebook.ancestry.split("/")
-
-          old_ancestry.each do |ancestry_node|
-            casebook_id = playlist_casebook_id_map.select {|row| row[:playlist_id] = ancestry_node}.first[:casebook_id]
-            new_ancestry << casebook_id
-          end
-
-          ancestry = new_ancestry.join("/")
-          casebook.update(ancestry: ancestry)
         end
       end
     end
