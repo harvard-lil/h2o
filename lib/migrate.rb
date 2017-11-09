@@ -15,8 +15,11 @@ module Migrate
       preexisting_casebook = Content::Casebook.find_by_playlist_id(playlist.id)
 
       if preexisting_casebook
-        puts "Playlist #{playlist.id} is a duplicate of Casebook #{casebook}"
+        puts "Playlist #{playlist.id} is a duplicate of Casebook #{preexisting_casebook.id}"
       else
+        puts "*************"
+        puts "*************"
+        puts "Playlist #{playlist.id}"
         # create casebook for playlist
         ActiveRecord::Base.transaction do
           casebook = Content::Casebook.create created_at: playlist.created_at,
