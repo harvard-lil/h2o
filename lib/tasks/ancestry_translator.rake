@@ -1,4 +1,4 @@
-namespace :ordinal_translator do
+namespace :ancestry_translator do
   desc "Update Casebook ordinals to match Casebooks instead of Playlists"
   task :send => :environment do
     Content::Casebook.find_each do |casebook|
