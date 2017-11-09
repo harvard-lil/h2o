@@ -13,6 +13,7 @@ staging:
 development:
   adapter: postgresql
   database: h2o_dev
+  host: localhost
   pool: 5
 
 test:
