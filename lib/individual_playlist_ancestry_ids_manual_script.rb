@@ -46,4 +46,6 @@ After migrating manually change ancestries with these numbers:
 
 PlaylistItems
 
-Migrate::Playlist.find(playlist_and_ancestry_ids).map &:migrate
+playlists = [25514, 25606, 25698, 25858, 25965, 26039, 26057, 26074, 26143, 26147, 26221, 26241, 26271, 26372, 26401, 26452, 26559, 27206, 27297, 27438, 27790, 27819, 27845, 28015, 28066, 28148, 28286, 46180, 50966, 51028, 51291, 51531, 51575, 51676, 51703, 51759, 51760, 51770, 51792, 51938, 51971, 52383, 52511, 52719]
+
+Migrate::Playlist.find(playlists).map &:migrate
