@@ -6,7 +6,7 @@ module Migrate
 
       playlists.each_with_index do |playlist, index|
         puts "#{index}: migrating #{playlist.id}"
-        migrate_playlist(playlist)
+        migrate_playlist(playlists)
         puts "#{index}: #{playlist.id} migrated"
       end
     end
@@ -28,7 +28,8 @@ module Migrate
             public: playlist.public,
             owners: [playlist.user],
             ancestry: playlist.ancestry,
-            playlist_id: playlist.id
+            playlist_id: playlist.id,
+            root_user_id: playlist.root.user_id
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
           casebook
