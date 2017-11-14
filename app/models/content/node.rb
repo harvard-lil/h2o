@@ -37,10 +37,6 @@ class Content::Node < ApplicationRecord
     super || self.title.parameterize
   end
 
-  def root_owner
-    User.joins(:content_collaborators).where(content_collaborators: { content_id: self.id, role: 'owner' }).first.attribution
-  end
-
   private
 
   # Resolve the correct subclass for this record.
