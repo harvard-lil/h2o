@@ -21,14 +21,15 @@ module Content::Concerns::HasChildren
   end
 
   def reflow_contents
-    reflow_tree tree, ordinals
+    reflow_tree(tree, ordinals)
   end
 
-  def reflow_tree tree, prefix = []
+  def reflow_tree(tree, prefix = [])
     ord = 1
     tree.each do |element|
       if element.is_a? Enumerable
-        reflow_tree element, ord == 1 ? prefix : prefix + [ord-1]
+        element_prefix = ord == 1 ? prefix : prefix + [ord-1]
+        reflow_tree(element, element_prefix)
       else
         unless element.destroyed?
           element.update_column :ordinals, prefix + [ord]
