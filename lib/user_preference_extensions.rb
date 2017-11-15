@@ -18,7 +18,7 @@ module UserPreferenceExtensions
       cookies[attr] = cookie_value
     end
 
-    cookies[:bookmarks] = on_create ? "[]" : user.bookmarks_map.to_json
+    # cookies[:bookmarks] = on_create ? "[]" : user.bookmarks_map.to_json
   end
 
   def destroy_user_preferences

@@ -3,31 +3,39 @@ module Migrate
     def migrate_all_playlists
       puts 'Locating unmigrated playlists...'
       playlists = unmigrated_playlists
-      puts "Migrating #{playlists.count} new playlists..."
-      playlists.each_with_index do |p, idx|
-        puts "#{idx}: migrating #{p.id}"
-        migrate_playlist p
-        puts "#{idx}: #{p.id} migrated"
+
+      playlists.each_with_index do |playlist, index|
+        puts "#{index}: migrating #{playlist.id}"
+        migrate_playlist(playlists)
+        puts "#{index}: #{playlist.id} migrated"
       end
     end
 
-    def migrate_playlist playlist
-      # create casebook for playlist
-      ActiveRecord::Base.transaction do
-        casebook = Content::Casebook.create created_at: playlist.created_at,
-          title: playlist.name, # + " [Playlist \##{playlist.id}]",
-          headnote: sanitize(playlist.description),
-          public: playlist.public,
-          owners: [playlist.user],
-          ancestry: playlist.ancestry
+    def migrate_playlist(playlist)
+      preexisting_casebook = Content::Casebook.find_by_playlist_id(playlist.id)
 
-        migrate_items playlist.playlist_items, path: [], casebook: casebook
-        casebook
+      if preexisting_casebook
+        puts "Playlist #{playlist.id} is a duplicate of Casebook #{preexisting_casebook.id}"
+      else
+        puts "Migrating playlist #{playlist.id}"
+        # create casebook for playlist
+        ActiveRecord::Base.transaction do
+          casebook = Content::Casebook.create created_at: playlist.created_at,
+            title: playlist.name, # + " [Playlist \##{playlist.id}]",
+            headnote: sanitize(playlist.description),
+            public: playlist.public,
+            owners: [playlist.user],
+            playlist_id: playlist.id,
+            root_user_id: playlist.root.user_id
+
+          migrate_items(playlist.playlist_items, path: [], casebook: casebook)
+          casebook
+        end
       end
     end
 
     # recursive call to migrate section contents
-    def migrate_items playlist_items, path:, casebook:
+    def migrate_items(playlist_items, path:, casebook: )
       playlist_items.order(:position).each_with_index do |item, index|
         if item.actual_object_type.in? %w{Playlist Collage Media}
           item.actual_object_type = "Migrate::#{item.actual_object_type}"
@@ -72,7 +80,7 @@ module Migrate
             ordinals: ordinals
 
           if object.is_a? Migrate::Collage
-            migrate_annotations object, resource
+            migrate_annotations(object, resource)
           end
 
           resource
@@ -83,7 +91,7 @@ module Migrate
     # Source annotations are located by xpaths, which can't be ordered for caching.
     # Target nodes are located by the index of the paragraph, consistent with WordML etc.
     # This finds the appropriate paragraph for the annotation's xpath.
-    def migrate_annotations collage, resource
+    def migrate_annotations(collage, resource)
       return unless resource.resource.class.in? [Case, TextBlock]
 
       document = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
@@ -194,7 +202,7 @@ module Migrate
 
     # associate original with migrated by creation date
     def unmigrated_playlists
-      root_playlists.reject {|p| Content::Casebook.find_by_created_at p.created_at }
+      root_playlists.reject {|playlist| Content::Casebook.find_by_playlist_id(playlist.id) }
     end
 
     def sanitize html
@@ -203,8 +211,8 @@ module Migrate
 
     # root playlists do not occur in playlistitems
     def root_playlists
-      Migrate::Playlist.all.reject {|p| Migrate::PlaylistItem.where(actual_object_type: 'Playlist').find_by_actual_object_id p.id}
-      .reject {|p| p.playlist_items.count == 0}
+      Migrate::Playlist.all.reject {|playlist| Migrate::PlaylistItem.where(actual_object_type: 'Playlist').find_by_actual_object_id playlist.id}
+      .reject {|playlist| playlist.playlist_items.count == 0}
     end
   end
 end

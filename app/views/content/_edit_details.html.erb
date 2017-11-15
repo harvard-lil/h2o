@@ -33,11 +33,11 @@
           <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
         <% end %>
       </div>
-      <div class="root-attribution">
-        <% if @casebook.ancestry %>
-          Original author: <%= link_to @casebook.root.root_owner, user_path(@casebook.root.root_owner) %>
-        <% end %>
-      </div>
+			<div class="root-attribution">
+	      <% if @casebook.root_owner %>
+	        Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
+	      <% end %>
+			</div>
     </div>
   <% end %>
 <% end %>

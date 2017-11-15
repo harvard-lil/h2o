@@ -48,8 +48,8 @@
         <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
       <div class="root-attribution">
-        <% if @casebook.ancestry %>
-          Original author: <%= link_to @casebook.root.root_owner, user_path(@casebook.root.root_owner) %>
+        <% if @casebook.root_owner %>
+          Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
         <% end %>
       </div>
     </div>
