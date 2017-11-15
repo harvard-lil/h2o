@@ -48,7 +48,7 @@
       </div>
     <% end %>
     <div class="root-attribution">
-      <% if @casebook.ancestry %>
+      <% if @casebook.root_owner %>
         Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
       <% end %>
     </div>
