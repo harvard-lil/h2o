@@ -31,8 +31,8 @@ class Content::Child < Content::Node
   validates_uniqueness_of :ordinals, scope: :casebook_id, if: :casebook_id?, message: 'are not unique'
 
   before_validation :move_siblings, if: :ordinals_changed?
-  # after_update :move_children, if: :saved_change_to_ordinals?
-  # after_save :reflow_casebook, if: :saved_change_to_ordinals?
+  after_update :move_children, if: :saved_change_to_ordinals?
+  after_save :reflow_casebook, if: :saved_change_to_ordinals?
   after_destroy :reflow_casebook
 
   belongs_to :casebook, class_name: 'Content::Casebook', inverse_of: :contents, required: true, touch: true
