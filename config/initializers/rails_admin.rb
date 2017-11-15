@@ -148,7 +148,7 @@ RailsAdmin.config do |config|
     view_in_app
   end
 
-  config.included_models = ['Case', 'User', 'TextBlock', 'Default', 'Institution', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Institution', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
 
   config.model 'Page' do
     list do
@@ -217,6 +217,22 @@ RailsAdmin.config do |config|
       field :case_citations
       field :case_docket_numbers
       field :content, :ck_editor
+    end
+  end
+
+  config.model 'Content::Casebook' do
+    list do
+      field :title
+      field :owner
+    end
+
+    edit do
+      field :title
+      field :subtitle
+      field :public
+      field :ancestry
+      field :root_user_id
+      field :playlist_id
     end
   end
 
