@@ -63,15 +63,8 @@ class Content::Child < Content::Node
 
   # moves siblings and niblings before validation
   def move_siblings
-    ord_idx = ordinals.length
-    if ord_idx > 1
-      casebook.contents
-      .where(['ordinals[1:?] = ARRAY[?]::integer[]', ordinals.length-1, ordinals[0...-1]]) # siblings
-    else
-      casebook.contents # or all contents
-    end
-    .where(['ordinals[?] >= ?', ord_idx, ordinals.last]) # after us
-    .update_all ['ordinals[?] = ordinals[?] + 1', ord_idx, ord_idx]
+    siblings = get_siblings
+    increment_siblings(siblings)
     logger.debug casebook.contents.reload.map &:ordinal_string
   end
 
@@ -90,7 +83,7 @@ class Content::Child < Content::Node
 
   # moves children and descendants after update
   def move_children
-    adjusted_prior_ordinals = ordinals_before_last_save
+    adjusted_prior_ordinals = ordinals_before_last_save #ordinals_before_last_save is a built in method
     if (idx = reorder_index ordinals, adjusted_prior_ordinals)
       adjusted_prior_ordinals[idx] += 1# children have been incremented
     else
@@ -104,5 +97,32 @@ class Content::Child < Content::Node
 
   def reflow_casebook
     casebook.reflow_contents
+  end
+
+  def get_siblings
+    content = get_content
+    content.where(['ordinals[?] >= ?', ordinals.length, ordinals.last])
+  end
+
+  def increment_siblings(siblings)
+    siblings.update_all ['ordinals[?] = ordinals[?] + 1', ordinals.length, ordinals.length]
+  end
+
+  def get_content
+    if in_section?
+      casebook_section
+    else
+      casebook.contents
+    end
+  end
+
+  def in_section?
+    ordinals.length > 1
+  end
+
+  def casebook_section
+    # the child ordinals are nested in a section
+    # returns section and all other children that are above it ( but not below )
+    casebook.contents.where(['ordinals[1:?] = ARRAY[?]::integer[]', ordinals.length-1, ordinals[0...-1]])
   end
 end
