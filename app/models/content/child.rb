@@ -68,19 +68,6 @@ class Content::Child < Content::Node
     logger.debug casebook.contents.reload.map &:ordinal_string
   end
 
-  # if the Node at a has been reordered to before b, determine where a's children are now
-  def reorder_index a, b
-    if a.length < b.length
-      if a.last <= b[a.length-1]
-        a.length - 1
-      end
-    elsif a.length > b.length
-      nil
-    else
-      a.zip(b).find_index {|ab| ab[0] < (ab[1] || 0)}
-    end
-  end
-
   # moves children and descendants after update
   def move_children
     adjusted_prior_ordinals = ordinals_before_last_save #ordinals_before_last_save is a built in method
@@ -93,6 +80,19 @@ class Content::Child < Content::Node
     .where(['ordinals[1:?] = ARRAY[?]', adjusted_prior_ordinals.length, adjusted_prior_ordinals]) # our descendants
     .update_all ['ordinals = ARRAY[?] || ordinals[?:array_length(ordinals, 1)]', ordinals, adjusted_prior_ordinals.length + 1]
     logger.debug casebook.contents.reload.map &:ordinal_string
+  end
+
+  # if the Node at a has been reordered to before b, determine where a's children are now
+  def reorder_index a, b
+    if a.length < b.length
+      if a.last <= b[a.length-1]
+        a.length - 1
+      end
+    elsif a.length > b.length
+      nil
+    else
+      a.zip(b).find_index {|ab| ab[0] < (ab[1] || 0)}
+    end
   end
 
   def reflow_casebook
