@@ -25,7 +25,6 @@ module Migrate
             headnote: sanitize(playlist.description),
             public: playlist.public,
             owners: [playlist.user],
-            ancestry: playlist.ancestry,
             playlist_id: playlist.id,
             root_user_id: playlist.root.user_id
 

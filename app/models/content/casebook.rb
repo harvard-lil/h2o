@@ -105,7 +105,7 @@ class Content::Casebook < Content::Node
   def root_owner
     if root_user_id.present?
       User.find(root_user_id)
-    else
+    elsif self.ancestry.present?
       User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
     end
   end
