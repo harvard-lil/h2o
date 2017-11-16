@@ -20,7 +20,8 @@ module Content::Concerns::HasChildren
     true
   end
 
-  def reflow_contents
+  def reflow_contents(child)
+    @child = child
     reflow_tree(tree, ordinals)
   end
 
@@ -31,7 +32,7 @@ module Content::Concerns::HasChildren
         element_prefix = ord == 1 ? prefix : prefix + [ord-1]
         reflow_tree(element, element_prefix)
       else
-        unless element.destroyed?
+        unless element == @child && @child.destroyed?
           element.update_column :ordinals, prefix + [ord]
           ord += 1
         end
