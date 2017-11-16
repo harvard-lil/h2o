@@ -13,3 +13,4 @@ These are the instructions on how to translate playlists into casebooks from [th
 8. `Migrate::Playlist.find(playlist_ids).map &:migrate`
 9. Get rid of spam users in rails console
 9a. `User.where(email_address: nil).destroy_all`
+10. `rails sunspot:solr:reindex`
