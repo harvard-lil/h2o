@@ -96,7 +96,7 @@ class Content::Child < Content::Node
   end
 
   def reflow_casebook
-    casebook.reflow_contents
+    casebook.reflow_contents(self)
   end
 
   def get_siblings
