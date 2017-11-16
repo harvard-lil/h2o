@@ -36,23 +36,24 @@
     <% else %>
       <%= @content.title %>
     <% end %>
-
-    <% if @section.nil? %>
-      <h2 class="subtitle">
-        <%= @content.subtitle %>
-      </h2>
-    <% end %>
-    <% if @section.nil? %>
+  </h1>
+  <% if @section.nil? %>
+    <h2 class="subtitle">
+      <%= @content.subtitle %>
+    </h2>
+  <% end %>
+  <% if @section.nil? %>
+    <div class="authorship">
       <div class="collaborators">
         <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
-    <% end %>
-    <div class="root-attribution">
-      <% if @casebook.root_owner %>
-        Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
-      <% end %>
+      <div class="root-attribution">
+        <% if @casebook.root_owner %>
+          Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
+        <% end %>
+      </div>
     </div>
-  </h1>
+  <% end %>
 </header>
 <% if @content.headnote.present? || @content.subtitle.present? %>
   <section class="headnote">
