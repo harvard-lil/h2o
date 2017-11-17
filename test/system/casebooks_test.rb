@@ -36,7 +36,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
       fill_in 'content_casebook_headnote', with: 'Test casebook headnote'
 
-      click_button 'Save'
+      # click_link 'Save'
 
       assert_content 'Test casebook title'
       assert_content 'Test casebook subtitle'
@@ -67,8 +67,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       casebook = content_nodes(:draft_casebook)
       resource = content_nodes(:'draft_casebook_section_1.1')
 
-      visit layout_casebook_path casebook
-      
+      visit casebook_path casebook
       click_link 'Revise'
 
       assert_content 'This casebook is a draft'
