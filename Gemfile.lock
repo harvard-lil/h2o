@@ -239,6 +239,8 @@ GEM
       actionpack
       nokogiri
       rubyzip (>= 1.0)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
     httparty (0.15.5)
       multi_xml (>= 0.5.2)
     humanize (1.4.0)
@@ -548,6 +550,7 @@ DEPENDENCIES
   guard-yield
   hamlit
   htmltoword
+  http-cookie
   httparty
   humanize
   jbuilder (~> 2.6.3)
