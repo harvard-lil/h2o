@@ -29,7 +29,7 @@ module Content::Concerns::HasChildren
     ord = 1
     tree.each do |element|
       if element.is_a? Enumerable
-        element_prefix = ord == 1 ? prefix : prefix + [ord-1]
+        element_prefix = get_element_prefix(prefix, ord) 
         reflow_tree(element, element_prefix)
       else
         unless element == @child && @child.destroyed?
@@ -57,4 +57,13 @@ module Content::Concerns::HasChildren
     end
     tables.first || table
   end
+
+  def get_element_prefix(prefix, ord)
+    if ord == 1
+      element_prefix = prefix
+    else
+      element_prefix = prefix + [ord - 1]
+    end
+  end
 end
+
