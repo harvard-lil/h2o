@@ -27,15 +27,17 @@
 	</section>
 
   <% if @section.nil? %>
-    <div class="collaborators">
-      <% @casebook.users.each do |user| %>
-        <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
-      <% end %>
-    </div>
-    <div class="root-attribution">
-      <% if @casebook.root_owner %>
-        Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
-      <% end %>
+    <div class="authorship">
+      <div class="collaborators">
+        <% @casebook.users.each do |user| %>
+          <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
+        <% end %>
+      </div>
+      <div class="root-attribution">
+        <% if @casebook.root_owner %>
+          Original author: <%= link_to @casebook.root_owner, user_path(@casebook.root_owner) %>
+        <% end %>
+      </div>
     </div>
   <% end %>
 <% end %>
