@@ -36,17 +36,17 @@ class CasebookSystemTest < ApplicationSystemTestCase
       fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
       fill_in 'content_casebook_headnote', with: 'Test casebook headnote'
 
-      # click_link 'Save'
+      click_link 'Save'
 
-      assert_content 'Test casebook title'
-      assert_content 'Test casebook subtitle'
-      assert_content 'Test casebook headnote'
+      assert_equal (find('#content_casebook_title').value), 'Test casebook title'
+      assert_equal (find('#content_casebook_subtitle').value), 'Test casebook subtitle'
+      assert_equal (find('#content_casebook_headnote').value), 'Test casebook headnote'
 
       assert_content 'This casebook has no content yet.'
       click_button 'Click here to add a section.'
 
       fill_in 'content_section_title', with: 'Test Section One'
-      click_button 'Save'
+      click_link 'Save'
 
       visit layout_casebook_path Content::Casebook.last
       click_link 'Test Section One'

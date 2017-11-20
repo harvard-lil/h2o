@@ -35,7 +35,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def section_draft
-    link_to(I18n.t('content.actions.preview'), section_path(casebook, seation), class: 'action one-line preview') +
+    link_to(I18n.t('content.actions.preview'), section_path(casebook, section), class: 'action one-line preview') +
     link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
     button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section') +
     link_to(I18n.t('content.actions.save'), edit_section_path(casebook, section), class: 'action one-line save submit-section-details') +
