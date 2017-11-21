@@ -234,6 +234,7 @@ GEM
       thor
       tilt
     hashdiff (0.3.7)
+    high_voltage (3.0.0)
     highline (1.7.8)
     htmltoword (0.5.1)
       actionpack
@@ -549,6 +550,7 @@ DEPENDENCIES
   guard-sunspot!
   guard-yield
   hamlit
+  high_voltage
   htmltoword
   http-cookie
   httparty
