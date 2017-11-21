@@ -36,7 +36,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
       fill_in 'content_casebook_headnote', with: 'Test casebook headnote'
 
-      click_link 'Save'
+      click_on 'Save'
 
       assert_equal (find('#content_casebook_title').value), 'Test casebook title'
       assert_equal (find('#content_casebook_subtitle').value), 'Test casebook subtitle'
