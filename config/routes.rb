@@ -113,8 +113,7 @@ H2o::Application.routes.draw do
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
   end
 
-  get '/help', to: 'pages#show', defaults: {id: 'help'}
-  get '/faq', to: 'pages#show', defaults: {id: 'faq'}
+  get "/pages/*id" => 'pages#show', as: :page, format: false
 
   get '/:controller/:id/copy', :to => 'base#not_found'
   get '/:id', :to => 'base#not_found'
