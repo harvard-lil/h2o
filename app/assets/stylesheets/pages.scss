@@ -1,0 +1,47 @@
+main {
+	background-color: #F5F4EC;
+	.docs {
+		display: grid;
+		grid-template-columns: 25% 705%;
+
+		.docs-sidebar {
+			grid-column: 1 / 2;
+
+			.docs-sidebard-menu > ul {
+				padding-left: 0;
+			}
+
+		}
+		.docs-content {
+			grid-column: 2 / 3;
+		}
+
+	}
+
+	.content, .docs {
+		width: 85%;
+		margin: 40px auto 0 auto;
+		h1 {
+			@include sans-serif($bold, 28px, 60px);
+		}
+
+		h2 {
+			@include sans-serif($bold, 24px, 50px);
+		}
+		h3 {
+			@include sans-serif($bold, 20px, 40px);
+			padding-left: 20px;
+		}
+		p, li {
+			@include sans-serif($regular, 19px, 34px);
+			margin-bottom: 10px;
+		}
+		ul {
+			list-style-type: none;
+		}
+		li {
+			padding-left: 20px;
+		}
+	}
+
+}
