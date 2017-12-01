@@ -150,7 +150,7 @@ class Case < ApplicationRecord
     "cases/court_case"
   end
 
-  def formated_decision_date
+  def formatted_decision_date
     self.decision_date.strftime("%B %d, %Y")
   end
 
