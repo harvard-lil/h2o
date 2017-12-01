@@ -151,7 +151,9 @@ class Case < ApplicationRecord
   end
 
   def formatted_decision_date
-    self.decision_date.strftime("%B %d, %Y")
+    if !self.decision_date.blank?
+      self.decision_date.strftime("%B %d, %Y")
+    end
   end
 
   private
