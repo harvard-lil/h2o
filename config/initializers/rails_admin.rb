@@ -244,9 +244,6 @@ RailsAdmin.config do |config|
   end
 
   config.model 'User' do
-    object_label_method do
-      :custom_label_method
-    end
     list do
       field :id
       field :login

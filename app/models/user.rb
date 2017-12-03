@@ -206,7 +206,13 @@ class User < ApplicationRecord
   end
 
   def display
-    attribution || anonymous_name
+    if attribution.present?
+      attribution
+    elsif title.present?
+      title
+    else
+      anonymous_name
+    end
   end
 
   def simple_display
