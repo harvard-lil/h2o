@@ -95,6 +95,8 @@ H2o::Application.routes.draw do
   resource :search, only: [:show, :index]
   get '/browse', to: 'searches#index'
 
+  resources :authors
+
   resources :cases do
     member do
       get 'access_level'

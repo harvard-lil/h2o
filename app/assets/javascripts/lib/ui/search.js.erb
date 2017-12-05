@@ -8,6 +8,15 @@ function doSearch (e) {
   e.target.closest('form').submit();
 }
 
+
+delegate(document, '.advanced-search .search-options #search_author', 'click', show_autocomplete);
+
+function show_autocomplete (e) {
+  return $('#search_author').autocomplete({
+    source: $('#search_author').data('autocomplete-source')
+  });
+}
+
 // Hackish fix because on the search page - the filter's selected text doesn't show up on initial page load. 
 document.addEventListener('turbolinks:load', e => {
   let selects = document.querySelectorAll('select');
