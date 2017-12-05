@@ -12,5 +12,9 @@ class ContentSystemTest < ApplicationSystemTestCase
   scenario 'footer links' do
     visit root_path
     assert_link 'Terms of Service'
+    assert_link 'Privacy Policy'
+    assert_link 'About'
+    assert_link 'User Guide'
+    assert_link 'FAQ'
   end
 end

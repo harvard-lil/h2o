@@ -6,11 +6,11 @@
 	font-family: $font-family-sans-serif;
 
 	h2 {
-		@include sans-serif($bold, 24px, 24px);
+		@include sans-serif($bold, 24px, 36px);
 	}
 
 	h3 {
-		@include sans-serif($bold, 18px, 24px);
+		@include sans-serif($bold, 18px, 36px);
 		padding-left: 20px;
 	}
 
