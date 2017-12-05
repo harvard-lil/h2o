@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>
-      <%= "H2O | #{@page_title || controller_name}" %>
-    </title>
+  <head>    
+    <% if content_for :page_title %>
+      <title><%= "H2O | " + yield(:page_title) %></title>
+    <% elsif @page_title %>
+      <title><%= "H2O | #{@page_title}" %></title>
+    <% else %>
+      <title><%= "H2O | #{controller_name}" %></title>
+    <% end %>
     <%= render 'layouts/meta_tags' %>
     <%= render 'layouts/favicon' %>
     <%= stylesheet_link_tag 'main', media: 'all' %>
