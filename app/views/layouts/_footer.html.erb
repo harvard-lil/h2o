@@ -14,7 +14,7 @@
         <%= link_to t('footer.links.privacy-policy'), page_path('privacy-policy')%>
       </div>
       <div class="link">
-        <%= link_to t('footer.links.about-us'), page_path('about')%>
+        <%= link_to t('footer.links.about'), page_path('about')%>
       </div>
       <div class="link">
         <%= link_to t('footer.links.user-guide'), page_path('docs/guide')%>
@@ -25,7 +25,7 @@
     </div>
     <div class="info">
       <div class="link">
-        <%= link_to t('footer.contact-link'), :root %>
+        <%= mail_to "lil@law.harvard.edu", t('footer.contact-link'), subject: "Contact re H2O"  %>
       </div>
       <div class="copyright">
         <%= t 'footer.copyright' %>
