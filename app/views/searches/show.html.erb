@@ -9,7 +9,7 @@
         <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'created_at', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
 
           <%= f.label "Filters:", class: 'filter-label' %>
-          <%= f.input :author %>
+          <%= f.input :author, input_html: { data: { autocomplete_source:  authors_path }} %>
           <%= f.input :school, collection: @filters[:schools], selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
         <% elsif @type == 'cases' %>
           <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'decision_date', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
