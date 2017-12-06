@@ -97,6 +97,7 @@ body {
           max-height: 0px;
           background-color: fade(white, 10%);
           overflow: hidden;
+          z-index: 1;
 
           .user-link {
             @include sans-serif($bold, 14px, 14px);
