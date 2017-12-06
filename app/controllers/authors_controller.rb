@@ -1,13 +1,11 @@
 class AuthorsController < ApplicationController
   def index
-    users = []
-    owners = Content::Collaborator.where(role: 'owner')
-    
-    owners.each do |owner|
-      users << User.find(owner.user_id).display_name
-    end
-    
-    a = users.sort.uniq
-    render json: a
+    authors = User.includes(:content_collaborators).
+      where("lower(attribution) like ?", "%#{params[:term].downcase}%").
+      where("content_collaborators.role = ?", "owner").
+      references(:content_collaborators).
+      pluck(:attribution)
+
+    render json: authors.sort.uniq
   end
 end
