@@ -13,7 +13,12 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
+//= require 'polyfills'
+//= require 'lib/turbolinks'
+//= require 'lib/ui'
+//= require 'lib/ckeditor'
+//= require 'lib/ui/authors'
+//= require export
 //= require old_tree/fonts
 //= require old_tree/ui
-//= require export
 //= require_tree ./old_tree
