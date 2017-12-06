@@ -1,5 +1,6 @@
 class AuthorsController < ApplicationController
   def index
-    ['casey', 'kelly', 'fudge', 'other', 'seasaw', 'goat']
+    a = ['ice cream', 'hamburger', 'potato']
+    render json: a
   end
 end
