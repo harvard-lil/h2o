@@ -2,20 +2,23 @@
   <%= simple_form_for :search, url: :search, method: :get do |f| %>
     <%= f.input :type, as: :hidden, input_html: { name: 'type', value: @type }  %>
     <div class="narrow-inner">
-      <%= text_field_tag :q, @query, class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
+      <%= text_field_tag :q, params[:q], class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
     </div>
     <div class="search-options">
       <% if @type == 'casebooks' %>
         <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'created_at', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
 
           <%= f.label "Filters:", class: 'filter-label' %>
-          <%= f.input :author, input_html: { data: { autocomplete_source:  authors_path }} %>
-          <%= f.input :school, collection: @filters[:schools], selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
+
+          <%= f.input :author, collection: @author_filters, label_method: :value, value_method: :value, selected: params[:author], include_blank: 'All Authors', input_html: { name: 'author', class: 'minimal' }, label: false %>
+
+          <%= f.input :school, collection: @school_filters, label_method: :value, value_method: :value, selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
+
         <% elsif @type == 'cases' %>
           <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'decision_date', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
         <% elsif @type == 'users' %>
           <%= f.label "Filters:" %>
-          <%= f.input :school, collection: @filters[:schools], include_blank: 'All Schools', selected: params[:school], input_html: { name: 'school', class: 'minimal' }, label: false %>
+          <%= f.input :school, collection: @school_filters, label_method: :value, value_method: :value, selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
         <% end %>
     </div>
   <% end %>
