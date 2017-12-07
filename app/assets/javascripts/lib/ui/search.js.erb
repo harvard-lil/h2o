@@ -1,15 +1,6 @@
-import delegate from 'delegate';
-
-delegate(document, '.advanced-search .search-options #search_sort', 'change', doSearch); // I don't think this does anything
-delegate(document, '.advanced-search .search-options #search_author', 'change', doSearch);
-delegate(document, '.advanced-search .search-options #search_school', 'change', doSearch);
-
-function doSearch (e) {
-  e.target.closest('form').submit();
-}
-
 // Hackish fix because on the search page - the filter's selected text doesn't show up on initial page load. 
 document.addEventListener('turbolinks:load', e => {
   let selects = document.querySelectorAll('select');
   for (let el of selects) { el.value = el.value };
 });
+// IS THIS NECESSARY?
