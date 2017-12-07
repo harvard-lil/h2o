@@ -41,7 +41,7 @@ class SearchesController < ApplicationController
     values = []
 
     rows.each do |row|
-      values << row.value
+      values << row.value.strip
     end
 
     values.uniq.sort.reject { |c| c.empty? }
