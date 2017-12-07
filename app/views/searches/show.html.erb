@@ -8,8 +8,8 @@
       <% if @type == 'casebooks' %>
         <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'created_at', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
 
-        <%= f.input :author, collection: @author_filters, label_method: :value, value_method: :value, selected: (params[:author].present? ? params[:author] : 'All Authors'), include_blank: 'All Authors', input_html: { name: 'author' }, label: false %>
-        <%= f.input :school, collection: @school_filters, label_method: :value, value_method: :value, selected:(params[:school].present? ? params[:school] : 'All Authors'), include_blank: 'All Schools', input_html: { name: 'school' }, label: false %>
+        <%= f.input :author, collection: @authors, selected: (params[:author].present? ? params[:author] : 'All Authors'), include_blank: 'All Authors', input_html: { name: 'author' }, label: false %>
+        <%= f.input :school, collection: @school_filters, selected:(params[:school].present? ? params[:school] : 'All Authors'), include_blank: 'All Schools', input_html: { name: 'school' }, label: false %>
 
       <% elsif @type == 'cases' %>
         <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'decision_date', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort', class: 'minimal' } %>
