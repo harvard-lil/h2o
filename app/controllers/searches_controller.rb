@@ -8,8 +8,6 @@ class SearchesController < ApplicationController
     @query = params[:q].present? ? params[:q] : '*'
     @type = params[:type] || 'casebooks'
 
-
-
     ungrouped_results = search_query(@query)
     @results = type_groups(ungrouped_results)
 
