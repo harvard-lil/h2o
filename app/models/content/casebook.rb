@@ -43,11 +43,6 @@ class Content::Casebook < Content::Node
     text :title, boost: 3.0
     text :subtitle
     text :headnote
-    text :owner do
-      owners.map do |owner|
-        "#{owners.first.attribution} #{owners.first.affiliation}"
-      end.join '\n'
-    end
 
     # text :content do
     #   if self.is_a? Content::Resource
@@ -63,6 +58,7 @@ class Content::Casebook < Content::Node
       owners.map &:id
     end
 
+    string(:attribution, stored: true) { owners.first.try(:attribution) }
     string(:affiliation, stored: true) { owners.first.try(:affiliation) }
   end
 

@@ -5,41 +5,32 @@ class SearchesController < ApplicationController
   before_action :read_page
 
   def show
-    @query = params[:q]
+    @query = params[:q].present? ? params[:q] : '*'
     @type = params[:type] || 'casebooks'
 
-    if @query.present?
-      @results = type_groups(@query)
-    else
-      @results = type_groups('*')
-    end
 
-    builder_params = {
-      type: @type,
-      results: @results[@type.to_sym],
-      school_params: params[:school]
-    }
 
-    @filters = SearchFilterBuilder.perform(builder_params)
+    ungrouped_results = search_query(@query)
+    @results = type_groups(ungrouped_results)
+
+    @author_filters = ungrouped_results.facet(:attribution).rows
+    @school_filters = ungrouped_results.facet(:affiliation).rows
     @paginated_group = paginate_group(@results[@type.to_sym])
 
-    if params[:partial] # I don't think this ever happens
+    if params[:partial] #adding resource to a casebook
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
     end
   end
 
   def index
     @type = params[:type] || 'casebooks'
-    @results = type_groups '*'
+
+    ungrouped_results = search_query('*')
+    @results = type_groups(ungrouped_results)
     casebook_results = @results[:casebooks]
 
-    builder_params = {
-      type: @type,
-      results: casebook_results,
-      school_params: params[:school]
-    }
-
-    @filters = SearchFilterBuilder.perform(builder_params)
+    @author_filters = ungrouped_results.facet(:attribution).rows
+    @school_filters = ungrouped_results.facet(:affiliation).rows
     @paginated_group = paginate_group(casebook_results)
 
     render 'searches/show'
@@ -47,22 +38,8 @@ class SearchesController < ApplicationController
 
   private
 
-  def paginate_group group
-    WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
-       pager.replace(group.try(:results) || [])
-    end
-  end
-
-  def read_page
-    @page = (params[:page] || 1).to_i
-  end
-
-  def schools
-    a = User.all.map { |user| user.affiliation }.uniq
-  end
-
-  def type_groups query
-    groups = search_query(@query).group(:klass).groups
+  def type_groups(results)
+    groups = results.group(:klass).groups
     return {
       casebooks: groups.find {|r| r.value == 'Content::Casebook'},
       cases: groups.find {|r| r.value == 'Case'},
@@ -70,9 +47,9 @@ class SearchesController < ApplicationController
     }
   end
 
-  def search_query query
+  def search_query(query)
     page = @page
-    Sunspot.search Case, Content::Casebook, User do
+    Sunspot.search(Case, Content::Casebook, User) do
       keywords query
 
       any_of do
@@ -82,8 +59,11 @@ class SearchesController < ApplicationController
         end
       end
 
-      with :owner_ids, params[:author] if params[:author].present?
+      with :attribution, params[:author] if params[:author].present?
       with :affiliation, params[:school] if params[:school].present?
+
+      facet(:attribution)
+      facet(:affiliation)
 
       order_by (params[:sort] || 'display_name').to_sym
       group :klass do
@@ -94,5 +74,15 @@ class SearchesController < ApplicationController
         params['group.offset'] = (page - 1) * PER_PAGE
       end
     end
+  end
+
+  def paginate_group(group)
+    WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
+       pager.replace(group.try(:results) || [])
+    end
+  end
+
+  def read_page
+    @page = (params[:page] || 1).to_i
   end
 end

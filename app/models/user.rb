@@ -135,8 +135,8 @@ class User < ApplicationRecord
   searchable :if => :not_anonymous do
     text :simple_display
     string :display_name, :stored => true
-    text :affiliation
     string(:affiliation, stored: true) { affiliation }
+    string(:attribution, stored: true) { attribution }
     integer :karma
     boolean :public do
       true
