@@ -17,8 +17,10 @@
 //= require 'polyfills'
 //= require 'lib/turbolinks'
 //= require 'lib/ui'
-//= require 'lib/ckeditor'
+//= require 'lib/ui/content'
+//= require 'lib/ui/search'
 //= require 'lib/ui/filter-selectize'
+//= require 'lib/ckeditor'
 //= require export
 //= require old_tree/fonts
 //= require old_tree/ui
