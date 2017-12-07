@@ -11,8 +11,8 @@ class SearchesController < ApplicationController
     ungrouped_results = search_query(@query)
     @results = type_groups(ungrouped_results)
 
-    @author_filters = ungrouped_results.facet(:attribution).rows
-    @school_filters = ungrouped_results.facet(:affiliation).rows
+    @authors = build_filter(ungrouped_results.facet(:attribution).rows)
+    @school_filters = build_filter(ungrouped_results.facet(:affiliation).rows)
     @paginated_group = paginate_group(@results[@type.to_sym])
 
     if params[:partial] #adding resource to a casebook
@@ -27,14 +27,25 @@ class SearchesController < ApplicationController
     @results = type_groups(ungrouped_results)
     casebook_results = @results[:casebooks]
 
-    @author_filters = ungrouped_results.facet(:attribution).rows
-    @school_filters = ungrouped_results.facet(:affiliation).rows
+    @authors = build_filter(ungrouped_results.facet(:attribution).rows)
+    @school_filters = build_filter(ungrouped_results.facet(:affiliation).rows)
+
     @paginated_group = paginate_group(casebook_results)
 
     render 'searches/show'
   end
 
   private
+
+  def build_filter(rows)
+    values = []
+
+    rows.each do |row|
+      values << row.value
+    end
+
+    values.uniq.sort.reject { |c| c.empty? }
+  end
 
   def type_groups(results)
     groups = results.group(:klass).groups
