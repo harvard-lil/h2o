@@ -172,3 +172,7 @@ ul.ui-autocomplete {
     }
   }
 }
+
+#search_author, #seach_school {
+  display: none // selectized field is displayed over the standard simple_form field
+}
