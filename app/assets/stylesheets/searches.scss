@@ -135,44 +135,6 @@ header.advanced-search {
   text-align: center;   
 }
 
-.minimal {
-  background-image:
-    linear-gradient(45deg, transparent 50%, gray 50%),
-    linear-gradient(135deg, gray 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) calc(1em + 10px),
-    calc(100% - 15px) calc(1em + 10px),
-    calc(100% - 2.5em) 0.5em;
-  background-size:
-    5px 8px,
-    5px 8px,
-    1px 1.5em;
-  background-repeat: no-repeat;
-}
-
-ul.ui-autocomplete {
-  position: absolute;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border: solid 1px #999;
-  cursor: default;
-  li {
-    background-color: #FFF;
-    border-top: solid 1px #DDD;
-    margin: 0;
-    padding: 0;
-    a {
-      color: #000;
-      display: block;
-      padding: 3px;
-    }
-    a.ui-state-hover, a.ui-state-active {
-      background-color: #FFFCB2;
-    }
-  }
-}
-
 #search_author, #seach_school {
   display: none // selectized field is displayed over the standard simple_form field
 }
