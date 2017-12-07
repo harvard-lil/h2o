@@ -444,6 +444,8 @@ GEM
     schmooze (0.1.6)
     scrypt (3.0.5)
       ffi-compiler (>= 1.0, < 2.0)
+    select2-rails (4.0.3)
+      thor (~> 0.14)
     sexp_processor (4.10.0)
     shellany (0.0.1)
     simple_form (3.5.0)
@@ -584,6 +586,7 @@ DEPENDENCIES
   rubyzip
   sass-rails (~> 5.0.6)
   scrypt
+  select2-rails
   simple_form
   simplecov
   sprockets-commoner

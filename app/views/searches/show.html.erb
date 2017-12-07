@@ -10,7 +10,7 @@
 
           <%= f.label "Filters:", class: 'filter-label' %>
 
-          <%= f.input :author, collection: @author_filters, label_method: :value, value_method: :value, selected: params[:author], include_blank: 'All Authors', input_html: { name: 'author', class: 'minimal' }, label: false %>
+          <%= f.input :author, collection: @author_filters, label_method: :value, value_method: :value, selected: params[:author], include_blank: 'All Authors', input_html: { name: 'author' }, label: false %>
 
           <%= f.input :school, collection: @school_filters, label_method: :value, value_method: :value, selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school', class: 'minimal' }, label: false %>
 
