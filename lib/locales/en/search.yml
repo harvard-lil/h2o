@@ -1,7 +1,7 @@
 en:
   search:
     results:
-      no-results: We couldn't find any %{type} matching "%{query}"
+      no-results: "No results found"
       n-results: "%{n} results found:"
       n-casebook-results: "Casebooks (%{n})"
       n-case-results: "Cases (%{n})"

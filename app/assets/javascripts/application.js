@@ -16,7 +16,6 @@
 //= require select2
 //= require 'polyfills'
 //= require 'lib/turbolinks'
-//= require 'lib/ui'
 //= require 'lib/ui/content'
 //= require 'lib/ui/search'
 //= require 'lib/ui/filter-selectize'
