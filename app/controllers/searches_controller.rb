@@ -8,16 +8,23 @@ class SearchesController < ApplicationController
     @query = params[:q]
     @type = params[:type] || 'casebooks'
 
-    @results = if @query.present?
-      type_groups @query
+    if @query.present?
+      @results = type_groups(@query)
     else
-      type_groups '*'
+      @results = type_groups('*')
     end
 
-    @paginated_group = paginate_group @results[@type.to_sym]
-    @filters = build_filters @type, @results[@type.to_sym]
+    builder_params = {
+      type: @type,
+      results: @results[@type.to_sym],
+      author_params: params[:author],
+      school_params: params[:school]
+    }
 
-    if params[:partial]
+    @filters = SearchFilterBuilder.perform(builder_params)
+    @paginated_group = paginate_group(@results[@type.to_sym])
+
+    if params[:partial] # I don't think this ever happens
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
     end
   end
@@ -25,38 +32,22 @@ class SearchesController < ApplicationController
   def index
     @type = params[:type] || 'casebooks'
     @results = type_groups '*'
-    @casebook_results = @results[:casebooks]
+    casebook_results = @results[:casebooks]
 
-    @filters = build_filters @type, @casebook_results
-    @paginated_group = paginate_group @casebook_results
+    builder_params = {
+      type: @type,
+      results: casebook_results,
+      author_params: params[:author], ## passing an empty array?
+      school_params: params[:school]
+    }
+
+    @filters = SearchFilterBuilder.perform(builder_params)
+    @paginated_group = paginate_group(casebook_results)
 
     render 'searches/show'
   end
 
   private
-
-  def build_filters type, results
-    authors = []
-    schools = []
-
-    if results 
-      results_group = results.try(:results)
-      results_group.map do |result|
-        if type == 'casebooks'
-
-          authors.push result.owner unless authors.include?(result.owner)
-          schools.push result.owner&.affiliation unless schools.include?(result.owner&.affiliation)
-        elsif type == 'users'
-          schools.push result.affiliation unless schools.include?(result.affiliation)
-        end
-      end
-    else
-      authors.push User.find(params[:author]) if params[:author].present?
-      schools.push params[:school] if params[:school].present?
-    end 
-
-    { authors: authors.compact, schools: schools.compact }
-  end
 
   def paginate_group group
     WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
