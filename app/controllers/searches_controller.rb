@@ -17,7 +17,6 @@ class SearchesController < ApplicationController
     builder_params = {
       type: @type,
       results: @results[@type.to_sym],
-      author_params: params[:author],
       school_params: params[:school]
     }
 
@@ -37,7 +36,6 @@ class SearchesController < ApplicationController
     builder_params = {
       type: @type,
       results: casebook_results,
-      author_params: params[:author], ## passing an empty array?
       school_params: params[:school]
     }
 
