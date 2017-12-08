@@ -14,7 +14,7 @@
       <% elsif @type == 'cases' %>
         <%= f.input :sort, collection: {'Title': 'display_name', 'Date': 'decision_date', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: 'Sort By:', input_html: { name: 'sort' } %>
       <% elsif @type == 'users' %>
-        <%= f.input :school, collection: @school_filters, label_method: :value, value_method: :value, selected: params[:school], include_blank: 'All Schools', input_html: { name: 'school' }, label: false %>
+        <%= f.input :school, collection: @school_filters, selected:(params[:school].present? ? params[:school] : 'All Authors'), include_blank: 'All Schools', input_html: { name: 'school' }, label: false %>
       <% end %>
     </div>
   <% end %>
