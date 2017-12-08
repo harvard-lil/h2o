@@ -15,12 +15,13 @@
 //= require jquery_ujs
 //= require select2
 //= require 'polyfills'
-//= require 'lib/turbolinks'
+//= require 'lib/turbolinks/index'
+//= require 'lib/turbolinks/requests'
 //= require 'lib/ui/content'
 //= require 'lib/ui/search'
 //= require 'lib/ui/filter-selectize'
 //= require 'lib/ckeditor'
-//= require export
 //= require old_tree/fonts
 //= require old_tree/ui
+//= require export
 //= require_tree ./old_tree
