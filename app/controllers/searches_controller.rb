@@ -5,10 +5,12 @@ class SearchesController < ApplicationController
   before_action :read_page
 
   def show
-    @query = params[:q].present? ? params[:q] : '*'
+    @query = params[:q]
     @type = params[:type] || 'casebooks'
 
-    ungrouped_results = search_query(@query)
+    q = params[:q].present? ? params[:q] : '*'
+
+    ungrouped_results = search_query(q)
     @results = type_groups(ungrouped_results)
 
     @authors = build_filter(ungrouped_results.facet(:attribution).rows)

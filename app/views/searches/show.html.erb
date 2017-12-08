@@ -2,7 +2,7 @@
   <%= simple_form_for :search, url: :search, method: :get do |f| %>
     <%= f.input :type, as: :hidden, input_html: { name: 'type', value: @type }  %>
     <div class="narrow-inner">
-      <%= text_field_tag :q, params[:q], class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
+      <%= text_field_tag :q, @query, class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
     </div>
     <div class="search-options">
       <% if @type == 'casebooks' %>
