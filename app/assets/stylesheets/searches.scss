@@ -32,10 +32,6 @@ header.advanced-search {
   margin: auto;
   margin-top: 20px;
 
-  .filter-label {
-    margin: 0;
-  }
-
   .form-group {
     display: flex;
     align-items: center;
@@ -60,14 +56,10 @@ header.advanced-search {
       font: inherit;
       line-height: 1.5em;
       padding: 0.5em 3.5em 0.5em 1em;
+    }
 
-      /* reset */
-      margin: 0;      
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;
-      -webkit-appearance: none;
-      -moz-appearance: none;
+    span.select2-container, span.select2-container-default {
+      width: 100% !important; //select2-bootstrap theme sets width as inline style tag
     }
   }
 }
