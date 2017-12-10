@@ -10,12 +10,12 @@
 #  updated_at        :datetime
 #
 
-# I think these are only for setting admin privelages. 
-# All casebook roles are set with Content::Collaborator 
+# I think these are only for setting admin privileges.
+# All casebook roles are set with Content::Collaborator
 # and are not connected to this role model
 class Role < ApplicationRecord
   #acts_as_authorization_role
-  has_many :roles_users
+  has_many :roles users
   has_one :user, :through => :roles_users
 
   belongs_to :authorizable, :polymorphic => true, optional: true
