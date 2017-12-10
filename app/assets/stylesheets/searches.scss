@@ -1,6 +1,6 @@
 main > section.search-results {
   background-color: $light-gray;
-  
+
   .content {
     padding: 20px 40px;
     margin-top: 25px;
@@ -124,9 +124,5 @@ header.advanced-search {
 }
 
 .no-results {
-  text-align: center;   
-}
-
-#search_author, #seach_school {
-  // display: none // selectized field is displayed over the standard simple_form field
+  text-align: center;
 }

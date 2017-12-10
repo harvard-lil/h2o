@@ -13,11 +13,11 @@ class SearchesController < ApplicationController
     ungrouped_results = search_query(q)
     @results = type_groups(ungrouped_results)
 
-    @authors = build_filter(ungrouped_results.facet(:attribution).rows)
-    @school_filters = build_filter(ungrouped_results.facet(:affiliation).rows)
+    @attributions = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:attribution).rows)
+    @affiliations = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:affiliation).rows)
     @paginated_group = paginate_group(@results[@type.to_sym])
 
-    if params[:partial] #adding resource to a casebook
+    if params[:partial] #for adding resource casebook modal
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
     end
   end
@@ -29,8 +29,8 @@ class SearchesController < ApplicationController
     @results = type_groups(ungrouped_results)
     casebook_results = @results[:casebooks]
 
-    @authors = build_filter(ungrouped_results.facet(:attribution).rows)
-    @school_filters = build_filter(ungrouped_results.facet(:affiliation).rows)
+    @attributions = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:attribution).rows)
+    @affiliations = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:affiliation).rows)
 
     @paginated_group = paginate_group(casebook_results)
 
@@ -39,7 +39,7 @@ class SearchesController < ApplicationController
 
   private
 
-  def build_filter(rows)
+  def extract_filter_data_from_sunspot_object(rows)
     values = []
 
     rows.each do |row|
