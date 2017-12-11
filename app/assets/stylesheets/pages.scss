@@ -1,27 +1,27 @@
 
 .pages-content {
-	padding: 20px 20px;
-	width: 80%;
-	margin: 0px auto;
-	font-family: $font-family-sans-serif;
+  padding: 20px 20px;
+  width: 80%;
+  margin: 0px auto;
+  font-family: $font-family-sans-serif;
 
-	h2 {
-		@include sans-serif($bold, 24px, 36px);
-	}
+  h2 {
+    @include sans-serif($bold, 24px, 36px);
+  }
 
-	h3 {
-		@include sans-serif($bold, 18px, 36px);
-		padding-left: 20px;
-	}
+  h3 {
+    @include sans-serif($bold, 18px, 36px);
+    padding-left: 20px;
+  }
 
-	p, li {
-		@include sans-serif($regular, 18px, 24px);
-	}
-	ul {
-		list-style-type: none;
+  p, li {
+    @include sans-serif($regular, 18px, 24px);
+  }
+  ul {
+    list-style-type: none;
 
-		li {
-			margin-bottom: 10px;
-		}
-	}
+    li {
+      margin-bottom: 10px;
+    }
+  }
 }
