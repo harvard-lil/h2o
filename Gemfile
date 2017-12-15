@@ -71,6 +71,8 @@ gem 'wkhtmltopdf-binary', require: false
 # gem 'minitest-rails-capybara'
 # gem 'quiet_assets'
 
+gem 'pry-byebug'
+
 group :development do
   gem 'annotate'
   gem 'sunspot_solr'
@@ -93,7 +95,6 @@ group :development, :test do
   gem 'minitest-spec-rails'
   gem 'minitest-reporters'
   gem 'poltergeist'
-  gem 'pry-byebug'
   gem 'simplecov'
   gem 'm'
 
