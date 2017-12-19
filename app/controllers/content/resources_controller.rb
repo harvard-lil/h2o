@@ -42,14 +42,14 @@ class Content::ResourcesController < Content::NodeController
     @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
       headnote: resource_params[:headnote])
 
-    if resource_params[:resource_attributes][:content] && @resource.resource.is_a?(TextBlock)
+    if resource_params[:resource_attributes].blank?
+      @resource.update content_params
+    elsif resource_params[:resource_attributes][:content] && @resource.resource.is_a?(TextBlock)
       @resource.resource.update_attributes(content: resource_params[:resource_attributes][:content])
       flash[:success] = "Text updated."
     elsif resource_params[:resource_attributes][:url] && @resource.resource.is_a?(Default)
       @resource.resource.update_attributes(url: resource_params[:resource_attributes][:url])
       flash[:success] = "URL updated."
-    else
-      @resource.update content_params
     end
     redirect_to edit_resource_path(@casebook, @resource)
   end
