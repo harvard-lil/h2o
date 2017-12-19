@@ -60,6 +60,13 @@ module Migrate
             if imported_resource.annotatable_type.in? %w{Playlist Collage Media}
               imported_resource.annotatable_type = "Migrate::#{object.annotatable_type}"
             end
+            if imported_resource.description.present? && item.notes.present?
+              case_headnote = sanitize(imported_resource.description) + " " + sanitize(item.notes)
+            elsif imported_resource.description.present?
+              case_headnote = sanitize(imported_resource.description)
+            else
+              case_headnote = sanitize(item.notes)
+            end
             imported_resource = imported_resource.annotatable
 
             if imported_resource.nil?
@@ -81,8 +88,9 @@ module Migrate
 
           if object.is_a? Migrate::Collage
             migrate_annotations(object, resource)
+            resource.headnote = case_headnote
+            resource.save
           end
-
           resource
         end
       end
