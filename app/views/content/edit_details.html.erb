@@ -42,14 +42,16 @@
     <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
   </section>
 
-  <section class="resource">
-    <%= f.simple_fields_for :resource do |r| %>
-      <% if @content.resource.is_a? Default %>
-        <%= r.input :url %> 
-      <% elsif @content.resource.is_a? TextBlock %>
-        <%= r.cktext_area :content, class: 'ckeditor form-control' %>
+  <% if @content.resource.is_a?(Default) || @content.resource.is_a?(TextBlock) %>
+    <section class="resource">
+      <%= f.simple_fields_for :resource do |r| %>
+        <% if @content.resource.is_a? Default %>
+          <%= r.input :url %> 
+        <% elsif @content.resource.is_a? TextBlock %>
+          <%= r.cktext_area :content, class: 'ckeditor form-control' %>
+        <% end %>
       <% end %>
-    <% end %>
-  </section>
+    </section>
+  <% end %>
 
 <% end %>
