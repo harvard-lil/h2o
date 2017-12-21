@@ -12,12 +12,12 @@ These are the instructions on how to translate playlists into casebooks from [th
   1. Backfill collage_id from annotated_object_id
     `annotations = Migrate::Annotation.where(collage_id: nil)
      annotations.each do |annotation|
-       annotation.update(collage_id: annotated_object_id)
+       annotation.update(collage_id: annotation.annotated_item_id)
      end`
   1. Remove annotation duplicates
-  `duplicates = Migrate::Annotation.select(:collage_id, :xpath_start, :xpath_end).group(:collage_id, :xpath_start, :xpath_end).having("count(*) > 1")`
+  `duplicates = Migrate::Annotation.select(:collage_id, :xpath_start, :xpath_end).group(:collage_id, :xpath_start, :xpath_end).having("count(*) > 1").size`
 
-  `duplicates_size.each do |attrs, count|
+  `duplicates.each do |attrs, count|
     collage_id, xpath_start, xpath_end = attrs
     duplicates = Migrate::Annotation.where(
       collage_id: collage_id,
@@ -31,6 +31,10 @@ These are the instructions on how to translate playlists into casebooks from [th
 1. Make sure in all annotation annotated_item_id and collage_id match
 1. `Migrate::PlaylistItem.find(2445).destroy` this item was deleted by the author and no longer exists
 1. `Migrate::Playlist.find(playlist_ids).map &:migrate`
-1. Get rid of spam users in rails console
-  1. `User.where(email_address: nil).destroy_all`
+1. Get rid of users who don't have published books
+  `user_ids = []
+  Content::Casebook.all.each do |casebook|
+    user_ids << casebook.owner.id
+  end
+  User.where.not(id: [users]).destroy_all`
 1. `rails sunspot:solr:reindex`
