@@ -36,5 +36,5 @@ These are the instructions on how to translate playlists into casebooks from [th
   Content::Casebook.all.each do |casebook|
     user_ids << casebook.owner.id
   end
-  User.where.not(id: [users]).destroy_all`
+  User.where.not(id: [user_ids]).destroy_all`
 1. `rails sunspot:solr:reindex`
