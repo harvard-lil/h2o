@@ -12,5 +12,9 @@ document.addEventListener('turbolinks:load', e => {
   $('#search_school').on('select2:select', function (e) {
     e.target.closest('form').submit();
   });
+
+  $('#search_sort').on('select2:select', function (e) {
+    e.target.closest('form').submit();
+  });
 });
 
