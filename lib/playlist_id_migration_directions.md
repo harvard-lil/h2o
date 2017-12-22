@@ -37,9 +37,10 @@ These are the instructions on how to translate playlists into casebooks from [th
 1. `Migrate::PlaylistItem.find(2445).destroy` this item was deleted by the author and no longer exists
 1. `Migrate::Playlist.find(playlist_ids).map &:migrate`
 1. Get rid of users who don't have published books
-  `user_ids = []
+<!--   `user_ids = []
   Content::Casebook.all.each do |casebook|
     user_ids << casebook.owner.id
   end
-  User.where.not(id: [user_ids]).destroy_all`
+  User.where.not(id: [user_ids]).destroy_all` -->
+  <!-- This deletes all their associations so be careful -->
 1. `rails sunspot:solr:reindex`
