@@ -119,7 +119,9 @@ module Migrate
       end
       nodes = resource.preprocess_nodes nodes
 
-      collage.annotations.each do |annotation|
+      collage_annotations = Migrate::Annotation.where(annotated_item_id: collage.id)
+
+      collage_annotations.each do |annotation|
         content = nil
         kind = if annotation.hidden
           if annotation.annotation.present?

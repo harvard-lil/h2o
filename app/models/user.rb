@@ -67,12 +67,12 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :institutions
-  has_many :responses, :dependent => :destroy
+  has_many :responses
 
-  has_many :cases, :dependent => :destroy
-  has_many :text_blocks, :dependent => :destroy
-  has_many :defaults, :dependent => :destroy
-  has_many :case_requests, :dependent => :destroy
+  has_many :cases
+  has_many :text_blocks
+  has_many :defaults
+  has_many :case_requests
 
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id
