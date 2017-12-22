@@ -62,9 +62,7 @@ class Content::Resource < Content::Child
     nodes = paragraph_nodes
 
     nodes.each_with_index do |p_node, p_idx|
-      # unless p_node.children.empty?
       p_node['data-p-idx'] = p_idx
-      # end
     end
 
     annotations.all.each_with_index do |annotation|
