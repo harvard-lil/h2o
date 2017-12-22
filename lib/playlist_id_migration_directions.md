@@ -6,6 +6,8 @@ These are the instructions on how to translate playlists into casebooks from [th
 1. Make sure you have the `h2o_prod-data.dump` file in your root directory.
 1. `pg_restore --verbose --clean --no-acl --no-owner -U h2oadmin -h [aws link] -d h2o ~/h2o_prod-data.dump` port the data dump into the database
   1. (for running locally: `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d h2o_dev ~/h2o_prod-data.dump `)
+1. Delete users that don't have emails
+  1. `User.where(email_address: nil).destroy_all`
 1. `rake db:migrate`
 1. `rails c`
 1. Fix annotation data

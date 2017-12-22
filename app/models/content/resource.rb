@@ -35,7 +35,7 @@ class Content::Resource < Content::Child
   end
 
   def paragraph_nodes
-    html = Nokogiri::HTML resource.content {|config| config.noblanks}
+    html = Nokogiri::HTML resource.content {|config| config.strict.noblanks}
     preprocess_nodes html
   end
 
@@ -62,7 +62,9 @@ class Content::Resource < Content::Child
     nodes = paragraph_nodes
 
     nodes.each_with_index do |p_node, p_idx|
+      # unless p_node.children.empty?
       p_node['data-p-idx'] = p_idx
+      # end
     end
 
     annotations.all.each_with_index do |annotation|
