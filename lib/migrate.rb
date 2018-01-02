@@ -117,7 +117,14 @@ module Migrate
         node['idx'] = idx
         idx += 1
       end
+
       nodes = resource.preprocess_nodes nodes
+
+      nodes.each do |node|
+        if ! node.nil? && node.children.empty?
+          nodes.delete(node)
+        end
+      end
 
       collage_annotations = Migrate::Annotation.where(annotated_item_id: collage.id)
 
