@@ -36,7 +36,15 @@ class Content::Resource < Content::Child
 
   def paragraph_nodes
     html = Nokogiri::HTML resource.content {|config| config.strict.noblanks}
-    preprocess_nodes html
+    nodes = preprocess_nodes html
+
+    nodes.each do |node|
+      if ! node.nil? && node.children.empty?
+        nodes.delete(node)
+      end
+    end
+
+    nodes
   end
 
   def preprocess_nodes html
