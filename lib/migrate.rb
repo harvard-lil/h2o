@@ -130,25 +130,25 @@ module Migrate
 
       collage_annotations.each do |annotation|
         content = nil
-        kind = if annotation.hidden
+
+        if annotation.hidden
           if annotation.annotation.present?
             content = annotation.annotation
-            'replace'
+            kind = 'replace'
           else
-            'elide'
+            kind = 'elide'
           end
         elsif annotation.link.present?
           content = annotation.link
-          'link'
+          kind = 'link'
         elsif annotation.annotation.present?
           content = annotation.annotation
-          'note'
+          kind = 'note'
         elsif annotation.highlight_only.present?
           content = annotation.highlight_only
-          'highlight'
+          kind = 'highlight'
         else
-          # puts "Need help migrating annotation \##{annotation.id}: Collage \##{annotation.collage.id} #{annotation.xpath_start} -> #{annotation.xpath_end}"
-          'highlight'
+          return
         end
         content_annotation = Content::Annotation.new resource: resource,
           kind: kind,
