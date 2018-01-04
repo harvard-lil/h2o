@@ -1,0 +1,17 @@
+- if resource.resource.is_a? Case
+  .resource-wrapper
+    .case-text
+      - resource.annotated_paragraphs(editable: editable).each_with_index do |p_node, p_idx|
+        .p-handle{data: {'elided-annotation': p_node['data-elided-annotation']}}
+          .p-number= p_idx + 1
+        = p_node.to_html.html_safe
+- elsif resource.resource.is_a? TextBlock
+  .resource-wrapper
+    .case-text
+      - resource.annotated_paragraphs(editable: editable).each_with_index do |p_node, p_idx|
+        .p-handle{data: {'elided-annotation': p_node['data-elided-annotation']}}
+          .p-number= p_idx + 1
+        = p_node.to_html.html_safe
+- elsif resource.resource.is_a? Default
+  = t 'content.link.follow-link'
+  = link_to resource.resource.display_name, resource.resource.url, target: '_blank'
