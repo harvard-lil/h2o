@@ -1,6 +1,6 @@
 class PasswordResetsController < ApplicationController
   before_action :load_user_using_perishable_token, :only => [:edit, :update]
-  layout 'main', only: [:new, :create]
+  layout 'main', only: [:new, :create, :edit, :update]
 
   def new
     @user = {email_address: params.fetch(:email_address, '')}
