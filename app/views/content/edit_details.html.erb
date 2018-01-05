@@ -39,7 +39,7 @@
     <h5>
       <%= t 'content.show.headnote' %>
     </h5>
-    <%= f.input :headnote, placeholder: t('simple_form.labels.casebook.description') %>
+    <%= f.cktext_area :headnote, placeholder: t('simple_form.labels.casebook.description'), class: 'ckeditor form-control' %>
   </section>
 
   <% if @content.resource.is_a?(Default) || @content.resource.is_a?(TextBlock) %>
