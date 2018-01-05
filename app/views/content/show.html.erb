@@ -57,9 +57,6 @@
 </header>
 <% if @content.headnote.present? || @content.subtitle.present? %>
   <section class="headnote">
-    <h5>
-      <%= t 'content.show.headnote' %>
-    </h5>
     <% if @section.present? %>
       <h3>
         <%= @content.subtitle %>
