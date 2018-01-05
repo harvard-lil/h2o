@@ -1,9 +1,22 @@
+<header class="users">
+  <div class="content">
+    <h1>
+      <%= t 'users.change-password.header' %>
+    </h1>
+  </div>
+</header>
 
-<h3><%= t 'users.change-password.header' %></h3>
-<div class="form">
-  <%= simple_form_for @user, url: password_reset_path, html: {data: {remote: true}} do |f| %>
-    <%= f.input :password, required: true %>
-    <%= f.input :password_confirmation, required: true %>
-    <%= f.button :submit, t('simple_form.labels.user.change-password') %>
-  <% end %>
-</div>
+
+<section class="reset-password">
+  <div class="content">
+    <div class="layout">
+      <div class="form">
+        <%= simple_form_for @user, url: password_reset_path, html: {data: {remote: true}} do |f| %>
+          <%= f.input :password, required: true %>
+          <%= f.input :password_confirmation, required: true %>
+          <%= f.button :submit, t('simple_form.labels.user.change-password') %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
