@@ -32,7 +32,7 @@ class UserSessionsController < ApplicationController
     if current_user_session.present?
       current_user_session.destroy
     end
-    redirect_back_or_default "/"
+    redirect_to :root
   end
 
   private
