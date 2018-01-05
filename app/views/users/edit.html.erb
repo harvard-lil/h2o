@@ -21,9 +21,14 @@
             <%= f.input :attribution %>
             <%= f.input :affiliation %>
             <%= f.button :submit, t('simple_form.labels.user.save-changes') %>
-          </div>
         <% end %>
       </div>
+    </div>
+  </div>
+</section>
+<section class="reset-password">
+  <div class="content">
+    <div class="layout">
       <h3><%= t 'users.change-password.header' %></h3>
       <div class="form">
         <%= simple_form_for @user, url: user_path(@user), html: {data: {remote: true}} do |f| %>
