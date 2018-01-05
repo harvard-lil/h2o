@@ -1,20 +1,9 @@
-<div class="standard-form">	
-  <h1>Change My Password</h1>
-	
-	<%= form_for @user, :url => password_reset_path, :method => :put, :html => { :class => "formtastic" } do |f| %>
-	  <% if @user.errors.any? %>
-	  <ul class="error">
-	    <% @user.errors.full_messages.each do |msg| %>
-	    <li><%= msg %></li>
-	    <% end %>
-	    </ul>
-	  <% end %>
-	  <%= f.label :password %>
-	  <%= f.password_field :password %><br />
-	  <br />
-	  <%= f.label :password_confirmation %>
-	  <%= f.password_field :password_confirmation %><br />
-	  <br />
-	  <%= f.submit "Update my password", :class => "button" %>
-	<% end %>
+
+<h3><%= t 'users.change-password.header' %></h3>
+<div class="form">
+  <%= simple_form_for @user, url: password_reset_path, html: {data: {remote: true}} do |f| %>
+    <%= f.input :password, required: true %>
+    <%= f.input :password_confirmation, required: true %>
+    <%= f.button :submit, t('simple_form.labels.user.change-password') %>
+  <% end %>
 </div>
