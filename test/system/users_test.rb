@@ -123,8 +123,8 @@ class UserSystemTest < ApplicationSystemTestCase
         visit match[1]
 
         fill_in 'Password', with: 'newestpassword'
-        fill_in 'Password confirmation', with: 'newestpassword'
-        click_button 'Update my password'
+        fill_in 'Confirm password', with: 'newestpassword'
+        click_button 'Change password'
 
         assert_content 'Password successfully updated'
       end
