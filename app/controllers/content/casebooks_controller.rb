@@ -39,6 +39,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def export
+    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook})
     html = render_to_string layout: 'export'
     html.gsub! /\\/, '\\\\\\'
     respond_to do |format|

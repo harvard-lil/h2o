@@ -11,7 +11,29 @@ class Content::NodeDecorator < Draper::Decorator
     end
   end
 
+  def headnote
+    if resource.present?
+      resource_headnote
+    elsif section.present?
+      section_headnote
+    else
+      casebook_headnote
+    end
+  end
+
   private
+
+  def casebook_headnote
+    Nokogiri::HTML casebook.headnote {|config| config.strict.noblanks}
+  end
+
+  def section_headnote
+    Nokogiri::HTML section.headnote {|config| config.strict.noblanks}
+  end
+
+  def resource_headnote
+    Nokogiri::HTML resource.headnote {|config| config.strict.noblanks}
+  end
 
   def draft_action_buttons
     if self.is_a? Content::Casebook
