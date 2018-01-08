@@ -177,6 +177,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   header.content {
     background-color: $white;
+    margin-bottom: 20px;
     h1.title {
       margin: 0px;
       font-size: 32px;
@@ -235,17 +236,23 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
     }
   }
+
   section.headnote {
+    margin: 20px 30px 30px 30px;
+  }
+
+  section.headnote, section.resource {
     @include sans-serif($regular, 18px, 31px);
     h5 {
       font-size: 14px;
+      margin: 30px 0px 15px 0px;
     }
     h3 {
       @include sans-serif($medium, 24px, 27px);
       margin: 10px 0;
       color: $orange;
     }
-    margin: 20px 30px 30px 30px;
+    margin-bottom: 20px;
   }
   section.resource-search {
     .tabs .tab {

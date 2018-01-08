@@ -35,15 +35,19 @@
     <% end %>
   </header>
 
-  <section class="headnote">
+  <section class="edit-headnote">
     <h5>
       <%= t 'content.show.headnote' %>
     </h5>
     <%= f.cktext_area :headnote, placeholder: t('simple_form.labels.casebook.description'), class: 'ckeditor form-control' %>
   </section>
 
+
   <% if @content.resource.is_a?(Default) || @content.resource.is_a?(TextBlock) %>
-    <section class="resource">
+    <section class="edit-resource">
+      <h5>
+        <%= t 'content.show.content' %>
+      </h5>
       <%= f.simple_fields_for :resource do |r| %>
         <% if @content.resource.is_a? Default %>
           <%= r.input :url %> 
