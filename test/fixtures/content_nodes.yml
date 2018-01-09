@@ -9,13 +9,12 @@ public_casebook:
 public_casebook_section_1:
   casebook: public_casebook
   title: Section One
-  headnote: >
-    This is the first chapter of the casebook.
+  headnote: <p>What is a corporation?</p>
   ordinals: [1]
 
 public_casebook_section_1_1:
   casebook: public_casebook
-  headnote: This is the first resource in the casebook.
+  headnote: <p<This is the first resource in the casebook.</p>
   resource: public_case_1
   resource_type: Case
   ordinals: [1,1]
