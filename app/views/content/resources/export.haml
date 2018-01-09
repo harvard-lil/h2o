@@ -7,14 +7,14 @@
   - if content.subtitle.present?
     %header.SectionSubtitle= content.subtitle
   - if content.headnote.present?
-    %header.SectionHeadnote= content.headnote
+    %header.SectionHeadnote= @decorated_content.headnote.to_html.html_safe
 - elsif content.is_a? Content::Resource
   %header.ResourceNumber= content.ordinal_string
   %header.ResourceTitle= content.title
   - if content.subtitle.present?
     %header.ResourceSubtitle= content.subtitle
   - if content.headnote.present?
-    %header.ResourceHeadnote= content.headnote
+    %header.ResourceHeadnote= @decorated_content.headnote.to_html.html_safe
   - if content.resource.class.in? [Case, TextBlock]
     -# %main
     - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
