@@ -5,8 +5,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
     scenario 'viewing a casebook', solr: true do
       casebook = content_nodes(:public_casebook)
       section_1 = content_nodes(:public_casebook_section_1)
-      resource_1 = content_nodes(:'public_casebook_section_1.1')
-
+      resource_1 = content_nodes(:public_casebook_section_1_1)
+#  
       visit casebook_path casebook
       assert_content casebook.title
 
@@ -27,6 +27,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'creating a casebook', solr: true, js: true do
+      page.driver.browser.js_errors = false
+
       visit root_path
 
       find('.create-casebook').trigger 'click'
@@ -34,13 +36,11 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       fill_in 'content_casebook_title', with: 'Test casebook title'
       fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
-      fill_in 'content_casebook_headnote', with: 'Test casebook headnote'
 
       click_on 'Save'
 
       assert_equal (find('#content_casebook_title').value), 'Test casebook title'
       assert_equal (find('#content_casebook_subtitle').value), 'Test casebook subtitle'
-      assert_equal (find('#content_casebook_headnote').value), 'Test casebook headnote'
 
       assert_content 'This casebook has no content yet.'
       click_button 'Click here to add a section.'
