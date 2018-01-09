@@ -17,6 +17,7 @@ class Content::ResourcesController < Content::NodeController
   skip_before_action :check_public, only: [:export]
   def export
     @resource = Content::Resource.find params[:resource_id]
+    @decorated_content = @resource.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
 
     html = render_to_string layout: 'export'
     respond_to do |format|

@@ -42,6 +42,8 @@ class Content::SectionsController < Content::NodeController
   skip_before_action :check_public, only: [:export]
   def export
     @section = Content::Section.find params[:section_id]
+    @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+
     html = render_to_string layout: 'export'
     respond_to do |format|
       format.pdf {

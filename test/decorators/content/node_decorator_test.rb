@@ -88,7 +88,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
     # before do
     #   @casebook = content_nodes(:public_casebook)
     #   @section = content_nodes(:public_casebook_section_1)
-    #   @resource = content_nodes(:public_casebook_section_1.1)
+    #   @resource = content_nodes(:public_casebook_section_1_1)
     # end
 
     # it 'renders casebook buttons' do
@@ -124,7 +124,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
     # before do
     #   @casebook = content_nodes(:public_casebook)
     #   @section = content_nodes(:public_casebook_section_1)
-    #   @resource = content_nodes(:public_casebook_section_1.1)
+    #   @resource = content_nodes(:public_casebook_section_1_1)
     # end
 
     # it 'renders casebook buttons' do
