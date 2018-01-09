@@ -8,7 +8,7 @@ class ExportSystemTest < ApplicationSystemTestCase
     export_test  section_path(content_nodes(:public_casebook), content_nodes(:public_casebook_section_1)), 'Word', 'test_export_section.docx'
   end
   scenario 'exporting a section to .docx', js:true do
-    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:'public_casebook_section_1_1')), 'Word', 'test_export_resource.docx'
+    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:'public_casebook_section_1_1')), 'Word', 'test_export_section_2.docx'
   end
   scenario 'exporting a casebook to .pdf', js:true do
     export_test casebook_path(content_nodes(:public_casebook)), 'PDF', 'test_export_casebook.pdf'
@@ -17,7 +17,7 @@ class ExportSystemTest < ApplicationSystemTestCase
     export_test  section_path(content_nodes(:public_casebook), content_nodes(:public_casebook_section_1)), 'PDF', 'test_export_section.pdf'
   end
   scenario 'exporting a section to .pdf', js:true do
-    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:'public_casebook_section_1_1')), 'PDF', 'test_export_resource.pdf'
+    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:'public_casebook_section_1_1')), 'PDF', 'test_export_section_2.pdf'
   end
 
   def export_test path, format, file
