@@ -11,10 +11,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content casebook.title
 
       click_link section_1.title
-      assert_content section_1.headnote
 
       click_link resource_1.resource.short_name
-      assert_content resource_1.headnote.to_html.html_safe
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content
     end
