@@ -21,7 +21,7 @@
         </div>
         <div class="author-info">
           <div class="owner">
-            <%= casebook.owner.attribution %><span class="<%= casebook.owner.verified? ? 'verified' : '' %>"></span>
+            <%= casebook.owner.attribution %><span class="<%= casebook.owner.verified_email? ? 'verified' : '' %>"></span>
           </div>
           <div class="affiliation">
             <%= casebook.owner.affiliation %>

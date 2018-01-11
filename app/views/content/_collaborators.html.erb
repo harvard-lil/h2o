@@ -1,5 +1,5 @@
 <% content.users.each do |user| %>
-	<div class="user <% if user.verified? %> verified <% end %>">
+	<div class="user <% if user.verified_email? %> verified <% end %>">
 		<%= user.display_name %>
 	</div>
 <% end %>
