@@ -34,7 +34,7 @@ class Content::SectionsController < Content::NodeController
 
   def edit
     @casebook.update_attributes public: false
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
     redirect_to layout_section_path @casebook, @section
   end
 
@@ -42,7 +42,7 @@ class Content::SectionsController < Content::NodeController
   skip_before_action :check_public, only: [:export]
   def export
     @section = Content::Section.find params[:section_id]
-    @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
 
     html = render_to_string layout: 'export'
     respond_to do |format|
@@ -60,7 +60,7 @@ class Content::SectionsController < Content::NodeController
   end
 
   def show
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
     render 'content/show'
   end
 
