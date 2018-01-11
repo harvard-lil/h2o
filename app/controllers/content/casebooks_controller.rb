@@ -12,7 +12,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def show
-    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook})
+    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebooks'})
     render 'content/show'
   end
 
@@ -39,7 +39,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def export
-    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook})
+    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
     html = render_to_string layout: 'export'
     html.gsub! /\\/, '\\\\\\'
     respond_to do |format|

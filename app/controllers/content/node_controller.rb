@@ -24,7 +24,7 @@ class Content::NodeController < ApplicationController
     if @casebook.public
       return redirect_to details_casebook_path(@casebook)
     end
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource' })
     render 'content/edit_details'
   end
 
@@ -38,7 +38,11 @@ class Content::NodeController < ApplicationController
       return redirect_to casebook_path(@casebook)
     end
     @editable = true
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, resource: @resource})
+    if @section.present?
+      @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
+    else
+      @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'casebook'})
+    end
     render 'content/layout'
   end
 

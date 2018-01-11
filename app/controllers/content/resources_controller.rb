@@ -3,13 +3,13 @@ require 'uri'
 
 class Content::ResourcesController < Content::NodeController
   def show
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
   end
 
   def annotate
     @editable = true
     @casebook.update_attributes public: false
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
     render 'show'
   end
 
@@ -17,7 +17,7 @@ class Content::ResourcesController < Content::NodeController
   skip_before_action :check_public, only: [:export]
   def export
     @resource = Content::Resource.find params[:resource_id]
-    @decorated_content = @resource.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource})
+    @decorated_content = @resource.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
 
     html = render_to_string layout: 'export'
     respond_to do |format|

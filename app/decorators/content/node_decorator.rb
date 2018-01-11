@@ -12,11 +12,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def headnote
-    if resource.present?
+    if type == 'resource'
       resource_headnote
-    elsif section.present?
+    elsif type == 'section'
       section_headnote
-    else
+    elsif type == 'casebook'
       casebook_headnote
     end
   end
@@ -163,6 +163,10 @@ class Content::NodeDecorator < Draper::Decorator
 
   def action_name
     context[:action_name]
+  end
+
+  def type
+    context[:type]
   end
 
   def draft_mode?
