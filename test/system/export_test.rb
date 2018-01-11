@@ -32,6 +32,7 @@ class ExportSystemTest < ApplicationSystemTestCase
       assert_content 'Export Casebook'
       select format, from: 'export-format'
       click_link 'Export'
+      save_and_open_page
     end
 
     exported_file_url = evaluate_script('_test_window_urls').last
