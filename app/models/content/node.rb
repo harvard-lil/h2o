@@ -38,10 +38,6 @@ class Content::Node < ApplicationRecord
     super || self.title.parameterize
   end
 
-  def formatted_headnote
-    Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
-  end
-
   private
 
   # Resolve the correct subclass for this record.
