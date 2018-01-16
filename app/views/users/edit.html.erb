@@ -20,8 +20,15 @@
             <%= f.input :image %>
             <%= f.input :attribution %>
             <%= f.input :affiliation %>
-            <%= f.input :verified_professor %>
-            <%= f.input :professor_verification_requested %>
+
+              <% if @user.verified_professor %>
+              <%= f.input :verified_professor, disabled: true, label: 'Verified Professor' %>
+            <% elsif @user.professor_verification_requested %>
+              <%= f.input :professor_verification_requested, disabled: true, label: 'Professor Verification Requested' %>
+            <% else %>
+              <%= f.input :professor_verification_requested, label: "Request Professor Verification" %>
+            <% end %>
+
             <%= f.button :submit, t('simple_form.labels.user.save-changes') %>
         <% end %>
       </div>
