@@ -10,7 +10,6 @@ class PasswordResetsController < ApplicationController
     x.html_safe
   end
 
-
   def create
     account_email = params.fetch(:user, {}).fetch(:email_address, nil)
     if account_email.blank?
