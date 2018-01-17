@@ -246,17 +246,20 @@ RailsAdmin.config do |config|
   config.model 'User' do
     list do
       field :id
-      field :login
+      field :attribution
+      field :affiliation
       field :email_address
       field :created_at
-      field :verified
+      field :verified_email
+      field :verified_professor
+      field :professor_verification_requested
+      field :professor_verification_sent
+      field :login_count
+      field :last_login_at
     end
 
     edit do
-      field :verified do
-        label "Is user verified?"
-        help "Setting a user to verified will automatically send them a welcome email."
-      end
+      field :verified_professor
       field :login
       field :email_address
       field :set_password do
