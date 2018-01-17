@@ -11,7 +11,29 @@ class Content::NodeDecorator < Draper::Decorator
     end
   end
 
+  def headnote
+    if type == 'resource'
+      resource_headnote
+    elsif type == 'section'
+      section_headnote
+    elsif type == 'casebook'
+      casebook_headnote
+    end
+  end
+
   private
+
+  def casebook_headnote
+    Nokogiri::HTML casebook.headnote {|config| config.strict.noblanks}
+  end
+
+  def section_headnote
+    Nokogiri::HTML section.headnote {|config| config.strict.noblanks}
+  end
+
+  def resource_headnote
+    Nokogiri::HTML resource.headnote {|config| config.strict.noblanks}
+  end
 
   def draft_action_buttons
     if self.is_a? Content::Casebook
@@ -141,6 +163,10 @@ class Content::NodeDecorator < Draper::Decorator
 
   def action_name
     context[:action_name]
+  end
+
+  def type
+    context[:type]
   end
 
   def draft_mode?
