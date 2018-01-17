@@ -59,6 +59,10 @@ class Content::Child < Content::Node
     "#{ordinals.join '.'}-#{slug}"
   end
 
+  def formatted_headnote
+    Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
+  end
+
   private
 
   # moves siblings and niblings before validation
