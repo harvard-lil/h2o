@@ -32,7 +32,7 @@
     <% end %>
   </h1>
 </header>
-<% if @content.headnote.present? || @content.subtitle.present? %>
+<% if @content.formatted_headnote.present? || @content.subtitle.present? %>
   <section class="headnote">
     <h5>
       <%= t 'content.show.headnote' %>
@@ -43,7 +43,7 @@
       </h3>
     <% end %>
     <p>
-      <%= @decorated_content.headnote.to_html.html_safe %>
+      <%= @content.formatted_headnote.to_html.html_safe %>
     </p>
   </section>
 <% else %>
