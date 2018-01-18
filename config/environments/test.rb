@@ -51,6 +51,7 @@ H2o::Application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
-  config.admin_email = 'cgruppioni@law.harvard.edu'
-  config.cap_api_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
+  # config.admin_email = 'cgruppioni@law.harvard.edu'
+  # config.cap_api_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
+  config.professor_verification_email = ENV["PROFESSOR_VERIFICATION_EMAIL"]
 end
