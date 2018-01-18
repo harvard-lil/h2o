@@ -33,6 +33,15 @@ section.sign-up, section.sign-in, section.reset-password {
   .help {
     @include make-md-column(5.5);
   }
+  .verified {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    line-height: 5px;
+
+    background-image: asset-url('ui/verified.png');
+    color: transparent;
+  }
 }
 
 section.profile {
@@ -46,5 +55,27 @@ section.reset-password {
     h3 {
       margin-left: 15px;
     }
+  }
+}
+.verified-professor {
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.user_professor_verification_requested, .user_professor_verification_requested {
+  .help-block {
+    display: none;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .necessity {
+    display: none;
+  }
+
+  .disabled {
+    color: grey;
   }
 }
