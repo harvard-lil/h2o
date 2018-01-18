@@ -20,8 +20,8 @@ class Notifier < ActionMailer::Base
 
   def professor_verification(user)
     @user = user
-    binding.pry
-    mail(to: 'bjohnson@law.harvard.edu', subject: "H2O Professor Verification Request for #{@user.display_name}")
+    @admin_url = rails_admin.edit_url(model_name: 'user', id: @user.id)
+    mail(to: H2o::Application.config.professor_verification_email, subject: "H2O Professor Verification Request for #{@user.display_name}")
     @user.update(professor_verification_sent: true)
   end
 end
