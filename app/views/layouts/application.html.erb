@@ -48,6 +48,6 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <script type="text/javascript">
   var editability_path = '<%= @editability_path || '' %>';
 </script>
-<%= render "shared/google_analytics" %>
+<%= render "layouts/analytics" %>
   </body>
 </html>
