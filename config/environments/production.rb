@@ -144,5 +144,5 @@ H2o::Application.configure do
 
   # config.admin_email = ENV["ADMIN_EMAIL"]
   # config.cap_api_key = ENV["CAP_API_KEY"]
-  config.professor_verification_email = ENV["PROFESSOR_VERIFICATION_EMAIL"]
+  config.professor_verification_email = "bjohnson@law.harvard.edu" 
 end
