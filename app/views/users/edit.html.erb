@@ -17,9 +17,12 @@
             <%= f.input :affiliation %>
 
               <% if @user.verified_professor %>
-              <%= f.input :verified_professor, disabled: true, label: 'Verified Professor' %>
+                <div class="verified-professor">
+                  Verified Professor
+                  <span class="verified"></span>
+                </div>
             <% elsif @user.professor_verification_requested %>
-              <%= f.input :professor_verification_requested, disabled: true, label: 'Professor Verification Requested' %>
+              <%= f.input :professor_verification_requested, disabled: true, label: 'Professor Verification Requested', input_html: {class: 'disabled'} %>
             <% else %>
               <%= f.input :professor_verification_requested, label: "Request Professor Verification" %>
             <% end %>
