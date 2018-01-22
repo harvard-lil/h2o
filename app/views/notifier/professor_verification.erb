@@ -1,8 +1,7 @@
-Hey there, 
-<br>
-<p><%= link_to "Verify #{@user.display_name}", @admin_url %></p>
+Hey Brett, 
 <br>
 <br>
-Professor affiliation: <%= @user.affiliation %>
-Professor email address: <%= @user.email_address %>
-</div> 
+Verify <%= @user.display_name %> (<%= @user.email_address %>) on <%= link_to rails_admin.edit_path(model_name: 'user', id: @user.id) %>
+<br>
+Affiliation: @user.affiliation
+Email: @user.email_address
