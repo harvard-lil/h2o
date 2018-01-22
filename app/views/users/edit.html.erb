@@ -8,7 +8,7 @@
 <section class="sign-up">
   <div class="content">
     <div class="layout">
-      <% if !@user.verified_email && Rails.configuration.disable_verification %>
+      <% if !@user.verified && Rails.configuration.disable_verification %>
         <div class="form">
           <%= button_to t('users.self-verify'), user_path(@user), method: :patch, params: {user: {verified: true}}, class: 'btn btn-default' %>
         </div>
@@ -20,7 +20,6 @@
             <%= f.input :image %>
             <%= f.input :attribution %>
             <%= f.input :affiliation %>
-            <%= f.input :verified_email %>
             <%= f.button :submit, t('simple_form.labels.user.save-changes') %>
         <% end %>
       </div>
