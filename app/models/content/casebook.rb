@@ -60,7 +60,6 @@ class Content::Casebook < Content::Node
 
     string(:attribution, stored: true) { owners.first.try(:attribution) }
     string(:affiliation, stored: true) { owners.first.try(:affiliation) }
-    string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
   def clone(owner:)
