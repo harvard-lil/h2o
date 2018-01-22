@@ -58,13 +58,17 @@ class UsersController < ApplicationController
 
   def update
     @user = @current_user
-
     user_params = permitted_user_params
+
     if user_params[:password].present? && !@user.valid_password?(user_params[:current_password])
       flash[:error] = "Current password is incorrect."
       return render :edit
     end
     user_params.delete :current_password
+
+    if ! user.professor_verification_sent && user.professor_verification_requested
+      @user.send_professor_verification_request_to_admin
+    end
 
     if @user.update_attributes(user_params)
       flash[:success] = 'Profile updated.'
