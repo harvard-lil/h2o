@@ -93,7 +93,6 @@ class User < ApplicationRecord
   alias :textblocks :text_blocks
 
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified_email? && u.verified_email?}
-  after_save :send_verification_notice, :if => Proc.new {|u| u.verification_request_sent? && u.verified_email?}
 
   attr_accessor :terms
   attr_accessor :bypass_verification
