@@ -84,7 +84,7 @@ class UsersController < ApplicationController
     permitted_fields = [:id, :name, :login, :password, :password_confirmation,
                                   :current_password, :image,
                                  :email_address, :tz_name, :attribution, :title,
-                                 :url, :affiliation, :description, :terms, :professor_verification_requested]
+                                 :url, :affiliation, :description, :terms]
     if Rails.configuration.disable_verification
       permitted_fields.push :verified_email
     end
