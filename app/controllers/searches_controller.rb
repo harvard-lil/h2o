@@ -73,6 +73,10 @@ class SearchesController < ApplicationController
       with :attribution, params[:author] if params[:author].present?
       with :affiliation, params[:school] if params[:school].present?
 
+      if params[:type] == ('casebooks' || 'users')
+        with(:verified_professor).equal_to(true)
+      end
+
       facet(:attribution)
       facet(:affiliation)
 
