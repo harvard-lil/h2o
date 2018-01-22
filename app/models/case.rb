@@ -111,9 +111,17 @@ class Case < ApplicationRecord
     boolean :secondary do
       false
     end
+
+    string(:verified_professor, stored: true)
   end
   
   alias :to_s :display_name
+
+  def verified_professor
+    # Since we're searching all models together in Sunspot, this field needs to be 
+    # created so that all cases will always show up.
+    true
+  end
 
   def indexable_case_citations
     self.case_citations.map(&:display_name).join(" ")
