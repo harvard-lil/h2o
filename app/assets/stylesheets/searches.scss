@@ -96,14 +96,14 @@ header.advanced-search {
     align-items: center;
 
     .title {
-      @include make-md-column(8.5);
+      @include make-md-column(7.5);
       font-weight: bold;
       font-size: 14px;
       font-family: $font-family-sans-serif;
       float: left;
     }
     .owner, .casebook-count {
-      @include make-md-column(2);
+      @include make-md-column(3);
     }
     .owner {
       font-size: 13px;
