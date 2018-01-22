@@ -22,6 +22,6 @@ class Notifier < ActionMailer::Base
     @user = user
     @admin_url = rails_admin.edit_url(model_name: 'user', id: @user.id)
     mail(to: H2o::Application.config.professor_verification_email, subject: "H2O Professor Verification Request for #{@user.display_name}")
-    @user.update(professor_verification_requested: true)
+    @user.update(professor_verification_sent: true)
   end
 end

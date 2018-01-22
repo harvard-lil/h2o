@@ -253,6 +253,7 @@ RailsAdmin.config do |config|
       field :verified_email
       field :verified_professor
       field :professor_verification_requested
+      field :professor_verification_sent
       field :login_count
       field :last_login_at
     end
