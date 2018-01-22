@@ -107,15 +107,6 @@ header.advanced-search {
     }
     .owner {
       font-size: 13px;
-      padding: 0;
-
-      .verified {
-        @include square(13px);
-        display: inline-block;
-        vertical-align: middle;
-        content: '';
-        background: asset-url('ui/verified.png') no-repeat;
-      }
     }
     .date, .profile-image {
       @include make-md-column(1);
