@@ -68,6 +68,10 @@ class UsersController < ApplicationController
 
     if user_params[:professor_verification_requested] == "1" && !@user.professor_verification_requested
       @user.send_professor_verification_request_to_admin
+      # ideally would put this after email sent succesfully 
+      # but because turbolinks is currently submitting the page twice
+      # will move this to the correct place later. 
+      @user.update(professor_verification_requested: true) 
     end
 
     if @user.update_attributes(user_params)
