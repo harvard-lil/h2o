@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180111182959) do
+ActiveRecord::Schema.define(version: 20171114212553) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -763,7 +763,7 @@ ActiveRecord::Schema.define(version: 20180111182959) do
     t.string "url", limit: 255
     t.text "description"
     t.string "canvas_id", limit: 255
-    t.boolean "verified_email", default: false, null: false
+    t.boolean "verified", default: false, null: false
     t.string "default_font", limit: 255, default: "futura"
     t.boolean "print_titles", default: true, null: false
     t.boolean "print_dates_details", default: true, null: false

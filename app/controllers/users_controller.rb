@@ -14,7 +14,7 @@ class UsersController < ApplicationController
 
   def verify
     if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
-      current_user.update_column(:verified_email, true)
+      current_user.update_column(:verified, true)
       flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
       redirect_to user_path(current_user)
     elsif current_user.present?
@@ -86,7 +86,7 @@ class UsersController < ApplicationController
                                  :email_address, :tz_name, :attribution, :title,
                                  :url, :affiliation, :description, :terms]
     if Rails.configuration.disable_verification
-      permitted_fields.push :verified_email
+      permitted_fields.push :verified
     end
     params.fetch(:user, {}).permit(*permitted_fields)
   end

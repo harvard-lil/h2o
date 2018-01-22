@@ -30,7 +30,7 @@
     <div class="authorship">
       <div class="collaborators">
         <% @casebook.users.each do |user| %>
-          <div class="user <%= user.verified_email? ? 'verified' : '' %>"><%= user.display_name %></div>
+          <div class="user <%= user.verified? ? 'verified' : '' %>"><%= user.display_name %></div>
         <% end %>
       </div>
       <div class="root-attribution">
