@@ -1,64 +1,54 @@
 # == Schema Information
 #
 # Table name: users
-#   t.datetime "created_at"
-#   t.datetime "updated_at"
-#   t.string "login", limit: 255
-#   t.string "crypted_password", limit: 255
-#   t.string "password_salt", limit: 255
-#   t.string "persistence_token", limit: 255, null: false
-#   t.integer "login_count", default: 0, null: false
-#   t.datetime "last_request_at"
-#   t.datetime "last_login_at"
-#   t.datetime "current_login_at"
-#   t.string "last_login_ip", limit: 255
-#   t.string "current_login_ip", limit: 255
-#   t.string "oauth_token", limit: 255
-#   t.string "oauth_secret", limit: 255
-#   t.string "email_address", limit: 255
-#   t.string "tz_name", limit: 255
-#   t.integer "bookmark_id"
-#   t.integer "karma"
-#   t.string "attribution", limit: 255
-#   t.string "perishable_token", limit: 255
-#   t.boolean "tab_open_new_items", default: false, null: false
-#   t.string "default_font_size", limit: 255, default: "10"
-#   t.string "title", limit: 255
-#   t.string "affiliation", limit: 255
-#   t.string "url", limit: 255
-#   t.text "description"
-#   t.string "canvas_id", limit: 255
-#   t.boolean "verified_email", default: false, null: false
-#   t.string "default_font", limit: 255, default: "futura"
-#   t.boolean "print_titles", default: true, null: false
-#   t.boolean "print_dates_details", default: true, null: false
-#   t.boolean "print_paragraph_numbers", default: true, null: false
-#   t.boolean "print_annotations", default: false, null: false
-#   t.string "print_highlights", limit: 255, default: "original", null: false
-#   t.string "print_font_face", limit: 255, default: "dagny", null: false
-#   t.string "print_font_size", limit: 255, default: "small", null: false
-#   t.boolean "default_show_comments", default: false, null: false
-#   t.boolean "default_show_paragraph_numbers", default: true, null: false
-#   t.boolean "hidden_text_display", default: false, null: false
-#   t.boolean "print_links", default: true, null: false
-#   t.string "toc_levels", limit: 255, default: "", null: false
-#   t.string "print_export_format", limit: 255, default: "", null: false
-#   t.string "image_file_name"
-#   t.string "image_content_type"
-#   t.integer "image_file_size"
-#   t.datetime "image_updated_at"
-#   t.boolean "verified_professor", default: false
-#   t.boolean "professor_verification_requested", default: false
-#   t.index ["affiliation"], name: "index_users_on_affiliation"
-#   t.index ["attribution"], name: "index_users_on_attribution"
-#   t.index ["email_address"], name: "index_users_on_email_address"
-#   t.index ["id"], name: "index_users_on_id"
-#   t.index ["last_request_at"], name: "index_users_on_last_request_at"
-#   t.index ["login"], name: "index_users_on_login"
-#   t.index ["oauth_token"], name: "index_users_on_oauth_token"
-#   t.index ["persistence_token"], name: "index_users_on_persistence_token"
-#   t.index ["tz_name"], name: "index_users_on_tz_name"
-# end
+#
+#  id                             :integer          not null, primary key
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  login                          :string(255)
+#  crypted_password               :string(255)
+#  password_salt                  :string(255)
+#  persistence_token              :string(255)      not null
+#  login_count                    :integer          default(0), not null
+#  last_request_at                :datetime
+#  last_login_at                  :datetime
+#  current_login_at               :datetime
+#  last_login_ip                  :string(255)
+#  current_login_ip               :string(255)
+#  oauth_token                    :string(255)
+#  oauth_secret                   :string(255)
+#  email_address                  :string(255)
+#  tz_name                        :string(255)
+#  bookmark_id                    :integer
+#  karma                          :integer
+#  attribution                    :string(255)
+#  perishable_token               :string(255)
+#  tab_open_new_items             :boolean          default(FALSE), not null
+#  default_font_size              :string(255)      default("10")
+#  title                          :string(255)
+#  affiliation                    :string(255)
+#  url                            :string(255)
+#  description                    :text
+#  canvas_id                      :string(255)
+#  verified                       :boolean          default(FALSE), not null
+#  default_font                   :string(255)      default("futura")
+#  print_titles                   :boolean          default(TRUE), not null
+#  print_dates_details            :boolean          default(TRUE), not null
+#  print_paragraph_numbers        :boolean          default(TRUE), not null
+#  print_annotations              :boolean          default(FALSE), not null
+#  print_highlights               :string(255)      default("original"), not null
+#  print_font_face                :string(255)      default("dagny"), not null
+#  print_font_size                :string(255)      default("small"), not null
+#  default_show_comments          :boolean          default(FALSE), not null
+#  default_show_paragraph_numbers :boolean          default(TRUE), not null
+#  hidden_text_display            :boolean          default(FALSE), not null
+#  print_links                    :boolean          default(TRUE), not null
+#  toc_levels                     :string(255)      default(""), not null
+#  print_export_format            :string(255)      default(""), not null
+#  image_file_name                :string
+#  image_content_type             :string
+#  image_file_size                :integer
+#  image_updated_at               :datetime
 #
 
 class User < ApplicationRecord
@@ -93,7 +83,6 @@ class User < ApplicationRecord
   alias :textblocks :text_blocks
 
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified_email? && u.verified_email?}
-  after_save :send_verification_notice, :if => Proc.new {|u| u.verification_request_sent? && u.verified_email?}
 
   attr_accessor :terms
   attr_accessor :bypass_verification
@@ -240,9 +229,10 @@ class User < ApplicationRecord
     Notifier.verification_request(self).deliver
   end
 
-  def send_professor_verification_request_to_admin
-    Notifier.professor_verification(self).deliver
-  end
+  # def send_verification_request_to_admin
+  #   reset_perishable_token!
+  #   Notifier.admin_verification_request(self).deliver
+  # end
 
   def deliver_password_reset_instructions!
     reset_perishable_token!
@@ -254,10 +244,6 @@ class User < ApplicationRecord
   def set_password=(value)
     return nil if value.blank?
     self.password = self.password_confirmation = value
-  end
-
-  def request_professor_verification!
-    Notifier.request_professor_verification(self).deliver
   end
 
   private
