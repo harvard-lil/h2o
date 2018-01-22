@@ -1,7 +1,6 @@
 Hey Brett, 
-<br>
-<br>
-Verify <%= @user.display_name %> (<%= @user.email_address %>) on <%= link_to rails_admin.edit_path(model_name: 'user', id: @user.id) %>
-<br>
+
+Verify <%= @user.attribution %> on <%= rails_admin.dashboard_path %>
+
 Affiliation: @user.affiliation
 Email: @user.email_address

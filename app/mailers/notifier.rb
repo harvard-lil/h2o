@@ -20,8 +20,7 @@ class Notifier < ActionMailer::Base
 
   def professor_verification(user)
     @user = user
-    binding.pry
-    mail(to: 'bjohnson@law.harvard.edu', subject: "H2O Professor Verification Request for #{@user.display_name}")
-    @user.update(professor_verification_sent: true)
+    mail(to: 'cgruppioni@gmail.com', subject: "H2O Professor Verification Request for #{user.attribution}")
+    # @user.update(professor_verification_sent: true)
   end
 end
