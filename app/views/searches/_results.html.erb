@@ -8,6 +8,7 @@
           </div>
           <div class="owner">
             <% if result.respond_to?(:owner) && result.owner %>
+              <div class="user <% if result.owner.verified_professor? %> verified <% end %>"></div>
               <%= result.owner.display_name %>
             <% end %>
           </div>
