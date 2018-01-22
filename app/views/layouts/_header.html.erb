@@ -16,11 +16,11 @@
     <div class="user">
       <% if current_user.present? %>
         <div class="current-user">
-          <% if current_user.verified_professor? %>
+          <% if current_user.verified_email? %>
             <div class="verified">
-              <%= t 'header.user.verified_professor' %>
+              <%= t 'header.user.verified_email' %>
             </div>
-          <% elsif ! current_user.verified_email? %>
+          <% else %>
             <div class="unverified">
               <%= t 'header.user.unverified' %>
             </div>
