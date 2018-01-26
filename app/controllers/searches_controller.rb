@@ -73,7 +73,7 @@ class SearchesController < ApplicationController
       with :attribution, params[:author] if params[:author].present?
       with :affiliation, params[:school] if params[:school].present?
 
-      if params[:type] == ('casebooks' || 'users')
+      if content_has_verified_professor?
         with(:verified_professor).equal_to(true)
       end
 
@@ -89,6 +89,22 @@ class SearchesController < ApplicationController
         params['group.offset'] = (page - 1) * PER_PAGE
       end
     end
+  end
+
+  def content_has_verified_professor?
+    browse_page || casebooks_tab || users_tab
+  end
+
+  def browse_page
+    ! params[:type].present?
+  end
+
+  def casebooks_tab
+    params[:type].include?('casebooks')
+  end
+
+  def users_tab
+    params[:type].include?('users')
   end
 
   def paginate_group(group)
