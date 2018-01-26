@@ -39,7 +39,7 @@ class UserSystemTest < ApplicationSystemTestCase
     end
     scenario 'browsing users', solr: true do
       visit users_path
-      assert_content "student_user"
+      assert_content "verified_professor"
     end
     scenario 'browsing a non-user' do
       visit user_path(:nonID)

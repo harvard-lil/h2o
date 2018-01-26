@@ -40,3 +40,5 @@ verified_professor:
   attribution: verified_professor
   affiliation: verified_professor's Affiliation
   persistence_token: abcd
+  verified_professor: true
+  professor_verification_requested: true
