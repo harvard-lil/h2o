@@ -16,6 +16,7 @@
     <% end %>
   </head>
   <body class="view-<%= controller_name.parameterize %>-<%= action_name.parameterize %>">
+    <a href="#main" class="sr-only sr-only-focusable">Skip to main content</a>
     <div class="overlay"></div>
     <% if content_for? :banner %>
       <%= yield(:banner) %>
