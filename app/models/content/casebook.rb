@@ -114,4 +114,12 @@ class Content::Casebook < Content::Node
   def to_param
     "#{id}-#{slug}"
   end
+
+  def destroy
+    if self.descendants.present?
+     raise "Cannot delete a casebook with active descendants"
+    else
+      super
+    end
+  end
 end
