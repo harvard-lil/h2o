@@ -17,6 +17,11 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def edit
+    #clone casebook
+    #redirect to cloned casebook layout path 
+    #draft mode of live casebook : true 
+    # live casebook: id number  
+
     @casebook.update_attributes public: false
     @content = @casebook
     redirect_to layout_casebook_path(@content)
@@ -34,6 +39,11 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def update
+    # if draft mode of live casebook
+    # set id of original casebook to something else 
+    # override live casebook completely 
+    # merge in changes from cloned casebook into live casebook 
+
     @casebook.update content_params
     return redirect_to layout_casebook_path @casebook if @casebook.valid?
   end
