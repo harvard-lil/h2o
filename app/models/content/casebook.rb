@@ -32,7 +32,7 @@ class Content::Casebook < Content::Node
   validates_length_of :ordinals, is: 0
 
   has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id, dependent: :delete_all
-  has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :content_id
+  has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :casebook_id
 
   include Content::Concerns::HasCollaborators
   include Content::Concerns::HasChildren
@@ -103,7 +103,7 @@ class Content::Casebook < Content::Node
     if root_user_id.present?
       User.find(root_user_id)
     elsif self.ancestry.present?
-      User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
+      User.joins(:content_collaborators).where(content_collaborators: { casebook_id: self.root.id, role: 'owner' }).first ## make sure this returns root
     end
   end
 
