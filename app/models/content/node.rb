@@ -42,6 +42,31 @@ class Content::Node < ApplicationRecord
     Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
   end
 
+  def merge_revisions(original)
+    # merges initial casebook object
+    # loop through and merge all resources
+    # new_resources = self.resources.where(created_at > self.created_at) 
+    # modified_resources = self.resources.where(created_at < self.created_at).where(updated_at > self.updated_at)
+    # find_changed_values(modified_resources)
+    #### Annotations:
+    #### resource_ids = self.resources.pluck(:id)
+    #### Content::Annotation.where(resource_id: resource_ids).where(created_at > self.created_at)
+    #### ^ Copy these over
+    #### Probably do need to look for revised ones 
+    # loop through and merge in collaborators
+    # return original object
+  end
+
+  def find_changed_values(resource)
+    # https://stackoverflow.com/questions/11853491/merging-two-ruby-objects
+
+    parent_resource = Content::Resource.find(resource.copy_of_id)
+
+    resource <=> parent_resource
+
+    ## return resource or parent resource? 
+  end
+
   private
 
   # Resolve the correct subclass for this record.

@@ -63,6 +63,12 @@ class Content::Casebook < Content::Node
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
+  def merge_revisions_into_published_casebook
+    published_casebook = self.parent
+
+    self.merge_revisions(published_casebook)
+  end
+
   def clone(owner:)
     cloned_casebook = dup
     cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self )
