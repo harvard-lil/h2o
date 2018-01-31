@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180116185712) do
+ActiveRecord::Schema.define(version: 20180131193518) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -221,12 +221,12 @@ ActiveRecord::Schema.define(version: 20180116185712) do
 
   create_table "content_collaborators", force: :cascade do |t|
     t.bigint "user_id"
-    t.bigint "content_id"
+    t.bigint "casebook_id"
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["content_id"], name: "index_content_collaborators_on_content_id"
-    t.index ["user_id", "content_id"], name: "index_content_collaborators_on_user_id_and_content_id", unique: true
+    t.index ["casebook_id"], name: "index_content_collaborators_on_casebook_id"
+    t.index ["user_id", "casebook_id"], name: "index_content_collaborators_on_user_id_and_casebook_id", unique: true
     t.index ["user_id"], name: "index_content_collaborators_on_user_id"
   end
 
@@ -809,7 +809,7 @@ ActiveRecord::Schema.define(version: 20180116185712) do
   end
 
   add_foreign_key "content_annotations", "content_nodes", column: "resource_id", on_delete: :cascade
-  add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
+  add_foreign_key "content_collaborators", "content_nodes", column: "casebook_id"
   add_foreign_key "content_nodes", "content_nodes", column: "casebook_id", on_delete: :cascade
   add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id", on_delete: :nullify
 end
