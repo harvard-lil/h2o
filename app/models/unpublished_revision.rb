@@ -1,3 +1,3 @@
 class UnpublishedRevision < ApplicationRecord
-  belongs_to :content_node
+  belongs_to :node, class_name: 'Content::Node'
 end
