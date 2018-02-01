@@ -37,7 +37,7 @@ class Content::Child < Content::Node
 
   belongs_to :casebook, class_name: 'Content::Casebook', inverse_of: :contents, required: true, touch: true
 
-  has_many :collaborators, class_name: 'Content::Collaborator', primary_key: :casebook_id, foreign_key: :casebook_id
+  has_many :collaborators, class_name: 'Content::Collaborator', primary_key: :casebook_id, foreign_key: :content_id
   include Content::Concerns::HasCollaborators
 
   def section

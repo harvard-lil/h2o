@@ -32,7 +32,7 @@ class Content::Casebook < Content::Node
   validates_length_of :ordinals, is: 0
 
   has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id, dependent: :delete_all
-  has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :casebook_id
+  has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :content_id
 
   include Content::Concerns::HasCollaborators
   include Content::Concerns::HasChildren
@@ -63,10 +63,20 @@ class Content::Casebook < Content::Node
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
+  def create_revisions(content_params)
+    content_params.each do |field|
+      previous_revisions = unpublished_revisions.where(field: field)
+      if previous_revisions.present?
+        previous_revisions.destroy_all
+      end
+      unpublished_revisions.create(field: field, value: content_params[field])
+    end
+  end
+
   def merge_revisions_into_published_casebook
     published_casebook = self.parent
 
-    self.merge_revisions(published_casebook)
+  #   self.merge_revisions(published_casebook)
   end
 
   def clone(owner:)
@@ -109,7 +119,7 @@ class Content::Casebook < Content::Node
     if root_user_id.present?
       User.find(root_user_id)
     elsif self.ancestry.present?
-      User.joins(:content_collaborators).where(content_collaborators: { casebook_id: self.root.id, role: 'owner' }).first ## make sure this returns root
+      User.joins(:content_collaborators).where(content_collaborators: { ccontent_id: self.root.id, role: 'owner' }).first ## make sure this returns root
     end
   end
 

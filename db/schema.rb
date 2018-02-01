@@ -221,12 +221,12 @@ ActiveRecord::Schema.define(version: 20180201170055) do
 
   create_table "content_collaborators", force: :cascade do |t|
     t.bigint "user_id"
-    t.bigint "casebook_id"
+    t.bigint "content_id"
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["casebook_id"], name: "index_content_collaborators_on_casebook_id"
-    t.index ["user_id", "casebook_id"], name: "index_content_collaborators_on_user_id_and_casebook_id", unique: true
+    t.index ["content_id"], name: "index_content_collaborators_on_content_id"
+    t.index ["user_id", "content_id"], name: "index_content_collaborators_on_user_id_and_content_id", unique: true
     t.index ["user_id"], name: "index_content_collaborators_on_user_id"
   end
 
@@ -258,7 +258,7 @@ ActiveRecord::Schema.define(version: 20180201170055) do
     t.string "ancestry"
     t.bigint "playlist_id"
     t.bigint "root_user_id"
-    t.boolean "draft_mode"
+    t.boolean "draft_mode_of_published_casebook"
     t.index ["ancestry"], name: "index_content_nodes_on_ancestry"
     t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
     t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
@@ -724,14 +724,12 @@ ActiveRecord::Schema.define(version: 20180201170055) do
   end
 
   create_table "unpublished_revisions", force: :cascade do |t|
-    t.bigint "resource_id", null: false
+    t.integer "node_id"
     t.string "field", null: false
-    t.string "original_value", null: false
-    t.string "new_value", null: false
+    t.string "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["resource_id", "field"], name: "index_unpublished_revisions_on_resource_id_and_field"
-    t.index ["resource_id"], name: "index_unpublished_revisions_on_resource_id"
+    t.index ["node_id", "field"], name: "index_unpublished_revisions_on_node_id_and_field"
   end
 
   create_table "user_collections", id: :serial, force: :cascade do |t|
@@ -821,8 +819,7 @@ ActiveRecord::Schema.define(version: 20180201170055) do
   end
 
   add_foreign_key "content_annotations", "content_nodes", column: "resource_id", on_delete: :cascade
-  add_foreign_key "content_collaborators", "content_nodes", column: "casebook_id"
+  add_foreign_key "content_collaborators", "content_nodes", column: "content_id"
   add_foreign_key "content_nodes", "content_nodes", column: "casebook_id", on_delete: :cascade
   add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id", on_delete: :nullify
-  add_foreign_key "unpublished_revisions", "content_nodes", column: "resource_id"
 end

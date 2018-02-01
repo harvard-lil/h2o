@@ -37,9 +37,11 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def update
-    # public_casebook = @casebook.merge_revisions_into_published_casebook
-    # @casebook = public_casebook
-    # redirect to layout
+    if publishing_casebook? && @casebook.draft_mode_of_published_casebook
+      @casebook.merge_revisions_into_published_casebook
+    elsif @casebook.draft_mode_of_published_casebook
+      @casebook.create_revisions(content_params)
+    end
 
     @casebook.update content_params
     return redirect_to layout_casebook_path @casebook if @casebook.valid?
@@ -65,6 +67,10 @@ class Content::CasebooksController < Content::NodeController
   end
 
   private
+
+  def publishing_casebook?
+    params[:public]
+  end
 
   def export_filename format
     helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + '.' + format
