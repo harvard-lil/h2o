@@ -80,6 +80,10 @@ class Content::SectionsController < Content::NodeController
   end
 
   def update
+    if @casebook.draft_mode_of_published_casebook?
+      @section.create_revisions(content_params)
+    end
+
     @section.update content_params
     return redirect_to layout_section_path(@casebook, @section) if @section.valid?
   end

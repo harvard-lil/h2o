@@ -40,6 +40,10 @@ class Content::ResourcesController < Content::NodeController
   end
 
   def update
+    if @casebook.draft_mode_of_published_casebook?
+      @resource.create_revisions(content_params)
+    end
+
     @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
       headnote: resource_params[:headnote])
 
