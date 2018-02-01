@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180131193518) do
+ActiveRecord::Schema.define(version: 20180201170055) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -258,6 +258,7 @@ ActiveRecord::Schema.define(version: 20180131193518) do
     t.string "ancestry"
     t.bigint "playlist_id"
     t.bigint "root_user_id"
+    t.boolean "draft_mode"
     t.index ["ancestry"], name: "index_content_nodes_on_ancestry"
     t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
     t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
@@ -722,6 +723,17 @@ ActiveRecord::Schema.define(version: 20180131193518) do
     t.index ["updated_at"], name: "index_text_blocks_on_updated_at"
   end
 
+  create_table "unpublished_revisions", force: :cascade do |t|
+    t.bigint "resource_id", null: false
+    t.string "field", null: false
+    t.string "original_value", null: false
+    t.string "new_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_id", "field"], name: "index_unpublished_revisions_on_resource_id_and_field"
+    t.index ["resource_id"], name: "index_unpublished_revisions_on_resource_id"
+  end
+
   create_table "user_collections", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.string "name", limit: 255
@@ -812,4 +824,5 @@ ActiveRecord::Schema.define(version: 20180131193518) do
   add_foreign_key "content_collaborators", "content_nodes", column: "casebook_id"
   add_foreign_key "content_nodes", "content_nodes", column: "casebook_id", on_delete: :cascade
   add_foreign_key "content_nodes", "content_nodes", column: "copy_of_id", on_delete: :nullify
+  add_foreign_key "unpublished_revisions", "content_nodes", column: "resource_id"
 end
