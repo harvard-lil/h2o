@@ -63,16 +63,6 @@ class Content::Casebook < Content::Node
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
-  def create_revisions(content_params)
-    content_params.each do |field|
-      previous_revisions = unpublished_revisions.where(field: field)
-      if previous_revisions.present?
-        previous_revisions.destroy_all
-      end
-      unpublished_revisions.create(field: field, value: content_params[field])
-    end
-  end
-
   def merge_revisions_into_published_casebook
     published_casebook = self.parent
 
