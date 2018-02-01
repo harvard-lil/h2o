@@ -28,6 +28,7 @@ class Content::Node < ApplicationRecord
 
   belongs_to :copy_of, class_name: 'Content::Node', inverse_of: :copies, optional: true
   has_many :copies, class_name: 'Content::Node', inverse_of: :copy_of, foreign_key: :copy_of_id, dependent: :nullify
+  has_many :unpublished_revisions
 
   scope :published, -> {where public: true}
   scope :owned, -> {where content_collaborators: {role: 'owner'}}
@@ -43,6 +44,10 @@ class Content::Node < ApplicationRecord
   end
 
   def merge_revisions(original)
+    draft_casebook = self
+    original_casebook = original
+
+    merge_shallow_revisions(original)
     # merges initial casebook object
     # loop through and merge all resources
     # new_resources = self.resources.where(created_at > self.created_at) 
@@ -57,7 +62,11 @@ class Content::Node < ApplicationRecord
     # return original object
   end
 
-  def find_changed_values(resource)
+  def merge_shallow_revisions(original)
+
+  end
+
+  def merge_resources(resource)
     # https://stackoverflow.com/questions/11853491/merging-two-ruby-objects
 
     parent_resource = Content::Resource.find(resource.copy_of_id)
