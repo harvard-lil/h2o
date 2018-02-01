@@ -41,11 +41,13 @@ class Content::Node < ApplicationRecord
 
   def create_revisions(content_params)
     content_params.each do |field|
-      previous_revisions = unpublished_revisions.where(field: field)
-      if previous_revisions.present?
-        previous_revisions.destroy_all
+      unless field == "id"
+        previous_revisions = unpublished_revisions.where(field: field)
+        if previous_revisions.present?
+          previous_revisions.destroy_all
+        end
+        unpublished_revisions.create(field: field, value: content_params[field])
       end
-      unpublished_revisions.create(field: field, value: content_params[field])
     end
   end
 
