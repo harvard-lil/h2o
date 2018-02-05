@@ -71,7 +71,12 @@ class Content::Casebook < Content::Node
 
   def clone(owner:)
     cloned_casebook = dup
-    cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self )
+
+    if self.owner == owner && self.public
+      draft_mode_of_published_casebook = true
+    end
+    
+    cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self, draft_mode_of_published_casebook: draft_mode_of_published_casebook )
     cloned_casebook
   end
 
