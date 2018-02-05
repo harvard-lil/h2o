@@ -56,6 +56,12 @@ class Content::Node < ApplicationRecord
   end
 
   def merge_revisions(original)
+    # merge in unpublished revisions
+    # merge in new resources
+    # merge in new annoations
+
+
+
     draft_casebook = self
     original_casebook = original
 
