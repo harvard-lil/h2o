@@ -11,6 +11,9 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def destroy
+    if @resource.casebook.draft_mode_of_published_casebook
+      # save record of annotation being destroyed
+    end
     @annotation.destroy
     redirect_to annotate_resource_path(@resource.casebook, @resource)
   end
