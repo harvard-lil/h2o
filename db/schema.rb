@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180201170055) do
+ActiveRecord::Schema.define(version: 20180207202513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -250,7 +250,7 @@ ActiveRecord::Schema.define(version: 20180201170055) do
     t.bigint "casebook_id"
     t.integer "ordinals", default: [], null: false, array: true
     t.bigint "copy_of_id"
-    t.boolean "is_alias"
+    t.boolean "has_root_dependency"
     t.string "resource_type"
     t.bigint "resource_id"
     t.datetime "created_at", null: false
@@ -729,6 +729,7 @@ ActiveRecord::Schema.define(version: 20180201170055) do
     t.string "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "casebook_id"
     t.index ["node_id", "field"], name: "index_unpublished_revisions_on_node_id_and_field"
   end
 
