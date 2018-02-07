@@ -12,7 +12,7 @@ class Content::AnnotationsController < ApplicationController
 
   def destroy
     if @resource.casebook.draft_mode_of_published_casebook
-      # save record of annotation being destroyed
+      UnpublishedRevision.create(field: "deleted_annotation", value: @annotation.copy_of_id, casebook_id: @annotation.resource.casebook_id)
     end
     @annotation.destroy
     redirect_to annotate_resource_path(@resource.casebook, @resource)
