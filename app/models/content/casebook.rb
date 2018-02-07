@@ -63,6 +63,48 @@ class Content::Casebook < Content::Node
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
+  def clone(owner:)
+    cloned_casebook = dup
+
+    if self.owner == owner && self.public
+      draft_mode_of_published_casebook = true
+    end
+
+    cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self, draft_mode_of_published_casebook: draft_mode_of_published_casebook )
+    cloned_casebook
+  end
+
+  def clone_contents
+    begin
+      connection = ActiveRecord::Base.connection
+      columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency}
+      query = <<-SQL
+        INSERT INTO content_nodes(#{columns.join ', '},
+          copy_of_id,
+          casebook_id,
+          has_root_dependency
+        )
+        SELECT #{columns.join ', '},
+          id,
+          #{connection.quote(id)},
+          #{connection.quote(true)}
+        FROM content_nodes WHERE casebook_id=#{connection.quote(copy_of.id)};
+      SQL
+      ActiveRecord::Base.connection.execute(query)
+    end
+
+    clone_annotations
+  end
+
+  def clone_annotations
+    self.resources.each do |resource|
+      resource.update_attributes has_root_dependency: false
+      resource.copy_of.annotations.map(&:dup).each do |annotation|
+        annotation.update_attributes resource: resource
+      end
+    end
+  end
+
   def merge_revisions_into_published_casebook
     published_casebook = self.parent
     revisions = UnpublishedRevisions.where(casebook_id: self.id)
@@ -92,46 +134,6 @@ class Content::Casebook < Content::Node
 
     # 7. Delete draft casebook
   end
-
-  def clone(owner:)
-    cloned_casebook = dup
-
-    if self.owner == owner && self.public
-      draft_mode_of_published_casebook = true
-    end
-
-    cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self, draft_mode_of_published_casebook: draft_mode_of_published_casebook )
-    cloned_casebook
-  end
-
-  def clone_contents
-    connection = ActiveRecord::Base.connection
-    columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency}
-    query = <<-SQL
-      INSERT INTO content_nodes(#{columns.join ', '},
-        copy_of_id,
-        casebook_id,
-        has_root_dependency
-      )
-      SELECT #{columns.join ', '},
-        id,
-        #{connection.quote(id)},
-        #{connection.quote(true)}
-      FROM content_nodes WHERE casebook_id=#{connection.quote(copy_of.id)};
-    SQL
-    ActiveRecord::Base.connection.execute(query)
-  end
-
-  #this method was from model/annotations -- testing to see if
-  #it does anything
-  # def copy_resource_annotations
-  #   self.resources.each do |resource|
-  #     resource.update_attributes has_root_dependency: false
-  #     resource.copy_of.annotations.map(&:dup).each do |annotation|
-  #       annotation.update_attributes resource: resource
-  #     end
-  #   end
-  # end
 
   def display_name
     title
