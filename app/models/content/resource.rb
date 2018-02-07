@@ -11,7 +11,7 @@
 #  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
-#  is_alias      :boolean
+#  has_root_dependency      :boolean
 #  resource_type :string
 #  resource_id   :integer
 #  created_at    :datetime         not null
@@ -83,7 +83,7 @@ class Content::Resource < Content::Child
   end
 
   def annotations
-    if is_alias?
+    if has_root_dependency?
       copy_of.annotations
     else
       super
