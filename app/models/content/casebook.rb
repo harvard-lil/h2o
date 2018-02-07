@@ -11,7 +11,7 @@
 #  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
-#  is_alias      :boolean
+#  has_root_dependency      :boolean
 #  resource_type :string
 #  resource_id   :integer
 #  created_at    :datetime         not null
@@ -75,19 +75,19 @@ class Content::Casebook < Content::Node
     if self.owner == owner && self.public
       draft_mode_of_published_casebook = true
     end
-    
+
     cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self, draft_mode_of_published_casebook: draft_mode_of_published_casebook )
     cloned_casebook
   end
 
   def clone_contents
     connection = ActiveRecord::Base.connection
-    columns = self.class.column_names - %w{id casebook_id copy_of_id is_alias}
+    columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency}
     query = <<-SQL
       INSERT INTO content_nodes(#{columns.join ', '},
         copy_of_id,
         casebook_id,
-        is_alias
+        has_root_dependency
       )
       SELECT #{columns.join ', '},
         id,
@@ -97,6 +97,17 @@ class Content::Casebook < Content::Node
     SQL
     ActiveRecord::Base.connection.execute(query)
   end
+
+  #this method was from model/annotations -- testing to see if
+  #it does anything
+  # def copy_resource_annotations
+  #   self.resources.each do |resource|
+  #     resource.update_attributes has_root_dependency: false
+  #     resource.copy_of.annotations.map(&:dup).each do |annotation|
+  #       annotation.update_attributes resource: resource
+  #     end
+  #   end
+  # end
 
   def display_name
     title
