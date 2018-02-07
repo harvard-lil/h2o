@@ -99,8 +99,9 @@ class Content::Casebook < Content::Node
   def clone_annotations
     self.resources.each do |resource|
       resource.update_attributes has_root_dependency: false
-      resource.copy_of.annotations.map(&:dup).each do |annotation|
-        annotation.update_attributes resource: resource
+      resource.copy_of.annotations.each do |annotation|
+        new_annotation = annotation.dup
+        new_annotation.update_attributes(resource: resource, copy_of_id: annotation.id)
       end
     end
   end
