@@ -2,20 +2,23 @@
 #
 # Table name: content_nodes
 #
-#  id            :integer          not null, primary key
-#  title         :string
-#  slug          :string
-#  subtitle      :string
-#  headnote      :text
-#  public        :boolean          default(TRUE), not null
-#  casebook_id   :integer
-#  ordinals      :integer          default([]), not null, is an Array
-#  copy_of_id    :integer
-#  has_root_dependency      :boolean
-#  resource_type :string
-#  resource_id   :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+# t.string "title"
+# t.string "slug"
+# t.string "subtitle"
+# t.text "headnote"
+# t.boolean "public", default: true, null: false
+# t.bigint "casebook_id"
+# t.integer "ordinals", default: [], null: false, array: true
+# t.bigint "copy_of_id"
+# t.boolean "has_root_dependency"
+# t.string "resource_type"
+# t.bigint "resource_id"
+# t.datetime "created_at", null: false
+# t.datetime "updated_at", null: false
+# t.string "ancestry"
+# t.bigint "playlist_id"
+# t.bigint "root_user_id"
+# t.boolean "draft_mode_of_published_casebook"
 #
 
 # Abstract class for anything that can be a node in a table of contents:
@@ -46,7 +49,7 @@ class Content::Node < ApplicationRecord
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
-        unpublished_revisions.create(field: field, value: content_params[field], casebook_id: (self.casebook_id || self.id), node_parent_id: self.parent.id)
+        unpublished_revisions.create(field: field, value: content_params[field], casebook_id: (self.casebook_id || self.id), node_parent_id: self.copy_of_id)
       end
     end
   end

@@ -67,13 +67,30 @@ class Content::Casebook < Content::Node
     published_casebook = self.parent
     revisions = UnpublishedRevisions.where(casebook_id: self.id)
 
+    # 1. Merge in unpublished revisions (includes: title, headnote, subtitle, textblock changes (not including annotations) and default changes)
     revisions.each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
       resource.update("#{revision.field}": revision.value)
+      revision.destroy
     end
 
-    # delete casebook
-    # self.merge_revisions(published_casebook)
+    # 2. Merge in new annotations
+    annotations = Migrate::Annotation.where(self.id).where("created_at > ?", self.created_at + 1.minute)
+
+    annotations.each do |annotation|
+      Content::Resource.find(annotation.resource_id).parent
+      # find resource in published casebook and just chance resource_id in annotation
+    end
+
+    # 3. Merge in updated annotations
+
+    # 4. Delete deleted annotations
+
+    # 5. Add any new content collaborators
+
+    # 6. Anything else?
+
+    # 7. Delete draft casebook
   end
 
   def clone(owner:)
