@@ -64,9 +64,11 @@ class Content::Casebook < Content::Node
   end
 
   def merge_revisions_into_published_casebook
-    published_casebook = self.parent
+    # published_casebook = self.parent
 
-  #   self.merge_revisions(published_casebook)
+    # UnpublishedRevisions.where(node_id: self.id)
+
+    # self.merge_revisions(published_casebook)
   end
 
   def clone(owner:)
