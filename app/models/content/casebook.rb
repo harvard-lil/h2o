@@ -108,32 +108,44 @@ class Content::Casebook < Content::Node
 
   def merge_revisions_into_published_casebook
     published_casebook = self.parent
-    revisions = UnpublishedRevisions.where(casebook_id: self.id)
+    revisions = UnpublishedRevision.where(casebook_id: self.id)
 
     # 1. Merge in unpublished revisions (includes: title, headnote, subtitle, textblock changes (not including annotations) and default changes)
-    revisions.each do |revision|
+    revisions.where.not(field: "deleted_annotation").each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
       resource.update("#{revision.field}": revision.value)
       revision.destroy
     end
 
-    # 2. Merge in new annotations
-    annotations = Migrate::Annotation.where(self.id).where("created_at > ?", self.created_at + 1.minute)
+    # 2. Merge in new annotations and updated
+    annotations = Content::Annotation.where(casebook_id: self.id).where("updated_at > ?", self.created_at + 1.minute)
 
     annotations.each do |annotation|
-      Content::Resource.find(annotation.resource_id).parent
-      # find resource in published casebook and just chance resource_id in annotation
+      if annotation.copy_of_id.present?
+        Content::Annotation.destroy(annotation.copy_of_id)
+      end
+      parent_resource = Content::Resource.find(annotation.resource_id).parent
+      annotation.update(resource_id: parent_resource.id)
     end
 
-    # 3. Merge in updated annotations
 
     # 4. Delete deleted annotations
+    revisions.where(field: "deleted_annotation").each do |revision|
+      Content::Annotation.destroy(revision.value)
+    end
 
     # 5. Add any new content collaborators
+    new_collaborators = Content::Collaborator.where(content_id: self.id).where("created_at > ?", self.created_at)
 
-    # 6. Anything else?
+    if new_collaborators.present?
+      new_collaborators.each do |collaborator|
+        new_collaborator = collaborator.dup
+        new_collaborator.update_attributes(content_id: published_casebook.id)
+      end
+    end
 
     # 7. Delete draft casebook
+    self.destroy138G
   end
 
   def display_name
