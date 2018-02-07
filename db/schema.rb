@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180207204237) do
+ActiveRecord::Schema.define(version: 20180207220906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -215,6 +215,7 @@ ActiveRecord::Schema.define(version: 20180207204237) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "copy_of_id"
     t.index ["resource_id", "start_p"], name: "index_content_annotations_on_resource_id_and_start_p"
     t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end

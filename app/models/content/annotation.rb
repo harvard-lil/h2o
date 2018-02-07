@@ -2,16 +2,16 @@
 #
 # Table name: content_annotations
 #
-#  id           :integer          not null, primary key
-#  resource_id  :integer          not null
-#  start_p      :integer          not null
-#  end_p        :integer
-#  start_offset :integer          not null
-#  end_offset   :integer          not null
-#  kind         :string           not null
-#  content      :text
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+# t.bigint "resource_id", null: false
+# t.integer "start_p", null: false
+# t.integer "end_p"
+# t.integer "start_offset", null: false
+# t.integer "end_offset", null: false
+# t.string "kind", null: false
+# t.text "content"
+# t.datetime "created_at", null: false
+# t.datetime "updated_at", null: false
+# t.bigint "copy_of_id"
 #
 
 class Content::Annotation < ApplicationRecord
@@ -19,6 +19,22 @@ class Content::Annotation < ApplicationRecord
   belongs_to :resource, class_name: 'Content::Resource', inverse_of: :annotations, required: true
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
+
+  after_create :copy_resource_annotations, if: -> {resource.has_root_dependency}
+
+  def copy_resource_annotations
+    # when you create a new annotation on a resource, this duplicates all of the
+    # annotations on that resource
+    return unless resource.has_root_dependency
+
+    resource.update_attributes has_root_dependency: false
+
+    resource.copy_of.annotations.each do |annotation|
+      new_annotation = annotation.dup
+      new_annotation.update_attributes(resource: resource, copy_of_id: annotation.id)
+    end
+
+  end
 
   def apply_to_node p_node, p_idx, editable: false
     p_node['data-p-idx'] = p_idx
