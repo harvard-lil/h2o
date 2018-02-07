@@ -20,21 +20,6 @@ class Content::Annotation < ApplicationRecord
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
 
-  after_create :copy_resource_annotations, if: -> {resource.has_root_dependency}
-
-  def copy_resource_annotations
-    # when you create a new annotation on a resource, this duplicates all of the
-    # annotations on that resource
-    return unless resource.has_root_dependency
-
-    resource.update_attributes has_root_dependency: false
-
-    resource.copy_of.annotations.each do |annotation|
-      new_annotation = annotation.dup
-      new_annotation.update_attributes(resource: resource, copy_of_id: annotation.id)
-    end
-
-  end
 
   def apply_to_node p_node, p_idx, editable: false
     p_node['data-p-idx'] = p_idx
