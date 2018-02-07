@@ -64,10 +64,15 @@ class Content::Casebook < Content::Node
   end
 
   def merge_revisions_into_published_casebook
-    # published_casebook = self.parent
+    published_casebook = self.parent
+    revisions = UnpublishedRevisions.where(casebook_id: self.id)
 
-    # UnpublishedRevisions.where(node_id: self.id)
+    revisions.each do |revision|
+      resource = Content::Node.find(revision.node_parent_id)
+      resource.update("#{revision.field}": revision.value)
+    end
 
+    # delete casebook
     # self.merge_revisions(published_casebook)
   end
 
