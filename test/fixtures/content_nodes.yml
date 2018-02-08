@@ -34,40 +34,6 @@ public_casebook_section_2:
     This is the second chapter of the casebook.
   ordinals: [2]
 
-draft_casebook_to_merge:
-  title: Draft Casebook
-  public: false
-  updated_at: <%= DateTime.now %>
-  copy_of: public_casebook
-
-draft_casebook_section_to_merge_1:
-  casebook: draft_casebook_to_merge
-  headnote: >
-    This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
-  ordinals: [1]
-  copy_of: public_casebook_section_1
-
-draft_casebook_section_to_merge_2:
-  casebook: draft_casebook_to_merge
-  headnote: >
-    This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
-  ordinals: [2]
-  copy_of: public_casebook_section_2
-
-draft_casebook_section_to_merge_1_1:
-  casebook: draft_casebook_to_merge
-  headnote: >
-    This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
-  ordinals: [2, 1]
-  copy_of: public_casebook_section_1_1
-  created_at: <%= DateTime.now - 2.days %>
-
 draft_casebook:
   title: Draft Casebook 1
   public: false
@@ -133,3 +99,79 @@ private_casebook_resource_1_1:
 student_casebook:
   title: Student Casebook
   public: true
+
+##########
+# For merge_draft_into_published_casebook class
+#########
+
+published_casebook:
+  title: published_casebook
+  public: true
+  updated_at: <%= DateTime.now %> 
+
+published_casebook_section_1:
+  casebook: published_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1]
+
+published_casebook_section_1_1:
+  casebook: published_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1, 1]
+
+published_casebook_section_2:
+  casebook: published_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [2]
+
+draft_merge_casebook:
+  title: Draft Casebook
+  public: false
+  updated_at: <%= DateTime.now %>
+  copy_of: published_casebook
+
+draft_merge_section_1:
+  casebook: draft_merge_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1]
+  copy_of: published_casebook_section_1
+
+draft_merge_section_2:
+  casebook: draft_merge_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [2]
+  copy_of: published_casebook_section_2
+
+draft_merge_section_2_1:
+  casebook: draft_merge_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [2, 1]
+  copy_of: published_casebook_section_1_1 #these resources have different ordinals
+  created_at: <%= DateTime.now - 2.days %>
+
+draft_merge_section_3:
+  casebook: draft_merge_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [3]
+  copy_of: nil #this is a new resource
