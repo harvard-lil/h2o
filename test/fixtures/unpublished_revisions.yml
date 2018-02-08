@@ -1,0 +1,13 @@
+unpublished_revision_1:
+  node: draft_merge_section_1
+  field: title
+  value: New title
+  casebook: draft_merge_casebook
+  node_parent: published_casebook_section_1
+
+unpublished_revision_2:
+  node: draft_merge_section_1
+  field: subtitle
+  value: New subtitle
+  casebook: draft_merge_casebook
+  node_parent: published_casebook_section_2

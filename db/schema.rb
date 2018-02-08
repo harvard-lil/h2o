@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180207220906) do
+ActiveRecord::Schema.define(version: 20180208222205) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -730,8 +730,8 @@ ActiveRecord::Schema.define(version: 20180207220906) do
     t.string "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "casebook_id"
-    t.bigint "node_parent_id"
+    t.integer "casebook_id"
+    t.integer "node_parent_id"
     t.index ["node_id", "field"], name: "index_unpublished_revisions_on_node_id_and_field"
   end
 
