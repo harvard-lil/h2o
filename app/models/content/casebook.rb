@@ -2,21 +2,24 @@
 #
 # Table name: content_nodes
 #
-#  id            :integer          not null, primary key
-#  title         :string
-#  slug          :string
-#  subtitle      :string
-#  headnote      :text
-#  public        :boolean          default(TRUE), not null
-#  casebook_id   :integer
-#  ordinals      :integer          default([]), not null, is an Array
-#  copy_of_id    :integer
-#  has_root_dependency      :boolean
-#  resource_type :string
-#  resource_id   :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#
+# t.string "title"
+# t.string "slug"
+# t.string "subtitle"
+# t.text "headnote"
+# t.boolean "public", default: true, null: false
+# t.bigint "casebook_id"
+# t.integer "ordinals", default: [], null: false, array: true
+# t.bigint "copy_of_id"
+# t.boolean "has_root_dependency"
+# t.string "resource_type"
+# t.bigint "resource_id"
+# t.datetime "created_at", null: false
+# t.datetime "updated_at", null: false
+# t.string "ancestry"
+# t.bigint "playlist_id"
+# t.bigint "root_user_id"
+# t.boolean "draft_mode_of_published_casebook"
+# #
 
 # Concrete class for a Casebook, the root node of a table of contents.
 # - does not belong to a Casebook
@@ -106,63 +109,10 @@ class Content::Casebook < Content::Node
     end
   end
 
-  def merge_revisions_into_published_casebook
+  def merge_draft_into_published
+    draft_casebook = self
     published_casebook = self.parent
-    revisions = UnpublishedRevision.where(casebook_id: self.id)
-
-    # 1. Merge in unpublished revisions (includes: title, headnote, subtitle, textblock changes (not including annotations) and default changes)
-    revisions.where.not(field: "deleted_annotation").each do |revision|
-      resource = Content::Node.find(revision.node_parent_id)
-      if %w(url content).include? revision.field
-        resource.resource.update("#{revision.field}": revision.value)
-      else
-        resource.update("#{revision.field}": revision.value)
-      end
-      revision.destroy
-    end
-
-    # 2. Merge in new annotations and updated
-    resource_ids = self.resources.pluck(:id)
-    annotations = Content::Annotation.where(resource_id: resource_ids).where("updated_at > ?", self.created_at + 1.minute)
-
-
-    ######
-    ######
-    ### Here
-    ### If new annotation this will probably fail
-    ### fix the parent resource query ...
-
-
-    annotations.each do |annotation|
-      if annotation.copy_of_id.present?
-        Content::Annotation.destroy(annotation.copy_of_id)
-      end
-
-      ## probably check here if it's a new one you won't be doing this
-      parent_resource = Content::Annotation.find(annotation.copy_of_id).resource
-      annotation.update(resource_id: parent_resource.id)
-    end
-
-
-    # 4. Delete deleted annotations
-    revisions.where(field: "deleted_annotation").each do |revision|
-      Content::Annotation.destroy(revision.value)
-    end
-
-    # 5. Add any new content collaborators
-    new_collaborators = Content::Collaborator.where(content_id: self.id).where("created_at > ?", self.created_at)
-
-    if new_collaborators.present?
-      new_collaborators.each do |collaborator|
-        new_collaborator = collaborator.dup
-        new_collaborator.update_attributes(content_id: published_casebook.id)
-      end
-    end
-
-    # 7. Delete draft casebook
-    self.destroy
-
-    published_casebook
+    MergeUnpublishedRevisionsIntoPublishedCasebook.new(draft_casebook, published_casebook)
   end
 
   def display_name

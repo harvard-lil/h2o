@@ -39,7 +39,7 @@ class Content::CasebooksController < Content::NodeController
   def update
     if publishing_casebook? && @casebook.draft_mode_of_published_casebook
       #sets @casebook to the parent casebook
-      @casebook = @casebook.merge_revisions_into_published_casebook
+      @casebook = @casebook.merge_draft_into_published
     elsif @casebook.draft_mode_of_published_casebook
       @casebook.create_revisions(content_params)
     end
