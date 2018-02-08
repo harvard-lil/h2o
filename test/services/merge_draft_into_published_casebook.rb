@@ -20,7 +20,6 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   end
 
   scenario 'adds newly created resources to published casebook' do
-    skip
     assert_not_equal(@draft.resources.count, @published.resources.count)
 
     @merge.new_resources

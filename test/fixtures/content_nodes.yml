@@ -168,10 +168,10 @@ draft_merge_section_2_1:
   created_at: <%= DateTime.now - 2.days %>
 
 draft_merge_section_3:
+  #this is a new resource (no copy_of_id)
   casebook: draft_merge_casebook
   headnote: >
     This is an annotatable resource in the casebook.
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [3]
-  copy_of: nil #this is a new resource
