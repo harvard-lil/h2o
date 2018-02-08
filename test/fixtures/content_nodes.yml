@@ -141,6 +141,7 @@ draft_merge_casebook:
 
 draft_merge_section_1:
   casebook: draft_merge_casebook
+  title: title
   headnote: >
     This is an annotatable resource in the casebook.
   resource: public_case_to_annotate

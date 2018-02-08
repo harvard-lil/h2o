@@ -26,4 +26,12 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
 
     assert_equal(@draft.resources.count, @published.resources.count)
   end
+
+  scenario 'merge unpublished revisions into published casebook' do
+    assert_equal("Case of the District Number 2", @published.resources.first.title)
+
+    @merge.unpublished_revisions
+
+    assert_equal("New title", @published.resources.first.title)
+  end
 end

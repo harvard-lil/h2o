@@ -48,6 +48,8 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def unpublished_revisions
+    revisions = UnpublishedRevision.where(casebook_id: draft.id)
+
     revisions.where.not(field: "deleted_annotation").each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
       if %w(url content).include? revision.field
