@@ -77,7 +77,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     scenario 'annotating a casebook', js: true do
       casebook = content_nodes(:draft_casebook)
-      resource = content_nodes(:'draft_casebook_section_1.2')
+      resource = content_nodes(:'draft_casebook_section_3')
 
       visit annotate_resource_path casebook, resource
 

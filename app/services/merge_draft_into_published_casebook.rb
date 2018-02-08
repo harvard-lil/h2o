@@ -1,4 +1,4 @@
-class MergeUnpublishedRevisionsIntoPublishedCasebook
+class MergeDraftIntoPublishedCasebook
   def self.perform(draft, published)
     new(draft, published).perform
   end
@@ -21,16 +21,16 @@ class MergeUnpublishedRevisionsIntoPublishedCasebook
     published
   end
 
-  private
+  # private
 
   attr_reader :draft, :published
 
   def published_ordinals
-    revisions = UnpublishedRevision.where(casebook_id: draft.id)
+    resources = draft.resources.where("created_at < ?", draft.created_at)
 
     resources.each do |resource|
-      parent_resource = Content::Resource.find(resource.copy_of_id)
-      if parent_resource.ordinals != resource.ordinals
+      parent_resource = resource.copy_of
+      if resource.ordinals != parent_resource.ordinals
         parent_resource.update(ordinals: resource.ordinals)
       end
     end

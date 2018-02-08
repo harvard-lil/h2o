@@ -112,7 +112,7 @@ class Content::Casebook < Content::Node
   def merge_draft_into_published
     draft_casebook = self
     published_casebook = self.parent
-    MergeUnpublishedRevisionsIntoPublishedCasebook.new(draft_casebook, published_casebook)
+    MergeDraftIntoPublishedCasebook.new(draft_casebook, published_casebook)
   end
 
   def display_name
