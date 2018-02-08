@@ -113,18 +113,33 @@ class Content::Casebook < Content::Node
     # 1. Merge in unpublished revisions (includes: title, headnote, subtitle, textblock changes (not including annotations) and default changes)
     revisions.where.not(field: "deleted_annotation").each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
-      resource.update("#{revision.field}": revision.value)
+      if %w(url content).include? revision.field
+        resource.resource.update("#{revision.field}": revision.value)
+      else
+        resource.update("#{revision.field}": revision.value)
+      end
       revision.destroy
     end
 
     # 2. Merge in new annotations and updated
-    annotations = Content::Annotation.where(casebook_id: self.id).where("updated_at > ?", self.created_at + 1.minute)
+    resource_ids = self.resources.pluck(:id)
+    annotations = Content::Annotation.where(resource_id: resource_ids).where("updated_at > ?", self.created_at + 1.minute)
+
+
+    ######
+    ######
+    ### Here
+    ### If new annotation this will probably fail
+    ### fix the parent resource query ...
+
 
     annotations.each do |annotation|
       if annotation.copy_of_id.present?
         Content::Annotation.destroy(annotation.copy_of_id)
       end
-      parent_resource = Content::Resource.find(annotation.resource_id).parent
+
+      ## probably check here if it's a new one you won't be doing this
+      parent_resource = Content::Annotation.find(annotation.copy_of_id).resource
       annotation.update(resource_id: parent_resource.id)
     end
 
@@ -145,7 +160,9 @@ class Content::Casebook < Content::Node
     end
 
     # 7. Delete draft casebook
-    self.destroy138G
+    self.destroy
+
+    published_casebook
   end
 
   def display_name
