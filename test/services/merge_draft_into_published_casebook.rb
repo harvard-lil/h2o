@@ -19,7 +19,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal(resource.ordinals, resource.copy_of.ordinals)
   end
 
-  scenario 'adds newly created resources to published casebook' do
+  scenario 'newly created resources' do
     assert_not_equal(@draft.resources.count, @published.resources.count)
 
     @merge.new_resources
@@ -27,11 +27,28 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal(@draft.resources.count, @published.resources.count)
   end
 
-  scenario 'merge unpublished revisions into published casebook' do
+  scenario 'unpublished revisions into published casebook' do
     assert_equal("Case of the District Number 2", @published.resources.first.title)
 
     @merge.unpublished_revisions
 
     assert_equal("New title", @published.resources.first.title)
+  end
+
+  scenario 'unpublished revisions for textblock resource' do
+    skip
+  end
+
+  scenario 'new and updated annotations' do
+  end
+
+  scenario 'deleted annotations' do
+  end
+
+  scenario 'content collaborators' do
+  end
+
+  scenario 'draft is destroyed after merge finished' do
+    # test whole class output
   end
 end
