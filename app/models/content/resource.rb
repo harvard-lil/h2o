@@ -84,7 +84,8 @@ class Content::Resource < Content::Child
 
   def annotations
     if has_root_dependency?
-      copy_of.annotations
+      copy_of.annotations # delete all of this because i should run a script to migrate 
+      # all and then when a new casebook is cloned it will have fresh annotations
     else
       super
     end
@@ -92,5 +93,9 @@ class Content::Resource < Content::Child
 
   def title
     super || resource.title
+  end
+
+  def exists_in_published_casebook?
+   casebook.draft_mode_of_published_casebook && copy_of_id.present?
   end
 end

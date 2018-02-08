@@ -77,7 +77,10 @@ class Content::Annotation < ApplicationRecord
       end
       node_offset += node.text.length
     end
+  end
 
+  def exists_in_published_casebook?
+    resource.casebook.draft_mode_of_published_casebook? && copy_of_id.present?
   end
 
   private
