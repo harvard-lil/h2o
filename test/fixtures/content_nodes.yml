@@ -19,7 +19,7 @@ public_casebook_section_1_1:
   resource_type: Case
   ordinals: [1,1]
 
-public_casebook_section_1.2:
+public_casebook_section_1_2:
   casebook: public_casebook
   headnote: >
     This is an annotatable resource in the casebook.
@@ -34,11 +34,45 @@ public_casebook_section_2:
     This is the second chapter of the casebook.
   ordinals: [2]
 
+draft_casebook_to_merge:
+  title: Draft Casebook
+  public: false
+  updated_at: <%= DateTime.now %>
+  copy_of: public_casebook
+
+draft_casebook_section_to_merge_1:
+  casebook: draft_casebook_to_merge
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [1]
+  copy_of: public_casebook_section_1
+
+draft_casebook_section_to_merge_2:
+  casebook: draft_casebook_to_merge
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [2]
+  copy_of: public_casebook_section_2
+
+draft_casebook_section_to_merge_1_1:
+  casebook: draft_casebook_to_merge
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate
+  resource_type: Case
+  ordinals: [2, 1]
+  copy_of: public_casebook_section_1_1
+  created_at: <%= DateTime.now - 2.days %>
 
 draft_casebook:
   title: Draft Casebook 1
   public: false
   updated_at: <%= DateTime.now %>
+  copy_of: public_casebook
 
 draft_casebook_section_1:
   casebook: draft_casebook
@@ -46,6 +80,7 @@ draft_casebook_section_1:
   headnote: >
     This is the first chapter of the casebook.
   ordinals: [1]
+  copy_of: public_casebook_section_1
 
 draft_casebook_section_1.1:
   casebook: draft_casebook
@@ -54,14 +89,15 @@ draft_casebook_section_1.1:
   resource: public_case_1
   resource_type: Case
   ordinals: [1,1]
+  copy_of: public_casebook_section_1_1
 
-draft_casebook_section_1.2:
+draft_casebook_section_1_2:
   casebook: draft_casebook
   headnote: >
     This is an annotatable resource in the casebook.
   resource: public_case_to_annotate
   resource_type: Case
-  ordinals: [1,2]
+  ordinals: [1, 2]
 
 draft_casebook_section_2:
   casebook: draft_casebook
