@@ -37,7 +37,7 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def new_resources
-    new_resources = resources.where("created_at > ?", self.created_at)
+    new_resources = draft.resources.where(copy_of_id: nil)
 
     if new_resources.present?
       new_resources.each do |resource|
