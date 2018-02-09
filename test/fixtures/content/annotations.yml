@@ -8,6 +8,16 @@ annotation_published:
   kind: note
   created_at: <%= DateTime.now - 1.week %>
 
+annotation_published_2:
+  resource: published_casebook_section_2
+  start_p: 4
+  end_p: 8
+  start_offset: 10
+  end_offset: 12
+  content: this note is deleted in draft mode
+  kind: note
+  created_at: <%= DateTime.now - 1.week %>
+
 annotation_draft:
   resource: draft_merge_section_1
   start_p: 0
@@ -26,4 +36,3 @@ annotation_new_to_draft:
   end_offset: 22
   kind: highlight
   content: ffee00 [#915850]
-

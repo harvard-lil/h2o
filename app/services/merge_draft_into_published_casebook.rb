@@ -70,7 +70,7 @@ class MergeDraftIntoPublishedCasebook
 
   def deleted_annotations
     revisions.where(field: "deleted_annotation").each do |revision|
-      Content::Annotation.destroy(revision.value)
+      Content::Annotation.destroy(revision.annotation.id)
     end
   end
 
