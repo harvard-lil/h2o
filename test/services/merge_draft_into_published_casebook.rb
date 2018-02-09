@@ -38,14 +38,13 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   end
 
   scenario 'new and updated annotations' do
-    skip
-    assert_equal("published note", @published.resources.where(ordinals: [1]).first.annotations.first.content)
     assert_equal(1, @published.resources.where(ordinals: [1]).first.annotations.count)
+    assert_equal("published note", @published.resources.where(ordinals: [1]).first.annotations.where(kind: 'note').first.content)
 
     @merge.new_and_updated_annotations
 
-    assert_equal("updated published_note", @published.resources.where(ordinals: [1]).first.annotations.first.content)
     assert_equal(2, @published.resources.where(ordinals: [1]).first.annotations.count)
+    assert_equal("updated published note", @published.resources.where(ordinals: [1]).first.annotations.where(kind: 'note').first.content)
   end
 
   scenario 'deleted annotations' do
