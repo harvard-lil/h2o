@@ -7,19 +7,15 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     @merge = MergeDraftIntoPublishedCasebook.new(@draft, @published)
   end
 
-  scenario 'updates published ordinals to match draft' do
-    draft_section = content_nodes(:draft_merge_section_2_1)
-    assert_not_equal(draft_section.ordinals, draft_section.copy_of.ordinals)
+  scenario 'updates published ordinals' do
+    assert_equal([1, 1], @published.resources.where(resource_id: cases(:public_case_to_annotate).id).first.ordinals)
 
     @merge.reflow_published_ordinals
 
-    #resource created in published casebook. Canƒ't stub because the stub 
-    #won't have the updated record
-    resource = @draft.resources.where("created_at < ?", @draft.created_at).first
-    assert_equal(resource.ordinals, resource.copy_of.ordinals)
+    assert_equal([2, 1], @published.resources.where(resource_id: cases(:public_case_to_annotate).id).first.ordinals)
   end
 
-  scenario 'newly created resources' do
+  scenario 'adds newly created draft resources to published' do
     assert_not_equal(@draft.resources.count, @published.resources.count)
 
     @merge.add_new_resources
@@ -27,8 +23,8 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal(@draft.resources.count, @published.resources.count)
   end
 
-  scenario 'unpublished revisions into published casebook' do
-    assert_equal("Case of the District Number 2", @published.resources.where(ordinals: [1]).first.title)
+  scenario 'merges unpublished revisions into published casebook' do
+    assert_equal("Long Prison Term Is Less So Thanks to Regrets by a Judge", @published.resources.where(ordinals: [1]).first.title)
     assert_equal("This is some content.", @published.resources.where(ordinals: [2]).first.resource.content)
 
     @merge.merge_in_unpublished_revisions
@@ -37,7 +33,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal("New content", @published.resources.where(ordinals: [2]).first.resource.content)
   end
 
-  scenario 'new and updated annotations' do
+  scenario 'adds/merges new and updated annotations' do
     assert_equal(1, @published.resources.where(ordinals: [1]).first.annotations.count)
     assert_equal("published note", @published.resources.where(ordinals: [1]).first.annotations.where(kind: 'note').first.content)
 
@@ -47,7 +43,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal("updated published note", @published.resources.where(ordinals: [1]).first.annotations.where(kind: 'note').first.content)
   end
 
-  scenario 'deleted annotations' do
+  scenario 'removes deleted annotations from published' do
     assert_equal(1, @published.resources.where(ordinals: [2]).first.annotations.count)
 
     @merge.deleted_annotations
@@ -55,9 +51,9 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal(0, @published.resources.where(ordinals: [2]).first.annotations.count)
   end
 
-  scenario 'content collaborators' do
-    skip
+  scenario 'adds, deletes or modifies content collaborators' do
     ## Multiple collaborator functionality doesn't exist yet
+    skip
     # assert_equal(2, @published.collaborators.count)
     # assert_equal("student@law.harvard.edu", @published.collaborators.where(role: 'editor').first.user.email_address)
     # @merge.content_collaborators
@@ -65,7 +61,12 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     # assert_equal("verified_student@example.edu", @published.collaborators.where(role: 'editor').first.user.email_address)
   end
 
-  scenario 'draft is destroyed after merge finished' do
-    # test whole class output
+  scenario 'draft is destroyed after merge finished and published casebook is returned' do
+    assert_equal(false, @draft.destroyed?)
+
+    casebook = MergeDraftIntoPublishedCasebook.perform(@draft, @published)
+
+    assert_equal(true, @draft.destroyed?)
+    assert_equal(@published, casebook)
   end
 end

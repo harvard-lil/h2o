@@ -107,15 +107,17 @@ student_casebook:
 published_casebook:
   title: published_casebook
   public: true
-  updated_at: <%= DateTime.now %> 
+  created_at: <%= DateTime.now - 14.days %>
+  # updated_at: <%= DateTime.now %> 
 
 published_casebook_section_1:
   casebook: published_casebook
   headnote: >
     This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
+  resource: link_one
+  resource_type: Default
   ordinals: [1]
+  created_at: <%= DateTime.now - 14.days %>
 
 published_casebook_section_1_1:
   casebook: published_casebook
@@ -124,6 +126,7 @@ published_casebook_section_1_1:
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [1, 1]
+  created_at: <%= DateTime.now - 14.days %>
 
 published_casebook_section_2:
   casebook: published_casebook
@@ -132,6 +135,7 @@ published_casebook_section_2:
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [2]
+  created_at: <%= DateTime.now - 14.days %>
 
 draft_merge_casebook:
   title: Draft Casebook
@@ -148,8 +152,8 @@ draft_merge_section_1:
   title: title
   headnote: >
     This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
+  resource: link_one
+  resource_type: Default
   ordinals: [1]
   copy_of: published_casebook_section_1
 
@@ -178,6 +182,6 @@ draft_merge_section_3:
   casebook: draft_merge_casebook
   headnote: >
     This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
+  resource: public_text_1
+  resource_type: TextBlock
   ordinals: [3]
