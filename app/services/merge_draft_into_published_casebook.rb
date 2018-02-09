@@ -10,9 +10,9 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def perform
-    published_ordinals
-    new_resources
-    unpublished_revisions
+    reflow_published_ordinals
+    add_new_resources
+    merge_in_unpublished_revisions
     new_and_updated_annotations
     deleted_annotations
     content_collaborators
@@ -26,10 +26,8 @@ class MergeDraftIntoPublishedCasebook
 
   attr_reader :draft, :published, :revisions
 
-  def published_ordinals
-    resources = draft.resources.where("created_at < ?", draft.created_at)
-
-    resources.each do |resource|
+  def reflow_published_ordinals
+    previously_created_resources.each do |resource|
       parent_resource = resource.copy_of
       if resource.ordinals != parent_resource.ordinals
         parent_resource.update(ordinals: resource.ordinals)
@@ -37,9 +35,7 @@ class MergeDraftIntoPublishedCasebook
     end
   end
 
-  def new_resources
-    new_resources = draft.resources.where(copy_of_id: nil)
-
+  def add_new_resources
     if new_resources.present?
       new_resources.each do |resource|
         new_resource = resource.dup
@@ -48,13 +44,13 @@ class MergeDraftIntoPublishedCasebook
     end
   end
 
-  def unpublished_revisions
-    revisions.where.not(field: "deleted_annotation").each do |revision|
+  def merge_in_unpublished_revisions
+    resource_revisions.each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
-      if %w(url content).include? revision.field
-        resource.resource.update("#{revision.field}": revision.value)
-      else
+      if casebook_detail?(revision.field)
         resource.update("#{revision.field}": revision.value)
+      else
+        resource.resource.update("#{revision.field}": revision.value)
       end
       revision.destroy
     end
@@ -96,5 +92,23 @@ class MergeDraftIntoPublishedCasebook
         new_collaborator.update_attributes(content_id: published.id)
       end
     end
+  end
+
+  private
+
+  def previously_created_resources
+    draft.resources.where("created_at < ?", draft.created_at)
+  end
+
+  def new_resources
+    draft.resources.where(copy_of_id: nil)
+  end
+
+  def resource_revisions
+    revisions.where.not(field: "deleted_annotation")
+  end
+
+  def casebook_detail
+    %w(url content).exclude? revision.field
   end
 end

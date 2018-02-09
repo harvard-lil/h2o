@@ -11,7 +11,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     draft_section = content_nodes(:draft_merge_section_2_1)
     assert_not_equal(draft_section.ordinals, draft_section.copy_of.ordinals)
 
-    @merge.published_ordinals
+    @merge.reflow_published_ordinals
 
     #resource created in published casebook. Canƒ't stub because the stub 
     #won't have the updated record
@@ -22,7 +22,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   scenario 'newly created resources' do
     assert_not_equal(@draft.resources.count, @published.resources.count)
 
-    @merge.new_resources
+    @merge.add_new_resources
 
     assert_equal(@draft.resources.count, @published.resources.count)
   end
@@ -31,7 +31,7 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     assert_equal("Case of the District Number 2", @published.resources.where(ordinals: [1]).first.title)
     assert_equal("This is some content.", @published.resources.where(ordinals: [2]).first.resource.content)
 
-    @merge.unpublished_revisions
+    @merge.merge_in_unpublished_revisions
 
     assert_equal("New title", @published.resources.where(ordinals: [1]).first.title)
     assert_equal("New content", @published.resources.where(ordinals: [2]).first.resource.content)
