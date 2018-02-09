@@ -83,7 +83,7 @@ class MergeDraftIntoPublishedCasebook
   private
 
   def previously_created_resources
-    draft.resources.where("created_at < ?", draft.created_at)
+    draft.resources.where.not(copy_of_id: nil)
   end
 
   def new_resources
