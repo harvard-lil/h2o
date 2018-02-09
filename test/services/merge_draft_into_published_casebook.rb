@@ -28,18 +28,24 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   end
 
   scenario 'unpublished revisions into published casebook' do
-    assert_equal("Case of the District Number 2", @published.resources.first.title)
+    assert_equal("Case of the District Number 2", @published.resources.where(ordinals: [1]).first.title)
+    assert_equal("This is some content.", @published.resources.where(ordinals: [2]).first.resource.content)
 
     @merge.unpublished_revisions
 
-    assert_equal("New title", @published.resources.first.title)
-  end
-
-  scenario 'unpublished revisions for textblock resource' do
-    skip
+    assert_equal("New title", @published.resources.where(ordinals: [1]).first.title)
+    assert_equal("New content", @published.resources.where(ordinals: [2]).first.resource.content)
   end
 
   scenario 'new and updated annotations' do
+    skip
+    assert_equal("published note", @published.resources.where(ordinals: [1]).first.annotations.first.content)
+    assert_equal(1, @published.resources.where(ordinals: [1]).first.annotations.count)
+
+    @merge.new_and_updated_annotations
+
+    assert_equal("updated published_note", @published.resources.where(ordinals: [1]).first.annotations.first.content)
+    assert_equal(2, @published.resources.where(ordinals: [1]).first.annotations.count)
   end
 
   scenario 'deleted annotations' do

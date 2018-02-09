@@ -1,0 +1,27 @@
+annotation_published: 
+  resource: published_casebook_section_1
+  start_p: 0
+  end_p: 2
+  start_offset: 5
+  end_offset: 10
+  content: published note
+  kind: note
+
+annotation_draft:
+  resource: draft_merge_section_1
+  start_p: 0
+  end_p: 2
+  start_offset: 5
+  end_offset: 10
+  kind: note
+  content: updated published note
+  copy_of: annotation_published
+
+annotation_new_to_draft:
+  resource: draft_merge_section_1
+  start_p: 10
+  end_p: 20
+  start_offset: 2
+  end_offset: 22
+  kind: highlight
+  content: ffee00 [#915850]

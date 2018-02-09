@@ -10,8 +10,7 @@ public_text_to_annotate:
 
 public_text_1:
   name: Public Text 1
-  content: >
-    This is some content.
+  content: This is some content.
   public: true
   user: verified_professor
 
