@@ -129,8 +129,8 @@ published_casebook_section_2:
   casebook: published_casebook
   headnote: >
     This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
+  resource: public_text_1
+  resource_type: TextBlock
   ordinals: [2]
 
 draft_merge_casebook:
@@ -153,19 +153,20 @@ draft_merge_section_2:
   casebook: draft_merge_casebook
   headnote: >
     This is an annotatable resource in the casebook.
-  resource: public_case_to_annotate
-  resource_type: Case
+  resource: public_text_1
+  resource_type: TextBlock
   ordinals: [2]
   copy_of: published_casebook_section_2
 
 draft_merge_section_2_1:
+  #for moving ordinals example
   casebook: draft_merge_casebook
   headnote: >
     This is an annotatable resource in the casebook.
   resource: public_case_to_annotate
   resource_type: Case
-  ordinals: [2, 1]
-  copy_of: published_casebook_section_1_1 #these resources have different ordinals
+  ordinals: [2, 1] 
+  copy_of: published_casebook_section_1_1 #has different ordinals
   created_at: <%= DateTime.now - 2.days %>
 
 draft_merge_section_3:

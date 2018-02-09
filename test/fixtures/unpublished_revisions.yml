@@ -10,4 +10,11 @@ unpublished_revision_2:
   field: subtitle
   value: New subtitle
   casebook: draft_merge_casebook
+  node_parent: published_casebook_section_1
+
+unpublished_revision_3:
+  node: draft_merge_section_2
+  field: content
+  value: New content
+  casebook: draft_merge_casebook
   node_parent: published_casebook_section_2

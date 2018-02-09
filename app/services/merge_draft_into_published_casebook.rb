@@ -6,6 +6,7 @@ class MergeDraftIntoPublishedCasebook
   def initialize(draft, published)
     @draft = draft
     @published = published
+    @revisions = UnpublishedRevision.where(casebook_id: @draft.id)
   end
 
   def perform
@@ -23,7 +24,7 @@ class MergeDraftIntoPublishedCasebook
 
   # private
 
-  attr_reader :draft, :published
+  attr_reader :draft, :published, :revisions
 
   def published_ordinals
     resources = draft.resources.where("created_at < ?", draft.created_at)
@@ -48,8 +49,6 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def unpublished_revisions
-    revisions = UnpublishedRevision.where(casebook_id: draft.id)
-
     revisions.where.not(field: "deleted_annotation").each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
       if %w(url content).include? revision.field
@@ -62,8 +61,8 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def new_and_updated_annotations
-    resource_ids = self.resources.pluck(:id)
-    new_or_updated_annotations = Content::Annotation.where(resource_id: resource_ids).where("updated_at > ?", self.created_at + 1.minute)
+    resource_ids = draft.resources.pluck(:id)
+    new_or_updated_annotations = Content::Annotation.where(resource_id: resource_ids).where("updated_at > ?", draft.created_at + 1.minute)
 
     new_or_updated_annotations.each do |annotation|
       if annotation.exists_in_published_casebook?
