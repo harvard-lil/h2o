@@ -1,4 +1,6 @@
 class MergeDraftIntoPublishedCasebook
+  attr_reader :draft, :published, :revisions
+
   def self.perform(draft, published)
     new(draft, published).perform
   end
@@ -21,10 +23,6 @@ class MergeDraftIntoPublishedCasebook
 
     published
   end
-
-  # private
-
-  attr_reader :draft, :published, :revisions
 
   def reflow_published_ordinals
     previously_created_resources.each do |resource|
@@ -57,20 +55,15 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def new_and_updated_annotations
-    resource_ids = draft.resources.pluck(:id)
-    new_or_updated_annotations = Content::Annotation.where(resource_id: resource_ids).where("updated_at > ?", draft.created_at + 1.minute)
-
     new_or_updated_annotations.each do |annotation|
-      if annotation.exists_in_published_casebook?
+      if exists_in_published_casebook?(annotation)
         Content::Annotation.destroy(annotation.copy_of_id)
-        parent_resource = Content::Annotation.find(annotation.copy_of_id).resource
+        parent_resource = annotation.copy_of.resource
         annotation.update(resource_id: parent_resource.id)
       elsif ! annotation.resource.exists_in_published_casebook?
-
-
         annotation.dup
-        resource = Content::Resource.find(annotation.resource.copy_of_id) # unless it's on a new resource
-        annotation.update(resource_id: resource.id)
+        published_resource = annotation.resource.copy_of # test on a new resource 
+        annotation.update(resource_id: published_resource.id)
       end
     end
   end
@@ -108,7 +101,19 @@ class MergeDraftIntoPublishedCasebook
     revisions.where.not(field: "deleted_annotation")
   end
 
-  def casebook_detail
-    %w(url content).exclude? revision.field
+  def casebook_detail?(field)
+    %w(url content).exclude? field
+  end
+
+  def draft_resource_ids
+    draft.resources.pluck(:id)
+  end
+
+  def new_or_updated_annotations
+    Content::Annotation.where(resource_id: draft_resource_ids).where("updated_at > ?", draft.created_at + 1.minute)
+  end
+
+  def exists_in_published_casebook?(annotation)
+    annotation.copy_of.present? && annotation.copy_of.resource.casebook == published
   end
 end

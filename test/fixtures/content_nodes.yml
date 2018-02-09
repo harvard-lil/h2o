@@ -137,6 +137,10 @@ draft_merge_casebook:
   title: Draft Casebook
   public: false
   updated_at: <%= DateTime.now %>
+  # this is set because annotations need to be updated at
+  # after the creation of the casebook for
+  # tests for merge_draft_into_published_casebook#new_and_updated_annotations
+  created_at: <%= DateTime.now - 3.days %> 
   copy_of: published_casebook
 
 draft_merge_section_1:
