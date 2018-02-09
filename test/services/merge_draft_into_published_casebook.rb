@@ -56,6 +56,13 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   end
 
   scenario 'content collaborators' do
+    skip
+    ## Multiple collaborator functionality doesn't exist yet
+    # assert_equal(2, @published.collaborators.count)
+    # assert_equal("student@law.harvard.edu", @published.collaborators.where(role: 'editor').first.user.email_address)
+    # @merge.content_collaborators
+    # assert_equal(2, @published.collaborators.count)
+    # assert_equal("verified_student@example.edu", @published.collaborators.where(role: 'editor').first.user.email_address)
   end
 
   scenario 'draft is destroyed after merge finished' do

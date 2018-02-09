@@ -20,3 +20,26 @@ student_casebook_owner:
   content: student_casebook
   user: student_user
   role: owner
+
+published_casebook_owner:
+  content: published_casebook
+  user: verified_professor
+  role: owner
+  created_at: <%= DateTime.now - 5.days %>
+
+published_casebook_editor:
+  content: published_casebook
+  user: student_user
+  role: editor
+  created_at: <%= DateTime.now - 5.days %>
+
+draft_merge_casebook_owner:
+  content: draft_merge_casebook
+  user: verified_professor
+  role: owner
+
+draft_merge_casebook_editor:
+  content: draft_merge_casebook
+  user: verified_student
+  role: editor
+

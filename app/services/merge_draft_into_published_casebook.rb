@@ -75,16 +75,9 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def content_collaborators
-    ## but what if someone deletes a collab 
-
-    new_collaborators = Content::Collaborator.where(content_id: self.id).where("created_at > ?", self.created_at)
-
-    if new_collaborators.present?
-      new_collaborators.each do |collaborator|
-        new_collaborator = collaborator.dup
-        new_collaborator.update_attributes(content_id: published.id)
-      end
-    end
+    #if a user is deleted, added or role is changed
+    #multiple collaborator functionality doesn't exist yet so
+    #holding this method for the future
   end
 
   private
