@@ -17,7 +17,7 @@ class MergeDraftIntoPublishedCasebook
     merge_in_unpublished_revisions
     new_and_updated_annotations
     deleted_annotations
-    content_collaborators
+    # content_collaborators
 
     draft.destroy
 
