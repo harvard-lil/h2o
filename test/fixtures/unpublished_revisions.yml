@@ -18,3 +18,10 @@ unpublished_revision_3:
   value: New content
   casebook: draft_merge_casebook
   node_parent: published_casebook_section_2
+
+unpublished_revision_deleted_annotation: 
+  node: published_casebook_section_2
+  field: deleted_annotation
+  casebook: draft_merge_casebook
+  node_parent: published_casebook_section_2
+  annotation: annotation_published_2

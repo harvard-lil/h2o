@@ -48,6 +48,11 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
   end
 
   scenario 'deleted annotations' do
+    assert_equal(1, @published.resources.where(ordinals: [2]).first.annotations.count)
+
+    @merge.deleted_annotations
+
+    assert_equal(0, @published.resources.where(ordinals: [2]).first.annotations.count)
   end
 
   scenario 'content collaborators' do
