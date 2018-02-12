@@ -7,6 +7,14 @@ class MergeDraftIntoPublishedCasebookTest < ServiceTestCase
     @merge = MergeDraftIntoPublishedCasebook.new(@draft, @published)
   end
 
+  scenario 'remove deleted resources' do
+    assert_equal(4, @published.resources.count)
+
+    @merge.remove_deleted_resources
+
+    assert_equal(3, @published.resources.count)
+  end
+
   scenario 'updates published ordinals' do
     assert_equal([1, 1], @published.resources.where(resource_id: cases(:public_case_to_annotate).id).first.ordinals)
 

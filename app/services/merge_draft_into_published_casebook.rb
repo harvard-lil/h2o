@@ -12,6 +12,7 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def perform
+    remove_deleted_resources
     reflow_published_ordinals
     add_new_resources
     merge_in_unpublished_revisions
@@ -22,6 +23,16 @@ class MergeDraftIntoPublishedCasebook
     draft.destroy
 
     published
+  end
+
+  def remove_deleted_resources
+    draft_resource_copy_of_ids = draft.resources.pluck(:copy_of_id).compact.uniq
+
+    published.resources.each do |published_resource|
+      if draft_resource_copy_of_ids.exclude? published_resource.id
+        published_resource.destroy
+      end
+    end
   end
 
   def reflow_published_ordinals
