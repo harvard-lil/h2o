@@ -14,13 +14,26 @@ class Content::NodeDecorator < Draper::Decorator
   private
 
   def draft_action_buttons
-    if self.is_a? Content::Casebook
+    if self.is_a?(Content::Casebook) && casebook.draft_mode_of_published_casebook
+      casebook_draft_of_published_casebook
+    elsif self.is_a? Content::Casebook
       casebook_draft
     elsif self.is_a? Content::Section
       section_draft
     else 
       resource_draft
     end
+  end
+
+  def casebook_draft_of_published_casebook
+    button_to(I18n.t('content.actions.publish-changes'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
+    link_to(I18n.t('content.actions.preview'), casebook_path(casebook), class: 'action one-line preview') +
+    link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource') +
+    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section') +
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') +
+    link_to(I18n.t('content.actions.save'), edit_casebook_path(casebook), class: 'action one-line save submit-casebook-details') +
+    link_to(I18n.t('content.actions.cancel'), edit_casebook_path(casebook), class: 'action one-line cancel')
   end
 
   def casebook_draft
@@ -56,13 +69,22 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_action_buttons
-    if self.is_a? Content::Casebook
+    if self.is_a? Content::Casebook && casebook.draft_mode_of_published_casebook
+      casebook_preview_of_published_casebook
+    elsif self.is_a? Content::Casebook
       casebook_preview
     elsif self.is_a? Content::Section
       section_preview
     else 
       resource_preview
     end
+  end
+
+  def casebook_preview_of_published_casebook
+    button_to(I18n.t('content.actions.publish-changes'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line') +
+    link_to(I18n.t('content.actions.revise'), layout_casebook_path(casebook), class: 'action edit one-line') +
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
+    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') 
   end
 
   def casebook_preview
