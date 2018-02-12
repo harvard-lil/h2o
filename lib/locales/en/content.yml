@@ -64,6 +64,7 @@ en:
       format: "Format:"
     actions:
       publish: Publish
+      publish-changes: Publish Changes
       revise: Revise 
       clone-casebook: Clone
       edit-draft: Edit Draft
