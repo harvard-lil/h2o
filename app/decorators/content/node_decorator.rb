@@ -107,12 +107,25 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def published_action_buttons
-    if self.is_a? Content::Casebook
+    if self.is_a?(Content::Casebook) && has_live_draft?
+      casebook_published_with_draft
+    elsif self.is_a? Content::Casebook
       casebook_published
     elsif self.is_a? Content::Section
       section_published
     else 
       resource_published
+    end
+  end
+
+  def casebook_published
+    if owner?
+      link_to(I18n.t('content.actions.revise'), edit_casebook_path(live_draft), class: 'action edit one-line') +
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+    else
+      button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
+      link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export') 
     end
   end
 
@@ -179,5 +192,13 @@ class Content::NodeDecorator < Draper::Decorator
 
   def owner?
     casebook.owners.include?(current_user)
+  end
+
+  def has_live_draft?
+    casebook.descendants.any? && casebook.descendants.where(draft_mode_of_published_casebook: true).present?
+  end
+
+  def live_draft
+    casebook.descendants.where(draft_mode_of_published_casebook: true).first
   end
 end
