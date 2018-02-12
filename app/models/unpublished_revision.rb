@@ -14,7 +14,8 @@ class UnpublishedRevision < ApplicationRecord
   belongs_to :annotation, class_name: 'Content::Annotation'
 end
 
-# Possibly save edited or new annotations like this: (overwrite all)
-# node_id (resource_id)
-# field deleted_annotation
-# value annotation_id
+# deleted annotation
+# node_id: published_resource_id
+# field: 'deleted_annotation'
+# value: nil
+# annotation_id: published_annotation_id

@@ -128,6 +128,15 @@ published_casebook_section_1_1:
   ordinals: [1, 1]
   created_at: <%= DateTime.now - 14.days %>
 
+published_casebook_section_1_2:
+  #this is for testing deleting a resource
+  casebook: published_casebook
+  headnote: Haystack case
+  resource: haystack_case_XA
+  resource_type: Case
+  ordinals: [1, 2]
+  created_at: <%= DateTime.now - 14.days %>
+
 published_casebook_section_2:
   casebook: published_casebook
   headnote: >
