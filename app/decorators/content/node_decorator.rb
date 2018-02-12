@@ -69,7 +69,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_action_buttons
-    if self.is_a? Content::Casebook && casebook.draft_mode_of_published_casebook
+    if self.is_a?(Content::Casebook) && casebook.draft_mode_of_published_casebook
       casebook_preview_of_published_casebook
     elsif self.is_a? Content::Casebook
       casebook_preview

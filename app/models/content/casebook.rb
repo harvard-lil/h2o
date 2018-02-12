@@ -154,4 +154,8 @@ class Content::Casebook < Content::Node
       super
     end
   end
+
+  def has_unpublished_revisions?
+    descendants.where(draft_mode_of_published_casebook: true).any?
+  end
 end
