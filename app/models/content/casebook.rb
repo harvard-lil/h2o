@@ -80,17 +80,21 @@ class Content::Casebook < Content::Node
   def clone_contents
     begin
       connection = ActiveRecord::Base.connection
-      columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency}
+      columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency created_at updated_at}
       query = <<-SQL
         INSERT INTO content_nodes(#{columns.join ', '},
           copy_of_id,
           casebook_id,
-          has_root_dependency
+          has_root_dependency,
+          created_at,
+          updated_at
         )
         SELECT #{columns.join ', '},
           id,
           #{connection.quote(id)},
-          #{connection.quote(true)}
+          #{connection.quote(true)},
+          #{connection.quote(DateTime.now)},
+          #{connection.quote(DateTime.now)}
         FROM content_nodes WHERE casebook_id=#{connection.quote(copy_of.id)};
       SQL
       ActiveRecord::Base.connection.execute(query)
