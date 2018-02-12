@@ -19,6 +19,14 @@
             <%= casebook.subtitle %>
           </div>
         </div>
+        <% if casebook.has_unpublished_revisions? %>
+          <a class="wrapper" href="<%= casebook_url(casebook.descendants.first) %>/layout">
+            <div class="unpublished-changes">
+             <span class="exclamation">!</span>
+              <span class="description">This casebook has unpublished changes.</span>
+            </div>
+          </a>
+        <% end %>
         <div class="author-info">
           <div class="owner">
             <%= casebook.owner.attribution %><span class="<%= casebook.owner.verified_professor? ? 'verified' : '' %>"></span>

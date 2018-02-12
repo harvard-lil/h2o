@@ -260,6 +260,13 @@ class User < ApplicationRecord
     Notifier.request_professor_verification(self).deliver
   end
 
+
+  def owned_casebook_compacted
+    # drafts of published casebooks should not show up on their own, but
+    # inline with the published casebook
+    casebooks.where(draft_mode_of_published_casebook: nil)
+  end
+
   private
 
   def send_verification_notice

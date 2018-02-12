@@ -40,14 +40,16 @@ hr.owned {
 
   .content-page {
     position: relative;
-    padding: 10px;
     background-color: white;
     border-left: 15px solid $gray;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-
     
+    .casebook-info, .unpublished-changes, .author-info, .root-attribution {
+      padding: 10px;
+    }
+
     .state {
       @include sans-serif($medium, 10px, 10px);
       margin-bottom: 5px;
@@ -60,6 +62,24 @@ hr.owned {
     .subtitle {
       @include sans-serif($light, 18px, 18px);
     }
+
+    .unpublished-changes {
+      background-color: $yellow;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .exclamation {
+        font-size: 36px;
+      }
+
+      .description {
+        padding-left: 10px;
+      }
+    }
+
     .owner {
       @include sans-serif($medium, 21px, 21px);
     }

@@ -13,7 +13,7 @@
         <%= 'Your Casebooks' %>
       </h2>
       <hr class="owned"/>
-    <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.casebooks.owned, section: 'owned'} %>
+    <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.owned_casebook_compacted, section: 'owned'} %>
     <% else %>
       <h2 class="casebooks">
         <%= "#{@user.attribution}'s Casebooks" %>
