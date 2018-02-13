@@ -63,12 +63,7 @@ class SearchesController < ApplicationController
     Sunspot.search(Case, Content::Casebook, User) do
       keywords query
 
-      any_of do
-        with :public, true
-        if current_user.present?
-          with :owner_ids, current_user.id
-        end
-      end
+      with :public, true
 
       with :attribution, params[:author] if params[:author].present?
       with :affiliation, params[:school] if params[:school].present?
