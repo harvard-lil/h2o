@@ -11,7 +11,7 @@
 #  casebook_id   :integer
 #  ordinals      :integer          default([]), not null, is an Array
 #  copy_of_id    :integer
-#  has_root_dependency      :boolean
+#  is_alias      :boolean
 #  resource_type :string
 #  resource_id   :integer
 #  created_at    :datetime         not null

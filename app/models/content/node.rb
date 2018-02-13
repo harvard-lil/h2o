@@ -10,7 +10,7 @@
 # t.bigint "casebook_id"
 # t.integer "ordinals", default: [], null: false, array: true
 # t.bigint "copy_of_id"
-# t.boolean "has_root_dependency"
+# t.boolean "is_alias"
 # t.string "resource_type"
 # t.bigint "resource_id"
 # t.datetime "created_at", null: false
