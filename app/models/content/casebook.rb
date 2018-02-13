@@ -10,7 +10,7 @@
 # t.bigint "casebook_id"
 # t.integer "ordinals", default: [], null: false, array: true
 # t.bigint "copy_of_id"
-# t.boolean "has_root_dependency"
+# t.boolean "is_alias"
 # t.string "resource_type"
 # t.bigint "resource_id"
 # t.datetime "created_at", null: false
@@ -78,39 +78,7 @@ class Content::Casebook < Content::Node
   end
 
   def clone_contents
-    begin
-      connection = ActiveRecord::Base.connection
-      columns = self.class.column_names - %w{id casebook_id copy_of_id has_root_dependency created_at updated_at}
-      query = <<-SQL
-        INSERT INTO content_nodes(#{columns.join ', '},
-          copy_of_id,
-          casebook_id,
-          has_root_dependency,
-          created_at,
-          updated_at
-        )
-        SELECT #{columns.join ', '},
-          id,
-          #{connection.quote(id)},
-          #{connection.quote(true)},
-          #{connection.quote(DateTime.now)},
-          #{connection.quote(DateTime.now)}
-        FROM content_nodes WHERE casebook_id=#{connection.quote(copy_of.id)};
-      SQL
-      ActiveRecord::Base.connection.execute(query)
-    end
-
-    clone_annotations
-  end
-
-  def clone_annotations
-    self.resources.each do |resource|
-      resource.update_attributes has_root_dependency: false
-      resource.copy_of.annotations.each do |annotation|
-        new_annotation = annotation.dup
-        new_annotation.update_attributes(resource: resource, copy_of_id: annotation.id)
-      end
-    end
+    CloneCasebook.perform(self)
   end
 
   def merge_draft_into_published
