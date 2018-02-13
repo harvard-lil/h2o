@@ -118,7 +118,7 @@ class Content::NodeDecorator < Draper::Decorator
     end
   end
 
-  def casebook_published
+  def casebook_published_with_draft
     if owner?
       link_to(I18n.t('content.actions.revise'), edit_casebook_path(live_draft), class: 'action edit one-line') +
       button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook') +
