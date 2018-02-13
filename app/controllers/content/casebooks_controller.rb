@@ -17,12 +17,9 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def edit
-    #@casebook_draft = @casebook.clone /// set draft: true in this method
-    # redirect to @casebook_draft
-
-    @casebook.update_attributes public: false
-    @content = @casebook
-    redirect_to layout_casebook_path(@content)
+    # editing a casebook takes you to a cloned casebook and 
+    # the original casebook stays published
+    clone
   end
 
   def clone

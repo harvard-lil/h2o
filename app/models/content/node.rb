@@ -44,12 +44,15 @@ class Content::Node < ApplicationRecord
 
   def create_revisions(content_params)
     content_params.each do |field|
-      unless field == "id"
+      value = content_params[field]
+      binding.pry
+
+      unless value.empty? || 
         previous_revisions = unpublished_revisions.where(field: field)
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
-        unpublished_revisions.create(field: field, value: content_params[field], casebook_id: (self.casebook_id || self.id), node_parent_id: self.copy_of_id)
+        unpublished_revisions.create(field: field, value: value, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
       end
     end
   end
@@ -59,6 +62,12 @@ class Content::Node < ApplicationRecord
   end
 
   private
+
+  def casebook_id_for_revision
+    #if it's a resource return the casebook_id
+    #if it's the actual casebook, return it's own id
+    self.casebook_id || self.id
+  end
 
   # Resolve the correct subclass for this record.
   # This implements single-table inheritance for all Content::Node subclasses.

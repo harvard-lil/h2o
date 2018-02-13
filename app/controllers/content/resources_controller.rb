@@ -63,7 +63,7 @@ class Content::ResourcesController < Content::NodeController
   private
 
   def resource_params
-    params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :id, :content])
+    params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :content])
   end
 
   def export_filename format
