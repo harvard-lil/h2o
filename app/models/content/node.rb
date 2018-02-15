@@ -43,11 +43,11 @@ class Content::Node < ApplicationRecord
   end
 
   def create_revisions(content_params)
+    #Creates a revision for every field. Could check for changes but there are ever
+    #only 3 fields.
     content_params.each do |field|
       value = content_params[field]
-      binding.pry
-
-      unless value.empty? || 
+      unless value.empty?
         previous_revisions = unpublished_revisions.where(field: field)
         if previous_revisions.present?
           previous_revisions.destroy_all
