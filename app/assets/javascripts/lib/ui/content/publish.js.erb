@@ -4,6 +4,7 @@ import Component from 'lib/ui/component';
 import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'input.action.publish', 'click', showPublishModal);
+delegate(document, '.modal-button .close', 'click', showSpinner);
 
 function casebook_path(resourceId, format = 'pdf') {
   return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
@@ -21,15 +22,26 @@ function showPublishModal (e) {
   modal = new PublishModal;
 }
 
+function showSpinner (e) {
+  $(".modal-header").hide();
+  $(".modal-body").hide();
+  $(".modal-footer").hide();
+  $(".spinner-group").show().css('display', 'flex');
+  $(".spinner").show();
+  $(".spinner-header").show();
+}
+
+
 class PublishModal extends Component {
   constructor () {
     super({
       id: 'publish-modal',
       events: {
         'click #publish-modal': (e) => { if (e.target.id === 'publish-modal') this.destroy()},
-        'click .close': (e) => { this.destroy() },
+        'click .close': (e) => {this.destroy()},
         'click .cancel': (e) => { this.destroy() },
         'click .confirm': (e) => {
+          showSpinner();
           let casebookId = document.querySelector('main > header').dataset.casebookId;
           patch(casebook_path(casebookId), {content_casebook: {public: true}});
         },
@@ -60,12 +72,20 @@ class PublishModal extends Component {
             <button type="button" class="close"><span>&times;</span></button>
             <h4 class="modal-title"><%= t 'content.publish-modal.title' %></h4>
           </div>
+          <div class="spinner-group">
+            <span class="spinner-header">Publishing</span>
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </div>
           <div class="modal-body">
             <%= I18n.t 'content.publish-modal.body' %>
           </div>
           <div class="modal-footer">
             <%= link_to t('content.publish-modal.cancel'), '#', class: 'modal-button cancel' %>
-            <%= link_to t('content.publish-modal.confirm'), '#', class: 'modal-button confirm' %>
+            <%= link_to t('content.publish-modal.confirm'), '#', class: 'modal-button confirm', input_html: { 'data-toggle' => 'modal' }%>
           </div>
         </div>
       </div>
