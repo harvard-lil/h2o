@@ -17,7 +17,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def edit
-    # editing a casebook takes you to a cloned casebook and 
+    # editing a casebook takes you to a cloned casebook and
     # the original casebook stays published
     clone
   end
@@ -36,10 +36,12 @@ class Content::CasebooksController < Content::NodeController
   def update
     if publishing_casebook? && @casebook.draft_mode_of_published_casebook
       #sets @casebook to the parent casebook
-      @casebook = @casebook.merge_draft_into_published
+      @casebook = MergeDraftIntoPublishedCasebook.perform(@casebook, @casebook.parent)
+
     elsif @casebook.draft_mode_of_published_casebook
       @casebook.create_revisions(content_params)
     end
+
 
     @casebook.update content_params
     return redirect_to layout_casebook_path @casebook if @casebook.valid?

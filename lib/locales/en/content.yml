@@ -65,7 +65,8 @@ en:
     actions:
       publish: Publish
       publish-changes: Publish Changes
-      revise: Revise 
+      revise: Revise
+      revise-draft: Revise Draft
       clone-casebook: Clone
       edit-draft: Edit Draft
       add-section: Add Section
