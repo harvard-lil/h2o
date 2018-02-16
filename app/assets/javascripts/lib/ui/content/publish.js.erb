@@ -4,7 +4,7 @@ import Component from 'lib/ui/component';
 import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'input.action.publish', 'click', showPublishModal);
-delegate(document, '.modal-button .close', 'click', showSpinner);
+delegate(document, '.create-draft', 'click', showReviseModal);
 
 function casebook_path(resourceId, format = 'pdf') {
   return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
@@ -20,6 +20,13 @@ function showPublishModal (e) {
   e.preventDefault();
   e.stopPropagation();
   modal = new PublishModal;
+}
+
+function showReviseModal (e) {
+  modal = new ReviseModal;
+  $(".spinner-group").show().css('display', 'flex');
+  $(".spinner").show();
+  $(".spinner-header").show();
 }
 
 function showSpinner (e) {
@@ -86,6 +93,31 @@ class PublishModal extends Component {
           <div class="modal-footer">
             <%= link_to t('content.publish-modal.cancel'), '#', class: 'modal-button cancel' %>
             <%= link_to t('content.publish-modal.confirm'), '#', class: 'modal-button confirm', input_html: { 'data-toggle' => 'modal' }%>
+          </div>
+        </div>
+      </div>
+    </div>`
+  }
+}
+
+class ReviseModal extends Component {
+  constructor () {
+    super({id: 'revise-modal'});
+    document.body.appendChild(this.el);
+    this.render();
+  }
+
+  template () {
+    return html`<div class="modal fade in" id="publish-modal" style="display: block">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="spinner-group">
+            <span class="spinner-header">Creating draft</span>
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
           </div>
         </div>
       </div>
