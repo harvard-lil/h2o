@@ -66,15 +66,14 @@ class MergeDraftIntoPublishedCasebook
 
   def new_and_updated_annotations
     new_or_updated_annotations.each do |annotation|
-      if exists_in_published_casebook?(annotation)
+      resource = annotation.resource.copy_of
+      if annotating_new_resource?
+        resource = Content::Resource.where(copy_of_id: annotation.resource_id).last
+      else annotation.exists_in_published_casebook?
+        #overwrite old annotation with new one since it has been updated
         Content::Annotation.destroy(annotation.copy_of_id)
-        parent_resource = annotation.copy_of.resource
-        annotation.update(resource_id: parent_resource.id)
-      elsif ! annotation.resource.exists_in_published_casebook?
-        annotation.dup
-        published_resource = annotation.resource.copy_of # test on a new resource
-        annotation.update(resource_id: published_resource.id)
       end
+      annotation.update(resource_id: parent_resource.id)
     end
   end
 
@@ -116,7 +115,7 @@ class MergeDraftIntoPublishedCasebook
     Content::Annotation.where(resource_id: draft_resource_ids).where("updated_at > ?", draft.created_at + 1.minute)
   end
 
-  def exists_in_published_casebook?(annotation)
-    annotation.copy_of.present? && annotation.copy_of.resource.casebook == published
+  def annotating_new_resource?
+    ! annotation.resource.exists_in_published_casebook?
   end
 end

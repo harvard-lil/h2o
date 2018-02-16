@@ -42,10 +42,13 @@ class Content::ResourcesController < Content::NodeController
   def update
     if @casebook.draft_mode_of_published_casebook?
       @resource.create_revisions(content_params)
-      @resource.create_revisions(resource_params[:resource_attributes])
+
+      if resource_params[:resource_attributes].present?
+        @resource.create_revisions(resource_params[:resource_attributes])
+      end
     end
 
-    @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle], 
+    @resource.update_attributes(title: resource_params[:title], subtitle: resource_params[:subtitle],
       headnote: resource_params[:headnote])
 
     if resource_params[:resource_attributes].blank?
