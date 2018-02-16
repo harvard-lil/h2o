@@ -19,7 +19,6 @@ class MergeDraftIntoPublishedCasebook
     new_and_updated_annotations
     deleted_annotations
     # content_collaborators
-
     draft.destroy
 
     published
@@ -73,7 +72,7 @@ class MergeDraftIntoPublishedCasebook
         annotation.update(resource_id: parent_resource.id)
       elsif ! annotation.resource.exists_in_published_casebook?
         annotation.dup
-        published_resource = annotation.resource.copy_of # test on a new resource 
+        published_resource = annotation.resource.copy_of # test on a new resource
         annotation.update(resource_id: published_resource.id)
       end
     end
