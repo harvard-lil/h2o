@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   # Important that check_auth happens after load_single_resource
   before_action :set_time_zone, :redirect_bad_format
-  before_filter :prepare_exception_notifier
+  before_action :prepare_exception_notifier
 
   after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
   after_action :allow_iframe

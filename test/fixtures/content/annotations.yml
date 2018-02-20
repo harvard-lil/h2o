@@ -26,7 +26,6 @@ annotation_draft:
   end_offset: 10
   kind: note
   content: updated published note
-  copy_of: annotation_published
 
 annotation_new_to_draft:
   resource: draft_merge_section_1
