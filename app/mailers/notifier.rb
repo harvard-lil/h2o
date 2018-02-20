@@ -1,5 +1,4 @@
-class Notifier < ActionMailer::Base
-  default from: 'noreply@opencasebook.org',
+class Notifier < ActionMailer::Base default from: 'noreply@opencasebook.org',
           sent_on: Proc.new { Time.now }
 
   def password_reset_instructions(user)
@@ -11,8 +10,7 @@ class Notifier < ActionMailer::Base
   def verification_request(user)
     @verification_url = verify_user_url(user, token: user.perishable_token)
     @user_name = user.display_name
-    mail(to: user.email_address, subject: "H2O: Verify your email address")
-  end
+    mail(to: user.email_address, subject: "H2O: Verify your email address") ExceptionNotificationend
 
   def verification_notice(user)
     mail(to: user.email_address, subject: "Welcome to H2O. Your account has been verified")
@@ -21,6 +19,11 @@ class Notifier < ActionMailer::Base
   def professor_verification(user)
     @user = user
     @admin_url = rails_admin.edit_url(model_name: 'user', id: @user.id)
-    mail(to: H2o::Application.config.professor_verification_email, subject: "H2O Professor Verification Request for #{@user.display_name}")
+    mail(to: H2o::Application.config.professor_verifier_email, subject: "H2O Professor Verification Request for #{@user.display_name}")
+  end
+
+  def object_failure(user, object)
+    @user = user
+    mail(to: H2o::Application.config.admin_emails, subject: "Object failed to be saved or destroyed for #{@user.display_name}")
   end
 end
