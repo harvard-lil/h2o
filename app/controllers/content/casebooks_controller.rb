@@ -35,13 +35,16 @@ class Content::CasebooksController < Content::NodeController
 
   def update
     if publishing_casebook? && @casebook.draft_mode_of_published_casebook
-      #sets @casebook to the parent casebook
-      @casebook = MergeDraftIntoPublishedCasebook.perform(@casebook, @casebook.parent)
-
+      results = MergeDraftIntoPublishedCasebook.perform(@casebook, @casebook.parent)
+      
+      if results.success == false
+        flash[:error] = 'Updating published casebook failed. Admin has been notified'
+      end
+      
+      @casebook = results.casebook
     elsif @casebook.draft_mode_of_published_casebook
       @casebook.create_revisions(content_params)
     end
-
 
     @casebook.update content_params
     return redirect_to layout_casebook_path @casebook if @casebook.valid?

@@ -24,6 +24,15 @@ class Notifier < ActionMailer::Base default from: 'noreply@opencasebook.org',
 
   def object_failure(user, object)
     @user = user
+    @object = object
     mail(to: H2o::Application.config.admin_emails, subject: "Object failed to be saved or destroyed for #{@user.display_name}")
+  end
+
+  def merge_failed(user, draft, published, exception)
+    @user = user
+    @draft = draft
+    @published = published
+    @exception = exception
+    mail(to: H2o::Application.config.admin_emails, subject: "Draft casebook merge in published failed #{@user.display_name}")
   end
 end
