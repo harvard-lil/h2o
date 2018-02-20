@@ -12,16 +12,22 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def perform
-    remove_deleted_resources
-    reflow_published_ordinals
-    add_new_resources
-    merge_in_unpublished_revisions
-    new_and_updated_annotations
-    deleted_annotations
-    # content_collaborators
-    draft.destroy
+    begin
+      remove_deleted_resources
+      reflow_published_ordinals
+      add_new_resources
+      merge_in_unpublished_revisions
+      new_and_updated_annotations
+      deleted_annotations
+      # content_collaborators
+      draft.destroy
 
-    published
+      {success: true, casebook: published}
+    rescue Exception => e
+      Notifier.merge_failed(current_user, draft, published, e).deliver
+      Rails.logger.warn "Casebook merge failure: #{e.inspect}"
+      {success: false, casebook: draft}
+    end
   end
 
   def remove_deleted_resources
