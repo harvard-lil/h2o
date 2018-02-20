@@ -215,7 +215,6 @@ ActiveRecord::Schema.define(version: 20180209184936) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "copy_of_id"
     t.index ["resource_id", "start_p"], name: "index_content_annotations_on_resource_id_and_start_p"
     t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end
