@@ -12,8 +12,9 @@ class Content::AnnotationsController < ApplicationController
 
   def destroy
     if @resource.casebook.draft_mode_of_published_casebook
-      if @annotation.copy_of_id.present? #otherwise the annotation was created in the draft
-        UnpublishedRevision.create(field: "deleted_annotation", value: @annotation.copy_of_id, casebook_id: @annotation.resource.casebook_id, node_id: @resource.id, node_parent_id: @resource.copy_of.id, annotation: @annotation.copy_of)
+      if new_annotation?
+        UnpublishedRevision.create(field: "deleted_annotation", value: @annotation.copy_of_id, 
+          casebook_id: @annotation.resource.casebook_id, node_id: @resource.id, node_parent_id: @resource.copy_of.id)
       end
     end
     @annotation.destroy
@@ -29,6 +30,10 @@ class Content::AnnotationsController < ApplicationController
   end
 
   private
+
+  def new_annotation?
+    @annotation.created_at > @annotation.casebook.created_at
+  end
 
   def annotation_params
     params.require(:annotation).permit :kind, :content, :start_p, :end_p, :start_offset, :end_offset

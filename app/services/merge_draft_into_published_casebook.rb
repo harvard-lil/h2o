@@ -71,7 +71,9 @@ class MergeDraftIntoPublishedCasebook
       if annotating_new_resource?(annotation)
         resource = Content::Resource.where(copy_of_id: annotation.resource_id).last
       elsif annotation.exists_in_published_casebook?
-        Content::Annotation.destroy(annotation.copy_of_id)
+        old_annotation = resource.annotations.where(start_p: annotation.start_p, end_p: annotation.end_p, 
+          start_offset: annotation.start_offset, end_offset: annotation.end_offset).first
+        old_annotation.destroy
       end
 
       annotation.update(resource_id: resource.id)
