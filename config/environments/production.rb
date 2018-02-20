@@ -142,7 +142,7 @@ H2o::Application.configure do
   # Admin email to receive the 'new user needs verification' emails
   config.user_verification_recipients = (ENV["USER_VERIFICATION_RECIPIENTS"] || '').split(' ')
 
-  # config.admin_email = ENV["ADMIN_EMAIL"]
+  config.admin_emails = ["cgruppioni@law.harvard.edu", "bsteinberg@law.harvard.edu"]
   # config.cap_api_key = ENV["CAP_API_KEY"]
-  config.professor_verification_email = "bjohnson@law.harvard.edu" 
+  config.professor_verifier_email = "bjohnson@law.harvard.edu" 
 end
