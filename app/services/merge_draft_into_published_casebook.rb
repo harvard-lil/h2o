@@ -24,7 +24,7 @@ class MergeDraftIntoPublishedCasebook
 
       {success: true, casebook: published}
     rescue Exception => e
-      Notifier.merge_failed(current_user, draft, published, e).deliver
+      Notifier.merge_failed(draft.owner, draft, published, e, e.backtrace).deliver
       Rails.logger.warn "Casebook merge failure: #{e.inspect}"
       {success: false, casebook: draft}
     end
@@ -88,7 +88,7 @@ class MergeDraftIntoPublishedCasebook
 
   def deleted_annotations
     revisions.where(field: "deleted_annotation").each do |revision|
-      Content::Annotation.destroy(revision.annotation.id)
+      Content::Annotation.find(revision.value.to_i).destroy
     end
   end
 
