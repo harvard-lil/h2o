@@ -45,20 +45,26 @@ class Content::Node < ApplicationRecord
   def create_revisions(content_params)
     #Creates a revision for every field. Could check for changes but there are ever
     #only 3 fields.
-    content_params.each do |field|
-      value = content_params[field]
-      unless value.empty?
-        previous_revisions = unpublished_revisions.where(field: field)
-        if previous_revisions.present?
-          previous_revisions.destroy_all
+    unless ! exists_in_published_casebook?
+      content_params.each do |field|
+        value = content_params[field]
+        unless value.empty?
+          previous_revisions = unpublished_revisions.where(field: field)
+          if previous_revisions.present?
+            previous_revisions.destroy_all
+          end
+          unpublished_revisions.create(field: field, value: value, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
         end
-        unpublished_revisions.create(field: field, value: value, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
       end
     end
   end
 
   def formatted_headnote
     Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
+  end
+
+  def exists_in_published_casebook?
+   self.casebook.draft_mode_of_published_casebook && copy_of_id.present?
   end
 
   private

@@ -94,8 +94,4 @@ class Content::Resource < Content::Child
   def title
     super || resource.title
   end
-
-  def exists_in_published_casebook?
-   casebook.draft_mode_of_published_casebook && copy_of_id.present?
-  end
 end

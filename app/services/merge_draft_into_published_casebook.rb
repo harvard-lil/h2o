@@ -31,11 +31,11 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def remove_deleted_resources
-    draft_resource_copy_of_ids = draft.resources.pluck(:copy_of_id).compact.uniq
+    draft_contents_copy_of_ids = draft.contents.pluck(:copy_of_id).compact.uniq
 
-    published.resources.each do |published_resource|
-      if draft_resource_copy_of_ids.exclude? published_resource.id
-        published_resource.destroy
+    published.contents.each do |published_content|
+      if draft_contents_copy_of_ids.exclude? published_content.id
+        published_content.destroy
       end
     end
   end
