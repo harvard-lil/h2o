@@ -1,3 +1,4 @@
+
 class CloneCasebook
   def self.perform(original_casebook)
     new(original_casebook).perform
@@ -51,7 +52,7 @@ class CloneCasebook
     resource.update_attributes is_alias: false
     resource.copy_of.annotations.each do |annotation|
       new_annotation = annotation.dup
-      new_annotation.update(resource: resource, copy_of_id: annotation.id)
+      new_annotation.update(resource: resource)
     end
   end
 
