@@ -30,7 +30,7 @@ class Notifier < ActionMailer::Base
     mail(to: H2o::Application.config.admin_emails, subject: "Object failed to be saved or destroyed for #{@user.display_name}")
   end
 
-  def merge_failed(user, draft, published, exception)
+  def merge_failed(user, draft, published, exception, exception_backtrace)
     @user = user
     @draft = draft
     @published = published
