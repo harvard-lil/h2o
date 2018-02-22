@@ -1,17 +1,14 @@
 <h2>Merging draft casebook into published casebook failed.</h2>
 <div>
   <p>Exception: </p>
-  @exception.inspect
+  <%= @exception.inspect %>
 </div>
 <div>
-  <p>User:</p>
-  @user.inspect
+  <p>Exception Backtrace: </p>
+  <%= @exception_backtrace.inspect %>
 </div>
-<div>
-  <p>Draft Casebook: </p>
-  @draft.inspect
+<div>User:
+  <%= @user.id %>, <%= @user.email_address %>, <%= @user.title %>
 </div>
-<div>
-  <p>Pulished Casebook: </p>
-  @published.inspect
-</div>
+<div>Draft Casebook: <%= @draft.id %></div>
+<div>Pulished Casebook:<%= @published.id %></div>
