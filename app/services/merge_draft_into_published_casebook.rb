@@ -13,9 +13,9 @@ class MergeDraftIntoPublishedCasebook
 
   def perform
     begin
-      remove_deleted_resources
+      remove_deleted_contents
       reflow_published_ordinals
-      add_new_resources
+      add_new_contents
       merge_in_unpublished_revisions
       new_and_updated_annotations
       deleted_annotations
@@ -30,7 +30,7 @@ class MergeDraftIntoPublishedCasebook
     end
   end
 
-  def remove_deleted_resources
+  def remove_deleted_contents
     draft_contents_copy_of_ids = draft.contents.pluck(:copy_of_id).compact.uniq
 
     published.contents.each do |published_content|
@@ -41,19 +41,19 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def reflow_published_ordinals
-    previously_created_resources.each do |resource|
-      parent_resource = resource.copy_of
-      if resource.ordinals != parent_resource.ordinals
-        parent_resource.update(ordinals: resource.ordinals)
+    previously_created_contents.each do |content|
+      parent_content = content.copy_of
+      if content.ordinals != parent_content.ordinals
+        parent_content.update(ordinals: content.ordinals)
       end
     end
   end
 
-  def add_new_resources
-    if new_resources.present?
-      new_resources.each do |resource|
-        new_resource = resource.dup
-        new_resource.update(casebook_id: published.id)
+  def add_new_contents
+    if new_contents.present?
+      new_contents.each do |content|
+        new_content = content.dup
+        new_content.update(casebook_id: published.id)
       end
     end
   end
@@ -100,12 +100,12 @@ class MergeDraftIntoPublishedCasebook
 
   private
 
-  def previously_created_resources
-    draft.resources.where.not(copy_of_id: nil)
+  def previously_created_contents
+    draft.contents.where.not(copy_of_id: nil)
   end
 
-  def new_resources
-    draft.resources.where(copy_of_id: nil)
+  def new_contents
+    draft.contents.where(copy_of_id: nil)
   end
 
   def resource_revisions
