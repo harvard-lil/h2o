@@ -95,6 +95,7 @@ class Content::SectionsController < Content::NodeController
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end
     redirect_to layout_casebook_path @casebook
+    @section.reflow_casebook
   end
 
   private
