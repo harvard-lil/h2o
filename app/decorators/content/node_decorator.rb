@@ -54,7 +54,6 @@ class Content::NodeDecorator < Draper::Decorator
     preview_casebook +
     add_resource +
     add_section +
-    clone_casebook +
     export_casebook +
     save_casebook +
     cancel_casebook
@@ -95,7 +94,6 @@ class Content::NodeDecorator < Draper::Decorator
   def casebook_preview_of_published_casebook
     publish_changes_to_casebook +
     revise_casebook +
-    clone_casebook +
     export_casebook
   end
 
@@ -135,7 +133,7 @@ class Content::NodeDecorator < Draper::Decorator
       clone_casebook +
       export_casebook
     else
-      clone_casebook
+      clone_casebook +
       export_casebook
     end
   end
