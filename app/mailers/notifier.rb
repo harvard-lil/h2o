@@ -35,6 +35,7 @@ class Notifier < ActionMailer::Base
     @draft = draft
     @published = published
     @exception = exception
+    @exception_backtrace = exception_backtrace
     mail(to: H2o::Application.config.admin_emails, subject: "Draft casebook merge in published failed #{@user.display_name}")
   end
 end
