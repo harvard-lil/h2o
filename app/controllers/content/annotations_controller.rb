@@ -12,10 +12,10 @@ class Content::AnnotationsController < ApplicationController
 
   def destroy
     if @resource.casebook.draft_mode_of_published_casebook
-      if new_annotation?
-        unpublished_revision = UnpublishedRevision.create(field: "deleted_annotation", value: @annotation.copy_of_id, 
+      if ! new_annotation?
+        unpublished_revision = UnpublishedRevision.create(field: "deleted_annotation", value: (@annotation.copy_of.present?? @annotation.copy_of.id: nil),
           casebook_id: @annotation.resource.casebook_id, node_id: @resource.id, node_parent_id: @resource.copy_of.id)
-        if ! unpublished_revision.save?
+        if ! unpublished_revision.save
           Notifier.object_failure(current_user, unpublished_revision).deliver
         end
       end
@@ -35,7 +35,7 @@ class Content::AnnotationsController < ApplicationController
   private
 
   def new_annotation?
-    @annotation.created_at > @annotation.casebook.created_at
+    @annotation.created_at > @annotation.resource.casebook.created_at
   end
 
   def annotation_params
