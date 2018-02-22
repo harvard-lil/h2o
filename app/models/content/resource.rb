@@ -82,6 +82,10 @@ class Content::Resource < Content::Child
     nodes
   end
 
+  def exists_in_published_casebook?
+    casebook.draft_mode_of_published_casebook && copy_of.present?
+  end
+
   # def annotations
   #   if is_alias?
   #     copy_of.annotations # delete all of this because i should run a script to migrate 
