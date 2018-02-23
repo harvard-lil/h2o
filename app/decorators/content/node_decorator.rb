@@ -203,7 +203,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def draft
-    casebook.descendants.where(draft_mode_of_published_casebook: true).where(user_id: current_user.id).first
+    casebook.descendants.joins(:collaborators).where(draft_mode_of_published_casebook: true).where('content_collaborators.user_id' => 124465).first
   end
 
   def draft_section
