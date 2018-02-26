@@ -30,7 +30,7 @@ class Content::NodeDecorator < Draper::Decorator
       casebook_published_with_draft
     elsif self.is_a? Content::Casebook
       casebook_published
-    elsif self.is_a? Content::Section && has_live_draft?
+    elsif self.is_a?(Content::Section) && has_live_draft?
       section_published_with_draft
     elsif self.is_a? Content::Section
       section_published
