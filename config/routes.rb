@@ -77,6 +77,7 @@ H2o::Application.routes.draw do
           member do
             get 'details'
             get 'annotate'
+            get 'clone'
           end
         end
       end

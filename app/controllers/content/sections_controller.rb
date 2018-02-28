@@ -4,6 +4,8 @@ require 'uri'
 class Content::SectionsController < Content::NodeController
   before_action :find_parent, only: [:new, :create]
   before_action :disable_turbolinks_cache, only: [:new]
+  skip_before_action :set_page_title, only: [:export]
+  skip_before_action :check_public, only: [:export]
 
   def create
     child_ordinals = @parent.ordinals + [@parent.children.length + 1]
@@ -38,8 +40,6 @@ class Content::SectionsController < Content::NodeController
     redirect_to layout_section_path @casebook, @section
   end
 
-  skip_before_action :set_page_title, only: [:export]
-  skip_before_action :check_public, only: [:export]
   def export
     @section = Content::Section.find params[:section_id]
     @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})

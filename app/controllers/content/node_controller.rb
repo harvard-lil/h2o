@@ -3,7 +3,6 @@ require 'uri'
 
 # Abstract controller for behavior shared between Casebook and Section/Resource views
 class Content::NodeController < ApplicationController
-  layout 'casebooks'
   before_action :find_casebook, if: lambda {params[:casebook_id].present? || params[:casebook_casebook_id].present?}
   before_action :find_section, if: lambda {params[:section_ordinals].present?}
   before_action :find_resource, if: lambda {params[:resource_ordinals].present?}
@@ -18,15 +17,6 @@ class Content::NodeController < ApplicationController
   before_action :canonical_redirect, only: [:show, :index]
 
   layout 'casebooks'
-
-  def edit
-    # editing a resource
-    if @casebook.public
-      return redirect_to details_casebook_path(@casebook)
-    end
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource' })
-    render 'content/edit_details'
-  end
 
   def details
     render 'content/details'

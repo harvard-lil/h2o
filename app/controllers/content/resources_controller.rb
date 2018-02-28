@@ -2,6 +2,9 @@ require 'net/http'
 require 'uri'
 
 class Content::ResourcesController < Content::NodeController
+  skip_before_action :set_page_title, only: [:export]
+  skip_before_action :check_public, only: [:export]
+
   def show
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
   end
@@ -13,8 +16,22 @@ class Content::ResourcesController < Content::NodeController
     render 'show'
   end
 
-  skip_before_action :set_page_title, only: [:export]
-  skip_before_action :check_public, only: [:export]
+  def edit
+    # editing resource details 
+    if @casebook.public
+      return redirect_to details_casebook_path(@casebook)
+    end
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource' })
+    render 'content/edit_details'
+  end
+
+  def clone
+    @casebook = @casebook.clone(owner: current_user)
+    @resource = @casebook.resources.find_by(copy_of_id: @resource.id)
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, context_resource: @resource, type: 'resource'})
+    redirect_to annotate_resource_path(@casebook, @decorated_content)
+  end
+
   def export
     @resource = Content::Resource.find params[:resource_id]
     @decorated_content = @resource.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
