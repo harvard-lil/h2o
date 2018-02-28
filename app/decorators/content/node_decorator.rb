@@ -136,7 +136,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if owner?
-      revise_section +
+      clone_section +
       clone_casebook +
       export_section
     else
@@ -158,7 +158,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def resource_published
     if owner?
-      annotate_resource +
+      clone_resource +
       clone_casebook +
       export_resource
     else
@@ -223,6 +223,10 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def annotate_resource
+    link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
+  end
+
+  def clone_resource
     link_to(I18n.t('content.actions.revise'), clone_resource_path(casebook, resource), class: 'action edit one-line create-draft')
   end
 
@@ -245,8 +249,15 @@ class Content::NodeDecorator < Draper::Decorator
   #############
   ## Section
 
+  def clone_section
+  end
+
   def revise_section
     link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line')
+  end
+
+  def clone_section
+    link_to(I18n.t('content.actions.revise'), clone_section_path(casebook, section), class: 'action edit one-line create-draft')
   end
 
   def revise_draft_section
