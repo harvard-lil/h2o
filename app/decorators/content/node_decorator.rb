@@ -223,7 +223,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def annotate_resource
-    link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise'), clone_resource_path(casebook, resource), class: 'action edit one-line create-draft')
   end
 
   def export_resource
