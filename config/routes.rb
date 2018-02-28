@@ -71,6 +71,7 @@ H2o::Application.routes.draw do
           member do
             get 'details'
             get 'layout'
+            get 'clone'
           end
         end
         resources :resources, param: :resource_ordinals, resource_ordinals: /.*/ do
