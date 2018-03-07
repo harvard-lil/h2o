@@ -334,7 +334,7 @@ GEM
       cocaine (~> 0.5.5)
       mime-types
       mimemagic (~> 0.3.0)
-    pg (1.0.0)
+    pg (0.21.0)
     poltergeist (1.17.0)
       capybara (~> 2.1)
       cliver (~> 0.3.1)
@@ -564,7 +564,7 @@ DEPENDENCIES
   minitest-spec-rails
   nokogiri (~> 1.6)
   paperclip (~> 5.2.0)
-  pg
+  pg (~> 0.21)
   poltergeist
   progress_bar
   pry-byebug
