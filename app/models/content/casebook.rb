@@ -66,10 +66,10 @@ class Content::Casebook < Content::Node
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
-  def clone(owner:)
+  def clone(owner: '', draft_mode: false)
     cloned_casebook = dup
 
-    if self.owner == owner && self.public
+    if building_draft?(owner, draft_mode)
       draft_mode_of_published_casebook = true
     end
 
@@ -125,5 +125,9 @@ class Content::Casebook < Content::Node
 
   def has_unpublished_revisions?
     descendants.where(draft_mode_of_published_casebook: true).any?
+  end
+
+  def building_draft?(owner, draft_mode)
+    self.owner == owner && self.public && draft_mode
   end
 end
