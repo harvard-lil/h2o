@@ -313,19 +313,19 @@ class Content::NodeDecorator < Draper::Decorator
   #Live draft logic
 
   def has_live_draft?
-    casebook.descendants.any? && casebook.descendants.where(draft_mode_of_published_casebook: true).present?
+    casebook.draft.present?
   end
 
   def draft
-    casebook.descendants.joins(:collaborators).where(draft_mode_of_published_casebook: true).where('content_collaborators.user_id' => 124465).first
+    casebook.draft
   end
 
   def draft_section
-    draft.contents.where(copy_of_id: section.id).first
+    casebook.draft.contents.where(copy_of_id: section.id).first
   end
 
   def draft_resource
-    draft.contents.where(copy_of_id: resource.id).first
+    casebook.draft.contents.where(copy_of_id: resource.id).first
   end
 
   ############
