@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180209184936) do
+ActiveRecord::Schema.define(version: 20180312183542) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -259,6 +259,7 @@ ActiveRecord::Schema.define(version: 20180209184936) do
     t.bigint "playlist_id"
     t.bigint "root_user_id"
     t.boolean "draft_mode_of_published_casebook"
+    t.integer "ancestry_depth", default: 0
     t.index ["ancestry"], name: "index_content_nodes_on_ancestry"
     t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
     t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
