@@ -50,9 +50,12 @@ class Content::SectionsController < Content::NodeController
   end
 
   def edit
-    @casebook.update_attributes public: false
-    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
-    redirect_to layout_section_path(@casebook, @section)
+    # editing a section takes you to a cloned casebook and
+    # the original casebook stays published
+    @casebook = @casebook.clone(owner: current_user, draft_mode: true)
+    @section = @casebook.contents.find_by(copy_of_id: @section.id)
+    @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
+    redirect_to layout_section_path(@casebook, @section) 
   end
 
   def show

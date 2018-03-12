@@ -136,8 +136,8 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if owner?
+      revise_section +
       clone_section +
-      clone_casebook +
       export_section
     else
       clone_casebook +
@@ -158,8 +158,8 @@ class Content::NodeDecorator < Draper::Decorator
 
   def resource_published
     if owner?
+      build_draft +
       clone_resource +
-      clone_casebook +
       export_resource
     else
       clone_casebook +
@@ -195,28 +195,13 @@ class Content::NodeDecorator < Draper::Decorator
     export_resource
   end
 
-  ######
-  #Live draft logic
-
-  def has_live_draft?
-    casebook.descendants.any? && casebook.descendants.where(draft_mode_of_published_casebook: true).present?
-  end
-
-  def draft
-    casebook.descendants.joins(:collaborators).where(draft_mode_of_published_casebook: true).where('content_collaborators.user_id' => 124465).first
-  end
-
-  def draft_section
-    draft.contents.where(copy_of_id: section.id).first
-  end
-
-  def draft_resource
-    draft.contents.where(copy_of_id: resource.id).first
-  end
-
   ####
   #Buttons/Links
   #Resources
+
+  def build_draft
+    link_to(I18n.t('content.actions.revise'), build_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
+  end
 
   def annotate_resource_draft
     link_to(I18n.t('content.actions.revise'), annotate_resource_path(draft, draft_resource), class: 'action edit one-line')
@@ -227,7 +212,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def clone_resource
-    link_to(I18n.t('content.actions.revise'), clone_resource_path(casebook, resource), class: 'action edit one-line create-draft')
+    link_to(I18n.t('content.actions.clone'), clone_resource_path(casebook, resource), class: 'action clone-casebook')
   end
 
   def export_resource
@@ -250,15 +235,15 @@ class Content::NodeDecorator < Draper::Decorator
   ## Section
 
   def revise_section
-    link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line create-draft')
   end
 
   def clone_section
-    link_to(I18n.t('content.actions.revise'), clone_section_path(casebook, section), class: 'action edit one-line create-draft')
+    link_to(I18n.t('content.actions.clone'), clone_section_path(casebook, section), class: 'action clone-casebook')
   end
 
   def revise_draft_section
-    link_to(I18n.t('content.actions.revise-draft'), edit_section_path(draft, draft_section), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise-draft'), layout_section_path(draft, draft_section), class: 'action edit one-line')
   end
 
   def export_section
@@ -297,7 +282,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def clone_casebook
-    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
+    button_to(I18n.t('content.actions.clone'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
   end
 
   def export_casebook
@@ -322,6 +307,25 @@ class Content::NodeDecorator < Draper::Decorator
 
   def cancel_casebook
     link_to(I18n.t('content.actions.cancel'), edit_casebook_path(casebook), class: 'action one-line cancel')
+  end
+
+  ######
+  #Live draft logic
+
+  def has_live_draft?
+    casebook.descendants.any? && casebook.descendants.where(draft_mode_of_published_casebook: true).present?
+  end
+
+  def draft
+    casebook.descendants.joins(:collaborators).where(draft_mode_of_published_casebook: true).where('content_collaborators.user_id' => 124465).first
+  end
+
+  def draft_section
+    draft.contents.where(copy_of_id: section.id).first
+  end
+
+  def draft_resource
+    draft.contents.where(copy_of_id: resource.id).first
   end
 
   ############

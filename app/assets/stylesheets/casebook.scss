@@ -123,6 +123,7 @@ main > header.casebook {
     }
     &.clone-casebook {
       background-image: asset-url('ui/casebook/clone.png');
+      border: none;
     }
     &.export {
       background-image: asset-url('ui/casebook/export.png');
