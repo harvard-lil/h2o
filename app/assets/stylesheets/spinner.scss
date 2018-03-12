@@ -1,5 +1,11 @@
+.publish {
+  .spinner-group, .spinner-header, .spinner {
+    display: none;
+  }
+}
+
 .spinner-group {
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 100px;
@@ -9,8 +15,13 @@
 
 .spinner-header {
   font-size: 30px;
-  display: none;
   margin-right: 5px;
+}
+
+.spinner {
+  margin-top: 15px;
+  width: 70px;
+  text-align: center;
 }
 
 .spinner-description {
@@ -18,13 +29,6 @@
   margin-left: 20px;
   margin-right: 20px;
   text-align: center;
-}
-
-.spinner {
-  margin-top: 15px;
-  width: 70px;
-  text-align: center;
-  display: none;
 }
 
 .spinner > div {
