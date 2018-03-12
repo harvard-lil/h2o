@@ -11,8 +11,6 @@ document.addEventListener("turbolinks:before-cache", function() {
 });
 
 function showCloneModal (e) {
-  e.preventDefault();
-  e.stopPropagation();
   modal = new CloneModal;
 }
 
@@ -24,6 +22,7 @@ class CloneModal extends Component {
   }
 
   destroy () {
+    super.destroy();
     modal = null;
   }
 

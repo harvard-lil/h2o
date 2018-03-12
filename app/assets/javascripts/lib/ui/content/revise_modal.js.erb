@@ -6,6 +6,10 @@ delegate(document, '.create-draft', 'click', showReviseModal);
 
 let modal = null;
 
+document.addEventListener("turbolinks:before-cache", function() {
+  if (modal) { modal.destroy(); }
+});
+
 function showReviseModal (e) {
   modal = new ReviseModal;
 }
@@ -15,6 +19,11 @@ class ReviseModal extends Component {
     super({id: 'revise-modal'});
     document.body.appendChild(this.el);
     this.render();
+  }
+
+  destroy () {
+    super.destroy();
+    modal = null;
   }
 
   template () {
