@@ -249,9 +249,6 @@ class Content::NodeDecorator < Draper::Decorator
   #############
   ## Section
 
-  def clone_section
-  end
-
   def revise_section
     link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line')
   end
@@ -300,7 +297,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def clone_casebook
-    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook')
+    button_to(I18n.t('content.actions.clone-casebook'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
   end
 
   def export_casebook

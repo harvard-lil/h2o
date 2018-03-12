@@ -4,12 +4,6 @@ import Component from 'lib/ui/component';
 import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'input.action.publish', 'click', showPublishModal);
-delegate(document, '.create-draft', 'click', showReviseModal);
-delegate(document, 'input.action.clone-casebook', 'click', showCloneModal);
-
-function casebook_path(resourceId, format = 'pdf') {
-  return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
-}
 
 let modal = null;
 
@@ -17,24 +11,14 @@ document.addEventListener("turbolinks:before-cache", function() {
   if (modal) { modal.destroy(); }
 });
 
+function casebook_path(resourceId, format = 'pdf') {
+  return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
+}
+
 function showPublishModal (e) {
   e.preventDefault();
   e.stopPropagation();
   modal = new PublishModal;
-}
-
-function showReviseModal (e) {
-  modal = new ReviseModal;
-  $(".spinner-group").show().css('display', 'flex');
-  $(".spinner").show();
-  $(".spinner-header").show();
-}
-
-function showCloneModal (e) {
-  modal = new CloneModal;
-  $(".spinner-group").show().css('display', 'flex');
-  $(".spinner").show();
-  $(".spinner-header").show();
 }
 
 function showSpinner (e) {
@@ -45,7 +29,6 @@ function showSpinner (e) {
   $(".spinner").show();
   $(".spinner-header").show();
 }
-
 
 class PublishModal extends Component {
   constructor () {
@@ -87,12 +70,14 @@ class PublishModal extends Component {
             <button type="button" class="close"><span>&times;</span></button>
             <h4 class="modal-title"><%= t 'content.publish-modal.title' %></h4>
           </div>
-          <div class="spinner-group">
-            <span class="spinner-header">Publishing</span>
-            <div class="spinner">
-              <div class="bounce1"></div>
-              <div class="bounce2"></div>
-              <div class="bounce3"></div>
+          <div class="publish">
+            <div class="spinner-group">
+              <span class="spinner-header">Publishing</span>
+              <div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+              </div>
             </div>
           </div>
           <div class="modal-body">
@@ -101,57 +86,6 @@ class PublishModal extends Component {
           <div class="modal-footer">
             <%= link_to t('content.publish-modal.cancel'), '#', class: 'modal-button cancel' %>
             <%= link_to t('content.publish-modal.confirm'), '#', class: 'modal-button confirm', input_html: { 'data-toggle' => 'modal' }%>
-          </div>
-        </div>
-      </div>
-    </div>`
-  }
-}
-
-class ReviseModal extends Component {
-  constructor () {
-    super({id: 'revise-modal'});
-    document.body.appendChild(this.el);
-    this.render();
-  }
-
-  template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="spinner-group">
-            <p class="spinner-header">Building draft</p>
-            <p class="spinner-description">Your casebook will remain published and you can merge in any changes when you're ready.</p>
-            <div class="spinner">
-              <div class="bounce1"></div>
-              <div class="bounce2"></div>
-              <div class="bounce3"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>`
-  }
-}
-
-class CloneModal extends Component {
-  constructor () {
-    super({id: 'clone-modal'});
-    document.body.appendChild(this.el);
-    this.render();
-  }
-
-  template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="spinner-group">
-            <p class="spinner-header">Cloning casebook</p>
-            <div class="spinner">
-              <div class="bounce1"></div>
-              <div class="bounce2"></div>
-              <div class="bounce3"></div>
-            </div>
           </div>
         </div>
       </div>
