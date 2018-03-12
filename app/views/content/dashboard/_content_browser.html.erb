@@ -19,8 +19,8 @@
             <%= casebook.subtitle %>
           </div>
         </div>
-        <% if casebook.has_unpublished_revisions? %>
-          <a class="wrapper" href="<%= casebook_url(casebook.descendants.first) %>/layout">
+        <% if casebook.draft.present? %>
+          <a class="wrapper" href="<%= casebook_url(casebook.draft) %>/layout">
             <div class="unpublished-changes">
              <span class="exclamation">!</span>
               <span class="description">This casebook has unpublished changes.</span>

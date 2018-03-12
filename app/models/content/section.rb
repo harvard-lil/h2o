@@ -23,6 +23,8 @@
 # - can have Children
 # - does not have an associated material resource
 class Content::Section < Content::Child
+  has_ancestry cache_depth: 3
+
   default_scope {where(resource_id: nil)}
 
   has_many :contents, ->(section) {where(['ordinals[1:?] = ARRAY[?]', section.ordinals.length, section.ordinals]).where.not(id: section.id).order :ordinals}, class_name: 'Content::Child', primary_key: :casebook_id, foreign_key: :casebook_id
