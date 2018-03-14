@@ -1,45 +1,45 @@
-import {html} from 'es6-string-html-template';
-import delegate from 'delegate';
-import Component from 'lib/ui/component';
+// import {html} from 'es6-string-html-template';
+// import delegate from 'delegate';
+// import Component from 'lib/ui/component';
 
-delegate(document, '.create-draft', 'click', showReviseModal);
+// delegate(document, '.create-draft', 'click', showReviseModal);
 
-let modal = null;
+// let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
+// document.addEventListener("turbolinks:before-cache", function() {
+//   if (modal) { modal.destroy(); }
+// });
 
-function showReviseModal (e) {
-  modal = new ReviseModal;
-}
+// function showReviseModal (e) {
+//   modal = new ReviseModal;
+// }
 
-class ReviseModal extends Component {
-  constructor () {
-    super({id: 'revise-modal'});
-    document.body.appendChild(this.el);
-    this.render();
-  }
+// class ReviseModal extends Component {
+//   constructor () {
+//     super({id: 'revise-modal'});
+//     document.body.appendChild(this.el);
+//     this.render();
+//   }
 
-  destroy () {
-    modal = null;
-  }
+//   destroy () {
+//     modal = null;
+//   }
 
-  template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="spinner-group">
-            <p class="spinner-header">Building draft</p>
-            <p class="spinner-description">Your casebook will remain published and you can merge in any changes when you're ready.</p>
-            <div class="spinner">
-              <div class="bounce1"></div>
-              <div class="bounce2"></div>
-              <div class="bounce3"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>`
-  }
-}
+//   template () {
+//     return html`<div class="modal fade in" id="publish-modal" style="display: block">
+//       <div class="modal-dialog" role="document">
+//         <div class="modal-content">
+//           <div class="spinner-group">
+//             <p class="spinner-header">Building draft</p>
+//             <p class="spinner-description">Your casebook will remain published and you can merge in any changes when you're ready.</p>
+//             <div class="spinner">
+//               <div class="bounce1"></div>
+//               <div class="bounce2"></div>
+//               <div class="bounce3"></div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>`
+//   }
+// }
