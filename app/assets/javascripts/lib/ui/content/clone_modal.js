@@ -22,7 +22,6 @@ class CloneModal extends Component {
   }
 
   destroy () {
-    super.destroy();
     modal = null;
   }
 
