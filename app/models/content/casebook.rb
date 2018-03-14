@@ -27,7 +27,7 @@
 # - can have children
 # - can have collaborators of its own
 class Content::Casebook < Content::Node
-  has_ancestry orphan_strategy: :adopt, cache_depth: 3
+  has_ancestry orphan_strategy: :adopt
 
   default_scope {where(casebook_id: nil)}
 
@@ -124,7 +124,7 @@ class Content::Casebook < Content::Node
   end
 
   def draft
-    Content::Casebook.joins(:collaborators).where("ancestry LIKE ?", "#{ancestry}%").where(draft_mode_of_published_casebook: true).where(ancestry_depth: self.ancestry_depth + 1).where(content_collaborators: { user_id: owner.id}).first
+    descendants.find_by(draft_mode_of_published_casebook: true)
   end
 
   def building_draft?(owner, draft_mode)
