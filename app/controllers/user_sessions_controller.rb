@@ -11,7 +11,7 @@ class UserSessionsController < ApplicationController
 
     session[:return_to] = request.referrer
 
-    @user_session = UserSession.new params.permit(:email_address)
+    @user_session = UserSession.new params.permit(:email_address).to_h
     render :layout => !request.xhr?
   end
 
