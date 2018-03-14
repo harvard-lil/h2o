@@ -24,8 +24,6 @@
 # - cannot have Children
 # - contains a reference to a single material resource, i.e. a Case, TextBlock, or Link
 class Content::Resource < Content::Child
-  has_ancestry cache_depth: 3
-
   default_scope {where.not(resource_id: nil)}
 
   belongs_to :resource, polymorphic: true, inverse_of: :casebooks, required: true
