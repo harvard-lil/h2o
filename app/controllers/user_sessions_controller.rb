@@ -18,7 +18,7 @@ class UserSessionsController < ApplicationController
   def create
     redirect_to root_url and return if current_user.present?
 
-    @user_session = UserSession.new(user_session_param)
+    @user_session = UserSession.new(user_session_param.to_h)
     @user_session.save do |result|
       if result
         redirect_back_or_default "/"
