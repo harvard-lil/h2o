@@ -35,7 +35,7 @@ class Content::AnnotationsController < ApplicationController
   private
 
   def new_annotation?
-    @annotation.created_at > @annotation.resource.casebook.created_at + 1.minute
+    @annotation.created_at > @annotation.resource.casebook.created_at + 5.seconds
   end
 
   def annotation_params

@@ -73,7 +73,6 @@ class MergeDraftIntoPublishedCasebook
   def new_and_updated_annotations
     new_or_updated_annotations.each do |annotation|
       resource = annotation.resource.copy_of
-
       if annotating_new_resource?(annotation)
         resource = Content::Resource.where(copy_of_id: annotation.resource_id).last
       elsif annotation.exists_in_published_casebook?
@@ -117,11 +116,11 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def draft_resource_ids
-    draft.resources.pluck(:id)
+    draft.resources.where(resource_type: [TextBlock, Case]).pluck(:id)
   end
 
   def new_or_updated_annotations
-    Content::Annotation.where(resource_id: draft_resource_ids).where("updated_at > ?", draft.created_at + 1.minute)
+    Content::Annotation.where(resource_id: draft_resource_ids).where("updated_at > ?", draft.created_at + 5.seconds)
   end
 
   def annotating_new_resource?(annotation)
