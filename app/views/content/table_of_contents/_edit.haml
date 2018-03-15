@@ -12,7 +12,7 @@
         .section-number= content.ordinal_string
         - if content.resource.is_a? Case
           .section-title= content.resource.short_name
-          .resource-case= content.resource.case_citations.first
+          .resource-case= content.resource.primary_case_citation
           .resource-date= content.resource.try(:date_year) || t('content.resource.date.not-applicable')
           .resource-type= t 'content.resource.type.case'
         - elsif content.resource.is_a? TextBlock
