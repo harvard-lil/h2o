@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180209184936) do
+ActiveRecord::Schema.define(version: 20180315204122) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -135,6 +135,7 @@ ActiveRecord::Schema.define(version: 20180209184936) do
     t.boolean "sent_in_cases_list", default: false
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
+    t.string "primary_case_citation"
     t.index ["author"], name: "index_cases_on_author"
     t.index ["case_jurisdiction_id"], name: "index_cases_on_case_jurisdiction_id"
     t.index ["created_at"], name: "index_cases_on_created_at"
