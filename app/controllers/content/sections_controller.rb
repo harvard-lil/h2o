@@ -45,7 +45,9 @@ class Content::SectionsController < Content::NodeController
         redirect_to annotate_resource_path @casebook, @section
       end
     else
-      redirect_to edit_section_path @casebook, @section
+      @casebook.update_attributes public: false
+      @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
+      redirect_to layout_section_path @casebook, @section
     end
   end
 
