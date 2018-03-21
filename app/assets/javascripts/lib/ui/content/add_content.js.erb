@@ -14,10 +14,6 @@ delegate(document, '.action.add-resource, .listing .add-resource', 'click', show
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
-
 function showResourceModal (e) {
   e.preventDefault();
   modal = new AddResourceModal;
@@ -45,7 +41,7 @@ class AddResourceModal extends Component {
               content: e.target.querySelector('textarea[name=content]').value,
               title: e.target.querySelector('input[name=title]').value,
             }
-          });
+          }, {modal: this});
         },
         'submit form.new-link': (e) => {
           e.preventDefault();
@@ -56,7 +52,7 @@ class AddResourceModal extends Component {
             link: {
               url: e.target.querySelector('input[name=url]').value
             }
-          });
+          }, {modal: this});
         },
         'submit form.case-search, click .pagination > a': (e) => {
           e.preventDefault();
@@ -83,7 +79,7 @@ class AddResourceModal extends Component {
           e.stopPropagation();
           e.preventDefault();
 
-          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()})
+          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()}, {modal: this})
         }
       }
     });
