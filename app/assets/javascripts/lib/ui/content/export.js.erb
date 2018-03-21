@@ -17,10 +17,6 @@ function export_casebook_path(casebookId, format = 'pdf') {
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
-
 function showExportModal (e) {
   e.preventDefault();
   e.stopPropagation();
@@ -61,11 +57,6 @@ class ExportModal extends Component {
 
   sectionId () {
     return document.querySelector('header.casebook').dataset.sectionId;
-  }
-
-  destroy () {
-    super.destroy();
-    modal = null;
   }
 
   template () {
