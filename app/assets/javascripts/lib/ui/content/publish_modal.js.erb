@@ -37,7 +37,7 @@ class PublishModal extends Component {
         'click .confirm': (e) => {
           showSpinner();
           let casebookId = document.querySelector('main > header').dataset.casebookId;
-          patch(casebook_path(casebookId), {content_casebook: {public: true}});
+          patch(casebook_path(casebookId), {content_casebook: {public: true}}, {modal: this});
         },
       }
     });

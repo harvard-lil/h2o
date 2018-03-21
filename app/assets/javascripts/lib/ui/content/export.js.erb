@@ -1,7 +1,6 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import Component from 'lib/ui/component';
-import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'a.action.export', 'click', showExportModal);
 
