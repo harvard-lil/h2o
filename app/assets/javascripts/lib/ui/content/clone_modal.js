@@ -6,10 +6,6 @@ delegate(document, '.clone-casebook', 'submit', showCloneModal);
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
-
 function showCloneModal (e) {
   modal = new CloneModal;
 }
@@ -22,11 +18,6 @@ class CloneModal extends Component {
     });
     document.body.appendChild(this.el);
     this.render();
-  }
-
-  destroy () {
-    super.destroy();
-    modal = null;
   }
 
   template () {
