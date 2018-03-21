@@ -7,10 +7,6 @@ delegate(document, 'input.action.publish', 'click', showPublishModal);
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
-
 function casebook_path(resourceId, format = 'pdf') {
   return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
 }
@@ -55,11 +51,6 @@ class PublishModal extends Component {
 
   sectionId () {
     return document.querySelector('header.casebook').dataset.sectionId;
-  }
-
-  destroy () {
-    super.destroy();
-    modal = null;
   }
 
   template () {
