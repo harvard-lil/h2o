@@ -12,22 +12,23 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def perform
-    begin
+    ActiveRecord::Base.transaction do
       remove_deleted_contents
       add_new_contents
       reflow_published_ordinals
       merge_in_unpublished_revisions
-      new_and_updated_annotations
+      new_annotations
+      updated_annotations
       deleted_annotations
       # content_collaborators
       draft.destroy
 
       {success: true, casebook: published}
-    rescue Exception => e
-      Notifier.merge_failed(draft.owner, draft, published, e, e.backtrace).deliver
-      Rails.logger.warn "Casebook merge failure: #{e.inspect}"
-      {success: false, casebook: draft}
     end
+  rescue => e
+    Notifier.merge_failed(draft.owner, draft, published, e, e.backtrace).deliver
+    Rails.logger.warn "Casebook merge failure: #{e.inspect}"
+    {success: false, casebook: draft}
   end
 
   def remove_deleted_contents
@@ -35,7 +36,7 @@ class MergeDraftIntoPublishedCasebook
 
     published.contents.each do |published_content|
       if draft_contents_copy_of_ids.exclude? published_content.id
-        published_content.destroy
+        published_content.destroy!
       end
     end
   end
@@ -44,7 +45,7 @@ class MergeDraftIntoPublishedCasebook
     previously_created_contents.each do |content|
       parent_content = content.copy_of
       if content.ordinals != parent_content.ordinals
-        parent_content.update(ordinals: content.ordinals)
+        parent_content.update!(ordinals: content.ordinals)
       end
     end
   end
@@ -53,7 +54,7 @@ class MergeDraftIntoPublishedCasebook
     if new_contents.present?
       new_contents.each do |content|
         new_content = content.dup
-        new_content.update(casebook_id: published.id)
+        new_content.update!(casebook_id: published.id)
       end
     end
   end
@@ -62,34 +63,38 @@ class MergeDraftIntoPublishedCasebook
     resource_revisions.each do |revision|
       resource = Content::Node.find(revision.node_parent_id)
       if casebook_detail?(revision.field)
-        resource.update("#{revision.field}": revision.value)
+        resource.update!("#{revision.field}": revision.value)
       else
-        resource.resource.update("#{revision.field}": revision.value)
+        resource.resource.update!("#{revision.field}": revision.value)
       end
-      revision.destroy
+      revision.destroy!
     end
   end
 
-  def new_and_updated_annotations
-    new_or_updated_annotations.each do |annotation|
-      resource = annotation.resource.copy_of
+  def new_annotations
+    new_annotations = new_or_updated_annotations[:new_annotations]
 
-      if annotating_new_resource?(annotation)
-        resource = published.resources.find_by(resource_id: annotation.resource.resource_id)
-      elsif annotation.exists_in_published_casebook?
-        old_annotation = resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, 
-          start_offset: annotation.start_offset, end_offset: annotation.end_offset)
-        old_annotation.destroy
-      end
-
-      annotation.update(resource_id: resource.id)
+    new_annotations.each do |annotation|
+      published_resource = published.resources.find_by(resource_id: annotation.resource.resource_id)
+      annotation.update!(resource_id: published_resource.id)
     end
+  end
+
+  def updated_annotations
+    updated_annotations = new_or_updated_annotations[:updated_annotations]
+    
+    updated_annotations.each do |annotation|
+      published_resource = annotation.resource.copy_of
+      published_annotation = published_resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, start_offset: annotation.start_offset, end_offset: annotation.end_offset)
+      published_annotation.destroy!
+      annotation.update!(resource_id: published_resource.id)
+    end 
   end
 
   def deleted_annotations
     revisions.where(field: "deleted_annotation").each do |revision|
-      Content::Annotation.find(revision.value.to_i).destroy
-      revision.destroy
+      Content::Annotation.find(revision.value.to_i).destroy!
+      revision.destroy!
     end
   end
 
@@ -122,10 +127,22 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def new_or_updated_annotations
-    Content::Annotation.where(resource_id: draft_resource_ids).where("updated_at > ?", draft.created_at + 30.seconds)
+    new_annotations = []
+    updated_annotations = []
+
+    annotations = Content::Annotation.where(resource_id: draft_resource_ids)
+
+    annotations.each do |annotation|
+      if annotation.resource.copy_of.nil? || annotation.copy_of.nil?
+        new_annotations << annotation
+      elsif annotation.created_at != annotation.updated_at
+        updated_annotations << annotation
+      end
+    end
+
+    {new_annotations: new_annotations, updated_annotations: updated_annotations}
   end
 
   def annotating_new_resource?(annotation)
-    ! annotation.resource.exists_in_published_casebook?
-  end
+    ! annotation.resource.copy_of.present?
 end
