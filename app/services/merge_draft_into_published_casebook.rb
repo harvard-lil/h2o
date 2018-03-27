@@ -145,4 +145,5 @@ class MergeDraftIntoPublishedCasebook
 
   def annotating_new_resource?(annotation)
     ! annotation.resource.copy_of.present?
+  end
 end
