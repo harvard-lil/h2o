@@ -85,6 +85,10 @@ class Content::Annotation < ApplicationRecord
           start_offset: self.start_offset, end_offset: self.end_offset).first
   end
 
+  def exists_in_published_casebook?
+    resource.casebook.draft_mode_of_published_casebook && copy_of.present?
+  end
+
   private
 
   def annotate_html inner, handle: true, final: false

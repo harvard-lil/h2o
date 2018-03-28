@@ -17,8 +17,7 @@ class MergeDraftIntoPublishedCasebook
       add_new_contents
       reflow_published_ordinals
       merge_in_unpublished_revisions
-      new_annotations
-      updated_annotations
+      new_and_updated_annotations
       deleted_annotations
       # content_collaborators
       draft.destroy
@@ -71,24 +70,20 @@ class MergeDraftIntoPublishedCasebook
     end
   end
 
-  def new_annotations
-    new_annotations = new_or_updated_annotations[:new_annotations]
+  def new_and_updated_annotations
+    new_or_updated_annotations.each do |annotation|
+      published_resource = annotation.resource.copy_of
 
-    new_annotations.each do |annotation|
-      published_resource = published.resources.find_by(resource_id: annotation.resource.resource_id)
+      if annotating_new_resource?(annotation)
+        published_resource = published.resources.find_by(resource_id: annotation.resource.resource_id)
+      elsif annotation.exists_in_published_casebook?
+        published_annotation = resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, 
+          start_offset: annotation.start_offset, end_offset: annotation.end_offset)
+        published_annotation.destroy
+      end
+
       annotation.update!(resource_id: published_resource.id)
     end
-  end
-
-  def updated_annotations
-    updated_annotations = new_or_updated_annotations[:updated_annotations]
-    
-    updated_annotations.each do |annotation|
-      published_resource = annotation.resource.copy_of
-      published_annotation = published_resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, start_offset: annotation.start_offset, end_offset: annotation.end_offset)
-      published_annotation.destroy!
-      annotation.update!(resource_id: published_resource.id)
-    end 
   end
 
   def deleted_annotations
@@ -127,20 +122,19 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def new_or_updated_annotations
-    new_annotations = []
-    updated_annotations = []
+    annotations = []
 
-    annotations = Content::Annotation.where(resource_id: draft_resource_ids)
+    all_annotations = Content::Annotation.where(resource_id: draft_resource_ids)
 
-    annotations.each do |annotation|
+    all_annotations.each do |annotation|
       if annotation.resource.copy_of.nil? || annotation.copy_of.nil?
-        new_annotations << annotation
+        annotations << annotation
       elsif annotation.created_at != annotation.updated_at
-        updated_annotations << annotation
+        annotations << annotation
       end
     end
 
-    {new_annotations: new_annotations, updated_annotations: updated_annotations}
+    annotations
   end
 
   def annotating_new_resource?(annotation)
