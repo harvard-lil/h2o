@@ -79,7 +79,7 @@ class MergeDraftIntoPublishedCasebook
       elsif annotation.exists_in_published_casebook?
         published_annotation = resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, 
           start_offset: annotation.start_offset, end_offset: annotation.end_offset)
-        published_annotation.destroy
+        published_annotation.destroy!
       end
 
       annotation.update!(resource_id: published_resource.id)
@@ -127,14 +127,20 @@ class MergeDraftIntoPublishedCasebook
     all_annotations = Content::Annotation.where(resource_id: draft_resource_ids)
 
     all_annotations.each do |annotation|
-      if annotation.resource.copy_of.nil? || annotation.copy_of.nil?
-        annotations << annotation
-      elsif annotation.created_at != annotation.updated_at
+      if annotating_new_resource?(annotation) || new_annotation?(annotation) || updated_annotation?(annotation)
         annotations << annotation
       end
     end
 
     annotations
+  end
+
+  def updated_annotation?(annotation)
+    annotation.created_at != annotation.updated_at
+  end
+
+  def new_annotation?(annotation)
+    annotation.copy_of.nil?
   end
 
   def annotating_new_resource?(annotation)
