@@ -1,7 +1,6 @@
 import {html, raw} from 'es6-string-html-template';
 import delegate from 'delegate';
 import Component from 'lib/ui/component';
-import {patch} from 'lib/turbolinks/requests';
 
 delegate(document, 'input.action-delete', 'click', showDeleteModal);
 
@@ -11,9 +10,9 @@ function casebook_path(resourceId, format = 'pdf') {
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
+// document.addEventListener("turbolinks:before-cache", function() {
+//   if (modal) { modal.destroy(); }
+// });
 
 function showDeleteModal (e) {
   e.preventDefault();
