@@ -1,7 +1,7 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import Component from 'lib/ui/component';
-import {patch} from 'lib/turbolinks/requests';
+import {patch} from 'lib/requests';
 
 delegate(document, 'input.action.publish', 'click', showPublishModal);
 
