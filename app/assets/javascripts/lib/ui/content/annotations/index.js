@@ -1,5 +1,5 @@
 import {html} from 'es6-string-html-template';
-import {post, patch, rest_delete} from 'lib/turbolinks/requests';
+import {post, patch, rest_delete} from 'lib/requests';
 import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 import delegate from 'delegate';
