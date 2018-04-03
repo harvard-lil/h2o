@@ -24,6 +24,7 @@ H2o::Application.configure do
   config.eager_load = false
 
   config.assets.digest = true
+  config.assets.compile = true
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
