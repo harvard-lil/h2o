@@ -4,7 +4,7 @@ import delegate from 'delegate';
 
 import serialize from 'form-serialize';
 
-import {post} from 'lib/turbolinks/requests';
+import {post} from 'lib/requests';
 
 Turbolinks.start();
 Turbolinks.SnapshotRenderer.prototype.assignNewBody = function () {
