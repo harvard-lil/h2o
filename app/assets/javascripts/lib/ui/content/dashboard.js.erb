@@ -7,9 +7,9 @@ delegate(document, '[data-action="show-casebook-modal"]', 'click', showCasebookM
 
 let modal = null;
 
-document.addEventListener("turbolinks:before-cache", function() {
-  if (modal) { modal.destroy(); }
-});
+// document.addEventListener("turbolinks:before-cache", function() {
+//   if (modal) { modal.destroy(); }
+// });
 
 function showCasebookModal () {
   modal = new NewCasebookModal;
