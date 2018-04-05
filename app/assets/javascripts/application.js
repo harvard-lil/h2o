@@ -19,7 +19,6 @@
 //= require 'lib/turbolinks/index'
 //= require 'lib/requests'
 //= require 'lib/ui/content'
-//= require 'lib/ui/search'
 //= require 'lib/ui/filter-selectize'
 //= require 'lib/ckeditor'
 //= require old_tree/fonts
