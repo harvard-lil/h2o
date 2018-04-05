@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
+//= require 'jquery-readyselector'
 //= require select2
 //= require 'polyfills'
 //= require 'lib/turbolinks/index'
