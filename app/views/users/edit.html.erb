@@ -9,7 +9,7 @@
   <div class="content">
     <div class="layout">
       <div class="form">
-        <%= simple_form_for @user, url: user_path(@user), html: {data: {remote: true}} do |f| %>
+        <%= simple_form_for @user, url: user_path(@user) do |f| %>
           <div class="error-transition <%= @user.errors.any? ? '' : 'hide' %>"><%= f.error_notification %></div>
             <%= f.input :email_address, hint: t('users.sign-up.edu-only_html') %>
             <%= f.input :image %>
@@ -38,7 +38,7 @@
     <div class="layout">
       <h3><%= t 'users.change-password.header' %></h3>
       <div class="form">
-        <%= simple_form_for @user, url: user_path(@user), html: {data: {remote: true}} do |f| %>
+        <%= simple_form_for @user, url: user_path(@user) do |f| %>
           <%= f.input :current_password, required: true %>
           <%= f.input :password, required: true %>
           <%= f.input :password_confirmation, required: true %>

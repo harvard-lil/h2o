@@ -9,7 +9,7 @@
   <div class="content">
     <div class="layout">
       <div class="form">
-        <%= simple_form_for @user_session, url: user_sessions_path, html: {data: {remote: true}} do |f| %>
+        <%= simple_form_for @user_session, url: user_sessions_path do |f| %>
           <%= f.error_notification %>
           <%= f.input :email_address %>
           <%= f.input :password, required: true %>
