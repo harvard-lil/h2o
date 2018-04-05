@@ -16,7 +16,6 @@
 //= require 'jquery-readyselector'
 //= require select2
 //= require 'polyfills'
-//= require 'lib/turbolinks/index'
 //= require 'lib/requests'
 //= require 'lib/ui/content'
 //= require 'lib/ui/filter-selectize'

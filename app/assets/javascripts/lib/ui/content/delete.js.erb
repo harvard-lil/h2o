@@ -10,10 +10,6 @@ function casebook_path(resourceId, format = 'pdf') {
 
 let modal = null;
 
-// document.addEventListener("turbolinks:before-cache", function() {
-//   if (modal) { modal.destroy(); }
-// });
-
 function showDeleteModal (e) {
   e.preventDefault();
   e.stopPropagation();

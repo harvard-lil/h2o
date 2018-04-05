@@ -11,9 +11,6 @@
     <%= render 'layouts/meta_tags' %>
     <%= render 'layouts/favicon' %>
     <%= stylesheet_link_tag 'main', media: 'all' %>
-    <% if controller_name == 'exceptions' %>
-      <meta name="turbolinks-cache-control" content="no-cache">
-    <% end %>
   </head>
   <body class="view-<%= controller_name.parameterize %>-<%= action_name.parameterize %>">
     <a href="#main" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -43,7 +40,7 @@
     <footer>
       <%= render 'layouts/footer' %>
     </footer>
-    <%= javascript_include_tag "application", data: {'turbolinks-eval': "false"} %>
+    <%= javascript_include_tag "application" %>
     <%= render 'layouts/analytics' %>
   </body>
 </html>
