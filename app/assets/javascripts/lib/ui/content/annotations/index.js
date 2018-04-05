@@ -13,15 +13,8 @@ import 'lib/ui/content/annotations/footnotes';
 
 let annotator = null;
 
-//
 
-document.addEventListener('turbolinks:load', e => {
-  if (!document.querySelector('.resource-wrapper') || !isEditable()) {
-    annotator && annotator.destroy();
-    annotator = null;
-    return;
-  }
-
+$('.resource-wrapper').ready(e => {
   annotator = new Annotator();
   setAnnotationHandleOffsets();
   makeReplacementsContenteditable();
