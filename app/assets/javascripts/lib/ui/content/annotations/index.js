@@ -14,7 +14,7 @@ import 'lib/ui/content/annotations/footnotes';
 let annotator = null;
 
 
-$('.resource-wrapper').ready(e => {
+$('.view-resources-annotate').ready(e => {
   annotator = new Annotator();
   setAnnotationHandleOffsets();
   makeReplacementsContenteditable();
