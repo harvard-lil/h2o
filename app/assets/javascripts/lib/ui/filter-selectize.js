@@ -1,4 +1,7 @@
-document.addEventListener('turbolinks:load', e => {
+$('.view-searches-index, .view-searches-show').ready(e => {
+  let selects = document.querySelectorAll('select');
+  for (let el of selects) { el.value = el.value };
+
   $( "#search_author" ).select2({});
 
   $( "#search_school" ).select2({});
@@ -17,4 +20,3 @@ document.addEventListener('turbolinks:load', e => {
     e.target.closest('form').submit();
   });
 });
-
