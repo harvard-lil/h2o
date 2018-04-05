@@ -3,7 +3,6 @@ require 'uri'
 
 class Content::SectionsController < Content::NodeController
   before_action :find_parent, only: [:new, :create]
-  before_action :disable_turbolinks_cache, only: [:new]
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
 

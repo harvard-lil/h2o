@@ -78,10 +78,6 @@ class Content::NodeController < ApplicationController
     (params[:content_casebook] || params[:content_section] || params[:content_resource]).permit(:title, :subtitle, :headnote, :public, ordinals: [])
   end
 
-  def disable_turbolinks_cache
-    @turbolinks_no_cache = true
-  end
-
   def find_casebook
     @content = @casebook = Content::Casebook.includes(contents: [:resource]).find params[:casebook_id] || params[:casebook_casebook_id]
   end
