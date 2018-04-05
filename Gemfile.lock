@@ -485,10 +485,7 @@ GEM
     thor (0.20.0)
     thread_safe (0.3.6)
     tilt (2.0.8)
-    tins (1.16.3)
-    turbolinks (5.1.0)
-      turbolinks-source (~> 5.1)
-    turbolinks-source (5.1.0)
+    tins (0.13.2)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     uglifier (4.1.8)
@@ -587,7 +584,6 @@ DEPENDENCIES
   sunspot_solr
   terminal-notifier-guard
   therubyracer
-  turbolinks
   uglifier (>= 1.3.0)
   warden
   webmock
