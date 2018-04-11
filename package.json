@@ -26,5 +26,7 @@
     "path-complete-extname": "^0.1.0",
     "query-string": "^4.3.4"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "xhr-mock": "^2.3.1"
+  }
 }
