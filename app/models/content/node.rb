@@ -49,7 +49,7 @@ class Content::Node < ApplicationRecord
       content_params.each do |field|
         value = content_params[field]
         previous_revisions = unpublished_revisions.where(field: field)
-        
+
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
@@ -59,7 +59,10 @@ class Content::Node < ApplicationRecord
   end
 
   def formatted_headnote
-    Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
+    unless self.headnote.blank?
+      headnote_html = Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
+      headnote_html.to_html.html_safe
+    end
   end
 
   private

@@ -1,13 +1,12 @@
 %header.CasebookTitle= @casebook.title
 %header.CasebookSubtitle= @casebook.subtitle
+%p.CasebookHeadnote= @casebook.formatted_headnote
 
 %table-of-contents
   - @casebook.contents.each_with_index do |content, idx|
     %toc-entry{data: {depth: content.ordinals.length, idx: idx + 1}}
       = content.ordinal_string
       = content.title
-%p
-  = @casebook.formatted_headnote.to_html.html_safe
 
 - @casebook.contents.each_with_index do |content, idx|
   - if content.is_a? Content::Section
@@ -16,14 +15,14 @@
     - if content.subtitle.present?
       %header.SectionSubtitle=content.subtitle
     - if content.headnote.present?
-      %header.SectionHeadnote= content.formatted_headnote.to_html.html_safe
+      %p.SectionHeadnote= content.formatted_headnote
   - elsif content.is_a? Content::Resource
     %header.ResourceNumber{data: {'toc-idx': idx + 1}}=content.ordinal_string
     %header.ResourceTitle=content.title
     - if content.subtitle.present?
       %header.ResourceSubtitle= content.subtitle
     - if content.headnote.present?
-      %header.ResourceHeadnote= content.formatted_headnote.to_html.html_safe
+      %p.ResourceHeadnote= content.formatted_headnote
     - if content.resource.class.in? [Case, TextBlock]
       %resource-body
         - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
