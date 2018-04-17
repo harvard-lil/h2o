@@ -1,8 +1,7 @@
 %header.SectionNumber= @section.ordinal_string
 %header.CasebookTitle= @section.title
 %header.CasebookSubtitle= @section.subtitle
-%p
-  %header.CasebookHeadnote= @section.formatted_headnote.to_html.html_safe
+%p.CasebookHeadnote= @section.formatted_headnote
 - @section.contents.each do |content|
   - if content.is_a? Content::Section
     %header.SectionNumber= content.ordinal_string
@@ -10,14 +9,14 @@
     - if content.subtitle.present?
       %header.SectionSubtitle= content.subtitle
     - if content.headnote.present?
-      %header.SectionHeadnote= content.formatted_headnote.to_html.html_safe
+      %p.SectionHeadnote= content.formatted_headnote
   - elsif content.is_a? Content::Resource
     %header.ResourceNumber= content.ordinal_string
     %header.ResourceTitle= content.title
     - if content.subtitle.present?
       %header.ResourceSubtitle= content.subtitle
     - if content.headnote.present?
-      %header.ResourceHeadnote= content.formatted_headnote.to_html.html_safe
+      %p.ResourceHeadnote= content.formatted_headnote
     - if content.resource.class.in? [Case, TextBlock]
       %resource-body
         - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
