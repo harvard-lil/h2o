@@ -77,7 +77,7 @@ class MergeDraftIntoPublishedCasebook
       if annotating_new_resource?(annotation)
         published_resource = published.resources.find_by(resource_id: annotation.resource.resource_id)
       elsif annotation.exists_in_published_casebook?
-        published_annotation = resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p, 
+        published_annotation = published_resource.annotations.find_by(start_p: annotation.start_p, end_p: annotation.end_p,
           start_offset: annotation.start_offset, end_offset: annotation.end_offset)
         published_annotation.destroy!
       end
