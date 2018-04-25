@@ -189,7 +189,9 @@
                 <w:numId w:val="0"/>
               </w:numPr>
             </w:pPr>
-            <w:r></w:r>
+            <w:r>
+              <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
+            </w:r>
           </w:p>
         </xsl:when>
         <xsl:when test="self::ol|self::ul">
@@ -222,6 +224,9 @@
                     <w:numId w:val="{$global_level}"/>
                   </w:numPr>
                 </w:pPr>
+                <w:r>
+                  <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
+                </w:r>
                 <xsl:apply-templates/>
               </w:p>
             </xsl:otherwise>
