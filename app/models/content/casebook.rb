@@ -124,7 +124,7 @@ class Content::Casebook < Content::Node
   end
 
   def draft
-    descendants.where(draft_mode_of_published_casebook: true).where(copy_of_id: book.id).first
+    descendants.where(draft_mode_of_published_casebook: true).where(copy_of_id: self.id).first
   end
 
   def building_draft?(owner, draft_mode)
