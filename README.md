@@ -32,13 +32,19 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 1. `gem install bundler && bundle install`
 2. (If Bundler complains about missing library dependencies, install them and `bundle install` until it succeeds.)
 
-### Install npm packages
+### Install node and npm packages
 
-1. `npm install`
+#### With Yarn
+1. [Installation of yarn](https://yarnpkg.com/lang/en/docs/install/) is platform-specific. On a Mac: if you already have node installed, `brew install yarn --without-node`, or `brew install yarn` to simultaneously install node.
+2. `yarn install`
+
+#### With NPM (might not install precisely the same package versions)
+1. Install node if needed (e.g. `brew install node`)
+2. `npm install`
 
 ### Set up the Postgres database
 
-1. Install postgres (if missing) with e.g. `brew install postgres` for OS X.
+1. Install postgres ~9.6 (if missing). Note: `brew install postgres` now installs postgres 10+. To install 9.6.5 via Homebrew, install postgres using the specific version formula (`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/d014fa223f77bee4b4097c5e80faa0954e28182f/Formula/postgresql.rb`) and then run `brew switch postgres 9.6.5`
 2. Start solr with `rails sunspot:solr:start`
 3. Create and initialize the database with `rake db:setup` (or `rake db:reset`)
 4. Stop solr with `rails sunspot:solr:stop`
@@ -68,6 +74,10 @@ with `brew cask install java`
 ### Test design
 
 Since we're going to be heavily refactoring and likely removing a lot of code, the focus for now will be on high-level feature tests which will survive that. [cases_test.rb](test/features/cases_test.rb) is an example of the test pattern using Minitest and Capybara which exercises the full stack from a user's point of view.
+
+### Dependencies
+
+ImageMagick and a global installation of the "Garamond" font are required. On Macs, you can verify the presence of Garamond in Applications > FontBook, and can install ImageMagick via `brew install imagemagick`.
 
 ### Javascript
 
@@ -107,6 +117,13 @@ bin/rails c
 > Migrate::Playlist.find([11494, 5456, 1496]).map &:migrate
 => [#<Content::Casebook id: ...>, ...]
 ```
+
+## Importing Data
+
+If importing data from another installation of H2O into your local database, you may need to create an h2oadmin role in postgres first (e.g., `psql postgres`, followed by `CREATE ROLE h2oadmin;`. Note the terminating semi-colon).
+
+Be advised that depending on the source of the data, some local rake tasks (e.g. `db:reset`) may subsequently fail with spurious warnings about affecting production data, regardless of the current value of `RAILS_ENV`.
+
 
 ## Contributions
 
