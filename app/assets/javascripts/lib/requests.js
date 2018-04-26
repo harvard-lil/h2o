@@ -15,7 +15,12 @@ export function request (url, method, data = {}, options = {scroll: true}) {
     .then(response => {
       let html = response.data;
       let location = response.request.responseURL;
-      document.location.reload(true);
+
+      if (window.location.href != location){
+        window.location.replace(location);
+      } else {
+        window.location.reload(true); // save scroll position for annotations
+      }
 
       if (options["modal"]){
         options["modal"].destroy();
