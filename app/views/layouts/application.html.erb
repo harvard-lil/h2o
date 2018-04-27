@@ -19,8 +19,8 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 </head>
 
 <body data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>" class="<%= @page_cache ? 'cached_page' : '' %> <%= Rails.env == 'test' ? 'no-touch' : '' %>">
-    <a href="#main" class="sr-only sr-only-focusable">Skip to main content</a>
-    <a href="#footer" class="sr-only sr-only-focusable">Skip to footer</a>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <a href="#footer" class="skip-link">Skip to footer</a>
     <section id="shell">
     <%= render :partial => "shared/quickbar" %>
     <%= render :partial => "shared/nav" %>
