@@ -19,11 +19,15 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 </head>
 
 <body data-controller="<%= params[:controller] %>" data-action="<%= params[:action] %>" id="<%= "#{params[:controller].gsub(/\//, '_')}_#{params[:action]}" %>" class="<%= @page_cache ? 'cached_page' : '' %> <%= Rails.env == 'test' ? 'no-touch' : '' %>">
-	<section id="shell">
+    <a href="#main" class="sr-only sr-only-focusable">Skip to main content</a>
+    <a href="#footer" class="sr-only sr-only-focusable">Skip to footer</a>
+    <section id="shell">
     <%= render :partial => "shared/quickbar" %>
     <%= render :partial => "shared/nav" %>
     <div class="wrapper main_wrapper">
-
+      <% unless content_for? :custom_skip_target %>
+        <p id="main" tabindex="-1" class="sr-only">Main Content</p>
+      <% end %>
     <% if flash[:notice] && flash[:notice].match(/^Your account has not been verified/) %>
     <p id="notice"><%= raw flash[:notice] %></p>
     <% elsif flash[:notice] && !@page_cache %>
@@ -32,6 +36,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
     <%= yield %>
     </div>
+    <p id="footer" tabindex="-1" class="sr-only">Footer</p>
     <%= render :partial => 'shared/footer' %>
     <%= render :partial => 'shared/login' %>
   </section>
