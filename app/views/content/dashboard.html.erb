@@ -6,13 +6,15 @@
   </div>
 </header>
 <section class="dashboard">
+  <% content_for :custom_skip_target do %>i'm-arbitrary-text<% end %>
+  <p id="main" tabindex="-1" class="sr-only">Main Content</p>
   <div class="content">
     <% if @user == current_user %>
       <h2 class="casebooks">
         <%= 'Your Casebooks' %>
       </h2>
       <hr class="owned"/>
-    <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.owned_casebook_compacted, section: 'owned'} %>
+      <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.owned_casebook_compacted, section: 'owned'} %>
     <% else %>
       <h2 class="casebooks">
         <%= "#{@user.attribution}'s Casebooks" %>
