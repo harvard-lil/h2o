@@ -63,7 +63,6 @@ gem 'will_paginate', git: 'https://github.com/asurin/will_paginate.git', ref:'9e
 # export binary gems
 gem 'htmltoword', require: true
 gem 'methadone', require: false
-gem 'rmultimarkdown', require: false
 gem 'wkhtmltopdf-binary', require: false
 
 # Gems disabled for rails 5.1
