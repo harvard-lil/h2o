@@ -17,6 +17,7 @@
 //= require select2
 //= require 'polyfills'
 //= require 'lib/requests'
+//= require 'lib/ui/skip-link-focus-fix'
 //= require 'lib/ui/content'
 //= require 'lib/ui/filter-selectize'
 //= require 'lib/ckeditor'
