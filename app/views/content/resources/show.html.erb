@@ -1,4 +1,4 @@
-<% content_for :custom_skip_target do %>i'm-arbitrary-text<% end %>
+<% content_for :custom_skip_target do %>arbitrary text, necessary so that content_for :custom_skip_target evaluates to true<% end %>
 <p id="main" tabindex="-1" class="sr-only">Main Content</p>
 
 <% if @child.present? && @casebook.present? %>
