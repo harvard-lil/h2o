@@ -59,6 +59,10 @@ class Content::SectionsController < Content::NodeController
     redirect_to layout_section_path(@casebook, @section) 
   end
 
+  def revise
+    redirect_to layout_section_path(@casebook, @section) 
+  end
+
   def show
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
     render 'content/show'
