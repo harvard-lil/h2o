@@ -60,6 +60,7 @@ class Content::SectionsController < Content::NodeController
   end
 
   def revise
+    # revise without creating a draft
     redirect_to layout_section_path(@casebook, @section) 
   end
 
