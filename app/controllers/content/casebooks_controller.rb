@@ -24,7 +24,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def revise
-    # revise without creating a draft]
+    # revise without creating a draft
     redirect_to layout_casebook_path(@casebook)
   end
 

@@ -136,7 +136,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if owner?
-      create_section_draft +
+      edit_section_draft +
       clone_section +
       export_section
     else
@@ -234,7 +234,7 @@ class Content::NodeDecorator < Draper::Decorator
   #############
   ## Section
 
-  def create_section_draft
+  def edit_section_draft
     link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line create-draft')
   end
 
