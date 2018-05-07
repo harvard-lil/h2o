@@ -25,6 +25,7 @@ class DeleteModal extends Component {
         'click .close': (e) => { this.destroy() },
         'click .cancel': (e) => { this.destroy() },
         'click .confirm': (e) => {
+          debugger;
           this.deleteForm.submit();
         },
       }
