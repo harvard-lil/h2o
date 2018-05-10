@@ -3,7 +3,7 @@ import delegate from 'delegate';
 import Component from 'lib/ui/component';
 import {rest_delete} from 'lib/requests';
 
-delegate(document, 'input.action-delete', 'click', showDeleteModal);
+delegate(document, 'button.action-delete', 'click', showDeleteModal);
 
 function section_path(casebookId, sectionId) {
   return '<%= j section_path('CASEBOOK_ID', 'SECTION_ID') %>'.replace('CASEBOOK_ID', casebookId).replace('SECTION_ID', sectionId);
@@ -28,6 +28,9 @@ class DeleteModal extends Component {
         'click .confirm': (e) => {
           let casebookId = document.querySelector('header.casebook').dataset.casebookId
           let sectionOrdinals = this.deleteForm.closest('.listing-wrapper').dataset.ordinals;
+
+          console.log('confirm');
+          debugger;
 
           rest_delete(section_path(casebookId, sectionOrdinals), {});
         },

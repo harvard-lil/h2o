@@ -17,6 +17,8 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       let html = response.data;
       let location = response.request.responseURL;
 
+      console.log("then");
+
       if ((window.location.href == location) || (method == 'delete')){
         window.location.reload(true); // save scroll position for annotations
       } else {
@@ -28,7 +30,9 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       }
 
     })
-    .done();
+    .done(); // isn't necessary i don't think
+
+    console.log("about to return promise")
 
     return promise;
 }
