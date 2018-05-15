@@ -517,7 +517,6 @@ DEPENDENCIES
   bcrypt
   cancancan
   ckeditor!
-  concurrent-ruby
   coveralls
   daemons (= 1.0.10)
   delayed_job

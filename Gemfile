@@ -16,7 +16,6 @@ gem 'authlogic'
 gem 'bcrypt'
 gem 'cancancan'
 gem 'ckeditor', git: 'https://github.com/harvard-lil/ckeditor.git', branch: 'rails-5-1', ref: '8f6ff82'
-gem 'concurrent-ruby', require: 'concurrent'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
 gem 'delayed_job_active_record'
