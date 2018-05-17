@@ -19,32 +19,32 @@ en:
           summary: >
             H2O is made by the Harvard Law School Library and designed carefully to serve faculty and student needs.
     endorsements:
-      header: Endorsements and Credentials
+      header: Featured Faculty Authors
       endorsers:
         - name: Professor Jonathan Zittrain
           photo: endorsers/zittrain.png
           institution: Harvard Law School
           link:
             text: Torts 
-            url: /casebooks/12345
+            url: /casebooks/51337
         - name: Professor Jeannie Suk Gersen
           photo: endorsers/suk-gersen.png
           institution: Harvard Law School
           link:
             text: Criminal Law
-            url: /casebooks/12345
+            url: /casebooks/28024
         - name: Professor Brian Quinn
           photo: endorsers/quinn.png
           institution: Boston College Law School
           link:
-            text: Corporations
-            url: /casebooks/12345
+            text: An Introduction to the Law of Corporations
+            url: /casebooks/28884
         - name: Professor Charles Fried
           photo: endorsers/fried.png
           institution: Harvard Law School
           link:
             text: Contracts Law 
-            url: /casebooks/12345
+            url: /casebooks/25965
 
       testimonial:
         text: H2O's open source platform has transformed the way I teach corporate law.

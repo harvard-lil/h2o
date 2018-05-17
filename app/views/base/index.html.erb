@@ -74,14 +74,6 @@
     </div>
   </div>
 </section>
-<section class="schools">
-  <h2>
-    <%= t 'landing.used-by.header' %>
-  </h2>
-  <% t('landing.used-by.schools').each do |school| %>
-    <%= image_tag school[:image], title: school[:name] %>
-  <% end %>
-</section>
 <section class="stinger">
   <%= image_tag 'logo.png', title: t('header.brand') %>
   <h1>
