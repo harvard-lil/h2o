@@ -8,13 +8,20 @@ class Content::CasebooksController < Content::NodeController
   def new
     @casebook = Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
     logger.debug @casebook.errors.inspect
-    redirect_to edit_casebook_path @casebook
+    @content = @casebook
+    redirect_to layout_casebook_path(@content)
   end
 
   def show
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebooks'})
     render 'content/show'
   end
+
+  # def edit
+  #   @casebook.update_attributes public: false
+  #   @content = @casebook
+  #   redirect_to layout_casebook_path(@content)
+  # end
 
   def edit
     # editing a casebook takes you to a cloned casebook and
