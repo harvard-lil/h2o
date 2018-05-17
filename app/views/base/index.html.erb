@@ -26,9 +26,9 @@
           </section>
         <% end %>
         <section>
-          <a class="call-to-action" href="<%= root_path %>">
-            <%= t('landing.preview.call-to-action') %>
-          </a>
+          <div class="link">
+            <%= link_to t('footer.links.user-guide'), page_path('docs/guide'), :class=>"call-to-action" %>
+          </div>
         </section>
       </div>
       <div class="screenshot">
