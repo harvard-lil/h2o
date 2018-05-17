@@ -17,22 +17,15 @@ class Content::CasebooksController < Content::NodeController
     render 'content/show'
   end
 
-  # def edit
-  #   @casebook.update_attributes public: false
-  #   @content = @casebook
-  #   redirect_to layout_casebook_path(@content)
-  # end
-
   def edit
-    # editing a casebook takes you to a cloned casebook and
-    # the original casebook stays published
-    @clone = @casebook.clone(owner: current_user, draft_mode: true)
-    redirect_to layout_casebook_path(@clone)
+    @casebook.update_attributes public: false
+    @content = @casebook
+    redirect_to layout_casebook_path(@content)
   end
 
-  def revise
-    # revise without creating a draft
-    redirect_to layout_casebook_path(@casebook)
+  def create_draft
+    @clone = @casebook.clone(owner: current_user, draft_mode: true)
+    redirect_to layout_casebook_path(@clone)
   end
 
   def clone
