@@ -25,19 +25,19 @@ en:
           photo: endorser-backdrop.png
           institution: Harvard Law School
           link:
-            text: Torts (Fall 2017)
+            text: Torts 
             url: /casebooks/12345
-        - name: Professor Leo A. Boettinger
+        - name: Professor Charles Fried
           photo: endorser-backdrop.png
-          institution: Yale Law School
+          institution: Harvard Law School
           link:
-            text: Constitutional Law (Fall 2017)
+            text: Contracts Law 
             url: /casebooks/12345
-        - name: Professor Laura Kamagura-Knowles
+        - name: Professor Jeannie Suk Gersen
           photo: endorser-backdrop.png
-          institution: Henry Kissinger College of International Affairs
+          institution: Harvard Law School
           link:
-            text: "Decades of Decline: The New World Order and Obama's America"
+            text: Criminal Law 
             url: /casebooks/12345
       testimonial:
         text: Quote that establishes and strengthens the product claims.
