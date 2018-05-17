@@ -114,7 +114,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_published
     if owner?
-      revise_casebook +
+      edit_casebook_draft +
       clone_casebook +
       export_casebook
     else
@@ -136,7 +136,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if owner?
-      revise_section +
+      edit_section_draft +
       clone_section +
       export_section
     else
@@ -172,7 +172,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_preview_of_published_casebook
     publish_changes_to_casebook +
-    revise_casebook +
+    edit_casebook_draft +
     export_casebook
   end
 
@@ -234,8 +234,12 @@ class Content::NodeDecorator < Draper::Decorator
   #############
   ## Section
 
-  def revise_section
+  def edit_section_draft
     link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line create-draft')
+  end
+
+  def revise_section
+    link_to(I18n.t('content.actions.revise'), revise_section_path(casebook, section), class: 'action edit one-line')
   end
 
   def clone_section
@@ -273,8 +277,12 @@ class Content::NodeDecorator < Draper::Decorator
     button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line')
   end
 
-  def revise_casebook
+  def edit_casebook_draft
     link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line create-draft')
+  end
+
+  def revise_casebook
+    link_to(I18n.t('content.actions.revise'), revise_casebook_path(casebook), class: 'action edit one-line')
   end
 
   def revise_draft

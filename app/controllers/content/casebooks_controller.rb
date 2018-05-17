@@ -23,6 +23,11 @@ class Content::CasebooksController < Content::NodeController
     redirect_to layout_casebook_path(@clone)
   end
 
+  def revise
+    # revise without creating a draft
+    redirect_to layout_casebook_path(@casebook)
+  end
+
   def clone
     @clone = @casebook.clone(owner: current_user)
     redirect_to layout_casebook_path(@clone)

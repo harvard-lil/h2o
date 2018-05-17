@@ -28,17 +28,25 @@ guard :rails, port: 8000, host: '0.0.0.0', server: :puma do
   ignore %r{^lib/locales/(.*)\.yml}
 end
 
-# Rerun tests whenever test or app code changes.
-guard :minitest, spring: 'bin/rails test', env: {CAPYBARA_SKIP_JS: 'true'} do
-  watch(%r{^test/(.*)\/?test_(.*)\.rb$})
-  watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
-
-  watch(%r{^app/(.+)\.rb$}) { 'test' }# run all tests on app code change (for now)
-  # watch(%r{^app/controllers/application_controller\.rb$}) { 'test/controllers' }
-  # watch(%r{^app/controllers/(.+)_controller\.rb$})        { |m| "test/integration/#{m[1]}_test.rb" }
-  # watch(%r{^app/views/(.+)_mailer/.+})                    { |m| "test/mailers/#{m[1]}_mailer_test.rb" }
-  # watch(%r{^lib/(.+)\.rb$})                               { |m| "test/lib/#{m[1]}_test.rb" }
-  watch(%r{^test/.+_test\.rb$})
-  watch(%r{^test/fixtures/.+\.yml$})
-  watch(%r{^test/test_helper\.rb$}) { 'test' }
+guard 'rake', task: 'assets:precompile' do 
+  watch(%r[^(app/assets/javascripts/(.*)\.js.erb)])
+  watch(%r[^(app/assets/javascripts/(.*)\.js)])
+  watch(%r[^(app/assets/stylesheets/(.*)\.scss)])
+  watch(%r[^(app/assets/stylesheets/(.*)\.css)])
+  watch(%r[^(app/assets/stylesheets/(.*)\.css.scss.erb)])
 end
+
+# Rerun tests whenever test or app code changes.
+# guard :minitest, spring: 'bin/rails test', env: {CAPYBARA_SKIP_JS: 'true'} do
+#   watch(%r{^test/(.*)\/?test_(.*)\.rb$})
+#   watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
+
+#   watch(%r{^app/(.+)\.rb$}) { 'test' }# run all tests on app code change (for now)
+#   # watch(%r{^app/controllers/application_controller\.rb$}) { 'test/controllers' }
+#   # watch(%r{^app/controllers/(.+)_controller\.rb$})        { |m| "test/integration/#{m[1]}_test.rb" }
+#   # watch(%r{^app/views/(.+)_mailer/.+})                    { |m| "test/mailers/#{m[1]}_mailer_test.rb" }
+#   # watch(%r{^lib/(.+)\.rb$})                               { |m| "test/lib/#{m[1]}_test.rb" }
+#   watch(%r{^test/.+_test\.rb$})
+#   watch(%r{^test/fixtures/.+\.yml$})
+#   watch(%r{^test/test_helper\.rb$}) { 'test' }
+# end
