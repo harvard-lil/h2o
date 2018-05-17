@@ -310,11 +310,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def save_casebook
-    link_to(I18n.t('content.actions.save'), edit_casebook_path(casebook), class: 'action one-line save submit-casebook-details')
+    link_to(I18n.t('content.actions.save'), 'submit-casebook-details', class: 'action one-line save submit-casebook-details')
   end
 
-  def cancel_casebook
-    link_to(I18n.t('content.actions.cancel'), edit_casebook_path(casebook), class: 'action one-line cancel')
+  def cancel_casebook 
+    link_to(I18n.t('content.actions.cancel'), 'cancel-casebook-details', class: 'action one-line cancel cancel-casebook-details')
   end
 
   ######
