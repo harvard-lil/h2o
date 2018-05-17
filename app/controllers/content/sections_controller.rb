@@ -88,7 +88,6 @@ class Content::SectionsController < Content::NodeController
     @section.reflow_casebook
 
     render status: 200, plain: "section-deleted"
-    # redirect_to layout_casebook_path @casebook
   end
 
   def clone
