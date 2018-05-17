@@ -82,7 +82,7 @@ class Content::Annotation < ApplicationRecord
 
   def copy_of
     resource.copy_of.annotations.where(start_p: self.start_p, end_p: self.end_p, 
-          start_offset: self.start_offset, end_offset: self.end_offset).first
+          start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind).first
   end
 
   def exists_in_published_casebook?
