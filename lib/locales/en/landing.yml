@@ -22,26 +22,33 @@ en:
       header: Endorsements and Credentials
       endorsers:
         - name: Professor Jonathan Zittrain
-          photo: endorser-backdrop.png
+          photo: endorsers/zittrain.png
           institution: Harvard Law School
           link:
             text: Torts 
             url: /casebooks/12345
+        - name: Professor Jeannie Suk Gersen
+          photo: endorsers/suk-gersen.png
+          institution: Harvard Law School
+          link:
+            text: Criminal Law
+            url: /casebooks/12345
+        - name: Professor Brian Quinn
+          photo: endorsers/quinn.png
+          institution: Boston College Law School
+          link:
+            text: Corporations
+            url: /casebooks/12345
         - name: Professor Charles Fried
-          photo: endorser-backdrop.png
+          photo: endorsers/fried.png
           institution: Harvard Law School
           link:
             text: Contracts Law 
             url: /casebooks/12345
-        - name: Professor Jeannie Suk Gersen
-          photo: endorser-backdrop.png
-          institution: Harvard Law School
-          link:
-            text: Criminal Law 
-            url: /casebooks/12345
+
       testimonial:
-        text: Quote that establishes and strengthens the product claims.
-        source: Professor of Note
+        text: H2O's open source platform has transformed the way I teach corporate law.
+        source: Professor Brian Quinn, Boston College Law School
     used-by:
       header: Used by Faculty in Law Schools Everywhere
       schools:
