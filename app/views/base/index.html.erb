@@ -8,9 +8,7 @@
     <h2>
       <%= t 'landing.hero.description' %>
     </h2>
-    <a class="call-to-action" href="<%= root_path %>">
-      <%= t 'landing.hero.call-to-action' %>
-    </a>
+    <%= link_to t('landing.hero.call-to-action'), t('landing.hero.url'), :class=>"call-to-action" %>
   </div>
 </section>
 <section class="preview">
