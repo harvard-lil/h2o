@@ -30,8 +30,6 @@ export function request (url, method, data = {}, options = {scroll: true}) {
     })
     .done(); 
 
-    console.log("about to return promise")
-
     return promise;
 }
 
