@@ -8,7 +8,8 @@ class Content::CasebooksController < Content::NodeController
   def new
     @casebook = Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner')])
     logger.debug @casebook.errors.inspect
-    redirect_to edit_casebook_path @casebook
+    @content = @casebook
+    redirect_to layout_casebook_path(@content)
   end
 
   def show
@@ -17,15 +18,14 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def edit
-    # editing a casebook takes you to a cloned casebook and
-    # the original casebook stays published
-    @clone = @casebook.clone(owner: current_user, draft_mode: true)
-    redirect_to layout_casebook_path(@clone)
+    @casebook.update_attributes public: false
+    @content = @casebook
+    redirect_to layout_casebook_path(@content)
   end
 
-  def revise
-    # revise without creating a draft
-    redirect_to layout_casebook_path(@casebook)
+  def create_draft
+    @clone = @casebook.clone(owner: current_user, draft_mode: true)
+    redirect_to layout_casebook_path(@clone)
   end
 
   def clone

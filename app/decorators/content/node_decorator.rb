@@ -103,7 +103,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_published_with_draft
     if owner?
-      revise_draft +
+      edit_draft +
       clone_casebook +
       export_casebook
     else
@@ -114,7 +114,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_published
     if owner?
-      edit_casebook_draft +
+      create_draft +
       clone_casebook +
       export_casebook
     else
@@ -172,13 +172,13 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_preview_of_published_casebook
     publish_changes_to_casebook +
-    edit_casebook_draft +
+    create_draft +
     export_casebook
   end
 
   def casebook_preview
     publish_casebook +
-    revise_casebook +
+    edit_casebook +
     clone_casebook +
     export_casebook
   end
@@ -277,16 +277,16 @@ class Content::NodeDecorator < Draper::Decorator
     button_to(I18n.t('content.actions.publish'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line')
   end
 
-  def edit_casebook_draft
-    link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line create-draft')
+  def create_draft
+    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, class: 'action edit one-line create-draft')
   end
 
-  def revise_casebook
-    link_to(I18n.t('content.actions.revise'), revise_casebook_path(casebook), class: 'action edit one-line')
+  def edit_casebook
+    link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line')
   end
 
-  def revise_draft
-    link_to(I18n.t('content.actions.revise-draft'), layout_casebook_path(draft), class: 'action edit one-line')
+  def edit_draft
+    link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
   end
 
   def clone_casebook
@@ -310,11 +310,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def save_casebook
-    link_to(I18n.t('content.actions.save'), edit_casebook_path(casebook), class: 'action one-line save submit-casebook-details')
+    link_to(I18n.t('content.actions.save'), 'submit-casebook-details', class: 'action one-line save submit-casebook-details')
   end
 
-  def cancel_casebook
-    link_to(I18n.t('content.actions.cancel'), edit_casebook_path(casebook), class: 'action one-line cancel')
+  def cancel_casebook 
+    link_to(I18n.t('content.actions.cancel'), 'cancel-casebook-details', class: 'action one-line cancel cancel-casebook-details')
   end
 
   ######
