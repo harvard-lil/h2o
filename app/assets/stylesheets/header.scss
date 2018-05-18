@@ -2,14 +2,14 @@
 @import "bootstrap/navbar";
 
 body {
-  > header {
+  #main-header {
     @include make-row(2);
     background-color: white;
   }
-  &.view-base-index > header > nav {
+  &.view-base-index #main-header > nav {
     margin-top: 35px;
   }
-  > header > nav {
+  #main-header > nav {
     @extend .container;
     margin-top: 18px;
     *:focus {
@@ -48,7 +48,7 @@ body {
         padding: 9px 10px;
         font-size: 16px;
       }
-      > a, div {
+      > a, button {
         @include btn();
         @include btn-white();
         &.create-casebook {
