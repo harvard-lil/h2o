@@ -12,6 +12,9 @@ body {
   > header > nav {
     @extend .container;
     margin-top: 18px;
+    *:focus {
+      @include generic-focus-styles;
+    }
     > .content {
       @extend .navbar;
       display: flex;
@@ -22,14 +25,18 @@ body {
       @extend .navbar-header;
       .logo {
         @extend .navbar-brand;
-        @include monospace(bold, 40px, 40px);
 
         width: 85px;
         margin-right: 10px;
 
+        // The text is hidden and is replaced visually by an image
         background-image: asset-url('logo.png');
         background-size: initial;
         color: transparent;
+
+        &:hover {
+          @include generic-focus-styles;
+        }
       }
     }
     .links {
@@ -82,7 +89,7 @@ body {
           margin-right: 10px;
           font-size: 100%;
         }
-        &:hover .user-links {
+        &:hover .user-links, &:focus .user-links {
           max-height: 180px;
           right: -20px;
           padding: 10px 20px 30px;
