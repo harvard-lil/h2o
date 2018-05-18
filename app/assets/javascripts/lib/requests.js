@@ -5,8 +5,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       headers: {
         'X-HTTP-Method-Override': method,
         'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-      }, 
-      timeout: 5000,
+      }
     });
 
     promise.catch(e => {
