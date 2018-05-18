@@ -51,3 +51,10 @@
 @mixin hide {
   display: none;
 }
+
+@mixin generic-focus-styles {
+  outline-style: solid;
+  outline-color: rgba(0,0,0,0.1);
+  outline-offset: 2px !important;
+  outline-width: 5px !important;
+}
