@@ -75,7 +75,7 @@ section.endorsements {
   text-align: center;
 
   border: 4px solid $light-gray;
-  border-width: 4px 0 4px;
+  border-width: 4px 0;
 
   h1 {
     @include sans-serif($light, 32px, 32px);
@@ -146,5 +146,6 @@ section.stinger {
   margin-top: 75px;
   h1 {
     @include sans-serif($light, 32px, 32px);
+    margin-bottom: 25px;
   }
 }
