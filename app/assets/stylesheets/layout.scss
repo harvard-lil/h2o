@@ -18,6 +18,11 @@ body {
   background-size: contain;
 }
 
+#non-modal[aria-hidden="true"] {
+  overflow: hidden;
+  max-height: 100vh;
+}
+
 main {
   margin-top: 20px;
 }

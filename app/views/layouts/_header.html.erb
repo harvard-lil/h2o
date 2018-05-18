@@ -7,7 +7,7 @@
     </div>
     <div class="links">
       <% if current_user.present? %>
-        <div class="create-casebook" data-action="show-casebook-modal"><%= t('header.links.create-casebook') %></div>
+        <button type="button" class="create-casebook" data-action="show-casebook-modal"><%= t('header.links.create-casebook') %></button>
         <%= link_to t('header.links.search'), :search %>
       <% else %>
         <%= link_to t('header.links.search'), :search %>

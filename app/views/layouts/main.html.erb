@@ -13,13 +13,14 @@
     <%= stylesheet_link_tag 'main', media: 'all' %>
   </head>
   <body class="view-<%= controller_name.parameterize %>-<%= action_name.parameterize %>">
+  <div id="non-modal">
     <a href="#main" class="skip-link">Skip to main content</a>
     <a href="#footer" class="skip-link">Skip to footer</a>
     <div class="overlay"></div>
     <% if content_for? :banner %>
       <%= yield(:banner) %>
     <% end %>
-    <header>
+    <header id="main-header">
       <%= render 'layouts/header' %>
     </header>
     <main>
@@ -41,12 +42,14 @@
         <%= yield %>
       <% end %>
     </main>
-    <footer>
+    <footer id="main-footer">
       <p id="footer" tabindex="-1" class="sr-only">Footer</p>
       <%= render 'layouts/footer' %>
     </footer>
     <%= javascript_include_tag "application" %>
     <%= render 'layouts/analytics' %>
+  </div>
+  <div class="modal-overlay"></div>
   </body>
 </html>
 <!-- Hey I'm an easter egg -->

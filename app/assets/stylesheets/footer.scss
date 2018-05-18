@@ -2,7 +2,7 @@ body > main > section:last-child {
   padding-bottom: 105px;
 }
 body {
-  > footer {
+  #main-footer {
     @include make-row();
     padding: 40px 0 50px;
 
