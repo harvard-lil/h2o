@@ -324,7 +324,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         top: 0;
         right: 0;
 
-        > form > input[type=submit] {
+        > form > input[type=submit], button {
           @include square(50px);
           display: block;
           margin: 4px 0;
@@ -337,6 +337,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             background-image: asset-url('ui/edit/elide.png');
             height: 51px;
             width: 35px;
+            border-width: 0px;
           }
           &.action-add-resource {
             @include sans-serif($bold, 14px, 14px);

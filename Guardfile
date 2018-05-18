@@ -28,14 +28,6 @@ guard :rails, port: 8000, host: '0.0.0.0', server: :puma do
   ignore %r{^lib/locales/(.*)\.yml}
 end
 
-guard 'rake', task: 'assets:precompile' do 
-  watch(%r[^(app/assets/javascripts/(.*)\.js.erb)])
-  watch(%r[^(app/assets/javascripts/(.*)\.js)])
-  watch(%r[^(app/assets/stylesheets/(.*)\.scss)])
-  watch(%r[^(app/assets/stylesheets/(.*)\.css)])
-  watch(%r[^(app/assets/stylesheets/(.*)\.css.scss.erb)])
-end
-
 # Rerun tests whenever test or app code changes.
 # guard :minitest, spring: 'bin/rails test', env: {CAPYBARA_SKIP_JS: 'true'} do
 #   watch(%r{^test/(.*)\/?test_(.*)\.rb$})

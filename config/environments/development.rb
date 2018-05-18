@@ -8,7 +8,7 @@ H2o::Application.configure do
   config.cache_store = :memory_store, { size: 64.megabytes }
 
   config.action_mailer.perform_caching = false
-  config.assets.quiet = true
+  
   # config.action_view.raise_on_missing_translations = true
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
@@ -23,8 +23,10 @@ H2o::Application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
-  config.assets.digest = true
-  config.assets.compile = true
+  config.assets.digest = false 
+  # config.assets.compile = false
+  config.assets.quiet = true
+  config.assets.debug = true
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -40,11 +42,6 @@ H2o::Application.configure do
 
   # Raise an error on page load if there are pending migrations
   config.active_record.migration_error = :page_load
-
-  # Debug mode disables concatenation and preprocessing of assets.
-  # This option may cause significant delays in view rendering with a large
-  # number of complex assets.
-  # config.assets.debug = false
 
   #TODO: It's a little strange to have the port number embedded in the host
   #like that, but we don't have time to remove it and re-test everywhere.

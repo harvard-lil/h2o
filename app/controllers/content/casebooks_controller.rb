@@ -14,7 +14,7 @@ class Content::CasebooksController < Content::NodeController
 
   def show
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebooks'})
-    render 'content/show'
+    render 'content/show' # preview page
   end
 
   def edit

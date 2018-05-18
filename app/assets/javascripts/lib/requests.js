@@ -5,7 +5,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       headers: {
         'X-HTTP-Method-Override': method,
         'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-      },
+      }
     });
 
     promise.catch(e => {
@@ -16,10 +16,10 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       let html = response.data;
       let location = response.request.responseURL;
 
-      if (window.location.href != location){
-        window.location.replace(location);
-      } else {
+      if ((window.location.href == location) || (method == 'delete')){
         window.location.reload(true); // save scroll position for annotations
+      } else {
+        window.location.replace(location);
       }
 
       if (options["modal"]){
@@ -27,7 +27,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       }
 
     })
-    .done();
+    .done(); 
 
     return promise;
 }

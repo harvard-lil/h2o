@@ -24,7 +24,7 @@
             .not-applicable= t "content.resource.type.not-applicable"
     - if editable
       .actions
-        = button_to t('content.edit.delete-section'), section_path(content.casebook, content), method: :delete, class: 'action-delete', 'data-n-children': content.try(:contents).try(:count)
+        %button.action-delete
 
 - elsif content.is_a? Content::Section
   - if @edit_section == content
@@ -36,7 +36,7 @@
         .section-title= content.title
       - if editable
         .actions
-          = button_to t('content.edit.delete-section'), section_path(content.casebook, content), method: :delete, class: 'action-delete'
+          %button.action-delete
 
 - elsif content.is_a? Enumerable
   .section-wrapper

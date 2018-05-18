@@ -84,8 +84,10 @@ class Content::SectionsController < Content::NodeController
     if !@section.destroy
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end
-    redirect_to layout_casebook_path @casebook
+ 
     @section.reflow_casebook
+
+    render status: 200, plain: "section-deleted"
   end
 
   def clone
