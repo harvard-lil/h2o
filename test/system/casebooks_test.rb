@@ -31,7 +31,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       visit root_path
 
       find('.create-casebook').trigger 'click'
-      click_link 'From Scratch'
+      click_link 'Make a New Casebook'
 
       fill_in 'content_casebook_title', with: 'Test casebook title'
       fill_in 'content_casebook_subtitle', with: 'Test casebook subtitle'
