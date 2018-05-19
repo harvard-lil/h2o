@@ -166,5 +166,19 @@ class UserSystemTest < ApplicationSystemTestCase
         click_button 'Save changes'
       end
     end
+
+    describe 'accessing dashboard' do
+      before do
+        user = users(:verified_professor)
+        @password = sign_in(user)
+        visit user_path user
+        find('a.user-link', text: 'Dashboard').click
+      end
+
+      scenario 'visit dashboard'  do
+        assert_content 'Casebooks'
+      end
+
+    end
   end
 end
