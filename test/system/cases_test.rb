@@ -8,7 +8,7 @@ class CaseSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'searching for a case', solr: true do
-      visit browse_path
+      visit search_path
       search_label = [*'XA'..'XZ'].sample
       fill_in 'q', with: "Case #{search_label}"
       page.submit find('form.search')
