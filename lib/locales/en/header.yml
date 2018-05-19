@@ -10,5 +10,6 @@ en:
     user:
       unverified: Email needs verification
       verified: Verified User
+      dashboard: Dashboard
       edit-profile: Edit profile
       sign-out: Sign out

@@ -34,6 +34,9 @@
             </div>
           </a>
           <div class="user-links">
+            <a class="user-link" href="<%= root_path %>">
+              <%= t 'header.user.dashboard' %>
+            </a>
             <a class="user-link" href="<%= edit_user_path(current_user) %>">
               <%= t 'header.user.edit-profile' %>
             </a>
