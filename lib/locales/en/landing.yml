@@ -27,7 +27,7 @@ en:
           institution: Harvard Law School
           link:
             text: Torts 
-            url: /casebooks/51337
+            url: /casebooks/30206
         - name: Professor Jeannie Suk Gersen
           photo: endorsers/suk-gersen.png
           institution: Harvard Law School
@@ -41,7 +41,7 @@ en:
             text: An Introduction to the Law of Corporations
             url: /casebooks/28884
         - name: Professor Charles Fried
-          photo: endorsers/fried.png
+          photo: endorsers/fried2.png
           institution: Harvard Law School
           link:
             text: Contracts Law 
@@ -57,7 +57,7 @@ en:
           institution: Harvard Law School
           link:
             text: International Humanitarian Law / Laws of War
-            url: /casebooks/45698
+            url: /casebooks/45720
       testimonial:
         text: H2O's open source platform has transformed the way I teach corporate law.
         source: Professor Brian Quinn, Boston College Law School
