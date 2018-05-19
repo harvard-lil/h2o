@@ -27,7 +27,6 @@
   <header class="<%= @casebook_class %> casebook"  data-editable="<%= @editable || '' %>" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:id) %>" data-resource-id="<%= @resource.try(:id) %>">
     <div class="content">
       <div class="casebook-inner">
-        <%= render 'content/search' %>
         <% if @casebook.present? %>
           <div class="tabs">
             <%= render 'content/tabs' %>

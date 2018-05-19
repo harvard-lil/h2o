@@ -8,9 +8,9 @@
     <div class="links">
       <% if current_user.present? %>
         <div class="create-casebook" data-action="show-casebook-modal"><%= t('header.links.create-casebook') %></div>
-        <%= link_to t('header.links.browse'), :browse %>
+        <%= link_to t('header.links.search'), :browse %>
       <% else %>
-        <%= link_to t('header.links.browse'), :browse %>
+        <%= link_to t('header.links.search'), :browse %>
       <% end %>
     </div>
     <div class="user">

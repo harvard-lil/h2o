@@ -1,9 +1,4 @@
 <header class="dashboard">
-  <div class="content">
-    <div class="content-inner">
-      <%= render 'content/search' %>
-    </div>
-  </div>
 </header>
 <section class="dashboard">
   <% content_for :custom_skip_target do %>arbitrary text, necessary so that content_for :custom_skip_target evaluates to true<% end %>
@@ -11,7 +6,7 @@
   <div class="content">
     <% if @user == current_user %>
       <h2 class="casebooks">
-        <%= 'Your Casebooks' %>
+        <%= 'My Casebooks' %>
       </h2>
       <hr class="owned"/>
       <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.owned_casebook_compacted, section: 'owned'} %>
