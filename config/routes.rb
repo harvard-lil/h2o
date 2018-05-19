@@ -99,7 +99,7 @@ H2o::Application.routes.draw do
   end
 
   resource :search, only: [:show, :index]
-  get '/browse', to: 'searches#index'
+  get '/search', to: 'searches#index'
 
   resources :cases do
     member do
