@@ -10,7 +10,8 @@ main > section.search-results {
 }
 
 header.advanced-search {
-  padding-bottom: 10px;
+  padding-top: $padding-base-vertical * 2 ;
+  padding-bottom: $padding-base-vertical * 2;
   form {
     select {
       width: 100px;
