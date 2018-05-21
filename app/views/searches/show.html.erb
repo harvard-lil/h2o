@@ -2,11 +2,11 @@
   <%= simple_form_for :search, url: :search, method: :get do |f| %>
     <%= f.input :type, as: :hidden, input_html: { name: 'type', value: @type }  %>
     <div class="narrow-inner">
-      <%= text_field_tag :q, @query, class: 'form-control',  placeholder: t('search.labels.query.placeholder') %>
+      <%= search_field_tag :q, @query, class: 'form-control', placeholder: t('search.labels.query.placeholder'), "aria-label": t('search.labels.query.placeholder') %>
     </div>
     <div class="search-options">
       <% if @type == 'casebooks' %>
-        <%= f.input :sort, collection: {'Sort by title': 'display_name', 'Sort by date': 'created_at', 'Sort by relevance': 'score'}, selected: params[:sort] || 'display_name', input_html: { name: 'sort' }, label: false %>
+        <%= f.input :sort, collection: {'Sort by Title': 'display_name', 'Sort by Date': 'created_at', 'Sort by Relevance': 'score'}, selected: params[:sort] || 'display_name', input_html: { name: 'sort' }, label: false %>
 
         <%= f.input :author, collection: @attributions, selected: (params[:author].present? ? params[:author] : 'All Authors'), include_blank: 'All Authors', input_html: { name: 'author' }, label: false %>
         <%= f.input :school, collection: @affiliations, selected:(params[:school].present? ? params[:school] : 'All Authors'), include_blank: 'All Schools', input_html: { name: 'school' }, label: false %>
