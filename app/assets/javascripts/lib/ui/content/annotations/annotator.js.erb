@@ -101,7 +101,7 @@ export class Annotator extends Component {
     case 'link':
       return html`
         <form class="create-form" data-annotation-type="link">
-          <input name="content" placeholder="Url to link to..."  />
+          <input name="content" type="url" placeholder="Url to link to..."  />
         </form>
       `;
     case 'note':
