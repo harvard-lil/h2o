@@ -22,7 +22,7 @@ export class Annotator extends Component {
     });
 
     this.updateScroll = throttle(this.render, 100, {leading: true, trailing: true});
-
+    
     document.querySelector('.resource-wrapper').appendChild(this.el);
     this.mode = 'inactive';
     this.render();
@@ -46,6 +46,9 @@ export class Annotator extends Component {
       break;
     case 'new-form':
       inner = this.newTemplate();
+      break;
+    case 'edit-link':
+      inner = this.editLinkTemplate();
       break;
     case 'save-changes':
       inner = this.saveTemplate();
@@ -79,7 +82,7 @@ export class Annotator extends Component {
     case 'link':
       return html`
         <a class="annotator-action" data-annotate-action="destroy">Remove link</a>
-        <a class="annotator-action" data-annotate-action="convert" data-annotation-type="link">Edit link</a>
+        <a class="annotator-action edit-link" data-annotate-action="edit-link" data-annotation-type="link">Edit link</a>
       `;
     case 'note':
       return html`
@@ -94,6 +97,14 @@ export class Annotator extends Component {
       <a class="annotator-action" data-annotate-action="save-changes">Save</a>
       <a class="annotator-action" data-annotate-action="cancel-changes" data-annotation-type="elide">Cancel</a>
     `;
+  }
+
+  editLinkTemplate() {
+    return html`
+      <form class="create-form" data-annotation-type="link">
+        <input name="content" type="url" placeholder="Url to link to..." value=${(this.getLinkValue())} />
+      </form>
+  `;
   }
 
   newTemplate () {
@@ -163,6 +174,12 @@ export class Annotator extends Component {
     this.render();
   }
 
+  editLink () {
+    this.mode = 'edit-link';
+
+    this.render();
+  }
+
   deactivate () {
     this.mode = 'inactive';
     this.handle = null;
@@ -185,6 +202,9 @@ export class Annotator extends Component {
       break;
     case 'new':
       this.new(e.target.dataset.annotationType);
+      return;
+    case 'edit-link':
+      this.editLink();
       return;
     case 'reveal':
       this.revealElidedText(this.handle.dataset.annotationId);
@@ -248,12 +268,6 @@ export class Annotator extends Component {
     this.render();
   }
 
-  changeAnnotation (annotationId, attrs) {
-    this.stagedChanges = attrs;
-    this.mode = 'save-changes';
-    this.render();
-  }
-
   updateAnnotation (annotationId, attrs) {
     Axios.patch(this.annotationPath(annotationId + '.json'), {
       annotation: attrs
@@ -276,6 +290,10 @@ export class Annotator extends Component {
 
   resourceId () {
     return document.querySelector('header.casebook').dataset.resourceId;
+  }
+
+  getLinkValue () {
+    return this.handle.nextElementSibling.href;
   }
 }
 
