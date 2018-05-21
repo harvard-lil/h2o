@@ -56,7 +56,6 @@ body {
       @extend .pull-left;
     }
     .user {
-      // @extend .pull-right;
       margin-left: auto;
       .current-user {
         .verified {
@@ -78,34 +77,22 @@ body {
         }
         .dropdown {
           display: inline-block;
-          button {
-            background-color: $white;
-            &:hover {
-              @include generic-focus-styles;
-            }
-            &:hover, &:focus {
-              background-color: $white;
-            }
-          }
           &.open {
             .caret{
-                border-top: none;
-                border-bottom: 4px solid #000000;
+              border-top: none;
+              border-bottom: 4px solid #000000;
             }
           }
         }
         .user-links {
           border: none;
-          box-shadow: none;
           margin-top: 8px;
           padding-top: 0;
-          padding-bottom: 1px;
-          min-width: 0;
+          padding-bottom: 0;
+          width: 100%;
         }
         .user-link {
           @include sans-serif($bold, 14px, 14px);
-          background-color: $light-gray;
-          border: 1px solid white;
           padding: 12px 20px;
           text-align: right;
           width: 100%;
