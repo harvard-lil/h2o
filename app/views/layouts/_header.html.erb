@@ -25,22 +25,22 @@
               <%= t 'header.user.unverified' %>
             </div>
           <% end %>
-          <a class="wrapper" href="<%= user_path(current_user) %>">
-            <div class="name">
-              <%= current_user.display_name %>
-            </div>
-            <div class="portrait">
-              <%= image_tag current_user.image.url :thumb %>
-            </div>
-          </a>
-          <div class="user-links">
-            <a class="user-link" href="<%= root_path %>">
-              <%= t 'header.user.dashboard' %>
-            </a>
-            <a class="user-link" href="<%= edit_user_path(current_user) %>">
-              <%= t 'header.user.edit-profile' %>
-            </a>
-            <%= button_to t('header.user.sign-out'), user_session_path(current_user_session), method: 'delete', class: 'user-link' %>
+          <div class="dropdown">
+            <button type="button" id="dLabel" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+              <span class="name">
+                <%= current_user.display_name %>
+              </span>
+              <span class="caret"></span>
+            </button>
+            <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+              <li><a class="user-link" href="<%= user_path(current_user) %>">
+                <%= t 'header.user.dashboard' %>
+              </a></li>
+              <li><a class="user-link" href="<%= edit_user_path(current_user) %>">
+                <%= t 'header.user.edit-profile' %>
+              </a></li>
+              <li><%= button_to t('header.user.sign-out'), user_session_path(current_user_session), method: 'delete', class: 'user-link' %></li>
+            </ul>
           </div>
         </div>
       <% else %>

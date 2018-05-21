@@ -39,37 +39,26 @@ body {
         }
       }
     }
+    a, button {
+      @include btn();
+      @include btn-white();
+      padding: 9px 10px;
+      margin-right: 5px;
+      font-size: 16px;
+      &.create-casebook {
+        @extend .btn-default;
+      }
+    }
     .links {
       display: flex;
       align-items: center;
       justify-content: center;
       @extend .pull-left;
-      a, button {
-        @include btn();
-        @include btn-white();
-        padding: 9px 10px;
-        margin-right: 5px;
-        font-size: 16px;
-        &.create-casebook {
-          @extend .btn-default;
-        }
-      }
     }
     .user {
       // @extend .pull-right;
       margin-left: auto;
       .current-user {
-        @include sans-serif($bold, 13px, 16px);
-        color: black;
-        position: relative;
-        .name {
-          font-size: 16px;
-          display: inline-block;
-          padding: 10px 4px 0 0px;
-        }
-        .portrait {
-          display: inline-block;
-        }
         .verified {
           display: inline-block;
           width: 12px;
@@ -87,39 +76,39 @@ body {
           margin-right: 10px;
           font-size: 100%;
         }
-        &:hover .user-links, &:focus .user-links {
-          max-height: 180px;
-          right: -20px;
-          padding: 10px 20px 30px;
+        .dropdown {
+          display: inline-block;
+          button {
+            background-color: $white;
+            &:hover {
+              @include generic-focus-styles;
+            }
+            &:hover, &:focus {
+              background-color: $white;
+            }
+          }
+          &.open {
+            .caret{
+                border-top: none;
+                border-bottom: 4px solid #000000;
+            }
+          }
         }
         .user-links {
-          @include transition(max-height 0.05s linear);
-          position: absolute;
-          top: 0;
-          right: 0px;
-          margin-top: 30px;
-          padding-top: 10px;
-          max-height: 0px;
-          background-color: fade(white, 10%);
-          overflow: hidden;
-          z-index: 1;
-
-          .user-link {
-            @include sans-serif($bold, 14px, 14px);
-
-            display: block;
-            width: 100%;
-            margin: 2px 0;
-            padding: 10px 20px;
-
-            text-align: right;
-            color: black;
-            background-color: $light-gray;
-          }
-          a.user-link {
-            padding-top: 12px;
-            padding-bottom: 6px;
-          }
+          border: none;
+          box-shadow: none;
+          margin-top: 8px;
+          padding-top: 0;
+          padding-bottom: 1px;
+          min-width: 0;
+        }
+        .user-link {
+          @include sans-serif($bold, 14px, 14px);
+          background-color: $light-gray;
+          border: 1px solid white;
+          padding: 12px 20px;
+          text-align: right;
+          width: 100%;
         }
       }
       .sign-up {
