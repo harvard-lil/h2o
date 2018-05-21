@@ -44,17 +44,15 @@ body {
       align-items: center;
       justify-content: center;
       @extend .pull-left;
-      > .create-casebook {
-        padding: 9px 10px;
-        font-size: 16px;
-      }
-      > a, button {
+      a, button {
         @include btn();
         @include btn-white();
+        padding: 9px 10px;
+        margin-right: 5px;
+        font-size: 16px;
         &.create-casebook {
           @extend .btn-default;
         }
-        // line-height: 40px;
       }
     }
     .user {
