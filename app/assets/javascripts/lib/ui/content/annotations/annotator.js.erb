@@ -101,7 +101,7 @@ export class Annotator extends Component {
 
   editLinkTemplate() {
     return html`
-      <form class="create-form" data-annotation-type="link">
+      <form class="save-changes" data-annotation-type="link">
         <input name="content" type="url" placeholder="Url to link to..." value=${(this.getLinkValue())} />
       </form>
   `;
@@ -266,7 +266,7 @@ export class Annotator extends Component {
     this.stagedChanges = attrs;
     this.mode = 'save-changes';
     this.render();
-  }
+  } 
 
   updateAnnotation (annotationId, attrs) {
     Axios.patch(this.annotationPath(annotationId + '.json'), {
