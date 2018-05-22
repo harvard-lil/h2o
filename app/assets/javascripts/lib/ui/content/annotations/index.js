@@ -10,6 +10,7 @@ import 'lib/ui/content/annotations/elide';
 import 'lib/ui/content/annotations/replace';
 import 'lib/ui/content/annotations/note';
 import 'lib/ui/content/annotations/footnotes';
+import 'lib/ui/content/annotations/placement';
 
 let annotator = null;
 
