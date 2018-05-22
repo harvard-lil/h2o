@@ -5,11 +5,19 @@ import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 import delegate from 'delegate';
 import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
+import stageChangeToAnnotation from 'lib/ui/content/annotations';
 
+let editLinkAttrs;
 let Axios = AxiosConfig.create({
   headers: {
     'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
   },
+});
+
+delegate(document, 'form.update-link', 'input', e => {
+  let editLinkAttrs = e.target.value
+  console.log(editLinkAttrs);
+  // annotator.changeAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
 });
 
 export class Annotator extends Component {
@@ -18,7 +26,13 @@ export class Annotator extends Component {
       id: 'annotator',
       events: {
         'click .annotator-action': e => { this.doAnnotationAction(e); },
-        'submit .create-form': e => { this.submitAnnotationForm(e); e.preventDefault(); }
+        'submit .create-form': e => { this.submitAnnotationForm(e); e.preventDefault(); },
+        'submit .update-link': e=> { 
+          e.preventDefault();
+          e.stopPropagation();
+          debugger;
+          this.updateAnnotation(this.handle.dataset.annotationId, editLinkAttrs);
+        }
       }
     });
 
@@ -81,22 +95,10 @@ export class Annotator extends Component {
     .then( _ => window.getSelection().removeAllRanges());
   }
 
-  editLink () {
-    this.mode = 'edit-link';
-    this.render();
-  }
-
   convertAnnotation (annotationId, type) {
     patch(this.annotationPath(annotationId), {
       annotation: { kind: type }}, { scroll: false })
     .then( _ => window.getSelection().removeAllRanges());
-  }
-
-  edit (handle) {
-    this.mode = 'edit-handle';
-    this.handle = handle;
-    this.range = null;
-    this.render();
   }
 
   revealElidedText(annotationId) {
@@ -144,6 +146,7 @@ export class Annotator extends Component {
       break;
     case 'edit-link':
       inner = this.editLinkTemplate();
+      // {content: e.target.innerText}
       break;
     case 'save-changes':
       inner = this.saveTemplate();
@@ -209,7 +212,7 @@ export class Annotator extends Component {
 
   editLinkTemplate() {
     return html`
-      <form class="save-changes" data-annotation-type="link">
+      <form class="update-link" data-annotation-type="link">
         <input name="content" type="url" placeholder="Url to link to..." value=${(this.getLinkValue())} />
       </form>`;
   }
@@ -261,14 +264,13 @@ export class Annotator extends Component {
       this.targetRect.bottom - wrapperRect.top);
   }
 
-  // used in annotations/index.js
+  // the following functions are used in annotations/index.js
   changeAnnotation (annotationId, attrs) {
     this.stagedChanges = attrs;
     this.mode = 'save-changes';
     this.render();
   } 
 
-  // used in annotations/index.js
   select (range) {
     this.mode = 'create-menu';
     this.handle = null;
@@ -277,5 +279,13 @@ export class Annotator extends Component {
     this.range = range;
     this.render();
   }
+
+  edit (handle) {
+    this.mode = 'edit-handle';
+    this.handle = handle;
+    this.range = null;
+    this.render();
+  }
+  // 
 }
 
