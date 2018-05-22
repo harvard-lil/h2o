@@ -71,7 +71,6 @@ gem 'wkhtmltopdf-binary', require: false
 # gem 'minitest-rails-capybara'
 # gem 'quiet_assets'
 
-gem 'pry-byebug'
 
 group :development do
   gem 'annotate'
@@ -87,6 +86,7 @@ group :development do
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
+  gem 'pry-byebug'
 end
 
 group :development, :test do
