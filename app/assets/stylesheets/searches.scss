@@ -82,6 +82,10 @@ header.advanced-search {
       color: $light-blue;
       font-weight: bold;
     }
+
+    a:focus {
+      @include generic-focus-styles;
+    }
   }
 }
 
