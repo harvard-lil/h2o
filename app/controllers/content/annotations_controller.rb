@@ -25,16 +25,6 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def update
-    console.log("********")
-    console.log("********")
-    console.log("********")
-    console.log(params)
-    console.log(params.inspect)
-    console.log(annotation_params)
-    console.log(annotation_params.inspect)
-    console.log("********")
-    console.log("********")
-    console.log("********")
     @annotation.update_attributes annotation_params
     respond_to do |format|
       format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }

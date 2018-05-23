@@ -3,21 +3,14 @@ import {html, raw} from 'es6-string-html-template';
 import {post, patch, rest_delete} from 'lib/requests';
 import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
-import delegate from 'delegate';
+
 import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
 import stageChangeToAnnotation from 'lib/ui/content/annotations';
 
-let editLinkAttrs;
 let Axios = AxiosConfig.create({
   headers: {
     'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
   },
-});
-
-delegate(document, 'form.update-link', 'input', e => {
-  let editLinkAttrs = e.target.value
-  console.log(editLinkAttrs);
-  // annotator.changeAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
 });
 
 export class Annotator extends Component {
@@ -31,7 +24,7 @@ export class Annotator extends Component {
           e.preventDefault();
           e.stopPropagation();
           debugger;
-          this.updateAnnotation(this.handle.dataset.annotationId, editLinkAttrs);
+          this.updateAnnotation(this.handle.dataset.annotationId, {content: e.target[0].value});
         }
       }
     });
@@ -115,6 +108,8 @@ export class Annotator extends Component {
     Axios.patch(this.annotationPath(annotationId + '.json'), 
       { annotation: attrs }, { scroll: false })
     .then( _ => this.deactivate() );
+
+    window.location.reload(true)
   }
 
   deactivate () {
