@@ -2,7 +2,7 @@
 $container-md: 869px;
 
 // colors
-$black: #000;
+$black: #2a2a2a;
 $white: #FFF;
 $dark-gray: #333;
 $gray: #9B9B9B;
@@ -12,6 +12,7 @@ $red: #F00;
 $orange: #DB6F4C;
 $light-orange: lighten($orange, 20%);
 $yellow: #F8BA1C;
+$light-yellow: lighten($yellow, 40%);
 $green: #17AC10;
 
 $highlight: #f8e71c;
@@ -29,7 +30,7 @@ $navbar-padding-horizontal: 0px;
 $input-height-base: 32px;
 $input-color: $dark-gray;
 $input-border-radius: 0px;
-$input-border: black;
+$input-border: $black;
 
 // buttons
 $btn-border-radius-base: 0;

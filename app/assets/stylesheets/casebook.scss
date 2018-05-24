@@ -220,7 +220,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         color: $light-blue;
         margin-right: 4px;
         &.active {
-          color: black;
+          color: $black;
           font-weight: bold;
           background-color: transparent !important;
         }
@@ -269,7 +269,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     @include sans-serif($medium, 36px, 36px);
     padding: 32px 20px 25px;
   }
-  
+
   .authorship {
     .collaborators {
       display: inline-block;
@@ -321,7 +321,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
       .actions {
         position: absolute;
-        top: 0;
+        top: -6px;
         right: 0;
 
         > form > input[type=submit], button {
@@ -359,37 +359,29 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .listing {
       display: block;
       width: 100%;
-      padding: 14px 50px 25px 10px;
-      margin-top: 8px;
-      border: 1px solid black;
+      padding: 12px 18px;
+      margin-top: 6px;
+      border: 1px solid $black;
 
-      &:hover {
-        border-color: $light-blue;
-      }
       &.section {
         display: flex;
         align-items: center;
-        background-color: black;
-        &:active {
-          background-color: $dark-gray;
-        }
+        background-color: $black;
         .section-title {
           font-weight: $medium;
         }
         .section-number, .section-title {
-          color: white;
+          color: $white;
           margin-right: 10px;
         }
       }
       &.resource {
-        background-color: white;
+        background-color: $white;
         display: flex;
         align-items: center;
-        &:active {
-          background-color: $light-gray;
-        }
+
         .section-number, .section-title {
-          color: black;
+          color: $black;
           margin-right: 10px;
         }
       }
@@ -400,6 +392,15 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         background: transparent;
         padding: 60px;
       }
+      &.section:hover, &.section:focus, &.resource:hover, &.resource:focus {
+        background-color: $light-blue;
+        border-color: $light-blue;
+        * {
+          color: $white;
+          border-color: $white;
+        }
+      }
+
       .section-number {
         // @include monospace($regular, 11px, 12px);
         // display: inline-block;
@@ -445,6 +446,22 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .editable {
       border-left: 8px solid $yellow;
       padding-left: 16px;
+    }
+  }
+}
+
+.casebook-draft .casebook-inner .table-of-contents, .casebook-draft .casebook-inner .search-results{
+  .listing {
+    padding-right: 42px;
+  }
+  .section, .resource {
+    &:hover, &:focus {
+      background-color: $yellow;
+      border-color: $yellow;
+      * {
+        color: $black;
+        border-color: $black;
+      }
     }
   }
 }
