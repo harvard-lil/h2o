@@ -12,10 +12,20 @@ export default class Component {
   }
 
   bindEvent (eventNames, callback) {
+    // wrap callback to cancel event propagation if the event handler returns false
+    let checkEventPropagationWrapper = function (e) {
+      let result = callback.apply(this, arguments);
+      if(result === false){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      return result;
+    };
+
     eventNames = eventNames.split(/, ?/g);
     for (let eventName of eventNames) {
       let [event, ...selector] = eventName.split(' ');
-      this.addEventDelegate(selector.join(' '), event, callback);
+      this.addEventDelegate(selector.join(' '), event, checkEventPropagationWrapper);
     }
   }
 
