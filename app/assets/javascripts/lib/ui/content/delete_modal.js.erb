@@ -14,9 +14,8 @@ function section_path(casebookId, sectionId) {
 let modal = null;
 
 function showDeleteModal (e) {
-  e.preventDefault();
-  e.stopPropagation();
   modal = new DeleteModal(e.target.parentElement);
+  return false;
 }
 
 class DeleteModal extends Component {
@@ -27,17 +26,15 @@ class DeleteModal extends Component {
         'click #delete-modal': (e) => { if (e.target.id === 'delete-modal') this.destroy()},
         'click .close': (e) => { this.destroy() },
         'click .cancel': (e) => { 
-          e.preventDefault();
-          e.stopPropagation();
-          this.destroy() 
+          this.destroy()
+          return false; 
         },
         'click .confirm': (e) => {
-          e.preventDefault();
-          e.stopPropagation();
           let casebookId = document.querySelector('header.casebook').dataset.casebookId
           let sectionOrdinals = this.deleteForm.closest('.listing-wrapper').dataset.ordinals;
 
           rest_delete(section_path(casebookId, sectionOrdinals), {});
+          return false;
         },
       }
     });

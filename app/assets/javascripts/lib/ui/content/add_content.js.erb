@@ -34,8 +34,6 @@ class AddResourceModal extends Component {
         },
 
         'submit form.new-text': (e) => {
-          e.preventDefault();
-          e.stopPropagation();
           post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
             resource_id: e.delegateTarget.dataset.resultId,
             parent: this.sectionId(),
@@ -44,10 +42,9 @@ class AddResourceModal extends Component {
               title: e.target.querySelector('input[name=title]').value,
             }
           }, {modal: this});
+          return false;
         },
         'submit form.new-link': (e) => {
-          e.preventDefault();
-          e.stopPropagation();
           post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {
             resource_id: e.delegateTarget.dataset.resultId,
             parent: this.sectionId(),
@@ -55,10 +52,9 @@ class AddResourceModal extends Component {
               url: e.target.querySelector('input[name=url]').value
             }
           }, {modal: this});
+          return false;
         },
         'submit form.case-search, click .pagination > a': (e) => {
-          e.preventDefault();
-          e.stopPropagation();
           let request;
           if (e.target.href) {
             request = Axios.get(e.target.href);
@@ -76,12 +72,11 @@ class AddResourceModal extends Component {
             this.caseResultHtml = res.data;
             this.render();
           })
+          return false;
         },
         'click .results-list > a': (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-
           post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()}, {modal: this})
+          return false;
         }
       }
     });

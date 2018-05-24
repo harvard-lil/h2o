@@ -17,7 +17,7 @@ export class Annotator extends Component {
       id: 'annotator',
       events: {
         'click .annotator-action': e => { this.doAnnotationAction(e); },
-        'submit .create-form': e => { this.submitAnnotationForm(e); e.preventDefault(); }
+        'submit .create-form': e => { this.submitAnnotationForm(e); return false; }
       }
     });
 
@@ -215,8 +215,7 @@ export class Annotator extends Component {
     let field = e.target.querySelector('[name=content]');
     this.saveAnnotation(e.target.dataset.annotationType, this.offsets, field.value);
     this.deactivate();
-    e.stopPropagation();
-    e.preventDefault();
+    return false;
   }
 
   saveAnnotation (type, offsets, content = null) {
