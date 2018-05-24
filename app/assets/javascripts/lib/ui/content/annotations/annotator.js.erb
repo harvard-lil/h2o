@@ -5,7 +5,6 @@ import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 
 import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
-import stageChangeToAnnotation from 'lib/ui/content/annotations';
 
 let Axios = AxiosConfig.create({
   headers: {
@@ -23,7 +22,6 @@ export class Annotator extends Component {
         'submit .update-link': e=> { 
           e.preventDefault();
           e.stopPropagation();
-          debugger;
           this.updateAnnotation(this.handle.dataset.annotationId, {content: e.target[0].value});
         }
       }
@@ -141,7 +139,6 @@ export class Annotator extends Component {
       break;
     case 'edit-link':
       inner = this.editLinkTemplate();
-      // {content: e.target.innerText}
       break;
     case 'save-changes':
       inner = this.saveTemplate();
