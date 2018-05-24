@@ -57,22 +57,17 @@ document.addEventListener('dragstart', e => {
 document.addEventListener('dragend', e => {
   if (!e.target.parentElement.classList.contains('drag-from')) { return; }
 
-  e.preventDefault();
-  e.stopPropagation();
-
   for (let el of document.querySelectorAll('.droppable, .undroppable')) { resetDragClasses(el); }
   document.querySelector('.table-of-contents').classList.remove('dragging-active');
   e.target.parentElement.classList.remove('drag-from');
   setTimeout(() => { e.target.classList.remove('dragging'); }, 100);
 
   draggingOrdinals = null;
+  return false;
 });
 
 document.addEventListener('dragenter', e => {
   if (!e.target.classList.contains('listing-wrapper')) { return; }
-
-  e.preventDefault();
-  e.stopPropagation();
 
   if (e.target.classList.contains('drag-from')) { return; }
   if (e.target.getAttribute('data-ordinals').startsWith(draggingOrdinals)) {
@@ -81,13 +76,13 @@ document.addEventListener('dragenter', e => {
   }
 
   assignDragLocation(e.target, e);
+  return false;
 });
 
 document.addEventListener('dragover', e => {
   if (!e.target.classList.contains('droppable')) { return; }
 
   e.preventDefault();
-  e.stopPropagation();
 
   resetDragClasses(e.target);
   assignDragLocation(e.target, e);
@@ -97,16 +92,12 @@ document.addEventListener('dragleave', e => {
   if (!e.target.classList.contains('listing-wrapper')) { return; }
 
   e.preventDefault();
-  e.stopPropagation();
 
   resetDragClasses(e.target);
 });
 
 document.addEventListener('drop', e => {
   if (!e.target.classList.contains('droppable')) { return; }
-
-  e.preventDefault();
-  e.stopPropagation();
 
   let ordinals = {
     from: parseOrdinals(e.dataTransfer.getData('text/ordinals')),
@@ -131,4 +122,6 @@ document.addEventListener('drop', e => {
     child: { ordinals: ordinals.to },
     reorder: true
   }, { scroll: false });
+
+  return false;
 });
