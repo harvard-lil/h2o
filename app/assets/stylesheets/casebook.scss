@@ -27,22 +27,21 @@ main > section.casebook {
 }
 
 main > header.casebook {
-  margin-top: 20px;
-  padding: 0 40px;
+  padding: 20px 40px 0;
 
   .tabs {
     display: flex;
-    height: 38px;
 
     @media (max-width: $screen-xs) {
       flex-direction: column;
       flex-grow: 1;
-      height: 150px;
+      justify-content: flex-end;
     }
 
     .tab {
       @include btn();
       @include button-variant($black, $white, $light-gray);
+      height: 38px;
       border: 2px solid $light-gray;
       border-bottom-width: 0;
       justify-content: center;
@@ -59,14 +58,14 @@ main > header.casebook {
       }
     }
     .tab.active {
-      color: white;
+      color: $white;
       background-color: $light-blue;
       border: none;
     }
   }
   &.casebook-draft {
     .tabs .tab.active {
-      color: $white;
+      color: $black;
       background-color: $yellow;
       border-color: $yellow;
     }
@@ -181,6 +180,9 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     margin-bottom: 20px;
     h1.title {
       margin: 0px;
+      @media (max-width: $screen-xs) {
+        font-size: 18px;
+      }
       font-size: 32px;
       .case {
         @include serif-headline($regular, 43px, 51px);
@@ -307,6 +309,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   .resource {
     padding: 40px;
     background-color: white;
+    @media (max-width: $screen-xs) {
+      h2 {
+        @include serif-text($bold, 19px, 34px);
+      }
+    }
     p {
       @include serif-text($regular, 19px, 34px);
     }
@@ -398,6 +405,17 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         * {
           color: $white;
           border-color: $white;
+        }
+      }
+      @media (max-width: $screen-xs) {
+        &.section, &.resource {
+          flex-direction: column;
+          align-items: left;
+          div {
+            margin: 4px 0;
+            padding-left: 0;
+            text-align: left;
+          }
         }
       }
 

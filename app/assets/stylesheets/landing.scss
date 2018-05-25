@@ -57,10 +57,14 @@ section.preview {
     .image-wrapper {
       width: 100%;
       overflow: visible;
+      padding-bottom: 12px;
       img {
-        position: relative;
-        left: 100px;
-        top: 5px;
+        max-width: 100%;
+        @media (min-width: $screen-md){
+          position: relative;
+          left: 100px;
+          top: 5px;
+        }
       }
     }
     .demo-image {
@@ -109,7 +113,9 @@ section.endorsements {
   }
   .testimonial {
     margin: 42px 0;
-    padding: 0 150px;
+    @media (min-width: $screen-xs){
+      padding: 0 150px;
+    }
     .quote {
       @include sans-serif($light, 32px, 36px);
       color: $orange;
@@ -143,7 +149,7 @@ section.schools {
 
 section.stinger {
   text-align: center;
-  margin-top: 75px;
+  padding-top: 75px;
   h1 {
     @include sans-serif($light, 32px, 32px);
     margin-bottom: 25px;

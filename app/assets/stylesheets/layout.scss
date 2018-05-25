@@ -1,9 +1,6 @@
 body {
   @extend .container-fluid;
-
-  margin: 0;
-  padding: 0;
-
+  background-color: $light-gray;
   .modal-open {
     overflow: hidden;
     position: fixed;
@@ -18,17 +15,23 @@ body {
   background-size: contain;
 }
 
-#non-modal[aria-hidden="true"] {
-  overflow: hidden;
-  max-height: 100vh;
+#non-modal {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  &[aria-hidden="true"] {
+    overflow: hidden;
+    max-height: 100vh;
+  }
 }
 
 main {
-  margin-top: 20px;
+  flex: 1;
 }
 
 main > section, main > header {
   @include make-row();
+  background-color: $white;
   > .content {
     @extend .container;
     > .layout {
@@ -61,7 +64,8 @@ section#flash {
 }
 
 .banner {
-  height: 40px;
+  @include make-row();
+  min-height: 40px;
 
   text-align: center;
   &.casebook-draft {
