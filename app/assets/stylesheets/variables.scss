@@ -40,3 +40,16 @@ $btn-primary-color: $white;
 $btn-primary-bg: $green;
 $padding-base-vertical: 12px;
 $padding-base-horizontal: 17px;
+
+// fonts
+$preferred-sans-serif: 'Atlas Grotesk';
+$font-family-sans-serif: $preferred-sans-serif, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+$preferred-serif: 'Chronicle Text G3';
+$font-family-serif: $preferred-serif, Georgia, 'Times New Roman', Times, serif;
+
+$preferred-headline: 'Portrait';
+$font-family-headline: $preferred-headline, "Garamond", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+
+$preferred-mono: 'Roboto Mono';
+$font-family-monospace: $preferred-mono, Menlo, Monaco, Consolas, "Courier New", monospace;
