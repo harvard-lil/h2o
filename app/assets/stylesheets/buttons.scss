@@ -1,7 +1,7 @@
 @mixin btn()
 {
   @include sans-serif($regular, 13px, 16px);
-  padding: 12px 17px 11px;
+  padding: 14px 18px 12px;
   border-width: 0px;
   text-decoration: none;
   box-shadow: none;

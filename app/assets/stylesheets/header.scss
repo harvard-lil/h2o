@@ -12,7 +12,7 @@ body {
   }
   #main-header > nav {
     @extend .container;
-    margin-top: 18px;
+    margin-top: 24px;
     *:focus {
       @include generic-focus-styles;
     }
@@ -48,9 +48,8 @@ body {
     a, button {
       @include btn();
       @include btn-white();
-      padding: 9px 10px;
       margin-right: 5px;
-      font-size: 16px;
+      font-size: 14px;
       &.create-casebook {
         @extend .btn-default;
       }
