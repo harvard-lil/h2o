@@ -3,8 +3,9 @@
 
 body {
   #main-header {
-    @include make-row(2);
-    background-color: white;
+    @include make-row();
+    background-color: $white;
+    padding-bottom: 20px;
   }
   &.view-base-index #main-header > nav {
     margin-top: 35px;
@@ -18,8 +19,13 @@ body {
     > .content {
       @extend .navbar;
       display: flex;
-      align-items: center;
-      // @extend .navbar-default;
+      align-items: left;
+      flex-direction: column;
+
+      @media (min-width: $screen-xs) {
+        flex-direction: row;
+        align-items: center;
+      }
     }
     .brand {
       @extend .navbar-header;
@@ -53,12 +59,35 @@ body {
       display: flex;
       align-items: center;
       justify-content: center;
-      @extend .pull-left;
+
+      @media (max-width: $screen-xs) {
+        width: 100%;
+        flex-direction: column;
+        align-items: left;
+        margin-top: 6px;
+        a, button {
+          width: 100%;
+          margin-top: 12px;
+          text-align: left;
+        }
+      }
     }
     .user {
       margin-left: auto;
+      @media (max-width: $screen-xs) {
+        width: 100%;
+        margin-top: 12px;
+        margin-left: 0;
+      }
+
       .current-user {
+        display: flex;
+        align-items: center;
+        @media (max-width: $screen-xs) {
+          width: 100%;
+        }
         .verified {
+          @extend .hidden-xs;
           display: inline-block;
           width: 12px;
           height: 12px;
@@ -70,12 +99,23 @@ body {
         .unverified {
           @extend .label;
           @extend .label-warning;
+          @extend .hidden-xs;
           display: inline-block;
           padding-top: 5px;
           margin-right: 10px;
           font-size: 100%;
         }
         .dropdown {
+          button {
+            white-space: nowrap;
+          }
+          @media (max-width: $screen-xs) {
+            width: 100%;
+            button {
+              width: 100%;
+              text-align: left;
+            }
+          }
           display: inline-block;
           &.open {
             .caret{
@@ -94,17 +134,22 @@ body {
         .user-link {
           @include sans-serif($bold, 14px, 14px);
           padding: 12px 20px;
-          text-align: right;
           width: 100%;
+          @media (min-width: $screen-xs) {
+            text-align: right;
+          }
+        }
+      }
+      .sign-up, .sign-in {
+        @media (max-width: $screen-xs) {
+          display: block;
+          width: 100%;
+          text-align: left;
+          margin-bottom: 12px;
         }
       }
       .sign-up {
-        @extend .btn;
         @extend .btn-default;
-      }
-      .sign-in {
-        @extend .btn;
-        @include btn-white();
       }
     }
   }
