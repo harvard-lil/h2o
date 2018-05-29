@@ -9,6 +9,11 @@
       </div>
     </header>
   <% end %>
+  <% if @casebook.present? %>
+    <aside class="casebook-actions">
+      <%= render 'content/actions' %>
+    </aside>
+  <% end %>
 
   <header class="content">
     <% if @section.present? %>
@@ -50,7 +55,7 @@
       </h5>
       <%= f.simple_fields_for :resource do |r| %>
         <% if @content.resource.is_a? Default %>
-          <%= r.input :url %> 
+          <%= r.input :url %>
         <% elsif @content.resource.is_a? TextBlock %>
           <%= r.cktext_area :content, class: 'ckeditor form-control' %>
         <% end %>

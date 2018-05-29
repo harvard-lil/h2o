@@ -19,6 +19,12 @@
 		<%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
 	</header>
 
+  <% if @casebook.present? %>
+    <aside class="casebook-actions">
+      <%= render 'content/actions' %>
+    </aside>
+  <% end %>
+
   <section class="edit-headnote">
 	  <h5>
 	    <%= t 'content.show.headnote' %>
