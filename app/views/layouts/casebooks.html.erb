@@ -46,11 +46,6 @@
         <% end %>
         <%= yield %>
       </div>
-      <% if @casebook.present? %>
-        <aside class="casebook-actions">
-          <%= render 'content/actions' %>
-        </aside>
-      <% end %>
     </div>
   </section>
   <% if @casebook %>

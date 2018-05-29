@@ -55,6 +55,11 @@
       </div>
     <% end %>
 </header>
+<% if @casebook.present? %>
+  <aside class="casebook-actions">
+    <%= render 'content/actions' %>
+  </aside>
+<% end %>
 <% if @content.formatted_headnote.present? || @content.subtitle.present? %>
   <section class="headnote">
     <% if @section.present? %>

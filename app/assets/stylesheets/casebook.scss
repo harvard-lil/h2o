@@ -3,8 +3,7 @@
 @import 'content/modals';
 
 main > .casebook .casebook-inner {
-  @include make-md-column(9);
-  @include make-md-column-offset(1.75);
+  @include centered-md-column(9);
 }
 
 main > section.casebook {
@@ -73,9 +72,26 @@ main > header.casebook {
 }
 
 .casebook-actions {
-  @include make-md-column(1.25);
-  position: relative;
-  top: -40px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin: 24px 0 32px;
+  @media (min-width: $screen-xs) {
+    max-height: 250px;
+  }
+  @media (min-width: $screen-sm) {
+    max-height: none;
+    justify-content: space-evenly;
+    flex-direction: row;
+  }
+  @media (min-width: $screen-md) {
+    display: block;
+    position: absolute;
+    right: percentage((-1.5 / $grid-columns));
+    top: -40px;
+    width: 12.5%;
+    margin: 0;
+  }
 
   a.action {
     padding-top: 16px !important;
@@ -87,15 +103,27 @@ main > header.casebook {
     height: 60px;
     padding: 3px 0 0 60px;
     position: relative;
+    border: none;
+    line-height: 30px;
+    white-space: nowrap;
+    text-align: left;
+    margin-right: 15px;
 
     color: $light-blue;
-    white-space: normal;
 
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 50px;
     background-position: 3px center;
 
+    &:hover, &:focus {
+      outline: none;
+      text-decoration: underline !important;
+      color: $light-blue;
+    }
+    &:focus {
+      @include generic-focus-styles;
+    }
     &:hover {
       background-size: 55px;
       background-position: 0 center;
@@ -103,13 +131,6 @@ main > header.casebook {
     &:active {
       background-size: 48px;
       background-position: 4px center;
-    }
-    &:focus {
-      outline: none;
-      text-decoration: underline;
-    }
-    &.one-line {
-      padding-top: 6px;
     }
     &.add-resource {
       background-image: asset-url('ui/casebook/add-material.png');
@@ -150,7 +171,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
 .casebook-inner {
   header.content{
-    padding: 20px 30px;
+    padding: 24px 32px;
 
     .form-control{
       font-size: 15px;
@@ -177,7 +198,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   header.content {
     background-color: $white;
-    margin-bottom: 20px;
     h1.title {
       margin: 0px;
       @media (max-width: $screen-xs) {
@@ -241,7 +261,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
 
   section.headnote {
-    margin: 20px 30px 30px 30px;
+    margin: 24px 30px 30px 30px;
     @include sans-serif($regular, 18px, 31px);
   }
   section.resource {
@@ -258,7 +278,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       margin: 10px 0;
       color: $orange;
     }
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   section.resource-search {
     .tabs .tab {
@@ -379,7 +399,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
       &.section {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: left;
         background-color: $black;
         .section-title {
           font-weight: $medium;
@@ -392,7 +413,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       &.resource {
         background-color: $white;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: left;
 
         .section-number, .section-title {
           color: $black;
@@ -416,13 +438,17 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       @media (max-width: $screen-xs) {
         &.section, &.resource {
-          flex-direction: column;
-          align-items: left;
           div {
             margin: 4px 0;
             padding-left: 0;
             text-align: left;
           }
+        }
+      }
+      @media (min-width: $screen-xs) {
+        &.section, &.resource {
+          flex-direction: row;
+          align-items: center;
         }
       }
 

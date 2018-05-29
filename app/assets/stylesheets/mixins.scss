@@ -58,3 +58,10 @@
   outline-offset: 2px !important;
   outline-width: 5px !important;
 }
+
+@mixin centered-md-column($count) {
+  @include make-md-column($count);
+  /* center instead of floating like a normal column */
+  float: none !important;
+  margin: auto;
+}
