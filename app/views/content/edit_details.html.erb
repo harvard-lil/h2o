@@ -9,12 +9,6 @@
       </div>
     </header>
   <% end %>
-  <% if @casebook.present? %>
-    <aside class="casebook-actions">
-      <%= render 'content/actions' %>
-    </aside>
-  <% end %>
-
   <header class="content">
     <% if @section.present? %>
       <div class="breadcrumbs">
@@ -63,4 +57,10 @@
     </section>
   <% end %>
 
+<% end %>
+
+<% if @casebook.present? %>
+  <aside class="casebook-actions">
+    <%= render 'content/actions' %>
+  </aside>
 <% end %>

@@ -79,7 +79,7 @@ main > header.casebook {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  margin: 24px 0 32px;
+  margin: 24px 0 12px;
   @media (min-width: $screen-xs) {
     max-height: 250px;
   }
