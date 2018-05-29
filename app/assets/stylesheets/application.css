@@ -10,7 +10,6 @@
 *
 *= require_self
 *= require_tree ./old_tree
-*= require select2
 *= require ui
 *= require jquery.ui.custom
 *= stub old_tree/export
