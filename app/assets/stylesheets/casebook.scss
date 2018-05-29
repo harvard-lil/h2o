@@ -55,6 +55,10 @@ main > header.casebook {
       &.disabled {
         background-color: $light-gray;
       }
+      &:focus {
+        @include generic-focus-styles;
+        z-index: 999;
+      }
     }
     .tab.active {
       color: $white;
@@ -227,28 +231,37 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .subtitle {
       color: $light-blue;
       font-weight: 200;
-      margin: 6px 0px 10px 2px;
+      margin: 12px 2px;
       font-size: 24px;
+      @media (max-width: $screen-xs) {
+        font-size: 18px;
+      }
     }
 
     .breadcrumbs {
       font-size: 16px;
       font-weight: bold;
-      color: gray;
+      color: $dark-gray;
+
       .breadcrumb {
-        @include square(20px);
         display: inline-block;
-        padding: 4px;
+        line-height: 20px;
         color: $light-blue;
-        margin-right: 4px;
+        margin-left: 4px;
+        padding: 4px 8px;
+        line-height: 20px;
+        border: none;
+        &:focus {
+          @include generic-focus-styles;
+        }
         &.active {
-          color: $black;
+          color: $dark-gray;
           font-weight: bold;
           background-color: transparent !important;
         }
-        &:hover {
-          background-color: $light-gray;
-        }
+      }
+      span.breadcrumb {
+        margin-left: 2px;
       }
       .separator {
         display: inline-block;
@@ -330,6 +343,10 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .root-attribution {
       font-size: 13px;
       display: inline-block;
+
+      a:focus {
+        @include generic-focus-styles;
+      }
     }
   }
 
