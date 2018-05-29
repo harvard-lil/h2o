@@ -17,12 +17,11 @@ body {
       @include generic-focus-styles;
     }
     > .content {
-      @extend .navbar;
       display: flex;
       align-items: left;
       flex-direction: column;
 
-      @media (min-width: $screen-xs) {
+      @media (min-width: ($navbar-breakpoint +1)) {
         flex-direction: row;
         align-items: center;
       }
@@ -59,7 +58,7 @@ body {
       align-items: center;
       justify-content: center;
 
-      @media (max-width: $screen-xs) {
+      @media (max-width: $navbar-breakpoint) {
         width: 100%;
         flex-direction: column;
         align-items: left;
@@ -73,7 +72,7 @@ body {
     }
     .user {
       margin-left: auto;
-      @media (max-width: $screen-xs) {
+      @media (max-width: $navbar-breakpoint) {
         width: 100%;
         margin-top: 12px;
         margin-left: 0;
@@ -82,7 +81,7 @@ body {
       .current-user {
         display: flex;
         align-items: center;
-        @media (max-width: $screen-xs) {
+        @media (max-width: $navbar-breakpoint) {
           width: 100%;
         }
         .verified {
@@ -108,7 +107,7 @@ body {
           button {
             white-space: nowrap;
           }
-          @media (max-width: $screen-xs) {
+          @media (max-width: $navbar-breakpoint) {
             width: 100%;
             button {
               width: 100%;
@@ -134,13 +133,13 @@ body {
           @include sans-serif($bold, 14px, 14px);
           padding: 12px 20px;
           width: 100%;
-          @media (min-width: $screen-xs) {
+          @media (min-width: $navbar-breakpoint) {
             text-align: right;
           }
         }
       }
       .sign-up, .sign-in {
-        @media (max-width: $screen-xs) {
+        @media (max-width: $navbar-breakpoint) {
           display: block;
           width: 100%;
           text-align: left;
