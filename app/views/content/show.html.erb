@@ -19,7 +19,6 @@
           <span class="separator">.</span>
         <% else %>
           <span class="breadcrumb active"><%= ordinal %></span>
-          <span class="separator">:</span>
         <% end %>
       <% end %>
     </div>
@@ -37,7 +36,7 @@
       <%= @content.title %>
     <% end %>
   </h1>
-    <% if @section.nil? %>
+    <% if @section.nil? && @content.subtitle? %>
       <h2 class="subtitle">
         <%= @content.subtitle %>
       </h2>

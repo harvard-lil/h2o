@@ -20,8 +20,8 @@
       <% end %>
     </div>
   <% end %>
-	<h1><%= @content.title %></h1>
-	<h2><%= @content.subtitle %></h2>
+  <h1><%= @content.title %></h1>
+  <% if @content.subtitle? %><h2><%= @content.subtitle %></h2><% end %>
 </header>
 <section class="headnote">
   <h5>
