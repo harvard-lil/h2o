@@ -137,10 +137,14 @@
 
       cursor: zoom-in;
 
-      border-radius: 3px;
+      border: none;
       background-color: $light-gray;
       color: $light-blue;
       font-weight: $bold;
+
+      &:focus {
+        @include generic-focus-styles;
+      }
 
       &::before {
         content: '...';

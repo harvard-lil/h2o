@@ -81,7 +81,7 @@ class Content::Annotation < ApplicationRecord
   end
 
   def copy_of
-    resource.copy_of.annotations.where(start_p: self.start_p, end_p: self.end_p, 
+    resource.copy_of.annotations.where(start_p: self.start_p, end_p: self.end_p,
           start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind).first
   end
 
@@ -94,7 +94,8 @@ class Content::Annotation < ApplicationRecord
   def annotate_html inner, handle: true, final: false
     case kind
     when 'elide' then
-      "#{handle ? "<span class='annotate elide' data-annotation-id='#{id}'></span>" : ''}<span class='annotate elided' data-annotation-id='#{id}'>#{inner}</span>"
+      "#{handle ? "<button class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></button>" : ''}" +
+      "<span class='annotate elided' data-annotation-id='#{id}'>#{inner}</span>"
     when 'replace' then
       "#{handle ? "<span class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
     when 'highlight' then
