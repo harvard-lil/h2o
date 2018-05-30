@@ -18,5 +18,6 @@ delegate(document, '.annotate.elide', 'click', e => {
   }
   for (let el of elisions) {
     el.classList.toggle('revealed');
+    el.parentElement.classList.toggle('revealed');
   }
 });

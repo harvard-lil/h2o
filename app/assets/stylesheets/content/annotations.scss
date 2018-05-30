@@ -79,6 +79,17 @@
     padding: 3px 0 3px;
   } // etc
 
+  /* hacks for misbehaving blockquotes */
+  blockquote {
+    span p {
+      display: inline; // yes, p in span is illegal, but we have them
+    }
+    &[data-elided-annotation]:not(.revealed){
+      margin: 0;
+      padding: 0;
+    }
+  }
+
   .annotate {
     display: inline;
 
@@ -121,6 +132,8 @@
     }
     &.elided, &.replaced {
       display: none;
+      padding: 0;
+      margin: 0;
       &.revealed {
         padding: 7px;
         display: inline;
@@ -148,6 +161,7 @@
 
       &::before {
         content: '...';
+        font-size: 19px;
       }
       &.revealed::before {
         content: 'hide';
