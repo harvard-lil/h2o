@@ -83,15 +83,6 @@ class Content::Resource < Content::Child
     nodes
   end
 
-  # def annotations
-  #   if is_alias?
-  #     copy_of.annotations # delete all of this because i should run a script to migrate 
-  #     # all and then when a new casebook is cloned it will have fresh annotations
-  #   else
-  #     super
-  #   end
-  # end
-
   def title
     super || resource.title
   end
