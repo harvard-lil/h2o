@@ -6,13 +6,13 @@ import Component from 'lib/ui/component';
 
 delegate(document, 'a.action.export', 'click', showExportModal);
 
-function resource_export_path(resourceId, format = 'pdf') {
+function resource_export_path(resourceId, format = 'docx') {
   return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
 }
-function section_export_path(sectionId, format = 'pdf') {
+function section_export_path(sectionId, format = 'docx') {
   return '<%= j section_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', sectionId).replace('_FORMAT', format);
 }
-function export_casebook_path(casebookId, format = 'pdf') {
+function export_casebook_path(casebookId, format = 'docx') {
   return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
@@ -37,13 +37,12 @@ class ExportModal extends Component {
           let sectionId = document.querySelector('main > header').dataset.sectionId;
           let casebookId = document.querySelector('main > header').dataset.casebookId;
           let includeAnnotations = this.el.querySelector('[name="include-annotations"]').checked;
-          let format = this.el.querySelector('[name="export-format"]').value;
           if (resourceId)  {
-            window.open(resource_export_path(resourceId, format) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(resource_export_path(resourceId) + (includeAnnotations ? '' : '?annotations=false'));
           } else if (sectionId)  {
-            window.open(section_export_path(sectionId, format) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(section_export_path(sectionId) + (includeAnnotations ? '' : '?annotations=false'));
           } else {
-            window.open(export_casebook_path(casebookId, format) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(export_casebook_path(casebookId) + (includeAnnotations ? '' : '?annotations=false'));
           }
         },
       }
@@ -79,11 +78,7 @@ class ExportModal extends Component {
             <% end %>
             <label>
               <%= I18n.t 'content.export-modal.format' %>
-              <select name="export-format">
-                <option value="docx">Word</option>
-                <option value="pdf">PDF</option>
-                <option value="html">HTML</option>
-              </select>
+              <span>Word</span>
             </label>
           </div>
           <div class="modal-footer">

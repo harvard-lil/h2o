@@ -102,18 +102,9 @@ class Content::SectionsController < Content::NodeController
     @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
 
     html = render_to_string layout: 'export'
-    respond_to do |format|
-      format.pdf {
-        send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: helpers.truncate(@section.title, length: 45, omission: '-', separator: ' ') + '.pdf', disposition: :inline
-      }
-      format.docx {
-        file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
-        Htmltoword::Document.create_and_save(html, file_path)
-        send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
-        # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
-      }
-      format.html { render body: html, layout: false }
-    end
+    file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
+    Htmltoword::Document.create_and_save(html, file_path)
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
   end
 
   private

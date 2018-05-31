@@ -61,19 +61,9 @@ class Content::CasebooksController < Content::NodeController
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
     html = render_to_string layout: 'export'
     html.gsub! /\\/, '\\\\\\'
-    respond_to do |format|
-      format.pdf {
-        send_file Export::PDF.save(html, annotations: params[:annotations] != 'false'), type: 'application/pdf', filename: export_filename('pdf'), disposition: :inline
-      }
-      format.docx {
-        file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
-        Htmltoword::Document.create_and_save(html, file_path)
-        send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
-        # render docx: 'export', filename: export_filename('docx')
-        # send_file Export::DOCX.save(html, annotations: params[:annotations] != 'false'), type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + '.docx', disposition: :inline
-      }
-      format.html { render body: html, layout: false }
-    end
+    file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
+    Htmltoword::Document.create_and_save(html, file_path)
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
   end
 
   private
