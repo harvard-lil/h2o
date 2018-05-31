@@ -17,7 +17,13 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       let location = response.request.responseURL;
 
       if ((window.location.href == location) || (method == 'delete')){
-        window.location.reload(true); // save scroll position for annotations
+        // saving scroll position 
+        if (navigator.userAgent.match('Firefox') != null){
+          window.location.reload(false);
+        }
+        else {
+          window.location.reload(true); 
+        }
       } else {
         window.location.replace(location);
       }
