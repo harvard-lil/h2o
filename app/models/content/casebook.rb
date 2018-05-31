@@ -115,13 +115,13 @@ class Content::Casebook < Content::Node
     "#{id}-#{slug}"
   end
 
-  def destroy
-    if self.descendants.present?
-     raise "Cannot delete a casebook with active descendants"
-    else
-      super
-    end
-  end
+  # def destroy
+  #   if self.descendants.present?
+  #    raise "Cannot delete a casebook with active descendants"
+  #   else
+  #     super
+  #   end
+  # end
 
   def draft
     descendants.where(draft_mode_of_published_casebook: true).where(copy_of_id: self.id).first
