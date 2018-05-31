@@ -6,7 +6,27 @@ import delegate from 'delegate';
 import debounce from 'debounce';
 import {editAnnotationHandle, stageChangeToAnnotation, stagePreviousContent, isEditable} from 'lib/ui/content/annotations';
 
-delegate(document, '.annotate.replacement', 'click', e => {
+
+// Respond to click, spacebar, or enter, like a real html button would
+delegate(document, '.annotate.replacement', 'click', e => handleReplaceButtonPressed(e));
+delegate(document, '.annotate.replacement', 'keypress', e => {
+  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    handleReplaceButtonPressed(e);
+  }
+});
+
+// Pressing enter or spacebar in the contenteditable region shouldn't press the containing button
+delegate(document, '.annotate.replacement .text', 'keypress', e => {
+  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    e.stopPropagation();
+  }
+}, true);
+
+delegate(document, '.annotate.replacement .text', 'input', e => {
+  stageChangeToAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
+});
+
+function handleReplaceButtonPressed(e){
   if (isEditable()) {
     editAnnotationHandle(e.target.previousElementSibling);
     stagePreviousContent(e.target.innerText);
@@ -21,11 +41,7 @@ delegate(document, '.annotate.replacement', 'click', e => {
       el.classList.toggle('revealed');
     }
   }
-});
-
-delegate(document, '.annotate.replacement .text', 'input', e => {
-  stageChangeToAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
-});
+}
 
 function setFocus(el) {
     if (document.activeElement === el) { return; }
