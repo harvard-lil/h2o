@@ -27,7 +27,6 @@ class ExportSystemTest < ApplicationSystemTestCase
  
     within '#export-modal' do
       assert_content 'Export Casebook'
-      select format, from: 'export-format'
       click_link 'Export'
     end
 
