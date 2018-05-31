@@ -88,26 +88,23 @@
       box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
     }
     &.replacement {
-      @include sans-serif($regular, 12px, 12px);
-
-      padding: 5px 10px;
-      margin: 0 5px;
-
-      cursor: text;
-
-      border-radius: 3px;
+      display: inline-block;
+      margin: 0 6px;
+      padding: 0 6px;
       background-color: $light-gray;
       color: $light-blue;
 
       .text {
         pointer-events: none;
       }
+      &:focus {
+        @include generic-focus-styles;
+      }
       &.revealed .text {
         display: none;
       }
       &.revealed::before {
         content: 'hide';
-        cursor: zoom-out;
       }
       .text:empty::before {
         content: 'Enter text to replace...';
