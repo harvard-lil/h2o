@@ -19,10 +19,9 @@ class Ability
       return
     else
       can [:user_lookup, :disconnect_dropbox], :users
-      can :create, :responses
 
       can :destroy, :user_sessions
-      can [:bookmark_item, :delete_bookmark_item, :verification_request, :verify], :users
+      can [:verification_request, :verify], :users
       can :new, [Content::Casebook, TextBlock, Default, CaseRequest]
       can :create, [:casebooks, :text_blocks, :defaults, :case_requests, :bulk_uploads]
       can :copy, Default, :public => true
@@ -34,10 +33,6 @@ class Ability
       # Can do things on owned items
       if !user.has_role? :superadmin
         can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [TextBlock, Default], :user_id => user.id
-      end
-
-      can :destroy, Response do |response|
-        response.resource.user == user
       end
 
       # Dropbox related permissions
@@ -63,9 +58,7 @@ class Ability
            :update, :position_update, :update_notes, :save_readable_state],
         :all
       can :aggregate_items, [TextBlock, Default, User]
-      can [:show, :edit, :new], Institution
-      cannot [:view_in_app, :edit_in_app], Institution
-      can [:import], [Default, Institution]
+      can [:import], [Default]
 
       can [:new, :edit], Page
       cannot :edit_in_app, Page
