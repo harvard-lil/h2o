@@ -22,7 +22,7 @@ class Ability
       can :create, :responses
 
       can :destroy, :user_sessions
-      can [:bookmark_item, :delete_bookmark_item, :verification_request, :verify], :users
+      can [:verification_request, :verify], :users
       can :new, [Content::Casebook, TextBlock, Default, CaseRequest]
       can :create, [:casebooks, :text_blocks, :defaults, :case_requests, :bulk_uploads]
       can :copy, Default, :public => true
@@ -63,9 +63,7 @@ class Ability
            :update, :position_update, :update_notes, :save_readable_state],
         :all
       can :aggregate_items, [TextBlock, Default, User]
-      can [:show, :edit, :new], Institution
-      cannot [:view_in_app, :edit_in_app], Institution
-      can [:import], [Default, Institution]
+      can [:import], [Default]
 
       can [:new, :edit], Page
       cannot :edit_in_app, Page
@@ -95,9 +93,6 @@ class Ability
       # Add functionality, ability to modify case requests
     elsif user.has_role? :rep
       user_ids = []
-      user.institutions.each do |institution|
-        user_ids << institution.users.collect { |u| u.id }
-      end
       associated_user_ids = user_ids.flatten.uniq
       can :access, :rails_admin
       can :dashboard, :all
