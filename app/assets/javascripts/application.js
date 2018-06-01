@@ -16,6 +16,7 @@
 //= require 'jquery-readyselector'
 //= require 'polyfills'
 //= require 'lib/bootstrap/dropdown'
+//= require 'lib/helpers'
 //= require 'lib/requests'
 //= require 'lib/ui/skip-link-focus-fix'
 //= require 'lib/ui/content'
