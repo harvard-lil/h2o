@@ -97,7 +97,7 @@ class Content::Annotation < ApplicationRecord
       "#{handle ? "<button class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></button>" : ''}" +
       "<span class='annotate elided' data-annotation-id='#{id}'>#{inner}</span>"
     when 'replace' then
-      "#{handle ? "<span role='button' tabindex='0' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
+      "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
     when 'highlight' then
       "<span class='annotate highlighted' data-annotation-id='#{id}'>#{inner}</span>"
     when 'link' then
