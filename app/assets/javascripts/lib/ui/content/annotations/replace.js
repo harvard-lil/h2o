@@ -5,7 +5,20 @@ import Component from 'lib/ui/component'
 import delegate from 'delegate';
 import debounce from 'debounce';
 import {editAnnotationHandle, stageChangeToAnnotation, stagePreviousContent, isEditable} from 'lib/ui/content/annotations';
+import {getQueryStringDict} from 'lib/helpers';
 
+
+// Set focus to a particular replace on page load if specified in query string
+window.addEventListener('load', () => {
+  let query = getQueryStringDict();
+  if (query['annotation-id']) {
+    let annotation = document.querySelector(`.annotate.replacement[data-annotation-id="${query['annotation-id']}"]`);
+    if (annotation){
+      setFocus(annotation);
+      annotation.scrollIntoView(true);
+    };
+  }
+})
 
 // Respond to click, spacebar, or enter, like a real html button would
 delegate(document, '.annotate.replacement', 'click', e => handleReplaceButtonPressed(e));
