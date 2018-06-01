@@ -15,8 +15,6 @@ H2o::Application.routes.draw do
   resource :cap_api_import, only: [:new, :create]
 
   get 'log_out' => 'user_sessions#destroy', as: :log_out
-  get '/bookmark_item/:type/:id' => 'users#bookmark_item', as: :bookmark_item
-  get '/delete_bookmark_item/:type/:id' => 'users#delete_bookmark_item', as: :delete_bookmark_item
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
   get '/p/:id' => 'pages#show'
 

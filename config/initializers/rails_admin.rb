@@ -148,7 +148,7 @@ RailsAdmin.config do |config|
     view_in_app
   end
 
-  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Institution', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
 
   config.model 'Page' do
     list do
@@ -233,13 +233,6 @@ RailsAdmin.config do |config|
       field :ancestry
       field :root_user_id
       field :playlist_id
-    end
-  end
-
-  config.model 'Institution' do
-    list do
-      field :name
-      field :users
     end
   end
 
