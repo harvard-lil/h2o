@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180531212833) do
+ActiveRecord::Schema.define(version: 20180531211106) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -76,6 +76,22 @@ ActiveRecord::Schema.define(version: 20180531212833) do
     t.datetime "updated_at"
     t.index ["abbreviation"], name: "index_case_jurisdictions_on_abbreviation"
     t.index ["name"], name: "index_case_jurisdictions_on_name"
+  end
+
+  create_table "case_requests", force: :cascade do |t|
+    t.string "full_name", limit: 500, null: false
+    t.date "decision_date", null: false
+    t.string "author", limit: 150, null: false
+    t.integer "case_jurisdiction_id"
+    t.string "docket_number", limit: 150, null: false
+    t.string "volume", limit: 150, null: false
+    t.string "reporter", limit: 150, null: false
+    t.string "page", limit: 150, null: false
+    t.string "bluebook_citation", limit: 150, null: false
+    t.string "status", limit: 150, default: "new", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer "user_id", default: 0, null: false
   end
 
   create_table "cases", id: :serial, force: :cascade do |t|
@@ -417,6 +433,32 @@ ActiveRecord::Schema.define(version: 20180531212833) do
     t.datetime "updated_at"
     t.index ["session_id"], name: "index_sessions_on_session_id"
     t.index ["updated_at"], name: "index_sessions_on_updated_at"
+  end
+
+  create_table "taggings", force: :cascade do |t|
+    t.integer "tag_id"
+    t.integer "taggable_id"
+    t.integer "tagger_id"
+    t.string "tagger_type", limit: 255
+    t.string "taggable_type", limit: 255
+    t.string "context", limit: 255
+    t.datetime "created_at"
+    t.index ["context"], name: "index_taggings_on_context"
+    t.index ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
+    t.index ["tag_id"], name: "index_taggings_on_tag_id"
+    t.index ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context"
+    t.index ["taggable_id", "taggable_type", "tagger_id", "context"], name: "taggings_idy"
+    t.index ["taggable_id"], name: "index_taggings_on_taggable_id"
+    t.index ["taggable_type"], name: "index_taggings_on_taggable_type"
+    t.index ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type"
+    t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
+    t.index ["tagger_type"], name: "index_taggings_on_tagger_type"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "name", limit: 255
+    t.integer "taggings_count", default: 0
+    t.index ["name"], name: "index_tags_on_name"
   end
 
   create_table "text_blocks", id: :serial, force: :cascade do |t|
