@@ -2,56 +2,18 @@
 
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
+import ModalComponent from 'lib/ui/modal';
 
 
 delegate(document, '[data-action="show-casebook-modal"]', 'click', (e) => showCasebookModal(e));
 
-let modal = null;
-let trigger = null;
-
-function restrictFocus (e) {
-  if (!modal.el.contains(e.target)) {
-    e.stopPropagation();
-    modal.el.focus();
-  }
-}
-
 function showCasebookModal (e) {
-  modal = new NewCasebookModal;
-  trigger = e.target;
+  new NewCasebookModal('new-casebook-modal', e.target);
 }
 
-class NewCasebookModal extends Component {
-  constructor () {
-    super({
-      id: 'new-casebook-modal',
-      events: {
-        'click #new-casebook-modal': (e) => { if (e.target.id === 'new-casebook-modal') this.destroy()},
-        'click .close': (e) => { this.destroy() },
-        'keydown #new-casebook-modal': (e) => { if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) this.destroy()},
-      }
-    });
-    document.body.insertBefore(this.el, document.body.firstChild);
-    this.render();
-    this.el.focus();
-    document.querySelector('.modal-overlay').classList.add('open');
-    document.getElementById('non-modal').setAttribute('aria-hidden', 'true');
-    document.addEventListener('focus', restrictFocus, true);
-  }
-
-  destroy () {
-    document.removeEventListener('focus', restrictFocus, true);
-    document.getElementById('non-modal').removeAttribute('aria-hidden');
-    document.querySelector('.modal-overlay').classList.remove('open');
-    trigger.focus();
-    super.destroy();
-    modal = null;
-    trigger = null;
-  }
-
+class NewCasebookModal extends ModalComponent {
   template () {
-    return html`<div class="modal fade in" id="new-casebook-modal" style="display: block"  tabindex="-1" aria-labelledby="new-casebook-modal-title">
+    return html`<div class="modal fade in" id="${this.id}" style="display: block"  tabindex="-1" aria-labelledby="new-casebook-modal-title">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
