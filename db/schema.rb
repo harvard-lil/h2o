@@ -38,11 +38,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.integer "user_id"
   end
 
-  create_table "brain_busters", id: :serial, force: :cascade do |t|
-    t.string "question", limit: 255
-    t.string "answer", limit: 255
-  end
-
   create_table "bulk_uploads", id: :serial, force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -71,22 +66,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.datetime "updated_at"
     t.index ["case_id"], name: "index_case_docket_numbers_on_case_id"
     t.index ["docket_number"], name: "index_case_docket_numbers_on_docket_number"
-  end
-
-  create_table "case_ingestion_logs", id: :serial, force: :cascade do |t|
-    t.integer "case_ingestion_request_id"
-    t.string "status", limit: 255
-    t.text "content"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "case_ingestion_requests", id: :serial, force: :cascade do |t|
-    t.string "url", limit: 255, null: false
-    t.integer "user_id", null: false
-    t.integer "case_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "case_jurisdictions", id: :serial, force: :cascade do |t|
@@ -193,19 +172,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.index ["word_count"], name: "index_collages_on_word_count"
   end
 
-  create_table "collages_user_collections", id: false, force: :cascade do |t|
-    t.integer "collage_id"
-    t.integer "user_collection_id"
-  end
-
-  create_table "color_mappings", id: :serial, force: :cascade do |t|
-    t.integer "collage_id"
-    t.integer "tag_id"
-    t.string "hex", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "content_annotations", force: :cascade do |t|
     t.bigint "resource_id", null: false
     t.integer "start_p", null: false
@@ -306,12 +272,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  create_table "deleted_items", id: :serial, force: :cascade do |t|
-    t.integer "item_id"
-    t.string "item_type", limit: 255
-    t.datetime "deleted_at"
-  end
-
   create_table "frozen_items", id: :serial, force: :cascade do |t|
     t.text "content"
     t.integer "version", null: false
@@ -319,16 +279,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.string "item_type", limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "imports", id: :serial, force: :cascade do |t|
-    t.integer "bulk_upload_id"
-    t.integer "actual_object_id"
-    t.string "actual_object_type", limit: 255
-    t.string "dropbox_filepath", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string "status", limit: 255
   end
 
   create_table "institutions", id: :serial, force: :cascade do |t|
@@ -340,48 +290,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
   create_table "institutions_users", id: false, force: :cascade do |t|
     t.integer "institution_id", null: false
     t.integer "user_id", null: false
-  end
-
-  create_table "journal_article_types", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "journal_article_types_journal_articles", id: false, force: :cascade do |t|
-    t.integer "journal_article_id"
-    t.integer "journal_article_type_id"
-  end
-
-  create_table "journal_articles", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 255, null: false
-    t.string "description", limit: 5242880, null: false
-    t.date "publish_date", null: false
-    t.string "subtitle", limit: 255
-    t.string "author", limit: 255, null: false
-    t.string "author_description", limit: 5242880
-    t.string "volume", limit: 255, null: false
-    t.string "issue", limit: 255, null: false
-    t.string "page", limit: 255, null: false
-    t.string "bluebook_citation", limit: 255, null: false
-    t.string "article_series_title", limit: 255
-    t.string "article_series_description", limit: 5242880
-    t.string "pdf_url", limit: 255
-    t.string "image", limit: 255
-    t.string "attribution", limit: 255, null: false
-    t.string "attribution_url", limit: 255
-    t.string "video_embed", limit: 5242880
-    t.boolean "active", default: true
-    t.boolean "public", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer "user_id", default: 0, null: false
-  end
-
-  create_table "locations", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "media_types", id: :serial, force: :cascade do |t|
@@ -498,73 +406,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.integer "user_collection_id"
   end
 
-  create_table "question_instances", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 250, null: false
-    t.integer "user_id"
-    t.integer "project_id"
-    t.string "password", limit: 128
-    t.integer "featured_question_count", default: 2
-    t.string "description", limit: 2000
-    t.integer "parent_id"
-    t.integer "children_count"
-    t.integer "ancestors_count"
-    t.integer "descendants_count"
-    t.integer "position"
-    t.boolean "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean "public", default: true
-    t.boolean "active", default: true
-    t.integer "pushed_from_id"
-    t.index ["active"], name: "index_question_instances_on_active"
-    t.index ["ancestors_count"], name: "index_question_instances_on_ancestors_count"
-    t.index ["children_count"], name: "index_question_instances_on_children_count"
-    t.index ["descendants_count"], name: "index_question_instances_on_descendants_count"
-    t.index ["hidden"], name: "index_question_instances_on_hidden"
-    t.index ["name"], name: "index_question_instances_on_name", unique: true
-    t.index ["parent_id"], name: "index_question_instances_on_parent_id"
-    t.index ["position"], name: "index_question_instances_on_position"
-    t.index ["project_id", "position"], name: "index_question_instances_on_project_id_and_position", unique: true
-    t.index ["project_id"], name: "index_question_instances_on_project_id"
-    t.index ["public"], name: "index_question_instances_on_public"
-    t.index ["user_id"], name: "index_question_instances_on_user_id"
-  end
-
-  create_table "questions", id: :serial, force: :cascade do |t|
-    t.integer "question_instance_id"
-    t.integer "user_id"
-    t.string "question", limit: 10000, null: false
-    t.boolean "sticky", default: false
-    t.integer "parent_id"
-    t.integer "children_count"
-    t.integer "ancestors_count"
-    t.integer "descendants_count"
-    t.integer "position"
-    t.boolean "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean "public", default: true
-    t.boolean "active", default: true
-    t.integer "pushed_from_id"
-    t.index ["active"], name: "index_questions_on_active"
-    t.index ["created_at"], name: "index_questions_on_created_at"
-    t.index ["parent_id"], name: "index_questions_on_parent_id"
-    t.index ["position"], name: "index_questions_on_position"
-    t.index ["public"], name: "index_questions_on_public"
-    t.index ["question_instance_id"], name: "index_questions_on_question_instance_id"
-    t.index ["sticky"], name: "index_questions_on_sticky"
-    t.index ["updated_at"], name: "index_questions_on_updated_at"
-    t.index ["user_id"], name: "index_questions_on_user_id"
-  end
-
-  create_table "responses", id: :serial, force: :cascade do |t|
-    t.text "content"
-    t.integer "user_id", null: false
-    t.string "resource_type", limit: 255, null: false
-    t.integer "resource_id", null: false
-    t.datetime "created_at"
-  end
-
   create_table "roles", id: :serial, force: :cascade do |t|
     t.string "name", limit: 40
     t.string "authorizable_type", limit: 40
@@ -583,90 +424,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.datetime "updated_at"
     t.index ["role_id"], name: "index_roles_users_on_role_id"
     t.index ["user_id"], name: "index_roles_users_on_user_id"
-  end
-
-  create_table "rotisserie_assignments", id: :serial, force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "rotisserie_discussion_id"
-    t.integer "rotisserie_post_id"
-    t.integer "round"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["rotisserie_discussion_id"], name: "index_rotisserie_assignments_on_rotisserie_discussion_id"
-    t.index ["rotisserie_post_id"], name: "index_rotisserie_assignments_on_rotisserie_post_id"
-    t.index ["round"], name: "index_rotisserie_assignments_on_round"
-    t.index ["user_id"], name: "index_rotisserie_assignments_on_user_id"
-  end
-
-  create_table "rotisserie_discussions", id: :serial, force: :cascade do |t|
-    t.integer "rotisserie_instance_id"
-    t.string "title", limit: 250, null: false
-    t.text "output"
-    t.text "description"
-    t.text "notes"
-    t.integer "round_length", default: 2
-    t.integer "final_round", default: 2
-    t.datetime "start_date"
-    t.string "session_id", limit: 255
-    t.boolean "active", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean "public", default: true
-    t.integer "pushed_from_id"
-    t.integer "user_id", default: 0, null: false
-    t.index ["active"], name: "index_rotisserie_discussions_on_active"
-    t.index ["rotisserie_instance_id"], name: "index_rotisserie_discussions_on_rotisserie_instance_id"
-    t.index ["title"], name: "index_rotisserie_discussions_on_title"
-  end
-
-  create_table "rotisserie_instances", id: :serial, force: :cascade do |t|
-    t.string "title", limit: 250, null: false
-    t.text "output"
-    t.text "description"
-    t.text "notes"
-    t.string "session_id", limit: 255
-    t.boolean "active", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean "public", default: true
-    t.integer "user_id", default: 0, null: false
-    t.index ["title"], name: "index_rotisserie_instances_on_title", unique: true
-  end
-
-  create_table "rotisserie_posts", id: :serial, force: :cascade do |t|
-    t.integer "rotisserie_discussion_id"
-    t.integer "round"
-    t.string "title", limit: 250, null: false
-    t.text "output"
-    t.string "session_id", limit: 255
-    t.boolean "active", default: true
-    t.integer "parent_id"
-    t.integer "children_count"
-    t.integer "ancestors_count"
-    t.integer "descendants_count"
-    t.integer "position"
-    t.boolean "hidden"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.boolean "public", default: true
-    t.integer "user_id", default: 0, null: false
-    t.index ["active"], name: "index_rotisserie_posts_on_active"
-    t.index ["parent_id"], name: "index_rotisserie_posts_on_parent_id"
-    t.index ["position"], name: "index_rotisserie_posts_on_position"
-    t.index ["rotisserie_discussion_id"], name: "index_rotisserie_posts_on_rotisserie_discussion_id"
-    t.index ["round"], name: "index_rotisserie_posts_on_round"
-  end
-
-  create_table "rotisserie_trackers", id: :serial, force: :cascade do |t|
-    t.integer "rotisserie_discussion_id"
-    t.integer "rotisserie_post_id"
-    t.integer "user_id"
-    t.string "notify_description", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["rotisserie_discussion_id"], name: "index_rotisserie_trackers_on_rotisserie_discussion_id"
-    t.index ["rotisserie_post_id"], name: "index_rotisserie_trackers_on_rotisserie_post_id"
-    t.index ["user_id"], name: "index_rotisserie_trackers_on_user_id"
   end
 
   create_table "sessions", id: :serial, force: :cascade do |t|
@@ -807,19 +564,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.index ["oauth_token"], name: "index_users_on_oauth_token"
     t.index ["persistence_token"], name: "index_users_on_persistence_token"
     t.index ["tz_name"], name: "index_users_on_tz_name"
-  end
-
-  create_table "votes", id: :serial, force: :cascade do |t|
-    t.boolean "vote", default: false
-    t.integer "voteable_id"
-    t.string "voteable_type", limit: 255
-    t.integer "voter_id"
-    t.string "voter_type", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["voteable_id", "voteable_type"], name: "fk_voteables"
-    t.index ["voter_id", "voter_type", "voteable_id", "voteable_type"], name: "uniq_one_vote_only", unique: true
-    t.index ["voter_id", "voter_type"], name: "fk_voters"
   end
 
   add_foreign_key "content_annotations", "content_nodes", column: "resource_id", on_delete: :cascade
