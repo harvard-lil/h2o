@@ -15,7 +15,7 @@ class ExportSystemTest < ApplicationSystemTestCase
     sign_in user = users(:verified_student)
     visit path
     click_link 'Export'
-    exported_file_url = evaluate_script('_test_window_urls').last
+    exported_file_url = find_link('Export')['href']
     downloaded_path = download_file exported_file_url, to: file
     assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
     assert_equal Digest::SHA256.file(expected_file_path(file)).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
