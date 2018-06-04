@@ -270,7 +270,7 @@ class Content::NodeDecorator < Draper::Decorator
   ## Casebook
 
   def publish_changes_to_casebook
-    button_to(I18n.t('content.actions.publish-changes'), casebook_path(casebook), method: :patch, params: {content_casebook: {public: true}}, class: 'action publish one-line')
+    button_tag(I18n.t('content.actions.publish-changes'), {name: nil, type:"button", class: 'action publish one-line'})
   end
 
   def publish_casebook
