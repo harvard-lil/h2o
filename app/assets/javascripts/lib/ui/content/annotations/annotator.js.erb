@@ -107,8 +107,7 @@ export class Annotator extends Component {
       { annotation: attrs }, { scroll: false })
     .then( _ => this.deactivate() );
 
-    window.location.hash = `annotation_id=${annotationId}`
-    window.location.reload(true)
+    window.location = (window.location + `?annotation_id=${annotationId}`);
   }
 
   deactivate () {
