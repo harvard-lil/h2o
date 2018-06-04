@@ -15,12 +15,6 @@ class ExportSystemTest < ApplicationSystemTestCase
     sign_in user = users(:verified_student)
     visit path
     click_link 'Export'
- 
-    within '#export-modal' do
-      assert_content 'Export Casebook'
-      click_link 'Export'
-    end
-
     exported_file_url = evaluate_script('_test_window_urls').last
     downloaded_path = download_file exported_file_url, to: file
     assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
