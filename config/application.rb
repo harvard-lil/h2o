@@ -43,5 +43,6 @@ module H2o
 
     config.action_mailer.default_url_options = { :host => 'localhost' }
     config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
+    config.export_annotations_by_default = true
   end
 end
