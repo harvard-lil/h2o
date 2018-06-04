@@ -2,21 +2,23 @@
 
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
+import ModalComponent from 'lib/ui/modal';
 import {patch} from 'lib/requests';
 
-delegate(document, 'input.action.publish', 'click', showPublishModal);
-
-let modal = null;
+delegate(document, 'button.action.publish', 'click', showPublishModal);
 
 function casebook_path(resourceId, format = 'pdf') {
   return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
 }
 
 function showPublishModal (e) {
-  e.preventDefault();
-  e.stopPropagation();
-  modal = new PublishModal;
+  new PublishModal('publish-modal', e.target, {
+    'click .confirm': (e) => {
+      showSpinner();
+      let casebookId = document.querySelector('main > header').dataset.casebookId;
+      patch(casebook_path(casebookId), {content_casebook: {public: true}});
+    },
+  });
 }
 
 function showSpinner (e) {
@@ -28,24 +30,7 @@ function showSpinner (e) {
   $(".spinner-header").show();
 }
 
-class PublishModal extends Component {
-  constructor () {
-    super({
-      id: 'publish-modal',
-      events: {
-        'click #publish-modal': (e) => { if (e.target.id === 'publish-modal') this.destroy()},
-        'click .close': (e) => {this.destroy()},
-        'click .cancel': (e) => { this.destroy() },
-        'click .confirm': (e) => {
-          showSpinner();
-          let casebookId = document.querySelector('main > header').dataset.casebookId;
-          patch(casebook_path(casebookId), {content_casebook: {public: true}}, {modal: this});
-        },
-      }
-    });
-    document.body.appendChild(this.el);
-    this.render();
-  }
+class PublishModal extends ModalComponent {
 
   casebookId () {
     return document.querySelector('header.casebook').dataset.casebookId;
@@ -56,12 +41,12 @@ class PublishModal extends Component {
   }
 
   template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
+    return html`<div class="modal fade in" id="${this.id}" style="display: block"  tabindex="-1" aria-labelledby="${this.id}-title">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title"><%= t 'content.publish-modal.title' %></h4>
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 id="${this.id}-title" class="modal-title"><%= t 'content.publish-modal.title' %></h4>
           </div>
           <div class="publish">
             <div class="spinner-group">
@@ -77,8 +62,8 @@ class PublishModal extends Component {
             <%= I18n.t 'content.publish-modal.body' %>
           </div>
           <div class="modal-footer">
-            <%= link_to t('content.publish-modal.cancel'), '#', class: 'modal-button cancel' %>
-            <%= link_to t('content.publish-modal.confirm'), '#', class: 'modal-button confirm', input_html: { 'data-toggle' => 'modal' }%>
+            <button class="modal-button cancel"><%= t('content.publish-modal.cancel') %></button>
+            <button class="modal-button confirm"><%= t('content.publish-modal.confirm') %></button>
           </div>
         </div>
       </div>

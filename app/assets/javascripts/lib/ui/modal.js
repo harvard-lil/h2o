@@ -13,6 +13,7 @@ export default class ModalComponent extends Component {
       id: id,
       events: Object.assign(customEvents || {}, {
         'click .close': (e) => { this.destroy() },
+        'click .cancel': (e) => { this.destroy() },
         [`click #${id}`]: (e) => { if (e.target.id === id) this.destroy() },
         [`keydown #${id}`]: (e) => { if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) this.destroy()}
       })
