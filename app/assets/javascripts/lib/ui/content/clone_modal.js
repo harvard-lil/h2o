@@ -1,27 +1,16 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
+import ModalComponent from 'lib/ui/modal';
 
 delegate(document, '.clone-casebook', 'submit', showCloneModal);
 
-let modal = null;
-
 function showCloneModal (e) {
-  modal = new CloneModal;
+  new CloneModal('clone-modal', e.target);
 }
 
-class CloneModal extends Component {
-  constructor () {
-    super({
-      id: 'clone-modal',
-      events: {}
-    });
-    document.body.appendChild(this.el);
-    this.render();
-  }
-
+class CloneModal extends ModalComponent {
   template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
+    return html`<div class="modal fade in" id="${this.id}" tabindex="-1" aria-label="Cloning Casebook" style="display: block">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">
