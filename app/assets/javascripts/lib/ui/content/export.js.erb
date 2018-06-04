@@ -15,13 +15,13 @@ function export_casebook_path(casebookId, format = 'docx') {
 }
 
 function downloadFile (e) {
-  let pageInfo = document.querySelector('main > header').dataset;;
+  let pageInfo = document.querySelector('main > header').dataset;
   let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
   if (pageInfo.resourceId)  {
-    window.location = resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '': '?annotations=false');
+    e.target.href = resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '': '?annotations=false');
   } else if (pageInfo.sectionId)  {
-    window.location = section_export_path(pageInfo.sectionId) + (includeAnnotations ? '' : '?annotations=false');
+    e.target.href = section_export_path(pageInfo.sectionId) + (includeAnnotations ? '' : '?annotations=false');
   } else {
-    window.location = export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '' : '?annotations=false');
+    e.target.href = export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '' : '?annotations=false');
   }
 }

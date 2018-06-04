@@ -216,7 +216,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_resource
-    link_to(I18n.t('content.actions.export'), resource_export_path(resource), class: 'action one-line export')
+    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
   end
 
   def preview_resource
@@ -251,7 +251,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_section
-    link_to(I18n.t('content.actions.export'), section_export_path(section), class: 'action one-line export')
+    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
   end
 
   def preview_section
@@ -294,7 +294,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_casebook
-    link_to(I18n.t('content.actions.export'), export_casebook_path(casebook), class: 'action one-line export')
+    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
   end
 
   def preview_casebook
@@ -313,7 +313,7 @@ class Content::NodeDecorator < Draper::Decorator
     link_to(I18n.t('content.actions.save'), 'submit-casebook-details', class: 'action one-line save submit-casebook-details')
   end
 
-  def cancel_casebook 
+  def cancel_casebook
     link_to(I18n.t('content.actions.cancel'), 'cancel-casebook-details', class: 'action one-line cancel cancel-casebook-details')
   end
 
