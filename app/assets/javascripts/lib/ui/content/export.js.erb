@@ -1,10 +1,8 @@
 <% depend_on Rails.root.join('lib/locales/en/content.yml') %>
 
-import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
 
-delegate(document, 'a.action.export', 'click', showExportModal);
+delegate(document, 'a.action.export', 'click', downloadFile);
 
 function resource_export_path(resourceId, format = 'docx') {
   return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
@@ -16,76 +14,14 @@ function export_casebook_path(casebookId, format = 'docx') {
   return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
-let modal = null;
-
-function showExportModal (e) {
-  e.preventDefault();
-  e.stopPropagation();
-  modal = new ExportModal;
-}
-
-class ExportModal extends Component {
-  constructor () {
-    super({
-      id: 'export-modal',
-      events: {
-        'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
-        'click .close': (e) => { this.destroy() },
-        'click .cancel': (e) => { this.destroy() },
-        'click .export': (e) => {
-          let resourceId = document.querySelector('main > header').dataset.resourceId;
-          let sectionId = document.querySelector('main > header').dataset.sectionId;
-          let casebookId = document.querySelector('main > header').dataset.casebookId;
-          let includeAnnotations = this.el.querySelector('[name="include-annotations"]').checked;
-          if (resourceId)  {
-            window.open(resource_export_path(resourceId) + (includeAnnotations ? '' : '?annotations=false'));
-          } else if (sectionId)  {
-            window.open(section_export_path(sectionId) + (includeAnnotations ? '' : '?annotations=false'));
-          } else {
-            window.open(export_casebook_path(casebookId) + (includeAnnotations ? '' : '?annotations=false'));
-          }
-        },
-      }
-    });
-    document.body.appendChild(this.el);
-    this.render();
-  }
-
-  casebookId () {
-    return document.querySelector('header.casebook').dataset.casebookId;
-  }
-
-  sectionId () {
-    return document.querySelector('header.casebook').dataset.sectionId;
-  }
-
-  template () {
-    return html`<div class="modal fade in" id="export-modal" style="display: block">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title"><%= t 'content.export-modal.title' %></h4>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" name="include-annotations" value="yes" checked />
-            <% if false %>
-              <label>
-                <input type="checkbox" name="include-annotations" checked />
-              <%= I18n.t 'content.export-modal.include-annotations' %>
-              </label>
-              <br />
-            <% end %>
-            <label>
-              <%= I18n.t 'content.export-modal.format' %>
-              <span>Word</span>
-            </label>
-          </div>
-          <div class="modal-footer">
-            <%= link_to t('content.export-modal.export'), '#', class: 'modal-button export' %>
-          </div>
-        </div>
-      </div>
-    </div>`
+function downloadFile (e) {
+  let pageInfo = document.querySelector('main > header').dataset;;
+  let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
+  if (pageInfo.resourceId)  {
+    window.location = resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '': '?annotations=false');
+  } else if (pageInfo.sectionId)  {
+    window.location = section_export_path(pageInfo.sectionId) + (includeAnnotations ? '' : '?annotations=false');
+  } else {
+    window.location = export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '' : '?annotations=false');
   }
 }
