@@ -100,7 +100,7 @@ main > header.casebook {
   a.action {
     padding-top: 16px !important;
   }
-  input.action, a.action {
+  button.action, input.action, a.action {
     @include sans-serif($bold, 14px, 14px);
     @include transition(background-size 0.05s linear, background-position 0.05s linear);
     display: block;
