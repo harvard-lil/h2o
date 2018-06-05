@@ -84,7 +84,7 @@ export class Annotator extends Component {
       }
     }, { scroll: false })
     .then( response => {
-      window.location = (window.location + `?annotation_id=${response.data.annotation_id}`);
+      window.location = (window.location + `?annotation-id=${response.data.annotation_id}`);
     });
   }
 
@@ -109,7 +109,7 @@ export class Annotator extends Component {
       { annotation: attrs }, { scroll: false })
     .then( _ => this.deactivate() );
 
-    window.location = (window.location + `?annotation_id=${annotationId}`);
+    window.location = (window.location + `?annotation-id=${annotationId}`);
   }
 
   deactivate () {
