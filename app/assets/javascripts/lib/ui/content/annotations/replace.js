@@ -5,6 +5,7 @@ import Component from 'lib/ui/component'
 import delegate from 'delegate';
 import debounce from 'debounce';
 import {editAnnotationHandle, stageChangeToAnnotation, stagePreviousContent, isEditable} from 'lib/ui/content/annotations';
+import {toggleElisionVisibility} from 'lib/ui/content/annotations/elide';
 import {getQueryStringDict} from 'lib/helpers';
 
 
@@ -45,23 +46,12 @@ function handleReplaceButtonPressed(e){
     stagePreviousContent(e.target.innerText);
     setFocus(e.target.firstElementChild);
   }
+  // this handles on/off for non-editable, and off for editable
   if (!isEditable() || e.target.classList.contains('revealed')) {
     let annotationId = e.target.dataset.annotationId;
     let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
+    toggleElisionVisibility(annotationId, 'replace', e.target, elisions);
 
-    e.target.classList.toggle('revealed');
-    if (e.target.classList.contains('revealed')){
-      e.target.setAttribute('aria-expanded', 'true');
-      elisions[elisions.length - 1].insertAdjacentHTML('afterend', `<span class="annotate replaced revealed sr-only" data-annotation-id="${annotationId}">(end of replaced text)</span>`);
-    } else {
-      e.target.setAttribute('aria-expanded', 'false');
-      elisions[elisions.length - 1].remove();
-    }
-    for (let el of elisions) {
-      el.classList.toggle('revealed');
-      el.parentElement.classList.toggle('revealed');
-      el.parentElement.previousElementSibling.classList.toggle('revealed');
-    }
   }
 }
 

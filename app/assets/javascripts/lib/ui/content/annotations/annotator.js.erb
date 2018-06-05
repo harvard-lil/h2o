@@ -5,6 +5,7 @@ import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 
 import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
+import {toggleElisionVisibility} from 'lib/ui/content/annotations/elide';
 
 let Axios = AxiosConfig.create({
   headers: {
@@ -49,7 +50,7 @@ export class Annotator extends Component {
       this.convertAnnotation(this.handle.dataset.annotationId, e.target.dataset.annotationType);
       break;
     case 'reveal':
-      this.revealElidedText(this.handle.dataset.annotationId);
+      this.revealReplacedText(this.handle.dataset.annotationId);
       break;
     case 'save-changes':
       this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
@@ -92,14 +93,12 @@ export class Annotator extends Component {
     .then( _ => window.getSelection().removeAllRanges());
   }
 
-  revealElidedText(annotationId) {
-    let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
-    let replacement = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);
 
-    replacement.classList.toggle('revealed')
-    for (let el of elisions) {
-      el.classList.toggle('revealed');
-    }
+
+  revealReplacedText(annotationId) {
+    let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
+    let button = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);
+    toggleElisionVisibility(annotationId, 'replace', button, elisions);
   }
 
   updateAnnotation (annotationId, attrs) {
