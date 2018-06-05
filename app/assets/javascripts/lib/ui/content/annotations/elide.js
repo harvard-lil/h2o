@@ -7,18 +7,21 @@ import delegate from 'delegate';
 delegate(document, '.annotate.elide', 'click', e => {
   let annotationId = e.target.dataset.annotationId;
   let elisions = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
+  toggleElisionVisibility(annotationId, 'elide', e.target, elisions);
+});
 
-  e.target.classList.toggle('revealed');
-  if (e.target.classList.contains('revealed')){
-    e.target.setAttribute('aria-expanded', 'true');
-    elisions[elisions.length - 1].insertAdjacentHTML('afterend', `<span class="annotate elided revealed sr-only" data-annotation-id="${annotationId}">(end of elided text)</span>`);
+export function toggleElisionVisibility(annotationId, annotationType, toggleButton, toggledContentNodes){
+  toggleButton.classList.toggle('revealed');
+  if (toggleButton.classList.contains('revealed')){
+    toggleButton.setAttribute('aria-expanded', 'true');
+    toggledContentNodes[toggledContentNodes.length - 1].insertAdjacentHTML('afterend', `<span class="annotate ${annotationType}d revealed sr-only" data-annotation-id="${annotationId}">(end of ${annotationType}d text)</span>`);
   } else {
-    e.target.setAttribute('aria-expanded', 'false');
-    elisions[elisions.length - 1].remove();
+    toggleButton.setAttribute('aria-expanded', 'false');
+    toggledContentNodes[toggledContentNodes.length - 1].remove();
   }
-  for (let el of elisions) {
+  for (let el of toggledContentNodes) {
     el.classList.toggle('revealed');
     el.parentElement.classList.toggle('revealed');
     el.parentElement.previousElementSibling.classList.toggle('revealed');
   }
-});
+}
