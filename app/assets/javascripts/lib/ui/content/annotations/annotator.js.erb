@@ -84,7 +84,7 @@ export class Annotator extends Component {
       }
     }, { scroll: false })
     .then( response => {
-      window.location = (window.location + `?annotation-id=${response.data.annotation_id}`);
+      window.location.search = `annotation-id=${response.data.annotation_id}`
     });
   }
 
