@@ -108,8 +108,6 @@ export class Annotator extends Component {
     Axios.patch(this.annotationPath(annotationId + '.json'), 
       { annotation: attrs }, { scroll: false })
     .then( _ => this.deactivate() );
-
-    window.location.search = `annotation-id=${response.data.annotation_id}`;
   }
 
   deactivate () {
