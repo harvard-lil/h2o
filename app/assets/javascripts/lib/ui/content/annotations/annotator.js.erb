@@ -72,19 +72,7 @@ export class Annotator extends Component {
     this.render();
   }
 
-  saveAnnotation (type, offsets, content = null) {
-    post(this.annotationsPath(), {
-      annotation: {
-        kind: type,
-        content: content,
-        start_p: offsets.start.p,
-        start_offset: offsets.start.offset,
-        end_p: offsets.end.p,
-        end_offset: offsets.end.offset
-      }
-    }, { scroll: false })
-    .then( _ => window.getSelection().removeAllRanges());
-  }
+
 
   convertAnnotation (annotationId, type) {
     patch(this.annotationPath(annotationId), {
@@ -100,6 +88,22 @@ export class Annotator extends Component {
     for (let el of elisions) {
       el.classList.toggle('revealed');
     }
+  }
+
+  saveAnnotation (type, offsets, content = null) {
+    Axios.post(this.annotationsPath() + '.json', {
+      annotation: {
+        kind: type,
+        content: content,
+        start_p: offsets.start.p,
+        start_offset: offsets.start.offset,
+        end_p: offsets.end.p,
+        end_offset: offsets.end.offset
+      }
+    }, { scroll: false })
+    .then( response => {
+      window.location = (window.location + `?annotation_id=${response.data.annotation_id}`);
+    });
   }
 
   updateAnnotation (annotationId, attrs) {
