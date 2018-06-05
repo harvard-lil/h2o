@@ -6,8 +6,11 @@ class Content::AnnotationsController < ApplicationController
   before_action :find_resource, only: [:create, :destroy, :update]
 
   def create
-    Content::Annotation.create! annotation_params.merge(resource: @resource)
-    redirect_to annotate_resource_path(@resource.casebook, @resource)
+    annotation = Content::Annotation.create! annotation_params.merge(resource: @resource)
+    respond_to do |format|
+      format.json { render json: {annotation_id: annotation.id}}
+      format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
+    end
   end
 
   def destroy
