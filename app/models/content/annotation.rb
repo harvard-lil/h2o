@@ -99,11 +99,11 @@ class Content::Annotation < ApplicationRecord
     when 'replace' then
       "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
     when 'highlight' then
-      "<span class='annotate highlighted' data-annotation-id='#{id}'>#{inner}</span>"
+      "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{inner}</span>"
     when 'link' then
       "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
     when 'note' then
-      "<span class='annotate highlighted' data-annotation-id='#{id}'>#{inner}#{final ? "<span class='annotate note-icon' data-annotation-id='#{id}'>[see note]</span>" : ''}</span>#{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-content'>#{escaped_content}</span></span>" : ''}"
+      "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{inner}#{final ? "<span class='annotate note-icon' data-annotation-id='#{id}'>[see note]</span>" : ''}</span>#{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-content'>#{escaped_content}</span></span>" : ''}"
     else
     end
   end
