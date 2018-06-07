@@ -69,7 +69,7 @@
   }
   h2 > .annotate.highlighted {
     padding: 3px 0 3px;
-  } // etc
+  }
 
   /* hacks for misbehaving blockquotes */
   blockquote {
@@ -163,12 +163,13 @@
     &.note-content-wrapper {
       @include square(0);
       position: absolute;
-      right: -40px;
+      right: -68px;
       overflow: visible;
-      display: none;
+      display: block;
+      margin-top: -80px;
 
       &.revealed {
-        display: block;
+        display: none;
       }
 
       .note-content {
