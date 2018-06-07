@@ -5,6 +5,7 @@ import Component from 'lib/ui/component'
 import delegate from 'delegate';
 
 import {Annotator} from 'lib/ui/content/annotations/annotator';
+import {getQueryStringDict} from 'lib/helpers';
 
 import 'lib/ui/content/annotations/elide';
 import 'lib/ui/content/annotations/replace';
@@ -14,6 +15,17 @@ import 'lib/ui/content/annotations/placement';
 
 let annotator = null;
 
+// Set focus to a particular replace on page load if specified in query string
+window.addEventListener('load', () => {
+  let query = getQueryStringDict();
+  if (query['annotation-id']) {
+    let annotation = document.querySelector(`.annotate[data-annotation-id="${query['annotation-id']}"]`);
+    if (annotation){
+      setFocus(annotation);
+      annotation.scrollIntoView(true);
+    };
+  }
+})
 
 $('.view-resources-annotate').ready(e => {
   annotator = new Annotator();
@@ -28,6 +40,17 @@ delegate(document, '.annotation-handle .annotation-button', 'click', e => {
 delegate(document, '.annotate.replacement', 'focus', e => {
   annotator.edit(e.target.previousElementSibling);
 });
+
+export function setFocus(el) {
+    if (document.activeElement === el) { return; }
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.setStart(el, 0);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    el.focus();
+}
 
 export function editAnnotationHandle(handle) {
   if (!annotator) { return; }
