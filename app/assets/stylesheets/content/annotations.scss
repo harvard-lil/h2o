@@ -4,9 +4,9 @@
   display: block;
   position: absolute;
   right: 0;
-
   overflow: visible;
   user-select: none;
+
   &.hide .annotator-inner {
     max-width: 0px;
     padding: 10px 0;
@@ -17,20 +17,16 @@
     @include transition(max-width 0.1s linear, padding 0.1s linear, border-width 0.1s linear);
     position: absolute;
     left: 40px;
-
     padding: 10px;
     max-width: 200px;
     overflow: hidden;
-
     background-color: $white;
     border: 1px solid black;
 
     .annotator-action {
       @include sans-serif($regular, 12px, 14px);
-
       cursor: pointer;
       white-space: nowrap;
-
       background-color: $white;
       &:hover {
         background-color: $highlight;
@@ -56,17 +52,13 @@
     @include square(28px);
     position: absolute;
     right: 0;
-
     user-select: none;
 
     .annotation-button {
       @include square(28px);
-      // @include relative(55px, 0);
       display: block;
-
       overflow: hidden;
       cursor: pointer;
-
       background-image: asset-url('ui/annotate/annotation-icon.png');
       color: transparent;
     }
@@ -134,9 +126,7 @@
       &.revealed {
         padding: 7px;
         display: inline;
-
         color: #555;
-
         border-radius: 3px;
         background-color: $light-gray;
       }
@@ -144,9 +134,7 @@
     &.elide {
       display: inline-block;
       padding: 0 10px;
-
       cursor: zoom-in;
-
       border: none;
       background-color: $light-gray;
       color: $light-blue;
@@ -168,20 +156,17 @@
     &.note-icon {
       @include square(20px);
       display: inline-block;
-
       color: transparent;
       overflow: hidden;
-
       background-image: asset-url('ui/annotate/note-icon.png');
     }
     &.note-content-wrapper {
       @include square(0);
       position: absolute;
       right: -40px;
-
       overflow: visible;
-
       display: none;
+
       &.revealed {
         display: block;
       }
@@ -191,10 +176,8 @@
         display: block;
         width: 200px;
         padding: 10px;
-
         position: relative;
         top: -20px;
-
         background-color: $highlight;
         color: black;
       }
