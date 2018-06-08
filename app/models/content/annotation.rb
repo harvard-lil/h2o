@@ -103,7 +103,7 @@ class Content::Annotation < ApplicationRecord
     when 'link' then
       "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
     when 'note' then
-      "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{inner}#{final ? "<span class='annotate note-icon' data-annotation-id='#{id}'>[see note]</span>" : ''}</span>#{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-content'>#{escaped_content}</span></span>" : ''}"
+      "<div tabindex='-1' class='note-html-wrapper'><span class='annotate note' data-annotation-id='#{id}'>#{inner}#{final ? "<span class='annotate' data-annotation-id='#{id}'>[see note]</span>" : ''}</span>#{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-content'>#{escaped_content}</span></span>" : ''}</div>"
     else
     end
   end

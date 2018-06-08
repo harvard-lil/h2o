@@ -82,6 +82,12 @@
     }
   }
 
+  .note-html-wrapper {
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: center;
+    }
+
   .annotate {
     display: inline;
 
@@ -153,13 +159,13 @@
         cursor: zoom-out;
       }
     }
-    &.note-icon {
-      @include square(20px);
-      display: inline-block;
-      color: transparent;
-      overflow: hidden;
-      background-image: asset-url('ui/annotate/note-icon.png');
-    }
+    // &.note-icon {
+    //   @include square(20px);
+    //   display: inline-block;
+    //   color: transparent;
+    //   overflow: hidden;
+    //   background-image: asset-url('ui/annotate/note-icon.png');
+    // }
     &.note-content-wrapper {
       @include square(0);
       position: absolute;
@@ -179,8 +185,9 @@
         padding: 10px;
         position: relative;
         top: -20px;
-        background-color: $highlight;
+        background-color: white;
         color: black;
+
       }
     }
   }
