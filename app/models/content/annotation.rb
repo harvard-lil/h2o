@@ -56,10 +56,12 @@ class Content::Annotation < ApplicationRecord
         end
       else
         if node_offset + node.text.length >= start_offset
-          handle_html = if editable
-            "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
+          if editable && kind == 'note'
+            handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+          elsif editable
+            handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
           else
-            ''
+            handle_html = ""
           end
           if p_idx == end_p && node_offset + node.text.length >= end_offset
             # wrap within this node
@@ -103,7 +105,8 @@ class Content::Annotation < ApplicationRecord
     when 'link' then
       "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
     when 'note' then
-      "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}</span>#{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>" : ''}"
+      "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}</span>"
+      #{final ? "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>" : ''}"
     end
   end
 
