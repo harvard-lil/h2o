@@ -180,7 +180,13 @@
         display: none;
       }
 
-      .note-content {
+      &.note-icon {
+        position: absolute;
+        transform: translate(84%, -100%) rotate(180deg);
+        z-index: 1;
+      }
+
+      &.note-content {
         @include sans-serif($regular, 14px, 20px);
         display: block;
         width: 200px;
