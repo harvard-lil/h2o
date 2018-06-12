@@ -82,17 +82,6 @@
     }
   }
 
-  .note-html-wrapper {
-      display: flex;
-      flex-direction: column-reverse;
-      justify-content: center;
-      text-decoration: $light-blue underline;
-
-      &.selected {
-        text-decoration-style: double;
-      }
-    }
-
   .annotate {
     display: inline;
 
@@ -171,6 +160,14 @@
     //   overflow: hidden;
     //   background-image: asset-url('ui/annotate/note-icon.png');
     // }
+    &.note {
+      text-decoration: $light-blue underline;
+      text-decoration-style: double;
+
+      &.revealed {
+        text-decoration-style: solid;
+      }
+    }
     &.note-content-wrapper {
       @include square(0);
       position: absolute;
@@ -192,7 +189,6 @@
         top: -20px;
         background-color: white;
         color: black;
-
       }
     }
   }
