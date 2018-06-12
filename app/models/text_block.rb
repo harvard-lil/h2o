@@ -36,11 +36,10 @@ class TextBlock < ApplicationRecord
 
   acts_as_taggable_on :tags
 
-  has_many :defects, :as => :reportable
   has_many :responses, -> { order(:created_at) }, :dependent => :destroy, :as => :resource
   belongs_to :user, optional: true
 
-  has_many :casebooks, inverse_of: :resource
+  # has_many :casebooks, inverse_of: :resource
 
   validates_presence_of :name
 
