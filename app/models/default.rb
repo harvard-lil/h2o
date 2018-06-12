@@ -31,12 +31,9 @@ class Default < ApplicationRecord
   }
 
   acts_as_taggable_on :tags
-  has_many :playlist_items, :as => :actual_object
   belongs_to :user, optional: true
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
-
-  has_many :casebooks, inverse_of: :resource
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name

@@ -46,24 +46,16 @@ class Content::Casebook < Content::Node
     text :title, boost: 3.0
     text :subtitle
     text :headnote
-
-    # text :content do
-    #   if self.is_a? Content::Resource
-    #     resource.content
-    #   end
-    # end
-
     string(:klass, stored: true) { self.class.name }
     string(:display_name, stored: true) { title }
+    string(:attribution, stored: true) { owners.first.try(:attribution) }
+    string(:affiliation, stored: true) { owners.first.try(:affiliation) }
+    string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
     boolean :public
 
     integer :owner_ids, stored: true, multiple: true do
       owners.map &:id
     end
-
-    string(:attribution, stored: true) { owners.first.try(:attribution) }
-    string(:affiliation, stored: true) { owners.first.try(:affiliation) }
-    string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
   end
 
   def clone(owner: '', draft_mode: false)
@@ -114,14 +106,6 @@ class Content::Casebook < Content::Node
   def to_param
     "#{id}-#{slug}"
   end
-
-  # def destroy
-  #   if self.descendants.present?
-  #    raise "Cannot delete a casebook with active descendants"
-  #   else
-  #     super
-  #   end
-  # end
 
   def draft
     descendants.where(draft_mode_of_published_casebook: true).where(copy_of_id: self.id).first

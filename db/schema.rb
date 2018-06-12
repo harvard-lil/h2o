@@ -248,15 +248,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.boolean "created_via_import", default: false, null: false
   end
 
-  create_table "defects", id: :serial, force: :cascade do |t|
-    t.text "description", null: false
-    t.integer "reportable_id", null: false
-    t.string "reportable_type", limit: 255, null: false
-    t.integer "user_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
@@ -279,17 +270,6 @@ ActiveRecord::Schema.define(version: 20180315204122) do
     t.string "item_type", limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "institutions", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "institutions_users", id: false, force: :cascade do |t|
-    t.integer "institution_id", null: false
-    t.integer "user_id", null: false
   end
 
   create_table "media_types", id: :serial, force: :cascade do |t|
