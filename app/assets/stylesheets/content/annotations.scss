@@ -168,13 +168,13 @@
         text-decoration-style: solid;
       }
     }
+
     &.note-content-wrapper {
       @include square(0);
       position: absolute;
-      right: -68px;
+      right: -40px;
       overflow: visible;
       display: block;
-      margin-top: -80px;
 
       &.revealed {
         display: none;
@@ -189,6 +189,7 @@
         top: -20px;
         background-color: white;
         color: black;
+        margin: 0 10px;
       }
     }
   }
