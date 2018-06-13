@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   # Important that check_auth happens after load_single_resource
   before_action :set_time_zone, :redirect_bad_format
   before_action :prepare_exception_notifier
+  before_action :check_superadmin
 
   after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
   after_action :allow_iframe
@@ -31,17 +32,13 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  private
-  # def common_user_preference_attrs
-  #   [
-  #     :user_id,
-  #     :default_font_size, :default_font, :tab_open_new_items, :simple_display,
-  #     :print_titles, :print_paragraph_numbers, :print_annotations,
-  #     :print_highlights, :print_font_face, :print_font_size, :default_show_comments,
-  #     :default_show_paragraph_numbers, :hidden_text_display, :print_links,
-  #   ]
-  # end
+  def check_superadmin
+    if current_user.superadmin?
+      flash[:error] = "Admin Mode"
+    end
+  end
 
+  private
 
   def prepare_exception_notifier
     request.env["exception_notifier.exception_data"] = {
