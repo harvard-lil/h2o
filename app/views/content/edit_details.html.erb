@@ -27,9 +27,7 @@
     <%= f.input :subtitle, placeholder: t('simple_form.labels.casebook.subtitle') %>
     <% if @section.nil? %>
       <div class="collaborators">
-        <% @casebook.users.each do |user| %>
-          <div class="user <%= user.verified_professor? ? 'verified' : '' %>"><%= user.display_name %></div>
-        <% end %>
+        <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
     <% end %>
   </header>

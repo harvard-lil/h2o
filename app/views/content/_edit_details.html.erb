@@ -29,9 +29,7 @@
   <% if @section.nil? %>
     <div class="authorship">
       <div class="collaborators">
-        <% @casebook.users.each do |user| %>
-          <div class="user <%= user.verified_professor? ? 'verified' : '' %>"><%= user.display_name %></div>
-        <% end %>
+        <%= render partial: 'content/collaborators', locals: {content: @content} %>
       </div>
       <div class="root-attribution">
         <% if @casebook.root_owner %>
