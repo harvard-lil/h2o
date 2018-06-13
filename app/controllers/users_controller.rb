@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   cache_sweeper :user_sweeper
   protect_from_forgery
   layout 'main', only: [:new, :create, :show, :edit, :update]
+  before_action :check_superadmin
 
   def new
     @user = User.new params.fetch(:user, {}).permit(:email_address, :attribution)
@@ -82,6 +83,12 @@ class UsersController < ApplicationController
   def user_lookup
     @users = User.where("(email_address = ? OR login = ?) AND id != ?", params[:lookup], params[:lookup], current_user.id).collect { |u| { :display => "#{u.login} (#{u.email_address})", :id => u.id } }
     render :json => { :items => @users }
+  end
+
+  def check_superadmin
+    if (current_user.superadmin? && params[:id].to_i != current_user.id)
+      flash[:error] = "Admin Mode"
+    end
   end
 
   private
