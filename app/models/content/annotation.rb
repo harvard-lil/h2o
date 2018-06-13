@@ -57,7 +57,7 @@ class Content::Annotation < ApplicationRecord
       else
         if node_offset + node.text.length >= start_offset
           if editable && kind == 'note'
-            handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+            handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
           elsif editable
             handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
           elsif kind == 'note'
