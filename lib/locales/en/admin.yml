@@ -1,10 +1,8 @@
 en:
   admin:
     actions:
-      edit_in_app:
-        menu: "Edit in H2O"
-      view_in_app:
-        menu: "View in H2O"
+      show_in_app:
+        menu: "Show in H2O"
       aggregate_items:
         menu: "Created / Deleted Stats"
         breadcrumb: "Created / Deleted Stats"
