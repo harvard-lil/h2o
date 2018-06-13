@@ -267,13 +267,15 @@ class User < ApplicationRecord
   end
 
   def superadmin?
+    admin = false
+
     self.roles.each do |role|
       if role.name == "superadmin"
-       return true
-      else
-        false
+        admin = true
       end
     end
+
+    admin
   end
 
   private
