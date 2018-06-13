@@ -153,13 +153,6 @@
         cursor: zoom-out;
       }
     }
-    // &.note-icon {
-    //   @include square(20px);
-    //   display: inline-block;
-    //   color: transparent;
-    //   overflow: hidden;
-    //   background-image: asset-url('ui/annotate/note-icon.png');
-    // }
     &.note {
       text-decoration: $light-blue underline;
       text-decoration-style: double;
@@ -182,8 +175,9 @@
 
       .note-icon {
         position: absolute;
-        transform: translate(84%, -120%) rotate(180deg);
+        transform: translate(152%, -120%) rotate(180deg);
         z-index: 1;
+        font-size: 17px;
       }
 
       .note-content {
@@ -195,7 +189,7 @@
         top: -20px;
         background-color: white;
         color: black;
-        margin: 0 10px;
+        margin: 0 20px;
       }
     }
   }
