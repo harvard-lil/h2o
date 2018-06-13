@@ -59,14 +59,14 @@ class Ability
       can [:create], :"ckeditor/assets"
       can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
-      can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :view_in_app, :edit_in_app, :edit,
+      can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :show_in_app, :edit,
            :update, :position_update, :update_notes, :save_readable_state],
         :all
       can :aggregate_items, [TextBlock, Default, User]
       can [:import], [Default]
 
       can [:new, :edit], Page
-      cannot :edit_in_app, Page
+      cannot :show_in_app, Page
 
       can :approve, Case
       can [:new], CaseJurisdiction
@@ -81,7 +81,7 @@ class Ability
       can :show, BulkUpload
     elsif user.has_role? :case_admin
       can :access, :rails_admin
-      can [:index, :show, :export, :export_as, :export_unique, :view_in_app, :edit_in_app], Case
+      can [:index, :show, :export, :export_as, :export_unique, :show_in_app], Case
       can :dashboard, :all
 
       can [:new, :show, :export, :export_as], Case
@@ -96,7 +96,7 @@ class Ability
       associated_user_ids = user_ids.flatten.uniq
       can :access, :rails_admin
       can :dashboard, :all
-      can [:index, :show, :export, :export_as, :export_unique, :view_in_app], [TextBlock, Default], :user_id => associated_user_ids
+      can [:index, :show, :export, :export_as, :export_unique, show_in_app], [TextBlock, Default], :user_id => associated_user_ids
     end
   end
 end
