@@ -368,6 +368,6 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def owner?
-    casebook.owners.include?(current_user)
+    (casebook.owners.include?(current_user) || current_user.superadmin?)
   end
 end
