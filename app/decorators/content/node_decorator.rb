@@ -102,7 +102,7 @@ class Content::NodeDecorator < Draper::Decorator
   # Published buttons
 
   def casebook_published_with_draft
-    if owner?
+    if authorized?
       edit_draft +
       clone_casebook +
       export_casebook
@@ -113,7 +113,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_published
-    if owner?
+    if authorized?
       create_draft +
       clone_casebook +
       export_casebook
@@ -124,7 +124,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def section_published_with_draft
-    if owner?
+    if authorized?
       revise_draft_section +
       clone_casebook +
       export_section
@@ -135,7 +135,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def section_published
-    if owner?
+    if authorized?
       edit_section_draft +
       clone_section +
       export_section
@@ -146,7 +146,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def resource_published_with_draft
-    if owner?
+    if authorized?
       annotate_resource_draft +
       clone_casebook +
       export_resource
@@ -157,7 +157,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def resource_published
-    if owner?
+    if authorized?
       build_draft +
       clone_resource +
       export_resource
@@ -364,10 +364,10 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_mode?
-    owner? && action_name == 'show'
+    authorized? && action_name == 'show'
   end
 
-  def owner?
+  def authorized?
     (casebook.owners.include?(current_user) || current_user.superadmin?)
   end
 end
