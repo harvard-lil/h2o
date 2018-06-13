@@ -54,7 +54,7 @@ end
 module RailsAdmin
   module Config
     module Actions
-      class ViewInApp < RailsAdmin::Config::Actions::Base
+      class ShowInApp < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
 
         register_instance_option :visible? do
@@ -69,6 +69,8 @@ module RailsAdmin
           proc do
             if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
+            elsif @object.model_name.name.split(/::/).first == "Content" 
+              redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}"
             else
               redirect_to main_app.url_for(@object)
             end
@@ -77,38 +79,6 @@ module RailsAdmin
 
         register_instance_option :link_icon do
           'icon-eye-open'
-        end
-
-        register_instance_option :pjax? do
-          false
-        end
-      end
-    end
-  end
-end
-
-module RailsAdmin
-  module Config
-    module Actions
-      class EditInApp < RailsAdmin::Config::Actions::Base
-        RailsAdmin::Config::Actions.register(self)
-
-        register_instance_option :visible? do
-          authorized?
-        end
-
-        register_instance_option :member do
-          true
-        end
-
-        register_instance_option :controller do
-          proc do
-            redirect_to main_app.send("edit_#{@object.class.to_s.underscore}_path", @object)
-          end
-        end
-
-        register_instance_option :link_icon do
-          'icon-pencil'
         end
 
         register_instance_option :pjax? do
@@ -144,8 +114,7 @@ RailsAdmin.config do |config|
     new
 
     delete
-    edit_in_app
-    view_in_app
+    show_in_app
   end
 
   config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
