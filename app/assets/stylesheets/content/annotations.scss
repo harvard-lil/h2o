@@ -22,6 +22,7 @@
     overflow: hidden;
     background-color: $white;
     border: 1px solid black;
+    z-index: 2;
 
     .annotator-action {
       @include sans-serif($regular, 12px, 14px);
@@ -175,7 +176,7 @@
 
       .note-icon {
         position: absolute;
-        transform: translate(152%, -120%) rotate(180deg);
+        transform: translate(218%, -116%) rotate(180deg);
         z-index: 1;
         font-size: 17px;
       }
