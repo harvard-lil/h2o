@@ -12,6 +12,7 @@ class Content::NodeController < ApplicationController
 
   before_action :check_public, only: [:show, :index, :details, :clone, :export]
   before_action :check_authorized, except: [:show, :index, :details, :new, :clone, :export]
+  before_action :check_superadmin
 
   before_action :set_page_title
   before_action :canonical_redirect, only: [:show, :index]
@@ -48,13 +49,19 @@ class Content::NodeController < ApplicationController
 
   def check_authorized
     if current_user.present?
-      return if @content.owners.include? current_user
+      return if ((@content.owners.include? current_user) || (current_user.superadmin?))
       flash[:notice] = I18n.t('content.errors.unauthorized')
       redirect_to user_path(current_user)
     else
       session[:return_to] ||= request.url
       flash[:notice] = I18n.t('content.errors.not-signed-in')
       redirect_to new_user_session_path
+    end
+  end
+
+  def check_superadmin
+    if (current_user.superadmin? && @content.owners.exclude?(current_user))
+      flash[:error] = "Admin Mode"
     end
   end
 

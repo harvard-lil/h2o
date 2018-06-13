@@ -266,6 +266,16 @@ class User < ApplicationRecord
     casebooks.where(draft_mode_of_published_casebook: nil)
   end
 
+  def superadmin?
+    self.roles.each do |role|
+      if role.name == "superadmin"
+       return true
+      else
+        false
+      end
+    end
+  end
+
   private
 
   def send_verification_notice
