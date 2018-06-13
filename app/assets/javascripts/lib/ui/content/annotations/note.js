@@ -6,3 +6,11 @@ delegate(document, '.annotate.note', 'click', e => {
   .classList.toggle('revealed');
   document.querySelector(`.annotate.note[data-annotation-id="${annotationId}"]`).classList.toggle('revealed');
 });
+
+
+delegate(document, '.note-icon', 'click', e => {
+  let annotationId = e.delegateTarget.dataset.annotationId;
+  document.querySelector(`.annotate.note-content-wrapper[data-annotation-id="${annotationId}"]`)
+  .classList.toggle('revealed');
+  document.querySelector(`.annotate.note[data-annotation-id="${annotationId}"]`).classList.toggle('revealed');
+});
