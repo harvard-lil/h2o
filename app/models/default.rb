@@ -22,7 +22,6 @@ class Default < ApplicationRecord
   include VerifiedUserExtensions
   include SpamPreventionExtension
   include DeletedItemExtensions
-  include Rails.application.routes.url_helpers
 
   RATINGS_DISPLAY = {
     :default_clone => "Cloned",
@@ -34,6 +33,8 @@ class Default < ApplicationRecord
   belongs_to :user, optional: true
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
+
+  has_many :casebooks, inverse_of: :resource
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name
