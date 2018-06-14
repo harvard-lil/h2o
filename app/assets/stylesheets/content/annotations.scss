@@ -33,6 +33,17 @@
         background-color: $highlight;
       }
     }
+
+    .create-form {
+      display: flex;
+      flex-direction: column;
+
+      .save-note {
+        margin-top: 20px;
+        
+      }
+    }
+
   }
 }
 
