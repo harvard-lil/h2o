@@ -5,11 +5,6 @@ delegate(document, '.annotate.note', 'click', e => {
 
   document.querySelector(`.annotate.note-content-wrapper[data-annotation-id="${annotationId}"]`)
   .classList.toggle('revealed');
-
-  let annotatedLines = document.querySelectorAll(`.annotate.note[data-annotation-id="${annotationId}"]`);
-  for (let line of annotatedLines) {
-    line.classList.toggle('revealed');
-  }
 });
 
 
@@ -18,9 +13,4 @@ delegate(document, '.note-icon', 'click', e => {
   
   document.querySelector(`.annotate.note-content-wrapper[data-annotation-id="${annotationId}"]`)
   .classList.toggle('revealed');
-
-  let annotatedLines = document.querySelectorAll(`.annotate.note[data-annotation-id="${annotationId}"]`);
-  for (let line of annotatedLines) {
-    line.classList.toggle('revealed');
-  }
 });
