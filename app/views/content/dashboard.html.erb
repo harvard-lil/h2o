@@ -14,7 +14,7 @@
       <h2 class="casebooks">
         <%= "#{@user.attribution}'s Casebooks" %>
       </h2>
-      <% if current_user.superadmin? %>
+      <% if (current_user && current_user.superadmin?) %>
         <hr class="owned"/>
         <%= render partial: 'content/dashboard/content_browser', locals: {content: @user.owned_casebook_compacted, section: 'owned'} %>
       <% else %>

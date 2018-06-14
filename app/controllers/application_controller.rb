@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_superadmin
-    if current_user.present? && current_user.superadmin?
+    if current_user && current_user.superadmin?
       flash[:error] = "Admin Mode"
     end
   end
