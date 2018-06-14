@@ -70,7 +70,11 @@ module RailsAdmin
             if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
             elsif @object.model_name.name.split(/::/).first == "Content" 
-              redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}"
+              if @object.public?
+                redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}"
+              else
+                redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}/edit"
+              end
             else
               redirect_to main_app.url_for(@object)
             end

@@ -19,7 +19,7 @@
             <%= casebook.subtitle %>
           </div>
         </div>
-        <% if casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user.superadmin?)) %>
+        <% if casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user && current_user.superadmin?)) %>
           <a class="wrapper" href="<%= casebook_url(casebook.draft) %>/layout">
             <div class="unpublished-changes">
              <span class="exclamation">!</span>
