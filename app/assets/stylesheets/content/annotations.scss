@@ -156,10 +156,10 @@
     }
     &.note {
       text-decoration: $light-blue underline;
-      text-decoration-style: double;
+      font-style: bold;
 
-      &.revealed {
-        text-decoration-style: solid;
+      &:hover {
+        cursor: pointer;
       }
     }
 
