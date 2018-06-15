@@ -23,6 +23,7 @@
     background-color: $white;
     border: 1px solid black;
     z-index: 2;
+    margin-left: 20px;
 
     .annotator-action {
       @include sans-serif($regular, 12px, 14px);
@@ -165,6 +166,7 @@
     }
     &.note {
       text-decoration: $light-blue underline;
+      outline: none;
 
       &:hover {
         cursor: pointer;
