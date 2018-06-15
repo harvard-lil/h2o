@@ -64,7 +64,7 @@ class Ability
         :all
       can :aggregate_items, [TextBlock, Default, User]
       can [:import], [Default]
-      can :show_in_app, [Case, User, Content::Casebook]
+      can :show_in_app, [Case, User, Content::Casebook, TextBlock, Default]
 
       can [:new, :edit], Page
 
