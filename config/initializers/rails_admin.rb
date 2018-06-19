@@ -166,6 +166,12 @@ RailsAdmin.config do |config|
       end
       field :created_at
     end
+    edit do
+      field :name
+      field :public
+      field :content, :ck_editor
+      field :description
+    end
   end
 
   config.model 'Default' do
@@ -178,6 +184,11 @@ RailsAdmin.config do |config|
         searchable [:login, :email_address]
       end
       field :created_at
+    end
+    edit do
+      field :name
+      field :url
+      field :public
     end
   end
 
