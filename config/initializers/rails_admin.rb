@@ -159,10 +159,11 @@ RailsAdmin.config do |config|
   config.model 'TextBlock' do
     label 'Text'
     list do
+      filters [:name, :public, :user_id, :created_at]
       field :name
       field :public
-      field :user do
-        searchable [:login, :email_address]
+      field :user_id do 
+        filterable true
       end
       field :created_at
     end
@@ -177,11 +178,14 @@ RailsAdmin.config do |config|
   config.model 'Default' do
     label 'Link'
     list do
+      filters [:name, :url, :public, :user_id, :created_at]
       field :name
-      field :url
+      field :url do
+        filterable true
+      end
       field :public
-      field :user do
-        searchable [:login, :email_address]
+      field :user_id do
+        filterable true
       end
       field :created_at
     end
