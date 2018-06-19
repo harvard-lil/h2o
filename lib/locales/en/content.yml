@@ -96,10 +96,10 @@ en:
       preview-banner:
         html: You are viewing a preview of a private casebook.
       empty-section:
-        html: "This section has no content yet. %{add_resource_button}"
+        html: "This section has no content yet."
         add-button: Click here to add a resource.
       empty-casebook:
-        html: "This casebook has no content yet. %{add_section_button}"
+        html: "This casebook has no content yet."
         add-button: Click here to add a section.
     resource:
       type:
