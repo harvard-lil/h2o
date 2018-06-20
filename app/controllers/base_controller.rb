@@ -6,6 +6,7 @@ class BaseController < ApplicationController
   def landing
     if current_user
       @user = current_user
+      @page_title = I18n.t 'content.titles.dashboard'
       render 'content/dashboard', layout: 'main'
     else
       render 'base/index', layout: 'main'
