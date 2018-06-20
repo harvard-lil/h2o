@@ -61,6 +61,8 @@ hr.owned {
     }
     .subtitle {
       @include sans-serif($light, 18px, 18px);
+      max-height: 10em;
+      overflow: hidden;
     }
 
     .unpublished-changes {
