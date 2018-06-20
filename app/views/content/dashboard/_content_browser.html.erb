@@ -16,7 +16,7 @@
             <%= casebook.title %>
           </div>
           <div class="subtitle">
-            <%= casebook.subtitle %>
+            <%= truncate(casebook.subtitle, length: 200, separator: ' ') %>
           </div>
         </div>
         <% if casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user && current_user.superadmin?)) %>
