@@ -7,6 +7,7 @@ class SearchesController < ApplicationController
   def show
     @query = params[:q]
     @type = params[:type] || 'casebooks'
+    @page_title = I18n.t 'content.titles.searches.show'
 
     q = params[:q].present? ? params[:q] : '*'
 
@@ -24,6 +25,7 @@ class SearchesController < ApplicationController
 
   def index
     @type = params[:type] || 'casebooks'
+    @page_title = I18n.t 'content.titles.searches.index'
 
     ungrouped_results = search_query('*')
     @results = type_groups(ungrouped_results)

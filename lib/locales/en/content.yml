@@ -130,11 +130,21 @@ en:
       - Subsection
       - Part
     titles:
+      dashboard: "Dashboard"
       casebooks:
-        show: "Read | %{casebook_title}"
+        show: "Casebooks | %{casebook_title}"
         edit: "Edit | %{casebook_title}"
         index: Books
       sections:
-        show: "Read | %{casebook_title} | %{ordinal_string}: %{section_title}"
+        show: "Casebooks | %{casebook_title} | %{ordinal_string}: %{section_title}"
         edit: "Edit | %{casebook_title} | %{ordinal_string}: %{section_title}"
         index: "Read | %{casebook_title} | Table of Contents"
+      resources:
+        show: "Resources | %{section_title}"
+        edit: "Edit | %{section_title}"
+      cases:
+        show: "Cases | %{case_short_name}"
+        edit: "Edit | %{case_short_name}"
+      searches:
+        index: "Searches"
+        show: "Searches"
