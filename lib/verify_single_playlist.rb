@@ -1,5 +1,5 @@
 class VerifySinglePlaylist
-  attr_accessor :casebook, :playlist, :matches, :comments, :mismatches, :mismatched, :items_without_resources
+  attr_accessor :casebook, :playlist, :mismatched, :items_without_resources
 
   def self.verify(casebook_id)
     new(casebook_id).verify
@@ -8,11 +8,8 @@ class VerifySinglePlaylist
   def initialize(casebook_id)
     @casebook = Content::Casebook.find(casebook_id)
     @playlist = Migrate::Playlist.find casebook.playlist_id
-    @matches = []
-    @mismatches = []
-    @mismatched = false
-    @comments = true
-    @items_without_resources = []
+    @mismatched = {}
+    @items_without_resources = {}
   end
 
   def verify
@@ -33,18 +30,26 @@ class VerifySinglePlaylist
         section = casebook.contents.find_by(ordinals: ordinals)
 
         if section.nil?
-          items_without_resources << object
+          items_without_resources[ordinals] = object
         elsif section.title != object.name
-          mismatched = true
+          mismatched[ordinals.join('.')] = {section: section, object: object}
         end
 
         loop_playlist_items object.playlist_items, path: ordinals
       else
         resource = casebook.resources.find_by(ordinals: ordinals)
-        if resource.nil?
-          items_without_resources << item
-        elsif object != resource.resource
-          mismatched = true
+
+        if resource.nil? || item.nil? || object.nil? || item.actual_object_type == "Migrate::Media"
+          # videos weren't transported over so any Migrate::Media is counted as missing
+          items_without_resources[ordinals] = item
+        elsif item.actual_object_type == "Migrate::Collage"
+          if object.annotatable.nil? 
+            items_without_resources[ordinals] = item
+          elsif object.annotatable.id != resource.resource.id
+            mismatched[ordinals.join('.')] = {resource: resource, item: item}
+          end
+        elsif object.id != resource.resource.id
+          mismatched[ordinals.join('.')] = {resource: resource, item: item}
         end
       end
     end
