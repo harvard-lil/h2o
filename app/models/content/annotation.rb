@@ -95,10 +95,11 @@ class Content::Annotation < ApplicationRecord
 
   private
 
+  # NB: the export to docx code is tightly coupled with this markup. Test thoroughly if altering.
   def annotate_html inner, handle: true, final: false
     case kind
     when 'elide' then
-      "#{handle ? "<button class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></button>" : ''}" +
+      "#{handle ? "<span role='button' tabindex='0' class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></span>" : ''}" +
       "<span class='annotate elided' data-annotation-id='#{id}'>#{inner}</span>"
     when 'replace' then
       "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{inner}</span>"
