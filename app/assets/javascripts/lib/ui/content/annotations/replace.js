@@ -12,6 +12,7 @@ import {toggleElisionVisibility} from 'lib/ui/content/annotations/elide';
 delegate(document, '.annotate.replacement', 'click', e => handleReplaceButtonPressed(e));
 delegate(document, '.annotate.replacement', 'keypress', e => {
   if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    e.preventDefault();
     handleReplaceButtonPressed(e);
   }
 });
