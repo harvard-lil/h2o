@@ -58,11 +58,11 @@ hr.owned {
     .title {
       @include sans-serif($medium, 20px, 20px);
       margin-bottom: 10px;
+      @include line-clamp(4, 100px);
     }
     .subtitle {
       @include sans-serif($light, 18px, 18px);
-      max-height: 10em;
-      overflow: hidden;
+      @include line-clamp(4, 72px);
     }
 
     .unpublished-changes {
@@ -84,6 +84,7 @@ hr.owned {
 
     .owner {
       @include sans-serif($medium, 21px, 21px);
+      @include line-clamp(2, 42px);
     }
     &.public {
       border-left-color: $light-blue;
@@ -116,6 +117,7 @@ hr.owned {
   .affiliation {
     color: grey;
     font-weight: 300;
+    @include line-clamp(2, 40px);
   }
 
   .verified {

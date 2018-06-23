@@ -65,3 +65,13 @@
   float: none !important;
   margin: auto;
 }
+
+@mixin line-clamp($lines, $max-height) {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+  @supports not (-webkit-line-clamp: $lines) {
+    max-height: $max-height;
+  }
+}
