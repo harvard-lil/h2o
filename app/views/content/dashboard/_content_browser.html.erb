@@ -6,6 +6,7 @@
       <% version_type = 'draft' %>
       <% action = 'layout' %>
     <% end %>
+    <% alert_changes = casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user && current_user.superadmin?)) %>
     <a class="wrapper" href="<%= casebook_url(casebook) %>/<%= action %>">
       <div class="content-page <%= version_type %>">
         <div class="casebook-info">
@@ -15,11 +16,13 @@
           <div class="title">
             <%= casebook.title %>
           </div>
-          <div class="subtitle">
-            <%= truncate(casebook.subtitle, length: 200, separator: ' ') %>
-          </div>
+          <% unless alert_changes %>
+            <div class="subtitle">
+              <%= casebook.subtitle %>
+            </div>
+          <% end %>
         </div>
-        <% if casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user && current_user.superadmin?)) %>
+        <% if alert_changes %>
           <a class="wrapper" href="<%= casebook_url(casebook.draft) %>/layout">
             <div class="unpublished-changes">
              <span class="exclamation">!</span>
