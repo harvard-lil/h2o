@@ -104,9 +104,6 @@ body {
           font-size: 100%;
         }
         .dropdown {
-          button {
-            white-space: nowrap;
-          }
           @media (max-width: $navbar-breakpoint) {
             width: 100%;
             button {
