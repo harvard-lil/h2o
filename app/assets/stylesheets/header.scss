@@ -115,6 +115,14 @@ body {
             }
           }
           display: inline-block;
+          .name {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+          }
           &.open {
             .caret{
               border-top: none;
