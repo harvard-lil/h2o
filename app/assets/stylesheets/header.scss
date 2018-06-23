@@ -119,6 +119,10 @@ body {
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 250px;
+            @media (min-width: $navbar-breakpoint)
+                   and (max-width: $screen-sm-min) {
+              max-width: 130px;
+            }
           }
           &.open {
             .caret{
