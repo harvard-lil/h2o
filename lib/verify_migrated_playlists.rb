@@ -16,10 +16,10 @@ module VerifyMigratedPlaylists
       # => [16133, 16530, 16723, 18234, 19353, 23052, 18560, 18672, 17493, 23114, 27225, 29980, 17378, 17751, 20926, 16066, 19750, 20733, 20611, 18813, 20234, 18331, 24680, 20414, 19006, 22411, 23698, 23461, 26936, 22079, 24172, 24799, 26562, 25610, 23303, 23416, 26260, 28024, 27674, 28325, 28565, 32567, 32667, 21268]
 
       casebooks.each do |casebook|
-        result = VerifySinglePlaylist.verify(casebook.id)
+        mismatched = VerifySinglePlaylist.verify(casebook.id)
 
-        if result[:mismatched].present?
-          results[casebook.id] = {mismatched: result[:mismatched], missing_items: result[:items_without_resources]}
+        if mismatched.present?
+          results[casebook.id] = mismatched
         end
       end
 
