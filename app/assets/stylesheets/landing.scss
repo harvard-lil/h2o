@@ -12,7 +12,7 @@ section.hero {
     margin: 40px 0px 35px;
 
     em {
-      @include serif-headline($regular, 81px, 105px);
+      @include serif-headline($regular, 81px, 97px);
       display: block;
       font-style: normal;
       color: $light-blue;
@@ -20,7 +20,7 @@ section.hero {
   }
 
   h2 {
-    @include serif-headline($regular, 72px, 68px);
+    @include serif-headline($regular, 72px, 86px);
 
     margin: 0px 0px 35px;
   }
@@ -31,11 +31,11 @@ section.hero {
       margin: 0px 0px 15px;
 
       em {
-        @include serif-headline($regular, 40px, 52px);
+        @include serif-headline($regular, 40px, 48px);
       }
     }
     h2 {
-      @include serif-headline($regular, 36px, 38px);
+      @include serif-headline($regular, 36px, 43px);
     }
   }
 }
