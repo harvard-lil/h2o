@@ -27,7 +27,7 @@
           <div class="resource-type"> <%= t 'content.resource.type.text' %></div>
         <% elsif content.resource.is_a? Default %>
           <div class="section-title"> <%= content.title %></div>
-          <div class="resource-type"> <%= t "content.resource.type.#{content.resource.content_type.parameterize}" %></div>
+          <div class="resource-type"> <%= t "content.resource.type.default" %></div>
         <% else %>
           <div class="resource-type">
             <div class="not-applicable"> <%= t "content.resource.type.not-applicable" %></div>
