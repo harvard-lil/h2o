@@ -6,7 +6,7 @@
       %a.listing.resource{href: edit_resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
         .section-number= content.ordinal_string
         .section-title= content.title
-        .resource-type= t "content.resource.type.#{content.resource.content_type.parameterize}"
+        .resource-type= t "content.resource.type.default"
     - else
       %a.listing.resource{href: annotate_resource_path(content.casebook, content), draggable: true, data: {ordinals: content.ordinal_string, editable: editable}}
         .section-number= content.ordinal_string
