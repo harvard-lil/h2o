@@ -1,6 +1,6 @@
 1. Create db
 createdb h2o_prod
-psql -d h2o_prod < ../riley-pgsql-h2o_prod.sql.2018-06-25-203016
+psql -d h2o_prod < ../[sql-dump-file]
 psql h2o_prod
 
 -------------
