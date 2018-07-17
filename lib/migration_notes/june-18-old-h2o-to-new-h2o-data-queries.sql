@@ -157,6 +157,6 @@ casebooks_to_playlists = {}
 playlist_ids = [1844, 9270, 12592, 53197, 53282, 53291, 53426, 27055, 51676, 54306, 12922, 52464, 52590, 52607, 52706, 52809, 46180]
 
 playlist_ids.each do |playlist_id| 
-  casebook = Content::Casebook.where(playlist_id: playlist_id).where(ancestry: nil)
+  casebook = Content::Casebook.where(playlist_id: playlist_id).where(ancestry: nil).first
   casebooks_to_playlists[casebook.id] = playlist_id
 end
