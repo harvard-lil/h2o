@@ -1,8 +1,8 @@
-<% if @paginated_group.blank? %>
+<% if paginated_group.blank? %>
   <div class="no-results">No results found</div>
 <% else %>
   <div class="results-list">
-    <% @paginated_group.each do |result| %>
+    <% paginated_group.each do |result| %>
       <% if result.is_a? Content::Casebook %>
         <a href="<%= casebook_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
           <div class="results-entry">
@@ -20,7 +20,7 @@
             </div>
           </div>
         </a>
-      <% elsif result.is_a? Case %>
+      <% elsif result.is_a?(Case) %>
         <a href="<%= case_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
           <div class="results-entry">
             <div class="title">
@@ -31,6 +31,20 @@
             </div>
             <div class="date">
               <%= result.formatted_decision_date %>
+            </div>
+          </div>
+        </a>
+      <% elsif result.is_a?(Capapi::Case) %>
+        <a href="<%= case_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
+          <div class="results-entry">
+            <div class="title">
+              <%= result.name %>
+            </div>
+            <div class="citation">
+              <%= result.citations.first.cite %>
+            </div>
+            <div class="date">
+              <%= result.decision_date %>
             </div>
           </div>
         </a>
@@ -52,5 +66,3 @@
     <% end %>
   </div>
 <% end %>
-
-<%= will_paginate @paginated_group %>
