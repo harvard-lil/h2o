@@ -127,7 +127,7 @@ RailsAdmin.config do |config|
     show_in_app
   end
 
-  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseJurisdiction', 'CaseCitation', 'CaseDocketNumber']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt', 'CaseCitation', 'CaseDocketNumber']
 
   config.model 'Page' do
     list do
@@ -207,7 +207,7 @@ RailsAdmin.config do |config|
       field :name_abbreviation
       field :name
       field :decision_date
-      field :case_jurisdiction { nested_form false }
+      field :case_court { nested_form false }
       field :case_citations
       field :case_docket_numbers
       field :content, :ck_editor

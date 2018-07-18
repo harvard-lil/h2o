@@ -69,10 +69,10 @@ class Ability
       can [:new, :edit], Page
 
       can :approve, Case
-      can [:new], CaseJurisdiction
-      can [:create], :case_jurisdictions
+      can [:new], CaseCourt
+      can [:create], :case_courts
 
-      can [:new, :edit, :update, :show], [Case, CaseJurisdiction, CaseCitation, CaseDocketNumber, Default, TextBlock]
+      can [:new, :edit, :update, :show], [Case, CaseCourt, CaseCitation, CaseDocketNumber, Default, TextBlock]
 
       can :show, BulkUpload
     elsif user.has_role? :case_admin
@@ -84,8 +84,8 @@ class Ability
       can :create, :cases
 
       can :approve, Case
-      can [:new], CaseJurisdiction
-      can [:create], :case_jurisdictions
+      can [:new], CaseCourt
+      can [:create], :case_courts
       # Add functionality, ability to modify case requests
     elsif user.has_role? :rep
       user_ids = []

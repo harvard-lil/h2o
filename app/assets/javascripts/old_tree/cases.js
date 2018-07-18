@@ -5,12 +5,12 @@ h2o_global.case_afterload = function(results) {
       $('.requires_edit').remove();
     }
 };
-h2o_global.case_jurisdiction_post = function(data) {
+h2o_global.case_court_post = function(data) {
     if(data.update) {
-      $('#case_case_jurisdiction_id option[value=' + data.id + ']').html(data.name);
+      $('#case_case_court_id option[value=' + data.id + ']').html(data.name);
     } else {
       var option = $('<option>').val(data.id).html(data.name);
-      $('#case_case_jurisdiction_id').append(option).val(data.id);
+      $('#case_case_court_id').append(option).val(data.id);
     }
     h2o_global.hideGlobalSpinnerNode();
     $('#generic-node').dialog('close');
@@ -40,11 +40,11 @@ var cases_new = {
 	
 	  $(document).delegate('.edit-case-jurisdiction', 'click', function(e) {
 	    e.preventDefault();
-	    var id = $('#case_case_jurisdiction_id').val();
+	    var id = $('#case_case_court_id').val();
 	    if(id == '') {
 	      return;
 	    }
-	    var url = '/case_jurisdictions/' + id + '/edit';
+	    var url = '/case_courts/' + id + '/edit';
 	    $.ajax({
 	      cache: false,
 	      url: url,

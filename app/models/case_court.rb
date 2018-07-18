@@ -1,5 +1,5 @@
-class CaseJurisdiction < ApplicationRecord
-  has_many :cases, inverse_of: :case_jurisdiction
+class CaseCourt < ApplicationRecord
+  has_many :cases, inverse_of: :case_court
   has_many :case_requests
 
   validates_presence_of :abbreviation, :name

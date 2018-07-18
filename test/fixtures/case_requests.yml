@@ -2,7 +2,7 @@ case_request_1:
   name: Case Request 1
   author: case_author
   decision_date: 1999-01-10
-  case_jurisdiction: district_jurisdiction
+  case_court: district_jurisdiction
   docket_number: docket.1
   volume: vol.1
   reporter: case_reporter

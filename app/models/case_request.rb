@@ -11,7 +11,7 @@ class CaseRequest < ApplicationRecord
   validates_length_of   :page,                 :in => 1..150
 
   has_one :case
-  belongs_to :case_jurisdiction
+  belongs_to :case_court
   belongs_to :user
 
   default_scope { where("status != 'approved'") }

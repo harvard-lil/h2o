@@ -8,7 +8,7 @@ class Case < ApplicationRecord
   has_many :case_citations, inverse_of: :case
   has_many :case_docket_numbers, inverse_of: :case
   belongs_to :case_request, optional: true, inverse_of: :case
-  belongs_to :case_jurisdiction, optional: true, inverse_of: :cases
+  belongs_to :case_court, optional: true, inverse_of: :cases
   belongs_to :user, optional: true
 
   accepts_nested_attributes_for :case_citations,
@@ -19,7 +19,7 @@ class Case < ApplicationRecord
     :allow_destroy => true,
     :reject_if => proc { |att| att['docket_number'].blank? }
 
-  accepts_nested_attributes_for :case_jurisdiction,
+  accepts_nested_attributes_for :case_court,
     :allow_destroy => true,
     :reject_if => proc { |att| att['name'].blank? || att['abbreviation'].blank? }
 
@@ -55,7 +55,7 @@ class Case < ApplicationRecord
     text :name_abbreviation
     text :indexable_case_citations, :boost => 3.0
     text :indexable_case_docket_numbers
-    text :indexable_case_jurisdiction
+    text :indexable_case_court
     # text :clean_content
 
     string :display_name, :stored => true
@@ -94,8 +94,8 @@ class Case < ApplicationRecord
   def indexable_case_docket_numbers
     self.case_docket_numbers.map(&:docket_number)
   end
-  def indexable_case_jurisdiction
-    self.case_jurisdiction.present? ? self.case_jurisdiction.name : ''
+  def indexable_case_court
+    self.case_court.present? ? self.case_court.name : ''
   end
 
   def clean_content
@@ -107,9 +107,9 @@ class Case < ApplicationRecord
   #   cxp = CaseParser::XmlParser.new(file)
   #
   #   new_case = cxp.xml_to_case_attributes
-  #   cj = CaseJurisdiction.where(name: new_case[:jurisdiction].gsub('.', '')).first
+  #   cj = CaseCourt.where(name: new_case[:jurisdiction].gsub('.', '')).first
   #   if cj
-  #     new_case[:case_jurisdiction_id] = cj.id
+  #     new_case[:case_court_id] = cj.id
   #   end
   #   new_case.delete(:jurisdiction)
   #   c = Case.new(new_case)
