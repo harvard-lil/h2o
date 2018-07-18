@@ -9,7 +9,7 @@ class CaseDownloader
     @current_user = current_user
     @case_metadata = case_metadata
     @slug = case_metadata["slug"]
-    @short_name = case_metadata["name_abbreviation"]
+    @name_abbreviation = case_metadata["name_abbreviation"]
     @full_name = case_metadata["name"]
     @decision_date = case_metadata["decisiondate_original"]
     @case_jurisdiction_id = case_metadata["jurisdiction_id"]
@@ -33,7 +33,7 @@ class CaseDownloader
 
   private
 
-  attr_reader :current_user, :case_metadata, :slug, :short_name, :full_name, 
+  attr_reader :current_user, :case_metadata, :slug, :name_abbreviation, :full_name, 
     :decision_date, :case_jurisdiction_id, :docket_number, :volume, :reporter, :page
 
   def make_api_request
@@ -55,7 +55,7 @@ class CaseDownloader
 
   def save_case(case_content)
     new_case = Case.new(
-      short_name: short_name,
+      name_abbreviation: name_abbreviation,
       full_name: full_name,
       decision_date: decision_date,
       case_jurisdiction_id: case_jurisdiction_id,

@@ -1,5 +1,5 @@
 public_case_1:
-  short_name: District Case 1
+  name_abbreviation: District Case 1
   full_name: Case of the District Number 1
   decision_date: 1999-01-10
   author: Judge Person
@@ -9,7 +9,7 @@ public_case_1:
   user: case_admin
 
 public_case_2:
-  short_name: District Case 2
+  name_abbreviation: District Case 2
   full_name: Case of the District Number 2
   decision_date: 1999-01-10
   author: Judge Person the Second
@@ -19,7 +19,7 @@ public_case_2:
   user: case_admin
 
 public_case_to_annotate:
-  short_name: District Case 2
+  name_abbreviation: District Case 2
   full_name: Case of the District Number 2
   decision_date: 1999-01-10
   author: Judge Person the Second
@@ -35,7 +35,7 @@ public_case_to_annotate:
 
 <% for label in [*'XA'..'YZ'] %>
 haystack_case_<%=label%>:
-  short_name: Haystack Case (<%=label%>)
+  name_abbreviation: Haystack Case (<%=label%>)
   full_name: Case <%=label%> in the Haystack
   decision_date: <%= Date.today - rand(10000).days %>
   author: Judge Haystack the <%=label%>th
@@ -47,7 +47,7 @@ haystack_case_<%=label%>:
 <% end %>
 
 private_case_1:
-  short_name: Private Case 1
+  name_abbreviation: Private Case 1
   full_name: Case of the District Number 1
   decision_date: 1999-01-10
   author: Judge Person
@@ -57,7 +57,7 @@ private_case_1:
   user: case_admin
 
 private_case_2:
-  short_name: Private Case 2
+  name_abbreviation: Private Case 2
   full_name: Case of the District Number 2
   decision_date: 1999-01-12
   author: Judge Person
@@ -67,7 +67,7 @@ private_case_2:
   user: student_user
 
 case_with_citation: 
-  short_name: Case With Citation
+  name_abbreviation: Case With Citation
   full_name: Case of the District Number 1
   decision_date: 1999-08-18
   author: Judge Person

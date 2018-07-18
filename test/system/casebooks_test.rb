@@ -14,7 +14,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       click_link section_1.title
 # 
-      click_link resource_1.resource.short_name
+      click_link resource_1.resource.name_abbreviation
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content
     end
@@ -56,7 +56,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       case_to_find = cases(:public_case_1)
       within '.case-search' do
-        fill_in 'q', with: "\"#{case_to_find.short_name}\""
+        fill_in 'q', with: "\"#{case_to_find.name_abbreviation}\""
         click_button 'Search'
       end
 
@@ -75,13 +75,13 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_link 'Revise'
 
       assert_content 'This casebook is a draft'
-      assert_content "1.1 #{resource.resource.short_name}"
+      assert_content "1.1 #{resource.resource.name_abbreviation}"
 
       # stub_request(:post, "http://127.0.0.1:56369/casebooks/#{casebook.id}/reorder/#{resource.ordinals}").with(body: {"child":{"ordinals":[2,1]},"reorder":true}, headers: {"X-HTTP-Method-Override":"patch"}).to_return(body: '{"data":{"responseURL": "http://127.0.0.1:56369/casebooks/#{casebook.id}/"}')
 
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
-      assert_content "2.1 #{resource.resource.short_name}"
+      assert_content "2.1 #{resource.resource.name_abbreviation}"
     end
 
     scenario 'annotating a casebook', js: true do

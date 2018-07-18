@@ -2,7 +2,7 @@ class Import < ApplicationRecord
   belongs_to :bulk_upload
   belongs_to :actual_object, :polymorphic => true
   delegate :full_name, to: :actual_object, allow_nil: true
-  delegate :short_name, to: :actual_object, allow_nil: true
+  delegate :name_abbreviation, to: :actual_object, allow_nil: true
   delegate :public, to: :actual_object, allow_nil: true
   
   def created_object

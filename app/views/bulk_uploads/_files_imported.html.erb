@@ -8,7 +8,7 @@
     <% if import.created_object.present? -%>
     <td>
       <% if import.public || type == 'duplicates' -%>
-      <%= link_to import.short_name, case_path(import.created_object) %>
+      <%= link_to import.name_abbreviation, case_path(import.created_object) %>
       <% else -%>
       (unlinked while not public)
       <% end -%>
@@ -17,7 +17,7 @@
       <%= import.public ? "public" : "not public" %>
     </td>
     <td>
-      <%= link_to "Edit #{import.short_name}", edit_case_path(import.created_object) %>
+      <%= link_to "Edit #{import.name_abbreviation}", edit_case_path(import.created_object) %>
     </td>
      <% end -%>
   </tr>

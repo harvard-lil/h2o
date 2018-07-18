@@ -2,7 +2,7 @@
   <a href="#" class="tooltip list-icon icon icon-case" title="Pending Case"></a>
   <div class="details">
     <h3>
-      <%= pending_case.short_name %>
+      <%= pending_case.name_abbreviation %>
       <%= link_to "DELETE", case_path(pending_case), :class => "icon icon-delete tooltip", :title => "Delete", "data-type" => "case", "data-id" => pending_case.id %>
       <%= link_to "EDIT", edit_case_path(pending_case), :class => "icon edit-external icon-edit tooltip", :title => "Edit" %>
       <% if current_user.has_role?(:case_admin) %>

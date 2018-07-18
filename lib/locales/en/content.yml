@@ -140,8 +140,8 @@ en:
         show: "Resources | %{section_title}"
         edit: "Edit | %{section_title}"
       cases:
-        show: "Cases | %{case_short_name}"
-        edit: "Edit | %{case_short_name}"
+        show: "Cases | %{case_name_abbreviation}"
+        edit: "Edit | %{case_name_abbreviation}"
       searches:
         index: "Searches"
         show: "Searches"
