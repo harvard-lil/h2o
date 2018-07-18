@@ -98,7 +98,6 @@ H2o::Application.routes.draw do
 
   resource :search, only: [:show, :index]
   get '/search', to: 'searches#index'
-  get '/search/capapi', to: 'searches#capapi'
 
   resources :cases do
     member do
