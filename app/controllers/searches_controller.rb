@@ -9,29 +9,22 @@ class SearchesController < ApplicationController
     @type = params[:type] || 'casebooks'
     @page_title = I18n.t 'content.titles.searches.show'
 
-    q = params[:q].present? ? params[:q] : '*'
+    if @type == 'cases' && /^\d+(\s|-).*(\s|-)\d+$/.match(@query)
+      @paginated_group = Capapi::Case.list({cite: @query})
+    else
+      q = params[:q].present? ? params[:q] : '*'
 
-    ungrouped_results = search_query(q)
-    @results = type_groups(ungrouped_results)
+      ungrouped_results = search_query(q)
+      @results = type_groups(ungrouped_results)
 
-    @attributions = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:attribution).rows)
-    @affiliations = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:affiliation).rows)
-    @paginated_group = paginate_group(@results[@type.to_sym])
+      @attributions = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:attribution).rows)
+      @affiliations = extract_filter_data_from_sunspot_object(ungrouped_results.facet(:affiliation).rows)
+      @paginated_group = paginate_group(@results[@type.to_sym])
+    end
 
     if params[:partial] #for adding resource casebook modal
       render partial: 'results', layout: false, locals: {paginated_group: @paginated_group}
     end
-  end
-
-  def capapi
-    # if it matches a citation
-    if /^\d+(\s|-).*(\s|-)\d+$/.match(params[:q])
-      results = Capapi::Case.list({cite: params[:q]})
-    else
-      ungrouped_results = search_query(params[:q].present? ? params[:q] : '*')
-      results = type_groups(ungrouped_results)[:cases]
-    end
-    render partial: 'results', layout: false, locals: {paginated_group: paginate_group(results)}
   end
 
   def index
