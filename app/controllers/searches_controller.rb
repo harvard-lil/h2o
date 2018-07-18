@@ -23,6 +23,17 @@ class SearchesController < ApplicationController
     end
   end
 
+  def capapi
+    # if it matches a citation
+    if /^\d+(\s|-).*(\s|-)\d+$/.match(params[:q])
+      results = Capapi::Case.list({cite: params[:q]})
+    else
+      ungrouped_results = search_query(params[:q].present? ? params[:q] : '*')
+      results = type_groups(ungrouped_results)[:cases]
+    end
+    render partial: 'results', layout: false, locals: {paginated_group: paginate_group(results)}
+  end
+
   def index
     @type = params[:type] || 'casebooks'
     @page_title = I18n.t 'content.titles.searches.index'

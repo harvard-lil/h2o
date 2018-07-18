@@ -64,7 +64,7 @@ class AddResourceModal extends Component {
             request = Axios.get(e.target.href);
           } else {
             this.q = e.target.querySelector('input[name=q]').value;
-            request = Axios.get('<%= j search_path %>', {
+            request = Axios.get('<%= j search_path %>/capapi', {
               params: {
                 partial: true,
                 type: 'cases',
