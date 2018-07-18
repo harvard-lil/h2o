@@ -205,7 +205,7 @@ RailsAdmin.config do |config|
     edit do
       field :public
       field :name_abbreviation
-      field :full_name
+      field :name
       field :decision_date
       field :case_jurisdiction { nested_form false }
       field :case_citations

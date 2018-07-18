@@ -1,9 +1,9 @@
 <div class="standard-form">
   <div id="error_block" style="display:none;" class="error"></div>
-  <h1><%= (@case_request.new_record?) ? 'Create a Case Request' : "Edit \"#{@case_request.full_name}\"" %></h1>
+  <h1><%= (@case_request.new_record?) ? 'Create a Case Request' : "Edit \"#{@case_request.name}\"" %></h1>
   <%= semantic_form_for(@case_request, :html => {:id => 'case_request-form'}) do |form| %>
     <%= form.inputs do %>
-      <%= form.input :full_name, :required => true  %>
+      <%= form.input :name, :required => true  %>
       <%= form.input :decision_date, :as => :string, :required => true, :input_html => {:class => 'datepicker'}  %>
       <%= form.input :author, :required => true  %>
       <%= form.input :case_jurisdiction, :as => :select, :collection => CaseJurisdiction.order(:name), :required => false %>

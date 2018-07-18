@@ -28,7 +28,7 @@ class CaseSystemTest < ApplicationSystemTestCase
 
       # Simulate a case edit
       search_label = [*'XA'..'XZ'].sample
-      cases(:"haystack_case_#{search_label}").update! full_name: "Updated Haystack Case (#{search_label})"
+      cases(:"haystack_case_#{search_label}").update! name: "Updated Haystack Case (#{search_label})"
       Sunspot.commit # TODO: Test this properly
 
       fill_in 'q', with: "Updated Haystack Case"
@@ -43,7 +43,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       public_case = cases :public_case_1
       visit case_path(public_case)
 
-      assert_content public_case.full_name
+      assert_content public_case.name
       assert_content public_case.content
 
       # annotations are visible

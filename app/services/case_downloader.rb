@@ -10,7 +10,7 @@ class CaseDownloader
     @case_metadata = case_metadata
     @slug = case_metadata["slug"]
     @name_abbreviation = case_metadata["name_abbreviation"]
-    @full_name = case_metadata["name"]
+    @name = case_metadata["name"]
     @decision_date = case_metadata["decisiondate_original"]
     @case_jurisdiction_id = case_metadata["jurisdiction_id"]
     @docket_number = case_metadata["docketnumber"]
@@ -33,7 +33,7 @@ class CaseDownloader
 
   private
 
-  attr_reader :current_user, :case_metadata, :slug, :name_abbreviation, :full_name, 
+  attr_reader :current_user, :case_metadata, :slug, :name_abbreviation, :name,
     :decision_date, :case_jurisdiction_id, :docket_number, :volume, :reporter, :page
 
   def make_api_request
@@ -56,7 +56,7 @@ class CaseDownloader
   def save_case(case_content)
     new_case = Case.new(
       name_abbreviation: name_abbreviation,
-      full_name: full_name,
+      name: name,
       decision_date: decision_date,
       case_jurisdiction_id: case_jurisdiction_id,
       user_id: current_user.id,
@@ -74,7 +74,7 @@ class CaseDownloader
     if new_case.save
       true
     else
-      error_messages = { case: new_case.errors.full_messages, citation: new_case.case_citations.first.errors.full_messages, 
+      error_messages = { case: new_case.errors.full_messages, citation: new_case.case_citations.first.errors.full_messages,
         docket_number: new_case.case_docket_numbers.first.errors.full_messages }
       log_failure(error_messages)
       false

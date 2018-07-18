@@ -1,7 +1,7 @@
 <% if @case.case_request %>
-Your case request, <%= @case.case_request.full_name %>, was approved and a case was created.  You can view this case by <a href="<%= case_url(@case) %>">clicking on this link</a> or by copy and pasting the url below:
+Your case request, <%= @case.case_request.name %>, was approved and a case was created.  You can view this case by <a href="<%= case_url(@case) %>">clicking on this link</a> or by copy and pasting the url below:
 <%= case_url(@case) %>
 <% else %>
-Your case, <%= @case.full_name %>, was approved.  You can view this case by <a href="<%= case_url(@case) %>">clicking this link</a> or by copy and pasting the url below:
+Your case, <%= @case.name %>, was approved.  You can view this case by <a href="<%= case_url(@case) %>">clicking this link</a> or by copy and pasting the url below:
 <%= case_url(@case) %>
 <% end %>

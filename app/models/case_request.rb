@@ -1,8 +1,8 @@
 class CaseRequest < ApplicationRecord
-  validates_presence_of :full_name, :author, :bluebook_citation,
+  validates_presence_of :name, :author, :bluebook_citation,
                         :docket_number, :volume, :reporter, :page,
                         :reporter, :page, :status, :decision_date
-  validates_length_of   :full_name,            :in => 1..500
+  validates_length_of   :name,                 :in => 1..500
   validates_length_of   :author,               :in => 1..150
   validates_length_of   :bluebook_citation,    :in => 1..150
   validates_length_of   :docket_number,        :in => 1..150
@@ -17,7 +17,7 @@ class CaseRequest < ApplicationRecord
   default_scope { where("status != 'approved'") }
 
   def display_name
-    self.full_name
+    self.name
   end
 
   def klass_partial

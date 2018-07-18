@@ -1,7 +1,7 @@
 <li class="listitem listitem<%= case_request.id %>" data-itemid="<%= case_request.id %>">
 	<div class="details">
 		<h3>
-			<%= case_request.full_name %>
+			<%= case_request.name %>
       <%= link_to "DELETE", case_request_path(case_request), :class => "icon icon-delete tooltip", "data-type" => "case_request", "data-id" => case_request.id %>
       <%= link_to "CREATE CASE FROM THIS REQUEST", new_case_path(:case_request_id => case_request.id), :class => "action create-case-from-request" %>
 		</h3>
