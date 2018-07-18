@@ -104,9 +104,6 @@ body {
           font-size: 100%;
         }
         .dropdown {
-          button {
-            white-space: nowrap;
-          }
           @media (max-width: $navbar-breakpoint) {
             width: 100%;
             button {
@@ -115,6 +112,18 @@ body {
             }
           }
           display: inline-block;
+          .name {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+            @media (min-width: $navbar-breakpoint)
+                   and (max-width: $screen-sm-min) {
+              max-width: 130px;
+            }
+          }
           &.open {
             .caret{
               border-top: none;

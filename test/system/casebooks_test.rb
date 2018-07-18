@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'application_system_test_case'
 
 class CasebookSystemTest < ApplicationSystemTestCase
@@ -42,7 +43,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_equal (find('#content_casebook_subtitle').value), 'Test casebook subtitle'
 
       assert_content 'This casebook has no content yet.'
-      click_button 'Click here to add a section.'
+      click_button 'Add Section'
 
       fill_in 'content_section_title', with: 'Test Section One'
       click_link 'Save'
@@ -51,7 +52,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_link 'Test Section One'
       assert_content 'This section has no content yet.'
 
-      click_link 'Click here to add a resource.'
+      click_link 'Add Resource'
 
       case_to_find = cases(:public_case_1)
       within '.case-search' do

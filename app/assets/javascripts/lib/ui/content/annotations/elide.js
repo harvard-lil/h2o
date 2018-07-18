@@ -4,11 +4,20 @@ import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 import delegate from 'delegate';
 
-delegate(document, '.annotate.elide', 'click', e => {
+// Respond to click, spacebar, or enter, like a real html button would
+delegate(document, '.annotate.elide', 'click', e => handleElideButtonPressed(e));
+delegate(document, '.annotate.elide', 'keypress', e => {
+  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    e.preventDefault();
+    handleElideButtonPressed(e);
+  }
+});
+
+function handleElideButtonPressed(e){
   let annotationId = e.target.dataset.annotationId;
   let elisions = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
   toggleElisionVisibility(annotationId, 'elide', e.target, elisions);
-});
+}
 
 export function toggleElisionVisibility(annotationId, annotationType, toggleButton, toggledContentNodes){
   toggleButton.classList.toggle('revealed');

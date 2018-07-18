@@ -306,7 +306,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def add_section
-    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: @section.try(:id)}), method: :post, class: 'action add-section')
+    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section')
   end
 
   def save_casebook

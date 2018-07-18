@@ -96,16 +96,16 @@ en:
       preview-banner:
         html: You are viewing a preview of a private casebook.
       empty-section:
-        html: "This section has no content yet. %{add_resource_button}"
+        html: "This section has no content yet."
         add-button: Click here to add a resource.
       empty-casebook:
-        html: "This casebook has no content yet. %{add_section_button}"
+        html: "This casebook has no content yet."
         add-button: Click here to add a section.
     resource:
       type:
         text: Text
-        html: Link
         case: Case
+        default: Link
         not-applicable: —
       date:
         not-applicable: —
@@ -130,11 +130,21 @@ en:
       - Subsection
       - Part
     titles:
+      dashboard: "Dashboard"
       casebooks:
-        show: "Read | %{casebook_title}"
+        show: "Casebooks | %{casebook_title}"
         edit: "Edit | %{casebook_title}"
         index: Books
       sections:
-        show: "Read | %{casebook_title} | %{ordinal_string}: %{section_title}"
+        show: "Casebooks | %{casebook_title} | %{ordinal_string}: %{section_title}"
         edit: "Edit | %{casebook_title} | %{ordinal_string}: %{section_title}"
         index: "Read | %{casebook_title} | Table of Contents"
+      resources:
+        show: "Resources | %{section_title}"
+        edit: "Edit | %{section_title}"
+      cases:
+        show: "Cases | %{case_short_name}"
+        edit: "Edit | %{case_short_name}"
+      searches:
+        index: "Searches"
+        show: "Searches"

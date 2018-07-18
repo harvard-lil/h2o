@@ -6,7 +6,7 @@ module Migrate
 
       playlists.each_with_index do |playlist, index|
         puts "#{index}: migrating #{playlist.id}"
-        migrate_playlist(playlists)
+        migrate_playlist(playlist)
         puts "#{index}: #{playlist.id} migrated"
       end
     end
@@ -76,9 +76,9 @@ module Migrate
           end
 
           if imported_resource.is_a? Migrate::Media
-            imported_resource = Default.create name: imported_resource.name,
+            imported_resource = TextBlock.create name: imported_resource.name,
               description: imported_resource.description,
-              url: imported_resource.content,
+              content: imported_resource.content,
               user_id: imported_resource.user_id
           end
 
