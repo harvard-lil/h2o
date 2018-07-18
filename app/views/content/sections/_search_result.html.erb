@@ -11,7 +11,7 @@
     </div>
     <% if result.is_a? Case %>
       <div class="resource-case">
-        <%= result.short_name %>
+        <%= result.name_abbreviation %>
       </div>
     <% elsif result.is_a? TextBlock %>
       <div class="resource-type">

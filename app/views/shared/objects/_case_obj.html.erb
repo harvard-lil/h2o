@@ -4,7 +4,7 @@
   <a href="#" class="tooltip list-icon icon icon-case" title="Case"></a>
   <div class="details">
     <h3>
-      <%= link_to case_obj.short_name, case_obj, :class => "title" %>
+      <%= link_to case_obj.name_abbreviation, case_obj, :class => "title" %>
     </h3>
     <p class="cases_details">
       <%= case_obj.case_citations.collect { |c| c.display_name }.join(', ') %> /

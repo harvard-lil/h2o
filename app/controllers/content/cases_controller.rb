@@ -21,12 +21,12 @@ class Content::CasesController < ApplicationController
   def page_title
     if @case.present?
       if action_name == 'edit'
-        I18n.t 'content.titles.cases.edit', case_short_name: @case.short_name
+        I18n.t 'content.titles.cases.edit', case_name_abbreviation: @case.name_abbreviation
       else
-        I18n.t 'content.titles.cases.show', case_short_name: @case.short_name
+        I18n.t 'content.titles.cases.show', case_name_abbreviation: @case.name_abbreviation
       end
     else
-      I18n.t 'content.titles.cases.read', case_short_name: @case.short_name
+      I18n.t 'content.titles.cases.read', case_name_abbreviation: @case.name_abbreviation
     end
   end
 

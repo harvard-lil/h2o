@@ -1,6 +1,6 @@
   <div class="standard-form">
     <div id="case-error" style="display:none;" class="error"></div>
-    <h1 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.short_name}\"" %></h1>
+    <h1 id="generic_title"><%= @case.new_record? ? 'Add a new Case' : "Edit \"#{@case.name_abbreviation}\"" %></h1>
     <% if @case.errors.any? -%>
     <div id="case-error" class="error">
       <ul>
@@ -13,7 +13,7 @@
 
     <%= semantic_form_for(@case, :html => {:id => 'case-form'}) do |form| %>
       <%= form.inputs do %>
-        <%= form.input :short_name %>
+        <%= form.input :name_abbreviation %>
         <%= form.input :full_name %>
         <%= form.input :decision_date, :as => :string, :input_html => { :class => "datepicker" } %>
         <%= form.input :author, :required => false, :hint => 'The name of the judge.' %>

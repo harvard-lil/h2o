@@ -18,6 +18,6 @@ class DuplicateCaseChecker
   def case_already_exists?(case_metadata)
     # TODO cache this query
     CaseCitation.all.joins(:case).where(case_citations: { volume: case_metadata['volume'], 
-      reporter: case_metadata['reporter_abbreviation'], page: case_metadata['page']  }, cases: { short_name: case_metadata["name_abbreviation"]}).any? 
+      reporter: case_metadata['reporter_abbreviation'], page: case_metadata['page']  }, cases: { name_abbreviation: case_metadata["name_abbreviation"]}).any? 
   end
 end
