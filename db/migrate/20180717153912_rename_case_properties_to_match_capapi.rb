@@ -1,10 +1,5 @@
 # TODO:
-# - where does current_opinion fit in this?
-# - where are the judges represented in the existing Case?
-# - what to do with header_html?
 # - court vs jurisdiction in current schema
-# - do we need to add capapi's reporter?
-# - how to handle volumes? Looks like h2o has them on cites, but capapi on cases
 # - add indexes
 
 class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
@@ -12,8 +7,6 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     rename_column :cases, :short_name, :name_abbreviation
     rename_column :cases, :full_name, :name
 
-    add_column :cases, :first_page, :integer
-    add_column :cases, :last_page, :integer
     add_column :cases, :judges, :jsonb
 
     # Normalize attorneys
@@ -33,14 +26,14 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     Case.where("author SIMILAR TO '%\\w%'")
       .update_all("opinions = json_build_object('majority', author)")
     remove_column :cases, :author
+
+    remove_column :cases, :current_opinion # this column is unused
   end
 
   def down
     rename_column :cases, :name_abbreviation, :short_name
     rename_column :cases, :name, :full_name
 
-    remove_column :cases, :first_page
-    remove_column :cases, :last_page
     remove_column :cases, :judges
 
     # Denomalize attorneys
