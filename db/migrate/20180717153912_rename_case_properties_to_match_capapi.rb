@@ -33,6 +33,8 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     remove_column :cases, :author
 
     remove_column :cases, :current_opinion # this column is unused
+
+    Case.reindex # reindex Solr with new column names
   end
 
   def down
@@ -63,5 +65,7 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     Case.where.not(opinions: nil)
       .update_all("author = opinions::json->>'majority'")
     remove_column :cases, :opinions
+
+    Case.reindex # reindex Solr with new column names
   end
 end
