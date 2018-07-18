@@ -41,6 +41,7 @@ body {
 
         &:hover {
           @include generic-focus-styles;
+          color: transparent;
         }
       }
     }
