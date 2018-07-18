@@ -28,9 +28,9 @@
 </p>
 <% end %>
 
-<% unless court_case.case_jurisdiction.blank? %>
+<% unless court_case.case_court.blank? %>
 <p>
   <label>Jurisdiction:</label>
-  <%= court_case.case_jurisdiction.display_name %>
+  <%= court_case.case_court.display_name %>
 </p>
 <% end %>

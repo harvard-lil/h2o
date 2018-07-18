@@ -6,6 +6,7 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
   def up
     rename_column :cases, :short_name, :name_abbreviation
     rename_column :cases, :full_name, :name
+    rename_table :case_jurisdictions, :case_courts
 
     add_column :cases, :judges, :jsonb
 
@@ -33,6 +34,7 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
   def down
     rename_column :cases, :name_abbreviation, :short_name
     rename_column :cases, :name, :full_name
+    rename_table :case_courts, :case_jurisdictions
 
     remove_column :cases, :judges
 

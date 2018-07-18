@@ -67,7 +67,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       fill_in 'Reporter', with: 'Test reporter'
       fill_in 'Page', with: 'page.1'
 
-      select CaseJurisdiction.first.name, from: 'Case jurisdiction'
+      select CaseCourt.first.name, from: 'Case jurisdiction'
 
       click_button 'Submit Case Request'
       assert_content "Case Request was successfully created."
