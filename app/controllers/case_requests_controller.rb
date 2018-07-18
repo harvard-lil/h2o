@@ -27,7 +27,7 @@ class CaseRequestsController < BaseController
   end
   private
   def case_requests_params
-    params.require(:case_request).permit(:full_name, :decision_date, :author, :case_jurisdiction_id,
+    params.require(:case_request).permit(:name, :decision_date, :author, :case_jurisdiction_id,
                                          :docket_number, :volume, :reporter, :page, :bluebook_citation,
                                          :status)
   end

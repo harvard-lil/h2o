@@ -1,5 +1,5 @@
 case_request_1:
-  full_name: Case Request 1
+  name: Case Request 1
   author: case_author
   decision_date: 1999-01-10
   case_jurisdiction: district_jurisdiction
