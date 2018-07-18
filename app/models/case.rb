@@ -25,13 +25,13 @@ class Case < ApplicationRecord
 
 
   def display_name
-    (short_name.blank?) ? full_name : short_name
+    (name_abbreviation.blank?) ? name : name_abbreviation
   end
   def description
     nil
   end
   def title
-    full_name
+    name
   end
   def date_year
     decision_date.try :year
@@ -45,16 +45,14 @@ class Case < ApplicationRecord
 
   validate :date_check
 
-  validates_presence_of   :short_name,      :content
-  validates_length_of     :short_name,      :in => 1..150, :allow_blank => true, :allow_nil => true
-  validates_length_of     :party_header,    :in => 1..(10.kilobytes), :allow_blank => true, :allow_nil => true
-  validates_length_of     :lawyer_header,   :in => 1..(2.kilobytes),  :allow_blank => true, :allow_nil => true
-  validates_length_of     :header_html,     :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
-  validates_length_of     :content,         :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
+  validates_presence_of   :name_abbreviation,      :content
+  validates_length_of     :name_abbreviation,      :in => 1..150, :allow_blank => true, :allow_nil => true
+  validates_length_of     :header_html,            :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
+  validates_length_of     :content,                :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
   searchable do
-    text :full_name, :boost => 3.0
-    text :short_name
+    text :name, :boost => 3.0
+    text :name_abbreviation
     text :indexable_case_citations, :boost => 3.0
     text :indexable_case_docket_numbers
     text :indexable_case_jurisdiction
