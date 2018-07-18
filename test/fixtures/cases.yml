@@ -2,7 +2,7 @@ public_case_1:
   name_abbreviation: District Case 1
   name: Case of the District Number 1
   decision_date: 1999-01-10
-  author: Judge Person
+  opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
   content: This is the body of case 1.
   public: true
@@ -12,7 +12,7 @@ public_case_2:
   name_abbreviation: District Case 2
   name: Case of the District Number 2
   decision_date: 1999-01-10
-  author: Judge Person the Second
+  opinions: {"majority": "Judge Person the Second"}
   case_court: district_jurisdiction
   content: This is the body of case 2.
   public: true
@@ -22,7 +22,7 @@ public_case_to_annotate:
   name_abbreviation: District Case 2
   name: Case of the District Number 2
   decision_date: 1999-01-10
-  author: Judge Person the Second
+  opinions: {"majority": "Judge Person the Second"}
   case_court: district_jurisdiction
   content: >
     highlighted: content to highlight;
@@ -38,7 +38,7 @@ haystack_case_<%=label%>:
   name_abbreviation: Haystack Case (<%=label%>)
   name: Case <%=label%> in the Haystack
   decision_date: <%= Date.today - rand(10000).days %>
-  author: Judge Haystack the <%=label%>th
+  opinions: {"majority": "Judge Haystack the <%=label%>th"}
   case_court: district_jurisdiction
   content: >
     This is haystack case labeled <%=label%>
@@ -50,7 +50,7 @@ private_case_1:
   name_abbreviation: Private Case 1
   name: Case of the District Number 1
   decision_date: 1999-01-10
-  author: Judge Person
+  opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
   content: This is the body of PRIVATE case 1.
   public: false
@@ -60,7 +60,7 @@ private_case_2:
   name_abbreviation: Private Case 2
   name: Case of the District Number 2
   decision_date: 1999-01-12
-  author: Judge Person
+  opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
   content: This is the body of PRIVATE case 2.
   public: false
@@ -70,7 +70,7 @@ case_with_citation:
   name_abbreviation: Case With Citation
   name: Case of the District Number 1
   decision_date: 1999-08-18
-  author: Judge Person
+  opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
   content: This is the body of case with citation.
   public: true
