@@ -54,10 +54,23 @@ class CaseDownloader
   end
 
   def save_case(case_content)
-    new_case = Case.new(short_name: short_name, full_name: full_name, decision_date: decision_date, 
-                       case_jurisdiction_id: case_jurisdiction_id, user_id: current_user.id, 
-                       content: case_content, public: true, case_citations: [CaseCitation.new(volume: volume, 
-                        reporter: reporter, page: page)], case_docket_numbers: [CaseDocketNumber.new(docket_number: docket_number)])
+    new_case = Case.new(
+      short_name: short_name,
+      full_name: full_name,
+      decision_date: decision_date,
+      case_jurisdiction_id: case_jurisdiction_id,
+      user_id: current_user.id,
+      content: case_content,
+      public: true,
+      case_citations: [
+        CaseCitation.new(volume: volume,
+                         reporter: reporter,
+                         page: page)
+      ],
+      case_docket_numbers: [
+        CaseDocketNumber.new(docket_number: docket_number)
+      ])
+
     if new_case.save
       true
     else
