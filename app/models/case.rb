@@ -27,12 +27,6 @@
 class Case < ApplicationRecord
   include Rails.application.routes.url_helpers
 
-  RATINGS_DISPLAY = {
-    :collaged => "Annotated",
-    :bookmark => "Bookmarked",
-    :add => "Added to"
-  }
-
   acts_as_taggable_on :tags
 
   has_many :casebooks, inverse_of: :resource, class_name: 'Content::Casebook'
