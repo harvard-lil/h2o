@@ -62,6 +62,5 @@ en:
     profile:
       verified: Verified .edu email
       unverified:
-        header: Email needs verification
         text: You will need to verify your .edu email address before you can access parts of the site reserved for registered users.
         resend: Resend verification email

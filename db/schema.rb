@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180719154548) do
+ActiveRecord::Schema.define(version: 20180719191234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -766,7 +766,7 @@ ActiveRecord::Schema.define(version: 20180719154548) do
     t.string "oauth_secret", limit: 255
     t.string "email_address", limit: 255
     t.string "tz_name", limit: 255
-    t.string "attribution", limit: 255
+    t.string "attribution", limit: 255, default: "Anonymous", null: false
     t.string "perishable_token", limit: 255
     t.string "default_font_size", limit: 255, default: "10"
     t.string "title", limit: 255
@@ -774,7 +774,7 @@ ActiveRecord::Schema.define(version: 20180719154548) do
     t.string "url", limit: 255
     t.text "description"
     t.string "canvas_id", limit: 255
-    t.boolean "verified_email", default: false, null: false
+    t.boolean "email_confirmed", default: false, null: false
     t.string "default_font", limit: 255, default: "futura"
     t.boolean "print_titles", default: true, null: false
     t.boolean "print_dates_details", default: true, null: false
