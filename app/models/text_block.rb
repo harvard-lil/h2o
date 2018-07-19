@@ -27,12 +27,6 @@ class TextBlock < ApplicationRecord
   include MetadataExtensions
   include Rails.application.routes.url_helpers
   include VerifiedUserExtensions
-  include DeletedItemExtensions
-
-  RATINGS_DISPLAY = {
-    :bookmark => "Bookmarked",
-    :add => "Added to"
-  }
 
   acts_as_taggable_on :tags
 
