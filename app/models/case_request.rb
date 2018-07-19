@@ -28,7 +28,6 @@ class CaseRequest < ApplicationRecord
   end
 
   alias :to_s :display_name
-  alias :name :display_name
 
   def approve!
     self.update_attribute('status', 'approved')
