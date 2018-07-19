@@ -85,11 +85,6 @@ class User < ApplicationRecord
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id
 
-  has_attached_file :image, styles: { medium: "300x300>", thumb: "33x33#" }, default_url: "/assets/ui/portrait-anonymous-:style.png"
-  validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
-
-  alias :textblocks :text_blocks
-
   after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified_email? && u.verified_email?}
 
   attr_accessor :terms
@@ -99,7 +94,6 @@ class User < ApplicationRecord
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :allowed_email_domain, if: :new_record?
   validates_presence_of :email_address
-
   alias_attribute :login, :email_address
 
   searchable :if => :not_anonymous do
