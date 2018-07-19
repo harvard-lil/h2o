@@ -29,13 +29,7 @@ class Content::Section < Content::Child
   include Content::Concerns::HasChildren
 
   def title
-    super || default_title
-  end
-
-  def default_title
-    words = I18n.t('content.section-words').take(ordinals.length)
-    words.fill words.last, words.length..(ordinals.length - 1)
-    words.zip(ordinals.map(&:humanize).map(&:capitalize)).map {|pair| pair.join ' '}.join ', '
+    super || I18n.t('content.untitled-section')
   end
 
   belongs_to :resource, polymorphic: true, optional: true
