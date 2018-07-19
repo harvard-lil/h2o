@@ -127,6 +127,11 @@ end
 
 class Capybara::Session
   def submit(element)
-    Capybara::RackTest::Form.new(driver, element.native).submit({})
+    case Capybara.current_driver
+        when :rack_test
+          Capybara::RackTest::Form.new(driver, element.native).submit({})
+        when :selenium
+          element.find('input').native.send_keys(:enter)
+    end
   end
 end
