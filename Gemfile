@@ -86,7 +86,6 @@ group :development do
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
-  gem 'pry-byebug'
 end
 
 group :development, :test do
@@ -95,6 +94,7 @@ group :development, :test do
   gem 'minitest-spec-rails'
   gem 'minitest-reporters'
   gem 'poltergeist'
+  gem 'pry-byebug'
   gem 'simplecov'
   gem 'm'
 
