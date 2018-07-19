@@ -12,17 +12,6 @@ header.users {
     background-image: asset-url('ui/verified-large.png');
     color: transparent;
   }
-  .unverified {
-    @include sans-serif($bold, 16px, 16px);
-    padding: 20px;
-    background-color: $light-orange;
-    color: black;
-
-    a {
-      @extend .btn;
-      @extend .btn-default;
-    }
-  }
 }
 
 section.sign-up, section.sign-in, section.reset-password {

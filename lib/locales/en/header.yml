@@ -8,7 +8,6 @@ en:
       sign-up: Sign up for free
       sign-in: Sign in
     user:
-      unverified: Email needs verification
       verified: Verified User
       dashboard: Dashboard
       edit-profile: Edit profile

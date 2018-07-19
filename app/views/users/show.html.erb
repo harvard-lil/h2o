@@ -8,19 +8,6 @@
         </div>
       <% end %>
     </h1>
-    <% if !@user.verified_email && @user == current_user %>
-      <div class="unverified">
-        <h2>
-          <%= t 'users.profile.unverified.header' %>
-        </h2>
-        <p>
-          <%= t 'users.profile.unverified.text' %>
-        </p>
-        <a href="<%= root_path %>">
-          <%= t 'users.profile.unverified.resend' %>
-        </a>
-      </div>
-    <% end %>
   </div>
 </header>
 <section class="profile">

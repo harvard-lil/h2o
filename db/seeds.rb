@@ -3,9 +3,9 @@ Page.create! page_title: "H2O Help", slug: "help", content: "<p>Here is some inf
 Role.create!(name: 'superadmin')
 Role.create!(name: 'case_admin')
 
-admin_user = User.create!( email_address: 'admin@example.edu', verified_email: true, password: 'password', password_confirmation: 'password', roles: [Role.find_by_name('superadmin')] )
-professor_user = User.create!( email_address: 'professor@example.edu', verified_email: true, password: 'password', password_confirmation: 'password' )
-student_user = User.create!( email_address: 'student@example.edu', verified_email: true, password: 'password', password_confirmation: 'password' )
+admin_user = User.create!( email_address: 'admin@example.edu', email_confirmed: true, password: 'password', password_confirmation: 'password', roles: [Role.find_by_name('superadmin')] )
+professor_user = User.create!( email_address: 'professor@example.edu', email_confirmed: true, password: 'password', password_confirmation: 'password' )
+student_user = User.create!( email_address: 'student@example.edu', email_confirmed: true, password: 'password', password_confirmation: 'password' )
 
 # ## Cases in this casebook are missing content
 legal_history_casebook = Content::Casebook.create!( title: 'Legal History: History of American Economic Regulation (Spring 2015)', public: true, owners: [professor_user])
