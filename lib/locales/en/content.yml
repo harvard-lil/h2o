@@ -125,10 +125,7 @@ en:
         link: Add a URL
         text: Create a text
     untitled-casebook: "Untitled casebook #%{id}"
-    section-words:
-      - Section
-      - Subsection
-      - Part
+    untitled-section: "Untitled section"
     titles:
       dashboard: "Dashboard"
       casebooks:
