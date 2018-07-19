@@ -21,13 +21,6 @@ class Default < ApplicationRecord
   include MetadataExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
-  include DeletedItemExtensions
-
-  RATINGS_DISPLAY = {
-    :default_clone => "Cloned",
-    :bookmark => "Bookmarked",
-    :add => "Added to"
-  }
 
   acts_as_taggable_on :tags
   belongs_to :user, optional: true

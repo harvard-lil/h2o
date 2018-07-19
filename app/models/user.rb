@@ -63,7 +63,6 @@
 
 class User < ApplicationRecord
   include Rails.application.routes.url_helpers
-  include DeletedItemExtensions
 
   # Obfuscate domains to avoid this file showing up on GitHub in web searches for said domains
   EMAIL_DOMAIN_BLACKLIST = [
@@ -102,44 +101,6 @@ class User < ApplicationRecord
   validates_presence_of :email_address
 
   alias_attribute :login, :email_address
-
-  RATINGS = {
-    :playlist_created => 5,
-    :collage_created => 3,
-    :media_created => 1,
-    :text_block_created => 1,
-    :case_created => 1,
-    :user_case_collaged => 3,
-    :user_media_collaged => 3,
-    :user_text_block_collaged => 3,
-    :user_playlist_added => 3,
-    :user_collage_added => 5,
-    :user_case_added => 1,
-    :user_media_added => 2,
-    :user_text_block_added => 2
-  }
-  RATINGS_DISPLAY = { :playlist_created => "Playlist Created",
-    :collage_created => "Annotated Item Created",
-    :media_created => "Media Created",
-    :text_block_created => "Text Block Created",
-    :case_created => "Case Created",
-    :user_case_collaged => "Case Annotated",
-    :user_media_collaged => "Media Annotated",
-    :user_text_block_collaged => "Text Block Annotated",
-    :user_playlist_bookmarked => "Playlist Bookmarked",
-    :user_collage_bookmarked => "Annotated Item Bookmarked",
-    :user_case_bookmarked => "Case Bookmarked",
-    :user_media_bookmarked => "Media Bookmarked",
-    :user_text_block_bookmarked => "Text Block Bookmarked",
-    :user_playlist_added => "Playlist Added",
-    :user_collage_added => "Annotated Item Added",
-    :user_case_added => "Case Added",
-    :user_media_added => "Media Added",
-    :user_text_block_added => "Text Block Added",
-    :user_collage_clone => "Annotated Item Cloned",
-    :user_playlist_clone => "Playlist Cloned",
-    :user_default_clone => "Link Cloned"
-  }
 
   searchable :if => :not_anonymous do
     text :simple_display
