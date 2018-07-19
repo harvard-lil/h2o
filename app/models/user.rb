@@ -185,10 +185,6 @@ class User < ApplicationRecord
   end
   alias :display_name :simple_display
 
-  def pending_cases
-    self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
-  end
-
   def send_verification_request
     reset_perishable_token!
     Notifier.verification_request(self).deliver
@@ -213,7 +209,6 @@ class User < ApplicationRecord
   def request_professor_verification!
     Notifier.request_professor_verification(self).deliver
   end
-
 
   def owned_casebook_compacted
     # drafts of published casebooks should not show up on their own, but
