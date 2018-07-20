@@ -9,7 +9,6 @@ H2o::Application.routes.draw do
 
   resources :bulk_uploads, only: [:show, :new, :create]
   resources :case_courts, only: [:new, :create]
-  resources :case_requests, only: [:new, :create, :destroy]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :user_sessions, only: [:new, :create, :destroy, :index]
   resource :cap_api_import, only: [:new, :create]

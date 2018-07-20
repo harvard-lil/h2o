@@ -29,11 +29,6 @@
 				<td id="spinner">
 					<%= image_tag "ajax-loader.gif" %>
 				</td>
-				<% if params[:controller] == 'cases' && (@page_cache || (current_user && current_user.not_anonymous)) %>
-				<td class="requires_non_anonymous">
-				<%= link_to "REQUEST CASE", new_case_request_path, :id => 'case_request_button', :class => 'requires-non-anonymous button' %>
-				</td>
-				<% end -%>
 				<td class="field search">
           <label for="keywords" class="hidden-label">Keywords</label>
 					<%= text_field_tag "keywords", params[:keywords], :size => 50 %>
