@@ -121,7 +121,7 @@
         content: 'hide';
       }
       .text:empty::before {
-        content: 'Enter text to replace...';
+        content: 'Enter replacement text';
         color: $dark-gray;
         pointer-events: none;
       }
