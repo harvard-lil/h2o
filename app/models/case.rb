@@ -1,4 +1,6 @@
 class Case < ApplicationRecord
+  store_accessor :opinions, :majority
+
   include Rails.application.routes.url_helpers
 
   acts_as_taggable_on :tags
