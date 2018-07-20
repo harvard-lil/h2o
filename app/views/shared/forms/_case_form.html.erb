@@ -16,7 +16,7 @@
         <%= form.input :name_abbreviation %>
         <%= form.input :name %>
         <%= form.input :decision_date, :as => :string, :input_html => { :class => "datepicker" } %>
-        <%= form.input :majority, :required => false, :hint => 'The name of the judge.' %>
+        <%= form.input :majority, label: 'Author', required: false, hint: 'The name of the judge.' %>
         <% if @case.case_request -%>
         <%= form.input :case_request_id, :as => :hidden %>
         <% end -%>
