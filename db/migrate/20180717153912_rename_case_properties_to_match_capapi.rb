@@ -70,6 +70,8 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
       .update_all("author = opinions::json->>'majority'")
     remove_column :cases, :opinions
 
+    add_column :cases, :current_opinion, :boolean, default: true
+
     puts "## NOTE ##\n"\
          "This migration changes Case property names\n"\
          "Solr should be reindexed upon completion, using Case.reindex\n"\
