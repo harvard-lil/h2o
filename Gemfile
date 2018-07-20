@@ -47,6 +47,7 @@ gem 'rails_admin', '~> 1.3.0'
 gem 'rails_admin_import'
 gem 'rails-html-sanitizer'
 gem 'RedCloth'
+gem 'require_reloader'
 gem 'rest-client', '~> 1.7.3'
 gem 'rubyzip'
 gem 'sass-rails', '~> 5.0.6'
@@ -86,6 +87,7 @@ group :development do
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
+  gem 'capapi', path: '~/github/capapi-ruby'
 end
 
 group :development, :test do
