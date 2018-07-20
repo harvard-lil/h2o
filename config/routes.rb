@@ -98,19 +98,6 @@ H2o::Application.routes.draw do
   resource :search, only: [:show, :index]
   get '/search', to: 'searches#index'
 
-  resources :cases do
-    member do
-      get 'access_level'
-      get 'export'
-      post 'export_as'
-      get 'embedded_pager'
-      post 'approve'
-    end
-    collection do
-      get 'embedded_pager'
-    end
-  end
-
   scope :iframe, controller: 'iframe' do
     get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
     get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
