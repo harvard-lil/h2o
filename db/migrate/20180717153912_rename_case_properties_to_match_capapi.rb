@@ -32,9 +32,17 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
       .update_all("opinions = json_build_object('majority', author)")
     remove_column :cases, :author
 
+    add_column :case_requests, :opinions, :jsonb
+    CaseRequest.where("author SIMILAR TO '%\\w%'")
+      .update_all("opinions = json_build_object('majority', author)")
+    remove_column :case_requests, :author
+
     remove_column :cases, :current_opinion # this column is unused
 
-    Case.reindex # reindex Solr with new column names
+    puts "## NOTE ##\n"\
+         "This migration changes Case property names\n"\
+         "Solr should be reindexed upon completion, using Case.reindex\n"\
+         "##########"
   end
 
   def down
@@ -66,6 +74,9 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
       .update_all("author = opinions::json->>'majority'")
     remove_column :cases, :opinions
 
-    Case.reindex # reindex Solr with new column names
+    puts "## NOTE ##\n"\
+         "This migration changes Case property names\n"\
+         "Solr should be reindexed upon completion, using Case.reindex\n"\
+         "##########"
   end
 end

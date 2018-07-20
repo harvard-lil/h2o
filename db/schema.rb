@@ -96,7 +96,6 @@ ActiveRecord::Schema.define(version: 20180803140805) do
   create_table "case_requests", id: :serial, force: :cascade do |t|
     t.string "name", limit: 500, null: false
     t.date "decision_date", null: false
-    t.string "author", limit: 150, null: false
     t.integer "case_court_id"
     t.string "docket_number", limit: 150, null: false
     t.string "volume", limit: 150, null: false
@@ -107,6 +106,7 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "user_id", default: 0, null: false
+    t.jsonb "opinions"
   end
 
   create_table "cases", id: :serial, force: :cascade do |t|

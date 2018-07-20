@@ -10,7 +10,7 @@
       <% if case_request.user.present? -%>
       requested by: <%= case_request.user.display %> (<%= case_request.user.email_address %>)<br />
       <% end -%>
-      <% [:decision_date, :author, :case_court, :docket_number, :volume, :reporter, :page, :bluebook_citation].each do |f| -%>
+      <% [:decision_date, :majority, :case_court, :docket_number, :volume, :reporter, :page, :bluebook_citation].each do |f| -%>
 			<%= f %>: <%= case_request.send(f) %><br />
       <% end -%>
 		</p>

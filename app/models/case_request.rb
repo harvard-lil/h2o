@@ -1,9 +1,11 @@
 class CaseRequest < ApplicationRecord
-  validates_presence_of :name, :author, :bluebook_citation,
+  store_accessor :opinions, :majority
+
+  validates_presence_of :name, :majority, :bluebook_citation,
                         :docket_number, :volume, :reporter, :page,
                         :reporter, :page, :status, :decision_date
   validates_length_of   :name,                 :in => 1..500
-  validates_length_of   :author,               :in => 1..150
+  validates_length_of   :majority,             :in => 1..150
   validates_length_of   :bluebook_citation,    :in => 1..150
   validates_length_of   :docket_number,        :in => 1..150
   validates_length_of   :volume,               :in => 1..150
