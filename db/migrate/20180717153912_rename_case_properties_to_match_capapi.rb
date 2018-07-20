@@ -1,5 +1,4 @@
 # TODO:
-# - court vs jurisdiction in current schema
 # - add indexes
 
 class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
