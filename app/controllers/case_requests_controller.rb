@@ -2,6 +2,7 @@ class CaseRequestsController < BaseController
   protect_from_forgery :except => [:destroy]
 
   def new
+    @case_request = CaseRequest.new
   end
 
   def create
