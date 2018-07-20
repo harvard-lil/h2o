@@ -17,9 +17,6 @@
         <%= form.input :name %>
         <%= form.input :decision_date, :as => :string, :input_html => { :class => "datepicker" } %>
         <%= form.input :majority, label: 'Author', required: false, hint: 'The name of the judge.' %>
-        <% if @case.case_request -%>
-        <%= form.input :case_request_id, :as => :hidden %>
-        <% end -%>
 
         <%= form.input :case_court, :as => :select, :collection => CaseCourt.order('name'), :hint => raw(current_user.has_role?(:case_admin) ? ((form.object.new_record?) ? 'Please choose a jurisdiction or <a href="' + new_case_court_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>' : 'Change the case jurisdiction, <a href="#" class="edit-case-jurisdiction">EDIT THE SELECTED CASE JURISDICTION</a> or <a href="' + new_case_court_path + '" class="new-action">CREATE A NEW CASE JURISDICTION</a>') : nil) %>
 

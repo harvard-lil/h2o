@@ -9,7 +9,6 @@ class Case < ApplicationRecord
 
   has_many :case_citations, inverse_of: :case
   has_many :case_docket_numbers, inverse_of: :case
-  belongs_to :case_request, optional: true, inverse_of: :case
   belongs_to :case_court, optional: true, inverse_of: :cases
   belongs_to :user, optional: true
 

@@ -49,28 +49,4 @@ class CaseSystemTest < ApplicationSystemTestCase
       # annotations are visible
     end
   end
-  describe 'as a registered user' do
-    scenario 'requesting a case' do
-      SimpleCov.add_filter %w{app/controllers/case_requests_controller.rb}
-      skip 'Case requests are disabled'
-
-      sign_in user = users(:verified_student)
-      visit cases_path
-      click_link 'REQUEST CASE'
-
-      fill_in 'Full name', with: 'Test Request'
-      fill_in 'Decision date', with: '2017-01-01'
-      fill_in 'Author', with: 'Test Author'
-      fill_in 'Bluebook citation', with: 'Test citation'
-      fill_in 'Docket number', with: 'docket.1'
-      fill_in 'Volume', with: 'v.1'
-      fill_in 'Reporter', with: 'Test reporter'
-      fill_in 'Page', with: 'page.1'
-
-      select CaseCourt.first.name, from: 'Case jurisdiction'
-
-      click_button 'Submit Case Request'
-      assert_content "Case Request was successfully created."
-    end
-  end
 end

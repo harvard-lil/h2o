@@ -11,7 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema.define(version: 20180803140805) do
-
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -93,22 +92,6 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.datetime "updated_at"
   end
 
-  create_table "case_requests", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 500, null: false
-    t.date "decision_date", null: false
-    t.integer "case_court_id"
-    t.string "docket_number", limit: 150, null: false
-    t.string "volume", limit: 150, null: false
-    t.string "reporter", limit: 150, null: false
-    t.string "page", limit: 150, null: false
-    t.string "bluebook_citation", limit: 150, null: false
-    t.string "status", limit: 150, default: "new", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer "user_id", default: 0, null: false
-    t.jsonb "opinions"
-  end
-
   create_table "cases", id: :serial, force: :cascade do |t|
     t.string "name_abbreviation", limit: 150, null: false
     t.string "name"
@@ -119,7 +102,6 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean "public", default: false
-    t.integer "case_request_id"
     t.boolean "sent_in_cases_list", default: false
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
