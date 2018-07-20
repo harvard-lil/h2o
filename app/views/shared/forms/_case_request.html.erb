@@ -5,7 +5,7 @@
     <%= form.inputs do %>
       <%= form.input :name, :required => true  %>
       <%= form.input :decision_date, :as => :string, :required => true, :input_html => {:class => 'datepicker'}  %>
-      <%= form.input :majority, :required => true  %>
+      <%= form.input :majority, :required => true, label: 'Author'  %>
       <%= form.input :case_court, :as => :select, :collection => CaseCourt.order(:name), :required => false %>
       <%= form.input :docket_number, :required => true  %>
       <%= form.input :volume, :required => true  %>
