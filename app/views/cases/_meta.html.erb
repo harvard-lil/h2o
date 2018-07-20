@@ -7,10 +7,10 @@
   <%= court_case.decision_date %>
 </p>
 
-<% unless court_case.author.blank? %>
+<% unless court_case.opinions.blank? %>
 <p>
   <label>Author:</label>
-  <%= court_case.author %>
+  <%= court_case.opinions["majority"] %>
 </p>
 <% end %>
 

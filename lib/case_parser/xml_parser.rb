@@ -9,10 +9,10 @@ class CaseParser::XmlParser
   def xml_to_case_attributes
     {:name_abbreviation => @doc.css('ShortName').text,
      :name => @doc.css('FullName').text,
-     :author => @doc.css('Author').text,
+     :opinions => {majority: @doc.css('Author').text},
      :decision_date => @doc.css('DecisionDate').text,
-     :lawyer_header => @doc.css('LawyerHeader').text,
-     :party_header => @doc.css('PartyHeader').text,
+     :attorneys => [@doc.css('LawyerHeader').text],
+     :parties => [@doc.css('PartyHeader').text],
      :header_html => @doc.css('HeaderHtml').text,
      :content => extract_content,
      :jurisdiction => @doc.css('Jurisdiction CourtName').text,
