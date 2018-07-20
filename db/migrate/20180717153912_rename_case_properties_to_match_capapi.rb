@@ -1,6 +1,3 @@
-# TODO:
-# - add indexes
-
 class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
   def up
     rename_column :cases, :short_name, :name_abbreviation
