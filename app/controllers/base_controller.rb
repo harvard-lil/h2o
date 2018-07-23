@@ -4,7 +4,7 @@ class BaseController < ApplicationController
   layout :layout_switch
 
   def landing
-    if current_user && current_user.password.present?
+    if current_user
       @user = current_user
       @page_title = I18n.t 'content.titles.dashboard'
       render 'content/dashboard', layout: 'main'
