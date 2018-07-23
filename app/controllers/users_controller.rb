@@ -28,7 +28,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(permitted_user_params)
 
-    if @user.save
+    if @user.save_without_session_maintenance
       @user.send_verification_request
       flash[:success] = I18n.t('users.sign-up.flash.success.html').html_safe
       redirect_to root_path
