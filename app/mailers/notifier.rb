@@ -9,7 +9,7 @@ class Notifier < ActionMailer::Base
   end
 
   def verification_request(user)
-    @verification_url = verify_user_url(user, token: user.perishable_token)
+    @verification_url = edit_password_reset_url(token: user.perishable_token)
     @user_name = user.display_name
     mail(to: user.email_address, subject: "H2O: Verify your email address")
   end
