@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.string "primary_case_citation"
+    t.integer "capapi_id"
     t.jsonb "judges"
     t.jsonb "attorneys"
     t.jsonb "parties"
