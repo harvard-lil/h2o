@@ -129,6 +129,17 @@ class Case < ApplicationRecord
     end
   end
 
+  def capapi_id=(id)
+    if id != capapi_id
+      @capapi_obj = nil
+      super id
+    end
+  end
+
+  def capapi
+    @capapi_obj ||= Capapi::Case.new(capapi_id) if capapi_id
+  end
+
   private
 
   def date_check
