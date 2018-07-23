@@ -119,6 +119,5 @@ H2o::Application.routes.draw do
 
   get "/pages/*id" => 'pages#show', as: :page, format: false
 
-  get '/:controller/:id/copy', :to => 'base#not_found'
-  get '/:id', :to => 'base#not_found'
+  get '*path', to: 'base#not_found'
 end
