@@ -52,7 +52,7 @@ class UserSystemTest < ApplicationSystemTestCase
       end
 
       scenario 'succeeds with a valid email and password' do
-        user = User.new(login: 'test', email_address: 'email@law.harvard.edu', email_confirmed: true)
+        user = User.new(login: 'test', email_address: 'email@law.harvard.edu')
         user.set_password = (password = 'password') # There's probably a better way to do this
         user.save
 
