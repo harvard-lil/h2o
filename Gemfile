@@ -47,7 +47,6 @@ gem 'rails_admin', '~> 1.3.0'
 gem 'rails_admin_import'
 gem 'rails-html-sanitizer'
 gem 'RedCloth'
-gem 'require_reloader'
 gem 'rest-client', '~> 1.7.3'
 gem 'rubyzip'
 gem 'sass-rails', '~> 5.0.6'
@@ -75,6 +74,7 @@ gem 'wkhtmltopdf-binary', require: false
 
 group :development do
   gem 'annotate'
+  gem 'require_reloader'
   gem 'sunspot_solr'
   # gem 'web-console'
 
