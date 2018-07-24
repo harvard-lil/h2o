@@ -13,6 +13,6 @@
 *= require ui
 *= require jquery.ui.custom
 *= stub old_tree/export
-*= stub print
+*= stub old_tree/print
 *= stub old_tree/doc-export
 */
