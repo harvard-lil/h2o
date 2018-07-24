@@ -1,9 +1,4 @@
 !!!
 %html
-  %head
-    - if @resource.annotations.present?
-      = stylesheet_link_tag 'export/with-annotations', media: 'all'
-    - else
-      = stylesheet_link_tag 'export/no-annotations', media: 'all'
   %body
     = yield
