@@ -29,7 +29,7 @@
       <% unless content_for? :custom_skip_target %>
         <p id="main" tabindex="-1" class="sr-only">Main Content</p>
       <% end %>
-      <section id="flash" style="height: <%= flash.keys.length * 40 %>px">
+      <section id="flash">
         <div class="content">
           <% flash.each do |kind, message| %>
             <div class="flash-<%= kind %> flash-message">
