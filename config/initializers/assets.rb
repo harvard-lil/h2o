@@ -12,4 +12,4 @@ Rails.application.config.assets.paths << Rails.root.join('node_modules')
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
 # Rails.application.config.assets.precompile += %w( admin.js admin.css )
-Rails.application.config.assets.precompile += %w(main.css jquery.ui.custom.css ui.css print.css main.js export.js export.css export/with-annotations.css export/no-annotations.css ckeditor/*)
+Rails.application.config.assets.precompile += %w(main.css jquery.ui.custom.css ui.css print.css main.js ckeditor/*)
