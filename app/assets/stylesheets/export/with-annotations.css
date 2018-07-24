@@ -5,7 +5,7 @@ body {
 
 .annotation-handle,
 .annotate.note-icon {
-  display: none;
+  display: inline;
 }
 
 .p-handle {
@@ -29,7 +29,7 @@ table-of-contents, toc-entry {
 }
 
 header.CasebookTitle {
-  font-size: 30px;
+  font-size: 100px;
 }
 header.CasebookSubtitle {
   font-size: 26px;
@@ -48,7 +48,7 @@ p {
 
 
 .annotate.highlight, .annotate.highlighted {
-  background-color: yellow;
+  background-color: blue;
 }
 
 .annotate.elide::before {
@@ -61,7 +61,7 @@ p {
 }
 
 .annotate.replacement::before {
-  content: '[ ';
+  content: '[';
 }
 
 .annotate.replacement::after {
@@ -71,4 +71,9 @@ p {
 .annotate.elided,
 .annotate.replaced {
   display: inline;
+}
+
+.annotate.note::after,
+.annotate.link::after {
+  content: "*";
 }
