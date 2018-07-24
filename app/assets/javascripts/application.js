@@ -23,5 +23,5 @@
 //= require 'lib/ui/filter-selectize'
 //= require 'lib/ckeditor'
 //= require old_tree/fonts
-//= require export
+//= require old_tree/export
 //= require_tree ./old_tree
