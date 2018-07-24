@@ -35,8 +35,11 @@ class PasswordResetsController < ApplicationController
   def update
     @user.password = params[:user][:password]
     @user.password_confirmation = params[:user][:password_confirmation]
-    if @user.save
+    if @user.save && @user.new_user?
       confirm_user
+      flash[:notice] = "Thank you. Your account has been verified. You may now contribute to H2O."
+      redirect_to user_path(@user.id)
+    elsif @user.save
       flash[:notice] = "Password successfully updated"
       redirect_to user_path(@user.id)
     else
@@ -58,8 +61,6 @@ class PasswordResetsController < ApplicationController
   end
 
   def confirm_user
-    if @user.new_user?
-      @user.update(confirmed: true, active: true)
-    end
+    @user.update(confirmed: true, active: true)
   end
 end
