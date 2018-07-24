@@ -166,6 +166,6 @@ class User < ApplicationRecord
   end
 
   def new_user?
-    login_count == 0
+    login_count <= 1
   end
 end
