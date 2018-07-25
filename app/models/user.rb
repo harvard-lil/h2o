@@ -164,8 +164,4 @@ class User < ApplicationRecord
 
     admin
   end
-
-  def new_user?
-    login_count == 0
-  end
 end
