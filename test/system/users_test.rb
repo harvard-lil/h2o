@@ -11,13 +11,13 @@ class UserSystemTest < ApplicationSystemTestCase
       scenario 'sign up with only an email' do
         fill_in 'Email address', with: 'test@law.harvard.edu'
         click_button 'Sign up'
-        assert_content 'Thanks for signing up! Please check your email for your verification link.'
+        assert_content 'Account registered! Only verified .edu addresses are allowed.'
       end
 
       scenario 'fails with an existing email' do
         fill_in 'Email address', with: users(:case_admin).email_address
         click_button 'Sign up'
-        assert_content 'Email addresshas already been taken'
+        assert_content 'Email address has already been taken'
       end
 
       scenario 'fails with an invalid email' do
@@ -113,7 +113,7 @@ class UserSystemTest < ApplicationSystemTestCase
 
         fill_in 'Password', with: 'newestpassword'
         fill_in 'Confirm password', with: 'newestpassword'
-        click_button 'Save password'
+        click_button 'Change password'
 
         assert_content 'Password successfully updated'
       end
