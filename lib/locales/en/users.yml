@@ -19,8 +19,6 @@ en:
     self-verify: Verify this account
     change-password:
       header: Change your password
-    set-password: 
-      header: Set your password
     reset-password:
       success:
         html:
