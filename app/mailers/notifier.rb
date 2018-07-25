@@ -14,6 +14,10 @@ class Notifier < ActionMailer::Base
     mail(to: user.email_address, subject: "H2O: Verify your email address")
   end
 
+  def verification_notice(user)
+    mail(to: user.email_address, subject: "Welcome to H2O. Your account has been verified")
+  end
+
   def professor_verification(user)
     @user = user
     @admin_url = rails_admin.edit_url(model_name: 'user', id: @user.id)

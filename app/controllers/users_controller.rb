@@ -75,6 +75,9 @@ class UsersController < ApplicationController
                                   :current_password, :image,
                                  :email_address, :tz_name, :attribution, :title,
                                  :url, :affiliation, :description, :terms, :professor_verification_requested]
+    if Rails.configuration.disable_verification
+      permitted_fields.push :email_confirmed
+    end
     params.fetch(:user, {}).permit(*permitted_fields)
   end
 end

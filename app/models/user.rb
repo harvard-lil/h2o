@@ -25,6 +25,8 @@ class User < ApplicationRecord
 
   alias :textblocks :text_blocks
 
+  after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_email_confirmed? && u.email_confirmed?}
+
   attr_accessor :terms
   attr_accessor :bypass_verification
 
@@ -165,5 +167,11 @@ class User < ApplicationRecord
     end
 
     admin
+  end
+
+  private
+
+  def send_verification_notice
+    Notifier.verification_notice(self).deliver
   end
 end

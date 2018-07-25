@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180723184247) do
+ActiveRecord::Schema.define(version: 20180719191234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -503,14 +503,18 @@ ActiveRecord::Schema.define(version: 20180723184247) do
     t.string "oauth_secret", limit: 255
     t.string "email_address", limit: 255
     t.string "tz_name", limit: 255
+    t.integer "bookmark_id"
+    t.integer "karma"
     t.string "attribution", limit: 255, default: "Anonymous", null: false
     t.string "perishable_token", limit: 255
+    t.boolean "tab_open_new_items", default: false, null: false
     t.string "default_font_size", limit: 255, default: "10"
     t.string "title", limit: 255
     t.string "affiliation", limit: 255
     t.string "url", limit: 255
     t.text "description"
     t.string "canvas_id", limit: 255
+    t.boolean "email_confirmed", default: false, null: false
     t.string "default_font", limit: 255, default: "futura"
     t.boolean "print_titles", default: true, null: false
     t.boolean "print_dates_details", default: true, null: false
@@ -525,13 +529,12 @@ ActiveRecord::Schema.define(version: 20180723184247) do
     t.boolean "print_links", default: true, null: false
     t.string "toc_levels", limit: 255, default: "", null: false
     t.string "print_export_format", limit: 255, default: "", null: false
-    t.boolean "verified_professor", default: false
-    t.boolean "professor_verification_requested", default: false
     t.string "image_file_name"
     t.string "image_content_type"
     t.integer "image_file_size"
     t.datetime "image_updated_at"
-    t.integer "karma"
+    t.boolean "verified_professor", default: false
+    t.boolean "professor_verification_requested", default: false
     t.index ["affiliation"], name: "index_users_on_affiliation"
     t.index ["attribution"], name: "index_users_on_attribution"
     t.index ["email_address"], name: "index_users_on_email_address"
