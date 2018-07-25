@@ -44,7 +44,7 @@ en:
           - Highlight, copy, edit and annotate any of the thousands of casebooks and treatises in our public collection.
       flash:
         success:
-          html: Thanks for signing up! Please check your email for your verification link.
+          html: Account registered! Only verified <code>.edu</code> addresses are allowed. Please check your email for your verification link.
       terms-of-service:
         html: By signing up for an account, you agree to our <a href="%{terms_path}">Terms of Service</a>.
     sign-in:
