@@ -42,7 +42,7 @@ main > section, main > header {
 
 section#flash {
   @include transition(height 0.25s linear);
-  height: auto;
+  height: 0px;
   overflow: hidden;
 
   .flash-message {
