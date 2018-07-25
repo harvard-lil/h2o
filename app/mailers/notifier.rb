@@ -11,7 +11,7 @@ class Notifier < ActionMailer::Base
   def verification_request(user)
     @verification_url = edit_password_reset_url(user.perishable_token)
     @user_name = user.display_name
-    mail(to: user.email_address, subject: "An H2O account has been created for you")
+    mail(to: user.email_address, subject: "A H2O account has been created for you")
   end
 
   def professor_verification(user)
