@@ -8,21 +8,32 @@ class UserSystemTest < ApplicationSystemTestCase
         click_link 'Sign up for free'
       end
 
-      scenario 'sign up with only an email' do
+      scenario 'succeeds with a valid username, password, and email' do
         fill_in 'Email address', with: 'test@law.harvard.edu'
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Confirm password', with: users(:student_user).crypted_password # This works as long as it's in a <label>
         click_button 'Sign up'
+
         assert_content 'Account registered! Only verified .edu addresses are allowed.'
       end
 
-      scenario 'fails with an existing email' do
+      scenario 'fails with an existing username or email' do
         fill_in 'Email address', with: users(:case_admin).email_address
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Confirm password', with: users(:student_user).crypted_password
+
         click_button 'Sign up'
-        assert_content 'Email address has already been taken'
+
+        assert_content 'Email addresshas already been taken'
       end
 
-      scenario 'fails with an invalid email' do
+      scenario 'fails with an invalid username, email, or password' do
         fill_in 'Email address', with: 'student@gmail.com'
+        fill_in 'Password', with: users(:student_user).crypted_password
+        fill_in 'Confirm password', with: users(:student_user).crypted_password
+
         click_button 'Sign up'
+
         assert_content 'Email address is not .edu.'
       end
     end
