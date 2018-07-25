@@ -57,7 +57,8 @@ class PasswordResetsController < ApplicationController
   end
 
   def update_password_flash_notice
-    if @user.new_user?
+    if @user.new_user? || @user.verified_email == false
+      @user.update(verified_email: true)
       flash[:notice] = "Thank you. Your account has been verified. You may now contribute to H2O."
     else
       flash[:notice] = "Password successfully updated"
