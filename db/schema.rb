@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180723184247) do
+ActiveRecord::Schema.define(version: 20180725180053) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -532,6 +532,7 @@ ActiveRecord::Schema.define(version: 20180723184247) do
     t.integer "image_file_size"
     t.datetime "image_updated_at"
     t.integer "karma"
+    t.boolean "verified_email", default: false, null: false
     t.index ["affiliation"], name: "index_users_on_affiliation"
     t.index ["attribution"], name: "index_users_on_attribution"
     t.index ["email_address"], name: "index_users_on_email_address"
