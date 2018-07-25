@@ -22,6 +22,7 @@ student_user:
   affiliation: student_user's Affiliation
   persistence_token: efgh
   login_count: 5
+  verified_email: true
 
 verified_student:
   login: verified_student
