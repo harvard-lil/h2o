@@ -503,14 +503,18 @@ ActiveRecord::Schema.define(version: 20180725180053) do
     t.string "oauth_secret", limit: 255
     t.string "email_address", limit: 255
     t.string "tz_name", limit: 255
-    t.string "attribution", limit: 255, default: "Anonymous", null: false
+    t.integer "bookmark_id"
+    t.integer "karma"
+    t.string "attribution", limit: 255
     t.string "perishable_token", limit: 255
+    t.boolean "tab_open_new_items", default: false, null: false
     t.string "default_font_size", limit: 255, default: "10"
     t.string "title", limit: 255
     t.string "affiliation", limit: 255
     t.string "url", limit: 255
     t.text "description"
     t.string "canvas_id", limit: 255
+    t.boolean "verified_email", default: false, null: false
     t.string "default_font", limit: 255, default: "futura"
     t.boolean "print_titles", default: true, null: false
     t.boolean "print_dates_details", default: true, null: false
@@ -525,12 +529,12 @@ ActiveRecord::Schema.define(version: 20180725180053) do
     t.boolean "print_links", default: true, null: false
     t.string "toc_levels", limit: 255, default: "", null: false
     t.string "print_export_format", limit: 255, default: "", null: false
-    t.boolean "verified_professor", default: false
-    t.boolean "professor_verification_requested", default: false
     t.string "image_file_name"
     t.string "image_content_type"
     t.integer "image_file_size"
     t.datetime "image_updated_at"
+    t.boolean "verified_professor", default: false
+    t.boolean "professor_verification_requested", default: false
     t.integer "karma"
     t.boolean "verified_email", default: false, null: false
     t.index ["affiliation"], name: "index_users_on_affiliation"

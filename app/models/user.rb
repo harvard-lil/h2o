@@ -1,3 +1,66 @@
+# == Schema Information
+#
+# Table name: users
+#   t.datetime "created_at"
+#   t.datetime "updated_at"
+#   t.string "login", limit: 255
+#   t.string "crypted_password", limit: 255
+#   t.string "password_salt", limit: 255
+#   t.string "persistence_token", limit: 255, null: false
+#   t.integer "login_count", default: 0, null: false
+#   t.datetime "last_request_at"
+#   t.datetime "last_login_at"
+#   t.datetime "current_login_at"
+#   t.string "last_login_ip", limit: 255
+#   t.string "current_login_ip", limit: 255
+#   t.string "oauth_token", limit: 255
+#   t.string "oauth_secret", limit: 255
+#   t.string "email_address", limit: 255
+#   t.string "tz_name", limit: 255
+#   t.integer "bookmark_id"
+#   t.integer "karma"
+#   t.string "attribution", limit: 255
+#   t.string "perishable_token", limit: 255
+#   t.boolean "tab_open_new_items", default: false, null: false
+#   t.string "default_font_size", limit: 255, default: "10"
+#   t.string "title", limit: 255
+#   t.string "affiliation", limit: 255
+#   t.string "url", limit: 255
+#   t.text "description"
+#   t.string "canvas_id", limit: 255
+#   t.boolean "verified_email", default: false, null: false
+#   t.string "default_font", limit: 255, default: "futura"
+#   t.boolean "print_titles", default: true, null: false
+#   t.boolean "print_dates_details", default: true, null: false
+#   t.boolean "print_paragraph_numbers", default: true, null: false
+#   t.boolean "print_annotations", default: false, null: false
+#   t.string "print_highlights", limit: 255, default: "original", null: false
+#   t.string "print_font_face", limit: 255, default: "dagny", null: false
+#   t.string "print_font_size", limit: 255, default: "small", null: false
+#   t.boolean "default_show_comments", default: false, null: false
+#   t.boolean "default_show_paragraph_numbers", default: true, null: false
+#   t.boolean "hidden_text_display", default: false, null: false
+#   t.boolean "print_links", default: true, null: false
+#   t.string "toc_levels", limit: 255, default: "", null: false
+#   t.string "print_export_format", limit: 255, default: "", null: false
+#   t.string "image_file_name"
+#   t.string "image_content_type"
+#   t.integer "image_file_size"
+#   t.datetime "image_updated_at"
+#   t.boolean "verified_professor", default: false
+#   t.boolean "professor_verification_requested", default: false
+#   t.index ["affiliation"], name: "index_users_on_affiliation"
+#   t.index ["attribution"], name: "index_users_on_attribution"
+#   t.index ["email_address"], name: "index_users_on_email_address"
+#   t.index ["id"], name: "index_users_on_id"
+#   t.index ["last_request_at"], name: "index_users_on_last_request_at"
+#   t.index ["login"], name: "index_users_on_login"
+#   t.index ["oauth_token"], name: "index_users_on_oauth_token"
+#   t.index ["persistence_token"], name: "index_users_on_persistence_token"
+#   t.index ["tz_name"], name: "index_users_on_tz_name"
+# end
+#
+
 class User < ApplicationRecord
   include Rails.application.routes.url_helpers
 
@@ -13,24 +76,30 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :roles
   has_many :responses
+
   has_many :cases
   has_many :text_blocks
   has_many :defaults
   has_many :case_requests
+
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id
+
   has_attached_file :image, styles: { medium: "300x300>", thumb: "33x33#" }, default_url: "/assets/ui/portrait-anonymous-:style.png"
+  validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
 
   alias :textblocks :text_blocks
+
+  after_save :send_verification_notice, :if => Proc.new {|u| u.saved_change_to_verified_email? && u.verified_email?}
 
   attr_accessor :terms
   attr_accessor :bypass_verification
 
-  validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :allowed_email_domain, if: :new_record?
   validates_presence_of :email_address
+
   alias_attribute :login, :email_address
 
   searchable :if => :not_anonymous do
@@ -122,6 +191,10 @@ class User < ApplicationRecord
   end
   alias :display_name :simple_display
 
+  def pending_cases
+    self.has_role?(:case_admin) ? Case.where(public: false).includes(:case_citations) : Case.where(user_id: self.id).includes(:case_citations).order(:updated_at)
+  end
+
   def send_verification_request
     reset_perishable_token!
     Notifier.verification_request(self).deliver
@@ -147,6 +220,7 @@ class User < ApplicationRecord
     Notifier.request_professor_verification(self).deliver
   end
 
+
   def owned_casebook_compacted
     # drafts of published casebooks should not show up on their own, but
     # inline with the published casebook
@@ -165,7 +239,9 @@ class User < ApplicationRecord
     admin
   end
 
-  def new_user?
-    login_count <= 1
+  private
+
+  def send_verification_notice
+    Notifier.verification_notice(self).deliver
   end
 end

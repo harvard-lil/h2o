@@ -1,11 +1,7 @@
 <header class="users">
   <div class="content">
     <h1>
-      <% if @user.password.present? %>
-        <%= t 'users.change-password.header' %>
-      <% else %>
-        <%= t 'users.set-password.header' %>
-      <% end %>
+      <%= t 'users.change-password.header' %>
     </h1>
   </div>
 </header>
@@ -18,7 +14,7 @@
         <%= simple_form_for @user, url: password_reset_path do |f| %>
           <%= f.input :password, required: true %>
           <%= f.input :password_confirmation, required: true %>
-          <%= f.button :submit, t('simple_form.labels.user.save-password') %>
+          <%= f.button :submit, t('simple_form.labels.user.change-password') %>
         <% end %>
       </div>
     </div>

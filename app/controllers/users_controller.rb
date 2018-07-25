@@ -11,17 +11,27 @@ class UsersController < ApplicationController
     redirect_to search_path(type: 'users')
   end
 
-  def create
-    user_params = permitted_user_params
-    temporary_password = Random.new_seed
-    user_params["password"] = temporary_password
-    user_params["password_confirmation"] = temporary_password
-    @user = User.new(user_params)
+  def verify
+    if current_user.present? && current_user == User.where(id: params[:id]).first && params[:token] == current_user.perishable_token
+      current_user.update_column(:verified_email, true)
+      flash[:notice] = 'Thank you. Your account has been verified. You may now contribute to H2O.'
+      redirect_to user_path(current_user)
+    elsif current_user.present?
+      flash[:notice] = 'Your account has not been verified. Please try again by requesting an email verification <a href="' + verify_user_url(current_user)  + '" target="blank">here</a>.'
+      redirect_to user_path(current_user)
+    else
+      flash[:notice] = 'Your account has not been verified. Please login and try visiting the link in the email again.'
+      redirect_to '/user_sessions/new'
+    end
+  end
 
-    if @user.save_without_session_maintenance
+  def create
+    @user = User.new(permitted_user_params)
+
+    if @user.save
       @user.send_verification_request
       flash[:success] = I18n.t('users.sign-up.flash.success.html').html_safe
-      redirect_to root_path
+      return redirect_to user_path(@user)
     else
       render :new
     end
@@ -79,6 +89,9 @@ class UsersController < ApplicationController
                                   :current_password, :image,
                                  :email_address, :tz_name, :attribution, :title,
                                  :url, :affiliation, :description, :terms, :professor_verification_requested]
+    if Rails.configuration.disable_verification
+      permitted_fields.push :verified_email
+    end
     params.fetch(:user, {}).permit(*permitted_fields)
   end
 end

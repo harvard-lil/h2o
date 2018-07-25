@@ -36,32 +36,23 @@ class PasswordResetsController < ApplicationController
     @user.password = params[:user][:password]
     @user.password_confirmation = params[:user][:password_confirmation]
     if @user.save
-      update_password_flash_notice
+      flash[:notice] = "Password successfully updated"
       redirect_to user_path(@user.id)
     else
+
       render :action => :edit
     end
   end
 
   private
-
-  def load_user_using_perishable_token
-    @user = User.find_using_perishable_token(params[:id])
-    unless @user
-      flash[:notice] = "We're sorry, but we could not locate your account." +
-        " If you are having issues try copying and pasting the URL " +
-        "from your email into your browser or restarting the " +
-        "reset password process."
-      redirect_to new_user_session_path
+    def load_user_using_perishable_token
+      @user = User.find_using_perishable_token(params[:id])
+      unless @user
+        flash[:notice] = "We're sorry, but we could not locate your account." +
+          " If you are having issues try copying and pasting the URL " +
+          "from your email into your browser or restarting the " +
+          "reset password process."
+        redirect_to new_user_session_path
+      end
     end
-  end
-
-  def update_password_flash_notice
-    if @user.new_user? || @user.verified_email == false
-      @user.update(verified_email: true)
-      flash[:notice] = "Thank you. Your account has been verified. You may now contribute to H2O."
-    else
-      flash[:notice] = "Password successfully updated"
-    end
-  end
 end

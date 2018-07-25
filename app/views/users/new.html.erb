@@ -12,6 +12,9 @@
         <%= simple_form_for @user, url: users_path do |f| %>
           <div class="error-transition <%= @user.errors.any? ? '' : 'hide' %>"><%= f.error_notification %></div>
           <%= f.input :email_address, hint: t('users.sign-up.edu-only_html') %>
+          <%= f.input :attribution, hint: t('simple_form.public') %>
+          <%= f.input :password, required: true %>
+          <%= f.input :password_confirmation, required: true %>
           <%= f.button :submit, t('simple_form.labels.user.sign-up') %>
           <%= f.hint t 'users.sign-up.terms-of-service.html' %>
         <% end %>
