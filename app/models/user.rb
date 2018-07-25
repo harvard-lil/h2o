@@ -9,6 +9,8 @@ class User < ApplicationRecord
   acts_as_authentic do |c|
     c.crypto_provider = Authlogic::CryptoProviders::Sha512
     c.login_field = :email_address
+    c.ignore_blank_passwords = true
+    c.validate_password_field = false
   end
 
   has_and_belongs_to_many :roles

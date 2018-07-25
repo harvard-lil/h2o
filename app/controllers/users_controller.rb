@@ -12,11 +12,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    user_params = permitted_user_params
-    temporary_password = Random.new_seed
-    user_params["password"] = temporary_password
-    user_params["password_confirmation"] = temporary_password
-    @user = User.new(user_params)
+    @user = User.new(permitted_user_params)
 
     if @user.save_without_session_maintenance
       @user.send_verification_request
