@@ -21,7 +21,6 @@ class User < ApplicationRecord
   has_many :case_requests
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id
-  has_attached_file :image, styles: { medium: "300x300>", thumb: "33x33#" }, default_url: "/assets/ui/portrait-anonymous-:style.png"
 
   alias :textblocks :text_blocks
 
