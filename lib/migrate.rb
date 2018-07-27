@@ -12,11 +12,11 @@ module Migrate
     end
 
     def migrate_playlist(playlist)
-      preexisting_casebook = Content::Casebook.where(playlist_id: playlist.id).where(created_at: playlist.created_at).first
+      # preexisting_casebook = Content::Casebook.where(playlist_id: playlist.id).where(created_at: playlist.created_at).first
 
-      if preexisting_casebook
-        puts "Playlist #{playlist.id} is a duplicate of Casebook #{preexisting_casebook.id}"
-      else
+      # if preexisting_casebook
+      #   puts "Playlist #{playlist.id} is a duplicate of Casebook #{preexisting_casebook.id}"
+      # else
         puts "Migrating playlist #{playlist.id}"
         # create casebook for playlist
         ActiveRecord::Base.transaction do
@@ -30,7 +30,7 @@ module Migrate
 
           migrate_items(playlist.playlist_items, path: [], casebook: casebook)
           casebook
-        end
+        # end
       end
     end
 
