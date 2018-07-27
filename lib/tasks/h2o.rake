@@ -38,4 +38,19 @@ namespace :h2o do
     Migrate.migrate_all_playlists
     puts 'Done!'
   end
+
+  desc 'Correlate H2O Cases to CAPAPI Cases'
+  task(:correlate_cases => :environment) do
+    Case.where(capapi_id: nil).find_each do |c|
+      cite = c.case_citations.first
+      if cite
+        capapi_case = Capapi::Case.list(cite: cite).first
+        if capapi_case
+          c.update(capapi: capapi_case)
+          puts "H2O:    " + c.name, "CAPAPI: " + capapi_case.name, ""
+        end
+      end
+    end
+    puts 'Done!'
+  end
 end
