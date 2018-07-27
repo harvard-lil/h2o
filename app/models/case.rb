@@ -127,13 +127,22 @@ class Case < ApplicationRecord
 
   def capapi_id=(id)
     if id != capapi_id
-      @capapi_obj = nil
+      @capapi = nil
       super id
     end
   end
 
   def capapi
-    @capapi_obj ||= Capapi::Case.new(capapi_id) if capapi_id
+    @capapi ||= Capapi::Case.new(capapi_id) if capapi_id
+  end
+
+  def capapi= capapi_case
+    if capapi_case
+      self.capapi_id = capapi_case.id
+      @capapi = capapi_case
+    else
+      capapi_id = nil
+    end
   end
 
   private
