@@ -6,19 +6,12 @@ psql h2o_prod
 -------------
 2. Create and fill migration tables
 
-CREATE TABLE migration_users (
-  id integer
-);
-
-INSERT INTO migration_users (id)
-values (124772),(124604), (124545), (124745);
-
 CREATE TABLE migration_playlists (
   id integer unique
 );
 
 INSERT INTO migration_playlists (id)
-VALUES (12592), (53282), (46180), (51676), (1844), (53197), (52706), (53426), (9270), (52464), (54306), (27055), (12922), (53291), (52809), (52590), (52607), (945), (385), (21613), (1510);
+VALUES (1923);
 
 CREATE TABLE migration_playlist_items (
   id integer unique,
@@ -68,6 +61,8 @@ SELECT actual_object_id from migration_playlist_items where actual_object_type =
 
 INSERT INTO migration_text_blocks select annotatable_id from collages where id in (select id from migration_collages) and annotatable_type = 'TextBlock';
 
+INSERT INTO migration_text_blocks select actual_object_id from playlist_items where id in (select id from migration_playlist_items where actual_object_type = 'TextBlock');
+
 INSERT INTO migration_defaults
 SELECT actual_object_id from migration_playlist_items where actual_object_type = 'Default';
 
@@ -76,7 +71,7 @@ CREATE TABLE migration_annotations (id integer);
 
 INSERT INTO migration_annotations
 SELECT id from annotations 
-WHERE annotated_item_id in (select id from migration_collages);
+WHERE annotated_item_id in (select id from migration_collages) or annotated_item_id in (select id from migration_text_blocks);
 
 ------
 4. export playlists to file in posgres root path 
@@ -112,7 +107,6 @@ DELETE FROM annotations;
 \COPY playlist_items FROM '/usr/local/var/postgres/playlist_items.csv' WITH CSV HEADER;
 \COPY collages FROM '/usr/local/var/postgres/collages.csv' WITH CSV HEADER;
 \COPY annotations FROM '/usr/local/var/postgres/annotations.csv' WITH CSV HEADER;
-\COPY users FROM '/usr/local/var/postgres/users.csv' WITH CSV HEADER;
 \COPY medias FROM '/usr/local/var/postgres/medias.csv' WITH CSV HEADER;
 
 -- Need to add columns into user file `image_file_name,image_content_type,image_file_size,image_updated_at,verified_professor,professor_verification_requested`
@@ -121,7 +115,7 @@ DELETE FROM annotations;
 
 6. Update primary
 
-csv_text = File.read('csvs/defaults.csv')
+csv_text = File.read('/usr/local/var/postgres/defaults.csv')
 csv = CSV.parse(csv_text, headers: true)
 csv.each do |row|
   link = row.to_hash
@@ -136,26 +130,27 @@ csv = CSV.parse(csv_text, headers: true)
 csv.each do |row|
   text_block = row.to_hash
   collages = Migrate::Collage.where(annotatable_id: text_block["id"], annotatable_type: "TextBlock")
+  playlist_items = Migrate::PlaylistItem.where(actual_object_type: "TextBlock", actual_object_id: text_block["id"])
   text_block.delete("id")
   new_text_block = TextBlock.create(text_block)
-  collages.map {|collage| collage.update(annotatable_id: new_text_block.id)} 
+
+
+  if collages.present?
+    collages.map {|collage| collage.update(annotatable_id: new_text_block.id)}
+  elsif playlist_items.present?
+    playlist_items.map {|item| item.update(actual_object_id: new_text_block.id)}
+  end  
 end
 
 -----
 
 7. Migrating 
 
-ids = [1844, 9270, 12592, 53197, 53282, 53291, 53426, 27055, 51676, 54306, 12922, 52464, 52590, 52607, 52706, 52809, 46180]
+playlist_ids = [1923]
 
-Content::Casebook.where(playlist_id: ids).where(ancestry: nil).destroy_all
-Migrate::Playlist.find(ids).map &:migrate
-
------
-
+Migrate::Playlist.find(playlist_ids).map &:migrate
 
 casebooks_to_playlists = {}
-playlist_ids = [1844, 9270, 12592, 53197, 53282, 53291, 53426, 27055, 51676, 54306, 12922, 52464, 52590, 52607, 52706, 52809, 46180]
-
 playlist_ids.each do |playlist_id| 
   casebook = Content::Casebook.where(playlist_id: playlist_id).where(ancestry: nil).first
   casebooks_to_playlists[casebook.id] = playlist_id
