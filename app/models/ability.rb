@@ -29,8 +29,6 @@ class Ability
       can :copy, Default, :user_id => user.id
       can [:new, :create], :cap_api_imports
 
-      can [:embedded_pager, :access_level], :all
-
       # Can do things on owned items
       if !user.has_role? :superadmin
         can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [TextBlock, Default], :user_id => user.id

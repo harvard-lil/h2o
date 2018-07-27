@@ -17,11 +17,6 @@ H2o::Application.routes.draw do
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
   get '/p/:id' => 'pages#show'
 
-  resources :base, only: [] do
-    collection do
-      get 'embedded_pager'
-    end
-  end
   get 'all_materials' => 'base#search', as: :search_all
 
   resources :users do
@@ -40,16 +35,10 @@ H2o::Application.routes.draw do
       get 'export'
       post 'export_as'
     end
-    collection do
-      get 'embedded_pager'
-    end
   end
   resources :defaults do
     member do
       post 'copy'
-    end
-    collection do
-      get 'embedded_pager'
     end
   end
 
