@@ -119,10 +119,6 @@ class Case < ApplicationRecord
   #   c
   # end
 
-  def to_partial_path
-    "cases/court_case"
-  end
-
   def formatted_decision_date
     if self.decision_date.present?
       self.decision_date.strftime("%B %d, %Y")
