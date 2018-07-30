@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.string "page", limit: 200, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "type", limit: 150
     t.index ["case_id"], name: "index_case_citations_on_case_id"
     t.index ["page"], name: "index_case_citations_on_page"
     t.index ["reporter"], name: "index_case_citations_on_reporter"
