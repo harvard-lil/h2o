@@ -46,7 +46,7 @@ en:
           - Clone and adapt existing casebooks
       flash:
         success:
-          html: Thanks for signing up! Please check your email for your verification link.
+          html: Thanks! Please check your email for a link that will let you confirm your account and set a password.
       terms-of-service:
         html: By signing up for an account, you agree to our <a href="%{terms_path}">Terms of Service</a>.
     sign-in:
