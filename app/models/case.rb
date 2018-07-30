@@ -91,7 +91,6 @@ class Case < ApplicationRecord
     time :created_at
     time :updated_at
     boolean :public
-    integer :karma
 
     string :user
     string :user_display, :stored => true

@@ -39,7 +39,6 @@ class User < ApplicationRecord
     string(:affiliation, stored: true) { affiliation }
     string(:attribution, stored: true) { attribution }
     string(:verified_professor, stored: true) { verified_professor }
-    integer :karma
     boolean :public do
       true
     end

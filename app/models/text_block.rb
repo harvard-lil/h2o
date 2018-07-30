@@ -74,7 +74,6 @@ class TextBlock < ApplicationRecord
     string :id, :stored => true
     text :clean_content
     boolean :public
-    integer :karma
 
     string :user
     string :user_display, :stored => true
