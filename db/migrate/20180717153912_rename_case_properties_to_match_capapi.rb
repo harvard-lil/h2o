@@ -8,6 +8,7 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     rename_column :case_requests, :case_jurisdiction_id, :case_court_id
     rename_column :cases, :case_jurisdiction_id, :case_court_id
 
+    add_column :case_citations, :type, :string, limit: 150
     add_column :cases, :capapi_id, :integer
     add_column :cases, :judges, :jsonb
 
@@ -30,8 +31,10 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     remove_column :cases, :author
 
     add_column :case_requests, :opinions, :jsonb
-    CaseRequest.where("author SIMILAR TO '%\\w%'")
-      .update_all("opinions = json_build_object('majority', author)")
+    if Object.const_defined?("CaseRequest")
+      CaseRequest.where("author SIMILAR TO '%\\w%'")
+        .update_all("opinions = json_build_object('majority', author)")
+    end
     remove_column :case_requests, :author
 
     remove_column :cases, :current_opinion # this column is unused
@@ -51,7 +54,8 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     rename_column :case_requests, :case_court_id, :case_jurisdiction_id
     rename_column :cases, :case_court_id, :case_jurisdiction_id
 
-    remove_column :cases, :capapi_id, :integer
+    remove_column :case_citations, :type
+    remove_column :cases, :capapi_id
     remove_column :cases, :judges
 
     # Denomalize attorneys
@@ -73,8 +77,10 @@ class RenameCasePropertiesToMatchCapapi < ActiveRecord::Migration[5.1]
     remove_column :cases, :opinions
 
     add_column :case_requests, :author, :string, limit: 150
-    CaseRequest.where("author SIMILAR TO '%\\w%'")
-      .update_all("author = opinions::json->>'majority'")
+    if Object.const_defined?("CaseRequest")
+      CaseRequest.where("author SIMILAR TO '%\\w%'")
+        .update_all("author = opinions::json->>'majority'")
+    end
     remove_column :case_requests, :opinions
 
     add_column :cases, :current_opinion, :boolean, default: true
