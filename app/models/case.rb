@@ -125,10 +125,10 @@ class Case < ApplicationRecord
     end
   end
 
-  def capapi_id=(id)
-    if id != capapi_id
+  def capapi_id=(new_id)
+    if new_id != capapi_id
       @capapi = nil
-      super id
+      super new_id
     end
   end
 
