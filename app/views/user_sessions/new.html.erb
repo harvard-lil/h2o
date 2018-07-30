@@ -14,7 +14,7 @@
           <%= f.input :email_address %>
           <%= f.input :password, required: true %>
           <%= f.button :submit, t('simple_form.labels.user.sign-in') %>
-          <%= f.hint t 'users.sign-in.terms-of-service.html', terms_path: root_path %>
+          <%= f.hint t 'users.sign-in.terms-of-service.html', terms_path: page_path('terms-of-service') %>
         <% end %>
       </div>
       <div class="help">
