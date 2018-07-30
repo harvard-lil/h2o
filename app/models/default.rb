@@ -34,7 +34,6 @@ class Default < ApplicationRecord
     string :id, :stored => true
     text :url
     text :description
-    integer :karma
     integer :user_id, :stored => true
 
     string :metadatum, :stored => true, :multiple => true
