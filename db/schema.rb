@@ -78,9 +78,10 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.index ["name"], name: "index_case_jurisdictions_on_name"
   end
 
-  create_table "case_requests", force: :cascade do |t|
+  create_table "case_requests", id: :serial, force: :cascade do |t|
     t.string "full_name", limit: 500, null: false
     t.date "decision_date", null: false
+    t.string "author", limit: 150, null: false
     t.integer "case_jurisdiction_id"
     t.string "docket_number", limit: 150, null: false
     t.string "volume", limit: 150, null: false
@@ -91,31 +92,32 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "user_id", default: 0, null: false
-    t.string "author", limit: 150
   end
 
   create_table "cases", id: :serial, force: :cascade do |t|
+    t.boolean "current_opinion", default: true
     t.string "short_name", limit: 150, null: false
     t.string "full_name"
     t.date "decision_date"
+    t.string "author", limit: 150
     t.integer "case_jurisdiction_id"
+    t.string "party_header", limit: 10240
+    t.string "lawyer_header", limit: 2048
     t.string "header_html", limit: 15360
     t.string "content", limit: 5242880, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean "public", default: false
+    t.integer "case_request_id"
     t.integer "pushed_from_id"
     t.boolean "sent_in_cases_list", default: false
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.string "primary_case_citation"
-    t.integer "case_request_id"
-    t.string "lawyer_header", limit: 2048
-    t.string "party_header", limit: 10240
-    t.string "author", limit: 150
-    t.boolean "current_opinion", default: true
+    t.index ["author"], name: "index_cases_on_author"
     t.index ["case_jurisdiction_id"], name: "index_cases_on_case_jurisdiction_id"
     t.index ["created_at"], name: "index_cases_on_created_at"
+    t.index ["current_opinion"], name: "index_cases_on_current_opinion"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
     t.index ["public"], name: "index_cases_on_public"
     t.index ["short_name"], name: "index_cases_on_short_name"
@@ -495,10 +497,8 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.string "oauth_secret", limit: 255
     t.string "email_address", limit: 255
     t.string "tz_name", limit: 255
-    t.integer "bookmark_id"
     t.string "attribution", limit: 255, default: "Anonymous", null: false
     t.string "perishable_token", limit: 255
-    t.boolean "tab_open_new_items", default: false, null: false
     t.string "default_font_size", limit: 255, default: "10"
     t.string "title", limit: 255
     t.string "affiliation", limit: 255
