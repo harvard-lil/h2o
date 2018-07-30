@@ -61,4 +61,18 @@ class Content::Resource < Content::Child
   def title
     super || resource.title
   end
+
+  def footnote_annotations
+    footnote_annotations = ""
+    idx = 0
+
+    annotations.all.each_with_index do |annotation, index|
+      if annotation.kind.in? %w(note link)
+        idx += 1
+        footnote_annotations =+ "#{("*" * (idx)) + annotation.content} "
+      end
+    end
+
+    footnote_annotations
+  end
 end
