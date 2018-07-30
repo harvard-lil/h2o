@@ -6,7 +6,7 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
 
 
-  def apply_to_node p_node, p_idx, editable: false
+  def apply_to_node p_node, p_idx, editable: false, exporting: false
     p_node['data-p-idx'] = p_idx
 
     if (p_idx != start_p && p_idx != end_p) || (p_idx == end_p && p_idx != start_p && end_offset == p_node.text.length)
@@ -40,12 +40,10 @@ class Content::Annotation < ApplicationRecord
         end
       else
         if node_offset + node.text.length >= start_offset
-          if editable && kind == 'note'
-            handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+          if kind == 'note'
+            handle_html = render_note_html(editable, exporting)
           elsif editable
             handle_html = "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
-          elsif kind == 'note'
-            handle_html = "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
           else
             handle_html = ""
           end
@@ -98,5 +96,15 @@ class Content::Annotation < ApplicationRecord
 
   def escaped_content
     ApplicationController.helpers.send(:html_escape, content)
+  end
+
+  def render_note_html(editable, exporting)
+    if editable 
+      "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+    elsif exporting
+      "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>******"
+    else
+      "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+    end
   end
 end
