@@ -9,7 +9,6 @@
 #  public             :boolean          default(TRUE)
 #  created_at         :datetime
 #  updated_at         :datetime
-#  pushed_from_id     :integer
 #  content_type       :string(255)
 #  user_id            :integer          default(0)
 #  ancestry           :string(255)

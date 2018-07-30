@@ -17,7 +17,6 @@
 #  updated_at           :datetime
 #  public               :boolean          default(FALSE)
 #  case_request_id      :integer
-#  pushed_from_id       :integer
 #  sent_in_cases_list   :boolean          default(FALSE)
 #  user_id              :integer          default(0)
 #  created_via_import   :boolean          default(FALSE), not null

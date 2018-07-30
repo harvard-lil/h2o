@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180730193758) do
+ActiveRecord::Schema.define(version: 20180730203315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,7 +21,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.string "annotation", limit: 10240
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "pushed_from_id"
     t.boolean "cloned", default: false, null: false
     t.string "xpath_start", limit: 255
     t.string "xpath_end", limit: 255
@@ -109,7 +108,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.datetime "updated_at"
     t.boolean "public", default: false
     t.integer "case_request_id"
-    t.integer "pushed_from_id"
     t.boolean "sent_in_cases_list", default: false
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
@@ -151,7 +149,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.boolean "public", default: true
     t.string "readable_state", limit: 5242880
     t.integer "words_shown"
-    t.integer "pushed_from_id"
     t.integer "user_id", default: 0, null: false
     t.integer "annotator_version", default: 2, null: false
     t.boolean "featured", default: false, null: false
@@ -238,7 +235,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.boolean "public", default: true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "pushed_from_id"
     t.string "content_type", limit: 255
     t.integer "user_id", default: 0
     t.string "ancestry", limit: 255
@@ -284,7 +280,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string "description", limit: 5242880
-    t.integer "pushed_from_id"
     t.integer "user_id", default: 0, null: false
     t.boolean "created_via_import", default: false, null: false
   end
@@ -350,7 +345,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.datetime "updated_at"
     t.text "notes"
     t.boolean "public_notes", default: true, null: false
-    t.integer "pushed_from_id"
     t.string "actual_object_type", limit: 255
     t.integer "actual_object_id"
     t.index ["position"], name: "index_playlist_items_on_position"
@@ -365,7 +359,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.string "ancestry", limit: 255
     t.integer "position"
     t.integer "counter_start", default: 1, null: false
-    t.integer "pushed_from_id"
     t.integer "location_id"
     t.string "when_taught", limit: 255
     t.integer "user_id", default: 0, null: false
@@ -442,7 +435,6 @@ ActiveRecord::Schema.define(version: 20180730193758) do
     t.boolean "public", default: true
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "pushed_from_id"
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.string "description", limit: 5242880
