@@ -17,7 +17,7 @@
     %p.ResourceHeadnote= content.formatted_headnote
   - if content.resource.class.in? [Case, TextBlock]
     -# %main
-    - content.annotated_paragraphs(editable: false).each_with_index do |p_node, p_idx|
+    - content.annotated_paragraphs(editable: false, exporting: true).each_with_index do |p_node, p_idx|
       = p_node.to_html.html_safe
     %div= content.footnote_annotations
   - elsif content.resource.is_a? Default

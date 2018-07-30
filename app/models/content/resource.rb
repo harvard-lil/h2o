@@ -42,7 +42,7 @@ class Content::Resource < Content::Child
     html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
   end
 
-  def annotated_paragraphs editable: false
+  def annotated_paragraphs(editable: false, exporting: false)
     nodes = paragraph_nodes
 
     nodes.each_with_index do |p_node, p_idx|
@@ -51,7 +51,7 @@ class Content::Resource < Content::Child
 
     annotations.all.each_with_index do |annotation|
       nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
-        annotation.apply_to_node p_node, p_idx + annotation.start_p, editable: editable
+        annotation.apply_to_node(p_node, p_idx + annotation.start_p, editable: editable, exporting: exporting)
       end
     end
 
