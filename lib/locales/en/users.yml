@@ -37,14 +37,13 @@ en:
       terms-of-service:
         html: By sending this request, you agree to our <a href="%{terms_path}">Terms of Service</a>.
     sign-up:
-      header: Sign up now — it's free forever!
+      header: 'Sign up for an account'
       edu-only_html: Registration is restricted to email addresses that end in <code>.edu</code>.
       pitch:
-        header: What can you do after signing up?
+        header: What can you do with an account?
         features:
-          - Bookmark and track your favorite content.
-          - Create and publish your own casebooks from our comprehensive database of public-domain American caselaw.
-          - Highlight, copy, edit and annotate any of the thousands of casebooks and treatises in our public collection.
+          - Create new casebooks
+          - Clone and adapt existing casebooks
       flash:
         success:
           html: Thanks for signing up! Please check your email for your verification link.

@@ -16,7 +16,6 @@ header.users {
 
 section.sign-up, section.sign-in, section.reset-password {
   .form {
-    @include make-md-column(6.5);
     > form {
       background-color: $light-gray;
       padding: 20px;
