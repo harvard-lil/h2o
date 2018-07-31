@@ -71,10 +71,10 @@ class Content::Resource < Content::Child
     footnote_annotations = ""
     idx = 0
 
-    annotations.all.each_with_index do |annotation, index|
+    annotations.all.sort_by{|annotation| annotation.start_p}.each_with_index do |annotation, index|
       if annotation.kind.in? %w(note link)
         idx += 1
-        footnote_annotations =+ "#{("*" * (idx)) + annotation.content} "
+        footnote_annotations += "#{("*" * (idx)) + annotation.content} "
       end
     end
 
