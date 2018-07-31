@@ -1,27 +1,3 @@
-# == Schema Information
-#
-# Table name: content_nodes
-#
-#  id            :integer          not null, primary key
-#  title         :string
-#  slug          :string
-#  subtitle      :string
-#  headnote      :text
-#  public        :boolean          default(TRUE), not null
-#  casebook_id   :integer
-#  ordinals      :integer          default([]), not null, is an Array
-#  copy_of_id    :integer
-#  is_alias      :boolean
-#  resource_type :string
-#  resource_id   :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#
-
-# Concrete class for a Section, a branch node in a table of contents.
-# - is a Child
-# - can have Children
-# - does not have an associated material resource
 class Content::Section < Content::Child
   default_scope {where(resource_id: nil)}
 

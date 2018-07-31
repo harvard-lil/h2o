@@ -1,20 +1,4 @@
-# == Schema Information
-#
-# Table name: defaults
-#
-#  id                 :integer          not null, primary key
-#  name               :string(1024)
-#  url                :string(1024)     not null
-#  description        :string(5242880)
-#  public             :boolean          default(TRUE)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  content_type       :string(255)
-#  user_id            :integer          default(0)
-#  ancestry           :string(255)
-#  created_via_import :boolean          default(FALSE), not null
-#
-
+# Defaults are link resources
 class Default < ApplicationRecord
   include MetadataExtensions
   include VerifiedUserExtensions

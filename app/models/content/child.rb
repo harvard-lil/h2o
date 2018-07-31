@@ -1,29 +1,3 @@
-# == Schema Information
-#
-# Table name: content_nodes
-#
-#  id            :integer          not null, primary key
-#  title         :string
-#  slug          :string
-#  subtitle      :string
-#  headnote      :text
-#  public        :boolean          default(TRUE), not null
-#  casebook_id   :integer
-#  ordinals      :integer          default([]), not null, is an Array
-#  copy_of_id    :integer
-#  is_alias      :boolean
-#  resource_type :string
-#  resource_id   :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#
-
-# Abstract class for anything that is a child node in a table of contents:
-# Sections, Resources inherit from this
-# - belongs to a root Casebook
-# - has ordinals which are not empty
-# - can be relocated in the table of contents, pushing siblings aside
-# - inherits the collaborators of its Casebook
 class Content::Child < Content::Node
   default_scope {where.not(casebook_id: nil)}
 

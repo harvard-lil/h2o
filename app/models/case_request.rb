@@ -1,23 +1,3 @@
-# == Schema Information
-#
-# Table name: case_requests
-#
-#  id                   :integer          not null, primary key
-#  full_name            :string(500)      not null
-#  decision_date        :date             not null
-#  author               :string(150)      not null
-#  case_jurisdiction_id :integer
-#  docket_number        :string(150)      not null
-#  volume               :string(150)      not null
-#  reporter             :string(150)      not null
-#  page                 :string(150)      not null
-#  bluebook_citation    :string(150)      not null
-#  status               :string(150)      default("new"), not null
-#  created_at           :datetime
-#  updated_at           :datetime
-#  user_id              :integer          default(0), not null
-#
-
 class CaseRequest < ApplicationRecord
   validates_presence_of :full_name, :author, :bluebook_citation,
                         :docket_number, :volume, :reporter, :page,

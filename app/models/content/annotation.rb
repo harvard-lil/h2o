@@ -1,19 +1,3 @@
-# == Schema Information
-#
-# Table name: content_annotations
-#
-# t.bigint "resource_id", null: false
-# t.integer "start_p", null: false
-# t.integer "end_p"
-# t.integer "start_offset", null: false
-# t.integer "end_offset", null: false
-# t.string "kind", null: false
-# t.text "content"
-# t.datetime "created_at", null: false
-# t.datetime "updated_at", null: false
-# t.bigint "copy_of_id"
-#
-
 class Content::Annotation < ApplicationRecord
   KINDS = %w{elide replace link highlight note}
   belongs_to :resource, class_name: 'Content::Resource', inverse_of: :annotations, required: true
