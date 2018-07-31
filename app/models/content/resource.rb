@@ -44,14 +44,19 @@ class Content::Resource < Content::Child
 
   def annotated_paragraphs(editable: false, exporting: false)
     nodes = paragraph_nodes
+    export_p_idx = 0
 
     nodes.each_with_index do |p_node, p_idx|
       p_node['data-p-idx'] = p_idx
     end
 
-    annotations.all.each_with_index do |annotation|
+    annotations.all.sort_by{|annotation| annotation.start_p}.each_with_index do |annotation|
+      if annotation.kind.in? %w(note link)
+        export_p_idx += 1
+      end
+
       nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
-        annotation.apply_to_node(p_node, p_idx + annotation.start_p, editable: editable, exporting: exporting)
+        annotation.apply_to_node(p_node, p_idx + annotation.start_p, export_p_idx, editable: editable, exporting: exporting)
       end
     end
 
