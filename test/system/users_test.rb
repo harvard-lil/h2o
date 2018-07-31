@@ -11,7 +11,7 @@ class UserSystemTest < ApplicationSystemTestCase
       scenario 'sign up with only an email' do
         fill_in 'Email address', with: 'test@law.harvard.edu'
         click_button 'Sign up'
-        assert_content 'Thanks for signing up! Please check your email for your verification link.'
+        assert_content 'Thanks for signing up! Please check your email for a link that will let you confirm your account and set a password.'
       end
 
       scenario 'fails with an existing email' do
