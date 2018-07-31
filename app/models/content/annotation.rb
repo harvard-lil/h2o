@@ -89,7 +89,11 @@ class Content::Annotation < ApplicationRecord
     when 'highlight' then
       "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{inner}</span>"
     when 'link' then
-      "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
+      if exporting
+        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}#{'*' * export_p_idx}</a>"
+      else
+        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
+      end
     when 'note' then
       if exporting
         "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}#{'*' * export_p_idx}</span>"
