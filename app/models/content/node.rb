@@ -1,31 +1,3 @@
-# == Schema Information
-#
-# Table name: content_nodes
-#
-# t.string "title"
-# t.string "slug"
-# t.string "subtitle"
-# t.text "headnote"
-# t.boolean "public", default: true, null: false
-# t.bigint "casebook_id"
-# t.integer "ordinals", default: [], null: false, array: true
-# t.bigint "copy_of_id"
-# t.boolean "is_alias"
-# t.string "resource_type"
-# t.bigint "resource_id"
-# t.datetime "created_at", null: false
-# t.datetime "updated_at", null: false
-# t.string "ancestry"
-# t.bigint "playlist_id"
-# t.bigint "root_user_id"
-# t.boolean "draft_mode_of_published_casebook"
-#
-
-# Abstract class for anything that can be a node in a table of contents:
-# Casebooks, Sections, Resources all inherit from this
-# - is a row in content_nodes table
-# - can be a copy of another Node
-# - has a title, subtitle, headnote, public status
 class Content::Node < ApplicationRecord
   validates_format_of :slug, with: /\A[a-z\-]*\z/, if: :slug?
 

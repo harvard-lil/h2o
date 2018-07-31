@@ -1,15 +1,3 @@
-# == Schema Information
-#
-# Table name: case_jurisdictions
-#
-#  id           :integer          not null, primary key
-#  abbreviation :string(150)
-#  name         :string(500)
-#  content      :text
-#  created_at   :datetime
-#  updated_at   :datetime
-#
-
 class CaseJurisdiction < ApplicationRecord
   has_many :cases, inverse_of: :case_jurisdiction
   has_many :case_requests

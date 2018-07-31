@@ -1,31 +1,3 @@
-# == Schema Information
-#
-# Table name: content_nodes
-#
-# t.string "title"
-# t.string "slug"
-# t.string "subtitle"
-# t.text "headnote"
-# t.boolean "public", default: true, null: false
-# t.bigint "casebook_id"
-# t.integer "ordinals", default: [], null: false, array: true
-# t.bigint "copy_of_id"
-# t.boolean "is_alias"
-# t.string "resource_type"
-# t.bigint "resource_id"
-# t.datetime "created_at", null: false
-# t.datetime "updated_at", null: false
-# t.string "ancestry"
-# t.bigint "playlist_id"
-# t.bigint "root_user_id"
-# t.boolean "draft_mode_of_published_casebook"
-# #
-
-# Concrete class for a Casebook, the root node of a table of contents.
-# - does not belong to a Casebook
-# - has ordinals of []
-# - can have children
-# - can have collaborators of its own
 class Content::Casebook < Content::Node
   has_ancestry orphan_strategy: :adopt
 

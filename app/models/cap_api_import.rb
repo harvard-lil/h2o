@@ -1,2 +1,0 @@
-class CapApiImport < ApplicationRecord
-end
