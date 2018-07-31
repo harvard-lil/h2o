@@ -6,7 +6,7 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
 
 
-  def apply_to_node p_node, p_idx, editable: false, exporting: false
+  def apply_to_node(p_node, p_idx, export_p_idx, editable: false, exporting: false)
     p_node['data-p-idx'] = p_idx
 
     if (p_idx != start_p && p_idx != end_p) || (p_idx == end_p && p_idx != start_p && end_offset == p_node.text.length)
@@ -47,15 +47,16 @@ class Content::Annotation < ApplicationRecord
           else
             handle_html = ""
           end
+          
           if p_idx == end_p && node_offset + node.text.length >= end_offset
             # wrap within this node
-            inner = annotate_html node.text[start_offset - node_offset...end_offset - node_offset], final: true
+            inner = annotate_html(node.text[start_offset - node_offset...end_offset - node_offset], export_p_idx, final: true, exporting: exporting)
             node.replace "#{node.text[0...start_offset - node_offset]}#{handle_html}#{inner}#{node.text[end_offset - node_offset..-1]}"
             break # done annotating
           else
             # wrap the rest of this node from start_offset and continue annotating
             annotating = true
-            inner = annotate_html node.text[start_offset - node_offset..-1]
+            inner = annotate_html(node.text[start_offset - node_offset..-1], export_p_idx, exporting: exporting)
             node.replace "#{node.text[0...start_offset - node_offset]}#{handle_html}#{inner}"
           end
         else
@@ -78,7 +79,7 @@ class Content::Annotation < ApplicationRecord
   private
 
   # NB: the export to docx code is tightly coupled with this markup. Test thoroughly if altering.
-  def annotate_html inner, handle: true, final: false
+  def annotate_html(inner, export_p_idx, handle: true, final: false, exporting: false)
     case kind
     when 'elide' then
       "#{handle ? "<span role='button' tabindex='0' class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></span>" : ''}" +
@@ -90,7 +91,11 @@ class Content::Annotation < ApplicationRecord
     when 'link' then
       "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{inner}</a>"
     when 'note' then
-      "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}</span>"
+      if exporting
+        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}#{'*' * export_p_idx}</span>"
+      else
+        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{inner}</span>"
+      end
     end
   end
 
@@ -102,7 +107,7 @@ class Content::Annotation < ApplicationRecord
     if editable 
       "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
     elsif exporting
-      "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>******"
+      "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'></span>"
     else
       "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
     end
