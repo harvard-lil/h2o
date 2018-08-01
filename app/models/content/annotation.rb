@@ -6,7 +6,7 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
 
   def copy_of
-    resource.copy_of.annotations.where(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind).first
+    resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind)
   end
 
   def exists_in_published_casebook?
