@@ -154,18 +154,18 @@ module Migrate
           kind: kind,
           content: "#{content} [\##{annotation.id}]"
         if annotation.xpath_start.present? && annotation.xpath_end.present?
-          start_p, start_offset = locate_p annotation.xpath_start, annotation.start_offset, nodes, document
-          end_p, end_offset = locate_p annotation.xpath_end, annotation.end_offset, nodes, document
-          unless (start_p && end_p && start_offset && end_offset)
+          start_paragraph, start_offset = locate_p annotation.xpath_start, annotation.start_offset, nodes, document
+          end_paragraph, end_offset = locate_p annotation.xpath_end, annotation.end_offset, nodes, document
+          unless (start_paragraph && end_paragraph && start_offset && end_offset)
             next
           end
-          if start_p > end_p
-            _start_p = end_p
-            end_p = start_p
-            start_p = _start_p
+          if start_paragraph > end_paragraph
+            _start_paragraph = end_paragraph
+            end_paragraph = start_paragraph
+            start_paragraph = _start_paragraph
           end
-          content_annotation.assign_attributes start_p: start_p,
-            end_p: end_p,
+          content_annotation.assign_attributes start_paragraph: start_paragraph,
+            end_paragraph: end_paragraph,
             start_offset: start_offset,
             end_offset: end_offset
         else
@@ -200,9 +200,9 @@ module Migrate
         # puts "Got a bad p for \##{annotation.id}: Collage \##{annotation.collage.id} at #{annotation.xpath_start} -> #{annotation.xpath_end}"
         return
       end
-      p_idx = nodes.find_index {|node| node['idx'] == target_p['idx']}
+      paragraph_index = nodes.find_index {|node| node['idx'] == target_p['idx']}
       if target_p == target_node
-        return p_idx, offset
+        return paragraph_index, offset
       end
       target_p.traverse do |node|
         next unless node.text?
@@ -214,7 +214,7 @@ module Migrate
           offset += node.text.length
         end
       end
-      return p_idx, offset
+      return paragraph_index, offset
     end
 
     # associate original with migrated by creation date

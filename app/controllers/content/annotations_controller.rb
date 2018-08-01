@@ -42,7 +42,7 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def annotation_params
-    params.require(:annotation).permit :kind, :content, :start_p, :end_p, :start_offset, :end_offset
+    params.require(:annotation).permit :kind, :content, :start_paragraph, :end_paragraph, :start_offset, :end_offset
   end
 
   def find_resource
