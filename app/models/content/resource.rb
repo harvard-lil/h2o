@@ -44,19 +44,19 @@ class Content::Resource < Content::Child
 
   def annotated_paragraphs(editable: false, exporting: false)
     nodes = paragraph_nodes
-    export_p_idx = 0
+    export_footnote_index = 0
 
-    nodes.each_with_index do |p_node, p_idx|
-      p_node['data-p-idx'] = p_idx
+    nodes.each_with_index do |paragraph_node, paragraph_index|
+      paragraph_node['data-p-idx'] = paragraph_index
     end
 
-    annotations.all.sort_by{|annotation| annotation.start_p}.each_with_index do |annotation|
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
       if annotation.kind.in? %w(note link)
-        export_p_idx += 1
+        export_footnote_index += 1
       end
 
-      nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
-        annotation.apply_to_node(p_node, p_idx + annotation.start_p, export_p_idx, editable: editable, exporting: exporting)
+      nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
+        ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting})
       end
     end
 
@@ -71,7 +71,7 @@ class Content::Resource < Content::Child
     footnote_annotations = ""
     idx = 0
 
-    annotations.all.sort_by{|annotation| annotation.start_p}.each_with_index do |annotation, index|
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation, index|
       if annotation.kind.in? %w(note link)
         idx += 1
         footnote_annotations += "#{("*" * (idx)) + annotation.content} "
