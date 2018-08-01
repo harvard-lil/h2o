@@ -60,15 +60,6 @@ class ApplyAnnotationToParagraphs
     end
   end
 
-   def copy_of
-    resource.copy_of.annotations.where(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph,
-          start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind).first
-  end
-
-  def exists_in_published_casebook?
-    resource.casebook.draft_mode_of_published_casebook && copy_of.present?
-  end
-
   private
 
   def get_edit_annotation_button
@@ -113,7 +104,6 @@ class ApplyAnnotationToParagraphs
   end
 
   def full_paragraph_node_annotated?
-    # entire_middle_paragraph
     (!first_paragraph? && !last_paragraph?) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
   end
 

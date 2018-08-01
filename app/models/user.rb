@@ -126,7 +126,7 @@ class User < ApplicationRecord
     Notifier.verification_request(self).deliver
   end
 
-  def send_paragraphrofessor_verification_request_to_admin
+  def send_professor_verification_request_to_admin
     Notifier.professor_verification(self).deliver
   end
 

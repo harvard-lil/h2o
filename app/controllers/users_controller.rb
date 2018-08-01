@@ -56,7 +56,7 @@ class UsersController < ApplicationController
     user_params.delete :current_password
 
     if user_params[:professor_verification_requested] == "1" && !@user.professor_verification_requested
-      @user.send_paragraphrofessor_verification_request_to_admin
+      @user.send_professor_verification_request_to_admin
       @user.update(professor_verification_requested: true) 
     end
 
