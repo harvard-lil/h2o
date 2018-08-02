@@ -40,9 +40,6 @@ class Case < ApplicationRecord
   def date_year
     decision_date.try :year
   end
-  def score
-    0
-  end
 
   alias :to_s :display_name
 
