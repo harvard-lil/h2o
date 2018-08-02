@@ -28,12 +28,15 @@ class Case < ApplicationRecord
   def display_name
     (name_abbreviation.blank?) ? name : name_abbreviation
   end
+
   def description
     nil
   end
+
   def title
     name
   end
+
   def date_year
     decision_date.try :year
   end
