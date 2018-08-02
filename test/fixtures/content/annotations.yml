@@ -1,7 +1,7 @@
 annotation_published: 
   resource: published_casebook_section_1
-  start_p: 0
-  end_p: 2
+  start_paragraph: 0
+  end_paragraph: 2
   start_offset: 5
   end_offset: 10
   content: published note
@@ -10,8 +10,8 @@ annotation_published:
 
 annotation_published_2:
   resource: published_casebook_section_2
-  start_p: 4
-  end_p: 8
+  start_paragraph: 4
+  end_paragraph: 8
   start_offset: 10
   end_offset: 12
   content: this note is deleted in draft mode
@@ -20,8 +20,8 @@ annotation_published_2:
 
 annotation_draft:
   resource: draft_merge_section_1
-  start_p: 0
-  end_p: 2
+  start_paragraph: 0
+  end_paragraph: 2
   start_offset: 5
   end_offset: 10
   kind: note
@@ -29,8 +29,8 @@ annotation_draft:
 
 annotation_new_to_draft:
   resource: draft_merge_section_1
-  start_p: 10
-  end_p: 20
+  start_paragraph: 10
+  end_paragraph: 20
   start_offset: 2
   end_offset: 22
   kind: highlight
