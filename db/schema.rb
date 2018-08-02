@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema.define(version: 20180803140805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,7 +88,6 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean "public", default: false
-    t.boolean "sent_in_cases_list", default: false
     t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.string "primary_case_citation"
