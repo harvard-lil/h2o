@@ -50,7 +50,7 @@ export function getCaretCharacterOffsetWithin(element) {
         var textRange = sel.createRange();
         var preCaretTextRange = doc.body.createTextRange();
         preCaretTextRange.moveToElementText(element);
-        preCaretTextRange.setEndParagraphoint("EndToEnd", textRange);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
         caretOffset = preCaretTextRange.text.length;
     }
     return caretOffset;

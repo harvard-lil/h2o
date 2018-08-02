@@ -1,3 +1,4 @@
+## This class applies an annotation to it's corresponding paragraph nodes (created by nokogiri). An annotation can span multiple paragraphs. 
 class ApplyAnnotationToParagraphs
   attr_accessor :annotation, :paragraph_node, :paragraph_index, :export_footnote_index, :editable, :exporting, :start_paragraph, :end_paragraph, :start_offset, :end_offset, :kind, :id, :content
 
@@ -22,13 +23,12 @@ class ApplyAnnotationToParagraphs
   end
 
   def perform
+    # This is set for annotations that span multiple paragraphs. After the annotation is applie to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
     paragraph_offset = 0
+
+    # Adds data-p-idx to paragraph HTML tag 
     paragraph_node['data-p-idx'] = paragraph_index
-
-    if full_paragraph_node_annotated?
-      wrap_paragraph_node 
-    end
-
+    
     paragraph_node.traverse do |node|
       if invalid_node?(node)
         next
@@ -50,9 +50,9 @@ class ApplyAnnotationToParagraphs
         end
       else 
         if middle_paragraph?(node, paragraph_offset)
-          wrap_single_node(node)
+          wrap_middle_paragraph(node)
         else
-          wrap_to_end_offset(node, paragraph_offset)
+          wrap_last_paragraph(node, paragraph_offset)
           break
         end
       end
@@ -62,6 +62,7 @@ class ApplyAnnotationToParagraphs
 
   private
 
+  # The edit icon that shows up next to an annotation when in draft mode.
   def get_edit_annotation_button
     if editable
       if kind == 'note'
@@ -103,6 +104,7 @@ class ApplyAnnotationToParagraphs
     ApplicationController.helpers.send(:html_escape, content)
   end
 
+  # If it's a multi-paragraph annotation and this paragraph is in the middle, annotate the entire paragraph
   def full_paragraph_node_annotated?
     (!first_paragraph? && !last_paragraph?) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
   end
@@ -131,14 +133,20 @@ class ApplyAnnotationToParagraphs
     paragraph_index != end_paragraph || end_offset > paragraph_offset + node.text.length
   end
 
-  def wrap_single_node(node)
+  def wrap_middle_paragraph(node)
     node.replace annotate_html(node.text, handle: false)
+    if kind.in? %w{elide replace}
+      paragraph_node['data-elided-annotation'] = id
+    end
   end
 
-  def wrap_to_end_offset(node, paragraph_offset)
+
+  # This is the last paragraph, apply the annotation to the remaining characters.  
+  def wrap_last_paragraph(node, paragraph_offset)
     node.replace "#{node.text[0...0]}#{annotate_html(node.text[0...end_offset - paragraph_offset], handle: false, final: true)}#{node.text[end_offset - paragraph_offset...-1]}"
   end
 
+  # If the annotation doesn't start at the first character, loop through and add to the paragraph_offset so that you can start at the right place.
   def paragraph_offset_ready?(node, paragraph_offset)
     paragraph_offset + node.text.length >= start_offset
   end
