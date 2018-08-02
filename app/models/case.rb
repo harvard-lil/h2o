@@ -103,22 +103,6 @@ class Case < ApplicationRecord
     # encode needed for cap api import
   end
 
-  # def self.new_from_xml_file(file)
-  #   cxp = CaseParser::XmlParser.new(file)
-  #
-  #   new_case = cxp.xml_to_case_attributes
-  #   cj = CaseCourt.where(name: new_case[:jurisdiction].gsub('.', '')).first
-  #   if cj
-  #     new_case[:case_court_id] = cj.id
-  #   end
-  #   new_case.delete(:jurisdiction)
-  #   c = Case.new(new_case)
-  #   # c.user = User.find_by_login 'h2ocases'
-  #   c.user = User.includes(:roles).where(roles: {name: 'case_admin'}).first
-  #
-  #   c
-  # end
-
   def formatted_decision_date
     if self.decision_date.present?
       self.decision_date.strftime("%B %d, %Y")
