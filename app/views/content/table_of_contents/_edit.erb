@@ -1,0 +1,86 @@
+<% editable = true %>
+<% content = edit %>
+<% contents = @content.contents %>
+<% start_depth = contents.first.try(:ordinals).try(:length) %>
+<% current_depth = start_depth %>
+
+<% contents.each do |content| %>
+
+  <% (1..content.ordinals.length - current_depth).each do %>
+    <div class="section-wrapper">
+      <div class="section-contents">
+  <% end %>
+  <% (1..current_depth - content.ordinals.length).each do %>
+      </div>
+    </div>
+  <% end %>
+  <% current_depth = content.ordinals.length %>
+
+  <% if content.is_a? Content::Resource %>
+    <div class="listing-wrapper" data-ordinals="<%= content.ordinal_string %>">
+      <% if content.is_a? Default %>
+        <a class="listing resource" href="<%= edit_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>">
+          <div class="section-number"><%= content.ordinal_string %></div>
+          <div class="section-title"><%= content.title %></div>
+          <div class="resource-type"><%= t "content.resource.type.default" %></div>
+        </a>
+      <% else %>
+        <a class="listing resource" href="<%= annotate_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" editable=editable >
+          <div class="section-number"><%= content.ordinal_string %></div>
+           <% if content.resource.is_a? Case %>
+            <div class="section-title"><%= content.resource.short_name %></div>
+            <div class="resource-case"><%= content.resource.primary_case_citation %></div>
+            <div class="resource-date"><%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %></div>
+            <div class="resource-type"><%= t 'content.resource.type.case' %></div>
+           <% elsif content.resource.is_a? TextBlock %>
+            <div class="section-title"><%= content.title %></div>
+            <div class="resource-type"><%= t 'content.resource.type.text' %></div>
+           <% else %>
+            <div class="section-title"><%= content.title %></div>
+            <div class="resource-type">
+              <div class="not-applicable"><%= t 'content.resource.type.not-applicable' %></div>
+            </div>
+           <% end %>
+          <% if editable %>
+            <div class="actions">
+              <button class="action-delete"></button>
+            </div>
+          <% end %>
+        </a>
+      <% end %>
+    </div>
+  <% elsif content.is_a? Content::Section %>
+    <% if @edit_section == content %>
+      <%= render partial('content/sections/form', locals: {section: content}) %>
+    <% else %>
+      <div class="listing-wrapper" draggable="true" data-ordinals="<%= content.ordinal_string %>">
+        <a class="listing section" href="<%= layout_section_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" editable=editable >
+          <div class="section-number"><%= content.ordinal_string %></div>
+          <div class="section-title"><%= content.title %></div>
+        </a>
+        <% if editable %>
+          <div class="actions">
+            <button class="action-delete"></button>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% elsif content.is_a? Enumerable %>
+    <div class="section-wrapper">
+      <% if editable %>
+        <div class="section-contents editable">
+          <%= render 'content/table_of_contents/edit', collection=content %>
+        </div>
+      <% else %>
+        <div class="section-contents">
+          <%= render 'content/table_of_contents/show', collection=content %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<% (start_depth..current_depth - 1).each do %>
+  </div></div>
+<% end %>
+
