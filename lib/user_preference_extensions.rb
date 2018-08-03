@@ -35,7 +35,7 @@ module UserPreferenceExtensions
   def common_user_preference_attrs
     [
       :user_id,
-      :default_font_size, :default_font, :tab_open_new_items, :simple_display,
+      :default_font_size, :default_font, :simple_display,
       :print_titles, :toc_levels, :print_paragraph_numbers, :print_annotations,
       :print_highlights, :print_font_face, :print_font_size, :default_show_comments,
       :default_show_paragraph_numbers, :hidden_text_display, :print_links, :print_export_format,
