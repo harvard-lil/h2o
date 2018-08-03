@@ -88,6 +88,10 @@ class Case < ApplicationRecord
     true
   end
 
+  def primary_case_citation
+    case_citations.first.to_s
+  end
+
   def indexable_case_citations
     self.case_citations.map(&:display_name).join(" ")
   end
