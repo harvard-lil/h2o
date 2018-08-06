@@ -1,0 +1,13 @@
+require 'service_test_case'
+
+class Content::SectionsTest < ServiceTestCase
+  scenario 'Deleting a section deletes it\'s unpublished revisions' do
+    draft = content_nodes(:draft_merge_casebook)
+    draft_section = content_nodes(:draft_merge_section_1)
+
+    assert_equal(2, draft_section.unpublished_revisions.count)
+    draft_section.destroy
+
+    assert_equal(0, draft_section.unpublished_revisions.count)
+  end
+end

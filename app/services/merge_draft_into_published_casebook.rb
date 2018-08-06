@@ -88,7 +88,10 @@ class MergeDraftIntoPublishedCasebook
 
   def deleted_annotations
     revisions.where(field: "deleted_annotation").each do |revision|
-      Content::Annotation.find(revision.value.to_i).destroy!
+      ancestor_annotation = Content::Annotation.find(revision.value.to_i)
+      if ancestor_annotation.present?
+        ancestor_annotation.destroy!
+      end
       revision.destroy!
     end
   end

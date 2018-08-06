@@ -84,7 +84,7 @@ class Content::SectionsController < Content::NodeController
     if !@section.destroy
       flash[:error] = "Could not delete #{@section.ordinal_string} #{@section.title}"
     end
- 
+
     @section.reflow_casebook
 
     render status: 200, plain: "section-deleted"
