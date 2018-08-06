@@ -7,17 +7,17 @@ export function offsetsForRange(range) {
   }
   if (range.collapsed) { return null; }
 
-  let startP = closestP(range.startContainer);
-  let endP = closestP(range.endContainer);
-  let startOffset = offsetInParagraph(startP, range.startContainer, range.startOffset);
-  let endOffset = offsetInParagraph(endP, range.endContainer, range.endOffset);
+  let startParagraph = closestP(range.startContainer);
+  let endParagraph = closestP(range.endContainer);
+  let startOffset = offsetInParagraph(startParagraph, range.startContainer, range.startOffset);
+  let endOffset = offsetInParagraph(endParagraph, range.endContainer, range.endOffset);
   return  {
     start: {
-      p: startP.dataset.pIdx,
+      p: startParagraph.dataset.pIdx,
       offset: startOffset
     },
     end: {
-      p: endP.dataset.pIdx,
+      p: endParagraph.dataset.pIdx,
       offset: endOffset
     }
   };

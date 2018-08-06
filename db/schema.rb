@@ -169,15 +169,15 @@ ActiveRecord::Schema.define(version: 20180803140805) do
 
   create_table "content_annotations", force: :cascade do |t|
     t.bigint "resource_id", null: false
-    t.integer "start_p", null: false
-    t.integer "end_p"
+    t.integer "start_paragraph", null: false
+    t.integer "end_paragraph"
     t.integer "start_offset", null: false
     t.integer "end_offset", null: false
     t.string "kind", null: false
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["resource_id", "start_p"], name: "index_content_annotations_on_resource_id_and_start_p"
+    t.index ["resource_id", "start_paragraph"], name: "index_content_annotations_on_resource_id_and_start_paragraph"
     t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end
 
@@ -511,12 +511,12 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.boolean "print_links", default: true, null: false
     t.string "toc_levels", limit: 255, default: "", null: false
     t.string "print_export_format", limit: 255, default: "", null: false
+    t.boolean "verified_professor", default: false
+    t.boolean "professor_verification_requested", default: false
     t.string "image_file_name"
     t.string "image_content_type"
     t.integer "image_file_size"
     t.datetime "image_updated_at"
-    t.boolean "verified_professor", default: false
-    t.boolean "professor_verification_requested", default: false
     t.boolean "verified_email", default: false, null: false
     t.index ["affiliation"], name: "index_users_on_affiliation"
     t.index ["attribution"], name: "index_users_on_attribution"

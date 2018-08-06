@@ -42,16 +42,17 @@ class Content::Resource < Content::Child
     html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
   end
 
-  def annotated_paragraphs editable: false
+  def annotated_paragraphs(editable: false, exporting: false)
     nodes = paragraph_nodes
+    export_footnote_index = 0
 
-    nodes.each_with_index do |p_node, p_idx|
-      p_node['data-p-idx'] = p_idx
-    end
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
+      if annotation.kind.in? %w(note link)
+        export_footnote_index += 1
+      end
 
-    annotations.all.each_with_index do |annotation|
-      nodes[annotation.start_p..annotation.end_p].each_with_index do |p_node, p_idx|
-        annotation.apply_to_node p_node, p_idx + annotation.start_p, editable: editable
+      nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
+        ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting})
       end
     end
 
@@ -60,5 +61,19 @@ class Content::Resource < Content::Child
 
   def title
     super || resource.title
+  end
+
+  def footnote_annotations
+    footnote_annotations = ""
+    idx = 0
+
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation, index|
+      if annotation.kind.in? %w(note link)
+        idx += 1
+        footnote_annotations += "#{("*" * (idx)) + annotation.content} "
+      end
+    end
+
+    footnote_annotations
   end
 end
