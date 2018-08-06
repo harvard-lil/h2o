@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 
-ActiveRecord::Schema.define(version: 20180803140805) do
+ActiveRecord::Schema.define(version: 20180803142424) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -43,20 +43,6 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.boolean "has_errors"
     t.integer "delayed_job_id"
     t.integer "user_id", default: 0, null: false
-  end
-
-  create_table "case_citations", id: :serial, force: :cascade do |t|
-    t.integer "case_id"
-    t.string "volume", limit: 200, null: false
-    t.string "reporter", limit: 200, null: false
-    t.string "page", limit: 200, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string "type", limit: 150
-    t.index ["case_id"], name: "index_case_citations_on_case_id"
-    t.index ["page"], name: "index_case_citations_on_page"
-    t.index ["reporter"], name: "index_case_citations_on_reporter"
-    t.index ["volume"], name: "index_case_citations_on_volume"
   end
 
   create_table "case_courts", id: :serial, force: :cascade do |t|
@@ -95,6 +81,7 @@ ActiveRecord::Schema.define(version: 20180803140805) do
     t.jsonb "attorneys"
     t.jsonb "parties"
     t.jsonb "opinions"
+    t.jsonb "citations"
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["created_at"], name: "index_cases_on_created_at"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
