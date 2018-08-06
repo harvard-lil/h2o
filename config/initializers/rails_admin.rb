@@ -253,7 +253,7 @@ RailsAdmin.config do |config|
       end
 
       include_all_fields
-      exclude_fields :password, :password_confirmation, :crypted_password, :password_salt, :persistence_token, :oauth_token, :oauth_secret, :bookmark_id, :perishable_token
+      exclude_fields :password, :password_confirmation, :crypted_password, :password_salt, :persistence_token, :oauth_token, :oauth_secret, :perishable_token
       #fields :set_password, :email_address
       #field :email_address
     end
