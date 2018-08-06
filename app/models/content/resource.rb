@@ -46,6 +46,10 @@ class Content::Resource < Content::Child
     nodes = paragraph_nodes
     export_footnote_index = 0
 
+    nodes.each_with_index do |p_node, p_idx|
+      p_node['data-p-idx'] = p_idx
+    end
+
     annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
       if annotation.kind.in? %w(note link)
         export_footnote_index += 1
