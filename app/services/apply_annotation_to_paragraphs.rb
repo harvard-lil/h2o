@@ -25,16 +25,24 @@ class ApplyAnnotationToParagraphs
   def perform
     # This is set for annotations that span multiple paragraphs. After the annotation is applie to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
     paragraph_offset = 0
+    noninitial = paragraph_index != start_paragraph
 
     # Adds data-p-idx to paragraph HTML tag 
     paragraph_node['data-p-idx'] = paragraph_index
-    
+
     paragraph_node.traverse do |node|
       if invalid_node?(node)
         next
       end
 
-      if first_paragraph?
+      if noninitial
+        if middle_paragraph?(node, paragraph_offset)
+          wrap_middle_paragraph(node)
+        else
+          wrap_last_paragraph(node, paragraph_offset)
+          break
+        end
+      else
         if paragraph_offset_ready?(node, paragraph_offset)
           annotation_button = get_edit_annotation_button
 
@@ -43,17 +51,10 @@ class ApplyAnnotationToParagraphs
             node.replace "#{node.text[0...start_offset - paragraph_offset]}#{annotation_button}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
             break
           else
-            annotating = true
+            noninitial = true
             selected_text = annotate_html(node.text[start_offset - paragraph_offset..-1])
             node.replace "#{node.text[0...start_offset - paragraph_offset]}#{annotation_button}#{selected_text}"
           end
-        end
-      else 
-        if middle_paragraph?(node, paragraph_offset)
-          wrap_middle_paragraph(node)
-        else
-          wrap_last_paragraph(node, paragraph_offset)
-          break
         end
       end
       paragraph_offset += node.text.length
