@@ -99,13 +99,13 @@ class ApplyAnnotationToParagraphs
       "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{selected_text}</span>"
     when 'link' then
       if exporting && paragraph_index == end_paragraph
-        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}#{'*' * export_footnote_index}</a>"
+        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>#{'*' * export_footnote_index}"
       else
         "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>"
       end
     when 'note' then
       if exporting && paragraph_index == end_paragraph
-        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}#{'*' * export_footnote_index}</span>"
+        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>#{'*' * export_footnote_index}"
       else
         "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>"
       end
