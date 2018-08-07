@@ -83,6 +83,7 @@ ActiveRecord::Schema.define(version: 20180803142424) do
     t.jsonb "opinions"
     t.jsonb "citations"
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
+    t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
     t.index ["decision_date"], name: "index_cases_on_decision_date"
     t.index ["name_abbreviation"], name: "index_cases_on_name_abbreviation"
