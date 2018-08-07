@@ -7,14 +7,9 @@ class Case < ApplicationRecord
 
   has_many :casebooks, inverse_of: :resource, class_name: 'Content::Casebook'
 
-  has_many :case_citations, inverse_of: :case
   has_many :case_docket_numbers, inverse_of: :case
   belongs_to :case_court, optional: true, inverse_of: :cases
   belongs_to :user, optional: true
-
-  accepts_nested_attributes_for :case_citations,
-    :allow_destroy => true,
-    :reject_if => proc { |att| att['volume'].blank? || att['reporter'].blank? || att['page'].blank? }
 
   accepts_nested_attributes_for :case_docket_numbers,
     :allow_destroy => true,
@@ -89,16 +84,15 @@ class Case < ApplicationRecord
   end
 
   def primary_citation
-    if citations
-      c = citations.first
-      "#{c['volume']} #{c['reporter']} #{c['page']}"
+    if citations && citations.first
+      citation_to_s citations.first
     else
       ""
     end
   end
 
   def indexable_case_citations
-    self.case_citations.map(&:display_name).join(" ")
+    self.citations.map(&method(:citation_to_s)).join(" ")
   end
   def indexable_case_docket_numbers
     self.case_docket_numbers.map(&:docket_number)
@@ -148,5 +142,8 @@ class Case < ApplicationRecord
     if !self.decision_date.blank? && self.decision_date > Date.today
       errors.add(:decision_date,'cannot be in the future')
     end
+  end
+  def citation_to_s citation
+    "#{citation['volume']} #{citation['reporter']} #{citation['page']}"
   end
 end
