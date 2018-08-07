@@ -9,7 +9,7 @@
     <% end %>
   </h5>
   <% if @content.contents.any? %>
-    <%= render partial: 'content/table_of_contents/edit', collection: @content.tree %>
+    <%= render partial: 'content/table_of_contents/edit', locals: {contents: @content.contents} %>
   <% else %>
     <div class="listing empty">
     <% if @editable %>
