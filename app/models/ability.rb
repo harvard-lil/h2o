@@ -70,7 +70,7 @@ class Ability
       can [:new], CaseCourt
       can [:create], :case_courts
 
-      can [:new, :edit, :update, :show], [Case, CaseCourt, CaseCitation, CaseDocketNumber, Default, TextBlock]
+      can [:new, :edit, :update, :show], [Case, CaseCourt, CaseDocketNumber, Default, TextBlock]
 
       can :show, BulkUpload
     elsif user.has_role? :case_admin

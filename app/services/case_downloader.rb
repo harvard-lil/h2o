@@ -62,10 +62,12 @@ class CaseDownloader
       user_id: current_user.id,
       content: case_content,
       public: true,
-      case_citations: [
-        CaseCitation.new(volume: volume,
-                         reporter: reporter,
-                         page: page)
+      citations: [
+        {
+          volume: volume,
+          reporter: reporter,
+          page: page
+        }
       ],
       case_docket_numbers: [
         CaseDocketNumber.new(docket_number: docket_number)
