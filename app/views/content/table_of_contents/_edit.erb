@@ -14,6 +14,7 @@
   <% end %>
   <% current_depth = content.ordinals.length %>
 
+  <%# render each section or resource within contents %>
   <% if content.is_a? Content::Resource %>
     <div class="listing-wrapper" data-ordinals="<%= content.ordinal_string %>" >
     <% if content.resource.is_a? Default %>
