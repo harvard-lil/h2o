@@ -42,8 +42,8 @@ namespace :h2o do
   desc 'Correlate H2O Cases to CAPAPI Cases'
   task(:correlate_cases => :environment) do
     Case.where(capapi_id: nil).find_each do |c|
-      if c.primary_citation
-        capapi_case = Capapi::Case.list(cite: c.primary_citation).first
+      if c.citations[0]
+        capapi_case = Capapi::Case.list(cite: c.citations[0]["cite"]).first
         if capapi_case
           c.update(capapi: capapi_case)
           puts "H2O:    " + c.name, "CAPAPI: " + capapi_case.name, ""

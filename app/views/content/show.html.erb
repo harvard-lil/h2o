@@ -28,7 +28,7 @@
       <div class="<%= @content.resource_type.downcase %>">
         <div class="title-metadata">
           <span class="resource-type"><%= @content.resource_type %></span>
-          <span class="citation"><%= @content.resource.primary_citation %></span>
+          <span class="citation"><%= @content.resource.citations.dig(0, "cite") %></span>
         </div>
         <%= @content.title %>
       </div>

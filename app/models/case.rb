@@ -90,12 +90,8 @@ class Case < ApplicationRecord
     self[:citations] || []
   end
 
-  def primary_citation
-    citations.first ? citation_to_s(citations.first) : ""
-  end
-
   def indexable_case_citations
-    self.citations.map(&method(:citation_to_s)).join(" ")
+    self.citations.pluck("cite").join(" ")
   end
   def indexable_case_docket_numbers
     self.case_docket_numbers.map(&:docket_number)
@@ -125,8 +121,5 @@ class Case < ApplicationRecord
     if !self.decision_date.blank? && self.decision_date > Date.today
       errors.add(:decision_date,'cannot be in the future')
     end
-  end
-  def citation_to_s citation
-    "#{citation['volume']} #{citation['reporter']} #{citation['page']}"
   end
 end
