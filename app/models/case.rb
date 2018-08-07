@@ -88,8 +88,13 @@ class Case < ApplicationRecord
     true
   end
 
-  def primary_case_citation
-    case_citations.first.to_s
+  def primary_citation
+    if citations
+      c = citations.first
+      "#{c['volume']} #{c['reporter']} #{c['page']}"
+    else
+      ""
+    end
   end
 
   def indexable_case_citations
