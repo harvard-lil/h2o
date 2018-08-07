@@ -1,4 +1,7 @@
 class CaseCourt < ApplicationRecord
+  include Capapi::ModelHelpers
+  CAPAPI_CLASS = Capapi::Court
+
   has_many :cases, inverse_of: :case_court
 
   validates_presence_of :abbreviation, :name
