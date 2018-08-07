@@ -24,13 +24,26 @@ export function toggleElisionVisibility(annotationId, annotationType, toggleButt
   if (toggleButton.classList.contains('revealed')){
     toggleButton.setAttribute('aria-expanded', 'true');
     toggledContentNodes[toggledContentNodes.length - 1].insertAdjacentHTML('afterend', `<span class="annotate ${annotationType}d revealed sr-only" data-annotation-id="${annotationId}">(end of ${annotationType}d text)</span>`);
+    for (let el of toggledContentNodes) {
+      el.classList.add('revealed');
+      try {
+        // attempt to toggle on any enclosing wrappers, like blockquote tags
+        el.parentElement.classList.add('revealed');
+        // attempt to toggle off paragraph numbers
+        el.parentElement.previousElementSibling.classList.add('revealed');
+      } catch (e) {} // swallow the error if el has no wrapping parent or if el isn't preceded by paragraph number
+    }
   } else {
     toggleButton.setAttribute('aria-expanded', 'false');
     toggledContentNodes[toggledContentNodes.length - 1].remove();
-  }
-  for (let el of toggledContentNodes) {
-    el.classList.toggle('revealed');
-    el.parentElement.classList.toggle('revealed');
-    el.parentElement.previousElementSibling.classList.toggle('revealed');
+    for (let el of toggledContentNodes) {
+      el.classList.remove('revealed');
+      try {
+        // attempt to toggle on any enclosing wrappers, like blockquote tags
+        el.parentElement.classList.remove('revealed');
+        // attempt to toggle off paragraph numbers
+        el.parentElement.previousElementSibling.classList.remove('revealed');
+      } catch (e) {} // swallow the error if el has no wrapping parent or if el isn't preceded by paragraph number
+    }
   }
 }
