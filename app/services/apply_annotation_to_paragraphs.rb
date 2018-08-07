@@ -23,15 +23,26 @@ class ApplyAnnotationToParagraphs
   end
 
   def perform
+    # Adds data-p-idx to paragraph HTML tag 
+    paragraph_node['data-p-idx'] = paragraph_index
+
+    if (paragraph_index != start_paragraph && paragraph_index != end_paragraph) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
+      # wrap entire p node in annotation
+      paragraph_node.children = annotate_html(paragraph_node.inner_html, handle: false)
+      if kind.in? %w{elide replace}
+        paragraph_node['data-elided-annotation'] = id
+      end
+      return
+    end
+
     # This is set for annotations that span multiple paragraphs. After the annotation is applie to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
     paragraph_offset = 0
     noninitial = paragraph_index != start_paragraph
 
-    # Adds data-p-idx to paragraph HTML tag 
-    paragraph_node['data-p-idx'] = paragraph_index
-
     paragraph_node.traverse do |node|
-      if invalid_node?(node)
+      next unless node.text?
+
+      if node.parent['class'].in? ['annotation-button', 'annotate note-icon', 'note-content', 'text']
         next
       end
 
@@ -126,21 +137,13 @@ class ApplyAnnotationToParagraphs
     return
   end
 
-  def invalid_node?(node)
-    (node.parent['class'].in? ['annotation-button', 'annotate note-icon', 'note-content', 'text']) || ! node.text?
-  end
-
   def middle_paragraph?(node, paragraph_offset)
     paragraph_index != end_paragraph || end_offset > paragraph_offset + node.text.length
   end
 
   def wrap_middle_paragraph(node)
     node.replace annotate_html(node.text, handle: false)
-    if kind.in? %w{elide replace}
-      paragraph_node['data-elided-annotation'] = id
-    end
   end
-
 
   # This is the last paragraph, apply the annotation to the remaining characters.  
   def wrap_last_paragraph(node, paragraph_offset)
