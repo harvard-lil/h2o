@@ -1,7 +1,0 @@
-- if resource.resource.class.in? [Case, TextBlock]
-    - resource.annotated_paragraphs(editable: false).each_with_index do |paragraph_node, paragraph_index|
-      = paragraph_node.to_html.html_safe
-- elsif resource.resource.is_a? Default
-  %p
-    = t 'content.link.follow-link'
-    = link_to resource.resource.display_name, resource.resource.url, target: '_blank'
