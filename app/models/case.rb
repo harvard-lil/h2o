@@ -86,12 +86,12 @@ class Case < ApplicationRecord
     true
   end
 
+  def citations
+    self[:citations] || []
+  end
+
   def primary_citation
-    if citations && citations.first
-      citation_to_s citations.first
-    else
-      ""
-    end
+    citations.first ? citation_to_s(citations.first) : ""
   end
 
   def indexable_case_citations
