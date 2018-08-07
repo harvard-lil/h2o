@@ -1,4 +1,7 @@
 class Case < ApplicationRecord
+  include Capapi::ModelHelpers
+  CAPAPI_CLASS = Capapi::Case
+
   store_accessor :opinions, :majority
 
   include Rails.application.routes.url_helpers
@@ -109,26 +112,6 @@ class Case < ApplicationRecord
   def formatted_decision_date
     if self.decision_date.present?
       self.decision_date.strftime("%B %d, %Y")
-    end
-  end
-
-  def capapi_id=(new_id)
-    if new_id != capapi_id
-      @capapi = nil
-      super new_id
-    end
-  end
-
-  def capapi
-    @capapi ||= Capapi::Case.new(capapi_id) if capapi_id
-  end
-
-  def capapi= capapi_case
-    if capapi_case
-      self.capapi_id = capapi_case.id
-      @capapi = capapi_case
-    else
-      capapi_id = nil
     end
   end
 
