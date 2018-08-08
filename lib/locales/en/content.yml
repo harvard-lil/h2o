@@ -65,7 +65,7 @@ en:
     actions:
       publish: Publish
       publish-changes: Publish Changes
-      revise: Revise
+      revise: Return to Draft
       revise-draft: Return to Draft
       clone: Clone
       edit-draft: Edit Draft
