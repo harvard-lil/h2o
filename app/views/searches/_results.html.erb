@@ -41,7 +41,7 @@
               <%= result.name %>
             </div>
             <div class="citation">
-              <%= result.citations.dig(0, "cite") %>
+              <%= result.citations[0]&.cite %>
             </div>
             <div class="date">
               <%= result.decision_date %>
