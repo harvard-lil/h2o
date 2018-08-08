@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180808132427) do
+ActiveRecord::Schema.define(version: 20180808141703) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -55,15 +56,6 @@ ActiveRecord::Schema.define(version: 20180808132427) do
     t.index ["name"], name: "index_case_courts_on_name"
   end
 
-  create_table "case_docket_numbers", id: :serial, force: :cascade do |t|
-    t.integer "case_id"
-    t.string "docket_number", limit: 200, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["case_id"], name: "index_case_docket_numbers_on_case_id"
-    t.index ["docket_number"], name: "index_case_docket_numbers_on_docket_number"
-  end
-
   create_table "cases", id: :serial, force: :cascade do |t|
     t.string "name_abbreviation", limit: 150, null: false
     t.string "name"
@@ -81,6 +73,7 @@ ActiveRecord::Schema.define(version: 20180808132427) do
     t.jsonb "parties"
     t.jsonb "opinions"
     t.jsonb "citations"
+    t.string "docket_number", limit: 20000
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
