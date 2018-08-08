@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180808141703) do
+ActiveRecord::Schema.define(version: 20180808163054) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,14 +46,14 @@ ActiveRecord::Schema.define(version: 20180808141703) do
   end
 
   create_table "case_courts", id: :serial, force: :cascade do |t|
-    t.string "abbreviation", limit: 150
+    t.string "name_abbreviation", limit: 150
     t.string "name", limit: 500
     t.text "content"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer "capapi_id"
-    t.index ["abbreviation"], name: "index_case_courts_on_abbreviation"
     t.index ["name"], name: "index_case_courts_on_name"
+    t.index ["name_abbreviation"], name: "index_case_courts_on_name_abbreviation"
   end
 
   create_table "cases", id: :serial, force: :cascade do |t|
