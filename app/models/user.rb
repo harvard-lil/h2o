@@ -13,7 +13,6 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :roles
   has_many :responses
-  has_many :cases
   has_many :text_blocks
   has_many :defaults
 
@@ -67,10 +66,6 @@ class User < ApplicationRecord
 
   def not_anonymous
     attribution.present?
-  end
-
-  def all_items
-    [self.cases + self.text_blocks].flatten
   end
 
   def has_role?(role_name)
