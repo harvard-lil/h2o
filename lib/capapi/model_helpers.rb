@@ -24,7 +24,7 @@ module Capapi
       case capapi_obj
       when Capapi::Case
         attributes = { capapi: capapi_obj,
-                       case_court: to_model_attributes(capapi_obj.court),
+                       case_court_attributes: to_model_attributes(capapi_obj.court),
                        name_abbreviation: capapi_obj.name_abbreviation,
                        name: capapi_obj.name,
                        decision_date: capapi_obj.decision_date,
