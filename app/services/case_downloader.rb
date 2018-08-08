@@ -62,16 +62,8 @@ class CaseDownloader
       user_id: current_user.id,
       content: case_content,
       public: true,
-      citations: [
-        {
-          volume: volume,
-          reporter: reporter,
-          page: page
-        }
-      ],
-      case_docket_numbers: [
-        CaseDocketNumber.new(docket_number: docket_number)
-      ])
+      citations: [{cite: "#{volume} #{reporter} #{page}"}],
+      docket_number: docket_number)
 
     if new_case.save
       true

@@ -209,7 +209,7 @@ RailsAdmin.config do |config|
       field :decision_date
       field :case_court { nested_form false }
       field :case_citations
-      field :case_docket_numbers
+      field :docket_number
       field :content, :ck_editor
     end
   end

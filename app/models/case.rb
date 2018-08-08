@@ -9,13 +9,7 @@ class Case < ApplicationRecord
   acts_as_taggable_on :tags
 
   has_many :casebooks, inverse_of: :resource, class_name: 'Content::Casebook'
-
-  has_many :case_docket_numbers, inverse_of: :case
   belongs_to :case_court, optional: true, inverse_of: :cases
-
-  accepts_nested_attributes_for :case_docket_numbers,
-    :allow_destroy => true,
-    :reject_if => proc { |att| att['docket_number'].blank? }
 
   accepts_nested_attributes_for :case_court,
     :allow_destroy => true,
@@ -44,14 +38,15 @@ class Case < ApplicationRecord
 
   validates_presence_of   :name_abbreviation,      :content
   validates_length_of     :name_abbreviation,      :in => 1..150, :allow_blank => true, :allow_nil => true
+  validates_length_of     :docket_number,          :in => 1..20000
   validates_length_of     :header_html,            :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
   validates_length_of     :content,                :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
   searchable do
     text :name, :boost => 3.0
     text :name_abbreviation
+    text :docket_number
     text :indexable_case_citations, :boost => 3.0
-    text :indexable_case_docket_numbers
     text :indexable_case_court
     # text :clean_content
 
@@ -88,9 +83,7 @@ class Case < ApplicationRecord
   def indexable_case_citations
     self.citations.pluck("cite").join(" ")
   end
-  def indexable_case_docket_numbers
-    self.case_docket_numbers.map(&:docket_number)
-  end
+
   def indexable_case_court
     self.case_court.present? ? self.case_court.name : ''
   end
