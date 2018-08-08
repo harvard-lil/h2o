@@ -12,7 +12,6 @@ class Case < ApplicationRecord
 
   has_many :case_docket_numbers, inverse_of: :case
   belongs_to :case_court, optional: true, inverse_of: :cases
-  belongs_to :user, optional: true
 
   accepts_nested_attributes_for :case_docket_numbers,
     :allow_destroy => true,
@@ -62,10 +61,6 @@ class Case < ApplicationRecord
     time :created_at
     time :updated_at
     boolean :public
-
-    string :user
-    string :user_display, :stored => true
-    integer :user_id, :stored => true
 
     string :klass, :stored => true
     boolean :primary do

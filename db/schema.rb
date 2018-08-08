@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 20180807152558) do
+ActiveRecord::Schema.define(version: 20180808132427) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "btree_gin"
@@ -75,7 +74,6 @@ ActiveRecord::Schema.define(version: 20180807152558) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean "public", default: false
-    t.integer "user_id", default: 0
     t.boolean "created_via_import", default: false, null: false
     t.integer "capapi_id"
     t.jsonb "judges"
