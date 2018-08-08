@@ -13,7 +13,7 @@ class Case < ApplicationRecord
 
   accepts_nested_attributes_for :case_court,
     :allow_destroy => true,
-    :reject_if => proc { |att| att['name'].blank? || att['abbreviation'].blank? }
+    :reject_if => proc { |att| att['name'].blank? || att['name_abbreviation'].blank? }
 
 
   def display_name
