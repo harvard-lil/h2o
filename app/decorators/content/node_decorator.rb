@@ -19,7 +19,7 @@ class Content::NodeDecorator < Draper::Decorator
     elsif self.is_a? Content::Casebook
       casebook_draft
     elsif self.is_a? Content::Section
-      section_draftq
+      section_draft
     else
       resource_draft
     end
