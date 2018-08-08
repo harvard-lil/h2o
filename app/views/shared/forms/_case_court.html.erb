@@ -4,7 +4,7 @@
   <%= semantic_form_for(@case_court, :html => {:id => 'case_court-form'}) do |form| %>
     <%= form.inputs do %>
       <%= form.input :name %>
-      <%= form.input :abbreviation %>
+      <%= form.input :name_abbreviation %>
       <% unless request.xhr? %>
       <%= form.input :content, :as => :text, :required => false %>
       <% end %>

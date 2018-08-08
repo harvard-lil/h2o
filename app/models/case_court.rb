@@ -4,9 +4,9 @@ class CaseCourt < ApplicationRecord
 
   has_many :cases, inverse_of: :case_court
 
-  validates_presence_of :abbreviation, :name
-  validates_length_of :abbreviation,  :in => 1..150
-  validates_length_of :name,          :in => 1..500
+  validates_presence_of :name_abbreviation, :name
+  validates_length_of :name_abbreviation,   :in => 1..150
+  validates_length_of :name,                :in => 1..500
 
   def display_name
     self.name

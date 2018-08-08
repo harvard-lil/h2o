@@ -20,6 +20,6 @@ class CaseCourtsController < BaseController
 
   private
   def case_courts_params
-    params.require(:case_court).permit(:id, :name, :abbreviation)
+    params.require(:case_court).permit(:id, :name, :name_abbreviation)
   end
 end
