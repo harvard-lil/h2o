@@ -14,12 +14,12 @@ class Content::NodeDecorator < Draper::Decorator
   private
 
   def draft_action_buttons
-    if self.is_a?(Content::Casebook) && casebook.draft_mode_of_published_casebook
+    if self.is_a?(Content::Casebook) && draft_mode_of_published_casebook
       casebook_draft_of_published_casebook
     elsif self.is_a? Content::Casebook
       casebook_draft
     elsif self.is_a? Content::Section
-      section_draft
+      section_draftq
     else
       resource_draft
     end
@@ -42,10 +42,12 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_action_buttons
-    if self.is_a?(Content::Casebook) && casebook.draft_mode_of_published_casebook
+    if self.is_a?(Content::Casebook) && draft_mode_of_published_casebook
       casebook_preview_of_published_casebook
     elsif self.is_a? Content::Casebook
       casebook_preview
+    elsif self.is_a?(Content::Section) && draft_mode_of_published_casebook
+      section_preview_of_published_casebook
     elsif self.is_a? Content::Section
       section_preview
     else
@@ -74,7 +76,7 @@ class Content::NodeDecorator < Draper::Decorator
     export_casebook +
     save_casebook +
     cancel_casebook +
-    clone_casebook 
+    clone_casebook
   end
 
   def section_draft
@@ -136,7 +138,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def section_published
     if authorized?
-      edit_section_draft +
+      create_section_draft +
       clone_section +
       export_section
     else
@@ -172,7 +174,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def casebook_preview_of_published_casebook
     publish_changes_to_casebook +
-    create_draft +
+    edit_draft +
     export_casebook
   end
 
@@ -181,6 +183,12 @@ class Content::NodeDecorator < Draper::Decorator
     edit_casebook +
     clone_casebook +
     export_casebook
+  end
+
+  def section_preview_of_published_casebook
+    revise_draft_section +
+    clone_casebook +
+    export_section
   end
 
   def section_preview
@@ -204,11 +212,16 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def annotate_resource_draft
-    link_to(I18n.t('content.actions.revise'), annotate_resource_path(draft, draft_resource), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(draft, draft_resource), class: 'action edit one-line')
   end
 
   def annotate_resource
-    link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
+    if draft_mode_of_published_casebook
+      #button has different wording
+      link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
+    else
+      link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
+    end
   end
 
   def clone_resource
@@ -234,7 +247,7 @@ class Content::NodeDecorator < Draper::Decorator
   #############
   ## Section
 
-  def edit_section_draft
+  def create_section_draft
     link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line create-draft')
   end
 
@@ -247,7 +260,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def revise_draft_section
-    link_to(I18n.t('content.actions.revise-draft'), layout_section_path(draft, draft_section), class: 'action edit one-line')
+    if draft_mode_of_published_casebook
+      link_to(I18n.t('content.actions.revise-draft'), layout_section_path(casebook, section), class: 'action edit one-line')
+    else
+      link_to(I18n.t('content.actions.revise-draft'), layout_section_path(draft, draft_section), class: 'action edit one-line')
+    end
   end
 
   def export_section
@@ -286,7 +303,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def edit_draft
-    link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
+    if draft_mode_of_published_casebook
+      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
+    else
+      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
+    end
   end
 
   def clone_casebook
@@ -320,20 +341,24 @@ class Content::NodeDecorator < Draper::Decorator
   ######
   #Live draft logic
 
-  def has_live_draft?
-    casebook.draft.present?
-  end
-
   def draft
     casebook.draft
   end
 
+  def draft_mode_of_published_casebook
+    casebook.draft_mode_of_published_casebook
+  end
+
+  def has_live_draft?
+    draft.present?
+  end
+
   def draft_section
-    casebook.draft.contents.where(copy_of_id: section.id).first
+    draft.contents.where(copy_of_id: section.id).first
   end
 
   def draft_resource
-    casebook.draft.contents.where(copy_of_id: resource.id).first
+    draft.contents.where(copy_of_id: resource.id).first
   end
 
   ############
