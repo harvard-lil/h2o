@@ -31,11 +31,11 @@ module Capapi
                        docket_number: capapi_obj.docket_number,
                        citations: capapi_obj.citations.map(&method(:to_model_attributes)) }
         if capapi_obj.casebody_loaded?
-          attributes.merge({ content: capapi_obj.casebody["data"],
-                             judges: capapi_obj.casebody["judges"],
-                             attorneys: capapi_obj.casebody["attorneys"],
-                             parties: capapi_obj.casebody["parties"],
-                             opinions: capapi_obj.casebody["opinions"] })
+          attributes = attributes.merge({ content: capapi_obj.casebody["data"],
+                                          judges: capapi_obj.casebody["judges"],
+                                          attorneys: capapi_obj.casebody["attorneys"],
+                                          parties: capapi_obj.casebody["parties"],
+                                          opinions: capapi_obj.casebody["opinions"] })
         end
         attributes
       when Capapi::Court
