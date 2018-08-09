@@ -81,14 +81,20 @@ class AddResourceModal extends Component {
           e.stopPropagation();
           e.preventDefault();
 
-          Axios
-            .post('/cases/from_capapi', {id: e.delegateTarget.dataset.resultId})
-            .then(response => {
-              post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()),
-                   {resource_id: response.data.id,
-                    parent: this.sectionId()},
-                   {modal: this})
-          })
+          const add = id => {
+            post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()),
+                 {resource_id: id,
+                  parent: this.sectionId()},
+                 {modal: this})
+          };
+
+          if (e.delegateTarget.dataset.resultType == 'capapi/case') {
+            Axios
+              .post('/cases/from_capapi', {id: e.delegateTarget.dataset.resultId})
+              .then(response => { add(response.data.id) });
+          } else {
+            add(e.delegateTarget.dataset.resultId);
+          }
         }
       }
     });
