@@ -81,7 +81,14 @@ class AddResourceModal extends Component {
           e.stopPropagation();
           e.preventDefault();
 
-          post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()), {resource_id: e.delegateTarget.dataset.resultId, parent: this.sectionId()}, {modal: this})
+          Axios
+            .post('/cases/from_capapi', {id: e.delegateTarget.dataset.resultId})
+            .then(response => {
+              post('<%= sections_path('$CASEBOOK_ID') %>'.replace('$CASEBOOK_ID', this.casebookId()),
+                   {resource_id: response.data.id,
+                    parent: this.sectionId()},
+                   {modal: this})
+          })
         }
       }
     });

@@ -35,7 +35,7 @@
           </div>
         </a>
       <% elsif result.is_a?(Capapi::Case) %>
-        <a href="<%= case_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
+        <a href="#" class="wrapper" data-result-id="<%= result.id %>" data-result-type="<%= result.name.underscore %>">
           <div class="results-entry">
             <div class="title">
               <%= result.name %>

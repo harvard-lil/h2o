@@ -11,7 +11,6 @@ H2o::Application.routes.draw do
   resources :case_courts, only: [:new, :create]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :user_sessions, only: [:new, :create, :destroy, :index]
-  resource :cap_api_import, only: [:new, :create]
 
   get 'log_out' => 'user_sessions#destroy', as: :log_out
   get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
@@ -44,7 +43,11 @@ H2o::Application.routes.draw do
 
 
   scope module: 'content' do
-    resources :cases, only: [:show], param: :case_id
+    resources :cases, only: [:show], param: :case_id do
+      collection do
+        post 'from_capapi', param: :id
+      end
+    end
 
     resources :casebooks, param: :casebook_id do
       member do

@@ -3,7 +3,7 @@ require 'uri'
 
 class Content::CasesController < ApplicationController
   before_action :find_case, if: lambda {params[:case_id].present?}
-  before_action :set_page_title
+  before_action :set_page_title, except: [:from_capapi]
 
   # create a temporary resource to display the case
   layout 'casebooks'
@@ -28,6 +28,16 @@ class Content::CasesController < ApplicationController
     else
       I18n.t 'content.titles.cases.read', case_name_abbreviation: @case.name_abbreviation
     end
+  end
+
+  def from_capapi
+    @case = Case.find_by(capapi_id: params[:id]) ||
+            Case.create(
+              Capapi::ModelHelpers.to_model_attributes(
+                Capapi::Case.retrieve({id: params[:id],
+                                       full_case: "true",
+                                       body_format: "html"})))
+    render json: {id: @case.id}
   end
 
   def find_case
