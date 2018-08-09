@@ -38,7 +38,7 @@ class Case < ApplicationRecord
   
   validate :date_check
 
-  validates :docket_number, length: {maximum: 20000 }
+  validates :docket_number, length: {maximum: 20000}
   validates_presence_of   :name_abbreviation,      :content
   validates_length_of     :name_abbreviation,      :in => 1..150, :allow_blank => true, :allow_nil => true
   validates_length_of     :header_html,            :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
