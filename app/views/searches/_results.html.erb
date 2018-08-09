@@ -44,7 +44,7 @@
               <%= result.citations[0]&.cite %>
             </div>
             <div class="date">
-              <%= result.decision_date %>
+              <%= Capapi::DataHelpers.parse_date result.decision_date> %
             </div>
           </div>
         </a>
