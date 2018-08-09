@@ -27,7 +27,7 @@ module Capapi
                        case_court_attributes: to_model_attributes(capapi_obj.court),
                        name_abbreviation: capapi_obj.name_abbreviation,
                        name: capapi_obj.name,
-                       decision_date: capapi_obj.decision_date,
+                       decision_date: DataHelpers.parse_date(capapi_obj.decision_date),
                        docket_number: capapi_obj.docket_number,
                        citations: capapi_obj.citations.map(&method(:to_model_attributes)) }
         if capapi_obj.casebody_loaded?
