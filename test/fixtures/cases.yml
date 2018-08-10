@@ -6,7 +6,6 @@ public_case_1:
   case_court: district_jurisdiction
   content: This is the body of case 1.
   public: true
-  user: case_admin
 
 public_case_2:
   name_abbreviation: District Case 2
@@ -16,7 +15,6 @@ public_case_2:
   case_court: district_jurisdiction
   content: This is the body of case 2.
   public: true
-  user: case_admin
 
 public_case_to_annotate:
   name_abbreviation: District Case 2
@@ -31,7 +29,6 @@ public_case_to_annotate:
     commented: content to comment;
     highlighted2: second highlight content;
   public: true
-  user: case_admin
 
 <% for label in [*'XA'..'YZ'] %>
 haystack_case_<%=label%>:
@@ -43,7 +40,6 @@ haystack_case_<%=label%>:
   content: >
     This is haystack case labeled <%=label%>
   public: <% if label.between?('XA', 'XZ') %>true<% else %>false<% end %>
-  user: case_admin
 <% end %>
 
 private_case_1:
@@ -54,7 +50,6 @@ private_case_1:
   case_court: district_jurisdiction
   content: This is the body of PRIVATE case 1.
   public: false
-  user: case_admin
 
 private_case_2:
   name_abbreviation: Private Case 2
@@ -64,7 +59,6 @@ private_case_2:
   case_court: district_jurisdiction
   content: This is the body of PRIVATE case 2.
   public: false
-  user: student_user
 
 case_with_citation: 
   name_abbreviation: Case With Citation
@@ -74,4 +68,3 @@ case_with_citation:
   case_court: district_jurisdiction
   content: This is the body of case with citation.
   public: true
-  user: case_admin
