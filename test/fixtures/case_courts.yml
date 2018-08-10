@@ -1,9 +1,9 @@
 district_court:
   name: District Court 1
-  abbreviation: DJ1
+  name_abbreviation: DJ1
   content: This is a court.
 
 district_court_2:
   name: Alaska United States District Court
-  abbreviation: D
+  name_abbreviation: D
   
