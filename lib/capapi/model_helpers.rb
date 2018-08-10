@@ -20,16 +20,16 @@ module Capapi
       end
     end
 
-    def self.to_model_attributes capapi_obj
+    def self.to_attributes capapi_obj
       case capapi_obj
       when Capapi::Case
         attributes = { capapi: capapi_obj,
-                       case_court_attributes: to_model_attributes(capapi_obj.court),
+                       case_court_attributes: to_attributes(capapi_obj.court),
                        name_abbreviation: capapi_obj.name_abbreviation,
                        name: capapi_obj.name,
                        decision_date: DataHelpers.parse_date(capapi_obj.decision_date),
                        docket_number: capapi_obj.docket_number,
-                       citations: capapi_obj.citations.map(&method(:to_model_attributes)) }
+                       citations: capapi_obj.citations.map(&method(:to_attributes)) }
         if capapi_obj.casebody_loaded?
           attributes = attributes.merge({ content: capapi_obj.casebody["data"],
                                           judges: capapi_obj.casebody["judges"],
