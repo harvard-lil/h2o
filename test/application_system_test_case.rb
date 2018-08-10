@@ -23,4 +23,14 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
   include H2o::Test::Helpers::CapApiImport
+
+  def setup
+    # Include forgery protection for system tests
+    @forgery_default = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+  end
+
+  def teardown
+    ActionController::Base.allow_forgery_protection = @forgery_default
+  end
 end
