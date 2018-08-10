@@ -92,6 +92,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'dotenv-rails'
   gem 'launchy'
   gem 'minitest-metadata', require: false
   gem 'minitest-spec-rails'
