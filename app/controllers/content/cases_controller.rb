@@ -33,7 +33,7 @@ class Content::CasesController < ApplicationController
   def from_capapi
     @case = Case.find_by(capapi_id: params[:id]) ||
             Case.create(
-              Capapi::ModelHelpers.to_model_attributes(
+              Capapi::ModelHelpers.to_attributes(
                 Capapi::Case.retrieve({id: params[:id],
                                        full_case: "true",
                                        body_format: "html"})))
