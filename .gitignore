@@ -31,3 +31,4 @@ solr/pids/
 tmp/
 guard-sunspot/
 .idea
+/.env
