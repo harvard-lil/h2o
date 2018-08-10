@@ -13,13 +13,13 @@ module H2o::Test::Helpers::CapApiImport
 
   def stub_case_import_from_cap_api(metadata)
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
-      with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
+      with( headers: { "Authorization" => "Token #{H2o::Application.config.capapi_key}"  }, query: { "type" => "download" }).
       to_return(status: 200, body: File.read("test/fixtures/case_download.zip"), headers: {"Content-Type" => "application/xml"})
   end
 
   def stub_case_import_from_cap_api_failed_attempt(metadata)
     stub_request(:get, "https://capapi.org/api/v1/cases/#{metadata["slug"]}/?type=download&max=1").
-      with( headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}"  }, query: { "type" => "download" }).
+      with( headers: { "Authorization" => "Token #{H2o::Application.config.capapi_key}"  }, query: { "type" => "download" }).
       to_return(status: 500)
   end
 

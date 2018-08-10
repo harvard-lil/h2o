@@ -60,7 +60,7 @@ H2o::Application.configure do
   config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
 
   config.admin_emails = ['cgruppioni@law.harvard.edu']
-  # config.cap_api_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
+  # config.capapi_key = '2c62c54b47e507b2eee20a70f29f1b4ae0ccd1a3'
   config.professor_verifier_email = "cgruppioni@law.harvard.edu"
 
   RequireReloader.watch_local_gems!

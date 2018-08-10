@@ -40,7 +40,7 @@ class CaseDownloader
     HTTParty.get(
       "https://capapi.org/api/v1/cases/#{slug}/?type=download&max=1",
       query: { "type" => "download" },
-      headers: { "Authorization" => "Token #{H2o::Application.config.cap_api_key}" }
+      headers: { "Authorization" => "Token #{H2o::Application.config.capapi_key}" }
     )
   end
 

@@ -143,6 +143,6 @@ H2o::Application.configure do
   config.user_verification_recipients = (ENV["USER_VERIFICATION_RECIPIENTS"] || '').split(' ')
 
   config.admin_emails = (ENV["ADMIN_EMAIL"] || '').split(' ')
-  # config.cap_api_key = ENV["CAP_API_KEY"]
+  # config.capapi_key = ENV["CAPAPI_KEY"]
   config.professor_verifier_email = ENV["PROFESSOR_VERIFIER_EMAIL"]
 end
