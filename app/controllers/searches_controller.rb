@@ -9,8 +9,8 @@ class SearchesController < ApplicationController
     @type = params[:type] || 'casebooks'
     @page_title = I18n.t 'content.titles.searches.show'
 
-    if @type == 'cases' && /^\d+(\s|-).*(\s|-)\d+$/.match(@query)
-      @paginated_group = Capapi::Case.list({cite: @query})
+    if @type == 'cases' && citation?(@query)
+      @paginated_group = Capapi::Case.list(cite: @query)
     else
       q = params[:q].present? ? params[:q] : '*'
 
@@ -116,5 +116,11 @@ class SearchesController < ApplicationController
 
   def read_page
     @page = (params[:page] || 1).to_i
+  end
+
+  private
+
+  def citation? str
+    /^\d+(\s|-).*(\s|-)\d+$/.match(str)
   end
 end
