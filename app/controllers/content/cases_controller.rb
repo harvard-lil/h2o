@@ -31,6 +31,7 @@ class Content::CasesController < ApplicationController
   end
 
   def from_capapi
+    params.require :id
     @case = Case.find_by(capapi_id: params[:id]) ||
             Case.create(
               {public: true,
@@ -48,5 +49,9 @@ class Content::CasesController < ApplicationController
 
   def set_page_title
     @page_title = page_title
+  end
+
+  rescue_from ActionController::ParameterMissing do |exception|
+    render json: {exception.param => "is required"}, status: 400
   end
 end
