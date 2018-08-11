@@ -67,6 +67,9 @@ case_with_citation:
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
   content: This is the body of case with citation.
+  citations:
+    - type: "official"
+      cite: "405 F .2d 1104"
   public: true
 
 case_with_capapi_id:
