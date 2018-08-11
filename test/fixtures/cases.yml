@@ -68,3 +68,13 @@ case_with_citation:
   case_court: district_jurisdiction
   content: This is the body of case with citation.
   public: true
+
+case_with_capapi_id:
+  capapi_id: 1234
+  name_abbreviation: Case With Capapi ID
+  name: Case of the District Number 1 With Capapi ID
+  decision_date: 1999-08-18
+  opinions: {"majority": "Judge Person"}
+  case_court: district_jurisdiction
+  content: This is the body of case with citation.
+  public: true
