@@ -27,7 +27,6 @@ class Ability
       can :create, [:casebooks, :text_blocks, :defaults, :bulk_uploads]
       can :copy, Default, :public => true
       can :copy, Default, :user_id => user.id
-      can [:new, :create], :cap_api_imports
 
       # Can do things on owned items
       if !user.has_role? :superadmin

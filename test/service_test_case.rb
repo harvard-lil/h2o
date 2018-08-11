@@ -8,7 +8,6 @@ require 'helpers/drivers'
 require 'helpers/dsl'
 require 'helpers/email'
 require 'helpers/files'
-require 'helpers/cap_api_import'
 
 class ServiceTestCase < ActionDispatch::SystemTestCase 
   include MiniTest::Metadata
@@ -20,5 +19,4 @@ class ServiceTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::DSL
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
-  include H2o::Test::Helpers::CapApiImport
 end
