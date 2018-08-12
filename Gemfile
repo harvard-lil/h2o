@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'pg', '~> 0.21'
 gem 'rails', '5.2.1'
-gem 'puma', '~> 3.8'
+gem 'puma', '~> 3.12'
 
 # Gems disabled for rails 5.1
 # gem 'coffee-rails', '~> 4.0.0'
