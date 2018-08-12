@@ -1,12 +1,12 @@
 import Axios from 'axios';
 
 export function request (url, method, data = {}, options = {scroll: true}) {
-    let promise = Axios.post(url, data, {
-      headers: {
-        'X-HTTP-Method-Override': method,
-        'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-      }
-    });
+  const csrf_el = document.querySelector('meta[name=csrf-token]');
+  let headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
+  headers['X-HTTP-Method-Override'] = method;
+
+  let Axios = AxiosConfig.create({headers: headers});
+    let promise = Axios.post(url, data, {headers: headers});
 
     promise.catch(e => {
       if (e.response) return e.response;
