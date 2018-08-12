@@ -32,3 +32,4 @@ tmp/
 guard-sunspot/
 .idea
 /.env
+.tern-port
