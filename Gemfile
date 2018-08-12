@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'pg', '~> 0.21'
-gem 'rails', '5.1.0.rc1'
+gem 'rails', '5.2.1'
 gem 'puma', '~> 3.8'
 
 # Gems disabled for rails 5.1
@@ -11,7 +11,7 @@ gem 'jquery-ui-rails'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
-gem 'ancestry', git: 'https://github.com/harvard-lil/ancestry.git', ref: '73941ad'
+gem 'ancestry'
 gem 'authlogic'
 gem 'bcrypt'
 gem 'cancancan'
@@ -43,7 +43,7 @@ gem 'nilify_blanks'
 gem 'nokogiri', '~> 1.6'
 gem 'paperclip', '~> 5.2.0'
 gem 'progress_bar'
-gem 'rails-observers', git: 'https://github.com/rails/rails-observers.git', ref:'953b641'
+gem 'rails-observers'
 gem 'rails_admin', '~> 1.3.0'
 gem 'rails_admin_import'
 gem 'rails-html-sanitizer'
