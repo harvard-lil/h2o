@@ -357,7 +357,7 @@ GEM
       byebug (~> 10.0)
       pry (~> 0.10)
     public_suffix (3.0.2)
-    puma (3.11.4)
+    puma (3.12.0)
     rack (2.0.5)
     rack-pjax (1.0.0)
       nokogiri (~> 1.5)
@@ -580,7 +580,7 @@ DEPENDENCIES
   poltergeist
   progress_bar
   pry-byebug
-  puma (~> 3.8)
+  puma (~> 3.12)
   rails (= 5.2.1)
   rails-html-sanitizer
   rails-observers
