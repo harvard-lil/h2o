@@ -12,4 +12,25 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
       refute ctrl.send(:citation?, "42 F. Supp. 135 but not")
     end
   end
+
+  describe SearchesController, :show do
+    it "should query capapi for cases when the query string is a citation" do
+      cite = cases(:case_with_citation).citations[0]["cite"]
+      capapi_url = "https://capapi.org/api/v1/cases/"
+
+      raw_response_file = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-cite-275-us-303.txt")
+      stub_request(:get, capapi_url)
+        .with(query: {"cite" => cite})
+        .to_return(raw_response_file)
+
+      get "/search", params: {type: "cases", q: cite}
+      assert_requested :get, capapi_url, query: {"cite" => cite}
+    end
+
+    it "should not query capapi for cases when the query string is not a citation" do
+      query = "not a cite"
+      get "/search", params: {type: "cases", q: query}
+      assert_not_requested :get, "https://capapi.org/api/v1/cases/", query: {"cite" => query}
+    end
+  end
 end
