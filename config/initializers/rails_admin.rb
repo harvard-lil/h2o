@@ -127,7 +127,7 @@ RailsAdmin.config do |config|
     show_in_app
   end
 
-  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt', 'CaseDocketNumber']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt']
 
   config.model 'Page' do
     list do
