@@ -22,13 +22,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include H2o::Test::Helpers::Email
   include H2o::Test::Helpers::Files
 
-  def setup
+  def before_all
     # Include forgery protection for system tests
     @forgery_default = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
   end
 
-  def teardown
+  def after_all
     ActionController::Base.allow_forgery_protection = @forgery_default
   end
 end
