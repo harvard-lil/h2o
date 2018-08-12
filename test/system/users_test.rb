@@ -17,6 +17,7 @@ class UserSystemTest < ApplicationSystemTestCase
       scenario 'fails with an existing email' do
         fill_in 'Email address', with: users(:case_admin).email_address
         click_button 'Sign up'
+        # NOTE: 'addresshas' is correct
         assert_content 'Email addresshas already been taken'
       end
 
