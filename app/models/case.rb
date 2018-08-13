@@ -45,10 +45,10 @@ class Case < ApplicationRecord
   validates_length_of     :content,                :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
   searchable do
-    text :name, :boost => 3.0
+    text :name, boost: 3.0
     text :name_abbreviation
     text :docket_number
-    text :indexable_case_citations, :boost => 3.0
+    text :indexable_case_citations, boost: 3.0
     text :indexable_case_court
     # text :clean_content
 
