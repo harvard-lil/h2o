@@ -170,7 +170,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
   end
 
   def has_add_resource_link?(dom)
-    assert_select dom, 'a', text: 'Add Resource'
+    assert_select dom, 'a', text: I18n.t('content.actions.add-resource')
   end
 
   def has_add_section_link?(dom)
@@ -178,11 +178,11 @@ class Content::NodeDecoratorTest < ActionView::TestCase
   end
 
   def has_export_link?(dom)
-    assert_select dom, 'a', text: 'Export'
+    assert_select dom, 'a', text: I18n.t('content.actions.export')
   end
 
   def has_revise_link?(dom)
-    assert_select dom, 'a', text: 'Revise'
+    assert_select dom, 'a', text: I18n.t('content.actions.revise')
   end
 
   def has_clone_link?(dom)
