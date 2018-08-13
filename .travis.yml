@@ -8,7 +8,6 @@ addons:
       - $TRAVIS_BUILD_DIR/log
       - $TRAVIS_BUILD_DIR/tmp/downloads
       - $TRAVIS_BUILD_DIR/tmp/screenshots
-
 language: ruby
 cache:
   bundler: true
