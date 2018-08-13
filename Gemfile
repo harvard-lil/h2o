@@ -88,7 +88,7 @@ group :development do
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
-  gem 'capapi', path: '~/github/capapi-ruby'
+  gem 'capapi', github: 'leppert/capapi-ruby'
 end
 
 group :development, :test do
