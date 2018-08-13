@@ -16,6 +16,13 @@ GIT
       orm_adapter (~> 0.5.0)
 
 GIT
+  remote: https://github.com/leppert/capapi-ruby.git
+  revision: a7af5338e37f392f30a46720388133c4459b1d47
+  specs:
+    capapi (1.0.0)
+      faraday (~> 0.10)
+
+GIT
   remote: https://github.com/mbleigh/acts-as-taggable-on.git
   revision: 9bb57384398cd3e198c893b0345c7b26e3b5ad5e
   ref: 9bb5738
@@ -44,12 +51,6 @@ GIT
       guard (~> 2.0)
       guard-compat (~> 1.1)
       sunspot_solr
-
-PATH
-  remote: ../capapi-ruby
-  specs:
-    capapi (1.0.0)
-      faraday (~> 0.10)
 
 GEM
   remote: https://rubygems.org/
