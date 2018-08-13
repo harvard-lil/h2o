@@ -26,7 +26,7 @@ class DataHelpersTest < ActiveSupport::TestCase
     it "should handle dates with impossible month" do
       year = 2017
       month = 13
-      assert_equal Date.new(year, month, 1),
+      assert_equal Date.new(year),
                    Capapi::DataHelpers.parse_date("#{year}-#{month}")
     end
 
@@ -42,7 +42,7 @@ class DataHelpersTest < ActiveSupport::TestCase
       year = 2017
       month = 13
       day = 32
-      assert_equal Date.new(year, month, 1),
+      assert_equal Date.new(year),
                    Capapi::DataHelpers.parse_date("#{year}-#{month}-#{day}")
     end
 
