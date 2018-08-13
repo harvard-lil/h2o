@@ -252,7 +252,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def revise_section
-    link_to(I18n.t('content.actions.revise'), revise_section_path(casebook, section), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise-draft'), revise_section_path(casebook, section), class: 'action edit one-line')
   end
 
   def clone_section
