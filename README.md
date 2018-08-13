@@ -89,7 +89,8 @@ Guard will not automatically run these tests. This is less than ideal when worki
 
 Guard will automatically run all static tests after booting Rails and  again after any test or app file is edited. By default, Guard _won't_ run any tests that require JS, since they're so much slower. You can run those tests manually:
 
-1. `bin/rails test:system` runs all tests, including JS tests.
+1. `bin/rails test` runs non-system tests.
+1. `bin/rails test:system` runs system tests, including JS tests.
 1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on, including JS tests.
 
 ### Coverage
