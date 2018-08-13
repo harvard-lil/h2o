@@ -5,8 +5,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
   let headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
   headers['X-HTTP-Method-Override'] = method;
 
-  let Axios = AxiosConfig.create({headers: headers});
-    let promise = Axios.post(url, data, {headers: headers});
+  let promise = Axios.post(url, data, {headers: headers});
 
     promise.catch(e => {
       if (e.response) return e.response;
