@@ -1,9 +1,6 @@
 class UrlDomainFormatter
   def self.format(domain)
-    if !URI.parse(domain).host
-      domain.prepend("http://")
-    end
-    
-    domain
+    uri = URI.parse(domain)
+    "#{uri.scheme || 'http'}://#{uri.host || uri.path}/"
   end
 end
