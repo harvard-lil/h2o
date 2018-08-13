@@ -101,10 +101,6 @@ class Case < ApplicationRecord
     end
   end
 
-  def self.where_citations_contains citation
-    where('citations @> ?', [citation].to_json)
-  end
-
   private
 
   def date_check
