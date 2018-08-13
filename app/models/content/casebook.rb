@@ -8,6 +8,7 @@ class Content::Casebook < Content::Node
 
   has_many :contents, -> {order :ordinals}, class_name: 'Content::Child', inverse_of: :casebook, foreign_key: :casebook_id, dependent: :delete_all
   has_many :collaborators, class_name: 'Content::Collaborator', dependent: :destroy, inverse_of: :content, foreign_key: :content_id
+  has_many :unpublished_revisions, dependent: :destroy
 
   include Content::Concerns::HasCollaborators
   include Content::Concerns::HasChildren
