@@ -1,7 +1,7 @@
 require 'service_test_case'
 
 class Content::CasebooksTest < ServiceTestCase
-  scenario 'Deleting a section deletes it\'s unpublished revisions' do
+  scenario 'Deleting a section deletes its unpublished revisions' do
     draft = content_nodes(:draft_merge_casebook)
 
     assert_equal(4, draft.unpublished_revisions.count)
