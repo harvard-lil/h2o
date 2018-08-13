@@ -12,8 +12,8 @@ class Case < ApplicationRecord
   belongs_to :case_court, optional: true, inverse_of: :cases
 
   accepts_nested_attributes_for :case_court,
-    :allow_destroy => true,
-    :reject_if => proc { |att| att['name'].blank? || att['name_abbreviation'].blank? }
+    allow_destroy: true,
+    reject_if: proc { |att| att['name'].blank? || att['name_abbreviation'].blank? }
 
 
   def display_name
