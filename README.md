@@ -53,6 +53,11 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 `rails sunspot:solr:run` to see why solr failed to start. You may need to update your java installation
 with `brew cask install java`
 
+### Set Environment Variables
+
+1. Copy `.env.example` to `.env`
+2. Replace the values in `.env` with your own environment variables
+
 ### Run Guard
 
 1. Run `guard`. It will take several seconds to:
