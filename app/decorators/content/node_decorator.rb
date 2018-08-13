@@ -216,12 +216,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def annotate_resource
-    if draft_mode_of_published_casebook
-      #button has different wording
-      link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
-    else
-      link_to(I18n.t('content.actions.revise'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
-    end
+    link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
   end
 
   def clone_resource
