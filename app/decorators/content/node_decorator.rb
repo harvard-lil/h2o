@@ -299,7 +299,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def edit_casebook
-    link_to(I18n.t('content.actions.revise'), edit_casebook_path(casebook), class: 'action edit one-line')
+    link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
   end
 
   def edit_draft
