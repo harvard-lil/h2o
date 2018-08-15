@@ -147,7 +147,8 @@ class ApplyAnnotationToParagraphs
 
   # This is the last paragraph, apply the annotation to the remaining characters.  
   def wrap_last_paragraph(node, paragraph_offset)
-    node.replace "#{node.text[0...0]}#{annotate_html(node.text[0...end_offset - paragraph_offset], handle: false, final: true)}#{node.text[end_offset - paragraph_offset...-1]}"
+    selected_text = annotate_html(node.text[0...end_offset - paragraph_offset], handle: false, final: true)
+    node.replace "#{node.text[0...0]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
   end
 
   # If the annotation doesn't start at the first character, loop through and add to the paragraph_offset so that you can start at the right place.
