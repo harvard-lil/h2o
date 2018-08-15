@@ -55,7 +55,7 @@ class ApplyAnnotationToParagraphs
         end
       else
         if paragraph_offset_ready?(node, paragraph_offset)
-          annotation_button = get_edit_annotation_button
+          annotation_button = get_annotation_button_and_note_wrapper
 
           if only_paragraph? && partial_paragraph?(node, paragraph_offset)
             selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset], final: true)
@@ -75,13 +75,15 @@ class ApplyAnnotationToParagraphs
   private
 
   # The edit icon that shows up next to an annotation when in draft mode.
-  def get_edit_annotation_button
-    if editable
-      if kind == 'note'
-      "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+  def get_annotation_button_and_note_wrapper
+    if kind == 'note'
+      if editable
+        "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
       else
-      "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
+        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
       end
+    elsif editable
+      "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
     else
       ""
     end
