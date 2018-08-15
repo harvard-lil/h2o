@@ -110,22 +110,15 @@ module Migrate
         idx += 1
       end
 
-      nodes = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
+      html = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
       idx = 0
-      nodes.traverse do |node|
+      html.traverse do |node|
         next if node.text?
         node['idx'] = idx
         idx += 1
       end
 
-      nodes = resource.preprocess_nodes nodes
-
-      nodes.each do |node|
-        if ! node.nil? && node.children.empty?
-          nodes.delete(node)
-        end
-      end
-
+      nodes = HTMLHelpers.process_p_nodes html
       collage_annotations = Migrate::Annotation.where(annotated_item_id: collage.id)
 
       collage_annotations.each do |annotation|
