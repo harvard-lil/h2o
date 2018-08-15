@@ -11,35 +11,8 @@ class Content::Resource < Content::Child
   end
 
   def paragraph_nodes
-    html = Nokogiri::HTML resource.content {|config| config.strict.noblanks}
-    nodes = preprocess_nodes html
-
-    nodes.each do |node|
-      if ! node.nil? && node.children.empty?
-        nodes.delete(node)
-      end
-    end
-
-    nodes
-  end
-
-  def preprocess_nodes html
-    # strip comments
-    html.xpath('//comment()').remove
-
-    # unwrap div tags
-    html.xpath('//div')
-      .each { |div| div.replace div.children }
-
-    # rewrap empty lists
-    html.xpath('//body/ul[not(*[li])]')
-      .each { |list| list.replace "<p>#{list.inner_html}</p>" }
-
-    # wrap bare inline tags
-    html.xpath('//body/*[not(self::p|self::center|self::blockquote|self::article)]')
-      .each { |inline_element| inline_element.replace "<p>#{inline_element.to_html}</p>" }
-
-    html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
+    HTMLHelpers.process_p_nodes(
+      Nokogiri::HTML(resource.content) {|config| config.strict.noblanks})
   end
 
   def annotated_paragraphs(editable: false, exporting: false)
