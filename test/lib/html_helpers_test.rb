@@ -53,15 +53,6 @@ class HTMLHelpersTest < ActiveSupport::TestCase
     end
   end
 
-  describe HTMLHelpers, :filter_empty_nodes do
-    it "should remove empty nodes from a nodeset" do
-      tags = "<div>foo</div><div>bar</div>"
-      before = html_nodes "#{tags}<div></div><header></header>"
-      after = html_nodes tags
-      assert_equal after.map(&:to_s).join("").strip, HTMLHelpers.filter_empty_nodes(before).map(&:to_s).join("").strip
-    end
-  end
-
   def html_doc_str inner_html
     "<!DOCTYPE html>\n<html><body>\n#{inner_html}\n</body></html>\n"
   end

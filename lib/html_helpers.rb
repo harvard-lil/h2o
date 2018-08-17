@@ -30,8 +30,13 @@ module HTMLHelpers
       html.xpath "//body/node()[not(self::text()) and not(self::text()[1])]"
     end
 
-    def filter_empty_nodes nodes
-      nodes.select { |node| node&.content&.present? }
+    def filter_empty_nodes! nodes
+      nodes.each do |node|
+        if ! node.nil? && node.children.empty?
+          nodes.delete(node)
+        end
+      end
+      nodes
     end
 
     def process_p_nodes html
@@ -40,7 +45,7 @@ module HTMLHelpers
        method(:empty_ul_to_p!),
        method(:wrap_bare_inline_tags!),
        method(:get_body_nodes_without_whitespace_text),
-       method(:filter_empty_nodes)].reduce(html) { |memo, fn| fn.call(memo) }
+       method(:filter_empty_nodes!)].reduce(html) { |memo, fn| fn.call(memo) }
     end
   end
 end
