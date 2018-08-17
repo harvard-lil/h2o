@@ -1,6 +1,6 @@
 class Content::Annotation < ApplicationRecord
   KINDS = %w{elide replace link highlight note}
-  belongs_to :resource, class_name: 'Content::Resource', inverse_of: :annotations, required: true
+  belongs_to :resource, class_name: 'Content::Resource', required: true
   has_one :unpublished_revision
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
