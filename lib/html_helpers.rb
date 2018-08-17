@@ -35,12 +35,12 @@ module HTMLHelpers
     end
 
     def process_p_nodes html
-      [:strip_comments!,
-       :unnest!,
-       :empty_ul_to_p!,
-       :wrap_bare_inline_tags!,
-       :get_body_nodes_without_whitespace_text,
-       :filter_empty_nodes].reduce(html) { |memo, fn| send(fn, memo) }
+      [method(:strip_comments!),
+       method(:unnest!),
+       method(:empty_ul_to_p!),
+       method(:wrap_bare_inline_tags!),
+       method(:get_body_nodes_without_whitespace_text),
+       method(:filter_empty_nodes)].reduce(html) { |memo, fn| fn.call(memo) }
     end
   end
 end
