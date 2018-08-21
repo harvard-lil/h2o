@@ -182,7 +182,7 @@ class Content::NodeDecoratorTest < ActionView::TestCase
   end
 
   def has_revise_link?(dom)
-    assert_select dom, 'a', text: I18n.t('content.actions.revise')
+    assert_select dom, 'a', text: I18n.t('content.actions.revise-draft')
   end
 
   def has_clone_link?(dom)
