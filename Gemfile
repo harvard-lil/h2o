@@ -15,6 +15,7 @@ gem 'ancestry'
 gem 'authlogic'
 gem 'bcrypt'
 gem 'cancancan'
+gem 'capapi', git: 'https://github.com/leppert/capapi-ruby.git'
 gem 'ckeditor', git: 'https://github.com/harvard-lil/ckeditor.git', branch: 'rails-5-1', ref: '8f6ff82'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
@@ -88,7 +89,6 @@ group :development do
   gem 'guard-minitest'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
-  gem 'capapi', git: 'https://github.com/leppert/capapi-ruby.git'
 end
 
 group :development, :test do
