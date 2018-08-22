@@ -470,12 +470,12 @@ ActiveRecord::Schema.define(version: 2018_08_23_133104) do
     t.boolean "print_links", default: true, null: false
     t.string "toc_levels", limit: 255, default: "", null: false
     t.string "print_export_format", limit: 255, default: "", null: false
-    t.boolean "verified_professor", default: false
-    t.boolean "professor_verification_requested", default: false
     t.string "image_file_name"
     t.string "image_content_type"
     t.integer "image_file_size"
     t.datetime "image_updated_at"
+    t.boolean "verified_professor", default: false
+    t.boolean "professor_verification_requested", default: false
     t.boolean "verified_email", default: false, null: false
     t.index ["affiliation"], name: "index_users_on_affiliation"
     t.index ["attribution"], name: "index_users_on_attribution"
