@@ -73,8 +73,10 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       false
     );
     let testAnnotatedText = (node) => {
+      // if the parentElement is a blockquote, count the newlines between paragraphs in the nodeOffset. 
+
       for (let className of ['annotation-button', 'note-icon', 'note-content', 'text']) {
-        if (node.parentElement.classList.contains(className)) { return true; }
+        if (node.parentElement.classList.contains(className) && node.parentElement.tagName != "BLOCKQUOTE") { return true; }
       }
       return false;
     };
@@ -82,7 +84,6 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
       if (testAnnotatedText(node)) { continue; }
       nodeOffset += node.length;
-      // if (walked++ > 100) throw new Error;
     }
     return nodeOffset;
   } else {
@@ -95,7 +96,6 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
     );
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
       if (node.nodeType === document.TEXT_NODE) { textOffset += node.length; }
-      // if (walked++ > 100) throw new Error;
     }
     return textOffset;
   }
