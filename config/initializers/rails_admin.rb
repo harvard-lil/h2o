@@ -202,15 +202,31 @@ RailsAdmin.config do |config|
       field :public
       field :created_at
     end
+
+     show do 
+      field :capapi_id
+    end
+
+    list do 
+      field :resources
+    end
+
     edit do
       field :public
       field :name_abbreviation
       field :name
       field :decision_date
       field :case_court { nested_form false }
-      field :case_citations
+      field :citations
       field :docket_number
       field :content, :ck_editor
+      field :resources do
+        label "Used in Casebooks"
+        read_only true
+        pretty_value do
+          bindings[:object].resources
+        end
+      end
     end
   end
 

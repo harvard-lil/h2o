@@ -110,6 +110,16 @@ class Case < ApplicationRecord
     end
   end
 
+  def resources
+    all_resources = ""
+    resources = Content::Resource.where(resource_type: "Case", resource_id: self.id)
+    resources.each do |resource|
+      casebook = resource.casebook
+      all_resources += "<div><a href=#{resource_path(casebook, resource)}>#{casebook.title} [#{casebook.created_at.year}] - #{casebook.owner}</a></div>".html_safe
+    end
+    all_resources.html_safe
+  end
+
   private
 
   def date_check
