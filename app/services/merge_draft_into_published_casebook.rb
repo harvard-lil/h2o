@@ -121,7 +121,7 @@ class MergeDraftIntoPublishedCasebook
   end
 
   def draft_resource_ids
-    draft.resources.where(resource_type: [TextBlock, Case]).pluck(:id)
+    draft.resources.where(resource_type: %w(TextBlock Case)).pluck(:id)
   end
 
   def new_or_updated_annotations
