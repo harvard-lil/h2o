@@ -220,11 +220,11 @@ RailsAdmin.config do |config|
       field :citations
       field :docket_number
       field :content, :ck_editor
-      field :resources do
+      field :resource_links do
         label "Used in Casebooks"
         read_only true
         pretty_value do
-          bindings[:object].resources
+          bindings[:object].resource_links
         end
       end
     end
