@@ -1,7 +1,6 @@
 HTTP/1.1 200 OK
 date: Sat, 11 Aug 2018 21:13:28 GMT
 content-type: application/json
-content-length: 14383
 set-cookie: __cfduid=d1bc6a4b67e08ab102b262503971df21b1534022007; expires=Sun, 11-Aug-19 21:13:27 GMT; path=/; domain=.capapi.org; HttpOnly; Secure
 x-frame-options: SAMEORIGIN
 cache-control: private, max-age=14400, s-maxage=86400
