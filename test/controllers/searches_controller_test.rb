@@ -23,14 +23,20 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
         .with(query: {"cite" => cite})
         .to_return(raw_response_file)
 
-      get "/search", params: {type: "cases", q: cite}
+      get "/search", params: {type: "cases", q: cite, partial: true}
       assert_requested :get, capapi_url, query: {"cite" => cite}
     end
 
     it "should not query capapi for cases when the query string is not a citation" do
       query = "not a cite"
-      get "/search", params: {type: "cases", q: query}
+      get "/search", params: {type: "cases", q: query, partial: true}
       assert_not_requested :get, "https://capapi.org/api/v1/cases/", query: {"cite" => query}
+    end
+
+    it "should not query capapi for cases when searching outside of the add resources modal" do
+      cite = cases(:case_with_citation).citations[0]["cite"]
+      get "/search", params: {type: "cases", q: cite}
+      assert_not_requested :get, "https://capapi.org/api/v1/cases/", query: {"cite" => cite}
     end
   end
 end
