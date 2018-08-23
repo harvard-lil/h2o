@@ -31,11 +31,11 @@ module Capapi
                        docket_number: capapi_obj.docket_number,
                        citations: capapi_obj.citations.map(&method(:to_attributes)) }
         if capapi_obj.casebody_loaded?
+          html = Nokogiri::HTML(capapi_obj.casebody["data"])
           attributes = attributes.merge({ content: capapi_obj.casebody["data"],
-                                          judges: capapi_obj.casebody["judges"],
-                                          attorneys: capapi_obj.casebody["attorneys"],
-                                          parties: capapi_obj.casebody["parties"],
-                                          opinions: capapi_obj.casebody["opinions"] })
+                                          attorneys: html.css('.attorneys').collect(&:text),
+                                          parties: html.css('.parties').collect(&:text),
+                                          opinions: html.css('.opinion').collect { |el| {el['data-type'] => el.css('.author').text} }})
         end
         attributes
       when Capapi::Court

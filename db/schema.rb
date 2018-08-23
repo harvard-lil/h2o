@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_08_164150) do
+ActiveRecord::Schema.define(version: 2018_08_23_133104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -67,7 +67,6 @@ ActiveRecord::Schema.define(version: 2018_08_08_164150) do
     t.boolean "public", default: false
     t.boolean "created_via_import", default: false, null: false
     t.integer "capapi_id"
-    t.jsonb "judges"
     t.jsonb "attorneys"
     t.jsonb "parties"
     t.jsonb "opinions"

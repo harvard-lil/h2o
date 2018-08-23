@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/leppert/capapi-ruby.git
-  revision: a7af5338e37f392f30a46720388133c4459b1d47
+  revision: 8acf041b1d3358b43ca5bebf4007ae1137ca08d8
   specs:
     capapi (1.0.0)
       faraday (~> 0.10)
@@ -185,7 +185,7 @@ GEM
       actionmailer (>= 4.0, < 6)
       activesupport (>= 4.0, < 6)
     execjs (2.7.0)
-    faraday (0.15.1)
+    faraday (0.15.2)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
     ffi (1.9.23)

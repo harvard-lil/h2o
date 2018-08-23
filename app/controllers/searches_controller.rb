@@ -9,7 +9,7 @@ class SearchesController < ApplicationController
     @type = params[:type] || 'casebooks'
     @page_title = I18n.t 'content.titles.searches.show'
 
-    if @type == 'cases' && citation?(@query)
+    if @type == 'cases' && citation?(@query) && params[:partial] #only query capapi in resource casebook modal
       @paginated_group = Capapi::Case.list(cite: @query)
     else
       q = params[:q].present? ? params[:q] : '*'
