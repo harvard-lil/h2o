@@ -208,7 +208,7 @@ RailsAdmin.config do |config|
     end
 
     list do 
-      field :resources
+      field :resource_links
     end
 
     edit do
