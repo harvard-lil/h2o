@@ -7,7 +7,7 @@
       <%= link_to case_obj.name_abbreviation, case_obj, :class => "title" %>
     </h3>
     <p class="cases_details">
-      <%= case_obj.case_citations.collect { |c| c.display_name }.join(', ') %> /
+      <%= case_obj.citations.collect { |c| c["cite"] }.join(', ') %> /
 
       <% if !case_obj.decision_date.nil? -%>
       <%= case_obj.decision_date %>
