@@ -23,9 +23,7 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
 
       raw_response_file = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-cite-275-us-303.txt")
       stub_request(:get, capapi_url)
-        .with(query: {"cite" => cite,
-                      "limit" => SearchesController::PER_PAGE,
-                      "offset" => 0})
+        .with(query: query)
         .to_return(raw_response_file)
 
       get "/search", params: {type: "cases", q: cite, partial: true}
