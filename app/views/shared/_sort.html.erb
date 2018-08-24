@@ -1,8 +1,0 @@
-<% if list -%>
-<label for="list-sort" class="hidden-label">Sort</label>
-<select id="list-sort">
-	<% list.each do |k, v| -%>
-		<option value="<%= k %>" <%= raw 'selected="selected"' if v[:selected] %>><%= v[:display] %></option>
-	<% end -%>
-</select>
-<% end -%>
