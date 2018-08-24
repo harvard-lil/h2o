@@ -1,3 +1,0 @@
-<% if @single_resource && [Case, TextBlock].include?(@single_resource.class) && !@single_resource.new_record? -%>
-<%= render :partial => "#{@single_resource.class.to_s.tableize}/quickbar" %>
-<% end -%>
