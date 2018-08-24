@@ -10,7 +10,10 @@ class SearchesController < ApplicationController
     @page_title = I18n.t 'content.titles.searches.show'
 
     if @type == 'cases' && citation?(@query) && params[:partial] #only query capapi in resource casebook modal
-      @paginated_group = Capapi::Case.list(cite: @query)
+      @paginated_group = paginate_group(
+        Capapi::Case.list(cite: @query,
+                          limit: PER_PAGE,
+                          offset: PER_PAGE * (@page - 1)))
     else
       q = params[:q].present? ? params[:q] : '*'
 
@@ -109,7 +112,7 @@ class SearchesController < ApplicationController
   end
 
   def paginate_group(group)
-    WillPaginate::Collection.create(@page, PER_PAGE, group.try(:total) || 0) do |pager|
+    WillPaginate::Collection.create(@page, PER_PAGE, group.try(:count) || group.try(:total) || 0) do |pager|
        pager.replace(group.try(:results) || [])
     end
   end
