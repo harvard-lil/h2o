@@ -207,10 +207,6 @@ RailsAdmin.config do |config|
       field :capapi_id
     end
 
-    list do 
-      field :resource_links
-    end
-
     edit do
       field :public
       field :name_abbreviation
