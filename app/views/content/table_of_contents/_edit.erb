@@ -51,7 +51,7 @@
       <%= render partial: 'content/sections/form', locals: {section: content} %>
     <% else %>
       <div class="listing-wrapper" draggable="true" data-ordinals="<%= content.ordinal_string %>">
-        <a class="listing section" href="<%= layout_section_path(content.casebook, content) %>" draggable="true" data-ordinals="<% content.ordinal_string %>" data-editable="">
+        <a class="listing section" href="<%= layout_section_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" data-editable="">
           <div class="section-number"> <%= content.ordinal_string %> </div>
           <div class="section-title"> <%= content.title %> </div>
         </a>
