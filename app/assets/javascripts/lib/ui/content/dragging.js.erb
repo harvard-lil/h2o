@@ -5,8 +5,10 @@ let draggingOrdinals = null;
 
 function reorder_path(ordinals) {
   if (document.querySelector('header.casebook').dataset.sectionId == ""){
+    // when in a casebook
     return '<%= j reorder_casebook_path('_CASEBOOK_ID', '_CHILD_ORDINALS') %>'.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_CHILD_ORDINALS', ordinals);
   } else {
+    // when in a section
     return '<%= j reorder_section_path('_CASEBOOK_ID', '_SECTION_ORDINALS', '_CHILD_ORDINALS') %>'.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_SECTION_ORDINALS', ordinals.slice(0, -2)).replace('_CHILD_ORDINALS', ordinals); 
   }
 }
