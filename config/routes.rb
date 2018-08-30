@@ -64,6 +64,7 @@ H2o::Application.routes.draw do
             get 'layout'
             get 'clone'
             get 'revise'
+            patch 'reorder/:child_ordinals', as: :reorder, action: :reorder, child_ordinals: /.*/
           end
         end
         resources :resources, param: :resource_ordinals, resource_ordinals: /.*/ do

@@ -107,6 +107,12 @@ class Content::SectionsController < Content::NodeController
     send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
   end
 
+  def reorder
+    @child = @casebook.contents.find_by_ordinals parse_ordinals(params[:child_ordinals])
+    @child.update_attributes ordinals: params[:child][:ordinals]
+    redirect_to layout_section_path(@casebook, @section)
+  end
+
   private
 
   def export_filename format
