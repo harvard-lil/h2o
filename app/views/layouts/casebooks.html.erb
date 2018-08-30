@@ -24,7 +24,7 @@
   <% end %>
 <% end %>
 <% content_for :nested_layout do %>
-  <header class="<%= @casebook_class %> casebook"  data-editable="<%= @editable || '' %>" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:id) %>" data-resource-id="<%= @resource.try(:id) %>">
+  <header class="<%= @casebook_class %> casebook"  data-editable="<%= @editable || '' %>" data-casebook-id="<%= @casebook.try(:id) %>"  data-section-id="<%= @section.try(:id) %>" data-section-ordinals="<%= @section.try(:ordinals).join('.') %>" data-resource-id="<%= @resource.try(:id) %>">
     <div class="content">
       <div class="casebook-inner">
         <% if @casebook.present? %>
