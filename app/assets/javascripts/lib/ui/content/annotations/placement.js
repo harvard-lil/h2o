@@ -75,9 +75,14 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
     let testAnnotatedText = (node) => {
       // if the parentElement is a blockquote, count the newlines between paragraphs in the nodeOffset. 
 
-      for (let className of ['annotation-button', 'note-icon', 'note-content', 'text']) {
-        if (node.parentElement.classList.contains(className) && node.parentElement.tagName != "BLOCKQUOTE") { return true; }
+      if (node.parentNode.nodeName == "H2" ){
+        return true;
       }
+
+      for (let className of ['annotation-button', 'note-icon', 'note-content', 'text']) {
+        if (node.parentElement.classList.contains(className)) { return true; }
+      }
+
       return false;
     };
 
