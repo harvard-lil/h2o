@@ -19,6 +19,7 @@ class Content::Node < ApplicationRecord
     #only 3 fields.
     if self.copy_of.present?
       content_params.each do |field|
+        field = field.first
         value = content_params[field]
         previous_revisions = unpublished_revisions.where(field: field)
 
