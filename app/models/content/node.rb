@@ -18,14 +18,13 @@ class Content::Node < ApplicationRecord
     #Creates a revision for every field. Could check for changes but there are ever
     #only 3 fields.
     if self.copy_of.present?
-      content_params.each do |field|
-        field = field.first
-        value = content_params[field]
+      content_params.each do |field, value|
         previous_revisions = unpublished_revisions.where(field: field)
 
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
+        
         unpublished_revisions.create(field: field, value: value, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
       end
     end
