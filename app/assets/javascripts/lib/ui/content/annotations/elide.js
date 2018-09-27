@@ -13,10 +13,29 @@ delegate(document, '.annotate.elide', 'keypress', e => {
   }
 });
 
+delegate(document, '.toggle-elisions', 'click', e=> toggleAllElisions(e));
+
 function handleElideButtonPressed(e){
   let annotationId = e.target.dataset.annotationId;
   let elisions = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
   toggleElisionVisibility(annotationId, 'elide', e.target, elisions);
+}
+
+function toggleAllElisions(e){
+  let elisions = document.querySelectorAll('.annotate.elide');
+  let toggleElisionsButton = document.querySelector('.toggle-elisions');
+
+  elisions.forEach(function(elision){
+    let annotationId = elision["dataset"]["annotationId"];
+    let contentNodes = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
+    toggleElisionVisibility(annotationId, 'elide', elision, contentNodes);
+  });
+
+  if (toggleElisionsButton.innerText === "Show all elisions"){
+    toggleElisionsButton.innerText = "Hide elided text";
+  } else {
+    toggleElisionsButton.innerText = "Show all elisions";
+  }
 }
 
 export function toggleElisionVisibility(annotationId, annotationType, toggleButton, toggledContentNodes){
