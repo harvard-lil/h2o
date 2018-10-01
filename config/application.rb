@@ -38,9 +38,6 @@ module H2o
       layouts: ((400..426).to_a + (500..510).to_a).map {|n| [n, 'main']}.to_h
     }
 
-    config.less.paths << Rails.root.join('app/assets/stylesheets/bootstrap')
-    config.less.compress = true
-
     config.action_mailer.default_url_options = { :host => 'localhost' }
     config.user_verification_recipients = ['cgruppioni@law.harvard.edu']
     config.export_annotations_by_default = true
