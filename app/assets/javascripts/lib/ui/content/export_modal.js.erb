@@ -36,7 +36,7 @@ class ExportModal extends Component {
           let resourceId = document.querySelector('main > header').dataset.resourceId;
           let sectionId = document.querySelector('main > header').dataset.sectionId;
           let casebookId = document.querySelector('main > header').dataset.casebookId;
-          let includeAnnotations = this.el.querySelector('[name="include-annotations"]').checked;
+          let includeAnnotations = this.el.querySelector('[name="include-annotations"]').value;
           if (resourceId)  {
             window.open(resource_export_path(resourceId) + (includeAnnotations ? '' : '?annotations=false'));
           } else if (sectionId)  {
@@ -69,8 +69,8 @@ class ExportModal extends Component {
           </div>
           <div class="modal-body">
             <div class="include-annotations">
-              <button name="include-annotations" value="yes" class="modal-button export with-annotations">With annotations</button>
-              <button name="include-annotations" value="no" class="modal-button export">Without annotations</button>
+              <button name="include-annotations" value="true" class="modal-button export with-annotations">With annotations</button>
+              <button name="include-annotations" value="false" class="modal-button export">Without annotations</button>
             </div>
           </div>
         </div>
