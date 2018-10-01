@@ -61,6 +61,4 @@ H2o::Application.configure do
 
   config.admin_emails = ['cgruppioni@law.harvard.edu']
   config.professor_verifier_email = "cgruppioni@law.harvard.edu"
-
-  RequireReloader.watch :capapi, callback: lambda { |gem| load "#{Rails.root}/config/initializers/capapi.rb" }
 end
