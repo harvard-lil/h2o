@@ -70,13 +70,6 @@ gem 'htmltoword', require: true
 gem 'methadone', require: false
 gem 'wkhtmltopdf-binary', require: false
 
-# Gems disabled for rails 5.1
-# gem 'database_cleaner'
-# gem 'capybara', '2.8' # compat with minitest-capybara
-# gem 'minitest-rails-capybara'
-# gem 'quiet_assets'
-
-
 group :development do
   gem 'annotate'
   gem 'sunspot_solr'
