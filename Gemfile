@@ -79,7 +79,6 @@ gem 'wkhtmltopdf-binary', require: false
 
 group :development do
   gem 'annotate'
-  gem 'require_reloader'
   gem 'sunspot_solr'
   # gem 'web-console'
 
