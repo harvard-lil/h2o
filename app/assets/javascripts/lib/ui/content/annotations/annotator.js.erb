@@ -93,8 +93,6 @@ export class Annotator extends Component {
     .then( _ => window.getSelection().removeAllRanges());
   }
 
-
-
   revealReplacedText(annotationId) {
     let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
     let button = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);

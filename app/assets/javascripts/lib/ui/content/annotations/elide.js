@@ -22,15 +22,24 @@ function handleElideButtonPressed(e){
 }
 
 function toggleAllElisions(e){
-  let elisions = document.querySelectorAll('.annotate.elide');
-  let toggleElisionsButton = document.querySelector('.toggle-elisions');
+  let elisions = document.querySelectorAll('.annotate.elide, .annotate.replacement');
 
+  // loop through and toggle all elisions & replacements
   elisions.forEach(function(elision){
     let annotationId = elision["dataset"]["annotationId"];
-    let contentNodes = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
-    toggleElisionVisibility(annotationId, 'elide', elision, contentNodes);
+
+    if (elision.classList.contains('replacement')){
+      let contentNodes = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
+      let button = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);
+      toggleElisionVisibility(annotationId, 'replace', button, contentNodes);
+    } else {
+      let contentNodes = document.querySelectorAll(`.annotate.elided[data-annotation-id="${annotationId}"]`);
+      toggleElisionVisibility(annotationId, 'elide', elision, contentNodes);
+    }
   });
 
+  // change show all elisions toggle button text to reflect state
+  let toggleElisionsButton = document.querySelector('.toggle-elisions');
   if (toggleElisionsButton.innerText === "Show all elisions"){
     toggleElisionsButton.innerText = "Hide elided text";
   } else {
