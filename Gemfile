@@ -5,15 +5,10 @@ gem 'pg', '~> 0.21'
 gem 'rails', '5.2.1'
 gem 'puma', '~> 3.12'
 
-# JS, CSS, etc
+# Asset pipeline and libs (jquery, etc) managed through webpacker
 gem 'webpacker'
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
-gem 'less-rails'
-gem 'sass-rails', '~> 5.0.6'
 gem 'uglifier', '>= 1.3.0'
 
-# Ruby
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
 gem 'ancestry'
