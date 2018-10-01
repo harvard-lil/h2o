@@ -40,3 +40,18 @@ form .form-error-message {
     max-height: 0px;
   }
 }
+
+.export-title {
+  text-align: center;
+}
+
+.include-annotations {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+button.with-annotations{
+  margin-right: 20px;
+}
