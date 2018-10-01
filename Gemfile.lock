@@ -118,6 +118,8 @@ GEM
       request_store (~> 1.0)
       scrypt (>= 1.2, < 4.0)
     bcrypt (3.1.11)
+    bootsnap (1.3.2)
+      msgpack (~> 1.0)
     builder (3.2.3)
     byebug (10.0.2)
     cancancan (2.2.0)
@@ -318,6 +320,7 @@ GEM
     minitest-spec-rails (5.4.0)
       minitest (~> 5.0)
       rails (>= 4.1)
+    msgpack (1.2.4)
     multi_json (1.13.1)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
@@ -537,6 +540,7 @@ DEPENDENCIES
   annotate
   authlogic
   bcrypt
+  bootsnap (>= 1.1.0)
   cancancan
   capapi!
   ckeditor!
