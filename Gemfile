@@ -5,6 +5,7 @@ gem 'pg', '~> 0.21'
 gem 'rails', '5.2.1'
 gem 'puma', '~> 3.12'
 
+# Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
 gem 'webpacker'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
@@ -14,6 +15,8 @@ gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.
 gem 'ancestry'
 gem 'authlogic'
 gem 'bcrypt'
+# Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', '>= 1.1.0', require: false
 gem 'cancancan'
 gem 'capapi', git: 'https://github.com/leppert/capapi-ruby.git'
 gem 'ckeditor', git: 'https://github.com/harvard-lil/ckeditor.git', branch: 'rails-5-1', ref: '8f6ff82'
