@@ -206,3 +206,8 @@
     }
   }
 }
+
+.toggle-elisions {
+  @include btn();
+  @include btn-white();
+}
