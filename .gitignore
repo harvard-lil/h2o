@@ -33,3 +33,8 @@ guard-sunspot/
 .idea
 /.env
 .tern-port
+/public/packs
+/public/packs-test
+/node_modules
+yarn-debug.log*
+.yarn-integrity

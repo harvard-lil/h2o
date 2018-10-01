@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@rails/webpacker": "3.5",
     "autoprefixer": "^6.7.7",
     "axios": "^0.16.1",
     "babel-core": "^6.26.3",
@@ -27,6 +28,7 @@
     "query-string": "^4.3.4"
   },
   "devDependencies": {
+    "webpack-dev-server": "2.11.2",
     "xhr-mock": "^2.3.1"
   }
 }
