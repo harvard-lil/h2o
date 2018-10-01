@@ -5,9 +5,8 @@ gem 'pg', '~> 0.21'
 gem 'rails', '5.2.1'
 gem 'puma', '~> 3.12'
 
-# Asset pipeline and libs (jquery, etc) managed through webpacker
+# Asset pipeline and libs (jquery, etc) managed through webpacker configs
 gem 'webpacker'
-gem 'uglifier', '>= 1.3.0'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
