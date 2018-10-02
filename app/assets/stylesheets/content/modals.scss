@@ -1,4 +1,4 @@
-@import "bootstrap/modals";
+@import '~bootstrap/scss/modal';
 
 .modal-overlay.open {
   background-color: white;
@@ -20,7 +20,7 @@
 
 .modal-button {
   @extend .btn;
-  @extend .btn-default;
+  @extend .btn-secondary;
   &:focus {
     @include generic-focus-styles;
   }

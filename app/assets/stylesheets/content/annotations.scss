@@ -1,5 +1,5 @@
 #annotator {
-  @include square(0);
+  @include size(0);
   @include transition(top 0.1s linear);
   display: block;
   position: absolute;
@@ -47,7 +47,7 @@
 }
 
 #annotation-marker-start, #annotation-marker-end {
-  @include square(0);
+  @include size(0);
   position: absolute;
   left: 0;
   display: inline-block;
@@ -60,13 +60,13 @@
 
 .case-text {
   .annotation-handle {
-    @include square(28px);
+    @include size(28px);
     position: absolute;
     right: 0;
     user-select: none;
 
     .annotation-button {
-      @include square(28px);
+      @include size(28px);
       display: block;
       overflow: hidden;
       cursor: pointer;
@@ -174,7 +174,7 @@
     }
 
     &.note-content-wrapper {
-      @include square(0);
+      @include size(0);
       position: absolute;
       right: -40px;
       overflow: visible;

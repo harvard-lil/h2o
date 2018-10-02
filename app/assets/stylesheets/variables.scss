@@ -54,3 +54,19 @@ $font-family-headline: $preferred-headline, "Garamond", "Palatino Linotype", "Bo
 
 $preferred-mono: 'Roboto Mono';
 $font-family-monospace: $preferred-mono, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+
+// TODO - Bootstrap 4 cleanup
+// Extra small screen / phone
+//** Deprecated `$screen-xs` as of v3.0.1
+$screen-xs:                  480px !default;
+//** Deprecated `$screen-xs-min` as of v3.2.0
+$screen-xs-min:              $screen-xs !default;
+// Small screen / tablet
+//** Deprecated `$screen-sm` as of v3.0.1
+$screen-sm:                  768px !default;
+$screen-sm-min:              $screen-sm !default;
+// Medium screen / desktop
+//** Deprecated `$screen-md` as of v3.0.1
+$screen-md:                  992px !default;
+$screen-md-min:              $screen-md !default;
