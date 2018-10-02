@@ -10,7 +10,7 @@
     <% end %>
     <%= render 'layouts/meta_tags' %>
     <%= render 'layouts/favicon' %>
-    <%= stylesheet_link_tag 'main', media: 'all' %>
+    <%= stylesheet_pack_tag 'main', media: 'all' %>
     <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy' %>
     <%= stylesheet_link_tag 'https://use.fontawesome.com/releases/v5.0.13/css/all.css'%>
   </head>
@@ -48,7 +48,7 @@
       <p id="footer" tabindex="-1" class="sr-only">Footer</p>
       <%= render 'layouts/footer' %>
     </footer>
-    <%= javascript_include_tag "application" %>
+    <%= javascript_pack_tag "application" %>
     <%= render 'layouts/analytics' %>
   </div>
   <div class="modal-overlay"></div>
