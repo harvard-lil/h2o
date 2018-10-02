@@ -7,8 +7,8 @@
     <title><%= raw(@page_title) || "H2O Classroom Tools" %></title>
     <link rel="icon" href="<%= asset_path 'h20-logo.png' %>" type="image/png" />
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy">
-    <%= stylesheet_link_tag "application", media: "all" %>
-    <%= stylesheet_link_tag "/common_legacy_normal_contrast.css", media: "all" %>
+    <%= stylesheet_pack_tag "application", media: "all" %>
+    <%= stylesheet_pack_tag "/common_legacy_normal_contrast.css", media: "all" %>
     <%# TODO: Remove this once we determine common_legacy_normal_contrast.css has all the rules we needed from it %>
     <%# stylesheet_link_tag "//canvas.harvard.edu/assets/vendor_legacy_normal_contrast.css", media: "all" %>
     <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
@@ -51,7 +51,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 
 <%= render :partial => "shared/font_selectors" %>
 
-<%= javascript_include_tag "application" %>
+<%= javascript_pack_tag "application" %>
 <script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
 <!-- <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script> -->
 
