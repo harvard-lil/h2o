@@ -21,7 +21,6 @@
    <xsl:include href="./h2o/links.xslt"/>
 
   <xsl:include href="./functions.xslt"/>
-  <!-- <xsl:include href="./tables.xslt"/> -->
 
   <xsl:template match="/">
     <xsl:apply-templates />
@@ -145,10 +144,6 @@
               <w:highlight w:val="yellow" />
             </xsl:if>
           </w:pPr>
-          <!-- <w:r>
-            <xsl:comment>body headers</xsl:comment>
-            <w:t xml:space="preserve"><xsl:value-of select="substring(name(.),$length)"/> <xsl:value-of select="$length"/> <xsl:value-of select="."/></w:t>
-          </w:r> -->
           <xsl:apply-templates />
         </w:p>
       </xsl:when>
@@ -157,16 +152,6 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
-  <!--
-  // overridden in h2o export
-  <xsl:template match="p[not(ancestor::li)]">
-    <w:p>
-      <xsl:comment>p not ancestor</xsl:comment>
-      <xsl:call-template name="text-alignment" />
-      <xsl:apply-templates />
-    </w:p>
-  </xsl:template> -->
 
   <xsl:template match="ol|ul">
     <xsl:param name="global_level" select="count(preceding::ol[not(ancestor::ol or ancestor::ul)]) + count(preceding::ul[not(ancestor::ol or ancestor::ul)]) + 1"/>
