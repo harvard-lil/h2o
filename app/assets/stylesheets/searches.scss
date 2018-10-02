@@ -112,7 +112,7 @@ header.advanced-search {
       padding: 0;
 
       .verified {
-        @include square(13px);
+        @include size(13px);
         display: inline-block;
         vertical-align: middle;
         content: '';

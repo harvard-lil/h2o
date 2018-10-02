@@ -1,5 +1,5 @@
-@import "bootstrap/buttons";
-@import "bootstrap/navbar";
+@import '~bootstrap/scss/buttons';
+@import '~bootstrap/scss/navbar';
 
 body {
   #main-header {
@@ -27,7 +27,7 @@ body {
       }
     }
     .brand {
-      @extend .navbar-header;
+      /* @extend .navbar-header; */ TODO - Bootstrap 4 cleanup
       .logo {
         @extend .navbar-brand;
 
@@ -51,7 +51,7 @@ body {
       margin-right: 5px;
       font-size: 14px;
       &.create-casebook {
-        @extend .btn-default;
+        @extend .btn-secondary;
       }
     }
     .links {
@@ -86,7 +86,7 @@ body {
           width: 100%;
         }
         .verified {
-          @extend .hidden-xs;
+          @extend .d-none;
           display: inline-block;
           width: 12px;
           height: 12px;
@@ -148,7 +148,7 @@ body {
         }
       }
       .sign-up {
-        @extend .btn-default;
+        @extend .btn-secondary;
       }
     }
   }
