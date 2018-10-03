@@ -35,7 +35,7 @@ body {
         margin-right: 10px;
 
         // The text is hidden and is replaced visually by an image
-        background-image: asset-url('logo.png');
+        background-image: url('../images/logo.png');
         background-size: initial;
         color: transparent;
 
@@ -92,7 +92,7 @@ body {
           height: 12px;
           line-height: 5px;
 
-          background-image: asset-url('ui/verified.png');
+          background-image: url('../images/ui/verified.png');
           color: transparent;
         }
         .dropdown {

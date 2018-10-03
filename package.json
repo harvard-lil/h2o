@@ -29,7 +29,8 @@
     "moment": "^2.22.2",
     "morphdom": "^2.3.2",
     "path-complete-extname": "^0.1.0",
-    "query-string": "^4.3.4"
+    "query-string": "^4.3.4",
+    "resolve-url-loader": "^3.0.0"
   },
   "devDependencies": {
     "webpack-dev-server": "2.11.2",

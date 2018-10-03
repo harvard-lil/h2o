@@ -137,32 +137,32 @@ main > header.casebook {
       background-position: 4px center;
     }
     &.add-resource {
-      background-image: asset-url('ui/casebook/add-material.png');
+      background-image: url('../images/ui/casebook/add-material.png');
     }
     &.add-section {
-      background-image: asset-url('ui/casebook/add-section.png');
+      background-image: url('../images/ui/casebook/add-section.png');
     }
     &.publish {
-      background-image: asset-url('ui/casebook/publish.png');
+      background-image: url('../images/ui/casebook/publish.png');
     }
     &.clone-casebook {
-      background-image: asset-url('ui/casebook/clone.png');
+      background-image: url('../images/ui/casebook/clone.png');
       border: none;
     }
     &.export {
-      background-image: asset-url('ui/casebook/export.png');
+      background-image: url('../images/ui/casebook/export.png');
     }
     &.more, &.preview {
-      background-image: asset-url('ui/casebook/more.png');
+      background-image: url('../images/ui/casebook/more.png');
     }
     &.edit {
-      background-image: asset-url('ui/casebook/edit-icon.png');
+      background-image: url('../images/ui/casebook/edit-icon.png');
     }
     &.save {
-      background-image: asset-url('ui/casebook/save-icon.png');
+      background-image: url('../images/ui/casebook/save-icon.png');
     }
     &.cancel {
-      background-image: asset-url('ui/casebook/cancel-icon.png');
+      background-image: url('../images/ui/casebook/cancel-icon.png');
     }
   }
 }
@@ -323,7 +323,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         vertical-align: middle;
 
         color: transparent;
-        background-image: asset-url('add-icon.png');
+        background-image: url('../images/add-icon.png');
         background-size: auto;
       }
       .user {
@@ -335,7 +335,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           display: inline-block;
           vertical-align: middle;
           content: '';
-          background: asset-url('ui/verified.png') no-repeat;
+          background: url('../images/ui/verified.png') no-repeat;
         }
       }
     }
@@ -389,7 +389,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-repeat: no-repeat;
           background-size: auto;
           &.action-delete {
-            background-image: asset-url('ui/edit/elide.png');
+            background-image: url('../images/ui/edit/elide.png');
             height: 51px;
             width: 35px;
             border-width: 0px;
@@ -403,7 +403,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             padding-left: 40px;
             padding-top: 6px;
 
-            background-image: asset-url('ui/edit/add.png');
+            background-image: url('../images/ui/edit/add.png');
             &:hover {
               color: $light-blue;
             }

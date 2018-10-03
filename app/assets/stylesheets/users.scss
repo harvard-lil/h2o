@@ -9,7 +9,7 @@ header.users {
     height: 32px;
     line-height: 8px;
 
-    background-image: asset-url('ui/verified-large.png');
+    background-image: url('../images/ui/verified-large.png');
     color: transparent;
   }
 }
@@ -31,7 +31,7 @@ section.sign-up, section.sign-in, section.reset-password {
     height: 12px;
     line-height: 5px;
 
-    background-image: asset-url('ui/verified.png');
+    background-image: url('../images/ui/verified.png');
     color: transparent;
   }
 }
