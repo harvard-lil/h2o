@@ -318,7 +318,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .collaborators {
       display: inline-block;
       .add-collaborator {
-        @include size(20px);
+        @include square(20px);
         display: inline-block;
         vertical-align: middle;
 
@@ -331,7 +331,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         font-weight: bold;
         display: inline-block;
         &.verified::before {
-          @include size(13px);
+          @include square(13px);
           display: inline-block;
           vertical-align: middle;
           content: '';
@@ -380,7 +380,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         right: 0;
 
         > form > input[type=submit], button {
-          @include size(50px);
+          @include square(50px);
           display: block;
           margin: 4px 0;
           color: transparent;

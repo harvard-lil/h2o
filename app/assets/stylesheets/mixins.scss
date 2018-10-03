@@ -65,24 +65,3 @@
     max-height: $max-height;
   }
 }
-
-
-
-// TODO - Bootstrap 4 cleanup
-@mixin make-md-column($columns, $gutter: $grid-gutter-width) {
-  position: relative;
-  min-height: 1px;
-  padding-left:  ($gutter / 2);
-  padding-right: ($gutter / 2);
-
-  @media (min-width: $screen-md-min) {
-    float: left;
-    width: percentage(($columns / $grid-columns));
-  }
-}
-
-@mixin make-md-column-offset($columns) {
-  @media (min-width: $screen-md-min) {
-    margin-left: percentage(($columns / $grid-columns));
-  }
-}
