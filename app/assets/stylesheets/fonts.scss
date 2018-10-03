@@ -8,11 +8,11 @@ $light: 300;
     font-family: $family;
     font-style: $style;
     font-weight: $weight;
-    src: font-url($path + '.eot');
-    src: font-url($path + '.eot') format('embedded-opentype'),
-         font-url($path + '.woff') format('woff'),
-         font-url($path + '.ttf') format('ttf'),
-         font-url($path + '.svg') format('svg');
+    src: url($path + '.eot');
+    src: url($path + '.eot') format('embedded-opentype'),
+         url($path + '.woff') format('woff'),
+         url($path + '.ttf') format('ttf'),
+         url($path + '.svg') format('svg');
 }
 
 @mixin set-font($family, $weight, $size, $height)
@@ -24,27 +24,27 @@ $light: 300;
 }
 
 @font-face {
-  @include load-font($preferred-sans-serif, normal, $bold, 'AtlasGrotesk-Medium');
+  @include load-font($preferred-sans-serif, normal, $bold, '../fonts/AtlasGrotesk-Medium');
 }
 
 @font-face {
-  @include load-font($preferred-sans-serif, normal, $regular, 'AtlasGrotesk-Regular');
+  @include load-font($preferred-sans-serif, normal, $regular, '../fonts/AtlasGrotesk-Regular');
 }
 
 @font-face {
-  @include load-font($preferred-sans-serif, normal, $light, 'AtlasGrotesk-Light');
+  @include load-font($preferred-sans-serif, normal, $light, '../fonts/AtlasGrotesk-Light');
 }
 
 
 @font-face {
-  @include load-font($preferred-serif, normal, $regular, 'ChronicleTextG3-Roman');
+  @include load-font($preferred-serif, normal, $regular, '../fonts/ChronicleTextG3-Roman');
 }
 
 @font-face {
   font-family: $preferred-mono;
   font-style: normal;
   font-weight: $regular;
-  src: font-url('RobotoMono-Bold.ttf') format('ttf');
+  src: url('../fonts/RobotoMono-Bold.ttf') format('ttf');
 }
 
 @mixin sans-serif($weight, $size, $height)
