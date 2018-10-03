@@ -1,10 +1,9 @@
 @import 'variables';
 
-// set path so webpacker will can find icon fonts
-$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-
 // import bootstrap mixins to build semantic styles
 @import '~bootstrap-sass/assets/stylesheets/bootstrap';
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 
 // shared variables
 @import 'fonts';
