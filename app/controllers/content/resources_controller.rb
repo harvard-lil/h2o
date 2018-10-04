@@ -46,6 +46,12 @@ class Content::ResourcesController < Content::NodeController
     html = render_to_string layout: 'export'
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
+    if params["annotations"] == "true"
+      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
+    else
+      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/no-annotations'
+    end
+
     Htmltoword::Document.create_and_save(html, file_path)
     send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
   end
