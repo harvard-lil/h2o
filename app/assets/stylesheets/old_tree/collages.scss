@@ -301,8 +301,8 @@ div.article.edit_mode .default-hidden,
 /* End Edit mode toggles */
 
 .annotation-empty { background: #FFF; height: 13px; width: 0px; position: relative; left: -3px; }
-.layered-control-start { display: none; background: url(<%= asset_path 'fcollapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
-.layered-control-end { display: none; background: url(<%= asset_path 'collapse.png' %>) no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
+.layered-control-start { display: none; background: url('../../images/fcollapse.png') no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
+.layered-control-end { display: none; background: url('../../images/collapse.png') no-repeat; height: 16px; width: 9px; margin: 0px 3px 0px 3px; position: relative; top: 2px; }
 .paragraph-numbering {
   position: absolute;
   left: 18px;
