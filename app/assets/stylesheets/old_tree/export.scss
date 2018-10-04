@@ -83,7 +83,7 @@
       border: 1px solid #d4d4d4;
       padding: 2px 5px 2px 18px;
       margin: 3px;
-      background: url("<%= asset_url 'asterisk.jpg' %>") 2px 1px no-repeat;
+      background: url('../../images/asterisk.jpg') 2px 1px no-repeat;
       text-indent: 10px;
       width: 500px;
       display: none;
@@ -141,7 +141,7 @@
     z-index: 1000;
     width: 100%;
     min-width: 950px;
-    background: transparent url("<%= asset_url 'quickbar.png' %>") bottom repeat-x;
+    background: transparent url('../../images/quickbar.png') bottom repeat-x;
     height: 162px;
     * {
       font-size: 12px;

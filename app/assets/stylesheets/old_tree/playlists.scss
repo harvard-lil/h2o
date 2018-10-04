@@ -134,7 +134,7 @@
   right: 12px;
   width:12px;
   height:12px;
-  background:url(<%= asset_path 'icons.png' %>) -158px -37px no-repeat;
+  background:url('../../images/icons.png') -158px -37px no-repeat;
   text-indent: -4000px;
   display: block;
   padding: 5px;
@@ -388,7 +388,7 @@ button.inactive { opacity: 0.5; }
   display: inline-block;
 }
 #print-container a {
-  background:url(<%= asset_path 'icons.png' %>) -270px -70px;
+  background:url('../../images/icons.png') -270px -70px;
   width: 15px;
   height: 14px;
   display: inline-block;
@@ -497,7 +497,7 @@ span.private_item {
   }
 }
 #main-wedge {
-  background: url(<%= asset_path 'icons.png' %>);
+  background: url('../../images/icons.png');
   background-position: -206px -86px;
   height: 20px;
   width: 22px;
