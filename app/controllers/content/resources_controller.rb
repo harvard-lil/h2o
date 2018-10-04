@@ -46,7 +46,7 @@ class Content::ResourcesController < Content::NodeController
     html = render_to_string layout: 'export'
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
-    #Htmltoword doesn't let you switch xslt. So we need to manually do it. 
+    #Htmltoword doesn't let you switch xslt. So we need to manually do it.
     if params["annotations"] == "true"
       Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
     else
