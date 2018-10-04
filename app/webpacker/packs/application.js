@@ -7,11 +7,9 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
-import {} from 'jquery-ujs';
-
-//= require jquery
-//= require jquery-ui
-//= require jquery_ujs
+// NOTE: jquery itself is imported using ProvidePlugin in environment.js
+import 'jquery-ui';
+import 'jquery-ujs';
 import 'jquery-readyselector';
 import 'polyfills';
 import 'lib/bootstrap/dropdown';

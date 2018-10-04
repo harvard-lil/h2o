@@ -16,10 +16,12 @@ end
 end
 
 # Reloads spring whenever configs change.
-guard 'spring', bundler: true, environments: %w(development) do
+guard :spring, bundler: true, environments: %w(development) do
   watch('Gemfile.lock')
   watch(%r{^config/})
 end
+
+guard :process, name: "Webpack Dev Server", command: "bin/webpack-dev-server", env: {"RAILS_ENV" => "development"}
 
 # Restart the dev server whenever configs change. (The dev server will automatically reload app code.)
 guard :rails, port: 8000, host: '0.0.0.0', server: :puma do
