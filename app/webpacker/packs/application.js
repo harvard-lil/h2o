@@ -9,4 +9,15 @@
 
 import {} from 'jquery-ujs';
 
-console.log('Hello World from Webpacker');
+//= require jquery
+//= require jquery-ui
+//= require jquery_ujs
+import 'jquery-readyselector';
+import 'polyfills';
+import 'lib/bootstrap/dropdown';
+import 'lib/helpers';
+import 'lib/requests';
+import 'lib/ui/skip-link-focus-fix';
+import 'lib/ui/content';
+import 'lib/ui/filter-selectize';
+import 'lib/ckeditor';
