@@ -80,7 +80,8 @@ class ApplyAnnotationToParagraphs
     if kind == 'note'
       if editable
         "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
-      else
+      # Show notes only when not exporting, or exporting with annotations
+      elsif !exporting || (exporting && include_annotations)
         "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
       end
     elsif editable
