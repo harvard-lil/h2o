@@ -36,13 +36,13 @@ class ExportModal extends Component {
           let resourceId = document.querySelector('main > header').dataset.resourceId;
           let sectionId = document.querySelector('main > header').dataset.sectionId;
           let casebookId = document.querySelector('main > header').dataset.casebookId;
-          let includeAnnotations = this.el.querySelector('[name="include-annotations"]').value;
+          let annotations = e.target.value;
           if (resourceId)  {
-            window.open(resource_export_path(resourceId) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(resource_export_path(resourceId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
           } else if (sectionId)  {
-            window.open(section_export_path(sectionId) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(section_export_path(sectionId) + (annotations  == "true" ? '?annotations=true' : '?annotations=false'));
           } else {
-            window.open(export_casebook_path(casebookId) + (includeAnnotations ? '' : '?annotations=false'));
+            window.open(export_casebook_path(casebookId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
           }
         },
       }
@@ -68,9 +68,9 @@ class ExportModal extends Component {
             <h4 class="modal-title export-title"><%= t 'content.export-modal.title' %></h4>
           </div>
           <div class="modal-body">
-            <div class="include-annotations">
-              <button name="include-annotations" value="true" class="modal-button export with-annotations">With annotations</button>
-              <button name="include-annotations" value="false" class="modal-button export">Without annotations</button>
+            <div class="export-annotations">
+              <button name="include-annotations" value=true class="modal-button export with-annotations">With annotations</button>
+              <button name="include-annotations" value=false class="modal-button export no-annotations">Without annotations</button>
             </div>
           </div>
         </div>
