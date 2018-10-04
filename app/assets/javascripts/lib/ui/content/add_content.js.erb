@@ -11,7 +11,7 @@ const csrf_el = document.querySelector('meta[name=csrf-token]'),
       headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
 let Axios = AxiosConfig.create({headers: headers});
 
-delegate(document, '.action.add-resource, .listing .add-resource', 'click', showResourceModal);
+delegate(document, '.action.add-Resource, .listing .add-resource', 'click', showResourceModal);
 
 let modal = null;
 
