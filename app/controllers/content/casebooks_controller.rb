@@ -59,12 +59,15 @@ class Content::CasebooksController < Content::NodeController
 
   def export
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
-    html = render_to_string layout: 'export'
+    @include_annotations = (params["annotations"] == "true")
+
+    html = render_to_string(layout: 'export', include_annotations: @include_annotations)
+
     html.gsub! /\\/, '\\\\\\'
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
     #Htmltoword doesn't let you switch xslt. So we need to manually do it.
-    if params["annotations"] == "true"
+    if @include_annotations
       Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
     else
       Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/no-annotations'
