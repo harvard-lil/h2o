@@ -13,7 +13,7 @@ delegate(document, '.annotate.elide', 'keypress', e => {
   }
 });
 
-delegate(document, '.toggle-elisions', 'click', e=> toggleAllElisions(e));
+delegate(document, '.toggle-elisions', 'click', e => toggleAllElisions(e));
 
 function handleElideButtonPressed(e){
   let annotationId = e.target.dataset.annotationId;
@@ -22,9 +22,10 @@ function handleElideButtonPressed(e){
 }
 
 function toggleAllElisions(e){
+  // get all elisions & replacement annotations on page
   let elisions = document.querySelectorAll('.annotate.elide, .annotate.replacement');
 
-  // loop through and toggle all elisions & replacements
+  // loop through and toggle selected annotations
   elisions.forEach(function(elision){
     let annotationId = elision["dataset"]["annotationId"];
 

@@ -44,10 +44,12 @@ class ExportModal extends Component {
           } else {
             window.open(export_casebook_path(casebookId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
           }
+          this.destroy()
         },
       }
     });
     document.body.appendChild(this.el);
+    document.body.classList.add('modal-open');
     this.render();
   }
 
@@ -57,6 +59,12 @@ class ExportModal extends Component {
 
   sectionId () {
     return document.querySelector('header.casebook').dataset.sectionId;
+  }
+
+  destroy () {
+    super.destroy();
+    document.body.classList.remove('modal-open');
+    modal = null;
   }
 
   template () {
