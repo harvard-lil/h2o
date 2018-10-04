@@ -17,6 +17,7 @@ class Content::Resource < Content::Child
 
   def annotated_paragraphs(editable: false, exporting: false, include_annotations: include_annotations)
     nodes = paragraph_nodes
+    #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
 
     nodes.each_with_index do |p_node, p_idx|
