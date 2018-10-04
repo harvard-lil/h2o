@@ -18,7 +18,6 @@
   <xsl:output method="xml" encoding="utf-8" omit-xml-declaration="yes" indent="yes" />
 
    <xsl:include href="./h2o/export.xslt"/>
-   <xsl:include href="./h2o/links.xslt"/>
 
   <xsl:include href="./functions.xslt"/>
 
@@ -139,9 +138,6 @@
               <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
                 <w:pStyle w:val="CaseHeader"/>
               </xsl:if>
-            </xsl:if>
-            <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
-              <w:highlight w:val="yellow" />
             </xsl:if>
           </w:pPr>
           <xsl:apply-templates />
@@ -348,9 +344,6 @@
           </xsl:if>
           <xsl:if test="ancestor::sup">
             <w:vertAlign w:val="superscript"/>
-          </xsl:if>
-          <xsl:if test="ancestor::span[contains(@class, 'annotate highlighted')]">
-            <w:highlight w:val="yellow" />
           </xsl:if>
           <xsl:if test="ancestor::span[contains(@class, 'annotate replacement')]">
             <w:rStyle w:val="ReplacementText"/>
