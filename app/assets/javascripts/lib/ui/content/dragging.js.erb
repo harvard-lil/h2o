@@ -1,3 +1,6 @@
+<% include Rails.application.routes.url_helpers %>
+<% include ActionView::Helpers::JavaScriptHelper %>
+
 import {patch} from 'lib/requests';
 
 let draggingOrdinals = null;

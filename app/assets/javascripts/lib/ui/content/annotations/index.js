@@ -1,10 +1,10 @@
 import {html} from 'es6-string-html-template';
 import {post, patch, rest_delete} from 'lib/requests';
 import throttle from 'lodash.throttle';
-import Component from 'lib/ui/component'
+import Component from 'lib/ui/component';
 import delegate from 'delegate';
 
-import {Annotator} from 'lib/ui/content/annotations/annotator';
+import {Annotator} from 'lib/ui/content/annotations/annotator.js.erb';
 import {getQueryStringDict} from 'lib/helpers';
 
 import 'lib/ui/content/annotations/elide';

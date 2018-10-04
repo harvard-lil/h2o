@@ -1,5 +1,3 @@
-<% depend_on Rails.root.join('lib/locales/en/content.yml') %>
-
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import ModalComponent from 'lib/ui/modal';
@@ -24,8 +22,8 @@ class NewCasebookModal extends ModalComponent {
             <%= I18n.t 'content.dashboard.new-casebook-modal.body' %>
           </div>
           <div class="modal-footer">
-            <%= link_to t('content.dashboard.new-casebook-modal.from-scratch'), :new_casebook, class: 'modal-button' %>
-            <%= link_to t('content.dashboard.new-casebook-modal.adapt-existing'), :search, class: 'modal-button' %>
+            <a href="/casebooks/new" class="modal-button"><%= t 'content.dashboard.new-casebook-modal.from-scratch' %></a>
+            <a href="/search" class="modal-button"><%= t 'content.dashboard.new-casebook-modal.adapt-existing' %></a>
           </div>
         </div>
       </div>

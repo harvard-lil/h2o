@@ -1,4 +1,5 @@
-<% depend_on Rails.root.join('lib/locales/en/content.yml') %>
+<% include Rails.application.routes.url_helpers %>
+<% include ActionView::Helpers::JavaScriptHelper %>
 
 import {html, raw} from 'es6-string-html-template';
 import delegate from 'delegate';
@@ -89,8 +90,8 @@ class DeleteModal extends Component {
             ${raw(this.warningMessage())}
           </div>
           <div class="modal-footer">
-            <%= link_to t('content.delete-modal.cancel'), '', class: 'modal-button cancel' %>
-            <%= link_to t('content.delete-modal.confirm'), '', class: 'modal-button confirm' %>
+            <a href="" class="modal-button cancel"><%= t 'content.delete-modal.cancel' %></a>
+            <a href="" class="modal-button confirm"><%= t 'content.delete-modal.confirm' %></a>
           </div>
         </div>
       </div>
