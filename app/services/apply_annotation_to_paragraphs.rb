@@ -1,6 +1,6 @@
 ## This class applies an annotation to it's corresponding paragraph nodes (created by nokogiri). An annotation can span multiple paragraphs. 
 class ApplyAnnotationToParagraphs
-  attr_accessor :annotation, :paragraph_node, :paragraph_index, :export_footnote_index, :editable, :exporting, :start_paragraph, :end_paragraph, :start_offset, :end_offset, :kind, :id, :content
+  attr_accessor :annotation, :paragraph_node, :paragraph_index, :export_footnote_index, :editable, :exporting, :start_paragraph, :end_paragraph, :start_offset, :end_offset, :kind, :id, :content, :include_annotations
 
   def self.perform(params)
     new(params).perform
@@ -13,6 +13,7 @@ class ApplyAnnotationToParagraphs
     @export_footnote_index = params[:export_footnote_index]
     @editable = params[:editable]
     @exporting = params[:exporting]
+    @include_annotations = params[:include_annotations]
     @start_paragraph = annotation.start_paragraph
     @end_paragraph = annotation.end_paragraph
     @start_offset = annotation.start_offset
@@ -100,13 +101,13 @@ class ApplyAnnotationToParagraphs
     when 'highlight' then
       "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{selected_text}</span>"
     when 'link' then
-      if exporting && paragraph_index == end_paragraph
+      if exporting && paragraph_index == end_paragraph && include_annotations
         "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>#{'*' * export_footnote_index}"
       else
         "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>"
       end
     when 'note' then
-      if exporting && paragraph_index == end_paragraph
+      if exporting && paragraph_index == end_paragraph && include_annotations
         "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>#{'*' * export_footnote_index}"
       else
         "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>"
