@@ -75,6 +75,7 @@ group :development do
   gem 'guard-spring'
   gem 'guard-yield'
   gem 'guard-minitest'
+  gem 'guard-process'
   gem 'guard-sunspot', git: 'https://github.com/smit1625/guard-sunspot.git', ref: 'd7b24d8' # fork with Guard 2 support
   gem 'terminal-notifier-guard'
 end
