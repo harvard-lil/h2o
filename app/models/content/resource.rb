@@ -15,7 +15,7 @@ class Content::Resource < Content::Child
       Nokogiri::HTML(resource.content) {|config| config.strict.noblanks})
   end
 
-  def annotated_paragraphs(editable: false, exporting: false)
+  def annotated_paragraphs(editable: false, exporting: false, include_annotations: include_annotations)
     nodes = paragraph_nodes
     export_footnote_index = 0
 
@@ -29,7 +29,7 @@ class Content::Resource < Content::Child
       end
 
       nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
-        ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting})
+        ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting, include_annotations: include_annotations})
       end
     end
 
