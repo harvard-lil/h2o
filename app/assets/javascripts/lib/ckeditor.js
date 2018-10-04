@@ -1,4 +1,4 @@
-// //= require ckeditor/init
+import 'ckeditor';
 
 $(document).ready(e => {
   for(name in CKEDITOR.instances) {

@@ -1251,6 +1251,10 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+ckeditor@4.6.1:
+  version "4.6.1"
+  resolved "http://registry.npmjs.org/ckeditor/-/ckeditor-4.6.1.tgz#d6f9b1b2fa0222406e08ff154728ef420157a666"
+
 clap@^1.0.9:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/clap/-/clap-1.2.3.tgz#4f36745b32008492557f46412d66d50cb99bce51"
