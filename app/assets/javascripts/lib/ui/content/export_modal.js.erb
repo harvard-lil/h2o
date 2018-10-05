@@ -2,7 +2,7 @@
 
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
+import ModalComponent from 'lib/ui/modal';
 
 delegate(document, 'a.action.export', 'click', showExportModal);
 
@@ -19,40 +19,28 @@ function export_casebook_path(casebookId, format = 'docx') {
 let modal = null;
 
 function showExportModal (e) {
-  e.preventDefault();
-  e.stopPropagation();
-  modal = new ExportModal;
+  new ExportModal('export-modal', e.target, {
+    'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
+    'click .export': (e) => {
+      let resourceId = document.querySelector('main > header').dataset.resourceId;
+      let sectionId = document.querySelector('main > header').dataset.sectionId;
+      let casebookId = document.querySelector('main > header').dataset.casebookId;
+      let annotations = e.target.value;
+      
+      if (resourceId)  {
+        window.open(resource_export_path(resourceId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
+      } else if (sectionId)  {
+        window.open(section_export_path(sectionId) + (annotations  == "true" ? '?annotations=true' : '?annotations=false'));
+      } else {
+        window.open(export_casebook_path(casebookId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
+      }
+
+      document.querySelector('button.close').click()
+    }
+  });
 }
 
-class ExportModal extends Component {
-  constructor () {
-    super({
-      id: 'export-modal',
-      events: {
-        'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
-        'click .close': (e) => { this.destroy() },
-        'click .cancel': (e) => { this.destroy() },
-        'click .export': (e) => {
-          let resourceId = document.querySelector('main > header').dataset.resourceId;
-          let sectionId = document.querySelector('main > header').dataset.sectionId;
-          let casebookId = document.querySelector('main > header').dataset.casebookId;
-          let annotations = e.target.value;
-          if (resourceId)  {
-            window.open(resource_export_path(resourceId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
-          } else if (sectionId)  {
-            window.open(section_export_path(sectionId) + (annotations  == "true" ? '?annotations=true' : '?annotations=false'));
-          } else {
-            window.open(export_casebook_path(casebookId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
-          }
-          this.destroy()
-        },
-      }
-    });
-    document.body.appendChild(this.el);
-    document.body.classList.add('modal-open');
-    this.render();
-  }
-
+class ExportModal extends ModalComponent {
   casebookId () {
     return document.querySelector('header.casebook').dataset.casebookId;
   }
@@ -61,19 +49,13 @@ class ExportModal extends Component {
     return document.querySelector('header.casebook').dataset.sectionId;
   }
 
-  destroy () {
-    super.destroy();
-    document.body.classList.remove('modal-open');
-    modal = null;
-  }
-
   template () {
-    return html`<div class="modal fade in" id="export-modal" style="display: block">
+    return html`<div class="modal fade in" id="${this.id}" style="display: block"  tabindex="-1" aria-labelledby="${this.id}-title">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title export-title"><%= t 'content.export-modal.title' %></h4>
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 id="${this.id}-title" class="modal-title export-title"><%= t 'content.publish-modal.title' %></h4>
           </div>
           <div class="modal-body">
             <div class="export-annotations">
