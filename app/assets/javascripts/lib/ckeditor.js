@@ -1,3 +1,4 @@
+import './ckeditor_set_path.js.erb';
 import 'ckeditor';
 
 $(document).ready(e => {
