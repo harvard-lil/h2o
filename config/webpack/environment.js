@@ -26,4 +26,5 @@ environment.plugins.append('Provide', new webpack.ProvidePlugin({
   jQuery: 'jquery'
 }));
 
+environment.loaders.append('vue', vue)
 module.exports = environment;
