@@ -1,6 +1,7 @@
 const { environment } = require('@rails/webpacker');
 const webpack = require('webpack');
 const { resolve } = require("path");
+const vue = require('./loaders/vue');
 
 // add the stylesheets directory to the sass loader so that @import's resolve
 environment.loaders
