@@ -131,18 +131,18 @@ class AddResourceModal extends Component {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title"><%= t 'content.add-resource-modal.title' %></h4>
+            <h4 class="modal-title"><%= I18n.t 'content.add-resource-modal.title' %></h4>
           </div>
           <div class="modal-body">
             <div class="search-tabs">
               <div class="search-tab ${this.activeType === 'case' ? 'active' : ''}" data-type="case">
-                <%= t 'content.add-resource-modal.tabs.case' %>
+                <%= I18n.t 'content.add-resource-modal.tabs.case' %>
               </div>
               <div class="search-tab ${this.activeType === 'text' ? 'active' : ''}" data-type="text">
-                <%= t 'content.add-resource-modal.tabs.text' %>
+                <%= I18n.t 'content.add-resource-modal.tabs.text' %>
               </div>
               <div class="search-tab ${this.activeType === 'link' ? 'active' : ''}" data-type="link">
-                <%= t 'content.add-resource-modal.tabs.link' %>
+                <%= I18n.t 'content.add-resource-modal.tabs.link' %>
               </div>
             </div>
               ${this.addResourceBody()}
@@ -157,8 +157,8 @@ class AddResourceModal extends Component {
     if (this.activeType === 'case') {
       return html`<div class="add-resource-body">
         <form class="case-search">
-          <input class="form-control" name="q" type="text" value="${this.q}" placeholder="<%= t 'content.add-resource-modal.case-search.query-placeholder' %>" />
-          <input class="search-button" type="submit" value="<%= t 'content.add-resource-modal.case-search.search-button' %>" />
+          <input class="form-control" name="q" type="text" value="${this.q}" placeholder="<%= I18n.t 'content.add-resource-modal.case-search.query-placeholder' %>" />
+          <input class="search-button" type="submit" value="<%= I18n.t 'content.add-resource-modal.case-search.search-button' %>" />
         </form>
         ${raw(this.caseResultHtml || '')}
       </div>`;
@@ -167,14 +167,14 @@ class AddResourceModal extends Component {
         <form class="new-text">
           <div class="form-group">
             <label class="title">
-              <%= t 'content.add-resource-modal.new-text.title-label' %>
+              <%= I18n.t 'content.add-resource-modal.new-text.title-label' %>
               <input class="form-control" name="title" type="text" />
             </label>
           </div>
           <div class="form-group">
             <label>
-              <%= t 'content.add-resource-modal.new-text.content-label' %>
-              <textarea id="add_resource_text_content" class="form-control" name="content" placeholder="<%= t 'content.add-resource-modal.new-text.content-placeholder' %>"></textarea>
+              <%= I18n.t 'content.add-resource-modal.new-text.content-label' %>
+              <textarea id="add_resource_text_content" class="form-control" name="content" placeholder="<%= I18n.t 'content.add-resource-modal.new-text.content-placeholder' %>"></textarea>
             </label>
           </div>
           <input class="save-button" type="submit" value="Save text" />
@@ -182,11 +182,11 @@ class AddResourceModal extends Component {
       </div>`;
     } else if (this.activeType == 'link') {
       return html`<div class="add-resource-body">
-        <h3><%= t 'content.add-resource-modal.new-link.header' %></h3>
-        <h4><%= t 'content.add-resource-modal.new-link.examples' %></h4>
+        <h3><%= I18n.t 'content.add-resource-modal.new-link.header' %></h3>
+        <h4><%= I18n.t 'content.add-resource-modal.new-link.examples' %></h4>
         <form class="new-link">
-          <input class="form-control" name="url" type="text" placeholder="<%= t 'content.add-resource-modal.new-link.url-placeholder' %>" />
-          <input class="search-button" type="submit" value="<%= t 'content.add-resource-modal.new-link.save-button' %>" />
+          <input class="form-control" name="url" type="text" placeholder="<%= I18n.t 'content.add-resource-modal.new-link.url-placeholder' %>" />
+          <input class="search-button" type="submit" value="<%= I18n.t 'content.add-resource-modal.new-link.save-button' %>" />
         </form>
       </div>`;
     }
