@@ -84,14 +84,14 @@ class DeleteModal extends Component {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title"><%= t 'content.delete-modal.title' %></h4>
+            <h4 class="modal-title"><%= I18n.t 'content.delete-modal.title' %></h4>
           </div>
           <div class="modal-body">
             ${raw(this.warningMessage())}
           </div>
           <div class="modal-footer">
-            <a href="" class="modal-button cancel"><%= t 'content.delete-modal.cancel' %></a>
-            <a href="" class="modal-button confirm"><%= t 'content.delete-modal.confirm' %></a>
+            <a href="" class="modal-button cancel"><%= I18n.t 'content.delete-modal.cancel' %></a>
+            <a href="" class="modal-button confirm"><%= I18n.t 'content.delete-modal.confirm' %></a>
           </div>
         </div>
       </div>

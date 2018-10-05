@@ -16,14 +16,14 @@ class NewCasebookModal extends ModalComponent {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="${this.id}-title" class="modal-title"><%= t 'content.dashboard.new-casebook-modal.title' %></h4>
+            <h4 id="${this.id}-title" class="modal-title"><%= I18n.t 'content.dashboard.new-casebook-modal.title' %></h4>
           </div>
           <div class="modal-body">
             <%= I18n.t 'content.dashboard.new-casebook-modal.body' %>
           </div>
           <div class="modal-footer">
-            <a href="/casebooks/new" class="modal-button"><%= t 'content.dashboard.new-casebook-modal.from-scratch' %></a>
-            <a href="/search" class="modal-button"><%= t 'content.dashboard.new-casebook-modal.adapt-existing' %></a>
+            <a href="/casebooks/new" class="modal-button"><%= I18n.t 'content.dashboard.new-casebook-modal.from-scratch' %></a>
+            <a href="/search" class="modal-button"><%= I18n.t 'content.dashboard.new-casebook-modal.adapt-existing' %></a>
           </div>
         </div>
       </div>
