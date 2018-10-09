@@ -224,7 +224,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_resource
-    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
+    if resource.annotations.present?
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
+    else
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
+    end
   end
 
   def preview_resource
@@ -263,7 +267,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_section
-    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
+    if section.resources_have_annotations?
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
+    else
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
+    end
   end
 
   def preview_section
@@ -310,7 +318,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def export_casebook
-    link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export')
+    if casebook.resources_have_annotations?
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
+    else
+      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
+    end
   end
 
   def preview_casebook

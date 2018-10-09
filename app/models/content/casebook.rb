@@ -87,4 +87,13 @@ class Content::Casebook < Content::Node
   def building_draft?(owner, draft_mode)
     self.owner == owner && self.public && draft_mode
   end
+
+  def resources_have_annotations?
+    resources.each do |resource|
+      if resource.annotations.any?
+        return true
+      end
+    end
+    false
+  end
 end
