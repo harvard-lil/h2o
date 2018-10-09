@@ -214,6 +214,7 @@
   border-radius: 5px;
   border: solid 1.5px;
   line-height: 23px;
+  margin-bottom: 20px;
   &:hover {
     @include generic-focus-styles;
   }
