@@ -20,7 +20,8 @@ delegate(document, '.annotate.replacement', 'keypress', e => {
 // Pressing enter or spacebar in the contenteditable region shouldn't press the containing button
 delegate(document, '.annotate.replacement .text', 'keypress', e => {
   if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
-    e.stopPropagation();
+    document.querySelector('[data-annotate-action=save-changes]').click()
+    e.target.blur();
   }
 }, true);
 
