@@ -1,4 +1,4 @@
-- if resource.annotations.present?
+- if resource.has_elisions?
   %button.toggle-elisions
     = "Show all elisions"
 - if resource.resource.is_a? Case
