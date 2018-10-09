@@ -1,6 +1,6 @@
+%button.toggle-elisions
+  = "Show all elisions"
 - if resource.resource.is_a? Case
-  %button.toggle-elisions
-    = "Show all elisions"
   .resource-wrapper
     .case-text
       - resource.annotated_paragraphs(editable: editable).each_with_index do |paragraph_node, paragraph_index|
