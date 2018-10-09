@@ -208,6 +208,13 @@
 }
 
 .toggle-elisions {
-  @include btn();
-  @include btn-white();
+  @extend .btn;
+  @include button-variant($light-blue, white, $light-blue);
+  @include set-font($font-family-sans-serif, 700, 14px, normal);
+  border-radius: 5px;
+  border: solid 1.5px;
+  line-height: 23px;
+  &:hover {
+    @include generic-focus-styles;
+  }
 }
