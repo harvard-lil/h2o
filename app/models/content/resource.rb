@@ -56,6 +56,6 @@ class Content::Resource < Content::Child
   end
 
   def has_elisions?
-    annotations.where(kind: ["elide", "replace"]).present?
+    annotations.where(kind: ["elide", "replace"]).any?
   end
 end

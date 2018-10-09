@@ -3,8 +3,10 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import ModalComponent from 'lib/ui/modal';
+let modal = null;
 
-delegate(document, 'a.action.export', 'click', showExportModal);
+delegate(document, 'a.action.export-has-annotations', 'click', showExportModal);
+delegate(document, 'a.action.export-no-annotations', 'click', downloadFile);
 
 function resource_export_path(resourceId, format = 'docx') {
   return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
@@ -16,7 +18,17 @@ function export_casebook_path(casebookId, format = 'docx') {
   return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
-let modal = null;
+function downloadFile (e) {
+  let pageInfo = document.querySelector('main > header').dataset;
+  let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
+  if (pageInfo.resourceId)  {
+    e.target.href = resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '': '?annotations=false');
+  } else if (pageInfo.sectionId)  {
+    e.target.href = section_export_path(pageInfo.sectionId) + (includeAnnotations ? '' : '?annotations=false');
+  } else {
+    e.target.href = export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '' : '?annotations=false');
+  }
+}
 
 function showExportModal (e) {
   new ExportModal('export-modal', e.target, {
