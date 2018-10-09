@@ -54,4 +54,8 @@ class Content::Resource < Content::Child
 
     footnote_annotations
   end
+
+  def has_elisions?
+    annotations.where(kind: ["elide", "replace"]).present?
+  end
 end
