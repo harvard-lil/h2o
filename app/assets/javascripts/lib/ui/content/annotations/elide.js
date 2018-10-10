@@ -41,10 +41,10 @@ function toggleAllElisions(e){
 
   // change show all elisions toggle button text to reflect state
   let toggleElisionsButton = document.querySelector('.toggle-elisions');
-  if (toggleElisionsButton.innerText === "Show all elisions"){
+  if (toggleElisionsButton.innerText === "Show elided text"){
     toggleElisionsButton.innerText = "Hide elided text";
   } else {
-    toggleElisionsButton.innerText = "Show all elisions";
+    toggleElisionsButton.innerText = "Show elided text";
   }
 }
 
