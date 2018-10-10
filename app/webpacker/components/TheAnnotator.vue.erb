@@ -1,0 +1,85 @@
+<% include Rails.application.routes.url_helpers %>
+
+<template>
+<div id="vue_annotator" v-if="active" :style="'{top: `${offset}`}'">
+  <div class="annotator-inner">
+    Annotator inner goes here
+  </div>
+</div>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    mode: "inactive"
+  }),
+  computed: {
+    active: function() {
+      return this.mode != "inactive";
+    },
+    offset: function() {
+      let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
+      let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
+      
+      let target = this.range || this.handle;
+      this.targetRect = target ? target.getBoundingClientRect() : this.targetRect || {top: 0, bottom: 0};
+      
+      return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
+                               viewportTop + 20),
+                      this.targetRect.bottom - wrapperRect.top).toString(10) + "px";
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import '../styles/vars_and_mixins';
+
+#vue_annotator {
+  @include square(0);
+  @include transition(top 0.1s linear);
+  display: block;
+  position: absolute;
+  right: 0;
+  overflow: visible;
+  user-select: none;
+}
+
+.hide .annotator-inner {
+  max-width: 0px;
+  padding: 10px 0;
+  border-width: 1px 0;
+}
+
+.annotator-inner {
+  @include transition(max-width 0.1s linear, padding 0.1s linear, border-width 0.1s linear);
+  position: absolute;
+  left: 40px;
+  padding: 10px;
+  max-width: 200px;
+  overflow: hidden;
+  background-color: $white;
+  border: 1px solid black;
+  z-index: 2;
+  margin-left: 20px;
+  
+  .annotator-action {
+    /* @include sans-serif($regular, 12px, 14px); */
+    cursor: pointer;
+    white-space: nowrap;
+    background-color: $white;
+    &:hover {
+      background-color: $highlight;
+    }
+  }
+  
+  .create-form {
+    display: flex;
+    flex-direction: column;
+    
+    .save-note {
+      margin-top: 20px;
+    }
+  }
+}
+</style>
