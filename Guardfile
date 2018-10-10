@@ -21,7 +21,9 @@ guard :spring, bundler: true, environments: %w(development) do
   watch(%r{^config/})
 end
 
-guard :process, name: "Webpack Dev Server", command: "bin/webpack-dev-server", env: {"RAILS_ENV" => "development"}
+guard :process, name: "Webpack Dev Server", command: "bin/webpack-dev-server", env: {"RAILS_ENV" => "development"} do
+  watch('config/webpacker.yml')
+end
 
 # Restart the dev server whenever configs change. (The dev server will automatically reload app code.)
 guard :rails, port: (ENV['RAILS_PORT'] || 8000), host: '0.0.0.0', server: :puma do
