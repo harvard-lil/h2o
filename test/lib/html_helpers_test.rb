@@ -12,8 +12,7 @@ class HTMLHelpersTest < ActiveSupport::TestCase
 
   describe HTMLHelpers, :unnest! do
     it "should pull content out of specific tags and place it at the parent level" do
-      ["div",
-       "article",
+      ["article",
        "section",
        "aside"].each do |tag|
         before = html_doc_str "<#{tag}>foobar</#{tag}>"
