@@ -97,7 +97,7 @@ hr.owned {
         @include size(15px, 25px);
         @include absolute(-15px, 0);
         content: '';
-        background-image: url('../images/banner-draft-icon.png');
+        background-image: url('~assets/images/banner-draft-icon.png');
         background-position: -15px 0;
         background-size: 15px;
       }
@@ -125,7 +125,7 @@ hr.owned {
     display: inline-block;
     vertical-align: middle;
     content: '';
-    background: url('../images/ui/verified.png') no-repeat;
+    background: url('~assets/images/ui/verified.png') no-repeat;
     margin-left: 3px;
   }
 
