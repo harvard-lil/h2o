@@ -12,10 +12,10 @@ body > .overlay {
   pointer-events: none;
 }
 body.view-base-index > .overlay {
-  // background-image: url('../images/mockups/landing.png');
+  // background-image: url('~assets/images/mockups/landing.png');
   display: none;
 }
 
 body.view-playlists-edit > .overlay {
-  // background-image: url('../images/mockups/new-casebook.png');
+  // background-image: url('~assets/images/mockups/new-casebook.png');
 }
