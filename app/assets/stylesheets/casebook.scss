@@ -364,6 +364,10 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     strong {
       @include sans-serif($bold, 18px, 40px);
     }
+
+    .resource-center {
+      text-align: center;
+    }
   }
 
   .table-of-contents, .search-results {
