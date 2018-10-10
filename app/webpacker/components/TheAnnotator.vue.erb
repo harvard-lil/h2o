@@ -4,43 +4,42 @@
 <div id="vue_annotator" v-if="mode != 'inactive'" :style="'{top: `${offset}`}'">
   <div class="annotator-inner">
     <template v-if="mode == 'create-menu'">
-      <a data-annotate-action="create" data-annotation-type="highlight">Highlight</a>
-      <a data-annotate-action="create" data-annotation-type="elide">Elide</a>
-      <a data-annotate-action="create" data-annotation-type="replace">Replace</a>
-      <a data-annotate-action="new" data-annotation-type="link">Add link</a>
-      <a data-annotate-action="new" data-annotation-type="note">Add note</a>
+      <a @click="create('highlight')">Highlight</a>
+      <a @click="create('elide')">Elide</a>
+      <a @click="create('replace')">Replace</a>
+      <a @click="add('link')">Add link</a>
+      <a @click="add('note')">Add note</a>
     </template>
     <template v-else-if="mode == 'new-form'">
-      <form v-if="newAnnotationtype == 'link'" class="create-form" data-annotation-type="link">
+      <form v-if="newAnnotationtype == 'link'" v-on:submit.prevent="submit('link')" class="create-form">
         <input name="content" type="url" placeholder="Paste URL"  />
       </form>
-      <form v-if="newAnnotationtype == 'note'" class="create-form" data-annotation-type="note">
+      <form v-if="newAnnotationtype == 'note'" v-on:submit.prevent="submit('note')" class="create-form">
         <textarea name="content" placeholder="Note text..."></textarea>
         <input class="save-note" type="submit" value="Save" />
       </form>
     </template>
     <template v-else-if="mode == 'edit-link'">
-      <form class="update-link" data-annotation-type="link">
+      <form v-on:submit.prevent="update_link">
         <input name="content" type="url" placeholder="Url to link to..." value="${(this.getLinkValue())}" />
       </form>
     </template>
     <template v-else-if="mode == 'edit-handle'">
-      <a v-if="annotationType == 'highlight'" data-annotate-action="destroy">Remove highlighting</a>
-      <a v-if="annotationType == 'elide'" data-annotate-action="destroy">Remove elision</a>
+      <a v-if="annotationType == 'highlight'" @click="destroy">Remove highlighting</a>
+      <a v-if="annotationType == 'elide'" @click="destroy">Remove elision</a>
       <template v-if="annotationType == 'replace'">
-        <a data-annotate-action="reveal">Reveal original text</a>
-        <a data-annotate-action="destroy">Remove replacement text</a>
+        <a @click="reveal">Reveal original text</a>
+        <a @click="destroy">Remove replacement text</a>
       </template>
       <template v-if="annotationType == 'link'">
-        <a data-annotate-action="destroy">Remove link</a>
-        <a class="edit-link" data-annotate-action="edit-link"
-           data-annotation-type="link">Edit link</a>
+        <a @click="destroy">Remove link</a>
+        <a class="edit-link" @click="edit_link">Edit link</a>
       </template>
-      <a v-if="annotationType == 'note'" data-annotate-action="destroy">Remove Note</a>
+      <a v-if="annotationType == 'note'" @click="destroy">Remove Note</a>
     </template>
     <template v-else-if="mode == 'save-changes'">
-      <a data-annotate-action="save-changes">Save</a>
-      <a data-annotate-action="cancel-changes" data-annotation-type="elide">Cancel</a>
+      <a @click="save_changes">Save</a>
+      <a @click="cancel_changes('elide')">Cancel</a>
     </template>
   </div>
 </div>
@@ -51,7 +50,7 @@ export default {
   data: () => ({
     mode: "edit-handle",
     newAnnotationType: "link",
-    annotationType: "link"
+    annotationType: "elide"
   }),
   computed: {
     offset: function() {
@@ -64,6 +63,35 @@ export default {
       return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
                                viewportTop + 20),
                       this.targetRect.bottom - wrapperRect.top).toString(10) + "px";
+    }
+  },
+  methods: {
+    create: type => {
+      alert(type)
+    },
+    add: type => {
+      alert(type)
+    },
+    destroy: () => {
+      alert("destroy")
+    },
+    reveal: () => {
+      alert("reveal")
+    },
+    save_changes: () => {
+      alert("save changes");
+    },
+    cancel_changes: type => {
+      alert(type)
+    },
+    edit_link: () => {
+      alert("edit link");
+    },
+    update_link: () => {
+      alert("update link");
+    },
+    submit: type => {
+      alert("submit");
     }
   }
 }
