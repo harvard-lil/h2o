@@ -2,6 +2,11 @@
   %button.toggle-elisions
     = "Show elided text"
 - if resource.resource.is_a? Case
+  = javascript_pack_tag "vue_app"
+  = stylesheet_pack_tag "vue_app", media: "all"
+  #vue_app
+    {{message}}
+    %app
   .resource-wrapper
     .case-text
       - resource.annotated_paragraphs(editable: editable).each_with_index do |paragraph_node, paragraph_index|

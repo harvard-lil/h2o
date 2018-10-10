@@ -1,15 +1,19 @@
 <template>
   <div id="app">
     <p>{{ message }}</p>
+    <TheAnnotator/>
   </div>
 </template>
 
 <script>
+import TheAnnotator from "./TheAnnotator.vue.erb";
+
 export default {
-  data: function () {
-    return {
-      message: "Hello Vue!"
-    }
+  data: () => ({
+    message: "Hello Vue!"
+  }),
+  components: {
+    TheAnnotator
   }
 }
 </script>
