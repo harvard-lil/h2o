@@ -12,7 +12,7 @@
     </template>
     <template v-else-if="mode == 'new-form'">
       <form v-if="newAnnotationtype == 'link'" v-on:submit.prevent="submit('link')" class="create-form">
-        <input name="content" type="url" placeholder="Paste URL"  />
+        <input name="content" type="url" placeholder="Paste URL" />
       </form>
       <form v-if="newAnnotationtype == 'note'" v-on:submit.prevent="submit('note')" class="create-form">
         <textarea name="content" placeholder="Note text..."></textarea>
@@ -63,9 +63,18 @@ export default {
       return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
                                viewportTop + 20),
                       this.targetRect.bottom - wrapperRect.top).toString(10) + "px";
+    },
+    resourceId: function() {
+      return document.querySelector('header.casebook').dataset.resourceId
+    },
+    annotationsPath: function() {
+      return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId)
     }
   },
   methods: {
+    annotationPath: function(annotationId) {
+      return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', annotationId);
+    },
     create: type => {
       alert(type)
     },
