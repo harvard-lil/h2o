@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div v-selectionchange="selectionChangeHandler">
     <p>{{ message }}</p>
     <TheAnnotator/>
   </div>
@@ -14,6 +14,11 @@ export default {
   }),
   components: {
     TheAnnotator
+  },
+  methods: {
+    selectionChangeHandler: function(e, sel) {
+      console.log(e, sel)
+    }
   }
 }
 </script>
