@@ -1,7 +1,7 @@
 <template>
   <div v-selectionchange="selectionChangeHandler">
     <p>{{ message }}</p>
-    <TheAnnotator/>
+    <TheAnnotator v-bind:mode="annotatorMode"/>
   </div>
 </template>
 
@@ -10,14 +10,19 @@ import TheAnnotator from "./TheAnnotator.vue.erb";
 
 export default {
   data: () => ({
-    message: "Hello Vue!"
+    message: "Hello Vue!",
+    annotatorMode: "inactive"
   }),
   components: {
     TheAnnotator
   },
   methods: {
     selectionChangeHandler: function(e, sel) {
-      console.log(e, sel)
+      if(!sel || sel.isCollapsed){
+        this.annotatorMode = "inactive";
+      } else {
+        this.annotatorMode = "create-menu";
+      }
     }
   }
 }

@@ -7,23 +7,19 @@
       <a @click="create('highlight')">Highlight</a>
       <a @click="create('elide')">Elide</a>
       <a @click="create('replace')">Replace</a>
-      <a @click="add('link')">Add link</a>
-      <a @click="add('note')">Add note</a>
+      <a @click="mode = 'new-link'">Add link</a>
+      <a @click="mode = 'new-note'">Add note</a>
     </template>
-    <template v-else-if="mode == 'new-form'">
-      <form v-if="newAnnotationtype == 'link'" v-on:submit.prevent="submit('link')" class="create-form">
-        <input name="content" type="url" placeholder="Paste URL" />
-      </form>
-      <form v-if="newAnnotationtype == 'note'" v-on:submit.prevent="submit('note')" class="create-form">
-        <textarea name="content" placeholder="Note text..."></textarea>
-        <input class="save-note" type="submit" value="Save" />
-      </form>
-    </template>
-    <template v-else-if="mode == 'edit-link'">
-      <form v-on:submit.prevent="update_link">
-        <input name="content" type="url" placeholder="Url to link to..." value="${(this.getLinkValue())}" />
-      </form>
-    </template>
+    <form v-else-if="mode == 'new-link'" v-on:submit.prevent="submit('link')" class="create-form">
+      <input name="content" type="url" placeholder="Paste URL" />
+    </form>
+    <form v-else-if="mode == 'new-note'" v-on:submit.prevent="submit('note')" class="create-form">
+      <textarea name="content" placeholder="Note text..."></textarea>
+      <input class="save-note" type="submit" value="Save" />
+    </form>
+    <form v-else-if="mode == 'edit-link'" v-on:submit.prevent="update_link">
+      <input name="content" type="url" placeholder="Url to link to..." value="${(this.getLinkValue())}" />
+    </form>
     <template v-else-if="mode == 'edit-handle'">
       <a v-if="annotationType == 'highlight'" @click="destroy">Remove highlighting</a>
       <a v-if="annotationType == 'elide'" @click="destroy">Remove elision</a>
@@ -47,10 +43,15 @@
 
 <script>
 export default {
+  props: {
+    mode: {
+      type: String,
+      default: "inactive"
+    }
+  },
   data: () => ({
-    mode: "edit-handle",
-    newAnnotationType: "link",
-    annotationType: "elide"
+    newAnnotationType: "",
+    annotationType: ""
   }),
   computed: {
     offset: function() {
@@ -76,9 +77,6 @@ export default {
       return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', annotationId);
     },
     create: type => {
-      alert(type)
-    },
-    add: type => {
       alert(type)
     },
     destroy: () => {
