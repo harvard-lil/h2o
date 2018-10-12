@@ -17,7 +17,7 @@
       <textarea name="content" placeholder="Note text..."></textarea>
       <input class="save-note" type="submit" value="Save" />
     </form>
-    <form v-else-if="mode == 'edit-link'" v-on:submit.prevent="update_link">
+    <form v-else-if="mode == 'edit-link'" v-on:submit.prevent="updateLink">
       <input name="content" type="url" placeholder="Url to link to..." value="${(this.getLinkValue())}" />
     </form>
     <template v-else-if="mode == 'edit-handle'">
@@ -29,19 +29,24 @@
       </template>
       <template v-if="annotationType == 'link'">
         <a @click="destroy">Remove link</a>
-        <a class="edit-link" @click="edit_link">Edit link</a>
+        <a class="edit-link" @click="editLink">Edit link</a>
       </template>
       <a v-if="annotationType == 'note'" @click="destroy">Remove Note</a>
     </template>
     <template v-else-if="mode == 'save-changes'">
-      <a @click="save_changes">Save</a>
-      <a @click="cancel_changes('elide')">Cancel</a>
+      <a @click="saveChanges">Save</a>
+      <a @click="cancelChanges('elide')">Cancel</a>
     </template>
   </div>
 </div>
 </template>
 
 <script>
+import AxiosConfig from 'axios';
+const csrf_el = document.querySelector('meta[name=csrf-token]'),
+      headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
+const Axios = AxiosConfig.create({headers: headers});
+
 export default {
   props: {
     mode: {
@@ -76,30 +81,45 @@ export default {
     annotationPath: function(annotationId) {
       return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', annotationId);
     },
-    create: type => {
-      alert(type)
+    create: function(type) {
+      this.saveAnnotation(type);
     },
-    destroy: () => {
+    destroy: function() {
       alert("destroy")
     },
-    reveal: () => {
+    reveal: function() {
       alert("reveal")
     },
-    save_changes: () => {
+    saveChanges: function() {
       alert("save changes");
     },
-    cancel_changes: type => {
+    cancelChanges: function(type) {
       alert(type)
     },
-    edit_link: () => {
+    editLink: function() {
       alert("edit link");
     },
-    update_link: () => {
+    updateLink: function() {
       alert("update link");
     },
-    submit: type => {
+    submit: function(type) {
       alert("submit");
-    }
+    },
+    saveAnnotation: function(type, offsets, content = null) {
+      Axios.post(this.annotationsPath + '.json', {
+        annotation: {
+          kind: type,
+          content: content,
+          start_paragraph: offsets.start.p,
+          start_offset: offsets.start.offset,
+          end_paragraph: offsets.end.p,
+          end_offset: offsets.end.offset
+        }
+      }, { scroll: false })
+        .then( response => {
+          window.location.search = `annotation-id=${response.data.annotation_id}`;
+    });
+  }
   }
 }
 </script>
