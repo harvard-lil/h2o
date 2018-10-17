@@ -81,6 +81,7 @@ function makeReplacementsContenteditable() {
 }
 
 document.addEventListener('selectionchange', e => {
+  return;
   if (!annotator || e.target.activeElement.classList.contains("note")) { return; }
 
   let selection = document.getSelection();
