@@ -42,11 +42,17 @@
 </template>
 
 <script>
+import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
+
 export default {
   props: {
     mode: {
       type: String,
       default: "inactive"
+    },
+    range: {
+      type: Range,
+      default: null
     }
   },
   data: () => ({
@@ -70,6 +76,9 @@ export default {
     },
     annotationsPath: function() {
       return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId)
+    },
+    offsets: function() {
+      offsetsForRange(this.range);
     }
   },
   methods: {
@@ -77,7 +86,7 @@ export default {
       return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', annotationId);
     },
     create: function(type) {
-      this.saveAnnotation(type);
+      this.createApi(type);
     },
     destroy: function() {
       alert("destroy")
@@ -100,21 +109,26 @@ export default {
     submit: function(type) {
       alert("submit");
     },
-    saveAnnotation: function(type, offsets, content = null) {
+    createApi: function(type, offsets, content = null) {
       this.axios.post(this.annotationsPath + '.json', {
         annotation: {
           kind: type,
           content: content,
-          start_paragraph: offsets.start.p,
-          start_offset: offsets.start.offset,
-          end_paragraph: offsets.end.p,
-          end_offset: offsets.end.offset
+          start_paragraph: this.offsets.start.p,
+          start_offset: this.offsets.start.offset,
+          end_paragraph: this.offsets.end.p,
+          end_offset: this.offsets.end.offset
         }
       }, { scroll: false })
         .then( response => {
           window.location.search = `annotation-id=${response.data.annotation_id}`;
-    });
-  }
+        });
+    },
+    updateApi: function(annotationId, attrs) {
+      this.axios.patch(this.annotationPath(annotationId + '.json'), 
+                  { annotation: attrs }, { scroll: false })
+        .then( _ => this.deactivate() );
+    }
   }
 }
 </script>
