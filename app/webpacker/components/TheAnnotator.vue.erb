@@ -109,7 +109,7 @@ export default {
     submit(type) {
       alert("submit");
     },
-    createApi(type, offsets, content = null) {
+    createApi(type, content = null) {
       this.axios.post(this.annotationsPath + '.json', {
         annotation: {
           kind: type,

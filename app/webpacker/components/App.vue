@@ -14,14 +14,21 @@ export default {
     TheAnnotator
   },
   methods: {
-    selectionChangeHandler(e, sel) {
+    selectionChangeHandler(e) {
+      const sel = document.getSelection();
       if(!sel || sel.isCollapsed){
         this.annotatorMode = "inactive";
       } else {
-        this.annotatorMode = "create-menu";
         this.annotatorRange = sel.getRangeAt(0);
+        this.annotatorMode = "create-menu";
       }
     }
+  },
+  created() {
+    document.addEventListener('selectionchange', this.selectionChangeHandler);
+  },
+  destroyed() {
+    document.removeEventListener('selectionchange', this.selectionChangeHandler);
   }
 }
 </script>
