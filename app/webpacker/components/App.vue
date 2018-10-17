@@ -1,8 +1,5 @@
 <template>
-  <div v-selectionchange="selectionChangeHandler">
-    <p>{{ message }}</p>
-    <TheAnnotator v-bind:mode="annotatorMode" v-bind:range="annotatorRange"/>
-  </div>
+<TheAnnotator v-bind:mode="annotatorMode" v-bind:range="annotatorRange"/>
 </template>
 
 <script>
@@ -10,7 +7,6 @@ import TheAnnotator from "./TheAnnotator.vue.erb";
 
 export default {
   data: () => ({
-    message: "Hello Vue!",
     annotatorMode: "inactive",
     annotatorRange: null
   }),
@@ -31,8 +27,4 @@ export default {
 </script>
 
 <style scoped>
-p {
-  font-size: 2em;
-  text-align: center;
-}
 </style>
