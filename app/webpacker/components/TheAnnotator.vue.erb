@@ -42,11 +42,6 @@
 </template>
 
 <script>
-import AxiosConfig from 'axios';
-const csrf_el = document.querySelector('meta[name=csrf-token]'),
-      headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
-const Axios = AxiosConfig.create({headers: headers});
-
 export default {
   props: {
     mode: {
@@ -106,7 +101,7 @@ export default {
       alert("submit");
     },
     saveAnnotation: function(type, offsets, content = null) {
-      Axios.post(this.annotationsPath + '.json', {
+      this.axios.post(this.annotationsPath + '.json', {
         annotation: {
           kind: type,
           content: content,
