@@ -60,7 +60,7 @@ export default {
     annotationType: ""
   }),
   computed: {
-    offset: function() {
+    offset() {
       let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
       let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
       
@@ -71,45 +71,45 @@ export default {
                                viewportTop + 20),
                       this.targetRect.bottom - wrapperRect.top).toString(10) + "px";
     },
-    resourceId: function() {
+    resourceId() {
       return document.querySelector('header.casebook').dataset.resourceId
     },
-    annotationsPath: function() {
+    annotationsPath() {
       return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId)
     },
-    offsets: function() {
+    offsets() {
       offsetsForRange(this.range);
     }
   },
   methods: {
-    annotationPath: function(annotationId) {
+    annotationPath(annotationId) {
       return '<%= resource_annotation_path('$RESOURCE_ID', '$ANNOTATION_ID') %>'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', annotationId);
     },
-    create: function(type) {
+    create(type) {
       this.createApi(type);
     },
-    destroy: function() {
+    destroy() {
       alert("destroy")
     },
-    reveal: function() {
+    reveal() {
       alert("reveal")
     },
-    saveChanges: function() {
+    saveChanges() {
       alert("save changes");
     },
-    cancelChanges: function(type) {
+    cancelChanges(type) {
       alert(type)
     },
-    editLink: function() {
+    editLink() {
       alert("edit link");
     },
-    updateLink: function() {
+    updateLink() {
       alert("update link");
     },
-    submit: function(type) {
+    submit(type) {
       alert("submit");
     },
-    createApi: function(type, offsets, content = null) {
+    createApi(type, offsets, content = null) {
       this.axios.post(this.annotationsPath + '.json', {
         annotation: {
           kind: type,
@@ -124,7 +124,7 @@ export default {
           window.location.search = `annotation-id=${response.data.annotation_id}`;
         });
     },
-    updateApi: function(annotationId, attrs) {
+    updateApi(annotationId, attrs) {
       this.axios.patch(this.annotationPath(annotationId + '.json'), 
                   { annotation: attrs }, { scroll: false })
         .then( _ => this.deactivate() );

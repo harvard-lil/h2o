@@ -18,7 +18,7 @@ export default {
     TheAnnotator
   },
   methods: {
-    selectionChangeHandler: function(e, sel) {
+    selectionChangeHandler(e, sel) {
       if(!sel || sel.isCollapsed){
         this.annotatorMode = "inactive";
       } else {
