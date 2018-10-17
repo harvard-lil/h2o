@@ -110,7 +110,7 @@ export default {
       alert("submit");
     },
     createApi(type, content = null) {
-      this.axios.post(this.annotationsPath + '.json', {
+      this.$http.post(this.annotationsPath + '.json', {
         annotation: {
           kind: type,
           content: content,
@@ -125,7 +125,7 @@ export default {
         });
     },
     updateApi(annotationId, attrs) {
-      this.axios.patch(this.annotationPath(annotationId + '.json'), 
+      this.$http.patch(this.annotationPath(annotationId + '.json'),
                   { annotation: attrs }, { scroll: false })
         .then( _ => this.deactivate() );
     }
