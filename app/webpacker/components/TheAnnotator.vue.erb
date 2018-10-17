@@ -78,7 +78,7 @@ export default {
       return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId)
     },
     offsets() {
-      offsetsForRange(this.range);
+      return offsetsForRange(this.range);
     }
   },
   methods: {
