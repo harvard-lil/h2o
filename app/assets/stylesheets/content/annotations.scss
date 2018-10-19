@@ -59,22 +59,6 @@
 }
 
 .case-text {
-  .annotation-handle {
-    @include square(28px);
-    position: absolute;
-    right: 0;
-    user-select: none;
-
-    .annotation-button {
-      @include square(28px);
-      display: block;
-      overflow: hidden;
-      cursor: pointer;
-      background-image: url('~assets/images/ui/annotate/annotation-icon.png');
-      color: transparent;
-    }
-  }
-
   p > .annotate.highlighted {
     padding: 9px 0 4px;
   }

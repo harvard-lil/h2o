@@ -75,17 +75,21 @@ class ApplyAnnotationToParagraphs
 
   private
 
+  def annotation_handle
+    "<annotation-handle v-bind:annotation-id='#{id}'/>"
+  end
+
   # The edit icon that shows up next to an annotation when in draft mode.
   def get_annotation_button_and_note_wrapper
     if kind == 'note'
       if editable
-        "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span><span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+        "#{annotation_handle}<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
       # Show notes only when not exporting, or exporting with annotations
       elsif !exporting || (exporting && include_annotations)
         "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
       end
     elsif editable
-      "<span data-annotation-id='#{id}' data-annotation-type='#{kind}' class='annotation-handle #{kind}'><span class='annotation-button'>Annotate</span></span>"
+      annotation_handle
     else
       ""
     end
