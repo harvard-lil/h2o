@@ -6,7 +6,8 @@
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 
 // shared variables
-@import 'fonts';
+@import 'font-vars-and-mixins';
+@import 'font-faces';
 @import 'mixins';
 
 // global styles
