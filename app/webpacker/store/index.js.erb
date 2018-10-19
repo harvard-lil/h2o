@@ -1,5 +1,6 @@
 import Vue from 'vue/dist/vue.esm';
 import Vuex from 'vuex';
+import annotations from './modules/annotations.js';
 import createLogger from 'vuex/dist/logger';
 
 Vue.use(Vuex);
@@ -7,7 +8,7 @@ Vue.use(Vuex);
 const debug = <%= !Rails.env.production? %>;
 
 export default new Vuex.Store({
-  modules: {},
+  modules: {annotations},
   strict: debug,
   plugins: debug ? [createLogger()] : []
 });
