@@ -29,13 +29,12 @@ window.addEventListener('load', () => {
 
 $('.view-resources-annotate').ready(e => {
   annotator = new Annotator();
-  setAnnotationHandleOffsets();
   makeReplacementsContenteditable();
 });
 
-delegate(document, '.annotation-handle .annotation-button', 'click', e => {
-  annotator.edit(e.target.parentElement);
-});
+// delegate(document, '.annotation-handle .annotation-button', 'click', e => {
+//   annotator.edit(e.target.parentElement);
+// });
 
 delegate(document, '.annotate.replacement', 'focus', e => {
   annotator.edit(e.target.previousElementSibling);
@@ -114,22 +113,3 @@ window.addEventListener('scroll', e => {
     annotator.updateScroll();
   }
 });
-
-// After rendering, push over annotation margin handles which land on the same line
-function setAnnotationHandleOffsets() {
-  let handles = document.querySelectorAll('.annotation-handle');
-  let prevRect = null;
-  let count = 0;
-  for (let handle of handles) {
-    let rect = handle.getBoundingClientRect();
-    if (prevRect && rect.top === prevRect.top) {
-      count += 1;
-      handle.style.right = `${-55 - (count * 30)}px`;
-      rect = handle.getBoundingClientRect();
-    } else {
-      count = 0;
-      handle.style.right = '-55px';
-    }
-    prevRect = rect;
-  }
-}

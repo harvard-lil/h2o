@@ -1,8 +1,12 @@
 <template>
+<div>
 <TheAnnotator v-bind:mode="annotatorMode" v-bind:range="annotatorRange"/>
+<TheResource/>
+</div>
 </template>
 
 <script>
+import TheResource from "./TheResource";
 import TheAnnotator from "./TheAnnotator.vue.erb";
 
 export default {
