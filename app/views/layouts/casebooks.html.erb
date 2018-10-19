@@ -48,11 +48,17 @@
       </div>
     </div>
   </section>
+<% end %>
+
+<% content_for :prepend_to_head do %>
   <% if @casebook %>
     <script>
       window.RAILS_ROUTES = {};
       RAILS_ROUTES.casebook_path = function (){ return '<%= j casebook_path(@casebook) %>'};
       RAILS_ROUTES.section_path = function (sectionId){ return '<%= j section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
+      window.STATE_BOOTSTRAP = {
+        annotations: <%= @resource.annotations.to_json(only: [:id, :kind, :content]).html_safe %>
+      };
     </script>
   <% end %>
   <% if @section.try(:is_a?, Content::Resource) && @section.persisted? %>
@@ -63,4 +69,5 @@
     </script>
   <% end %>
 <% end %>
+
 <%= render template: 'layouts/main' %>
