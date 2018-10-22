@@ -1,20 +1,22 @@
 <template>
-<div class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.menu.open">
-  <span class="button">✎</span>
-  <VueContext ref="menu">
-    <ul>
-      <li v-if="annotation.kind == 'replace'">
-        <a @click="reveal">Reveal original text</a>
-      </li>
-      <li v-else-if="annotation.kind == 'link'">
-        <a @click="editLink">Edit link</a>
-      </li>
-      <li>
-        <a @click="destroy">Remove {{engName}}</a>
-      </li>
-    </ul>
-  </VueContext>
-</div>
+  <div>
+    <span class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.menu.open">
+      <span class="button">✎</span>
+    </span>
+    <VueContext ref="menu" class="menu">
+      <ul>
+        <li v-if="annotation.kind == 'replace'">
+          <a @click="reveal">Reveal original text</a>
+        </li>
+        <li v-else-if="annotation.kind == 'link'">
+          <a @click="editLink">Edit link</a>
+        </li>
+        <li>
+          <a @click="destroy">Remove {{engName}}</a>
+        </li>
+      </ul>
+    </VueContext>
+  </div>
 </template>
 
 <script>
@@ -71,21 +73,6 @@ $size: 28px;
   position: absolute;
   right: 0;
   user-select: none;
-
-  .v-context {
-    width: auto;
-    border: 1px solid $black;
-    box-shadow: none;
-    &:focus { outline: none; }
-    ul { padding: 0; }
-    li {
-      padding: 10px 15px;
-      @include sans-serif($regular, 12px, 14px);
-      background-color: $white;
-      &:hover { background-color: $highlight; }
-    }
-    a { white-space: nowrap; }
-  }
 }
 
 .button {
@@ -100,5 +87,20 @@ $size: 28px;
   color: $light-blue;
   border: 2px solid $white;
   background: $light-gray;
+}
+
+.v-context.menu {
+  width: auto;
+  border: 1px solid $black;
+  box-shadow: none;
+  &:focus { outline: none; }
+  ul { padding: 0; }
+  li {
+    padding: 10px 15px;
+    @include sans-serif($regular, 12px, 14px);
+    background-color: $white;
+    &:hover { background-color: $highlight; }
+  }
+  a { white-space: nowrap; }
 }
 </style>
