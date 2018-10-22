@@ -12,7 +12,7 @@
           <a @click="editLink">Edit link</a>
         </li>
         <li>
-          <a @click="destroy">Remove {{engName}}</a>
+          <a @click="destroy(annotation)">Remove {{engName}}</a>
         </li>
       </ul>
     </VueContext>
@@ -21,6 +21,8 @@
 
 <script>
 import { VueContext } from 'vue-context';
+import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
   components: {
@@ -46,12 +48,7 @@ export default {
     }
   },
   methods: {
-    destroy() {
-      this.$http
-        .delete(this.path)
-        .then(resp => window.location.reload());
-      return false;
-    },
+    ...mapActions(['destroy']),
     reveal() {
       alert("reveal...");
     },

@@ -33,7 +33,6 @@
     "query-string": "^4.3.4",
     "rails-erb-loader": "^5.5.0",
     "vue": "^2.5.17",
-    "vue-axios": "^2.1.4",
     "vue-context": "^3.3.0",
     "vue-loader": "14.2.2",
     "vue-template-compiler": "^2.5.17",
