@@ -1,4 +1,5 @@
-<% depend_on Rails.root.join('lib/locales/en/content.yml') %>
+<% include Rails.application.routes.url_helpers %>
+<% include ActionView::Helpers::JavaScriptHelper %>
 
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
