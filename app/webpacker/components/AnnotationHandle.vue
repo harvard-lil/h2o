@@ -1,18 +1,51 @@
 <template>
-  <span class="handle" v-bind:style="{right: offsetRight + 'px'}" @click="clickHandler">
-    <span class="button">✎</span>
-  </span>
+<div class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.menu.open">
+  <span class="button">✎</span>
+  <VueContext ref="menu">
+    <ul>
+      <li v-if="annotation.kind == 'replace'" @click="reveal">Reveal original text</li>
+      <li v-else-if="annotation.kind == 'link'" @click="editLink">Edit link</li>
+      <li @click="destroy">Remove {{engName}}</li>
+    </ul>
+  </VueContext>
+</div>
 </template>
 
 <script>
+import { VueContext } from 'vue-context';
+
 export default {
+  components: {
+    VueContext
+  },
   props: ['annotationId'],
   data: () => ({
     offsetRight: -55
   }),
+  computed: {
+    annotation() {
+      return this.$store.getters['annotations/getById'](this.annotationId);
+    },
+    engName() {
+      return {
+        highlight: 'highlighting',
+        elide: 'elision',
+        replace: 'replacement text'
+      }[this.annotation.kind] || this.annotation.kind;
+    }
+  },
   methods: {
-    clickHandler() {
-      alert(this.$store.getters['annotations/getById'](this.annotationId).kind);
+    onClick() {
+      alert(this.annotation.kind);
+    },
+    destroy() {
+      alert("destroy!!!");
+    },
+    reveal() {
+      alert("reveal...");
+    },
+    editLink() {
+      alert("edit link");
     }
   },
   mounted() {
