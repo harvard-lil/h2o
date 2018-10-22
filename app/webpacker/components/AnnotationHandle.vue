@@ -34,11 +34,8 @@ export default {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
     },
-    resourceId() {
-      return document.querySelector('header.casebook').dataset.resourceId;
-    },
     path() {
-      return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', this.resourceId).replace('$ANNOTATION_ID', this.annotation.id)
+      return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', this.$store.state.resource.id).replace('$ANNOTATION_ID', this.annotation.id)
     },
     engName() {
       return {
