@@ -9,7 +9,7 @@
           <a @click="reveal">Reveal original text</a>
         </li>
         <li v-else-if="annotation.kind == 'link'">
-          <a @click="openLinkMenu">Edit link</a>
+          <a @click.prevent="$refs.linkMenu.open">Edit link</a>
         </li>
         <li>
           <a @click="destroy(annotation)">Remove {{engName}}</a>
@@ -63,14 +63,12 @@ export default {
     ...mapActions(['update', 'destroy']),
     submitUpdate() {
       this.update({obj: this.annotation, vals: this.newVals});
+      this.$refs.linkMenu.close();
     },
     reveal() {
       const elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${this.annotation.id}"]`);
       const button = document.querySelector(`.annotate.replacement[data-annotation-id="${this.annotation.id}"]`);
       toggleElisionVisibility(this.annotation.id, 'replace', button, elisions);
-    },
-    openLinkMenu(e) {
-      this.$refs.linkMenu.open(e);
     }
   },
   mounted() {
