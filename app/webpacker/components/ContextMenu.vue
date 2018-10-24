@@ -1,5 +1,5 @@
 <template>
-	<div class="v-context"
+	<div class="context-menu"
 	     v-show="show"
 	     :style="style"
 	     tabindex="-1"
@@ -162,7 +162,7 @@
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.v-context {
+.context-menu {
   display: block;
   margin: 0;
   padding: 0;
@@ -178,14 +178,14 @@
 	list-style: none;
 	padding: 0;
 	margin: 0;
-	li {
-	  margin: 0;
-	  padding: 10px 15px;
-	  cursor: pointer;
-      white-space: nowrap;
-	  &:hover {
-        background-color: $highlight;
-	  }
+  }
+  li {
+	margin: 0;
+	padding: 10px 15px;
+	cursor: pointer;
+    white-space: nowrap;
+	&:hover {
+      background-color: $highlight;
 	}
   }
 }

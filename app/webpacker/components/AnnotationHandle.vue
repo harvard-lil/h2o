@@ -98,7 +98,15 @@ $size: 28px;
   background: $light-gray;
 }
 
-form {
-  padding: 10px 15px;
+.context-menu {
+  ul li {
+    padding: 0;
+  }
+  a {
+    display: block;
+  }
+  a, form {
+    padding: 10px 15px;
+  }
 }
 </style>
