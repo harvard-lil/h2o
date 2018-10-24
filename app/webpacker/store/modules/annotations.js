@@ -2,7 +2,7 @@ import Axios from '../../config/axios';
 
 const helpers = {
   path(annotation) {
-    return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', annotation.resource_id).replace('$ANNOTATION_ID', annotation.id);
+    return `/resources/${annotation.resource_id}/annotations/${annotation.id}`;
   }
 };
 
