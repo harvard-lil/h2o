@@ -1,8 +1,9 @@
 <template>
   <div>
-    <span class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.mainMenu.open">
-      <span class="button">✎</span>
-    </span>
+    <button aria-label="Edit annotation"
+            v-bind:style="{right: offsetRight + 'px'}"
+            @click.prevent="$refs.mainMenu.open">✎</button>
+
     <ContextMenu ref="mainMenu">
       <ul>
         <li v-if="annotation.kind == 'replace'">
@@ -16,6 +17,7 @@
         </li>
       </ul>
     </ContextMenu>
+
     <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
       <form v-on:submit.prevent="submitUpdate">
         <input name="content" type="url" placeholder="Url to link to..." v-model="content"/>
@@ -86,22 +88,16 @@ export default {
 
 $size: 28px;
 
-.handle {
+button {
   @include square($size);
   position: absolute;
   right: 0;
+  padding: 0;
   user-select: none;
-}
-
-.button {
   font-size: 1.65rem;
   text-align: center;
   line-height: $size;
-  @include square($size);
   border-radius: $size;
-  display: block;
-  overflow: hidden;
-  cursor: pointer;
   color: $light-blue;
   border: 2px solid $white;
   background: $light-gray;
