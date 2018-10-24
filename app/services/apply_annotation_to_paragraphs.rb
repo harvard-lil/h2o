@@ -43,7 +43,7 @@ class ApplyAnnotationToParagraphs
     paragraph_node.traverse do |node|
       next unless node.text?
 
-      if node.parent['class'].in? ['annotation-button', 'annotate note-icon', 'note-content', 'text']
+      if node.parent['data-exclude-from-offset-calcs']&.downcase == "true"
         next
       end
 
@@ -83,10 +83,10 @@ class ApplyAnnotationToParagraphs
   def get_annotation_button_and_note_wrapper
     if kind == 'note'
       if editable
-        "#{annotation_handle}<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+        "#{annotation_handle}<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       # Show notes only when not exporting, or exporting with annotations
       elsif !exporting || (exporting && include_annotations)
-        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}'><i class='fas fa-paperclip'></i></span><span class='note-content'>#{escaped_content}</span></span>"
+        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       end
     elsif editable
       annotation_handle
@@ -102,7 +102,7 @@ class ApplyAnnotationToParagraphs
       "#{handle ? "<span role='button' tabindex='0' class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></span>" : ''}" +
       "<span class='annotate elided' data-annotation-id='#{id}'>#{selected_text}</span>"
     when 'replace' then
-      "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{selected_text}</span>"
+      "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{selected_text}</span>"
     when 'highlight' then
       "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{selected_text}</span>"
     when 'link' then
