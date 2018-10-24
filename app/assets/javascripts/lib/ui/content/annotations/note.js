@@ -1,4 +1,5 @@
 import delegate from 'delegate';
+import {stageChangeToAnnotation} from 'lib/ui/content/annotations';
 
 delegate(document, '.annotate.note', 'click', e => {
   let annotationId = e.target.dataset.annotationId;
