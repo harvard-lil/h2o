@@ -17,8 +17,8 @@
       </ul>
     </ContextMenu>
     <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
-      <form v-on:submit.prevent="updateLink">
-        <input name="content" type="url" placeholder="Url to link to..." v-bind:value="annotation.content"/>
+      <form v-on:submit.prevent="submitUpdate">
+        <input name="content" type="url" placeholder="Url to link to..." v-model="content"/>
       </form>
     </ContextMenu>
   </div>
@@ -35,11 +35,20 @@ export default {
   },
   props: ['annotationId'],
   data: () => ({
-    offsetRight: -55
+    offsetRight: -55,
+    newVals: {}
   }),
   computed: {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
+    },
+    content: {
+      get() {
+        return this.newVals.content || this.annotation.content;
+      },
+      set(value) {
+        this.newVals.content = value;
+      }
     },
     path() {
       return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', this.$store.state.resource.id).replace('$ANNOTATION_ID', this.annotation.id)
@@ -53,13 +62,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['destroy']),
+    ...mapActions(['update', 'destroy']),
+    submitUpdate() {
+      this.update({obj: this.annotation, vals: this.newVals});
+    },
     reveal() {
       alert("reveal...");
     },
     openLinkMenu(e) {
       this.$refs.linkMenu.open(e);
-      
     }
   },
   mounted() {

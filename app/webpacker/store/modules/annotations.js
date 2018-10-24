@@ -17,19 +17,30 @@ const getters = {
 };
 
 const actions = {
-  destroy({ commit }, annotation) {
+  update({ commit }, payload) {
     Axios
-      .delete(helpers.path(annotation))
+      .patch(helpers.path(payload.obj), {annotation: payload.vals})
       .then(resp => {
-        // commit('destroy', annotation);
+        commit('update', payload);
+        window.location.reload();
+      });
+  },
+  destroy({ commit }, payload) {
+    Axios
+      .delete(helpers.path(payload))
+      .then(resp => {
+        // commit('destroy', payload);
         window.location.reload();
       });
   }
 };
 
 const mutations = {
-  destroy(state, annotation) {
-    state.all.splice(state.all.indexOf(annotation), 1);
+  update(state, payload) {
+    Object.assign(payload.obj, payload.vals);
+  },
+  destroy(state, payload) {
+    state.all.splice(state.all.indexOf(payload), 1);
   }
 };
 
