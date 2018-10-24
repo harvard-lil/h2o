@@ -7,13 +7,15 @@ import delegate from 'delegate';
 import {Annotator} from 'lib/ui/content/annotations/annotator.js.erb';
 import {getQueryStringDict} from 'lib/helpers';
 
-import 'lib/ui/content/annotations/elide';
+import { delegateElisionEvents } from 'lib/ui/content/annotations/elide';
 import 'lib/ui/content/annotations/replace';
 import 'lib/ui/content/annotations/note';
 import 'lib/ui/content/annotations/footnotes';
 import 'lib/ui/content/annotations/placement';
 
 let annotator = null;
+
+delegateElisionEvents();
 
 // Set focus to a particular replace on page load if specified in query string
 window.addEventListener('load', () => {
