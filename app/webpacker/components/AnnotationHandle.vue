@@ -1,32 +1,37 @@
 <template>
   <div>
-    <span class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.menu.open">
+    <span class="handle" v-bind:style="{right: offsetRight + 'px'}" @click.prevent="$refs.mainMenu.open">
       <span class="button">✎</span>
     </span>
-    <VueContext ref="menu" class="menu">
+    <ContextMenu ref="mainMenu">
       <ul>
         <li v-if="annotation.kind == 'replace'">
           <a @click="reveal">Reveal original text</a>
         </li>
         <li v-else-if="annotation.kind == 'link'">
-          <a @click="editLink">Edit link</a>
+          <a @click="openLinkMenu">Edit link</a>
         </li>
         <li>
           <a @click="destroy(annotation)">Remove {{engName}}</a>
         </li>
       </ul>
-    </VueContext>
+    </ContextMenu>
+    <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
+      <form v-on:submit.prevent="updateLink">
+        <input name="content" type="url" placeholder="Url to link to..." v-bind:value="annotation.content"/>
+      </form>
+    </ContextMenu>
   </div>
 </template>
 
 <script>
-import { VueContext } from 'vue-context';
+import ContextMenu from './ContextMenu';
 import { createNamespacedHelpers } from 'vuex';
 const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
   components: {
-    VueContext
+    ContextMenu
   },
   props: ['annotationId'],
   data: () => ({
@@ -52,8 +57,9 @@ export default {
     reveal() {
       alert("reveal...");
     },
-    editLink() {
-      alert("edit link");
+    openLinkMenu(e) {
+      this.$refs.linkMenu.open(e);
+      
     }
   },
   mounted() {
@@ -92,18 +98,7 @@ $size: 28px;
   background: $light-gray;
 }
 
-.v-context.menu {
-  width: auto;
-  border: 1px solid $black;
-  box-shadow: none;
-  &:focus { outline: none; }
-  ul { padding: 0; }
-  li {
-    padding: 10px 15px;
-    @include sans-serif($regular, 12px, 14px);
-    background-color: $white;
-    &:hover { background-color: $highlight; }
-  }
-  a { white-space: nowrap; }
+form {
+  padding: 10px 15px;
 }
 </style>

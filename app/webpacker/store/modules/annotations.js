@@ -1,8 +1,8 @@
 import Axios from '../../config/axios';
 
 const helpers = {
-  path(rootState, annotation) {
-    return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', rootState.resource.id).replace('$ANNOTATION_ID', annotation.id);
+  path(annotation) {
+    return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', annotation.resource_id).replace('$ANNOTATION_ID', annotation.id);
   }
 };
 
@@ -17,9 +17,9 @@ const getters = {
 };
 
 const actions = {
-  destroy({ commit, rootState }, annotation) {
+  destroy({ commit }, annotation) {
     Axios
-      .delete(helpers.path(rootState, annotation))
+      .delete(helpers.path(annotation))
       .then(resp => {
         // commit('destroy', annotation);
         window.location.reload();

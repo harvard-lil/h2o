@@ -58,8 +58,7 @@
       RAILS_ROUTES.section_path = function (sectionId){ return '<%= j section_path(@casebook, '$CHAPTER_ID$') %>'.replace('$CHAPTER_ID$', sectionId)};
     <% if @resource %>
         window.STATE_BOOTSTRAP = {
-          resource: <%= @resource.to_json(only: [:id]).html_safe %>,
-          annotations: <%= @resource.annotations.to_json(only: [:id, :kind]).html_safe %>
+          annotations: <%= @resource.annotations.to_json(only: [:id, :kind, :content, :resource_id]).html_safe %>
         };
       <% end %>
     </script>
