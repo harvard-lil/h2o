@@ -7,6 +7,10 @@ guard :bundler do
   watch('Gemfile')
 end
 
+guard :yarn do
+  watch('package.json')
+end
+
 # Run local solr on launch and whenever sunspot config changes.
 %w(development test).each do |env|
   guard 'sunspot', environment: env do
