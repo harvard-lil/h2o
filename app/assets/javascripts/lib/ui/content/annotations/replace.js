@@ -1,7 +1,7 @@
 import {html} from 'es6-string-html-template';
 import {post, rest_delete} from 'lib/requests';
 import throttle from 'lodash.throttle';
-import Component from 'lib/ui/component'
+import Component from 'lib/ui/component';
 import delegate from 'delegate';
 import debounce from 'debounce';
 import {setFocus, editAnnotationHandle, stageChangeToAnnotation, stagePreviousContent, isEditable} from 'lib/ui/content/annotations';

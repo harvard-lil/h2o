@@ -1,19 +1,8 @@
 import {html} from 'es6-string-html-template';
 import {post, rest_delete} from 'lib/requests';
 import throttle from 'lodash.throttle';
-import Component from 'lib/ui/component'
+import Component from 'lib/ui/component';
 import delegate from 'delegate';
-
-// Respond to click, spacebar, or enter, like a real html button would
-delegate(document, '.annotate.elide', 'click', e => handleElideButtonPressed(e));
-delegate(document, '.annotate.elide', 'keypress', e => {
-  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
-    e.preventDefault();
-    handleElideButtonPressed(e);
-  }
-});
-
-delegate(document, '.toggle-elisions', 'click', e => toggleAllElisions(e));
 
 function handleElideButtonPressed(e){
   let annotationId = e.target.dataset.annotationId;
@@ -46,6 +35,19 @@ function toggleAllElisions(e){
   } else {
     toggleElisionsButton.innerText = "Show elided text";
   }
+}
+
+export function delegateElisionEvents(){
+  // Respond to click, spacebar, or enter, like a real html button would
+  delegate(document, '.annotate.elide', 'click', e => handleElideButtonPressed(e));
+  delegate(document, '.annotate.elide', 'keypress', e => {
+    if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+      e.preventDefault();
+      handleElideButtonPressed(e);
+    }
+  });
+
+  delegate(document, '.toggle-elisions', 'click', e => toggleAllElisions(e));
 }
 
 export function toggleElisionVisibility(annotationId, annotationType, toggleButton, toggledContentNodes){
