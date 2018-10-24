@@ -27,16 +27,12 @@ window.addEventListener('load', () => {
       annotation.scrollIntoView(true);
     };
   }
-})
+});
 
 $('.view-resources-annotate').ready(e => {
   annotator = new Annotator();
   makeReplacementsContenteditable();
 });
-
-// delegate(document, '.annotation-handle .annotation-button', 'click', e => {
-//   annotator.edit(e.target.parentElement);
-// });
 
 delegate(document, '.annotate.replacement', 'focus', e => {
   annotator.edit(e.target.previousElementSibling);
@@ -82,16 +78,11 @@ function makeReplacementsContenteditable() {
 }
 
 document.addEventListener('selectionchange', e => {
-  return;
   if (!annotator || e.target.activeElement.classList.contains("note")) { return; }
 
   let selection = document.getSelection();
 
   let anchorElement = selection.anchorNode && selection.anchorNode.nodeType === document.TEXT_NODE ? selection.anchorNode.parentElement : selection.anchorNode;
-  if (!document.querySelector('.resource-wrapper').contains(anchorElement)){
-    annotator.deactivate();
-    return;
-  }
   if (!anchorElement || anchorElement.closest('form.create-form')  || anchorElement.closest('#annotator')) { return; }
 
   if (selection.isCollapsed) {
