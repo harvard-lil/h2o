@@ -2,24 +2,9 @@ require 'net/http'
 require 'uri'
 
 class Content::SectionsController < Content::NodeController
-  before_action :find_parent, only: [:new, :create]
+  before_action :find_parent, only: [:create]
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
-
-  def new
-    @content = @parent
-    if !params[:kind].in? %w{link text}
-      @results = if params[:q]
-        Sunspot.search(Case) do
-          keywords params[:q]
-        end
-        .results
-      else
-        []
-      end
-    end
-    render 'content/sections/new'
-  end
 
   def create
     child_ordinals = @parent.ordinals + [@parent.children.length + 1]
