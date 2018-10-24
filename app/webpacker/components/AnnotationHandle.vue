@@ -50,9 +50,6 @@ export default {
         this.newVals.content = value;
       }
     },
-    path() {
-      return '/resources/$RESOURCE_ID/annotations/$ANNOTATION_ID'.replace('$RESOURCE_ID', this.$store.state.resource.id).replace('$ANNOTATION_ID', this.annotation.id)
-    },
     engName() {
       return {
         highlight: 'highlighting',
