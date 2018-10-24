@@ -230,6 +230,8 @@ GEM
       guard (~> 2.0)
       guard-compat (~> 1.1)
       spring
+    guard-yarn (1.0.0)
+      guard-compat (~> 1.1)
     guard-yield (0.1.0)
       guard-compat (~> 1.0)
     haml (5.0.4)
@@ -549,6 +551,7 @@ DEPENDENCIES
   guard-rake
   guard-spring
   guard-sunspot!
+  guard-yarn
   guard-yield
   hamlit
   high_voltage
