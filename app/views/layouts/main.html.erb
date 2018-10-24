@@ -5,11 +5,11 @@
       <%= yield :prepend_to_head %>
     <% end %>
     <% if content_for :page_title %>
-    <title><%= "H2O | " + yield(:page_title) %></title>
+      <title><%= "H2O | " + yield(:page_title) %></title>
     <% elsif @page_title %>
-    <title><%= "H2O | #{@page_title}" %></title>
+      <title><%= "H2O | #{@page_title}" %></title>
     <% else %>
-    <title><%= "H2O | Open Casebooks" %></title>
+      <title><%= "H2O | Open Casebooks" %></title>
     <% end %>
     <%= render 'layouts/meta_tags' %>
     <%= render 'layouts/favicon' %>
