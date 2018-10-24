@@ -3,9 +3,8 @@
 	     v-show="show"
 	     :style="style"
 	     tabindex="-1"
-	     @blur="blur"
-	     @click="onClick"
-	     @contextmenu.capture.prevent>
+         @focusout="onFocusout"
+	     @click="onClick">
 		<slot :data="data"></slot>
 	</div>
 </template>
@@ -70,8 +69,11 @@
 			addScrollEventListener () {
 				window.addEventListener('scroll', this.close);
 			},
-            blur () {
-              return;
+            onFocusout (e) {
+              if(e.relatedTarget != this.$el &&
+                 !this.$el.contains(e.relatedTarget)){
+                this.close(true);
+              }
             },
             /**
              * Close the context menu.
