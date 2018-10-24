@@ -76,7 +76,7 @@ class ApplyAnnotationToParagraphs
   private
 
   def annotation_handle
-    "<annotation-handle v-bind:annotation-id='#{id}'/>"
+    "<annotation-handle v-bind:annotation-id='#{id}' data-exclude-from-offset-calcs='true'/>"
   end
 
   # The edit icon that shows up next to an annotation when in draft mode.
