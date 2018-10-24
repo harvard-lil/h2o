@@ -1,3 +1,4 @@
+import 'polyfills';
 import Vue from 'vue/dist/vue.esm';
 
 import store from '../store/index.js.erb';
