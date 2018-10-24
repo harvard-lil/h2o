@@ -8,9 +8,6 @@ Vue.use(Vuex);
 const debug = <%= !Rails.env.production? %>;
 
 export default new Vuex.Store({
-  state: {
-    resource: window.STATE_BOOTSTRAP ? window.STATE_BOOTSTRAP.resource || {} : {}
-  },
   modules: {annotations},
   strict: debug,
   plugins: debug ? [createLogger()] : []
