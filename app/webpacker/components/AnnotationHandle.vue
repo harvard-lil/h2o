@@ -27,6 +27,7 @@
 <script>
 import ContextMenu from './ContextMenu';
 import { createNamespacedHelpers } from 'vuex';
+import { toggleElisionVisibility } from 'lib/ui/content/annotations/elide';
 const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
@@ -64,7 +65,9 @@ export default {
       this.update({obj: this.annotation, vals: this.newVals});
     },
     reveal() {
-      alert("reveal...");
+      const elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${this.annotation.id}"]`);
+      const button = document.querySelector(`.annotate.replacement[data-annotation-id="${this.annotation.id}"]`);
+      toggleElisionVisibility(this.annotation.id, 'replace', button, elisions);
     },
     openLinkMenu(e) {
       this.$refs.linkMenu.open(e);
