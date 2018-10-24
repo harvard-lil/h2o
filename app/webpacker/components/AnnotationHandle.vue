@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-exclude-from-offset-calcs="true">
     <button aria-label="Edit annotation"
             v-bind:style="{right: offsetRight + 'px'}"
             @click.prevent="$refs.mainMenu.open">✎</button>
