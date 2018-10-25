@@ -2,12 +2,11 @@
 
 import AxiosConfig from 'axios';
 import {html, raw} from 'es6-string-html-template';
-import {post, patch, rest_delete} from 'lib/requests';
+import {post, patch} from 'lib/requests';
 import throttle from 'lodash.throttle';
 import Component from 'lib/ui/component'
 
 import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
-import {toggleElisionVisibility} from 'lib/ui/content/annotations/elide';
 
 const csrf_el = document.querySelector('meta[name=csrf-token]'),
       headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
@@ -20,11 +19,6 @@ export class Annotator extends Component {
       events: {
         'click .annotator-action': e => { this.doAnnotationAction(e); },
         'submit .create-form': e => { this.submitAnnotationForm(e); e.preventDefault(); },
-        'submit .update-link': e=> { 
-          e.preventDefault();
-          e.stopPropagation();
-          this.updateAnnotation(this.handle.dataset.annotationId, {content: e.target[0].value});
-        }
       }
     });
 
@@ -42,15 +36,8 @@ export class Annotator extends Component {
     case 'create':
       this.saveAnnotation(e.target.dataset.annotationType, this.offsets);
       break;
-    case 'edit-link':
-      this.mode = 'edit-link';
-      this.render();
-      return;
     case 'convert':
       this.convertAnnotation(this.handle.dataset.annotationId, e.target.dataset.annotationType);
-      break;
-    case 'reveal':
-      this.revealReplacedText(this.handle.dataset.annotationId);
       break;
     case 'save-changes':
       this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
@@ -59,9 +46,6 @@ export class Annotator extends Component {
       if (this.handle.dataset.annotationType === 'replace') {
         this.handle.nextElementSibling.querySelector('.text').innerText = this.previousContent;
       }
-      break;
-    case 'destroy':
-      this.destroyAnnotation(this.handle.dataset.annotationId);
       break;
     }
     this.deactivate();
@@ -95,12 +79,6 @@ export class Annotator extends Component {
     .then( _ => window.getSelection().removeAllRanges());
   }
 
-  revealReplacedText(annotationId) {
-    let elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${annotationId}"]`);
-    let button = document.querySelector(`.annotate.replacement[data-annotation-id="${annotationId}"]`);
-    toggleElisionVisibility(annotationId, 'replace', button, elisions);
-  }
-
   updateAnnotation (annotationId, attrs) {
     Axios.patch(this.annotationPath(annotationId + '.json'), 
       { annotation: attrs }, { scroll: false })
@@ -115,11 +93,6 @@ export class Annotator extends Component {
     this.render();
   }
 
-  destroyAnnotation (annotationId) {
-    rest_delete(this.annotationPath(annotationId), {}, { scroll: false })
-    .then( _ => window.getSelection().removeAllRanges());
-  }
-
   template () {
     let inner;
     switch (this.mode) {
@@ -128,14 +101,8 @@ export class Annotator extends Component {
     case 'create-menu':
       inner = this.menuTemplate();
       break;
-    case 'edit-handle':
-      inner = this.editTemplate();
-      break;
     case 'new-form':
       inner = this.newTemplate();
-      break;
-    case 'edit-link':
-      inner = this.editLinkTemplate();
       break;
     case 'save-changes':
       inner = this.saveTemplate();
@@ -171,35 +138,6 @@ export class Annotator extends Component {
           <input class="save-note" type="submit" value="Save" />
         </form>`;
     }
-  }
-
-  editTemplate () {
-    switch (this.handle.dataset.annotationType) {
-    case 'highlight':
-      return html`
-        <a class="annotator-action" data-annotate-action="destroy">Remove highlighting</a>`;
-    case 'elide':
-      return html`
-        <a class="annotator-action" data-annotate-action="destroy">Remove elision</a>`;
-    case 'replace':
-      return html`
-        <a class="annotator-action" data-annotate-action="reveal">Reveal original text</a>
-        <a class="annotator-action" data-annotate-action="destroy">Remove replacement text</a>`;
-    case 'link':
-      return html`
-        <a class="annotator-action" data-annotate-action="destroy">Remove link</a>
-        <a class="annotator-action edit-link" data-annotate-action="edit-link" data-annotation-type="link">Edit link</a>`;
-    case 'note':
-      return html`
-        <a class="annotator-action" data-annotate-action="destroy">Remove Note</a>`;
-    }
-  }
-
-  editLinkTemplate() {
-    return html`
-      <form class="update-link" data-annotation-type="link">
-        <input name="content" type="url" placeholder="Url to link to..." value=${(this.getLinkValue())} />
-      </form>`;
   }
 
   saveTemplate () {
@@ -262,13 +200,6 @@ export class Annotator extends Component {
     this.offsets = offsetsForRange(range);
     if (!this.offsets) { return this.deactivate(); }
     this.range = range;
-    this.render();
-  }
-
-  edit (handle) {
-    this.mode = 'edit-handle';
-    this.handle = handle;
-    this.range = null;
     this.render();
   }
 }
