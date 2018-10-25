@@ -17,22 +17,6 @@
       <textarea name="content" placeholder="Note text..."></textarea>
       <input class="save-note" type="submit" value="Save" />
     </form>
-    <form v-else-if="mode == 'edit-link'" v-on:submit.prevent="updateLink">
-      <input name="content" type="url" placeholder="Url to link to..." value="${(this.getLinkValue())}" />
-    </form>
-    <template v-else-if="mode == 'edit-handle'">
-      <a v-if="annotationType == 'highlight'" @click="destroy">Remove highlighting</a>
-      <a v-if="annotationType == 'elide'" @click="destroy">Remove elision</a>
-      <template v-if="annotationType == 'replace'">
-        <a @click="reveal">Reveal original text</a>
-        <a @click="destroy">Remove replacement text</a>
-      </template>
-      <template v-if="annotationType == 'link'">
-        <a @click="destroy">Remove link</a>
-        <a class="edit-link" @click="editLink">Edit link</a>
-      </template>
-      <a v-if="annotationType == 'note'" @click="destroy">Remove Note</a>
-    </template>
     <template v-else-if="mode == 'save-changes'">
       <a @click="saveChanges">Save</a>
       <a @click="cancelChanges('elide')">Cancel</a>
@@ -88,23 +72,11 @@ export default {
     create(type) {
       this.createApi(type);
     },
-    destroy() {
-      alert("destroy")
-    },
-    reveal() {
-      alert("reveal")
-    },
     saveChanges() {
       alert("save changes");
     },
     cancelChanges(type) {
       alert(type)
-    },
-    editLink() {
-      alert("edit link");
-    },
-    updateLink() {
-      alert("update link");
     },
     submit(type) {
       alert("submit");
