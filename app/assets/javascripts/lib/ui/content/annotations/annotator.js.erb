@@ -59,6 +59,10 @@ export class Annotator extends Component {
       if (this.handle.dataset.annotationType === 'replace') {
         this.handle.nextElementSibling.querySelector('.text').innerText = this.previousContent;
       }
+      else if (this.handle.dataset.annotationType === 'note'){
+        this.handle.nextElementSibling.querySelector('.note-content').innerText = this.previousContent;
+      }
+      
       break;
     case 'destroy':
       this.destroyAnnotation(this.handle.dataset.annotationId);
