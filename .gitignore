@@ -11,6 +11,7 @@ coverage/
 locals/
 log/
 node_modules/
+package-lock.json
 public/assets/
 public/base.html
 public/cases/
