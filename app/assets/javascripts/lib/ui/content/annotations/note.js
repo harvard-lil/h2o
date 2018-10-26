@@ -8,7 +8,7 @@ delegate(document, '.annotate.note', 'click', e => {
   .classList.toggle('revealed');
 });
 
-// Stage content for cancel to work and override the default select action which would keep the `create-menu` open
+// override default click action that would open create menu
 delegate(document, '.note-content', 'click', e => {
   handleNoteContentPressed(e)
 });
