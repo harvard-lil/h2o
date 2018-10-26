@@ -10,21 +10,18 @@ import {toggleElisionVisibility} from 'lib/ui/content/annotations/elide';
 
 // Respond to click, spacebar, or enter, like a real html button would
 delegate(document, '.annotate.replacement', 'click', e => handleReplaceButtonPressed(e));
-
-// Pressing spacebar in the contenteditable region shouldn't press the containing button
-delegate(document, '.annotate.replacement .text', 'keypress', e => {
-  if (e.key==' '||e.keyCode==32){
-    e.stopPropagation();
+delegate(document, '.annotate.replacement', 'keypress', e => {
+  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    e.preventDefault();
     handleReplaceButtonPressed(e);
   }
 });
 
-// Save on pressing Enter
+// Pressing enter or spacebar in the contenteditable region shouldn't press the containing button
 delegate(document, '.annotate.replacement .text', 'keypress', e => {
-  if (e.key=='Enter'||e.keyCode==13){
-    e.preventDefault();
-    document.querySelector('[data-annotate-action=save-changes]').click();
-    e.target.parentElement.focus()
+  if (e.key=='Enter'||e.key==' '||e.keyCode==13||e.keyCode==32){
+    document.querySelector('[data-annotate-action=save-changes]').click()
+    e.target.blur();
   }
 }, true);
 
