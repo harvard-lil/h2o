@@ -14,7 +14,3 @@ delegate(document, '.note-icon', 'click', e => {
   document.querySelector(`.annotate.note-content-wrapper[data-annotation-id="${annotationId}"]`)
   .classList.toggle('revealed');
 });
-
-delegate(document, '.note-content', 'input', e => {
-  stageChangeToAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
-});
