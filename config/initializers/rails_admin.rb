@@ -235,10 +235,11 @@ RailsAdmin.config do |config|
     edit do
       field :title
       field :subtitle
+      field :headnote
       field :public
-      field :ancestry
-      field :root_user_id
-      field :playlist_id
+      field :ancestry do
+        read_only true
+      end
     end
   end
 
