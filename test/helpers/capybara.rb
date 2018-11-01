@@ -42,6 +42,7 @@ module H2o::Test::Helpers::Capybara
     # This directly logs in the user.
     # Don't use this when testing login itself!
     user.set_password = password = random_token
+    # for binding.pry in testing 'puts password' here to be able to log in 
     user.save!
     if page.driver.is_a? Capybara::RackTest::Driver
       page.driver.post user_sessions_path, user_session: {email_address: user.email_address, password: password}
