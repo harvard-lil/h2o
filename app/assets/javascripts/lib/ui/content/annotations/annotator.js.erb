@@ -162,10 +162,6 @@ export class Annotator extends Component {
     return document.querySelector('header.casebook').dataset.resourceId;
   }
 
-  getLinkValue () {
-    return this.handle.nextElementSibling.href;
-  }
-
   calcTopOffset() {
     let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
     let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
