@@ -36,9 +36,6 @@ export class Annotator extends Component {
     case 'create':
       this.saveAnnotation(e.target.dataset.annotationType, this.offsets);
       break;
-    case 'convert':
-      this.convertAnnotation(this.handle.dataset.annotationId, e.target.dataset.annotationType);
-      break;
     case 'save-changes':
       this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
       return;
@@ -71,12 +68,6 @@ export class Annotator extends Component {
     .then( response => {
       window.location.search = `annotation-id=${response.data.annotation_id}`;
     });
-  }
-
-  convertAnnotation (annotationId, type) {
-    patch(this.annotationPath(annotationId), {
-      annotation: { kind: type }}, { scroll: false })
-    .then( _ => window.getSelection().removeAllRanges());
   }
 
   updateAnnotation (annotationId, attrs) {
