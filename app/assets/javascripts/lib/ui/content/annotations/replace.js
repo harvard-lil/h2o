@@ -25,7 +25,7 @@ delegate(document, '.annotate.replacement .text', 'keypress', e => {
 }, true);
 
 delegate(document, '.annotate.replacement .text', 'input', e => {
-  stageChangeToAnnotation(e.target.parentElement.previousElementSibling, {content: e.target.innerText});
+  stageChangeToAnnotation(e.target, {content: e.target.innerText});
 });
 
 function handleReplaceButtonPressed(e){

@@ -37,12 +37,10 @@ export class Annotator extends Component {
       this.saveAnnotation(e.target.dataset.annotationType, this.offsets);
       break;
     case 'save-changes':
-      this.updateAnnotation(this.handle.dataset.annotationId, this.stagedChanges);
+      this.updateAnnotation(this.annotationId, this.stagedChanges);
       return;
     case 'cancel-changes':
-      if (this.handle.dataset.annotationType === 'replace') {
-        this.handle.nextElementSibling.querySelector('.text').innerText = this.previousContent;
-      }
+      this.handle.nextElementSibling.querySelector('.text').innerText = this.previousContent;
       break;
     }
     this.deactivate();
@@ -79,6 +77,7 @@ export class Annotator extends Component {
   deactivate () {
     this.mode = 'inactive';
     this.handle = null;
+    this.annotationId = null;
     this.range = null;
     this.updateScroll.cancel();
     this.render();
@@ -166,7 +165,7 @@ export class Annotator extends Component {
     let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
     let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
 
-    let target = this.range || this.handle;
+    let target = this.handle || this.range;
     this.targetRect = target ? target.getBoundingClientRect() : this.targetRect || {top: 0, bottom: 0};
 
     return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
@@ -175,7 +174,10 @@ export class Annotator extends Component {
   }
 
   // the following functions are used in annotations/index.js
-  changeAnnotation (annotationId, attrs) {
+  changeAnnotation (field, attrs) {
+    this.annotationId = field.dataset.annotationId;
+    this.handle = field.parentElement.previousElementSibling;
+    console.log(this.handle);
     this.stagedChanges = attrs;
     this.mode = 'save-changes';
     this.render();
@@ -183,6 +185,7 @@ export class Annotator extends Component {
 
   select (range) {
     this.mode = 'create-menu';
+    this.annotationId = null;
     this.handle = null;
     this.offsets = offsetsForRange(range);
     if (!this.offsets) { return this.deactivate(); }

@@ -49,17 +49,9 @@ export function setFocus(el) {
     el.focus();
 }
 
-export function editAnnotationHandle(handle) {
+export function stageChangeToAnnotation(field, attrs) {
   if (!annotator) { return; }
-
-  annotator.edit(handle);
-}
-
-export function stageChangeToAnnotation(handle, attrs) {
-  if (!annotator) { return; }
-
-  annotator.edit(handle);
-  annotator.changeAnnotation(handle.dataset.annotationId, attrs);
+  annotator.changeAnnotation(field, attrs);
 }
 
 export function stagePreviousContent(content) {
@@ -78,7 +70,11 @@ function makeReplacementsContenteditable() {
 }
 
 document.addEventListener('selectionchange', e => {
-  if (!annotator || e.target.activeElement.classList.contains("note")) { return; }
+  if (!annotator ||
+      e.target.activeElement.classList.contains("note") ||
+      (annotator.handle && e.target.activeElement.dataset.annotationId == annotator.annotationId)) {
+    return;
+  }
 
   let selection = document.getSelection();
 
@@ -88,7 +84,7 @@ document.addEventListener('selectionchange', e => {
   if (selection.isCollapsed) {
     if (annotator.handle) {
       let parentSpan = selection.anchorNode.parentElement.closest('span');
-      if (parentSpan && annotator.handle.dataset.annotationId === parentSpan.dataset.annotationId) {
+      if (parentSpan && annotator.annotationId === parentSpan.dataset.annotationId) {
         return; // selected inside the current annotation, keep it focused
       }
       annotator.deactivate();
