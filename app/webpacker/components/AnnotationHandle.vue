@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <button aria-label="Edit annotation"
             v-bind:style="{right: offsetRight + 'px'}"
             @click.prevent="$refs.mainMenu.open">✎</button>
@@ -23,7 +23,7 @@
         <input name="content" type="url" placeholder="Url to link to..." v-model="content"/>
       </form>
     </ContextMenu>
-  </div>
+  </span>
 </template>
 
 <script>
