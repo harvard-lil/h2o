@@ -34,4 +34,11 @@ class Notifier < ActionMailer::Base
     @exception_backtrace = exception_backtrace
     mail(to: H2o::Application.config.admin_emails, subject: "Draft casebook merge in published failed #{@user.display_name}")
   end
+
+  def missing_annotations(owners, resource, annotation)
+    @owners = owners
+    @resource = resource
+    @annotation = annotation
+    mail(to: H2o::Application.config.admin_emails, subject: "Missing annotations for paragraph nodes")
+  end
 end
