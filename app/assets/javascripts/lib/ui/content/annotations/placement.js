@@ -72,14 +72,12 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       null,
       false
     );
-    let testAnnotatedText = (node) => {
-      // if the parentElement is a blockquote, count the newlines between paragraphs in the nodeOffset. 
-      return node.parentNode.nodeName == "H2" ||
-        (node.parentElement.dataset.excludeFromOffsetCalcs || "").toLowerCase() == "true";
-    };
 
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (testAnnotatedText(node)) { continue; }
+      if (node.parentNode.nodeName == "H2" ||
+          node.parentNode.closest("[data-exclude-from-offset-calcs='true']")) {
+        continue;
+      }
       nodeOffset += node.length;
     }
     return nodeOffset;
