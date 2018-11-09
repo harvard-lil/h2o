@@ -74,8 +74,7 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
     );
 
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (node.parentNode.nodeName == "H2" ||
-          node.parentNode.closest("[data-exclude-from-offset-calcs='true']")) {
+      if (node.parentNode.closest("[data-exclude-from-offset-calcs='true']")) {
         continue;
       }
       nodeOffset += node.length;
