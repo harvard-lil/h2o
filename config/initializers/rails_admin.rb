@@ -261,7 +261,6 @@ RailsAdmin.config do |config|
       field :verified_professor
       field :professor_verification_requested
       field :attribution
-      field :title
       field :affiliation
       field :email_address
       field :set_password do
