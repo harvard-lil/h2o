@@ -72,6 +72,8 @@ class Ability
       can [:new, :edit, :update, :show], [Case, CaseCourt, Default, TextBlock, User]
 
       can :show, BulkUpload
+
+      can :transfer_casebook_ownership, [Content::Casebook]
     elsif user.has_role? :case_admin
       can :access, :rails_admin
       can [:index, :show, :export, :export_as, :export_unique, :show_in_app], Case
