@@ -177,7 +177,6 @@ export class Annotator extends Component {
   changeAnnotation (field, attrs) {
     this.annotationId = field.dataset.annotationId;
     this.handle = field.parentElement.previousElementSibling;
-    console.log(this.handle);
     this.stagedChanges = attrs;
     this.mode = 'save-changes';
     this.render();
