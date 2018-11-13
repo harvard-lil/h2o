@@ -7,3 +7,7 @@ en:
         menu: "Created / Deleted Stats"
         breadcrumb: "Created / Deleted Stats"
         title: "Created / Deleted Stats"
+      transfer_casebook_ownership:
+        menu: "Transfer Casebook Ownership"
+        breadcrumb: "Transfer Casebook Ownership"
+        title: "Transfer Casebook Ownership"
