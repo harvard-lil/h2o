@@ -1,0 +1,8 @@
+.owner-block {
+  border: solid black 3px;
+  padding: 5px;
+}
+
+.remove-owner {
+  @extend .btn-default;
+}
