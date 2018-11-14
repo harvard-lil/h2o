@@ -1,4 +1,4 @@
-<div><%= 'Current owner'.pluralize(@object.owners.count) %></div>
+<h4><%= 'Current owner'.pluralize(@object.owners.count) %></h4>
 <% @object.owners.each do |owner| %>
   <div class="owner-block">
     <ul>
@@ -7,13 +7,24 @@
       <li><%= owner.id %></li>
     </ul>
     <%= form_tag transfer_casebook_ownership_path, :method => "delete" do %>
-      <% button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), data: {owner: owner.id}, class: 'remove-owner', value: owner.id %>
+      <%= button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), data: {owner: owner.id}, class: 'remove-owner', value: owner.id %>
     <% end %> 
   </div>  
 <% end %>
 
+<h4 class="user-lookup-heading">User lookup</h4>
+<%= form_tag transfer_casebook_ownership_path, :method => "get" do %>
+  <%= text_field_tag 'search', 'Enter query here', class: 'user-lookup' %>
+  <%= submit_tag %>
+<% end %> 
 
-
+<h4>Users</h4>
+<% if @user_results.present? %>
+  <% @user_results.each do |user| %>
+    <%= user[:id] %>
+    <%= user[:email_address] %>
+  <% end %> 
+<% end %> 
 <!-- add popup when deleting user that says are you sure -->
 <!-- post to search 
   < ajax autofill results> 
