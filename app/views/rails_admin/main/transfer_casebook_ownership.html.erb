@@ -1,6 +1,3 @@
-
-<h4>Transfer Casebook Ownership</h4>
-
 <div><%= 'Current owner'.pluralize(@object.owners.count) %></div>
 <% @object.owners.each do |owner| %>
   <div class="owner-block">
@@ -9,11 +6,15 @@
       <li><%= owner.email_address %></li>
       <li><%= owner.id %></li>
     </ul>
-    <button class="remove-owner">
-      <%= t('admin.action.transfer_casebook_ownership.remove-owner') %>
-    </button>
+    <%= form_tag transfer_casebook_ownership_path, :method => "delete" do %>
+      <% button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), data: {owner: owner.id}, class: 'remove-owner', value: owner.id %>
+    <% end %> 
   </div>  
 <% end %>
 
 
 
+<!-- post to search 
+  < ajax autofill results> 
+
+post to select user ( and create content collaborator w/ select roll )  -->
