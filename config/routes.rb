@@ -20,12 +20,7 @@ H2o::Application.routes.draw do
 
   resources :users do
     member do
-      # post 'disconnect_dropbox'
-      # get 'verification_request'
       get 'verify/:token' => 'users#verify', as: :verify
-    end
-    collection do
-      get 'user_lookup'
     end
   end
   resources :text_blocks do

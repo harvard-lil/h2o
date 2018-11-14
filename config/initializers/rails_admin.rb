@@ -23,27 +23,14 @@ module RailsAdmin
               collaborator = Content::Collaborator.find_by(user_id: user_id, content_id: @object.id)
               destroyed = collaborator.destroy!
               # surface destroyed.errors if they exist
+            elsif request.get? && params[:search].present?
+              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, attribution: u.attribution, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
             end
           end
         end
 
         register_instance_option :link_icon do
           'icon-lock'
-        end
-      end
-
-      class UserSearch < RailsAdmin::Config::Actions::Base
-        RailsAdmin::Config::Actions.register(self)
-
-        register_instance_option :http_methods do
-          [:post]
-        end
-
-        register_instance_option :controller do
-          Proc.new do
-            @casebook = @object
-            @owners = @object.owners
-          end
         end
       end
 
