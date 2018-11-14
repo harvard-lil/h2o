@@ -30,6 +30,12 @@ module RailsAdmin
               collaborator = Content::Collaborator.find(collaborator_id)
               destroyed = collaborator.destroy!
               # surface destroyed.errors if they exist
+            elsif request.post?
+              user_id = params[:button].to_i
+              role = params[:role]
+
+              # surface errors
+              @object.collaborators.create(user_id: user_id, role: role)
             end
           end
         end
