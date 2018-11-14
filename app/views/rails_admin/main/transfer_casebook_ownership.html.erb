@@ -1,13 +1,15 @@
-<h4><%= 'Current owner'.pluralize(@object.owners.count) %></h4>
-<% @object.owners.each do |owner| %>
+<h4><%= 'Author'.pluralize(@object.owners.count) %>:</h4>
+<% @object.collaborators.each do |collaborator| %>
+  <% user = collaborator.user %>
   <div class="owner-block">
     <ul>
-      <li><%= owner.display %></li>
-      <li><%= owner.email_address %></li>
-      <li><%= owner.id %></li>
+      <li><%= collaborator.role %></li>
+      <li><%= user.display %></li>
+      <li><%= user.email_address %></li>
+      <li><%= user.id %></li>
     </ul>
     <%= form_tag transfer_casebook_ownership_path, :method => "delete" do %>
-      <%= button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), data: {owner: owner.id}, class: 'remove-owner', value: owner.id %>
+      <%= button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), class: 'remove-owner', value: collaborator.id %>
     <% end %> 
   </div>  
 <% end %>
