@@ -7,10 +7,11 @@ en:
         menu: "Created / Deleted Stats"
         breadcrumb: "Created / Deleted Stats"
         title: "Created / Deleted Stats"
-      transfer_casebook_ownership:
-        menu: "Transfer Casebook Ownership"
-        breadcrumb: "Transfer Casebook Ownership"
-        title: "Transfer Casebook Ownership"
-        remove-owner: "Remove owner"
-        query-placeholder: "New user"
+      manage_collaborators:
+        menu: "Manage Collaborators"
+        breadcrumb: "Manage Collaborators"
+        title: "Manage Collaborators"
+        remove-collaborator: "Remove user"
+        add-collaborator: "Add user"
+        query-placeholder: "New collaborator"
         search-button: "Find"
