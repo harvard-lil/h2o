@@ -27,7 +27,9 @@
             <% end %> 
           </div>
         <% end %>
-      </div> 
+      </div>
+  <% elsif @no_results == true %>
+    <div class="no-results">No results for '<%= @search_term %>'</div> 
   <% end %> 
 
   <hr class="divider">
