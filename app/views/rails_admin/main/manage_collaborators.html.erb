@@ -4,9 +4,9 @@
   <%= submit_tag %>
 <% end %> 
 
-<% if @user_results.present? %>
+<% if @users.present? %>
   <div class="collaborators">
-    <% @user_results.each do |user| %>
+    <% @users.each do |user| %>
         <div class="collaborator-block">
           <ul>
             <li>User id: <%= user[:id] %></li>
