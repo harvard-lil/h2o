@@ -1,54 +1,56 @@
-<h3>Add collaborator</h3>
-<%= form_tag manage_collaborators_path, :method => "get" do %>
-  <%= search_field_tag 'search', nil, placeholder: 'Enter query here', class: 'user-lookup' %>
-  <%= submit_tag %>
-<% end %> 
-
-<% if @users.present? %>
-  <div class="collaborators">
-    <% @users.each do |user| %>
-        <div class="collaborator-block">
-          <ul>
-            <li>User id: <%= user[:id] %></li>
-            <li>Display name: <%= user[:display] %></li>
-            <li>Affiliation: <%= user[:affiliation] %></li>
-            <li>Email: <%= user[:email_address] %></li>
-            <li>Verified professor: <%= user[:verified_professor] %></li>
-          </ul>
-
-          <%= form_tag manage_collaborators_path, method: "post", class: "collaborator-form" do %>
-            <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']) %>
-            <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button', value: user[:id] %>
-          <% end %> 
-        </div>
+<div class="container">
+  <div class="collaborator-search">
+    <h3>Add collaborator</h3>
+    <div class="form-group">
+      <%= form_tag manage_collaborators_path, method: "get", class: 'search-form' do %>
+        <span class="fa fa-search search-icon"></span>
+        <%= search_field_tag 'search', nil, placeholder: 'Example professor', class: "form-control search-field" %>
       <% end %>
-    </div> 
-<% end %> 
+    </div>
+  </div> 
 
-<h3 class="change-collaborators">Change collaborators</h3>
+  <% if @users.present? %>
+    <div class="collaborators">
+      <% @users.each do |user| %>
+          <div class="collaborator-block">
+            <ul>
+              <li>User id: <%= user[:id] %></li>
+              <li>Display name: <%= user[:display] %></li>
+              <li>Affiliation: <%= user[:affiliation] %></li>
+              <li>Email: <%= user[:email_address] %></li>
+              <li>Verified professor: <%= user[:verified_professor] %></li>
+            </ul>
 
-<div class="collaborators">
-  <% @object.collaborators.each do |collaborator| %>
-    <% user = collaborator.user %>
-    <div class="collaborator-block">
-      <ul>
-        <li>User id: <%= user.id %></li>
-        <li><%= collaborator.role.capitalize %></li>
-        <li>Display name: <%= user.display %></li>
-        <li>Affiliation: <%= user.affiliation %></li>
-        <li>Email: <%= user.email_address %></li>
-        <li>Verified professor: <%= user.verified_professor %>
-      </ul>
-      <%= form_tag manage_collaborators_path, method: "delete", class: 'collaborator-form' do %>
-        <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'collaborator-button', value: collaborator.id %>
-      <% end %> 
-    </div>  
-  <% end %>
+            <%= form_tag manage_collaborators_path, method: "post", class: "collaborator-form" do %>
+              <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']) %>
+              <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button', value: user[:id] %>
+            <% end %> 
+          </div>
+        <% end %>
+      </div> 
+  <% end %> 
+
+  <h3 class="change-collaborators">Change collaborators</h3>
+
+  <div class="collaborators">
+    <% @object.collaborators.each do |collaborator| %>
+      <% user = collaborator.user %>
+      <div class="collaborator-block">
+        <ul>
+          <li>User id: <%= user.id %></li>
+          <li><%= collaborator.role.capitalize %></li>
+          <li>Display name: <%= user.display %></li>
+          <li>Affiliation: <%= user.affiliation %></li>
+          <li>Email: <%= user.email_address %></li>
+          <li>Verified professor: <%= user.verified_professor %></li>
+        </ul>
+        <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
+          <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button', value: collaborator.id %>
+        <% end %> 
+      </div>  
+    <% end %>
+  </div>
+
+
+  <!-- add popup when deleting user that says are you sure -->
 </div>
-
-
-<!-- add popup when deleting user that says are you sure -->
-<!-- post to search 
-  < ajax autofill results> 
-
-post to select user ( and create content collaborator w/ select roll )  -->
