@@ -31,7 +31,7 @@ module RailsAdmin
               end
             elsif request.post? # adding a collaborator
               user_id = params[:button].to_i
-              role = params[:role]
+              role = params[:role].downcase
 
               new_collaborator = @object.collaborators.new(user_id: user_id, role: role)
               
