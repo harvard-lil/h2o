@@ -29,9 +29,11 @@ window.addEventListener('load', () => {
   }
 });
 
-$('.view-resources-annotate').ready(e => {
-  annotator = new Annotator();
-  makeReplacementsContenteditable();
+$(document).ready(e => {
+  if($('.view-resources-annotate').length){
+    annotator = new Annotator();
+    makeReplacementsContenteditable();
+  }
 });
 
 delegate(document, '.annotate.replacement', 'focus', e => {
