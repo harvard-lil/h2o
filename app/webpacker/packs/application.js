@@ -10,7 +10,6 @@
 // NOTE: jquery itself is imported using ProvidePlugin in environment.js
 import 'jquery-ui';
 import 'jquery-ujs';
-import 'jquery-readyselector';
 import 'polyfills';
 import 'lib/bootstrap/dropdown';
 import 'lib/helpers';
