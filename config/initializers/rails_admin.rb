@@ -1,7 +1,7 @@
 module RailsAdmin
   module Config
     module Actions
-      class ManageCollaborators < RailsAdmin::Config::Actions::Base
+      class TransferCasebookOwnership < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
 
         register_instance_option :visible? do
@@ -18,12 +18,11 @@ module RailsAdmin
 
         register_instance_option :controller do
           Proc.new do
-            # change role option?
             # maybe do an :includes user for collabroators
 
             if request.get? && params[:search].present?
             # Searching for users   
-              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, display: u.display, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
+              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, attribution: u.attribution, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
             elsif request.delete?
             # Deleting a collaborator
               collaborator_id = params[:button]
@@ -110,7 +109,7 @@ RailsAdmin.config do |config|
     new
 
     delete
-    manage_collaborators
+    transfer_casebook_ownership
     show_in_app
   end
 

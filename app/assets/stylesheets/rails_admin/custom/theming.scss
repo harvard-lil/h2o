@@ -1,28 +1,12 @@
-.collaborators {
-  display: flex;
-  align-items: center;
+.owner-block {
+  border: solid black 3px;
+  padding: 5px;
 }
 
-.collaborator-block {
-  border: solid black 2px;
-  padding: 20px 20px 0 0;
-  margin: 5px;
-  flex-grow: 1;
-}
-
-.collaborator-form {
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
-  padding: 15px 0;
-  margin: 0 40px;
-}
-
-.collaborator-button {
+.remove-owner {
   @extend .btn-default;
 }
 
-.change-collaborators {
+.user-lookup-hearding {
   margin-top: 20px;
 }

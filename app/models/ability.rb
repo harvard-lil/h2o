@@ -72,7 +72,7 @@ class Ability
 
       can :show, BulkUpload
 
-      can :manage_collaborators, [Content::Casebook]
+      can :transfer_casebook_ownership, [Content::Casebook]
     elsif user.has_role? :case_admin
       can :access, :rails_admin
       can [:index, :show, :export, :export_as, :export_unique, :show_in_app], Case
