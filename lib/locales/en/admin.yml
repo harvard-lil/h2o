@@ -11,6 +11,3 @@ en:
         menu: "Transfer Casebook Ownership"
         breadcrumb: "Transfer Casebook Ownership"
         title: "Transfer Casebook Ownership"
-        remove-owner: "Remove owner"
-        query-placeholder: "New user"
-        search-button: "Find"

@@ -71,8 +71,6 @@ module RailsAdmin
 
         register_instance_option :controller do
           Proc.new do
-            @casebook = @object
-            @owners = @object.owners
           end
         end
 
