@@ -54,37 +54,6 @@ end
 module RailsAdmin
   module Config
     module Actions
-      class TransferCasebookOwnership < RailsAdmin::Config::Actions::Base
-        RailsAdmin::Config::Actions.register(self)
-
-        register_instance_option :visible? do
-          authorized?
-        end
-
-        register_instance_option :member do
-          true
-        end
-
-        register_instance_option :http_methods do
-          [:get, :post]
-        end
-
-        register_instance_option :controller do
-          Proc.new do
-          end
-        end
-
-        register_instance_option :link_icon do
-          'icon-lock'
-        end
-      end
-    end
-  end
-end
-
-module RailsAdmin
-  module Config
-    module Actions
       class ShowInApp < RailsAdmin::Config::Actions::Base
         RailsAdmin::Config::Actions.register(self)
 
@@ -155,7 +124,6 @@ RailsAdmin.config do |config|
     new
 
     delete
-    transfer_casebook_ownership
     show_in_app
   end
 
