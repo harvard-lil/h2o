@@ -18,26 +18,24 @@ module RailsAdmin
 
         register_instance_option :controller do
           Proc.new do
-            if request.get? && params[:search].present? # searching users
+            # change role option?
+            # maybe do an :includes user for collabroators
+
+            if request.get? && params[:search].present?
+            # Searching for users   
               @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, display: u.display, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
-            elsif request.delete? # deleting a collaborator
+            elsif request.delete?
+            # Deleting a collaborator
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
-
-              destroyed_collaborator = collaborator.destroy!
-
-              if ! collaborator.destroy
-                flash[:error] = collaborator.errors.full_messages.to_sentence
-              end
-            elsif request.post? # adding a collaborator
+              destroyed = collaborator.destroy!
+              # surface destroyed.errors if they exist
+            elsif request.post?
               user_id = params[:button].to_i
               role = params[:role]
 
-              new_collaborator = @object.collaborators.new(user_id: user_id, role: role)
-              
-              if ! new_collaborator.save
-                flash[:error] = new_collaborator.errors.full_messages.to_sentence
-              end
+              # surface errors
+              @object.collaborators.create(user_id: user_id, role: role)
             end
           end
         end
