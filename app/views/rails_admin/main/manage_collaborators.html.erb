@@ -21,16 +21,14 @@
               <li>Verified professor: <%= user[:verified_professor] %></li>
             </ul>
 
-            <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']), class: "dropdown-menu", role: "button" %>
-              <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
+            <%= form_tag manage_collaborators_path, method: "post", class: "collaborator-form" do %>
+              <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']) %>
+              <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button', value: user[:id] %>
             <% end %> 
           </div>
         <% end %>
       </div> 
   <% end %> 
-
-  <hr class="divider">
 
   <h3 class="change-collaborators">Change collaborators</h3>
 
@@ -47,9 +45,12 @@
           <li>Verified professor: <%= user.verified_professor %></li>
         </ul>
         <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
-          <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button btn btn-danger', value: collaborator.id %>
+          <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button', value: collaborator.id %>
         <% end %> 
       </div>  
     <% end %>
   </div>
+
+
+  <!-- add popup when deleting user that says are you sure -->
 </div>
