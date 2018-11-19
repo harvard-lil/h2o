@@ -19,10 +19,7 @@ module RailsAdmin
         register_instance_option :controller do
           Proc.new do
             if request.get? && params[:search].present? # searching users
-              user_ids = @object.collaborators.pluck(:user_id)
-              users = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, display: u.display, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
-              @users = users.select {|user| user_ids.exclude? user[:id] }
-
+              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, display: u.display, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
             elsif request.delete? # deleting a collaborator
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
@@ -32,7 +29,6 @@ module RailsAdmin
               if ! collaborator.destroy
                 flash[:error] = collaborator.errors.full_messages.to_sentence
               end
-
             elsif request.post? # adding a collaborator
               user_id = params[:button].to_i
               role = params[:role].downcase
