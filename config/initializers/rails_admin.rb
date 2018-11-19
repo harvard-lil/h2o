@@ -23,10 +23,6 @@ module RailsAdmin
               users = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, display: u.display, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
               @users = users.select {|user| user_ids.exclude? user[:id] }
 
-              if @users.empty?
-                @search_term = params[:search]
-                @no_results = true
-              end
             elsif request.delete? # deleting a collaborator
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
