@@ -1,0 +1,34 @@
+<h4><%= 'Author'.pluralize(@object.owners.count) %>:</h4>
+<% @object.collaborators.each do |collaborator| %>
+  <% user = collaborator.user %>
+  <div class="owner-block">
+    <ul>
+      <li><%= collaborator.role %></li>
+      <li><%= user.display %></li>
+      <li><%= user.email_address %></li>
+      <li><%= user.id %></li>
+    </ul>
+    <%= form_tag transfer_casebook_ownership_path, :method => "delete" do %>
+      <%= button_tag t('admin.action.transfer_casebook_ownership.remove-owner'), class: 'remove-owner', value: collaborator.id %>
+    <% end %> 
+  </div>  
+<% end %>
+
+<h4 class="user-lookup-heading">User lookup</h4>
+<%= form_tag transfer_casebook_ownership_path, :method => "get" do %>
+  <%= text_field_tag 'search', 'Enter query here', class: 'user-lookup' %>
+  <%= submit_tag %>
+<% end %> 
+
+<h4>Users</h4>
+<% if @user_results.present? %>
+  <% @user_results.each do |user| %>
+    <%= user[:id] %>
+    <%= user[:email_address] %>
+  <% end %> 
+<% end %> 
+<!-- add popup when deleting user that says are you sure -->
+<!-- post to search 
+  < ajax autofill results> 
+
+post to select user ( and create content collaborator w/ select roll )  -->
