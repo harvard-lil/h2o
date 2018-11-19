@@ -13,30 +13,7 @@ module RailsAdmin
         end
 
         register_instance_option :http_methods do
-          [:get, :post, :delete]
-        end
-
-        register_instance_option :controller do
-          Proc.new do
-            if request.delete?
-              user_id = params[:button]
-              collaborator = Content::Collaborator.find_by(user_id: user_id, content_id: @object.id)
-              destroyed = collaborator.destroy!
-              # surface destroyed.errors if they exist
-            end
-          end
-        end
-
-        register_instance_option :link_icon do
-          'icon-lock'
-        end
-      end
-
-      class UserSearch < RailsAdmin::Config::Actions::Base
-        RailsAdmin::Config::Actions.register(self)
-
-        register_instance_option :http_methods do
-          [:post]
+          [:get, :post]
         end
 
         register_instance_option :controller do
@@ -44,6 +21,10 @@ module RailsAdmin
             @casebook = @object
             @owners = @object.owners
           end
+        end
+
+        register_instance_option :link_icon do
+          'icon-lock'
         end
       end
 
@@ -62,7 +43,7 @@ module RailsAdmin
           proc do
             if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
-            elsif @object.model_name.name.split(/::/).first == "Content"
+            elsif @object.model_name.name.split(/::/).first == "Content" ## if it's a Casebook
               if @object.public?
                 redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}"
               else
