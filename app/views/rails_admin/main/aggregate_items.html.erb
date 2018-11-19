@@ -1,0 +1,78 @@
+<% if @error.present? -%>
+<div class="alert alert-error">
+<%= @error %>
+</div>
+<% elsif request.post? -%>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load('visualization', '1.0', {'packages':['corechart']});
+
+  google.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ["Year - Month","Created", "Deleted"],
+      <% @dates.each do |date| -%>
+      ["<%= date %>", <%= @created[date].size %>, <%= @deleted[date].size %>],
+      <% end -%>
+    ]);
+
+    var options = {
+      hAxis: { title:"<%= @abstract_model %> Created & Deleted per Month (<%= params[:from] %> - <%= params[:to] %>)" }
+    };
+
+    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+    chart.draw(data, options); 
+
+    var data_totals = google.visualization.arrayToDataTable([
+      ["Year - Month","Created", "Deleted"],
+      <% @dates.each do |date| -%>
+      ["<%= date %>", <%= @totals_created[date] %>, <%= @totals_deleted[date] %>],
+      <% end -%>
+    ]);
+
+    var options_totals = {
+      hAxis: { title:"<%= @abstract_model %> Created & Deleted Aggregate (<%= params[:from] %> - <%= params[:to] %>)" }
+    };
+
+    var chart_totals = new google.visualization.ColumnChart(document.getElementById('totals_chart_div'));
+    chart_totals.draw(data_totals, options_totals);
+}
+</script>
+<table width="100%">
+  <tr>
+    <td><div id="chart_div" style="width: 650px; height: 300px;"></div></td>
+    <td><div id="totals_chart_div" style="width: 650px; height: 300px;"></div></td>
+  </tr>
+</table>
+<% end %>
+
+<%= form_tag aggregate_items_path, :method => "post" do %>
+    <label for="from">From</label>
+    <input type="text" id="from" name="from">
+    <label for="to">to</label>
+    <input type="text" id="to" name="to">
+    <br />
+    <input name="retrieve_data" type="submit" />
+<% end -%>
+
+<script type="text/javascript">
+$(function() {
+    $( "#from" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        numberOfMonths: 1,
+        onClose: function( selectedDate ) {
+            $( "#to" ).datepicker( "option", "minDate", selectedDate );
+        }
+    });
+    $( "#to" ).datepicker({
+        changeMonth: true,
+        changeYear: true,
+        numberOfMonths: 1,
+        onClose: function( selectedDate ) {
+            $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+        }
+    });
+});
+</script>
