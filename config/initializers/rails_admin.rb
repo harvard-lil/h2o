@@ -18,17 +18,13 @@ module RailsAdmin
 
         register_instance_option :controller do
           Proc.new do
-            # maybe do an :includes user for collabroators
-
-            if request.get? && params[:search].present?
-            # Searching for users   
-              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, attribution: u.attribution, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
-            elsif request.delete?
-            # Deleting a collaborator
-              collaborator_id = params[:button]
-              collaborator = Content::Collaborator.find(collaborator_id)
+            if request.delete?
+              user_id = params[:button]
+              collaborator = Content::Collaborator.find_by(user_id: user_id, content_id: @object.id)
               destroyed = collaborator.destroy!
               # surface destroyed.errors if they exist
+            elsif request.get? && params[:search].present?
+              @user_results = User.where("email_address LIKE ? OR attribution LIKE ? OR title LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").collect { |u| { id: u.id, attribution: u.attribution, affiliation: u.affiliation, email_address: u.email_address, verified_professor: u.verified_professor} }
             end
           end
         end
