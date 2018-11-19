@@ -68,6 +68,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def user_lookup
+    @users = User.where("(email_address = ? OR login = ? OR attribution = ? OR title = ? or id = ? )", params[:lookup], params[:lookup], current_user.id).collect { |u| { :display => "#{u.login} (#{u.email_address}) (#{u.attribution}) (#{u.title}) (#{u.id})", :id => u.id } }
+    render :json => { :items => @users }
+  end
+
   private
   def permitted_user_params
     permitted_fields = [:id, :name, :login, :password, :password_confirmation,
