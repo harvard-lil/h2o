@@ -14,7 +14,7 @@ public_casebook_section_1:
 
 public_casebook_section_1_1:
   casebook: public_casebook
-  headnote: <p<This is the first resource in the casebook.</p>
+  headnote: <p>This is the first resource in the casebook.</p>
   resource: public_case_1
   resource_type: Case
   ordinals: [1,1]

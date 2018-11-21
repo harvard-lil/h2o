@@ -1,8 +1,8 @@
 module H2o::Test::Helpers::Drivers
   def self.included(base)
-    Capybara.register_driver :poltergeist do |app|
+    # Capybara.register_driver :poltergeist do |app|
     # for inspector
-    # Capybara.register_driver :poltergeist_debug do |app|
+    Capybara.register_driver :poltergeist_debug do |app|
       Capybara::Poltergeist::Driver.new app,
         # inspector: true,
         # debug: true,
@@ -15,9 +15,9 @@ module H2o::Test::Helpers::Drivers
     end
     Capybara.default_max_wait_time = 10.seconds
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
-    javascript_driver = base.driven_by :poltergeist
+    # javascript_driver = base.driven_by :poltergeist
     # for inspector
-    # javascript_driver = base.driven_by :poltergeist_debug 
+    javascript_driver = base.driven_by :poltergeist_debug 
     static_driver = base.driven_by :rack_test
 
     base.setup do

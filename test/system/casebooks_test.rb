@@ -65,30 +65,28 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     scenario 'reordering casebook contents', js: true do
       skip
-      # This needs to be a javascript test. It's not possible to full test Axios on this level.
-      # Use: https://www.npmjs.com/package/xhr-mock
-      # Mock: /app/assets/javascripts/lib/requests.js
+      # drag and drop isn't working. Look at capybara.rb#105
+      # double check drag-mock npm package is being picked up 2. I am trying to make sure that the drag-mock nom package is being picked up 
+      # https://ricostacruz.com/til/npm-in-rails
+      
       casebook = content_nodes(:draft_casebook)
       resource = content_nodes(:'draft_casebook_section_1.1')
-
       visit casebook_path casebook
-      click_link 'Revise'
-
+     
+      click_link 'Return to Draft'
+     
       assert_content 'This casebook is a draft'
-      assert_content "1.1 #{resource.resource.name_abbreviation}"
+      assert_content "1.1\n#{resource.resource.name_abbreviation}"
 
-      # stub_request(:post, "http://127.0.0.1:56369/casebooks/#{casebook.id}/reorder/#{resource.ordinals}").with(body: {"child":{"ordinals":[2,1]},"reorder":true}, headers: {"X-HTTP-Method-Override":"patch"}).to_return(body: '{"data":{"responseURL": "http://127.0.0.1:56369/casebooks/#{casebook.id}/"}')
 
+      # save_and_open_page
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
-      assert_content "2.1 #{resource.resource.name_abbreviation}"
+      visit casebook_path casebook
+      assert_content "2.1\n#{resource.resource.name_abbreviation}"
     end
 
     scenario 'annotating a casebook', js: true do
-      skip
-      # This needs to be a javascript test. It's not possible to full test Axios on this level.
-      # Use: https://www.npmjs.com/package/xhr-mock
-      # Mock: /app/assets/javascripts/lib/requests.js
       casebook = content_nodes(:draft_casebook)
       resource = content_nodes(:'draft_casebook_section_1_2')
 
@@ -106,12 +104,12 @@ class CasebookSystemTest < ApplicationSystemTestCase
       find('a[data-annotation-type=elide]').click
 
       assert_no_content 'content to elide'
-      assert_content 'elided: Annotate'
+      assert_content 'elided: ✎;'
 
       visit annotate_resource_path casebook, resource
 
       find('.annotate.highlighted').assert_text 'content to highlight'
-      assert_content 'elided: Annotate'
+      assert_content 'elided: ✎;'
     end
   end
 end
