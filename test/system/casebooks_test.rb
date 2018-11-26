@@ -85,31 +85,5 @@ class CasebookSystemTest < ApplicationSystemTestCase
       visit casebook_path casebook
       assert_content "2.1\n#{resource.resource.name_abbreviation}"
     end
-
-    scenario 'annotating a casebook', js: true do
-      casebook = content_nodes(:draft_casebook)
-      resource = content_nodes(:'draft_casebook_section_1_2')
-
-      visit annotate_resource_path casebook, resource
-
-      select_text 'content to highlight'
-      sleep 0.1
-      find('a[data-annotation-type=highlight]').click
-
-      assert_selector('.annotate.highlighted')
-      find('.annotate.highlighted').assert_text 'content to highlight'
-
-      select_text 'content to elide'
-      sleep 0.1
-      find('a[data-annotation-type=elide]').click
-
-      assert_no_content 'content to elide'
-      assert_content 'elided: ✎;'
-
-      visit annotate_resource_path casebook, resource
-
-      find('.annotate.highlighted').assert_text 'content to highlight'
-      assert_content 'elided: ✎;'
-    end
   end
 end
