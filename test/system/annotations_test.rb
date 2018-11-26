@@ -3,16 +3,16 @@ require 'application_system_test_case'
 class AnnotationsSystemTest < ApplicationSystemTestCase
   
   describe 'as an anonymous visitor' do
-    scenario 'cannot annotate a casebook', js: true do
+    scenario 'cannot annotate a resource', js: true do
       casebook = content_nodes(:public_casebook)
       resource = content_nodes(:public_casebook_section_1_2)
-#  )
+
       visit resource_path casebook, resource
       assert_content resource.title
 
       select_text 'content to highlight'
       sleep 0.1
-      find('a[data-annotation-type=highlight]').click
+      refute_selector('a[data-annotation-type=highlight]') # annotation menu does not pop up
     end
   end
 
@@ -22,7 +22,7 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       sign_in @user = users(:verified_professor)
     end
 
-    scenario 'annotating a casebook', js: true do
+    scenario 'annotating a resource', js: true do
       casebook = content_nodes(:draft_casebook)
       resource = content_nodes(:'draft_casebook_section_1_2')
 
