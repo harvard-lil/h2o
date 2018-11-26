@@ -235,7 +235,7 @@ RailsAdmin.config do |config|
     edit do
       field :title
       field :subtitle
-      field :headnote
+      field :headnote, :ck_editor
       field :public
       field :ancestry do
         read_only true
