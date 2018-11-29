@@ -12,7 +12,6 @@ class User < ApplicationRecord
   end
 
   has_and_belongs_to_many :roles
-  has_many :responses
   has_many :text_blocks
   has_many :defaults
 
