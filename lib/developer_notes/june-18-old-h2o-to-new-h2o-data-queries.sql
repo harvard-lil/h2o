@@ -11,7 +11,7 @@ CREATE TABLE migration_playlists (
 );
 
 INSERT INTO migration_playlists (id)
-VALUES (1923);
+VALUES (53441), (53940), (22180);
 
 CREATE TABLE migration_playlist_items (
   id integer unique,
@@ -82,15 +82,13 @@ COPY (select * from playlist_items where id in (select id from migration_playlis
 
 COPY (select * from collages where id in (select id from migration_collages)) TO '/usr/local/var/postgres/collages.csv' DELIMITER ',' CSV HEADER;
 
-COPY (select * from text_blocks where id in (select id from migration_text_blocks)) TO '/usr/local/var/postgres/text_blocks.csv' DELIMITER ',' CSV HEADER;
+COPY (select * from text_blocks where id in (select id from migration_text_blocks)) TO '/usr/local/var/postgres/text_blocks.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
 
 COPY (select * from defaults where id in (select id from migration_defaults)) TO '/usr/local/var/postgres/defaults.csv' DELIMITER ',' CSV HEADER;
 
-COPY (select * from medias where id in (select id from migration_medias)) TO '/usr/local/var/postgres/media.csv' DELIMITER ',' CSV HEADER;
+COPY (select * from medias where id in (select id from migration_medias)) TO '/usr/local/var/postgres/medias.csv' DELIMITER ',' CSV HEADER;
 
 COPY (select * from annotations where id in (select id from migration_annotations)) TO '/usr/local/var/postgres/annotations.csv' DELIMITER ',' CSV HEADER;
-
-COPY (select * from users where id in (select id from migration_users)) TO '/usr/local/var/postgres/users.csv' DELIMITER ',' CSV HEADER;
 
 ------
 
@@ -115,8 +113,7 @@ DELETE FROM annotations;
 
 6. Update primary
 
-csv_text = File.read('/usr/local/var/postgres/defaults.csv')
-csv = CSV.parse(csv_text, headers: true)
+csv = CSV.read('/usr/local/var/postgres/defaults.csv', headers: true, encoding: 'windows-1251:utf-8')
 csv.each do |row|
   link = row.to_hash
   playlist_items = Migrate::PlaylistItem.where(actual_object_id: link["id"], actual_object_type: "Default")
@@ -125,15 +122,29 @@ csv.each do |row|
   playlist_items.map {|item| item.update(actual_object_id: new_link.id)}
 end
 
-csv_text = File.read('/usr/local/var/postgres/text_blocks.csv')
-csv = CSV.parse(csv_text, headers: true)
+csv = CSV.read('/usr/local/var/postgres/text_blocks.csv', headers: true, encoding: 'windows-1251:utf-8')
 csv.each do |row|
   text_block = row.to_hash
   collages = Migrate::Collage.where(annotatable_id: text_block["id"], annotatable_type: "TextBlock")
   playlist_items = Migrate::PlaylistItem.where(actual_object_type: "TextBlock", actual_object_id: text_block["id"])
   text_block.delete("id")
-  new_text_block = TextBlock.create(text_block)
+  if text_block[:created_via_import].nil?
+    text_block[:created_via_import] = 'f'
+  end
+  if text_block[:version].nil?
+    text_block[:version] = 1
+  end
+  if text_block[:enable_feedback].nil?
+    text_block[:enable_feedback] = false
+  end
+  if text_block[:enable_discussions].nil?
+    text_block[:enable_discussions] = false
+  end
+  if text_block[:enable_responses].nil?
+    text_block[:enable_responses] = false
+  end
 
+  new_text_block = TextBlock.create(text_block)
 
   if collages.present?
     collages.map {|collage| collage.update(annotatable_id: new_text_block.id)}
@@ -146,7 +157,7 @@ end
 
 7. Migrating 
 
-playlist_ids = [1923]
+playlist_ids = [53441, 53940, 22180]
 
 Migrate::Playlist.find(playlist_ids).map &:migrate
 
