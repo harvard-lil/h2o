@@ -26,6 +26,8 @@ public_case_to_annotate:
     highlighted: content to highlight;
     elided: content to elide;
     replaced: content to replace;
+    linked: content to link;
+    noted: content to note;
     commented: content to comment;
     highlighted2: second highlight content;
   public: true
