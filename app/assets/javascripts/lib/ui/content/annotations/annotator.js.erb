@@ -119,12 +119,12 @@ export class Annotator extends Component {
     case 'link':
       return html`
         <form class="create-form" data-annotation-type="link">
-          <input name="content" type="url" placeholder="Paste URL"  />
+          <input name="content" id="link-form" type="url" placeholder="Paste URL"  />
         </form>`;
     case 'note':
       return html`
         <form class="create-form" data-annotation-type="note">
-          <textarea name="content" placeholder="Note text..."></textarea>
+          <textarea name="content" id="note-textarea" placeholder="Note text..."></textarea>
           <input class="save-note" type="submit" value="Save" />
         </form>`;
     }
