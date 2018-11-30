@@ -63,24 +63,26 @@ class CasebookSystemTest < ApplicationSystemTestCase
       find('.results-entry .title').click
     end
 
-    scenario 'reordering casebook contents', js: true do
-      casebook = content_nodes(:draft_casebook)
-      resource = content_nodes(:'draft_casebook_section_1.1')
-      visit casebook_path casebook
+    describe 'reordering casebook contents' do
+      let (:casebook) { content_nodes(:draft_casebook) }
+      let (:resource) { content_nodes(:'draft_casebook_section_1.1') }
 
-      click_link 'Return to Draft'
+      before do
+        visit layout_casebook_path casebook
+      end
 
-      assert_content 'This casebook is a draft'
-      assert_content "1.1\n#{resource.resource.name_abbreviation}"
+      scenario 'resource down into a section', js: true do
+        assert_content 'This casebook is a draft'
+        assert_content "1.1\n#{resource.resource.name_abbreviation}"
 
+        simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
-      simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
+        sleep 0.3
 
-      sleep 0.3
+        visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url. TODO dig in deeper to the DRAGMOCK docs, this works for now though.
 
-      visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url
-
-      assert_content "2.1\n#{resource.resource.name_abbreviation}"
+        assert_content "2.1\n#{resource.resource.name_abbreviation}"
+      end
     end
   end
 end

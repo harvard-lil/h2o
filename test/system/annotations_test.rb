@@ -17,13 +17,13 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
 
   describe 'annotating a resource as a registered user' do
+    let (:casebook) { content_nodes(:draft_casebook) }
+    let (:resource) { content_nodes(:'draft_casebook_section_1_2') }
+
     before do
       sign_in @user = users(:verified_professor)
       visit annotate_resource_path casebook, resource
     end
-
-    let (:casebook) { content_nodes(:draft_casebook) }
-    let (:resource) { content_nodes(:'draft_casebook_section_1_2') }
 
     scenario 'highlighting', js: true do
       select_text 'content to highlight'
