@@ -2,7 +2,7 @@
 require 'application_system_test_case'
 
 class CasebookSystemTest < ApplicationSystemTestCase
-  
+
   describe 'as an anonymous visitor' do
     scenario 'viewing a casebook', solr: true do
       casebook = content_nodes(:public_casebook)
@@ -13,7 +13,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content casebook.title
 
       click_link section_1.title
-# 
+#
       click_link resource_1.resource.name_abbreviation
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content
@@ -64,25 +64,22 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'reordering casebook contents', js: true do
-      skip
-      # drag and drop isn't working. Look at capybara.rb#105
-      # double check drag-mock npm package is being picked up 2. I am trying to make sure that the drag-mock nom package is being picked up 
-      # https://ricostacruz.com/til/npm-in-rails
-      
       casebook = content_nodes(:draft_casebook)
       resource = content_nodes(:'draft_casebook_section_1.1')
       visit casebook_path casebook
-     
+
       click_link 'Return to Draft'
-     
+
       assert_content 'This casebook is a draft'
       assert_content "1.1\n#{resource.resource.name_abbreviation}"
 
 
-      # save_and_open_page
       simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
-      visit casebook_path casebook
+      sleep 0.3
+
+      visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url
+
       assert_content "2.1\n#{resource.resource.name_abbreviation}"
     end
   end
