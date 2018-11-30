@@ -68,7 +68,7 @@ export function isEditable () {
 
 function makeReplacementsContenteditable() {
   let replacements = document.querySelectorAll('.resource-wrapper .annotate.replacement .text');
-  for (let el of replacements) { el.contentEditable = true; }
+  for (let el of replacements) { el.contentEditable = true; el.id = 'replacement-text'}
 }
 
 document.addEventListener('selectionchange', e => {

@@ -1,6 +1,7 @@
 <template>
   <span>
     <button aria-label="Edit annotation"
+            id="edit-annotation"
             v-bind:style="{right: offsetRight + 'px'}"
             @click.prevent="$refs.mainMenu.open">✎</button>
 
