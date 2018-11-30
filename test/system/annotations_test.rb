@@ -11,7 +11,6 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       assert_content resource.title
 
       select_text 'content to highlight'
-      sleep 0.1
       refute_selector('a[data-annotation-type=highlight]') # annotation menu does not pop up
     end
   end
@@ -28,7 +27,6 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
     scenario 'highlighting', js: true do
       select_text 'content to highlight'
-      sleep 0.1
       find('a[data-annotation-type=highlight]').click
 
       assert_selector('.annotate.highlighted')
@@ -37,7 +35,6 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
     scenario 'eliding', js: true do
       select_text 'content to elide'
-      sleep 0.1
       find('a[data-annotation-type=elide]').click
 
       assert_no_content 'content to elide'
@@ -46,21 +43,18 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
     scenario 'replacement', js: true do
       select_text 'content to replace'
-      sleep 0.1
       find('a[data-annotation-type=replace]').click
       sleep 0.3
 
       page.execute_script("document.getElementsByClassName('replacement')[0].textContent = 'New Text'")
 
       assert_content 'New Text'
-      # this doesn't actually test saving these annotations because since it's a span you can't fill in text with capybara in a dynamic way and have the save menu show up
+      # this doesn't actually test saving these annotations because since it's a span you can't fill in text with capybara in a dynamic way and then hit enter, so the save menu does not show up
     end
 
     scenario 'adding a link', js: true do
       select_text 'content to link'
-      sleep 0.1
       find('a[data-annotation-type=link]').click
-      sleep 0.3
 
       fill_in 'link-form', with: 'https://testlink.org'
       find('#link-form').send_keys :enter
@@ -70,16 +64,27 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
     scenario 'adding a note', js: true do
       select_text 'content to note'
-      sleep 0.1
       find('a[data-annotation-type=note]').click
-      sleep 0.3
 
       fill_in 'note-textarea', with: 'Here is a new note'
       find('.save-note').click
+
+      find('.note-content', text: "Here is a new note") #acts as a assert_content for a span
+      assert_selector('.note-content')
     end
 
     scenario 'deleting an annotation', js: true do
-    end
+      select_text 'content to note'
+      find('a[data-annotation-type=note]').click
 
+      fill_in 'note-textarea', with: 'Here is a new note'
+      find('.save-note').click
+
+      click_button 'edit-annotation'
+      find('.context-menu').click # click on Remove Note link
+      sleep 0.3
+
+      refute_selector('.note-content')
+    end
   end
 end
