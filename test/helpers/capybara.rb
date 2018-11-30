@@ -1,12 +1,14 @@
 require 'securerandom'
 module H2o::Test::Helpers::Capybara
   include ActionView::Helpers::JavaScriptHelper
+
   def assert_path_changes
     # assert a redirect has occurred during block
     path = current_path
     yield
     assert_no_current_path path
   end
+
   def assert_links_to test_url
     begin
       yield
@@ -16,10 +18,12 @@ module H2o::Test::Helpers::Capybara
     end
     assert { current_url == test_url }
   end
+
   def random_token
     # generate a short random string
     SecureRandom.base64 8
   end
+
   def download_file url, to:
     downloads_dir = Rails.root.join("tmp/downloads")
     out_path = downloads_dir.join(to)
@@ -27,6 +31,7 @@ module H2o::Test::Helpers::Capybara
     IO.copy_stream(open(url), out_path)
     out_path
   end
+
   def select_text text
     page.execute_script <<-JS
         var range = rangy.createRange();
@@ -38,6 +43,7 @@ module H2o::Test::Helpers::Capybara
     JS
     find('.selected-container').trigger :mouseup
   end
+
   def sign_in user
     # This directly logs in the user.
     # Don't use this when testing login itself!
@@ -58,12 +64,15 @@ module H2o::Test::Helpers::Capybara
     end
     password
   end
+
   def sign_out
       visit log_out_path
   end
+
   def go_back
     visit page.driver.request.env['HTTP_REFERER']
   end
+
   def simulate_mouse_event(selector, event_name, xy={})
     # Trigger an event with options
     page.execute_script <<-JS
@@ -75,21 +84,7 @@ module H2o::Test::Helpers::Capybara
       $('#{selector}')[0].dispatchEvent(event);
     JS
   end
-  def simulate_drag src, targ
-    drag_rect = evaluate_script "document.querySelector('#{src}').getBoundingClientRect()"
-    drop_rect = evaluate_script "document.querySelector('#{targ}').getBoundingClientRect()"
-    drag_xy = {x: drag_rect['left'] + drag_rect['width']/2, y:  drag_rect['top'] + drag_rect['height']/2}
-    drop_xy = {x: drop_rect['left'] + drop_rect['width']/2, y:  drop_rect['top'] + drop_rect['height']/2}
 
-    simulate_mouse_event src, :mousedown, drag_xy
-    sleep 0.05
-    simulate_mouse_event src, :mousemove, drop_xy
-    sleep 0.05
-    simulate_mouse_event src, :mousemove, drop_xy
-    sleep 0.05
-    simulate_mouse_event src, :mouseup, drop_xy
-    sleep 0.05
-  end
   def simulate_drag_drop source, target, position: :top
     execute_script <<-JS
       var source = document.querySelector('#{source}');
@@ -115,14 +110,6 @@ module H2o::Test::Helpers::Capybara
       ACTIVE_DRAGMOCK.dragOver(target, #{drop_position.to_json})
       .drop(target, #{drop_position.to_json});
     JS
-  end
-  def wait_for_ajax
-    Timeout.timeout(Capybara.default_max_wait_time) do
-      active = page.evaluate_script('jQuery.active')
-      until active == 0
-        active = page.evaluate_script('jQuery.active')
-      end
-    end
   end
   def reload_page
     page.evaluate_script("window.location.reload()")
