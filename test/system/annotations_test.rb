@@ -18,7 +18,7 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
 
   describe 'annotating a resource as a registered user' do
     let (:casebook) { content_nodes(:draft_casebook) }
-    let (:resource) { content_nodes(:'draft_casebook_section_1_2') }
+    let (:resource) { content_nodes(:'draft_resource_2') }
 
     before do
       sign_in @user = users(:verified_professor)
@@ -44,9 +44,11 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
     scenario 'replacement', js: true do
       select_text 'content to replace'
       find('a[data-annotation-type=replace]').click
-      sleep 0.3
+      sleep 0.5
 
       page.execute_script("document.getElementsByClassName('replacement')[0].textContent = 'New Text'")
+
+      sleep 0.1
 
       assert_content 'New Text'
       # this doesn't actually test saving these annotations because since it's a span you can't fill in text with capybara in a dynamic way and then hit enter, so the save menu does not show up
