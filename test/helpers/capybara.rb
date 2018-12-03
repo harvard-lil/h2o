@@ -100,7 +100,7 @@ module H2o::Test::Helpers::Capybara
       clientY: drop_rect['top'] + drop_rect['height'] / 2
     }
     if position == :top
-      drop_position[:clientY] -= 5
+      drop_position[:clientY] -= 50
     elsif position == :bottom
       drop_position[:clientY] += 5
     end

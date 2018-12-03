@@ -48,7 +48,7 @@ draft_casebook_section_1:
   ordinals: [1]
   copy_of: public_casebook_section_1
 
-draft_casebook_section_1.1:
+draft_resource_1:
   casebook: draft_casebook
   headnote: >
     This is the first resource in the casebook.
@@ -57,7 +57,7 @@ draft_casebook_section_1.1:
   ordinals: [1,1]
   copy_of: public_casebook_section_1_1
 
-draft_casebook_section_1_2:
+draft_resource_2:
   casebook: draft_casebook
   headnote: >
     This is an annotatable resource in the casebook.

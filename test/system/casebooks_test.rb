@@ -65,7 +65,11 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     describe 'reordering casebook contents' do
       let (:casebook) { content_nodes(:draft_casebook) }
-      let (:resource) { content_nodes(:'draft_casebook_section_1.1') }
+      let (:resource_1) { content_nodes(:'draft_resource_1') }
+      let (:resource_2) { content_nodes(:'draft_resource_2') }
+      let (:section_1) { content_nodes(:'draft_casebook_section_1') }
+      let (:section_2) { content_nodes(:'draft_casebook_section_2') }
+
 
       before do
         visit layout_casebook_path casebook
@@ -73,15 +77,33 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       scenario 'resource down into a section', js: true do
         assert_content 'This casebook is a draft'
-        assert_content "1.1\n#{resource.resource.name_abbreviation}"
+        assert_content "1.1\n#{resource_1.resource.name_abbreviation}"
 
         simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
 
         sleep 0.3
 
-        visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url. TODO dig in deeper to the DRAGMOCK docs, this works for now though.
+        visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url. Since the drag and dropping is being done and just the retruning URL is wrong, this works fine for now. TODO dig in deeper to the DRAGMOCK docs.
 
-        assert_content "2.1\n#{resource.resource.name_abbreviation}"
+        assert_content "2.1\n#{resource_1.resource.name_abbreviation}"
+        assert_content "1.1\n#{resource_2.resource.name_abbreviation}"
+      end
+
+      scenario 'section above top section', js: true do
+        assert_content 'This casebook is a draft'
+        assert_content "2\n#{section_2.title}"
+
+        simulate_drag_drop '.listing[data-ordinals="2"]', '.table-of-contents > .listing-wrapper', position: :top
+
+        sleep 0.3
+
+        visit casebook_path casebook #action_name is being set to undefined so the result of simulate_drag_drop is an invalid url. Since the drag and dropping is being done and just the retruning URL is wrong, this works fine for now. TODO dig in deeper to the DRAGMOCK docs.
+
+        puts current_url
+        # binding.pry
+
+        assert_content "1\n#{section_2.title}"
+        assert_content "2\n#{section_1.title}"
       end
     end
   end
