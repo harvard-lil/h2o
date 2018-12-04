@@ -542,9 +542,9 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   .p-handle {
     @include size(0px, 0px);
 
+    /* Intentionally hide this rule from Firefox by disabling prefixing */
     /* autoprefixer: off */
     user-select: none;
-    /* autoprefixer: on */
 
     float: left;
     position: relative;
