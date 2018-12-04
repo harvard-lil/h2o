@@ -94,8 +94,9 @@ document.addEventListener('selectionchange', e => {
       annotator.deactivate();
     }
   } else {
-    let range = selection.getRangeAt(0);
-    annotator.select(range);
+    let ranges = {first: selection.getRangeAt(0),
+                  last: selection.getRangeAt(selection.rangeCount-1)};
+    annotator.select(ranges);
   }
 });
 
