@@ -1,16 +1,16 @@
 // Find the start and end paragraph and offset for a selection
-export function offsetsForRange(range) {
-  if (!(range.commonAncestorContainer.nodeType === document.TEXT_NODE ||
-    range.commonAncestorContainer.tagName === 'P' ||
-    range.commonAncestorContainer.classList.contains('case-text'))) {
+export function offsetsForRanges(ranges) {
+  if (!(ranges.first.commonAncestorContainer.nodeType === document.TEXT_NODE ||
+    ranges.first.commonAncestorContainer.tagName === 'P' ||
+    ranges.first.commonAncestorContainer.classList.contains('case-text'))) {
     return null;
   }
-  if (range.collapsed) { return null; }
+  if (ranges.first.collapsed) { return null; }
 
-  let startParagraph = closestP(range.startContainer);
-  let endParagraph = closestP(range.endContainer);
-  let startOffset = offsetInParagraph(startParagraph, range.startContainer, range.startOffset);
-  let endOffset = offsetInParagraph(endParagraph, range.endContainer, range.endOffset);
+  let startParagraph = closestP(ranges.first.startContainer);
+  let endParagraph = closestP(ranges.last.endContainer);
+  let startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
+  let endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
   return  {
     start: {
       p: startParagraph.dataset.pIdx,
