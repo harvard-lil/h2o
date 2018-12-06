@@ -124,6 +124,11 @@ class Case < ApplicationRecord
     Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
   end
 
+  def associated_casebooks
+    casebook_ids = Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).pluck(:casebook_id)
+    Content::Casebook.where(id: casebook_ids).select(:id, :title)
+  end
+
   private
 
   def date_check
