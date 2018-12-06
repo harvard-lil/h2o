@@ -52,7 +52,7 @@ class AdminSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'deleting a case', js: true do
-  kase = cases(:public_case_1)
+    kase = cases(:public_case_1)
     visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
 
     click_link 'Delete'
