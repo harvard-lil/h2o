@@ -37,3 +37,9 @@ text_to_respond:
   public: true
   user: verified_professor
   enable_responses: true
+
+unused_text:
+  name: Unused text
+  content: This is some content.
+  public: true
+  user: verified_professor

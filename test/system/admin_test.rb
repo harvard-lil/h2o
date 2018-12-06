@@ -52,29 +52,60 @@ class AdminSystemTest < ApplicationSystemTestCase
   end
 
   scenario 'deleting a case', js: true do
-    kase = cases(:public_case_1)
+    kase = cases(:unused_case)
     visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
 
     click_link 'Delete'
+
     click_button 'Yes, I\'m sure'
     assert_content 'Case successfully deleted'
   end
 
+  scenario 'can\'t delete a case that is used in a casebook', js: true do
+    kase = cases(:public_case_1)
+    visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
+
+    click_link 'Delete'
+
+    assert_content "Can't delete Case because it's used in casebooks:"
+    refute_button 'Yes, I\'m sure'
+  end
+
   scenario 'deleting a text block', js: true do
-    text_block = text_blocks(:public_text_1)
+    text_block = text_blocks(:unused_text)
     visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
 
     click_link 'Delete'
+
     click_button 'Yes, I\'m sure'
     assert_content 'Text successfully deleted'
   end
 
+  scenario 'can\'t delete a text block that is used in a casebook', js: true do
+    text_block = text_blocks(:public_text_1)
+    visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+
+    click_link 'Delete'
+
+    assert_content "Can't delete TextBlock because it's used in casebooks:"
+    refute_button 'Yes, I\'m sure'
+  end
+
   scenario 'deleting a link (default)', js: true do
-    link = defaults(:link_one)
+    link = defaults(:unused_link)
     visit(rails_admin.edit_path(model_name: 'default', id: link.id))
 
     click_link 'Delete'
     click_button 'Yes, I\'m sure'
     assert_content 'Link successfully deleted'
+  end
+
+  scenario 'can\'t delete a link(default) that is used in a casebook', js: true do
+    link = defaults(:link_one)
+    visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+
+    click_link 'Delete'
+    assert_content "Can't delete Default because it's used in casebooks:"
+    refute_button 'Yes, I\'m sure'
   end
 end
