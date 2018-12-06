@@ -64,6 +64,16 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       assert_link "content to link", href: "https://testlink.org"
     end
 
+    scenario 'adding a link without http', js: true do
+      select_text 'content to link'
+      find('a[data-annotation-type=link]').click
+
+      fill_in 'link-form', with: 'testlink.org'
+      find('#link-form').send_keys :enter
+
+      assert_link "content to link", href: "http://testlink.org"
+    end
+
     scenario 'adding a note', js: true do
       select_text 'content to note'
       find('a[data-annotation-type=note]').click
