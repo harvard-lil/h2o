@@ -9,7 +9,7 @@ class Default < ApplicationRecord
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
 
-  has_many :casebooks, inverse_of: :resource
+  has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   searchable(:include => [:metadatum, :tags]) do
     text :display_name

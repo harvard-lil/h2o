@@ -8,7 +8,7 @@ class Case < ApplicationRecord
 
   acts_as_taggable_on :tags
 
-  has_many :casebooks, inverse_of: :resource, class_name: 'Content::Casebook'
+  has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
   belongs_to :case_court, optional: true, inverse_of: :cases
 
   accepts_nested_attributes_for :case_court,
