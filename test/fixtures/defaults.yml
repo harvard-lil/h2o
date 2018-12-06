@@ -9,3 +9,9 @@ admin_link:
   url: http://www.nytimes.com/2009/03/29/technology/29spy.html?_r=1&hp=&pagewanted=all
   description: An American program of increasingly sophisticated attacks on the computer systems that ran Iran’s main nuclear enrichment facilities, allegedly responsible for production of the Flame cyber collection platform and the Stuxnet cyber weapon.
   user: case_admin
+
+unused_link:
+  name: Unused link
+  url: http://www.nytimes.com/2013/03/29/us/long-prison-term-shortened-by-judges-regrets.html
+  description: This New York Times article discusses a woman who was released early from jail after being sentenced under the mandatory sentencing guidelines.
+  public: true

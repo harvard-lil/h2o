@@ -83,3 +83,12 @@ case_with_capapi_id:
   case_court: district_jurisdiction
   content: This is the body of case with citation.
   public: true
+
+unused_case:
+  name_abbreviation: Unused case
+  name: Case of the District Number 1
+  decision_date: 1999-01-10
+  opinions: {"majority": "Judge Person"}
+  case_court: district_jurisdiction
+  content: This is the body of case 1.
+  public: true
