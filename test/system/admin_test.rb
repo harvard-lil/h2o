@@ -50,4 +50,31 @@ class AdminSystemTest < ApplicationSystemTestCase
     assert_content 'Casebook successfully updated'
     assert_content 'New Title'
   end
+
+  scenario 'deleting a case', js: true do
+  kase = cases(:public_case_1)
+    visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
+
+    click_link 'Delete'
+    click_button 'Yes, I\'m sure'
+    assert_content 'Case successfully deleted'
+  end
+
+  scenario 'deleting a text block', js: true do
+    text_block = text_blocks(:public_text_1)
+    visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+
+    click_link 'Delete'
+    click_button 'Yes, I\'m sure'
+    assert_content 'Text successfully deleted'
+  end
+
+  scenario 'deleting a link (default)', js: true do
+    link = defaults(:link_one)
+    visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+
+    click_link 'Delete'
+    click_button 'Yes, I\'m sure'
+    assert_content 'Link successfully deleted'
+  end
 end
