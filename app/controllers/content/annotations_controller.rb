@@ -6,7 +6,13 @@ class Content::AnnotationsController < ApplicationController
   before_action :find_resource, only: [:create, :destroy, :update]
 
   def create
-    annotation = Content::Annotation.create! annotation_params.merge(resource: @resource)
+    params = annotation_params
+
+    if params[:kind] == 'link'
+      params[:content] = UrlDomainFormatter.format(params[:content])
+    end
+
+    annotation = Content::Annotation.create! params.merge(resource: @resource)
     respond_to do |format|
       format.json { render json: {annotation_id: annotation.id}}
       format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
