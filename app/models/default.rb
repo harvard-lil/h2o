@@ -55,4 +55,8 @@ class Default < ApplicationRecord
   def self.content_types_options
     %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
+
+  def has_casebooks?
+    Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
+  end
 end

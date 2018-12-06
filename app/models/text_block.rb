@@ -75,4 +75,8 @@ class TextBlock < ApplicationRecord
   def clean_content
     self.content.gsub!(/\p{Cc}/, "")
   end
+
+  def has_casebooks?
+    Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
+  end
 end
