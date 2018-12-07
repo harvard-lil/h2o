@@ -21,7 +21,7 @@
 
     <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
       <form v-on:submit.prevent="submitUpdate">
-        <input name="content" type="url" placeholder="Url to link to..." v-model="content"/>
+        <input name="content" id="link-form" placeholder="Url to link to..." v-model="content"/>
       </form>
     </ContextMenu>
   </span>

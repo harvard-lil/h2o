@@ -61,7 +61,7 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       fill_in 'link-form', with: 'https://testlink.org'
       find('#link-form').send_keys :enter
 
-      assert_link "content to link", href: "https://testlink.org"
+      has_link?('content to link', href: 'https://testlink.org')
     end
 
     scenario 'adding a link without http', js: true do
@@ -71,7 +71,7 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       fill_in 'link-form', with: 'testlink.org'
       find('#link-form').send_keys :enter
 
-      assert_link "content to link", href: "http://testlink.org"
+      has_link?('content to link', href: 'http://testlink.org')
     end
 
     scenario 'adding a note', js: true do
