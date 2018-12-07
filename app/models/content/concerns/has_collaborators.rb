@@ -16,7 +16,6 @@ module Content::Concerns::HasCollaborators
       end
 
       has_many :editors, -> {where content_collaborators: {role: 'editor'}}, class_name: 'User', through: :collaborators, source: :user
-      has_many :reviewers, -> {where content_collaborators: {role: 'reviewer'}}, class_name: 'User', through: :collaborators, source: :user
       has_many :followers, -> {where content_collaborators: {role: 'follower'}}, class_name: 'User', through: :collaborators, source: :user
 
   end

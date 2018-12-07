@@ -1,6 +1,6 @@
 class Content::Collaborator < ApplicationRecord
   self.table_name = :content_collaborators
-  ROLES = %w{owner editor reviewer}
+  ROLES = %w{owner editor}
 
   belongs_to :user
   belongs_to :content, class_name: 'Content::Node'

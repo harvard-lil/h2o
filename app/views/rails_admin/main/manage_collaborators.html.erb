@@ -22,7 +22,7 @@
             </ul>
 
             <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']), class: "dropdown-menu", role: "button" %>
+              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu", role: "button" %>
               <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
             <% end %> 
           </div>
