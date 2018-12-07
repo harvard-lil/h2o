@@ -3,7 +3,11 @@ en:
     actions:
       show_in_app:
         menu: "Show in H2O"
-      aggregate_items:
-        menu: "Created / Deleted Stats"
-        breadcrumb: "Created / Deleted Stats"
-        title: "Created / Deleted Stats"
+      manage_collaborators:
+        menu: "Manage Collaborators"
+        breadcrumb: "Manage Collaborators"
+        title: "Manage Collaborators"
+        remove-collaborator: "Remove user"
+        add-collaborator: "Add user"
+        query-placeholder: "New collaborator"
+        search-button: "Find"

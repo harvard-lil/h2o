@@ -1,0 +1,57 @@
+<div class="manage-collaborators-container">
+  <div class="collaborator-search">
+    <h3>Add collaborator</h3>
+    <div class="form-group">
+      <%= form_tag manage_collaborators_path, method: "get", class: 'search-form' do %>
+        <span class="fa fa-search search-icon"></span>
+        <%= search_field_tag 'search', nil, placeholder: 'Example professor', class: "form-control search-field" %>
+      <% end %>
+    </div>
+  </div> 
+
+  <% if @users.present? %>
+    <div class="collaborators">
+      <% @users.each do |user| %>
+          <div class="collaborator-block">
+            <ul>
+              <li>User id: <%= user[:id] %></li>
+              <li>Display name: <%= user[:display] %></li>
+              <li>Affiliation: <%= user[:affiliation] %></li>
+              <li>Email: <%= user[:email_address] %></li>
+              <li>Verified professor: <%= user[:verified_professor] %></li>
+            </ul>
+
+            <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
+              <%= select_tag "role", options_for_select(['Owner', 'Editor', 'Reviewer']), class: "dropdown-menu", role: "button" %>
+              <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
+            <% end %> 
+          </div>
+        <% end %>
+      </div>
+  <% elsif @no_results == true %>
+    <div class="no-results">No results for '<%= @search_term %>'</div> 
+  <% end %> 
+
+  <hr class="divider">
+
+  <h3 class="change-collaborators">Change collaborators</h3>
+
+  <div class="collaborators">
+    <% @object.collaborators.each do |collaborator| %>
+      <% user = collaborator.user %>
+      <div class="collaborator-block">
+        <ul>
+          <li>User id: <%= user.id %></li>
+          <li><%= collaborator.role.capitalize %></li>
+          <li>Display name: <%= user.display %></li>
+          <li>Affiliation: <%= user.affiliation %></li>
+          <li>Email: <%= user.email_address %></li>
+          <li>Verified professor: <%= user.verified_professor %></li>
+        </ul>
+        <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
+          <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button btn btn-danger', value: collaborator.id %>
+        <% end %> 
+      </div>  
+    <% end %>
+  </div>
+</div>
