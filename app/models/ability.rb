@@ -18,7 +18,6 @@ class Ability
       can [:new, :create], :users
       return
     else
-      can [:user_lookup, :disconnect_dropbox], :users
       can :create, :responses
 
       can :destroy, :user_sessions
@@ -57,7 +56,6 @@ class Ability
       can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :edit, :update, :position_update, :update_notes, :save_readable_state], :all
-      can :aggregate_items, [TextBlock, Default, User]
       can [:import], [Default]
       can :show_in_app, [Case, User, Content::Casebook]
 
