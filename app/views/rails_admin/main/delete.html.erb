@@ -5,7 +5,7 @@
 
   <ul>
     <% @object.associated_casebooks.each do |casebook| %>
-      <li><%= link_to(casebook.title, rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id)) %></li>
+      <li><%= link_to(casebook.title, main_app.layout_casebook_path(casebook.id)) %></li>
     <% end %>
   </ul>
 <% else %>
