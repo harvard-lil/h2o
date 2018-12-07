@@ -69,18 +69,8 @@ module RailsAdmin
           proc do
             if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
-            elsif @object.model_name.name.split(/::/).first == "Content" ## if it's a Casebook
-              if @object.public?
-                redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}"
-              else
-                redirect_to "/#{@object.model_name.name.split(/::/).second.downcase.pluralize}/#{object.id}/edit"
-              end
-            elsif @object.is_a?(TextBlock) || @object.is_a?(Default)
-              resource = Content::Resource.find_by(resource_id: @object.id)
-
-              url_end = "edit" if ! resource.casebook.public?
-
-              redirect_to "/casebooks/#{resource.casebook_id}/resources/#{resource.ordinals.join('.')}/#{url_end}"
+            elsif @object.class == Content::Casebook
+              redirect_to main_app.layout_casebook_path(@object.id)
             else
               redirect_to main_app.url_for(@object)
             end
