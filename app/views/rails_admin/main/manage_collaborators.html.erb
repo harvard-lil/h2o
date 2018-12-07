@@ -23,6 +23,12 @@
 
             <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
               <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu", role: "button" %>
+              <div class="form-check">
+                <span class="form-check-label">
+                  <%= check_box_tag "has_attribution", value: "1", checked: false, class: "form-check-input", type: "checkbox", role: "checkbox" %>
+                  Grant attribution status
+                </span>
+              </div>
               <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
             <% end %> 
           </div>
@@ -47,6 +53,7 @@
           <li>Affiliation: <%= user.affiliation %></li>
           <li>Email: <%= user.email_address %></li>
           <li>Verified professor: <%= user.verified_professor %></li>
+          <li>Has attribution: <%= collaborator.has_attribution %></li>
         </ul>
         <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
           <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button btn btn-danger', value: collaborator.id %>

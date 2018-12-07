@@ -1,4 +1,5 @@
 <% content.attributors.each do |user| %>
+  <!-- showing up but needs comma / some seperation -->
   <div class="user <% if user.verified_professor? %> verified <% end %>">
     <%= link_to user.display_name, user_path(user) %>
   </div>
