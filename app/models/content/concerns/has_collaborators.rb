@@ -13,6 +13,8 @@ module Content::Concerns::HasCollaborators
       end
     end
 
+    has_many :attributors, -> {where content_collaborators: {has_attribution: true}}, class_name: 'User', through: :collaborators, source: :user
+
     def owners= (users)
       self.collaborators = (self.collaborators || []).reject {|c| c.role == 'owner'} + users.map {|user| Content::Collaborator.new(user: user, role: 'owner')}
     end
