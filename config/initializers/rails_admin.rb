@@ -70,8 +70,9 @@ module RailsAdmin
             elsif request.post? # adding a collaborator
               user_id = params[:button].to_i
               role = params[:role].downcase
+              has_attribution = params[:has_attribution]
 
-              new_collaborator = @object.collaborators.new(user_id: user_id, role: role)
+              new_collaborator = @object.collaborators.new(user_id: user_id, role: role, has_attribution: has_attribution)
               
               if ! new_collaborator.save
                 flash[:error] = new_collaborator.errors.full_messages.to_sentence
