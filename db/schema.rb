@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_23_133104) do
+ActiveRecord::Schema.define(version: 2018_12_07_221258) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -146,6 +146,7 @@ ActiveRecord::Schema.define(version: 2018_08_23_133104) do
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "has_attribution", default: false, null: false
     t.index ["content_id"], name: "index_content_collaborators_on_content_id"
     t.index ["user_id", "content_id"], name: "index_content_collaborators_on_user_id_and_content_id", unique: true
     t.index ["user_id"], name: "index_content_collaborators_on_user_id"
