@@ -6,7 +6,6 @@ module Content::Concerns::HasCollaborators
   included do
     has_many :users, class_name: 'User', through: :collaborators, source: :user, inverse_of: :content_collaborators
     has_many :editors, -> {where content_collaborators: {role: 'editor'}}, class_name: 'User', through: :collaborators, source: :user
-    has_many :followers, -> {where content_collaborators: {role: 'follower'}}, class_name: 'User', through: :collaborators, source: :user
     has_many :owners, -> {where content_collaborators: {role: 'owner'}}, class_name: 'User', through: :collaborators, source: :user do
       
       def << (*users)
