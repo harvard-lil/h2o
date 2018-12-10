@@ -22,10 +22,11 @@
             </ul>
 
             <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu", role: "button" %>
-              <div class="form-check">
+              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
+              <div class="form-check has_attribution">
                 <span class="form-check-label">
-                  <%= check_box_tag "has_attribution", value: "1", checked: false, class: "form-check-input", type: "checkbox", role: "checkbox" %>
+                  <%= hidden_field_tag 'has_attribution', false %>
+                  <%= check_box_tag "has_attribution", value: "true", class: "form-check-input", type: "checkbox", role: "checkbox" %>
                   Grant attribution status
                 </span>
               </div>
