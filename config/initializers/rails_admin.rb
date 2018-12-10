@@ -45,7 +45,7 @@ module RailsAdmin
         end
 
         register_instance_option :http_methods do
-          [:get, :post, :delete]
+          [:get, :post, :delete, :patch]
         end
 
         register_instance_option :controller do
@@ -59,11 +59,12 @@ module RailsAdmin
                 @search_term = params[:search]
                 @no_results = true
               end
+
             elsif request.delete? # deleting a collaborator
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
 
-              if ! collaborator.destroy
+              if collaborator.destroy == false
                 flash[:error] = collaborator.errors.full_messages.to_sentence
               end
 
@@ -74,8 +75,18 @@ module RailsAdmin
 
               new_collaborator = @object.collaborators.new(user_id: user_id, role: role, has_attribution: has_attribution)
               
-              if ! new_collaborator.save
+              if new_collaborator.save == false
                 flash[:error] = new_collaborator.errors.full_messages.to_sentence
+              end
+
+            elsif request.patch? #updating a collaborator
+              collaborator_id = params[:button].to_i
+              has_attribution = params[:has_attribution]
+
+              collaborator = Content::Collaborator.find(collaborator_id)
+
+              if collaborator.update(has_attribution: has_attribution) == false
+                flash[:error] = collaborator.errors.full_messages.to_sentence
               end
             end
           end
