@@ -14,22 +14,22 @@
       <% @users.each do |user| %>
           <div class="collaborator-block">
             <ul>
-              <li>User id: <%= user[:id] %></li>
-              <li>Display name: <%= user[:display] %></li>
-              <li>Affiliation: <%= user[:affiliation] %></li>
-              <li>Email: <%= user[:email_address] %></li>
-              <li>Verified professor: <%= user[:verified_professor] %></li>
+              <li><span class="lightly-bolded">User id:</span> <%= user[:id] %></li>
+              <li><span class="lightly-bolded">Display name:</span> <%= user[:display] %></li>
+              <li><span class="lightly-bolded">Affiliation:</span> <%= user[:affiliation] %></li>
+              <li><span class="lightly-bolded">Email:</span> <%= user[:email_address] %></li>
+              <li><span class="lightly-bolded">Verified professor:</span> <%= user[:verified_professor] %></li>
             </ul>
 
             <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
               <div class="form-check has_attribution">
                 <span class="form-check-label">
                   <%= hidden_field_tag 'has_attribution', false %>
                   <%= check_box_tag "has_attribution", value: "true", class: "form-check-input", type: "checkbox", role: "checkbox" %>
-                  Grant attribution status
+                  <span class="lightly-bolded">Grant attribution status</span>
                 </span>
               </div>
+              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
               <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
             <% end %> 
           </div>
@@ -48,14 +48,26 @@
       <% user = collaborator.user %>
       <div class="collaborator-block">
         <ul>
-          <li>User id: <%= user.id %></li>
-          <li><%= collaborator.role.capitalize %></li>
-          <li>Display name: <%= user.display %></li>
-          <li>Affiliation: <%= user.affiliation %></li>
-          <li>Email: <%= user.email_address %></li>
-          <li>Verified professor: <%= user.verified_professor %></li>
-          <li>Has attribution: <%= collaborator.has_attribution %></li>
+          <li><span class="lightly-bolded">Display name:</span> <%= user.display %></li>
+          <li><span class="lightly-bolded">Role:</span> <%= collaborator.role.capitalize %></li>
+          <li><span class="lightly-bolded">User id:</span> <%= user.id %></li>
+          <li><span class="lightly-bolded">Affiliation:</span> <%= user.affiliation %></li>
+          <li><span class="lightly-bolded">Email:</span> <%= user.email_address %></li>
+          <li><span class="lightly-bolded">Verified professor:</span> <%= user.verified_professor %></li>
+          <div class="form-check edit-attribution-form">
+            <span class="form-check-label">
+              <%= hidden_field_tag 'has_attribution', false %>
+              <% collaborator.has_attribution == true ? checked = "checked" : "" %>
+              <%= check_box_tag "has_attribution", collaborator.has_attribution, checked, class: "form-check-input", type: "checkbox", role: "checkbox" %>
+             <span class="lightly-bolded">Has attribution</span>
+            </span>
+          </div>
         </ul>
+
+        <%= form_tag manage_collaborators_path, method: "post", class: "submit-edit-attribution" do %>
+          <%= button_tag t('admin.action.manage_collaborators.update'), class: 'btn btn-default', value: user[:id] %>
+        <% end %>
+
         <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
           <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button btn btn-danger', value: collaborator.id %>
         <% end %> 

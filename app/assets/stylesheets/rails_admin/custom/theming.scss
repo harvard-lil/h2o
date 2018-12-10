@@ -64,11 +64,14 @@
     align-items: center;
     flex-direction: column;
 
-    .add-collaborator-form{
+    .lightly-bolded {
+      font-weight: 500px;
+    }
+
+    .add-collaborator-form, .submit-edit-attribution {
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      min-width: 158px;
 
       .role {
         display: block;
@@ -90,7 +93,15 @@
       justify-content: center;
       align-content: center;
       flex-direction: column;
-      padding: 15px 0;
+      padding: 8px 0 15px 0;
+    }
+
+    .add-collaborator-form, .submit-edit-attribution, .delete-collaborator {
+      min-width: 216px;
+    }
+
+    .edit-attribution-form {
+      margin-left: -17px; 
     }
   }
 }
