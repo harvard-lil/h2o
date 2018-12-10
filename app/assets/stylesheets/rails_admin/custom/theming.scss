@@ -70,10 +70,14 @@
       align-items: stretch;
       min-width: 158px;
 
-      .dropdown-menu {
+      .role {
         display: block;
         position: static;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.175);
+        box-shadow: none;
+      }
+
+      .has_attribution {
+        margin-top: 10px;
       }
 
       .collaborator-button {
