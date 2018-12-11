@@ -51,61 +51,105 @@ class AdminSystemTest < ApplicationSystemTestCase
     assert_content 'New Title'
   end
 
-  scenario 'deleting a case', js: true do
-    kase = cases(:unused_case)
-    visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
+  describe 'deleting a resource' do 
+    scenario 'deleting a case', js: true do
+      kase = cases(:unused_case)
+      visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
 
-    click_link 'Delete'
+      click_link 'Delete'
 
-    click_button 'Yes, I\'m sure'
-    assert_content 'Case successfully deleted'
+      click_button 'Yes, I\'m sure'
+      assert_content 'Case successfully deleted'
+    end
+
+    scenario 'can\'t delete a case that is used in a casebook', js: true do
+      kase = cases(:public_case_1)
+      visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
+
+      click_link 'Delete'
+
+      assert_content "Can't delete Case because it's used in casebooks:"
+      refute_button 'Yes, I\'m sure'
+    end
+
+    scenario 'deleting a text block', js: true do
+      text_block = text_blocks(:unused_text)
+      visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+
+      click_link 'Delete'
+
+      click_button 'Yes, I\'m sure'
+      assert_content 'Text successfully deleted'
+    end
+
+    scenario 'can\'t delete a text block that is used in a casebook', js: true do
+      text_block = text_blocks(:public_text_1)
+      visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+
+      click_link 'Delete'
+
+      assert_content "Can't delete TextBlock because it's used in casebooks:"
+      refute_button 'Yes, I\'m sure'
+    end
+
+    scenario 'deleting a link (default)', js: true do
+      link = defaults(:unused_link)
+      visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+
+      click_link 'Delete'
+      click_button 'Yes, I\'m sure'
+      assert_content 'Link successfully deleted'
+    end
+
+    scenario 'can\'t delete a link(default) that is used in a casebook', js: true do
+      link = defaults(:link_one)
+      visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+
+      click_link 'Delete'
+      assert_content "Can't delete Default because it's used in casebooks:"
+      refute_button 'Yes, I\'m sure'
+    end
   end
 
-  scenario 'can\'t delete a case that is used in a casebook', js: true do
-    kase = cases(:public_case_1)
-    visit(rails_admin.edit_path(model_name: 'case', id: kase.id))
+  describe 'casebook collaborators' do
+    let (:casebook) { content_nodes(:public_casebook) }
+    let (:original_collaborator) { casebook.collaborators.first.user.attribution }
+    let (:verified_student) { users(:verified_student) }
 
-    click_link 'Delete'
+    before do 
+      visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
+      click_link 'Manage Collaborators'
+      fill_in 'search', with: 'verified_student'
+      find('.search-field').send_keys :enter
+      sleep 0.3
+    end
 
-    assert_content "Can't delete Case because it's used in casebooks:"
-    refute_button 'Yes, I\'m sure'
-  end
+    scenario 'add collaborator to a casebook', js: true do
+      click_button 'Add Collaborator'
+      sleep 0.3
 
-  scenario 'deleting a text block', js: true do
-    text_block = text_blocks(:unused_text)
-    visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+      refute_button 'Add Collaborator' # no search results present
+      assert_content 'verified_student'
+      assert_content original_collaborator
+    end
 
-    click_link 'Delete'
+    scenario 'add collaborator with attribution and see that on the public casebook', js: true do
+      within "#has-attribution-#{verified_student.id}" do
+        find("#has_attribution").click
+      end
+      click_button 'Add Collaborator'
 
-    click_button 'Yes, I\'m sure'
-    assert_content 'Text successfully deleted'
-  end
+      sleep 0.3
 
-  scenario 'can\'t delete a text block that is used in a casebook', js: true do
-    text_block = text_blocks(:public_text_1)
-    visit(rails_admin.edit_path(model_name: 'text_block', id: text_block.id))
+      refute_button 'Add Collaborator' # no search results present
+      assert_content 'verified_student'
+      has_checked_field?("#has_attribution_#{verified_student.id}")
+      assert_content original_collaborator
 
-    click_link 'Delete'
+      visit casebook_path casebook
 
-    assert_content "Can't delete TextBlock because it's used in casebooks:"
-    refute_button 'Yes, I\'m sure'
-  end
-
-  scenario 'deleting a link (default)', js: true do
-    link = defaults(:unused_link)
-    visit(rails_admin.edit_path(model_name: 'default', id: link.id))
-
-    click_link 'Delete'
-    click_button 'Yes, I\'m sure'
-    assert_content 'Link successfully deleted'
-  end
-
-  scenario 'can\'t delete a link(default) that is used in a casebook', js: true do
-    link = defaults(:link_one)
-    visit(rails_admin.edit_path(model_name: 'default', id: link.id))
-
-    click_link 'Delete'
-    assert_content "Can't delete Default because it's used in casebooks:"
-    refute_button 'Yes, I\'m sure'
+      assert_content 'verified_student'
+      refute_content original_collaborator
+    end
   end
 end
