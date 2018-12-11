@@ -1,12 +1,5 @@
-<!-- show owners first -->
-<% content.owners.each do |user| %>
+<% content.attributors.each do |user| %>
   <div class="user <% if user.verified_professor? %> verified <% end %>">
     <%= link_to user.display_name, user_path(user) %><%= ", " unless content.owners.count == content.collaborators.count %>
-  </div>
-<% end %>
-
-<% content.editors.each do |user| %>
-  <div class="user <% if user.verified_professor? %> verified <% end %>">
-    <%= link_to user.display_name, user_path(user) %><%= ", " unless content.editors.last == user %>
   </div>
 <% end %>
