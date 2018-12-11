@@ -68,6 +68,10 @@
       font-weight: 500px;
     }
 
+    ul {
+      margin-bottom: 3px;
+    }
+
     .add-collaborator-form, .submit-edit-attribution {
       display: flex;
       flex-direction: column;
@@ -79,13 +83,25 @@
         box-shadow: none;
       }
 
-      .has_attribution {
-        margin-top: 10px;
+      .has-attribution {
+        margin: 0 0 10px -8px;
       }
 
       .collaborator-button {
         margin: 15px 0;
       }
+
+      .dropdown-menu {
+        width: 100%;
+      }
+    }
+
+    .edit-attribution-form {
+      margin: 4px 0 0 -17px; 
+    }
+
+    .submit-edit-attribution {
+      margin: 8px 0 2px 0;
     }
 
     .delete-collaborator {
@@ -98,10 +114,6 @@
 
     .add-collaborator-form, .submit-edit-attribution, .delete-collaborator {
       min-width: 216px;
-    }
-
-    .edit-attribution-form {
-      margin-left: -17px; 
     }
   }
 }

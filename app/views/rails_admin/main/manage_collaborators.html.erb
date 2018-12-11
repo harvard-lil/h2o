@@ -12,7 +12,7 @@
   <% if @users.present? %>
     <div class="collaborators">
       <% @users.each do |user| %>
-          <div class="collaborator-block">
+          <div class="collaborator-block search-result">
             <ul>
               <li><span class="lightly-bolded">User id:</span> <%= user[:id] %></li>
               <li><span class="lightly-bolded">Display name:</span> <%= user[:display] %></li>
@@ -22,9 +22,9 @@
             </ul>
 
             <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <div class="form-check has_attribution">
+              <div class="form-check has-attribution" id="has-attribution-<%= user[:id] %>">
                 <span class="form-check-label">
-                  <%= hidden_field_tag 'has_attribution', false %>
+                  <%= hidden_field_tag "has_attribution", false %>
                   <%= check_box_tag "has_attribution", value: "true", class: "form-check-input", type: "checkbox", role: "checkbox" %>
                   <span class="lightly-bolded">Grant attribution status</span>
                 </span>
@@ -61,7 +61,7 @@
               <span class="form-check-label">
                 <%= hidden_field_tag 'has_attribution', false %>
                 <% collaborator.has_attribution == true ? checked = "checked" : "" %>
-                <%= check_box_tag "has_attribution", collaborator.id, checked, class: "form-check-input", type: "checkbox", role: "checkbox" %>
+                <%= check_box_tag "has_attribution_#{user[:id]}", collaborator.id, checked, id: "has_attribution_#{user[:id]}", class: "form-check-input", type: "checkbox", role: "checkbox" %>
                <span class="lightly-bolded">Has attribution</span>
               </span>
             </div>
