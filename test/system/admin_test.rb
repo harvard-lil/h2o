@@ -112,43 +112,69 @@ class AdminSystemTest < ApplicationSystemTestCase
   end
 
   describe 'casebook collaborators' do
-    let (:casebook) { content_nodes(:public_casebook) }
-    let (:original_collaborator) { casebook.collaborators.first.user.attribution }
-    let (:verified_student) { users(:verified_student) }
+    describe 'adding a collaborator' do
+      let (:casebook) { content_nodes(:public_casebook) }
+      let (:original_collaborator_attribution) { users(:verified_professor).attribution }
+      let (:verified_student) { users(:verified_student) }
+      
+      before do 
+        visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
+        click_link 'Manage Collaborators'
+        fill_in 'search', with: 'verified_student'
+        find('.search-field').send_keys :enter
+        sleep 0.3
+      end
 
-    before do 
+      scenario 'add collaborator to a casebook', js: true do
+        click_button 'Add Collaborator'
+        sleep 0.3
+
+        refute_button 'Add Collaborator' # no search results present
+        assert_content 'verified_student'
+        assert_content original_collaborator_attribution
+      end
+
+      scenario 'add collaborator with attribution and see that on the user view', js: true do
+        within "#has-attribution-#{verified_student.id}" do
+          find("#has_attribution").click
+        end
+        click_button 'Add Collaborator'
+
+        sleep 0.3
+
+        refute_button 'Add Collaborator' # no search results present
+        assert_content 'verified_student'
+        has_checked_field?("#has_attribution_#{verified_student.id}")
+        assert_content original_collaborator_attribution
+
+        visit casebook_path casebook
+
+        assert_content 'verified_student'
+        refute_content original_collaborator_attribution
+      end
+    end
+
+    scenario 'removing attribution from a collaborator hides them from user view', js: true do
+      casebook = content_nodes(:draft_casebook)
+      original_collaborator = users(:verified_professor)
+
       visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
       click_link 'Manage Collaborators'
-      fill_in 'search', with: 'verified_student'
-      find('.search-field').send_keys :enter
-      sleep 0.3
-    end
 
-    scenario 'add collaborator to a casebook', js: true do
-      click_button 'Add Collaborator'
-      sleep 0.3
+      assert_content original_collaborator.attribution
 
-      refute_button 'Add Collaborator' # no search results present
-      assert_content 'verified_student'
-      assert_content original_collaborator
-    end
-
-    scenario 'add collaborator with attribution and see that on the public casebook', js: true do
-      within "#has-attribution-#{verified_student.id}" do
+      within "#has-attribution-#{original_collaborator.id}" do
         find("#has_attribution").click
       end
-      click_button 'Add Collaborator'
+
+      click_button 'Update'
 
       sleep 0.3
 
-      refute_button 'Add Collaborator' # no search results present
-      assert_content 'verified_student'
-      has_checked_field?("#has_attribution_#{verified_student.id}")
-      assert_content original_collaborator
+      has_unchecked_field?("#has_attribution_#{original_collaborator.id}")
 
       visit casebook_path casebook
 
-      assert_content 'verified_student'
       refute_content original_collaborator
     end
   end

@@ -10,6 +10,7 @@ draft_casebook_owner:
   content: draft_casebook
   user: verified_professor
   role: owner
+  has_attribution: true
 
 private_casebook_owner:
   content: private_casebook
