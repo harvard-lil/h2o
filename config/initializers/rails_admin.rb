@@ -102,11 +102,7 @@ end
 
 RailsAdmin.config do |config|
   config.parent_controller = '::ApplicationController'
-  config.navigation_static_links = {
-    'Playlist Importer' => '/playlists/import',
-    'Empty Playlists' => '/playlists/empty',
-    'Empty Playlists CSV' => '/playlists/empty.csv',
-  }
+  config.navigation_static_links = {}
   config.current_user_method do
     current_user
   end
