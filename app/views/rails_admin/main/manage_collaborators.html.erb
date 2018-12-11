@@ -57,11 +57,11 @@
 
 
         <%= form_tag manage_collaborators_path, method: "patch" do %>
-          <div class="form-check edit-attribution-form">
+          <div class="form-check edit-attribution-form" id="has-attribution-<%= user[:id] %>">
               <span class="form-check-label">
                 <%= hidden_field_tag 'has_attribution', false %>
                 <% collaborator.has_attribution == true ? checked = "checked" : "" %>
-                <%= check_box_tag "has_attribution_#{user[:id]}", collaborator.id, checked, id: "has_attribution_#{user[:id]}", class: "form-check-input", type: "checkbox", role: "checkbox" %>
+                <%= check_box_tag "has_attribution", collaborator.id, checked, id: "has_attribution", class: "form-check-input", type: "checkbox", role: "checkbox" %>
                <span class="lightly-bolded">Has attribution</span>
               </span>
             </div>
