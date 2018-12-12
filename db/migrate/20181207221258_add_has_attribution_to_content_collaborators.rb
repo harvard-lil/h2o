@@ -4,6 +4,6 @@ class AddHasAttributionToContentCollaborators < ActiveRecord::Migration[5.2]
   end
 
   def down
-    remove_column, :content_collaborators, :has_attribution
+    remove_column :content_collaborators, :has_attribution
   end
 end
