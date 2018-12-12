@@ -9,7 +9,7 @@ module H2o::Test::Helpers::Drivers
         timeout: 1.minute,
         screen_size: [1280, 800],
         window_size: [1280, 800],
-        js_errors: true,
+        js_errors: false,
         url_whitelist: %w(://127.0.0.1:* ://localhost:*),
         extensions: %w(polyfills.js rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js drag-mock.min.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
     end
@@ -17,7 +17,7 @@ module H2o::Test::Helpers::Drivers
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
     # javascript_driver = base.driven_by :poltergeist
     # for inspector
-    javascript_driver = base.driven_by :poltergeist_debug 
+    javascript_driver = base.driven_by :poltergeist_debug
     static_driver = base.driven_by :rack_test
 
     base.setup do
