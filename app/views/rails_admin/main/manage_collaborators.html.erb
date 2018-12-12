@@ -7,7 +7,7 @@
         <%= search_field_tag 'search', nil, placeholder: 'Example professor', class: "form-control search-field" %>
       <% end %>
     </div>
-  </div> 
+  </div>
 
   <% if @users.present? %>
     <div class="collaborators">
@@ -31,13 +31,13 @@
               </div>
               <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
               <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
-            <% end %> 
+            <% end %>
           </div>
         <% end %>
       </div>
   <% elsif @no_results == true %>
-    <div class="no-results">No results for '<%= @search_term %>'</div> 
-  <% end %> 
+    <div class="no-results">No results for '<%= @search_term %>'</div>
+  <% end %>
 
   <hr class="divider">
 
@@ -47,14 +47,15 @@
     <% @object.collaborators.each do |collaborator| %>
       <% user = collaborator.user %>
       <div class="collaborator-block">
+        <div class="attributes">
         <ul>
-          <li><span class="lightly-bolded">Display name:</span> <%= user.display %></li>
-          <li><span class="lightly-bolded">Role:</span> <%= collaborator.role.capitalize %></li>
           <li><span class="lightly-bolded">User id:</span> <%= user.id %></li>
+          <li><span class="lightly-bolded">Display name:</span> <%= user.display %></li>
           <li><span class="lightly-bolded">Affiliation:</span> <%= user.affiliation %></li>
           <li><span class="lightly-bolded">Email:</span> <%= user.email_address %></li>
           <li><span class="lightly-bolded">Verified professor:</span> <%= user.verified_professor %></li>
-
+          <li><span class="lightly-bolded">Role:</span> <%= collaborator.role.capitalize %></li>
+        </ul>
 
         <%= form_tag manage_collaborators_path, method: "patch" do %>
           <div class="form-check edit-attribution-form" id="has-attribution-<%= user[:id] %>">
@@ -65,14 +66,14 @@
                <span class="lightly-bolded">Has attribution</span>
               </span>
             </div>
-          </ul>
-          <%= button_tag t('admin.action.manage_collaborators.update'), class: 'btn btn-default submit-edit-attribution', value: collaborator.id %>
+          <%= button_tag t('admin.action.manage_collaborators.update'), class: 'btn btn-default edit-attribution-button', value: collaborator.id %>
         <% end %>
 
         <%= form_tag manage_collaborators_path, method: "delete", class: 'delete-collaborator' do %>
           <%= button_tag t('admin.action.manage_collaborators.remove-collaborator'), class: 'delete-collaborator-button btn btn-danger', value: collaborator.id %>
-        <% end %> 
-      </div>  
+        <% end %>
+      </div>
+      </div>
     <% end %>
   </div>
 </div>

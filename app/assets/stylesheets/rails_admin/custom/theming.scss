@@ -53,26 +53,30 @@
   .collaborator-block {
     border: solid black 1px;
     box-shadow: 1px 1px #888888;
-    padding: 20px 20px 0 0;
-    margin: 5px;
-    flex-basis: 0;
-    flex: 1 1 0;
+    padding-top: 20px;
+    margin: 12px;
     max-width: 329px;
     min-width: 329px;
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
+    position: relative;
 
     .lightly-bolded {
       font-weight: 500px;
     }
 
     ul {
-      margin-bottom: 3px;
+      margin: 0 0 3px -21px;
+      width: 100%;
     }
 
-    .add-collaborator-form, .submit-edit-attribution {
+    .attributes {
+      width: 272px;
+      height: 283px;
+    }
+
+    .add-collaborator-form {
       display: flex;
       flex-direction: column;
       align-items: stretch;
@@ -84,7 +88,7 @@
       }
 
       .has-attribution {
-        margin: 0 0 10px -8px;
+        margin: 0 0 10px 13px;
       }
 
       .collaborator-button {
@@ -96,24 +100,26 @@
       }
     }
 
-    .edit-attribution-form {
-      margin: 4px 0 0 -17px; 
+    #has_attribution {
+      margin-right: 5px;
     }
 
-    .submit-edit-attribution {
-      margin: 8px 0 2px 0;
+    .edit-attribution-button {
+      position: absolute;
+      bottom: 64px;
+      width: 249px;
+      margin-left: 13px;
     }
 
     .delete-collaborator {
-      display: flex;
-      justify-content: center;
-      align-content: center;
-      flex-direction: column;
       padding: 8px 0 15px 0;
-    }
 
-    .add-collaborator-form, .submit-edit-attribution, .delete-collaborator {
-      min-width: 216px;
+      .delete-collaborator-button {
+        position: absolute;
+        width: 249px;
+        bottom: 20px;
+        margin-left: 13px;
+      }
     }
   }
 }
