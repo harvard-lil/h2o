@@ -55,8 +55,8 @@
     box-shadow: 1px 1px #888888;
     padding-top: 20px;
     margin: 12px;
-    max-width: 329px;
-    min-width: 329px;
+    width: 329px;
+    height: 283px;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -87,16 +87,10 @@
         box-shadow: none;
       }
 
-      .has-attribution {
-        margin: 0 0 10px 13px;
-      }
-
-      .collaborator-button {
-        margin: 15px 0;
-      }
-
       .dropdown-menu {
-        width: 100%;
+        margin-top: 10px;
+        width: 249px;
+        margin-left: 13px
       }
     }
 
@@ -104,22 +98,21 @@
       margin-right: 5px;
     }
 
-    .edit-attribution-button {
-      position: absolute;
-      bottom: 64px;
-      width: 249px;
-      margin-left: 13px;
-    }
+
 
     .delete-collaborator {
       padding: 8px 0 15px 0;
+    }
 
-      .delete-collaborator-button {
-        position: absolute;
-        width: 249px;
-        bottom: 20px;
-        margin-left: 13px;
-      }
+    .btn {
+      position: absolute;
+      width: 249px;
+      bottom: 20px;
+      margin-left: 13px;
+    }
+
+    .edit-attribution-button {
+      bottom: 64px;
     }
   }
 }

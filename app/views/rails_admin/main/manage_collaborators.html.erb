@@ -13,25 +13,27 @@
     <div class="collaborators">
       <% @users.each do |user| %>
           <div class="collaborator-block search-result">
-            <ul>
-              <li><span class="lightly-bolded">User id:</span> <%= user[:id] %></li>
-              <li><span class="lightly-bolded">Display name:</span> <%= user[:display] %></li>
-              <li><span class="lightly-bolded">Affiliation:</span> <%= user[:affiliation] %></li>
-              <li><span class="lightly-bolded">Email:</span> <%= user[:email_address] %></li>
-              <li><span class="lightly-bolded">Verified professor:</span> <%= user[:verified_professor] %></li>
-            </ul>
+            <div class="attributes">
+              <ul>
+                <li><span class="lightly-bolded">User id:</span> <%= user[:id] %></li>
+                <li><span class="lightly-bolded">Display name:</span> <%= user[:display] %></li>
+                <li><span class="lightly-bolded">Affiliation:</span> <%= user[:affiliation] %></li>
+                <li><span class="lightly-bolded">Email:</span> <%= user[:email_address] %></li>
+                <li><span class="lightly-bolded">Verified professor:</span> <%= user[:verified_professor] %></li>
+              </ul>
 
-            <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
-              <div class="form-check has-attribution" id="has-attribution-<%= user[:id] %>">
-                <span class="form-check-label">
-                  <%= hidden_field_tag "has_attribution", false %>
-                  <%= check_box_tag "has_attribution", value: "true", class: "form-check-input", type: "checkbox", role: "checkbox" %>
-                  <span class="lightly-bolded">Grant attribution status</span>
-                </span>
-              </div>
-              <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
-              <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
-            <% end %>
+              <%= form_tag manage_collaborators_path, method: "post", class: "add-collaborator-form" do %>
+                <div class="form-check has-attribution" id="has-attribution-<%= user[:id] %>">
+                  <span class="form-check-label">
+                    <%= hidden_field_tag "has_attribution", false %>
+                    <%= check_box_tag "has_attribution", value: "true", class: "form-check-input", type: "checkbox", role: "checkbox" %>
+                    <span class="lightly-bolded">Grant attribution status</span>
+                  </span>
+                </div>
+                <%= select_tag "role", options_for_select(['Owner', 'Editor']), class: "dropdown-menu role", role: "button" %>
+                <%= button_tag t('admin.action.manage_collaborators.add-collaborator'), class: 'collaborator-button btn btn-primary', value: user[:id] %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>
