@@ -97,4 +97,12 @@ class Content::Casebook < Content::Node
     end
     false
   end
+
+  def alert_changes?(current_user)
+    if current_user.present?
+      draft.present? && (has_collaborator?(current_user.id) ||current_user.superadmin?)
+    else
+      false
+    end
+  end
 end
