@@ -88,7 +88,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def set_editable
-    @edit_layout = !@preview && !@casebook.public && @casebook.owners.include?(current_user)
+    @edit_layout = !@preview && !@casebook.public && @casebook.collaborators.include?(current_user)
   end
 
   def page_title

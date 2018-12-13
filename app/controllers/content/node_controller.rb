@@ -48,7 +48,7 @@ class Content::NodeController < ApplicationController
 
   def check_authorized
     if current_user.present?
-      return if ((@content.owners.include? current_user) || (current_user && current_user.superadmin?))
+      return if @content.has_collaborator?(current_user.id) || (current_user && current_user.superadmin?)
       flash[:notice] = I18n.t('content.errors.unauthorized')
       redirect_to user_path(current_user)
     else
