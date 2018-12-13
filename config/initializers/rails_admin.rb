@@ -16,7 +16,7 @@ module RailsAdmin
           proc do
             if @object.is_a?(Page)
               redirect_to "/p/#{@object.slug}"
-            elsif @object.class == Content::Casebook
+            elsif @object.kind_of?(Content::Casebook)
               redirect_to main_app.layout_casebook_path(@object.id)
             else
               redirect_to main_app.url_for(@object)
