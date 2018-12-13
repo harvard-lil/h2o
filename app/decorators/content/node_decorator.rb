@@ -298,7 +298,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def create_draft
-    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, class: 'action edit one-line create-draft')
+    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, type: 'button', class: 'action edit one-line create-draft')
   end
 
   def edit_casebook
