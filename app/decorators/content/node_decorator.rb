@@ -160,7 +160,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def resource_published
     if authorized?
-      build_draft +
+      create_draft +
       clone_resource +
       export_resource
     else
@@ -207,8 +207,8 @@ class Content::NodeDecorator < Draper::Decorator
   #Buttons/Links
   #Resources
 
-  def build_draft
-    link_to(I18n.t('content.actions.revise'), build_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
+  def create_draft
+    link_to(I18n.t('content.actions.revise'), create_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
   end
 
   def annotate_resource_draft

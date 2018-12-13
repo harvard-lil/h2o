@@ -67,7 +67,7 @@ H2o::Application.routes.draw do
             get 'details'
             get 'annotate'
             get 'clone'
-            get 'build_draft'
+            get 'create_draft'
           end
         end
       end
