@@ -24,12 +24,12 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def create_draft
-    @clone = @casebook.clone(owner: @casebook.owner, draft_mode: true)
+    @clone = @casebook.clone(true)
     redirect_to layout_casebook_path(@clone)
   end
 
   def clone
-    @clone = @casebook.clone(owner: current_user)
+    @clone = @casebook.clone(false, current_user)
     redirect_to layout_casebook_path(@clone)
   end
 

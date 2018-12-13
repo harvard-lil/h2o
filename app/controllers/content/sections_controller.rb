@@ -38,7 +38,7 @@ class Content::SectionsController < Content::NodeController
   def edit
     # editing a section takes you to a cloned casebook and
     # the original casebook stays published
-    @casebook = @casebook.clone(owner: @casebook.owner, draft_mode: true)
+    @casebook = @casebook.clone(true)
     @section = @casebook.contents.find_by(copy_of_id: @section.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
     redirect_to layout_section_path(@casebook, @section) 
@@ -76,10 +76,10 @@ class Content::SectionsController < Content::NodeController
   end
 
   def clone
-    @casebook = @casebook.clone(owner: current_user)
+    @casebook = @casebook.clone(false, current_user)
     @section = @casebook.contents.find_by(copy_of_id: @section.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
-    redirect_to layout_section_path(@casebook, @section) 
+    redirect_to layout_section_path(@casebook, @decorated_content) 
   end
 
   def export
