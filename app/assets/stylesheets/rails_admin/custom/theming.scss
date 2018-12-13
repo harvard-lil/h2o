@@ -56,7 +56,7 @@
     padding-top: 20px;
     margin: 12px;
     width: 329px;
-    height: 283px;
+    height: 320px;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -73,7 +73,7 @@
 
     .attributes {
       width: 272px;
-      height: 283px;
+      min-height: 283px;
     }
 
     .add-collaborator-form {
