@@ -400,6 +400,10 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def authorized?
-    casebook.has_collaborator?(current_user.id) || (current_user && current_user.superadmin?)
+    if current_user.present? 
+      casebook.has_collaborator?(current_user.id) || current_user.superadmin?
+    else 
+      false
+    end
   end
 end
