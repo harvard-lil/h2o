@@ -71,8 +71,15 @@ module RailsAdmin
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
 
-              if collaborator.destroy == false
-                flash[:error] = collaborator.errors.full_messages.to_sentence
+              # if casebook is in a draft/published relationship - destroy collaborator roles for both
+              if @object.draft_mode_of_published_casebook == true
+                ancestor_collaborator = @object.copy_of.collaborators.find_by(user_id: collaborator.user_id)
+              elsif @object.draft.present?
+                ancestor_collaborator = @object.draft.collaborators.find_by(user_id: collaborator.user_id)
+              end
+
+              if collaborator.destroy == false || (ancestor_collaborator.present? && ancestor_collaborator.destroy == false)
+                flash[:error] = collaborator.errors.full_messages.to_sentence + ancestor_collaborator.errors.full_messages.to_sentence
               end
 
             elsif request.post? # adding a collaborator
@@ -99,8 +106,15 @@ module RailsAdmin
 
               collaborator = Content::Collaborator.find(collaborator_id)
 
-              if collaborator.update(has_attribution: has_attribution) == false
-                flash[:error] = collaborator.errors.full_messages.to_sentence
+              # if casebook is in a draft/published relationship - update collaborator roles for both
+              if @object.draft_mode_of_published_casebook == true
+                ancestor_collaborator = @object.copy_of.collaborators.find_by(user_id: collaborator.user_id)
+              elsif @object.draft.present?
+                ancestor_collaborator = @object.draft.collaborators.find_by(user_id: collaborator.user_id)
+              end
+
+              if collaborator.update(has_attribution: has_attribution) == false || ( ancestor_collaborator.present? && ancestor_collaborator.update(has_attribution: has_attribution) == false)
+                flash[:error] = collaborator.errors.full_messages.to_sentence + ancestor_collaborator.errors.full_messages.to_sentence
               end
             end
           end
