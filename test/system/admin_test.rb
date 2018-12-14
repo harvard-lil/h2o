@@ -112,11 +112,19 @@ class AdminSystemTest < ApplicationSystemTestCase
   end
 
   describe 'casebook collaborators' do
+    let (:casebook) { content_nodes(:public_casebook) }
+    let (:draft_casebook) { content_nodes(:draft_casebook) }
+    let (:original_collaborator) { users(:verified_professor) }
+    let (:original_collaborator_name) { original_collaborator.attribution }
+    let (:verified_student) { users(:verified_student) }
+
+    scenario 'admin automatically makes a collaborator have attribution if none of them do', js: true do
+      assert_equal casebook.collaborators.first.has_attribution, false
+      visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
+      has_no_checked_field?("#has_attribution_#{original_collaborator.id}")
+    end
+
     describe 'adding a collaborator' do
-      let (:casebook) { content_nodes(:public_casebook) }
-      let (:original_collaborator_attribution) { users(:verified_professor).attribution }
-      let (:verified_student) { users(:verified_student) }
-      
       before do 
         visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
         click_link 'Manage Collaborators'
@@ -131,7 +139,7 @@ class AdminSystemTest < ApplicationSystemTestCase
 
         refute_button 'Add Collaborator' # no search results present
         assert_content 'verified_student'
-        assert_content original_collaborator_attribution
+        assert_content original_collaborator_name 
       end
 
       scenario 'add collaborator with attribution and see that on the user view', js: true do
@@ -145,23 +153,21 @@ class AdminSystemTest < ApplicationSystemTestCase
         refute_button 'Add Collaborator' # no search results present
         assert_content 'verified_student'
         has_checked_field?("#has_attribution_#{verified_student.id}")
-        assert_content original_collaborator_attribution
+        assert_content original_collaborator_name 
 
         visit casebook_path casebook
 
         assert_content 'verified_student'
-        refute_content original_collaborator_attribution
+        assert_content original_collaborator_name
       end
     end
 
     scenario 'removing attribution from a collaborator hides them from user view', js: true do
-      casebook = content_nodes(:draft_casebook)
-      original_collaborator = users(:verified_professor)
 
-      visit(rails_admin.edit_path(model_name: 'content~casebook', id: casebook.id))
+      visit(rails_admin.edit_path(model_name: 'content~casebook', id: draft_casebook.id))
       click_link 'Manage Collaborators'
 
-      assert_content original_collaborator.attribution
+      assert_content original_collaborator_name
 
       within "#has-attribution-#{original_collaborator.id}" do
         find("#has_attribution").click
@@ -172,7 +178,7 @@ class AdminSystemTest < ApplicationSystemTestCase
       sleep 0.3
       has_unchecked_field?("#has_attribution_#{original_collaborator.id}")
 
-      visit casebook_path casebook
+      visit casebook_path draft_casebook
       refute_content original_collaborator
     end
   end

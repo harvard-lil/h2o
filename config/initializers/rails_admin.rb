@@ -60,6 +60,13 @@ module RailsAdmin
                 @no_results = true
               end
 
+            elsif request.get? # initial page load
+              # if no collaborators has attribution, the first one will recieve it
+              collaborators = @object.collaborators
+              if collaborators.present? && collaborators.first.has_attribution == false
+                collaborators.first.update(has_attribution: true)
+              end
+
             elsif request.delete? # deleting a collaborator
               collaborator_id = params[:button]
               collaborator = Content::Collaborator.find(collaborator_id)
