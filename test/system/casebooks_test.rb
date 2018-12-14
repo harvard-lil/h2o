@@ -20,7 +20,6 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
   end
 
-
   describe "as a registered user" do
     before do
       sign_in @user = users(:verified_professor)
@@ -65,10 +64,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     describe "reordering casebook contents" do
       let (:casebook) { content_nodes(:draft_casebook) }
-      let (:resource_1) { content_nodes(:"draft_resource_1") }
-      let (:resource_2) { content_nodes(:"draft_resource_2") }
-      let (:section_1) { content_nodes(:"draft_casebook_section_1") }
-      let (:section_2) { content_nodes(:"draft_casebook_section_2") }
+      let (:resource_1) { content_nodes(:draft_resource_1) }
+      let (:resource_2) { content_nodes(:draft_resource_2) }
+      let (:section_1) { content_nodes(:draft_casebook_section_1) }
+      let (:section_2) { content_nodes(:draft_casebook_section_2) }
 
       before do
         visit layout_casebook_path casebook
@@ -93,7 +92,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         simulate_drag_drop '.listing[data-ordinals="2"]', '.table-of-contents > .listing-wrapper', position: :top
         sleep 0.3
 
-        visit casebook_path casebook 
+        visit casebook_path casebook
         assert_content "1\n#{section_2.title}"
         assert_content "2\n#{section_1.title}"
       end

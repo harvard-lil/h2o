@@ -162,6 +162,34 @@ class AdminSystemTest < ApplicationSystemTestCase
       end
     end
 
+    scenario 'collaborator is added to a draft, add it to the published versions too', js: true do
+      draft = content_nodes(:draft_merge_casebook)
+      published = content_nodes(:published_casebook)
+      author = users(:case_admin)
+
+      assert_equal author.casebooks.count, 0
+
+      visit(rails_admin.edit_path(model_name: 'content~casebook', id: draft.id))
+      click_link 'Manage Collaborators'
+      fill_in 'search', with: author.attribution
+      find('.search-field').send_keys :enter
+      sleep 0.3
+
+      within "#has-attribution-#{author.id}" do
+        find("#has_attribution").click
+      end
+
+      click_button 'Add Collaborator'
+      sleep 0.3
+      assert_content author.attribution
+
+      visit casebook_path draft
+      assert_content author.attribution
+
+      visit casebook_path published
+      assert_content author.attribution
+    end
+
     scenario 'removing attribution from a collaborator hides them from user view', js: true do
 
       visit(rails_admin.edit_path(model_name: 'content~casebook', id: draft_casebook.id))

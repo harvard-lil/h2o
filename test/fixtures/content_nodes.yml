@@ -155,6 +155,8 @@ draft_merge_casebook:
   # tests for merge_draft_into_published_casebook#new_and_updated_annotations
   created_at: <%= DateTime.now - 3.days %> 
   copy_of: published_casebook
+  draft_mode_of_published_casebook: true
+  copy_of: published_casebook
 
 draft_merge_section_1:
   casebook: draft_merge_casebook

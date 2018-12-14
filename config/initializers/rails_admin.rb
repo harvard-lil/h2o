@@ -81,9 +81,16 @@ module RailsAdmin
               has_attribution = params[:has_attribution]
 
               new_collaborator = @object.collaborators.new(user_id: user_id, role: role, has_attribution: has_attribution)
-              
-              if new_collaborator.save == false
-                flash[:error] = new_collaborator.errors.full_messages.to_sentence
+           
+              # if casebook is in a draft/published relationship - create collaborator roles for both
+              if @object.draft_mode_of_published_casebook == true
+                ancestor_collaborator = @object.copy_of.collaborators.new(user_id: user_id, role: role, has_attribution: has_attribution)
+              elsif @object.draft.present?
+                ancestor_collaborator = @object.draft.collaborators.new(user_id: user_id, role: role, has_attribution: has_attribution)
+              end
+
+              if new_collaborator.save == false || ( ancestor_collaborator.present? && ancestor_collaborator.save == false )
+                flash[:error] = new_collaborator.errors.full_messages.to_sentence + ancestor_collaborator.errors.full_messages.to_sentence
               end
 
             elsif request.patch? #updating a collaborator
