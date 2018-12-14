@@ -78,7 +78,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         assert_content "This casebook is a draft"
         assert_content "1.1\n#{resource_1.resource.name_abbreviation}"
 
-        simulate_drag_drop ".listing[data-ordinals='1.1']", ".table-of-contents > .listing-wrapper:last-child", position: :bottom
+        simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
         sleep 0.3
 
         visit casebook_path casebook
@@ -90,7 +90,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         assert_content "This casebook is a draft"
         assert_content "2\n#{section_2.title}"
 
-        simulate_drag_drop ".listing[data-ordinals='2']", ".table-of-contents > .listing-wrapper", position: :top
+        simulate_drag_drop '.listing[data-ordinals="2"]', '.table-of-contents > .listing-wrapper', position: :top
         sleep 0.3
 
         visit casebook_path casebook 
@@ -118,33 +118,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_link "Revise"
       sleep 1
 
+      visit root_path
+
       assert_content casebook.title
       assert_content "This casebook has unpublished changes."
     end
   end
-
-  describe 'creating drafts and publishing on casebooks with multiple collaborators' do
-    let(:owner) { users(:verified_professor) }
-    let(:editor) { users(:verified_student) }
-
-      scenario "creating a draft from a published casebook", js: true do
-        sign_in owner
-        casebook = content_nodes(:public_casebook)
-        visit casebook_path casebook
-
-        click_link "Revise"
-        sleep 1
-
-        visit root_path
-
-        assert_content casebook.title
-        assert_content "This casebook has unpublished changes."
-
-        sign_out
-        sign_in editor
-
-        assert_content casebook.title
-        assert_content "This casebook has unpublished changes."
-      end
-    end
 end

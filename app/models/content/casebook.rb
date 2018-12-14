@@ -31,7 +31,7 @@ class Content::Casebook < Content::Node
     end
   end
 
-  def clone(draft_mode, current_user: '')
+  def clone(draft_mode, current_user = nil)
     if draft_mode
       cloned_casebook = self.deep_clone include: :collaborators
       cloned_casebook.update(copy_of: self, public: false, parent: self, draft_mode_of_published_casebook: true )

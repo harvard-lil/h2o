@@ -6,8 +6,13 @@ public_casebook_owner:
   user: verified_professor
   role: owner
 
-public_casebook_editor:
-  content: public_casebook
+multi_collaborator_casebook_owner:
+  content: multi_collaborator_casebook
+  user: verified_professor
+  role: owner
+
+multi_collaborator_casebook_owner:
+  content: multi_collaborator_casebook
   user: verified_student
   role: editor
 
@@ -15,6 +20,18 @@ draft_casebook_owner:
   content: draft_casebook
   user: verified_professor
   role: owner
+  has_attribution: true
+
+draft_multi_collaborator_casebook_owner:
+  content: draft_multi_collaborator_casebook
+  user: verified_professor
+  role: owner
+  has_attribution: true
+
+draft_multi_collaborator_casebook_editor:
+  content: draft_multi_collaborator_casebook
+  user: verified_student
+  role: editor
   has_attribution: true
 
 private_casebook_owner:
