@@ -31,14 +31,15 @@ class Content::Casebook < Content::Node
     end
   end
 
-  def clone(owner: '', draft_mode: false)
-    cloned_casebook = dup
-
-    if building_draft?(owner, draft_mode)
-      draft_mode_of_published_casebook = true
+  def clone(draft_mode, current_user = nil)
+    if draft_mode
+      cloned_casebook = self.deep_clone include: :collaborators
+      cloned_casebook.update(copy_of: self, public: false, parent: self, draft_mode_of_published_casebook: true )
+    else
+      cloned_casebook = self.dup
+      cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: current_user, role: 'owner', has_attribution: true)], public: false, parent: self )
     end
 
-    cloned_casebook.update(copy_of: self, collaborators:  [Content::Collaborator.new(user: owner, role: 'owner')], public: false, parent: self, draft_mode_of_published_casebook: draft_mode_of_published_casebook )
     cloned_casebook
   end
 
@@ -95,5 +96,13 @@ class Content::Casebook < Content::Node
       end
     end
     false
+  end
+
+  def alert_changes?(current_user)
+    if current_user.present?
+      draft.present? && (has_collaborator?(current_user.id) ||current_user.superadmin?)
+    else
+      false
+    end
   end
 end

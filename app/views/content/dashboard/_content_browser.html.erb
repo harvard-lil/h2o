@@ -6,7 +6,7 @@
       <% version_type = 'draft' %>
       <% action = 'layout' %>
     <% end %>
-    <% alert_changes = casebook.draft.present? && ((casebook.draft.owner == current_user) || (current_user && current_user.superadmin?)) %>
+    <% alert_changes = casebook.alert_changes?(current_user) %>
     <a class="wrapper" href="<%= casebook_url(casebook) %>/<%= action %>">
       <div class="content-page <%= version_type %>">
         <div class="casebook-info">
@@ -16,7 +16,7 @@
           <div class="title">
             <%= casebook.title %>
           </div>
-          <% unless alert_changes %>
+          <% if ! alert_changes %>
             <div class="subtitle">
               <%= casebook.subtitle %>
             </div>

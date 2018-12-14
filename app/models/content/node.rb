@@ -37,6 +37,10 @@ class Content::Node < ApplicationRecord
     end
   end
 
+  def has_collaborator?(user_id)
+    collaborators.pluck(:user_id).include?(user_id)
+  end
+
   private
 
   def casebook_id_for_revision

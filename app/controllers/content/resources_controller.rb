@@ -26,15 +26,15 @@ class Content::ResourcesController < Content::NodeController
     render 'content/resource_details'
   end
 
-  def build_draft
-    @casebook = @casebook.clone(owner: @casebook.owner, draft_mode: true)
+  def create_draft
+    @casebook = @casebook.clone(true)
     @resource = @casebook.resources.find_by(copy_of_id: @resource.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, context_resource: @resource, type: 'resource'})
     redirect_to annotate_resource_path(@casebook, @decorated_content)
   end
 
   def clone
-    @casebook = @casebook.clone(owner: current_user)
+    @casebook = @casebook.clone(false, current_user)
     @resource = @casebook.resources.find_by(copy_of_id: @resource.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, context_resource: @resource, type: 'resource'})
     redirect_to annotate_resource_path(@casebook, @decorated_content)

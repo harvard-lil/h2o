@@ -92,12 +92,12 @@ private_casebook_resource_1_1:
   resource_type: Case
   ordinals: [1,1]
 
-# empty_casebook:
-#   title: Empty Casebook
-#   public: true
-
 student_casebook:
   title: Student Casebook
+  public: true
+
+multi_collaborator_casebook:
+  title: Collaborator Casebook
   public: true
 
 ##########

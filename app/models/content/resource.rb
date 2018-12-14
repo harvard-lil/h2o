@@ -30,7 +30,7 @@ class Content::Resource < Content::Child
       end
 
       if nodes[annotation.start_paragraph..annotation.end_paragraph].nil?
-        Notifier.missing_annotations(self.owners.pluck(:email_address, :attribution), self, annotation)
+        Notifier.missing_annotations(self.collaborators.pluck(:email_address, :attribution), self, annotation)
       else
         nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
           ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting, include_annotations: include_annotations})

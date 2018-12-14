@@ -20,6 +20,7 @@ gem 'capapi', git: 'https://github.com/leppert/capapi-ruby.git'
 gem 'ckeditor'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
+gem 'deep_cloneable'
 gem 'delayed_job_active_record'
 gem 'delayed_job'
 gem 'draper'

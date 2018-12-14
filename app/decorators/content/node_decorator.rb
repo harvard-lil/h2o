@@ -160,7 +160,7 @@ class Content::NodeDecorator < Draper::Decorator
 
   def resource_published
     if authorized?
-      build_draft +
+      create_draft +
       clone_resource +
       export_resource
     else
@@ -207,8 +207,8 @@ class Content::NodeDecorator < Draper::Decorator
   #Buttons/Links
   #Resources
 
-  def build_draft
-    link_to(I18n.t('content.actions.revise'), build_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
+  def create_draft
+    link_to(I18n.t('content.actions.revise'), create_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
   end
 
   def annotate_resource_draft
@@ -236,11 +236,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def save_resource
-    link_to(I18n.t('content.actions.save'), edit_resource_path(casebook, resource), class: 'action one-line save submit-edit-details')
+    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-edit-details')
   end
 
   def cancel_resource
-    link_to(I18n.t('content.actions.cancel'), edit_resource_path(casebook, resource), class: 'action one-line cancel')
+    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel')
   end
 
   #############
@@ -279,11 +279,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def save_section
-    link_to(I18n.t('content.actions.save'), edit_section_path(casebook, section), class: 'action one-line save submit-section-details')
+    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-section-details')
   end
 
   def cancel_section
-    link_to(I18n.t('content.actions.cancel'), edit_section_path(casebook, section), class: 'action one-line cancel')
+    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel')
   end
 
   ############
@@ -298,7 +298,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def create_draft
-    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, class: 'action edit one-line create-draft')
+    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, type: 'button', class: 'action edit one-line create-draft')
   end
 
   def edit_casebook
@@ -338,11 +338,11 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def save_casebook
-    link_to(I18n.t('content.actions.save'), 'submit-casebook-details', class: 'action one-line save submit-casebook-details')
+    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-casebook-details')
   end
 
   def cancel_casebook
-    link_to(I18n.t('content.actions.cancel'), 'cancel-casebook-details', class: 'action one-line cancel cancel-casebook-details')
+    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel cancel-casebook-details')
   end
 
   ######
@@ -400,6 +400,10 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def authorized?
-    (casebook.owners.include?(current_user) || (current_user && current_user.superadmin?))
+    if current_user.present? 
+      casebook.has_collaborator?(current_user.id) || current_user.superadmin?
+    else 
+      false
+    end
   end
 end

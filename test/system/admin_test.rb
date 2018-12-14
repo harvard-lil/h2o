@@ -170,11 +170,9 @@ class AdminSystemTest < ApplicationSystemTestCase
       click_button 'Update'
 
       sleep 0.3
-
       has_unchecked_field?("#has_attribution_#{original_collaborator.id}")
 
       visit casebook_path casebook
-
       refute_content original_collaborator
     end
   end
