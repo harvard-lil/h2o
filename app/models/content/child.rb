@@ -9,8 +9,8 @@ class Content::Child < Content::Node
   after_save :reflow_casebook, if: :saved_change_to_ordinals?
 
   belongs_to :casebook, class_name: 'Content::Casebook', inverse_of: :contents, required: true, touch: true
-
-  has_many :collaborators, class_name: 'Content::Collaborator', primary_key: :casebook_id, foreign_key: :content_id
+  has_many :collaborators, -> {order role: :desc, has_attribution: :desc}, class_name: 'Content::Collaborator', primary_key: :casebook_id, foreign_key: :content_id
+ 
   include Content::Concerns::HasCollaborators
 
   def section
