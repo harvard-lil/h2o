@@ -114,7 +114,7 @@
         pointer-events: none;
       }
     }
-    &.elided, &.replaced {
+    &.replaced {
       display: none;
       padding: 0;
       margin: 0;
@@ -124,28 +124,6 @@
         color: #555;
         border-radius: 3px;
         background-color: $light-gray;
-      }
-    }
-    &.elide {
-      display: inline-block;
-      padding: 0 10px;
-      cursor: zoom-in;
-      border: none;
-      background-color: $light-gray;
-      color: $light-blue;
-      font-weight: $bold;
-
-      &:focus {
-        @include generic-focus-styles;
-      }
-
-      &::before {
-        content: '...';
-        font-size: 19px;
-      }
-      &.revealed::before {
-        content: 'hide';
-        cursor: zoom-out;
       }
     }
     &.note {
@@ -188,18 +166,5 @@
         margin: 0 20px;
       }
     }
-  }
-}
-
-.toggle-elisions {
-  @extend .btn;
-  @include button-variant($light-blue, white, $light-blue);
-  @include set-font($font-family-sans-serif, 700, 14px, normal);
-  border-radius: 5px;
-  border: solid 1.5px;
-  line-height: 23px;
-  margin-bottom: 20px;
-  &:hover {
-    @include generic-focus-styles;
   }
 }
