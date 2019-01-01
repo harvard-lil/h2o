@@ -1,0 +1,69 @@
+<template>
+  <span>
+    <button v-if="hasHandle"
+            @click="toggleExpansion(ui_state)"
+            aria-label="elided text"
+            v-bind:aria-expanded="ui_state.expanded"
+            v-bind:class="{expanded: ui_state.expanded}"></button>
+    <span v-if="ui_state.expanded"
+          class="selected-text"
+          v-html="selectedText">
+    </span>
+  </span>
+</template>
+
+<script>
+import { createNamespacedHelpers } from 'vuex';
+const { mapMutations } = createNamespacedHelpers('annotations_ui');
+
+export default {
+  props: ['annotationId',
+          'hasHandle',
+          'selectedText'],
+  computed: {
+    annotation() {
+      return this.$store.getters['annotations/getById'](this.annotationId);
+    },
+    ui_state() {
+      return this.$store.getters['annotations_ui/getById'](this.annotationId);
+    }
+  },
+  methods: {
+    ...mapMutations(['toggleExpansion'])
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import '../styles/vars-and-mixins';
+
+button {
+  display: inline-block;
+  padding: 0 10px;
+  cursor: zoom-in;
+  border: none;
+  background-color: $light-gray;
+  color: $light-blue;
+  font-weight: $bold;
+  &:focus {
+    @include generic-focus-styles;
+  }
+  &::before {
+    content: '...';
+    font-size: 19px;
+  }
+  &.expanded {
+    cursor: zoom-out;
+    &::before {
+      content: 'hide';
+    }
+  }
+}
+.selected-text {
+  padding: 7px;
+  display: inline;
+  color: #555;
+  border-radius: 3px;
+  background-color: $light-gray;
+}
+</style>
