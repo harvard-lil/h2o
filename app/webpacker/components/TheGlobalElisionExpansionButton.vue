@@ -1,7 +1,7 @@
 <template>
 <button @click="handleClick">
-  <template v-if="expanded">Show</template>
-  <template v-else>Hide</template>
+  <template v-if="expanded">Hide</template>
+  <template v-else>Show</template>
   elided text
 </button>
 </template>
