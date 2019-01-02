@@ -7,8 +7,8 @@
           v-bind:class="{expanded: ui_state.expanded}">
   </button>
   <span v-if="ui_state.expanded"
-        class="selected-text"
-        v-html="selectedText">
+        class="selected-text">
+    <slot></slot>
   </span>
   <span v-else
         class="text"
@@ -23,7 +23,6 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 export default {
   props: ['annotationId',
           'hasHandle',
-          'selectedText',
           'escapedContent'],
   computed: {
     annotation() {
