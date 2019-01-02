@@ -1,5 +1,5 @@
 <template>
-<span class="elision">
+<span class="replacement">
   <button v-if="hasHandle"
           @click="toggleExpansion(ui_state)"
           aria-label="elided text"
@@ -10,6 +10,9 @@
         class="selected-text"
         v-html="selectedText">
   </span>
+  <span v-else
+        class="text"
+        contenteditable="true">{{escapedContent}}</span>
 </span>
 </template>
 
@@ -20,7 +23,8 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 export default {
   props: ['annotationId',
           'hasHandle',
-          'selectedText'],
+          'selectedText',
+          'escapedContent'],
   computed: {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
@@ -38,8 +42,9 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.elision {
-  padding: 0 10px;
+.replacement {
+  margin: 0 6px;
+  padding: 0 6px;
 }
 button {
   display: inline-block;
@@ -49,8 +54,6 @@ button {
   color: $light-blue;
   &::before {
     font-weight: $bold;
-    content: '...';
-    font-size: 19px;
   }
   &:focus {
     @include generic-focus-styles;
@@ -68,5 +71,17 @@ button {
   color: #555;
   border-radius: 3px;
   background-color: $light-gray;
+}  
+.text {
+  pointer-events: none;
+}
+.text:empty::before {
+  content: 'Enter replacement text';
+  color: $dark-gray;
+  pointer-events: none;
+}
+.active .text:empty::before {
+  content: ' ';
+  pointer-events: none;
 }
 </style>

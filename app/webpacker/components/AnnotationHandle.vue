@@ -1,30 +1,34 @@
 <template>
-  <span>
-    <button aria-label="Edit annotation"
-            id="edit-annotation"
-            v-bind:style="{right: offsetRight + 'px'}"
-            @click.prevent="$refs.mainMenu.open">✎</button>
-
-    <ContextMenu ref="mainMenu">
-      <ul>
-        <li v-if="annotation.kind == 'replace'">
-          <a @click="reveal">Reveal original text</a>
-        </li>
-        <li v-else-if="annotation.kind == 'link'">
-          <a @click.prevent="$refs.linkMenu.open">Edit link</a>
-        </li>
-        <li>
-          <a @click="destroy(annotation)">Remove {{engName}}</a>
-        </li>
-      </ul>
-    </ContextMenu>
-
-    <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
-      <form v-on:submit.prevent="submitUpdate">
-        <input name="content" id="link-form" placeholder="Url to link to..." v-model="content"/>
-      </form>
-    </ContextMenu>
-  </span>
+<span>
+  <button aria-label="Edit annotation"
+          id="edit-annotation"
+          v-bind:style="{right: offsetRight + 'px'}"
+          @click.prevent="$refs.mainMenu.open">✎</button>
+  
+  <ContextMenu ref="mainMenu">
+    <ul>
+      <li v-if="annotation.kind == 'replace'">
+        <a @click="toggleExpansion(ui_state)">
+          <template v-if="ui_state.expanded">Hide</template>
+          <template v-else>Reveal</template>
+          original text
+        </a>
+      </li>
+      <li v-else-if="annotation.kind == 'link'">
+        <a @click.prevent="$refs.linkMenu.open">Edit link</a>
+      </li>
+      <li>
+        <a @click="destroy(annotation)">Remove {{engName}}</a>
+      </li>
+    </ul>
+  </ContextMenu>
+  
+  <ContextMenu ref="linkMenu" v-bind:closeOnClick="false">
+    <form v-on:submit.prevent="submitUpdate">
+      <input name="content" id="link-form" placeholder="Url to link to..." v-model="content"/>
+    </form>
+  </ContextMenu>
+</span>
 </template>
 
 <script>
@@ -32,6 +36,7 @@ import ContextMenu from './ContextMenu';
 import { createNamespacedHelpers } from 'vuex';
 import { toggleElisionVisibility } from 'lib/ui/content/annotations/elide';
 const { mapActions } = createNamespacedHelpers('annotations');
+const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
   components: {
@@ -45,6 +50,9 @@ export default {
   computed: {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
+    },
+    ui_state() {
+      return this.$store.getters['annotations_ui/getById'](this.annotationId);
     },
     content: {
       get() {
@@ -64,14 +72,10 @@ export default {
   },
   methods: {
     ...mapActions(['update', 'destroy']),
+    ...mapMutations(['toggleExpansion']),
     submitUpdate() {
       this.update({obj: this.annotation, vals: this.newVals});
       this.$refs.linkMenu.close();
-    },
-    reveal() {
-      const elisions = document.querySelectorAll(`.annotate.replaced[data-annotation-id="${this.annotation.id}"]`);
-      const button = document.querySelector(`.annotate.replacement[data-annotation-id="${this.annotation.id}"]`);
-      toggleElisionVisibility(this.annotation.id, 'replace', button, elisions);
     }
   },
   mounted() {
@@ -86,6 +90,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
+@import '../styles/context-menu';
 
 $size: 28px;
 
@@ -102,17 +107,5 @@ button {
   color: $light-blue;
   border: 2px solid $white;
   background: $light-gray;
-}
-
-.context-menu {
-  ul li {
-    padding: 0;
-  }
-  a {
-    display: block;
-  }
-  a, form {
-    padding: 10px 15px;
-  }
 }
 </style>
