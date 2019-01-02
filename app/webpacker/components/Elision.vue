@@ -1,8 +1,6 @@
 <template>
 <span class="elision">
-  <span v-show="ui_state.expanded" class="selected-text"><slot></slot></span><!--
-  whitespace affects offset counts so using this comment for code formatting
---><span data-exclude-from-offset-calcs="true">
+  <span data-exclude-from-offset-calcs="true">
     <template v-if="hasHandle">
       <AnnotationHandle @click.native.prevent="$refs.menu.open"/>
       <button class="toggle"
@@ -25,7 +23,9 @@
         </li>
       </ul>
     </ContextMenu>
-  </span>
+  </span><!--
+  whitespace affects offset counts so using this comment for code formatting
+--><span v-show="ui_state.expanded" class="selected-text"><slot></slot></span>
 </span>
 </template>
 
