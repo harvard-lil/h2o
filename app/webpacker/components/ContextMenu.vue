@@ -171,9 +171,6 @@
   border: 1px solid $black;
   @include sans-serif($regular, 12px, 14px);
   background-color: $white;
-  &:focus {
-    outline: none;
-  }
   ul {
 	list-style: none;
 	padding: 0;
@@ -187,6 +184,18 @@
 	&:hover {
       background-color: $highlight;
 	}
+  }
+  ul li {
+    padding: 0;
+  }
+  a {
+    display: block;
+  }
+  a, form {
+    padding: 10px 15px;
+  }
+  &:focus {
+    outline: none;
   }
 }
 </style>

@@ -1,10 +1,21 @@
 <template>
-<button aria-label="Edit annotation"
-        v-bind:style="{right: offsetRight + 'px'}">✎</button>
+<span data-exclude-from-offset-calcs="true">
+  <button aria-label="Edit annotation"
+          v-bind:style="{right: offsetRight + 'px'}"
+          @click.prevent="$refs.menu.open">✎</button>
+  <ContextMenu ref="menu">
+    <ul><slot></slot></ul>
+  </ContextMenu>
+</span>
 </template>
 
 <script>
+import ContextMenu from './ContextMenu';
+
 export default {
+  components: {
+    ContextMenu
+  },
   data: () => ({offsetRight: -55}),
   mounted() {
     // Push over annotation margin handles which land on the same line

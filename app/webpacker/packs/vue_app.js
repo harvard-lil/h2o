@@ -8,6 +8,7 @@ import '../directives/selectionchange';
 import TheAnnotator from "../components/TheAnnotator.vue.erb";
 import Elision from "../components/Elision";
 import Replacement from "../components/Replacement";
+import Highlight from "../components/Highlight";
 import TheGlobalElisionExpansionButton from "../components/TheGlobalElisionExpansionButton";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
       TheAnnotator,
       Elision,
       Replacement,
+      Highlight,
       TheGlobalElisionExpansionButton
     }
   });
