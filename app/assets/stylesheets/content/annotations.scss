@@ -85,35 +85,6 @@
       background-color: $highlight;
       box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
     }
-    &.replacement {
-      display: inline-block;
-      margin: 0 6px;
-      padding: 0 6px;
-      background-color: $light-gray;
-      color: $light-blue;
-
-      .text {
-        pointer-events: none;
-      }
-      &:focus {
-        @include generic-focus-styles;
-      }
-      &.revealed .text {
-        display: none;
-      }
-      &.revealed::before {
-        content: 'hide';
-      }
-      .text:empty::before {
-        content: 'Enter replacement text';
-        color: $dark-gray;
-        pointer-events: none;
-      }
-      &.active .text:empty::before {
-        content: ' ';
-        pointer-events: none;
-      }
-    }
     &.replaced {
       display: none;
       padding: 0;
