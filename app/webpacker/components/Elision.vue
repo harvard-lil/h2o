@@ -1,37 +1,34 @@
 <template>
 <span class="elision">
-  <template v-if="hasHandle">
-    <button class="handle"
-            data-exclude-from-offset-calcs="true"
-            aria-label="Edit annotation"
-            v-bind:style="{right: offsetRight + 'px'}"
-            @click.prevent="$refs.menu.open">✎</button>
-    <button class="toggle"
-            @click="toggleExpansion(ui_state)"
-            aria-label="elided text"
-            v-bind:aria-expanded="ui_state.expanded"
-            v-bind:class="{expanded: ui_state.expanded}"></button>
-  </template>
-  <span v-if="ui_state.expanded"
-        class="selected-text"
-        data-exclude-from-offset-calcs="true">
-    <slot></slot>
+  <span v-show="ui_state.expanded" class="selected-text"><slot></slot></span><!--
+  whitespace affects offset counts so using this comment for code formatting
+--><span data-exclude-from-offset-calcs="true">
+    <template v-if="hasHandle">
+      <button class="handle"
+              aria-label="Edit annotation"
+              v-bind:style="{right: offsetRight + 'px'}"
+              @click.prevent="$refs.menu.open">✎</button>
+      <button class="toggle"
+              @click="toggleExpansion(ui_state)"
+              aria-label="elided text"
+              v-bind:aria-expanded="ui_state.expanded"
+              v-bind:class="{expanded: ui_state.expanded}"></button>
+    </template>
+    <ContextMenu ref="menu">
+      <ul>
+        <li>
+          <a @click="toggleExpansion(ui_state)">
+            <template v-if="ui_state.expanded">Hide</template>
+            <template v-else>Reveal</template>
+            original text
+          </a>
+        </li>
+        <li>
+          <a @click="destroy(annotation)">Remove elision</a>
+        </li>
+      </ul>
+    </ContextMenu>
   </span>
-  <ContextMenu ref="menu"
-               data-exclude-from-offset-calcs="true">
-    <ul>
-      <li>
-        <a @click="toggleExpansion(ui_state)">
-          <template v-if="ui_state.expanded">Hide</template>
-          <template v-else>Reveal</template>
-          original text
-        </a>
-      </li>
-      <li>
-        <a @click="destroy(annotation)">Remove elision</a>
-      </li>
-    </ul>
-  </ContextMenu>
 </span>
 </template>
 
