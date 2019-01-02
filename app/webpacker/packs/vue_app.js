@@ -6,7 +6,6 @@ import '../config/axios';
 import '../directives/selectionchange';
 
 import TheAnnotator from "../components/TheAnnotator.vue.erb";
-import AnnotationHandle from "../components/AnnotationHandle";
 import Elision from "../components/Elision";
 import Replacement from "../components/Replacement";
 import TheGlobalElisionExpansionButton from "../components/TheGlobalElisionExpansionButton";
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     store,
     components: {
       TheAnnotator,
-      AnnotationHandle,
       Elision,
       Replacement,
       TheGlobalElisionExpansionButton

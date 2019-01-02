@@ -4,10 +4,7 @@
   whitespace affects offset counts so using this comment for code formatting
 --><span data-exclude-from-offset-calcs="true">
     <template v-if="hasHandle">
-      <button class="handle"
-              aria-label="Edit annotation"
-              v-bind:style="{right: offsetRight + 'px'}"
-              @click.prevent="$refs.menu.open">✎</button>
+      <AnnotationHandle @click.native.prevent="$refs.menu.open"/>
       <button class="toggle"
               @click="toggleExpansion(ui_state)"
               aria-label="elided text"
@@ -33,6 +30,7 @@
 </template>
 
 <script>
+import AnnotationHandle from './AnnotationHandle';
 import ContextMenu from './ContextMenu';
 import { createNamespacedHelpers } from 'vuex';
 const { mapActions } = createNamespacedHelpers('annotations');
@@ -40,6 +38,7 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
   components: {
+    AnnotationHandle,
     ContextMenu
   },
   props: ['annotationId',
@@ -56,23 +55,12 @@ export default {
   methods: {
     ...mapActions(['destroy']),
     ...mapMutations(['toggleExpansion'])
-  },
-  mounted() {
-    if(this.hasHandle) {
-      // Push over annotation margin handles which land on the same line
-      // TODO - consider moving this over to a vuex store
-      const top = this.$el.getElementsByClassName("handle")[0].getBoundingClientRect().top;
-      window.handlePositions = window.handlePositions || {};
-      window.handlePositions[top] = (window.handlePositions[top] || 0) + 1;
-      this.offsetRight = -25 - (30 * window.handlePositions[top]);
-    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
-@import '../styles/handle';
 @import '../styles/context-menu';
 
 .elision {
