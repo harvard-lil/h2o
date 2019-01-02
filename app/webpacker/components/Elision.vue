@@ -1,26 +1,53 @@
 <template>
 <span class="elision">
-  <button v-if="hasHandle"
-          @click="toggleExpansion(ui_state)"
-          aria-label="elided text"
-          v-bind:aria-expanded="ui_state.expanded"
-          v-bind:class="{expanded: ui_state.expanded}">
-  </button>
+  <template v-if="hasHandle">
+    <button class="handle"
+            data-exclude-from-offset-calcs="true"
+            aria-label="Edit annotation"
+            v-bind:style="{right: offsetRight + 'px'}"
+            @click.prevent="$refs.menu.open">✎</button>
+    <button class="toggle"
+            @click="toggleExpansion(ui_state)"
+            aria-label="elided text"
+            v-bind:aria-expanded="ui_state.expanded"
+            v-bind:class="{expanded: ui_state.expanded}"></button>
+  </template>
   <span v-if="ui_state.expanded"
         class="selected-text"
-        v-html="selectedText">
+        data-exclude-from-offset-calcs="true">
+    <slot></slot>
   </span>
+  <ContextMenu ref="menu"
+               data-exclude-from-offset-calcs="true">
+    <ul>
+      <li>
+        <a @click="toggleExpansion(ui_state)">
+          <template v-if="ui_state.expanded">Hide</template>
+          <template v-else>Reveal</template>
+          original text
+        </a>
+      </li>
+      <li>
+        <a @click="destroy(annotation)">Remove elision</a>
+      </li>
+    </ul>
+  </ContextMenu>
 </span>
 </template>
 
 <script>
+import ContextMenu from './ContextMenu';
 import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers('annotations');
 const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
+  components: {
+    ContextMenu
+  },
   props: ['annotationId',
-          'hasHandle',
-          'selectedText'],
+          'hasHandle'],
+  data: () => ({offsetRight: -55}),
   computed: {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
@@ -30,18 +57,31 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['destroy']),
     ...mapMutations(['toggleExpansion'])
+  },
+  mounted() {
+    if(this.hasHandle) {
+      // Push over annotation margin handles which land on the same line
+      // TODO - consider moving this over to a vuex store
+      const top = this.$el.getElementsByClassName("handle")[0].getBoundingClientRect().top;
+      window.handlePositions = window.handlePositions || {};
+      window.handlePositions[top] = (window.handlePositions[top] || 0) + 1;
+      this.offsetRight = -25 - (30 * window.handlePositions[top]);
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
+@import '../styles/handle';
+@import '../styles/context-menu';
 
 .elision {
   padding: 0 10px;
 }
-button {
+.toggle {
   display: inline-block;
   cursor: zoom-in;
   border: none;
