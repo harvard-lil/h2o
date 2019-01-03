@@ -15,7 +15,7 @@
     </AnnotationHandle>
     <AnnotationExpansionToggle :ui-state="uiState"/>
   </template><!--
-  whitespace affects offset counts so using this comment for code formatting
+  whitespace affects offset counts; this comment is for code formatting
 --><span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
   <span v-if="!uiState.expanded"
         class="text"

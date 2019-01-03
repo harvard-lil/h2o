@@ -5,7 +5,7 @@
         <a @click="destroy(annotation)">Remove highlight</a>
       </li>
     </AnnotationHandle><!--
-  whitespace affects offset counts so using this comment for code formatting
+  whitespace affects offset counts; this comment is for code formatting
 --><span tabindex="-1" class="selected-text"><slot></slot></span>
 </span>
 </template>
