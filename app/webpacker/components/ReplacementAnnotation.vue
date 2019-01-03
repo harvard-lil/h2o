@@ -25,13 +25,13 @@
 </template>
 
 <script>
-import Annotation from './Annotation';
+import AnnotationBase from './AnnotationBase';
 import AnnotationExpansionToggle from './AnnotationExpansionToggle';
 import { createNamespacedHelpers } from 'vuex';
 const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
-  extends: Annotation,
+  extends: AnnotationBase,
   components: {
     AnnotationExpansionToggle
   },
