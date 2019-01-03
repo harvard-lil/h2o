@@ -20,7 +20,7 @@
   <span v-if="!uiState.expanded"
         class="text"
         data-exclude-from-offset-calcs="true"
-        contenteditable="true">{{escapedContent}}</span>
+        contenteditable="true">{{annotation.content}}</span>
 </span>
 </template>
 
@@ -32,7 +32,6 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
   extends: Annotation,
-  props: ['escapedContent'],
   components: {
     AnnotationExpansionToggle
   },
