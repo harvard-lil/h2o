@@ -6,11 +6,11 @@ import '../config/axios';
 import '../directives/selectionchange';
 
 import TheAnnotator from "../components/TheAnnotator.vue.erb";
-import Elision from "../components/Elision";
-import Replacement from "../components/Replacement";
-import Highlight from "../components/Highlight";
-import Link from "../components/Link";
-import Note from "../components/Note";
+import ElisionAnnotation from "../components/ElisionAnnotation";
+import ReplacementAnnotation from "../components/ReplacementAnnotation";
+import HighlightAnnotation from "../components/HighlightAnnotation";
+import LinkAnnotation from "../components/LinkAnnotation";
+import NoteAnnotation from "../components/NoteAnnotation";
 import TheGlobalElisionExpansionButton from "../components/TheGlobalElisionExpansionButton";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,11 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
     store,
     components: {
       TheAnnotator,
-      Elision,
-      Replacement,
-      Highlight,
-      Link,
-      Note,
+      ElisionAnnotation,
+      ReplacementAnnotation,
+      HighlightAnnotation,
+      LinkAnnotation,
+      NoteAnnotation,
       TheGlobalElisionExpansionButton
     }
   });
