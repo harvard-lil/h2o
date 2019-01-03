@@ -23,12 +23,12 @@
 
 <script>
 import ContextMenu from './ContextMenu';
-import Annotation from './Annotation';
+import AnnotationBase from './AnnotationBase';
 import { createNamespacedHelpers } from 'vuex';
 const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
-  extends: Annotation,
+  extends: AnnotationBase,
   components: {
     ContextMenu
   },

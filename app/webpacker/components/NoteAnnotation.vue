@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import Annotation from './Annotation';
+import AnnotationBase from './AnnotationBase';
 
 export default {
-  extends: Annotation
+  extends: AnnotationBase
 }
 </script>
 
