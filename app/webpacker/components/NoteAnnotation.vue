@@ -22,7 +22,10 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .selected-text {
-  background-color: $highlight;
-  box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
+  text-decoration: $light-blue underline;
+  outline: none;
+  &:hover {
+    cursor: pointer;
+  }
 }
 </style>

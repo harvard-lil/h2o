@@ -97,14 +97,6 @@
         background-color: $light-gray;
       }
     }
-    &.note {
-      text-decoration: $light-blue underline;
-      outline: none;
-
-      &:hover {
-        cursor: pointer;
-      }
-    }
 
     &.note-content-wrapper {
       @include square(0);
