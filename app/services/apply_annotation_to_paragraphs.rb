@@ -59,7 +59,7 @@ class ApplyAnnotationToParagraphs
           annotation_button = get_annotation_button_and_note_wrapper
 
           if only_paragraph? && partial_paragraph?(node, paragraph_offset)
-            selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset], final: true)
+            selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset])
             node.replace "#{node.text[0...start_offset - paragraph_offset]}#{annotation_button}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
             break
           else
@@ -75,28 +75,22 @@ class ApplyAnnotationToParagraphs
 
   private
 
-  def annotation_handle
-    "<annotation-handle v-bind:annotation-id='#{id}' data-exclude-from-offset-calcs='true'/>"
-  end
-
   # The edit icon that shows up next to an annotation when in draft mode.
   def get_annotation_button_and_note_wrapper
     if kind == 'note'
       if editable
-        "#{annotation_handle}<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
+        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       # Show notes only when not exporting, or exporting with annotations
       elsif !exporting || (exporting && include_annotations)
         "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       end
-    elsif editable
-      annotation_handle
     else
       ""
     end
   end
 
   # NB: the export to docx code is tightly coupled with this markup. Test thoroughly if altering.
-  def annotate_html(selected_text, handle: true, final: false)
+  def annotate_html_old(selected_text, handle: true)
     case kind
     when 'elide' then
       "#{handle ? "<span role='button' tabindex='0' class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></span>" : ''}" +
@@ -118,6 +112,11 @@ class ApplyAnnotationToParagraphs
         "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>"
       end
     end
+  end
+
+  def annotate_html(selected_text, handle: true)
+    component = {'elide' => 'elision', 'replace' => 'replacement'}[kind] || kind
+    "<#{component} :annotation-id='#{id}' :has-handle='#{handle}'>#{selected_text}</#{component}>"
   end
 
   def escaped_content
@@ -155,7 +154,7 @@ class ApplyAnnotationToParagraphs
 
   # This is the last paragraph, apply the annotation to the remaining characters.  
   def wrap_last_paragraph(node, paragraph_offset)
-    selected_text = annotate_html(node.text[0...end_offset - paragraph_offset], handle: false, final: true)
+    selected_text = annotate_html(node.text[0...end_offset - paragraph_offset], handle: false)
     node.replace "#{node.text[0...0]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
   end
 
