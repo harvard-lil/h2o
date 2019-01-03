@@ -20,7 +20,7 @@ export default {
   mounted() {
     // Push over annotation margin handles which land on the same line
     // TODO - consider moving this over to a vuex store
-    const top = this.$el.getBoundingClientRect().top;
+    const top = this.$el.getElementsByTagName("button")[0].getBoundingClientRect().top;
     window.handlePositions = window.handlePositions || {};
     window.handlePositions[top] = (window.handlePositions[top] || 0) + 1;
     this.offsetRight = -25 - (30 * window.handlePositions[top]);
