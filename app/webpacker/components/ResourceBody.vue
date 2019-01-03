@@ -1,6 +1,11 @@
 <template>
 <section class="resource">
-  <template v-for="section in sections">
+  <template v-for="(section, index) in sections">
+    <div class="handle">
+      <div class="number">
+        {{parseInt(index)+1}}
+      </div>
+    </div>
     <ResourceSection v-html="section.outerHTML"></ResourceSection>
   </template>
 </section>
@@ -57,5 +62,28 @@ export default {
   .resource-center {
     text-align: center;
   }
+}
+.handle {
+  @include size(0px, 0px);
+  
+  user-select: none;
+  
+  float: left;
+  position: relative;
+  
+  &[data-elided-annotation]:not(.revealed){
+    display: none;
+  }
+}
+.number {
+  @include sans-serif($regular, 12px, 12px);
+  
+  position: absolute;
+  right: 45px;
+  line-height: 34px;
+  
+  color: $light-blue;
+  text-align: right;
+  vertical-align: middle;
 }
 </style>

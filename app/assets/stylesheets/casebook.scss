@@ -514,29 +514,3 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
   }
 }
-
-.case-text {
-  .p-handle {
-    @include size(0px, 0px);
-
-    user-select: none;
-
-    float: left;
-    position: relative;
-
-    &[data-elided-annotation]:not(.revealed){
-      display: none;
-    }
-  }
-  .p-number {
-    @include sans-serif($regular, 12px, 12px);
-
-    position: absolute;
-    right: 45px;
-    line-height: 34px;
-
-    color: $light-blue;
-    text-align: right;
-    vertical-align: middle;
-  }
-}
