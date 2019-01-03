@@ -116,7 +116,7 @@ class ApplyAnnotationToParagraphs
 
   def annotate_html(selected_text, handle: true)
     component = {'elide' => 'elision', 'replace' => 'replacement'}[kind] || kind
-    "<#{component} :annotation-id='#{id}' :has-handle='#{handle}'>#{selected_text}</#{component}>"
+    "<#{component}-annotation :annotation-id='#{id}' :has-handle='#{handle}'>#{selected_text}</#{component}-annotation>"
   end
 
   def escaped_content
