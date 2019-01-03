@@ -1,15 +1,21 @@
 <template>
 <section class="resource" v-selectionchange="selectionChangeHandler">
   <TheGlobalElisionExpansionButton/>
-  <ContextMenu ref="menu">
-    <ul><li>hey</li></ul>
-  </ContextMenu>
-  <div class="resource-wrapper">
-    <div class="case-text"
-         v-for="(el, index) in sections">
-      <ResourceSection :el="el"
-                       :index="parseInt(index)"/>
-    </div>
+  <div class="context-menu"
+       v-if="selection[0]"
+       :style="{top: offset}">
+    <ul>
+      <li><a>Highlight</a></li>
+      <li><a>Elide</a></li>
+      <li><a>Replace</a></li>
+      <li><a>Add link</a></li>
+      <li><a>Add note</a></li>
+    </ul>
+  </div>
+  <div class="case-text"
+       v-for="(el, index) in sections">
+    <ResourceSection :el="el"
+                     :index="parseInt(index)"/>
   </div>
 </section>
 </template>
@@ -32,7 +38,7 @@ export default {
     editable: {type: Boolean}
   },
   data: () => ({
-    selection: null
+    selection: []
   }),
   computed: {
     sections() {
@@ -40,25 +46,20 @@ export default {
       return parser.parseFromString(this.resource.content, "text/html").body.children;
     },
     offset() {
-      let wrapperRect = document.querySelector('.resource-wrapper').getBoundingClientRect();
-      let viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-      
-      let target = this.range || this.handle;
-      this.targetRect = target ? target.getBoundingClientRect() : this.targetRect || {top: 0, bottom: 0};
-      
-      return Math.min(Math.max(this.targetRect.top - wrapperRect.top,
-                               viewportTop + 20),
-                      this.targetRect.bottom - wrapperRect.top).toString(10) + "px";
+      const wrapperRect = this.$el.getBoundingClientRect();
+      const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
+      const targetRect = this.selection[0].getRangeAt(this.selection[0].rangeCount-1).getBoundingClientRect();
+
+      return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
+                      targetRect.bottom - wrapperRect.top).toString(10) + "px";
     }
   },
   methods: {
     selectionChangeHandler(e, sel) {
-      console.log(e);
-      if(sel) {
-        this.$refs.menu.open({});
-      } else {
-        this.$refs.menu.close(e);
-      }
+      // if the selection is not zero width, store it, otherwise set to null 
+      // this.selection is wrapped in an array in order to trigger rerender when changed
+      this.$set(this.selection, 0, (sel && (sel.anchorNode != sel.focusNode ||
+                                            sel.anchorOffset != sel.focusOffset)) ? sel : null);
     }
   }
 }
@@ -68,6 +69,7 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .resource {
+  position: relative;
   @include serif-text($regular, 18px, 31px);
   margin-bottom: 24px;
   padding: 40px;
@@ -96,9 +98,6 @@ export default {
     text-align: center;
   }
 }
-.resource-wrapper {
-  position: relative;
-}
 .case-text {
   /* hacks for misbehaving blockquotes */
   blockquote {
@@ -110,5 +109,9 @@ export default {
       padding: 0;
     }
   }
+}
+.context-menu {
+  position: absolute;
+  right: 0;
 }
 </style>
