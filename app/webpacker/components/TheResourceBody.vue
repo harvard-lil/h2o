@@ -10,7 +10,7 @@
 
 <script>
 import ResourceSection from "./ResourceSection";
-import TheAnnotator from "../components/TheAnnotator.vue.erb";
+import TheAnnotator from "./TheAnnotator.vue.erb";
 
 export default {
   components: {
