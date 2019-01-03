@@ -54,22 +54,7 @@
   user-select: none;
 }
 
-.resource-wrapper {
-  position: relative;
-}
-
 .case-text {
-  /* hacks for misbehaving blockquotes */
-  blockquote {
-    span p {
-      display: inline; // yes, p in span is illegal, but we have them
-    }
-    &[data-elided-annotation]:not(.revealed){
-      margin: 0;
-      padding: 0;
-    }
-  }
-
   .annotate {
     display: inline;
 
