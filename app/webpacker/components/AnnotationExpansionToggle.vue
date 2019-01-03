@@ -12,7 +12,9 @@ import { createNamespacedHelpers } from 'vuex';
 const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
-  props: {uiState: {type: Object}},
+  props: {
+    uiState: {type: Object}
+  },
   methods: {
     ...mapMutations(['toggleExpansion'])
   }

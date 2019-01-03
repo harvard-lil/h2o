@@ -10,8 +10,10 @@ export default {
   components: {
     AnnotationHandle
   },
-  props: ['annotationId',
-          'hasHandle'],
+  props: {
+    annotationId: {type: Number},
+    hasHandle: {type: Boolean}
+  },
   computed: {
     annotation() {
       return this.$store.getters['annotations/getById'](this.annotationId);
