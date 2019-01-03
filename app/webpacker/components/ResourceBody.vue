@@ -1,13 +1,27 @@
 <template>
-  <section class="resource" v-html="resource.content">
-  </section>
+<section class="resource">
+  <template v-for="section in sections">
+    <ResourceSection v-html="section.outerHTML"></ResourceSection>
+  </template>
+</section>
 </template>
 
 <script>
+import ResourceSection from "./ResourceSection";
+
 export default {
+  components: {
+    ResourceSection
+  },
   props: {
     resource: {type: Object},
     editable: {type: Boolean}
+  },
+  computed: {
+    sections() {
+      const parser = new DOMParser();
+      return parser.parseFromString(this.resource.content, "text/html").body.children;
+    }
   }
 }
 </script>
