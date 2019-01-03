@@ -59,13 +59,6 @@
 }
 
 .case-text {
-  p > .annotate.highlighted {
-    padding: 9px 0 4px;
-  }
-  h2 > .annotate.highlighted {
-    padding: 3px 0 3px;
-  }
-
   /* hacks for misbehaving blockquotes */
   blockquote {
     span p {
