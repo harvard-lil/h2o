@@ -26,7 +26,10 @@
 </template>
 
 <script>
-import {offsetsForRange, closestP, getCaretCharacterOffsetWithin, offsetInParagraph} from 'lib/ui/content/annotations/placement';
+import {offsetsForRanges,
+        closestP,
+        getCaretCharacterOffsetWithin,
+        offsetInParagraph} from 'lib/ui/content/annotations/placement';
 
 export default {
   props: {
@@ -62,7 +65,7 @@ export default {
       return '<%= resource_annotations_path('$RESOURCE_ID') %>'.replace('$RESOURCE_ID', this.resourceId)
     },
     offsets() {
-      return offsetsForRange(this.range);
+      return offsetsForRanges(this.range);
     }
   },
   methods: {
