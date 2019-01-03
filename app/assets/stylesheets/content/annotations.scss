@@ -80,11 +80,6 @@
   .annotate {
     display: inline;
 
-    &.highlighted {
-      // padding: 9px 0 4px; // This needs to be set based on the line-height of the text
-      background-color: $highlight;
-      box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
-    }
     &.replaced {
       display: none;
       padding: 0;
@@ -95,38 +90,6 @@
         color: #555;
         border-radius: 3px;
         background-color: $light-gray;
-      }
-    }
-
-    &.note-content-wrapper {
-      @include square(0);
-      position: absolute;
-      right: -40px;
-      overflow: visible;
-      display: block;
-      margin: 33px 10px 0 0;
-
-      &.revealed {
-        display: none;
-      }
-
-      .note-icon {
-        position: absolute;
-        transform: translate(218%, -116%) rotate(180deg);
-        z-index: 1;
-        font-size: 17px;
-      }
-
-      .note-content {
-        @include sans-serif($regular, 14px, 20px);
-        display: block;
-        width: 200px;
-        padding: 10px;
-        position: relative;
-        top: -20px;
-        background-color: white;
-        color: black;
-        margin: 0 20px;
       }
     }
   }

@@ -56,16 +56,14 @@ class ApplyAnnotationToParagraphs
         end
       else
         if paragraph_offset_ready?(node, paragraph_offset)
-          annotation_button = get_annotation_button_and_note_wrapper
-
           if only_paragraph? && partial_paragraph?(node, paragraph_offset)
             selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset])
-            node.replace "#{node.text[0...start_offset - paragraph_offset]}#{annotation_button}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
+            node.replace "#{node.text[0...start_offset - paragraph_offset]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
             break
           else
             noninitial = true
             selected_text = annotate_html(node.text[start_offset - paragraph_offset..-1])
-            node.replace "#{node.text[0...start_offset - paragraph_offset]}#{annotation_button}#{selected_text}"
+            node.replace "#{node.text[0...start_offset - paragraph_offset]}#{selected_text}"
           end
         end
       end
@@ -74,20 +72,6 @@ class ApplyAnnotationToParagraphs
   end
 
   private
-
-  # The edit icon that shows up next to an annotation when in draft mode.
-  def get_annotation_button_and_note_wrapper
-    if kind == 'note'
-      if editable
-        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
-      # Show notes only when not exporting, or exporting with annotations
-      elsif !exporting || (exporting && include_annotations)
-        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
-      end
-    else
-      ""
-    end
-  end
 
   # NB: the export to docx code is tightly coupled with this markup. Test thoroughly if altering.
   def annotate_html_old(selected_text, handle: true)
