@@ -43,10 +43,6 @@ class ApplyAnnotationToParagraphs
     paragraph_node.traverse do |node|
       next unless node.text?
 
-      if node.parent['data-exclude-from-offset-calcs']&.downcase == "true"
-        next
-      end
-
       if noninitial
         if middle_paragraph?(node, paragraph_offset)
           wrap_middle_paragraph(node)
