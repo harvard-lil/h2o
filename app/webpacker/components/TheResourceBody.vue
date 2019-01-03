@@ -1,31 +1,38 @@
 <template>
-<section class="resource">
-  <template v-for="(section, index) in sections">
-    <div class="handle">
-      <div class="number">
-        {{parseInt(index)+1}}
-      </div>
-    </div>
-    <ResourceSection v-html="section.outerHTML"></ResourceSection>
+<section class="resource" v-selectionchange="selectionChangeHandler">
+  <TheAnnotator v-if="selection"/>
+  <template v-for="(el, index) in sections">
+    <ResourceSection :el="el"
+                     :index="parseInt(index)"></ResourceSection>
   </template>
 </section>
 </template>
 
 <script>
 import ResourceSection from "./ResourceSection";
+import TheAnnotator from "../components/TheAnnotator.vue.erb";
 
 export default {
   components: {
-    ResourceSection
+    ResourceSection,
+    TheAnnotator
   },
   props: {
     resource: {type: Object},
     editable: {type: Boolean}
   },
+  data: () => ({
+    selection: null
+  }),
   computed: {
     sections() {
       const parser = new DOMParser();
       return parser.parseFromString(this.resource.content, "text/html").body.children;
+    }
+  },
+  methods: {
+    selectionChangeHandler(e, sel) {
+      this.selection = sel;
     }
   }
 }
@@ -33,7 +40,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
-  
+
 .resource {
   @include serif-text($regular, 18px, 31px);
   margin-bottom: 24px;
@@ -62,28 +69,5 @@ export default {
   .resource-center {
     text-align: center;
   }
-}
-.handle {
-  @include size(0px, 0px);
-  
-  user-select: none;
-  
-  float: left;
-  position: relative;
-  
-  &[data-elided-annotation]:not(.revealed){
-    display: none;
-  }
-}
-.number {
-  @include sans-serif($regular, 12px, 12px);
-  
-  position: absolute;
-  right: 45px;
-  line-height: 34px;
-  
-  color: $light-blue;
-  text-align: right;
-  vertical-align: middle;
 }
 </style>
