@@ -21,7 +21,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['update', 'destroy'])
+    ...mapActions(['destroy'])
   }
 }
 </script>

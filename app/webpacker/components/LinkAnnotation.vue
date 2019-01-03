@@ -24,6 +24,8 @@
 <script>
 import ContextMenu from './ContextMenu';
 import Annotation from './Annotation';
+import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
   extends: Annotation,
@@ -44,6 +46,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['update']),
     submitUpdate() {
       this.update({obj: this.annotation, vals: this.newVals});
       this.$refs.editMenu.close();
