@@ -22,7 +22,6 @@ const actions = {
       .patch(helpers.path(payload.obj), {annotation: payload.vals})
       .then(resp => {
         commit('update', payload);
-        window.location.reload();
       });
   },
   destroy({ commit }, payload) {
