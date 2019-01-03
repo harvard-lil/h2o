@@ -5,8 +5,7 @@ import store from '../store/index.js.erb';
 import '../config/axios';
 import '../directives/selectionchange';
 
-import ResourceBody from "../components/ResourceBody";
-import TheAnnotator from "../components/TheAnnotator.vue.erb";
+import TheResourceBody from "../components/TheResourceBody";
 import ElisionAnnotation from "../components/ElisionAnnotation";
 import ReplacementAnnotation from "../components/ReplacementAnnotation";
 import HighlightAnnotation from "../components/HighlightAnnotation";
@@ -19,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el: '#app',
     store,
     components: {
-      ResourceBody,
-      TheAnnotator,
+      TheResourceBody,
       ElisionAnnotation,
       ReplacementAnnotation,
       HighlightAnnotation,
