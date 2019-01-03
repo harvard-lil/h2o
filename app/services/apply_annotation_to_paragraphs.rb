@@ -69,59 +69,9 @@ class ApplyAnnotationToParagraphs
 
   private
 
-  # NB: the export to docx code is tightly coupled with this markup. Test thoroughly if altering.
-  def annotate_html_old(selected_text, handle: true)
-    case kind
-    when 'elide' then
-      "#{handle ? "<span role='button' tabindex='0' class='annotate elide' data-annotation-id='#{id}' aria-label='elided text' aria-expanded='false'></span>" : ''}" +
-      "<span class='annotate elided' data-annotation-id='#{id}'>#{selected_text}</span>"
-    when 'replace' then
-      "#{handle ? "<span role='button' tabindex='0' aria-expanded='false' class='annotate replacement' data-annotation-id='#{id}'><span class='text' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>" : ''}<span class='annotate replaced' data-annotation-id='#{id}'>#{selected_text}</span>"
-    when 'highlight' then
-      "<span tabindex='-1' class='annotate highlighted' data-annotation-id='#{id}'>#{selected_text}</span>"
-    when 'link' then
-      if exporting && paragraph_index == end_paragraph && include_annotations
-        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>#{'*' * export_footnote_index}"
-      else
-        "<a href='#{escaped_content}' target='_blank' class='annotate link' data-annotation-id='#{id}'>#{selected_text}</a>"
-      end
-    when 'note' then
-      if exporting && paragraph_index == end_paragraph && include_annotations
-        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>#{'*' * export_footnote_index}"
-      else
-        "<span tabindex='-1' class='annotate note' data-annotation-id='#{id}'>#{selected_text}</span>"
-      end
-    end
-  end
-
   def annotate_html(selected_text, handle: true)
     component = {'elide' => 'elision', 'replace' => 'replacement'}[kind] || kind
     "<#{component}-annotation :annotation-id='#{id}' :has-handle='#{handle}'>#{selected_text}</#{component}-annotation>"
-  end
-
-  def escaped_content
-    ApplicationController.helpers.send(:html_escape, content)
-  end
-
-  # If it's a multi-paragraph annotation and this paragraph is in the middle, annotate the entire paragraph
-  def full_paragraph_node_annotated?
-    (!first_paragraph? && !last_paragraph?) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
-  end
-
-  def first_paragraph?
-    paragraph_index == start_paragraph
-  end
-
-  def last_paragraph?
-    paragraph_index == end_paragraph
-  end
-
-  def wrap_paragraph_node
-    paragraph_node.children = annotate_html(paragraph_node.inner_html, handle: false)
-    if kind.in? %w{elide replace}
-      paragraph_node['data-elided-annotation'] = id
-    end
-    return
   end
 
   def middle_paragraph?(node, paragraph_offset)
