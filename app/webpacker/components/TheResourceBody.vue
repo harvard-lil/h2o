@@ -3,22 +3,28 @@
   <TheGlobalElisionExpansionButton/>
   <TheAnnotator v-if="selection[0]"
                 :selection="selection"/>
-  <div class="case-text"
-       v-for="(el, index) in sections">
-    <ResourceSection :el="el"
-                     :index="parseInt(index)"/>
+  <div class="case-text">
+    <template v-for="(el, index) in sections">
+      <div class="handle">
+        <div class="number">
+          {{parseInt(index)+1}}
+        </div>
+      </div>
+      <ResourceElement :el="el"
+                       :index="parseInt(index)"/>
+    </template>
   </div>
 </section>
 </template>
 
 <script>
-import ResourceSection from "./ResourceSection";
+import ResourceElement from "./ResourceElement";
 import TheAnnotator from "./TheAnnotator";
 import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
 
 export default {
   components: {
-    ResourceSection,
+    ResourceElement,
     TheAnnotator,
     TheGlobalElisionExpansionButton
   },
@@ -94,5 +100,28 @@ export default {
 .context-menu {
   position: absolute;
   right: 0;
+}
+.handle {
+  @include size(0px, 0px);
+
+  user-select: none;
+
+  float: left;
+  position: relative;
+
+  &[data-elided-annotation]:not(.revealed){
+    display: none;
+  }
+}
+.number {
+  @include sans-serif($regular, 12px, 12px);
+
+  position: absolute;
+  right: 45px;
+  line-height: 34px;
+
+  color: $light-blue;
+  text-align: right;
+  vertical-align: middle;
 }
 </style>
