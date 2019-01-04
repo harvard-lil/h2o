@@ -4,14 +4,15 @@
   <TheAnnotator v-if="selection[0]"
                 :selection="selection"/>
   <div class="case-text">
-    <template v-for="(el, index) in sections">
+    <template v-for="(obj, index) in sections_with_offsets">
       <div class="handle">
         <div class="number">
           {{parseInt(index)+1}}
         </div>
       </div>
-      <ResourceElement :el="el"
-                       :index="parseInt(index)"/>
+      <ResourceElement :el="obj.el"
+                       :index="parseInt(index)"
+                       :offset="obj.offset"/>
     </template>
   </div>
 </section>
@@ -36,9 +37,15 @@ export default {
     selection: []
   }),
   computed: {
-    sections() {
+    sections_with_offsets() {
       const parser = new DOMParser();
-      return parser.parseFromString(this.resource.content, "text/html").body.children;
+      let offset = 0;
+      return Array.from(
+        parser.parseFromString(this.resource.content, "text/html").body.children
+      ).map(el => {
+        offset = offset + el.innerText.length;
+        return ({el: el, offset: offset - el.innerText.length});
+      });
     }
   },
   methods: {
