@@ -14,9 +14,8 @@
       </li>
     </AnnotationHandle>
     <AnnotationExpansionToggle :ui-state="uiState"/>
-  </template><!--
-  whitespace affects offset counts; this comment is for code formatting
---><span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
+  </template>
+  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
   <span v-if="!uiState.expanded"
         class="text"
         data-exclude-from-offset-calcs="true"
