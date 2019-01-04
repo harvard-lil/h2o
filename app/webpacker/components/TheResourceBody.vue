@@ -1,17 +1,8 @@
 <template>
 <section class="resource" v-selectionchange="selectionChangeHandler">
   <TheGlobalElisionExpansionButton/>
-  <div class="context-menu"
-       v-if="selection[0]"
-       :style="{top: offset}">
-    <ul>
-      <li><a>Highlight</a></li>
-      <li><a>Elide</a></li>
-      <li><a>Replace</a></li>
-      <li><a>Add link</a></li>
-      <li><a>Add note</a></li>
-    </ul>
-  </div>
+  <TheAnnotator v-if="selection[0]"
+                :selection="selection"/>
   <div class="case-text"
        v-for="(el, index) in sections">
     <ResourceSection :el="el"
@@ -22,16 +13,14 @@
 
 <script>
 import ResourceSection from "./ResourceSection";
-import TheAnnotator from "./TheAnnotator.vue.erb";
+import TheAnnotator from "./TheAnnotator";
 import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
-import ContextMenu from './ContextMenu';
 
 export default {
   components: {
     ResourceSection,
     TheAnnotator,
-    TheGlobalElisionExpansionButton,
-    ContextMenu
+    TheGlobalElisionExpansionButton
   },
   props: {
     resource: {type: Object},
@@ -44,14 +33,6 @@ export default {
     sections() {
       const parser = new DOMParser();
       return parser.parseFromString(this.resource.content, "text/html").body.children;
-    },
-    offset() {
-      const wrapperRect = this.$el.getBoundingClientRect();
-      const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-      const targetRect = this.selection[0].getRangeAt(this.selection[0].rangeCount-1).getBoundingClientRect();
-
-      return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
-                      targetRect.bottom - wrapperRect.top).toString(10) + "px";
     }
   },
   methods: {
