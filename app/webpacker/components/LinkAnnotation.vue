@@ -15,9 +15,8 @@
         <input name="content" id="link-form" placeholder="Url to link to..." v-model="content"/>
       </form>
     </ContextMenu>
-  </template><!--
-  whitespace affects offset counts; this comment is for code formatting
---><a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
+  </template>
+  <a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
 </span>
 </template>
 

@@ -15,9 +15,8 @@
         {{annotation.content}}
       </span>
     </span>
-  </template><!--
-  whitespace affects offset counts; this comment is for code formatting
---><span tabindex="-1" class="selected-text"><slot></slot></span>
+  </template>
+  <span tabindex="-1" class="selected-text"><slot></slot></span>
 </span>
 </template>
 
