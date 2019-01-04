@@ -13,6 +13,13 @@ const state = {
 const getters = {
   getById: (state) => (id) => {
     return state.all.find(obj => obj.id === id);
+  },
+  // Return annotations which either start, end, or bridge
+  // the specified section (aka "paragraph")
+  getBySectionIndex: (state) => (index) => {
+    return state.all.filter(obj => (obj.start_paragraph == index ||
+                                   obj.end_paragraph == index ||
+                                   (obj.start_paragraph < index && obj.end_paragraph > index)));
   }
 };
 

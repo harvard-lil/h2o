@@ -3,6 +3,7 @@
     <div class="handle">
       <div class="number">
         {{index+1}}
+        {{annotations.map(o => o.kind+o.id).join(",")}}
       </div>
     </div>
     <span v-html="el.outerHTML"></span>
@@ -10,10 +11,18 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers('annotations');
+
 export default {
   props: {
     el: {type: HTMLElement},
     index: {type: Number}
+  },
+  computed: {
+    annotations() {
+      return this.$store.getters['annotations/getBySectionIndex'](this.index);
+    }
   }
 }
 </script>
