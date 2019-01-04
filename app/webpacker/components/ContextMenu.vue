@@ -159,7 +159,7 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../styles/vars-and-mixins';
 
 .context-menu {
@@ -168,13 +168,13 @@
   padding: 0;
   position: fixed;
   z-index: 99999;
-  border: 1px solid $black;
   @include sans-serif($regular, 12px, 14px);
-  background-color: $white;
   ul {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+    background-color: $white;
+    border: 1px solid $black;
   }
   li {
 	margin: 0;

@@ -29,13 +29,6 @@ window.addEventListener('load', () => {
   }
 });
 
-$(document).ready(e => {
-  if($('.view-resources-annotate').length){
-    annotator = new Annotator();
-    makeReplacementsContenteditable();
-  }
-});
-
 delegate(document, '.annotate.replacement', 'focus', e => {
   annotator.edit(e.target.previousElementSibling);
 });
@@ -64,14 +57,6 @@ export function stagePreviousContent(content) {
 
 export function isEditable () {
   return document.querySelector('header.casebook').dataset.editable ? true : false;
-}
-
-function makeReplacementsContenteditable() {
-  let replacements = document.querySelectorAll('.resource-wrapper .annotate.replacement .text');
-  for (let el of replacements) {
-    el.contentEditable = true;
-    el.id = 'replacement-text';
-  }
 }
 
 document.addEventListener('selectionchange', e => {
