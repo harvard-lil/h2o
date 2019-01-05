@@ -1,7 +1,8 @@
 <template>
 <section class="resource" v-selectionchange="selectionChangeHandler">
   <TheGlobalElisionExpansionButton/>
-  <TheAnnotator v-if="selection[0]"
+  <TheAnnotator ref="annotator"
+                v-if="selection[0]"
                 :selection="selection"/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
@@ -43,10 +44,9 @@ export default {
   },
   methods: {
     selectionChangeHandler(e, sel) {
-      // if the selection is not zero width, store it, otherwise set to null 
-      // this.selection is wrapped in an array in order to trigger rerender when changed
-      this.$set(this.selection, 0, (sel && (sel.anchorNode != sel.focusNode ||
-                                            sel.anchorOffset != sel.focusOffset)) ? sel : null);
+      // Don't clear selection when the user clicks into the annotator
+      if (this.$refs.annotator && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
+      this.$set(this.selection, 0, (sel && sel.type == "Range") ? sel : null);
     }
   }
 }
