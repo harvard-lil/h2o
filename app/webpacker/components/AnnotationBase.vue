@@ -12,7 +12,8 @@ export default {
   },
   props: {
     annotationId: {type: Number},
-    hasHandle: {type: Boolean}
+    hasHandle: {type: Boolean,
+                default: false}
   },
   computed: {
     annotation() {
