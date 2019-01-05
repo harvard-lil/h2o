@@ -20,6 +20,13 @@ const getters = {
     return state.all.filter(obj => (obj.start_paragraph == index ||
                                    obj.end_paragraph == index ||
                                    (obj.start_paragraph < index && obj.end_paragraph > index)));
+  getBySectionIndexFullSpan: (state) => (index, length) => {
+    return state.all.filter(obj => (
+      (obj.start_paragraph < index && obj.end_paragraph > index) ||
+      (obj.start_paragraph == index && obj.start_offset == 0 &&
+       (obj.end_paragraph > index || obj.end_offset == length)) ||
+      (obj.end_paragraph == index && obj.end_offset == length)
+    ));
   }
 };
 

@@ -6,25 +6,13 @@ import '../config/axios';
 import '../directives/selectionchange';
 
 import TheResourceBody from "../components/TheResourceBody";
-import ElisionAnnotation from "../components/ElisionAnnotation";
-import ReplacementAnnotation from "../components/ReplacementAnnotation";
-import HighlightAnnotation from "../components/HighlightAnnotation";
-import LinkAnnotation from "../components/LinkAnnotation";
-import NoteAnnotation from "../components/NoteAnnotation";
-import TheGlobalElisionExpansionButton from "../components/TheGlobalElisionExpansionButton";
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new Vue({
     el: '#app',
     store,
     components: {
-      TheResourceBody,
-      ElisionAnnotation,
-      ReplacementAnnotation,
-      HighlightAnnotation,
-      LinkAnnotation,
-      NoteAnnotation,
-      TheGlobalElisionExpansionButton
+      TheResourceBody
     }
   });
 

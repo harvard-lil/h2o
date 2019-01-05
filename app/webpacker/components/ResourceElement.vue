@@ -6,7 +6,19 @@
            :href="el.getAttribute('href')"
            :alt="el.getAttribute('alt')"
            :src="el.getAttribute('src')">
-  <template v-for="obj in childNodesWithOffsets">
+  <component v-if="offsetToPoint == 0 && full_annotation"
+             :is="annotation_to_component(full_annotation)"
+             :annotation-id="full_annotation.id">
+    <template v-for="obj in childNodesWithOffsets">
+      <b style="color: red;">{{obj.offset}}</b>
+      <template v-if="obj.node.nodeType == node_types.TEXT">{{obj.node.textContent}}</template>
+      <resource-element v-else-if="obj.node.nodeType == node_types.ELEMENT"
+                        :el="obj.node"
+                        :index="index"
+                        :offsetToPoint="obj.offset"/>
+    </template>
+  </component>
+  <template v-else v-for="obj in childNodesWithOffsets">
     <b style="color: red;">{{obj.offset}}</b>
     <template v-if="obj.node.nodeType == node_types.TEXT">{{obj.node.textContent}}</template>
     <resource-element v-else-if="obj.node.nodeType == node_types.ELEMENT"
@@ -18,8 +30,21 @@
 </template>
 
 <script>
+import ElisionAnnotation from "./ElisionAnnotation";
+import ReplacementAnnotation from "./ReplacementAnnotation";
+import HighlightAnnotation from "./HighlightAnnotation";
+import LinkAnnotation from "./LinkAnnotation";
+import NoteAnnotation from "./NoteAnnotation";
+
 export default {
   name: "resource-element", // required for recursive use
+  components: {
+    ElisionAnnotation,
+    ReplacementAnnotation,
+    HighlightAnnotation,
+    LinkAnnotation,
+    NoteAnnotation
+  },
   props: {
     el: {type: HTMLElement},
     index: {type: Number},
@@ -31,10 +56,13 @@ export default {
       node_types: {ELEMENT: 1,
                    TEXT: 3},
       offset: this.offsetToPoint
-  }},
+    }},
   computed: {
     annotations() {
-      return this.$store.getters['annotations/getBySectionIndex'](this.index);
+      return this.$store.getters['annotations/getBySectionIndexAndOffsets'](this.index, this.offsetToPoint, this.offsetToPoint + this.el.innerText.length);
+    },
+    full_annotation() {
+      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.el.innerText.length)[0];
     },
     childNodesWithOffsets() {
       return Array.from(this.el.childNodes).map(node => {
@@ -44,6 +72,12 @@ export default {
         this.offset = this.offset + (node.innerText || node.textContent).length;
         return {node: node, offset: prev_offset};
       })
+    }
+  },
+  methods: {
+    annotation_to_component(annotation) {
+      return ({elide: "elision",
+               replace: "replacement"}[annotation.kind] || annotation.kind) + "-annotation";
     }
   }
 }
