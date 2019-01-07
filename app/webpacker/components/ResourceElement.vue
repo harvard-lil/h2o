@@ -64,8 +64,7 @@ export default {
 
     // if there are no annotations or all the annotations span
     // the entire element, use innerHTML to avoid Vue overhead
-    if(this.annotations.length == 0 ||
-       this.annotations.length == this.full_annotations.length){
+    if(this.annotations.length == this.full_annotations.length){
       domProps.innerHTML = this.el.innerHTML;
     } else {
       // get the child nodes of the HTMLElement
