@@ -75,10 +75,18 @@ export default {
         .filter(node =>
                 node.nodeType == this.node_types.TEXT ||
                 node.nodeType == this.node_types.ELEMENT)
-        .map(node =>
+        .reduce((acc, node, i) => acc.concat(
+          [[node,
+            // nodeStart
+            (acc[i-1] || [null, 0,-1])[2] + 1,
+            // nodeEnd; use innerText for element nodes but text nodes
+            // return null so fall back to textContent for those
+            (acc[i-1] || [null, 0, 0])[2] + (node.innerText || node.textContent).length-1]]
+        ), [])
+        .map(([node, nodeStart, nodeEnd], i, array) =>
              // if it's a text node, just return the text and
              // Vue will automatically turn it into a 'text VNode'
-             node.nodeType == this.node_types.TEXT ? node.textContent
+             node.nodeType == this.node_types.TEXT ? nodeStart+":"+nodeEnd+"#"+node.textContent
              // else recursively call ResourceElement to loop back through this process
              : createElement("resource-element",
                              {props: {el: node}}));
