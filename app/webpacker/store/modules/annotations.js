@@ -20,6 +20,19 @@ const getters = {
     return state.all.filter(obj => (obj.start_paragraph == index ||
                                    obj.end_paragraph == index ||
                                    (obj.start_paragraph < index && obj.end_paragraph > index)));
+  },
+  // getBySectionIndexAndOffsets: (state) => (index, begin, end) => {
+  //   return getters.getBySectionIndex(state)(index)
+  //     .filter(obj => (obj.start_paragraph == index ||
+  //                    obj.end_paragraph == index ||
+  //                    (obj.start_paragraph < index && obj.end_paragraph > index)));
+  // }
+  getBySectionIndexAndOffsets: (state) => (index, begin, end) => {
+    return getters.getBySectionIndex(state)(index)
+      .filter(obj => (obj.start_paragraph == index &&
+                     obj.start_offset >= begin &&
+                     obj.start_offset < end));
+  },
   getBySectionIndexFullSpan: (state) => (index, length) => {
     return state.all.filter(obj => (
       (obj.start_paragraph < index && obj.end_paragraph > index) ||

@@ -1,34 +1,3 @@
-<template>
-<component :is="el.tagName"
-           :id="el.getAttribute('id')"
-           :class="el.getAttribute('class')"
-           :style="el.getAttribute('style')"
-           :href="el.getAttribute('href')"
-           :alt="el.getAttribute('alt')"
-           :src="el.getAttribute('src')">
-  <component v-if="offsetToPoint == 0 && full_annotation"
-             :is="annotation_to_component(full_annotation)"
-             :annotation-id="full_annotation.id">
-    <template v-for="obj in childNodesWithOffsets">
-      <b style="color: red;">{{obj.offset}}</b>
-      <template v-if="obj.node.nodeType == node_types.TEXT">{{obj.node.textContent}}</template>
-      <resource-element v-else-if="obj.node.nodeType == node_types.ELEMENT"
-                        :el="obj.node"
-                        :index="index"
-                        :offsetToPoint="obj.offset"/>
-    </template>
-  </component>
-  <template v-else v-for="obj in childNodesWithOffsets">
-    <b style="color: red;">{{obj.offset}}</b>
-    <template v-if="obj.node.nodeType == node_types.TEXT">{{obj.node.textContent}}</template>
-    <resource-element v-else-if="obj.node.nodeType == node_types.ELEMENT"
-                      :el="obj.node"
-                      :index="index"
-                      :offsetToPoint="obj.offset"/>
-  </template>
-</component>
-</template>
-
 <script>
 import ElisionAnnotation from "./ElisionAnnotation";
 import ReplacementAnnotation from "./ReplacementAnnotation";
@@ -61,8 +30,8 @@ export default {
     annotations() {
       return this.$store.getters['annotations/getBySectionIndexAndOffsets'](this.index, this.offsetToPoint, this.offsetToPoint + this.el.innerText.length);
     },
-    full_annotation() {
-      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.el.innerText.length)[0];
+    full_annotations() {
+      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.el.innerText.length);
     },
     childNodesWithOffsets() {
       return Array.from(this.el.childNodes).map(node => {
@@ -72,13 +41,54 @@ export default {
         this.offset = this.offset + (node.innerText || node.textContent).length;
         return {node: node, offset: prev_offset};
       })
+    },
+    attrs() {
+      let nodelist = this.el.attributes;
+      let attrmap = {};
+      let i = 0;
+      for (; i < nodelist.length; i++) {
+        attrmap[nodelist[i].name] = nodelist[i].value;
+      }
+      return attrmap;
     }
   },
   methods: {
-    annotation_to_component(annotation) {
+    annotationToComponent(annotation) {
       return ({elide: "elision",
                replace: "replacement"}[annotation.kind] || annotation.kind) + "-annotation";
     }
+  },
+  render(createElement) {
+    let domProps = {};
+    let children = [];
+
+    // if there are no annotations or all the annotations span
+    // the entire element, use innerHTML to avoid Vue overhead
+    if(this.annotations.length == 0 ||
+       this.annotations.length == this.full_annotations.length){
+      domProps.innerHTML = this.el.innerHTML;
+    } else {
+      // get the child nodes of the HTMLElement
+      // and make them an array we can filter and format
+      children = Array.from(this.el.childNodes)
+        // remove anything that isn't Text or an Element
+        // i.e. no script or comment tags etc
+        .filter(node =>
+                node.nodeType == this.node_types.TEXT ||
+                node.nodeType == this.node_types.ELEMENT)
+        .map(node =>
+             // if it's a text node, just return the text and
+             // Vue will automatically turn it into a 'text VNode'
+             node.nodeType == this.node_types.TEXT ? node.textContent
+             // else recursively call ResourceElement to loop back through this process
+             : createElement("resource-element",
+                             {props: {el: node}}));
+    }
+    return createElement(this.el.tagName,
+                         {attrs: this.attrs, domProps: domProps},
+                         // Wrap the children in annotations if present
+                         this.annotations.reduce((prev_el, annotation) =>
+                                                 [createElement(this.annotationToComponent(annotation), {props: {annotationId: annotation.id}}, prev_el)], children));
   }
 }
 </script>
