@@ -17,30 +17,25 @@ export default {
   props: {
     el: {type: HTMLElement},
     index: {type: Number},
-    offsetToPoint: {type: Number,
-                    default: 0}
+    startOffset: {type: Number,
+                  default: 0}
   },
-  data: function(){
-    return {
-      node_types: {ELEMENT: 1,
-                   TEXT: 3},
-      offset: this.offsetToPoint
-    }},
   computed: {
+    endOffset() {
+      return this.startOffset + (this.el.innerText || this.el.textContent).length;
+    },
     annotations() {
-      return this.$store.getters['annotations/getBySectionIndexAndOffsets'](this.index, this.offsetToPoint, this.offsetToPoint + this.el.innerText.length);
+      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.startOffset, this.endOffset);
     },
-    full_annotations() {
-      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.el.innerText.length);
+    sub_annotations() {
+      return this.$store.getters['annotations/getBySectionIndexSubSpan'](this.index, this.startOffset, this.endOffset);
     },
-    childNodesWithOffsets() {
-      return Array.from(this.el.childNodes).map(node => {
-        let prev_offset = this.offset;
-        // uses innerText for element nodes and falls through to
-        // textContent for text nodes
-        this.offset = this.offset + (node.innerText || node.textContent).length;
-        return {node: node, offset: prev_offset};
-      })
+    breakpoints() {
+      return this.sub_annotations.map(
+        o =>
+          [o.start_paragraph == this.index ? o.start_offset : null,
+           o.end_paragraph == this.index ? o.end_offset : null]
+      ).flat().filter(n => n).sort((a, b) => a - b)
     },
     attrs() {
       let nodelist = this.el.attributes;
@@ -53,49 +48,61 @@ export default {
     }
   },
   methods: {
-    annotationToComponent(annotation) {
+    kindToComponent(kind) {
       return ({elide: "elision",
-               replace: "replacement"}[annotation.kind] || annotation.kind) + "-annotation";
+               replace: "replacement"}[kind] || kind) + "-annotation";
+    },
+    isElement: node => node.nodeType == 1,
+    isText: node => node.nodeType == 3,
+    getText(node) {
+      return this.isElement(node) ? node.innerText : node.textContent;
     }
   },
   render(createElement) {
-    let domProps = {};
-    let children = [];
-
-    // if there are no annotations or all the annotations span
-    // the entire element, use innerHTML to avoid Vue overhead
-    if(this.annotations.length == this.full_annotations.length){
-      domProps.innerHTML = this.el.innerHTML;
-    } else {
-      // get the child nodes of the HTMLElement
-      // and make them an array we can filter and format
-      children = Array.from(this.el.childNodes)
-        // remove anything that isn't Text or an Element
+    // get the child nodes of the HTMLElement
+    // and make them an array we can filter and format
+    let children = Array.from(this.el.childNodes)
+        // remove anything that isn't Element or an Text
         // i.e. no script or comment tags etc
-        .filter(node =>
-                node.nodeType == this.node_types.TEXT ||
-                node.nodeType == this.node_types.ELEMENT)
-        .reduce((acc, node, i) => acc.concat(
-          [[node,
-            // nodeStart
-            (acc[i-1] || [null, 0,-1])[2] + 1,
-            // nodeEnd; use innerText for element nodes but text nodes
-            // return null so fall back to textContent for those
-            (acc[i-1] || [null, 0, 0])[2] + (node.innerText || node.textContent).length-1]]
-        ), [])
-        .map(([node, nodeStart, nodeEnd], i, array) =>
+        .filter(node => this.isElement(node) || this.isText(node))
+        .reduce((acc, node, idx) => {
+          let prev = acc[idx-1] || [{textContent: ""}, this.startOffset];
+          let startOffset = prev[1] + this.getText(prev[0]).length;
+
+          let nodes = [[node, startOffset]];
+
+          if(this.isText(node)) {
+            let endOffset = startOffset + node.textContent.length;
+
+            return acc.concat(
+              this.breakpoints
+                .filter(n => n > startOffset &&
+                            n < endOffset)
+                .reduce((nodes, offset) =>
+                        nodes.concat([[nodes[nodes.length - 1][0].splitText(offset - nodes[nodes.length - 1][1]), offset]]), nodes));
+          } else {
+            return acc.concat(nodes);
+          }
+        }, [])
+        .map(([node, startOffset]) =>
              // if it's a text node, just return the text and
              // Vue will automatically turn it into a 'text VNode'
-             node.nodeType == this.node_types.TEXT ? nodeStart+":"+nodeEnd+"#"+node.textContent
+             this.isText(node) ? node.textContent
              // else recursively call ResourceElement to loop back through this process
              : createElement("resource-element",
-                             {props: {el: node}}));
-    }
-    return createElement(this.el.tagName,
-                         {attrs: this.attrs, domProps: domProps},
-                         // Wrap the children in annotations if present
-                         this.annotations.reduce((prev_el, annotation) =>
-                                                 [createElement(this.annotationToComponent(annotation), {props: {annotationId: annotation.id}}, prev_el)], children));
+                             {props: {el: node,
+                                      index: this.index,
+                                      startOffset: startOffset}}));
+    
+    // Wrap the children in annotations if present
+    children = this.annotations
+      .reduce((prev_el, annotation) =>
+              [createElement(this.kindToComponent(annotation.kind),
+                             {props: {annotationId: annotation.id}},
+                             prev_el)],
+              children);
+    
+    return createElement(this.el.tagName, {attrs: this.attrs}, children);
   }
 }
 </script>
