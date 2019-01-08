@@ -1,4 +1,7 @@
 <script>
+import { createNamespacedHelpers } from 'vuex';
+const { mapGetters } = createNamespacedHelpers('annotations');
+
 import ElisionAnnotation from "./ElisionAnnotation";
 import ReplacementAnnotation from "./ReplacementAnnotation";
 import HighlightAnnotation from "./HighlightAnnotation";
@@ -24,18 +27,23 @@ export default {
     endOffset() {
       return this.startOffset + (this.el.innerText || this.el.textContent).length;
     },
-    annotations() {
-      return this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, this.startOffset, this.endOffset);
+    fullSpanAnnotations() {
+      return this.getBySectionIndexFullSpan(this.$store)(this.index, this.startOffset, this.endOffset);
     },
-    sub_annotations() {
-      return this.$store.getters['annotations/getBySectionIndexSubSpan'](this.index, this.startOffset, this.endOffset);
+    partialSpanAnnotations() {
+      return this.getBySectionIndexPartialSpan(this.$store)(this.index, this.startOffset, this.endOffset);
     },
-    breakpoints() {
-      return this.sub_annotations.map(
-        o =>
-          [o.start_paragraph == this.index ? o.start_offset : null,
-           o.end_paragraph == this.index ? o.end_offset : null]
-      ).flat().filter(n => n).sort((a, b) => a - b)
+    // Return the offsets within this element where
+    // annotations need to start or end
+    annotationBreakpoints() {
+      return this.partialSpanAnnotations.reduce(
+        (offsets, annotation) =>
+          offsets.concat(
+            ["start", "end"]
+              .filter(s => annotation[`${s}_paragraph`] == this.index)
+              .map(s => annotation[`${s}_offset`]))
+        , [])
+        .sort((a, b) => a - b); // sort lowest to highest
     },
     attrs() {
       let nodelist = this.el.attributes;
@@ -48,6 +56,8 @@ export default {
     }
   },
   methods: {
+    ...mapGetters(["getBySectionIndexFullSpan",
+                   "getBySectionIndexPartialSpan"]),
     kindToComponent(kind) {
       return ({elide: "elision",
                replace: "replacement"}[kind] || kind) + "-annotation";
@@ -72,12 +82,10 @@ export default {
           let nodes = [[node, startOffset]];
 
           if(this.isText(node)) {
-            let endOffset = startOffset + node.textContent.length;
-
             return acc.concat(
-              this.breakpoints
+              this.annotationBreakpoints
                 .filter(n => n > startOffset &&
-                            n < endOffset)
+                            n < startOffset + node.textContent.length)
                 .reduce((nodes, offset) =>
                         nodes.concat([[nodes[nodes.length - 1][0].splitText(offset - nodes[nodes.length - 1][1]), offset]]), nodes));
           } else {
@@ -101,7 +109,7 @@ export default {
                           startOffset: startOffset}}));
     
     // Wrap the children in annotations if present
-    children = this.annotations
+    children = this.fullSpanAnnotations
       .reduce((prev_el, annotation) =>
               [h(this.kindToComponent(annotation.kind),
                  {props: {annotationId: annotation.id}},
