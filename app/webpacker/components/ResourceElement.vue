@@ -67,10 +67,11 @@ export default {
     getText(node) {
       return this.isElement(node) ? node.innerText : node.textContent;
     },
-    wrapInAnnotation(h) {
+    wrapInAnnotation(h, startOffset = this.startOffset) {
       return (node, annotation) =>
         h(this.kindToComponent(annotation.kind),
-          {props: {annotationId: annotation.id}},
+          {props: {annotation: annotation,
+                  startOffset: startOffset}},
           [node])
     },
     splitTextNode([node, startOffset]) {
@@ -110,7 +111,7 @@ export default {
              // Wrap Text nodes in any annotations since Vue limits us from
              // recursively creating ResourceElements with Text nodes
              this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, startOffset + node.textContent.length)
-             .reduce(this.wrapInAnnotation(h), node.textContent)
+             .reduce(this.wrapInAnnotation(h, startOffset), node.textContent)
              // For Element nodes, recursively call ResourceElement
              // to loop back through this process
              : h("resource-element",

@@ -11,16 +11,15 @@ export default {
     AnnotationHandle
   },
   props: {
-    annotationId: {type: Number},
-    hasHandle: {type: Boolean,
-                default: false}
+    annotation: {type: Object},
+    startOffset: {type: Number}
   },
   computed: {
-    annotation() {
-      return this.$store.getters['annotations/getById'](this.annotationId);
-    },
     uiState() {
-      return this.$store.getters['annotations_ui/getById'](this.annotationId);
+      return this.$store.getters['annotations_ui/getById'](this.annotation.id);
+    },
+    hasHandle() {
+      return this.startOffset == this.annotation.start_offset;
     }
   },
   methods: {
