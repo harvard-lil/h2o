@@ -28,7 +28,7 @@ const getters = {
         (obj.end_paragraph > index || obj.end_offset >= end)
     ),
 
-  getBySectionIndexSubSpan: (state) => (index, start, end) =>
+  getBySectionIndexPartialSpan: (state) => (index, start, end) =>
     getters.getBySectionIndex(state)(index).filter(
       obj =>
         (obj.start_paragraph == index &&
@@ -52,8 +52,7 @@ const actions = {
     Axios
       .delete(helpers.path(payload))
       .then(resp => {
-        // commit('destroy', payload);
-        window.location.reload();
+        commit('destroy', payload);
       });
   }
 };
