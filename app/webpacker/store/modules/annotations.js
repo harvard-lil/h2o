@@ -1,9 +1,7 @@
 import Axios from '../../config/axios';
 
 const helpers = {
-  path(annotation) {
-    return `/resources/${annotation.resource_id}/annotations/${annotation.id}`;
-  }
+  path: annotation => `/resources/${annotation.resource_id}/annotations/${annotation.id}`
 };
 
 const state = {
@@ -11,36 +9,35 @@ const state = {
 };
 
 const getters = {
-  getById: (state) => (id) => {
-    return state.all.find(obj => obj.id === id);
-  },
-  // Return annotations which either start, end, or bridge
-  // the specified section (aka "paragraph")
-  getBySectionIndex: (state) => (index) => {
-    return state.all.filter(obj => (obj.start_paragraph == index ||
-                                   obj.end_paragraph == index ||
-                                   (obj.start_paragraph < index && obj.end_paragraph > index)));
-  },
-  // getBySectionIndexAndOffsets: (state) => (index, begin, end) => {
-  //   return getters.getBySectionIndex(state)(index)
-  //     .filter(obj => (obj.start_paragraph == index ||
-  //                    obj.end_paragraph == index ||
-  //                    (obj.start_paragraph < index && obj.end_paragraph > index)));
-  // }
-  getBySectionIndexAndOffsets: (state) => (index, begin, end) => {
-    return getters.getBySectionIndex(state)(index)
-      .filter(obj => (obj.start_paragraph == index &&
-                     obj.start_offset >= begin &&
-                     obj.start_offset < end));
-  },
-  getBySectionIndexFullSpan: (state) => (index, length) => {
-    return state.all.filter(obj => (
-      (obj.start_paragraph < index && obj.end_paragraph > index) ||
-      (obj.start_paragraph == index && obj.start_offset == 0 &&
-       (obj.end_paragraph > index || obj.end_offset == length)) ||
-      (obj.end_paragraph == index && obj.end_offset == length)
-    ));
-  }
+  getById: (state) => (id) =>
+    state.all.find(
+      obj => obj.id === id
+    ),
+
+  getBySectionIndex: (state) => (index) =>
+    state.all.filter(
+      obj => (obj.start_paragraph == index ||
+             obj.end_paragraph == index ||
+             (obj.start_paragraph < index && obj.end_paragraph > index))
+    ),
+
+  getBySectionIndexFullSpan: (state) => (index, start, end) =>
+    getters.getBySectionIndex(state)(index).filter(
+      obj => 
+        (obj.start_paragraph < index || obj.start_offset <= start) &&
+        (obj.end_paragraph > index || obj.end_offset >= end)
+    ),
+
+  getBySectionIndexSubSpan: (state) => (index, start, end) =>
+    getters.getBySectionIndex(state)(index).filter(
+      obj =>
+        (obj.start_paragraph == index &&
+         obj.start_offset > start &&
+         obj.start_offset < end) ||
+        (obj.end_paragraph == index &&
+         obj.end_offset > start &&
+         obj.end_offset < end)
+    )
 };
 
 const actions = {
