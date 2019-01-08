@@ -58,7 +58,7 @@ export default {
       return this.isElement(node) ? node.innerText : node.textContent;
     }
   },
-  render(createElement) {
+  render(h) {
     // get the child nodes of the HTMLElement
     // and make them an array we can filter and format
     let children = Array.from(this.el.childNodes)
@@ -90,25 +90,25 @@ export default {
              this.isText(node) ?
              this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, startOffset, startOffset + node.textContent.length).reduce(
                (prev_node, annotation) =>
-                 createElement(this.kindToComponent(annotation.kind),
-                               {props: {annotationId: annotation.id}},
-                               prev_node)
-                 , node.textContent)
+                 h(this.kindToComponent(annotation.kind),
+                   {props: {annotationId: annotation.id}},
+                   prev_node)
+               , node.textContent)
              // else recursively call ResourceElement to loop back through this process
-             : createElement("resource-element",
-                             {props: {el: node,
-                                      index: this.index,
-                                      startOffset: startOffset}}));
+             : h("resource-element",
+                 {props: {el: node,
+                          index: this.index,
+                          startOffset: startOffset}}));
     
     // Wrap the children in annotations if present
     children = this.annotations
       .reduce((prev_el, annotation) =>
-              [createElement(this.kindToComponent(annotation.kind),
-                             {props: {annotationId: annotation.id}},
-                             prev_el)],
+              [h(this.kindToComponent(annotation.kind),
+                 {props: {annotationId: annotation.id}},
+                 prev_el)],
               children);
     
-    return createElement(this.el.tagName, {attrs: this.attrs}, children);
+    return h(this.el.tagName, {attrs: this.attrs}, children);
   }
 }
 </script>
