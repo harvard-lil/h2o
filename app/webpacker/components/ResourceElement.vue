@@ -72,6 +72,23 @@ export default {
         h(this.kindToComponent(annotation.kind),
           {props: {annotationId: annotation.id}},
           [node])
+    },
+    splitTextNode([node, startOffset]) {
+      let endOffset = startOffset + node.textContent.length;
+      return this.annotationBreakpoints
+        // remove any offsets that fall on or outside of the Text node
+        .filter(breakpoint =>
+                breakpoint > startOffset &&
+                breakpoint < endOffset)
+        // split the Text node; splitText() mutates the existing node
+        // in our array, truncating it, and returns a new node with
+        // the remaining text
+        .reduce((tuples, breakpoint) => {
+          let [prevNode, prevOffset] = tuples[tuples.length - 1];
+          return tuples.concat(
+            [[prevNode.splitText(breakpoint - prevOffset), breakpoint]]
+          );
+        }, [[node, startOffset]])
     }
   },
   render(h) {
@@ -81,35 +98,27 @@ export default {
         // remove anything that isn't Element or an Text
         // i.e. no script or comment tags etc
         .filter(node => this.isElement(node) || this.isText(node))
-        .reduce((nodeOffsetTuples, node) => {
-          let prev = nodeOffsetTuples[nodeOffsetTuples.length - 1] ||
-                     [{textContent: ""}, this.startOffset];
-          let startOffset = prev[1] + this.getText(prev[0]).length;
-          let endOffset = startOffset + node.textContent.length;
-
-          return nodeOffsetTuples.concat(
-            (this.isText(node) ? this.annotationBreakpoints : [])
-              // remove any offsets that fall on or outside of the Text node
-              .filter(offset =>
-                      offset > startOffset &&
-                      offset < endOffset)
-              .reduce((nodes, offset) => {
-                let prev = nodes[nodes.length - 1];
-                return nodes.concat([[prev[0].splitText(offset - prev[1]), offset]]);
-              }, [[node, startOffset]])
-          );
+        // transform our Node array to an array of [Node, offset] tuples
+        .reduce((tuples, node) => {
+          let [prevNode, prevOffset] = tuples[tuples.length - 1] ||
+                                       [{textContent: ""}, this.startOffset];
+          let tuple = [node, prevOffset + this.getText(prevNode).length];
+          return tuples.concat(this.isText(node) ? this.splitTextNode(tuple) : [tuple]);
         }, [])
         .map(([node, startOffset]) =>
              this.isText(node) ?
+             // Wrap Text nodes in any annotations since Vue limits us from
+             // recursively creating ResourceElements with Text nodes
              this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, startOffset + node.textContent.length)
              .reduce(this.wrapInAnnotation(h), node.textContent)
-             // else recursively call ResourceElement to loop back through this process
+             // For Element nodes, recursively call ResourceElement
+             // to loop back through this process
              : h("resource-element",
                  {props: {el: node,
                           index: this.index,
                           startOffset: startOffset}}));
     
-    // Wrap the children in annotations if present
+    // Wrap the children in any full span annotations, if present
     children = [this.fullSpanAnnotations.reduce(this.wrapInAnnotation(h), children)].flat();
     
     return h(this.el.tagName, {attrs: this.attrs}, children);
