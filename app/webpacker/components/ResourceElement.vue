@@ -66,6 +66,12 @@ export default {
     isText: node => node.nodeType == 3,
     getText(node) {
       return this.isElement(node) ? node.innerText : node.textContent;
+    },
+    wrapInAnnotation(h) {
+      return (node, annotation) =>
+        h(this.kindToComponent(annotation.kind),
+          {props: {annotationId: annotation.id}},
+          [node])
     }
   },
   render(h) {
@@ -75,33 +81,28 @@ export default {
         // remove anything that isn't Element or an Text
         // i.e. no script or comment tags etc
         .filter(node => this.isElement(node) || this.isText(node))
-        .reduce((acc, node) => {
-          let prev = acc[acc.length - 1] || [{textContent: ""}, this.startOffset];
+        .reduce((nodeOffsetTuples, node) => {
+          let prev = nodeOffsetTuples[nodeOffsetTuples.length - 1] ||
+                     [{textContent: ""}, this.startOffset];
           let startOffset = prev[1] + this.getText(prev[0]).length;
+          let endOffset = startOffset + node.textContent.length;
 
-          let nodes = [[node, startOffset]];
-
-          if(this.isText(node)) {
-            return acc.concat(
-              this.annotationBreakpoints
-                .filter(n => n > startOffset &&
-                            n < startOffset + node.textContent.length)
-                .reduce((nodes, offset) =>
-                        nodes.concat([[nodes[nodes.length - 1][0].splitText(offset - nodes[nodes.length - 1][1]), offset]]), nodes));
-          } else {
-            return acc.concat(nodes);
-          }
+          return nodeOffsetTuples.concat(
+            (this.isText(node) ? this.annotationBreakpoints : [])
+              // remove any offsets that fall on or outside of the Text node
+              .filter(offset =>
+                      offset > startOffset &&
+                      offset < endOffset)
+              .reduce((nodes, offset) => {
+                let prev = nodes[nodes.length - 1];
+                return nodes.concat([[prev[0].splitText(offset - prev[1]), offset]]);
+              }, [[node, startOffset]])
+          );
         }, [])
         .map(([node, startOffset]) =>
-             // if it's a text node, just return the text and
-             // Vue will automatically turn it into a 'text VNode'
              this.isText(node) ?
-             this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, startOffset, startOffset + node.textContent.length).reduce(
-               (prev_node, annotation) =>
-                 h(this.kindToComponent(annotation.kind),
-                   {props: {annotationId: annotation.id}},
-                   prev_node)
-               , node.textContent)
+             this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, startOffset + node.textContent.length)
+             .reduce(this.wrapInAnnotation(h), node.textContent)
              // else recursively call ResourceElement to loop back through this process
              : h("resource-element",
                  {props: {el: node,
@@ -109,12 +110,7 @@ export default {
                           startOffset: startOffset}}));
     
     // Wrap the children in annotations if present
-    children = this.fullSpanAnnotations
-      .reduce((prev_el, annotation) =>
-              [h(this.kindToComponent(annotation.kind),
-                 {props: {annotationId: annotation.id}},
-                 prev_el)],
-              children);
+    children = [this.fullSpanAnnotations.reduce(this.wrapInAnnotation(h), children)].flat();
     
     return h(this.el.tagName, {attrs: this.attrs}, children);
   }
