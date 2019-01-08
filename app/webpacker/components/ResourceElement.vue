@@ -87,7 +87,13 @@ export default {
         .map(([node, startOffset]) =>
              // if it's a text node, just return the text and
              // Vue will automatically turn it into a 'text VNode'
-             this.isText(node) ? node.textContent
+             this.isText(node) ?
+             this.$store.getters['annotations/getBySectionIndexFullSpan'](this.index, startOffset, startOffset + node.textContent.length).reduce(
+               (prev_node, annotation) =>
+                 createElement(this.kindToComponent(annotation.kind),
+                               {props: {annotationId: annotation.id}},
+                               prev_node)
+                 , node.textContent)
              // else recursively call ResourceElement to loop back through this process
              : createElement("resource-element",
                              {props: {el: node,
