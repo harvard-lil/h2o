@@ -65,8 +65,8 @@ export default {
         // remove anything that isn't Element or an Text
         // i.e. no script or comment tags etc
         .filter(node => this.isElement(node) || this.isText(node))
-        .reduce((acc, node, idx) => {
-          let prev = acc[idx-1] || [{textContent: ""}, this.startOffset];
+        .reduce((acc, node) => {
+          let prev = acc[acc.length - 1] || [{textContent: ""}, this.startOffset];
           let startOffset = prev[1] + this.getText(prev[0]).length;
 
           let nodes = [[node, startOffset]];
