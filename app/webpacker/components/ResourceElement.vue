@@ -71,19 +71,19 @@ export default {
       return (node, annotation) =>
         h(this.kindToComponent(annotation.kind),
           {props: {annotation: annotation,
-                  startOffset: startOffset}},
+                   startOffset: startOffset}},
           [node])
     },
     splitTextNode([node, startOffset]) {
       let endOffset = startOffset + node.textContent.length;
       return this.annotationBreakpoints
-        // remove any offsets that fall on or outside of the Text node
+      // remove any offsets that fall on or outside of the Text node
         .filter(breakpoint =>
                 breakpoint > startOffset &&
                 breakpoint < endOffset)
-        // split the Text node; splitText() mutates the existing node
-        // in our array, truncating it, and returns a new node with
-        // the remaining text
+      // split the Text node; splitText() mutates the existing node
+      // in our array, truncating it, and returns a new node with
+      // the remaining text
         .reduce((tuples, breakpoint) => {
           let [prevNode, prevOffset] = tuples[tuples.length - 1];
           return tuples.concat(
@@ -95,34 +95,31 @@ export default {
   render(h) {
     // get the child nodes of the HTMLElement
     // and make them an array we can filter and format
-    let children = Array.from(this.el.childNodes)
-        // remove anything that isn't Element or an Text
-        // i.e. no script or comment tags etc
-        .filter(node => this.isElement(node) || this.isText(node))
-        // transform our Node array to an array of [Node, offset] tuples
-        .reduce((tuples, node) => {
-          let [prevNode, prevOffset] = tuples[tuples.length - 1] ||
-                                       [{textContent: ""}, this.startOffset];
-          let tuple = [node, prevOffset + this.getText(prevNode).length];
-          return tuples.concat(this.isText(node) ? this.splitTextNode(tuple) : [tuple]);
-        }, [])
-        .map(([node, startOffset]) =>
-             this.isText(node) ?
-             // Wrap Text nodes in any annotations since Vue limits us from
-             // recursively creating ResourceElements with Text nodes
-             this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, startOffset + node.textContent.length)
-             .reduce(this.wrapInAnnotation(h, startOffset), node.textContent)
-             // For Element nodes, recursively call ResourceElement
-             // to loop back through this process
-             : h("resource-element",
-                 {props: {el: node,
-                          index: this.index,
-                          startOffset: startOffset}}));
-    
-    // Wrap the children in any full span annotations, if present
-    children = [this.fullSpanAnnotations.reduce(this.wrapInAnnotation(h), children)].flat();
-    
-    return h(this.el.tagName, {attrs: this.attrs}, children);
+    return h(this.el.tagName,
+             {attrs: this.attrs},
+             Array.from(this.el.childNodes)
+             // remove anything that isn't Element or an Text
+             // i.e. no script or comment tags etc
+             .filter(node => this.isElement(node) || this.isText(node))
+             // transform our Node array to an array of [Node, offset] tuples
+             .reduce((tuples, node) => {
+               let [prevNode, prevOffset] = tuples[tuples.length - 1] ||
+                   [{textContent: ""}, this.startOffset];
+               let tuple = [node, prevOffset + this.getText(prevNode).length];
+               return tuples.concat(this.isText(node) ? this.splitTextNode(tuple) : [tuple]);
+             }, [])
+             .map(([node, startOffset]) =>
+                  this.isText(node) ?
+                  // Wrap Text nodes in any annotations since Vue limits us from
+                  // recursively creating ResourceElements with Text nodes
+                  this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, startOffset + node.textContent.length)
+                  .reduce(this.wrapInAnnotation(h, startOffset), node.textContent)
+                  // For Element nodes, recursively call ResourceElement
+                  // to loop back through this process
+                  : h("resource-element",
+                      {props: {el: node,
+                               index: this.index,
+                               startOffset: startOffset}})));
   }
 }
 </script>
