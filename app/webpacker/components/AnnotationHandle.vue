@@ -2,7 +2,7 @@
 <span data-exclude-from-offset-calcs="true">
   <button ref="button"
           aria-label="Edit annotation"
-          v-bind:style="{right: offsetRight + 'px'}"
+          :style="{right: offsetRight + 'px'}"
           @click.prevent="$refs.menu.open">✎</button>
   <ContextMenu ref="menu">
     <ul><slot></slot></ul>
@@ -17,11 +17,13 @@ export default {
   components: {
     ContextMenu
   },
-  data: () => ({offsetRight: -55}),
+  data: () => ({
+    offsetRight: -55
+  }),
   mounted() {
     // Push over annotation margin handles which land on the same line
     // TODO - consider moving this over to a vuex store
-    const top = this.$refs.button.getBoundingClientRect().top;
+    const top = Math.round(this.$refs.button.getBoundingClientRect().top + window.scrollY);
     window.handlePositions = window.handlePositions || {};
     window.handlePositions[top] = (window.handlePositions[top] || 0) + 1;
     this.offsetRight = -25 - (30 * window.handlePositions[top]);
