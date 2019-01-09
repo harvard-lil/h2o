@@ -2,8 +2,8 @@
 <section class="resource" v-selectionchange="selectionChangeHandler">
   <TheGlobalElisionExpansionButton/>
   <TheAnnotator ref="annotator"
-                v-if="selection[0]"
-                :selection="selection"/>
+                v-if="ranges"
+                :ranges="ranges"/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
       <div class="handle">
@@ -13,6 +13,7 @@
       </div>
       <ResourceElement :el="el"
                        :index="parseInt(index)"
+                       :data-index="index"
                        class="section"/>
     </template>
   </div>
@@ -35,7 +36,7 @@ export default {
     editable: {type: Boolean}
   },
   data: () => ({
-    selection: []
+    ranges: null
   }),
   computed: {
     sections() {
@@ -47,7 +48,10 @@ export default {
     selectionChangeHandler(e, sel) {
       // Don't clear selection when the user clicks into the annotator
       if (this.$refs.annotator && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
-      this.$set(this.selection, 0, (sel && sel.type == "Range") ? sel : null);
+      this.ranges = (sel && sel.type != "Range") ?
+        null :
+        {first: sel.getRangeAt(0),
+         last: sel.getRangeAt(sel.rangeCount-1)};
     }
   }
 }

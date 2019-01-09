@@ -13,11 +13,11 @@ export function offsetsForRanges(ranges) {
   let endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
   return  {
     start: {
-      p: startParagraph.dataset.pIdx,
+      p: startParagraph.dataset.index,
       offset: startOffset
     },
     end: {
-      p: endParagraph.dataset.pIdx,
+      p: endParagraph.dataset.index,
       offset: endOffset
     }
   };

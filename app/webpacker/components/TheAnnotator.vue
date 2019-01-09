@@ -12,18 +12,27 @@
 </template>
 
 <script>
+import {offsetsForRanges} from 'lib/ui/content/annotations/placement';
 export default {
   props: {
-    selection: {type: Array}
+    ranges: {type: Object}
   },
   computed: {
     offset() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-      const targetRect = this.selection[0].getRangeAt(this.selection[0].rangeCount-1).getBoundingClientRect();
+      const targetRect = this.ranges.last.getBoundingClientRect();
 
       return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
                       targetRect.bottom - wrapperRect.top).toString(10) + "px";
+    },
+    resourceId() {
+      return document.querySelector('header.casebook').dataset.resourceId
+    },
+    offsets() {
+      return offsetsForRanges(this.ranges);
+    }
+  },
     }
   }
 }
