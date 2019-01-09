@@ -30,6 +30,7 @@ export default {
   border: none;
   background-color: $light-gray;
   color: $light-blue;
+  padding: 0 10px;
   &::before {
     font-weight: $bold;
     content: '...';
