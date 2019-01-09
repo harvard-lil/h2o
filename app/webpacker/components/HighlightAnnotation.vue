@@ -23,6 +23,10 @@ export default {
 .selected-text {
   background-color: $highlight;
   box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
-  padding: 1rem 0 0.5rem; /* TODO fix this for h2 highlights */
 }
+
+/*
+ * NOTE: TheResourceBody contains padding styles
+ * for the highlight background.
+ */
 </style>

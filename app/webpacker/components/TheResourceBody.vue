@@ -69,7 +69,7 @@ export default {
   @include serif-text($regular, 18px, 31px);
   margin-bottom: 24px;
   padding: 40px;
-  background-color: white;
+  background-color: $white;
   h5 {
     font-size: 14px;
     margin: 30px 0px 15px 0px;
@@ -135,5 +135,17 @@ export default {
 }
 .section {
   position: relative;
+}
+
+/*
+ * NOTE: these use /deep/ to influence HighlightAnnotation.
+ * They must live here so that they can change in context to
+ * their parent element.
+ */
+p /deep/ .highlight .selected-text {
+  padding: 0.4em 0;
+}
+h2 /deep/ .highlight .selected-text {
+  padding: 0.05em 0;
 }
 </style>
