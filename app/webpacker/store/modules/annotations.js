@@ -47,7 +47,6 @@ const actions = {
       .post(helpers.resourcePath(payload),
             {annotation: payload})
       .then(resp => {
-        console.log(resp.data);
         commit('create', {...payload, ...resp.data});
       });
   },
