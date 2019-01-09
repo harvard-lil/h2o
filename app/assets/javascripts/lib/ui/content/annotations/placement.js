@@ -11,16 +11,10 @@ export function offsetsForRanges(ranges) {
   let endParagraph = closestP(ranges.last.endContainer);
   let startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
   let endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
-  return  {
-    start: {
-      p: startParagraph.dataset.index,
-      offset: startOffset
-    },
-    end: {
-      p: endParagraph.dataset.index,
-      offset: endOffset
-    }
-  };
+  return  {start_paragraph: startParagraph.dataset.index,
+           start_offset: startOffset,
+           end_paragraph: endParagraph.dataset.index,
+           end_offset: endOffset};
 }
 
 // Find the closest containing tag for the given element or text node
