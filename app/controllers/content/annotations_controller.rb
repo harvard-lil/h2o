@@ -14,7 +14,7 @@ class Content::AnnotationsController < ApplicationController
 
     annotation = Content::Annotation.create! params.merge(resource: @resource)
     respond_to do |format|
-      format.json { render json: {annotation_id: annotation.id}}
+      format.json { render json: {id: annotation.id}}
       format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
     end
   end
