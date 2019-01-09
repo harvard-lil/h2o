@@ -1,8 +1,11 @@
-import Vue from 'vue/dist/vue.esm';
-import AxiosConfig from 'axios';
+import Vue from "vue/dist/vue.esm";
+import AxiosConfig from "axios";
 
-const csrf_el = document.querySelector('meta[name=csrf-token]'),
-      headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
+let headers = {"Content-Type": "application/json",
+               "Accept": "application/json"};
+const csrf_el = document.querySelector("meta[name=csrf-token]");
+if(csrf_el) headers["X-CSRF-Token"] = csrf_el.getAttribute("content");
+
 const Axios = AxiosConfig.create({headers: headers});
 
 // Add method override to request
