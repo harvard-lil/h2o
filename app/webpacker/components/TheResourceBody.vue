@@ -1,9 +1,11 @@
 <template>
-<section class="resource" v-selectionchange="selectionChangeHandler">
-  <TheGlobalElisionExpansionButton/>
+<section class="resource"
+         v-selectionchange="selectionChangeHandler">
   <TheAnnotator ref="annotator"
                 v-if="ranges"
-                :ranges="ranges"/>
+                :ranges="ranges"
+                @clear-ranges="ranges = null"/>
+  <TheGlobalElisionExpansionButton/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
       <div class="handle">
