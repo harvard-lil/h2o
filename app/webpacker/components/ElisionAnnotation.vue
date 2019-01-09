@@ -39,9 +39,6 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.elision {
-  padding: 0 10px;
-}
 .selected-text {
   padding: 7px;
   display: inline;
