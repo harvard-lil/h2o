@@ -43,10 +43,7 @@ export default {
         kind: type,
         content: content,
         resource_id: this.resourceId,
-        start_paragraph: this.offsets.start.p,
-        start_offset: this.offsets.start.offset,
-        end_paragraph: this.offsets.end.p,
-        end_offset: this.offsets.end.offset
+        ...this.offsets
       });
     }
   }
