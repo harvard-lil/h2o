@@ -3,7 +3,7 @@
      :style="{top: offset}">
   <ul>
     <li><a @click="submit('highlight')">Highlight</a></li>
-    <li><a>Elide</a></li>
+    <li><a @click="submit('elide')">Elide</a></li>
     <li><a>Replace</a></li>
     <li><a>Add link</a></li>
     <li><a>Add note</a></li>
