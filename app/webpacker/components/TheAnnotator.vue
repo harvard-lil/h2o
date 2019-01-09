@@ -38,6 +38,7 @@ export default {
   },
   methods: {
     ...mapActions(['create']),
+
     submit(type, content = null) {
       this.create({
         kind: type,
@@ -45,6 +46,7 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       });
+      this.$emit("clear-ranges");
     }
   }
 }
