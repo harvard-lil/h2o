@@ -13,11 +13,12 @@
         <a @click="destroy(annotation)">Remove elision</a>
       </li>
     </AnnotationHandle>
-    <AnnotationExpansionToggle :ui-state="uiState"/>
+    <AnnotationExpansionToggle :ui-state="uiState"
+                               v-if="uiState.expanded"/>
   </template>
   <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
   <span v-if="!uiState.expanded"
-        class="text"
+        class="replacement-text"
         data-exclude-from-offset-calcs="true"
         contenteditable="true">{{annotation.content}}</span>
 </span>
@@ -45,29 +46,27 @@ export default {
 
 .replacement {
   margin: 0 6px;
-  padding: 0 6px;
 }
-.toggle {
-  &::before {
-    content: '';
-  }
+.replacement-text,
+.selected-text {
+  background-color: $light-gray;
+  padding: 7px;
 }
 .selected-text {
-  padding: 7px;
   display: inline;
   color: #555;
   border-radius: 3px;
-  background-color: $light-gray;
 }  
-.text {
+.replacement-text {
+  color: $light-blue;
   pointer-events: none;
 }
-.text:empty::before {
+.replacement-text:empty::before {
   content: 'Enter replacement text';
   color: $dark-gray;
   pointer-events: none;
 }
-.active .text:empty::before {
+.active .replacement-text:empty::before {
   content: ' ';
   pointer-events: none;
 }
