@@ -18,7 +18,7 @@ export default {
     uiState() {
       return this.$store.getters['annotations_ui/getById'](this.annotation.id);
     },
-    hasHandle() {
+    isHead() {
       return this.startOffset == this.annotation.start_offset;
     }
   },

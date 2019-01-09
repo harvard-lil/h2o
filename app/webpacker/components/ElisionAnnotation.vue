@@ -1,6 +1,7 @@
 <template>
-<span class="elision">
-  <template v-if="hasHandle">
+<span class="elision"
+      v-if="isHead || uiState.expanded">
+  <template v-if="isHead">
     <AnnotationHandle>
       <li>
         <a @click="toggleExpansion(uiState)">
@@ -15,7 +16,7 @@
     </AnnotationHandle>
     <AnnotationExpansionToggle :ui-state="uiState"/>
   </template>
-  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
+  <span v-if="uiState.expanded" class="selected-text"><slot></slot></span>
 </span>
 </template>
 

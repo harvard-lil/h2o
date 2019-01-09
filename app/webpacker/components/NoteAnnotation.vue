@@ -1,6 +1,6 @@
 <template>
 <span class="note">
-  <template v-if="hasHandle">
+  <template v-if="isHead">
     <AnnotationHandle>
       <li>
         <a @click="destroy(annotation)">Remove note</a>
