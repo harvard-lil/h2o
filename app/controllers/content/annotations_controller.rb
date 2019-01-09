@@ -30,7 +30,11 @@ class Content::AnnotationsController < ApplicationController
       end
     end
     @annotation.destroy
-    redirect_to annotate_resource_path(@resource.casebook, @resource)
+
+    respond_to do |format|
+      format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
+      format.json { head :no_content }
+    end
   end
 
   def update
