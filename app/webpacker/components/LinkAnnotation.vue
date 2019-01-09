@@ -1,6 +1,6 @@
 <template>
 <span class="link">
-  <template v-if="hasHandle"
+  <template v-if="isHead"
             data-exclude-from-offset-calcs="true">
     <AnnotationHandle>
       <li>

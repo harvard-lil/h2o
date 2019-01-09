@@ -1,6 +1,7 @@
 <template>
-<span class="replacement">
-  <template v-if="hasHandle">
+<span class="replacement"
+      v-if="isHead || uiState.expanded">
+  <template v-if="isHead">
     <AnnotationHandle>
       <li>
         <a @click="toggleExpansion(uiState)">
@@ -15,12 +16,12 @@
     </AnnotationHandle>
     <AnnotationExpansionToggle :ui-state="uiState"
                                v-if="uiState.expanded"/>
+    <span v-if="!uiState.expanded"
+          class="replacement-text"
+          data-exclude-from-offset-calcs="true"
+          contenteditable="true">{{annotation.content}}</span>
   </template>
-  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
-  <span v-if="!uiState.expanded"
-        class="replacement-text"
-        data-exclude-from-offset-calcs="true"
-        contenteditable="true">{{annotation.content}}</span>
+  <span v-if="uiState.expanded" class="selected-text"><slot></slot></span>
 </span>
 </template>
 
