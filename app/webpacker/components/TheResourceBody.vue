@@ -12,7 +12,8 @@
         </div>
       </div>
       <ResourceElement :el="el"
-                       :index="parseInt(index)"/>
+                       :index="parseInt(index)"
+                       class="section"/>
     </template>
   </div>
 </section>
@@ -123,5 +124,8 @@ export default {
   color: $light-blue;
   text-align: right;
   vertical-align: middle;
+}
+.section {
+  position: relative;
 }
 </style>
