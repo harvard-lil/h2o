@@ -48,10 +48,12 @@ export default {
     selectionChangeHandler(e, sel) {
       // Don't clear selection when the user clicks into the annotator
       if (this.$refs.annotator && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
-      this.ranges = (sel && sel.type != "Range") ?
-        null :
-        {first: sel.getRangeAt(0),
-         last: sel.getRangeAt(sel.rangeCount-1)};
+
+      this.ranges =
+        (sel && sel.type != "Range")
+        ? null
+        : {first: sel.getRangeAt(0),
+           last: sel.getRangeAt(sel.rangeCount-1)};
     }
   }
 }

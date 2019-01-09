@@ -1,7 +1,8 @@
 import Axios from '../../config/axios';
 
 const helpers = {
-  path: annotation => `/resources/${annotation.resource_id}/annotations/${annotation.id}`
+  resourcePath: annotation => `/resources/${annotation.resource_id}/annotations`,
+  path: annotation => `${helpers.resourcePath(annotation)}/${annotation.id}`
 };
 
 const state = {
@@ -41,9 +42,19 @@ const getters = {
 };
 
 const actions = {
+  create({ commit }, payload) {
+    Axios
+      .post(helpers.resourcePath(payload),
+            {annotation: payload})
+      .then(resp => {
+        console.log(resp.data);
+        commit('create', {...payload, ...resp.data});
+      });
+  },
   update({ commit }, payload) {
     Axios
-      .patch(helpers.path(payload.obj), {annotation: payload.vals})
+      .patch(helpers.path(payload.obj),
+             {annotation: payload.vals})
       .then(resp => {
         commit('update', payload);
       });
@@ -58,6 +69,9 @@ const actions = {
 };
 
 const mutations = {
+  create(state, payload) {
+    state.all.push(payload);
+  },
   update(state, payload) {
     Object.assign(payload.obj, payload.vals);
   },

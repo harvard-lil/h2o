@@ -2,7 +2,7 @@
 <div class="context-menu"
      :style="{top: offset}">
   <ul>
-    <li><a @click="createApi('highlight')">Highlight</a></li>
+    <li><a @click="submit('highlight')">Highlight</a></li>
     <li><a>Elide</a></li>
     <li><a>Replace</a></li>
     <li><a>Add link</a></li>
@@ -12,8 +12,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers('annotations');
 import {offsetsForRanges} from 'lib/ui/content/annotations/placement';
-import Axios from '../config/axios';
 
 export default {
   props: {
@@ -36,20 +37,17 @@ export default {
     }
   },
   methods: {
-    createApi(type, content = null) {
-      Axios.post(`/resources/${this.resourceId}/annotations.json`, {
-        annotation: {
-          kind: type,
-          content: content,
-          start_paragraph: this.offsets.start.p,
-          start_offset: this.offsets.start.offset,
-          end_paragraph: this.offsets.end.p,
-          end_offset: this.offsets.end.offset
-        }
-      }, { scroll: false })
-        .then( response => {
-          window.location.search = `annotation-id=${response.data.annotation_id}`;
-        });
+    ...mapActions(['create']),
+    submit(type, content = null) {
+      this.create({
+        kind: type,
+        content: content,
+        resource_id: this.resourceId,
+        start_paragraph: this.offsets.start.p,
+        start_offset: this.offsets.start.offset,
+        end_paragraph: this.offsets.end.p,
+        end_offset: this.offsets.end.offset
+      });
     }
   }
 }
