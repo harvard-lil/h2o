@@ -12,7 +12,8 @@ export default {
   },
   props: {
     annotation: {type: Object},
-    startOffset: {type: Number}
+    startOffset: {type: Number},
+    endOffset: {type: Number}
   },
   computed: {
     uiState() {
@@ -20,6 +21,9 @@ export default {
     },
     isHead() {
       return this.startOffset == this.annotation.start_offset;
+    },
+    isTail() {
+      return this.endOffset == this.annotation.end_offset;
     }
   },
   methods: {
