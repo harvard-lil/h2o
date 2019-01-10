@@ -138,8 +138,21 @@ export default {
 }
 
 /*
- * NOTE: these use /deep/ to influence HighlightAnnotation.
- * They must live here so that they can change in context to
+ * This counteracts a normalize.css style
+ * that messes up annotation handle positioning
+ */
+/deep/ {
+  sub, sup {
+    position: static;
+    line-height: 100%;
+  }
+  sup {vertical-align: super; }
+  sub { vertical-align: sub; }
+}
+
+/*
+ * These use /deep/ to influence HighlightAnnotation.
+ * They must live here so that they can change in relation to
  * their parent element.
  */
 p /deep/ .highlight .selected-text {
