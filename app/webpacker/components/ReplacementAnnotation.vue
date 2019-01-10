@@ -1,5 +1,6 @@
 <template>
 <span class="replacement"
+      :class="{head: isHead, tail: isTail || (isHead && !uiState.expanded)}"
       v-if="isHead || uiState.expanded">
   <template v-if="isHead">
     <AnnotationHandle>
@@ -45,13 +46,16 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.replacement {
-  margin: 0 6px;
+.head {
+  margin-left: 0.25em;
+}
+.tail {
+  margin-right: 0.25em;
 }
 .replacement-text,
 .selected-text {
   background-color: $light-gray;
-  padding: 7px;
+  padding: 0.5em;
 }
 .selected-text {
   display: inline;
