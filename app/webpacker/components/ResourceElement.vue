@@ -75,7 +75,7 @@ export default {
                    endOffset: endOffset}},
           [node])
     },
-    splitTextNode([node, startOffset, endOffset]) {
+    splitTextNodeAtBreakpoints([node, startOffset, endOffset]) {
       return this.annotationBreakpoints
       // remove any offsets that fall on or outside of the Text node
         .filter(breakpoint =>
@@ -106,7 +106,10 @@ export default {
                let [prevNode, prevStart, prevEnd] = tuples[tuples.length - 1] ||
                    [{textContent: ""}, this.startOffset, this.startOffset];
                let tuple = [node, prevEnd, prevEnd + this.getText(node).length];
-               return tuples.concat(this.isText(node) ? this.splitTextNode(tuple) : [tuple]);
+
+               return tuples.concat(this.isText(node) ?
+                                    this.splitTextNodeAtBreakpoints(tuple) :
+                                    [tuple]);
              }, [])
              .map(([node, startOffset, endOffset]) =>
                   this.isText(node) ?
