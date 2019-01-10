@@ -64,8 +64,8 @@ export default {
     },
     isElement: node => node.nodeType == 1,
     isText: node => node.nodeType == 3,
-    getText(node) {
-      return this.isElement(node) ? node.innerText : node.textContent;
+    getLength(node) {
+      return (this.isElement(node) ? node.innerText : node.textContent).length;
     },
     wrapInAnnotation(h, startOffset, endOffset) {
       return (node, annotation) =>
@@ -105,7 +105,7 @@ export default {
              .reduce((tuples, node) => {
                let [prevNode, prevStart, prevEnd] = tuples[tuples.length - 1] ||
                    [{textContent: ""}, this.startOffset, this.startOffset];
-               let tuple = [node, prevEnd, prevEnd + this.getText(node).length];
+               let tuple = [node, prevEnd, prevEnd + this.getLength(node)];
 
                return tuples.concat(this.isText(node) ?
                                     this.splitTextNodeAtBreakpoints(tuple) :
