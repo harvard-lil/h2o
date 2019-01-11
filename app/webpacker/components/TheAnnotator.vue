@@ -8,8 +8,8 @@
       <li><a @click="submit('highlight')">Highlight</a></li>
       <li><a @click="submit('elide')">Elide</a></li>
       <li><a @click="submit('replace', 'This is a replacement')">Replace</a></li>
-      <li><a @click="addLink">Add link</a></li>
-      <li><a @click="addNote">Add note</a></li>
+      <li><a @click="input($event, 'link')">Add link</a></li>
+      <li><a @click="input($event, 'note')">Add note</a></li>
     </ul>
   </div>
 
@@ -56,6 +56,11 @@ export default {
   data: () => ({
     content: ""
   }),
+  watch: {
+    ranges() {
+      this.content = "";
+    }
+  },
   computed: {
     offset() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
@@ -88,14 +93,13 @@ export default {
       this.$refs.noteMenu.close();
     },
 
-    addLink(e) {
-      this.$refs.linkMenu.open(e);
-      this.$nextTick(() => this.$refs.linkInput.$el.focus())
-    },
-
-    addNote(e) {
-      this.$refs.noteMenu.open(e);
-      this.$nextTick(() => this.$refs.noteInput.focus())
+    input(e, kind) {
+      this.$refs[`${kind}Menu`].open(e);
+      this.$nextTick(
+        () =>
+          (this.$refs[`${kind}Input`].$el ||
+           this.$refs[`${kind}Input`]).focus()
+      );
     }
   }
 }
