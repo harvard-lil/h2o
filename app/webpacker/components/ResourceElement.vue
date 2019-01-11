@@ -160,7 +160,7 @@ export default {
         }, [[node, startOffset, endOffset]])
     },
 
-    groupIntoAnnotation(h, startOffset, tuples){
+    groupIntoAnnotation(h, tuples){
       return (prevTuple, annotation) => {
         // Figure out how far to reach forward for
         // elements to group into this annotation.
@@ -169,6 +169,7 @@ export default {
         let annotationEndInSection = annotation.end_paragraph == this.index ? annotation.end_offset : this._endOffset;
         // get the forward elements that fall within our range
         let childTuples = [prevTuple, ...tuples.filter(t => t[1] >= prevTuple[2] && t[2] <= annotationEndInSection)];
+        let startOffset = prevTuple[1];
         let endOffset = childTuples[childTuples.length - 1][2];
         return [
           h(this.kindToComponent(annotation.kind),
@@ -205,7 +206,7 @@ export default {
                    // Remove any annotations that have already been rendered upstream
                    .filter(a => this.enclosingAnnotationIds.indexOf(a.id) == -1)
                    .slice(0, 1)
-                   .reduce(this.groupIntoAnnotation(h, prevEnd, orgTuples), tuple)]);
+                   .reduce(this.groupIntoAnnotation(h, orgTuples), tuple)]);
              }, [])
              .map(([node, startOffset, endOffset]) => {
                if(this.isText(node)) {
