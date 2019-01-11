@@ -20,52 +20,6 @@ const getters = {
       obj => (obj.start_paragraph == index ||
              obj.end_paragraph == index ||
              (obj.start_paragraph < index && obj.end_paragraph > index))
-    ),
-
-  getBySectionIndexFullSpan: (state) => (index, start, end) =>
-    getters.getBySectionIndex(state)(index).filter(
-      obj => 
-        (obj.start_paragraph < index || obj.start_offset <= start) &&
-        (obj.end_paragraph > index || obj.end_offset >= end)
-    ).sort(
-      // longest to shortest
-      (a, b) =>
-        (b.end_paragraph == index ? b.end_offset : Number.MAX_VALUE) -
-        (a.end_paragraph == index ? a.end_offset : Number.MAX_VALUE)
-    ),
-
-  getBySectionIndexStartingAt: (state) => (index, start) =>
-    getters.getBySectionIndex(state)(index).filter(
-      obj =>
-        (obj.start_paragraph < index && start === 0) ||
-        (obj.start_paragraph == index && obj.start_offset == start)
-    ).sort(
-      // longest to shortest
-      (a, b) =>
-        (b.end_paragraph == index ? b.end_offset : Number.MAX_VALUE) -
-        (a.end_paragraph == index ? a.end_offset : Number.MAX_VALUE)
-    ),
-
-  getBySectionIndexPartialSpan: (state) => (index, start, end) =>
-    getters.getBySectionIndex(state)(index).filter(
-      obj =>
-        (obj.start_paragraph == index &&
-         obj.start_offset > start &&
-         obj.start_offset < end) ||
-        (obj.end_paragraph == index &&
-         obj.end_offset > start &&
-         obj.end_offset < end)
-    ),
-
-  getBySectionIndexSpan: (state) => (index, start, end) =>
-    getters.getBySectionIndex(state)(index).filter(
-      obj =>
-        (obj.start_paragraph == index &&
-         obj.start_offset >= start &&
-         obj.start_offset < end) ||
-        (obj.end_paragraph == index &&
-         obj.end_offset > start &&
-         obj.end_offset <= end)
     )
 };
 
