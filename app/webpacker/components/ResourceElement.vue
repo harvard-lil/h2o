@@ -37,12 +37,12 @@ export default {
     _childTuples() {
       return this.childTuples ||
         Array.from(this.el.childNodes)
-      // remove anything that isn't Element or an Text
-      // i.e. no script or comment tags etc
+        // remove anything that isn't Element or an Text
+        // i.e. no script or comment tags etc
         .filter(this.isValidNodeType)
-      // transform our Node array to an array of [Node, startOffset, endOffset] tuples
+        // transform our Node array to an array of [Node, startOffset, endOffset] tuples
         .reduce(this.transformToTuplesWithOffsets, [])
-      // break next nodes at points where annotations exist
+        // break next nodes at points where annotations exist
         .reduce((tuples, tuple) => tuples.concat(
           this.isText(tuple[0])
             ? this.splitTextAtBreakpoints(tuple)
@@ -99,7 +99,7 @@ export default {
     /////////////////
 
     ...mapGetters(["getBySectionIndex"]),
-    
+
     getAnnotationsAtOffset(offset) {
       return this.annotations.filter(
         obj =>
@@ -160,32 +160,78 @@ export default {
         }, [[node, startOffset, endOffset]])
     },
 
+    // Loop through the tuples and add annotations when found
+    insertAnnotations(h) {
+      return (modifiedTuples, tuple, idx, orgTuples) => {
+        let [node, startOffset, endOffset] = tuple;
+        let [prevNode, prevStart, prevEnd] = modifiedTuples[modifiedTuples.length - 1] ||
+            [null, null, this.startOffset];
+
+        // if the previous tuple's end offset is greater than the current tuple's
+        // start offset, the current tuple has already been grouped into an
+        // annotation's children list so skip it in modifiedTuples so as not
+        // to duplicate it in the render
+        return prevEnd > startOffset
+          ? modifiedTuples
+          : modifiedTuples.concat([
+            this.getAnnotationsAtOffset(startOffset)
+              // Remove any annotations that have already been rendered upstream
+              .filter(a => this.enclosingAnnotationIds.indexOf(a.id) == -1)
+              // We only want the first annotation, for now, but keeping
+              // it as an array conveniently allows reduce to
+              // return the normal tuple as a default if no annotations exist
+              .slice(0, 1)
+              .reduce(this.groupIntoAnnotation(h, orgTuples), tuple)]);
+      }
+    },
+
+    // Given an annotation and the previous tuple in the list, use the
+    // annotation's offset information to move forward in the list,
+    // eagerly grabbing tuples that fall within its range.
+    // This is the logic that allows annotations to wrap around
+    // existing elements on the page.
     groupIntoAnnotation(h, tuples){
       return (prevTuple, annotation) => {
-        // Figure out how far to reach forward for
-        // elements to group into this annotation.
-        // If the annotation ends in a subsequent
-        // pararaph, use the max offset of the parent element
+        // Figure out how far to reach forward for elements to group into this annotation.
+        // If the annotation extends beyond this section / pararaph,
+        // use the end offset of this parent element
         let annotationEndInSection = annotation.end_paragraph == this.index ? annotation.end_offset : this._endOffset;
         // get the forward elements that fall within our range
         let childTuples = [prevTuple, ...tuples.filter(t => t[1] >= prevTuple[2] && t[2] <= annotationEndInSection)];
-        let startOffset = prevTuple[1];
-        let endOffset = childTuples[childTuples.length - 1][2];
-        return [
-          h(this.kindToComponent(annotation.kind),
-            {props: {annotation: annotation,
-                     startOffset: startOffset,
-                     endOffset: endOffset}},
-            [h("resource-element",
-               {props: {el: document.createElement("span"),
-                        childTuples: childTuples,
-                        index: this.index,
-                        enclosingAnnotationIds: this.enclosingAnnotationIds.concat(annotation.id),
-                        startOffset: startOffset,
-                        endOffset: endOffset}})]),
-          startOffset,
-          endOffset
-        ]
+        let props = {startOffset: prevTuple[1],
+                     endOffset: childTuples[childTuples.length - 1][2]};
+        
+        return [h(this.kindToComponent(annotation.kind),
+                  {props: {...props,
+                           annotation: annotation}},
+                  [h("resource-element",
+                     {props: {...props,
+                              el: document.createElement("span"),
+                              childTuples: childTuples,
+                              index: this.index,
+                              enclosingAnnotationIds: this.enclosingAnnotationIds.concat(annotation.id)}})]),
+                props.startOffset,
+                props.endOffset]
+      }
+    },
+
+    // Vue component children arrays must contain either VNodes or
+    // Strings (which get converted to VNodes automatically)
+    tupleToVNode(h) {
+      return ([node, startOffset, endOffset]) => {
+        if(this.isText(node)) {
+          return node.textContent;
+        } else if(this.isElement(node)) {
+          // For Element nodes, recursively call ResourceElement
+          // to loop back through this process
+          return h("resource-element",
+                   {props: {el: node,
+                            index: this.index,
+                            startOffset: startOffset,
+                            endOffset: endOffset}});
+        } else {
+          return node;
+        }
       }
     }
   },
@@ -193,36 +239,8 @@ export default {
     return h(this.el.tagName,
              {attrs: this.elAttrs},
              this._childTuples
-             .reduce((newTuples, tuple, idx, orgTuples) => {
-               let [node, startOffset, endOffset] = tuple;
-               let [prevNode, prevStart, prevEnd] = newTuples[newTuples.length - 1] ||
-                   [null, null, this.startOffset];
-               // if this node has already been grouped into an
-               // annotation's children list, skip it in newTuples
-               if(prevEnd > startOffset) return newTuples;
-
-               return newTuples.concat([
-                 this.getAnnotationsAtOffset(startOffset)
-                   // Remove any annotations that have already been rendered upstream
-                   .filter(a => this.enclosingAnnotationIds.indexOf(a.id) == -1)
-                   .slice(0, 1)
-                   .reduce(this.groupIntoAnnotation(h, orgTuples), tuple)]);
-             }, [])
-             .map(([node, startOffset, endOffset]) => {
-               if(this.isText(node)) {
-                 return node.textContent;
-               } else if(this.isElement(node)) {
-                 // For Element nodes, recursively call ResourceElement
-                 // to loop back through this process
-                 return h("resource-element",
-                          {props: {el: node,
-                                   index: this.index,
-                                   startOffset: startOffset,
-                                   endOffset: endOffset}});
-               } else {
-                 return node;
-               }
-             }));
+               .reduce(this.insertAnnotations(h), [])
+               .map(this.tupleToVNode(h)));
   }
 }
 </script>
