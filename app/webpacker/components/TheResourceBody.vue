@@ -2,7 +2,6 @@
 <section class="resource"
          v-selectionchange="selectionChangeHandler">
   <TheAnnotator ref="annotator"
-                v-if="ranges"
                 :ranges="ranges"/>
   <TheGlobalElisionExpansionButton/>
   <div class="case-text">
@@ -47,6 +46,8 @@ export default {
   },
   methods: {
     selectionChangeHandler(e, sel) {
+      if(sel && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
+
       this.ranges =
         (!sel || sel.type != "Range")
         ? null
