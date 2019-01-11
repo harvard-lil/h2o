@@ -3,8 +3,7 @@
          v-selectionchange="selectionChangeHandler">
   <TheAnnotator ref="annotator"
                 v-if="ranges"
-                :ranges="ranges"
-                @clear-ranges="ranges = null"/>
+                :ranges="ranges"/>
   <TheGlobalElisionExpansionButton/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
@@ -48,11 +47,8 @@ export default {
   },
   methods: {
     selectionChangeHandler(e, sel) {
-      // Don't clear selection when the user clicks into the annotator
-      if (this.$refs.annotator && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
-
       this.ranges =
-        (sel && sel.type != "Range")
+        (!sel || sel.type != "Range")
         ? null
         : {first: sel.getRangeAt(0),
            last: sel.getRangeAt(sel.rangeCount-1)};

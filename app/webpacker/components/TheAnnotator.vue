@@ -1,5 +1,5 @@
 <template>
-<div>
+<div id="the-annotator">
   <div id="create-annotation-menu"
        class="context-menu"
        :style="{top: offset}">
@@ -65,7 +65,8 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       });
-      this.$emit("clear-ranges");
+      // clear the selection, thereby hiding the menu
+      document.getSelection().empty();
     }
   }
 }
@@ -74,6 +75,9 @@ export default {
 <style lang="scss" scoped>
 @import "../styles/vars-and-mixins";
 
+#the-annotator {
+  user-select: none;
+}
 #create-annotation-menu {
   position: absolute;
   right: 0;
