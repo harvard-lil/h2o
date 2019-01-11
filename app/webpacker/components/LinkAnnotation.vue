@@ -10,9 +10,9 @@
         <a @click="destroy(annotation)">Remove link</a>
       </li>
     </AnnotationHandle>
-    <ContextMenu ref="editMenu" v-bind:closeOnClick="false">
-      <form v-on:submit.prevent="submitUpdate">
-        <input name="content" id="link-form" placeholder="Url to link to..." v-model="content"/>
+    <ContextMenu ref="editMenu" :closeOnClick="false">
+      <form @submit.prevent="submitUpdate">
+        <LinkInput v-model="content"/>
       </form>
     </ContextMenu>
   </template>
@@ -21,15 +21,18 @@
 </template>
 
 <script>
-import ContextMenu from './ContextMenu';
-import AnnotationBase from './AnnotationBase';
-import { createNamespacedHelpers } from 'vuex';
-const { mapActions } = createNamespacedHelpers('annotations');
+import AnnotationBase from "./AnnotationBase";
+import { createNamespacedHelpers } from "vuex";
+const { mapActions } = createNamespacedHelpers("annotations");
+
+import ContextMenu from "./ContextMenu";
+import LinkInput from "./LinkInput";
 
 export default {
   extends: AnnotationBase,
   components: {
-    ContextMenu
+    ContextMenu,
+    LinkInput
   },
   data: () => ({
     newVals: {}
@@ -45,7 +48,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['update']),
+    ...mapActions(["update"]),
     submitUpdate() {
       this.update({obj: this.annotation, vals: this.newVals});
       this.$refs.editMenu.close();
