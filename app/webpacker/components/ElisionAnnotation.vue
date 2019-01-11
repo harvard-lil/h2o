@@ -41,10 +41,9 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .selected-text {
-  padding: 7px;
+  padding: 0.4em;
   display: inline;
   color: #555;
-  border-radius: 3px;
   background-color: $light-gray;
 }
 </style>

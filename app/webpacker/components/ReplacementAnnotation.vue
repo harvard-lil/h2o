@@ -55,7 +55,7 @@ export default {
 .replacement-text,
 .selected-text {
   background-color: $light-gray;
-  padding: 0.5em;
+  padding: 0.4em;
 }
 .selected-text {
   display: inline;
