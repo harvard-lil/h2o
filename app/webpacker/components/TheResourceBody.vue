@@ -106,10 +106,6 @@ export default {
     }
   }
 }
-.context-menu {
-  position: absolute;
-  right: 0;
-}
 .handle {
   @include size(0px, 0px);
 
