@@ -24,7 +24,6 @@ export default {
 
 .selected-text {
   background-color: $highlight;
-  box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
 }
 
 /*
