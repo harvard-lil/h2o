@@ -14,11 +14,24 @@
   </div>
 
   <ContextMenu ref="linkMenu"
-               id="link-menu"
                :closeOnClick="false">
-    <form @submit.prevent="submit('link', content)">
+    <form @submit.prevent="submit('link', content)"
+          class="form">
       <LinkInput ref="linkInput"
                  v-model="content"/>
+    </form>
+  </ContextMenu>
+
+  <ContextMenu ref="noteMenu"
+               :closeOnClick="false">
+    <form @submit.prevent="submit('note', content)"
+          class="form">
+      <textarea ref="noteInput"
+                placeholder="Note text..."
+                v-model="content"></textarea>
+      <input type="submit"
+             value="Save"
+             class="button">
     </form>
   </ContextMenu>
 </div>
@@ -72,6 +85,7 @@ export default {
       // clear the selection, thereby hiding the menu
       document.getSelection().empty();
       this.$refs.linkMenu.close();
+      this.$refs.noteMenu.close();
     },
 
     addLink(e) {
@@ -80,6 +94,8 @@ export default {
     },
 
     addNote(e) {
+      this.$refs.noteMenu.open(e);
+      this.$nextTick(() => this.$refs.noteInput.focus())
     }
   }
 }
@@ -98,5 +114,13 @@ export default {
     position: absolute;
     left: 20px;
   }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+.button {
+  margin-top: 1em;
 }
 </style>
