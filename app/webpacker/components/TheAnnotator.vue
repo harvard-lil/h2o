@@ -4,9 +4,9 @@
   <ul>
     <li><a @click="submit('highlight')">Highlight</a></li>
     <li><a @click="submit('elide')">Elide</a></li>
-    <li><a>Replace</a></li>
-    <li><a>Add link</a></li>
-    <li><a>Add note</a></li>
+    <li><a @click="submit('replace', 'This is a replacement')">Replace</a></li>
+    <li><a @click="submit('link', 'http://example.com')">Add link</a></li>
+    <li><a @click="submit('note', 'This is a note')">Add note</a></li>
   </ul>
 </div>
 </template>
