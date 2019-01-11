@@ -19,14 +19,28 @@ export default {
   },
   props: {
     el: {type: HTMLElement},
-    children: {type: Array},
+    childTuples: {type: Array},
     index: {type: Number},
+    enclosingAnnotationIds: {type: Array,
+                             default: (() => [])},
     startOffset: {type: Number,
                   default: 0}
   },
   computed: {
-    _children() {
-      return this.children || Array.from(this.el.childNodes);
+    _childTuples() {
+      return this.childTuples ||
+        Array.from(this.el.childNodes)
+      // remove anything that isn't Element or an Text
+      // i.e. no script or comment tags etc
+        .filter(this.isValidNodeType)
+      // transform our Node array to an array of [Node, startOffset, endOffset] tuples
+        .reduce(this.transformToTuplesWithOffsets, [])
+      // break next nodes at points where annotations exist
+        .reduce((tuples, tuple) => tuples.concat(
+          this.isText(tuple[0])
+            ? this.splitTextAtBreakpoints(tuple)
+            : [tuple]
+        ), []);
     },
     endOffset() {
       return this.startOffset + (this.el.innerText || this.el.textContent).length;
@@ -60,7 +74,9 @@ export default {
     }
   },
   methods: {
-    ...mapGetters(["getBySectionIndexFullSpan",
+    ...mapGetters(["getBySectionIndexSpan",
+                   "getBySectionIndexStartingAt",
+                   "getBySectionIndexFullSpan",
                    "getBySectionIndexPartialSpan"]),
     kindToComponent(kind) {
       return ({elide: "elision",
@@ -102,38 +118,68 @@ export default {
           tuples[tuples.length - 1][2] = breakpoint;
           return tuples.concat([[node, breakpoint, prevEnd]]);
         }, [[node, startOffset, endOffset]])
+    },
+    groupIntoAnnotation(h, prevEnd, tuples){
+      return (prevTuple, annotation) => {
+        // Figure out how far to reach forward for
+        // elements to group into this annotation.
+        // If the annotation ends in a subsequent
+        // pararaph, use the max offset of the parent element
+        let annotationEndInSection = annotation.end_paragraph == this.index ? annotation.end_offset : this.endOffset;
+        // get the forward elements that fall within our range
+        let childTuples = [prevTuple, ...tuples.filter(t => t[1] >= prevTuple[2] && t[2] <= annotationEndInSection)];
+        let endOffset = childTuples[childTuples.length - 1][2];
+        return [
+          h(this.kindToComponent(annotation.kind),
+            {props: {annotation: annotation,
+                     startOffset: prevEnd,
+                     endOffset: endOffset}},
+            [h("resource-element",
+               {props: {el: document.createElement("span"),
+                        childTuples: childTuples,
+                        index: this.index,
+                        enclosingAnnotationIds: this.enclosingAnnotationIds.concat(annotation.id),
+                        startOffset: prevEnd,
+                        endOffset: endOffset}})]),
+          prevEnd,
+          endOffset
+        ]
+      }
     }
   },
   render(h) {
     return h(this.el.tagName,
              {attrs: this.attrs},
-             this._children
-             // remove anything that isn't Element or an Text
-             // i.e. no script or comment tags etc
-             .filter(this.isValidNodeType)
-             // transform our Node array to an array of [Node, startOffset, endOffset] tuples
-             .reduce(this.transformToTuplesWithOffsets, [])
-             .reduce((tuples, tuple) => tuples.concat(
-               this.isText(tuple[0])
-                 ? this.splitTextAtBreakpoints(tuple)
-                 : [tuple]
-             ), [])
-             .map(([node, startOffset, endOffset]) =>
-                  // maybe start looking ahead here, then checking on
-                  // the endOffset of the previous loop to see how
-                  // much it vacuumed up
-                  this.isText(node) ?
-                  // Wrap Text nodes in any annotations since Vue limits us from
-                  // recursively creating ResourceElements with Text nodes
-                  this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, endOffset)
-                  .reduce(this.wrapInAnnotation(h, startOffset, endOffset), node.textContent)
-                  // For Element nodes, recursively call ResourceElement
-                  // to loop back through this process
-                  : h("resource-element",
-                      {props: {el: node,
-                               index: this.index,
-                               startOffset: startOffset,
-                               endOffset: endOffset}})));
+             this._childTuples
+             .reduce((tuples, tuple, idx, src) => {
+               let [node, startOffset, endOffset] = tuple;
+               let [prevNode, prevStart, prevEnd] = tuples[tuples.length - 1] ||
+                   [null, null, this.startOffset];
+               // if this node has already been grouped into an
+               // annotation's children list, skip it in the tuples
+               if(prevEnd > startOffset) return tuples;
+
+               return tuples.concat([
+                 this.getBySectionIndexFullSpan(this.$store)(this.index, startOffset, endOffset)
+                   .filter(a => this.enclosingAnnotationIds.indexOf(a.id) == -1)
+                   .slice(0, 1)
+                   .reduce(this.groupIntoAnnotation(h, prevEnd, src), tuple)]);
+             }, [])
+             .map(([node, startOffset, endOffset]) => {
+               if(this.isText(node)) {
+                 return node.textContent;
+               } else if(this.isElement(node)) {
+                 // For Element nodes, recursively call ResourceElement
+                 // to loop back through this process
+                 return h("resource-element",
+                          {props: {el: node,
+                                   index: this.index,
+                                   startOffset: startOffset,
+                                   endOffset: endOffset}});
+               } else {
+                 return node;
+               }
+             }));
   }
 }
 </script>
