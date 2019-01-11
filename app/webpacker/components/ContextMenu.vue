@@ -169,7 +169,7 @@
   position: fixed;
   z-index: 99999;
   @include sans-serif($regular, 12px, 14px);
-  ul {
+  ul, form {
 	list-style: none;
 	padding: 0;
 	margin: 0;

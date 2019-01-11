@@ -1,20 +1,24 @@
 <template>
 <div id="the-annotator">
-  <div id="create-annotation-menu"
+  <div v-if="ranges"
+       id="create-annotation-menu"
        class="context-menu"
        :style="{top: offset}">
     <ul class="menu-items">
       <li><a @click="submit('highlight')">Highlight</a></li>
       <li><a @click="submit('elide')">Elide</a></li>
       <li><a @click="submit('replace', 'This is a replacement')">Replace</a></li>
-      <li><a @click.prevent="$refs.linkMenu.open">Add link</a></li>
-      <li><a @click="submit('note', 'This is a note')">Add note</a></li>
+      <li><a @click="addLink">Add link</a></li>
+      <li><a @click="addNote">Add note</a></li>
     </ul>
   </div>
 
-  <ContextMenu ref="linkMenu" :closeOnClick="false">
+  <ContextMenu ref="linkMenu"
+               id="link-menu"
+               :closeOnClick="false">
     <form @submit.prevent="submit('link', content)">
-      <LinkInput v-model="content"/>
+      <LinkInput ref="linkInput"
+                 v-model="content"/>
     </form>
   </ContextMenu>
 </div>
@@ -67,6 +71,15 @@ export default {
       });
       // clear the selection, thereby hiding the menu
       document.getSelection().empty();
+      this.$refs.linkMenu.close();
+    },
+
+    addLink(e) {
+      this.$refs.linkMenu.open(e);
+      this.$nextTick(() => this.$refs.linkInput.$el.focus())
+    },
+
+    addNote(e) {
     }
   }
 }
