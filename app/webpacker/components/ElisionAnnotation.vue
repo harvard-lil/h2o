@@ -16,7 +16,9 @@
     </AnnotationHandle>
     <AnnotationExpansionToggle :ui-state="uiState"/>
   </template>
-  <span v-if="uiState.expanded" class="selected-text"><slot></slot></span>
+  <!-- Use v-show rather than v-if here so that 
+       the text is included in offset calculations -->
+  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
 </span>
 </template>
 
