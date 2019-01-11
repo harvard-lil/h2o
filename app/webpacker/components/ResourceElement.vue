@@ -228,7 +228,8 @@ export default {
                    {props: {el: node,
                             index: this.index,
                             startOffset: startOffset,
-                            endOffset: endOffset}});
+                            endOffset: endOffset,
+                            enclosingAnnotationIds: this.enclosingAnnotationIds}});
         } else {
           return node;
         }
