@@ -190,6 +190,11 @@ export default {
     // eagerly grabbing tuples that fall within its range.
     // This is the logic that allows annotations to wrap around
     // existing elements on the page.
+    // ---------
+    // TODO: this could be be optimized further by removing the need
+    // to wrap the children in another ResourceElement (which is
+    // providing the recursive rendering at the moment) and instead
+    // recursing within the current ResourceElement render()
     groupIntoAnnotation(h, tuples){
       return (prevTuple, annotation) => {
         // Figure out how far to reach forward for elements to group into this annotation.
