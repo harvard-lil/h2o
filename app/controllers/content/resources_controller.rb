@@ -6,6 +6,8 @@ class Content::ResourcesController < Content::NodeController
   skip_before_action :check_public, only: [:export]
 
   def show
+    @editable = false
+    @include_vuejs = true
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
   end
 

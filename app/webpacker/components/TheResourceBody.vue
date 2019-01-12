@@ -1,7 +1,8 @@
 <template>
 <section class="resource"
          v-selectionchange="selectionChangeHandler">
-  <TheAnnotator ref="annotator"
+  <TheAnnotator v-if="editable"
+                ref="annotator"
                 :ranges="ranges"/>
   <TheGlobalElisionExpansionButton/>
   <div class="case-text">
@@ -51,7 +52,9 @@ export default {
     ...mapActions(["list"]),
 
     selectionChangeHandler(e, sel) {
-      if(sel && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
+      if(sel &&
+         this.$refs.annotator && // annotator will not be present if editable = false
+         this.$refs.annotator.$el.contains(sel.anchorNode)) return;
 
       this.ranges =
         (!sel || sel.type != "Range")
