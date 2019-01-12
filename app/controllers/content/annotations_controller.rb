@@ -3,7 +3,13 @@ require 'uri'
 
 class Content::AnnotationsController < ApplicationController
   before_action :find_annotation, only: [:destroy, :update]
-  before_action :find_resource, only: [:create, :destroy, :update]
+  before_action :find_resource, only: [:index, :create, :destroy, :update]
+
+  def index
+    respond_to do |format|
+      format.json { render json: @resource.annotations}
+    end
+  end
 
   def create
     params = annotation_params

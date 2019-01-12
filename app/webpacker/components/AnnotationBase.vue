@@ -15,9 +15,20 @@ export default {
     startOffset: {type: Number},
     endOffset: {type: Number}
   },
+  data: () => ({
+    expandedDefault: false
+  }),
   computed: {
     uiState() {
-      return this.$store.getters['annotations_ui/getById'](this.annotation.id);
+      // If a UI state for this annotation hasn't been set in the store, register it now
+      let state = this.$store.getters['annotations_ui/getById'](this.annotation.id);
+      if(!state) {
+        state = {id: this.annotation.id,
+                 kind: this.annotation.kind,
+                 expanded: this.expandedDefault};
+        this.$store.commit('annotations_ui/append', [state]);
+      }
+      return state;
     },
     isHead() {
       return this.startOffset == this.annotation.start_offset;

@@ -6,7 +6,7 @@ const helpers = {
 };
 
 const state = {
-  all: window.STATE_BOOTSTRAP ? window.STATE_BOOTSTRAP.annotations || [] : []
+  all: []
 };
 
 const getters = {
@@ -24,12 +24,19 @@ const getters = {
 };
 
 const actions = {
+  list({ commit }, payload) {
+    Axios
+      .get(helpers.resourcePath(payload))
+      .then(resp => {
+        commit('append', resp.data);
+      });
+  },
   create({ commit }, payload) {
     Axios
       .post(helpers.resourcePath(payload),
             {annotation: payload})
       .then(resp => {
-        commit('create', {...payload, ...resp.data});
+        commit('append', [{...payload, ...resp.data}]);
       });
   },
   update({ commit }, payload) {
@@ -50,8 +57,8 @@ const actions = {
 };
 
 const mutations = {
-  create(state, payload) {
-    state.all.push(payload);
+  append(state, payload) {
+    state.all.push(...payload);
   },
   update(state, payload) {
     Object.assign(payload.obj, payload.vals);
