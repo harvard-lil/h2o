@@ -1,5 +1,4 @@
 import 'lib/ui/content/dragging.js.erb';
-import 'lib/ui/content/annotations';
 import 'lib/ui/content/dashboard.js.erb';
 import 'lib/ui/content/add_content.js.erb';
 import 'lib/ui/content/publish_modal.js.erb';
