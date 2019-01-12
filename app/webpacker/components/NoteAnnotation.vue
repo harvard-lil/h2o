@@ -6,25 +6,34 @@
         <a @click="destroy(annotation)">Remove note</a>
       </li>
     </AnnotationHandle>
-    <span class="note-content-wrapper"
+    <span v-if="uiState.expanded"
+          class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
-      <span class="note-icon">
-        <i class='fas fa-paperclip'></i>
+      <span class="note-icon"
+            @click="toggleExpansion(uiState)">
+        <i class="fas fa-paperclip"></i>
       </span>
       <span class="note-content">
         {{annotation.content}}
       </span>
     </span>
   </template>
-  <span tabindex="-1" class="selected-text"><slot></slot></span>
+  <span tabindex="-1"
+        class="selected-text"
+        @click="toggleExpansion(uiState)"><slot></slot></span>
 </span>
 </template>
 
 <script>
 import AnnotationBase from './AnnotationBase';
+import { createNamespacedHelpers } from 'vuex';
+const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
-  extends: AnnotationBase
+  extends: AnnotationBase,
+  methods: {
+    ...mapMutations(['toggleExpansion'])
+  }
 }
 </script>
 
@@ -34,9 +43,7 @@ export default {
 .selected-text {
   text-decoration: $light-blue underline;
   outline: none;
-  &:hover {
-    cursor: pointer;
-  }
+  cursor: pointer;
 }
 
 .note-content-wrapper {
@@ -65,8 +72,13 @@ export default {
   padding: 10px;
   position: relative;
   top: -20px;
-  background-color: white;
-  color: black;
+  background-color: $white;
+  color: $black;
   margin: 0 20px;
+}
+
+.note-icon {
+  color: $black;
+  cursor: pointer;
 }
 </style>
