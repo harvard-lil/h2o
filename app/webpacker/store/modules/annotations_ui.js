@@ -1,7 +1,9 @@
 import Vue from 'vue/dist/vue.esm';
 
 const state = {
-  all: window.STATE_BOOTSTRAP ? window.STATE_BOOTSTRAP.annotations || [] : []
+  all: (window.STATE_BOOTSTRAP
+        ? window.STATE_BOOTSTRAP.annotations || []
+        : []).map(a => ({id: a.id, expanded: a.kind == "note"}))
 };
 
 const getters = {
