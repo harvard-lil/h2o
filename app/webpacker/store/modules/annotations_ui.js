@@ -1,11 +1,7 @@
 import Vue from 'vue/dist/vue.esm';
 
 const state = {
-  all: (window.STATE_BOOTSTRAP
-        ? window.STATE_BOOTSTRAP.annotations || []
-        : []).map(a => ({id: a.id,
-                        kind: a.kind,
-                        expanded: a.kind == "note"}))
+  all: []
 };
 
 const getters = {
@@ -18,6 +14,9 @@ const getters = {
 };
 
 const mutations = {
+  append(state, payload) {
+    state.all.push(...payload);
+  },
   toggleExpansion(state, payload) {
     Vue.set(payload, 'expanded', !payload.expanded);
   },

@@ -31,6 +31,9 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
   extends: AnnotationBase,
+  data: () => ({
+    expandedDefault: true
+  }),
   methods: {
     ...mapMutations(['toggleExpansion'])
   }

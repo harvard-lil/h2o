@@ -21,6 +21,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from "vuex";
+const { mapActions } = createNamespacedHelpers("annotations");
+
 import ResourceElement from "./ResourceElement";
 import TheAnnotator from "./TheAnnotator";
 import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
@@ -45,6 +48,8 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["list"]),
+
     selectionChangeHandler(e, sel) {
       if(sel && this.$refs.annotator.$el.contains(sel.anchorNode)) return;
 
@@ -54,6 +59,9 @@ export default {
         : {first: sel.getRangeAt(0),
            last: sel.getRangeAt(sel.rangeCount-1)};
     }
+  },
+  created() {
+    this.list({resource_id: document.querySelector("header.casebook").dataset.resourceId});
   }
 }
 </script>

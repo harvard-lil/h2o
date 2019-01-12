@@ -75,7 +75,7 @@ H2o::Application.routes.draw do
 
     resources :resources, only: [] do
       get 'export'
-      resources :annotations, only: [:create, :destroy, :update]
+      resources :annotations
     end
 
     resources :sections, only: [] do
