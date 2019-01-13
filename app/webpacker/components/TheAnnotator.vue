@@ -7,7 +7,7 @@
     <ul class="menu-items">
       <li><a @click="submit('highlight')">Highlight</a></li>
       <li><a @click="submit('elide')">Elide</a></li>
-      <li><a @click="submit('replace', 'This is a replacement')">Replace</a></li>
+      <li><a @click="submit('replace')">Replace</a></li>
       <li><a @click="input($event, 'link')">Add link</a></li>
       <li><a @click="input($event, 'note')">Add note</a></li>
     </ul>
