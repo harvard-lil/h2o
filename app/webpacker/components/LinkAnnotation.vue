@@ -35,12 +35,14 @@ export default {
     LinkInput
   },
   data: () => ({
-    newVals: {}
+    newVals: {content: null}
   }),
   computed: {
     content: {
       get() {
-        return this.newVals.content || this.annotation.content;
+        return this.newVals.content === null
+          ? this.annotation.content
+          : this.newVals.content;
       },
       set(value) {
         this.newVals.content = value;
@@ -53,7 +55,7 @@ export default {
       this.update({obj: this.annotation, vals: this.newVals});
       this.$refs.editMenu.close();
     }
-  },
+  }
 }
 </script>
 
