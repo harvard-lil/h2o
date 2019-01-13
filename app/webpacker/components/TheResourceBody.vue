@@ -53,8 +53,9 @@ export default {
 
     selectionChangeHandler(e, sel) {
       if(sel &&
-         this.$refs.annotator && // annotator will not be present if editable = false
-         this.$refs.annotator.$el.contains(sel.anchorNode)) return;
+         sel.anchorNode.tagName == "FORM" ||
+         (this.$refs.annotator && // annotator will not be present if editable = false
+          this.$refs.annotator.$el.contains(sel.anchorNode))) return;
 
       this.ranges =
         (!sel || sel.type != "Range")
