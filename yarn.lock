@@ -6753,6 +6753,11 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
+vue-contenteditable-directive@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/vue-contenteditable-directive/-/vue-contenteditable-directive-1.2.0.tgz#036a52386d4b3abafeaa102ead00ee4c259f511b"
+  integrity sha512-9RuW1cboQBOUhURXiQpBD8XldyK2BYWhkWTnRw4Qmv8ZeQy+tGnnPs4XfemoPNf4KQW31Mx6UqEszlZYgoPeYw==
+
 vue-hot-reload-api@^2.2.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.1.tgz#b2d3d95402a811602380783ea4f566eb875569a2"

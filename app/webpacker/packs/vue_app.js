@@ -5,6 +5,9 @@ import store from '../store/index.js.erb';
 import '../config/axios';
 import '../directives/selectionchange';
 
+import contenteditableDirective from 'vue-contenteditable-directive';
+Vue.use(contenteditableDirective);
+
 import TheResourceBody from "../components/TheResourceBody";
 
 document.addEventListener('DOMContentLoaded', () => {

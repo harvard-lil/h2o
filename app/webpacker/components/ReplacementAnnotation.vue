@@ -20,7 +20,15 @@
     <span v-if="!uiState.expanded"
           class="replacement-text"
           data-exclude-from-offset-calcs="true"
-          contenteditable="true">{{annotation.content}}</span>
+          v-contenteditable:content="true"></span>
+    <div v-if="modified"
+         id="edit-replacement-menu"
+         class="context-menu">
+      <ul class="menu-items">
+        <li><a @click="submitUpdate">Save</a></li>
+        <li><a @click="revert">Cancel</a></li>
+      </ul>
+    </div>
   </template>
   <!-- Use v-show rather than v-if here so that 
        the text is included in offset calculations -->
@@ -32,6 +40,7 @@
 import AnnotationBase from './AnnotationBase';
 import AnnotationExpansionToggle from './AnnotationExpansionToggle';
 import { createNamespacedHelpers } from 'vuex';
+const { mapActions } = createNamespacedHelpers("annotations");
 const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
@@ -39,8 +48,33 @@ export default {
   components: {
     AnnotationExpansionToggle
   },
+  data: () => ({
+    newVals: {content: null}
+  }),
+  computed: {
+    content: {
+      get() {
+        return this.newVals.content === null
+          ? this.annotation.content
+          : this.newVals.content;
+      },
+      set(value) {
+        this.newVals.content = value;
+      }
+    },
+    modified() {
+      return this.content != this.annotation.content;
+    }
+  },
   methods: {
-    ...mapMutations(['toggleExpansion'])
+    ...mapMutations(['toggleExpansion']),
+    ...mapActions(["update"]),
+    revert() {
+      return this.newVals.content = this.annotation.content;
+    },
+    submitUpdate() {
+      this.update({obj: this.annotation, vals: this.newVals});
+    }
   }
 }
 </script>
@@ -66,15 +100,23 @@ export default {
 }  
 .replacement-text {
   color: $light-blue;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 .replacement-text:empty::before {
   content: 'Enter replacement text';
   color: $dark-gray;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 .active .replacement-text:empty::before {
   content: ' ';
-  pointer-events: none;
+  /* pointer-events: none; */
+}
+#edit-replacement-menu {
+  position: absolute;
+  right: 0;
+  .menu-items {
+    position: absolute;
+    left: 20px;
+  }
 }
 </style>
