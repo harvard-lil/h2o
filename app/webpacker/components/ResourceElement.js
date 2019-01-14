@@ -1,4 +1,3 @@
-<script>
 import store from "../store/index.js.erb";
 
 import ElisionAnnotation from "./ElisionAnnotation";
@@ -175,7 +174,6 @@ export default {
     index: {type: Number}
   },
   render(h) {
-    return tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)])
+    return tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)]);
   }
-}
-</script>
+};
