@@ -4,6 +4,7 @@ require 'uri'
 class Content::AnnotationsController < ApplicationController
   before_action :find_annotation, only: [:destroy, :update]
   before_action :find_resource, only: [:index, :create, :destroy, :update]
+  before_action :check_authorized, only: [:index]
 
   def index
     respond_to do |format|
@@ -52,6 +53,18 @@ class Content::AnnotationsController < ApplicationController
   end
 
   private
+
+  def check_public
+    @resource.casebook.public || check_authorized
+  end
+
+  def check_authorized
+    return if current_user && (@resource.casebook.has_collaborator?(current_user.id) ||
+                               current_user.superadmin?)
+    respond_to do |format|
+      format.json { head :forbidden }
+    end
+  end
 
   def new_annotation?
     @annotation.created_at > @annotation.resource.casebook.created_at + 5.seconds
