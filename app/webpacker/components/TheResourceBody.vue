@@ -24,7 +24,7 @@
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 
-import ResourceElement from "./ResourceElement";
+import ResourceElement from "./ResourceElement.js";
 import TheAnnotator from "./TheAnnotator";
 import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
 
