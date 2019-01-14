@@ -1,9 +1,8 @@
 <template>
 <section class="resource"
-         v-selectionchange="selectionChangeHandler">
+         v-selectionchange="selectionchangeHandler">
   <TheAnnotator v-if="editable"
-                ref="annotator"
-                :ranges="ranges"/>
+                ref="annotator"/>
   <TheGlobalElisionExpansionButton/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
@@ -51,17 +50,14 @@ export default {
   methods: {
     ...mapActions(["list"]),
 
-    selectionChangeHandler(e, sel) {
-      if(sel &&
-         (sel.anchorNode.tagName == "FORM" ||
-          (this.$refs.annotator && // annotator will not be present if editable = false
-           this.$refs.annotator.$el.contains(sel.anchorNode)))) return;
-
-      this.ranges =
-        (!sel || sel.type != "Range")
-        ? null
-        : {first: sel.getRangeAt(0),
-           last: sel.getRangeAt(sel.rangeCount-1)};
+    // The selectionchange directive must be bound to the broader
+    // <section.resource> (rather than TheAnnotator) so that it has
+    // context about which text with which to be concerned.
+    // The TheAnnotator handler is then proxied through rather than
+    // set directly on the directive because $refs doesn't exist at
+    // the point it's added
+    selectionchangeHandler(e, sel) {
+      return this.$refs.annotator.selectionchange(e, sel);
     }
   },
   created() {

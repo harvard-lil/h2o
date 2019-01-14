@@ -50,10 +50,8 @@ export default {
     ContextMenu,
     LinkInput
   },
-  props: {
-    ranges: {type: Object}
-  },
   data: () => ({
+    ranges: null,
     content: ""
   }),
   watch: {
@@ -79,6 +77,18 @@ export default {
   },
   methods: {
     ...mapActions(["create"]),
+
+    selectionchange(e, sel) {
+      if(sel &&
+         (sel.anchorNode.tagName == "FORM" ||
+          this.$el.contains(sel.anchorNode))) return;
+
+      this.ranges =
+        (!sel || sel.type != "Range")
+        ? null
+        : {first: sel.getRangeAt(0),
+           last: sel.getRangeAt(sel.rangeCount-1)};
+    },
 
     submit(type, content = null) {
       this.create({
