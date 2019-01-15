@@ -63,17 +63,22 @@ const splitTextAt = (breakpoints, [node, start, end]) =>
       return tuples.concat([[node, breakpoint, prevEnd]]);
     }, [[node, start, end]]);
 
+const annotateAndConvertToVNodes = (h, tuples, index, enclosingAnnotationIds) =>
+      tuples
+      .reduce(insertAnnotations(h, index, enclosingAnnotationIds), [])
+      .map(tupleToVNode(h, index, enclosingAnnotationIds));
+
 // Given an annotation and the previous tuple in the list, use the
 // annotation's offset information to move forward in the list,
 // eagerly grabbing tuples that fall within its range.
 // This is the logic that allows annotations to wrap around
 // existing elements on the page.
-const groupIntoAnnotation = (h, index, end, tuples, enclosingAnnotationIds) =>
+const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
   (prevTuple, annotation) => {
     // Figure out how far to reach forward for elements to group into this annotation.
     // If the annotation extends beyond this section / pararaph,
     // use the end offset of this parent element
-    let annotationEndInSection = annotation.end_paragraph == index ? annotation.end_offset : end;
+    let annotationEndInSection = annotation.end_paragraph == index ? annotation.end_offset : tuples[tuples.length - 1][2];
     // get the forward elements that fall within our range
     let childTuples = [prevTuple, ...tuples.filter(t => t[1] >= prevTuple[2] && t[2] <= annotationEndInSection)];
     let props = {startOffset: prevTuple[1],
@@ -82,18 +87,18 @@ const groupIntoAnnotation = (h, index, end, tuples, enclosingAnnotationIds) =>
     return [h(kindToComponent(annotation.kind),
               {props: {...props,
                        annotation: annotation}},
-              childTuples.map(tupleToVNode(h, index, enclosingAnnotationIds))),
+              annotateAndConvertToVNodes(h, childTuples, index, enclosingAnnotationIds.concat([annotation.id]))),
             props.startOffset,
             props.endOffset];
   };
 
 // Loop through the tuples and add annotations when found
-const insertAnnotations = (h, index, parentStart, parentEnd, enclosingAnnotationIds) =>
+const insertAnnotations = (h, index, enclosingAnnotationIds) =>
   (modifiedTuples, tuple, idx, orgTuples) => {
     let [node, start, end] = tuple;
     let [prevNode, prevStart, prevEnd] = modifiedTuples[modifiedTuples.length - 1] ||
-        [null, null, parentStart];
-    
+        [null, null, orgTuples[0][1]];
+
     // if the previous tuple's end offset is greater than the current tuple's
     // start offset, the current tuple has already been grouped into an
     // annotation's children list so skip it in modifiedTuples so as not
@@ -107,12 +112,12 @@ const insertAnnotations = (h, index, parentStart, parentEnd, enclosingAnnotation
                 (b.end_paragraph == index ? b.end_offset : Number.MAX_VALUE) -
                 (a.end_paragraph == index ? a.end_offset : Number.MAX_VALUE))
         // Remove any annotations that have already been rendered upstream
-          .filter(a => enclosingAnnotationIds.indexOf(a.id) == -1)
+          .filter(a => !enclosingAnnotationIds.includes(a.id))
         // We only want the first annotation, for now, but keeping
         // it as an array conveniently allows reduce to
         // return the normal tuple as a default if no annotations exist
           .slice(0, 1)
-          .reduce(groupIntoAnnotation(h, index, parentEnd, orgTuples, enclosingAnnotationIds), tuple)]);
+          .reduce(groupIntoAnnotation(h, index, orgTuples, enclosingAnnotationIds), tuple)]);
   };
 
 // Vue component children arrays must contain either VNodes or
@@ -124,9 +129,10 @@ const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
     } else if(isElement(node)) {
       return h(node.tagName,
                {attrs: getAttrsMap(node)},
-               filterAndSplitNodeList(node.childNodes, index, start, end)
-               .reduce(insertAnnotations(h, index, start, end, enclosingAnnotationIds), [])
-               .map(tupleToVNode(h, index, enclosingAnnotationIds)));
+               annotateAndConvertToVNodes(h,
+                                          filterAndSplitNodeList(node.childNodes, index, start, end),
+                                          index,
+                                          enclosingAnnotationIds));
     } else {
       return node;
     }
@@ -135,15 +141,15 @@ const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
 // Return the offsets within this element where
 // annotations need to start or end
 const annotationBreakpoints = (index, start, end) =>
-  store.getters['annotations/getWithinIndexAndOffsets'](index, start, end)
-  .reduce(
-    (offsets, annotation) =>
-      offsets.concat(
-        ["start", "end"]
-          .filter(s => annotation[`${s}_paragraph`] == index)
-          .map(s => annotation[`${s}_offset`]))
-    , [])
-  .sort((a, b) => a - b); // sort lowest to highest
+      store.getters['annotations/getWithinIndexAndOffsets'](index, start, end)
+      .reduce((offsets, annotation) =>
+              offsets.concat(
+                ["start", "end"]
+                  .filter(s => annotation[`${s}_paragraph`] == index)
+                  .map(s => annotation[`${s}_offset`]))
+              , [])
+      .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
+      .sort((a, b) => a - b); // sort lowest to highest
 
 const filterAndSplitNodeList = (nodeList, index, start, end) => {
   const breakpoints = annotationBreakpoints(index, start, end);
