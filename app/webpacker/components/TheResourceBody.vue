@@ -6,15 +6,8 @@
   <TheGlobalElisionExpansionButton/>
   <div class="case-text">
     <template v-for="(el, index) in sections">
-      <div class="handle">
-        <div class="number">
-          {{parseInt(index)+1}}
-        </div>
-      </div>
       <ResourceSection :el="el"
-                       :index="parseInt(index)"
-                       :data-index="index"
-                       class="section"/>
+                       :index="parseInt(index)"/>
     </template>
   </div>
 </section>
@@ -110,56 +103,5 @@ export default {
       padding: 0;
     }
   }
-}
-.handle {
-  @include size(0px, 0px);
-
-  user-select: none;
-
-  float: left;
-  position: relative;
-
-  &[data-elided-annotation]:not(.revealed){
-    display: none;
-  }
-}
-.number {
-  @include sans-serif($regular, 12px, 12px);
-
-  position: absolute;
-  right: 45px;
-  line-height: 34px;
-
-  color: $light-blue;
-  text-align: right;
-  vertical-align: middle;
-}
-.section {
-  position: relative;
-}
-
-/*
- * This counteracts a normalize.css style
- * that messes up annotation handle positioning
- */
-/deep/ {
-  sub, sup {
-    position: static;
-    line-height: 100%;
-  }
-  sup {vertical-align: super; }
-  sub { vertical-align: sub; }
-}
-
-/*
- * These use /deep/ to influence HighlightAnnotation.
- * They must live here so that they can change in relation to
- * their parent element.
- */
-p /deep/ .highlight .selected-text {
-  padding: 0.4em 0;
-}
-h2 /deep/ .highlight .selected-text {
-  padding: 0.05em 0;
 }
 </style>

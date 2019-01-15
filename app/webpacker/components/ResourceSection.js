@@ -1,5 +1,6 @@
 import store from "../store/index.js.erb";
 
+import ResourceSectionWrapper from "./ResourceSectionWrapper";
 import ElisionAnnotation from "./ElisionAnnotation";
 import ReplacementAnnotation from "./ReplacementAnnotation";
 import HighlightAnnotation from "./HighlightAnnotation";
@@ -169,6 +170,7 @@ const filterAndSplitNodeList = (nodeList, index, start, end) => {
 
 export default {
   components: {
+    ResourceSectionWrapper,
     ElisionAnnotation,
     ReplacementAnnotation,
     HighlightAnnotation,
@@ -180,6 +182,9 @@ export default {
     index: {type: Number}
   },
   render(h) {
-    return tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)]);
+    return h("resource-section-wrapper",
+             {props: {index: this.index,
+                      length: getLength(this.el)}},
+             [tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)])]);
   }
 };
