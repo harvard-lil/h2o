@@ -11,7 +11,7 @@
           {{parseInt(index)+1}}
         </div>
       </div>
-      <ResourceElement :el="el"
+      <ResourceSection :el="el"
                        :index="parseInt(index)"
                        :data-index="index"
                        class="section"/>
@@ -24,13 +24,13 @@
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 
-import ResourceElement from "./ResourceElement.js";
+import ResourceSection from "./ResourceSection.js";
 import TheAnnotator from "./TheAnnotator";
 import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
 
 export default {
   components: {
-    ResourceElement,
+    ResourceSection,
     TheAnnotator,
     TheGlobalElisionExpansionButton
   },
