@@ -1,7 +1,7 @@
 <template>
 <span class="highlight">
   <template v-if="isHead">
-    <AnnotationHandle>
+    <AnnotationHandle :ui-state="uiState">
       <li>
         <a @click="destroy(annotation)">Remove highlight</a>
       </li>

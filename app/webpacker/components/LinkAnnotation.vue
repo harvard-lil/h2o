@@ -2,7 +2,7 @@
 <span class="link">
   <template v-if="isHead"
             data-exclude-from-offset-calcs="true">
-    <AnnotationHandle>
+    <AnnotationHandle :ui-state="uiState">
       <li>
         <a @click.prevent="$refs.editMenu.open">Edit link</a>
       </li>
