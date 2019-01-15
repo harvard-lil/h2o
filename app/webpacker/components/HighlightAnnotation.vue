@@ -27,7 +27,7 @@ export default {
 }
 
 /*
- * NOTE: TheResourceBody contains padding styles
+ * NOTE: ResourceSectionWrapper contains padding styles
  * for the highlight background.
  */
 </style>

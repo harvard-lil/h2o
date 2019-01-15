@@ -20,9 +20,9 @@ export function offsetsForRanges(ranges) {
 // Find the closest containing tag for the given element or text node
 export function closestP(node) {
   if (node.nodeType === document.TEXT_NODE) {
-    return node.parentElement.closest('.case-text > *');
+    return node.parentElement.closest('[data-index]');
   } else {
-    return node.closest('.case-text > *');
+    return node.closest('[data-index]');
   }
 }
 

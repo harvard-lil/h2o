@@ -22,6 +22,15 @@ const getters = {
              (obj.start_paragraph < index && obj.end_paragraph > index))
     ),
 
+  getSpanningOffsets: (state) => (index, start, end) =>
+    state.all.filter(
+      obj =>
+        (obj.start_paragraph < index ||
+         (obj.start_paragraph == index && obj.start_offset <= start)) &&
+        (obj.end_paragraph > index ||
+         (obj.end_paragraph == index && obj.end_offset >= end))
+    ),
+
   // Annotations whose start or end points fall WITHIN
   // (i.e. not on the edges) the start and end bounds.
   // Used for finding where to split Text nodes.
