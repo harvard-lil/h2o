@@ -26,7 +26,14 @@ export default {
         state = {id: this.annotation.id,
                  kind: this.annotation.kind,
                  expanded: this.expandedDefault};
-        this.$store.commit('annotations_ui/append', [state]);
+
+        // Only initialize the state if this is the beginning of the annotation
+        if(this.isHead){
+          this.$nextTick(() => {
+            state.headY = Math.round(this.$el.getBoundingClientRect().top + window.scrollY);
+            this.$store.commit('annotations_ui/append', [state])
+          });
+        }
       }
       return state;
     },

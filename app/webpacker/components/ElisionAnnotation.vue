@@ -2,7 +2,7 @@
 <span class="elision"
       v-if="isHead || uiState.expanded">
   <template v-if="isHead">
-    <AnnotationHandle>
+    <AnnotationHandle :ui-state="uiState">
       <li>
         <a @click="toggleExpansion(uiState)">
           <template v-if="uiState.expanded">Hide</template>

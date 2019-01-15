@@ -17,16 +17,15 @@ export default {
   components: {
     ContextMenu
   },
-  data: () => ({
-    offsetRight: -55
-  }),
-  mounted() {
-    // Push over annotation margin handles which land on the same line
-    // TODO - consider moving this over to a vuex store
-    const top = Math.round(this.$refs.button.getBoundingClientRect().top + window.scrollY);
-    window.handlePositions = window.handlePositions || {};
-    window.handlePositions[top] = (window.handlePositions[top] || 0) + 1;
-    this.offsetRight = -25 - (30 * window.handlePositions[top]);
+  props: {
+    uiState: {type: Object,
+              required: true}
+  },
+  computed: {
+    offsetRight() {
+      let onSameLine = this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY);
+      return -25 - (30 * (onSameLine.indexOf(this.uiState) + 1));
+    }
   }
 }
 </script>
