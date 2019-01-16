@@ -5,15 +5,14 @@ const state = {
 };
 
 const getters = {
-  getById: (state) => (id) =>
+  getById: state => id =>
     state.all.find(obj => obj.id === id),
 
-  getByKind: (state) => (kinds) =>
+  getByKind: state => kinds =>
     state.all.filter(obj => kinds.includes(obj.kind)),
 
-  getByHeadY: (state) => (headY) =>
+  getByHeadY: state => headY =>
     state.all.filter(obj => obj.headY == headY)
-
 };
 
 const mutations = {

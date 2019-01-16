@@ -10,19 +10,19 @@ const state = {
 };
 
 const getters = {
-  getById: (state) => (id) =>
+  getById: state => id =>
     state.all.find(
       obj => obj.id === id
     ),
 
-  getBySectionIndex: (state) => (index) =>
+  getBySectionIndex: state => index =>
     state.all.filter(
       obj => (obj.start_paragraph == index ||
              obj.end_paragraph == index ||
              (obj.start_paragraph < index && obj.end_paragraph > index))
     ),
 
-  getSpanningOffsets: (state) => (index, start, end) =>
+  getSpanningOffsets: state => (index, start, end) =>
     state.all.filter(
       obj =>
         (obj.start_paragraph < index ||
@@ -34,7 +34,7 @@ const getters = {
   // Annotations whose start or end points fall WITHIN
   // (i.e. not on the edges) the start and end bounds.
   // Used for finding where to split Text nodes.
-  getWithinIndexAndOffsets: (state) => (index, start, end) =>
+  getWithinIndexAndOffsets: state => (index, start, end) =>
     state.all.filter(
       obj =>
         (obj.start_paragraph == index &&
@@ -45,7 +45,7 @@ const getters = {
          obj.end_offset < end)
     ),
 
-  getAtIndexAndOffset: (state) => (index, offset) =>
+  getAtIndexAndOffset: state => (index, offset) =>
     state.all.filter(
       obj =>
         (obj.start_paragraph < index ||
