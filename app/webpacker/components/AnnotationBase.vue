@@ -29,7 +29,7 @@ export default {
                  expanded: this.expandedDefault};
 
         // Only initialize the state if this is the beginning of the annotation
-        if(this.isHead){
+        if(!this.isNew && this.isHead){
           this.$nextTick(() => {
             // round this to the nearest 5 pixels because browsers
             // sometimes report different fractional pixels for
@@ -41,6 +41,9 @@ export default {
         }
       }
       return state;
+    },
+    isNew() {
+      return !this.annotation.id;
     },
     isHead() {
       return this.startOffset == this.annotation.start_offset;

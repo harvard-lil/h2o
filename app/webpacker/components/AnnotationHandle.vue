@@ -23,7 +23,12 @@ export default {
   },
   computed: {
     offsetRight() {
-      let onSameLine = this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY).sort((a, b) => a.start_offset - b.start_offset);
+      let onSameLine =
+          this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY)
+          // remove annotations that haven't been saved yet
+          .filter(a => a.id)
+          // order by offset
+          .sort((a, b) => a.start_offset - b.start_offset);
       return -25 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState)) + 1));
     }
   }
