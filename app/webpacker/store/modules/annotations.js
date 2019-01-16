@@ -88,7 +88,18 @@ const actions = {
                rootGetters['annotations_ui/getById'](payload.id),
                {root: true});
       });
-  }
+  },
+  createAndUpdate({ commit }, payload) {
+    Axios
+      .post(helpers.resourcePath(payload.obj),
+            {annotation: {...payload.obj,
+                          ...payload.vals}})
+      .then(resp => {
+        commit('update', {obj: payload.obj,
+                          vals: {...payload.vals,
+                                 ...resp.data}});
+      });
+  },
 };
 
 const mutations = {

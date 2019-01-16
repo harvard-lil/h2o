@@ -3,30 +3,38 @@
       :class="{head: isHead, tail: isTail || (isHead && !uiState.expanded)}"
       v-if="isHead || uiState.expanded">
   <template v-if="isHead">
-    <AnnotationHandle :ui-state="uiState">
-      <li>
-        <a @click="toggleExpansion(uiState)">
-          <template v-if="uiState.expanded">Hide</template>
-          <template v-else>Reveal</template>
-          original text
-        </a>
-      </li>
-      <li>
-        <a @click="destroy(annotation)">Remove elision</a>
-      </li>
-    </AnnotationHandle>
-    <AnnotationExpansionToggle :ui-state="uiState"
-                               v-if="uiState.expanded"/>
+    <template v-if="annotation.id">
+      <AnnotationHandle :ui-state="uiState">
+        <li>
+          <a @click="toggleExpansion(uiState)">
+            <template v-if="uiState.expanded">Hide</template>
+            <template v-else>Reveal</template>
+            original text
+          </a>
+        </li>
+        <li>
+          <a @click="destroy(annotation)">Remove replacement</a>
+        </li>
+      </AnnotationHandle>
+      <AnnotationExpansionToggle :ui-state="uiState"
+                                 v-if="uiState.expanded"/>
+    </template>
     <span v-if="!uiState.expanded"
+          ref="replacementText"
           class="replacement-text"
           data-exclude-from-offset-calcs="true"
+          @blur="revert"
+          @keydown.enter.prevent="submit"
+          @keyup.esc="$event.target.blur"
           v-contenteditable:content="true"></span>
-    <div v-if="modified"
+    <!-- TODO: combine this html with the annotator context-menu html -->
+    <div v-if="isModified"
          id="edit-replacement-menu"
          class="context-menu">
       <ul class="menu-items">
-        <li><a @click="submitUpdate">Save</a></li>
-        <li><a @click="revert">Cancel</a></li>
+        <!-- Use mousedown to prevent replacementText from blurring too soon -->
+        <li><a @mousedown.prevent="submit">Save</a></li>
+        <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
       </ul>
     </div>
   </template>
@@ -49,31 +57,51 @@ export default {
     AnnotationExpansionToggle
   },
   data: () => ({
-    newVals: {content: null}
+    newVals: {content: ""}
   }),
   computed: {
     content: {
       get() {
-        return this.newVals.content === null
-          ? this.annotation.content
-          : this.newVals.content;
+        return this.newVals.content || this.annotation.content
       },
       set(value) {
         this.newVals.content = value;
       }
     },
-    modified() {
-      return this.content != this.annotation.content;
+    isModified() {
+      // if it's a new annotation or the content has been changed
+      return this.isNew || this.content != this.annotation.content;
     }
   },
   methods: {
     ...mapMutations(['toggleExpansion']),
-    ...mapActions(["update"]),
-    revert() {
-      return this.newVals.content = this.annotation.content;
+    ...mapActions(["createAndUpdate", "update"]),
+    submit() {
+      if(this.isModified){
+        this[this.isNew ? "createAndUpdate" : "update"](
+          {obj: this.annotation, vals: this.newVals}
+        );
+      } else {
+        this.$refs.replacementText.blur();
+      }
     },
-    submitUpdate() {
-      this.update({obj: this.annotation, vals: this.newVals});
+    revert() {
+      if(this.isNew) {
+        this.$store.commit('annotations/destroy', this.annotation);
+        this.$store.commit('annotations_ui/destroy', this.uiState);
+      } else if(this.isModified) {
+        this.newVals.content = this.annotation.content;
+      }
+    }
+  },
+  mounted() {
+    if(this.isNew) {
+      this.$refs.replacementText.focus();
+    }
+  },
+  updated() {
+    if(!this.isModified) {
+      this.$refs.replacementText.blur();
     }
   }
 }
