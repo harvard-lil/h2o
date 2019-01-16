@@ -7,7 +7,7 @@
     <ul class="menu-items">
       <li><a @click="submit('highlight')">Highlight</a></li>
       <li><a @click="submit('elide')">Elide</a></li>
-      <li><a @click="submit('replace')">Replace</a></li>
+      <li><a @click="insertReplacementPlaceholder">Replace</a></li>
       <li><a @click="input($event, 'link')">Add link</a></li>
       <li><a @click="input($event, 'note')">Add note</a></li>
     </ul>
@@ -101,6 +101,16 @@ export default {
       document.getSelection().empty();
       this.$refs.linkMenu.close();
       this.$refs.noteMenu.close();
+    },
+
+    insertReplacementPlaceholder() {
+      this.$store.commit('annotations/append', [{
+        id: null,
+        content: "",
+        kind: "replace",
+        resource_id: this.resourceId,
+        ...this.offsets
+      }]);
     },
 
     input(e, kind) {
