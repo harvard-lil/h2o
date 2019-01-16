@@ -25,12 +25,17 @@ export default {
       if(!state) {
         state = {id: this.annotation.id,
                  kind: this.annotation.kind,
+                 start_offset: this.annotation.start_offset,
                  expanded: this.expandedDefault};
 
         // Only initialize the state if this is the beginning of the annotation
         if(this.isHead){
           this.$nextTick(() => {
-            state.headY = Math.round(this.$el.getBoundingClientRect().top + window.scrollY);
+            // round this to the nearest 5 pixels because browsers
+            // sometimes report different fractional pixels for
+            // elements on the same line. We've picked "5" out of an
+            // abundance of caution.
+            state.headY = Math.round((this.$el.getBoundingClientRect().top + window.scrollY) / 5) * 5;
             this.$store.commit('annotations_ui/append', [state])
           });
         }

@@ -79,11 +79,14 @@ const actions = {
         commit('update', payload);
       });
   },
-  destroy({ commit }, payload) {
+  destroy({ commit, rootGetters }, payload) {
     Axios
       .delete(helpers.path(payload))
       .then(resp => {
         commit('destroy', payload);
+        commit('annotations_ui/destroy',
+               rootGetters['annotations_ui/getById'](payload.id),
+               {root: true});
       });
   }
 };
