@@ -4,6 +4,7 @@ class Content::Annotation < ApplicationRecord
   has_one :unpublished_revision
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
+  validates :content, presence: true, if: Proc.new { |a| a.kind == "replace" }
 
   def copy_of
     resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind)
