@@ -20,6 +20,9 @@ const mutations = {
   append(state, payload) {
     state.all.push(...payload);
   },
+  destroy(state, payload) {
+    state.all.splice(state.all.indexOf(payload), 1);
+  },
   toggleExpansion(state, payload) {
     Vue.set(payload, 'expanded', !payload.expanded);
   },

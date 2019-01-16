@@ -23,8 +23,8 @@ export default {
   },
   computed: {
     offsetRight() {
-      let onSameLine = this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY);
-      return -25 - (30 * (onSameLine.indexOf(this.uiState) + 1));
+      let onSameLine = this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY).sort((a, b) => a.start_offset - b.start_offset);
+      return -25 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState)) + 1));
     }
   }
 }
