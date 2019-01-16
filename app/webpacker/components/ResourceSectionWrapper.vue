@@ -67,10 +67,18 @@ export default {
  * They must live here so that they can change in relation to
  * their parent element.
  */
-p /deep/ .highlight .selected-text {
-  padding: 0.4em 0;
+p /deep/ {
+  .highlight .selected-text,
+  .replacement .selected-text,
+  .replacement .replacement-text {
+    padding: 0.4em 0;
+  }
 }
-h2 /deep/ .highlight .selected-text {
-  padding: 0.05em 0;
+h2 /deep/ {
+  .highlight .selected-text,
+  .replacement .selected-text,
+  .replacement .replacement-text {
+    padding: 0.05em 0;
+  }
 }
 </style>
