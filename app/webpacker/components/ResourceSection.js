@@ -21,8 +21,11 @@ const isElement = (node) =>
 const isText = (node) =>
   node.nodeType == 3;
 
+const isBR = (node) =>
+  node.tagName == "BR";
+
 const getLength = (node) =>
-  (isElement(node) ? node.innerText : node.textContent).length;
+  (isElement(node) && !isBR(node) ? node.innerText : node.textContent).length;
 
 const getAttrsMap = (el) => {
   let nodelist = el.attributes;
