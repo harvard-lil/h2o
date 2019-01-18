@@ -1,6 +1,5 @@
 <template>
-<span class="elision"
-      v-if="isHead || uiState.expanded">
+<span class="elision">
   <template v-if="isHead">
     <AnnotationHandle :ui-state="uiState">
       <li>
