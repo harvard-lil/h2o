@@ -35,6 +35,7 @@
     "vue": "^2.5.17",
     "vue-contenteditable-directive": "^1.2.0",
     "vue-loader": "14.2.2",
+    "vue-scrollto": "^2.13.0",
     "vue-template-compiler": "^2.5.17",
     "vuex": "^3.0.1"
   },

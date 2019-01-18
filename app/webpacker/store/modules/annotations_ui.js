@@ -1,5 +1,7 @@
 import Vue from 'vue/dist/vue.esm';
 
+const COLLAPSIBLE_KINDS = ["elide", "replace"];
+
 const state = {
   all: []
 };
@@ -26,9 +28,15 @@ const mutations = {
     Vue.set(payload, 'expanded', !payload.expanded);
   },
   toggleAllExpansions(state, payload) {
-    getters.getByKind(state)(["elide", "replace"]).forEach(annotation => {
+    getters.getByKind(state)(COLLAPSIBLE_KINDS).forEach(annotation => {
       Vue.set(annotation, 'expanded', payload);
     });
+  },
+  expandById(state, payload) {
+    payload
+      .map(id => getters.getById(state)(id))
+      .filter(obj => COLLAPSIBLE_KINDS.includes(obj.kind))
+      .forEach(obj => Vue.set(obj, 'expanded', true));
   }
 };
 

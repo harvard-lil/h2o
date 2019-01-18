@@ -6,6 +6,7 @@ import ReplacementAnnotation from "./ReplacementAnnotation";
 import HighlightAnnotation from "./HighlightAnnotation";
 import LinkAnnotation from "./LinkAnnotation";
 import NoteAnnotation from "./NoteAnnotation";
+import FootnoteLink from "./FootnoteLink";
 
 /////////////
 // Helpers //
@@ -23,6 +24,12 @@ const isText = (node) =>
 
 const isBR = (node) =>
   node.tagName == "BR";
+
+const isFootnoteLink = (node) =>
+  node.hash && node.origin == location.origin && node.pathname == location.pathname;
+
+const getTagName = (node) =>
+  isFootnoteLink(node) ? "footnote-link" : node.tagName;
 
 const getLength = (node) =>
   (isElement(node) && !isBR(node) ? node.innerText : node.textContent).length;
@@ -131,12 +138,15 @@ const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
     if(isText(node)) {
       return node.textContent;
     } else if(isElement(node)) {
-      return h(node.tagName,
-               {attrs: getAttrsMap(node)},
-               annotateAndConvertToVNodes(h,
-                                          filterAndSplitNodeList(node.childNodes, index, start, end),
-                                          index,
-                                          enclosingAnnotationIds));
+      let tag = getTagName(node),
+          data = {attrs: getAttrsMap(node)},
+          children = annotateAndConvertToVNodes(h, filterAndSplitNodeList(node.childNodes, index, start, end), index, enclosingAnnotationIds);
+      switch(tag) {
+      case "footnote-link":
+        data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
+        break;
+      }
+      return h(tag, data, children);
     } else {
       return node;
     }
@@ -178,7 +188,8 @@ export default {
     ReplacementAnnotation,
     HighlightAnnotation,
     LinkAnnotation,
-    NoteAnnotation
+    NoteAnnotation,
+    FootnoteLink
   },
   props: {
     el: {type: HTMLElement},
