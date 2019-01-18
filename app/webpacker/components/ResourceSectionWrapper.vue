@@ -35,9 +35,6 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.section {
-  position: relative;
-}
 .handle {
   @include size(0px, 0px);
 

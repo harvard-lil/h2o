@@ -1,17 +1,13 @@
 <template>
 <div id="the-annotator">
-  <div v-if="ranges"
-       id="create-annotation-menu"
-       class="context-menu"
-       :style="{top: offset}">
-    <ul class="menu-items">
-      <li><a @click="submit('highlight')">Highlight</a></li>
-      <li><a @click="submit('elide')">Elide</a></li>
-      <li><a @click="insertReplacementPlaceholder">Replace</a></li>
-      <li><a @click="input($event, 'link')">Add link</a></li>
-      <li><a @click="input($event, 'note')">Add note</a></li>
-    </ul>
-  </div>
+  <SideMenu v-if="ranges"
+            :style="{top: offset}">
+    <li><a @click="submit('highlight')">Highlight</a></li>
+    <li><a @click="submit('elide')">Elide</a></li>
+    <li><a @click="insertReplacementPlaceholder">Replace</a></li>
+    <li><a @click="input($event, 'link')">Add link</a></li>
+    <li><a @click="input($event, 'note')">Add note</a></li>
+  </SideMenu>
 
   <ContextMenu ref="linkMenu"
                :closeOnClick="false">
@@ -42,11 +38,13 @@ import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 import {offsetsForRanges} from "lib/ui/content/annotations/placement";
 
+import SideMenu from "./SideMenu";
 import ContextMenu from "./ContextMenu";
 import LinkInput from "./LinkInput";
 
 export default {
   components: {
+    SideMenu,
     ContextMenu,
     LinkInput
   },
@@ -131,15 +129,6 @@ export default {
 #the-annotator {
   user-select: none;
 }
-#create-annotation-menu {
-  position: absolute;
-  right: 0;
-  .menu-items {
-    position: absolute;
-    left: 20px;
-  }
-}
-
 .form {
   display: flex;
   flex-direction: column;

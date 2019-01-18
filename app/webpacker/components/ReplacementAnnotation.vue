@@ -27,16 +27,11 @@
           @keydown.enter.prevent="submit"
           @keyup.esc="$event.target.blur"
           v-contenteditable:content="true"></span>
-    <!-- TODO: combine this html with the annotator context-menu html -->
-    <div v-if="isModified"
-         id="edit-replacement-menu"
-         class="context-menu">
-      <ul class="menu-items">
-        <!-- Use mousedown to prevent replacementText from blurring too soon -->
-        <li><a @mousedown.prevent="submit">Save</a></li>
-        <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
-      </ul>
-    </div>
+    <SideMenu v-if="isModified">
+      <!-- Use mousedown to prevent replacementText from blurring too soon -->
+      <li><a @mousedown.prevent="submit">Save</a></li>
+      <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
+    </SideMenu>
   </template>
   <!-- Use v-show rather than v-if here so that 
        the text is included in offset calculations -->
@@ -45,15 +40,18 @@
 </template>
 
 <script>
-import AnnotationBase from './AnnotationBase';
-import AnnotationExpansionToggle from './AnnotationExpansionToggle';
-import { createNamespacedHelpers } from 'vuex';
+import AnnotationBase from "./AnnotationBase";
+import AnnotationExpansionToggle from "./AnnotationExpansionToggle";
+import SideMenu from "./SideMenu";
+
+import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-const { mapMutations } = createNamespacedHelpers('annotations_ui');
+const { mapMutations } = createNamespacedHelpers("annotations_ui");
 
 export default {
   extends: AnnotationBase,
   components: {
+    SideMenu,
     AnnotationExpansionToggle
   },
   data: () => ({
@@ -138,13 +136,5 @@ export default {
 .active .replacement-text:empty::before {
   content: ' ';
   /* pointer-events: none; */
-}
-#edit-replacement-menu {
-  position: absolute;
-  right: 0;
-  .menu-items {
-    position: absolute;
-    left: 20px;
-  }
 }
 </style>
