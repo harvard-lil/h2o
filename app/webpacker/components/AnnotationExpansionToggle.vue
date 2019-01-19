@@ -28,7 +28,7 @@ export default {
   display: inline-block;
   cursor: zoom-in;
   border: none;
-  background-color: $light-gray;
+  background-color: $translucent-light-gray;
   color: $light-blue;
   padding: 0 0.5em;
   &::before {
