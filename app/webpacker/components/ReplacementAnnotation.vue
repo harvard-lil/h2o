@@ -26,7 +26,7 @@
           @blur="revert"
           @keydown.enter.prevent="submit"
           @keyup.esc="$event.target.blur"
-          v-contenteditable:content="true"></span>
+          v-contenteditable:content="editable"></span>
     <SideMenu v-if="isModified">
       <!-- Use mousedown to prevent replacementText from blurring too soon -->
       <li><a @mousedown.prevent="submit">Save</a></li>
@@ -66,13 +66,16 @@ export default {
         this.newVals.content = value;
       }
     },
+    editable() {
+      return this.$store.getters["resources_ui/getEditability"]
+    },
     isModified() {
       // if it's a new annotation or the content has been changed
       return this.isNew || this.content != this.annotation.content;
     }
   },
   methods: {
-    ...mapMutations(['toggleExpansion']),
+    ...mapMutations(["toggleExpansion"]),
     ...mapActions(["createAndUpdate", "update"]),
     submit() {
       if(this.isModified){
@@ -126,15 +129,12 @@ export default {
 }  
 .replacement-text {
   color: $light-blue;
-  /* pointer-events: none; */
 }
 .replacement-text:empty::before {
   content: 'Enter replacement text';
   color: $dark-gray;
-  /* pointer-events: none; */
 }
 .active .replacement-text:empty::before {
   content: ' ';
-  /* pointer-events: none; */
 }
 </style>

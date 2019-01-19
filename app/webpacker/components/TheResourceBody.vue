@@ -50,10 +50,11 @@ export default {
     // set directly on the directive because $refs doesn't exist at
     // the point it's added
     selectionchangeHandler(e, sel) {
-      return this.$refs.annotator.selectionchange(e, sel);
+      this.$refs.annotator && this.$refs.annotator.selectionchange(e, sel);
     }
   },
   created() {
+    this.$store.commit("resources_ui/setEditability", this.editable);
     this.list({resource_id: document.querySelector("header.casebook").dataset.resourceId});
   }
 }
