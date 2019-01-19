@@ -68,7 +68,7 @@ p /deep/ {
   .highlight .selected-text,
   .replacement .selected-text,
   .replacement .replacement-text {
-    padding: 0.4em 0;
+    padding: 0.35em 0;
   }
 }
 h2 /deep/ {
