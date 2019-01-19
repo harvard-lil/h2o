@@ -52,7 +52,7 @@ export default {
 .note-content-wrapper {
   @include square(0);
   position: absolute;
-  right: -40px;
+  right: 0;
   overflow: visible;
   display: block;
   margin: 33px 10px 0 0;
