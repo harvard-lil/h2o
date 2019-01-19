@@ -37,7 +37,18 @@ export default {
   computed: {
     sections() {
       const parser = new DOMParser();
-      return parser.parseFromString(this.resource.content, "text/html").body.children;
+      let children = parser.parseFromString(this.resource.content, "text/html").body.children;
+
+      // Some resources are pure text without a wrapping HTML doc.
+      // In this case, body.children will return an empty array.
+      // Wrap that text in a div so that ResourceSection can expect HTMLElements
+      if(children.length == 0) {
+        let div = document.createElement("div");
+        div.appendChild(document.createTextNode(this.resource.content));
+        children = [div];
+      }
+
+      return children;
     }
   },
   methods: {
