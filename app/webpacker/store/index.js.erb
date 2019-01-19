@@ -8,7 +8,7 @@ import createLogger from "vuex/dist/logger";
 
 Vue.use(Vuex);
 
-const debug = <%= !Rails.env.production? %>;
+const debug = <%= Rails.env.development? %>;
 
 export default new Vuex.Store({
   modules: {annotations,
