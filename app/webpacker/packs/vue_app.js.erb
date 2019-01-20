@@ -1,5 +1,6 @@
 import "polyfills";
 import Vue from "vue/dist/vue.esm";
+Vue.config.productionTip = <%= Rails.env.development? %>;
 
 import store from "../store/index.js.erb";
 import "../config/axios";
