@@ -11,7 +11,7 @@ module H2o::Test::Helpers::Drivers
         window_size: [1280, 800],
         js_errors: false,
         url_whitelist: %w(://127.0.0.1:* ://localhost:*),
-        extensions: %w(polyfills.js rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js drag-mock.min.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
+        extensions: %w(polyfills.js html-domparser.js rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js drag-mock.min.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
     end
     Capybara.default_max_wait_time = 10.seconds
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
