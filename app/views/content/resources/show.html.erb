@@ -56,4 +56,4 @@
   <section class="no-headnote"></section>
 <% end %>
 <the-resource-body :resource="<%= @resource.resource.to_json %>"
-                   :editable="<%= @editable %>"></the-resource-body>
+                   :editable="<%= @editable || false %>"></the-resource-body>
