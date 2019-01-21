@@ -2,6 +2,7 @@
 <span data-exclude-from-offset-calcs="true">
   <button ref="button"
           aria-label="Edit annotation"
+          class="annotation-button"
           :style="{right: offsetRight + 'px'}"
           @click.prevent="$refs.menu.open">✎</button>
   <ContextMenu ref="menu">
@@ -40,7 +41,7 @@ export default {
 
 $size: 28px;
 
-button {
+.annotation-button {
   @include square($size);
   position: absolute;
   right: 0;
