@@ -39,7 +39,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       assert_content "Updated Haystack Case (#{search_label})"
     end
 
-    scenario 'reading a case' do
+    scenario 'reading a case', js: true do
       public_case = cases :public_case_1
       visit case_path(public_case)
 
