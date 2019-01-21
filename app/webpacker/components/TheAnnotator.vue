@@ -35,12 +35,15 @@
   <ContextMenu ref="noteMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('note', content)"
-          class="form">
+          class="form"
+          id="note-form">
       <textarea ref="noteInput"
+                id="note-textarea"
                 placeholder="Note text..."
                 v-model="content"></textarea>
       <input type="submit"
              value="Save"
+             id="save-note"
              class="button">
     </form>
   </ContextMenu>
