@@ -31,4 +31,12 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   def after_all
     ActionController::Base.allow_forgery_protection = @forgery_default
   end
+
+  def assert_api(action, db_type)
+    count = action == :creates ? 1 : -1
+    assert_difference "#{db_type}.count", count  do
+      yield
+      sleep 1
+    end
+  end
 end

@@ -1,5 +1,5 @@
 <template>
-<input id="link-form"
+<input id="link-input"
        placeholder="Url to link to..."
        :value="value"
        @input="$emit('input', $event.target.value)"/>

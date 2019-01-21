@@ -2,11 +2,25 @@
 <div id="the-annotator">
   <SideMenu v-if="ranges"
             :style="{top: offset}">
-    <li><a @click="submit('highlight')">Highlight</a></li>
-    <li><a @click="submit('elide')">Elide</a></li>
-    <li><a @click="insertReplacementPlaceholder">Replace</a></li>
-    <li><a @click="input($event, 'link')">Add link</a></li>
-    <li><a @click="input($event, 'note')">Add note</a></li>
+    <li>
+      <a id="create-highlight"
+         @click="submit('highlight')">Highlight</a>
+    </li>
+    <li>
+      <a id="create-elision"
+         @click="submit('elide')">Elide</a>
+    </li>
+    <li>
+      <a id="create-replacement"
+         @click="insertReplacementPlaceholder">Replace</a></li>
+    <li>
+      <a id="create-link"
+         @click="input($event, 'link')">Add link</a>
+    </li>
+    <li>
+      <a id="create-note"
+         @click="input($event, 'note')">Add note</a>
+    </li>
   </SideMenu>
 
   <ContextMenu ref="linkMenu"
