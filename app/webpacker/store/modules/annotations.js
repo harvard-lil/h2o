@@ -56,30 +56,31 @@ const getters = {
 };
 
 const actions = {
-  list({ commit }, payload) {
+
+  list: ({ commit }, payload) =>
     Axios
       .get(helpers.resourcePath(payload))
       .then(resp => {
         commit('append', resp.data);
-      });
-  },
-  create({ commit }, payload) {
+      }),
+
+  create: ({ commit }, payload) =>
     Axios
       .post(helpers.resourcePath(payload),
             {annotation: payload})
       .then(resp => {
         commit('append', [{...payload, ...resp.data}]);
-      });
-  },
-  update({ commit }, payload) {
+      }),
+
+  update: ({ commit }, payload) =>
     Axios
       .patch(helpers.path(payload.obj),
              {annotation: payload.vals})
       .then(resp => {
         commit('update', payload);
-      });
-  },
-  destroy({ commit, rootGetters }, payload) {
+      }),
+
+  destroy: ({ commit, rootGetters }, payload) =>
     Axios
       .delete(helpers.path(payload))
       .then(resp => {
@@ -87,9 +88,9 @@ const actions = {
         commit('annotations_ui/destroy',
                rootGetters['annotations_ui/getById'](payload.id),
                {root: true});
-      });
-  },
-  createAndUpdate({ commit }, payload) {
+      }),
+
+  createAndUpdate: ({ commit }, payload) =>
     Axios
       .post(helpers.resourcePath(payload.obj),
             {annotation: {...payload.obj,
@@ -98,20 +99,19 @@ const actions = {
         commit('update', {obj: payload.obj,
                           vals: {...payload.vals,
                                  ...resp.data}});
-      });
-  },
+      })
 };
 
 const mutations = {
-  append(state, payload) {
-    state.all.push(...payload);
-  },
-  update(state, payload) {
-    Object.assign(payload.obj, payload.vals);
-  },
-  destroy(state, payload) {
-    state.all.splice(state.all.indexOf(payload), 1);
-  }
+  append: (state, payload) =>
+    state.all.push(...payload),
+
+  update: (state, payload) =>
+    Object.assign(payload.obj, payload.vals),
+
+  destroy: (state, payload) =>
+    state.all.splice(state.all.indexOf(payload), 1)
+
 };
 
 export default {

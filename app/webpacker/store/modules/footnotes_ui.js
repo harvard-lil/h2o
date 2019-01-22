@@ -10,7 +10,7 @@ const getters = {
 };
 
 const mutations = {
-  register(state, payload) {
+  register: (state, payload) => {
     let footnoteState = state.all[state.id];
     if(footnoteState) {
       footnoteState.push(...payload.annotationIds.filter(id => !footnoteState.includes(id)));
