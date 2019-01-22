@@ -16,6 +16,7 @@
     "classlist-polyfill": "^1.2.0",
     "debounce": "^1.0.2",
     "delegate": "^3.1.2",
+    "drag-mock": "^1.4.0",
     "element-closest": "^2.0.2",
     "es6-string-html-template": "^1.0.2",
     "es6-symbol": "^3.1.1",

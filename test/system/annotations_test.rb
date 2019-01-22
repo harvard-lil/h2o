@@ -48,7 +48,7 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       end
 
       assert_no_content text
-      assert_content 'elided: ✎;'
+      assert_content "elided:\n✎\n;"
     end
 
     scenario 'replacement', js: true do

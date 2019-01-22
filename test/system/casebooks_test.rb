@@ -26,11 +26,9 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
 
     scenario "creating a casebook", solr: true, js: true do
-      page.driver.browser.js_errors = false
-
       visit root_path
 
-      find(".create-casebook").trigger "click"
+      find(".create-casebook").click
       click_link "Make a New Casebook"
 
       fill_in "content_casebook_title", with: "Test casebook title"
