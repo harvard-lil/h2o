@@ -47,6 +47,16 @@
              class="button">
     </form>
   </ContextMenu>
+
+  <Modal v-if="showModal"
+            @close="showModal = false">
+    <template slot="title">Error</template>
+    <template slot="body">
+      <p>An error occurred while trying to save your annotation. Please try again.</p>
+      <button class="modal-button"
+              @click="showModal = false">Dismiss</button>
+    </template>
+  </Modal>
 </div>
 </template>
 
@@ -56,18 +66,21 @@ const { mapActions } = createNamespacedHelpers("annotations");
 import {offsetsForRanges} from "lib/ui/content/annotations/placement";
 
 import SideMenu from "./SideMenu";
+import Modal from "./Modal";
 import ContextMenu from "./ContextMenu";
 import LinkInput from "./LinkInput";
 
 export default {
   components: {
     SideMenu,
+    Modal,
     ContextMenu,
     LinkInput
   },
   data: () => ({
     ranges: null,
-    content: ""
+    content: "",
+    showModal: false
   }),
   watch: {
     ranges() {
@@ -111,7 +124,10 @@ export default {
         content: content,
         resource_id: this.resourceId,
         ...this.offsets
+      }).catch(e => {
+        this.showModal = true;
       });
+
       // clear the selection, thereby hiding the menu
       document.getSelection().empty();
       this.$refs.linkMenu.close();
@@ -135,7 +151,7 @@ export default {
           (this.$refs[`${kind}Input`].$el ||
            this.$refs[`${kind}Input`]).focus()
       );
-    }
+    },
   }
 }
 </script>

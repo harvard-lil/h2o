@@ -76,7 +76,6 @@ export default {
 
 .resource {
   position: relative;
-  @include serif-text($regular, 18px, 31px);
   margin-bottom: 24px;
   padding: 40px;
   background-color: $white;
@@ -105,6 +104,7 @@ export default {
   }
 }
 .case-text {
+  @include serif-text($regular, 18px, 31px);
   /* hacks for misbehaving blockquotes */
   blockquote {
     span p {
