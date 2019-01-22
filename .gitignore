@@ -39,3 +39,4 @@ guard-sunspot/
 yarn-debug.log*
 .yarn-integrity
 package-lock.json
+/yarn-error.log
