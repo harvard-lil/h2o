@@ -87,7 +87,8 @@ ImageMagick and a global installation of the "Garamond" font are required. On Ma
 ### Javascript
 
 Test scenarios marked with `js: true` will be run in a headless WebKit
-environment via Poltergeist. This requires the chromedriver binary to be installed, e.g. `brew install chromedriver`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
+environment via Poltergeist. This requires the chromedriver binary to
+be installed, e.g. `brew cask install chromedriver`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
 
 Guard will not automatically run these tests. This is less than ideal when working on a client-side feature, so you can mark a given test with `focus: true` to force Guard to run it. If no JS tests are enabled, chromedriver will not boot, speeding up the whole test suite considerably.
 
