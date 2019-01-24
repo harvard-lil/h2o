@@ -8,7 +8,7 @@ class Content::AnnotationsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.json { render json: @resource.annotations}
+      format.json { render json: @resource.annotations }
     end
   end
 
