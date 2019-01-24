@@ -77,7 +77,9 @@ const actions = {
       .patch(helpers.path(payload.obj),
              {annotation: payload.vals})
       .then(resp => {
-        commit('update', payload);
+        commit('update', {obj: payload.obj,
+                          vals: {...payload.vals,
+                                 ...resp.data}});
       }),
 
   destroy: ({ commit, rootGetters }, payload) =>

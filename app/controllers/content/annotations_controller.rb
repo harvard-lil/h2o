@@ -15,13 +15,9 @@ class Content::AnnotationsController < ApplicationController
   def create
     params = annotation_params
 
-    if params[:kind] == 'link'
-      params[:content] = UrlDomainFormatter.format(params[:content])
-    end
-
     annotation = Content::Annotation.create! params.merge(resource: @resource)
     respond_to do |format|
-      format.json { render json: {id: annotation.id}}
+      format.json { render json: annotation.to_api_response }
       format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
     end
   end
@@ -48,7 +44,7 @@ class Content::AnnotationsController < ApplicationController
     @annotation.update_attributes annotation_params
     respond_to do |format|
       format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
-      format.json { head :no_content }
+      format.json { render json: @annotation.to_api_response }
     end
   end
 
