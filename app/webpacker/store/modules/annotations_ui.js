@@ -14,7 +14,11 @@ const getters = {
     state.all.filter(obj => kinds.includes(obj.kind)),
 
   getByHeadY: state => headY =>
-    state.all.filter(obj => obj.headY == headY)
+    // round this to the nearest 5 pixels because browsers
+    // sometimes report different fractional pixels for
+    // elements on the same line. We've picked "5" out of an
+    // abundance of caution.
+    state.all.filter(obj => Math.max(5, Math.abs(obj.headY - headY)) == 5)
 };
 
 const mutations = {
