@@ -35,7 +35,7 @@ export default {
             // sometimes report different fractional pixels for
             // elements on the same line. We've picked "5" out of an
             // abundance of caution.
-            state.headY = Math.round((this.$el.getBoundingClientRect().top + window.scrollY) / 5) * 5;
+            state.headY = this.$el.getBoundingClientRect().top + window.scrollY;
             this.$store.commit('annotations_ui/append', [state])
           });
         }
