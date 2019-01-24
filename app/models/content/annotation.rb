@@ -13,4 +13,14 @@ class Content::Annotation < ApplicationRecord
   def exists_in_published_casebook?
     resource.casebook.draft_mode_of_published_casebook && copy_of.present?
   end
+
+  def to_api_response
+    {id: id,
+     content: content}
+  end
+
+  def content=(value)
+    value = UrlDomainFormatter.format(value) if kind == 'link'
+    super(value)
+  end
 end
