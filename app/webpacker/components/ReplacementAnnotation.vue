@@ -55,6 +55,7 @@ export default {
     AnnotationExpansionToggle
   },
   data: () => ({
+    expandedDefault: false,
     newVals: {content: ""}
   }),
   computed: {

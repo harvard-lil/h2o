@@ -32,6 +32,9 @@ export default {
   components: {
     AnnotationExpansionToggle
   },
+  data: () => ({
+    expandedDefault: false
+  }),
   methods: {
     ...mapMutations(['toggleExpansion'])
   }

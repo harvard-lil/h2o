@@ -16,7 +16,7 @@ export default {
     endOffset: {type: Number}
   },
   data: () => ({
-    expandedDefault: false
+    expandedDefault: true
   }),
   computed: {
     uiState() {

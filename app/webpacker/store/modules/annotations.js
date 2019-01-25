@@ -25,7 +25,7 @@ const getters = {
   // Annotations that entirely span (or exceed) the provided offsets.
   // Used for determining if an annotation that spans an entire
   // section / paragraph has been collapsed, thereby requiring that
-  // we hid that section's number in the lefthand column
+  // we hide that section's number in the lefthand column
   getSpanningOffsets: state => (index, start, end) =>
     state.all.filter(
       obj =>
