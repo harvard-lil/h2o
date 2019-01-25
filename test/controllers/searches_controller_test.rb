@@ -19,7 +19,7 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
       query = {"cite" => cite,
                "limit" => SearchesController::PER_PAGE,
                "offset" => 0}
-      capapi_url = "https://capapi.org/api/v1/cases/"
+      capapi_url = "https://api.case.law/v1/cases/"
 
       raw_response_file = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-cite-275-us-303.txt")
       stub_request(:get, capapi_url)
@@ -36,7 +36,7 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
                "limit" => SearchesController::PER_PAGE,
                "offset" => 0}
       get "/search", params: {type: "cases", q: q, partial: true}
-      assert_not_requested :get, "https://capapi.org/api/v1/cases/", query: query
+      assert_not_requested :get, "https://api.case.law/v1/cases/", query: query
     end
 
     it "should not query capapi for cases when searching outside of the add resources modal" do
@@ -45,7 +45,7 @@ class SearchesControllerTest < ActionDispatch::IntegrationTest
                "limit" => SearchesController::PER_PAGE,
                "offset" => 0}
       get "/search", params: {type: "cases", q: cite}
-      assert_not_requested :get, "https://capapi.org/api/v1/cases/", query: query
+      assert_not_requested :get, "https://api.case.law/v1/cases/", query: query
     end
   end
 end

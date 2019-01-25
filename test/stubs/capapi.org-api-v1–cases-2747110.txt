@@ -15,7 +15,7 @@ cf-ray: 448db4cb491591c4-EWR
 
 {
     "id": 2747110,
-    "url": "https://capapi.org/api/v1/cases/2747110/",
+    "url": "https://api.case.law/v1/cases/2747110/",
     "name": "The People of the State of Illinois, Plaintiff-Appellee, v. Danny Tobin, Defendant-Appellant",
     "name_abbreviation": "People v. Tobin",
     "decision_date": "1771-10-12",
@@ -29,22 +29,22 @@ cf-ray: 448db4cb491591c4-EWR
         }
     ],
     "volume": {
-        "url": "https://capapi.org/api/v1/volumes/32044078693009/",
+        "url": "https://api.case.law/v1/volumes/32044078693009/",
         "volume_number": "2"
     },
     "reporter": {
-        "url": "https://capapi.org/api/v1/reporters/322/",
+        "url": "https://api.case.law/v1/reporters/322/",
         "full_name": "Illinois Appellate Court Reports, Third Series"
     },
     "court": {
-        "url": "https://capapi.org/api/v1/courts/ill-app-ct/",
+        "url": "https://api.case.law/v1/courts/ill-app-ct/",
         "id": 8837,
         "slug": "ill-app-ct",
         "name": "Illinois Appellate Court",
         "name_abbreviation": "Ill. App. Ct."
     },
     "jurisdiction": {
-        "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+        "url": "https://api.case.law/v1/jurisdictions/ill/",
         "id": 29,
         "slug": "ill",
         "name": "Ill.",

@@ -19,12 +19,12 @@ class SearchesSystemTest < ApplicationSystemTestCase
              "limit" => SearchesController::PER_PAGE}
 
     resp = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases.txt")
-    stub_request(:get, "https://capapi.org/api/v1/cases/")
+    stub_request(:get, "https://api.case.law/v1/cases/")
       .with(query: query.merge(offset: 0))
       .to_return(resp)
 
     resp = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-offset-10.txt")
-    stub_request(:get, "https://capapi.org/api/v1/cases/")
+    stub_request(:get, "https://api.case.law/v1/cases/")
       .with(query: query.merge(offset: SearchesController::PER_PAGE))
       .to_return(resp)
 
