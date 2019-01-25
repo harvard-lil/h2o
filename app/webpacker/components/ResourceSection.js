@@ -1,5 +1,11 @@
 import store from "../store/index.js.erb";
 
+import { isElement,
+         isText,
+         isBR,
+         getLength,
+         getAttrsMap } from "../libs/html_helpers.js";
+
 import ResourceSectionWrapper from "./ResourceSectionWrapper";
 import ElisionAnnotation from "./ElisionAnnotation";
 import ReplacementAnnotation from "./ReplacementAnnotation";
@@ -16,33 +22,11 @@ const kindToComponent = (kind) =>
   ({elide: "elision",
     replace: "replacement"}[kind] || kind) + "-annotation";
 
-const isElement = (node) =>
-  node.nodeType == 1;
-
-const isText = (node) =>
-  node.nodeType == 3;
-
-const isBR = (node) =>
-  node.tagName == "BR";
-
 const isFootnoteLink = (node) =>
   node.hash && node.origin == location.origin && node.pathname == location.pathname;
 
 const getTagName = (node) =>
   isFootnoteLink(node) ? "footnote-link" : node.tagName;
-
-const getLength = (node) =>
-  (isElement(node) && !isBR(node) ? node.innerText : node.textContent).length;
-
-const getAttrsMap = (el) => {
-  let nodelist = el.attributes;
-  let attrmap = {};
-  let i = 0;
-  for (; i < nodelist.length; i++) {
-    attrmap[nodelist[i].name] = nodelist[i].value;
-  }
-  return attrmap;
-};
 
 const last = (array) => {
   return array[array.length - 1];

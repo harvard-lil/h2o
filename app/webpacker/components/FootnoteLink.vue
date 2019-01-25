@@ -14,21 +14,20 @@ export default {
   },
   computed: {
     id() {
-      return this.$attrs.name.slice(2);
+      return this.$attrs.name || this.$attrs.id;
     },
-    siblingName() {
-      return this.$attrs.href.slice(1);
+    siblingId() {
+      return (this.$attrs.href || "").slice(1);
     },
     relatedAnnotationIds() {
-      // If a UI state for this annotation hasn't been set in the store, register it now
-      return this.$store.getters['footnotes_ui/getById'](this.id);
+      return this.$store.getters['footnotes_ui/getById'](this.siblingId) || [];
     }
   },
   methods: {
     ...mapMutations(['expandById']),
     handleClick() {
       this.expandById(this.relatedAnnotationIds);
-      this.$nextTick(() => VueScrollTo.scrollTo(document.querySelector(`[name="${this.siblingName}"]`)));
+      this.$nextTick(() => VueScrollTo.scrollTo(document.querySelector(`[id="${this.siblingId}"], [name="${this.siblingId}"]`)));
     }
   },
   created() {
