@@ -15,7 +15,7 @@
 
 <script>
 import { unwrapUndesiredTags,
-         emptyUlToP,
+         emptyULToP,
          wrapBareInlineTags,
          removeEmptyNodes } from "../libs/html_helpers.js";
 
@@ -53,7 +53,7 @@ export default {
         return [div];
       } else {
         unwrapUndesiredTags(doc);
-        emptyUlToP(doc);
+        emptyULToP(doc);
         wrapBareInlineTags(doc);
         removeEmptyNodes(doc);
         return doc.body.children;
