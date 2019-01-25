@@ -14,6 +14,11 @@
 </template>
 
 <script>
+import { unwrapUndesiredTags,
+         emptyUlToP,
+         wrapBareInlineTags,
+         removeEmptyNodes } from "../libs/html_helpers.js";
+
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 
@@ -37,18 +42,22 @@ export default {
   computed: {
     sections() {
       const parser = new DOMParser();
-      let children = parser.parseFromString(this.resource.content, "text/html").body.children;
+      let doc = parser.parseFromString(this.resource.content, "text/html");
 
       // Some resources are pure text without a wrapping HTML doc.
       // In this case, body.children will return an empty array.
       // Wrap that text in a div so that ResourceSection can expect HTMLElements
-      if(children.length == 0) {
+      if(doc.body.children.length == 0) {
         let div = document.createElement("div");
         div.appendChild(document.createTextNode(this.resource.content));
-        children = [div];
+        return [div];
+      } else {
+        unwrapUndesiredTags(doc);
+        emptyUlToP(doc);
+        wrapBareInlineTags(doc);
+        removeEmptyNodes(doc);
+        return doc.body.children;
       }
-
-      return children;
     }
   },
   methods: {
