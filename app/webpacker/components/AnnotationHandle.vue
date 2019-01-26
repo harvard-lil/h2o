@@ -1,5 +1,6 @@
 <template>
-<span data-exclude-from-offset-calcs="true">
+<span class="annotation-handle"
+      data-exclude-from-offset-calcs="true">
   <button ref="button"
           aria-label="Edit annotation"
           class="annotation-button"
@@ -41,13 +42,17 @@ export default {
 
 $size: 28px;
 
+.annotation-handle {
+  font-size: 1.65rem;
+  font-style: normal;
+}
+
 .annotation-button {
   @include square($size);
   position: absolute;
   right: 0;
   padding: 0;
   user-select: none;
-  font-size: 1.65rem;
   text-align: center;
   line-height: $size;
   border-radius: $size;

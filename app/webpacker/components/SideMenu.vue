@@ -17,6 +17,7 @@ export default {
 .side-menu {
   position: absolute;
   right: 0;
+  font-style: normal;
 }
 .menu-items {
   position: absolute;
