@@ -1,5 +1,6 @@
 <template>
-<div id="the-annotator">
+<div id="the-annotator"
+     data-exclude-from-offset-calcs="true">
   <SideMenu v-if="ranges"
             :style="{top: offset}">
     <li>
@@ -61,6 +62,8 @@
 </template>
 
 <script>
+import { isText } from "../libs/html_helpers.js";
+
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 import {offsetsForRanges} from "lib/ui/content/annotations/placement";
@@ -108,8 +111,9 @@ export default {
 
     selectionchange(e, sel) {
       if(sel &&
-         (sel.anchorNode.tagName == "FORM" ||
-          this.$el.contains(sel.anchorNode))) return;
+         (isText(sel.anchorNode)
+          ? sel.anchorNode.parentNode
+          : sel.anchorNode).closest("[data-exclude-from-offset-calcs='true']")) return;
 
       this.ranges =
         (!sel || sel.type != "Range")
