@@ -34,7 +34,6 @@ export default {
   &::before {
     font-weight: $bold;
     content: '...';
-    font-size: 19px;
   }
   &:focus {
     @include generic-focus-styles;
