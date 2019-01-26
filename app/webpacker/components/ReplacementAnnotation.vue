@@ -102,7 +102,8 @@ export default {
     }
   },
   updated() {
-    if(!this.isModified) {
+    if(!this.isModified &&
+       this.$refs.replacementText) {
       this.$refs.replacementText.blur();
     }
   }
