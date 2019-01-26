@@ -75,21 +75,15 @@ class ApplyAnnotationToParagraphs
 
   private
 
-  def annotation_handle
-    "<annotation-handle v-bind:annotation-id='#{id}' data-exclude-from-offset-calcs='true'/>"
-  end
-
   # The edit icon that shows up next to an annotation when in draft mode.
   def get_annotation_button_and_note_wrapper
     if kind == 'note'
       if editable
-        "#{annotation_handle}<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
+        "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       # Show notes only when not exporting, or exporting with annotations
       elsif !exporting || (exporting && include_annotations)
         "<span class='annotate note-content-wrapper' data-annotation-id='#{id}'><span class='note-icon' data-annotation-id='#{id}' data-exclude-from-offset-calcs='true'><i class='fas fa-paperclip'></i></span><span class='note-content' data-exclude-from-offset-calcs='true'>#{escaped_content}</span></span>"
       end
-    elsif editable
-      annotation_handle
     else
       ""
     end
