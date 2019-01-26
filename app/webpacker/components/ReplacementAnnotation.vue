@@ -100,11 +100,15 @@ export default {
     }
   },
   mounted() {
+    // If we've inserted a placeholder annotation so that we can edit
+    // and save a new replacement, focus it once mounted.
     if(this.isNew) {
       this.$refs.replacementText.focus();
     }
   },
   updated() {
+    // If the component was updated but the annotation isn't modified,
+    // that means we just saved the annotation and should exit editing
     if(!this.isModified &&
        this.$refs.replacementText) {
       this.$refs.replacementText.blur();
