@@ -13,7 +13,7 @@
         <a @click="destroy(annotation)">Remove elision</a>
       </li>
     </AnnotationHandle>
-    <AnnotationExpansionToggle :ui-state="uiState"/>
+    <AnnotationExpansionToggle :annotation="annotation"/>
   </template>
   <!-- Use v-show rather than v-if here so that 
        the text is included in offset calculations -->

@@ -16,7 +16,7 @@
           <a @click="destroy(annotation)">Remove replacement</a>
         </li>
       </AnnotationHandle>
-      <AnnotationExpansionToggle :ui-state="uiState"
+      <AnnotationExpansionToggle :annotation="annotation"
                                  v-if="uiState.expanded"/>
     </template>
     <span v-if="!uiState.expanded"

@@ -13,7 +13,13 @@ const { mapMutations } = createNamespacedHelpers('annotations_ui');
 
 export default {
   props: {
-    uiState: {type: Object}
+    annotation: {type: Object,
+                 required: true}
+  },
+  computed: {
+    uiState() {
+      return this.$store.getters['annotations_ui/getById'](this.annotation.id) || {};
+    }
   },
   methods: {
     ...mapMutations(['toggleExpansion'])
