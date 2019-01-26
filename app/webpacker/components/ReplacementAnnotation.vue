@@ -1,7 +1,6 @@
 <template>
 <span class="replacement"
-      :class="{head: isHead, tail: isTail || (isHead && !uiState.expanded)}"
-      v-if="isHead || uiState.expanded">
+      :class="{head: isHead, tail: addTailClass}">
   <template v-if="isHead">
     <template v-if="annotation.id">
       <AnnotationHandle :ui-state="uiState">
@@ -33,7 +32,7 @@
       <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
     </SideMenu>
   </template>
-  <!-- Use v-show rather than v-if here so that 
+  <!-- Use v-show rather than v-if here so that
        the text is included in offset calculations -->
   <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
 </span>
@@ -73,6 +72,10 @@ export default {
     isModified() {
       // if it's a new annotation or the content has been changed
       return this.isNew || this.content != this.annotation.content;
+    },
+    addTailClass() {
+      return (this.isTail && this.uiState.expanded) ||
+             (this.isHead && !this.uiState.expanded);
     }
   },
   methods: {
