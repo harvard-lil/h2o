@@ -122,6 +122,13 @@ export default {
            last: sel.getRangeAt(sel.rangeCount-1)};
     },
 
+    close() {
+      document.getSelection().empty();
+      this.ranges = null;
+      this.$refs.linkMenu.close();
+      this.$refs.noteMenu.close();
+    },
+
     submit(type, content = null) {
       this.create({
         kind: type,
@@ -132,10 +139,7 @@ export default {
         this.showModal = true;
       });
 
-      // clear the selection, thereby hiding the menu
-      document.getSelection().empty();
-      this.$refs.linkMenu.close();
-      this.$refs.noteMenu.close();
+      this.close();
     },
 
     insertReplacementPlaceholder() {
@@ -146,6 +150,8 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       }]);
+
+      this.close();
     },
 
     input(e, kind) {
