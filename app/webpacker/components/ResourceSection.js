@@ -67,6 +67,15 @@ const annotateAndConvertToVNodes = (h, tuples, index, enclosingAnnotationIds) =>
       .reduce(insertAnnotations(h, index, enclosingAnnotationIds), [])
       .map(tupleToVNode(h, index, enclosingAnnotationIds));
 
+// Find nodes that are within a range of offsets, stopping at the first
+// block level element found. Allows us to greedily group notes into
+// annotations without grouping block level elements into it.
+const sequentialInlineNodesWithinRange = (tuples, start, end) => {
+  let inRange = tuples.filter(t => t[1] >= start && t[2] <= end);
+  const firstBlock = inRange.findIndex(t => isBlockLevel(t[0]));
+  return firstBlock == -1 ? inRange : inRange.slice(0, firstBlock);
+};
+
 // Given an annotation and the previous tuple in the list, use the
 // annotation's offset information to move forward in the list,
 // eagerly grabbing tuples that fall within its range.
@@ -79,7 +88,7 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
     // use the end offset of this parent element
     let annotationEndInSection = annotation.end_paragraph == index ? annotation.end_offset : last(tuples)[2];
     // get the forward elements that fall within our range
-    let childTuples = [prevTuple, ...tuples.filter(t => t[1] >= prevTuple[2] && t[2] <= annotationEndInSection)];
+    let childTuples = [prevTuple, ...sequentialInlineNodesWithinRange(tuples, prevTuple[2], annotationEndInSection)];
     let props = {startOffset: prevTuple[1],
                  endOffset: last(childTuples)[2]};
     
@@ -99,19 +108,19 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
     let [prevNode, prevStart, prevEnd] = last(modifiedTuples) ||
         [null, null, orgTuples[0][1]];
 
-    // If this is a block level element, don't wrap it since annotations
-    // use <span>s in order to wrap the text as lines, rather than a block,
-    // and wrapping block level elements with inline elements is forbidden.
-    // The script will instead recurse into this node later on and wrap the
-    // content contained therein.
-    if(isBlockLevel(node)){
-      return modifiedTuples.concat([tuple]);
     // If the previous tuple's end offset is greater than the current tuple's
     // start offset, the current tuple has already been grouped into an
     // annotation's children list so skip it in modifiedTuples so as not
     // to duplicate it in the render
-    } else if(prevEnd > start) {
+    if(prevEnd > start) {
       return modifiedTuples;
+      // If this is a block level element, don't wrap it since annotations
+      // use <span>s in order to wrap the text as lines, rather than a block,
+      // and wrapping block level elements with inline elements is forbidden.
+      // The script will instead recurse into this node later on and wrap the
+      // content contained therein.
+    } else if(isBlockLevel(node)){
+      return modifiedTuples.concat([tuple]);
     } else {
       return modifiedTuples.concat([
         store.getters['annotations/getAtIndexAndOffset'](index, start)
