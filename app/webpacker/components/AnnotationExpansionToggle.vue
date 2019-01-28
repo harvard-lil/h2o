@@ -9,7 +9,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-const { mapMutations } = createNamespacedHelpers('annotations_ui');
+const { mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   props: {
@@ -22,7 +22,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['toggleExpansion'])
+    ...mapActions(['toggleExpansion'])
   }
 }
 </script>

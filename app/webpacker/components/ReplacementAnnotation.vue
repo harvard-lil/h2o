@@ -45,7 +45,7 @@ import SideMenu from "./SideMenu";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-const { mapMutations } = createNamespacedHelpers("annotations_ui");
+const mapUIActions = createNamespacedHelpers("annotations_ui").mapActions;
 
 export default {
   extends: AnnotationBase,
@@ -79,8 +79,9 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["toggleExpansion"]),
-    ...mapActions(["createAndUpdate", "update"]),
+    ...mapUIActions(["toggleExpansion"]),
+    ...mapActions(["createAndUpdate",
+                   "update"]),
     submit() {
       if(this.isModified){
         this[this.isNew ? "createAndUpdate" : "update"](

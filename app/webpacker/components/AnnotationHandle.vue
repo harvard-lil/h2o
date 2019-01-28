@@ -33,6 +33,13 @@ export default {
           .sort((a, b) => a.start_offset - b.start_offset);
       return -15 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState))));
     }
+  },
+  updated() {
+    this.$store.commit(
+      'annotations_ui/update',
+      {obj: this.uiState,
+       vals: {headY: this.$el.getBoundingClientRect().top + window.scrollY}}
+    );
   }
 }
 </script>

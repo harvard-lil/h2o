@@ -1,5 +1,5 @@
 <template>
-<button @click="handleClick">
+<button @click="toggleAllExpansions">
   <template v-if="areAllExpanded">Hide</template>
   <template v-else>Show</template>
   elided text
@@ -9,17 +9,14 @@
 <script>
 import { createNamespacedHelpers } from 'vuex';
 const { mapGetters,
-        mapMutations } = createNamespacedHelpers('annotations_ui');
+        mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   computed: {
     ...mapGetters(['areAllExpanded'])
   },
   methods: {
-    ...mapMutations(['toggleAllExpansions']),
-    handleClick() {
-      this.toggleAllExpansions(!this.areAllExpanded);
-    }
+    ...mapActions(['toggleAllExpansions'])
   }
 }
 </script>

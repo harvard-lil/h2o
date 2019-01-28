@@ -20,27 +20,7 @@ export default {
   }),
   computed: {
     uiState() {
-      // If a UI state for this annotation hasn't been set in the store, register it now
-      let state = this.$store.getters['annotations_ui/getById'](this.annotation.id);
-      if(!state) {
-        state = {id: this.annotation.id,
-                 kind: this.annotation.kind,
-                 start_offset: this.annotation.start_offset,
-                 expanded: this.expandedDefault};
-
-        // Only initialize the state if this is the beginning of the annotation
-        if(!this.isNew && this.isHead){
-          this.$nextTick(() => {
-            // round this to the nearest 5 pixels because browsers
-            // sometimes report different fractional pixels for
-            // elements on the same line. We've picked "5" out of an
-            // abundance of caution.
-            state.headY = this.$el.getBoundingClientRect().top + window.scrollY;
-            this.$store.commit('annotations_ui/append', [state])
-          });
-        }
-      }
-      return state;
+      return this.$store.getters['annotations_ui/getById'](this.annotation.id);
     },
     isNew() {
       return !this.annotation.id;
@@ -54,6 +34,15 @@ export default {
   },
   methods: {
     ...mapActions(['destroy'])
+  },
+  created() {
+    if(!this.uiState) {
+      this.$store.commit('annotations_ui/append', [
+        {id: this.annotation.id,
+         expanded: this.expandedDefault,
+         headY: null}
+      ]);
+    }
   }
 }
 </script>
