@@ -101,12 +101,19 @@ const actions = {
                {root: true});
       }),
 
-  createAndUpdate: ({ commit }, payload) =>
+  createAndUpdate: ({ commit, rootGetters }, payload) =>
     Axios
       .post(helpers.resourcePath(payload.obj),
             {annotation: {...payload.obj,
                           ...payload.vals}})
       .then(resp => {
+        // In the case where we have a placeholder annotation on the page
+        // with a null id, update that id here so that we continue to track
+        // the state using the same ui state object
+        commit('annotations_ui/update',
+               {obj: rootGetters['annotations_ui/getById'](payload.obj.id),
+                vals: {id: resp.data.id}},
+               {root: true});
         commit('update', {obj: payload.obj,
                           vals: {...payload.vals,
                                  ...resp.data}});
