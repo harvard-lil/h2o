@@ -1,6 +1,7 @@
 import store from "../store/index.js.erb";
 
-import { isElement,
+import { isBlockLevel,
+         isElement,
          isText,
          isBR,
          getLength,
@@ -99,13 +100,21 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
     let [prevNode, prevStart, prevEnd] = last(modifiedTuples) ||
         [null, null, orgTuples[0][1]];
 
-    // if the previous tuple's end offset is greater than the current tuple's
+    // If this is a block level element, don't wrap it since annotations
+    // use <span>s in order to wrap the text as lines rather than a block
+    // and wrapping block level elements with inline elements is forbidden.
+    // The script will instead recurse into this node later on and wrap the
+    // content contained therein.
+    if(isBlockLevel(node)){
+      return modifiedTuples.concat([tuple]);
+    // If the previous tuple's end offset is greater than the current tuple's
     // start offset, the current tuple has already been grouped into an
     // annotation's children list so skip it in modifiedTuples so as not
     // to duplicate it in the render
-    return prevEnd > start
-      ? modifiedTuples
-      : modifiedTuples.concat([
+    } else if(prevEnd > start) {
+      return modifiedTuples;
+    } else {
+      return modifiedTuples.concat([
         store.getters['annotations/getAtIndexAndOffset'](index, start)
         // longest to shortest
           .sort((a, b) =>
@@ -118,6 +127,7 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
         // return the normal tuple as a default if no annotations exist
           .slice(0, 1)
           .reduce(groupIntoAnnotation(h, index, orgTuples, enclosingAnnotationIds), tuple)]);
+    }
   };
 
 // Vue component children arrays must contain either VNodes or

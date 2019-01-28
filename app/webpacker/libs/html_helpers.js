@@ -43,6 +43,40 @@ export const removeEmptyNodes = (doc) => {
   return doc;
 };
 
+const BLOCK_LEVEL_ELEMENTS = [
+  "ADDRESS",
+  "ARTICLE",
+  "ASIDE",
+  "BLOCKQUOTE",
+  "DETAILS",
+  "DIALOG",
+  "DD",
+  "DIV",
+  "DL",
+  "DT",
+  "FIELDSET",
+  "FIGCAPTION",
+  "FIGURE",
+  "FOOTER",
+  "FORM",
+  "H6",
+  "HEADER",
+  "HGROUP",
+  "HR",
+  "LI",
+  "MAIN",
+  "NAV",
+  "OL",
+  "P",
+  "PRE",
+  "SECTION",
+  "TABLE",
+  "UL"
+];
+
+export const isBlockLevel = (el) =>
+  BLOCK_LEVEL_ELEMENTS.includes(el.tagName);
+
 export const isElement = (node) =>
   node.nodeType == 1;
 
