@@ -100,7 +100,7 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
         [null, null, orgTuples[0][1]];
 
     // If this is a block level element, don't wrap it since annotations
-    // use <span>s in order to wrap the text as lines rather than a block
+    // use <span>s in order to wrap the text as lines, rather than a block,
     // and wrapping block level elements with inline elements is forbidden.
     // The script will instead recurse into this node later on and wrap the
     // content contained therein.
@@ -166,12 +166,12 @@ const annotationBreakpoints = (index, start, end) =>
 const filterAndSplitNodeList = (nodeList, index, start, end) => {
   const breakpoints = annotationBreakpoints(index, start, end);
   return Array.from(nodeList)
-  // remove anything that isn't an Element or Text node
-  // i.e. no script or comment tags etc
+    // remove anything that isn't an Element or Text node
+    // i.e. no script or comment tags etc
     .filter(isValidNodeType)
-  // transform our Node array to an array of [Node, start, end] tuples
+    // transform our Node array to an array of [Node, start, end] tuples
     .reduce(transformToTuplesWithOffsets(start), [])
-  // break next nodes at points where annotations exist
+    // break text nodes at points where annotations exist
     .reduce((tuples, tuple) => tuples.concat(
       isText(tuple[0])
         ? splitTextAt(breakpoints, tuple)
