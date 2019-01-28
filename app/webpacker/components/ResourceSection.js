@@ -29,9 +29,8 @@ const isFootnoteLink = (node) =>
 const getTagName = (node) =>
   isFootnoteLink(node) ? "footnote-link" : node.tagName;
 
-const last = (array) => {
-  return array[array.length - 1];
-};
+const last = (array) =>
+  array[array.length - 1];
     
 ///////////////////////////
 // Munging and filtering //
