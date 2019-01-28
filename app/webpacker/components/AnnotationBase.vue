@@ -20,7 +20,6 @@ export default {
   }),
   computed: {
     uiState() {
-      // If a UI state for this annotation hasn't been set in the store, register it now
       return this.$store.getters['annotations_ui/getById'](this.annotation.id);
     },
     isNew() {
@@ -40,7 +39,8 @@ export default {
     if(!this.uiState) {
       this.$store.commit('annotations_ui/append', [
         {id: this.annotation.id,
-         expanded: this.expandedDefault}
+         expanded: this.expandedDefault,
+         headY: null}
       ]);
     }
   }

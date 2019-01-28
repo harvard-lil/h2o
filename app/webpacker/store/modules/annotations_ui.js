@@ -31,12 +31,23 @@ const getters = {
 };
 
 const actions = {
-  toggleAllExpansions: ({commit, getters }) => {
-    let newVals = {expanded: !getters.areAllExpanded};
-    getters.collapsible.forEach(annotation => {
-      commit("update", {obj: annotation, vals: newVals});
-    });
-  }
+  toggleExpansion: ({ commit, getters, rootGetters }, payload) => {
+    commit("update", {obj: payload, vals: {expanded: !payload.expanded}});
+
+    // Set headY=null for any annotations that come after this one
+    // in order to trigger a recalculation of their headY value and potential
+    // rerender of where their edit handle should be placed
+    let annotation = rootGetters["annotations/getById"](payload.id);
+    rootGetters["annotations/getInSectionStartingAtOrAfter"](annotation.end_paragraph, annotation.end_offset)
+      .forEach(a => commit("update", {obj: getters.getById(a.id),
+                                     vals: {headY: null}}));
+  },
+
+  toggleAllExpansions: ({dispatch, getters }) =>
+    getters
+      .collapsible
+      .filter(s => s.expanded == getters.areAllExpanded)
+      .forEach(s => dispatch("toggleExpansion", s))
 };
 
 const mutations = {

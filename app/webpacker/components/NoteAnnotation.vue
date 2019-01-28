@@ -27,12 +27,12 @@
 <script>
 import AnnotationBase from './AnnotationBase';
 import { createNamespacedHelpers } from 'vuex';
-const { mapMutations } = createNamespacedHelpers('annotations_ui');
+const { mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   extends: AnnotationBase,
   methods: {
-    ...mapMutations(['toggleExpansion'])
+    ...mapActions(['toggleExpansion'])
   }
 }
 </script>

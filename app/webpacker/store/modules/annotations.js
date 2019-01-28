@@ -22,6 +22,10 @@ const getters = {
              (obj.start_paragraph < index && obj.end_paragraph > index))
     ),
 
+  getInSectionStartingAtOrAfter: state => (index, offset) =>
+    state.all.filter(obj => obj.start_paragraph == index &&
+                           obj.start_offset >= offset),
+
   // Annotations that entirely span (or exceed) the provided offsets.
   // Used for determining if an annotation that spans an entire
   // section / paragraph has been collapsed, thereby requiring that

@@ -34,7 +34,7 @@ export default {
       return -15 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState))));
     }
   },
-  mounted() {
+  updated() {
     this.$store.commit(
       'annotations_ui/update',
       {obj: this.uiState,

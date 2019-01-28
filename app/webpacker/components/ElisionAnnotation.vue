@@ -25,7 +25,7 @@
 import AnnotationBase from './AnnotationBase';
 import AnnotationExpansionToggle from './AnnotationExpansionToggle';
 import { createNamespacedHelpers } from 'vuex';
-const { mapMutations } = createNamespacedHelpers('annotations_ui');
+const { mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   extends: AnnotationBase,
@@ -36,7 +36,7 @@ export default {
     expandedDefault: false
   }),
   methods: {
-    ...mapMutations(['toggleExpansion'])
+    ...mapActions(['toggleExpansion'])
   }
 }
 </script>
