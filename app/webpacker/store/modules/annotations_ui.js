@@ -18,7 +18,13 @@ const getters = {
     // sometimes report different fractional pixels for
     // elements on the same line. We've picked "5" out of an
     // abundance of caution.
-    state.all.filter(obj => Math.max(5, Math.abs(obj.headY - headY)) == 5)
+    state.all.filter(obj => Math.max(5, Math.abs(obj.headY - headY)) == 5),
+
+  getCollapsible: state =>
+    getters.getByKind(state)(COLLAPSIBLE_KINDS),
+
+  areAllExpanded: state =>
+    getters.getCollapsible(state).reduce((allExpanded, s) => allExpanded && s.expanded, true)
 };
 
 const mutations = {
@@ -32,7 +38,7 @@ const mutations = {
     Vue.set(payload, 'expanded', !payload.expanded),
 
   toggleAllExpansions: (state, payload) =>
-    getters.getByKind(state)(COLLAPSIBLE_KINDS).forEach(annotation => {
+    getters.getCollapsible(state).forEach(annotation => {
       Vue.set(annotation, 'expanded', payload);
     }),
 
