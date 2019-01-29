@@ -13,8 +13,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content casebook.title
 
       click_link section_1.title
+      click_link resource_1.title
 
-      click_link resource_1.resource.name_abbreviation
       assert_content resource_1.resource.title
       assert_content resource_1.resource.content
     end
@@ -73,14 +73,14 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       scenario "resource down into a section", js: true do
         assert_content "This casebook is a draft"
-        assert_content "1.1\n#{resource_1.resource.name_abbreviation}"
+        assert_content "1.1\n#{resource_1.title}"
 
         simulate_drag_drop '.listing[data-ordinals="1.1"]', '.table-of-contents > .listing-wrapper:last-child', position: :bottom
         sleep 0.3
 
         visit casebook_path casebook
-        assert_content "2.1\n#{resource_1.resource.name_abbreviation}"
-        assert_content "1.1\n#{resource_2.resource.name_abbreviation}"
+        assert_content "2.1\n#{resource_1.title}"
+        assert_content "1.1\n#{resource_2.title}"
       end
 
       scenario "section above top section", js: true do

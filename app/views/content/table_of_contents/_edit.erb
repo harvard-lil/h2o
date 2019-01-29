@@ -27,7 +27,7 @@
         <a class="listing resource" href="<%= annotate_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" data-editable="" >
           <div class="section-number"><%= content.ordinal_string %></div>
         <% if content.resource.is_a? Case %>
-          <div class="section-title"> <%= content.resource.name_abbreviation %> </div>
+          <div class="section-title"> <%= content.title %> </div>
           <div class="resource-case"> <%= content.resource.citations.dig(0, "cite") %></div>
           <div class="resource-date"> <%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
             <div class="resource-type"> <%= t 'content.resource.type.case' %></div>
