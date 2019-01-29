@@ -42,7 +42,7 @@ class Content::Resource < Content::Child
   end
 
   def title
-    super || resource.title
+    super.present? ? super : resource.title
   end
 
   def footnote_annotations
