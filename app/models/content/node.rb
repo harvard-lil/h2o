@@ -9,6 +9,7 @@ class Content::Node < ApplicationRecord
   scope :owned, -> {where content_collaborators: {role: 'owner'}}
   scope :followed, -> {where content_collaborators: {role: 'followed'}}
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}
+  nilify_blanks
 
   def slug
     super || self.title.parameterize
