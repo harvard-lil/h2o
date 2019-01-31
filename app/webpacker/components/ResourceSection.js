@@ -95,6 +95,7 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
     return [h(kindToComponent(annotation.kind),
               {key: annotation.id,
                props: {...props,
+                       index: index,
                        annotation: annotation}},
               annotateAndConvertToVNodes(h, childTuples, index, enclosingAnnotationIds.concat([annotation.id]))),
             props.startOffset,
@@ -123,7 +124,7 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
       return modifiedTuples.concat([tuple]);
     } else {
       return modifiedTuples.concat([
-        store.getters['annotations/getAtIndexAndOffset'](index, start)
+        store.getters['annotations/getSpanningOffsets'](index, start, end)
         // longest to shortest
           .sort((a, b) =>
                 (b.end_paragraph == index ? b.end_offset : Number.MAX_VALUE) -
