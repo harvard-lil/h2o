@@ -95,6 +95,7 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
     return [h(kindToComponent(annotation.kind),
               {key: annotation.id,
                props: {...props,
+                       index: index,
                        annotation: annotation}},
               annotateAndConvertToVNodes(h, childTuples, index, enclosingAnnotationIds.concat([annotation.id]))),
             props.startOffset,
