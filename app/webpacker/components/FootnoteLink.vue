@@ -5,7 +5,7 @@
 <script>
 import VueScrollTo from "vue-scrollto";
 import { createNamespacedHelpers } from 'vuex';
-const { mapMutations } = createNamespacedHelpers('annotations_ui');
+const { mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   props: {
@@ -24,7 +24,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['expandById']),
+    ...mapActions(['expandById']),
     handleClick() {
       this.expandById(this.relatedAnnotationIds);
       this.$nextTick(() => VueScrollTo.scrollTo(document.querySelector(`[id="${this.siblingId}"], [name="${this.siblingId}"]`)));

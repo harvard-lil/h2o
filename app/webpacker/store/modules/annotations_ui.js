@@ -43,11 +43,16 @@ const actions = {
                                      vals: {headY: null}}));
   },
 
-  toggleAllExpansions: ({dispatch, getters }) =>
+  toggleAllExpansions: ({ dispatch, getters }) =>
     getters
-      .collapsible
-      .filter(s => s.expanded == getters.areAllExpanded)
-      .forEach(s => dispatch("toggleExpansion", s))
+    .collapsible
+    .filter(s => s.expanded == getters.areAllExpanded)
+    .forEach(s => dispatch("toggleExpansion", s)),
+
+  expandById: ({ dispatch, getters }, payload) =>
+    getters.collapsible
+    .filter(s => payload.includes(s.id))
+    .forEach(s => dispatch("toggleExpansion", s))
 };
 
 const mutations = {
@@ -61,13 +66,7 @@ const mutations = {
     state.all.splice(state.all.indexOf(payload), 1),
 
   toggleExpansion: (state, payload) =>
-    Vue.set(payload, 'expanded', !payload.expanded),
-
-  expandById: (state, payload) =>
-    payload
-    .map(id => getters.getById(state)(id))
-    .filter(obj => COLLAPSIBLE_KINDS.includes(obj.kind))
-    .forEach(obj => Vue.set(obj, 'expanded', true))
+    Vue.set(payload, 'expanded', !payload.expanded)
 };
 
 export default {
