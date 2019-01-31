@@ -83,7 +83,7 @@ export default {
     ...mapActions(["createAndUpdate",
                    "update"]),
     submit() {
-      if(this.isModified){
+      if(this.isModified && this.content){
         this[this.isNew ? "createAndUpdate" : "update"](
           {obj: this.annotation, vals: this.newVals}
         );
