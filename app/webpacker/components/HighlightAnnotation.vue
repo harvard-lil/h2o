@@ -1,12 +1,11 @@
 <template>
 <span class="highlight">
-  <template v-if="isHead">
-    <AnnotationHandle :ui-state="uiState">
-      <li>
-        <a @click="destroy(annotation)">Remove highlight</a>
-      </li>
-    </AnnotationHandle>
-  </template>
+  <AnnotationHandle v-if="hasHandle"
+                    :ui-state="uiState">
+    <li>
+      <a @click="destroy(annotation)">Remove highlight</a>
+    </li>
+  </AnnotationHandle>
   <span tabindex="-1" class="selected-text"><slot></slot></span>
 </span>
 </template>

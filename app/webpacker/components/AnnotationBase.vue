@@ -42,6 +42,12 @@ export default {
     },
     isTail() {
       return this.endOffset == this.annotation.end_offset;
+    },
+    isEditable() {
+      return this.$store.getters["resources_ui/getEditability"];
+    },
+    hasHandle() {
+      return this.isEditable && this.isHead && !this.isNew;
     }
   },
   methods: {

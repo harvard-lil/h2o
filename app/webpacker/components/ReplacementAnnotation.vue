@@ -1,31 +1,30 @@
 <template>
 <span class="replacement"
       :class="{head: isHead, tail: addTailClass}">
+  <AnnotationHandle v-if="hasHandle"
+                    :ui-state="uiState">
+    <li>
+      <a @click="toggleExpansion(uiState)">
+        <template v-if="uiState.expanded">Hide</template>
+        <template v-else>Reveal</template>
+        original text
+      </a>
+    </li>
+    <li>
+      <a @click="destroy(annotation)">Remove replacement</a>
+    </li>
+  </AnnotationHandle>
   <template v-if="isHead">
-    <template v-if="annotation.id">
-      <AnnotationHandle :ui-state="uiState">
-        <li>
-          <a @click="toggleExpansion(uiState)">
-            <template v-if="uiState.expanded">Hide</template>
-            <template v-else>Reveal</template>
-            original text
-          </a>
-        </li>
-        <li>
-          <a @click="destroy(annotation)">Remove replacement</a>
-        </li>
-      </AnnotationHandle>
-      <AnnotationExpansionToggle :annotation="annotation"
-                                 v-if="uiState.expanded"/>
-    </template>
-    <span v-if="!uiState.expanded"
+    <AnnotationExpansionToggle v-if="uiState.expanded"
+                               :annotation="annotation"/>
+    <span v-else
           ref="replacementText"
           class="replacement-text"
           data-exclude-from-offset-calcs="true"
           @blur="revert"
           @keydown.enter.prevent="submit"
           @keyup.esc="$event.target.blur"
-          v-contenteditable:content="editable"></span>
+          v-contenteditable:content="isEditable"></span>
     <SideMenu v-if="isModified">
       <!-- Use mousedown to prevent replacementText from blurring too soon -->
       <li><a @mousedown.prevent="submit">Save</a></li>
@@ -65,9 +64,6 @@ export default {
       set(value) {
         this.newVals.content = value;
       }
-    },
-    editable() {
-      return this.$store.getters["resources_ui/getEditability"]
     },
     isModified() {
       // if it's a new annotation or the content has been changed

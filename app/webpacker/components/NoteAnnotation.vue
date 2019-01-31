@@ -1,11 +1,12 @@
 <template>
 <span class="note">
+  <AnnotationHandle v-if="hasHandle"
+                    :ui-state="uiState">
+    <li>
+      <a @click="destroy(annotation)">Remove note</a>
+    </li>
+  </AnnotationHandle>
   <template v-if="isHead">
-    <AnnotationHandle :ui-state="uiState">
-      <li>
-        <a @click="destroy(annotation)">Remove note</a>
-      </li>
-    </AnnotationHandle>
     <span v-if="uiState.expanded"
           class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
