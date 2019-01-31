@@ -50,7 +50,8 @@ const actions = {
     .forEach(s => dispatch("toggleExpansion", s)),
 
   expandById: ({ dispatch, getters }, payload) =>
-    getters.collapsible
+    getters
+    .collapsible
     .filter(s => payload.includes(s.id))
     .forEach(s => dispatch("toggleExpansion", s))
 };
