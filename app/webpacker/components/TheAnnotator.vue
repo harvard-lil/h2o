@@ -27,6 +27,7 @@
   <ContextMenu ref="linkMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('link', content)"
+          @keyup.esc="close"
           class="form">
       <LinkInput ref="linkInput"
                  v-model="content"/>
@@ -36,6 +37,8 @@
   <ContextMenu ref="noteMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('note', content)"
+          @keydown.enter.prevent="submit('note', content)"
+          @keyup.esc="close"
           class="form"
           id="note-form">
       <textarea ref="noteInput"
