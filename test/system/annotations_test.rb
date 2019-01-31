@@ -81,21 +81,6 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
       has_link?(text, href: content)
     end
 
-    scenario 'adding a link without http', js: true do
-      text = 'content to link'
-      content = 'testlink.org'
-
-      select_text text
-      find('#create-link').click
-      fill_in 'link-input', with: content
-
-      assert_api :creates, 'Content::Annotation' do
-        find('#link-input').send_keys :enter
-      end
-
-      has_link?(text, href: "http://#{content}")
-    end
-
     scenario 'adding a note', js: true do
       text = 'content to note'
       content = 'Here is a new note'
