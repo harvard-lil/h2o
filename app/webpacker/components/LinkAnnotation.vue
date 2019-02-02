@@ -9,7 +9,9 @@
         <a @click="destroy(annotation)">Remove link</a>
       </li>
     </AnnotationHandle>
-    <ContextMenu ref="editMenu" :closeOnClick="false">
+    <ContextMenu ref="editMenu"
+                 data-exclude-from-offset-calcs="true"
+                 :closeOnClick="false">
       <form @submit.prevent="submitUpdate">
         <LinkInput v-model="content"/>
       </form>
