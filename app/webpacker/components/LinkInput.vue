@@ -2,6 +2,7 @@
 <input id="link-input"
        type="url"
        required="true"
+       pattern="\w+://\w+.*"
        placeholder="Url to link to..."
        :value="value"
        @input="$emit('input', $event.target.value)"/>
