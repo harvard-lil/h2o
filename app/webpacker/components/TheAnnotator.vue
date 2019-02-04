@@ -1,7 +1,7 @@
 <template>
 <div id="the-annotator"
      data-exclude-from-offset-calcs="true">
-  <SideMenu v-if="ranges"
+  <SideMenu v-if="offsets"
             :style="{top: offset}">
     <li>
       <a id="create-highlight"

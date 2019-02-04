@@ -1,13 +1,15 @@
+import { isText } from "../../../../../../webpacker/libs/html_helpers.js";
+
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {
-  const ancestor = ranges.first.commonAncestorContainer;
-  if (ranges.first.collapsed ||
-      (ancestor.nodeType !== document.TEXT_NODE &&
-       ancestor.tagName !== 'P' &&
-       !ancestor.classList.contains('case-text') &&
-       !ancestor.classList.contains('selected-text'))) {
-    return null;
-  }
+  if (!ranges || ranges.first.collapsed) return null;
+
+  const ancestorEl =
+        isText(ranges.first.commonAncestorContainer)
+        ? ranges.first.commonAncestorContainer.parentNode
+        : ranges.first.commonAncestorContainer;
+
+  if(!ancestorEl.closest(".case-text")) return null;
 
   const startParagraph = closestP(ranges.first.startContainer);
   const endParagraph = closestP(ranges.last.endContainer);

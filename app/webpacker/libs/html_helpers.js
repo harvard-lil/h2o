@@ -84,10 +84,10 @@ export const isBlockLevel = (el) =>
   BLOCK_LEVEL_ELEMENTS.includes(el.tagName);
 
 export const isElement = (node) =>
-  node.nodeType == 1;
+  node.nodeType == document.ELEMENT_NODE;
 
 export const isText = (node) =>
-  node.nodeType == 3;
+  node.nodeType == document.TEXT_NODE;
 
 export const isBR = (node) =>
   node.tagName == "BR";
