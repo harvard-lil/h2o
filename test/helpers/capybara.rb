@@ -119,8 +119,13 @@ module H2o::Test::Helpers::Capybara
       .drop(target, #{drop_position.to_json});
     JS
   end
+
   def reload_page
     page.evaluate_script("window.location.reload()")
+  end
+
+  def update_ancestry(parent_casebook, ancestor_casebook)
+    ancestor_casebook.update(ancestry: parent_casebook.id.to_s)
   end
 end
 
