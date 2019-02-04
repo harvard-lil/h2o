@@ -26,28 +26,36 @@ export default {
   },
   computed: {
     offsetRight() {
-      let onSameLine =
-          this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY)
-      // remove annotations that haven't been saved yet
-          .filter(a => a.id)
-      // order by offset
-          .sort((a, b) => a.start_offset - b.start_offset);
+      const onSameLine =
+            this.$store.getters['annotations_ui/getByHeadY'](this.uiState.headY)
+            // remove annotations that haven't been saved yet
+            .filter(a => a.id)
+            // order by offset
+            .sort((a, b) => a.start_offset - b.start_offset);
       return -15 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState))));
     }
   },
-  updated() {
-    let newHeadY = this.$el.getBoundingClientRect().top + window.scrollY;
+  methods: {
+    updateHeadY() {
+      const newHeadY = this.$el.getBoundingClientRect().top + window.scrollY;
 
-    // Only update the headY if it's shifted by more than a certain
-    // number of pixels. Small changes to the DOM can shift it by a
-    // pixel or two, causing excessive updates and performance issues.
-    // We avoid those by rounding to a certain degree.
-    if (Math.abs(newHeadY - this.uiState.headY) > Y_FIDELITY) {
-      this.$store.commit(
-        'annotations_ui/update',
-        {obj: this.uiState,
-         vals: {headY: newHeadY}});
+      // Only update the headY if it's shifted by more than a certain
+      // number of pixels. Small changes to the DOM can shift it by a
+      // pixel or two, causing excessive updates and performance issues.
+      // We avoid those by rounding to a certain degree.
+      if (Math.abs(newHeadY - this.uiState.headY) > Y_FIDELITY) {
+        this.$store.commit(
+          'annotations_ui/update',
+          {obj: this.uiState,
+           vals: {headY: newHeadY}});
+      }
     }
+  },
+  mounted() {
+    this.updateHeadY();
+  },
+  updated() {
+    this.updateHeadY();
   }
 }
 </script>
