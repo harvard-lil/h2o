@@ -42,6 +42,7 @@ export default {
   }),
   computed: {
     ...mapGetters(["collapsible"]),
+
     sections() {
       const parser = new DOMParser();
       let doc = parser.parseFromString(this.resource.content, "text/html");
@@ -60,6 +61,10 @@ export default {
         removeEmptyNodes(doc);
         return doc.body.children;
       }
+    },
+
+    resourceId() {
+      return document.querySelector("header.casebook").dataset.resourceId;
     }
   },
   methods: {
@@ -77,7 +82,7 @@ export default {
   },
   created() {
     this.$store.commit("resources_ui/setEditability", this.editable);
-    this.list({resource_id: document.querySelector("header.casebook").dataset.resourceId});
+    if(this.resourceId) this.list({resource_id: this.resourceId});
   }
 }
 </script>
