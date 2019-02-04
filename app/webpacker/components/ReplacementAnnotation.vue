@@ -99,7 +99,8 @@ export default {
   mounted() {
     // If we've inserted a placeholder annotation so that we can edit
     // and save a new replacement, focus it once mounted.
-    if(this.isNew) {
+    if(this.isNew &&
+       this.$refs.replacementText) {
       this.$refs.replacementText.focus();
     }
   },
