@@ -120,5 +120,24 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content casebook.title
       assert_content "This casebook has unpublished changes."
     end
+
+    scenario "deleting a resource in a draft does not break ability to edit published casebook resource", js: true do
+      published_casebook = content_nodes(:published_casebook)
+      draft_casebook = content_nodes(:draft_merge_casebook)
+
+      update_ancestry(published_casebook, draft_casebook)
+
+      visit casebook_path published_casebook
+      assert_selector('.listing-wrapper', count: 4)
+
+      visit casebook_path draft_casebook
+      assert_selector('.listing-wrapper', count: 4)
+
+      draft_casebook.resources.first.destroy!
+
+      visit resource_path published_casebook, published_casebook.resources.first
+
+      click_link "Return to Draft"
+    end
   end
 end
