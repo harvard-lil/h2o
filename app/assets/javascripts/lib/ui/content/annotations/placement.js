@@ -1,16 +1,19 @@
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {
-  if (!(ranges.first.commonAncestorContainer.nodeType === document.TEXT_NODE ||
-    ranges.first.commonAncestorContainer.tagName === 'P' ||
-    ranges.first.commonAncestorContainer.classList.contains('case-text'))) {
+  const ancestor = ranges.first.commonAncestorContainer;
+  if (ranges.first.collapsed ||
+      (ancestor.nodeType !== document.TEXT_NODE &&
+       ancestor.tagName !== 'P' &&
+       !ancestor.classList.contains('case-text') &&
+       !ancestor.classList.contains('selected-text'))) {
     return null;
   }
-  if (ranges.first.collapsed) { return null; }
 
-  let startParagraph = closestP(ranges.first.startContainer);
-  let endParagraph = closestP(ranges.last.endContainer);
-  let startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
-  let endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
+  const startParagraph = closestP(ranges.first.startContainer);
+  const endParagraph = closestP(ranges.last.endContainer);
+  const startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
+  const endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
+
   return  {start_paragraph: startParagraph.dataset.index,
            start_offset: startOffset,
            end_paragraph: endParagraph.dataset.index,
@@ -27,10 +30,10 @@ export function closestP(node) {
 }
 
 export function getCaretCharacterOffsetWithin(element) {
-    var caretOffset = 0;
-    var doc = element.ownerDocument || element.document;
-    var win = doc.defaultView || doc.parentWindow;
-    var sel;
+    let caretOffset = 0;
+    const doc = element.ownerDocument || element.document;
+    const win = doc.defaultView || doc.parentWindow;
+    let sel;
     if (typeof win.getSelection != "undefined") {
         sel = win.getSelection();
         if (sel.rangeCount > 0) {
