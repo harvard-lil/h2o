@@ -4,7 +4,7 @@ require 'uri'
 class Content::AnnotationsController < ApplicationController
   before_action :find_annotation, only: [:destroy, :update]
   before_action :find_resource, only: [:index, :create, :destroy, :update]
-  before_action :check_authorized, only: [:index]
+  before_action :check_public, only: [:index]
 
   def index
     respond_to do |format|
