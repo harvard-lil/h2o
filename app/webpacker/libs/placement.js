@@ -1,4 +1,4 @@
-import { isText } from "../../../../../../webpacker/libs/html_helpers.js";
+import { isText } from "./html_helpers";
 
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {

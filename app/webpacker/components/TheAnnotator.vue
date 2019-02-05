@@ -71,7 +71,7 @@ import { isText } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-import {offsetsForRanges} from "lib/ui/content/annotations/placement";
+import { offsetsForRanges } from "../libs/placement";
 
 import SideMenu from "./SideMenu";
 import Modal from "./Modal";
