@@ -104,3 +104,6 @@ export const getAttrsMap = (el) => {
   }
   return attrmap;
 };
+
+export const getClosestElement = (node) =>
+  isText(node) ? node.parentNode : node;

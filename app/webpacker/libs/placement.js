@@ -1,34 +1,21 @@
-import { isText } from "./html_helpers";
+import { isText,
+         getClosestElement} from "./html_helpers";
 
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {
-  if (!ranges || ranges.first.collapsed) return null;
-
-  const ancestorEl =
-        isText(ranges.first.commonAncestorContainer)
-        ? ranges.first.commonAncestorContainer.parentNode
-        : ranges.first.commonAncestorContainer;
-
-  if(!ancestorEl.closest(".case-text")) return null;
-
-  const startParagraph = closestP(ranges.first.startContainer);
-  const endParagraph = closestP(ranges.last.endContainer);
-  const startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
-  const endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
-
-  return  {start_paragraph: startParagraph.dataset.index,
-           start_offset: startOffset,
-           end_paragraph: endParagraph.dataset.index,
-           end_offset: endOffset};
-}
-
-// Find the closest containing tag for the given element or text node
-export function closestP(node) {
-  if (node.nodeType === document.TEXT_NODE) {
-    return node.parentElement.closest('[data-index]');
-  } else {
-    return node.closest('[data-index]');
+  if (!ranges ||
+      ranges[0].collapsed ||
+      !getClosestElement(ranges[0].commonAncestorContainer).closest(".case-text")) {
+    return null;
   }
+
+  return ["start", "end"].reduce((m, s, i) => {
+    const container = ranges[i][`${s}Container`];
+    const p = getClosestElement(container).closest('[data-index]');
+    return {...m,
+            [`${s}_paragraph`]: p.dataset.index,
+            [`${s}_offset`]: offsetInParagraph(p, container, ranges[i][`${s}Offset`])};
+  }, {});
 }
 
 export function getCaretCharacterOffsetWithin(element) {
@@ -64,7 +51,7 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       textOffset += childNode.textContent.length;
     }
     return textOffset;
-  } else if (targetNode.nodeType === document.TEXT_NODE) {
+  } else if (isText(targetNode)) {
     let walker = document.createTreeWalker(
       paragraph,
       NodeFilter.SHOW_TEXT,
@@ -88,7 +75,7 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       false
     );
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (node.nodeType === document.TEXT_NODE) { textOffset += node.length; }
+      if (isText(node)) { textOffset += node.length; }
     }
     return textOffset;
   }

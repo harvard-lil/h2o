@@ -99,7 +99,7 @@ export default {
     offset() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-      const targetRect = this.ranges.last.getBoundingClientRect();
+      const targetRect = this.ranges[1].getBoundingClientRect();
 
       return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
                       targetRect.bottom - wrapperRect.top).toString(10) + "px";
@@ -123,8 +123,8 @@ export default {
       this.ranges =
         (!sel || sel.type != "Range")
         ? null
-        : {first: sel.getRangeAt(0),
-           last: sel.getRangeAt(sel.rangeCount-1)};
+        : [sel.getRangeAt(0),
+           sel.getRangeAt(sel.rangeCount-1)];
     },
 
     close() {
