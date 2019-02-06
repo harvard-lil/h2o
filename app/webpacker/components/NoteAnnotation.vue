@@ -20,6 +20,8 @@
     </span>
   </template>
   <span class="selected-text"
+        tabindex="0"
+        @keydown.enter="toggleExpansion(uiState)"
         @click="toggleExpansion(uiState)"><slot></slot></span>
 </span>
 </template>
@@ -42,7 +44,6 @@ export default {
 
 .selected-text {
   text-decoration: $light-blue underline;
-  outline: none;
   cursor: pointer;
 }
 
