@@ -7,22 +7,25 @@
     </li>
   </AnnotationHandle>
   <template v-if="isHead">
-    <span v-if="uiState.expanded"
+    <span v-show="uiState.expanded"
           class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
-      <button class="note-icon"
-              @click="toggleExpansion(uiState)">
+      <a class="note-icon"
+         :href="`#${annotation.id}-head`"
+         @click.prevent="handleClick">
         <i class="fas fa-paperclip"></i>
-      </button>
-      <span class="note-content">
+      </a>
+      <span :id="`${annotation.id}-content`"
+            tabindex="0"
+            class="note-content">
         {{annotation.content}}
       </span>
     </span>
   </template>
-  <span class="selected-text"
-        tabindex="0"
-        @keydown.enter="toggleExpansion(uiState)"
-        @click="toggleExpansion(uiState)"><slot></slot></span>
+  <a class="selected-text"
+     :href="`#${annotation.id}-content`"
+     :id="isHead ? `${annotation.id}-head` : ''"
+     @click.prevent="handleClick"><slot></slot></a>
 </span>
 </template>
 
@@ -34,7 +37,15 @@ const { mapActions } = createNamespacedHelpers('annotations_ui');
 export default {
   extends: AnnotationBase,
   methods: {
-    ...mapActions(['toggleExpansion'])
+    ...mapActions(['toggleExpansion']),
+
+    handleClick(e) {
+      // Setting this focus for accessibility is at odds with the expansion toggle
+      // Waiting for a decision for how to proceed here:
+      // https://github.com/harvard-lil/h2o/issues/654#issuecomment-461081248
+      document.getElementById(e.currentTarget.getAttribute("href").slice(1)).focus({preventScroll: true});
+      this.toggleExpansion(this.uiState);
+    }
   }
 }
 </script>
@@ -42,9 +53,15 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
+/* Counteract bootstrap style */
+a:active {
+  border-color: transparent;
+}
+
 .selected-text {
-  text-decoration: $light-blue underline;
-  cursor: pointer;
+  color: inherit;
+  /* Bootstrap's normalize uses !important so we must too */
+  text-decoration: $light-blue underline !important;
 }
 
 .note-content-wrapper {
@@ -69,6 +86,7 @@ export default {
   transform: translate(218%, -116%) rotate(180deg);
   z-index: 1;
   font-size: 17px;
+  color: $black;
 }
 .note-content {
   @include sans-serif($regular, 14px, 20px);
@@ -80,13 +98,5 @@ export default {
   background-color: $white;
   color: $black;
   margin: 0 20px;
-}
-
-.note-icon {
-  background: none;
-  border: none;
-  padding: 0;
-  color: $black;
-  cursor: pointer;
 }
 </style>
