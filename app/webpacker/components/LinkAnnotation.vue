@@ -61,4 +61,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+a[target="_blank"] {
+  background: url(../images/external-link-icon.svg) center right no-repeat;
+  background-size: 0.55em 0.55em;
+  padding-right: 0.7em;
+  margin-right: 0.1em;
+}
 </style>
