@@ -54,6 +54,10 @@ export default {
   display: block;
   margin: 33px 10px 0 0;
 
+  /* counteract styles that might come from the enclosing section */
+  font-style: normal;
+  text-align: left;
+
   /* TODO is this needed? */
   &.revealed {
     display: none;
