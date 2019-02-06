@@ -6,7 +6,7 @@
       <a @click="destroy(annotation)">Remove highlight</a>
     </li>
   </AnnotationHandle>
-  <span tabindex="-1" class="selected-text"><slot></slot></span>
+  <span class="selected-text"><slot></slot></span>
 </span>
 </template>
 

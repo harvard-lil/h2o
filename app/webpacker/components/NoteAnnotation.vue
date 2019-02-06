@@ -10,17 +10,16 @@
     <span v-if="uiState.expanded"
           class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
-      <span class="note-icon"
-            @click="toggleExpansion(uiState)">
+      <button class="note-icon"
+              @click="toggleExpansion(uiState)">
         <i class="fas fa-paperclip"></i>
-      </span>
+      </button>
       <span class="note-content">
         {{annotation.content}}
       </span>
     </span>
   </template>
-  <span tabindex="-1"
-        class="selected-text"
+  <span class="selected-text"
         @click="toggleExpansion(uiState)"><slot></slot></span>
 </span>
 </template>
@@ -79,6 +78,9 @@ export default {
 }
 
 .note-icon {
+  background: none;
+  border: none;
+  padding: 0;
   color: $black;
   cursor: pointer;
 }
