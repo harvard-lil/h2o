@@ -93,7 +93,7 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
                  endOffset: last(childTuples)[2]};
     
     return [h(kindToComponent(annotation.kind),
-              {key: annotation.id,
+              {key: `${annotation.id}:${index}/${props.startOffset}-${props.endOffset}`,
                props: {...props,
                        index: index,
                        annotation: annotation}},
