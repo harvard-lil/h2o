@@ -1,5 +1,10 @@
 <template>
 <span class="elision">
+  <AnnotationExpansionToggle v-if="isHead"
+                             :annotation="annotation"/>
+  <!-- Use v-show rather than v-if here so that
+       the text is included in offset calculations -->
+  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
     <li>
@@ -13,11 +18,6 @@
       <a @click="destroy(annotation)">Remove elision</a>
     </li>
   </AnnotationHandle>
-  <AnnotationExpansionToggle v-if="isHead"
-                             :annotation="annotation"/>
-  <!-- Use v-show rather than v-if here so that 
-       the text is included in offset calculations -->
-  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
 </span>
 </template>
 

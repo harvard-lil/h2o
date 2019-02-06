@@ -1,5 +1,9 @@
 <template>
 <span class="note">
+  <a class="selected-text"
+     :href="`#${annotation.id}-content`"
+     :id="isHead ? `${annotation.id}-head` : ''"
+     @click.prevent="handleClick"><slot></slot></a>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
     <li>
@@ -22,10 +26,6 @@
       </span>
     </span>
   </template>
-  <a class="selected-text"
-     :href="`#${annotation.id}-content`"
-     :id="isHead ? `${annotation.id}-head` : ''"
-     @click.prevent="handleClick"><slot></slot></a>
 </span>
 </template>
 

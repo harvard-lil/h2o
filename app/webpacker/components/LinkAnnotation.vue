@@ -1,5 +1,6 @@
 <template>
 <span class="link">
+  <a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
   <template v-if="hasHandle">
     <AnnotationHandle :ui-state="uiState">
       <li>
@@ -17,7 +18,6 @@
       </form>
     </ContextMenu>
   </template>
-  <a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
 </span>
 </template>
 

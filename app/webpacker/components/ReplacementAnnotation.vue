@@ -1,6 +1,22 @@
 <template>
 <span class="replacement"
       :class="{head: isHead, tail: addTailClass}">
+  <template v-if="isHead">
+    <AnnotationExpansionToggle v-if="uiState.expanded"
+                               :annotation="annotation"/>
+    <span v-else
+          ref="replacementText"
+          class="replacement-text"
+          data-exclude-from-offset-calcs="true"
+          @click="toggleIfNotEditable"
+          @blur="revert"
+          @keydown.enter.prevent="submit"
+          @keyup.esc="$event.target.blur"
+          v-contenteditable:content="isEditable"></span>
+  </template>
+  <!-- Use v-show rather than v-if here so that
+       the text is included in offset calculations -->
+  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
     <li>
@@ -14,27 +30,11 @@
       <a @click="destroy(annotation)">Remove replacement</a>
     </li>
   </AnnotationHandle>
-  <template v-if="isHead">
-    <AnnotationExpansionToggle v-if="uiState.expanded"
-                               :annotation="annotation"/>
-    <span v-else
-          ref="replacementText"
-          class="replacement-text"
-          data-exclude-from-offset-calcs="true"
-          @click="toggleIfNotEditable"
-          @blur="revert"
-          @keydown.enter.prevent="submit"
-          @keyup.esc="$event.target.blur"
-          v-contenteditable:content="isEditable"></span>
-    <SideMenu v-if="isModified">
-      <!-- Use mousedown to prevent replacementText from blurring too soon -->
-      <li><a @mousedown.prevent="submit">Save</a></li>
-      <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
-    </SideMenu>
-  </template>
-  <!-- Use v-show rather than v-if here so that
-       the text is included in offset calculations -->
-  <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
+  <SideMenu v-if="isHead && isModified">
+    <!-- Use mousedown to prevent replacementText from blurring too soon -->
+    <li><a @mousedown.prevent="submit">Save</a></li>
+    <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
+  </SideMenu>
 </span>
 </template>
 
