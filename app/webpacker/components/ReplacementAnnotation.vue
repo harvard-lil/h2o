@@ -21,6 +21,7 @@
           ref="replacementText"
           class="replacement-text"
           data-exclude-from-offset-calcs="true"
+          @click="toggleIfNotEditable"
           @blur="revert"
           @keydown.enter.prevent="submit"
           @keyup.esc="$event.target.blur"
@@ -78,6 +79,11 @@ export default {
     ...mapUIActions(["toggleExpansion"]),
     ...mapActions(["createAndUpdate",
                    "update"]),
+
+    toggleIfNotEditable() {
+      if(!this.isEditable) this.toggleExpansion(this.uiState);
+    },
+
     submit() {
       if(this.isModified && this.content){
         this[this.isNew ? "createAndUpdate" : "update"](
