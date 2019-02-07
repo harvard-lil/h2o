@@ -3,7 +3,6 @@
       role="button"
       tabindex="0"
       data-exclude-from-offset-calcs="true"
-      :aria-label="ariaLabel"
       :aria-expanded="uiState.expanded || 'false'"
       :class="{expanded: uiState.expanded}"
       @click="toggleExpansion(uiState)"
@@ -23,9 +22,7 @@ const { mapActions } = createNamespacedHelpers('annotations_ui');
 export default {
   props: {
     annotation: {type: Object,
-                 required: true},
-    ariaLabel: {type: String,
-                required: false}
+                 required: true}
   },
   computed: {
     uiState() {

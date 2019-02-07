@@ -2,7 +2,7 @@
 <span class="elision">
   <AnnotationExpansionToggle v-if="isHead"
                              :annotation="annotation"
-                             ariaLabel="elided text"/>
+                             aria-label="elided text"/>
   <!-- Use v-show rather than v-if here so that
        the text is included in offset calculations -->
   <span v-show="uiState.expanded"
