@@ -3,7 +3,7 @@
         data-exclude-from-offset-calcs="true"
         @click="toggleExpansion(uiState)"
         aria-label="elided text"
-        :aria-expanded="uiState.expanded"
+        :aria-expanded="uiState.expanded || 'false'"
         :class="{expanded: uiState.expanded}"></button>
 </template>
 
