@@ -26,6 +26,8 @@
   <!-- Use v-show rather than v-if here so that
        the text is included in offset calculations -->
   <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
+  <span v-if="isTail && uiState.expanded"
+        class="sr-only">(end of replaced text)</span>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
     <li>
