@@ -9,9 +9,9 @@
       @keydown.enter="toggleExpansion(uiState)"
       @keydown.space.prevent="toggleExpansion(uiState)">
   <slot name="expanded"
-        v-if="uiState.expanded">hide</slot>
+        v-if="uiState.expanded"></slot>
   <slot name="collapsed"
-        v-else><strong class="ellipsis">...</strong></slot>
+        v-else></slot>
 </span>
 </template>
 
@@ -42,9 +42,13 @@ export default {
   background-color: $translucent-light-gray;
   color: $light-blue;
   padding: 0.35em;
-}
-.ellipsis {
-  padding: 0 0.15em;
-  text-decoration: none;
+  &:empty::before {
+    font-weight: $bold;
+    padding: 0 0.15em;
+    content: '...';
+  }
+  &.expanded:empty::before {
+    content: 'hide';
+  }
 }
 </style>
