@@ -2,26 +2,18 @@
 <span class="replacement"
       :class="{head: isHead, tail: addTailClass}">
   <template v-if="isHead">
-    <AnnotationExpansionToggle v-if="uiState.expanded"
-                               ref="expansionToggle"
-                               :annotation="annotation"/>
-    <template v-else>
-      <span v-if="isEditable"
-            ref="replacementText"
-            class="replacement-text"
-            data-exclude-from-offset-calcs="true"
-            @blur="revert"
-            @keydown.enter.prevent="submit"
-            @keyup.esc="$event.target.blur"
-            v-contenteditable:content="true"></span>
-      <span v-else
-            class="replacement-text"
-            role="button"
-            tabindex="0"
-            @click="toggle"
-            @keydown.enter="toggle"
-            @keydown.space.prevent="toggle">{{content}}</span>
-    </template>
+    <AnnotationExpansionToggle v-if="!isEditable || uiState.expanded"
+                               :annotation="annotation">
+      <template v-slot:collapsed>{{content}}</template>
+    </AnnotationExpansionToggle>
+    <span v-else
+          ref="replacementText"
+          class="replacement-text"
+          data-exclude-from-offset-calcs="true"
+          @blur="revert"
+          @keydown.enter.prevent="submit"
+          @keyup.esc="$event.target.blur"
+          v-contenteditable:content="true"></span>
   </template>
   <!-- Use v-show rather than v-if here so that
        the text is included in offset calculations -->
@@ -90,13 +82,6 @@ export default {
     ...mapUIActions(["toggleExpansion"]),
     ...mapActions(["createAndUpdate",
                    "update"]),
-
-    toggle() {
-      this.toggleExpansion(this.uiState);
-      this.$nextTick(
-        () => this.$refs.expansionToggle && this.$refs.expansionToggle.$el.focus()
-      );
-    },
 
     submit() {
       if(this.isModified && this.content){
