@@ -55,5 +55,5 @@
 <% else %>
   <section class="no-headnote"></section>
 <% end %>
-<the-resource-body :resource="<%= @resource.resource.to_json %>"
-                   :editable="<%= @editable || false %>"></the-resource-body>
+
+<%= render partial: 'content/resources/embed', locals: {resource: @resource, editable: @editable} %>
