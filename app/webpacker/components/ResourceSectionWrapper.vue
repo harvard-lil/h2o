@@ -42,10 +42,6 @@ export default {
 
   float: left;
   position: relative;
-
-  &[data-elided-annotation]:not(.revealed){
-    display: none;
-  }
 }
 .number {
   @include sans-serif($regular, 12px, 12px);
