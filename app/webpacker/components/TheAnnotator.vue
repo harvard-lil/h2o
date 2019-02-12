@@ -1,7 +1,7 @@
 <template>
 <div id="the-annotator"
      data-exclude-from-offset-calcs="true">
-  <SideMenu v-if="ranges"
+  <SideMenu v-if="offsets"
             :style="{top: offset}">
     <li>
       <a id="create-highlight"
@@ -27,6 +27,7 @@
   <ContextMenu ref="linkMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('link', content)"
+          @keyup.esc="close"
           class="form">
       <LinkInput ref="linkInput"
                  v-model="content"/>
@@ -36,13 +37,17 @@
   <ContextMenu ref="noteMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('note', content)"
+          @keyup.esc="close"
           class="form"
           id="note-form">
       <textarea ref="noteInput"
                 id="note-textarea"
+                required="true"
                 placeholder="Note text..."
+                @keydown.enter.prevent="$refs.noteSubmitButton.click"
                 v-model="content"></textarea>
-      <input type="submit"
+      <input ref="noteSubmitButton"
+             type="submit"
              value="Save"
              id="save-note"
              class="button">
@@ -66,7 +71,7 @@ import { isText } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-import {offsetsForRanges} from "lib/ui/content/annotations/placement";
+import { offsetsForRanges } from "../libs/placement";
 
 import SideMenu from "./SideMenu";
 import Modal from "./Modal";
@@ -94,7 +99,7 @@ export default {
     offset() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
-      const targetRect = this.ranges.last.getBoundingClientRect();
+      const targetRect = this.ranges[1].getBoundingClientRect();
 
       return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
                       targetRect.bottom - wrapperRect.top).toString(10) + "px";
@@ -118,8 +123,8 @@ export default {
       this.ranges =
         (!sel || sel.type != "Range")
         ? null
-        : {first: sel.getRangeAt(0),
-           last: sel.getRangeAt(sel.rangeCount-1)};
+        : [sel.getRangeAt(0),
+           sel.getRangeAt(sel.rangeCount-1)];
     },
 
     close() {

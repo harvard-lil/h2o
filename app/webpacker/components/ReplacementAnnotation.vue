@@ -2,39 +2,42 @@
 <span class="replacement"
       :class="{head: isHead, tail: addTailClass}">
   <template v-if="isHead">
-    <template v-if="annotation.id">
-      <AnnotationHandle :ui-state="uiState">
-        <li>
-          <a @click="toggleExpansion(uiState)">
-            <template v-if="uiState.expanded">Hide</template>
-            <template v-else>Reveal</template>
-            original text
-          </a>
-        </li>
-        <li>
-          <a @click="destroy(annotation)">Remove replacement</a>
-        </li>
-      </AnnotationHandle>
-      <AnnotationExpansionToggle :annotation="annotation"
-                                 v-if="uiState.expanded"/>
-    </template>
-    <span v-if="!uiState.expanded"
+    <AnnotationExpansionToggle v-if="!isEditable || uiState.expanded"
+                               :annotation="annotation">
+      <template v-slot:collapsed>{{content}}</template>
+    </AnnotationExpansionToggle>
+    <span v-else
           ref="replacementText"
           class="replacement-text"
           data-exclude-from-offset-calcs="true"
           @blur="revert"
           @keydown.enter.prevent="submit"
           @keyup.esc="$event.target.blur"
-          v-contenteditable:content="editable"></span>
-    <SideMenu v-if="isModified">
-      <!-- Use mousedown to prevent replacementText from blurring too soon -->
-      <li><a @mousedown.prevent="submit">Save</a></li>
-      <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
-    </SideMenu>
+          v-contenteditable:content="true"></span>
   </template>
   <!-- Use v-show rather than v-if here so that
        the text is included in offset calculations -->
   <span v-show="uiState.expanded" class="selected-text"><slot></slot></span>
+  <span v-if="isTail && uiState.expanded"
+        class="sr-only">(end of replaced text)</span>
+  <AnnotationHandle v-if="hasHandle"
+                    :ui-state="uiState">
+    <li>
+      <a @click="toggleExpansion(uiState)">
+        <template v-if="uiState.expanded">Hide</template>
+        <template v-else>Reveal</template>
+        original text
+      </a>
+    </li>
+    <li>
+      <a @click="destroy(annotation)">Remove replacement</a>
+    </li>
+  </AnnotationHandle>
+  <SideMenu v-if="isHead && isModified">
+    <!-- Use mousedown to prevent replacementText from blurring too soon -->
+    <li><a @mousedown.prevent="submit">Save</a></li>
+    <li><a @mousedown.prevent="$refs.replacementText.blur">Cancel</a></li>
+  </SideMenu>
 </span>
 </template>
 
@@ -66,9 +69,6 @@ export default {
         this.newVals.content = value;
       }
     },
-    editable() {
-      return this.$store.getters["resources_ui/getEditability"]
-    },
     isModified() {
       // if it's a new annotation or the content has been changed
       return this.isNew || this.content != this.annotation.content;
@@ -82,8 +82,9 @@ export default {
     ...mapUIActions(["toggleExpansion"]),
     ...mapActions(["createAndUpdate",
                    "update"]),
+
     submit() {
-      if(this.isModified){
+      if(this.isModified && this.content){
         this[this.isNew ? "createAndUpdate" : "update"](
           {obj: this.annotation, vals: this.newVals}
         );
@@ -103,7 +104,8 @@ export default {
   mounted() {
     // If we've inserted a placeholder annotation so that we can edit
     // and save a new replacement, focus it once mounted.
-    if(this.isNew) {
+    if(this.isNew &&
+       this.$refs.replacementText) {
       this.$refs.replacementText.focus();
     }
   },

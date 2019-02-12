@@ -22,7 +22,10 @@ class Content::Annotation < ApplicationRecord
   end
 
   def content=(value)
-    value = UrlDomainFormatter.format(value) if kind == 'link'
+    if kind == 'link' && value.present?
+      value = UrlDomainFormatter.format(value)
+    end
+
     super(value)
   end
 end

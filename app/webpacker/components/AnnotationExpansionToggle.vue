@@ -1,10 +1,18 @@
 <template>
-<button class="toggle"
-        data-exclude-from-offset-calcs="true"
-        @click="toggleExpansion(uiState)"
-        aria-label="elided text"
-        :aria-expanded="uiState.expanded"
-        :class="{expanded: uiState.expanded}"></button>
+<span class="toggle"
+      role="button"
+      tabindex="0"
+      data-exclude-from-offset-calcs="true"
+      :aria-expanded="uiState.expanded || 'false'"
+      :class="{expanded: uiState.expanded}"
+      @click="toggleExpansion(uiState)"
+      @keydown.enter="toggleExpansion(uiState)"
+      @keydown.space.prevent="toggleExpansion(uiState)">
+  <slot name="expanded"
+        v-if="uiState.expanded"></slot>
+  <slot name="collapsed"
+        v-else></slot>
+</span>
 </template>
 
 <script>
@@ -31,24 +39,16 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .toggle {
-  display: inline-block;
-  cursor: zoom-in;
-  border: none;
   background-color: $translucent-light-gray;
   color: $light-blue;
-  padding: 0 0.5em;
-  &::before {
+  padding: 0.35em;
+  &:empty::before {
     font-weight: $bold;
+    padding: 0 0.15em;
     content: '...';
   }
-  &:focus {
-    @include generic-focus-styles;
-  }
-  &.expanded {
-    cursor: zoom-out;
-    &::before {
-      content: 'hide';
-    }
+  &.expanded:empty::before {
+    content: 'hide';
   }
 }
 </style>

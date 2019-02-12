@@ -1,36 +1,28 @@
+import { isText,
+         getClosestElement} from "./html_helpers";
+
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {
-  if (!(ranges.first.commonAncestorContainer.nodeType === document.TEXT_NODE ||
-    ranges.first.commonAncestorContainer.tagName === 'P' ||
-    ranges.first.commonAncestorContainer.classList.contains('case-text'))) {
+  if (!ranges ||
+      ranges[0].collapsed ||
+      !getClosestElement(ranges[0].commonAncestorContainer).closest(".case-text")) {
     return null;
   }
-  if (ranges.first.collapsed) { return null; }
 
-  let startParagraph = closestP(ranges.first.startContainer);
-  let endParagraph = closestP(ranges.last.endContainer);
-  let startOffset = offsetInParagraph(startParagraph, ranges.first.startContainer, ranges.first.startOffset);
-  let endOffset = offsetInParagraph(endParagraph, ranges.last.endContainer, ranges.last.endOffset);
-  return  {start_paragraph: startParagraph.dataset.index,
-           start_offset: startOffset,
-           end_paragraph: endParagraph.dataset.index,
-           end_offset: endOffset};
-}
-
-// Find the closest containing tag for the given element or text node
-export function closestP(node) {
-  if (node.nodeType === document.TEXT_NODE) {
-    return node.parentElement.closest('[data-index]');
-  } else {
-    return node.closest('[data-index]');
-  }
+  return ["start", "end"].reduce((m, s, i) => {
+    const container = ranges[i][`${s}Container`];
+    const p = getClosestElement(container).closest('[data-index]');
+    return {...m,
+            [`${s}_paragraph`]: p.dataset.index,
+            [`${s}_offset`]: offsetInParagraph(p, container, ranges[i][`${s}Offset`])};
+  }, {});
 }
 
 export function getCaretCharacterOffsetWithin(element) {
-    var caretOffset = 0;
-    var doc = element.ownerDocument || element.document;
-    var win = doc.defaultView || doc.parentWindow;
-    var sel;
+    let caretOffset = 0;
+    const doc = element.ownerDocument || element.document;
+    const win = doc.defaultView || doc.parentWindow;
+    let sel;
     if (typeof win.getSelection != "undefined") {
         sel = win.getSelection();
         if (sel.rangeCount > 0) {
@@ -59,7 +51,7 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       textOffset += childNode.textContent.length;
     }
     return textOffset;
-  } else if (targetNode.nodeType === document.TEXT_NODE) {
+  } else if (isText(targetNode)) {
     let walker = document.createTreeWalker(
       paragraph,
       NodeFilter.SHOW_TEXT,
@@ -83,7 +75,7 @@ export function offsetInParagraph(paragraph, targetNode, nodeOffset) {
       false
     );
     for (let node = walker.nextNode(); node !== targetNode; node = walker.nextNode()) {
-      if (node.nodeType === document.TEXT_NODE) { textOffset += node.length; }
+      if (isText(node)) { textOffset += node.length; }
     }
     return textOffset;
   }

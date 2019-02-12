@@ -12,6 +12,12 @@ const replaceTag = (el, newTag) => {
   el.parentNode.replaceChild(newEl, el);
 };
 
+const wrap = (el, wrapperTag) => {
+  let wrapper = document.createElement(wrapperTag);
+  el.parentNode.insertBefore(wrapper, el);
+  wrapper.appendChild(el);
+};
+
 const unwrap = (el) => {
   let parent = el.parentNode;
   while (el.firstChild) parent.insertBefore(el.firstChild, el);
@@ -32,7 +38,7 @@ export const emptyULToP = (doc) => {
 
 export const wrapBareInlineTags = (doc) => {
   doc.querySelectorAll("body > :not(p):not(center):not(blockquote):not(article)")
-      .forEach(el => replaceTag(el, "p"));
+      .forEach(el => wrap(el, "p"));
   return doc;
 };
 
@@ -59,6 +65,11 @@ const BLOCK_LEVEL_ELEMENTS = [
   "FIGURE",
   "FOOTER",
   "FORM",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
   "H6",
   "HEADER",
   "HGROUP",
@@ -78,10 +89,10 @@ export const isBlockLevel = (el) =>
   BLOCK_LEVEL_ELEMENTS.includes(el.tagName);
 
 export const isElement = (node) =>
-  node.nodeType == 1;
+  node.nodeType == document.ELEMENT_NODE;
 
 export const isText = (node) =>
-  node.nodeType == 3;
+  node.nodeType == document.TEXT_NODE;
 
 export const isBR = (node) =>
   node.tagName == "BR";
@@ -98,3 +109,6 @@ export const getAttrsMap = (el) => {
   }
   return attrmap;
 };
+
+export const getClosestElement = (node) =>
+  isText(node) ? node.parentNode : node;

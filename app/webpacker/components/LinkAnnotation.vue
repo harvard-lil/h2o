@@ -1,7 +1,7 @@
 <template>
 <span class="link">
-  <template v-if="isHead"
-            data-exclude-from-offset-calcs="true">
+  <a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
+  <template v-if="hasHandle">
     <AnnotationHandle :ui-state="uiState">
       <li>
         <a @click.prevent="$refs.editMenu.open">Edit link</a>
@@ -10,13 +10,14 @@
         <a @click="destroy(annotation)">Remove link</a>
       </li>
     </AnnotationHandle>
-    <ContextMenu ref="editMenu" :closeOnClick="false">
+    <ContextMenu ref="editMenu"
+                 data-exclude-from-offset-calcs="true"
+                 :closeOnClick="false">
       <form @submit.prevent="submitUpdate">
         <LinkInput v-model="content"/>
       </form>
     </ContextMenu>
   </template>
-  <a :href="annotation.content" target="_blank" class="selected-text"><slot></slot></a>
 </span>
 </template>
 
@@ -60,4 +61,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+a[target="_blank"] {
+  background: url(../images/external-link-icon.svg) center right no-repeat;
+  background-size: 0.55em 0.55em;
+  padding-right: 0.7em;
+  margin-right: 0.1em;
+}
 </style>

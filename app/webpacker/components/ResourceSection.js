@@ -48,13 +48,13 @@ const transformToTuplesWithOffsets = (parentStart) =>
     
 const splitTextAt = (breakpoints, [node, start, end]) =>
   breakpoints
-  // remove any offsets that fall on or outside of the Text node
+    // remove any offsets that fall on or outside of the Text node
     .filter(breakpoint =>
             breakpoint > start &&
             breakpoint < end)
-  // split the Text node; splitText() mutates the existing node
-  // in our array, truncating it, and returns a new node with
-  // the remaining text
+    // split the Text node; splitText() mutates the existing node
+    // in our array, truncating it, and returns a new node with
+    // the remaining text
     .reduce((tuples, breakpoint) => {
       let [prevNode, prevStart, prevEnd] = last(tuples);
       let node = prevNode.splitText(breakpoint - prevStart);
@@ -68,8 +68,8 @@ const annotateAndConvertToVNodes = (h, tuples, index, enclosingAnnotationIds) =>
       .map(tupleToVNode(h, index, enclosingAnnotationIds));
 
 // Find nodes that are within a range of offsets, stopping at the first
-// block level element found. Allows us to greedily group notes into
-// annotations without grouping block level elements into it.
+// block level element found. Allows us to greedily group nodes into
+// annotations without grouping block level elements into them.
 const sequentialInlineNodesWithinRange = (tuples, start, end) => {
   let inRange = tuples.filter(t => t[1] >= start && t[2] <= end);
   const firstBlock = inRange.findIndex(t => isBlockLevel(t[0]));
@@ -93,8 +93,9 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
                  endOffset: last(childTuples)[2]};
     
     return [h(kindToComponent(annotation.kind),
-              {key: annotation.id,
+              {key: `${annotation.id}:${index}/${props.startOffset}-${props.endOffset}`,
                props: {...props,
+                       index: index,
                        annotation: annotation}},
               annotateAndConvertToVNodes(h, childTuples, index, enclosingAnnotationIds.concat([annotation.id]))),
             props.startOffset,
@@ -123,7 +124,7 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
       return modifiedTuples.concat([tuple]);
     } else {
       return modifiedTuples.concat([
-        store.getters['annotations/getAtIndexAndOffset'](index, start)
+        store.getters['annotations/getSpanningOffsets'](index, start, end)
         // longest to shortest
           .sort((a, b) =>
                 (b.end_paragraph == index ? b.end_offset : Number.MAX_VALUE) -

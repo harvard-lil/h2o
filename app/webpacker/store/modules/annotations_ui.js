@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.esm';
 
 const COLLAPSIBLE_KINDS = ["elide", "replace"];
+export const Y_FIDELITY = 5;
 
 const state = {
   all: []
@@ -21,7 +22,7 @@ const getters = {
     // sometimes report different fractional pixels for
     // elements on the same line. We've picked "5" out of an
     // abundance of caution.
-    state.all.filter(obj => Math.max(5, Math.abs(obj.headY - headY)) == 5),
+    state.all.filter(obj => Math.max(Y_FIDELITY, Math.abs(obj.headY - headY)) == Y_FIDELITY),
 
   collapsible: (state, getters) =>
     getters.getByKind(COLLAPSIBLE_KINDS),
@@ -38,16 +39,22 @@ const actions = {
     // in order to trigger a recalculation of their headY value and potential
     // rerender of where their edit handle should be placed
     let annotation = rootGetters["annotations/getById"](payload.id);
-    rootGetters["annotations/getInSectionStartingAtOrAfter"](annotation.end_paragraph, annotation.end_offset)
+    rootGetters["annotations/getInSectionStartingAtOrAfter"](annotation.start_paragraph, annotation.start_offset)
       .forEach(a => commit("update", {obj: getters.getById(a.id),
                                      vals: {headY: null}}));
   },
 
-  toggleAllExpansions: ({dispatch, getters }) =>
+  toggleAllExpansions: ({ dispatch, getters }) =>
     getters
-      .collapsible
-      .filter(s => s.expanded == getters.areAllExpanded)
-      .forEach(s => dispatch("toggleExpansion", s))
+    .collapsible
+    .filter(s => s.expanded == getters.areAllExpanded)
+    .forEach(s => dispatch("toggleExpansion", s)),
+
+  expandById: ({ dispatch, getters }, payload) =>
+    getters
+    .collapsible
+    .filter(s => payload.includes(s.id))
+    .forEach(s => dispatch("toggleExpansion", s))
 };
 
 const mutations = {
@@ -61,13 +68,7 @@ const mutations = {
     state.all.splice(state.all.indexOf(payload), 1),
 
   toggleExpansion: (state, payload) =>
-    Vue.set(payload, 'expanded', !payload.expanded),
-
-  expandById: (state, payload) =>
-    payload
-    .map(id => getters.getById(state)(id))
-    .filter(obj => COLLAPSIBLE_KINDS.includes(obj.kind))
-    .forEach(obj => Vue.set(obj, 'expanded', true))
+    Vue.set(payload, 'expanded', !payload.expanded)
 };
 
 export default {

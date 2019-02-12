@@ -347,6 +347,14 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
   }
 
+  /* TODO: this block is duplicated in TheResourceBody.vue; factor out at some point */
+  .link-resource {
+    position: relative;
+    margin-bottom: 24px;
+    padding: 40px;
+    background-color: $white;
+  }
+
   .table-of-contents, .search-results {
     .listing-wrapper {
       position: relative;

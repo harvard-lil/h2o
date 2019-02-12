@@ -27,7 +27,8 @@ const getters = {
                            obj.start_offset >= offset),
 
   // Annotations that entirely span (or exceed) the provided offsets.
-  // Used for determining if an annotation that spans an entire
+  // Used when inserting annotations at breakpoints, as well as
+  // determining if an annotation that spans an entire
   // section / paragraph has been collapsed, thereby requiring that
   // we hide that section's number in the lefthand column
   getSpanningOffsets: state => (index, start, end) =>
@@ -51,20 +52,6 @@ const getters = {
         (obj.end_paragraph == index &&
          obj.end_offset > start &&
          obj.end_offset < end)
-    ),
-
-  // Annotations that exist at the specified point,
-  // because they start, end, or span across that point.
-  // Used during case text parsing to determine which
-  // annotations might need to be rendered at the start offset
-  // of a particular element.
-  getAtIndexAndOffset: state => (index, offset) =>
-    state.all.filter(
-      obj =>
-        (obj.start_paragraph < index ||
-         (obj.start_paragraph == index && obj.start_offset <= offset)) &&
-        (obj.end_paragraph > index ||
-         (obj.end_paragraph == index && obj.end_offset > offset))
     )
 };
 
