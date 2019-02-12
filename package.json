@@ -5,7 +5,7 @@
     "axios": "^0.16.1",
     "bluebird": "^3.5.0",
     "bootstrap-sass": "3.3.7",
-    "ckeditor": "4.6.1",
+    "ckeditor": "4.11.0",
     "classlist-polyfill": "^1.2.0",
     "debounce": "^1.0.2",
     "delegate": "^3.1.2",
