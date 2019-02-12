@@ -10,6 +10,8 @@ const state = {
 };
 
 const getters = {
+  getCount: state => state.all.length,
+
   getById: state => id =>
     state.all.find(
       obj => obj.id === id
