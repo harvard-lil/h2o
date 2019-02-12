@@ -2,6 +2,8 @@ const { environment } = require('@rails/webpacker');
 const webpack = require('webpack');
 const { resolve } = require("path");
 const vue = require('./loaders/vue');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+
 
 // alias assets dir to ~assets for SASS url() styles
 environment.config.merge({resolve: {alias: {assets: resolve("app", "assets")}}});
@@ -26,4 +28,5 @@ environment.plugins.append('Provide', new webpack.ProvidePlugin({
 }));
 
 environment.loaders.append('vue', vue);
+environment.plugins.append('vue-loader', new VueLoaderPlugin());
 module.exports = environment;
