@@ -15,14 +15,10 @@ class Content::Resource < Content::Child
       Nokogiri::HTML(resource.content) {|config| config.strict.noblanks})
   end
 
-  def annotated_paragraphs(editable: false, exporting: false, include_annotations: include_annotations)
+  def annotated_paragraphs
     nodes = paragraph_nodes
     #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
-
-    nodes.each_with_index do |p_node, p_idx|
-      p_node['data-p-idx'] = p_idx
-    end
 
     annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
       if annotation.kind.in? %w(note link)
@@ -33,7 +29,7 @@ class Content::Resource < Content::Child
         Notifier.missing_annotations(self.users.pluck(:email_address, :attribution), self, annotation)
       else
         nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
-          ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting, include_annotations: include_annotations})
+          ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index})
         end
       end
     end
