@@ -36,7 +36,6 @@ module.exports = function(api) {
       ]
     ].filter(Boolean),
     plugins: [
-      require('@babel/plugin-transform-modules-commonjs').default,
       require('babel-plugin-macros'),
       require('@babel/plugin-syntax-dynamic-import').default,
       isTestEnv && require('babel-plugin-dynamic-import-node'),
