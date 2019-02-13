@@ -21,7 +21,8 @@ class ApplyAnnotationToParagraphs
   end
 
   def perform
-    if (paragraph_index != start_paragraph && paragraph_index != end_paragraph) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
+    if (paragraph_index != start_paragraph || start_offset == 0) &&
+       (paragraph_index != end_paragraph || end_offset == paragraph_node.text.length)
       # wrap entire p node in annotation
       # if it's an elision, exclude it entirely
       paragraph_node.children = kind == 'elide' ? '' : annotate_html(paragraph_node.inner_html)

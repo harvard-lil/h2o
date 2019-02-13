@@ -35,7 +35,8 @@ class Content::Resource < Content::Child
       end
     end
 
-    HTMLHelpers.filter_empty_nodes!(nodes)
+    # remove any empty nodes, usually paragraphs that were fully elided in the prev step
+    nodes.filter(":not(:empty)")
   end
 
   def title
