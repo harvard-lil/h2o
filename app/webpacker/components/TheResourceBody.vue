@@ -126,10 +126,6 @@ export default {
     span p {
       display: inline; // yes, p in span is illegal, but we have them
     }
-    &[data-elided-annotation]:not(.revealed){
-      margin: 0;
-      padding: 0;
-    }
   }
 }
 </style>
