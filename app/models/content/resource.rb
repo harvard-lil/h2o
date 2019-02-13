@@ -20,21 +20,22 @@ class Content::Resource < Content::Child
     #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
 
-    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each do |annotation|
       if annotation.kind.in? %w(note link)
         export_footnote_index += 1
       end
 
-      if nodes[annotation.start_paragraph..annotation.end_paragraph].nil?
+      annotatedNodes = nodes[annotation.start_paragraph..annotation.end_paragraph]
+      if annotatedNodes.nil?
         Notifier.missing_annotations(self.users.pluck(:email_address, :attribution), self, annotation)
       else
-        nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
+        annotatedNodes.each_with_index do |paragraph_node, paragraph_index|
           ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index})
         end
       end
     end
 
-    nodes
+    HTMLHelpers.filter_empty_nodes!(nodes)
   end
 
   def title

@@ -23,7 +23,8 @@ class ApplyAnnotationToParagraphs
   def perform
     if (paragraph_index != start_paragraph && paragraph_index != end_paragraph) || (paragraph_index == end_paragraph && paragraph_index != start_paragraph && end_offset == paragraph_node.text.length)
       # wrap entire p node in annotation
-      paragraph_node.children = annotate_html(paragraph_node.inner_html)
+      # if it's an elision, exclude it entirely
+      paragraph_node.children = kind == 'elide' ? '' : annotate_html(paragraph_node.inner_html)
       return
     end
 
@@ -32,7 +33,7 @@ class ApplyAnnotationToParagraphs
     noninitial = paragraph_index != start_paragraph
 
     paragraph_node.traverse do |node|
-      next unless node.text?
+      next unless node.text? && node.parent['data-exclude-from-offset-calcs'] != 'true'
 
       if noninitial
         if middle_paragraph?(node, paragraph_offset)
@@ -63,11 +64,12 @@ class ApplyAnnotationToParagraphs
   def annotate_html(selected_text)
     suffix = ['link', 'note'].include?(kind) ? '*' * export_footnote_index : ''
     cssClass = {'elide' => 'elided',
-                'replace' => 'replaced',
                 'highlight' => 'highlighted'}[kind] || kind
     case kind
     when 'link' then
       "<a href='#{escaped_content}' class='annotate #{cssClass}'>#{selected_text}</a>#{suffix}"
+    when 'replace' then
+      "<span class='annotate replacement' data-exclude-from-offset-calcs='true'>#{escaped_content}</span><span class='annotate replaced'>#{selected_text}</span>"
     else
       "<span class='annotate #{cssClass}'>#{selected_text}</span>#{suffix}"
     end
