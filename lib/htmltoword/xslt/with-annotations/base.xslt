@@ -340,7 +340,18 @@
 
   <xsl:template match="details" />
 
-
+  <xsl:template match="*[@msword-style]">
+    <w:r>
+      <w:rPr>
+        <w:rStyle>
+          <xsl:attribute name="w:val">
+            <xsl:value-of select="./@msword-style"/>
+          </xsl:attribute>
+        </w:rStyle>
+      </w:rPr>
+      <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
+    </w:r>
+  </xsl:template>
 
   <xsl:template match="text()[not(parent::tr) and not(parent::ul)]">
     <xsl:if test="string-length(.) > 0">
@@ -366,9 +377,6 @@
           </xsl:if>
           <xsl:if test="ancestor::span[contains(@class, 'annotate highlighted')]">
             <w:highlight w:val="yellow" />
-          </xsl:if>
-          <xsl:if test="ancestor::span[contains(@class, 'annotate replacement')]">
-            <w:rStyle w:val="ReplacementText"/>
           </xsl:if>
         </w:rPr>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
