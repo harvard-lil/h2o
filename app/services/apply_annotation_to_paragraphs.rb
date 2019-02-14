@@ -63,14 +63,16 @@ class ApplyAnnotationToParagraphs
   private
 
   def annotate_html(selected_text)
-    suffix = ['link', 'note'].include?(kind) ? '*' * export_footnote_index : ''
+    suffix = ['link', 'note'].include?(kind) ?
+               "<span msword-style='FootnoteReference'>#{'*' * export_footnote_index}</span>" :
+               ''
     cssClass = {'elide' => 'elided',
                 'highlight' => 'highlighted'}[kind] || kind
     case kind
     when 'link' then
       "<a href='#{escaped_content}' class='annotate #{cssClass}'>#{selected_text}</a>#{suffix}"
     when 'replace' then
-      "<span class='annotate replacement' data-exclude-from-offset-calcs='true'>#{escaped_content}</span><span class='annotate replaced'>#{selected_text}</span>"
+      "<span msword-style='ReplacementText' data-exclude-from-offset-calcs='true'>#{escaped_content}</span><span class='annotate replaced'>#{selected_text}</span>"
     else
       "<span class='annotate #{cssClass}'>#{selected_text}</span>#{suffix}"
     end

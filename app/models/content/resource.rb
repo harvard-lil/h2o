@@ -47,14 +47,14 @@ class Content::Resource < Content::Child
     footnote_annotations = ""
     idx = 0
 
-    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation, index|
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each do |annotation|
       if annotation.kind.in? %w(note link)
         idx += 1
-        footnote_annotations += "#{("*" * (idx)) + annotation.content} "
+        footnote_annotations += "<span msword-style='FootnoteReference'>#{("*" * (idx))}</span>#{ApplicationController.helpers.send(:html_escape, annotation.content)} "
       end
     end
 
-    footnote_annotations
+    footnote_annotations.html_safe
   end
 
   def has_elisions?
