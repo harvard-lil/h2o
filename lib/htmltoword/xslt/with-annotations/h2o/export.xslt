@@ -130,7 +130,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elide ') and not(parent::table)]">
+  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ') and not(parent::table)]">
     <w:r>
       <w:rPr>
         <w:rStyle w:val="Elision"/>
@@ -166,7 +166,6 @@
     </w:p>
   </xsl:template> -->
 
-    <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ')]"></xsl:template>
     <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate replaced ')]"></xsl:template>
 
   <xsl:template match="body/header">
