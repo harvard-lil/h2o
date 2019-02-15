@@ -1,11 +1,17 @@
 class ActionButtonBuilder
+  include Rails.application.routes.url_helpers
+  include ActionView::Helpers::UrlHelper
   attr_reader :action, :casebook, :section, :resource
 
-  def initalize(casebook, section, resource, action)
+  def initialize(casebook, section, resource, action)
     @action = action
     @casebook = casebook
     @section = section
     @resource = resource
+  end
+
+  def perform(buttons)
+    new_buttons = buttons.map { |button| self.method(button).call}
   end
 
   def create_draft

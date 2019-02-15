@@ -1,20 +1,28 @@
 # decorates casebooks, sections and resources with the appropriate actions buttons
 class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
-  helper :action_buttons
+  attr_accessor :builder, :casebook, :section, :resource, :action
 
-  attr_acessor :builder
+  def build_params
+    @casebook = context[:casebook]
+    @section = context[:section]
+    @resource = context[:context_resource]
+    @action = context[:action_name]
+    @builder = ActionButtonBuilder.new(casebook, section, resource, action)
+  end
 
   def action_buttons
-    @builder = ActionButtonBuilder.new(context[:casebook], context[:section], context[:context_resource, context[:action_name]])
+    build_params
 
     if self.is_a?(Content::Casebook)
-      casebook_actions
+      buttons = casebook_actions
     elsif self.is_a? Content::Section
-      section_actions
+      buttons = section_actions
     else
-      resource_actions
+      buttons = resource_actions
     end
+
+    builder.perform(buttons)
   end
 
   private
@@ -23,7 +31,7 @@ class Content::NodeDecorator < Draper::Decorator
     if published_mode
       if authorized
         if has_draft
-          edit_draft + clone_and_export
+          [:edit_draft] << clone_and_export
         else
           create_draft + clone_and_export
         end
@@ -92,14 +100,14 @@ class Content::NodeDecorator < Draper::Decorator
         publish_casebook + edit_casebook + clone_and_export
       end
     elsif draft_mode
-      preview_resource + save_resource + cancel_resource + export_resource
+      [:preview_resource, :save_resource, :cancel_resource, :export_resource]
     end
   end
 
   #condensed button lists
 
   def clone_and_export
-    clone_casebook + export_casebook
+    [:clone_casebook, :export_casebook]
   end
 
   def draft_buttons
@@ -109,7 +117,7 @@ class Content::NodeDecorator < Draper::Decorator
   #variables
 
   def draft_mode
-    action_name.in? %w{edit layout annotate}
+    action.in? %w{edit layout annotate}
   end
 
   def published_mode
@@ -117,10 +125,14 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_mode
-    authorized? && action_name == 'show'
+    authorized? && action == 'show'
   end
 
-  def authorized?
+  def has_draft
+    casebook.draft.present?
+  end
+
+  def authorized
     if current_user.present?
       casebook.has_collaborator?(current_user.id) || current_user.superadmin?
     else 
