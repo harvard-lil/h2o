@@ -1,3 +1,4 @@
+# decorates casebooks, sections and resources with the appropriate actions buttons
 class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
   helper :action_buttons
