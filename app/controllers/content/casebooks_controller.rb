@@ -59,6 +59,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def export
+    # does this need to be decorated?
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
     @include_annotations = (params["annotations"] == "true")
 
