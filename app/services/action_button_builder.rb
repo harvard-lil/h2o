@@ -1,16 +1,12 @@
-module ActionButtonHelper
+class ActionButtonBuilder
+  attr_reader :action, :casebook, :section, :resource
 
-  def clone_and_export
-    clone_casebook + export_casebook
+  def initalize(casebook, section, resource, action)
+    @action = action
+    @casebook = casebook
+    @section = section
+    @resource = resource
   end
-
-  def draft_buttons
-    add_resource + add_section + export_casebook + save_casebook + cancel_casebook
-  end
-
-  ####
-  #Buttons/Links
-  #Resources
 
   def create_draft
     link_to(I18n.t('content.actions.revise'), create_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
@@ -64,7 +60,7 @@ module ActionButtonHelper
   end
 
   def revise_draft_section
-    if draft_mode_of_published_casebook
+    if published_casebook_draft
       link_to(I18n.t('content.actions.revise-draft'), layout_section_path(casebook, section), class: 'action edit one-line')
     else
       link_to(I18n.t('content.actions.revise-draft'), layout_section_path(draft, draft_section), class: 'action edit one-line')
@@ -111,7 +107,7 @@ module ActionButtonHelper
   end
 
   def edit_draft
-    if draft_mode_of_published_casebook
+    if published_casebook_draft
       link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
     else
       link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
@@ -153,66 +149,19 @@ module ActionButtonHelper
   ######
   #Live draft logic
 
-  def draft
-    casebook.draft
-  end
-
-  def draft_mode_of_published_casebook
+  def published_casebook_draft
     casebook.draft_mode_of_published_casebook
   end
 
   def has_draft
-    draft.present?
+    casebook.draft.present?
   end
 
   def draft_section
-    draft.contents.where(copy_of_id: section.id).first
+    casebook.draft.contents.where(copy_of_id: section.id).first
   end
 
   def draft_resource
-    draft.contents.where(copy_of_id: resource.id).first
-  end
-
-  ############
-  # Variables
-
-  def casebook
-    context[:casebook]
-  end
-
-  def section
-    context[:section]
-  end
-
-  def resource
-    context[:context_resource]
-  end
-
-  def action_name
-    context[:action_name]
-  end
-
-  def draft_mode
-    action_name.in? %w{edit layout annotate}
-  end
-
-  def published_mode
-    casebook.public
-  end
-
-  def draft_of_published_casebook
-    casebook.draft_mode_of_published_casebook
-  end
-
-  def preview_mode
-    authorized? && action_name == 'show'
-  end
-
-  def authorized?
-    if current_user.present?
-      casebook.has_collaborator?(current_user.id) || current_user.superadmin?
-    else 
-      false
-    end
+    casebook.draft.contents.where(copy_of_id: resource.id).first
   end
 end

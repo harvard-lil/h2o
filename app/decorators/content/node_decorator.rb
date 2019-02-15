@@ -3,7 +3,11 @@ class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
   helper :action_buttons
 
+  attr_acessor :builder
+
   def action_buttons
+    @builder = ActionButtonBuilder.new(context[:casebook], context[:section], context[:context_resource, context[:action_name]])
+
     if self.is_a?(Content::Casebook)
       casebook_actions
     elsif self.is_a? Content::Section
@@ -33,7 +37,7 @@ class Content::NodeDecorator < Draper::Decorator
         publish_casebook + edit_casebook + clone_and_export
       end
     else draft_mode
-      if draft_of_published_casebook
+      if published_casebook_draft
         publish_changes_to_casebook + preview_casebook + draft_buttons
       else
         publish_casebook + preview_casebook + draft_buttons
@@ -91,4 +95,37 @@ class Content::NodeDecorator < Draper::Decorator
       preview_resource + save_resource + cancel_resource + export_resource
     end
   end
+
+  #condensed button lists
+
+  def clone_and_export
+    clone_casebook + export_casebook
+  end
+
+  def draft_buttons
+    add_resource + add_section + export_casebook + save_casebook + cancel_casebook
+  end
+
+  #variables
+
+  def draft_mode
+    action_name.in? %w{edit layout annotate}
+  end
+
+  def published_mode
+    casebook.public
+  end
+
+  def preview_mode
+    authorized? && action_name == 'show'
+  end
+
+  def authorized?
+    if current_user.present?
+      casebook.has_collaborator?(current_user.id) || current_user.superadmin?
+    else 
+      false
+    end
+  end
+
 end
