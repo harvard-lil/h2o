@@ -4589,14 +4589,6 @@ js-yaml@^3.12.0, js-yaml@^3.12.1, js-yaml@^3.9.0:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^3.8.3:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
-  integrity sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==
-  dependencies:
-    argparse "^1.0.7"
-    esprima "^4.0.0"
-
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
@@ -5227,10 +5219,10 @@ mkdirp@0.5.x, mkdirp@0.x, "mkdirp@>=0.5 0", mkdirp@^0.5, mkdirp@^0.5.0, mkdirp@^
   dependencies:
     minimist "0.0.8"
 
-moment@^2.22.2:
-  version "2.22.2"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
-  integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
+moment@^2.24.0:
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
+  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
 
 morphdom@^2.3.2:
   version "2.3.3"
@@ -6795,10 +6787,10 @@ querystringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.0.tgz#7ded8dfbf7879dcc60d0a644ac6754b283ad17ef"
   integrity sha512-sluvZZ1YiTLD5jsqZcDmFyV2EwToyXZBfpoVOmktMmW+VEnhgakFHnasVph65fOjGPTWN0Nw3+XQaSeMayr0kg==
 
-rails-erb-loader@^5.5.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/rails-erb-loader/-/rails-erb-loader-5.5.0.tgz#fcf698f693e6a3b9b86d0d657040c2bfd8b88e28"
-  integrity sha512-WUHdQdTo+Z9jkLGuG1py4y2fTSXCgPhqz5KY2OZXSRR2vJwpZ1LTRxkzitum0mfZz6vhwDZVBGxSWZ+zS+MKAw==
+rails-erb-loader@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/rails-erb-loader/-/rails-erb-loader-5.5.2.tgz#db3fa8ac89600f09d179a1a70a2ca18c592576ea"
+  integrity sha512-cjQH9SuSvRPhnWkvjmmAW/S4AFVDfAtYnQO4XpKJ8xpRdZayT73iXoE+IPc3VzN03noZXhVmyvsCvKvHj4LY6w==
   dependencies:
     loader-utils "^1.1.0"
     lodash.defaults "^4.2.0"

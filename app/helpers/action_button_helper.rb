@@ -1,4 +1,4 @@
-module ActionButtonsHelper
+module ActionButtonHelper
 
   def clone_and_export
     clone_casebook + export_casebook
