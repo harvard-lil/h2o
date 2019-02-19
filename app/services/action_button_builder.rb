@@ -12,8 +12,9 @@ class ActionButtonBuilder
   end
 
   def perform(actions)
-    # Turns the action symbols into methods and collect all the results
+    # flatten the array b/c sometimes are pushing one array onto another 
     actions = actions.flatten
+    # Turns the action symbols into methods and collect all the results
     transcribed_actions = actions.map { |action| self.method(action).call}
   end
 
@@ -63,7 +64,7 @@ class ActionButtonBuilder
   end
 
   def revise_draft_section
-    if published_casebook_draft
+    if has_published_parent
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: layout_section_path(casebook, section), class: "action edit one-line" }
     else
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: layout_section_path(draft, draft_section), class: "action edit one-line" }
@@ -102,7 +103,7 @@ class ActionButtonBuilder
   end
 
   def edit_draft
-    if published_casebook_draft
+    if has_published_parent
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
     else
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(draft), class: "action edit one-line" }
@@ -144,11 +145,9 @@ class ActionButtonBuilder
   ######
   #Live draft logic
 
-  def published_casebook_draft
+  def has_published_parent
     casebook.draft_mode_of_published_casebook
   end
-
-
 
   def draft_section
     casebook.draft.contents.where(copy_of_id: section.id).first
