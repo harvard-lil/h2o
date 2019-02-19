@@ -3,6 +3,22 @@ class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
   attr_accessor :builder, :casebook, :section, :resource, :action
 
+  def action_buttons
+    build_params
+
+    if self.is_a?(Content::Casebook)
+      actions = casebook_actions
+    elsif self.is_a? Content::Section
+      actions = section_actions
+    else
+      actions = resource_actions
+    end
+
+    builder.perform(actions)
+  end
+
+  private
+
   def build_params
     @casebook = context[:casebook]
     @section = context[:section]
@@ -11,96 +27,80 @@ class Content::NodeDecorator < Draper::Decorator
     @builder = ActionButtonBuilder.new(casebook, section, resource, action)
   end
 
-  def action_buttons
-    build_params
-
-    if self.is_a?(Content::Casebook)
-      buttons = casebook_actions
-    elsif self.is_a? Content::Section
-      buttons = section_actions
-    else
-      buttons = resource_actions
-    end
-
-    builder.perform(buttons)
-  end
-
-# private
-
   def casebook_actions
     if published_mode
-      if authorized
-        if has_draft
-          # [:edit_draft] << clone_and_export
-          # [:edit_draft] << clone_and_export
-          [:clone_casebook]
+      if user_is_collaborator
+        if has_draft_casebook
+          # clone and export are used in a lot of the action button groups, so grouping them together in an attempt to be cleaner.
+          [:edit_draft] << clone_and_export
         else
-          # create_draft + clone_and_export
-          [:clone_casebook]
+          [:create_draft] << clone_and_export
         end
       end
-      # clone_and_export
+      clone_and_export
     elsif preview_mode
-      if has_draft
-        # cannot clone in draft mode because it will be nested underneath the draft and not surface to user
-        publish_changes_to_casebook + edit_draft + export_casebook
+      if has_draft_casebook
+        # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
+        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
       else
-        publish_casebook + edit_casebook + clone_and_export
+        [:publish_casebook, :edit_casebook] << clone_and_export
       end
     else draft_mode
-      if published_casebook_draft
-        publish_changes_to_casebook + preview_casebook + draft_buttons
+      if has_published_parent
+        [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
       else
-        publish_casebook + preview_casebook + draft_buttons
+        [:publish_casebook, :preview_casebook] << draft_buttons
       end
     end
   end
 
   def section_actions
     if published_mode
-      if authorized
-        if has_draft
-          if draft_resource.present? # does the draft version of the resource still exist
-            revise_draft_section + clone_and_export
+      if user_is_collaborator
+        if has_draft_casebook
+          # check if the corrosponding draft section still exists in the draft casebook
+          if draft_resource.present? 
+            [:revise_draft_section] << clone_and_export
           else
-            # fill in
+            [:edit_draft] << clone_and_export
           end
         else
-          create_section_draft + clone_and_export
+          [:create_section_draft] << clone_and_export
         end
         clone_and_export
       end
     elsif preview_mode
-      if has_draft
-        publish_changes_to_casebook + edit_draft + export_casebook
+      if has_draft_casebook
+        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
       else
-        publish_casebook + edit_casebook + clone_and_export
+        [:publish_casebook, :edit_casebook] << clone_and_export
       end
     elsif draft_mode
       # cannot published from section
-      preview_section + draft_buttons
+      [:preview_section] << draft_buttons
     end
   end
 
   def resource_actions
     if published_mode
-      if authorized
-        if has_draft
+      if user_is_collaborator
+        if has_draft_casebook
+          # check if the corrosponding draft section still exists in the draft casebook
           if draft_resource.present?
-            annotate_resource_draft + clone_and_export
+            [:annotate_resource_draft] << clone_and_export
           else
-            ## insert 
+            [:edit_draft] << clone_and_export
           end
         else
-          create_draft + clone_and_export
+          [:create_resource_draft] << clone_and_export
         end
         clone_and_export
       end
     elsif preview_mode
-      if has_draft
-        publish_changes_to_casebook + edit_draft + export_casebook
+      if has_draft_casebook
+        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
       else
-        publish_casebook + edit_casebook + clone_and_export
+        [:publish_casebook, :edit_casebook] << clone_and_export
       end
     elsif draft_mode
       [:preview_resource, :save_resource, :cancel_resource, :export_resource]
@@ -114,7 +114,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def draft_buttons
-    add_resource + add_section + export_casebook + save_casebook + cancel_casebook
+    [:add_resource, :add_section, :export_casebook, :save_casebook, :cancel_casebook]
   end
 
   #variables
@@ -128,18 +128,18 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_mode
-    authorized && action == 'show'
+    user_is_collaborator && action == 'show'
   end
 
-  def has_draft
-    casebook.draft.present?
-  end
-
-  def published_casebook_draft
+  def has_published_parent
     casebook.draft_mode_of_published_casebook
   end
 
-  def authorized
+  def has_draft_casebook
+    casebook.draft.present?
+  end
+
+  def user_is_collaborator
     if current_user.present?
       casebook.has_collaborator?(current_user.id) || current_user.superadmin?
     else 
