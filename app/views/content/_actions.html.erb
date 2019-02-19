@@ -1,1 +1,6 @@
-<%= @decorated_content.action_buttons %>
+<% @decorated_content.action_buttons.each do |button| %>
+  <% binding.pry %>
+  <% if button[:link_to] %>
+    <%= button_to button[:text], button[:path], class: button[:class], method: :post, form: {class: 'clone_casebook'} %>
+  <% end %> 
+<% end %> 

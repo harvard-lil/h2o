@@ -25,18 +25,21 @@ class Content::NodeDecorator < Draper::Decorator
     builder.perform(buttons)
   end
 
-  private
+# private
 
   def casebook_actions
     if published_mode
       if authorized
         if has_draft
-          [:edit_draft] << clone_and_export
+          # [:edit_draft] << clone_and_export
+          # [:edit_draft] << clone_and_export
+          [:clone_casebook]
         else
-          create_draft + clone_and_export
+          # create_draft + clone_and_export
+          [:clone_casebook]
         end
       end
-      clone_and_export
+      # clone_and_export
     elsif preview_mode
       if has_draft
         # cannot clone in draft mode because it will be nested underneath the draft and not surface to user
@@ -125,11 +128,15 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_mode
-    authorized? && action == 'show'
+    authorized && action == 'show'
   end
 
   def has_draft
     casebook.draft.present?
+  end
+
+  def published_casebook_draft
+    casebook.draft_mode_of_published_casebook
   end
 
   def authorized

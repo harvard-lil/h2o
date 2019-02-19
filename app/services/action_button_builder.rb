@@ -1,6 +1,7 @@
 class ActionButtonBuilder
   include Rails.application.routes.url_helpers
   include ActionView::Helpers::UrlHelper
+
   attr_reader :action, :casebook, :section, :resource
 
   def initialize(casebook, section, resource, action)
@@ -13,6 +14,8 @@ class ActionButtonBuilder
   def perform(buttons)
     new_buttons = buttons.map { |button| self.method(button).call}
   end
+
+  # private
 
   def create_draft
     link_to(I18n.t('content.actions.revise'), create_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
@@ -114,21 +117,23 @@ class ActionButtonBuilder
 
   def edit_draft
     if published_casebook_draft
-      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
+      "<%= link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line') %>"
     else
-      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
+      "<%= link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line') %>"
     end
   end
 
   def clone_casebook
-    button_to(I18n.t('content.actions.clone'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
+    {link_to: true, text: I18n.t('content.actions.clone'), path: clone_casebook_path(casebook), class: 'action clone-casebook'}
+    # button_to(I18n.t('content.actions.clone'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
+    # "<%= link_to(I18n.t('content.actions.clone'), clone_casebook_path(casebook), class: 'action clone-casebook') %>"
   end
 
   def export_casebook
     if casebook.resources_have_annotations?
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
+      "<%= link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations') %>"
     else
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
+      "<%= link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations') %>"
     end
   end
 
@@ -159,9 +164,7 @@ class ActionButtonBuilder
     casebook.draft_mode_of_published_casebook
   end
 
-  def has_draft
-    casebook.draft.present?
-  end
+
 
   def draft_section
     casebook.draft.contents.where(copy_of_id: section.id).first
