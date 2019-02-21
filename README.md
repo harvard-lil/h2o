@@ -78,27 +78,28 @@ with `brew cask install java`
 
 ### Test design
 
-Since we're going to be heavily refactoring and likely removing a lot of code, the focus for now will be on high-level feature tests which will survive that. [cases_test.rb](test/features/cases_test.rb) is an example of the test pattern using Minitest and Capybara which exercises the full stack from a user's point of view.
+Since we're going to be heavily refactoring and likely removing a lot
+of code, the focus for now will be on high-level feature tests which
+will survive that. [cases_test.rb](test/features/cases_test.rb) is an
+example of the test pattern using Minitest and Capybara which
+exercises the full stack from a user's point of view.
+
+Rails test scenarios marked with `js: true` will be run in a headless WebKit
+environment via Poltergeist. This requires the chromedriver binary to
+be installed, e.g. `brew cask install chromedriver`. Headless tests
+are significantly slower than static tests, so prefer to avoid writing
+Rails tests (and features!) that require JS when possible.
 
 ### Dependencies
 
 ImageMagick and a global installation of the "Garamond" font are required. On Macs, you can verify the presence of Garamond in Applications > FontBook, and can install ImageMagick via `brew install imagemagick`.
 
-### Javascript
+### Test Commands
 
-Test scenarios marked with `js: true` will be run in a headless WebKit
-environment via Poltergeist. This requires the chromedriver binary to
-be installed, e.g. `brew cask install chromedriver`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
-
-Guard will not automatically run these tests. This is less than ideal when working on a client-side feature, so you can mark a given test with `focus: true` to force Guard to run it. If no JS tests are enabled, chromedriver will not boot, speeding up the whole test suite considerably.
-
-### Guard testing
-
-Guard will automatically run all static tests after booting Rails and  again after any test or app file is edited. By default, Guard _won't_ run any tests that require JS, since they're so much slower. You can run those tests manually:
-
-1. `bin/rails test` runs non-system tests.
-1. `bin/rails test:system` runs system tests, including JS tests.
-1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on, including JS tests.
+1. `yarn test` runs javascript tests using [Jest](https://jestjs.io)
+1. `bin/rails test` runs non-system Rails tests.
+1. `bin/rails test:system` runs system Rails tests, including tests requiring JS.
+1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on.
 
 ### Coverage
 
