@@ -38,8 +38,7 @@ describe('isText', () => {
 });
 
 describe('getLength', () => {
-  // Skipped because the default Jest engine, jsdom, doesn't implement innerText
-  test.skip('returns correct text length for an element and its nested nodes', () => {
+  test('returns correct text length for an element and its nested nodes', () => {
     expect(getLength(parseNode('<div>Hello <em>W</em>orld</div>'))).toBe(11);
   });
 

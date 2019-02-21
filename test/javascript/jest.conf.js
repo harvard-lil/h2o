@@ -1,4 +1,5 @@
 module.exports = {
+  setupFiles: ["<rootDir>/jsdom_polyfills"],
   moduleFileExtensions: [
     "js",
     "json",
