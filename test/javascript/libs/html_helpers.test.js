@@ -1,15 +1,11 @@
+import {parseNode} from '../test_helpers';
+
 import {isBlockLevel,
         isBR,
         isText,
         getLength,
         getAttrsMap,
         getClosestElement} from 'libs/html_helpers';
-
-const parseNode = (html) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  return doc.body.children[0];
-};
 
 describe('isBlockLevel', () => {
   test('returns true when passed a block element', () => {
