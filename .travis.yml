@@ -29,6 +29,7 @@ before_script:
   - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
 script:
   - bundle exec bin/rails test
+  - yarn test
   - bundle exec bin/rails test:system
 after_success:
   - >
