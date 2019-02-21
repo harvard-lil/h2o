@@ -200,8 +200,10 @@ export default {
     FootnoteLink
   },
   props: {
-    el: {type: HTMLElement},
-    index: {type: Number}
+    el: {type: HTMLElement,
+         required: true},
+    index: {type: Number,
+            required: true}
   },
   render(h) {
     return h("resource-section-wrapper",
