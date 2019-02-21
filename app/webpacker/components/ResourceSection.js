@@ -1,4 +1,4 @@
-import store from "../store/index.js.erb";
+import store from "../store/index";
 
 import { isBlockLevel,
          isElement,
