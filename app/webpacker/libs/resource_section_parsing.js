@@ -16,7 +16,7 @@ const kindToComponent = (kind) =>
     replace: "replacement"}[kind] || kind) + "-annotation";
 
 export const isFootnoteLink = (node) =>
-  !!node.hash && node.origin == location.origin && node.pathname == location.pathname;
+  Boolean(node.hash) && node.origin == location.origin && node.pathname == location.pathname;
 
 const getTagName = (node) =>
   isFootnoteLink(node) ? "footnote-link" : node.tagName;
