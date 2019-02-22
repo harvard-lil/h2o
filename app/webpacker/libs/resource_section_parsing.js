@@ -31,7 +31,7 @@ const last = (array) =>
 const isValidNodeType = (node) =>
   isElement(node) || isText(node);
     
-const transformToTuplesWithOffsets = (parentStart) =>
+export const transformToTuplesWithOffsets = (parentStart) =>
   (tuples, node) => {
     let [prevNode, prevStart, prevEnd] = last(tuples) ||
         [null, null, parentStart];
