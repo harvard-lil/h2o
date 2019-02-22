@@ -1,6 +1,8 @@
 module.exports = {
   testURL: "https://opencasebook.org/",
-  setupFiles: ["<rootDir>/jsdom_polyfills"],
+  setupFiles: [
+    "<rootDir>/jsdom_polyfills"
+  ],
   moduleFileExtensions: [
     "js",
     "json",

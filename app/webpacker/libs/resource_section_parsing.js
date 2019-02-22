@@ -38,7 +38,7 @@ export const transformToTuplesWithOffsets = (parentStart) =>
     return tuples.concat([[node, prevEnd, prevEnd + getLength(node)]]);
   };
     
-const splitTextAt = (breakpoints, [node, start, end]) =>
+export const splitTextAt = (breakpoints, [node, start, end]) =>
   breakpoints
     // remove any offsets that fall on or outside of the Text node
     .filter(breakpoint =>

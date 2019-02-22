@@ -1,4 +1,4 @@
-import { parseNode } from '../test_helpers';
+import { parseHTML } from '../test_helpers';
 import { mount,
          createLocalVue } from '@vue/test-utils';
 
@@ -43,7 +43,7 @@ describe('ResourceSection', () => {
 
     const wrapper = mount(ResourceSection, {store, localVue, propsData: {
       index: 0,
-      el: parseNode('<div>Hello world</div>')
+      el: parseHTML('<div>Hello world</div>')
     }});
 
     expect(wrapper.find(`a[href="${annotation.content}"]`).text()).toEqual('ello');

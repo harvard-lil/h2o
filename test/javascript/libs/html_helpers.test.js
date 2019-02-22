@@ -1,4 +1,4 @@
-import { parseNode } from '../test_helpers';
+import { parseHTML } from '../test_helpers';
 
 import { isBlockLevel,
          isBR,
@@ -39,7 +39,7 @@ describe('isText', () => {
 
 describe('getLength', () => {
   test('returns correct text length for an element and its nested nodes', () => {
-    expect(getLength(parseNode('<div>Hello <em>W</em>orld</div>'))).toBe(11);
+    expect(getLength(parseHTML('<div>Hello <em>W</em>orld</div>'))).toBe(11);
   });
 
   test('returns correct text length for a text node', () => {
@@ -53,7 +53,7 @@ describe('getLength', () => {
 
 describe('getAttrsMap', () => {
   test('returns all attributes from an element as a map', () => {
-    expect(getAttrsMap(parseNode('<div id="foo" class="bar">Hello world</div>'))).toEqual({id: "foo", class: "bar"});
+    expect(getAttrsMap(parseHTML('<div id="foo" class="bar">Hello world</div>'))).toEqual({id: "foo", class: "bar"});
   });
 });
 
@@ -64,7 +64,7 @@ describe('getClosestElement', () => {
   });
 
   test('returns the parent element when passed a text node', () => {
-    const el = parseNode('<div>Hello world</div>');
+    const el = parseHTML('<div>Hello world</div>');
     expect(getClosestElement(el.childNodes[0])).toBe(el);
   });
 });
