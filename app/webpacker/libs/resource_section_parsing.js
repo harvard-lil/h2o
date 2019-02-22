@@ -62,7 +62,7 @@ const annotateAndConvertToVNodes = (h, tuples, index, enclosingAnnotationIds) =>
 // Find nodes that are within a range of offsets, stopping at the first
 // block level element found. Allows us to greedily group nodes into
 // annotations without grouping block level elements into them.
-const sequentialInlineNodesWithinRange = (tuples, start, end) => {
+export const sequentialInlineNodesWithinRange = (tuples, start, end) => {
   let inRange = tuples.filter(t => t[1] >= start && t[2] <= end);
   const firstBlock = inRange.findIndex(t => isBlockLevel(t[0]));
   return firstBlock == -1 ? inRange : inRange.slice(0, firstBlock);

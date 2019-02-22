@@ -3,7 +3,8 @@ import { parseHTML,
 import { getLength } from 'libs/html_helpers';
 import { isFootnoteLink,
          transformToTuplesWithOffsets,
-         splitTextAt } from 'libs/resource_section_parsing';
+         splitTextAt,
+         sequentialInlineNodesWithinRange } from 'libs/resource_section_parsing';
 
 const stringifyTuple = t => [t[0].outerHTML || t[0].textContent, t[1], t[2]];
 
@@ -67,5 +68,35 @@ describe('splitTextAt', () => {
     const tuple = [text, start, start + getLength(text)];
     const breakpoints = [tuple[1], tuple[2]];
     expect(splitTextAt(breakpoints, tuple)).toEqual([tuple]);
+  });
+});
+
+describe('sequentialInlineNodesWithinRange', () => {
+  test('drops tuples that fall entirely outside of the specified range', () => {
+    const tuples = Array.from(
+      parseHTML('<div>Foo <span>bar</span> fizz<em> buzz</em>.</div>').childNodes
+    ).reduce(transformToTuplesWithOffsets(0), []);
+    expect(sequentialInlineNodesWithinRange(tuples, 4, 12)).toEqual(tuples.slice(1, 3));
+  });
+
+  test('drops tuples that fall partially outside of the specified range', () => {
+    const tuples = Array.from(
+      parseHTML('<div>Foo <span>bar</span> fizz<em> buzz</em>.</div>').childNodes
+    ).reduce(transformToTuplesWithOffsets(0), []);
+    expect(sequentialInlineNodesWithinRange(tuples, 2, 14)).toEqual(tuples.slice(1, 3));
+  });
+
+  test('stops at first block level element within range', () => {
+    const tuples = Array.from(
+      parseHTML('<div>Foo <span>bar</span> fizz<div> buzz</div>.</div>').childNodes
+    ).reduce(transformToTuplesWithOffsets(0), []);
+    expect(sequentialInlineNodesWithinRange(tuples, 2, 9999)).toEqual(tuples.slice(1, 3));
+  });
+
+  test('ignores block level elements outside of range', () => {
+    const tuples = Array.from(
+      parseHTML('<div>Foo <div>bar</div> fizz<em> buzz</em><div>.</div></div>').childNodes
+    ).reduce(transformToTuplesWithOffsets(0), []);
+    expect(sequentialInlineNodesWithinRange(tuples, 7, 17)).toEqual(tuples.slice(2, 4));
   });
 });
