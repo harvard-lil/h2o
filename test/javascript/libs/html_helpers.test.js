@@ -1,11 +1,11 @@
-import {parseNode} from '../test_helpers';
+import { parseNode } from '../test_helpers';
 
-import {isBlockLevel,
-        isBR,
-        isText,
-        getLength,
-        getAttrsMap,
-        getClosestElement} from 'libs/html_helpers';
+import { isBlockLevel,
+         isBR,
+         isText,
+         getLength,
+         getAttrsMap,
+         getClosestElement } from 'libs/html_helpers';
 
 describe('isBlockLevel', () => {
   test('returns true when passed a block element', () => {
