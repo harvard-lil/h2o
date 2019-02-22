@@ -5,15 +5,7 @@ import { isBlockLevel,
          isText,
          isBR,
          getLength,
-         getAttrsMap } from "../libs/html_helpers.js";
-
-import ResourceSectionWrapper from "./ResourceSectionWrapper";
-import ElisionAnnotation from "./ElisionAnnotation";
-import ReplacementAnnotation from "./ReplacementAnnotation";
-import HighlightAnnotation from "./HighlightAnnotation";
-import LinkAnnotation from "./LinkAnnotation";
-import NoteAnnotation from "./NoteAnnotation";
-import FootnoteLink from "./FootnoteLink";
+         getAttrsMap } from "../libs/html_helpers";
 
 /////////////
 // Helpers //
@@ -23,8 +15,8 @@ const kindToComponent = (kind) =>
   ({elide: "elision",
     replace: "replacement"}[kind] || kind) + "-annotation";
 
-const isFootnoteLink = (node) =>
-  node.hash && node.origin == location.origin && node.pathname == location.pathname;
+export const isFootnoteLink = (node) =>
+  !!node.hash && node.origin == location.origin && node.pathname == location.pathname;
 
 const getTagName = (node) =>
   isFootnoteLink(node) ? "footnote-link" : node.tagName;
@@ -139,27 +131,6 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
     }
   };
 
-// Vue component children arrays must contain either VNodes or
-// Strings (which get converted to VNodes automatically)
-const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
-  ([node, start, end]) => {
-    if(isText(node)) {
-      return node.textContent;
-    } else if(isElement(node)) {
-      let tag = getTagName(node),
-          data = {attrs: getAttrsMap(node)},
-          children = annotateAndConvertToVNodes(h, filterAndSplitNodeList(node.childNodes, index, start, end), index, enclosingAnnotationIds);
-      switch(tag) {
-      case "footnote-link":
-        data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
-        break;
-      }
-      return h(tag, data, children);
-    } else {
-      return node;
-    }
-  };
-
 // Return the offsets within this element where
 // annotations need to start or end
 const annotationBreakpoints = (index, start, end) =>
@@ -189,26 +160,23 @@ const filterAndSplitNodeList = (nodeList, index, start, end) => {
     ), []);
 };
 
-export default {
-  components: {
-    ResourceSectionWrapper,
-    ElisionAnnotation,
-    ReplacementAnnotation,
-    HighlightAnnotation,
-    LinkAnnotation,
-    NoteAnnotation,
-    FootnoteLink
-  },
-  props: {
-    el: {type: HTMLElement,
-         required: true},
-    index: {type: Number,
-            required: true}
-  },
-  render(h) {
-    return h("resource-section-wrapper",
-             {props: {index: this.index,
-                      length: getLength(this.el)}},
-             [tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)])]);
-  }
-};
+// Vue component children arrays must contain either VNodes or
+// Strings (which get converted to VNodes automatically)
+export const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
+  ([node, start, end]) => {
+    if(isText(node)) {
+      return node.textContent;
+    } else if(isElement(node)) {
+      let tag = getTagName(node),
+          data = {attrs: getAttrsMap(node)},
+          children = annotateAndConvertToVNodes(h, filterAndSplitNodeList(node.childNodes, index, start, end), index, enclosingAnnotationIds);
+      switch(tag) {
+      case "footnote-link":
+        data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
+        break;
+      }
+      return h(tag, data, children);
+    } else {
+      return node;
+    }
+  };

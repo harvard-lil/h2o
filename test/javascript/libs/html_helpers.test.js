@@ -9,31 +9,31 @@ import { isBlockLevel,
 
 describe('isBlockLevel', () => {
   test('returns true when passed a block element', () => {
-    expect(isBlockLevel(document.createElement('div'))).toBeTruthy();
+    expect(isBlockLevel(document.createElement('div'))).toBe(true);
   });
 
   test('returns false when passed an inline element', () => {
-    expect(isBlockLevel(document.createElement('span'))).toBeFalsy();
+    expect(isBlockLevel(document.createElement('span'))).toBe(false);
   });
 });
 
 describe('isBR', () => {
   test('returns true when passed a br element', () => {
-    expect(isBR(document.createElement('br'))).toBeTruthy();
+    expect(isBR(document.createElement('br'))).toBe(true);
   });
 
   test('returns false when passed a non-br element', () => {
-    expect(isBR(document.createElement('span'))).toBeFalsy();
+    expect(isBR(document.createElement('span'))).toBe(false);
   });
 });
 
 describe('isText', () => {
   test('returns true when passed a text node', () => {
-    expect(isText(document.createTextNode('hello world'))).toBeTruthy();
+    expect(isText(document.createTextNode('hello world'))).toBe(true);
   });
 
   test('returns false when passed a non-text node', () => {
-    expect(isText(document.createElement('span'))).toBeFalsy();
+    expect(isText(document.createElement('span'))).toBe(false);
   });
 });
 
