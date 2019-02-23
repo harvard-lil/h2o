@@ -1,6 +1,7 @@
 import store from "../store/index";
 
 import { isBlockLevel,
+         isLayoutElement,
          isElement,
          isText,
          isBR,
@@ -29,7 +30,7 @@ const last = (array) =>
 ///////////////////////////
     
 const isValidNodeType = (node) =>
-  isElement(node) || isText(node);
+  isText(node) || isLayoutElement(node);
     
 export const transformToTuplesWithOffsets = (parentStart) =>
   (tuples, node) => {
@@ -144,7 +145,7 @@ const annotationBreakpoints = (index, start, end) =>
       .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
       .sort((a, b) => a - b); // sort lowest to highest
 
-const filterAndSplitNodeList = (nodeList, index, start, end) => {
+export const filterAndSplitNodeList = (nodeList, index, start, end) => {
   const breakpoints = annotationBreakpoints(index, start, end);
   return Array.from(nodeList)
     // remove anything that isn't an Element or Text node
