@@ -5,7 +5,8 @@ import { isFootnoteLink,
          transformToTuplesWithOffsets,
          splitTextAt,
          sequentialInlineNodesWithinRange,
-         tupleToVNode } from 'libs/resource_section_parsing';
+         tupleToVNode,
+         filterAndSplitNodeList } from 'libs/resource_section_parsing';
 
 const stringifyTuple = t => [t[0].outerHTML || t[0].textContent, t[1], t[2]];
 
@@ -137,4 +138,27 @@ describe('tupleToVNode', () => {
     const [tagName] = mockVueCreateElement.mock.calls[0];
     expect(tagName).toBe('footnote-link');
   });
+});
+
+describe('filterAndSplitNodeList', () => {
+  test('returns an array of tuples', () => {
+    const node = parseHTML('<div>Foo <em>bar</em> fizz</div>');
+    const tuples = filterAndSplitNodeList(node.childNodes, 0, 0, getLength(node));
+    expect(tuples.map(stringifyTuple)).toEqual([
+      ['Foo ', 0, 4],
+      ['<em>bar</em>', 4, 7],
+      [' fizz', 7, 12]
+    ]);
+  });
+
+  test('filters out nodes that aren\'t text or layout elements', () => {
+    const node = parseHTML('<div>Foo <!-- comment --><script>let noop;</script><style>.noop {}</style><em>bar</em></div>');
+    const tuples = filterAndSplitNodeList(node.childNodes, 0, 0, getLength(node));
+    expect(tuples.map(stringifyTuple)).toEqual([
+      ['Foo ', 0, 4],
+      ['<em>bar</em>', 4, 7]
+    ]);
+  });
+
+  test.todo('breaks text at annotation breakpoints');
 });
