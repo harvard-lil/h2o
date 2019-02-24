@@ -122,7 +122,6 @@ const mutations = {
 
   destroy: (state, payload) =>
     state.all.splice(state.all.indexOf(payload), 1)
-
 };
 
 export default {
