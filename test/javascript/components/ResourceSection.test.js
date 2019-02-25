@@ -77,6 +77,7 @@ describe('ResourceSection', () => {
     ['preserves whitespace at end of annotated text',
      '<div>%s</div>', ['foo '],
      [DEFAULT_ANNOTATION]]
+
   ])('%s', (testTitle, sectionHTML, toSelect, annotations) => {
     store.commit('annotations/append', annotations);
     const wrapper = mount(ResourceSection, {store, localVue, propsData: {
@@ -86,18 +87,13 @@ describe('ResourceSection', () => {
     expect(wrapper.findAll(`.selected-text`).wrappers.map(w => parseHTML(w.html()).innerHTML)).toEqual(toSelect);
   });
 
-  // This is currently failing due to issues with Vue's handling of whitespace
-  test.skip.each([
-    ['preserves whitespace when annotation contains only whitespace',
-     '<div>foo%sbar</div>', [' '],
-     [{...DEFAULT_ANNOTATION, start_paragraph: 1, end_paragraph: 1, start_offset: 3, end_offset: 4}]]
-  ])('%s', (testTitle, sectionHTML, toSelect, annotations) => {
-    store.commit('annotations/append', annotations);
+  test('preserves whitespace when annotation contains only whitespace', () => {
+    store.commit('annotations/append', [{...DEFAULT_ANNOTATION, start_paragraph: 1, end_paragraph: 1, start_offset: 3, end_offset: 4}]);
     const wrapper = mount(ResourceSection, {store, localVue, propsData: {
       index: 1,
-      el: parseHTML(util.format(sectionHTML, ...toSelect))
+      el: parseHTML('<div>foo bar</div>')
     }});
-    expect(wrapper.findAll(`.selected-text`).wrappers.map(w => parseHTML(w.html()).innerHTML)).toEqual(toSelect);
+    expect(parseHTML(wrapper.find(`.selected-text`).html()).innerText).toEqual(' ');
   });
 
   test.todo('when rendering, orders annotations first by length (longer wraps shorter)');
