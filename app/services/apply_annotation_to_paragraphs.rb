@@ -98,7 +98,7 @@ class ApplyAnnotationToParagraphs
 
   # If the annotation doesn't start at the first character, loop through and add to the paragraph_offset so that you can start at the right place.
   def paragraph_offset_ready?(node, paragraph_offset)
-    paragraph_offset + node.text.length >= start_offset
+    paragraph_offset + node.text.length > start_offset
   end
 
   def only_paragraph?
