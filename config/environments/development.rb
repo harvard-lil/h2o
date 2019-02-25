@@ -45,7 +45,7 @@ H2o::Application.configure do
 
   #TODO: It's a little strange to have the port number embedded in the host
   #like that, but we don't have time to remove it and re-test everywhere.
-  host = 'h2o-dev-test.local:8000'
+  host = 'h2o-dev.local:8000'
   config.action_mailer.default_url_options = { :host => host }
 
   config.middleware.use ExceptionNotification::Rack,
