@@ -20,7 +20,7 @@ class Content::Resource < Content::Child
     #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
 
-    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each do |annotation|
+    annotations.order(:start_paragraph, :id).each do |annotation|
       if annotation.kind.in? %w(note link)
         export_footnote_index += 1
       end
