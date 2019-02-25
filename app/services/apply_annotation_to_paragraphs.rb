@@ -29,7 +29,7 @@ class ApplyAnnotationToParagraphs
       return
     end
 
-    # This is set for annotations that span multiple paragraphs. After the annotation is applie to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
+    # This is set for annotations that span multiple paragraphs. After the annotation is applied to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
     paragraph_offset = 0
     noninitial = paragraph_index != start_paragraph
 
@@ -64,7 +64,7 @@ class ApplyAnnotationToParagraphs
 
   def annotate_html(selected_text)
     suffix = ['link', 'note'].include?(kind) ?
-               "<span msword-style='FootnoteReference'>#{'*' * export_footnote_index}</span>" :
+               "<span msword-style='FootnoteReference' data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" :
                ''
     cssClass = {'elide' => 'elided',
                 'highlight' => 'highlighted'}[kind] || kind
