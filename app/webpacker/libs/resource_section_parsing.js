@@ -1,19 +1,12 @@
-import store from "../store/index.js.erb";
+import store from "../store/index";
 
 import { isBlockLevel,
+         isLayoutElement,
          isElement,
          isText,
          isBR,
          getLength,
-         getAttrsMap } from "../libs/html_helpers.js";
-
-import ResourceSectionWrapper from "./ResourceSectionWrapper";
-import ElisionAnnotation from "./ElisionAnnotation";
-import ReplacementAnnotation from "./ReplacementAnnotation";
-import HighlightAnnotation from "./HighlightAnnotation";
-import LinkAnnotation from "./LinkAnnotation";
-import NoteAnnotation from "./NoteAnnotation";
-import FootnoteLink from "./FootnoteLink";
+         getAttrsMap } from "../libs/html_helpers";
 
 /////////////
 // Helpers //
@@ -23,8 +16,8 @@ const kindToComponent = (kind) =>
   ({elide: "elision",
     replace: "replacement"}[kind] || kind) + "-annotation";
 
-const isFootnoteLink = (node) =>
-  node.hash && node.origin == location.origin && node.pathname == location.pathname;
+export const isFootnoteLink = (node) =>
+  Boolean(node.hash) && node.origin == location.origin && node.pathname == location.pathname;
 
 const getTagName = (node) =>
   isFootnoteLink(node) ? "footnote-link" : node.tagName;
@@ -37,16 +30,16 @@ const last = (array) =>
 ///////////////////////////
     
 const isValidNodeType = (node) =>
-  isElement(node) || isText(node);
+  isText(node) || isLayoutElement(node);
     
-const transformToTuplesWithOffsets = (parentStart) =>
+export const transformToTuplesWithOffsets = (parentStart) =>
   (tuples, node) => {
     let [prevNode, prevStart, prevEnd] = last(tuples) ||
         [null, null, parentStart];
     return tuples.concat([[node, prevEnd, prevEnd + getLength(node)]]);
   };
     
-const splitTextAt = (breakpoints, [node, start, end]) =>
+export const splitTextAt = (breakpoints, [node, start, end]) =>
   breakpoints
     // remove any offsets that fall on or outside of the Text node
     .filter(breakpoint =>
@@ -70,7 +63,7 @@ const annotateAndConvertToVNodes = (h, tuples, index, enclosingAnnotationIds) =>
 // Find nodes that are within a range of offsets, stopping at the first
 // block level element found. Allows us to greedily group nodes into
 // annotations without grouping block level elements into them.
-const sequentialInlineNodesWithinRange = (tuples, start, end) => {
+export const sequentialInlineNodesWithinRange = (tuples, start, end) => {
   let inRange = tuples.filter(t => t[1] >= start && t[2] <= end);
   const firstBlock = inRange.findIndex(t => isBlockLevel(t[0]));
   return firstBlock == -1 ? inRange : inRange.slice(0, firstBlock);
@@ -139,9 +132,38 @@ const insertAnnotations = (h, index, enclosingAnnotationIds) =>
     }
   };
 
+// Return the offsets within this element where
+// annotations need to start or end
+const annotationBreakpoints = (index, start, end) =>
+      store.getters['annotations/getWithinIndexAndOffsets'](index, start, end)
+      .reduce((offsets, annotation) =>
+              offsets.concat(
+                ["start", "end"]
+                  .filter(s => annotation[`${s}_paragraph`] == index)
+                  .map(s => annotation[`${s}_offset`]))
+              , [])
+      .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
+      .sort((a, b) => a - b); // sort lowest to highest
+
+export const filterAndSplitNodeList = (nodeList, index, start, end) => {
+  const breakpoints = annotationBreakpoints(index, start, end);
+  return Array.from(nodeList)
+    // remove anything that isn't an Element or Text node
+    // i.e. no script or comment tags etc
+    .filter(isValidNodeType)
+    // transform our Node array to an array of [Node, start, end] tuples
+    .reduce(transformToTuplesWithOffsets(start), [])
+    // break text nodes at points where annotations exist
+    .reduce((tuples, tuple) => tuples.concat(
+      isText(tuple[0])
+        ? splitTextAt(breakpoints, tuple)
+        : [tuple]
+    ), []);
+};
+
 // Vue component children arrays must contain either VNodes or
 // Strings (which get converted to VNodes automatically)
-const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
+export const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
   ([node, start, end]) => {
     if(isText(node)) {
       return node.textContent;
@@ -159,54 +181,3 @@ const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
       return node;
     }
   };
-
-// Return the offsets within this element where
-// annotations need to start or end
-const annotationBreakpoints = (index, start, end) =>
-      store.getters['annotations/getWithinIndexAndOffsets'](index, start, end)
-      .reduce((offsets, annotation) =>
-              offsets.concat(
-                ["start", "end"]
-                  .filter(s => annotation[`${s}_paragraph`] == index)
-                  .map(s => annotation[`${s}_offset`]))
-              , [])
-      .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
-      .sort((a, b) => a - b); // sort lowest to highest
-
-const filterAndSplitNodeList = (nodeList, index, start, end) => {
-  const breakpoints = annotationBreakpoints(index, start, end);
-  return Array.from(nodeList)
-    // remove anything that isn't an Element or Text node
-    // i.e. no script or comment tags etc
-    .filter(isValidNodeType)
-    // transform our Node array to an array of [Node, start, end] tuples
-    .reduce(transformToTuplesWithOffsets(start), [])
-    // break text nodes at points where annotations exist
-    .reduce((tuples, tuple) => tuples.concat(
-      isText(tuple[0])
-        ? splitTextAt(breakpoints, tuple)
-        : [tuple]
-    ), []);
-};
-
-export default {
-  components: {
-    ResourceSectionWrapper,
-    ElisionAnnotation,
-    ReplacementAnnotation,
-    HighlightAnnotation,
-    LinkAnnotation,
-    NoteAnnotation,
-    FootnoteLink
-  },
-  props: {
-    el: {type: HTMLElement},
-    index: {type: Number}
-  },
-  render(h) {
-    return h("resource-section-wrapper",
-             {props: {index: this.index,
-                      length: getLength(this.el)}},
-             [tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)])]);
-  }
-};

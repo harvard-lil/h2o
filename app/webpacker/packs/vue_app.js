@@ -1,7 +1,7 @@
 import Vue from "vue/dist/vue.esm";
-Vue.config.productionTip = <%= Rails.env.development? %>;
+Vue.config.productionTip = process.env.NODE_ENV == "development";
 
-import store from "../store/index.js.erb";
+import store from "../store/index";
 import "../config/axios";
 import "../directives/selectionchange";
 
