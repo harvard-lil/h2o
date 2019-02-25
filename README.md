@@ -38,10 +38,6 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 1. [Installation of yarn](https://yarnpkg.com/lang/en/docs/install/) is platform-specific. On a Mac: if you already have node installed, `brew install yarn --without-node`, or `brew install yarn` to simultaneously install node.
 2. `yarn install`
 
-#### With NPM (might not install precisely the same package versions)
-1. Install node if needed (e.g. `brew install node`)
-2. `npm install`
-
 ### Set up the Postgres database
 
 1. Install postgres ~9.6 (if missing). Note: `brew install postgres` now installs postgres 10+. To install 9.6.5 via Homebrew, install postgres using the specific version formula (`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/d014fa223f77bee4b4097c5e80faa0954e28182f/Formula/postgresql.rb`) and then run `brew switch postgres 9.6.5`
