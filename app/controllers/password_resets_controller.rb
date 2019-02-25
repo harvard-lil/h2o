@@ -32,10 +32,12 @@ class PasswordResetsController < ApplicationController
     render
   end
 
+  # Used solely when a user creates their profile and enters their password for the first time
   def update
     @user.password = params[:user][:password]
     @user.password_confirmation = params[:user][:password_confirmation]
     if @user.save
+      Notifier.welcome_email(@user.email_address).deliver
       update_password_flash_notice
       redirect_to user_path(@user.id)
     else
