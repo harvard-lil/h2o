@@ -116,4 +116,10 @@ class Content::NodeController < ApplicationController
   def set_editable
     @editable = true
   end
+
+  def prevent_page_caching
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma']        = 'no-cache'
+    response.headers['Expires']       = '0'
+  end
 end

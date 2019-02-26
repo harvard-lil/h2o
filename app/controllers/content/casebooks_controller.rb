@@ -2,6 +2,7 @@ require 'net/http'
 require 'uri'
 
 class Content::CasebooksController < Content::NodeController
+  before_action :prevent_page_caching, only: [:export]
   before_action :set_editable, only: [:show, :index]
   before_action :require_user, only: [:clone]
 
