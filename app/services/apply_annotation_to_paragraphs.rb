@@ -38,7 +38,7 @@ class ApplyAnnotationToParagraphs
 
       if noninitial
         if middle_paragraph?(node, paragraph_offset)
-          wrap_middle_paragraph(node)
+          wrap_middle_paragraph(node, paragraph_offset)
         else
           wrap_last_paragraph(node, paragraph_offset)
           break
@@ -46,12 +46,12 @@ class ApplyAnnotationToParagraphs
       else
         if paragraph_offset_ready?(node, paragraph_offset)
           if only_paragraph? && partial_paragraph?(node, paragraph_offset)
-            selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset])
+            selected_text = annotate_html(node.text[start_offset - paragraph_offset...end_offset - paragraph_offset], paragraph_offset)
             node.replace "#{node.text[0...start_offset - paragraph_offset]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
             break
           else
             noninitial = true
-            selected_text = annotate_html(node.text[start_offset - paragraph_offset..-1])
+            selected_text = annotate_html(node.text[start_offset - paragraph_offset..-1], paragraph_offset)
             node.replace "#{node.text[0...start_offset - paragraph_offset]}#{selected_text}"
           end
         end
@@ -62,19 +62,22 @@ class ApplyAnnotationToParagraphs
 
   private
 
-  def annotate_html(selected_text)
+  def annotate_html(selected_text, paragraph_offset = nil)
     suffix = ['link', 'note'].include?(kind) ?
                "<span msword-style='FootnoteReference' data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" :
                ''
-    cssClass = {'elide' => 'elided',
-                'highlight' => 'highlighted'}[kind] || kind
+    cssClasses = ['annotate',
+                  ({'elide' => 'elided',
+                    'highlight' => 'highlighted'}[kind] || kind)]
+    cssClasses << 'head' if start_offset >= paragraph_offset
+
     case kind
     when 'link' then
-      "<a href='#{escaped_content}' class='annotate #{cssClass}'>#{selected_text}</a>#{suffix}"
+      "<a href='#{escaped_content}' class='#{cssClasses.join(' ')}'>#{selected_text}</a>#{suffix}"
     when 'replace' then
       "<span msword-style='ReplacementText' data-exclude-from-offset-calcs='true'>#{escaped_content}</span><span class='annotate replaced'>#{selected_text}</span>"
     else
-      "<span class='annotate #{cssClass}'>#{selected_text}</span>#{suffix}"
+      "<span class='#{cssClasses.join(' ')}'>#{selected_text}</span>#{suffix}"
     end
   end
 
@@ -86,13 +89,13 @@ class ApplyAnnotationToParagraphs
     paragraph_index != end_paragraph || end_offset > paragraph_offset + node.text.length
   end
 
-  def wrap_middle_paragraph(node)
-    node.replace annotate_html(node.text)
+  def wrap_middle_paragraph(node, paragraph_offset)
+    node.replace annotate_html(node.text, paragraph_offset)
   end
 
   # This is the last paragraph, apply the annotation to the remaining characters.  
   def wrap_last_paragraph(node, paragraph_offset)
-    selected_text = annotate_html(node.text[0...end_offset - paragraph_offset])
+    selected_text = annotate_html(node.text[0...end_offset - paragraph_offset], paragraph_offset)
     node.replace "#{node.text[0...0]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"
   end
 

@@ -130,14 +130,17 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ') and not(parent::table)]">
+  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided head ') and not(parent::table)]">
     <w:r>
       <w:rPr>
         <w:rStyle w:val="Elision"/>
       </w:rPr>
-      <w:t xml:space="preserve">[ ... ]</w:t>
+      <w:t xml:space="preserve">[ … ]</w:t>
     </w:r>
   </xsl:template>
+  <!-- After swapping the first elision element (the 'head') with an
+       elipsis, remove all other elided text that isn't the head -->
+  <xsl:template match="span[contains(concat(' ', @class, ' '), ' annotate elided ') and not(contains(concat(' ', @class, ' '), ' head '))]"></xsl:template>
 
   <xsl:template match="p[not(ancestor::blockquote|ancestor::li|ancestor::p|ancestor::tr|ancestor::center[not(ancestor::h1|ancestor::h2|ancestor::h3|ancestor::h4|ancestor::h5|ancestor::h6) and not(ancestor::center) and not(ancestor::li) and not(ancestor::td) and not(ancestor::th) and not(ancestor::p) and not(descendant::div) and not(descendant::p) and not(descendant::h1) and not(descendant::h2) and not(descendant::h3) and not(descendant::h4) and not(descendant::h5) and not(descendant::h6) and not(descendant::table) and not(descendant::li) and not(descendant::pre)])]">
     <w:p>
