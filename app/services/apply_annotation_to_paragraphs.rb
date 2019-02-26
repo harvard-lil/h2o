@@ -21,16 +21,13 @@ class ApplyAnnotationToParagraphs
   end
 
   def perform
-    if (paragraph_index != start_paragraph || start_offset == 0) &&
-       (paragraph_index != end_paragraph || end_offset == paragraph_node.text.length)
-      # wrap entire p node in annotation
-      # if it's an elision, exclude it entirely
-      paragraph_node.children = kind == 'elide' ? '' : annotate_html(paragraph_node.inner_html)
-      return
+    # This is set for annotations that span multiple paragraphs. After the annotation is applied to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot.
+    paragraph_offset = 0
+
+    if full_paragraph?
+      return paragraph_node.children = annotate_html(paragraph_node.inner_html, paragraph_offset)
     end
 
-    # This is set for annotations that span multiple paragraphs. After the annotation is applied to each paragraph the character size of the paragraph that is added to this variable so that the next paragraph starts are the right spot. 
-    paragraph_offset = 0
     noninitial = paragraph_index != start_paragraph
 
     paragraph_node.traverse do |node|
@@ -62,20 +59,23 @@ class ApplyAnnotationToParagraphs
 
   private
 
-  def annotate_html(selected_text, paragraph_offset = nil)
-    suffix = ['link', 'note'].include?(kind) ?
-               "<span msword-style='FootnoteReference' data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" :
-               ''
+  def annotate_html(selected_text, paragraph_offset)
+    is_head = start_paragraph == paragraph_index && start_offset >= paragraph_offset
+    is_tail = end_paragraph == paragraph_index && end_offset <= paragraph_offset + selected_text.length
+
     cssClasses = ['annotate',
                   ({'elide' => 'elided',
                     'highlight' => 'highlighted'}[kind] || kind)]
-    cssClasses << 'head' if start_offset >= paragraph_offset
+
+    cssClasses << 'head' if is_head
+    cssClasses << 'tail' if is_tail
+    suffix = is_tail && ['link', 'note'].include?(kind) ? "<span msword-style='FootnoteReference' data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" : ''
 
     case kind
     when 'link' then
       "<a href='#{escaped_content}' class='#{cssClasses.join(' ')}'>#{selected_text}</a>#{suffix}"
     when 'replace' then
-      "<span msword-style='ReplacementText' data-exclude-from-offset-calcs='true'>#{escaped_content}</span><span class='annotate replaced'>#{selected_text}</span>"
+      "<span class='annotate replaced'>#{selected_text}</span>" + (is_head ? "<span msword-style='ReplacementText' data-exclude-from-offset-calcs='true'>#{escaped_content}</span>" : '')
     else
       "<span class='#{cssClasses.join(' ')}'>#{selected_text}</span>#{suffix}"
     end
@@ -110,5 +110,10 @@ class ApplyAnnotationToParagraphs
 
   def partial_paragraph?(node, paragraph_offset)
     paragraph_offset + node.text.length >= end_offset
+  end
+
+  def full_paragraph?
+    (paragraph_index != start_paragraph || start_offset == 0) &&
+      (paragraph_index != end_paragraph || end_offset == paragraph_node.text.length)
   end
 end
