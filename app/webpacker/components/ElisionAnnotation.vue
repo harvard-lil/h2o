@@ -8,6 +8,7 @@
   <span v-show="uiState.expanded"
         class="selected-text"><slot></slot></span>
   <span v-if="isTail && uiState.expanded"
+        data-exclude-from-offset-calcs="true"
         class="sr-only">(end of elided text)</span>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
