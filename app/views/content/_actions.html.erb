@@ -1,6 +1,6 @@
 <% @decorated_content.action_buttons.each do |action| %>
   <% if action[:link_to] %>
-    <%= link_to action[:text], action[:path], class: action[:class], method: :post, type: action[:type], form: {class: 'clone_casebook'} %>
+    <%= link_to action[:text], action[:path], class: action[:class], method: :post, type: action[:type] %>
   <% elsif action[:button_to] %>
     <%= button_to action[:text], action[:path], class: action[:class], method: action[:method], form: action[:form] %>
   <% elsif action[:button_tag] %>

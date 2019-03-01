@@ -32,24 +32,24 @@ class Content::NodeDecorator < Draper::Decorator
     if published_mode
       if user_is_collaborator
         if has_draft_casebook
-          [:edit_draft] << clone_and_export
+          return [:edit_draft] << clone_and_export
         else
-          [:create_draft] << clone_and_export
+          return [:create_draft] << clone_and_export
         end
       end
-      clone_and_export
+      return clone_and_export
     elsif preview_mode
       if has_draft_casebook
         # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
-        [:publish_changes_to_casebook, :edit_draft, :export]
+        return [:publish_changes_to_casebook, :edit_draft, :export]
       else
-        [:publish_casebook, :edit_casebook] << clone_and_export
+        return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     else draft_mode
       if has_published_parent
-        [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
+        return [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
       else
-        [:publish_casebook, :preview_casebook] << draft_buttons
+        return [:publish_casebook, :preview_casebook] << draft_buttons
       end
     end
   end
@@ -60,24 +60,24 @@ class Content::NodeDecorator < Draper::Decorator
         if has_draft_casebook
           # check if the corrosponding draft section still exists in the draft casebook
           if draft_resource.present? 
-            [:revise_draft_section] << clone_and_export
+            return [:revise_draft_section] << clone_and_export
           else
-            [:edit_draft] << clone_and_export
+            return [:edit_draft] << clone_and_export
           end
         else
-          [:create_section_draft] << clone_and_export
+          return [:create_section_draft] << clone_and_export
         end
-        clone_and_export
+        return clone_and_export
       end
     elsif preview_mode
       if has_draft_casebook
-        [:publish_changes_to_casebook, :edit_draft, :export]
+        return [:publish_changes_to_casebook, :edit_draft, :export]
       else
-        [:publish_casebook, :edit_casebook] << clone_and_export
+        return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     elsif draft_mode
       # cannot published from section
-      [:preview_section] << draft_buttons
+      return [:preview_section] << draft_buttons
     end
   end
 
@@ -87,23 +87,23 @@ class Content::NodeDecorator < Draper::Decorator
         if has_draft_casebook
           # check if the corrosponding draft section still exists in the draft casebook
           if draft_resource.present?
-            [:annotate_resource_draft] << clone_and_export
+            return [:annotate_resource_draft] << clone_and_export
           else
-            [:edit_draft] << clone_and_export
+            return [:edit_draft] << clone_and_export
           end
         else
-          [:create_resource_draft] << clone_and_export
+          return [:create_resource_draft] << clone_and_export
         end
-        clone_and_export
+        return clone_and_export
       end
     elsif preview_mode
       if has_draft_casebook
-        [:publish_changes_to_casebook, :edit_draft, :export]
+        return [:publish_changes_to_casebook, :edit_draft, :export]
       else
-        [:publish_casebook, :edit_casebook] << clone_and_export
+        return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     elsif draft_mode
-      [:preview_resource, :save_resource, :cancel_resource, :export_resource]
+      return [:preview_resource, :save_resource, :cancel_resource, :export_resource]
     end
   end
 
