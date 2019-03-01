@@ -32,7 +32,7 @@
         <% end %>
         <div class="author-info">
           <div class="owner">
-            <%= casebook.owner.attribution %><span class="<%= casebook.owner.verified_professor? ? 'verified' : '' %>"></span>
+            <%= casebook.owner.display %><span class="<%= casebook.owner.verified_professor? ? 'verified' : '' %>"></span>
           </div>
           <div class="affiliation">
             <%= casebook.owner.affiliation %>
