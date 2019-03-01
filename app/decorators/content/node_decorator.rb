@@ -1,7 +1,7 @@
 # decorates casebooks, sections and resources with the appropriate actions buttons
 class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
-  attr_accessor :builder, :casebook, :section, :resource, :action
+  attr_accessor :builder, :casebook, :section, :resource, :action_name
 
   def action_buttons
     build_params
@@ -14,7 +14,8 @@ class Content::NodeDecorator < Draper::Decorator
       actions = resource_actions
     end
 
-    builder.perform(actions)
+    # flatten actions incase it's an array of multiple arrays from clone_and_export, etc. 
+    builder.perform(actions.flatten)
   end
 
   private
@@ -23,15 +24,14 @@ class Content::NodeDecorator < Draper::Decorator
     @casebook = context[:casebook]
     @section = context[:section]
     @resource = context[:context_resource]
-    @action = context[:action_name]
-    @builder = ActionButtonBuilder.new(casebook, section, resource, action)
+    @action_name = context[:action_name]
+    @builder = ActionButtonBuilder.new(casebook, section, resource, action_name)
   end
 
   def casebook_actions
     if published_mode
       if user_is_collaborator
         if has_draft_casebook
-          # clone and export are used in a lot of the action button groups, so grouping them together in an attempt to be cleaner.
           [:edit_draft] << clone_and_export
         else
           [:create_draft] << clone_and_export
@@ -41,7 +41,7 @@ class Content::NodeDecorator < Draper::Decorator
     elsif preview_mode
       if has_draft_casebook
         # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
-        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
+        [:publish_changes_to_casebook, :edit_draft, :export]
       else
         [:publish_casebook, :edit_casebook] << clone_and_export
       end
@@ -71,7 +71,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
     elsif preview_mode
       if has_draft_casebook
-        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
+        [:publish_changes_to_casebook, :edit_draft, :export]
       else
         [:publish_casebook, :edit_casebook] << clone_and_export
       end
@@ -98,7 +98,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
     elsif preview_mode
       if has_draft_casebook
-        [:publish_changes_to_casebook, :edit_draft, :export_casebook]
+        [:publish_changes_to_casebook, :edit_draft, :export]
       else
         [:publish_casebook, :edit_casebook] << clone_and_export
       end
@@ -110,17 +110,17 @@ class Content::NodeDecorator < Draper::Decorator
   #condensed button lists
 
   def clone_and_export
-    [:clone_casebook, :export_casebook]
+    [:clone_casebook, :export]
   end
 
   def draft_buttons
-    [:add_resource, :add_section, :export_casebook, :save_casebook, :cancel_casebook]
+    [:add_resource, :add_section, :export, :save_casebook, :cancel_casebook]
   end
 
   #variables
 
   def draft_mode
-    action.in? %w{edit layout annotate}
+    action_name.in? %w{edit layout annotate}
   end
 
   def published_mode
@@ -128,7 +128,7 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def preview_mode
-    user_is_collaborator && action == 'show'
+    user_is_collaborator && action_name == 'show'
   end
 
   def has_published_parent
