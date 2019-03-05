@@ -15,8 +15,7 @@ class CaseSystemTest < ApplicationSystemTestCase
 
       assert_content "Cases (1)"
       click_link "Cases (1)"
-
-      find('div.title', text: "Case #{search_label} in the Haystack").click
+      find('div.title', text: "Haystack Case (#{search_label})").click
 
       # Can't find a private case!
       # TODO: You really should be able to find a private case that belongs to you.
@@ -36,14 +35,14 @@ class CaseSystemTest < ApplicationSystemTestCase
 
       assert_content "Cases (1)"
       click_link "Cases (1)"
-      assert_content "Updated Haystack Case (#{search_label})"
+      assert_content "Haystack Case (#{search_label})"
     end
 
     scenario 'reading a case', js: true do
       public_case = cases :public_case_1
       visit case_path(public_case)
 
-      assert_content public_case.name
+      assert_content public_case.name_abbreviation
       assert_content public_case.content
 
       # annotations are visible
