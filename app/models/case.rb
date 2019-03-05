@@ -34,7 +34,7 @@ class Case < ApplicationRecord
   end
 
   def title
-    name
+    name_abbreviation
   end
 
   def date_year
