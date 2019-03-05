@@ -33,15 +33,12 @@ class Case < ApplicationRecord
     nil
   end
 
-  def title
-    name_abbreviation
-  end
-
   def date_year
     decision_date.try :year
   end
 
   alias :to_s :display_name
+  alias :title :display_name
 
   nilify_blanks only: [:docket_number]
   
