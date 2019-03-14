@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem 'pg', '~> 0.21'
-gem 'rails', '5.2.1'
+gem 'rails', '5.2.2.1'
 gem 'puma', '~> 3.12'
 
 # Asset pipeline and libs (jquery, etc) managed through webpacker configs
