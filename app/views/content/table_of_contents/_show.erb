@@ -19,7 +19,7 @@
         <div class="section-number"> <%= content.ordinal_string %> </div>
         <% if content.resource.is_a? Case %>
           <div>
-            <div class="section-title"> <%= content.title %> </div>
+            <div class="section-title case-section-title"> <%= content.title %> </div>
             <div class="case-metadata-container">
               <div class="resource-case"> <%= content.resource.citations.dig(0, "cite") %></div>
               <div class="resource-date"> <%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
