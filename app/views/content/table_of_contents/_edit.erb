@@ -21,24 +21,36 @@
         <a class="listing resource" href="<%= edit_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" data-editable="" >
           <div class="section-number"><%= content.ordinal_string %></div>
           <div class="section-title"><%= content.title %></div>
-          <div class="resource-type"><%= t 'content.resource.type.default' %></div>
+          <div class="resource-type-container">
+            <div class="resource-type"><%= t 'content.resource.type.default' %></div>
+          </div>
         </a>
     <% else %>
         <a class="listing resource" href="<%= annotate_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" data-editable="" >
           <div class="section-number"><%= content.ordinal_string %></div>
         <% if content.resource.is_a? Case %>
-          <div class="section-title"> <%= content.title %> </div>
-          <div class="resource-case"> <%= content.resource.citations.dig(0, "cite") %></div>
-          <div class="resource-date"> <%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
+          <div>
+            <div class="section-title case-section-title"> <%= content.title %> </div>
+            <div class="case-metadata-container">
+              <div class="resource-case"> <%= content.resource.citations.dig(0, "cite") %></div>
+              <div class="resource-date"> <%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
+            </div>
+          </div>
+          <div class="resource-type-container">
             <div class="resource-type"> <%= t 'content.resource.type.case' %></div>
+          </div>
         <% elsif content.resource.is_a? TextBlock %>
           <div class="section-title"> <%= content.title %></div>
-          <div class="resource-type"> <%= t 'content.resource.type.text' %></div>
+          <div class="resource-type-container">
+            <div class="resource-type"> <%= t 'content.resource.type.text' %></div>
+          </div>
         <% else %>
           <div class="section-title"><%= content.title %></div>
-          <div class="resource-type">
-            <div class="not-applicable"> <%= t "content.resource.type.not-applicable" %></div>
-              </div>
+          <div class="resource-type-container">
+            <div class="resource-type">
+              <div class="not-applicable"> <%= t "content.resource.type.not-applicable" %></div>
+            </div>
+          </div>
           <% end %>
         </a>
     <% end %>
