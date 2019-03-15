@@ -419,7 +419,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       &.resource {
         background-color: $white;
         display: grid;
-        grid-template-columns: 5% 1fr 15%;
+        grid-template-columns: auto 1fr 15%;
 
         .section-title {
           display: flex;
@@ -480,6 +480,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         font-size: 12px;
         display: flex;
         align-items: center;
+        margin-right: 10px;
       }
       .section-title {
         @include sans-serif($bold, 14px, 14px);
@@ -501,8 +502,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         align-items: center;
         font-size: 12px;
         font-weight: bold;
-        height: 26px;
-        width: 85px;
+        height: 20px;
+        width: 72px;
       }
     }
     .section-contents {
