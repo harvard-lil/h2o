@@ -399,7 +399,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .listing {
       display: block;
       width: 100%;
-      padding: 12px 18px;
+      padding: 12px 16px;
       margin-top: 6px;
       border: 1px solid $black;
 
@@ -418,13 +418,22 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       &.resource {
         background-color: $white;
-        display: flex;
-        flex-direction: column;
-        align-items: left;
+        display: grid;
+        grid-template-columns: 5% 1fr 15%;
 
         .section-number, .section-title {
           color: $black;
-          margin-right: 10px;
+        }
+
+        .case-metadata-container {
+          display: grid;
+          grid-template-columns: 20% 1fr;
+        }
+
+        .resource-type-container {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
         }
       }
       &.empty {
@@ -452,18 +461,16 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         }
       }
       @media (min-width: $screen-xs) {
-        &.section, &.resource {
+        &.section {
           flex-direction: row;
           align-items: center;
         }
       }
 
       .section-number {
-        // @include monospace($regular, 11px, 12px);
-        // display: inline-block;
-        margin-right: 6px;
-        vertical-align: middle;
         font-size: 12px;
+        display: flex;
+        align-items: center;
       }
       .section-title {
         @include sans-serif($bold, 14px, 14px);
@@ -471,29 +478,22 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       .resource-type, .resource-case, .resource-date {
         @include sans-serif($light, 14px, 14px);
-        float: right;
         display: inline-block;
-        padding: 0 10px;
 
-        text-align: right;
+        text-align: left;
         color: $black;
       }
-      .resource-date {
-        width: 40px;
-        margin-right: 15px;
-      }
+
       .resource-type {
         border: 1px solid $light-blue;
         color: $light-blue;
-        width: 65px;
-        line-height: 14px;
-        vertical-align: middle;
         display: flex;
         justify-content: center;
+        align-items: center;
         font-size: 12px;
         font-weight: bold;
-        margin-left: auto;
-        padding-top: 2px;
+        height: 26px;
+        width: 85px;
       }
     }
     .section-contents {
