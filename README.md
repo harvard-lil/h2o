@@ -5,8 +5,8 @@
 ## Contents
 
 1. [Live version](#live-version)
-2. [Development: manual setup](#development)
-2. [Development: using Docker](#development)
+2. [Development: manual setup](#development-manual-setup)
+2. [Development: using Docker](#development-docker-experimental)
 3. [Testing](#testing)
 3. [Migration](#migration)
 3. [Contributions](#contributions)
