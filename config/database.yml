@@ -13,10 +13,13 @@ staging:
 development:
   adapter: postgresql
   database: h2o_dev
-  host: localhost
+  host: <%= ENV['DB_HOSTNAME'] || 'localhost' %>
+  username: <%= ENV['DB_USERNAME'] %>
   pool: 5
 
 test:
   adapter: postgresql
   database: h2o_test
+  host: <%= ENV['DB_HOSTNAME'] || 'localhost' %>
+  username: <%= ENV['DB_USERNAME'] %>
   pool: 5

@@ -5,7 +5,8 @@
 ## Contents
 
 1. [Live version](#live-version)
-2. [Development](#development)
+2. [Development: manual setup](#development)
+2. [Development: using Docker](#development)
 3. [Testing](#testing)
 3. [Migration](#migration)
 3. [Contributions](#contributions)
@@ -17,7 +18,7 @@
 Auto-deploy of the latest master. If the build is green, it's up-to-date.
 
 
-## Development
+## Development: manual setup
 
 > TODO: These instructions are incomplete for dev platforms other than OS X, and probably lack steps needed on a fresh machine.
 
@@ -69,6 +70,65 @@ with `brew cask install java`
 
 1. e.g. OS X: `echo 127.0.0.1 h2o-dev.local | sudo tee -a /etc/hosts`
 2. Go to [http://h2o-dev.local:8000](http://h2o-dev.local:8000)
+
+
+## Development: Docker (experimental)
+
+### Hosts
+
+To ensure that URLs resolve correctly, add the following domain to your computer's hosts file:
+
+127.0.0.1 h2o-dev.local
+
+For additional information on modifying your hosts file, [try this help doc](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file).
+
+### Spin up some containers
+
+Start up the Docker containers in the background:
+
+    $ docker-compose up -d
+
+The first time this runs, it will build the 2.33GB Docker image, which
+may take several minutes. (After the first time, it should only take
+1-3 seconds.)
+
+Finally, initialize the database:
+
+    $ bash init.sh
+
+
+### Run some commands
+You should now have a working installation of H2O!
+
+Spin up the development server:
+
+    $ docker-compose exec web rails sunspot:solr:start
+    $ bundle exec rails s -p 8000 -b '0.0.0.0'"
+    $ docker-compose exec web rails sunspot:solr:stop
+
+Cleanup the server pid, if something goes wrong:
+
+    $ docker-compose exec web rm -f tmp/pids/server.pid
+
+Run the tests:
+
+    $ docker-compose exec web rails sunspot:solr:start
+    $ docker-compose exec web yarn test
+    $ docker-compose exec web rails test
+    $ docker-compose exec web rails test:system
+    $ docker-compose exec web rails sunspot:solr:stop
+
+When you are finished, spin down Docker containers by running:
+
+    $ docker-compose down
+
+### Clean up everything, so you can start fresh
+
+    $ docker-compose down
+    $ docker volume rm h2o-docker_node_modules
+    $ rm -rf ./tmp/db
+    $ echo "some command to delete solr index, maybe?"
+
 
 ## Testing
 

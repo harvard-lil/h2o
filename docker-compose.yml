@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: postgres:9.5.15
+    volumes:
+      # Use a bind mount, to follow rails convention
+      - ./tmp/db:/var/lib/postgresql/data:delegated
+  web:
+    build: .
+    image: h2o:0.1
+    tty: true
+    command: bash
+    # command: bash -c "rm -f tmp/pids/server.pid && rails sunspot:solr:start && bundle exec rails s -p 8000 -b '0.0.0.0'"
+    environment:
+    - DOCKERIZED=true
+    - DB_HOSTNAME=db
+    - DB_USERNAME=postgres
+    extra_hosts:
+    - "h2o-dev.local:127.0.0.1"
+    volumes:
+      # Use a named volume for node_modules so mounting `.` to `/h2o/` doesn't clobber it.
+      # I attempted customizing `--modules-folder` with `.yarnrc`, but didn't work in all contexts.
+      # This solution isn't great, but works for now.
+      - node_modules:/h2o/node_modules
+      - .:/h2o
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  node_modules:
