@@ -21,8 +21,8 @@
           <div class="resource-container">
             <div class="section-title case-section-title"> <%= content.title %> </div>
             <div class="case-metadata-container">
-              <div class="resource-case"> <%= content.resource.citations.dig(0, "cite") %></div>
-              <div class="resource-date"> <%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
+              <div class="resource-case"><%= content.resource.citations.dig(0, "cite") %></div>
+              <div class="resource-date"><%= content.resource.try(:date_year) || t('content.resource.date.not-applicable') %> </div>
             </div>
           </div>
           <div class="resource-type-container">
