@@ -428,7 +428,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
         @media (max-width: $screen-xs) {
           .resource-container {
-            margin-left: 9px;
+            margin: 0 9px;
           }
         }
 
@@ -449,6 +449,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           display: flex;
           align-items: center;
 
+          @media (max-width: $screen-xxs) {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
           .resource-case:empty {
             display: none;
           }
@@ -462,6 +467,14 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           display: flex;
           align-items: center;
           justify-content: flex-end;
+
+          @media (max-width: $screen-xs) {
+            margin-right: -4px;
+
+            .resource-type {
+              padding: 2px 7px;
+            }
+          }
         }
       }
       &.empty {
