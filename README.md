@@ -103,7 +103,7 @@ You should now have a working installation of H2O!
 Spin up the development server:
 
     $ docker-compose exec web rails sunspot:solr:start
-    $ bundle exec rails s -p 8000 -b '0.0.0.0'"
+    $ docker-compose exec web bundle exec rails s -p 8000 -b '0.0.0.0'"
     $ docker-compose exec web rails sunspot:solr:stop
 
 Cleanup the server pid, if something goes wrong:
