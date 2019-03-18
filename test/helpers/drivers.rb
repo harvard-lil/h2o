@@ -2,6 +2,19 @@ module H2o::Test::Helpers::Drivers
   def self.included(base)
     Capybara.default_max_wait_time = 10.seconds
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
+
+    if ENV['DOCKERIZED'].present?
+      Capybara.register_driver :selenium_chrome_headless do |app|
+        Capybara::Selenium::Driver.load_selenium
+        browser_options = ::Selenium::WebDriver::Chrome::Options.new
+        browser_options.args << '--headless'
+        browser_options.args << '--disable-gpu'
+        # Sandbox cannot be used inside privileged Docker container
+        browser_options.args << '--no-sandbox'
+        Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+      end
+    end
+
     javascript_driver = base.driven_by :selenium_chrome_headless
     static_driver = base.driven_by :rack_test
 
