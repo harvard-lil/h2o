@@ -408,6 +408,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         flex-direction: column;
         align-items: left;
         background-color: $black;
+
+        @media (max-width: $screen-xs) {
+          flex-direction: row;
+        }
+
         .section-title {
           font-weight: $medium;
         }
@@ -420,6 +425,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         background-color: $white;
         display: grid;
         grid-template-columns: auto 1fr 15%;
+
+        @media (max-width: $screen-xs) {
+          .resource-container {
+            margin-left: 9px;
+          }
+        }
 
         .section-title {
           display: flex;
@@ -435,8 +446,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         }
 
         .case-metadata-container {
-          display: grid;
-          grid-template-columns: 25% 1fr;
+          display: flex;
+          align-items: center;
+
+          .resource-case {
+            margin-right: 9px;
+          }
         }
 
         .resource-type-container {
