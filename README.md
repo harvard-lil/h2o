@@ -92,9 +92,13 @@ The first time this runs, it will build the 2.33GB Docker image, which
 may take several minutes. (After the first time, it should only take
 1-3 seconds.)
 
-Finally, initialize the database:
+Finally, initialize an empty database...
 
     $ bash docker/init.sh
+
+...or a database seeded with data from a pg_dump file:
+
+    $ bash docker/init.sh -f ~/database.dump
 
 ### Run some commands
 
