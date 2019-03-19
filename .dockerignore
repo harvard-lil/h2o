@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!Gemfile
+!Gemfile.lock
+!package.json
+!yarn.lock

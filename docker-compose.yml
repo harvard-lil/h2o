@@ -3,14 +3,14 @@ services:
   db:
     image: postgres:9.5.15
     volumes:
-      # Use a bind mount, to follow rails convention
-      - ./tmp/db:/var/lib/postgresql/data:delegated
+      - db_data:/var/lib/postgresql/data:delegated
   web:
-    build: .
-    image: h2o:0.1
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: h2o:0.2
     tty: true
     command: bash
-    # command: bash -c "rm -f tmp/pids/server.pid && rails sunspot:solr:start && bundle exec rails s -p 8000 -b '0.0.0.0'"
     environment:
     - DOCKERIZED=true
     - DB_HOSTNAME=db
@@ -29,4 +29,5 @@ services:
       - db
 
 volumes:
+  db_data:
   node_modules:

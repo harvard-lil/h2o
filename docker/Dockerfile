@@ -5,7 +5,24 @@ WORKDIR /h2o
 
 RUN apt-get update \
     && apt-get install -y build-essential \
-    && apt-get install -y libpq-dev
+    && apt-get install -y libpq-dev \
+    # solr_sunspot needs Java
+    && apt-get install -y ca-certificates-java \
+    && apt-get install -y openjdk-8-jre \
+    && apt-get install -y openjdk-8-jre-headless \
+    && apt-get install -y openjdk-8-jdk \
+    && apt-get install -y openjdk-8-jdk-headless \
+    # Chrome for test:system
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get -y install google-chrome-stable \
+    && wget https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip \
+    && apt-get -y install unzip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/bin/chromedriver \
+    && chmod +x /usr/bin/chromedriver \
+    && rm -rf /var/lib/apt/lists/*
 
 # Get Node 10 instead of version in APT repository.
 # Downloads an installation script, which ends by running
@@ -32,22 +49,3 @@ RUN gem install bundler -v '1.17.3' && bundle install
 COPY package.json /h2o/package.json
 COPY yarn.lock /h2o/yarn.lock
 RUN yarn install --frozen-lockfile
-
-# solr_sunspot needs Java
-RUN apt-get update \
-    && apt-get install -y ca-certificates-java \
-    && apt-get install -y openjdk-8-jre \
-    && apt-get install -y openjdk-8-jre-headless \
-    && apt-get install -y openjdk-8-jdk \
-    && apt-get install -y openjdk-8-jdk-headless
-
-# Chrome for test:system
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get -y install google-chrome-stable \
-    && wget https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip \
-    && apt-get -y install unzip \
-    && unzip chromedriver_linux64.zip \
-    && mv chromedriver /usr/bin/chromedriver \
-    && chmod +x /usr/bin/chromedriver
