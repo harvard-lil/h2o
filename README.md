@@ -94,40 +94,31 @@ may take several minutes. (After the first time, it should only take
 
 Finally, initialize the database:
 
-    $ bash init.sh
-
+    $ bash docker/init.sh
 
 ### Run some commands
+
 You should now have a working installation of H2O!
 
 Spin up the development server:
 
-    $ docker-compose exec web rails sunspot:solr:start
-    $ docker-compose exec web bundle exec rails s -p 8000 -b '0.0.0.0'"
-    $ docker-compose exec web rails sunspot:solr:stop
+    $ bash docker/run.sh
 
-Cleanup the server pid, if something goes wrong:
+Or, run the tests:
 
-    $ docker-compose exec web rm -f tmp/pids/server.pid
+    $ bash docker/test.sh
 
-Run the tests:
-
-    $ docker-compose exec web rails sunspot:solr:start
-    $ docker-compose exec web yarn test
-    $ docker-compose exec web rails test
-    $ docker-compose exec web rails test:system
-    $ docker-compose exec web rails sunspot:solr:stop
+### Stop
 
 When you are finished, spin down Docker containers by running:
 
     $ docker-compose down
 
-### Clean up everything, so you can start fresh
+Your database and solr index will persist and will load automatically the next time you run `docker-compose up -d`.
 
-    $ docker-compose down
-    $ docker volume rm h2o-docker_node_modules
-    $ rm -rf ./tmp/db
-    $ echo "some command to delete solr index, maybe?"
+Or, you can clean up everything Docker-related, so you can start fresh, as with a new installation:
+
+    $ bash docker/clean.sh
 
 
 ## Testing
