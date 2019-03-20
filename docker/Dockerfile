@@ -42,8 +42,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 # Ruby dependencies
 COPY Gemfile /h2o/Gemfile
 COPY Gemfile.lock /h2o/Gemfile.lock
-# Pin bundler for now: guard-bundler wants version ~>1.0
-RUN gem install bundler -v '1.17.3' && bundle install
+RUN gem install bundler && bundle install
 
 # Node dependencies
 COPY package.json /h2o/package.json
