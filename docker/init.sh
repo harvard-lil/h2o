@@ -56,8 +56,6 @@ echo "Creating databases ..." && docker-compose exec web rails db:setup
 if [ "$FILE" ]; then
     echo "Loading data from $FILE ..."
     docker cp $FILE "$(docker-compose ps -q db)":/tmp/data.dump
-    # temporarily forcing the next line to return 0, until we understand
-    # the key constraint errors we are getting ("WARNING: errors ignored on restore: 4")
     docker-compose exec db bash -c "pg_restore -l /tmp/data.dump | grep -v schema_migrations | grep -v ar_internal_metadata > /tmp/restore.list"
     docker-compose exec db pg_restore -L /tmp/restore.list --disable-triggers --username=postgres --verbose --data-only --no-owner -h localhost -d h2o_dev /tmp/data.dump
     docker-compose exec db rm -f /tmp/data.dump /tmp/restore.list
