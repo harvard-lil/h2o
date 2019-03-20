@@ -61,4 +61,12 @@ H2o::Application.configure do
 
   config.admin_emails = ['cgruppioni@law.harvard.edu']
   config.professor_verifier_email = "cgruppioni@law.harvard.edu"
+
+  if ENV['DOCKERIZED'].present?
+    # Web Console launches an interactive debugging console in your browser.
+    # If running in Docker, requests don't come from localhost, so we have to
+    # whitelist the whole private network.
+    # https://github.com/rails/web-console#configweb_consolewhitelisted_ips
+    config.web_console.whitelisted_ips = '192.168.0.0/16'
+  end
 end
