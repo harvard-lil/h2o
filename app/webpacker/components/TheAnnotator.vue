@@ -39,7 +39,8 @@
     <form @submit.prevent="submit('note', content)"
           @keyup.esc="close"
           class="form"
-          id="note-form">
+          id="note-form"
+          tabindex="0">
       <textarea ref="noteInput"
                 id="note-textarea"
                 required="true"
@@ -88,7 +89,7 @@ export default {
   data: () => ({
     ranges: null,
     content: "",
-    showModal: false
+    showModal: false,
   }),
   watch: {
     ranges() {
@@ -114,6 +115,10 @@ export default {
   methods: {
     ...mapActions(["create"]),
 
+    tempId() {
+      return Math.floor(Math.random() * Math.floor(10000000)) * -1;
+    },
+
     selectionchange(e, sel) {
       if(sel &&
          (isText(sel.anchorNode)
@@ -132,6 +137,7 @@ export default {
       this.ranges = null;
       this.$refs.linkMenu.close();
       this.$refs.noteMenu.close();
+      this.revert()
     },
 
     submit(type, content = null) {
@@ -160,24 +166,32 @@ export default {
     },
 
     input(e, kind) {
-      // this.$store.commit('annotations/append', [{
-      //   id: this.tempId(),
-      //   content: "",
-      //   kind: "note",
-      //   resource_id: this.resourceId,
-      //   ...this.offsets
-      // }]);
+      let id = this.tempId();
+
+      this.$store.commit('annotations/append', [{
+        id: id,
+        content: "",
+        kind: "note",
+        resource_id: this.resourceId,
+        ...this.offsets
+      }]);
 
       this.$refs[`${kind}Menu`].open(e);
+      this.$refs[`${kind}Menu`].$tempId = id;
+
       this.$nextTick(
         () =>
           (this.$refs[`${kind}Input`].$el ||
            this.$refs[`${kind}Input`]).focus()
       );
     },
-    tempId() {
-      return Math.floor(Math.random() * Math.floor(10000000)) * -1;
-    },
+
+    
+    revert() {
+      debugger;
+      this.$store.commit('annotations/destroy', this.annotation);
+      this.$store.commit('annotations_ui/destroy', this.uiState);
+    }
   }
 }
 </script>
