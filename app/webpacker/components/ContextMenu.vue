@@ -72,15 +72,15 @@
       onFocusout (e) {
         if(e.relatedTarget != this.$el &&
            !this.$el.contains(e.relatedTarget)){
-          this.close(true);
-        }
-      },
-      /**
-       * Close the context menu.
-       *
-       * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
-       */
-      close (emit = true) {
+            this.close(true);
+          }
+        },
+        /**
+         * Close the context menu.
+         *
+         * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
+         */
+        close (emit = true) {
           // return;
           this.top = null;
           this.left = null;
@@ -89,7 +89,10 @@
           if (emit) {
               this.$emit('close');
           }
-      },
+
+          // call the revert element or get the id of the annotation hear and kill it 
+          debugger;
+        },
 			/**
 			 * Close the menu if `closeOnClick` is set to true.
 			 */
@@ -146,6 +149,7 @@
 			 * @param {boolean} oldValue
 			 */
 			closeOnScroll (value, oldValue) {
+				debugger;
         if (value === oldValue) {
 					return;
 				}
