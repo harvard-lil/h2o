@@ -73,6 +73,13 @@
         if(e.relatedTarget != this.$el &&
            !this.$el.contains(e.relatedTarget)){
             this.close(true);
+
+            // When clicking away from note or link annotation during creation, destroy temporarily stored annotation in store 
+            let annotation = this.$store.getters['annotations/getById'](this.$tempId);
+            let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
+
+            this.$store.commit('annotations/destroy', this.annotation);
+            this.$store.commit('annotations_ui/destroy', this.uiState);
           }
         },
         /**
@@ -91,7 +98,6 @@
           }
 
           // call the revert element or get the id of the annotation hear and kill it 
-          debugger;
         },
 			/**
 			 * Close the menu if `closeOnClick` is set to true.
@@ -149,7 +155,6 @@
 			 * @param {boolean} oldValue
 			 */
 			closeOnScroll (value, oldValue) {
-				debugger;
         if (value === oldValue) {
 					return;
 				}

@@ -27,7 +27,6 @@
   <ContextMenu ref="linkMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('link', content)"
-          @keyup.esc="close"
           class="form">
       <LinkInput ref="linkInput"
                  v-model="content"/>
@@ -37,10 +36,8 @@
   <ContextMenu ref="noteMenu"
                :closeOnClick="false">
     <form @submit.prevent="submit('note', content)"
-          @keyup.esc="close"
           class="form"
-          id="note-form"
-          tabindex="0">
+          id="note-form">
       <textarea ref="noteInput"
                 id="note-textarea"
                 required="true"
@@ -137,7 +134,6 @@ export default {
       this.ranges = null;
       this.$refs.linkMenu.close();
       this.$refs.noteMenu.close();
-      this.revert()
     },
 
     submit(type, content = null) {
@@ -171,7 +167,7 @@ export default {
       this.$store.commit('annotations/append', [{
         id: id,
         content: "",
-        kind: "note",
+        kind: kind,
         resource_id: this.resourceId,
         ...this.offsets
       }]);
@@ -185,13 +181,8 @@ export default {
            this.$refs[`${kind}Input`]).focus()
       );
     },
-
     
-    revert() {
-      debugger;
-      this.$store.commit('annotations/destroy', this.annotation);
-      this.$store.commit('annotations_ui/destroy', this.uiState);
-    }
+
   }
 }
 </script>
