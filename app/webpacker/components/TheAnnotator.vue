@@ -110,9 +110,6 @@ export default {
     offsets() {
       return offsetsForRanges(this.ranges);
     },
-    tempId() {
-      return Math.floor(Math.random() * Math.floor(10000000)) * -1;
-    }
   },
   methods: {
     ...mapActions(["create"]),
@@ -152,7 +149,7 @@ export default {
 
     insertReplacementPlaceholder() {
       this.$store.commit('annotations/append', [{
-        id: this.tempId,
+        id: this.tempId(),
         content: "",
         kind: "replace",
         resource_id: this.resourceId,
@@ -163,12 +160,23 @@ export default {
     },
 
     input(e, kind) {
+      // this.$store.commit('annotations/append', [{
+      //   id: this.tempId(),
+      //   content: "",
+      //   kind: "note",
+      //   resource_id: this.resourceId,
+      //   ...this.offsets
+      // }]);
+
       this.$refs[`${kind}Menu`].open(e);
       this.$nextTick(
         () =>
           (this.$refs[`${kind}Input`].$el ||
            this.$refs[`${kind}Input`]).focus()
       );
+    },
+    tempId() {
+      return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
   }
 }
