@@ -34,7 +34,7 @@ export default {
       return this.$store.getters['annotations_ui/getById'](this.annotation.id);
     },
     isNew() {
-      return !this.annotation.id;
+      return Math.sign(this.annotation.id) == -1;
     },
     isHead() {
       return this.index == this.annotation.start_paragraph &&
