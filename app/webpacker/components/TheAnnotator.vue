@@ -109,6 +109,9 @@ export default {
     },
     offsets() {
       return offsetsForRanges(this.ranges);
+    },
+    tempId() {
+      return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     }
   },
   methods: {
@@ -149,7 +152,7 @@ export default {
 
     insertReplacementPlaceholder() {
       this.$store.commit('annotations/append', [{
-        id: null,
+        id: this.tempId,
         content: "",
         kind: "replace",
         resource_id: this.resourceId,
