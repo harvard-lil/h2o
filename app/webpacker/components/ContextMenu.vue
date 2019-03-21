@@ -69,27 +69,27 @@
 			addScrollEventListener () {
 				window.addEventListener('scroll', this.close);
 			},
-            onFocusout (e) {
-              if(e.relatedTarget != this.$el &&
-                 !this.$el.contains(e.relatedTarget)){
-                this.close(true);
-              }
-            },
-            /**
-             * Close the context menu.
-             *
-             * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
-             */
-            close (emit = true) {
-                // return;
-                this.top = null;
-                this.left = null;
-                this.data = null;
-                this.show = false;
-                if (emit) {
-                    this.$emit('close');
-                }
-            },
+      onFocusout (e) {
+        if(e.relatedTarget != this.$el &&
+           !this.$el.contains(e.relatedTarget)){
+          this.close(true);
+        }
+      },
+      /**
+       * Close the context menu.
+       *
+       * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
+       */
+      close (emit = true) {
+          // return;
+          this.top = null;
+          this.left = null;
+          this.data = null;
+          this.show = false;
+          if (emit) {
+              this.$emit('close');
+          }
+      },
 			/**
 			 * Close the menu if `closeOnClick` is set to true.
 			 */
@@ -146,7 +146,7 @@
 			 * @param {boolean} oldValue
 			 */
 			closeOnScroll (value, oldValue) {
-				if (value === oldValue) {
+        if (value === oldValue) {
 					return;
 				}
 				if (value) {
