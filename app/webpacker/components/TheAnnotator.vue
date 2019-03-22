@@ -136,17 +136,6 @@ export default {
       this.$refs.noteMenu.close();
     },
 
-    // revert(kind){
-    //   // When clicking away from note or link annotation during creation, destroy temporarily stored annotation in store 
-    //   let id = this.$refs[`${kind}Menu`].$tempId;
-    //   // debugger;
-    //   let annotation = this.$store.getters['annotations/getById'](id);
-    //   let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
-
-    //   this.$store.commit('annotations/destroy', this.annotation);
-    //   this.$store.commit('annotations_ui/destroy', this.uiState);
-    // },
-
     submit(kind, content = null) {
       this.create({
         kind: kind,
@@ -168,6 +157,7 @@ export default {
         {obj: annotation, vals: {content: content}}
       );
 
+      this.$refs[`${kind}Menu`].$tempId = null;
       this.close();
     },
 
