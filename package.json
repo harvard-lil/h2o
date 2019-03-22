@@ -7,6 +7,7 @@
     "bootstrap-sass": "3.4.1",
     "ckeditor": "4.11.0",
     "classlist-polyfill": "^1.2.0",
+    "css-loader": "*",
     "debounce": "^1.0.2",
     "delegate": "^3.1.2",
     "drag-mock": "^1.4.0",
@@ -25,15 +26,18 @@
     "path-complete-extname": "^0.1.0",
     "query-string": "^4.3.4",
     "rails-erb-loader": "^5.5.0",
+    "typescript": "*",
     "vue": "^2.6.6",
     "vue-contenteditable-directive": "^1.2.0",
     "vue-loader": "^15.6.2",
     "vue-scrollto": "^2.13.0",
     "vue-template-compiler": "^2.6.6",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.0",
+    "webpack": "^4.29.0"
   },
   "devDependencies": {
     "@vue/test-utils": "^1.0.0-beta.29",
+    "@babel/core": "^7.2.2",
     "babel-jest": "^24.1.0",
     "jest": "^24.1.0",
     "jest-serializer-vue": "^2.0.2",
