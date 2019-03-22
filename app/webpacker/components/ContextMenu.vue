@@ -75,11 +75,14 @@
             this.close(true);
 
             // When clicking away from note or link annotation during creation, destroy temporarily stored annotation in store 
-            let annotation = this.$store.getters['annotations/getById'](this.$tempId);
-            let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
+            // if(this.$tempId !== undefined){
+            //   let annotation = this.$store.getters['annotations/getById'](this.$tempId);
+            //   let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
 
-            this.$store.commit('annotations/destroy', this.annotation);
-            this.$store.commit('annotations_ui/destroy', this.uiState);
+            //   this.$store.commit('annotations/destroy', annotation);
+            //   this.$store.commit('annotations_ui/destroy', uiState);
+            //   console.log('22222');
+            // }
           }
         },
         /**

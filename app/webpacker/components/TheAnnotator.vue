@@ -26,7 +26,7 @@
 
   <ContextMenu ref="linkMenu"
                :closeOnClick="false">
-    <form @submit.prevent="submit('link', content)"
+    <form @submit.prevent="submitNoteAndHighlight('link', content)"
           class="form">
       <LinkInput ref="linkInput"
                  v-model="content"/>
@@ -35,7 +35,7 @@
 
   <ContextMenu ref="noteMenu"
                :closeOnClick="false">
-    <form @submit.prevent="submit('note', content)"
+    <form @submit.prevent="submitNoteAndHighlight('note', content)"
           class="form"
           id="note-form">
       <textarea ref="noteInput"
@@ -110,7 +110,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["create"]),
+    ...mapActions(["create", "createAndUpdate"]),
 
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
@@ -136,15 +136,37 @@ export default {
       this.$refs.noteMenu.close();
     },
 
-    submit(type, content = null) {
+    // revert(kind){
+    //   // When clicking away from note or link annotation during creation, destroy temporarily stored annotation in store 
+    //   let id = this.$refs[`${kind}Menu`].$tempId;
+    //   // debugger;
+    //   let annotation = this.$store.getters['annotations/getById'](id);
+    //   let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
+
+    //   this.$store.commit('annotations/destroy', this.annotation);
+    //   this.$store.commit('annotations_ui/destroy', this.uiState);
+    // },
+
+    submit(kind, content = null) {
       this.create({
-        kind: type,
+        kind: kind,
         content: content,
         resource_id: this.resourceId,
         ...this.offsets
       }).catch(e => {
         this.showModal = true;
       });
+
+      this.close();
+    },
+
+    submitNoteAndHighlight(kind, content = null){
+      let id = this.$refs[`${kind}Menu`].$tempId;
+      let annotation = this.$store.getters['annotations/getById'](id);
+
+      this.createAndUpdate(
+        {obj: annotation, vals: {content: content}}
+      );
 
       this.close();
     },
@@ -181,8 +203,6 @@ export default {
            this.$refs[`${kind}Input`]).focus()
       );
     },
-    
-
   }
 }
 </script>
