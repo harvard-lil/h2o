@@ -82,7 +82,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["create", "createAndUpdate"]),
+    ...mapActions(["create"]),
 
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
