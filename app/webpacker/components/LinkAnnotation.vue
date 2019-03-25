@@ -18,7 +18,7 @@
       </form>
     </ContextMenu>
   </template>
-  <template v-if="isNew">
+  <template v-if="isNew && isHead">
     <form @submit.prevent="submit('link', content)"
           class="form link-content-wrapper"
           :id= "`${annotation.id}`"

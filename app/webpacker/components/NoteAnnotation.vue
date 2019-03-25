@@ -28,7 +28,7 @@
       </span>
     </span>
   </template>
-  <template v-if="isNew">
+  <template v-if="isNew && isHead">
     <form @submit.prevent="submit('note', content)"
           ref="noteForm"
           class="form note-content-wrapper"
