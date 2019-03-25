@@ -1,15 +1,17 @@
 <template>
 <span class="note">
-  <a class="selected-text"
-     :href="`#${annotation.id}-content`"
-     :id="isHead ? `${annotation.id}-head` : ''"
-     @click.prevent="handleClick"><slot></slot></a>
-  <AnnotationHandle v-if="hasHandle"
-                    :ui-state="uiState">
-    <li>
-      <a @click="destroy(annotation)">Remove note</a>
-    </li>
-  </AnnotationHandle>
+  <template v-if="hasHandle">
+    <a class="selected-text"
+       :href="`#${annotation.id}-content`"
+       :id="isHead ? `${annotation.id}-head` : ''"
+       @click.prevent="handleClick"><slot></slot></a>
+    <AnnotationHandle v-if="hasHandle"
+                      :ui-state="uiState">
+      <li>
+        <a @click="destroy(annotation)">Remove note</a>
+      </li>
+    </AnnotationHandle>
+  </template>
   <template v-if="isHead && !isNew">
     <span v-show="uiState.expanded"
           class="note-content-wrapper"
@@ -26,18 +28,42 @@
       </span>
     </span>
   </template>
+  <template v-if="isNew">
+    <form @submit.prevent="submitNoteAndHighlight('note', content)"
+          ref="noteForm"
+          class="form note-content-wrapper"
+          :id= "`${annotation.id}`">
+      <textarea ref="noteInput"
+                id="note-textarea"
+                required="true"
+                placeholder="Note text..."
+                @keydown.enter.prevent="$refs.noteSubmitButton.click"
+                v-model="content"></textarea>
+      <input ref="noteSubmitButton"
+             type="submit"
+             value="Save"
+             id="save-note"
+             class="button">
+    </form>
+  </template>
 </span>
 </template>
 
 <script>
 import AnnotationBase from './AnnotationBase';
 import { createNamespacedHelpers } from 'vuex';
-const { mapActions } = createNamespacedHelpers('annotations_ui');
+const { mapGetters } = createNamespacedHelpers('annotations_ui');
+const { mapActions } = createNamespacedHelpers("annotations");
 
 export default {
   extends: AnnotationBase,
+  props: ["tempId"],
+  data: () => ({
+    content: "",
+  }),
   methods: {
-    ...mapActions(['toggleExpansion']),
+    ...mapGetters(['toggleExpansion']),
+    ...mapActions(['createAndUpdate']),
 
     handleClick(e) {
       // Setting this focus for accessibility is at odds with the expansion toggle
@@ -45,7 +71,19 @@ export default {
       // https://github.com/harvard-lil/h2o/issues/654#issuecomment-461081248
       document.getElementById(e.currentTarget.getAttribute("href").slice(1)).focus({preventScroll: true});
       this.toggleExpansion(this.uiState);
-    }
+    },
+    submitNoteAndHighlight(kind, content = null){
+      let id = this.$refs.noteForm.id;
+      let annotation = this.$store.getters['annotations/getById'](id);
+
+      debugger;
+      this.createAndUpdate(
+        {obj: annotation, vals: {content: content}}
+      );
+
+      this.$refs.noteForm = null;
+      this.close();
+    },
   }
 }
 </script>
