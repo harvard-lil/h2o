@@ -10,7 +10,7 @@
       <a @click="destroy(annotation)">Remove note</a>
     </li>
   </AnnotationHandle>
-  <template v-if="isHead">
+  <template v-if="isHead && !isNew">
     <span v-show="uiState.expanded"
           class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
