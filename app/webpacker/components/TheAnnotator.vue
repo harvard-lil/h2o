@@ -32,11 +32,6 @@
     </form>
   </ContextMenu>
 
-<!--   <ContextMenu ref="noteMenu"
-                v-model="tempId"
-               :closeOnClick="false">
-  </ContextMenu> -->
-
   <Modal v-if="showModal"
             @close="showModal = false">
     <template slot="title">Error</template>
@@ -168,15 +163,6 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       }]);
-
-      // this.$refs[`${kind}Menu`].open(e);
-      // this.$refs[`${kind}Menu`].$tempId = id;
-
-      // this.$nextTick(
-      //   () =>
-      //     (this.$refs[`${kind}Input`].$el ||
-      //      this.$refs[`${kind}Input`]).focus()
-      // );
     },
   }
 }
