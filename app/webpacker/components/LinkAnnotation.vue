@@ -20,9 +20,9 @@
   </template>
   <template v-if="isNew">
     <form @submit.prevent="submit('link', content)"
-          class="form"
-          ref="linkForm"
-          :id= "`${annotation.id}`">
+          class="form link-content-wrapper"
+          :id= "`${annotation.id}`"
+          ref="linkForm">
       <LinkInput ref="linkInput"
                  v-model="content"/>
     </form>
@@ -78,17 +78,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../styles/vars-and-mixins';
 a[target="_blank"] {
   background: url(../images/external-link-icon.svg) center right no-repeat;
   background-size: 0.55em 0.55em;
   padding-right: 0.7em;
   margin-right: 0.1em;
 }
-.form {
-  display: flex;
-  flex-direction: column;
-}
-.button {
-  margin-top: 1em;
+.link-content-wrapper {
+  @include square(0);
+  position: absolute;
+  right: 0;
+  overflow: visible;
+  display: block;
+  margin-left: 10px;
+
+  /* counteract styles that might come from the enclosing section */
+  font-style: normal;
+  text-align: left;
 }
 </style>
