@@ -29,7 +29,7 @@
     </span>
   </template>
   <template v-if="isNew">
-    <form @submit.prevent="submitNoteAndHighlight('note', content)"
+    <form @submit.prevent="submit('note', content)"
           ref="noteForm"
           class="form note-content-wrapper"
           :id= "`${annotation.id}`">
@@ -72,17 +72,13 @@ export default {
       document.getElementById(e.currentTarget.getAttribute("href").slice(1)).focus({preventScroll: true});
       this.toggleExpansion(this.uiState);
     },
-    submitNoteAndHighlight(kind, content = null){
+    submit(kind, content = null){
       let id = this.$refs.noteForm.id;
-      let annotation = this.$store.getters['annotations/getById'](id);
+      let annotation = this.$store.getters['annotations/getById'](parseInt(id));
 
-      debugger;
       this.createAndUpdate(
         {obj: annotation, vals: {content: content}}
       );
-
-      this.$refs.noteForm = null;
-      this.close();
     },
   }
 }
