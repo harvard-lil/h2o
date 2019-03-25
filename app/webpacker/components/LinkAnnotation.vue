@@ -18,6 +18,15 @@
       </form>
     </ContextMenu>
   </template>
+  <template v-if="isNew">
+    <form @submit.prevent="submit('link', content)"
+          class="form"
+          ref="linkForm"
+          :id= "`${annotation.id}`">
+      <LinkInput ref="linkInput"
+                 v-model="content"/>
+    </form>
+  </template>
 </span>
 </template>
 
@@ -51,11 +60,19 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["update"]),
+    ...mapActions(["update", "createAndUpdate"]),
     submitUpdate() {
       this.update({obj: this.annotation, vals: this.newVals});
       this.$refs.editMenu.close();
-    }
+    },
+    submit(kind, content = null){
+      let id = this.$refs.linkForm.id;
+      let annotation = this.$store.getters['annotations/getById'](parseInt(id));
+
+      this.createAndUpdate(
+        {obj: annotation, vals: {content: content}}
+      );
+    },
   }
 }
 </script>
@@ -66,5 +83,12 @@ a[target="_blank"] {
   background-size: 0.55em 0.55em;
   padding-right: 0.7em;
   margin-right: 0.1em;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+}
+.button {
+  margin-top: 1em;
 }
 </style>
