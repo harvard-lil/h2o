@@ -23,14 +23,6 @@
          @click="input($event, 'note')">Add note</a>
     </li>
   </SideMenu>
- <ContextMenu ref="linkMenu"
-               :closeOnClick="false">
-    <form @submit.prevent="submitNoteAndHighlight('link', content)"
-          class="form">
-      <LinkInput ref="linkInput"
-                 v-model="content"/>
-    </form>
-  </ContextMenu>
 
   <Modal v-if="showModal"
             @close="showModal = false">
