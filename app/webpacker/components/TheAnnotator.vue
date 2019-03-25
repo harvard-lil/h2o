@@ -23,8 +23,7 @@
          @click="input($event, 'note')">Add note</a>
     </li>
   </SideMenu>
-
-  <ContextMenu ref="linkMenu"
+ <ContextMenu ref="linkMenu"
                :closeOnClick="false">
     <form @submit.prevent="submitNoteAndHighlight('link', content)"
           class="form">
@@ -33,24 +32,10 @@
     </form>
   </ContextMenu>
 
-  <ContextMenu ref="noteMenu"
+<!--   <ContextMenu ref="noteMenu"
+                v-model="tempId"
                :closeOnClick="false">
-    <form @submit.prevent="submitNoteAndHighlight('note', content)"
-          class="form"
-          id="note-form">
-      <textarea ref="noteInput"
-                id="note-textarea"
-                required="true"
-                placeholder="Note text..."
-                @keydown.enter.prevent="$refs.noteSubmitButton.click"
-                v-model="content"></textarea>
-      <input ref="noteSubmitButton"
-             type="submit"
-             value="Save"
-             id="save-note"
-             class="button">
-    </form>
-  </ContextMenu>
+  </ContextMenu> -->
 
   <Modal v-if="showModal"
             @close="showModal = false">
@@ -184,14 +169,14 @@ export default {
         ...this.offsets
       }]);
 
-      this.$refs[`${kind}Menu`].open(e);
-      this.$refs[`${kind}Menu`].$tempId = id;
+      // this.$refs[`${kind}Menu`].open(e);
+      // this.$refs[`${kind}Menu`].$tempId = id;
 
-      this.$nextTick(
-        () =>
-          (this.$refs[`${kind}Input`].$el ||
-           this.$refs[`${kind}Input`]).focus()
-      );
+      // this.$nextTick(
+      //   () =>
+      //     (this.$refs[`${kind}Input`].$el ||
+      //      this.$refs[`${kind}Input`]).focus()
+      // );
     },
   }
 }
