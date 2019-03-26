@@ -119,7 +119,7 @@ export default {
         ...this.offsets
       }]);
 
-      this.close();
+      // this.close();
     },
   }
 }

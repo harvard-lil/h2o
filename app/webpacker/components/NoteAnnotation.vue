@@ -29,28 +29,31 @@
     </span>
   </template>
   <template v-if="isNew && isHead">
-    <form @submit.prevent="submit('note', content)"
-          ref="noteForm"
-          class="form note-content-wrapper"
-          :id= "`${annotation.id}`">
-      <textarea ref="noteInput"
-                id="note-textarea"
-                required="true"
-                placeholder="Note text..."
-                @keydown.enter.prevent="$refs.noteSubmitButton.click"
-                v-model="content"></textarea>
-      <input ref="noteSubmitButton"
-             type="submit"
-             value="Save"
-             id="save-note"
-             class="button">
-    </form>
+    <ContextMenu>
+      <form @submit.prevent="submit('note', content)"
+            ref="noteForm"
+            class="form note-content-wrapper"
+            :id= "`${annotation.id}`">
+        <textarea ref="noteInput"
+                  id="note-textarea"
+                  required="true"
+                  placeholder="Note text..."
+                  @keydown.enter.prevent="$refs.noteSubmitButton.click"
+                  v-model="content"></textarea>
+        <input ref="noteSubmitButton"
+               type="submit"
+               value="Save"
+               id="save-note"
+               class="button">
+      </form>
+    </ContextMenu>
   </template>
 </span>
 </template>
 
 <script>
 import AnnotationBase from './AnnotationBase';
+import ContextMenu from "./ContextMenu";
 import { createNamespacedHelpers } from 'vuex';
 const { mapGetters } = createNamespacedHelpers('annotations_ui');
 const { mapActions } = createNamespacedHelpers("annotations");

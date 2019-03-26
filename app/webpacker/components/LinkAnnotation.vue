@@ -19,6 +19,8 @@
     </ContextMenu>
   </template>
   <template v-if="isNew && isHead">
+    <ContextMenu data-exclude-from-offset-calcs="true"
+                 :closeOnClick="false">
     <form @submit.prevent="submit('link', content)"
           class="form link-content-wrapper"
           :id= "`${annotation.id}`"
@@ -26,6 +28,7 @@
       <LinkInput ref="linkInput"
                  v-model="content"/>
     </form>
+  </ContextMenu>
   </template>
 </span>
 </template>
