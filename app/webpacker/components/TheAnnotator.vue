@@ -5,15 +5,15 @@
             :style="{top: offset}">
     <li>
       <a id="create-highlight"
-         @click="submit('highlight')">Highlight</a>
+         @click="input($event, 'highlight')">Highlight</a>
     </li>
     <li>
       <a id="create-elision"
-         @click="submit('elide')">Elide</a>
+         @click="input($event, 'elide')">Elide</a>
     </li>
     <li>
       <a id="create-replacement"
-         @click="insertReplacementPlaceholder">Replace</a></li>
+         @click="input($event, 'replace')">Replace</a></li>
     <li>
       <a id="create-link"
          @click="input($event, 'link')">Add link</a>
@@ -57,7 +57,7 @@ export default {
   },
   data: () => ({
     ranges: null,
-    content: "",
+    content: null,
     showModal: false,
   }),
   watch: {
@@ -108,53 +108,18 @@ export default {
       this.$refs.noteMenu.close();
     },
 
-    submit(kind, content = null) {
-      this.create({
-        kind: kind,
-        content: content,
-        resource_id: this.resourceId,
-        ...this.offsets
-      }).catch(e => {
-        this.showModal = true;
-      });
-
-      this.close();
-    },
-
-    submitNoteAndHighlight(kind, content = null){
-      let id = this.$refs[`${kind}Menu`].$tempId;
-      let annotation = this.$store.getters['annotations/getById'](id);
-
-      this.createAndUpdate(
-        {obj: annotation, vals: {content: content}}
-      );
-
-      this.$refs[`${kind}Menu`].$tempId = null;
-      this.close();
-    },
-
-    insertReplacementPlaceholder() {
-      this.$store.commit('annotations/append', [{
-        id: this.tempId(),
-        content: "",
-        kind: "replace",
-        resource_id: this.resourceId,
-        ...this.offsets
-      }]);
-
-      this.close();
-    },
-
     input(e, kind) {
       let id = this.tempId();
 
       this.$store.commit('annotations/append', [{
         id: id,
-        content: "",
+        content: this.content,
         kind: kind,
         resource_id: this.resourceId,
         ...this.offsets
       }]);
+
+      this.close();
     },
   }
 }

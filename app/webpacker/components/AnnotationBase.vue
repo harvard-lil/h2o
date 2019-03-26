@@ -54,6 +54,12 @@ export default {
     ...mapActions(['destroy'])
   },
   created() {
+    if(this.isHead && this.isNew && ['highlight', 'elide'].includes(this.annotation.kind)){
+      this.createAndUpdate(
+        {obj: this.annotation, vals: {}}
+      );
+    }
+
     if(!this.uiState) {
       this.$store.commit('annotations_ui/append', [
         {id: this.annotation.id,
