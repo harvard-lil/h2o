@@ -51,7 +51,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['destroy'])
+    ...mapActions(['destroy', 'createAndUpdate'])
   },
   created() {
     if(this.isHead && this.isNew && ['highlight', 'elide'].includes(this.annotation.kind)){
