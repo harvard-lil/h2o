@@ -29,7 +29,10 @@
     </span>
   </template>
   <template v-if="isNew && isHead">
-    <ContextMenu>
+      <a class="selected-text"
+         :href="`#${annotation.id}-content`"
+         :id="isHead ? `${annotation.id}-head` : ''"
+         @click.prevent="handleClick"><slot></slot></a>
       <form @submit.prevent="submit('note', content)"
             ref="noteForm"
             class="form note-content-wrapper"
@@ -46,7 +49,6 @@
                id="save-note"
                class="button">
       </form>
-    </ContextMenu>
   </template>
 </span>
 </template>
