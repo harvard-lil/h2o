@@ -20,13 +20,23 @@
     </ContextMenu>
   </template>
   <template v-if="isNew && isHead">
-    <div class="link-content-wrapper">
+    <div class="link-content-wrapper"
+    tabindex="-1">
       <form @submit.prevent="submit('link', content)"
-            class="form"
+            class="form link-form"
             :id= "`${annotation.id}`"
-            ref="linkForm">
-        <LinkInput ref="linkInput"
-                   v-model="content"/>
+            ref="linkForm"
+            tabindex="0"
+            @focusout="focusOut"
+            >
+          <input id="link-input"
+                type="url"
+                required="true"
+                pattern="\w+://\w+.*"
+                placeholder="Url to link to..."
+                ref="linkInput"
+                v-model="content"
+                tabindex="0"/>
       </form>
     </div>
   </template>
@@ -47,8 +57,9 @@ export default {
     ContextMenu,
     LinkInput
   },
+  props: ["value"],
   data: () => ({
-    newVals: {content: null}
+    newVals: {content: null},
   }),
   computed: {
     content: {
@@ -69,14 +80,30 @@ export default {
       this.$refs.editMenu.close();
     },
     submit(kind, content = null){
-      let id = this.$refs.linkForm.id;
-      let annotation = this.$store.getters['annotations/getById'](parseInt(id));
-
       this.createAndUpdate(
-        {obj: annotation, vals: {content: content}}
+        {obj: this.annotation, vals: this.newVals}
       );
     },
-  }
+    focusOut(e){
+      console.log(e.relatedTarget);
+
+      if(Math.sign(this.annotation.id) !== -1){
+        this.$store.commit('annotations/destroy', this.annotation);
+        this.$store.commit('annotations_ui/destroy', this.uiState);
+      }
+      // debugger;
+      // if(e.currentTarget.className !== "form link-form"){
+
+      // }
+    }
+  },
+  mounted() {
+    this.$nextTick(function () {
+      if (Math.sign(this.annotation.id) == -1){
+        this.$refs.linkInput.focus();
+      }
+    })
+  },
 }
 </script>
 
@@ -95,6 +122,7 @@ a[target="_blank"] {
   right: 0;
   overflow: visible;
   display: block;
+  z-index: 999;
 
   /* counteract styles that might come from the enclosing section */
   font-style: normal;
@@ -108,6 +136,11 @@ a[target="_blank"] {
     width: 200px;
     background: white;
     margin-left: 10px;
+    z-index: 999;
+
+    #link-input {
+      width: 200px;
+    }
   }
 }
 .edit-menu {

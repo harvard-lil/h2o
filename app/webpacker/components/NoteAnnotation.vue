@@ -37,7 +37,8 @@
         <form @submit.prevent="submit('note', content)"
               ref="noteForm"
               class="form note-content"
-              :id= "`${annotation.id}`">
+              :id= "`${annotation.id}`"
+              @focusout="focusOut">
           <textarea ref="noteInput"
                     id="note-textarea"
                     required="true"
@@ -86,6 +87,13 @@ export default {
         {obj: annotation, vals: {content: content}}
       );
     },
+    focusOut(e){
+      if(e.relatedTarget == null || ["save-note", "note-textarea"].includes(e.relatedTarget.id) == false ){
+
+        this.$store.commit('annotations/destroy', this.annotation);
+        this.$store.commit('annotations_ui/destroy', this.uiState);
+      }
+    }
   },
   mounted() {
     this.$nextTick(function () {
