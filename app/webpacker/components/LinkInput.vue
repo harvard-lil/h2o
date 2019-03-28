@@ -15,4 +15,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  #link-input {
+    width: 200px;
+  }
 </style>

@@ -12,20 +12,23 @@
     </AnnotationHandle>
     <ContextMenu ref="editMenu"
                  data-exclude-from-offset-calcs="true"
-                 :closeOnClick="false">
+                 :closeOnClick="false"
+                 class="edit-menu">
       <form @submit.prevent="submitUpdate">
         <LinkInput v-model="content"/>
       </form>
     </ContextMenu>
   </template>
   <template v-if="isNew && isHead">
-    <form @submit.prevent="submit('link', content)"
-          class="form link-content-wrapper"
-          :id= "`${annotation.id}`"
-          ref="linkForm">
-      <LinkInput ref="linkInput"
-                 v-model="content"/>
-    </form>
+    <div class="link-content-wrapper">
+      <form @submit.prevent="submit('link', content)"
+            class="form"
+            :id= "`${annotation.id}`"
+            ref="linkForm">
+        <LinkInput ref="linkInput"
+                   v-model="content"/>
+      </form>
+    </div>
   </template>
 </span>
 </template>
@@ -86,15 +89,28 @@ a[target="_blank"] {
   margin-right: 0.1em;
 }
 .link-content-wrapper {
+  @include sans-serif($regular, 12px, 14px);
   @include square(0);
   position: absolute;
   right: 0;
   overflow: visible;
   display: block;
-  margin-left: 10px;
 
   /* counteract styles that might come from the enclosing section */
   font-style: normal;
   text-align: left;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    padding: 10px 15px;
+    width: 200px;
+    background: white;
+    margin-left: 10px;
+  }
+}
+.edit-menu {
+  margin-left: 10px;
 }
 </style>
