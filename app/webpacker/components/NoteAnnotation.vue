@@ -33,22 +33,24 @@
          :href="`#${annotation.id}-content`"
          :id="isHead ? `${annotation.id}-head` : ''"
          @click.prevent="handleClick"><slot></slot></a>
-      <form @submit.prevent="submit('note', content)"
-            ref="noteForm"
-            class="form note-content-wrapper"
-            :id= "`${annotation.id}`">
-        <textarea ref="noteInput"
-                  id="note-textarea"
-                  required="true"
-                  placeholder="Note text..."
-                  @keydown.enter.prevent="$refs.noteSubmitButton.click"
-                  v-model="content"></textarea>
-        <input ref="noteSubmitButton"
-               type="submit"
-               value="Save"
-               id="save-note"
-               class="button">
-      </form>
+      <div class="new-note-content-wrapper">
+        <form @submit.prevent="submit('note', content)"
+              ref="noteForm"
+              class="form note-content"
+              :id= "`${annotation.id}`">
+          <textarea ref="noteInput"
+                    id="note-textarea"
+                    required="true"
+                    placeholder="Note text..."
+                    @keydown.enter.prevent="$refs.noteSubmitButton.click"
+                    v-model="content"></textarea>
+          <input ref="noteSubmitButton"
+                 type="submit"
+                 value="Save"
+                 id="save-note"
+                 class="button">
+        </form>
+      </div>
   </template>
 </span>
 </template>
@@ -100,6 +102,33 @@ a:active {
   color: inherit;
   /* Bootstrap's normalize uses !important so we must too */
   text-decoration: $light-blue underline !important;
+}
+
+.new-note-content-wrapper {
+  @include square(0);
+  position: absolute;
+  right: 0;
+  overflow: visible;
+  display: block;
+
+  /* counteract styles that might come from the enclosing section */
+  font-style: normal;
+  text-align: left;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    padding: 10px 15px;
+  }
+
+  .button {
+    margin-top: 1em;
+  }
+
+  .note-content {
+    width: fit-content;
+  }
 }
 
 .note-content-wrapper {
