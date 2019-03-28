@@ -110,6 +110,7 @@ a:active {
   right: 0;
   overflow: visible;
   display: block;
+  margin-left: 10px;
 
   /* counteract styles that might come from the enclosing section */
   font-style: normal;
@@ -120,14 +121,11 @@ a:active {
     flex-direction: column;
     border: 1px solid black;
     padding: 10px 15px;
+    width: fit-content;
   }
 
   .button {
     margin-top: 1em;
-  }
-
-  .note-content {
-    width: fit-content;
   }
 }
 
