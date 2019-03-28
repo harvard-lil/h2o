@@ -76,6 +76,7 @@
 
             // When clicking away from note or link annotation during creation, destroy temporarily stored annotation in store 
             if(this.$tempId != undefined){
+              // is this still needed for highlight and elide
               let annotation = this.$store.getters['annotations/getById'](this.$tempId);
               let uiState = this.$store.getters['annotations_ui/getById'](annotation.id);
 
