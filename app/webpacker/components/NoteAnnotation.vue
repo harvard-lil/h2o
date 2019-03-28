@@ -55,7 +55,6 @@
 
 <script>
 import AnnotationBase from './AnnotationBase';
-import ContextMenu from "./ContextMenu";
 import { createNamespacedHelpers } from 'vuex';
 const { mapGetters } = createNamespacedHelpers('annotations_ui');
 const { mapActions } = createNamespacedHelpers("annotations");
