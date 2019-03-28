@@ -86,7 +86,14 @@ export default {
         {obj: annotation, vals: {content: content}}
       );
     },
-  }
+  },
+  mounted() {
+    this.$nextTick(function () {
+      if (Math.sign(this.annotation.id) == -1){
+        this.$refs.noteInput.focus()
+      }
+    })
+  },
 }
 </script>
 
