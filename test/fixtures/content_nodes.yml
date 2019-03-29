@@ -195,3 +195,9 @@ draft_merge_section_3:
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [3]
+
+draft_merge_section:
+  casebook: draft_merge_casebook
+  title: Section 4
+  headnote: <p>What is a corporation?</p>
+  ordinals: [4]
