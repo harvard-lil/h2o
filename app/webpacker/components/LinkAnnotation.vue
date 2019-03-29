@@ -85,16 +85,10 @@ export default {
       );
     },
     focusOut(e){
-      console.log(e.relatedTarget);
-
-      if(Math.sign(this.annotation.id) !== -1){
+      if(Math.sign(this.annotation.id) === -1){
         this.$store.commit('annotations/destroy', this.annotation);
         this.$store.commit('annotations_ui/destroy', this.uiState);
       }
-      // debugger;
-      // if(e.currentTarget.className !== "form link-form"){
-
-      // }
     }
   },
   mounted() {
