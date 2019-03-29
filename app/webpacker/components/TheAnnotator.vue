@@ -118,8 +118,6 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       }]);
-
-      // this.close();
     },
   }
 }
