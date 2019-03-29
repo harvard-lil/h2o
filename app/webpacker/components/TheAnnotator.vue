@@ -104,8 +104,6 @@ export default {
     close() {
       document.getSelection().empty();
       this.ranges = null;
-      this.$refs.linkMenu.close();
-      this.$refs.noteMenu.close();
     },
 
     input(e, kind) {
@@ -118,6 +116,8 @@ export default {
         resource_id: this.resourceId,
         ...this.offsets
       }]);
+
+      this.close();
     },
   }
 }
