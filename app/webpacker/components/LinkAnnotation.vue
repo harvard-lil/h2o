@@ -131,10 +131,6 @@ a[target="_blank"] {
     background: white;
     margin-left: 10px;
     z-index: 999;
-
-    #link-input {
-      width: 200px;
-    }
   }
 }
 .edit-menu {
