@@ -88,8 +88,7 @@ export default {
       );
     },
     focusOut(e){
-      if(e.relatedTarget == null || ["save-note", "note-textarea"].includes(e.relatedTarget.id) == false ){
-
+      if (Math.sign(this.annotation.id) === -1 && e.relatedTarget == null || e.relatedTarget !== null && ["save-note", "note-textarea"].includes(e.relatedTarget.id) == false){     
         this.$store.commit('annotations/destroy', this.annotation);
         this.$store.commit('annotations_ui/destroy', this.uiState);
       }
