@@ -1,191 +1,146 @@
-require 'test_helper'
+require "application_system_test_case"
 
-class Content::NodeDecoratorTest < ActionView::TestCase
-  describe 'in draft mode' do
-    before do
-      @casebook = content_nodes(:private_casebook)
-      @section = content_nodes(:private_casebook_section_1)
-      @resource = content_nodes(:private_casebook_resource_1_1)
+class Content::NodeDecoratorTest < ApplicationSystemTestCase
+  describe 'draft of casebook without a published parent' do
+    describe 'in draft mode of casebook that does not have a published parent' do
+      before do
+        sign_in @user = users(:verified_professor)
+
+        @casebook = content_nodes(:draft_casebook)
+        @section = content_nodes(:draft_casebook_section_1)
+        @resource = content_nodes(:draft_resource_1)
+      end
+
+      it 'renders casebook buttons' do
+        visit layout_casebook_path @casebook
+
+        assert_content "Publish"
+        assert_content "Preview"
+        assert_content "Add Resource"
+        assert_content "Add Section"
+        assert_content "Export"
+        assert_content "Save"
+        assert_content "Cancel"
+      end
+
+      it 'renders section buttons' do
+        visit layout_section_path @casebook, @section
+
+        assert_content "Preview"
+        assert_content "Add Resource"
+        assert_content "Add Section"
+        assert_content "Export"
+        assert_content "Save"
+        assert_content "Cancel"
+      end
+
+      it 'renders resource buttons in edit' do
+        visit resource_path @casebook, @resource
+
+        assert_content "Preview"
+        assert_content "Export"
+        assert_content "Save"
+        assert_content "Cancel"
+      end
     end
 
-    it 'renders casebook buttons' do
-      decorated_content = @casebook.decorate(context: {action_name: 'layout', casebook: @casebook})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+    describe 'in preview mode ' do
+      before do
+        sign_in @user = users(:verified_professor)
 
-      has_publish_link?(dom)
-      has_preview_link?(dom)
-      has_add_resource_link?(dom)
-      has_add_section_link?(dom)
-      has_export_link?(dom)
-      has_clone_link?(dom)
-      has_save_link?(dom)
-      has_cancel_link?(dom)
+        @casebook = content_nodes(:draft_casebook)
+        @section = content_nodes(:draft_casebook_section_1)
+        @resource = content_nodes(:draft_resource_1)
+      end
+
+      it 'renders casebook buttons' do
+        visit casebook_path @casebook 
+
+        assert_content "Publish"
+        assert_content "Revise"
+        assert_content "Export"
+        assert_content "Clone"
+      end
+
+      it 'renders section buttons' do
+        visit section_path @casebook, @section
+
+        assert_content "Revise"
+        assert_content "Clone"
+      end
+
+      it 'renders resource buttons' do
+        visit resource_path @casebook, @resource
+
+        assert_content "Revise"
+        assert_content "Clone"
+      end
     end
 
-    it 'renders section buttons' do
-      decorated_content = @section.decorate(context: {action_name: 'layout', casebook: @casebook, section: @section})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+    describe 'in published mode as casebook creator' do
+      before do
+        sign_in @user = users(:verified_professor)
 
-      has_preview_link?(dom)
-      has_add_resource_link?(dom)
-      has_add_section_link?(dom)
-      has_save_link?(dom)
-      has_cancel_link?(dom) 
-      has_export_link?(dom)
-    end
+        @casebook = content_nodes(:public_casebook)
+        @section = content_nodes(:public_casebook_section_1)
+        @resource = content_nodes(:public_casebook_section_1_1)
+      end
 
-    it 'renders resource buttons in edit' do
-      decorated_content = @section.decorate(context: {action_name: 'edit', casebook: @casebook, 
-        section: @section, resource: @resource})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+      it 'renders casebook buttons' do
+        visit casebook_path @casebook
 
-      has_preview_link?(dom)
-      has_save_link?(dom)
-      has_cancel_link?(dom)
-      has_export_link?(dom)
+        assert_content "Revise"
+        assert_content "Clone"
+        assert_content "Export"
+      end
+
+      it 'renders section buttons' do
+        visit section_path @casebook, @section
+
+        assert_content "Revise"
+        assert_content "Clone"
+        assert_content "Export"
+      end
+
+      it 'renders resource buttons' do
+        visit resource_path @casebook, @resource
+        dom = Nokogiri::HTML(decorated_content.action_buttons)
+
+        assert_content "Revise"
+        assert_content "Clone"
+        assert_content "Export"
+      end
     end
   end
 
-  describe 'in preview mode' do
+  describe 'published casebook with a logged in user' do
     before do
-      @casebook = content_nodes(:private_casebook)
-      @section = content_nodes(:private_casebook_section_1)
-      @resource = content_nodes(:private_casebook_resource_1_1)
+      sign_in @user = users(:verified_student)
+
+      @casebook = content_nodes(:public_casebook)
+      @section = content_nodes(:public_casebook_section_1)
+      @resource = content_nodes(:public_casebook_section_1_1)
     end
 
     it 'renders casebook buttons' do
-      decorated_content = @casebook.decorate(context: {action_name: 'show', casebook: @casebook})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+      visit casebook_path @casebook
 
-      has_publish_link?(dom)
-      has_revise_link?(dom)
-      has_clone_link?(dom)
-      has_export_link?(dom)
+      assert_content "Clone"
+      assert_content "Export"
     end
 
     it 'renders section buttons' do
-      decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, section: @section})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+      visit section_path @casebook, @section
 
-      has_revise_link?(dom)
-      has_clone_link?(dom)
+      assert_content "Clone"
+      assert_content "Export"
     end
 
     it 'renders resource buttons' do
-      decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, 
-        section: @section, resource: @resource})
-      dom = Nokogiri::HTML(decorated_content.action_buttons)
+      visit resource_path @casebook, @resource
 
-      has_revise_link?(dom)
-      has_clone_link?(dom)
+      assert_content "Clone"
+      assert_content "Export"
     end
-  end
-
-  describe 'in published mode as casebook creator' do
-    #
-    ## Authlogic::Session::Activation::NotActivatedError:         Authlogic::Session::Activation::NotActivatedError: You must activate the Authlogic::Session::Base.controller with a controller object before creating objects
-    #
-    # before do
-    #   @casebook = content_nodes(:public_casebook)
-    #   @section = content_nodes(:public_casebook_section_1)
-    #   @resource = content_nodes(:public_casebook_section_1_1)
-    # end
-
-    # it 'renders casebook buttons' do
-      # decorated_content = @casebook.decorate(context: {action_name: 'show', casebook: @casebook})
-      # dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-      # has_revise_link?(dom)
-      # has_clone_link?(dom)
-      # has_export_link?(dom)
-    # end
-
-    # it 'renders section buttons' do
-    #   decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, section: @section})
-    #   dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-    #   has_revise_link?(dom)
-    #   has_clone_link?(dom)
-    #   has_export_link?(dom)
-    # end
-
-    # it 'renders resource buttons' do
-    #   decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, 
-    #   section: @section, resource: @resource})
-    #   dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-    #   has_revise_link?(dom)
-    #   has_clone_link?(dom)
-    #   has_export_link?(dom)
-    # end
-  end
-
-  describe 'in published mode not as casebook creator' do
-    # before do
-    #   @casebook = content_nodes(:public_casebook)
-    #   @section = content_nodes(:public_casebook_section_1)
-    #   @resource = content_nodes(:public_casebook_section_1_1)
-    # end
-
-    # it 'renders casebook buttons' do
-    #   decorated_content = @casebook.decorate(context: {action_name: 'show', casebook: @casebook})
-    #   dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-    #   has_clone_link?(dom)
-    #   has_export_link?(dom)
-    # end
-
-    # it 'renders section buttons' do
-    #   decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, section: @section})
-    #   dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-    #   has_clone_link?(dom)
-    #   has_export_link?(dom)
-    # end
-
-    # it 'renders resource buttons' do
-    #   decorated_content = @section.decorate(context: {action_name: 'show', casebook: @casebook, 
-    #   section: @section, resource: @resource})
-    #   dom = Nokogiri::HTML(decorated_content.action_buttons)
-
-    #   has_clone_link?(dom)
-    #   has_export_link?(dom)
-    # end
-  end
-
-  def has_preview_link?(dom)
-    assert_select dom, 'a', text: 'Preview'
-  end
-
-  def has_save_link?(dom)
-    assert_select dom, 'a', text: 'Save'
-  end
-
-  def has_cancel_link?(dom)
-    assert_select dom, 'a', text: 'Cancel'
-  end
-
-  def has_publish_link?(dom)
-    assert_select dom, 'form', class: 'publish'
-  end
-
-  def has_add_resource_link?(dom)
-    assert_select dom, 'a', text: I18n.t('content.actions.add-resource')
-  end
-
-  def has_add_section_link?(dom)
-    assert_select dom, 'form', class: 'add-section'
-  end
-
-  def has_export_link?(dom)
-    assert_select dom, 'a', text: I18n.t('content.actions.export')
-  end
-
-  def has_revise_link?(dom)
-    assert_select dom, 'a', text: I18n.t('content.actions.revise-draft')
-  end
-
-  def has_clone_link?(dom)
-    assert_select dom, 'input.clone-casebook'
   end
 end
