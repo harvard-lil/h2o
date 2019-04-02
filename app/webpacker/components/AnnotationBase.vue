@@ -48,6 +48,12 @@ export default {
     },
     hasHandle() {
       return this.isEditable && this.isHead && !this.isNew;
+    },
+    isHeadAndNotNew() {
+      return this.isHead && ! this.isNew;
+    },
+    isHeadAndNew() {
+      return this.isHead && this.isNew;
     }
   },
   methods: {

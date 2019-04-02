@@ -1,18 +1,16 @@
 <template>
 <span class="note">
-  <template v-if="hasHandle">
-    <a class="selected-text"
-       :href="`#${annotation.id}-content`"
-       :id="isHead ? `${annotation.id}-head` : ''"
-       @click.prevent="handleClick"><slot></slot></a>
-    <AnnotationHandle v-if="hasHandle"
-                      :ui-state="uiState">
-      <li>
-        <a @click="destroy(annotation)">Remove note</a>
-      </li>
-    </AnnotationHandle>
-  </template>
-  <template v-if="isHead && !isNew">
+  <a class="selected-text"
+     :href="`#${annotation.id}-content`"
+     :id="isHead ? `${annotation.id}-head` : ''"
+     @click.prevent="handleClick"><slot></slot></a>
+  <AnnotationHandle v-if="hasHandle"
+                    :ui-state="uiState">
+    <li>
+      <a @click="destroy(annotation)">Remove note</a>
+    </li>
+  </AnnotationHandle>
+  <template v-if="isHeadAndNotNew">
     <span v-show="uiState.expanded"
           class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
@@ -28,30 +26,26 @@
       </span>
     </span>
   </template>
-  <template v-if="isNew && isHead">
-      <a class="selected-text"
-         :href="`#${annotation.id}-content`"
-         :id="isHead ? `${annotation.id}-head` : ''"
-         @click.prevent="handleClick"><slot></slot></a>
-      <div class="new-note-content-wrapper">
-        <form @submit.prevent="submit('note', content)"
-              ref="noteForm"
-              class="form note-content"
-              :id= "`${annotation.id}`"
-              @focusout="focusOut">
-          <textarea ref="noteInput"
-                    id="note-textarea"
-                    required="true"
-                    placeholder="Note text..."
-                    @keydown.enter.prevent="$refs.noteSubmitButton.click"
-                    v-model="content"></textarea>
-          <input ref="noteSubmitButton"
-                 type="submit"
-                 value="Save"
-                 id="save-note"
-                 class="button">
-        </form>
-      </div>
+  <template v-if="isHeadAndNew">
+    <div class="new-note-content-wrapper">
+      <form @submit.prevent="submit('note', content)"
+            ref="noteForm"
+            class="form note-content"
+            :id= "`${annotation.id}`"
+            @focusout="focusOut">
+        <textarea ref="noteInput"
+                  id="note-textarea"
+                  required="true"
+                  placeholder="Note text..."
+                  @keydown.enter.prevent="$refs.noteSubmitButton.click"
+                  v-model="content"></textarea>
+        <input ref="noteSubmitButton"
+               type="submit"
+               value="Save"
+               id="save-note"
+               class="button">
+      </form>
+    </div>
   </template>
 </span>
 </template>
