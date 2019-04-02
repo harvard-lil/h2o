@@ -11,8 +11,7 @@
     </li>
   </AnnotationHandle>
   <template v-if="isHeadAndNotNew">
-    <span v-show="uiState.expanded"
-          class="note-content-wrapper"
+    <span class="note-content-wrapper"
           data-exclude-from-offset-calcs="true">
       <a class="note-icon"
          :href="`#${annotation.id}-head`"
@@ -63,15 +62,10 @@ export default {
     content: "",
   }),
   methods: {
-    ...mapGetters(['toggleExpansion']),
     ...mapActions(['createAndUpdate']),
 
     handleClick(e) {
-      // Setting this focus for accessibility is at odds with the expansion toggle
-      // Waiting for a decision for how to proceed here:
-      // https://github.com/harvard-lil/h2o/issues/654#issuecomment-461081248
       document.getElementById(e.currentTarget.getAttribute("href").slice(1)).focus({preventScroll: true});
-      this.toggleExpansion(this.uiState);
     },
     submit(kind, content = null){
       let id = this.$refs.noteForm.id;
