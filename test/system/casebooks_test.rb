@@ -131,11 +131,11 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_selector('.listing-wrapper', count: 4)
 
       visit casebook_path draft_casebook
-      assert_selector('.listing-wrapper', count: 4)
+      assert_selector('.listing-wrapper', count: 5)
 
       draft_casebook.resources.first.destroy!
 
-      visit resource_path published_casebook, published_casebook.resources.first
+      visit resource_path(published_casebook, published_casebook.resources.first)
 
       click_link "Return to Draft"
     end
