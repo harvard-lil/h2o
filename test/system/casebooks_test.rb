@@ -43,13 +43,13 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_button "Add Section"
 
       fill_in "content_section_title", with: "Test Section One"
-      click_link "Save"
+      click_button "Save"
 
       visit layout_casebook_path Content::Casebook.last
       click_link "Test Section One"
       assert_content "This section has no content yet."
 
-      click_link "Add Resource"
+      click_button "Add Resource"
 
       case_to_find = cases(:public_case_1)
       within ".case-search" do

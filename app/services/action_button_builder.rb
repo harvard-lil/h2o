@@ -12,8 +12,6 @@ class ActionButtonBuilder
   end
 
   def perform(actions)
-    # flatten the array b/c sometimes are pushing one array onto another 
-    actions = actions.flatten
     # Turns the action symbols into methods and collect all the results
     transcribed_actions = actions.map { |action| self.method(action).call}
   end
@@ -76,11 +74,11 @@ class ActionButtonBuilder
   end
 
   def save_section
-    { link_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
+    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
   end
 
   def cancel_section
-    { link_to: true, text: I18n.t("content.actions.cancel"), path: "", class: "action one-line cancel" }
+    { link_to: true, text: I18n.t("content.actions.cancel"), path: "#", class: "action one-line cancel" }
   end
 
   ############
@@ -99,14 +97,14 @@ class ActionButtonBuilder
   end
 
   def edit_casebook
-    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
+    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), method: :get, class: "action edit one-line" }
   end
 
   def edit_draft
     if has_published_parent
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
     else
-      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(draft), class: "action edit one-line" }
+      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(draft), method: :get, class: "action edit one-line" }
     end
   end
 
@@ -119,7 +117,7 @@ class ActionButtonBuilder
   end
 
   def add_resource
-    { link_to: true, text: I18n.t("content.actions.add-resource"), path: new_section_path(casebook), class: "action add-resource" }
+    { button_to: true, text: I18n.t("content.actions.add-resource"), path: new_section_path(casebook), class: "action add-resource" }
   end
 
   def add_section
@@ -127,7 +125,7 @@ class ActionButtonBuilder
   end
 
   def save_casebook
-    { link_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-casebook-details" }
+    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
   end
 
   def cancel_casebook
@@ -138,7 +136,11 @@ class ActionButtonBuilder
   # Used for all 
 
   def export
-    { link_to: true, text: I18n.t("content.actions.export"), path: "#", class: "action one-line export" }
+    if casebook.resources_have_annotations?
+      { link_to: true, path: "#", text: I18n.t("content.actions.export"), class: "action one-line export export-has-annotations" }
+    else
+      { link_to: true, path: "#", class: 'action one-line export export-no-annotations' }
+    end
   end
 
 
