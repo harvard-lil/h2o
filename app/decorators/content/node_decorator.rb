@@ -119,6 +119,10 @@ class Content::NodeDecorator < Draper::Decorator
 
   #variables
 
+  def draft_resource
+    casebook.draft.contents.where(copy_of_id: resource.id).first
+  end
+
   def draft_mode
     action_name.in? %w{edit layout annotate}
   end

@@ -145,6 +145,10 @@ class ActionButtonBuilder
   ######
   #Live draft logic
 
+  def draft
+    casebook.draft
+  end
+
   def has_published_parent
     casebook.draft_mode_of_published_casebook
   end
