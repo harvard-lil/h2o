@@ -147,7 +147,7 @@ published_casebook_section_2:
   created_at: <%= DateTime.now - 14.days %>
 
 draft_merge_casebook:
-  title: Draft Casebook
+  title: Draft Merge Casebook
   public: false
   updated_at: <%= DateTime.now %>
   # this is set because annotations need to be updated at
