@@ -14,7 +14,7 @@ class Content::NodeDecorator < Draper::Decorator
       actions = resource_actions
     end
 
-    # flatten actions incase it's an array of multiple arrays from clone_and_export, etc. 
+    # flatten actions incase it's an array of multiple arrays from clone_and_export, etc.
     builder.perform(actions.flatten)
   end
 
@@ -67,8 +67,8 @@ class Content::NodeDecorator < Draper::Decorator
         else
           return [:create_section_draft] << clone_and_export
         end
-        return clone_and_export
       end
+      return clone_and_export
     elsif preview_mode
       if has_draft_casebook
         return [:publish_changes_to_casebook, :edit_draft, :export]
@@ -94,8 +94,8 @@ class Content::NodeDecorator < Draper::Decorator
         else
           return [:create_resource_draft] << clone_and_export
         end
-        return clone_and_export
       end
+      return clone_and_export
     elsif preview_mode
       if has_draft_casebook
         return [:publish_changes_to_casebook, :edit_draft, :export]
