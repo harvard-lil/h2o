@@ -122,20 +122,23 @@ class CasebookSystemTest < ApplicationSystemTestCase
     end
 
     scenario "deleting a resource in a draft does not break ability to edit published casebook resource", js: true do
-      published_casebook = content_nodes(:published_casebook)
-      draft_casebook = content_nodes(:draft_merge_casebook)
+      @published_casebook = content_nodes(:published_casebook)
+      @draft_casebook = content_nodes(:draft_merge_casebook)
+      @resource = @published_casebook.resources.first
 
-      update_ancestry(published_casebook, draft_casebook)
+      update_ancestry(@published_casebook, @draft_casebook)
 
-      visit casebook_path published_casebook
+      visit casebook_path @published_casebook
       assert_selector('.listing-wrapper', count: 4)
 
-      visit casebook_path draft_casebook
+      puts "scenario"
+
+      visit layout_casebook_path @draft_casebook
       assert_selector('.listing-wrapper', count: 5)
 
-      draft_casebook.resources.first.destroy!
+      @draft_casebook.resources.first.destroy!
 
-      visit resource_path(published_casebook, published_casebook.resources.first)
+      visit resource_path @published_casebook, @resource
 
       click_link "Return to Draft"
     end
