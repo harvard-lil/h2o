@@ -145,7 +145,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
   end
 
   describe "action buttons" do
-    describe 'draft of casebook without a published parent' do
+    describe 'casebook without a published parent' do
       before do
         sign_in @user = users(:verified_professor)
 
@@ -158,33 +158,33 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit layout_casebook_path @casebook
 
-          assert_button "Publish"
-          assert_button "Preview"
-          assert_button "Add Resource"
-          assert_button "Add Section"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Publish"
+          assert_content "Preview"
+          assert_content "Add Resource"
+          assert_content "Add Section"
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
         end
 
         it 'section actions' do
           visit layout_section_path @casebook, @section
 
-          assert_button "Preview"
-          assert_button "Add Resource"
-          assert_button "Add Section"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Preview"
+          assert_content "Add Resource"
+          assert_content "Add Section"
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
         end
 
         it 'resource actions in edit' do
           visit resource_path @casebook, @resource
 
-          assert_button "Preview"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Preview"
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
         end
       end
 
@@ -192,53 +192,57 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit casebook_path @casebook 
 
-          assert_button "Publish"
-          assert_button "Revise"
-          assert_button "Export"
+          assert_content "Publish"
+          assert_content "Revise"
+          assert_content "Export"
           assert_button "Clone"
         end
 
         it 'section actions' do
           visit section_path @casebook, @section
 
-          assert_button "Revise"
+          assert_content "Revise"
           assert_button "Clone"
         end
 
         it 'resource actions' do
           visit resource_path @casebook, @resource
 
-          assert_button "Revise"
+          assert_content "Revise"
           assert_button "Clone"
         end
       end
 
+      # **********
       describe 'published mode' do
+        before do
+          @casebook.update(public: true)
+        end
         it 'casebook actions' do
           visit casebook_path @casebook
 
-          assert_button "Revise"
+          assert_content "Revise"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
 
         it 'section actions' do
           visit section_path @casebook, @section
 
-          assert_button "Revise"
+          assert_content "Revise"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
 
         it 'resource actions' do
           visit resource_path @casebook, @resource
-          dom = Nokogiri::HTML(decorated_content.action_buttons)
 
-          assert_button "Revise"
+          assert_content "Revise"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
       end
+      # *********
     end
 
     describe 'draft of casebook with a published parent' do
@@ -254,36 +258,35 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit layout_casebook_path @casebook
 
-          assert_button "Publish Changes"
-          assert_button "Preview"
-          assert_button "Add Resource"
-          assert_button "Add Section"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Publish Changes"
+          assert_content "Preview"
+          assert_content "Add Resource"
+          assert_content "Add Section"
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
           refute_button "Clone"
         end
 
         it 'section actions' do
           visit layout_section_path @casebook, @section
 
-          assert_button "Preview"
-          assert_button "Add Resource"
-          assert_button "Add Section"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Preview"
+          assert_content "Add Resource"
+          assert_content "Add Section"
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
           refute_button "Clone"
         end
 
-        it 'resource actions in edit' do
-          visit resource_path @casebook, @resource
+        it 'resource actions' do
+          visit edit_resource_path @casebook, @resource
 
-          binding.pry
-          assert_button "Preview"
-          assert_button "Export"
-          assert_button "Save"
-          assert_button "Cancel"
+          assert_content "Preview "
+          assert_content "Export"
+          assert_content "Save"
+          assert_content "Cancel"
         end
       end
 
@@ -291,24 +294,24 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit casebook_path @casebook 
 
-          assert_button "Publish Changes"
-          assert_button "Return to Draft"
-          assert_button "Export"
+          assert_content "Publish Changes"
+          assert_content "Return to Draft"
+          assert_content "Export"
           refute_button "Clone"
         end
 
         it 'section actions' do
           visit section_path @casebook, @section
 
-          assert_button "Return to Draft"
-          assert_button "Export"
+          assert_content "Return to Draft"
+          assert_content "Export"
           refute_button "Clone"
         end
 
         it 'resource actions' do
           visit resource_path @casebook, @resource
 
-          assert_button "Revise"
+          assert_content "Revise"
           refute_button "Clone"
         end
       end
@@ -317,26 +320,26 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit casebook_path @casebook
 
-          assert_button "Return to Draft"
+          assert_content "Return to Draft"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
 
         it 'section actions' do
           visit section_path @casebook, @section
 
-          assert_button "Return to Draft"
+          assert_content "Return to Draft"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
 
         it 'resource actions' do
           visit resource_path @casebook, @resource
           dom = Nokogiri::HTML(decorated_content.action_buttons)
 
-          assert_button "Return to Draft"
+          assert_content "Return to Draft"
           assert_button "Clone"
-          assert_button "Export"
+          assert_content "Export"
         end
       end
     end
@@ -354,21 +357,21 @@ class CasebookSystemTest < ApplicationSystemTestCase
         visit casebook_path @casebook
 
         assert_button "Clone"
-        assert_button "Export"
+        assert_content "Export"
       end
 
       it 'section actions' do
         visit section_path @casebook, @section
 
         assert_button "Clone"
-        assert_button "Export"
+        assert_content "Export"
       end
 
       it 'resource actions' do
         visit resource_path @casebook, @resource
 
         assert_button "Clone"
-        assert_button "Export"
+        assert_content "Export"
       end
     end
 
@@ -381,17 +384,17 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
     #   describe 'casebook actions' do
     #     assert_button "Clone"
-    #     assert_button "Export"
+    #     assert_content "Export"
     #   end
 
     #   describe 'section actions' do
     #     assert_button "Clone"
-    #     assert_button "Export"
+    #     assert_content "Export"
     #   end
 
     #   describe 'resource actions' do
     #     assert_button "Clone"
-    #     assert_button "Export"
+    #     assert_content "Export"
     #   end
     # end
   end
