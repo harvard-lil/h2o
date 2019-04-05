@@ -103,7 +103,7 @@ class Content::NodeDecorator < Draper::Decorator
         return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     elsif draft_mode
-      return [:preview_resource, :save_resource, :cancel_resource, :export_resource]
+      return [:preview_resource, :save_resource, :cancel_resource, :export]
     end
   end
 
