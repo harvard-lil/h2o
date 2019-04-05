@@ -124,23 +124,33 @@ class CasebookSystemTest < ApplicationSystemTestCase
     scenario "deleting a resource in a draft does not break ability to edit published casebook resource", js: true do
       @published_casebook = content_nodes(:published_casebook)
       @draft_casebook = content_nodes(:draft_merge_casebook)
-      @resource = @published_casebook.resources.first
+      @published_resource = content_nodes(:published_casebook_section_2)
+      @draft_resource = content_nodes(:draft_merge_section_2)
+
+      assert_equal @published_resource.ordinals, @draft_resource.ordinals
 
       update_ancestry(@published_casebook, @draft_casebook)
-
-      visit casebook_path @published_casebook
-      assert_selector('.listing-wrapper', count: 4)
-
-      puts "scenario"
-
-      visit layout_casebook_path @draft_casebook
-      assert_selector('.listing-wrapper', count: 5)
-
-      @draft_casebook.resources.first.destroy!
-
-      visit resource_path @published_casebook, @resource
+      
+      visit resource_path @published_casebook, @published_resource
 
       click_link "Return to Draft"
+
+      assert_content @draft_casebook.title
+      assert_content @draft_casebook.headnote
+
+      binding.pry
+
+      visit resource_path @published_casebook, @published_resource
+      @draft_resource.destroy
+
+      binding.pry
+
+      click_link "Revise"
+
+      binding.pry
+
+      assert_content @draft_casebook.title
+      assert_content @draft_casebook.headnote
     end
   end
 
@@ -162,7 +172,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
           assert_content "Publish"
           assert_content "Preview"
-          assert_content "Add Resource"
+          assert_button "Add Resource"
           assert_button "Add Section"
           assert_content "Export"
           assert_button "Save"
@@ -173,7 +183,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
           visit layout_section_path @casebook, @section
           # good
           assert_content "Preview"
-          assert_content "Add Resource"
+          assert_button "Add Resource"
           assert_button "Add Section"
           assert_content "Export"
           assert_button "Save"
@@ -263,15 +273,22 @@ class CasebookSystemTest < ApplicationSystemTestCase
         @casebook = content_nodes(:draft_merge_casebook)
         @section = content_nodes(:draft_merge_section)
         @resource = content_nodes(:draft_merge_section_1)
+
+        @parent_casebook = content_nodes(:published_casebook)
+        @parent_section = content_nodes(:published_casebook_section_3)
+        @parent_resource = content_nodes(:published_casebook_section_1)
+
+        update_ancestry(@parent_casebook, @casebook)
       end
 
       describe 'draft mode' do
         it 'casebook actions' do
+          # good
           visit layout_casebook_path @casebook
 
-          assert_content "Publish Changes"
+          assert_button "Publish Changes"
           assert_content "Preview"
-          assert_content "Add Resource"
+          assert_button "Add Resource"
           assert_button "Add Section"
           assert_content "Export"
           assert_button "Save"
@@ -283,7 +300,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
           visit layout_section_path @casebook, @section
 
           assert_content "Preview"
-          assert_content "Add Resource"
+          assert_button "Add Resource"
           assert_button "Add Section"
           assert_content "Export"
           assert_button "Save"
@@ -294,7 +311,9 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'resource actions' do
           visit edit_resource_path @casebook, @resource
 
-          assert_content "Preview "
+          # good
+
+          assert_content "Preview"
           assert_content "Export"
           assert_button "Save"
           assert_content "Cancel"
@@ -305,7 +324,9 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'casebook actions' do
           visit casebook_path @casebook 
 
-          assert_content "Publish Changes"
+          # good
+
+          assert_button "Publish Changes"
           assert_content "Return to Draft"
           assert_content "Export"
           refute_button "Clone"
@@ -314,30 +335,37 @@ class CasebookSystemTest < ApplicationSystemTestCase
         it 'section actions' do
           visit section_path @casebook, @section
 
+          # good
+
           assert_content "Return to Draft"
           assert_content "Export"
           refute_button "Clone"
         end
 
         it 'resource actions' do
+
           visit resource_path @casebook, @resource
 
-          assert_content "Revise"
+          # good?
+
+          assert_content "Return to Draft"
           refute_button "Clone"
         end
       end
 
       describe 'published mode' do
+        # this needs to be just the published casebook, don't need to demonstrate act of published
         it 'casebook actions' do
-          visit casebook_path @casebook
-
+          visit casebook_path @parent_casebook
+# good
           assert_content "Return to Draft"
           assert_button "Clone"
           assert_content "Export"
         end
 
         it 'section actions' do
-          visit section_path @casebook, @section
+          #good
+          visit section_path @parent_casebook, @parent_section
 
           assert_content "Return to Draft"
           assert_button "Clone"
@@ -345,9 +373,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
         end
 
         it 'resource actions' do
-          visit resource_path @casebook, @resource
-          dom = Nokogiri::HTML(decorated_content.action_buttons)
-
+          visit resource_path @parent_casebook, @parent_resource
+# good
           assert_content "Return to Draft"
           assert_button "Clone"
           assert_content "Export"

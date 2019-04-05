@@ -23,7 +23,7 @@ class ActionButtonBuilder
   end
 
   def annotate_resource_draft
-    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: annotate_resource_path(casebook.draft, draft_resource), class: "action edit one-line" }
+    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: annotate_resource_path(casebook.draft, draft_resource), method: :get, class: "action edit one-line" }
   end
 
   def annotate_resource
@@ -101,12 +101,9 @@ class ActionButtonBuilder
   end
 
   def edit_draft
-    # unsure about edit_draft
-    if casebook.draft_mode_of_published_casebook # if draft resource still exists 
-      puts "draft_mode_of_published_casebook" 
+    if casebook.draft_mode_of_published_casebook
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
     else
-      puts "not draft_mode_of_published_casebook"
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook.draft), method: :get, class: "action edit one-line" }
     end
   end
@@ -120,7 +117,7 @@ class ActionButtonBuilder
   end
 
   def add_resource
-    { link_to: true, text: I18n.t('content.actions.add-resource'), path: new_section_path(casebook), class: 'action add-resource' }
+    { button_to: true, text: I18n.t("content.actions.add-resource"), path: sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: "action add-resource" }
   end
 
   def add_section
