@@ -112,6 +112,7 @@ published_casebook:
 
 published_casebook_section_1:
   casebook: published_casebook
+  title: section 1
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one
@@ -146,6 +147,12 @@ published_casebook_section_2:
   ordinals: [2]
   created_at: <%= DateTime.now - 14.days %>
 
+published_casebook_section_3:
+  casebook: published_casebook
+  headnote: New Section headnote
+  title: New Section
+  ordinals: [3]
+
 draft_merge_casebook:
   title: Draft Merge Casebook
   public: false
@@ -159,7 +166,7 @@ draft_merge_casebook:
 
 draft_merge_section_1:
   casebook: draft_merge_casebook
-  title: title
+  title: section 1
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one

@@ -32,28 +32,23 @@ class Content::NodeDecorator < Draper::Decorator
     if casebook.public?
       if authorized?
         if casebook.draft.present?
-          # good
           return [:edit_draft] << clone_and_export
         else
-          # good
           return [:create_draft] << clone_and_export
         end
       end
       return clone_and_export
     elsif preview_mode
-      if casebook.draft.present?
+      if casebook.draft_mode_of_published_casebook?
         # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     else draft_mode
-      puts "*****"
-      if casebook.draft_mode_of_published_casebook
-        puts "draft_mode_of_published_casebook"
+      if casebook.draft_mode_of_published_casebook?
         return [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
       else
-        puts "not draft_mode_of_published_casebook"
         return [:publish_casebook, :preview_casebook] << draft_buttons
       end
     end
@@ -64,7 +59,7 @@ class Content::NodeDecorator < Draper::Decorator
       if authorized?
         if casebook.draft.present?
           # check if the corrosponding draft section still exists in the draft casebook
-          if draft_resource.present? 
+          if draft_section.present? 
             return [:revise_draft_section] << clone_and_export
           else
             return [:edit_draft] << clone_and_export
@@ -75,7 +70,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
       return clone_and_export
     elsif preview_mode
-      if casebook.draft.present?
+      if casebook.draft_mode_of_published_casebook?
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
@@ -102,7 +97,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
       return clone_and_export
     elsif preview_mode
-      if casebook.draft.present?
+      if casebook.draft_mode_of_published_casebook?
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
@@ -126,6 +121,10 @@ class Content::NodeDecorator < Draper::Decorator
 
   def draft_resource
     casebook.draft.contents.where(copy_of_id: resource.id).first
+  end
+
+  def draft_section
+    casebook.draft.contents.where(copy_of_id: section.id).first
   end
 
   def draft_mode
