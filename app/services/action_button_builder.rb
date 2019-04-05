@@ -23,7 +23,7 @@ class ActionButtonBuilder
   end
 
   def annotate_resource_draft
-    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: annotate_resource_path(draft, draft_resource), class: "action edit one-line" }
+    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: annotate_resource_path(casebook.draft, draft_resource), class: "action edit one-line" }
   end
 
   def annotate_resource
@@ -62,10 +62,10 @@ class ActionButtonBuilder
   end
 
   def revise_draft_section
-    if has_published_parent
+    if casebook.draft_mode_of_published_casebook
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: layout_section_path(casebook, section), class: "action edit one-line" }
     else
-      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: layout_section_path(draft, draft_section), class: "action edit one-line" }
+      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: layout_section_path(casebook.draft, draft_section), class: "action edit one-line" }
     end
   end
 
@@ -101,10 +101,10 @@ class ActionButtonBuilder
   end
 
   def edit_draft
-    if has_published_parent
+    if casebook.draft_mode_of_published_casebook # if draft resource still exists 
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
     else
-      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(draft), method: :get, class: "action edit one-line" }
+      { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook.draft), method: :get, class: "action edit one-line" }
     end
   end
 
@@ -146,14 +146,6 @@ class ActionButtonBuilder
 
   ######
   #Live draft logic
-
-  def draft
-    casebook.draft
-  end
-
-  def has_published_parent
-    casebook.draft_mode_of_published_casebook
-  end
 
   def draft_section
     casebook.draft.contents.where(copy_of_id: section.id).first
