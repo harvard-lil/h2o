@@ -29,9 +29,9 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def casebook_actions
-    if published_mode
-      if user_is_collaborator
-        if has_draft_casebook
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
           return [:edit_draft] << clone_and_export
         else
           return [:create_draft] << clone_and_export
@@ -39,7 +39,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
       return clone_and_export
     elsif preview_mode
-      if has_draft_casebook
+      if casebook.draft.present?
         # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
@@ -55,9 +55,9 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def section_actions
-    if published_mode
-      if user_is_collaborator
-        if has_draft_casebook
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
           # check if the corrosponding draft section still exists in the draft casebook
           if draft_resource.present? 
             return [:revise_draft_section] << clone_and_export
@@ -70,7 +70,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
       return clone_and_export
     elsif preview_mode
-      if has_draft_casebook
+      if casebook.draft.present?
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
@@ -82,9 +82,9 @@ class Content::NodeDecorator < Draper::Decorator
   end
 
   def resource_actions
-    if published_mode
-      if user_is_collaborator
-        if has_draft_casebook
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
           # check if the corrosponding draft section still exists in the draft casebook
           if draft_resource.present?
             return [:annotate_resource_draft] << clone_and_export
@@ -97,7 +97,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
       return clone_and_export
     elsif preview_mode
-      if has_draft_casebook
+      if casebook.draft.present?
         return [:publish_changes_to_casebook, :edit_draft, :export]
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
@@ -127,23 +127,15 @@ class Content::NodeDecorator < Draper::Decorator
     action_name.in? %w{edit layout annotate}
   end
 
-  def published_mode
-    casebook.public
-  end
-
   def preview_mode
-    user_is_collaborator && action_name == 'show'
+    authorized? && action_name == 'show'
   end
 
   def has_published_parent
     casebook.draft_mode_of_published_casebook
   end
 
-  def has_draft_casebook
-    casebook.draft.present?
-  end
-
-  def user_is_collaborator
+  def authorized?
     if current_user.present?
       casebook.has_collaborator?(current_user.id) || current_user.superadmin?
     else 
