@@ -39,7 +39,7 @@ class ActionButtonBuilder
   end
 
   def save_resource
-    { link_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-edit-details" }
+    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
   end
 
   def cancel_resource
@@ -97,13 +97,16 @@ class ActionButtonBuilder
   end
 
   def edit_casebook
-    { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), method: :get, class: "action edit one-line" }
+    { link_to: true, text: I18n.t("content.actions.revise"), path: edit_casebook_path(casebook), method: :get, class: "action edit one-line" }
   end
 
   def edit_draft
+    # unsure about edit_draft
     if casebook.draft_mode_of_published_casebook # if draft resource still exists 
+      puts "draft_mode_of_published_casebook" 
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook), class: "action edit one-line" }
     else
+      puts "not draft_mode_of_published_casebook"
       { link_to: true, text: I18n.t("content.actions.revise-draft"), path: edit_casebook_path(casebook.draft), method: :get, class: "action edit one-line" }
     end
   end
