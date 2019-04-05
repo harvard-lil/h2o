@@ -117,7 +117,7 @@ class ActionButtonBuilder
   end
 
   def add_resource
-    { button_to: true, text: I18n.t("content.actions.add-resource"), path: new_section_path(casebook), class: "action add-resource" }
+    { link_to: true, text: I18n.t('content.actions.add-resource'), path: new_section_path(casebook), class: 'action add-resource' }
   end
 
   def add_section
@@ -139,7 +139,7 @@ class ActionButtonBuilder
     if casebook.resources_have_annotations?
       { link_to: true, path: "#", text: I18n.t("content.actions.export"), class: "action one-line export export-has-annotations" }
     else
-      { link_to: true, path: "#", class: 'action one-line export export-no-annotations' }
+      { link_to: true, path: "#", text: I18n.t("content.actions.export"), class: 'action one-line export export-no-annotations' }
     end
   end
 
