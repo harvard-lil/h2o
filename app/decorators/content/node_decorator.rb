@@ -32,8 +32,10 @@ class Content::NodeDecorator < Draper::Decorator
     if casebook.public?
       if authorized?
         if casebook.draft.present?
+          # good
           return [:edit_draft] << clone_and_export
         else
+          # good
           return [:create_draft] << clone_and_export
         end
       end
@@ -46,9 +48,12 @@ class Content::NodeDecorator < Draper::Decorator
         return [:publish_casebook, :edit_casebook] << clone_and_export
       end
     else draft_mode
-      if has_published_parent
+      puts "*****"
+      if casebook.draft_mode_of_published_casebook
+        puts "draft_mode_of_published_casebook"
         return [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
       else
+        puts "not draft_mode_of_published_casebook"
         return [:publish_casebook, :preview_casebook] << draft_buttons
       end
     end
@@ -129,10 +134,6 @@ class Content::NodeDecorator < Draper::Decorator
 
   def preview_mode
     authorized? && action_name == 'show'
-  end
-
-  def has_published_parent
-    casebook.draft_mode_of_published_casebook
   end
 
   def authorized?

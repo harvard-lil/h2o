@@ -155,41 +155,49 @@ class CasebookSystemTest < ApplicationSystemTestCase
       end
 
       describe 'draft mode' do
+        # ******
         it 'casebook actions' do
+          # good
           visit layout_casebook_path @casebook
 
           assert_content "Publish"
           assert_content "Preview"
           assert_content "Add Resource"
-          assert_content "Add Section"
+          assert_button "Add Section"
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
         end
 
         it 'section actions' do
           visit layout_section_path @casebook, @section
-
+          # good
           assert_content "Preview"
           assert_content "Add Resource"
-          assert_content "Add Section"
+          assert_button "Add Section"
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
         end
 
         it 'resource actions in edit' do
-          visit resource_path @casebook, @resource
+          # good
+          visit edit_resource_path @casebook, @resource
+
+          # add test for cases different url ( annotate )
 
           assert_content "Preview"
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
         end
       end
+      # ******
 
+      # *******
       describe 'preview mode ' do
         it 'casebook actions' do
+          #good
           visit casebook_path @casebook 
 
           assert_content "Publish"
@@ -199,6 +207,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         end
 
         it 'section actions' do
+          # good
           visit section_path @casebook, @section
 
           assert_content "Revise"
@@ -206,12 +215,14 @@ class CasebookSystemTest < ApplicationSystemTestCase
         end
 
         it 'resource actions' do
+          # good
           visit resource_path @casebook, @resource
 
           assert_content "Revise"
           assert_button "Clone"
         end
       end
+      # *******
 
       # **********
       describe 'published mode' do
@@ -261,9 +272,9 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Publish Changes"
           assert_content "Preview"
           assert_content "Add Resource"
-          assert_content "Add Section"
+          assert_button "Add Section"
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
           refute_button "Clone"
         end
@@ -273,9 +284,9 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
           assert_content "Preview"
           assert_content "Add Resource"
-          assert_content "Add Section"
+          assert_button "Add Section"
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
           refute_button "Clone"
         end
@@ -285,7 +296,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
           assert_content "Preview "
           assert_content "Export"
-          assert_content "Save"
+          assert_button "Save"
           assert_content "Cancel"
         end
       end
