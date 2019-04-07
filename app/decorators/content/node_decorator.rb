@@ -119,6 +119,7 @@ class Content::NodeDecorator < Draper::Decorator
   #condensed button lists
 
   def clone_and_export
+    # right now only casebooks can be cloned, not individual resources or sections
     [:clone_casebook, :export]
   end
 

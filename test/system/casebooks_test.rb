@@ -162,7 +162,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         scenario 'casebook actions' do
           visit layout_casebook_path @casebook
 
-          assert_content "Publish"
+          assert_button "Publish"
           assert_content "Preview"
           assert_button "Add Resource"
           assert_button "Add Section"
@@ -209,7 +209,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
         scenario 'casebook actions' do
           visit casebook_path @casebook 
 
-          assert_content "Publish"
+          assert_button "Publish"
           assert_content "Revise"
           assert_content "Export"
           assert_button "Clone"
