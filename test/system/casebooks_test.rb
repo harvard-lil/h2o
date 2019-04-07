@@ -403,11 +403,26 @@ class CasebookSystemTest < ApplicationSystemTestCase
         assert_content "Export"
       end
 
-      # scenario 'resource actions' do
-      #   visit @resource_path @casebook, @resource
-      #   refute_button "Clone"
-      #   assert_content "Export"
-      # end
+      scenario 'resource actions' do
+        visit resource_path @casebook, @resource
+        refute_button "Clone"
+        assert_content "Export"
+      end
+    end
+
+    scenario "double clicking on a button does not create duplicate contents", js: true do
+      skip
+      sign_in @user = users(:verified_professor)
+      casebook = content_nodes(:public_casebook)
+
+      assert_equal 5, @user.casebooks.count
+
+      visit casebook_path casebook
+      # need to sucessfully double click
+      click_button 'Clone'
+      click_button 'Clone'
+
+      assert_equal 6, @user.casebooks.count
     end
   end
 end
