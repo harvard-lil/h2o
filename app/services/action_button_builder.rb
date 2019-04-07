@@ -30,10 +30,6 @@ class ActionButtonBuilder
     { link_to: true, text: I18n.t("content.actions.revise-draft"), path: annotate_resource_path(casebook, resource), class: "action edit one-line" }
   end
 
-  def clone_resource
-    { link_to: true, text: I18n.t("content.actions.clone"), path: clone_resource_path(casebook, resource), class: "action clone-casebook" }
-  end
-
   def preview_resource
     { link_to: true, text: I18n.t("content.actions.preview"), path: resource_path(casebook, resource), class: "action one-line preview" }
   end
@@ -55,10 +51,6 @@ class ActionButtonBuilder
 
   def revise_section
     { link_to: true, text: I18n.t("content.actions.revise-draft"), path: revise_section_path(casebook, section), class: "action edit one-line" }
-  end
-
-  def clone_section
-    { link_to: true, text: I18n.t("content.actions.clone"), path: clone_section_path(casebook, section), class: "action clone-casebook" }
   end
 
   def revise_draft_section
