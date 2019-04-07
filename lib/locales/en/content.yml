@@ -29,7 +29,7 @@ en:
         url-placeholder: Enter a URL to add it to your casebook
         save-button: Add linked resource
     publish-modal:
-      title: Publish
+      title: Confirm Publish
       body: Are you ready to publish your book?
       confirm: 'Yes'
       cancel: 'No'
