@@ -159,9 +159,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       end
 
       describe 'draft mode' do
-        # ******
-        it 'casebook actions' do
-          # good
+        scenario 'casebook actions' do
           visit layout_casebook_path @casebook
 
           assert_content "Publish"
@@ -173,9 +171,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Cancel"
         end
 
-        it 'section actions' do
+        scenario 'section actions' do
           visit layout_section_path @casebook, @section
-          # good
           assert_content "Preview"
           assert_button "Add Resource"
           assert_button "Add Section"
@@ -184,24 +181,32 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Cancel"
         end
 
-        it 'resource actions in edit' do
-          # good
+        scenario 'resource actions for link annotation' do
           visit edit_resource_path @casebook, @resource
-
-          # add test for cases different url ( annotate )
 
           assert_content "Preview"
           assert_content "Export"
           assert_button "Save"
           assert_content "Cancel"
         end
-      end
-      # ******
 
-      # *******
+        scenario 'resource actions for annotation' do
+          visit edit_resource_path @casebook, @resource
+          assert_content "Preview"
+          assert_content "Export"
+          assert_button "Save"
+          assert_content "Cancel"
+
+          visit annotate_resource_path @casebook, @resource
+          assert_content "Preview"
+          assert_content "Export"
+          assert_button "Save"
+          assert_content "Cancel"
+        end
+      end
+
       describe 'preview mode ' do
-        it 'casebook actions' do
-          #good
+        scenario 'casebook actions' do
           visit casebook_path @casebook 
 
           assert_content "Publish"
@@ -210,30 +215,27 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_button "Clone"
         end
 
-        it 'section actions' do
-          # good
+        scenario 'section actions' do
           visit section_path @casebook, @section
 
           assert_content "Revise"
           assert_button "Clone"
         end
 
-        it 'resource actions' do
-          # good
+        scenario 'resource actions' do
           visit resource_path @casebook, @resource
 
           assert_content "Revise"
           assert_button "Clone"
         end
       end
-      # *******
 
-      # **********
       describe 'published mode' do
         before do
           @casebook.update(public: true)
         end
-        it 'casebook actions' do
+
+        scenario 'casebook actions' do
           visit casebook_path @casebook
 
           assert_content "Revise"
@@ -241,7 +243,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Export"
         end
 
-        it 'section actions' do
+        scenario 'section actions' do
           visit section_path @casebook, @section
 
           assert_content "Revise"
@@ -249,7 +251,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Export"
         end
 
-        it 'resource actions' do
+        scenario 'resource actions' do
           visit resource_path @casebook, @resource
 
           assert_content "Revise"
@@ -257,7 +259,6 @@ class CasebookSystemTest < ApplicationSystemTestCase
           assert_content "Export"
         end
       end
-      # *********
     end
 
     describe 'draft of casebook with a published parent' do
@@ -276,10 +277,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
       end
 
       describe 'draft mode' do
-        it 'casebook actions' do
-          # good
+        scenario 'casebook actions' do
           visit layout_casebook_path @casebook
-
           assert_button "Publish Changes"
           assert_content "Preview"
           assert_button "Add Resource"
@@ -290,9 +289,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
           refute_button "Clone"
         end
 
-        it 'section actions' do
+        scenario 'section actions' do
           visit layout_section_path @casebook, @section
-
           assert_content "Preview"
           assert_button "Add Resource"
           assert_button "Add Section"
@@ -302,11 +300,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
           refute_button "Clone"
         end
 
-        it 'resource actions' do
+        scenario 'resource actions' do
           visit edit_resource_path @casebook, @resource
-
-          # good
-
           assert_content "Preview"
           assert_content "Export"
           assert_button "Save"
@@ -315,60 +310,45 @@ class CasebookSystemTest < ApplicationSystemTestCase
       end
 
       describe 'preview mode ' do
-        it 'casebook actions' do
+        scenario 'casebook actions' do
           visit casebook_path @casebook 
-
-          # good
-
           assert_button "Publish Changes"
           assert_content "Return to Draft"
           assert_content "Export"
           refute_button "Clone"
         end
 
-        it 'section actions' do
+        scenario 'section actions' do
           visit section_path @casebook, @section
-
-          # good
-
           assert_content "Return to Draft"
           assert_content "Export"
           refute_button "Clone"
         end
 
-        it 'resource actions' do
-
+        scenario 'resource actions' do
           visit resource_path @casebook, @resource
-
-          # good?
-
           assert_content "Return to Draft"
           refute_button "Clone"
         end
       end
 
       describe 'published mode' do
-        # this needs to be just the published casebook, don't need to demonstrate act of published
-        it 'casebook actions' do
+        scenario 'casebook actions' do
           visit casebook_path @parent_casebook
-# good
           assert_content "Return to Draft"
           assert_button "Clone"
           assert_content "Export"
         end
 
-        it 'section actions' do
-          #good
+        scenario 'section actions' do
           visit section_path @parent_casebook, @parent_section
-
           assert_content "Return to Draft"
           assert_button "Clone"
           assert_content "Export"
         end
 
-        it 'resource actions' do
+        scenario 'resource actions' do
           visit resource_path @parent_casebook, @parent_resource
-# good
           assert_content "Return to Draft"
           assert_button "Clone"
           assert_content "Export"
@@ -385,49 +365,49 @@ class CasebookSystemTest < ApplicationSystemTestCase
         @resource = content_nodes(:public_casebook_section_1_1)
       end
 
-      it 'casebook actions' do
+      scenario 'casebook actions' do
         visit casebook_path @casebook
-
         assert_button "Clone"
         assert_content "Export"
       end
 
-      it 'section actions' do
+      scenario 'section actions' do
         visit section_path @casebook, @section
-
         assert_button "Clone"
         assert_content "Export"
       end
 
-      it 'resource actions' do
+      scenario 'resource actions' do
         visit resource_path @casebook, @resource
-
         assert_button "Clone"
         assert_content "Export"
       end
     end
 
-    # describe 'published casebook with an anonymous user' do
-    #   before do
-    #     @casebook = content_nodes(:public_casebook)
-    #     @section = content_nodes(:public_casebook_section_1)
-    #     @resource = content_nodes(:public_casebook_section_1_1)
-    #   end
+    describe 'published casebook with an anonymous user' do
+      before do
+        @casebook = content_nodes(:public_casebook)
+        @section = content_nodes(:public_casebook_section_1)
+        @resource = content_nodes(:public_casebook_section_1_1)
+      end
 
-    #   describe 'casebook actions' do
-    #     assert_button "Clone"
-    #     assert_content "Export"
-    #   end
+      scenario 'casebook actions' do
+        visit casebook_path @casebook
+        refute_button "Clone"
+        assert_content "Export"
+      end
 
-    #   describe 'section actions' do
-    #     assert_button "Clone"
-    #     assert_content "Export"
-    #   end
+      scenario 'section actions' do
+        visit section_path @casebook, @section
+        refute_button "Clone"
+        assert_content "Export"
+      end
 
-    #   describe 'resource actions' do
-    #     assert_button "Clone"
-    #     assert_content "Export"
-    #   end
-    # end
+      # scenario 'resource actions' do
+      #   visit @resource_path @casebook, @resource
+      #   refute_button "Clone"
+      #   assert_content "Export"
+      # end
+    end
   end
 end
