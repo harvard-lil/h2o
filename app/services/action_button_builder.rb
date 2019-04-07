@@ -18,6 +18,8 @@ class ActionButtonBuilder
 
   private
 
+  # TODO Turn all link_to's into button_to's
+
   def create_resource_draft
     { link_to: true, text: I18n.t("content.actions.revise"), path: create_draft_resource_path(casebook, resource), class: "action edit one-line create-draft" }
   end

@@ -112,7 +112,7 @@ published_casebook:
 
 published_casebook_section_1:
   casebook: published_casebook
-  title: section 1
+  title: Link 1 
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one
@@ -166,7 +166,7 @@ draft_merge_casebook:
 
 draft_merge_section_1:
   casebook: draft_merge_casebook
-  title: section 1
+  title: link 1
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one
