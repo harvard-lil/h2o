@@ -138,16 +138,10 @@ class CasebookSystemTest < ApplicationSystemTestCase
       assert_content @draft_casebook.title
       assert_content @draft_casebook.headnote
 
-      binding.pry
-
       visit resource_path @published_casebook, @published_resource
       @draft_resource.destroy
 
-      binding.pry
-
-      click_link "Revise"
-
-      binding.pry
+      click_link "Return to Draft"
 
       assert_content @draft_casebook.title
       assert_content @draft_casebook.headnote
