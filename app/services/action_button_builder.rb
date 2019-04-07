@@ -85,11 +85,11 @@ class ActionButtonBuilder
   ## Casebook
 
   def publish_changes_to_casebook
-    { button_tag: true, text: I18n.t("content.actions.publish-changes"), name: nil, type: "button", class:  "action publish one-line"}
+    { button_to: true, text: I18n.t("content.actions.publish-changes"), path: "", class:  "action publish one-line"}
   end
 
   def publish_casebook
-    { button_tag: true, text: I18n.t("content.actions.publish"), name: nil, type: "button", class:  "action publish one-line"}
+    { button_to: true, text: I18n.t("content.actions.publish"), path: "", class:  "action publish one-line"}
   end
 
   def create_draft
