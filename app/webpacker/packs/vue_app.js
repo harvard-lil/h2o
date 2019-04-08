@@ -13,20 +13,19 @@ Vue.use(contenteditableDirective);
 import TheResourceBody from "../components/TheResourceBody";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const routes = [];
+  const routes = [
+    { path: '/casebooks/:id/resources/:resource_id/annotate', component: TheResourceBody} 
+  ];
 
   const router = new VueRouter({
     routes
   });
 
-  const app = new Vue({
-    el: "#app",
+  new Vue({
     store,
     router,
     components: {
       TheResourceBody
     }
-  });
-
-  window.app = app;
+  }).$mount('#app');
 });
