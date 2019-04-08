@@ -8,7 +8,6 @@ class Content::CasesController < ApplicationController
   # create a temporary resource to display the case
   layout 'casebooks'
   def show
-    @include_vuejs = true
     unless @case.try :public
       flash[:notice] = "You are not authorized to access this page."
       redirect_to :root and return
