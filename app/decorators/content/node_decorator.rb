@@ -111,6 +111,8 @@ class Content::NodeDecorator < Draper::Decorator
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
       end
+    elsif draft_mode && annotating?
+      return [:preview_resource, :export]
     elsif draft_mode
       return [:preview_resource, :save_resource, :cancel_resource, :export]
     end
@@ -135,6 +137,10 @@ class Content::NodeDecorator < Draper::Decorator
 
   def draft_mode
     action_name.in? %w{edit layout annotate}
+  end
+
+  def annotating?
+    action_name == 'annotate'
   end
 
   def preview_mode
