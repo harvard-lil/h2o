@@ -131,9 +131,9 @@ class ActionButtonBuilder
 
   def export
     if casebook.resources_have_annotations?
-      { link_to: true, path: "#", text: I18n.t("content.actions.export"), class: "action one-line export export-has-annotations" }
+      { link_to: true, path: "#", text: I18n.t("content.actions.export"), method: "", class: "action one-line export export-has-annotations" }
     else
-      { link_to: true, path: "#", text: I18n.t("content.actions.export"), class: 'action one-line export export-no-annotations' }
+      { link_to: true, path: "#", text: I18n.t("content.actions.export"), method: "", class: 'action one-line export export-no-annotations' }
     end
   end
 
