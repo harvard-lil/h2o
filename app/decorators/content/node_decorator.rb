@@ -50,9 +50,9 @@ class Content::NodeDecorator < Draper::Decorator
       end
     else draft_mode
       if casebook.draft_mode_of_published_casebook?
-        return [:publish_changes_to_casebook, :preview_casebook] << draft_buttons
+        return [:publish_changes_to_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
       else
-        return [:publish_casebook, :preview_casebook] << draft_buttons
+        return [:publish_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
       end
     end
   end
@@ -83,7 +83,7 @@ class Content::NodeDecorator < Draper::Decorator
       end
     elsif draft_mode
       # cannot published from section
-      return [:preview_section] << draft_buttons
+      return [:preview_section, :add_resource, :add_section, :save_section, :cancel_section, :export]
     end
   end
 
@@ -121,10 +121,6 @@ class Content::NodeDecorator < Draper::Decorator
   def clone_and_export
     # right now only casebooks can be cloned, not individual resources or sections
     [:clone_casebook, :export]
-  end
-
-  def draft_buttons
-    [:add_resource, :add_section, :export, :save_casebook, :cancel_casebook]
   end
 
   #variables
