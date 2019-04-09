@@ -37,11 +37,11 @@ class ActionButtonBuilder
   end
 
   def save_resource
-    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
+    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-resource-details" }
   end
 
   def cancel_resource
-    { link_to: true, text: I18n.t("content.actions.cancel"), path: "", class: "action one-line cancel" }
+    { link_to: true, text: I18n.t("content.actions.cancel"), path: "", class: "action one-line cancel cancel-resource-details" }
   end
 
   #############
@@ -72,7 +72,7 @@ class ActionButtonBuilder
   end
 
   def cancel_section
-    { link_to: true, text: I18n.t("content.actions.cancel"), path: "#", class: "action one-line cancel" }
+    { link_to: true, text: I18n.t("content.actions.cancel"), path: "#", class: "action one-line cancel cancel-section-defailts" }
   end
 
   ############
@@ -119,7 +119,7 @@ class ActionButtonBuilder
   end
 
   def save_casebook
-    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-section-details" }
+    { button_to: true, text: I18n.t("content.actions.save"), path: "", class: "action one-line save submit-casebook-details" }
   end
 
   def cancel_casebook
