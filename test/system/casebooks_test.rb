@@ -200,8 +200,8 @@ class CasebookSystemTest < ApplicationSystemTestCase
           visit annotate_resource_path @casebook, @resource
           assert_content "Preview"
           assert_content "Export"
-          assert_button "Save"
-          assert_content "Cancel"
+          refute_button "Save"
+          refute_content "Cancel"
         end
       end
 
