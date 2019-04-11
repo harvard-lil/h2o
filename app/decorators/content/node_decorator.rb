@@ -36,10 +36,10 @@ class Content::NodeDecorator < Draper::Decorator
         else
           return [:create_draft] << clone_and_export
         end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
       elsif current_user.present?
         return clone_and_export
-      elsif anonymous?
-        return [:export]
       end
     elsif preview_mode
       if casebook.draft_mode_of_published_casebook?
@@ -70,10 +70,10 @@ class Content::NodeDecorator < Draper::Decorator
         else
           return [:create_section_draft] << clone_and_export
         end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
       elsif current_user.present?
         return clone_and_export
-      elsif anonymous?
-        return [:export]
       end
     elsif preview_mode
       if casebook.draft_mode_of_published_casebook?
@@ -100,10 +100,10 @@ class Content::NodeDecorator < Draper::Decorator
         else
           return [:create_resource_draft] << clone_and_export
         end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
       elsif current_user.present?
         return clone_and_export
-      elsif anonymous?
-        return [:export]
       end
     elsif preview_mode
       if casebook.draft_mode_of_published_casebook?
