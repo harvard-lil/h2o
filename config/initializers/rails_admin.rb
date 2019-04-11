@@ -266,6 +266,7 @@ RailsAdmin.config do |config|
       field :subtitle
       field :headnote, :ck_editor
       field :public
+      field :cloneable
       field :ancestry do
         read_only true
       end
