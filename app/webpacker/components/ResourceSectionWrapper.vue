@@ -54,6 +54,12 @@ export default {
   text-align: right;
   vertical-align: middle;
 }
+.page-number {
+  font-size: small;
+  color: darkgrey;
+  vertical-align: super;
+  margin: 4px;
+}
 
 /*
  * These use /deep/ to influence HighlightAnnotation.
