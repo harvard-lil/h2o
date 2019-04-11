@@ -2,15 +2,17 @@ import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import ModalComponent from 'lib/ui/modal';
 
-delegate(document, '.clone-casebook', 'submit', showCloneModal);
+delegate(document, '.clone-casebook', 'click', showCloneModal);
 
 function showCloneModal (e) {
-  new CloneModal('clone-modal', e.target);
+  new CloneModal('clone-modal', e.target, {});
+
+  e.currentTarget.activeElement.dataset.processing = "true" // override the component destroy events
 }
 
 class CloneModal extends ModalComponent {
   template () {
-    return html`<div class="modal fade in" id="${this.id}" tabindex="-1" aria-label="Cloning Casebook" style="display: block">
+    return html`<div class="modal fade in" id="${this.id}" tabindex="-1" aria-label="${this.id}-title" style="display: block">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">
