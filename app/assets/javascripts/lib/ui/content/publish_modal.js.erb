@@ -16,6 +16,7 @@ function showPublishModal (e) {
   new PublishModal('publish-modal', e.target, {
     'click .confirm': (e) => {
       showSpinner();
+      e.currentTarget.dataset.processing = "true" // override the component destroy events
       let casebookId = document.querySelector('main > header').dataset.casebookId;
       patch(casebook_path(casebookId), {content_casebook: {public: true}});
     },
@@ -42,7 +43,7 @@ class PublishModal extends ModalComponent {
   }
 
   template () {
-    return html`<div class="modal fade in" id="${this.id}" style="display: block"  tabindex="-1" aria-labelledby="${this.id}-title">
+    return html`<div class="modal fade in" id="${this.id}" style="display: block" tabindex="-1" aria-labelledby="${this.id}-title">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">

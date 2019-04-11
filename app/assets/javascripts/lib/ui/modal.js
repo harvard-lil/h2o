@@ -32,11 +32,12 @@ export default class ModalComponent extends Component {
   }
 
   destroy () {
-    document.removeEventListener('focus', this.handleFocus, true);
-    document.getElementById('non-modal').removeAttribute('aria-hidden');
-    document.querySelector('.modal-overlay').classList.remove('open');
-    this.trigger.focus();
-    super.destroy();
+    if ( this.el.dataset.processing !== "true") {
+      document.removeEventListener('focus', this.handleFocus, true);
+      document.getElementById('non-modal').removeAttribute('aria-hidden');
+      document.querySelector('.modal-overlay').classList.remove('open');
+      this.trigger.focus();
+      super.destroy();
+    }
   }
-
 }
