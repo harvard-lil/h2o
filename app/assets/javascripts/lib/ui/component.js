@@ -38,7 +38,9 @@ export default class Component {
   }
 
   destroy () {
-    this.el.parentElement && this.el.parentElement.removeChild(this.el);
-    for (let eventDelegate of this.eventDelegates) { eventDelegate.destroy() };
+    if ( this.el.dataset.processing !== "true") {
+      this.el.parentElement && this.el.parentElement.removeChild(this.el);
+      for (let eventDelegate of this.eventDelegates) { eventDelegate.destroy() };
+    }
   }
 }
