@@ -8,7 +8,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: h2o:0.3
+    image: h2o:0.4
     tty: true
     command: bash
     environment:
