@@ -52,7 +52,7 @@ class Content::NodeDecorator < Draper::Decorator
       if casebook.draft_mode_of_published_casebook?
         return [:publish_changes_to_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
       else
-        return [:publish_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
+        return [:publish_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :clone_casebook, :export]
       end
     end
   end
