@@ -16,11 +16,13 @@
     <%= stylesheet_pack_tag 'main', media: 'all' %>
     <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy' %>
     <%= stylesheet_link_tag 'https://use.fontawesome.com/releases/v5.0.13/css/all.css'%>
-    <%= javascript_pack_tag "vue_app" %>
-    <%= stylesheet_pack_tag "vue_app", media: "all" %>
+    <% if @include_vuejs %>
+      <%= javascript_pack_tag "vue_app" %>
+      <%= stylesheet_pack_tag "vue_app", media: "all" %>
+    <% end %>
   </head>
   <body class="view-<%= controller_name.parameterize %>-<%= action_name.parameterize %>">
-    <div id="app">
+    <% if @include_vuejs %><div id="app"><% end %>
       <div id="non-modal">
         <a href="#main" class="skip-link">Skip to main content</a>
         <a href="#footer" class="skip-link">Skip to footer</a>
@@ -56,7 +58,7 @@
         </footer>
       </div>
       <div class="modal-overlay"></div>
-    </div>
+    <% if @include_vuejs %></div><% end %>
     <%= javascript_pack_tag "application" %>
     <%= javascript_pack_tag "test" if Rails.env.test? %>
     <%= render 'layouts/analytics' %>
