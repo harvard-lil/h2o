@@ -46,6 +46,7 @@
     "xhr-mock": "^2.3.1"
   },
   "scripts": {
-    "test": "jest --config test/javascript/jest.conf.js"
+    "test": "jest --config test/javascript/jest.conf.js",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   }
 }
