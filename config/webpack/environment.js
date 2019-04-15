@@ -27,6 +27,10 @@ environment.plugins.append('Provide', new webpack.ProvidePlugin({
   jQuery: 'jquery'
 }));
 
+// Uncomment to suppress output except on error.
+// See https://github.com/harvard-lil/h2o/issues/743
+//environment.config.stats = 'errors-only'
+
 environment.loaders.append('vue', vue);
 environment.plugins.append('vue-loader', new VueLoaderPlugin());
 module.exports = environment;
