@@ -73,6 +73,10 @@ export default {
     margin-left: 2em;
   }
 }
+.footnotemark {
+  font-size: 16px;
+  vertical-align: super;
+}
 /*
  * These use /deep/ to influence HighlightAnnotation.
  * They must live here so that they can change in relation to
