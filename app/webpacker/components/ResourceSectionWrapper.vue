@@ -60,7 +60,19 @@ export default {
   vertical-align: super;
   margin: 4px;
 }
+.footnote {
+  a {
+    float: left;
+    width: 20px;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 0;
+  }
 
+  p, blockquote {
+    margin-left: 2em;
+  }
+}
 /*
  * These use /deep/ to influence HighlightAnnotation.
  * They must live here so that they can change in relation to

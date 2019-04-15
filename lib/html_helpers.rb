@@ -7,7 +7,7 @@ module HTMLHelpers
 
     def unnest! html
       html
-        .xpath('//article | //section | //aside')
+        .xpath('//article | //section')
         .each { |el| el.replace el.children }
       html
     end
