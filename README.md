@@ -39,6 +39,13 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 1. [Installation of yarn](https://yarnpkg.com/lang/en/docs/install/) is platform-specific. On a Mac: if you already have node installed, `brew install yarn --without-node`, or `brew install yarn` to simultaneously install node.
 2. `yarn install`
 
+Heads up: `yarn install` might get re-run for you behind the scenes under a number of circumstances. For instance,
+- [Guard is configured to re-run yarn install](https://github.com/harvard-lil/h2o/blob/master/Guardfile#L10) when package.json changes
+- Rails includes a `yarn:install` task that may be called from other Rails/Rake tasks, including `assets:precompile`
+- Webpacker also runs `yarn:install` under certain circumstances
+
+[We disabled some of the magic](https://github.com/harvard-lil/h2o/blob/master/Rakefile) to give us more control. You might want to keep an eye on your console, in case you are expecting `yarn install` to run automatically some place we've disabled it, or in case it runs some time when you aren't expecting it!
+
 ### Set up the Postgres database
 
 1. Install postgres ~9.6 (if missing). Note: `brew install postgres` now installs postgres 10+. To install 9.6.5 via Homebrew, install postgres using the specific version formula (`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/d014fa223f77bee4b4097c5e80faa0954e28182f/Formula/postgresql.rb`) and then run `brew switch postgres 9.6.5`
