@@ -13,8 +13,7 @@ class HTMLHelpersTest < ActiveSupport::TestCase
   describe HTMLHelpers, :unnest! do
     it "should pull content out of specific tags and place it at the parent level" do
       ["article",
-       "section",
-       "aside"].each do |tag|
+       "section"].each do |tag|
         before = html_doc_str "<#{tag}>foobar</#{tag}>"
         after = html_doc_str "foobar"
         assert_equal after, HTMLHelpers.unnest!(Nokogiri::HTML(before)).to_s
