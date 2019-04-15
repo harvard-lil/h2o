@@ -25,7 +25,7 @@ before_install:
 before_script:
   - bundle exec bin/rails sunspot:solr:start
   - bundle exec bin/rails db:setup
-  - bundle exec bin/rails assets:precompile
+  - bundle exec bin/rails assets:precompile DISABLE_SPRING=1
   - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
 script:
   - bundle exec bin/rails test
