@@ -7,7 +7,7 @@ H2o::Application.load_tasks
 
 Rake::Task['yarn:install'].clear
 namespace :yarn do
-  desc "Override yarn:install. Don't do anything!"
+  desc "Overridden yarn:install. Don't do anything!"
   task :install => [:environment] do
     puts "Skipping yarn:install"
   end
