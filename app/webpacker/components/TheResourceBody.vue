@@ -55,7 +55,6 @@ export default {
         div.appendChild(document.createTextNode(this.resource.content));
         return [div];
       } else {
-        // here
         unwrapUndesiredTags(doc);
         emptyULToP(doc);
         wrapBareInlineTags(doc);
