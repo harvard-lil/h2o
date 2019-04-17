@@ -50,7 +50,7 @@ class Content::CasebooksController < Content::NodeController
         flash[:error] = 'Updating published casebook failed. Admin has been notified'
         @casebook.update(public: false)
       end
-      
+
     elsif @casebook.draft_mode_of_published_casebook
       @casebook.create_revisions(content_params)
     end

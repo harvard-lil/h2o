@@ -20,6 +20,7 @@ require 'rails/test_help'
 require 'wrong/adapters/minitest'
 require 'minitest/reporters'
 require 'webmock/minitest'
+require 'fileutils'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 Minitest::Reporters.use!
@@ -34,6 +35,8 @@ class ActiveSupport::TestCase
   before :each do
     Rails.cache.clear
     ActionMailer::Base.deliveries.clear
+    FileUtils.rm_rf(Rails.root.join 'tmp/downloads')
+    FileUtils.mkdir_p(Rails.root.join 'tmp/downloads')
   end
 end
 
