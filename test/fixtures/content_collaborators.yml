@@ -11,7 +11,7 @@ multi_collaborator_casebook_owner:
   user: verified_professor
   role: owner
 
-multi_collaborator_casebook_owner:
+multi_collaborator_casebook_editor:
   content: multi_collaborator_casebook
   user: verified_student
   role: editor
