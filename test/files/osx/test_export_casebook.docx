@@ -79,7 +79,7 @@
       </div>
 </header>
   <aside class="casebook-actions">
-    <form class="clone-casebook" method="post" action="/casebooks/91670752-public-casebook-1/clone"><input class="action clone-casebook" type="submit" value="Clone" /></form><a class="action one-line export export-no-annotations" href="#">Export</a>
+    <form class="clone-casebook" method="post" action="/casebooks/91670752-public-casebook-1/clone"><input class="action clone-casebook" type="submit" value="Clone" /></form><a class="action one-line export" href="#">Export</a>
 
   </aside>
   <section class="no-headnote"></section>
