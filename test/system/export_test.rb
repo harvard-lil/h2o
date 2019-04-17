@@ -17,7 +17,7 @@ class ExportSystemTest < ApplicationSystemTestCase
     click_link 'Export'
 
     # there must be a better way....
-    sleep 10
+    sleep 30
     downloaded_path = Dir[Rails.root.join 'tmp/downloads/*'].first
 
     assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
