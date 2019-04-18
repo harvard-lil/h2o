@@ -342,6 +342,7 @@ GEM
       websocket-driver (>= 0.2.0)
     pr_geohash (1.0.0)
     predicated (0.2.6)
+    pretty-diffs (1.0.2)
     progress_bar (1.2.0)
       highline (~> 1.6)
       options (~> 2.3.0)
@@ -579,6 +580,7 @@ DEPENDENCIES
   paperclip (~> 5.2.0)
   pg (~> 0.21)
   poltergeist
+  pretty-diffs
   progress_bar
   pry-byebug
   puma (~> 3.12)

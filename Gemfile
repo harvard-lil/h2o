@@ -100,4 +100,5 @@ end
 
 group :test do
   gem 'webmock'
+  gem 'pretty-diffs'
 end
