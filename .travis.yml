@@ -24,8 +24,8 @@ before_install:
   - npm install yarn -g && yarn install --frozen-lockfile --check-files
   - wget https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
-  - mv chromedriver /usr/bin/chromedriver
-  - chmod +x /usr/bin/chromedriver
+  - mv chromedriver ~/bin/chromedriver
+  - chmod +x ~/bin/chromedriver
 before_script:
   - bundle exec bin/rails sunspot:solr:start
   - bundle exec bin/rails db:setup
