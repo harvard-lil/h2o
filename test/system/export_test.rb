@@ -2,8 +2,12 @@ require 'application_system_test_case'
 require 'tmpdir'
 require 'fileutils'
 require 'timeout'
+require 'zip'
+require 'pretty_diffs'
 
 class ExportSystemTest < ApplicationSystemTestCase
+
+  include PrettyDiffs
 
   DEFAULT_DOWNLOAD_DIR = H2o::Test::Helpers::Drivers.download_path
   @download_dir
@@ -45,7 +49,18 @@ class ExportSystemTest < ApplicationSystemTestCase
       files.first
     end
 
-    assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
-    assert_equal Digest::SHA256.file(expected_file_path(file)).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    if format == 'Word'
+      Zip::File.open(downloaded_path) do |downloaded_docx|
+      Zip::File.open(expected_file_path(file)) do |expected_docx|
+        downloaded_docx.each do |downloaded_file|
+          expected_file = expected_docx.glob(Regexp.escape(downloaded_file.name)).first
+          assert_equal expected_file.get_input_stream.read, downloaded_file.get_input_stream.read
+        end
+      end
+      end
+    else
+      assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
+      assert_equal Digest::SHA256.file(expected_file_path(file)).hexdigest, Digest::SHA256.file(downloaded_path).hexdigest
+    end
   end
 end

@@ -49,3 +49,8 @@ RUN gem install bundler -v '1.17.3' && bundle install
 COPY package.json /h2o/package.json
 COPY yarn.lock /h2o/yarn.lock
 RUN yarn install --frozen-lockfile
+
+# Less important packages; can move up in this file if desired
+RUN apt-get update \
+    && apt-get install -y nano
+    && apt-get install -y wdiff

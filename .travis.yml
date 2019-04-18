@@ -7,6 +7,7 @@ addons:
   apt:
     packages:
       - google-chrome-stable
+      - wdiff
   postgresql: "9.4"
   artifacts:
     paths:
