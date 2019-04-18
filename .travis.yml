@@ -7,6 +7,7 @@ addons:
   apt:
     packages:
       - google-chrome-stable
+      - unzip
   postgresql: "9.4"
   artifacts:
     paths:
@@ -22,7 +23,6 @@ before_install:
   - nvm install 6
   - npm install yarn -g && yarn install --frozen-lockfile --check-files
   - wget https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip
-  - apt-get -y install unzip
   - unzip chromedriver_linux64.zip
   - mv chromedriver /usr/bin/chromedriver
   - chmod +x /usr/bin/chromedriver
