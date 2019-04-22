@@ -50,13 +50,11 @@ class ExportSystemTest < ApplicationSystemTestCase
     end
 
     if format == 'Word'
-      Zip::File.open(downloaded_path) do |downloaded_docx|
       Zip::File.open(expected_file_path(file)) do |expected_docx|
-        downloaded_docx.each do |downloaded_file|
+        Zip::File.open(downloaded_path).each do |downloaded_file|
           expected_file = expected_docx.glob(Regexp.escape(downloaded_file.name)).first
           assert_equal expected_file.get_input_stream.read, downloaded_file.get_input_stream.read
         end
-      end
       end
     else
       assert_equal File.size?(expected_file_path(file)), File.size?(downloaded_path)
