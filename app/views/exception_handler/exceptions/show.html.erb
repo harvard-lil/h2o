@@ -1,25 +1,7 @@
-<section class="error-header error-status-<%= @exception.status %>">
-  <div class="content">
-    <h1><%= @exception.description %></h1>
-    <% if @exception.status >= 500 %>
-      <p><%= t 'errors.server-error-message.html', time: DateTime.now.strftime('%F %T%:z') %></p>
-      <pre><%= @exception.exception.class %>: <%= @exception.message %></pre>
-    <% end %>
+<% content_for :page_title do %><%= @exception.status %> <%= @exception.response.to_s.humanize %><% end %>
+<div class="content">
+  <div class="pages-content">
+   <h1>Oops!</h1>
+   <%= content_tag :div, @exception.description.html_safe %>
   </div>
-</section>
-<section class="error-content">
-  <div class="content">
-    <% if @exception.status >= 500 %>
-    <p>
-      <strong><%= t 'errors.has-been-reported' %></strong>
-    </p>
-    <% end %>
-    <p> <%= t 'errors.help-contact.html' %> </p>
-    <p> <%= t 'errors.links-header' %> </p>
-    <ul>
-      <% t('errors.links').each_pair do |route, label| %>
-        <li><%= link_to label, route %></li>
-      <% end %>
-    </ul>
-  </div>
-</section>
+</div>
