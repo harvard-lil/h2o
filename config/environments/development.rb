@@ -69,4 +69,6 @@ H2o::Application.configure do
     # https://github.com/rails/web-console#configweb_consolewhitelisted_ips
     config.web_console.whitelisted_ips = '192.168.0.0/16'
   end
+
+  config.exception_handler['dev'] = ENV['RAILS_RENDER_ERROR_PAGES']
 end
