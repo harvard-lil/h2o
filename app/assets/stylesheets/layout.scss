@@ -106,25 +106,3 @@ section#flash {
     }
   }
 }
-
-section.error-header {
-  @include sans-serif($regular, 16px, 22px);
-
-  padding: 20px 0;
-  margin-bottom: 20px;
-
-  background-color: black;
-  color: white;
-
-  &.error-status-404 {
-    background-color: $dark-gray;
-  }
-
-  code {
-    color: white;
-    background: black;
-  }
-}
-section.error-content {
-  @include sans-serif($regular, 16px, 24px);
-}
