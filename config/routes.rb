@@ -93,5 +93,4 @@ H2o::Application.routes.draw do
 
   get "/pages/*id" => 'pages#show', as: :page, format: false
 
-  get '*path', to: 'base#not_found'
 end
