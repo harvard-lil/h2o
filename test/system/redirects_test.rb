@@ -2,8 +2,9 @@ require 'application_system_test_case'
 
 class RedirectSystemTest < ApplicationSystemTestCase
   scenario 'bad formats' do
-    visit '/anything.php'
-    assert_current_path '/'
+    assert_raises ActionController::RoutingError do
+      visit '/anything.php'
+    end
 
     assert_raises ActionController::RoutingError do
       visit '/anything.zip'
