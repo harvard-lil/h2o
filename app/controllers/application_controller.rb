@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   # Important that check_auth happens after load_single_resource
-  before_action :set_time_zone, :redirect_bad_format
+  before_action :set_time_zone, :check_format
   before_action :prepare_exception_notifier
   before_action :check_superadmin
 
@@ -12,16 +12,27 @@ class ApplicationController < ActionController::Base
   helper :all
   helper_method :current_user, :current_user_session
 
-  def redirect_bad_format
-    if params[:format] == "php"
-      # Note: This has to be hardcoded, not root_url
-      redirect_to "/", :status => 301
-      true
-    elsif params[:format] == "zip"
+  def check_format
+    if ["php", "zip"].include?(params[:format])
+      # (RLC 4/23/19) It is not clear to me what purpose this check really serves:
+      # so far as I know, "non-existent" routes generally return 404, not exceptions,
+      # and if they do return exceptions, that generally means there is a bug in the
+      # error handling code...
+      #
+      # However, at present, many application routes respond to ANY :format, including
+      # .asdfajhdflahsfahjlf and arbitrary gobbledygook. We may want to readdress this:
+      # https://stackoverflow.com/questions/1374415/how-to-limit-the-resource-formats-in-the-rails-routes-file.
+      #
+      # But, in the meantime, since the legacy comment says that bots targeting
+      # zip and php were causing problems... let's continue manually forbidding
+      # those two particular extensions so as not to invite problems.
+      #
+      # Legacy comment:
+      #
       # This exists to prevent garbage exceptions in the Rails log caused by
       # spam links pointing to this non-existent route, and returns a 404 specifically
       # to detract from spam links' Google juice
-      raise ActionController::RoutingError.new('Not Found')
+      raise ActionController::RoutingError, 'Not Found'
     end
   end
 
