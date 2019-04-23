@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_user, :current_user_session
 
   def check_format
-    if ["php", "zip"].include?(params[:format])
+    if controller_name.to_s != "exceptions" and ["php", "zip"].include?(params[:format])
       # (RLC 4/23/19) It is not clear to me what purpose this check really serves:
       # so far as I know, "non-existent" routes generally return 404, not exceptions,
       # and if they do return exceptions, that generally means there is a bug in the
