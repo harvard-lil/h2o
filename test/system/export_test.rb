@@ -40,7 +40,7 @@ class ExportSystemTest < ApplicationSystemTestCase
     visit path
     click_link 'Export'
 
-    downloaded_path = Timeout::timeout(10) do
+    downloaded_path = Timeout::timeout(15) do
       while Dir.empty?(@download_dir) or File.extname(Dir[@download_dir + '/*'].first).include? 'download' do
         # Wait for the file to download
       end
