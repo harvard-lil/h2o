@@ -42,11 +42,19 @@ describe('getLength', () => {
     expect(getLength(parseHTML('<div>Hello <em>W</em>orld</div>'))).toBe(11);
   });
 
+  test('counts length of nodes hidden by styles', () => {
+    expect(getLength(parseHTML('<div>Hello <em style="display:none;">W</em>orld</div>'))).toBe(11);
+  });
+
   test('returns correct text length for a text node', () => {
     expect(getLength(document.createTextNode('hello world'))).toBe(11);
   });
 
-  test('returns 0 a <br> element rather than 1, which is what innerText returns because it\s read as whitespace', () => {
+  test('does not collapse repeated whitespace', () => {
+    expect(getLength(document.createTextNode('hello      world'))).toBe(16);
+  });
+
+  test('returns 0 a <br> element rather than 1, which is what innerText returns because it\'s read as whitespace', () => {
     expect(getLength(document.createElement('br'))).toBe(0);
   });
 });

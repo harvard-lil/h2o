@@ -93,7 +93,7 @@ describe('ResourceSection', () => {
       index: 1,
       el: parseHTML('<div>foo bar</div>')
     }});
-    expect(parseHTML(wrapper.find(`.selected-text`).html()).innerText).toEqual(' ');
+    expect(parseHTML(wrapper.find(`.selected-text`).html()).textContent).toEqual(' ');
   });
 
   test.todo('when rendering, orders annotations first by length (longer wraps shorter)');

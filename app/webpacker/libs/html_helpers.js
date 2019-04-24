@@ -178,7 +178,7 @@ export const isBR = (node) =>
   node.tagName == "BR";
 
 export const getLength = (node) =>
-  (isElement(node) && !isBR(node) ? node.innerText : node.textContent).length;
+  node.textContent.length;
 
 export const getAttrsMap = (el) => {
   let nodelist = el.attributes;

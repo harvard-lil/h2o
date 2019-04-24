@@ -3,6 +3,7 @@ import { getLength } from "../libs/html_helpers";
 import { tupleToVNode } from "../libs/resource_section_parsing"
 
 import ResourceSectionWrapper from "./ResourceSectionWrapper";
+import SpacePreserver from "./SpacePreserver";
 import ElisionAnnotation from "./ElisionAnnotation";
 import ReplacementAnnotation from "./ReplacementAnnotation";
 import HighlightAnnotation from "./HighlightAnnotation";
@@ -13,6 +14,7 @@ import FootnoteLink from "./FootnoteLink";
 export default {
   components: {
     ResourceSectionWrapper,
+    SpacePreserver,
     ElisionAnnotation,
     ReplacementAnnotation,
     HighlightAnnotation,
