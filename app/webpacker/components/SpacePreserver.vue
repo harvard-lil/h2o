@@ -1,5 +1,5 @@
 <template>
-<pre> </pre>
+<pre class="space-preserver"> </pre>
 </template>
 
 <script>
@@ -7,7 +7,7 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-pre {
+.space-preserver {
   display: inline;
   margin: 0;
   padding: 0;
