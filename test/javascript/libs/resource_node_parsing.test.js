@@ -8,7 +8,7 @@ import { isFootnoteLink,
          splitTextAt,
          sequentialInlineNodesWithinRange,
          tupleToVNode,
-         filterAndSplitNodeList } from 'libs/resource_section_parsing';
+         filterAndSplitNodeList } from 'libs/resource_node_parsing';
 
 const stringifyTuple = t => [t[0].outerHTML || t[0].textContent, t[1], t[2]];
 

@@ -10,7 +10,7 @@ import "../directives/selectionchange";
 import contenteditableDirective from "vue-contenteditable-directive";
 Vue.use(contenteditableDirective);
 
-import TheResourceBody from "../components/TheResourceBody";
+import TheResource from "../components/TheResource";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     store,
     router,
     components: {
-      TheResourceBody
+      TheResource
     }
   });
 
