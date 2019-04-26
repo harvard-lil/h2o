@@ -13,15 +13,15 @@
 <script>
 export default {
   props: {
+    tuple: {type: Array,
+            required: true},
     index: {type: Number,
-           required: true},
-    length: {type: Number,
-            required: true}
+           required: true}
   },
   computed: {
     expanded() {
       // If any annotation that spans the entire section is hidden, return false
-      return this.$store.getters['annotations/getSpanningOffsets'](this.index, 0, this.length)
+      return this.$store.getters['annotations/getSpanningOffsets'](this.index, this.tuple[1], this.tuple[2])
         .filter(annotation => annotation.kind != "note")
         .reduce((expanded, annotation) => {
           const ui_state = this.$store.getters['annotations_ui/getById'](annotation.id);
