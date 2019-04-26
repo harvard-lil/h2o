@@ -11,7 +11,7 @@ import annotations_ui from "store/modules/annotations_ui";
 import footnotes_ui from "store/modules/footnotes_ui";
 import resources_ui from "store/modules/resources_ui";
 
-import ResourceSection from 'components/ResourceSection';
+import TheResourceBody from 'components/TheResourceBody';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -27,7 +27,7 @@ const DEFAULT_ANNOTATION = Object.freeze({
   "content": null
 });
 
-describe('ResourceSection', () => {
+describe('TheResourceBody', () => {
   let store;
 
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe('ResourceSection', () => {
 
   it('preserves whitespace when annotation contains only whitespace', () => {
     store.commit('annotations/append', [{...DEFAULT_ANNOTATION, start_paragraph: 1, end_paragraph: 1, start_offset: 3, end_offset: 4}]);
-    const wrapper = mount(ResourceSection, {store, localVue, propsData: {
+    const wrapper = mount(TheResourceBody, {store, localVue, propsData: {
       index: 1,
       el: parseHTML('<div>foo bar</div>')
     }});
