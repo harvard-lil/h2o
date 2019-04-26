@@ -5,8 +5,8 @@
                 ref="annotator"/>
   <TheGlobalElisionExpansionButton v-if="collapsible.length"/>
   <div class="case-text">
-    <template v-for="(el, index) in sections">
-      <ResourceSection :el="el"
+    <template v-for="(tuple, index) in sections">
+      <ResourceSection :tuple="tuple"
                        :index="parseInt(index)"/>
     </template>
   </div>
@@ -17,7 +17,9 @@
 import { unwrapUndesiredTags,
          emptyULToP,
          wrapBareInlineTags,
-         removeEmptyNodes } from "../libs/html_helpers.js";
+         removeEmptyNodes } from "../libs/html_helpers";
+
+import { transformToTuplesWithOffsets } from "../libs/resource_section_parsing"
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
@@ -50,17 +52,19 @@ export default {
       // Some resources are pure text without a wrapping HTML doc.
       // In this case, body.children will return an empty array.
       // Wrap that text in a div so that ResourceSection can expect HTMLElements
-      if(doc.body.children.length == 0) {
-        let div = document.createElement("div");
-        div.appendChild(document.createTextNode(this.resource.content));
-        return [div];
-      } else {
-        unwrapUndesiredTags(doc);
-        emptyULToP(doc);
-        wrapBareInlineTags(doc);
-        removeEmptyNodes(doc);
-        return doc.body.children;
-      }
+      return (() => {
+        if(doc.body.children.length == 0) {
+          let div = document.createElement("div");
+          div.appendChild(document.createTextNode(this.resource.content));
+          return [div];
+        } else {
+          unwrapUndesiredTags(doc);
+          emptyULToP(doc);
+          wrapBareInlineTags(doc);
+          removeEmptyNodes(doc);
+          return Array.from(doc.body.children);
+        }
+      })().reduce(transformToTuplesWithOffsets(0), [])
     },
 
     resourceId() {

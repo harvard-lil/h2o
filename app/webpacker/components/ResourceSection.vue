@@ -1,5 +1,4 @@
 <script>
-import { getLength } from "../libs/html_helpers";
 import { tupleToVNode } from "../libs/resource_section_parsing"
 
 import ResourceSectionWrapper from "./ResourceSectionWrapper";
@@ -23,16 +22,16 @@ export default {
     FootnoteLink
   },
   props: {
-    el: {type: HTMLElement,
-         required: true},
+    tuple: {type: Array,
+            required: true},
     index: {type: Number,
             required: true}
   },
   render(h) {
     return h("resource-section-wrapper",
-             {props: {index: this.index,
-                      length: getLength(this.el)}},
-             [tupleToVNode(h, this.index)([this.el, 0, getLength(this.el)])]);
+             {props: {tuple: this.tuple,
+                      index: this.index}},
+             [tupleToVNode(h, this.index)(this.tuple)]);
   }
 };
 </script>
