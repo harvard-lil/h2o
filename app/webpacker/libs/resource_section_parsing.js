@@ -20,7 +20,7 @@ export const isFootnoteLink = (node) =>
   Boolean(node.hash) && node.origin == location.origin && node.pathname == location.pathname;
 
 const getTagName = (node) =>
-  isFootnoteLink(node) ? "footnote-link" : node.tagName;
+  isFootnoteLink(node) ? "footnote-link" : node.getAttribute("is") || node.tagName;
 
 const last = (array) =>
   array[array.length - 1];
@@ -28,8 +28,9 @@ const last = (array) =>
 // Vue's logic for what gets stripped:
 // https://github.com/vuejs/vue/blob/875d6ac46c5ae8bca1490d493c75783e6e255635/packages/vue-template-compiler/build.js#L2660-L2680
 const vueWouldStrip = (node) =>
-  node.textContent.match(/^\s$/) && node.parentElement.tagName != "PRE";
-    
+  node.parentElement.tagName != "PRE" &&
+  !node.textContent.trim();
+
 ///////////////////////////
 // Munging and filtering //
 ///////////////////////////
@@ -88,10 +89,13 @@ const groupIntoAnnotation = (h, index, tuples, enclosingAnnotationIds) =>
     // get the forward elements that fall within our range
     let childTuples = [prevTuple, ...sequentialInlineNodesWithinRange(tuples, prevTuple[2], annotationEndInSection)];
 
-    // Vue will strip single spaces between annotation tags; add a second space to preserve
+    // Vue will strip single spaces between annotation tags, unless
+    // within a PRE tag, so we create a special component to handle this
     // Details: https://github.com/harvard-lil/h2o/issues/680
     if(childTuples.length === 1 && vueWouldStrip(childTuples[0][0])){
-      childTuples[0][0].appendData(" ");
+      const pre = document.createElement("PRE");
+      pre.setAttribute("is", "space-preserver");
+      childTuples[0][0] = pre;
     }
 
     let props = {startOffset: prevTuple[1],
@@ -180,8 +184,13 @@ export const tupleToVNode = (h, index, enclosingAnnotationIds = []) =>
     if(isText(node)) {
       return node.textContent;
     } else if(isElement(node)) {
+      // "is" is a Vue property that shouldn't be added in the final html
+      // See: https://vuejs.org/v2/guide/components.html#DOM-Template-Parsing-Caveats
+      let attrs = getAttrsMap(node);
+      delete attrs.is;
+
       let tag = getTagName(node),
-          data = {attrs: getAttrsMap(node)},
+          data = {attrs: attrs},
           children = annotateAndConvertToVNodes(h, filterAndSplitNodeList(node.childNodes, index, start, end), index, enclosingAnnotationIds);
       switch(tag) {
       case "footnote-link":
