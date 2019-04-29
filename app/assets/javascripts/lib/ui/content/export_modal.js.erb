@@ -29,7 +29,7 @@ function export_casebook_path(casebookId, format = 'docx') {
 
 function downloadFile (includeAnnotations) {
   if(typeof includeAnnotations === "undefined"){
-    let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
+    let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %> ? "true" : "false";
   }
   let pageInfo = document.querySelector('main > header').dataset;
   if (pageInfo.resourceId)  {
