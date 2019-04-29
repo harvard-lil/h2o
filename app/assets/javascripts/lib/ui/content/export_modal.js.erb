@@ -7,12 +7,13 @@ import ModalComponent from 'lib/ui/modal';
 let modal = null;
 
 delegate(document, 'a.action.export', 'click', (e) => {
+  e.preventDefault();
   // window.app is the Vue instance
   if((window.app && app.$store.getters['annotations/getCount'] > 0) ||
      (!window.app && e.target.classList.contains('export-has-annotations'))){
     showExportModal(e);
   } else {
-    downloadFile(e);
+    downloadFile();
   }
 });
 
@@ -26,15 +27,17 @@ function export_casebook_path(casebookId, format = 'docx') {
   return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
-function downloadFile (e) {
+function downloadFile (includeAnnotations) {
+  if(typeof includeAnnotations === "undefined"){
+    let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
+  }
   let pageInfo = document.querySelector('main > header').dataset;
-  let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %>;
   if (pageInfo.resourceId)  {
-    window.location.assign(resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '': '?annotations=false'));
+    window.location.assign(resource_export_path(pageInfo.resourceId) + (includeAnnotations ? '?annotations=true' : '?annotations=false'));
   } else if (pageInfo.sectionId)  {
-    window.location.assign(section_export_path(pageInfo.sectionId) + (includeAnnotations ? '' : '?annotations=false'));
+    window.location.assign(section_export_path(pageInfo.sectionId) + (includeAnnotations ? '?annotations=true' : '?annotations=false'));
   } else {
-    window.location.assign(export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '' : '?annotations=false'));
+    window.location.assign(export_casebook_path(pageInfo.casebookId) + (includeAnnotations ? '?annotations=true' : '?annotations=false'));
   }
 }
 
@@ -42,19 +45,7 @@ function showExportModal (e) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      let resourceId = document.querySelector('main > header').dataset.resourceId;
-      let sectionId = document.querySelector('main > header').dataset.sectionId;
-      let casebookId = document.querySelector('main > header').dataset.casebookId;
-      let annotations = e.target.value;
-      
-      if (resourceId)  {
-        window.open(resource_export_path(resourceId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
-      } else if (sectionId)  {
-        window.open(section_export_path(sectionId) + (annotations  == "true" ? '?annotations=true' : '?annotations=false'));
-      } else {
-        window.open(export_casebook_path(casebookId) + (annotations == "true" ? '?annotations=true' : '?annotations=false'));
-      }
-
+      downloadFile(e.target.value);
       document.querySelector('button.close').click()
     }
   });
