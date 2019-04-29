@@ -25,27 +25,41 @@ class ExportSystemTest < ApplicationSystemTestCase
     page.driver.browser.download_path = DEFAULT_DOWNLOAD_DIR
   end
 
-  scenario 'exporting a casebook to .docx', js:true do
-    export_test casebook_path(content_nodes(:public_casebook)), 'Word', 'test_export_casebook.docx'
+  scenario 'exporting a casebook to .docx without annotations', js:true do
+    export_test casebook_path(content_nodes(:public_casebook)), 'Word', 'test_export_casebook.docx', false
   end
-  scenario 'exporting a section to .docx', js:true do
-    export_test  section_path(content_nodes(:public_casebook), content_nodes(:public_casebook_section_1)), 'Word', 'test_export_section.docx'
+  scenario 'exporting a section to .docx without annotations', js:true do
+    export_test  section_path(content_nodes(:public_casebook), content_nodes(:public_casebook_section_1)), 'Word', 'test_export_section.docx', false
   end
-  scenario 'exporting a section to .docx', js:true do
-    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:'public_casebook_section_1_1')), 'Word', 'test_export_section_2.docx'
+  scenario 'exporting a resource to .docx without annotations', js:true do
+    export_test  resource_path(content_nodes(:public_casebook), content_nodes(:public_casebook_section_1_1)), 'Word', 'test_export_resource.docx', false
+  end
+  scenario 'exporting a casebook to .docx with annotations', js:true do
+    export_test casebook_path(content_nodes(:public_annotated_casebook)), 'Word', 'test_export_casebook_annotated.docx', true
+  end
+  scenario 'exporting a section to .docx with annotations', js:true do
+    export_test section_path(content_nodes(:public_annotated_casebook), content_nodes(:public_annotated_casebook_section_1)), 'Word', 'test_export_section_annotated.docx', true
+  end
+  scenario 'exporting a resource to .docx with annotations', js:true do
+    export_test resource_path(content_nodes(:public_annotated_casebook), content_nodes(:public_annotated_casebook_section_1_1)), 'Word', 'test_export_resource_annotated.docx', true
   end
 
-  def export_test path, format, file
+  def export_test path, format, file, include_annotations
     sign_in user = users(:verified_student)
     visit path
-    click_link 'Export'
 
-    downloaded_path = Timeout::timeout(15) do
+    if include_annotations
+      click_link 'Export'
+      click_button 'Without annotations'
+    else
+      click_link 'Export'
+    end
+    downloaded_path = Timeout::timeout(30) do
       while Dir.empty?(@download_dir) or File.extname(Dir[@download_dir + '/*'].first).include? 'download' do
         # Wait for the file to download
       end
       files = Dir[@download_dir + '/*']
-      assert_equal files.length, 1
+      assert_equal 1, files.length
       files.first
     end
 
