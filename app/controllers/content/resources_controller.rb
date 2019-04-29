@@ -19,7 +19,7 @@ class Content::ResourcesController < Content::NodeController
   end
 
   def edit
-    # editing resource details 
+    # editing resource details
     if @casebook.public
       return redirect_to details_casebook_path(@casebook)
     end
@@ -57,7 +57,7 @@ class Content::ResourcesController < Content::NodeController
     end
 
     Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
   end
 
   def update
@@ -90,8 +90,9 @@ class Content::ResourcesController < Content::NodeController
     params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :content])
   end
 
-  def export_filename format
-    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  def export_filename format, annotations=false
+    suffix = annotations ? '_annotated' : ''
+    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def page_title
