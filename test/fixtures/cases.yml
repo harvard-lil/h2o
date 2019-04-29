@@ -16,6 +16,15 @@ public_case_2:
   content: This is the body of case 2.
   public: true
 
+public_case_3:
+  name_abbreviation: District Case 3
+  name: Case of the District Number 3
+  decision_date: 1999-01-10
+  opinions: {"majority": "Judge Person"}
+  case_court: district_jurisdiction
+  content: This is the body of case 3.
+  public: true
+
 public_case_to_annotate:
   name_abbreviation: District Case 2
   name: Case of the District Number 2
@@ -28,7 +37,21 @@ public_case_to_annotate:
     replaced: content to replace;
     linked: content to link;
     noted: content to note;
-    commented: content to comment;
+    highlighted2: second highlight content;
+  public: true
+
+public_case_to_annotate2:
+  name_abbreviation: Annotated District Case 2
+  name: Case of the District Number 2
+  decision_date: 1999-01-10
+  opinions: {"majority": "Judge Person the Second"}
+  case_court: district_jurisdiction
+  content: >
+    highlighted: content to highlight;
+    elided: content to elide;
+    replaced: content to replace;
+    linked: content to link;
+    noted: content to note;
     highlighted2: second highlight content;
   public: true
 
