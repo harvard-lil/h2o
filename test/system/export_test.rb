@@ -54,8 +54,8 @@ class ExportSystemTest < ApplicationSystemTestCase
     else
       click_link 'Export'
     end
-    downloaded_path = Timeout::timeout(30) do
-      while Dir.empty?(@download_dir) or File.extname(Dir[@download_dir + '/*'].first).include? 'download' do
+    downloaded_path = Timeout::timeout(15) do
+      while Dir.empty?(@download_dir) or Dir[@download_dir + '/*'].any? { |file| File.extname(file).include? 'download'} do
         # Wait for the file to download
       end
       files = Dir[@download_dir + '/*']
