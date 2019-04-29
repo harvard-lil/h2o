@@ -55,6 +55,38 @@ class ExportSystemTest < ApplicationSystemTestCase
     export_test resource_path(content_nodes(:public_annotated_casebook), content_nodes(:public_annotated_casebook_section_1_1)), 'Word', 'test_export_annotated_resource_with_annotations.docx', true, true
   end
 
+  describe 'export modal appears' do
+    before do
+      @casebook = content_nodes(:public_annotated_casebook)
+      @section = content_nodes(:public_annotated_casebook_section_1)
+      @resource = content_nodes(:public_annotated_casebook_section_1_1)
+    end
+
+    scenario 'casebook view', js: true do
+      visit casebook_path @casebook
+      assert_link "Export"
+      click_link "Export"
+      assert_button "With annotations"
+      assert_button "Without annotations"
+    end
+
+    scenario 'section view', js: true do
+      visit section_path @casebook, @section
+      assert_link "Export"
+      click_link "Export"
+      assert_button "With annotations"
+      assert_button "Without annotations" 
+    end
+
+    scenario 'resource view', js: true do
+      visit resource_path @casebook, @resource
+      assert_link "Export"
+      click_link "Export"
+      assert_button "With annotations"
+      assert_button "Without annotations"
+    end
+  end
+
   def export_test path, format, file, has_annotations=false, include_annotations=false
     sign_in user = users(:verified_student)
     visit path
