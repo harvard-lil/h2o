@@ -31,6 +31,8 @@ export default {
     }
   },
   created() {
+    // footnotes register their state, by ID, in vuex
+    // so that dependent links can expand their partner's annotations
     this.$store.commit(
       'footnotes_ui/register',
       {id: this.id,
@@ -38,6 +40,4 @@ export default {
     );
   }
 }
-// I need to have the footnotes register their state, by ID, in vuex
-// so that dependent links can expand their partner's annotations
 </script>

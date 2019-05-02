@@ -52,8 +52,9 @@ export default {
   render(h) {
     return h("DIV",
              {class: "case-text"},
-             this.sections.reduce(transformToTuplesWithOffsets(0), [])
-             .map((tuple) => tupleToVNode(this.$store, h)(tuple)));
+             this.sections
+               .reduce(transformToTuplesWithOffsets(0), [])
+               .map((tuple) => tupleToVNode(h, this.$store.state.annotations.all)(tuple)));
   }
 };
 </script>
