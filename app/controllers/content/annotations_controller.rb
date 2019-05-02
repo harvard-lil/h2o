@@ -7,8 +7,19 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
+    lengths = @resource.paragraph_nodes.reduce([]) {
+      |lens, node| lens << (lens[lens.length - 1] || 0) + node.text.length
+    }
     respond_to do |format|
-      format.json { render json: @resource.annotations }
+      format.json {
+        render json: @resource.annotations.as_json.map { |a|
+          ["start", "end"].each { |s|
+            a["#{s}_offset"] += lengths[a["#{s}_paragraph"]]
+            a.delete("#{s}_paragraph")
+          }
+          a
+        }
+      }
     end
   end
 

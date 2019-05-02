@@ -1,5 +1,7 @@
 import { spy } from 'sinon';
 
+import { cloneDeep } from 'lodash';
+
 import { parseHTML,
          createText } from '../test_helpers';
 import { getLength } from 'libs/html_helpers';
@@ -8,9 +10,31 @@ import { isFootnoteLink,
          splitTextAt,
          sequentialInlineNodesWithinRange,
          tupleToVNode,
-         filterAndSplitNodeList } from 'libs/resource_node_parsing';
+         filterAndSplitNodeList,
+         annotationBreakpoints } from 'libs/resource_node_parsing';
+
+import Vuex from 'vuex';
+import annotations from "store/modules/annotations";
+import { createLocalVue } from '@vue/test-utils';
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 const stringifyTuple = t => [t[0].outerHTML || t[0].textContent, t[1], t[2]];
+
+const DEFAULT_ANNOTATION = Object.freeze({
+  "id": 1,
+  "resource_id": 1,
+  "start_offset": 0,
+  "end_offset": Number.MAX_SAFE_INTEGER,
+  "kind": "highlight",
+  "content": null
+});
+
+let store;
+
+beforeEach(() => {
+  store = new Vuex.Store(cloneDeep({modules: {annotations}}));
+});
 
 describe('isFootnoteLink', () => {
   it('returns true when passed a link element with a hash as well as the same origin and path as the current location', () => {
@@ -108,12 +132,12 @@ describe('sequentialInlineNodesWithinRange', () => {
 describe('tupleToVNode', () => {
   it('returns a string when passed a Text node, which Vue will convert to a VNode on its own', () => {
     const s = 'foobar';
-    expect(tupleToVNode(null, 0)([createText(s), 0, s.length])).toEqual(s);
+    expect(tupleToVNode()([createText(s), 0, s.length])).toEqual(s);
   });
 
   it('returns the VNode untouched when passed a VNode', () => {
     const mockVNode = {};
-    expect(tupleToVNode(null, 0)([mockVNode, 0, 0])).toBe(mockVNode);
+    expect(tupleToVNode()([mockVNode, 0, 0])).toBe(mockVNode);
   });
 
   it('returns a VNode, of the same tag type, when passed an HTMLElement', () => {
@@ -123,7 +147,7 @@ describe('tupleToVNode', () => {
     const el = parseHTML(`<${tag} id="${id}">${child}</${tag}>`);
     const mockVueCreateElement = spy((tagName, data, children) => {});
 
-    tupleToVNode(mockVueCreateElement, 0)([el, 0, getLength(el)]);
+    tupleToVNode(store, mockVueCreateElement)([el, 0, getLength(el)]);
 
     const [tagName, data, children] = mockVueCreateElement.args[0];
     expect(tagName).toBe(tag);
@@ -135,17 +159,40 @@ describe('tupleToVNode', () => {
     const el = parseHTML(`<a href="${location.href}#foo">bar</a>`);
     const mockVueCreateElement = spy((tag, data, children) => {});
 
-    tupleToVNode(mockVueCreateElement, 0)([el, 0, getLength(el)]);
+    tupleToVNode(store, mockVueCreateElement)([el, 0, getLength(el)]);
 
     const [tagName] = mockVueCreateElement.args[0];
     expect(tagName).toBe('footnote-link');
   });
 });
 
+describe('annotationBreakpoints', () => {
+  test('collects both starting and ending offsets', () => {
+    store.commit('annotations/append', [
+      {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5}
+    ]);
+    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5]);
+  });
+
+  test('removes duplicate breakpoints from the set', () => {
+    store.commit('annotations/append', [
+      {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5},
+      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 10}]);
+    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5, 10]);
+  });
+
+  test('sorts breakpoints lowest to highest', () => {
+    store.commit('annotations/append', [
+      {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 10},
+      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 7}]);
+    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5, 7, 10]);
+  });
+});
+
 describe('filterAndSplitNodeList', () => {
   it('returns an array of tuples', () => {
     const node = parseHTML('<div>Foo <em>bar</em> fizz</div>');
-    const tuples = filterAndSplitNodeList(node.childNodes, 0, 0, getLength(node));
+    const tuples = filterAndSplitNodeList(store, node.childNodes, 0, getLength(node));
     expect(tuples.map(stringifyTuple)).toEqual([
       ['Foo ', 0, 4],
       ['<em>bar</em>', 4, 7],
@@ -155,7 +202,7 @@ describe('filterAndSplitNodeList', () => {
 
   it('filters out nodes that aren\'t text or layout elements', () => {
     const node = parseHTML('<div>Foo <!-- comment --><script>let noop;</script><style>.noop {}</style><em>bar</em></div>');
-    const tuples = filterAndSplitNodeList(node.childNodes, 0, 0, getLength(node));
+    const tuples = filterAndSplitNodeList(store, node.childNodes, 0, getLength(node));
     expect(tuples.map(stringifyTuple)).toEqual([
       ['Foo ', 0, 4],
       ['<em>bar</em>', 4, 7]
