@@ -63,14 +63,12 @@ export default {
 .footnote {
   a {
     float: left;
-    width: 20px;
-    text-align: center;
-    font-weight: 600;
-    border-bottom: 0;
+    margin-top: -8px;
+    font-size: 16px;
   }
 
   p, blockquote {
-    margin-left: 2em;
+    margin-left: 13px; 
   }
 }
 .footnotemark {
