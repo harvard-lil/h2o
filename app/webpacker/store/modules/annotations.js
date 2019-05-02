@@ -18,7 +18,6 @@ const getters = {
     ),
 
   // Annotations that entirely span (or exceed) the provided offsets.
-  // Used when inserting annotations at breakpoints
   getSpanningOffsets: state => (start, end) =>
     state.all.filter(
       obj => obj.start_offset <= start && obj.end_offset >= end
@@ -26,7 +25,6 @@ const getters = {
 
    // Annotations whose start or end points fall WITHIN
   // (i.e. not on the edges) the start and end bounds.
-  // Used for finding where to split Text nodes.
   getWithinOffsets: state => (start, end) =>
     state.all.filter(
       obj => obj.start_offset > start || obj.end_offset < end
