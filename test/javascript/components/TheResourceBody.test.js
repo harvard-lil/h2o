@@ -2,6 +2,9 @@ import util from 'util';
 
 import { parseHTML,
          removeVueScopedCSSAttributes } from '../test_helpers';
+
+import { cloneDeep } from 'lodash';
+
 import { mount,
          createLocalVue } from '@vue/test-utils';
 
@@ -19,8 +22,6 @@ localVue.use(Vuex);
 const DEFAULT_ANNOTATION = Object.freeze({
   "id": 1,
   "resource_id": 1,
-  "start_paragraph": 0,
-  "end_paragraph": Number.MAX_SAFE_INTEGER,
   "start_offset": 0,
   "end_offset": Number.MAX_SAFE_INTEGER,
   "kind": "highlight",
@@ -31,15 +32,12 @@ describe('TheResourceBody', () => {
   let store;
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = new Vuex.Store(cloneDeep({
       modules: {annotations,
                 annotations_ui,
                 footnotes_ui,
                 resources_ui}
-    });
-
-    // Reset the store because right now cloneDeep isn't working
-    store.state.annotations.all.map(a => store.commit('annotations/destroy', a));
+    }));
   });
 
   [['wraps text in an annotation when the annotation entirely spans the text',
@@ -92,8 +90,7 @@ describe('TheResourceBody', () => {
   it('preserves whitespace when annotation contains only whitespace', () => {
     store.commit('annotations/append', [{...DEFAULT_ANNOTATION, start_paragraph: 1, end_paragraph: 1, start_offset: 3, end_offset: 4}]);
     const wrapper = mount(TheResourceBody, {store, localVue, propsData: {
-      index: 1,
-      el: parseHTML('<div>foo bar</div>')
+      resource: {content: '<div>foo bar</div>'}
     }});
     expect(parseHTML(wrapper.find(`.selected-text`).html()).textContent).toEqual(' ');
   });

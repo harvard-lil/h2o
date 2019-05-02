@@ -1,5 +1,5 @@
 import { isText,
-         getClosestElement} from "./html_helpers";
+         getClosestElement } from "./html_helpers";
 
 // Find the start and end paragraph and offset for a selection
 export function offsetsForRanges(ranges) {
@@ -9,11 +9,14 @@ export function offsetsForRanges(ranges) {
     return null;
   }
 
+  const resourceBody = document.querySelector(".case-text");
+
   return ["start", "end"].reduce((m, s, i) => {
     const container = ranges[i][`${s}Container`];
-    const p = getClosestElement(container).closest('[data-index]');
+    let p = getClosestElement(container);
+    while(p.parentElement != resourceBody) { p = p.parentElement; }
     return {...m,
-            [`${s}_paragraph`]: p.dataset.index,
+            [`${s}_paragraph`]: Array.from(resourceBody.children).indexOf(p),
             [`${s}_offset`]: offsetInParagraph(p, container, ranges[i][`${s}Offset`])};
   }, {});
 }
