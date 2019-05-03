@@ -2,7 +2,7 @@
 <div id="the-annotator"
      data-exclude-from-offset-calcs="true">
   <SideMenu v-if="offsets"
-            :style="{top: offset}">
+            :style="{top: topDistance}">
     <li>
       <a id="create-highlight"
          @click="input($event, 'highlight')">Highlight</a>
@@ -37,11 +37,11 @@
 </template>
 
 <script>
-import { isText } from "../libs/html_helpers.js";
+import { isText,
+         getClosestElement } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-import { offsetsForRanges } from "../libs/placement";
 
 import SideMenu from "./SideMenu";
 import Modal from "./Modal";
@@ -66,7 +66,7 @@ export default {
     }
   },
   computed: {
-    offset() {
+    topDistance() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
       const targetRect = this.ranges[1].getBoundingClientRect();
@@ -77,12 +77,39 @@ export default {
     resourceId() {
       return document.querySelector("header.casebook").dataset.resourceId
     },
+    hasValidRanges() {
+      return this.ranges &&
+        !this.ranges[0].collapsed &&
+        // Ensure that the selection is within the case-text wrapper
+      getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
+    },
+    resourceBody() {
+      return document.querySelector(".case-text");
+    },
     offsets() {
-      return offsetsForRanges(this.ranges);
+      return !this.hasValidRanges ? null :
+        {start_offset: this.offsetInBody(this.ranges[0].startContainer,
+                                         this.ranges[0].startOffset),
+         end_offset: this.offsetInBody(this.ranges[1].endContainer,
+                                       this.ranges[1].endOffset)};
     },
   },
   methods: {
     ...mapActions(["create"]),
+
+    offsetInBody(targetNode, offset) {
+      const walker = document.createTreeWalker(
+        this.resourceBody,
+        NodeFilter.SHOW_TEXT,
+        {acceptNode: (node) => !node.parentNode.closest("[data-exclude-from-offset-calcs='true']")}
+      );
+      for (let node = walker.nextNode();
+           (isText(targetNode) && node !== targetNode) || !targetNode.contains(node);
+           node = walker.nextNode()) {
+        offset += node.length;
+      }
+      return offset;
+    },
 
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
