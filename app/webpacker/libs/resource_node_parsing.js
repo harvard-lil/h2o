@@ -59,10 +59,10 @@ export const splitTextAt = (breakpoints, [node, start, end]) =>
       return tuples.concat([[node, breakpoint, prevEnd]]);
     }, [[node, start, end]]);
 
-const annotateAndConvertToVNodes = (h, annotations, tuples, enclosingAnnotationIds) =>
+const annotateAndConvertToVNodes = (h, annotations, tuples) =>
       tuples
-      .reduce(insertAnnotations(h, annotations, enclosingAnnotationIds), [])
-      .map(tupleToVNode(h, annotations, enclosingAnnotationIds));
+      .reduce(insertAnnotations(h, annotations), [])
+      .map(tupleToVNode(h, annotations));
 
 // Find nodes that are within a range of offsets, stopping at the first
 // block level element found. Allows us to greedily group nodes into
@@ -78,7 +78,7 @@ export const sequentialInlineNodesWithinRange = (tuples, start, end) => {
 // eagerly grabbing tuples that fall within its range.
 // This is the logic that allows annotations to wrap around
 // existing elements on the page.
-const groupIntoAnnotation = (h, annotations, tuples, enclosingAnnotationIds) =>
+const groupIntoAnnotation = (h, annotations, tuples) =>
   (prevTuple, annotation) => {
     // Figure out how far to reach forward for elements to group into this annotation.
     // get the forward elements that fall within our range
@@ -100,13 +100,14 @@ const groupIntoAnnotation = (h, annotations, tuples, enclosingAnnotationIds) =>
               {key: `${annotation.id}/${props.startOffset}-${props.endOffset}`,
                props: {...props,
                        annotation: annotation}},
-              annotateAndConvertToVNodes(h, annotations, childTuples, enclosingAnnotationIds.concat([annotation.id]))),
+              // remove this annotation from the set so the children don't duplicate it in their renders
+              annotateAndConvertToVNodes(h, annotations.filter(a => a != annotation), childTuples)),
             props.startOffset,
             props.endOffset];
   };
 
 // Loop through the tuples and add annotations when found
-const insertAnnotations = (h, annotations, enclosingAnnotationIds) =>
+const insertAnnotations = (h, annotations) =>
   (modifiedTuples, tuple, idx, orgTuples) => {
     let [node, start, end] = tuple;
     let [prevNode, prevStart, prevEnd] = last(modifiedTuples) ||
@@ -132,13 +133,11 @@ const insertAnnotations = (h, annotations, enclosingAnnotationIds) =>
           .filter(obj => obj.start_offset <= start && obj.end_offset >= end)
         // longest to shortest
           .sort((a, b) => b.end_offset - a.end_offset)
-        // Remove any annotations that have already been rendered upstream
-          .filter(a => !enclosingAnnotationIds.includes(a.id))
         // We only want the first annotation, for now, but keeping
         // it as an array conveniently allows reduce to
         // return the normal tuple as a default if no annotations exist
           .slice(0, 1)
-          .reduce(groupIntoAnnotation(h, annotations, orgTuples, enclosingAnnotationIds), tuple)]);
+          .reduce(groupIntoAnnotation(h, annotations, orgTuples), tuple)]);
     }
   };
 
@@ -171,7 +170,7 @@ export const filterAndSplitNodeList = (annotations, nodeList, start, end) => {
 
 // Vue component children arrays must contain either VNodes or
 // Strings (which get converted to VNodes automatically)
-export const tupleToVNode = (h, annotations, enclosingAnnotationIds = []) =>
+export const tupleToVNode = (h, annotations) =>
   ([node, start, end]) => {
     if(isText(node)) {
       return node.textContent;
@@ -183,12 +182,12 @@ export const tupleToVNode = (h, annotations, enclosingAnnotationIds = []) =>
 
       let tag = getTagName(node),
           data = {attrs: attrs},
-          children = annotateAndConvertToVNodes(h, annotations, filterAndSplitNodeList(annotations, node.childNodes, start, end), enclosingAnnotationIds);
-      switch(tag) {
-      case "footnote-link":
-        data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
-        break;
-      }
+          children = annotateAndConvertToVNodes(h, annotations, filterAndSplitNodeList(annotations, node.childNodes, start, end));
+      // switch(tag) {
+      // case "footnote-link":
+      //   data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
+      //   break;
+      // }
       return h(tag, data, children);
     } else {
       return node;
