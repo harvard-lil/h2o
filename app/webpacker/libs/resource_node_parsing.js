@@ -46,9 +46,7 @@ export const transformToTuplesWithOffsets = (parentStart) =>
 export const splitTextAt = (breakpoints, [node, start, end]) =>
   breakpoints
     // remove any offsets that fall on or outside of the Text node
-    .filter(breakpoint =>
-            breakpoint > start &&
-            breakpoint < end)
+    .filter(breakpoint => breakpoint > start && breakpoint < end)
     // split the Text node; splitText() mutates the existing node
     // in our array, truncating it, and returns a new node with
     // the remaining text
@@ -183,11 +181,12 @@ export const tupleToVNode = (h, annotations) =>
       let tag = getTagName(node),
           data = {attrs: attrs},
           children = annotateAndConvertToVNodes(h, annotations, filterAndSplitNodeList(annotations, node.childNodes, start, end));
-      // switch(tag) {
-      // case "footnote-link":
-      //   data.props = {enclosingAnnotationIds: enclosingAnnotationIds};
-      //   break;
-      // }
+      switch(tag) {
+      case "footnote-link":
+        data.props = {startOffset: start,
+                      endOffset: end};
+        break;
+      }
       return h(tag, data, children);
     } else {
       return node;
