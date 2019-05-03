@@ -10,7 +10,7 @@ const { mapActions } = createNamespacedHelpers('annotations_ui');
 export default {
   props: {
     enclosingAnnotationIds: {type: Array,
-                             default: []}
+                             default: (() =>[])}
   },
   computed: {
     id() {
