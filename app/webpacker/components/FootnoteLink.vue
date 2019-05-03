@@ -9,8 +9,10 @@ const { mapActions } = createNamespacedHelpers('annotations_ui');
 
 export default {
   props: {
-    enclosingAnnotationIds: {type: Array,
-                             default: (() =>[])}
+    startOffset: {type: Number,
+                  required: true},
+    endOffset: {type: Number,
+                required: true}
   },
   computed: {
     id() {
@@ -18,6 +20,9 @@ export default {
     },
     siblingId() {
       return (this.$attrs.href || "").slice(1);
+    },
+    enclosingAnnotationIds() {
+      return this.$store.getters['annotations/getWithinOffsets'](this.startOffset, this.endOffset);
     },
     relatedAnnotationIds() {
       return this.$store.getters['footnotes_ui/getById'](this.siblingId) || [];
