@@ -7,8 +7,8 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
-    lengths = @resource.paragraph_nodes.reduce([]) {
-      |lens, node| lens << (lens[lens.length - 1] || 0) + node.text.length
+    lengths = @resource.paragraph_nodes.reduce([0]) {
+      |lens, node| lens << lens[lens.length - 1] + node.text.length
     }
     respond_to do |format|
       format.json {
