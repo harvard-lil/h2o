@@ -52,5 +52,5 @@ RUN yarn install --frozen-lockfile
 
 # Less important packages; can move up in this file if desired
 RUN apt-get update \
-    && apt-get install -y nano
+    && apt-get install -y nano \
     && apt-get install -y wdiff
