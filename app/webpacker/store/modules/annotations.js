@@ -17,6 +17,11 @@ const getters = {
       obj => obj.id === id
     ),
 
+  getStartingAtOrAfter: state => (offset) =>
+	state.all.filter(
+	  obj => obj.start_offset >= offset
+	),
+
   // Annotations that entirely span (or exceed) the provided offsets.
   getSpanningOffsets: state => (start, end) =>
     state.all.filter(
