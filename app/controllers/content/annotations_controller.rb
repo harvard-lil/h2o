@@ -8,7 +8,7 @@ class Content::AnnotationsController < ApplicationController
 
   def index
     lengths = @resource.paragraph_nodes.reduce([0]) {
-      |lens, node| lens << lens[lens.length - 1] + node.text.length
+      |lens, node| lens << lens[lens.length - 1] + node.text.gsub("\r\n", "\n").length
     }
     respond_to do |format|
       format.json {
