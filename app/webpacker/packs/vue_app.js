@@ -14,7 +14,7 @@ import TheResource from "../components/TheResource";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
-    { path: '/casebooks/:id/resources/:resource_id/', component: TheResourceBody}
+    { path: '/casebooks/:id/resources/:resource_id/', component: TheResource }
   ];
 
   const router = new VueRouter({
