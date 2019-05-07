@@ -13,12 +13,6 @@ import { isFootnoteLink,
          filterAndSplitNodeList,
          annotationBreakpoints } from 'libs/resource_node_parsing';
 
-import Vuex from 'vuex';
-import annotations from "store/modules/annotations";
-import { createLocalVue } from '@vue/test-utils';
-const localVue = createLocalVue();
-localVue.use(Vuex);
-
 const stringifyTuple = t => [t[0].outerHTML || t[0].textContent, t[1], t[2]];
 
 const DEFAULT_ANNOTATION = Object.freeze({
@@ -28,12 +22,6 @@ const DEFAULT_ANNOTATION = Object.freeze({
   "end_offset": Number.MAX_SAFE_INTEGER,
   "kind": "highlight",
   "content": null
-});
-
-let store;
-
-beforeEach(() => {
-  store = new Vuex.Store(cloneDeep({modules: {annotations}}));
 });
 
 describe('isFootnoteLink', () => {
@@ -147,7 +135,7 @@ describe('tupleToVNode', () => {
     const el = parseHTML(`<${tag} id="${id}">${child}</${tag}>`);
     const mockVueCreateElement = spy((tagName, data, children) => {});
 
-    tupleToVNode(store, mockVueCreateElement)([el, 0, getLength(el)]);
+    tupleToVNode(mockVueCreateElement, [])([el, 0, getLength(el)]);
 
     const [tagName, data, children] = mockVueCreateElement.args[0];
     expect(tagName).toBe(tag);
@@ -159,7 +147,7 @@ describe('tupleToVNode', () => {
     const el = parseHTML(`<a href="${location.href}#foo">bar</a>`);
     const mockVueCreateElement = spy((tag, data, children) => {});
 
-    tupleToVNode(store, mockVueCreateElement)([el, 0, getLength(el)]);
+    tupleToVNode(mockVueCreateElement, [])([el, 0, getLength(el)]);
 
     const [tagName] = mockVueCreateElement.args[0];
     expect(tagName).toBe('footnote-link');
@@ -168,31 +156,31 @@ describe('tupleToVNode', () => {
 
 describe('annotationBreakpoints', () => {
   test('collects both starting and ending offsets', () => {
-    store.commit('annotations/append', [
-      {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5}
-    ]);
-    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5]);
+    const annotations = [{...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5}];
+    expect(annotationBreakpoints(annotations, 0, 100)).toEqual([1, 5]);
   });
 
   test('removes duplicate breakpoints from the set', () => {
-    store.commit('annotations/append', [
+    const annotations = [
       {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5},
-      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 10}]);
-    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5, 10]);
+      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 10}
+    ];
+    expect(annotationBreakpoints(annotations, 0, 100)).toEqual([1, 5, 10]);
   });
 
   test('sorts breakpoints lowest to highest', () => {
-    store.commit('annotations/append', [
+    const annotations = [
       {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 10},
-      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 7}]);
-    expect(annotationBreakpoints(store, 0, 100)).toEqual([1, 5, 7, 10]);
+      {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 7}
+    ];
+    expect(annotationBreakpoints(annotations, 0, 100)).toEqual([1, 5, 7, 10]);
   });
 });
 
 describe('filterAndSplitNodeList', () => {
   it('returns an array of tuples', () => {
     const node = parseHTML('<div>Foo <em>bar</em> fizz</div>');
-    const tuples = filterAndSplitNodeList(store, node.childNodes, 0, getLength(node));
+    const tuples = filterAndSplitNodeList([], node.childNodes, 0, getLength(node));
     expect(tuples.map(stringifyTuple)).toEqual([
       ['Foo ', 0, 4],
       ['<em>bar</em>', 4, 7],
@@ -202,7 +190,7 @@ describe('filterAndSplitNodeList', () => {
 
   it('filters out nodes that aren\'t text or layout elements', () => {
     const node = parseHTML('<div>Foo <!-- comment --><script>let noop;</script><style>.noop {}</style><em>bar</em></div>');
-    const tuples = filterAndSplitNodeList(store, node.childNodes, 0, getLength(node));
+    const tuples = filterAndSplitNodeList([], node.childNodes, 0, getLength(node));
     expect(tuples.map(stringifyTuple)).toEqual([
       ['Foo ', 0, 4],
       ['<em>bar</em>', 4, 7]
