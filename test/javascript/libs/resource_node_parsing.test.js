@@ -1,7 +1,5 @@
 import { spy } from 'sinon';
 
-import { cloneDeep } from 'lodash';
-
 import { parseHTML,
          createText } from '../test_helpers';
 import { getLength } from 'libs/html_helpers';
