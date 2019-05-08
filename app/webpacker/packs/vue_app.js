@@ -14,7 +14,7 @@ import TheResourceBody from "../components/TheResourceBody";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
-    { path: '/casebooks/:id/resources/:resource_id/annotate', component: TheResourceBody}
+    { path: '/casebooks/:id/resources/:resource_id/', component: TheResourceBody}
   ];
 
   const router = new VueRouter({
