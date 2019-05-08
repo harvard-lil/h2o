@@ -7,14 +7,12 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
-    lengths = @resource.paragraph_nodes.reduce([0]) {
-      |lens, node| lens << lens[lens.length - 1] + node.text.gsub("\r\n", "\n").length
-    }
+    breakpoints = AnnotationConverter.paragraph_nodes_to_breakpoints(@resource.paragraph_nodes)
     respond_to do |format|
       format.json {
         render json: @resource.annotations.as_json.map { |a|
           ["start", "end"].each { |s|
-            a["#{s}_offset"] += lengths[a["#{s}_paragraph"]]
+            a["#{s}_offset"] += breakpoints[a["#{s}_paragraph"]]
             a.delete("#{s}_paragraph")
           }
           a
@@ -25,8 +23,10 @@ class Content::AnnotationsController < ApplicationController
 
   def create
     params = annotation_params
+               .merge(resource: @resource)
+               .merge(AnnotationConverter.global_offsets_to_paragraph_offsets(@resource.paragraph_nodes, annotation_params[:start_offset], annotation_params[:end_offset]))
 
-    annotation = Content::Annotation.create! params.merge(resource: @resource)
+    annotation = Content::Annotation.create! params
     respond_to do |format|
       format.json { render json: annotation.to_api_response }
       format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
