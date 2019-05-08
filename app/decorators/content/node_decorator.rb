@@ -40,6 +40,8 @@ class Content::NodeDecorator < Draper::Decorator
         return [:export]
       elsif current_user.present?
         return clone_and_export
+      else
+        return []
       end
     elsif preview_mode
       if casebook.draft_mode_of_published_casebook?
@@ -48,12 +50,14 @@ class Content::NodeDecorator < Draper::Decorator
       else
         return [:publish_casebook, :edit_casebook] << clone_and_export
       end
-    else draft_mode
+    elsif draft_mode
       if casebook.draft_mode_of_published_casebook?
         return [:publish_changes_to_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
       else
         return [:publish_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :clone_casebook, :export]
       end
+    else
+      return []
     end
   end
 
@@ -84,6 +88,8 @@ class Content::NodeDecorator < Draper::Decorator
     elsif draft_mode
       # cannot published from section
       return [:preview_section, :add_resource, :add_section, :save_section, :cancel_section, :export]
+    else
+      return []
     end
   end
 
@@ -104,6 +110,8 @@ class Content::NodeDecorator < Draper::Decorator
         return [:export]
       elsif current_user.present?
         return clone_and_export
+      else
+        return []
       end
     elsif preview_mode
       if casebook.draft_mode_of_published_casebook?
@@ -115,6 +123,8 @@ class Content::NodeDecorator < Draper::Decorator
       return [:preview_resource, :export]
     elsif draft_mode
       return [:preview_resource, :save_resource, :cancel_resource, :export]
+    else
+      return []
     end
   end
 
