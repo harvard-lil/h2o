@@ -79,7 +79,7 @@ export default {
     @include sans-serif($regular, 12px, 12px);
     
     position: absolute;
-    left: -110px;
+    left: -105px;
     width: 100px;
     text-align: right;
 
