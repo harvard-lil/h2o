@@ -10,9 +10,28 @@
       <a @click="destroy(annotation)">Remove note</a>
     </li>
   </AnnotationHandle>
-  <template v-if="isHeadAndNotNew">
-    <span class="note-content-wrapper"
-          data-exclude-from-offset-calcs="true">
+  <span v-if="isHead"
+        class="note-content-wrapper"
+        data-exclude-from-offset-calcs="true">
+    <form v-if="isNew"
+          @submit.prevent="submit('note', content)"
+          ref="noteForm"
+          class="form note-content"
+          :id= "`${annotation.id}`"
+          @focusout="focusOut">
+      <textarea ref="noteInput"
+                id="note-textarea"
+                required="true"
+                placeholder="Note text..."
+                @keydown.enter.prevent="$refs.noteSubmitButton.click"
+                v-model="content"></textarea>
+      <input ref="noteSubmitButton"
+             type="submit"
+             value="Save"
+             id="save-note"
+             class="button">
+    </form>
+    <template v-else>
       <a class="note-icon"
          :href="`#${annotation.id}-head`"
          @click.prevent="handleClick">
@@ -23,29 +42,8 @@
             class="note-content">
         {{annotation.content}}
       </span>
-    </span>
-  </template>
-  <template v-if="isHeadAndNew">
-    <div class="new-note-content-wrapper">
-      <form @submit.prevent="submit('note', content)"
-            ref="noteForm"
-            class="form note-content"
-            :id= "`${annotation.id}`"
-            @focusout="focusOut">
-        <textarea ref="noteInput"
-                  id="note-textarea"
-                  required="true"
-                  placeholder="Note text..."
-                  @keydown.enter.prevent="$refs.noteSubmitButton.click"
-                  v-model="content"></textarea>
-        <input ref="noteSubmitButton"
-               type="submit"
-               value="Save"
-               id="save-note"
-               class="button">
-      </form>
-    </div>
-  </template>
+    </template>
+  </span>
 </span>
 </template>
 
@@ -106,14 +104,12 @@ a:active {
   text-decoration: $light-blue underline !important;
 }
 
-.new-note-content-wrapper {
-  @include square(0);
-  position: absolute;
-  right: 0;
-  overflow: visible;
+.note-content-wrapper {
   display: block;
-  margin-left: 10px;
-
+  width: 0;
+  position: absolute;
+  right: -50px;
+  top: 45px;
   /* counteract styles that might come from the enclosing section */
   font-style: normal;
   text-align: left;
@@ -130,35 +126,21 @@ a:active {
     margin-top: 1em;
   }
 }
-
-.note-content-wrapper {
-  @include square(0);
-  position: absolute;
-  right: 0;
-  overflow: visible;
-  display: block;
-  margin: 33px 10px 0 0;
-
-  /* counteract styles that might come from the enclosing section */
-  font-style: normal;
-  text-align: left;
-}
 .note-icon {
   position: absolute;
-  transform: translate(218%, -116%) rotate(180deg);
+  transform: rotate(180deg);
   z-index: 1;
   font-size: 17px;
   color: $black;
+  top: -20px;
+  left: 10px;
 }
 .note-content {
   @include sans-serif($regular, 14px, 20px);
   display: block;
   width: 200px;
   padding: 10px;
-  position: relative;
-  top: -20px;
   background-color: $white;
   color: $black;
-  margin: 0 20px;
 }
 </style>
