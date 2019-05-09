@@ -32,7 +32,7 @@ export default {
             .filter(a => a.id)
             // order by offset
             .sort((a, b) => a.start_offset - b.start_offset);
-      return -15 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState))));
+      return -55 - (30 * (Math.max(0, onSameLine.indexOf(this.uiState))));
     }
   },
   methods: {
