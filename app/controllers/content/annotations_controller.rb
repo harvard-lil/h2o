@@ -8,16 +8,23 @@ class Content::AnnotationsController < ApplicationController
 
   def index
     breakpoints = AnnotationConverter.paragraph_nodes_to_breakpoints(@resource.paragraph_nodes)
-    respond_to do |format|
-      format.json {
-        render json: @resource.annotations.as_json.map { |a|
-          ["start", "end"].each { |s|
-            a["#{s}_offset"] += breakpoints[a["#{s}_paragraph"]]
-            a.delete("#{s}_paragraph")
-          }
-          a
-        }
+
+    json = @resource.annotations.as_json
+      .select { |a|
+      # remove annotations that have impossible placements
+      ["start", "end"].reduce(true) { |m, s|
+        m && @resource.paragraph_nodes[a["#{s}_paragraph"]].text.length >= a["#{s}_offset"]
       }
+    }.map { |a|
+      # convert from paragraph to doc level offsets
+      a.merge(
+        ["start", "end"].map { |s|
+          ["#{s}_offset", a["#{s}_offset"] + breakpoints[a["#{s}_paragraph"]]]
+        }.to_h).except("start_paragraph", "end_paragraph")
+    }
+
+    respond_to do |format|
+      format.json { render json: json }
     end
   end
 
