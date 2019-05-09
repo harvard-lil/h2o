@@ -60,21 +60,6 @@ export default {
   vertical-align: super;
   margin: 4px;
 }
-.footnote {
-  a {
-    float: left;
-    margin-top: -8px;
-    font-size: 16px;
-  }
-
-  p, blockquote {
-    margin-left: 13px; 
-  }
-}
-.footnotemark {
-  font-size: 16px;
-  vertical-align: super;
-}
 /*
  * These use /deep/ to influence HighlightAnnotation.
  * They must live here so that they can change in relation to
