@@ -25,7 +25,7 @@ const unwrap = (el) => {
 };
 
 export const unwrapUndesiredTags = (doc) => {
-  doc.querySelectorAll("article, section").forEach(unwrap);
+  doc.querySelectorAll("article, section, aside").forEach(unwrap);
   return doc;
 };
 
