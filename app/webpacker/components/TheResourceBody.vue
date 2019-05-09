@@ -72,23 +72,27 @@ export default {
     }
   }
   /* section numbers */
-  > *::before {
-    counter-increment: index;
-    content: counter(index);
-    user-select: none;
-    @include sans-serif($regular, 12px, 12px);
-    
-    position: absolute;
-    left: -105px;
-    width: 100px;
-    text-align: right;
+  > * {
+    position: relative;
+    &::before {
+      counter-increment: index;
+      content: counter(index);
+      user-select: none;
+      @include sans-serif($regular, 12px, 12px);
 
-    line-height: 30px;
-    color: $light-blue;
+      /* these two styles, coupled with position: relative on the parent,
+       enable page numbers to be hidden when the full paragraph is elided */
+      overflow: hidden;
+      height: 100%;
 
-    /* add background to conceal the numbering of sections below this
-    one that have been elided */
-    background: $light-gray;
+      position: absolute;
+      width: 100px;
+      left: -145px;
+      text-align: right;
+
+      line-height: 30px;
+      color: $light-blue;
+    }
   }
 }
 .page-number {
