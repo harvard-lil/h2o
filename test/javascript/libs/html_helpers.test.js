@@ -5,7 +5,11 @@ import { isBlockLevel,
          isText,
          getLength,
          getAttrsMap,
-         getClosestElement } from 'libs/html_helpers';
+         getClosestElement,
+         getOffsetWithinParent } from 'libs/html_helpers';
+
+import { mount } from '@vue/test-utils';
+import TheAnnotator from 'components/TheAnnotator';
 
 describe('isBlockLevel', () => {
   it('returns true when passed a block element', () => {
@@ -74,5 +78,26 @@ describe('getClosestElement', () => {
   it('returns the parent element when passed a text node', () => {
     const el = parseHTML('<div>Hello world</div>');
     expect(getClosestElement(el.childNodes[0])).toBe(el);
+  });
+});
+
+describe('getOffsetWithinELement', () => {
+  test('returns the correct offset for a child text node within its parent', () => {
+    const parent = parseHTML('<div>foo <span>bar <em>buzz</em></span> fizz</div>');
+    const child = parent.childNodes[2];
+    expect(getOffsetWithinParent(parent, child)).toBe(12);
+  });
+
+  test('returns the correct offset for a child element node within its parent', () => {
+    const parent = parseHTML('<div>foo <span>bar <em>buzz</em></span> fizz</div>');
+    const child = parent.querySelector('em');
+    expect(getOffsetWithinParent(parent, child)).toBe(8);
+  });
+
+  test('filters nodes for offset calculation based on optional parameter', () => {
+    const parent = parseHTML('<div>foo <span>bar <em data-exclude-from-offset-calcs="true">buzz</em></span> fizz</div>');
+    const child = parent.childNodes[2];
+    const wrapper = mount(TheAnnotator);
+    expect(getOffsetWithinParent(parent, child, wrapper.vm.contributesToOffsets)).toBe(8);
   });
 });

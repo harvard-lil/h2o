@@ -37,9 +37,8 @@
 </template>
 
 <script>
-import { isText,
-         getLength,
-         getClosestElement } from "../libs/html_helpers.js";
+import { getClosestElement,
+         getOffsetWithinParent } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
@@ -82,45 +81,32 @@ export default {
       return this.ranges &&
         !this.ranges[0].collapsed &&
         // Ensure that the selection is within the case-text wrapper
-      getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
-    },
-    resourceBody() {
-      return document.querySelector(".case-text");
+        getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
     },
     offsets() {
-      return !this.hasValidRanges ? null :
-        {start_offset: this.offsetInBody(this.ranges[0].startContainer,
-                                         this.ranges[0].startOffset),
-         end_offset: this.offsetInBody(this.ranges[1].endContainer,
-                                       this.ranges[1].endOffset)};
+      if(!this.hasValidRanges) return;
+
+      const el = document.querySelector(".case-text");
+      return ["start", "end"].map((s, i) =>
+        this.ranges[i][`${s}Offset`] + getOffsetWithinParent(el, this.ranges[i][`${s}Container`], this.contributesToOffsets)
+      );
     },
   },
   methods: {
     ...mapActions(["create"]),
 
-    offsetInBody(targetNode, offset) {
-      const walker = document.createTreeWalker(
-        this.resourceBody,
-        NodeFilter.SHOW_TEXT,
-        {acceptNode: (node) => !node.parentNode.closest("[data-exclude-from-offset-calcs='true']")}
-      );
-      for (let node = walker.nextNode();
-           (isText(targetNode) && node !== targetNode) || !targetNode.contains(node);
-           node = walker.nextNode()) {
-        offset += getLength(node);
-      }
-      return offset;
-    },
-
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
 
+    // returns false if the text or element node the child of an
+    // element with a special attribute
+    contributesToOffsets(node) {
+      return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
+    },
+
     selectionchange(e, sel) {
-      if(sel &&
-         (isText(sel.anchorNode)
-          ? sel.anchorNode.parentNode
-          : sel.anchorNode).closest("[data-exclude-from-offset-calcs='true']")) return;
+      if(sel && !this.contributesToOffsets(sel.anchorNode)) return;
 
       this.ranges =
         (!sel || sel.type != "Range")
@@ -142,7 +128,8 @@ export default {
         content: this.content,
         kind: kind,
         resource_id: this.resourceId,
-        ...this.offsets
+        start_offset: this.offsets[0],
+        end_offset: this.offsets[1]
       }]);
 
       this.close();
