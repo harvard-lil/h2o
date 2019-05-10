@@ -38,6 +38,7 @@
 
 <script>
 import { isText,
+         getLength,
          getClosestElement } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
@@ -106,7 +107,7 @@ export default {
       for (let node = walker.nextNode();
            (isText(targetNode) && node !== targetNode) || !targetNode.contains(node);
            node = walker.nextNode()) {
-        offset += node.length;
+        offset += getLength(node);
       }
       return offset;
     },
