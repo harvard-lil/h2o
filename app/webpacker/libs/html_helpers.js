@@ -192,3 +192,15 @@ export const getAttrsMap = (el) => {
 
 export const getClosestElement = (node) =>
   isText(node) ? node.parentNode : node;
+
+export const getOffsetWithinParent = (parent, child, accept) => {
+  const filter = accept ? {acceptNode: (node) => accept(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT} : null;
+  const walker = document.createTreeWalker(parent, NodeFilter.SHOW_TEXT, filter);
+  let offset = 0;
+  for (let node = walker.nextNode();
+       (isText(child) && node !== child) || !child.contains(node);
+       node = walker.nextNode()) {
+    offset += getLength(node);
+  }
+  return offset;
+};
