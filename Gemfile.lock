@@ -171,8 +171,6 @@ GEM
       activemodel-serializers-xml (~> 1.0)
       activesupport (~> 5.0)
       request_store (~> 1.0)
-    dropbox-sdk (1.6.5)
-      json
     erubi (1.8.0)
     erubis (2.7.0)
     exception_handler (0.7.7.0)
@@ -540,7 +538,6 @@ DEPENDENCIES
   delayed_job_active_record
   dotenv-rails
   draper
-  dropbox-sdk
   erubi
   erubis
   exception_handler
