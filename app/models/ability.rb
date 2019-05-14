@@ -23,7 +23,7 @@ class Ability
       can :destroy, :user_sessions
       can [:verification_request, :verify], :users
       can :new, [Content::Casebook, TextBlock, Default]
-      can :create, [:casebooks, :text_blocks, :defaults, :bulk_uploads]
+      can :create, [:casebooks, :text_blocks, :defaults]
       can :copy, Default, :public => true
       can :copy, Default, :user_id => user.id
 
@@ -35,11 +35,6 @@ class Ability
       can :destroy, Response do |response|
         response.resource.user == user
       end
-
-      # Dropbox related permissions
-      can :new, BulkUpload
-      can :create, :dropbox_sessions
-      can :show, BulkUpload, :user_id => user.id
 
       # superadmins can edit/update any id, not just their own
       if !user.has_role? :superadmin
