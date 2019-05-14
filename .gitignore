@@ -3,7 +3,6 @@
 .rvmrc
 *.swp
 bin/phantomjs
-config/dropbox_access_token/*
 config/initializers/h2o_secret.rb
 config/newrelic.yml
 config/skylight.yml
