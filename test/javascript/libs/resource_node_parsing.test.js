@@ -153,12 +153,12 @@ describe('tupleToVNode', () => {
 });
 
 describe('annotationBreakpoints', () => {
-  test('collects both starting and ending offsets', () => {
+  it('collects both starting and ending offsets', () => {
     const annotations = [{...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5}];
     expect(annotationBreakpoints(annotations, 0, 100)).toEqual([1, 5]);
   });
 
-  test('removes duplicate breakpoints from the set', () => {
+  it('removes duplicate breakpoints from the set', () => {
     const annotations = [
       {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 5},
       {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 10}
@@ -166,7 +166,7 @@ describe('annotationBreakpoints', () => {
     expect(annotationBreakpoints(annotations, 0, 100)).toEqual([1, 5, 10]);
   });
 
-  test('sorts breakpoints lowest to highest', () => {
+  it('sorts breakpoints lowest to highest', () => {
     const annotations = [
       {...DEFAULT_ANNOTATION, start_offset: 1, end_offset: 10},
       {...DEFAULT_ANNOTATION, start_offset: 5, end_offset: 7}
