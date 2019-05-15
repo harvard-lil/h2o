@@ -32,7 +32,7 @@ environment.plugins.append('Provide', new webpack.ProvidePlugin({
 //environment.config.stats = 'errors-only'
 
 // Don't redirect anywhere on 404: return 404!
-environment.config.merge({devServer: {historyApiFallback: false}})
+environment.config.merge({devServer: {historyApiFallback: false}});
 
 environment.loaders.append('vue', vue);
 environment.plugins.append('vue-loader', new VueLoaderPlugin());

@@ -13,13 +13,19 @@
     "element-closest": "^2.0.2",
     "es6-string-html-template": "^1.0.2",
     "es6-symbol": "^3.1.1",
+    "expect": "^24.8.0",
     "form-serialize": "^0.7.1",
     "glob": "^7.1.1",
     "jquery": ">=3.0.0",
     "jquery-ui": "^1.12.1",
     "jquery-ujs": "^1.2.2",
     "js-yaml": "^3.12.1",
+    "jsdom": "^15.1.0",
+    "jsdom-global": "^3.0.2",
+    "lodash": "^4.17.11",
     "lodash.throttle": "^4.1.1",
+    "mocha": "^6.1.4",
+    "mocha-webpack": "^2.0.0-beta.0",
     "moment": "^2.24.0",
     "morphdom": "^2.3.2",
     "path-complete-extname": "^0.1.0",
@@ -35,15 +41,11 @@
   },
   "devDependencies": {
     "@vue/test-utils": "^1.0.0-beta.29",
-    "babel-jest": "^24.1.0",
-    "jest": "^24.1.0",
-    "jest-serializer-vue": "^2.0.2",
-    "vue-jest": "^4.0.0-beta.2",
+    "sinon": "^7.3.2",
     "webpack-dev-server": "^3.3.1",
     "xhr-mock": "^2.3.1"
   },
   "scripts": {
-    "test": "jest --config test/javascript/jest.conf.js",
-    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
+    "test": "mocha-webpack --webpack-config config/webpack/test.js --require test/javascript/mocha_setup.js test/javascript/**/*.test.js"
   }
 }

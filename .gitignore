@@ -42,3 +42,4 @@ package-lock.json
 .dir-locals.el
 *.dump
 .byebug_history
+.tmp

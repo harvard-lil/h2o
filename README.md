@@ -154,7 +154,7 @@ ImageMagick and a global installation of the "Garamond" font are required. On Ma
 
 ### Test Commands
 
-1. `yarn test` runs javascript tests using [Jest](https://jestjs.io)
+1. `yarn test` runs javascript tests using [Mocha](https://mochajs.org)
 1. `bin/rails test` runs non-system Rails tests.
 1. `bin/rails test:system` runs system Rails tests, including tests requiring JS.
 1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on.
