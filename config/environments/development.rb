@@ -70,5 +70,7 @@ H2o::Application.configure do
     config.web_console.whitelisted_ips = '192.168.0.0/16'
   end
 
+  config.pandoc_export = ENV["RAILS_PANDOC_EXPORT"] == 'true'
+
   config.exception_handler['dev'] = ENV['RAILS_RENDER_ERROR_PAGES']
 end

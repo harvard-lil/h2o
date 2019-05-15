@@ -57,4 +57,7 @@ H2o::Application.configure do
   config.consider_all_requests_local = false
   config.action_dispatch.show_exceptions = true
   config.exception_handler['dev'] = true
+
+  config.pandoc_export = ENV["RAILS_PANDOC_EXPORT"] == 'true'
+
 end
