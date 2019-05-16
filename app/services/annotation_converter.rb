@@ -2,7 +2,7 @@ class AnnotationConverter
   class << self
     def paragraph_nodes_to_breakpoints(paragraph_nodes)
       paragraph_nodes.reduce([0]) {
-        |lens, node| lens << lens[lens.length - 1] + node.text.gsub("\r\n", "\n").length
+        |lens, node| lens << lens[lens.length - 1] + self.get_node_length(node)
       }
     end
 
@@ -17,6 +17,10 @@ class AnnotationConverter
         start_offset: start_offset - breakpoints[start_paragraph],
         end_offset: end_offset - breakpoints[end_paragraph]
       }
+    end
+
+    def get_node_length(node)
+      node.text.gsub("\r\n", "\n").length
     end
   end
 end
