@@ -82,22 +82,42 @@ describe('TheResourceBody', () => {
     '<div>%s</div>', ['foo '],
     [DEFAULT_ANNOTATION]]
 
-  ].forEach(([testTitle, sectionHTML, toSelect, annotations]) => {
-    it(testTitle, () => {
+  ].forEach(([title, html, selection, annotations]) => {
+    it(title, () => {
       store.commit('annotations/append', annotations);
       const wrapper = mount(TheResourceBody, {store, localVue, propsData: {
-        resource: {content: util.format(sectionHTML, ...toSelect)}
+        resource: {content: util.format(html, ...selection)}
       }});
-      expect(wrapper.findAll(`.selected-text`).wrappers.map(w => removeVueScopedCSSAttributes(parseHTML(w.html())).innerHTML)).toEqual(toSelect);
+      expect(wrapper.findAll(`.selected-text`).wrappers.map(w => removeVueScopedCSSAttributes(parseHTML(w.html())).innerHTML)).toEqual(selection);
     });
   });
 
-  it('preserves whitespace when annotation contains only whitespace', () => {
-    store.commit('annotations/append', [{...DEFAULT_ANNOTATION, start_offset: 3, end_offset: 4}]);
-    const wrapper = mount(TheResourceBody, {store, localVue, propsData: {
-      resource: {content: '<div>foo bar</div>'}
-    }});
-    expect(parseHTML(wrapper.find(`.selected-text`).html()).textContent).toEqual(' ');
+  [['preserves whitespace when an annotation contains only a space',
+    '<div>foo bar</div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 3, end_offset: 4}]],
+
+   ['preserves whitespace when an annotation ends in a space',
+    '<div><span>foo</span> bar</div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 4}]],
+
+   ['preserves whitespace when an annotation contains only a newline and whitespace',
+    '<div>\n     </div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 6}]],
+
+   ['preserves whitespace after an opening tag',
+    '<div>\n   <span>foo</span> bar</div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 11}]],
+
+   ['preserves whitespace between tags',
+    '<div><p>fizz</p>\n                <p>foo bar, <span>(a)</span>\n                  <span>(2)</span>\n                </p>\n                <p>buzz</p></div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 31, end_offset: 54}]]
+
+  ].forEach(([title, html, annotations]) => {
+    it(title, () => {
+      store.commit('annotations/append', annotations);
+      const wrapper = mount(TheResourceBody, {store, localVue, propsData: {resource: {content: html}}});
+      expect(parseHTML(wrapper.html()).textContent).toEqual(parseHTML(html).textContent);
+    });
   });
 
   it('when rendering, orders annotations first by length (longer wraps shorter)');
