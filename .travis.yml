@@ -20,7 +20,7 @@ rvm:
   - 2.4.1
 before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
-  - sudo apt-get update && sudo apt-get -y install google-chrome-stable=74.0.3729.131-1
+  - sudo apt-get update && sudo apt-get -y install google-chrome-stable=74.0.3729.157-1
   - nvm install 6
   - npm install yarn -g && yarn install --frozen-lockfile --check-files
   - wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
