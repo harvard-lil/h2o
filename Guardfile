@@ -33,5 +33,6 @@ end
 guard :rails, port: (ENV['RAILS_PORT'] || 8000), host: '0.0.0.0', server: :puma do
   watch('Gemfile.lock')
   watch(%r{^(config|lib)/.*})
+  ignore %r{^lib/tasks/.*}
   ignore %r{^lib/locales/(.*)\.yml}
 end
