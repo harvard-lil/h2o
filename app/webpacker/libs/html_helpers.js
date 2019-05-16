@@ -37,7 +37,7 @@ export const emptyULToP = (doc) => {
 };
 
 export const wrapBareInlineTags = (doc) => {
-  doc.querySelectorAll("body > :not(p):not(center):not(blockquote):not(article)")
+  doc.querySelectorAll(`body > :not(center${BLOCK_LEVEL_ELEMENTS.join('):not(')})`)
       .forEach(el => wrap(el, "p"));
   return doc;
 };
