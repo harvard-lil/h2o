@@ -1,5 +1,41 @@
 module HTMLHelpers
   class << self
+    BLOCK_LEVEL_ELEMENTS = [
+      "ADDRESS",
+      "ARTICLE",
+      "ASIDE",
+      "BLOCKQUOTE",
+      "DETAILS",
+      "DIALOG",
+      "DD",
+      "DIV",
+      "DL",
+      "DT",
+      "FIELDSET",
+      "FIGCAPTION",
+      "FIGURE",
+      "FOOTER",
+      "FORM",
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5",
+      "H6",
+      "HEADER",
+      "HGROUP",
+      "HR",
+      "LI",
+      "MAIN",
+      "NAV",
+      "OL",
+      "P",
+      "PRE",
+      "SECTION",
+      "TABLE",
+      "UL"
+    ]
+
     def strip_comments! html
       html.xpath('//comment()').remove
       html
@@ -21,7 +57,7 @@ module HTMLHelpers
 
     def wrap_bare_inline_tags! html
       html
-        .xpath('//body/*[not(self::p|self::center|self::blockquote|self::article)]')
+        .xpath("//body/*[not(self::center|self::#{BLOCK_LEVEL_ELEMENTS.map(&:downcase).join('|self::')})]")
         .each { |inline_element| inline_element.replace "<p>#{inline_element.to_html}</p>" }
       html
     end

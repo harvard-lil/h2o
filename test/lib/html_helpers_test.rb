@@ -36,6 +36,13 @@ class HTMLHelpersTest < ActiveSupport::TestCase
       after = html_doc_str "<p>#{tag}</p>"
       assert_equal after, HTMLHelpers.wrap_bare_inline_tags!(Nokogiri::HTML(before)).to_s
     end
+
+    it "should not wrap block level elements" do
+      tag = "<div>foobar</div>"
+      before = html_doc_str tag
+      after = html_doc_str tag
+      assert_equal after, HTMLHelpers.wrap_bare_inline_tags!(Nokogiri::HTML(before)).to_s
+    end
   end
 
   describe HTMLHelpers, :get_body_nodes_without_whitespace_text do
