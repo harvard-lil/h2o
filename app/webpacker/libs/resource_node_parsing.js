@@ -23,12 +23,6 @@ const getTagName = (node) =>
 const last = (array) =>
   array[array.length - 1];
 
-// Vue's logic for what gets stripped:
-// https://github.com/vuejs/vue/blob/875d6ac46c5ae8bca1490d493c75783e6e255635/packages/vue-template-compiler/build.js#L2660-L2680
-const vueWouldStrip = (node) =>
-  node.parentElement.tagName != "PRE" &&
-  !node.textContent.trim();
-
 ///////////////////////////
 // Munging and filtering //
 ///////////////////////////
@@ -85,7 +79,11 @@ const groupIntoAnnotation = (h, annotations, tuples) =>
     // Vue will strip single spaces between annotation tags, unless
     // within a PRE tag, so we create a special component to handle this
     // Details: https://github.com/harvard-lil/h2o/issues/680
-    if(childTuples.length === 1 && vueWouldStrip(childTuples[0][0])){
+    // Vue's logic for what gets stripped:
+    // https://github.com/vuejs/vue/blob/e90cc60c4718a69e2c919275a999b7370141f3bf/dist/vue.esm.js#L2541-L2543
+    if(childTuples.length === 1 &&
+       isText(childTuples[0][0]) &&
+       childTuples[0][0].textContent === ' '){
       const pre = document.createElement("PRE");
       pre.setAttribute("is", "space-preserver");
       childTuples[0][0] = pre;
