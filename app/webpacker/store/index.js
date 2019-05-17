@@ -1,4 +1,4 @@
-import Vue from "vue/dist/vue.esm";
+import Vue from "vue";
 import Vuex from "vuex";
 import annotations from "./modules/annotations";
 import annotations_ui from "./modules/annotations_ui";
