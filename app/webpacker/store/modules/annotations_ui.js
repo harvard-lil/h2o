@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm';
+import Vue from 'vue';
 
 const COLLAPSIBLE_KINDS = ["elide", "replace"];
 export const Y_FIDELITY = 5;

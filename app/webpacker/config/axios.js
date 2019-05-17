@@ -1,4 +1,4 @@
-import Vue from "vue/dist/vue.esm";
+import Vue from "vue";
 import AxiosConfig from "axios";
 
 let headers = {"Content-Type": "application/json",
