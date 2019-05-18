@@ -64,7 +64,8 @@ export default {
     },
 
     resourceId() {
-      return document.querySelector("header.casebook").dataset.resourceId;
+      const header = document.querySelector("header.casebook");
+      return header ? header.dataset.resourceId : null;
     }
   },
   methods: {
