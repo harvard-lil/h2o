@@ -1,21 +1,23 @@
-require 'tempfile'
-
 module Vue
   module SSR
+    JS_SOURCE_PATH = Rails.root.join('lib','vue','ssr.js')
+    JS_SETUP_PATH = Rails.root.join('test','javascript','mocha_setup.js')
+    WEBPACK_CONFIG_PATH = Rails.root.join('config','webpack','test.js')
+
     def self.compile
-      file = Tempfile.new('vue_ssr.js')
-      begin
-        `NODE_ENV=production bin/webpack --entry #{Rails.root.join('lib','vue','ssr.js')} --output #{file.path} --config #{Rails.root.join('config','webpack','test.js')} --target node --mode production`
-        yield file.path
-      ensure
-        file.close
-        file.unlink
+      digest = Digest::MD5.hexdigest(File.read(JS_SOURCE_PATH))
+      js_build_path = Rails.root.join('tmp',"lib-vue-ssr-#{digest}.js")
+
+      if !File.file?(js_build_path)
+        `NODE_ENV=production bin/webpack --entry #{JS_SOURCE_PATH} --output #{js_build_path} --config #{WEBPACK_CONFIG_PATH} --target node --mode production`
       end
+
+      yield js_build_path
     end
 
     def self.render content, annotations = []
       self.compile do |script|
-        node_cmd = "node -r #{Rails.root.join('test','javascript','mocha_setup.js')} #{script}"
+        node_cmd = "node -r #{JS_SETUP_PATH} #{script}"
         IO.popen(node_cmd, 'r+') do |io|
           io.write({content: content,
                     annotations: annotations}.to_json)
