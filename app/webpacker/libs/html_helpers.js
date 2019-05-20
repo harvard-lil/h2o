@@ -53,6 +53,7 @@ const LAYOUT_ELEMENTS = [
   "ADDRESS",
   "ARTICLE",
   "ASIDE",
+  "CENTER", // this is deprecated but appears quite a bit in case.law texts
   "FOOTER",
   "HEADER",
   "H1",
