@@ -109,7 +109,7 @@ class UserSystemTest < ApplicationSystemTestCase
         assert_content 'A password reset link has been sent'
 
         match = ActionMailer::Base.deliveries.last.body.match %r{(/password_resets/.+/edit)}
-        assert { match.present? }
+        assert match.present?
         visit match[1]
 
         fill_in 'Password', with: 'newestpassword'

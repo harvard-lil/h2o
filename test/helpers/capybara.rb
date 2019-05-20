@@ -16,7 +16,7 @@ module H2o::Test::Helpers::Capybara
       # Swallow routing errors, allowing offsite url asserts in Rack::Test
       logger.warn "A RoutingError was suppressed by `assert_links_to`: #{e.inspect}"
     end
-    assert { current_url == test_url }
+    assert current_url == test_url
   end
 
   def random_token
