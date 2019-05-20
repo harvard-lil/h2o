@@ -536,6 +536,7 @@ DEPENDENCIES
   deep_cloneable
   delayed_job
   delayed_job_active_record
+  diff-lcs
   dotenv-rails
   draper
   erubi
