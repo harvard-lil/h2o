@@ -36,18 +36,19 @@ namespace :annotations do
   desc 'Compare Ruby\'s Nokogiri text to what Vue returns'
   task(:compare_nokogiri_text_to_vue => :environment) do
     require 'diff/lcs'
+    limit = 500
     count = 0
     ids = []
-    Case.order(id: :desc).limit(500).each do |c|
+    Case.order(id: :desc).limit(limit).each do |c|
+      count += 1
       ruby_text = Content::Resource.new(resource: c).paragraph_nodes.text.gsub("\r\n", "\n")
       vue_text = Nokogiri::HTML(Vue::SSR.render(c.content)).text
       diff = Diff::LCS.diff(ruby_text, vue_text)
-      count += 1
-      if ruby_text != vue_text
-        ids << c.id
-        puts "\n\n*** Case #{c.id}, #{ids.length} of #{count}",
-          "***************",
-          DiffLCS.format(diff)
+      puts "\n\n*** Case #{c.id}, #{count} of #{limit}"
+      if diff.length > 0
+        puts "***************", DiffLCS.format(diff)
+      else
+        puts "No difference"
       end
     end
   end
