@@ -33,6 +33,25 @@ namespace :annotations do
     end
   end
 
+  desc 'Compare Ruby\'s Nokogiri text to what Vue returns'
+  task(:compare_nokogiri_text_to_vue => :environment) do
+    require 'diff/lcs'
+    count = 0
+    ids = []
+    Case.order(id: :desc).limit(500).each do |c|
+      ruby_text = Content::Resource.new(resource: c).paragraph_nodes.text.gsub("\r\n", "\n")
+      vue_text = Nokogiri::HTML(Vue::SSR.render(c.content)).text
+      diff = Diff::LCS.diff(ruby_text, vue_text)
+      count += 1
+      if ruby_text != vue_text
+        ids << c.id
+        puts "\n\n*** Case #{c.id}, #{ids.length} of #{count}",
+          "***************",
+          DiffLCS.format(diff)
+      end
+    end
+  end
+
   desc 'Find Cases Whose Annotation Structure May Change'
   task(:annotation_shifted => :environment) do
     old_unnest = lambda do |html|
