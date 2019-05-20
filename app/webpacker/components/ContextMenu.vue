@@ -69,27 +69,29 @@
 			addScrollEventListener () {
 				window.addEventListener('scroll', this.close);
 			},
-            onFocusout (e) {
-              if(e.relatedTarget != this.$el &&
-                 !this.$el.contains(e.relatedTarget)){
-                this.close(true);
-              }
-            },
-            /**
-             * Close the context menu.
-             *
-             * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
-             */
-            close (emit = true) {
-                // return;
-                this.top = null;
-                this.left = null;
-                this.data = null;
-                this.show = false;
-                if (emit) {
-                    this.$emit('close');
-                }
-            },
+      onFocusout (e) {
+        if(e.relatedTarget != this.$el &&
+           !this.$el.contains(e.relatedTarget)){
+            this.close(true);
+          }
+        },
+        /**
+         * Close the context menu.
+         *
+         * @param {boolean|Event} emit Used to prevent event being emitted twice from when menu is clicked and closed
+         */
+        close (emit = true) {
+          // return;
+          this.top = null;
+          this.left = null;
+          this.data = null;
+          this.show = false;
+          if (emit) {
+              this.$emit('close');
+          }
+
+          // call the revert element or get the id of the annotation hear and kill it 
+        },
 			/**
 			 * Close the menu if `closeOnClick` is set to true.
 			 */
@@ -146,7 +148,7 @@
 			 * @param {boolean} oldValue
 			 */
 			closeOnScroll (value, oldValue) {
-				if (value === oldValue) {
+        if (value === oldValue) {
 					return;
 				}
 				if (value) {
@@ -159,7 +161,7 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../styles/vars-and-mixins';
 
 .context-menu {
@@ -168,16 +170,13 @@
   padding: 0;
   position: fixed;
   z-index: 99999;
-  border: 1px solid $black;
   @include sans-serif($regular, 12px, 14px);
-  background-color: $white;
-  &:focus {
-    outline: none;
-  }
-  ul {
+  ul, form {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+    background-color: $white;
+    border: 1px solid $black;
   }
   li {
 	margin: 0;
@@ -187,6 +186,18 @@
 	&:hover {
       background-color: $highlight;
 	}
+  }
+  ul li {
+    padding: 0;
+  }
+  a {
+    display: block;
+  }
+  a, form {
+    padding: 10px 15px;
+  }
+  &:focus {
+    outline: none;
   }
 }
 </style>

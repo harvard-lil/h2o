@@ -3,7 +3,6 @@
 .rvmrc
 *.swp
 bin/phantomjs
-config/dropbox_access_token/*
 config/initializers/h2o_secret.rb
 config/newrelic.yml
 config/skylight.yml
@@ -35,6 +34,11 @@ guard-sunspot/
 .tern-port
 /public/packs
 /public/packs-test
-/node_modules
 yarn-debug.log*
 .yarn-integrity
+package-lock.json
+/yarn-error.log
+.dir-locals.el
+*.dump
+.byebug_history
+.tmp

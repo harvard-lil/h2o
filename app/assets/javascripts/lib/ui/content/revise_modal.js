@@ -1,27 +1,19 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
+import ModalComponent from 'lib/ui/modal';
 
 delegate(document, '.create-draft', 'click', showReviseModal);
 
-let modal = null;
-
 function showReviseModal (e) {
-  modal = new ReviseModal;
+  new ReviseModal('revise-modal', e.target, {});
+
+  e.currentTarget.activeElement.dataset.processing = "true" // override the component destroy events
 }
 
-class ReviseModal extends Component {
-  constructor () {
-    super({
-      id: 'revise-modal',
-      events: {}
-    });
-    document.body.appendChild(this.el);
-    this.render();
-  }
+class ReviseModal extends ModalComponent {
 
   template () {
-    return html`<div class="modal fade in" id="publish-modal" style="display: block">
+    return html`<div class="modal fade in" id="${this.id}" style="display: block" tabindex="-1" aria-labelledby="${this.id}-title">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">

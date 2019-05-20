@@ -2,6 +2,8 @@ const { environment } = require('@rails/webpacker');
 const webpack = require('webpack');
 const { resolve } = require("path");
 const vue = require('./loaders/vue');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+
 
 // alias assets dir to ~assets for SASS url() styles
 environment.config.merge({resolve: {alias: {assets: resolve("app", "assets")}}});
@@ -25,5 +27,13 @@ environment.plugins.append('Provide', new webpack.ProvidePlugin({
   jQuery: 'jquery'
 }));
 
+// Uncomment to suppress output except on error.
+// See https://github.com/harvard-lil/h2o/issues/743
+//environment.config.stats = 'errors-only'
+
+// Don't redirect anywhere on 404: return 404!
+environment.config.merge({devServer: {historyApiFallback: false}});
+
 environment.loaders.append('vue', vue);
+environment.plugins.append('vue-loader', new VueLoaderPlugin());
 module.exports = environment;

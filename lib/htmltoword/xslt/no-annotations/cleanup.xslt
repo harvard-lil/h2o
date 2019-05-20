@@ -11,10 +11,6 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <!-- Paragraphs elided by annotations -->
-  <xsl:template match="resource-body/*[@data-elided-annotation and not(descendant)]" />
-  <xsl:template match="resource-body/*[not(string())]" />
-
   <xsl:template match="head"/>
 
   <!-- Elements not supported -->

@@ -1,17 +1,32 @@
-import 'polyfills';
-import Vue from 'vue/dist/vue.esm';
+import Vue from "vue/dist/vue.esm";
+import VueRouter from 'vue-router';
+Vue.use(VueRouter);
+Vue.config.productionTip = process.env.NODE_ENV == "development";
 
-import store from '../store/index.js.erb';
-import '../config/axios';
+import store from "../store/index";
+import "../config/axios";
+import "../directives/selectionchange";
 
-import AnnotationHandle from "../components/AnnotationHandle";
+import contenteditableDirective from "vue-contenteditable-directive";
+Vue.use(contenteditableDirective);
 
-document.addEventListener('DOMContentLoaded', () => {
+import TheResourceBody from "../components/TheResourceBody";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const routes = [
+    { path: '/casebooks/:id/resources/:resource_id/', component: TheResourceBody}
+  ];
+
+  const router = new VueRouter({
+    routes
+  });
+
   const app = new Vue({
-    el: '#app',
+    el: "#app",
     store,
+    router,
     components: {
-      AnnotationHandle
+      TheResourceBody
     }
   });
 

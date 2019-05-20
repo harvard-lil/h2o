@@ -2,6 +2,7 @@ require 'net/http'
 require 'uri'
 
 class Content::CasebooksController < Content::NodeController
+  before_action :prevent_page_caching, only: [:export]
   before_action :set_editable, only: [:show, :index]
   before_action :require_user, only: [:clone]
 
@@ -49,7 +50,7 @@ class Content::CasebooksController < Content::NodeController
         flash[:error] = 'Updating published casebook failed. Admin has been notified'
         @casebook.update(public: false)
       end
-      
+
     elsif @casebook.draft_mode_of_published_casebook
       @casebook.create_revisions(content_params)
     end
@@ -58,6 +59,7 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def export
+    # does this need to be decorated?
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
     @include_annotations = (params["annotations"] == "true")
 
@@ -74,7 +76,7 @@ class Content::CasebooksController < Content::NodeController
     end
 
     Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
   end
 
   private
@@ -83,8 +85,9 @@ class Content::CasebooksController < Content::NodeController
     params[:content_casebook][:public]
   end
 
-  def export_filename format
-    helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  def export_filename format, annotations=false
+    suffix = annotations ? '_annotated' : ''
+    helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def set_editable

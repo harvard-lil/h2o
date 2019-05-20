@@ -3,18 +3,21 @@ require 'uri'
 
 class Content::AnnotationsController < ApplicationController
   before_action :find_annotation, only: [:destroy, :update]
-  before_action :find_resource, only: [:create, :destroy, :update]
+  before_action :find_resource, only: [:index, :create, :destroy, :update]
+  before_action :check_public, only: [:index]
+
+  def index
+    respond_to do |format|
+      format.json { render json: @resource.annotations }
+    end
+  end
 
   def create
     params = annotation_params
 
-    if params[:kind] == 'link'
-      params[:content] = UrlDomainFormatter.format(params[:content])
-    end
-
     annotation = Content::Annotation.create! params.merge(resource: @resource)
     respond_to do |format|
-      format.json { render json: {annotation_id: annotation.id}}
+      format.json { render json: annotation.to_api_response }
       format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
     end
   end
@@ -30,18 +33,34 @@ class Content::AnnotationsController < ApplicationController
       end
     end
     @annotation.destroy
-    redirect_to annotate_resource_path(@resource.casebook, @resource)
-  end
 
-  def update
-    @annotation.update_attributes annotation_params
     respond_to do |format|
       format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
       format.json { head :no_content }
     end
   end
 
+  def update
+    @annotation.update_attributes annotation_params
+    respond_to do |format|
+      format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
+      format.json { render json: @annotation.to_api_response }
+    end
+  end
+
   private
+
+  def check_public
+    @resource.casebook.public || check_authorized
+  end
+
+  def check_authorized
+    return if current_user && (@resource.casebook.has_collaborator?(current_user.id) ||
+                               current_user.superadmin?)
+    respond_to do |format|
+      format.json { head :forbidden }
+    end
+  end
 
   def new_annotation?
     @annotation.created_at > @annotation.resource.casebook.created_at + 5.seconds

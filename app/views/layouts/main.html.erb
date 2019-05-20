@@ -60,6 +60,7 @@
       <div class="modal-overlay"></div>
     <% if @include_vuejs %></div><% end %>
     <%= javascript_pack_tag "application" %>
+    <%= javascript_pack_tag "test" if Rails.env.test? %>
     <%= render 'layouts/analytics' %>
   </body>
 </html>

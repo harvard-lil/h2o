@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    image: postgres:9.5.15
+    volumes:
+      - db_data:/var/lib/postgresql/data:delegated
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: h2o:0.5
+    tty: true
+    command: bash
+    environment:
+    - DOCKERIZED=true
+    - DB_HOSTNAME=db
+    - DB_USERNAME=postgres
+    extra_hosts:
+    - "h2o-dev.local:127.0.0.1"
+    volumes:
+      # Use a named volume for node_modules so mounting `.` to `/h2o/` doesn't clobber it.
+      # I attempted customizing `--modules-folder` with `.yarnrc`, but didn't work in all contexts.
+      # This solution isn't great, but works for now.
+      - node_modules:/h2o/node_modules
+      - .:/h2o
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  node_modules:

@@ -1,23 +1,28 @@
 module H2o::Test::Helpers::Drivers
+
+  def self.download_path
+    Rails.root.join 'tmp/downloads'
+  end
+
   def self.included(base)
-    # Capybara.register_driver :poltergeist do |app|
-    # for inspector
-    Capybara.register_driver :poltergeist_debug do |app|
-      Capybara::Poltergeist::Driver.new app,
-        # inspector: true,
-        # debug: true,
-        timeout: 1.minute,
-        screen_size: [1280, 800],
-        window_size: [1280, 800],
-        js_errors: false,
-        url_whitelist: %w(://127.0.0.1:* ://localhost:*),
-        extensions: %w(polyfills.js rangy-1.3.0/rangy-core.js rangy-1.3.0/rangy-textrange.js drag-mock.min.js).map {|p| File.expand_path("phantomjs/#{p}", __dir__)}
-    end
     Capybara.default_max_wait_time = 10.seconds
     Capybara.save_path = Rails.root.join 'tmp/screenshots'
-    # javascript_driver = base.driven_by :poltergeist
-    # for inspector
-    javascript_driver = base.driven_by :poltergeist_debug
+
+    Capybara.register_driver :selenium_chrome_headless do |app|
+      Capybara::Selenium::Driver.load_selenium
+      browser_options = ::Selenium::WebDriver::Chrome::Options.new
+      browser_options.args << '--headless'
+      browser_options.args << '--disable-gpu'
+      if ENV['DOCKERIZED'].present?
+        # Sandbox cannot be used inside privileged Docker container
+        browser_options.args << '--no-sandbox'
+      end
+      Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options).tap do |driver|
+        driver.browser.download_path = download_path
+      end
+    end
+
+    javascript_driver = base.driven_by :selenium_chrome_headless
     static_driver = base.driven_by :rack_test
 
     base.setup do

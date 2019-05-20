@@ -15,48 +15,46 @@ class Content::Resource < Content::Child
       Nokogiri::HTML(resource.content) {|config| config.strict.noblanks})
   end
 
-  def annotated_paragraphs(editable: false, exporting: false, include_annotations: include_annotations)
+  def annotated_paragraphs
     nodes = paragraph_nodes
     #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
 
-    nodes.each_with_index do |p_node, p_idx|
-      p_node['data-p-idx'] = p_idx
-    end
-
-    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation|
+    annotations.order(:start_paragraph, :id).each do |annotation|
       if annotation.kind.in? %w(note link)
         export_footnote_index += 1
       end
 
-      if nodes[annotation.start_paragraph..annotation.end_paragraph].nil?
+      annotatedNodes = nodes[annotation.start_paragraph..annotation.end_paragraph]
+      if annotatedNodes.nil?
         Notifier.missing_annotations(self.users.pluck(:email_address, :attribution), self, annotation)
       else
-        nodes[annotation.start_paragraph..annotation.end_paragraph].each_with_index do |paragraph_node, paragraph_index|
-          ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index, editable: editable, exporting: exporting, include_annotations: include_annotations})
+        annotatedNodes.each_with_index do |paragraph_node, paragraph_index|
+          ApplyAnnotationToParagraphs.perform({annotation: annotation, paragraph_node: paragraph_node, paragraph_index: paragraph_index + annotation.start_paragraph, export_footnote_index: export_footnote_index})
         end
       end
     end
 
-    nodes
+    # remove any empty nodes, usually paragraphs that were fully elided in the prev step
+    nodes.filter(":not(:empty)")
   end
 
   def title
-    super || resource.title
+    super.present? ? super : resource.title
   end
 
   def footnote_annotations
     footnote_annotations = ""
     idx = 0
 
-    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each_with_index do |annotation, index|
+    annotations.all.sort_by{|annotation| annotation.start_paragraph}.each do |annotation|
       if annotation.kind.in? %w(note link)
         idx += 1
-        footnote_annotations += "#{("*" * (idx)) + annotation.content} "
+        footnote_annotations += "<span msword-style='FootnoteReference'>#{("*" * (idx))}</span>#{ApplicationController.helpers.send(:html_escape, annotation.content)} "
       end
     end
 
-    footnote_annotations
+    footnote_annotations.html_safe
   end
 
   def has_elisions?

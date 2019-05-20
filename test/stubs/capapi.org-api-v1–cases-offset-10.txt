@@ -15,12 +15,12 @@ cf-ray: 448db4cb491591c4-EWR
 
 {
     "count": 183149,
-    "next": "https://capapi.org/api/v1/cases/?jurisdiction=ill&limit=10&offset=20",
-    "previous": "https://capapi.org/api/v1/cases/?jurisdiction=ill&limit=10",
+    "next": "https://api.case.law/v1/cases/?jurisdiction=ill&limit=10&offset=20",
+    "previous": "https://api.case.law/v1/cases/?jurisdiction=ill&limit=10",
     "results": [
         {
             "id": 435779,
-            "url": "https://capapi.org/api/v1/cases/435779/",
+            "url": "https://api.case.law/v1/cases/435779/",
             "name": "Jehu Scott, Appellant, v. John Cromwell, Appellee",
             "name_abbreviation": "Scott v. Cromwell",
             "decision_date": "1820-07",
@@ -34,22 +34,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -59,7 +59,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435812,
-            "url": "https://capapi.org/api/v1/cases/435812/",
+            "url": "https://api.case.law/v1/cases/435812/",
             "name": "John Y. Sawyer, Plaintiff in Error, v. Benjamin Stephenson, Defendant in Error",
             "name_abbreviation": "Sawyer v. Stephenson",
             "decision_date": "1820-07",
@@ -73,22 +73,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -98,7 +98,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435558,
-            "url": "https://capapi.org/api/v1/cases/435558/",
+            "url": "https://api.case.law/v1/cases/435558/",
             "name": "George Naught, Plaintiff in Error, v. Hezekiah Oneal, Defendant in Error",
             "name_abbreviation": "Naught v. Oneal",
             "decision_date": "1820-12",
@@ -112,22 +112,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -137,7 +137,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435564,
-            "url": "https://capapi.org/api/v1/cases/435564/",
+            "url": "https://api.case.law/v1/cases/435564/",
             "name": "Joseph French, Appellant, v. John R. Creath, by George Creath, his next friend, Appellee",
             "name_abbreviation": "French v. Creath",
             "decision_date": "1820-12",
@@ -151,22 +151,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -176,7 +176,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435649,
-            "url": "https://capapi.org/api/v1/cases/435649/",
+            "url": "https://api.case.law/v1/cases/435649/",
             "name": "George Blair and Wife, Plaintiffs in Error, v. Henry Sharp, Defendant in Error",
             "name_abbreviation": "Blair v. Sharp",
             "decision_date": "1820-12",
@@ -190,22 +190,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -215,7 +215,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435754,
-            "url": "https://capapi.org/api/v1/cases/435754/",
+            "url": "https://api.case.law/v1/cases/435754/",
             "name": "George Brazzle and James Hawkins, Plaintiffs in Error, v. David Usher, Defendant in Error",
             "name_abbreviation": "Brazzle v. Usher",
             "decision_date": "1820-12",
@@ -229,22 +229,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -254,7 +254,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435800,
-            "url": "https://capapi.org/api/v1/cases/435800/",
+            "url": "https://api.case.law/v1/cases/435800/",
             "name": "John Thornton and others, Appellants, v. George Smiley and John Bradshaw, Appellees",
             "name_abbreviation": "Thornton v. Smiley",
             "decision_date": "1820-12",
@@ -268,22 +268,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -293,7 +293,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435806,
-            "url": "https://capapi.org/api/v1/cases/435806/",
+            "url": "https://api.case.law/v1/cases/435806/",
             "name": "Joseph Cornelius, Plaintiff in Error, v. John Boucher, Defendant in Error",
             "name_abbreviation": "Cornelius v. Boucher",
             "decision_date": "1820-12",
@@ -307,22 +307,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -332,7 +332,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435530,
-            "url": "https://capapi.org/api/v1/cases/435530/",
+            "url": "https://api.case.law/v1/cases/435530/",
             "name": "Isaac Clark, Appellant, v. Joseph Cornelius, Appellee",
             "name_abbreviation": "Clark v. Cornelius",
             "decision_date": "1822-12",
@@ -346,22 +346,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",
@@ -371,7 +371,7 @@ cf-ray: 448db4cb491591c4-EWR
         },
         {
             "id": 435536,
-            "url": "https://capapi.org/api/v1/cases/435536/",
+            "url": "https://api.case.law/v1/cases/435536/",
             "name": "James Mason, Appellant, v. Robert Wash, who sues for the City Bank of New York, Appellees",
             "name_abbreviation": "Mason v. Wash",
             "decision_date": "1822-12",
@@ -385,22 +385,22 @@ cf-ray: 448db4cb491591c4-EWR
                 }
             ],
             "volume": {
-                "url": "https://capapi.org/api/v1/volumes/32044057891608/",
+                "url": "https://api.case.law/v1/volumes/32044057891608/",
                 "volume_number": "1"
             },
             "reporter": {
-                "url": "https://capapi.org/api/v1/reporters/1058/",
+                "url": "https://api.case.law/v1/reporters/1058/",
                 "full_name": "Illinois Reports"
             },
             "court": {
-                "url": "https://capapi.org/api/v1/courts/ill-1/",
+                "url": "https://api.case.law/v1/courts/ill-1/",
                 "id": 8853,
                 "slug": "ill-1",
                 "name": "Illinois Supreme Court",
                 "name_abbreviation": "Ill."
             },
             "jurisdiction": {
-                "url": "https://capapi.org/api/v1/jurisdictions/ill/",
+                "url": "https://api.case.law/v1/jurisdictions/ill/",
                 "id": 29,
                 "slug": "ill",
                 "name": "Ill.",

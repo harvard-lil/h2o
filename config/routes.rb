@@ -7,13 +7,11 @@ H2o::Application.routes.draw do
 
   root 'base#landing'
 
-  resources :bulk_uploads, only: [:show, :new, :create]
   resources :case_courts, only: [:new, :create]
   resources :password_resets, only: [:new, :create, :edit, :update]
   resources :user_sessions, only: [:new, :create, :destroy, :index]
 
   get 'log_out' => 'user_sessions#destroy', as: :log_out
-  get '/dropbox_session' => 'dropbox_sessions#create', as: :dropbox_sessions
   get '/p/:id' => 'pages#show'
 
   get 'all_materials' => 'base#search', as: :search_all
@@ -75,7 +73,7 @@ H2o::Application.routes.draw do
 
     resources :resources, only: [] do
       get 'export'
-      resources :annotations, only: [:create, :destroy, :update]
+      resources :annotations
     end
 
     resources :sections, only: [] do
@@ -93,5 +91,4 @@ H2o::Application.routes.draw do
 
   get "/pages/*id" => 'pages#show', as: :page, format: false
 
-  get '*path', to: 'base#not_found'
 end

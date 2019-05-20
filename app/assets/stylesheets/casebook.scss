@@ -277,11 +277,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     margin: 24px 30px 30px 30px;
     @include sans-serif($regular, 18px, 31px);
   }
-  section.resource {
-    @include serif-text($regular, 18px, 31px);
-  }
 
-  section.headnote, section.resource {
+  section.headnote {
     h5 {
       font-size: 14px;
       margin: 30px 0px 15px 0px;
@@ -350,24 +347,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
   }
 
-  .resource {
+  /* TODO: this block is duplicated in TheResourceBody.vue; factor out at some point */
+  .link-resource {
+    position: relative;
+    margin-bottom: 24px;
     padding: 40px;
-    background-color: white;
-    @media (max-width: $screen-xs) {
-      h2 {
-        @include serif-text($bold, 19px, 34px);
-      }
-    }
-    p {
-      @include serif-text($regular, 19px, 34px);
-    }
-    strong {
-      @include sans-serif($bold, 18px, 40px);
-    }
-
-    .resource-center {
-      text-align: center;
-    }
+    background-color: $white;
   }
 
   .table-of-contents, .search-results {
@@ -414,7 +399,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     .listing {
       display: block;
       width: 100%;
-      padding: 12px 18px;
+      padding: 12px 16px;
       margin-top: 6px;
       border: 1px solid $black;
 
@@ -423,6 +408,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         flex-direction: column;
         align-items: left;
         background-color: $black;
+
+        @media (max-width: $screen-xs) {
+          flex-direction: row;
+        }
+
         .section-title {
           font-weight: $medium;
         }
@@ -433,13 +423,58 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       &.resource {
         background-color: $white;
-        display: flex;
-        flex-direction: column;
-        align-items: left;
+        display: grid;
+        grid-template-columns: auto 1fr 15%;
+
+        @media (max-width: $screen-xs) {
+          .resource-container {
+            margin: 0 9px;
+          }
+        }
+
+        .section-title {
+          display: flex;
+          align-items: center;
+        }
+
+        .case-section-title {
+          margin-bottom: 4px;
+        }
 
         .section-number, .section-title {
           color: $black;
-          margin-right: 10px;
+        }
+
+        .case-metadata-container {
+          display: flex;
+          align-items: center;
+
+          @media (max-width: $screen-xxs) {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .resource-case:empty {
+            display: none;
+          }
+
+          .resource-case {
+            margin-right: 9px;
+          }
+        }
+
+        .resource-type-container {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+
+          @media (max-width: $screen-xs) {
+            margin-right: -4px;
+
+            .resource-type {
+              padding: 2px 7px;
+            }
+          }
         }
       }
       &.empty {
@@ -467,18 +502,17 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         }
       }
       @media (min-width: $screen-xs) {
-        &.section, &.resource {
+        &.section {
           flex-direction: row;
           align-items: center;
         }
       }
 
       .section-number {
-        // @include monospace($regular, 11px, 12px);
-        // display: inline-block;
-        margin-right: 6px;
-        vertical-align: middle;
         font-size: 12px;
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
       }
       .section-title {
         @include sans-serif($bold, 14px, 14px);
@@ -486,29 +520,22 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
       .resource-type, .resource-case, .resource-date {
         @include sans-serif($light, 14px, 14px);
-        float: right;
         display: inline-block;
-        padding: 0 10px;
 
-        text-align: right;
+        text-align: left;
         color: $black;
       }
-      .resource-date {
-        width: 40px;
-        margin-right: 15px;
-      }
+
       .resource-type {
         border: 1px solid $light-blue;
         color: $light-blue;
-        width: 65px;
-        line-height: 14px;
-        vertical-align: middle;
         display: flex;
         justify-content: center;
+        align-items: center;
         font-size: 12px;
         font-weight: bold;
-        margin-left: auto;
-        padding-top: 2px;
+        height: 20px;
+        width: 72px;
       }
     }
     .section-contents {
@@ -535,31 +562,5 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         border-color: $black;
       }
     }
-  }
-}
-
-.case-text {
-  .p-handle {
-    @include size(0px, 0px);
-
-    user-select: none;
-
-    float: left;
-    position: relative;
-
-    &[data-elided-annotation]:not(.revealed){
-      display: none;
-    }
-  }
-  .p-number {
-    @include sans-serif($regular, 12px, 12px);
-
-    position: absolute;
-    right: 45px;
-    line-height: 34px;
-
-    color: $light-blue;
-    text-align: right;
-    vertical-align: middle;
   }
 }

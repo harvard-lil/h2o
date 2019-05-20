@@ -46,7 +46,6 @@
     <w:p>
       <xsl:call-template name="text-alignment" />
       <w:r>
-        <xsl:call-template name="run-style" />
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
@@ -270,7 +269,6 @@
       </xsl:comment>
     <w:p>
       <w:r>
-        <xsl:call-template name="run-style" />
         <w:t xml:space="preserve">text not parent and h2 - <xsl:value-of select="."/></w:t>
       </w:r>
     </w:p>
@@ -345,9 +343,6 @@
           <xsl:if test="ancestor::sup">
             <w:vertAlign w:val="superscript"/>
           </xsl:if>
-          <xsl:if test="ancestor::span[contains(@class, 'annotate replacement')]">
-            <w:rStyle w:val="ReplacementText"/>
-          </xsl:if>
         </w:rPr>
         <w:t xml:space="preserve"><xsl:value-of select="."/></w:t>
       </w:r>
@@ -387,14 +382,6 @@
         <xsl:if test="ancestor::center[parent::resource-body] and not(ancestor::center[parent::resource-body][preceding-sibling::*[not(self::center | self::header)]])">
           <w:pStyle w:val="CaseHeader"/>
         </xsl:if>
-      </w:pPr>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template name="run-style">
-    <xsl:if test="ancestor::span[contains(concat(' ', @class, ' '), ' annotate highlighted ')]">
-      <w:pPr>
-        <w:highlight w:val="yellow" />
       </w:pPr>
     </xsl:if>
   </xsl:template>

@@ -1,4 +1,3 @@
-
 class CloneCasebook
   def self.perform(original_casebook)
     new(original_casebook).perform

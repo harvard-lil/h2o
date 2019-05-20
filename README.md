@@ -5,7 +5,8 @@
 ## Contents
 
 1. [Live version](#live-version)
-2. [Development](#development)
+2. [Development: manual setup](#development-manual-setup)
+2. [Development: using Docker](#development-docker-experimental)
 3. [Testing](#testing)
 3. [Migration](#migration)
 3. [Contributions](#contributions)
@@ -17,7 +18,7 @@
 Auto-deploy of the latest master. If the build is green, it's up-to-date.
 
 
-## Development
+## Development: manual setup
 
 > TODO: These instructions are incomplete for dev platforms other than OS X, and probably lack steps needed on a fresh machine.
 
@@ -38,9 +39,12 @@ Auto-deploy of the latest master. If the build is green, it's up-to-date.
 1. [Installation of yarn](https://yarnpkg.com/lang/en/docs/install/) is platform-specific. On a Mac: if you already have node installed, `brew install yarn --without-node`, or `brew install yarn` to simultaneously install node.
 2. `yarn install`
 
-#### With NPM (might not install precisely the same package versions)
-1. Install node if needed (e.g. `brew install node`)
-2. `npm install`
+Heads up: `yarn install` might get re-run for you behind the scenes under a number of circumstances. For instance,
+- [Guard is configured to re-run yarn install](https://github.com/harvard-lil/h2o/blob/master/Guardfile#L10) when package.json changes
+- Rails includes a `yarn:install` task that may be called from other Rails/Rake tasks, including `assets:precompile`
+- Webpacker also runs `yarn:install` under certain circumstances
+
+[We disabled some of the magic](https://github.com/harvard-lil/h2o/blob/master/Rakefile) to give us more control. You might want to keep an eye on your console, in case you are expecting `yarn install` to run automatically some place we've disabled it, or in case it runs some time when you aren't expecting it!
 
 ### Set up the Postgres database
 
@@ -74,29 +78,86 @@ with `brew cask install java`
 1. e.g. OS X: `echo 127.0.0.1 h2o-dev.local | sudo tee -a /etc/hosts`
 2. Go to [http://h2o-dev.local:8000](http://h2o-dev.local:8000)
 
+
+## Development: Docker (experimental)
+
+### Hosts
+
+To ensure that URLs resolve correctly, add the following domain to your computer's hosts file:
+
+127.0.0.1 h2o-dev.local
+
+For additional information on modifying your hosts file, [try this help doc](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file).
+
+### Spin up some containers
+
+Start up the Docker containers in the background:
+
+    $ docker-compose up -d
+
+The first time this runs, it will build the 2.33GB Docker image, which
+may take several minutes. (After the first time, it should only take
+1-3 seconds.)
+
+Finally, initialize an empty database...
+
+    $ bash docker/init.sh
+
+...or a database seeded with data from a pg_dump file:
+
+    $ bash docker/init.sh -f ~/database.dump
+
+### Run some commands
+
+You should now have a working installation of H2O!
+
+Spin up the development server:
+
+    $ bash docker/run.sh
+
+Or, run the tests:
+
+    $ bash docker/test.sh
+
+### Stop
+
+When you are finished, spin down Docker containers by running:
+
+    $ docker-compose down
+
+Your database and solr index will persist and will load automatically the next time you run `docker-compose up -d`.
+
+Or, you can clean up everything Docker-related, so you can start fresh, as with a new installation:
+
+    $ bash docker/clean.sh
+
+
 ## Testing
 
 ### Test design
 
-Since we're going to be heavily refactoring and likely removing a lot of code, the focus for now will be on high-level feature tests which will survive that. [cases_test.rb](test/features/cases_test.rb) is an example of the test pattern using Minitest and Capybara which exercises the full stack from a user's point of view.
+Since we're going to be heavily refactoring and likely removing a lot
+of code, the focus for now will be on high-level feature tests which
+will survive that. [cases_test.rb](test/features/cases_test.rb) is an
+example of the test pattern using Minitest and Capybara which
+exercises the full stack from a user's point of view.
+
+Rails test scenarios marked with `js: true` will be run in a headless WebKit
+environment via Poltergeist. This requires the chromedriver binary to
+be installed, e.g. `brew cask install chromedriver`. Headless tests
+are significantly slower than static tests, so prefer to avoid writing
+Rails tests (and features!) that require JS when possible.
 
 ### Dependencies
 
 ImageMagick and a global installation of the "Garamond" font are required. On Macs, you can verify the presence of Garamond in Applications > FontBook, and can install ImageMagick via `brew install imagemagick`.
 
-### Javascript
+### Test Commands
 
-Test scenarios marked with `js: true` will be run in a headless WebKit environment via Poltergeist. This requires the PhantomJS binary to be installed, e.g. `brew install phantomjs`. Headless tests are significantly slower than static tests, so prefer to avoid writing tests (and features!) that require JS when possible.
-
-Guard will not automatically run these tests. This is less than ideal when working on a client-side feature, so you can mark a given test with `focus: true` to force Guard to run it. If no JS tests are enabled, PhantomJS will not boot, speeding up the whole test suite considerably.
-
-### Guard testing
-
-Guard will automatically run all static tests after booting Rails and  again after any test or app file is edited. By default, Guard _won't_ run any tests that require JS, since they're so much slower. You can run those tests manually:
-
-1. `bin/rails test` runs non-system tests.
-1. `bin/rails test:system` runs system tests, including JS tests.
-1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on, including JS tests.
+1. `yarn test` runs javascript tests using [Mocha](https://mochajs.org)
+1. `bin/rails test` runs non-system Rails tests.
+1. `bin/rails test:system` runs system Rails tests, including tests requiring JS.
+1. `bin/rails test test/system/cases_test.rb` runs the case feature test, and so on.
 
 ### Coverage
 

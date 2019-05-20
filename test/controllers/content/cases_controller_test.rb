@@ -14,7 +14,7 @@ class CasesControllerTest < ActionDispatch::IntegrationTest
       refute Case.find_by(capapi_id: capapi_id)
 
       raw_response_file = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-#{capapi_id}.txt")
-      stub_request(:get, /capapi.org/).to_return(raw_response_file)
+      stub_request(:get, /api.case.law/).to_return(raw_response_file)
 
       post "/cases/from_capapi", params: {id: capapi_id}
       assert_response :success

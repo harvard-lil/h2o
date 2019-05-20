@@ -236,10 +236,14 @@ RailsAdmin.config do |config|
       field :public
       field :name_abbreviation
       field :name
+      field :capapi_id
+      field :citations
       field :decision_date
       field :case_court { nested_form false }
-      field :citations
       field :docket_number
+      field :attorneys
+      field :parties
+      field :opinions
       field :content, :ck_editor
       field :resource_links do
         label "Used in Casebooks"
@@ -262,6 +266,7 @@ RailsAdmin.config do |config|
       field :subtitle
       field :headnote, :ck_editor
       field :public
+      field :cloneable
       field :ancestry do
         read_only true
       end

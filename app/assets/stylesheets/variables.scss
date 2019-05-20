@@ -11,6 +11,7 @@ $white: #FFF;
 $dark-gray: #333;
 $gray: #9B9B9B;
 $light-gray: #F5F4EC;
+$translucent-light-gray: rgba(243, 240, 230, 0.75);
 $light-blue: #3E72D8;
 $red: #F00;
 $orange: #DB6F4C;
@@ -57,3 +58,6 @@ $font-family-headline: $preferred-headline, "Garamond", "Palatino Linotype", "Bo
 
 $preferred-mono: 'Roboto Mono';
 $font-family-monospace: $preferred-mono, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+// screen sizes
+$screen-xxs: 370px;

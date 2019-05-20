@@ -23,7 +23,7 @@ class ModelHelpersTest < ActiveSupport::TestCase
   def capapi_case
     capapi_id = 2747110
     raw_response_file = File.new("#{Rails.root}/test/stubs/capapi.org-api-v1–cases-#{capapi_id}.txt")
-    stub_request(:get, /capapi.org/).to_return(raw_response_file)
+    stub_request(:get, /api.case.law/).to_return(raw_response_file)
     Capapi::Case.retrieve({id: capapi_id, full_case: "true", body_format: "html"})
   end
 end

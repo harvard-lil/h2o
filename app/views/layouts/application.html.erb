@@ -44,6 +44,7 @@ var UTC_OFFSET = #{Time.zone.now.utc_offset * 1000};") %>
 <%= render :partial => "shared/font_selectors" %>
 
 <%= javascript_pack_tag "application" %>
+<%= javascript_pack_tag "test" if Rails.env.test? %>
 
 <% flash.delete(:error) %>
 <% flash.delete(:notice) %>

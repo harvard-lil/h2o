@@ -54,67 +54,11 @@
   user-select: none;
 }
 
-.resource-wrapper {
-  position: relative;
-}
-
 .case-text {
-  p > .annotate.highlighted {
-    padding: 9px 0 4px;
-  }
-  h2 > .annotate.highlighted {
-    padding: 3px 0 3px;
-  }
-
-  /* hacks for misbehaving blockquotes */
-  blockquote {
-    span p {
-      display: inline; // yes, p in span is illegal, but we have them
-    }
-    &[data-elided-annotation]:not(.revealed){
-      margin: 0;
-      padding: 0;
-    }
-  }
-
   .annotate {
     display: inline;
 
-    &.highlighted {
-      // padding: 9px 0 4px; // This needs to be set based on the line-height of the text
-      background-color: $highlight;
-      box-shadow: -1px 0 0 $highlight, 1px 0 0 $highlight;
-    }
-    &.replacement {
-      display: inline-block;
-      margin: 0 6px;
-      padding: 0 6px;
-      background-color: $light-gray;
-      color: $light-blue;
-
-      .text {
-        pointer-events: none;
-      }
-      &:focus {
-        @include generic-focus-styles;
-      }
-      &.revealed .text {
-        display: none;
-      }
-      &.revealed::before {
-        content: 'hide';
-      }
-      .text:empty::before {
-        content: 'Enter replacement text';
-        color: $dark-gray;
-        pointer-events: none;
-      }
-      &.active .text:empty::before {
-        content: ' ';
-        pointer-events: none;
-      }
-    }
-    &.elided, &.replaced {
+    &.replaced {
       display: none;
       padding: 0;
       margin: 0;
@@ -126,80 +70,5 @@
         background-color: $light-gray;
       }
     }
-    &.elide {
-      display: inline-block;
-      padding: 0 10px;
-      cursor: zoom-in;
-      border: none;
-      background-color: $light-gray;
-      color: $light-blue;
-      font-weight: $bold;
-
-      &:focus {
-        @include generic-focus-styles;
-      }
-
-      &::before {
-        content: '...';
-        font-size: 19px;
-      }
-      &.revealed::before {
-        content: 'hide';
-        cursor: zoom-out;
-      }
-    }
-    &.note {
-      text-decoration: $light-blue underline;
-      outline: none;
-
-      &:hover {
-        cursor: pointer;
-      }
-    }
-
-    &.note-content-wrapper {
-      @include square(0);
-      position: absolute;
-      right: -40px;
-      overflow: visible;
-      display: block;
-      margin: 33px 10px 0 0;
-
-      &.revealed {
-        display: none;
-      }
-
-      .note-icon {
-        position: absolute;
-        transform: translate(218%, -116%) rotate(180deg);
-        z-index: 1;
-        font-size: 17px;
-      }
-
-      .note-content {
-        @include sans-serif($regular, 14px, 20px);
-        display: block;
-        width: 200px;
-        padding: 10px;
-        position: relative;
-        top: -20px;
-        background-color: white;
-        color: black;
-        margin: 0 20px;
-      }
-    }
-  }
-}
-
-.toggle-elisions {
-  @extend .btn;
-  @include button-variant($light-blue, white, $light-blue);
-  @include set-font($font-family-sans-serif, 700, 14px, normal);
-  border-radius: 5px;
-  border: solid 1.5px;
-  line-height: 23px;
-  margin-bottom: 20px;
-  &:hover {
-    @include generic-focus-styles;
   }
 }

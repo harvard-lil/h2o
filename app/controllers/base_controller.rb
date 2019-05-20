@@ -13,14 +13,6 @@ class BaseController < ApplicationController
     end
   end
 
-  def error
-    redirect_to root_url, :status => 301
-  end
-
-  def not_found
-    render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
-  end
-
   # Layout is always false for ajax calls
   def layout_switch
     return false if request.xhr?

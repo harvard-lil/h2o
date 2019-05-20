@@ -1,409 +1,171 @@
+# decorates casebooks, sections and resources with the appropriate actions buttons
 class Content::NodeDecorator < Draper::Decorator
   include Draper::LazyHelpers
+  attr_accessor :builder, :casebook, :section, :resource, :action_name
 
   def action_buttons
-    if draft_mode?
-      draft_action_buttons
-    elsif published_mode?
-      published_action_buttons
+    build_params
+
+    if self.is_a?(Content::Casebook)
+      actions = casebook_actions
+    elsif self.is_a? Content::Section
+      actions = section_actions
     else
-      preview_action_buttons
+      actions = resource_actions
     end
+
+    # flatten actions incase it's an array of multiple arrays from clone_and_export, etc.
+    builder.perform(actions.flatten)
   end
 
   private
 
-  def draft_action_buttons
-    if self.is_a?(Content::Casebook) && draft_mode_of_published_casebook
-      casebook_draft_of_published_casebook
-    elsif self.is_a? Content::Casebook
-      casebook_draft
-    elsif self.is_a? Content::Section
-      section_draft
+  def build_params
+    @casebook = context[:casebook]
+    @section = context[:section]
+    @resource = context[:context_resource]
+    @action_name = context[:action_name]
+    @builder = ActionButtonBuilder.new(casebook, section, resource, action_name)
+  end
+
+  def casebook_actions
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
+          return [:edit_draft] << clone_and_export
+        else
+          return [:create_draft] << clone_and_export
+        end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
+      elsif current_user.present?
+        return clone_and_export
+      else
+        return []
+      end
+    elsif preview_mode
+      if casebook.draft_mode_of_published_casebook?
+        # cannot clone in draft mode because it will be nested underneath the draft and not surface to user.
+        return [:publish_changes_to_casebook, :edit_draft, :export]
+      else
+        return [:publish_casebook, :edit_casebook] << clone_and_export
+      end
+    elsif draft_mode
+      if casebook.draft_mode_of_published_casebook?
+        return [:publish_changes_to_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :export]
+      else
+        return [:publish_casebook, :preview_casebook, :add_resource, :add_section, :save_casebook, :cancel_casebook, :clone_casebook, :export]
+      end
     else
-      resource_draft
+      return []
     end
   end
 
-  def published_action_buttons
-    if self.is_a?(Content::Casebook) && has_live_draft?
-      casebook_published_with_draft
-    elsif self.is_a? Content::Casebook
-      casebook_published
-    elsif self.is_a?(Content::Section) && has_live_draft?
-      section_published_with_draft
-    elsif self.is_a? Content::Section
-      section_published
-    elsif has_live_draft?
-      resource_published_with_draft
+  def section_actions
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
+          # check if the corrosponding draft section still exists in the draft casebook
+          if draft_section.present? 
+            return [:revise_draft_section] << clone_and_export
+          else
+            return [:edit_draft] << clone_and_export
+          end
+        else
+          return [:create_section_draft] << clone_and_export
+        end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
+      elsif current_user.present?
+        return clone_and_export
+      end
+    elsif preview_mode
+      if casebook.draft_mode_of_published_casebook?
+        return [:publish_changes_to_casebook, :edit_draft, :export]
+      else
+        return [:publish_casebook, :edit_casebook] << clone_and_export
+      end
+    elsif draft_mode
+      # cannot published from section
+      return [:preview_section, :add_resource, :add_section, :save_section, :cancel_section, :export]
     else
-      resource_published
+      return []
     end
   end
 
-  def preview_action_buttons
-    if self.is_a?(Content::Casebook) && draft_mode_of_published_casebook
-      casebook_preview_of_published_casebook
-    elsif self.is_a? Content::Casebook
-      casebook_preview
-    elsif self.is_a?(Content::Section) && draft_mode_of_published_casebook
-      section_preview_of_published_casebook
-    elsif self.is_a? Content::Section
-      section_preview
+  def resource_actions
+    if casebook.public?
+      if authorized?
+        if casebook.draft.present?
+          # check if the corrosponding draft section still exists in the draft casebook
+          if draft_resource.present?
+            return [:annotate_resource_draft] << clone_and_export
+          else
+            return [:edit_draft] << clone_and_export
+          end
+        else
+          return [:create_resource_draft] << clone_and_export
+        end
+      elsif ! casebook.cloneable? || anonymous?
+        return [:export]
+      elsif current_user.present?
+        return clone_and_export
+      else
+        return []
+      end
+    elsif preview_mode
+      if casebook.draft_mode_of_published_casebook?
+        return [:publish_changes_to_casebook, :edit_draft, :export]
+      else
+        return [:publish_casebook, :edit_casebook] << clone_and_export
+      end
+    elsif draft_mode && annotating?
+      return [:preview_resource, :export]
+    elsif draft_mode
+      return [:preview_resource, :save_resource, :cancel_resource, :export]
     else
-      resource_preview
+      return []
     end
   end
 
-  #####################
-  # Draft buttons
+  #condensed button lists
 
-  def casebook_draft_of_published_casebook
-    publish_changes_to_casebook +
-    preview_casebook +
-    add_resource +
-    add_section +
-    export_casebook +
-    save_casebook +
-    cancel_casebook
+  def clone_and_export
+    # right now only casebooks can be cloned, not individual resources or sections
+    [:clone_casebook, :export]
   end
 
-  def casebook_draft
-    publish_casebook +
-    preview_casebook +
-    add_resource +
-    add_section +
-    export_casebook +
-    save_casebook +
-    cancel_casebook +
-    clone_casebook
-  end
+  #variables
 
-  def section_draft
-    preview_section +
-    add_resource +
-    add_section +
-    save_section +
-    cancel_section +
-    export_section
-  end
-
-  def resource_draft
-    if action_name == 'edit'
-      preview_resource +
-      save_resource +
-      cancel_resource +
-      export_resource
-    else
-      preview_resource +
-      export_resource
-    end
-  end
-
-  ###########
-  # Published buttons
-
-  def casebook_published_with_draft
-    if authorized?
-      edit_draft +
-      clone_casebook +
-      export_casebook
-    else
-      clone_casebook +
-      export_casebook
-    end
-  end
-
-  def casebook_published
-    if authorized?
-      create_draft +
-      clone_casebook +
-      export_casebook
-    else
-      clone_casebook +
-      export_casebook
-    end
-  end
-
-  def section_published_with_draft
-    if authorized?
-      revise_draft_section +
-      clone_casebook +
-      export_section
-    else
-      clone_casebook +
-      export_section
-    end
-  end
-
-  def section_published
-    if authorized?
-      create_section_draft +
-      clone_section +
-      export_section
-    else
-      clone_casebook +
-      export_section
-    end
-  end
-
-  def resource_published_with_draft
-    if authorized?
-      annotate_resource_draft +
-      clone_casebook +
-      export_resource
-    else
-      clone_casebook +
-      export_resource
-    end
-  end
-
-  def resource_published
-    if authorized?
-      create_draft +
-      clone_resource +
-      export_resource
-    else
-      clone_casebook +
-      export_resource
-    end
-  end
-
-  ##########
-  #Preview buttons
-
-  def casebook_preview_of_published_casebook
-    publish_changes_to_casebook +
-    edit_draft +
-    export_casebook
-  end
-
-  def casebook_preview
-    publish_casebook +
-    edit_casebook +
-    clone_casebook +
-    export_casebook
-  end
-
-  def section_preview_of_published_casebook
-    revise_draft_section +
-    clone_casebook +
-    export_section
-  end
-
-  def section_preview
-    revise_section +
-    clone_casebook +
-    export_section
-  end
-
-  def resource_preview
-    annotate_resource +
-    clone_casebook +
-    export_resource
-  end
-
-  ####
-  #Buttons/Links
-  #Resources
-
-  def create_draft
-    link_to(I18n.t('content.actions.revise'), create_draft_resource_path(casebook, resource), class: 'action edit one-line create-draft')
-  end
-
-  def annotate_resource_draft
-    link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(draft, draft_resource), class: 'action edit one-line')
-  end
-
-  def annotate_resource
-    link_to(I18n.t('content.actions.revise-draft'), annotate_resource_path(casebook, resource), class: 'action edit one-line')
-  end
-
-  def clone_resource
-    link_to(I18n.t('content.actions.clone'), clone_resource_path(casebook, resource), class: 'action clone-casebook')
-  end
-
-  def export_resource
-    if resource.annotations.present?
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
-    else
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
-    end
-  end
-
-  def preview_resource
-    link_to(I18n.t('content.actions.preview'), resource_path(casebook, resource), class: 'action one-line preview')
-  end
-
-  def save_resource
-    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-edit-details')
-  end
-
-  def cancel_resource
-    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel')
-  end
-
-  #############
-  ## Section
-
-  def create_section_draft
-    link_to(I18n.t('content.actions.revise'), edit_section_path(casebook, section), class: 'action edit one-line create-draft')
-  end
-
-  def revise_section
-    link_to(I18n.t('content.actions.revise-draft'), revise_section_path(casebook, section), class: 'action edit one-line')
-  end
-
-  def clone_section
-    link_to(I18n.t('content.actions.clone'), clone_section_path(casebook, section), class: 'action clone-casebook')
-  end
-
-  def revise_draft_section
-    if draft_mode_of_published_casebook
-      link_to(I18n.t('content.actions.revise-draft'), layout_section_path(casebook, section), class: 'action edit one-line')
-    else
-      link_to(I18n.t('content.actions.revise-draft'), layout_section_path(draft, draft_section), class: 'action edit one-line')
-    end
-  end
-
-  def export_section
-    if section.resources_have_annotations?
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
-    else
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
-    end
-  end
-
-  def preview_section
-    link_to(I18n.t('content.actions.preview'), section_path(casebook, section), class: 'action one-line preview')
-  end
-
-  def save_section
-    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-section-details')
-  end
-
-  def cancel_section
-    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel')
-  end
-
-  ############
-  ## Casebook
-
-  def publish_changes_to_casebook
-    button_tag(I18n.t('content.actions.publish-changes'), {name: nil, type:"button", class: 'action publish one-line'})
-  end
-
-  def publish_casebook
-    button_tag(I18n.t('content.actions.publish'), {name: nil, type:"button", class: 'action publish one-line'})
-  end
-
-  def create_draft
-    link_to(I18n.t('content.actions.revise'), create_draft_casebook_path(casebook), method: :post, type: 'button', class: 'action edit one-line create-draft')
-  end
-
-  def edit_casebook
-    link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
-  end
-
-  def edit_draft
-    if draft_mode_of_published_casebook
-      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(casebook), class: 'action edit one-line')
-    else
-      link_to(I18n.t('content.actions.revise-draft'), edit_casebook_path(draft), class: 'action edit one-line')
-    end
-  end
-
-  def clone_casebook
-    button_to(I18n.t('content.actions.clone'), clone_casebook_path(casebook), method: :post, class: 'action clone-casebook', form: {class: 'clone-casebook'})
-  end
-
-  def export_casebook
-    if casebook.resources_have_annotations?
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-has-annotations')
-    else
-      link_to(I18n.t('content.actions.export'), '#', class: 'action one-line export export-no-annotations')
-    end
-  end
-
-  def preview_casebook
-    link_to(I18n.t('content.actions.preview'), casebook_path(casebook), class: 'action one-line preview')
-  end
-
-  def add_resource
-    link_to(I18n.t('content.actions.add-resource'), new_section_path(casebook), class: 'action add-resource')
-  end
-
-  def add_section
-    button_to(I18n.t('content.actions.add-section'), sections_path(casebook, params: {parent: section.try(:id)}), method: :post, class: 'action add-section')
-  end
-
-  def save_casebook
-    link_to(I18n.t('content.actions.save'), '', class: 'action one-line save submit-casebook-details')
-  end
-
-  def cancel_casebook
-    link_to(I18n.t('content.actions.cancel'), '', class: 'action one-line cancel cancel-casebook-details')
-  end
-
-  ######
-  #Live draft logic
-
-  def draft
-    casebook.draft
-  end
-
-  def draft_mode_of_published_casebook
-    casebook.draft_mode_of_published_casebook
-  end
-
-  def has_live_draft?
-    draft.present?
+  def draft_resource
+    casebook.draft.contents.where(copy_of_id: resource.id).first
   end
 
   def draft_section
-    draft.contents.where(copy_of_id: section.id).first
+    casebook.draft.contents.where(copy_of_id: section.id).first
   end
 
-  def draft_resource
-    draft.contents.where(copy_of_id: resource.id).first
-  end
-
-  ############
-  # Variables
-
-  def casebook
-    context[:casebook]
-  end
-
-  def section
-    context[:section]
-  end
-
-  def resource
-    context[:context_resource]
-  end
-
-  def action_name
-    context[:action_name]
-  end
-
-  def draft_mode?
+  def draft_mode
     action_name.in? %w{edit layout annotate}
   end
 
-  def published_mode?
-    casebook.public
+  def annotating?
+    action_name == 'annotate'
   end
 
-  def preview_mode?
+  def preview_mode
     authorized? && action_name == 'show'
   end
 
   def authorized?
-    if current_user.present? 
+    if current_user.present?
       casebook.has_collaborator?(current_user.id) || current_user.superadmin?
     else 
       false
     end
+  end
+
+  def anonymous?
+    current_user.blank?
   end
 end

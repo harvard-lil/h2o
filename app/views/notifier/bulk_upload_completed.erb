@@ -1,4 +1,0 @@
-Bulk upload completed, <%= pluralize(@bulk_upload.imports.count, 'file') %> processed successfully.<% if @bulk_upload.has_errors? %>There were errors uploading some files, please check your Dropbox H2o folder with error.log for details.<% end %>
-
-You can view the all the completed files:
-<%= @bulk_upload_url %>

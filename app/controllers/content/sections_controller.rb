@@ -41,12 +41,12 @@ class Content::SectionsController < Content::NodeController
     @casebook = @casebook.clone(true)
     @section = @casebook.contents.find_by(copy_of_id: @section.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
-    redirect_to layout_section_path(@casebook, @section) 
+    redirect_to layout_section_path(@casebook, @section)
   end
 
   def revise
     # revise without creating a draft
-    redirect_to layout_section_path(@casebook, @section) 
+    redirect_to layout_section_path(@casebook, @section)
   end
 
   def show
@@ -79,7 +79,7 @@ class Content::SectionsController < Content::NodeController
     @casebook = @casebook.clone(false, current_user)
     @section = @casebook.contents.find_by(copy_of_id: @section.id)
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, type: 'section'})
-    redirect_to layout_section_path(@casebook, @decorated_content) 
+    redirect_to layout_section_path(@casebook, @decorated_content)
   end
 
   def export
@@ -98,7 +98,7 @@ class Content::SectionsController < Content::NodeController
     end
 
     Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
   end
 
   def reorder
@@ -109,8 +109,9 @@ class Content::SectionsController < Content::NodeController
 
   private
 
-  def export_filename format
-    helpers.truncate(@section.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  def export_filename format, annotations=false
+    suffix = annotations ? '_annotated' : ''
+    helpers.truncate(@section.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def page_title

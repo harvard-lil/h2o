@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'application_system_test_case'
 
 class AnnotationsSystemTest < ApplicationSystemTestCase
@@ -26,77 +27,94 @@ class AnnotationsSystemTest < ApplicationSystemTestCase
     end
 
     scenario 'highlighting', js: true do
-      select_text 'content to highlight'
-      find('a[data-annotation-type=highlight]').click
+      text = 'content to highlight'
+      select_text text
 
-      assert_selector('.annotate.highlighted')
-      find('.annotate.highlighted').assert_text 'content to highlight'
+      assert_api :creates, 'Content::Annotation' do
+        find('#create-highlight').click
+      end
+
+      sel = '.highlight .selected-text';
+      assert_selector(sel)
+      find(sel).assert_text text
     end
 
     scenario 'eliding', js: true do
-      select_text 'content to elide'
-      find('a[data-annotation-type=elide]').click
+      text = 'content to elide'
+      select_text text
 
-      assert_no_content 'content to elide'
-      assert_content 'elided: ✎;'
+      assert_api :creates, 'Content::Annotation' do
+        find('#create-elision').click
+      end
+
+      assert_no_content text
+      assert_content "elided:\n✎\n;"
     end
 
     scenario 'replacement', js: true do
-      select_text 'content to replace'
-      find('a[data-annotation-type=replace]').click
-      sleep 0.5
+      text = 'content to replace'
+      content = 'New Text'
 
-      page.execute_script("document.getElementsByClassName('replacement')[0].textContent = 'New Text'")
+      select_text text
+      find('#create-replacement').click
 
-      sleep 0.1
+      assert_api :creates, 'Content::Annotation' do
+        find('.replacement-text').send_keys content, :enter
+      end
 
-      assert_content 'New Text'
-      # this doesn't actually test saving these annotations because since it's a span you can't fill in text with capybara in a dynamic way and then hit enter, so the save menu does not show up
+      assert_content content
+      assert_equal content, Content::Annotation.last.content
     end
 
     scenario 'adding a link', js: true do
-      select_text 'content to link'
-      find('a[data-annotation-type=link]').click
+      text = 'content to link'
+      content = 'https://testlink.org'
 
-      fill_in 'link-form', with: 'https://testlink.org'
-      find('#link-form').send_keys :enter
+      select_text text
+      find('#create-link').click
+      fill_in 'link-input', with: content
 
-      has_link?('content to link', href: 'https://testlink.org')
-    end
+      assert_api :creates, 'Content::Annotation' do
+        find('#link-input').send_keys :enter
+      end
 
-    scenario 'adding a link without http', js: true do
-      select_text 'content to link'
-      find('a[data-annotation-type=link]').click
-
-      fill_in 'link-form', with: 'testlink.org'
-      find('#link-form').send_keys :enter
-
-      has_link?('content to link', href: 'http://testlink.org')
+      has_link?(text, href: content)
     end
 
     scenario 'adding a note', js: true do
-      select_text 'content to note'
-      find('a[data-annotation-type=note]').click
+      text = 'content to note'
+      content = 'Here is a new note'
 
-      fill_in 'note-textarea', with: 'Here is a new note'
-      find('.save-note').click
+      select_text text
+      find('#create-note').click
 
-      find('.note-content', text: "Here is a new note") #acts as a assert_content for a span
+      fill_in 'note-textarea', with: content
+
+      assert_api :creates, 'Content::Annotation' do
+        find('#save-note').click
+      end
+
+      find('.note-content', text: content) #acts as a assert_content for a span
       assert_selector('.note-content')
     end
 
     scenario 'deleting an annotation', js: true do
-      select_text 'content to note'
-      find('a[data-annotation-type=note]').click
+      text = 'content to highlight'
+      select_text text
 
-      fill_in 'note-textarea', with: 'Here is a new note'
-      find('.save-note').click
+      assert_api :creates, 'Content::Annotation' do
+        find('#create-highlight').click
+      end
 
-      click_button 'edit-annotation'
-      find('.context-menu').click # click on Remove Note link
-      sleep 0.3
+      sel = '.highlight .selected-text';
+      assert_selector(sel)
 
-      refute_selector('.note-content')
+      assert_api :deletes, 'Content::Annotation' do
+        click_button '✎'
+        find('.context-menu').click # click on Remove Note link
+      end
+
+      refute_selector(sel)
     end
   end
 end

@@ -45,7 +45,7 @@ H2o::Application.configure do
 
   #TODO: It's a little strange to have the port number embedded in the host
   #like that, but we don't have time to remove it and re-test everywhere.
-  host = 'h2o-dev-test.local:8000'
+  host = 'h2o-dev.local:8000'
   config.action_mailer.default_url_options = { :host => host }
 
   config.middleware.use ExceptionNotification::Rack,
@@ -61,4 +61,14 @@ H2o::Application.configure do
 
   config.admin_emails = ['cgruppioni@law.harvard.edu']
   config.professor_verifier_email = "cgruppioni@law.harvard.edu"
+
+  if ENV['DOCKERIZED'].present?
+    # Web Console launches an interactive debugging console in your browser.
+    # If running in Docker, requests don't come from localhost, so we have to
+    # whitelist the whole private network.
+    # https://github.com/rails/web-console#configweb_consolewhitelisted_ips
+    config.web_console.whitelisted_ips = '192.168.0.0/16'
+  end
+
+  config.exception_handler['dev'] = ENV['RAILS_RENDER_ERROR_PAGES']
 end

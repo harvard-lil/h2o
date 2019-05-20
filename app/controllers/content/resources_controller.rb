@@ -2,15 +2,16 @@ require 'net/http'
 require 'uri'
 
 class Content::ResourcesController < Content::NodeController
+  before_action :prevent_page_caching, only: [:export]
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
 
   def show
+    @include_vuejs = true
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
   end
 
   def annotate
-    @editable = true
     @include_vuejs = true
     @casebook.update_attributes public: false
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
@@ -18,7 +19,7 @@ class Content::ResourcesController < Content::NodeController
   end
 
   def edit
-    # editing resource details 
+    # editing resource details
     if @casebook.public
       return redirect_to details_casebook_path(@casebook)
     end
@@ -56,7 +57,7 @@ class Content::ResourcesController < Content::NodeController
     end
 
     Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx'), disposition: :inline
+    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
   end
 
   def update
@@ -89,8 +90,9 @@ class Content::ResourcesController < Content::NodeController
     params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :content])
   end
 
-  def export_filename format
-    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + '.' + format
+  def export_filename format, annotations=false
+    suffix = annotations ? '_annotated' : ''
+    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def page_title

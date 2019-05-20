@@ -9,7 +9,6 @@ module Capapi
         Date.strptime(date_str, fmt)
       rescue ArgumentError => e
         if fmt == default
-          puts e.class
           raise e
         else
           parse_date(date_str[0..-4])

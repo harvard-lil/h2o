@@ -34,14 +34,22 @@ module H2o::Test::Helpers::Capybara
 
   def select_text text
     page.execute_script <<-JS
-        var range = rangy.createRange();
-        range.findText('#{escape_javascript text}');
-        rangy.getSelection().addRange(range);
-        var event = new Event('selectionchange');
-        document.dispatchEvent(event);
-        range.startContainer.parentElement.className += ' selected-container';
+        let text = '#{escape_javascript text}';
+        let nodeIterator = document.createNodeIterator(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            {acceptNode(node) {
+              if(node.textContent.includes(text)){
+                return NodeFilter.FILTER_ACCEPT;
+              }
+            }});
+        let node = nodeIterator.nextNode();
+        let range = document.createRange();
+        range.setStart(node, node.textContent.indexOf(text));
+        range.setEnd(node, node.textContent.indexOf(text) + text.length);
+        let sel = window.getSelection();
+        sel.addRange(range);
     JS
-    find('.selected-container').trigger :mouseup
   end
 
   def sign_in user
@@ -111,8 +119,13 @@ module H2o::Test::Helpers::Capybara
       .drop(target, #{drop_position.to_json});
     JS
   end
+
   def reload_page
     page.evaluate_script("window.location.reload()")
+  end
+
+  def update_ancestry(parent_casebook, ancestor_casebook)
+    ancestor_casebook.update(ancestry: parent_casebook.id.to_s)
   end
 end
 

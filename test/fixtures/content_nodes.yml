@@ -34,6 +34,39 @@ public_casebook_section_2:
     This is the second chapter of the casebook.
   ordinals: [2]
 
+public_annotated_casebook:
+  title: Public Annotated Casebook
+  public: true
+  updated_at: <%= DateTime.now %>
+
+public_annotated_casebook_section_1:
+  casebook: public_annotated_casebook
+  title: Annotated Section One
+  headnote: <p>What is a corporation?</p>
+  ordinals: [1]
+
+public_annotated_casebook_section_1_1:
+  casebook: public_annotated_casebook
+  headnote: <p>This is the first resource in the casebook.</p>
+  resource: public_case_3
+  resource_type: Case
+  ordinals: [1,1]
+
+public_annotated_casebook_section_1_2:
+  casebook: public_annotated_casebook
+  headnote: >
+    This is an annotatable resource in the casebook.
+  resource: public_case_to_annotate2
+  resource_type: Case
+  ordinals: [1,2]
+
+public_annotated_section_2:
+  casebook: public_annotated_casebook
+  title: Annotated Section Two
+  headnote: >
+    This is the second chapter of the casebook.
+  ordinals: [2]
+
 draft_casebook:
   title: Draft Casebook 1
   public: false
@@ -108,10 +141,11 @@ published_casebook:
   title: published_casebook
   public: true
   created_at: <%= DateTime.now - 14.days %>
-  # updated_at: <%= DateTime.now %> 
+  # updated_at: <%= DateTime.now %>
 
 published_casebook_section_1:
   casebook: published_casebook
+  title: Link 1
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one
@@ -146,21 +180,26 @@ published_casebook_section_2:
   ordinals: [2]
   created_at: <%= DateTime.now - 14.days %>
 
+published_casebook_section_3:
+  casebook: published_casebook
+  headnote: New Section headnote
+  title: New Section
+  ordinals: [3]
+
 draft_merge_casebook:
-  title: Draft Casebook
+  title: Draft Merge Casebook
   public: false
   updated_at: <%= DateTime.now %>
   # this is set because annotations need to be updated at
   # after the creation of the casebook for
   # tests for merge_draft_into_published_casebook#new_and_updated_annotations
-  created_at: <%= DateTime.now - 3.days %> 
+  created_at: <%= DateTime.now - 3.days %>
   copy_of: published_casebook
   draft_mode_of_published_casebook: true
-  copy_of: published_casebook
 
 draft_merge_section_1:
   casebook: draft_merge_casebook
-  title: title
+  title: link 1
   headnote: >
     This is an annotatable resource in the casebook.
   resource: link_one
@@ -184,7 +223,7 @@ draft_merge_section_2_1:
     This is an annotatable resource in the casebook.
   resource: public_case_to_annotate
   resource_type: Case
-  ordinals: [2, 1] 
+  ordinals: [2, 1]
   copy_of: published_casebook_section_1_1 #has different ordinals
   created_at: <%= DateTime.now - 2.days %>
 
@@ -196,3 +235,9 @@ draft_merge_section_3:
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [3]
+
+draft_merge_section:
+  casebook: draft_merge_casebook
+  title: Section 4
+  headnote: <p>What is a corporation?</p>
+  ordinals: [4]

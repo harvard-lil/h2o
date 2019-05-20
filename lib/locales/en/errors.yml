@@ -1,21 +1,13 @@
 en:
   exception_handler:
-    not_found: "This page cannot be found."
-    unauthorized: "You do not have access to view this page."
-    bad_request: "This request could not be processed."
-    unprocessable_entity: "This request could not be processed."
-    not_implemented: "This request could not be processed."
-    not_acceptable: "This request could not be processed."
-    internal_server_error: "A server error occurred."
+    not_found: "<p>We can't seem to find the page you are looking for.</p><p>To report a broken link, please <a href=\"mailto:info@opencasebook.org\">contact us</a>.</p>"
+    unauthorized: "<p>You do not have access to view this page.</p>"
+    bad_request: "<p>This request could not be processed.</p>"
+    unprocessable_entity: "<p>This request could not be processed.</p>"
+    not_implemented: "<p>This request could not be processed.</p>"
+    not_acceptable: "<p>This request could not be processed.</p>"
+    internal_server_error: "<p>There’s been an internal server error (Error 500) preparing this page, but don't worry, we'll fix it.</p><p>Please <a href=\"mailto:info@opencasebook.org?subject=Internal%20Server%20Error\">contact us</a> and let us know how you found yourself here. Thanks!</p>"
 
   errors:
-    has-been-reported: This error has been automatically reported to the H2O development team.
-    help-contact:
-      html: 'If you need assistance using H2O, please contact us at <a href="mailto:help@h2o.law.harvard.edu">help@h2o.law.harvard.edu</a>.'
-    links-header: 'Here are some links that might be helpful:'
-    links:
-      root: H2O home page
-      browse: Search for cases or casebooks
-      faq: Frequently asked questions
     server-error-message:
       html: 'The server provided the following error message at <code>%{time}</code>:'

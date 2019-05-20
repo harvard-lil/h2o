@@ -2,11 +2,11 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem 'pg', '~> 0.21'
-gem 'rails', '5.2.1'
+gem 'rails', '5.2.2.1'
 gem 'puma', '~> 3.12'
 
 # Asset pipeline and libs (jquery, etc) managed through webpacker configs
-gem 'webpacker'
+gem 'webpacker', '>= 4.0.x'
 
 gem 'actionpack-page_caching'
 gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
@@ -24,7 +24,6 @@ gem 'deep_cloneable'
 gem 'delayed_job_active_record'
 gem 'delayed_job'
 gem 'draper'
-gem 'dropbox-sdk'
 gem 'erubi'
 gem 'erubis'
 gem 'exception_notification'
@@ -100,4 +99,5 @@ end
 
 group :test do
   gem 'webmock'
+  gem 'pretty-diffs'
 end
