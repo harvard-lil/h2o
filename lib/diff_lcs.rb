@@ -6,7 +6,10 @@ module DiffLCS
        changes.reduce({}) do |memo, change|
          memo[change.action] = (memo[change.action] || "") + change.element
          memo
-       end.map { |action, elements| "#{action} " + elements.gsub("\n", "\n#{action} ") }].join("\n")
+       end.map do |action, elements|
+         "#{action} " + (elements.blank? ? elements.inspect : elements.gsub("\n", "\n#{action} "))
+       end
+      ].join("\n")
     end.join("\n\n")
   end
 end
