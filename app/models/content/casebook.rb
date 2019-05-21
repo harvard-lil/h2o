@@ -25,6 +25,8 @@ class Content::Casebook < Content::Node
     string(:affiliation, stored: true) { owners.first.try(:affiliation) }
     string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
     boolean :public
+    time(:created_at, stored: true) { created_at.to_time }
+    time(:updated_at, stored: true) { updated_at.to_time }
 
     integer :owner_ids, stored: true, multiple: true do
       owners.map &:id

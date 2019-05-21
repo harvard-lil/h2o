@@ -40,8 +40,8 @@ class User < ApplicationRecord
     boolean :public do
       true
     end
-    date :updated_at
-
+    time(:updated_at, stored: true) { updated_at.to_time }
+    time(:created_at, stored: true) { created_at.to_time }
     integer :user_id, :stored => true
     string(:klass, stored: true) { 'User' }
   end
