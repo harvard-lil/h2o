@@ -13,7 +13,6 @@ class Content::ResourcesController < Content::NodeController
 
   def annotate
     @include_vuejs = true
-    @casebook.update_attributes public: false
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
     render 'show'
   end
