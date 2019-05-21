@@ -2,6 +2,7 @@ require 'net/http'
 require 'uri'
 
 class Content::SectionsController < Content::NodeController
+  before_action :prevent_page_caching, only: [:export]
   before_action :find_parent, only: [:create]
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
