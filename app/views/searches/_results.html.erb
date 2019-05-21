@@ -58,7 +58,7 @@
               <%= result.display_name %>
             </div>
             <div class="casebook-count">
-              <%= t 'search.results.user-casebook-count', count: result.casebooks.count %>
+              <%= t 'search.results.user-casebook-count', count: result.casebooks.where(public: true).count %>
             </div>
           </div>
         </a>
