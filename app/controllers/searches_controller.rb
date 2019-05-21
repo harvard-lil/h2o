@@ -73,16 +73,17 @@ class SearchesController < ApplicationController
       keywords query
 
       with :public, true
-
       with :attribution, params[:author] if params[:author].present?
       with :affiliation, params[:school] if params[:school].present?
-
       with(:verified_professor).equal_to(true)
-
       facet(:attribution)
       facet(:affiliation)
 
-      order_by (params[:sort] || 'display_name').to_sym
+      if params[:sort] == 'created_at'
+        order_by(:created_at, :desc)
+      else
+        order_by (params[:sort] || 'display_name').to_sym
+      end
       group :klass do
         limit PER_PAGE
       end
@@ -91,18 +92,6 @@ class SearchesController < ApplicationController
         params['group.offset'] = (page - 1) * PER_PAGE
       end
     end
-  end
-
-  def browse_page
-    ! params[:type].present?
-  end
-
-  def casebooks_tab
-    params[:type].include?('casebooks')
-  end
-
-  def users_tab
-    params[:type].include?('users')
   end
 
   def paginate_group(group)

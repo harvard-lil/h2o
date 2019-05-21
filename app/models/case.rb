@@ -56,13 +56,13 @@ class Case < ApplicationRecord
     text :docket_number
     text :indexable_case_citations, boost: 3.0
     text :indexable_case_court
-    # text :clean_content
 
-    string :display_name, :stored => true
-    string :id, :stored => true
-    time :decision_date
-    time :created_at
-    time :updated_at
+    string :display_name, stored: true
+    string :id, stored: true
+    date :decision_date, stored: true
+
+    time(:created_at, stored: true) { created_at.to_time }
+    time(:updated_at, stored: true) { updated_at.to_time }
     boolean :public
 
     string :klass, :stored => true
