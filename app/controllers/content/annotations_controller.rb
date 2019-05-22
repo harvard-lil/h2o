@@ -7,13 +7,14 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
-    breakpoints = AnnotationConverter.paragraph_nodes_to_breakpoints(@resource.paragraph_nodes)
+    nodes = HTMLHelpers.parse_and_process_nodes(@resource.resource.content)
+    breakpoints = AnnotationConverter.nodes_to_breakpoints(nodes)
 
     json = @resource.annotations.as_json
       .select { |a|
       # remove annotations that have impossible placements
       ["start", "end"].reduce(true) { |m, s|
-        m && @resource.paragraph_nodes[a["#{s}_paragraph"]].text.length >= a["#{s}_offset"]
+        m && nodes[a["#{s}_paragraph"]].text.length >= a["#{s}_offset"]
       }
     }.map { |a|
       # convert from paragraph to doc level offsets
@@ -29,9 +30,10 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def create
+    nodes = HTMLHelpers.parse_and_process_nodes(@resource.resource.content)
     params = annotation_params
                .merge(resource: @resource)
-               .merge(AnnotationConverter.global_offsets_to_paragraph_offsets(@resource.paragraph_nodes, annotation_params[:start_offset], annotation_params[:end_offset]))
+               .merge(AnnotationConverter.global_offsets_to_node_offsets(nodes, annotation_params[:start_offset], annotation_params[:end_offset]))
 
     annotation = Content::Annotation.create! params
     respond_to do |format|

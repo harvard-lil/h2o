@@ -11,8 +11,7 @@ class Content::Resource < Content::Child
   end
 
   def paragraph_nodes
-    HTMLHelpers.process_p_nodes(
-      Nokogiri::HTML(resource.content) {|config| config.strict.noblanks})
+    HTMLHelpers.parse_and_process_nodes(resource.content)
   end
 
   def annotated_paragraphs

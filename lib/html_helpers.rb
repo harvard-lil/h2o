@@ -36,6 +36,10 @@ module HTMLHelpers
       "UL"
     ]
 
+    def parse_html_string html
+      Nokogiri::HTML(html) {|config| config.strict.noblanks}
+    end
+
     def strip_comments! html
       html.xpath('//comment()').remove
       html
@@ -75,13 +79,17 @@ module HTMLHelpers
       nodes
     end
 
-    def process_p_nodes html
+    def process_nodes nodes
       [method(:strip_comments!),
        method(:unnest!),
        method(:empty_ul_to_p!),
        method(:wrap_bare_inline_tags!),
        method(:get_body_nodes_without_whitespace_text),
-       method(:filter_empty_nodes!)].reduce(html) { |memo, fn| fn.call(memo) }
+       method(:filter_empty_nodes!)].reduce(nodes) { |memo, fn| fn.call(memo) }
+    end
+
+    def parse_and_process_nodes html_string
+      process_nodes(parse_html_string(html_string))
     end
   end
 end
