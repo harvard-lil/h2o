@@ -13,7 +13,7 @@ namespace :annotations do
       node_cmd = "node -r #{Rails.root.join('test','javascript','mocha_setup.js')} #{build.path}"
       counts = [0, 0]
       Case.order(id: :desc).limit(500).each do |c|
-        ruby_breakpoints = AnnotationConverter.paragraph_nodes_to_breakpoints(Content::Resource.new(resource: c).paragraph_nodes)
+        ruby_breakpoints = AnnotationConverter.nodes_to_breakpoints(HTMLHelpers.parse_and_process_nodes(c.content))
         js_breakpoints = IO.popen(node_cmd, 'r+') do |io|
           io.write({content: c.content}.to_json)
           io.close_write
@@ -73,7 +73,7 @@ namespace :annotations do
 
     total = Case.annotated.reduce(0) do |memo, c|
       new_html = Nokogiri::HTML(c.content) {|config| config.strict.noblanks}
-      new = HTMLHelpers.process_p_nodes(new_html).map(&:to_s)
+      new = HTMLHelpers.process_nodes(new_html).map(&:to_s)
 
       old_html = Nokogiri::HTML(c.content) {|config| config.strict.noblanks}
       old = [HTMLHelpers.method(:strip_comments!),
