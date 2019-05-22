@@ -12,12 +12,14 @@ RUN apt-get update \
     && apt-get install -y openjdk-8-jre-headless \
     && apt-get install -y openjdk-8-jdk \
     && apt-get install -y openjdk-8-jdk-headless \
-    # Chrome for test:system
+    # Chrome for test:system, technique from https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeChrome/Dockerfile.txt
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
-    && apt-get -y install google-chrome-stable=74.0.3729.131-1 \
-    && wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip \
+    && apt-get -y install google-chrome-stable \
+    && CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
+    && CHROME_DRIVER_VERSION=$(wget --no-verbose -O - "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}") \
+    && wget https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
     && apt-get -y install unzip \
     && unzip chromedriver_linux64.zip \
     && mv chromedriver /usr/bin/chromedriver \
