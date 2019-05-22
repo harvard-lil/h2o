@@ -1,4 +1,6 @@
 class Case < ApplicationRecord
+  include ContentSanitizable
+
   include Capapi::ModelHelpers
   CAPAPI_CLASS = Capapi::Case
 
