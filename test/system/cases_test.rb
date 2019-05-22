@@ -43,7 +43,7 @@ class CaseSystemTest < ApplicationSystemTestCase
       visit case_path(public_case)
 
       assert_content public_case.name_abbreviation
-      assert_content public_case.content
+      assert_content Capybara::HTML(public_case.content).text
 
       # annotations are visible
     end

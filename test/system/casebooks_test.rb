@@ -16,7 +16,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       click_link resource_1.title
 
       assert_content resource_1.resource.title
-      assert_content resource_1.resource.content
+      assert_content Capybara::HTML(resource_1.resource.content).text
     end
   end
 
