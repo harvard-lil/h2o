@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_14_211934) do
+ActiveRecord::Schema.define(version: 2019_05_22_180629) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -325,6 +325,15 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
   create_table "playlists_user_collections", id: false, force: :cascade do |t|
     t.integer "playlist_id"
     t.integer "user_collection_id"
+  end
+
+  create_table "raw_contents", force: :cascade do |t|
+    t.text "content"
+    t.string "source_type"
+    t.bigint "source_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_type", "source_id"], name: "index_raw_contents_on_source_type_and_source_id", unique: true
   end
 
   create_table "roles", id: :serial, force: :cascade do |t|

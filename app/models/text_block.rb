@@ -1,4 +1,5 @@
 class TextBlock < ApplicationRecord
+  include ContentSanitizable
 
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
@@ -11,6 +12,7 @@ class TextBlock < ApplicationRecord
 
   belongs_to :user, optional: true
 
+  has_one :raw_content, as: :source, dependent: :destroy
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   validates_presence_of :name
