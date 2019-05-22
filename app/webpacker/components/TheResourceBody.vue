@@ -1,10 +1,5 @@
 <script>
-import { unwrapUndesiredTags,
-         emptyULToP,
-         wrapBareInlineTags,
-         removeEmptyNodes } from "../libs/html_helpers";
-
-import { transformToTuplesWithOffsets,
+import { nodeToTuple,
          tupleToVNode } from "../libs/resource_node_parsing"
 
 import SpacePreserver from "./SpacePreserver";
@@ -29,32 +24,15 @@ export default {
     resource: {type: Object}
   },
   computed: {
-    sections() {
-      const parser = new DOMParser();
-      let doc = parser.parseFromString(this.resource.content, "text/html");
-      
-      // Some resources are pure text without a wrapping HTML doc.
-      // In this case, body.children will return an empty array.
-      // Wrap that text in a div so that render() can expect HTMLElements
-      if(doc.body.children.length == 0) {
-        let div = document.createElement("div");
-        div.appendChild(document.createTextNode(this.resource.content));
-        return [div];
-      } else {
-        unwrapUndesiredTags(doc);
-        emptyULToP(doc);
-        wrapBareInlineTags(doc);
-        removeEmptyNodes(doc);
-        return Array.from(doc.body.children);
-      }
-    },
+    body() {
+      let node = new DOMParser().parseFromString(this.resource.content, "text/html").body;
+      node.setAttribute("is", "DIV");
+      node.setAttribute("class", "case-text");
+      return node;
+    }
   },
   render(h) {
-    return h("DIV",
-             {class: "case-text"},
-             this.sections
-               .reduce(transformToTuplesWithOffsets(0), [])
-               .map((tuple) => tupleToVNode(h, this.$store.state.annotations.all)(tuple)));
+    return tupleToVNode(h, this.$store.state.annotations.all)(nodeToTuple(this.body));
   }
 };
 </script>
@@ -63,12 +41,13 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .case-text {
+  position: relative;
   counter-reset: index;
   @include serif-text($regular, 18px, 31px);
   /* hacks for misbehaving blockquotes */
   blockquote {
     span p {
-      display: inline; // yes, p in span is illegal, but we have them
+      display: inline; /* yes, p in span is illegal, but we have them */
     }
   }
   /* section numbers */

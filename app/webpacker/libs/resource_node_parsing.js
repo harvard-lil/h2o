@@ -29,12 +29,15 @@ const last = (array) =>
     
 const isValidNodeType = (node) =>
   isText(node) || isLayoutElement(node);
-    
-export const transformToTuplesWithOffsets = (parentStart) =>
+
+export const nodeToTuple = (node, prevEnd = 0) =>
+  [node, prevEnd, prevEnd + getLength(node)];
+
+export const nodesToTuples = (parentStart) =>
   (tuples, node) => {
     let [prevNode, prevStart, prevEnd] = last(tuples) ||
         [null, null, parentStart];
-    return tuples.concat([[node, prevEnd, prevEnd + getLength(node)]]);
+    return tuples.concat([nodeToTuple(node, prevEnd)]);
   };
     
 export const splitTextAt = (breakpoints, [node, start, end]) =>
@@ -155,7 +158,7 @@ export const filterAndSplitNodeList = (annotations, nodeList, start, end) => {
     // i.e. no script or comment tags etc
     .filter(isValidNodeType)
     // transform our Node array to an array of [Node, start, end] tuples
-    .reduce(transformToTuplesWithOffsets(start), [])
+    .reduce(nodesToTuples(start), [])
     // break text nodes at points where annotations exist
     .reduce((tuples, tuple) => tuples.concat(
       isText(tuple[0])

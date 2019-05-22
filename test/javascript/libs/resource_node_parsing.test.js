@@ -4,7 +4,7 @@ import { parseHTML,
          createText } from '../test_helpers';
 import { getLength } from 'libs/html_helpers';
 import { isFootnoteLink,
-         transformToTuplesWithOffsets,
+         nodesToTuples,
          splitTextAt,
          sequentialInlineNodesWithinRange,
          tupleToVNode,
@@ -44,10 +44,10 @@ describe('isFootnoteLink', () => {
   });
 });
 
-describe('transformToTuplesWithOffsets', () => {
+describe('nodesToTuples', () => {
   it('returns tuples with three elements (node, start, end) using the previous end in the list to calculate the next node\'s end position', () => {
     const nodes = Array.from(parseHTML('<ol><li>first</li><li>second</li><li>third</li><</ol>').children);
-    expect(nodes.reduce(transformToTuplesWithOffsets(0), [])).toEqual([
+    expect(nodes.reduce(nodesToTuples(0), [])).toEqual([
       [nodes[0], 0, 5],
       [nodes[1], 5, 11],
       [nodes[2], 11, 16],
@@ -89,28 +89,28 @@ describe('sequentialInlineNodesWithinRange', () => {
   it('drops tuples that fall entirely outside of the specified range', () => {
     const tuples = Array.from(
       parseHTML('<div>Foo <span>bar</span> fizz<em> buzz</em>.</div>').childNodes
-    ).reduce(transformToTuplesWithOffsets(0), []);
+    ).reduce(nodesToTuples(0), []);
     expect(sequentialInlineNodesWithinRange(tuples, 4, 12)).toEqual(tuples.slice(1, 3));
   });
 
   it('drops tuples that fall partially outside of the specified range', () => {
     const tuples = Array.from(
       parseHTML('<div>Foo <span>bar</span> fizz<em> buzz</em>.</div>').childNodes
-    ).reduce(transformToTuplesWithOffsets(0), []);
+    ).reduce(nodesToTuples(0), []);
     expect(sequentialInlineNodesWithinRange(tuples, 2, 14)).toEqual(tuples.slice(1, 3));
   });
 
   it('stops at first block level element within range', () => {
     const tuples = Array.from(
       parseHTML('<div>Foo <span>bar</span> fizz<div> buzz</div>.</div>').childNodes
-    ).reduce(transformToTuplesWithOffsets(0), []);
+    ).reduce(nodesToTuples(0), []);
     expect(sequentialInlineNodesWithinRange(tuples, 2, 9999)).toEqual(tuples.slice(1, 3));
   });
 
   it('ignores block level elements outside of range', () => {
     const tuples = Array.from(
       parseHTML('<div>Foo <div>bar</div> fizz<em> buzz</em><div>.</div></div>').childNodes
-    ).reduce(transformToTuplesWithOffsets(0), []);
+    ).reduce(nodesToTuples(0), []);
     expect(sequentialInlineNodesWithinRange(tuples, 7, 17)).toEqual(tuples.slice(2, 4));
   });
 });
