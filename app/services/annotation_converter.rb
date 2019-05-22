@@ -1,13 +1,13 @@
 class AnnotationConverter
   class << self
-    def paragraph_nodes_to_breakpoints(paragraph_nodes)
-      paragraph_nodes.reduce([0]) {
+    def nodes_to_breakpoints(nodes)
+      nodes.reduce([0]) {
         |lens, node| lens << lens[lens.length - 1] + self.get_node_length(node)
       }
     end
 
-    def global_offsets_to_paragraph_offsets(paragraph_nodes, start_offset, end_offset)
-      breakpoints = paragraph_nodes_to_breakpoints(paragraph_nodes)
+    def global_offsets_to_node_offsets(nodes, start_offset, end_offset)
+      breakpoints = nodes_to_breakpoints(nodes)
       start_paragraph = breakpoints.find_index { |i| i > start_offset } - 1
       end_paragraph = breakpoints.find_index { |i| i >= end_offset } - 1
 
