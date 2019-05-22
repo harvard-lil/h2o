@@ -20,13 +20,17 @@ rvm:
   - 2.4.1
 before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
-  - sudo apt-get update && sudo apt-get -y install google-chrome-stable=74.0.3729.157-1
-  - nvm install 10
-  - npm install yarn -g && yarn install --frozen-lockfile --check-files
-  - wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
+  # technique from https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeChrome/Dockerfile.txt
+  - sudo apt-get update && sudo apt-get -y install google-chrome-stable
+  - CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
+  - CHROME_DRIVER_VERSION=$(wget --no-verbose -O - "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+  - wget https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
   - mv chromedriver ~/bin/chromedriver
   - chmod +x ~/bin/chromedriver
+  # node
+  - nvm install 10
+  - npm install yarn -g && yarn install --frozen-lockfile --check-files
 before_script:
   - bundle exec bin/rails sunspot:solr:start
   - bundle exec bin/rails db:setup
