@@ -12,7 +12,7 @@
         <%= f.input :school, collection: @affiliations, selected:(params[:school].present? ? params[:school] : 'All Schools'), include_blank: 'All Schools', input_html: { name: 'school', 'aria-label': 'Filter by School' }, label: false %>
 
       <% elsif @type == 'cases' %>
-        <%= f.input :sort, collection: {'Sort by Title': 'display_name', 'Date': 'decision_date', 'Relevance': 'score'}, selected: params[:sort] || 'display_name', label: false, input_html: { name: 'sort', 'aria-label': 'Sort Results' } %>
+        <%= f.input :sort, collection: {'Sort by Title': 'display_name', 'Sort by Date': 'decision_date', 'Sort by Relevance': 'score'}, selected: params[:sort] || 'display_name', label: false, input_html: { name: 'sort', 'aria-label': 'Sort Results' } %>
       <% elsif @type == 'users' %>
         <%= f.input :school, collection: @affiliations, selected:(params[:school].present? ? params[:school] : 'All Schools'), include_blank: 'All Schools', input_html: { name: 'school', 'aria-label': 'Filter by School'}, label: false %>
       <% end %>
@@ -33,10 +33,10 @@
             </a>
           </div>
           <div class="type-tab <% if @type == 'cases' %>active<% end %>" <% if @type == 'cases' %>aria-current="location"<% end %>>
-            <% if params[:sort].present? %>
+            <% if @type == 'cases' && params[:sort].present? %>
               <% params[:sort] = 'decision_date' %>
             <% end %>
-            <a href="<%= search_path(q: @query, type: 'cases', school: params[:school], author: params[:author], sort: params[:sort]) %>" class="wrapper">
+            <a href="<%= search_path(q: @query, type: 'cases', school: params[:school], author: params[:author], sort: 'decision_date') %>" class="wrapper">
               <%= t 'search.results.n-case-results', n: @results[:cases].try(:total) || 0 %>
             </a>
           </div>

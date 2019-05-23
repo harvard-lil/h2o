@@ -81,9 +81,12 @@ class SearchesController < ApplicationController
 
       if params[:sort] == 'created_at'
         order_by(:created_at, :desc)
+      elsif params[:sort] == 'decision_date'
+        order_by(:decision_date, :desc)
       else
         order_by (params[:sort] || 'display_name').to_sym
       end
+      
       group :klass do
         limit PER_PAGE
       end
