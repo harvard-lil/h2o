@@ -33,7 +33,7 @@ class Content::CasesController < ApplicationController
 
   def from_capapi
     params.require :id
-    @case = Case.find_by(capapi_id: params[:id]) ||
+    @case = Case.find_by(capapi_id: params[:id], public: true) ||
             Case.create(
               {public: true,
                created_via_import: true}.merge(
