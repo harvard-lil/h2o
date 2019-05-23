@@ -79,14 +79,19 @@ class SearchesController < ApplicationController
       facet(:attribution)
       facet(:affiliation)
 
-      if params[:sort] == 'created_at'
+      # Maintain filtering preferences while switching between tabs. 
+      if params[:sort] == 'created_at' && params["type"] == "cases"
+        order_by(:decision_date, :desc)
+      elsif params[:sort] == 'decision_date' && params["type"] == 'casebooks'
+        order_by(:created_at, :desc)
+      elsif params[:sort] == 'created_at'
         order_by(:created_at, :desc)
       elsif params[:sort] == 'decision_date'
         order_by(:decision_date, :desc)
       else
         order_by (params[:sort] || 'display_name').to_sym
       end
-      
+
       group :klass do
         limit PER_PAGE
       end

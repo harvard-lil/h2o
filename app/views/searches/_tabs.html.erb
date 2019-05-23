@@ -1,0 +1,22 @@
+<div class="results-container">
+  <div class="type-tabs">
+    
+    <div class="type-tab <% if type == 'casebooks' %>active<% end %>" <% if type == 'casebooks' %>aria-current="location"<% end %>>
+      <a href="<%= search_path(q: query, type: 'casebooks', school: params[:school], author: params[:author], sort: params[:sort]) %>" class="wrapper">
+        <%= t 'search.results.n-casebook-results', n: results[:casebooks].try(:total) || 0 %>
+      </a>
+    </div>
+
+    <div class="type-tab <% if type == 'cases' %>active<% end %>" <% if type == 'cases' %>aria-current="location"<% end %>>
+      <a href="<%= search_path(q: query, type: 'cases', school: params[:school], author: params[:author], sort: params[:sort]) %>" class="wrapper">
+        <%= t 'search.results.n-case-results', n: results[:cases].try(:total) || 0 %>
+      </a>
+    </div>
+
+    <div class="type-tab <% if type == 'users' %>active<% end %>" <% if type == 'users' %>aria-current="location"<% end %>>
+      <a href="<%= search_path(q: query, type: 'users', school: params[:school], author: params[:author]) %>" class="wrapper">
+        <%= t 'search.results.n-user-results', n: results[:users].try(:total) || 0 %>
+      </a>
+    </div>
+  </div>
+</div>
