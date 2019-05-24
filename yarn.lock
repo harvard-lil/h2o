@@ -3625,6 +3625,11 @@ html-entities@^1.2.1:
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-1.2.1.tgz#0df29351f0721163515dfb9e5543e5f6eed5162f"
   integrity sha1-DfKTUfByEWNRXfueVUPl9u7VFi8=
 
+htmltidy2@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/htmltidy2/-/htmltidy2-0.3.0.tgz#1edfb74b8cd530cdcdc29ef547c849a651f0870b"
+  integrity sha512-mcQUlg/1Ynwi4kk0Db+61nbaMvzAuLUM1R+AL6O+Nx/Vb6q0IKc33BPKOSWeKNGn0OsjLkdUiNP7dP3RZv+n2g==
+
 http-deceiver@^1.2.7:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/http-deceiver/-/http-deceiver-1.2.7.tgz#fa7168944ab9a519d337cb0bec7284dc3e723d87"
