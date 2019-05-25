@@ -7,22 +7,11 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
-    nodes = HTMLHelpers.parse_and_process_nodes(@resource.resource.content)
-    breakpoints = AnnotationConverter.nodes_to_breakpoints(nodes)
-
-    json = @resource.annotations.as_json
-      .select { |a|
-      # remove annotations that have impossible placements
-      ["start", "end"].reduce(true) { |m, s|
-        m && nodes[a["#{s}_paragraph"]].text.length >= a["#{s}_offset"]
-      }
-    }.map { |a|
-      # convert from paragraph to doc level offsets
-      a.merge(
-        ["start", "end"].map { |s|
-          ["#{s}_offset", a["#{s}_offset"] + breakpoints[a["#{s}_paragraph"]]]
-        }.to_h).except("start_paragraph", "end_paragraph")
-    }
+    json = @resource.annotations.as_json.map do |a|
+      a["start_offset"] = a.delete("global_start_offset")
+      a["end_offset"] = a.delete("global_end_offset")
+      a.except("start_paragraph", "end_paragraph")
+    end
 
     respond_to do |format|
       format.json { render json: json }
@@ -33,6 +22,8 @@ class Content::AnnotationsController < ApplicationController
     nodes = HTMLHelpers.parse_and_process_nodes(@resource.resource.content)
     params = annotation_params
                .merge(resource: @resource)
+               .merge(global_start_offset: annotation_params[:start_offset],
+                      global_end_offset: annotation_params[:end_offset])
                .merge(AnnotationConverter.global_offsets_to_node_offsets(nodes, annotation_params[:start_offset], annotation_params[:end_offset]))
 
     annotation = Content::Annotation.create! params
