@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_22_180629) do
+ActiveRecord::Schema.define(version: 2019_05_24_144913) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -128,6 +128,8 @@ ActiveRecord::Schema.define(version: 2019_05_22_180629) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "global_start_offset"
+    t.integer "global_end_offset"
     t.index ["resource_id", "start_paragraph"], name: "index_content_annotations_on_resource_id_and_start_paragraph"
     t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end
