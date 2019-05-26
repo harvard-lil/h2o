@@ -11,7 +11,7 @@ class Content::Resource < Content::Child
   end
 
   def paragraph_nodes
-    HTMLHelpers.parse_and_process_nodes(resource.content)
+    Nokogiri::HTML(HTMLFormatter.process(resource.content)).at('body').children
   end
 
   def annotated_paragraphs
