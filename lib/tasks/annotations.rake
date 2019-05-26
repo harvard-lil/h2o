@@ -47,46 +47,7 @@ namespace :annotations do
       puts "\n\n*** Case #{c.id}, #{count} of #{limit}"
       if diff.length > 0
         puts "***************", DiffLCS.format(diff)
-      else
-        puts "No difference"
       end
     end
-  end
-
-  desc 'Find Cases Whose Annotation Structure May Change'
-  task(:annotation_shifted => :environment) do
-    old_unnest = lambda do |html|
-      html
-        .xpath('//div')
-        .each { |el| el.replace el.children }
-      html
-    end
-
-    old_filter_empty_nodes = lambda do |nodes|
-      nodes.each do |node|
-        if ! node.nil? && node.children.empty?
-          nodes.delete(node)
-        end
-      end
-      nodes
-    end
-
-    total = Case.annotated.reduce(0) do |memo, c|
-      new_html = Nokogiri::HTML(c.content) {|config| config.strict.noblanks}
-      new = HTMLHelpers.process_nodes(new_html).map(&:to_s)
-
-      old_html = Nokogiri::HTML(c.content) {|config| config.strict.noblanks}
-      old = [HTMLHelpers.method(:strip_comments!),
-             old_unnest,
-             HTMLHelpers.method(:empty_ul_to_p!),
-             HTMLHelpers.method(:wrap_bare_inline_tags!),
-             HTMLHelpers.method(:get_body_nodes_without_whitespace_text),
-             old_filter_empty_nodes].reduce(old_html) { |memo, fn| fn.call(memo) }.map(&:to_s)
-
-      memo += 1 if new != old
-      memo
-    end
-
-    puts "There are #{total} cases whose annotation structure might change"
   end
 end

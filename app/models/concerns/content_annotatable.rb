@@ -23,7 +23,7 @@ module ContentAnnotatable
 
   def build_raw_content_and_assign_sanitized
     build_raw_content(content: content)
-    self.content = raw_content.sanitized_content
+    self.content = HTMLFormatter.process(raw_content.content)
     true
   end
 

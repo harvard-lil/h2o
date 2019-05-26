@@ -118,7 +118,7 @@ module Migrate
         idx += 1
       end
 
-      nodes = HTMLHelpers.process_nodes html
+      nodes = Nokogiri::HTML(HTMLFormatter.process(html)).at('body').children
       collage_annotations = Migrate::Annotation.where(annotated_item_id: collage.id)
 
       collage_annotations.each do |annotation|
