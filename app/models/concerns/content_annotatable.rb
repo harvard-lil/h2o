@@ -3,6 +3,8 @@ module ContentAnnotatable
 
   included do
     has_one :raw_content, as: :source, dependent: :destroy
+    has_many :resources, class_name: 'Content::Resource', as: :resource
+    has_many :annotations, through: :resources
     before_create :build_raw_content_and_assign_sanitized
     after_update :update_annotation_offsets, if: :saved_change_to_content?
   end
@@ -11,13 +13,6 @@ module ContentAnnotatable
     def annotated
       where('id IN (SELECT DISTINCT content_nodes.resource_id FROM content_nodes INNER JOIN content_annotations ON content_nodes.id = content_annotations.resource_id WHERE content_nodes.resource_type = ?)', self.class.name)
     end
-  end
-
-  def annotations
-    Content::Annotation
-      .joins(:resource)
-      .where(content_nodes: {resource_type: self.class.name,
-                             resource_id: id})
   end
 
   private
