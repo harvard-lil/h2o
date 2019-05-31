@@ -8,6 +8,9 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
   validates :content, presence: true, if: Proc.new { |a| KINDS_WITH_CONTENT.include? a.kind }
 
+  after_create :update_resource_counter_cache
+  after_destroy :update_resource_counter_cache
+
   def copy_of
     resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind)
   end
@@ -27,5 +30,12 @@ class Content::Annotation < ApplicationRecord
     end
 
     super(value)
+  end
+
+  private
+
+  def update_resource_counter_cache
+    resource.resource.update_column :annotations_count,
+                                    resource.resource.annotations.count
   end
 end
