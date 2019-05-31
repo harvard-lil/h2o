@@ -15,7 +15,7 @@ class AddRawContents < ActiveRecord::Migration[5.2]
       # Apply HTML cleansing / munging to existing content attributes
       klass.find_each do |instance|
         # use update_column to avoid touching the timestamps
-        instance.update_column :content, HTMLHelpers.parse_and_process_nodes(instance.content).to_html
+        instance.update_column :content, HTMLFormatter.process(instance.content)
       end
     end
   end
