@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 2019_05_24_144913) do
     t.jsonb "opinions"
     t.jsonb "citations"
     t.string "docket_number", limit: 20000
+    t.integer "annotations_count", default: 0
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
@@ -406,6 +407,7 @@ ActiveRecord::Schema.define(version: 2019_05_24_144913) do
     t.boolean "enable_feedback", default: true, null: false
     t.boolean "enable_discussions", default: false, null: false
     t.boolean "enable_responses", default: false, null: false
+    t.integer "annotations_count", default: 0
     t.index ["created_at"], name: "index_text_blocks_on_created_at"
     t.index ["name"], name: "index_text_blocks_on_name"
     t.index ["updated_at"], name: "index_text_blocks_on_updated_at"
