@@ -11,7 +11,7 @@ module ContentAnnotatable
 
   class_methods do
     def annotated
-      where('id IN (SELECT DISTINCT content_nodes.resource_id FROM content_nodes INNER JOIN content_annotations ON content_nodes.id = content_annotations.resource_id WHERE content_nodes.resource_type = ?)', self.class.name)
+      where('id IN (SELECT DISTINCT content_nodes.resource_id FROM content_nodes INNER JOIN content_annotations ON content_nodes.id = content_annotations.resource_id WHERE content_nodes.resource_type = ?)', self.name)
     end
   end
 
