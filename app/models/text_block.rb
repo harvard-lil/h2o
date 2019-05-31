@@ -11,7 +11,6 @@ class TextBlock < ApplicationRecord
   acts_as_taggable_on :tags
 
   belongs_to :user, optional: true
-
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   validates_presence_of :name
