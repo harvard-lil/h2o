@@ -14,8 +14,15 @@ class AddRawContents < ActiveRecord::Migration[5.2]
 
       # Apply HTML cleansing / munging to existing content attributes
       klass.find_each do |instance|
+        # if the case was annotated, use the HTMLFormatter version that was in place at the point
+        # that the first annotation was created, maxing out at V3 because V4 onward was only used
+        # when formatting HTML for exports. If it's not annotated, use the newest HTMLFormatter
+        date = instance.annotated? ?
+                 [instance.annotations.order(created_at: :asc).limit(1).pluck(:created_at)[0],
+                  HTMLFormatter::V3::EFFECTIVE_DATE].min :
+                 Date.today
         # use update_column to avoid touching the timestamps
-        instance.update_column :content, HTMLFormatter.process(instance.content)
+        instance.update_column :content, HTMLFormatter.at(date).process(instance.content)
       end
     end
   end
