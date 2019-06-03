@@ -1,5 +1,4 @@
 import { isBlockLevel,
-         isLayoutElement,
          isElement,
          isText,
          isBR,
@@ -23,12 +22,9 @@ const getTagName = (node) =>
 const last = (array) =>
   array[array.length - 1];
 
-///////////////////////////
-// Munging and filtering //
-///////////////////////////
-    
-const isValidNodeType = (node) =>
-  isText(node) || isLayoutElement(node);
+///////////////
+// Filtering //
+///////////////
 
 export const nodeToTuple = (node, prevEnd = 0) =>
   [node, prevEnd, prevEnd + getLength(node)];
@@ -151,12 +147,9 @@ export const annotationBreakpoints = (annotations, start, end) =>
     .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
     .sort((a, b) => a - b); // sort lowest to highest
 
-export const filterAndSplitNodeList = (annotations, nodeList, start, end) => {
+export const splitNodeList = (annotations, nodeList, start, end) => {
   const breakpoints = annotationBreakpoints(annotations, start, end);
   return Array.from(nodeList)
-    // remove anything that isn't an Element or Text node
-    // i.e. no script or comment tags etc
-    .filter(isValidNodeType)
     // transform our Node array to an array of [Node, start, end] tuples
     .reduce(nodesToTuples(start), [])
     // break text nodes at points where annotations exist
@@ -181,7 +174,7 @@ export const tupleToVNode = (h, annotations) =>
 
       let tag = getTagName(node),
           data = {attrs: attrs},
-          children = annotateAndConvertToVNodes(h, annotations, filterAndSplitNodeList(annotations, node.childNodes, start, end));
+          children = annotateAndConvertToVNodes(h, annotations, splitNodeList(annotations, node.childNodes, start, end));
       switch(tag) {
       case "footnote-link":
         data.props = {startOffset: start,
