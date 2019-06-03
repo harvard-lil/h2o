@@ -61,7 +61,8 @@ module HTMLFormatter
       end
 
       def to_html nodes
-        nodes.to_html
+        # save_with: 0 avoids the addition of pretty-printing whitespace
+        nodes.to_html(save_with: 0)
       end
 
       def process html_string
