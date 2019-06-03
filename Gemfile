@@ -67,7 +67,6 @@ gem 'wkhtmltopdf-binary', require: false
 
 group :development do
   gem 'annotate'
-  gem 'diff-lcs'
   gem 'sunspot_solr'
   gem 'web-console'
 
