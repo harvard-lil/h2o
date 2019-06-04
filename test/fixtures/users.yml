@@ -39,3 +39,10 @@ verified_professor:
   persistence_token: abcd
   verified_professor: true
   professor_verification_requested: true
+
+user_with_full_case:
+  login: user_with_full_case
+  email_address: user_with_full_case@example.gov
+  attribution: user_with_full_case
+  affiliation: user_with_full_case's Affiliation
+  persistence_token: abcd
