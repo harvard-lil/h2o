@@ -84,21 +84,3 @@ annotation_public_highlight3:
   content: This case rocks.
   kind: note
   created_at: <%= DateTime.now - 1.week %>
-
-annotation_draft:
-  resource: draft_merge_section_1
-  start_paragraph: 0
-  end_paragraph: 2
-  start_offset: 5
-  end_offset: 10
-  kind: note
-  content: updated published note
-
-annotation_new_to_draft:
-  resource: draft_merge_section_1
-  start_paragraph: 10
-  end_paragraph: 20
-  start_offset: 2
-  end_offset: 22
-  kind: highlight
-  content: ffee00 [#915850]
