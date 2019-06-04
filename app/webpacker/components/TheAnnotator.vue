@@ -99,7 +99,7 @@ export default {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
 
-    // returns false if the text or element node the child of an
+    // returns false if the text or element node is the child of an
     // element with a special attribute
     contributesToOffsets(node) {
       return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
