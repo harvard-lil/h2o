@@ -22,7 +22,7 @@ class AddRawContents < ActiveRecord::Migration[5.2]
                   HTMLUtils::V3::EFFECTIVE_DATE].min :
                  Date.today
         # use update_column to avoid touching the timestamps
-        instance.update_column :content, HTMLUtils.at(date).process(instance.content)
+        instance.update_column :content, HTMLUtils.at(date).sanitize(instance.content)
       end
     end
   end

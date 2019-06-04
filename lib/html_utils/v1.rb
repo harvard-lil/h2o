@@ -65,7 +65,7 @@ module HTMLUtils
         nodes.to_html(save_with: 0)
       end
 
-      def process html_string
+      def sanitize html_string
         pipeline.reduce(html_string) { |memo, fn| fn.call(memo) }
       end
     end

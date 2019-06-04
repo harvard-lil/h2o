@@ -28,7 +28,7 @@ module ContentAnnotatable
   end
 
   def sanitize_content
-    self.content = HTMLUtils.process(content)
+    self.content = HTMLUtils.sanitize(content)
     true
   end
 
