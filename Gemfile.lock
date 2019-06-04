@@ -310,6 +310,8 @@ GEM
     nio4r (2.3.1)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
+    nokogumbo (2.0.1)
+      nokogiri (~> 1.8, >= 1.8.4)
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -555,7 +557,8 @@ DEPENDENCIES
   minitest-reporters
   minitest-spec-rails
   nilify_blanks
-  nokogiri (~> 1.6)
+  nokogiri
+  nokogumbo
   paperclip (~> 5.2.0)
   pg (~> 0.21)
   poltergeist

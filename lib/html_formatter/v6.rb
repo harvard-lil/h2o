@@ -4,6 +4,9 @@ module HTMLFormatter
   class V6 < V5
     EFFECTIVE_DATE = Date.new(2019, 5, 26)
     class << self
+      def parse html
+        Nokogiri.HTML5(html)
+      end
 
       # Tidy notes:
       # in HTML 5 mode, Tidy doesn't add missing <ul> around bare <li> tags:
