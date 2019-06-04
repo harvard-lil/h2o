@@ -15,8 +15,10 @@ module HTMLFormatter
       versions.first
     end
 
-    def process html_string
-      latest.process(html_string)
+    private
+
+    def method_missing(method, *args, &block)
+      latest.send(method, *args, &block)
     end
   end
 end
