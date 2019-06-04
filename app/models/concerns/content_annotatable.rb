@@ -33,15 +33,15 @@ module ContentAnnotatable
   end
 
   def update_annotation_offsets
-    diffs = DiffHelpers.get_diffs(HTMLUtils.parse(previous_changes[:content][0]).text,
-                                  HTMLUtils.parse(previous_changes[:content][1]).text)
+    diffs = Differ.get_diffs(HTMLUtils.parse(previous_changes[:content][0]).text,
+                             HTMLUtils.parse(previous_changes[:content][1]).text)
 
     # the where() selects only annotations that might be affected by the changes
     annotations
-      .where("global_end_offset >= ?", DiffHelpers.get_first_delta_offset(diffs))
+      .where("global_end_offset >= ?", Differ.get_first_delta_offset(diffs))
       .each do |a|
       range = (a.global_start_offset..a.global_end_offset)
-      new_range = DiffHelpers.adjust_range(diffs, range)
+      new_range = Differ.adjust_range(diffs, range)
       if range != new_range
         a.update global_start_offset: new_range.min,
                  global_end_offset: new_range.max
