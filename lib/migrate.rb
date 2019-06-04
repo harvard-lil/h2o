@@ -102,7 +102,7 @@ module Migrate
     def migrate_annotations(collage, resource)
       return unless resource.resource.class.in? [Case, TextBlock]
 
-      document = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
+      document = HTMLFormatter.parse(resource.resource.content)
       idx = 0
       document.traverse do |node|
         next if node.text?
@@ -110,7 +110,7 @@ module Migrate
         idx += 1
       end
 
-      html = Nokogiri::HTML(resource.resource.content) {|config| config.noblanks}
+      html = HTMLFormatter.parse(resource.resource.content)
       idx = 0
       html.traverse do |node|
         next if node.text?
@@ -118,7 +118,7 @@ module Migrate
         idx += 1
       end
 
-      nodes = Nokogiri::HTML(HTMLFormatter.process(html)).at('body').children
+      nodes = html.at('body').children
       collage_annotations = Migrate::Annotation.where(annotated_item_id: collage.id)
 
       collage_annotations.each do |annotation|
