@@ -33,8 +33,8 @@ module ContentAnnotatable
   end
 
   def update_annotation_offsets
-    diffs = DiffHelpers.get_diffs(Nokogiri::HTML(previous_changes[:content][0]).text,
-                                  Nokogiri::HTML(previous_changes[:content][1]).text)
+    diffs = DiffHelpers.get_diffs(HTMLFormatter.parse(previous_changes[:content][0]).text,
+                                  HTMLFormatter.parse(previous_changes[:content][1]).text)
 
     # the where() selects only annotations that might be affected by the changes
     annotations
