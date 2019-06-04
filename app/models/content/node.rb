@@ -33,8 +33,7 @@ class Content::Node < ApplicationRecord
 
   def formatted_headnote
     unless self.headnote.blank?
-      headnote_html = Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
-      headnote_html.to_html.html_safe
+      HTMLFormatter.process(self.headnote).html_safe
     end
   end
 
