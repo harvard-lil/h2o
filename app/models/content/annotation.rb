@@ -32,6 +32,13 @@ class Content::Annotation < ApplicationRecord
     super(value)
   end
 
+  def as_json(*)
+    super.except("start_paragraph", "end_paragraph").tap do |hash|
+      hash["start_offset"] = hash.delete("global_start_offset")
+      hash["end_offset"] = hash.delete("global_end_offset")
+    end
+  end
+
   private
 
   def update_resource_counter_cache

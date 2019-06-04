@@ -7,14 +7,8 @@ class Content::AnnotationsController < ApplicationController
   before_action :check_public, only: [:index]
 
   def index
-    json = @resource.annotations.as_json.map do |a|
-      a["start_offset"] = a.delete("global_start_offset")
-      a["end_offset"] = a.delete("global_end_offset")
-      a.except("start_paragraph", "end_paragraph")
-    end
-
     respond_to do |format|
-      format.json { render json: json }
+      format.json { render json: @resource.annotations }
     end
   end
 
