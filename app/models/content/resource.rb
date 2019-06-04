@@ -11,7 +11,7 @@ class Content::Resource < Content::Child
   end
 
   def paragraph_nodes
-    HTMLFormatter.parse(resource.content).at('body').children
+    HTMLUtils.parse(resource.content).at('body').children
   end
 
   def annotated_paragraphs

@@ -28,13 +28,13 @@ module ContentAnnotatable
   end
 
   def sanitize_content
-    self.content = HTMLFormatter.process(content)
+    self.content = HTMLUtils.process(content)
     true
   end
 
   def update_annotation_offsets
-    diffs = DiffHelpers.get_diffs(HTMLFormatter.parse(previous_changes[:content][0]).text,
-                                  HTMLFormatter.parse(previous_changes[:content][1]).text)
+    diffs = DiffHelpers.get_diffs(HTMLUtils.parse(previous_changes[:content][0]).text,
+                                  HTMLUtils.parse(previous_changes[:content][1]).text)
 
     # the where() selects only annotations that might be affected by the changes
     annotations

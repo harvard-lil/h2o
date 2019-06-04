@@ -1,4 +1,4 @@
-module HTMLFormatter
+module HTMLUtils
   @@versions = []
 
   class << self
@@ -24,4 +24,4 @@ module HTMLFormatter
 end
 
 # force rails to load the various versions
-Dir["lib/html_formatter/*"].each { |path| require_dependency path[4..-1] }
+Dir["lib/html_utils/*"].each { |path| require_dependency path[4..-1] }
