@@ -33,7 +33,7 @@ class Content::Node < ApplicationRecord
 
   def formatted_headnote
     unless self.headnote.blank?
-      HTMLFormatter.process(self.headnote).html_safe
+      HTMLUtils.process(self.headnote).html_safe
     end
   end
 
