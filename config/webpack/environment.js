@@ -7,7 +7,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 environment.config.merge({
   resolve: {
     alias: {
-      // alias vue for convenience and so .min.js file aliased in where needed
+      // alias vue for convenience and so .min.js file can be aliased in where needed
       vue: "vue/dist/vue.esm",
 
       // alias assets dir to ~assets for SASS url() styles
