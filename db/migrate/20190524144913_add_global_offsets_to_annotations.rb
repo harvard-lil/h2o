@@ -7,7 +7,7 @@ class AddGlobalOffsetsToAnnotations < ActiveRecord::Migration[5.2]
 
     ANNOTATABLES.each do |klass|
       klass.annotated.find_each do |instance|
-        nodes = Nokogiri::HTML(instance.content).xpath("//body/node()[not(self::text())]")
+        nodes = HTMLFormmatter.parse(instance.content).at('body').children
         breakpoints = AnnotationConverter.nodes_to_breakpoints(nodes)
         instance.annotations.find_each do |a|
           # use update_columns to avoid touching the timestamps

@@ -19,7 +19,7 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def create
-    nodes = Nokogiri::HTML(HTMLFormatter.process(@resource.resource.content)).at('body').children
+    nodes = HTMLFormatter.parse(@resource.resource.content).at('body').children
     params = annotation_params
                .merge(resource: @resource)
                .merge(global_start_offset: annotation_params[:start_offset],
