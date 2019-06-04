@@ -35,28 +35,24 @@ namespace :annotations do
 
   desc 'Compare Ruby\'s Nokogiri text to what Vue returns'
   task(:compare_nokogiri_text_to_vue => :environment) do
-    limit = 500
-    count = 0
-    ids = []
-    Case.order(id: :desc).limit(limit).each do |c|
-      count += 1
-      content = HTMLFormatter.process(c.content)
-
-      html = Nokogiri::HTML(content)
-      html.xpath("//pre/text()[1][starts-with(., '\n')]").each { |node| node.content = node.content[1..-1] }
-      ruby_text = html.text.gsub("\r\n", "\n")
-
-      vue_text = Nokogiri::HTML(Vue::SSR.render(content)).text
-      diffs = DiffHelpers.get_diffs(ruby_text, vue_text).select { |d| d[0] != :equal }
-      puts "\n\n*** Case #{c.id}, #{count} of #{limit}"
-      if diffs.present?
-        puts diffs.map { |a, b, c, d|
-          ["", a, "",
-           "<<<< Ruby", ruby_text[c.min - 10..c.max + 10],
-           "", ">>>> Vue",
-           vue_text[d.min - 10..d.max + 10],
-           ""]
-        }
+    [Case, TextBlock].each do |klass|
+      i = 0
+      count = klass.count
+      klass.find_each do |inst|
+        i += 1
+        ruby_text = HTMLFormatter.parse(inst.content).text
+        vue_text = HTMLFormatter.parse(Vue::SSR.render(inst.content)).text
+        diffs = DiffHelpers.get_diffs(ruby_text, vue_text).select { |d| d[0] != :equal }
+        puts "*** #{klass.name} id: #{inst.id}; #{i} of #{count} #{diffs.blank? ? "(identical)" : ""}"
+        if diffs.present?
+          puts diffs.map { |a, b, c, d|
+            [a, "",
+             "<<<< Ruby", ruby_text[c.min - 10..c.max + 10],
+             "", ">>>> Vue",
+             vue_text[d.min - 10..d.max + 10],
+             ""]
+          }
+        end
       end
     end
   end
