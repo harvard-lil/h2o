@@ -1,4 +1,4 @@
-module DiffHelpers
+module Differ
   class << self
     def get_dmp_diffs before, after
       dmp = DiffMatchPatch.new
