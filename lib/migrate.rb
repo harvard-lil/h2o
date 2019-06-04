@@ -102,7 +102,7 @@ module Migrate
     def migrate_annotations(collage, resource)
       return unless resource.resource.class.in? [Case, TextBlock]
 
-      document = HTMLFormatter.parse(resource.resource.content)
+      document = HTMLUtils.parse(resource.resource.content)
       idx = 0
       document.traverse do |node|
         next if node.text?
@@ -110,7 +110,7 @@ module Migrate
         idx += 1
       end
 
-      html = HTMLFormatter.parse(resource.resource.content)
+      html = HTMLUtils.parse(resource.resource.content)
       idx = 0
       html.traverse do |node|
         next if node.text?

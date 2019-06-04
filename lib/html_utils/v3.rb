@@ -1,6 +1,6 @@
 # via: https://github.com/harvard-lil/h2o/blob/c1726f0e038f325745139c46e0b552a20e4bf9c3/lib/html_helpers.rb
 
-module HTMLFormatter
+module HTMLUtils
   class V3 < V2
     EFFECTIVE_DATE = Date.new(2018, 10, 10)
     class << self
