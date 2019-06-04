@@ -1,6 +1,8 @@
 module Tidy
   class << self
-    PATH = Rails.root.join('node_modules','htmltidy2','bin',Gem::Platform.local.os,'tidy')
+    PLATFORM = Gem::Platform.local.os +
+               (Gem::Platform.local.os != 'darwin' ? Gem::Platform.local.cpu[-2..-1] : '')
+    PATH = Rails.root.join('node_modules','htmltidy2','bin',PLATFORM,'tidy')
     CONFIG = {force_output: true,
               quiet: true,
               show_errors: 0,
