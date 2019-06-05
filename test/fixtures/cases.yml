@@ -4,7 +4,7 @@ public_case_1:
   decision_date: 1999-01-10
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of case 1.
+  content: <p>This is the body of case 1.</p>
   public: true
 
 public_case_2:
@@ -13,7 +13,7 @@ public_case_2:
   decision_date: 1999-01-10
   opinions: {"majority": "Judge Person the Second"}
   case_court: district_jurisdiction
-  content: This is the body of case 2.
+  content: <p>This is the body of case 2.</p>
   public: true
 
 public_case_3:
@@ -22,7 +22,7 @@ public_case_3:
   decision_date: 1999-01-10
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of case 3.
+  content: <p>This is the body of case 3.</p>
   public: true
 
 public_case_to_annotate:
@@ -32,12 +32,12 @@ public_case_to_annotate:
   opinions: {"majority": "Judge Person the Second"}
   case_court: district_jurisdiction
   content: >
-    highlighted: content to highlight;
+    <p>highlighted: content to highlight;
     elided: content to elide;
     replaced: content to replace;
     linked: content to link;
     noted: content to note;
-    highlighted2: second highlight content;
+    highlighted2: second highlight content;</p>
   public: true
 
 public_case_to_annotate2:
@@ -47,12 +47,12 @@ public_case_to_annotate2:
   opinions: {"majority": "Judge Person the Second"}
   case_court: district_jurisdiction
   content: >
-    highlighted: content to highlight;
+    <p>highlighted: content to highlight;
     elided: content to elide;
     replaced: content to replace;
     linked: content to link;
     noted: content to note;
-    highlighted2: second highlight content;
+    highlighted2: second highlight content;</p>
   public: true
 
 <% for label in [*'XA'..'YZ'] %>
@@ -63,7 +63,7 @@ haystack_case_<%=label%>:
   opinions: {"majority": "Judge Haystack the <%=label%>th"}
   case_court: district_jurisdiction
   content: >
-    This is haystack case labeled <%=label%>
+    <p>This is haystack case labeled <%=label%></p>
   public: <% if label.between?('XA', 'XZ') %>true<% else %>false<% end %>
 <% end %>
 
@@ -73,7 +73,7 @@ private_case_1:
   decision_date: 1999-01-10
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of PRIVATE case 1.
+  content: <p>This is the body of PRIVATE case 1.</p>
   public: false
 
 private_case_2:
@@ -82,7 +82,7 @@ private_case_2:
   decision_date: 1999-01-12
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of PRIVATE case 2.
+  content: <p>This is the body of PRIVATE case 2.</p>
   public: false
 
 case_with_citation: 
@@ -91,7 +91,7 @@ case_with_citation:
   decision_date: 1999-08-18
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of case with citation.
+  content: <p>This is the body of case with citation.</p>
   citations:
     - type: "official"
       cite: "405 F .2d 1104"
@@ -104,7 +104,7 @@ case_with_capapi_id:
   decision_date: 1999-08-18
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of case with citation.
+  content: <p>This is the body of case with citation.</p>
   public: true
 
 unused_case:
@@ -113,7 +113,7 @@ unused_case:
   decision_date: 1999-01-10
   opinions: {"majority": "Judge Person"}
   case_court: district_jurisdiction
-  content: This is the body of case 1.
+  content: <p>This is the body of case 1.</p>
   public: true
 
 case_2971:
