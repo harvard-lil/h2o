@@ -9,7 +9,7 @@ class Content::Annotation < ApplicationRecord
   validates :content, presence: true, if: Proc.new { |a| KINDS_WITH_CONTENT.include? a.kind }
 
   after_create :update_resource_counter_cache
-  after_destroy :update_resource_counter_cache
+  after_destroy :update_resource_counter_cache, unless: :destroyed_by_association
 
   def copy_of
     resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind)
