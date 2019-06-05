@@ -38,7 +38,7 @@
     <%= render 'content/actions' %>
   </aside>
 <% end %>
-<% if @content.formatted_headnote.present? || @content.subtitle.present? %>
+<% if @content.headnote? || @content.subtitle? %>
   <section class="headnote">
     <h5>
       <%= t 'content.show.headnote' %>
@@ -49,7 +49,7 @@
       </h3>
     <% end %>
     <p>
-      <%= @content.formatted_headnote %>
+      <%= @content.headnote %>
     </p>
   </section>
 <% else %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_24_144913) do
+ActiveRecord::Schema.define(version: 2019_06_05_125852) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -162,7 +162,7 @@ ActiveRecord::Schema.define(version: 2019_05_24_144913) do
     t.string "title"
     t.string "slug"
     t.string "subtitle"
-    t.text "headnote"
+    t.text "raw_headnote"
     t.boolean "public", default: true, null: false
     t.bigint "casebook_id"
     t.integer "ordinals", default: [], null: false, array: true
@@ -177,6 +177,7 @@ ActiveRecord::Schema.define(version: 2019_05_24_144913) do
     t.bigint "root_user_id"
     t.boolean "draft_mode_of_published_casebook"
     t.boolean "cloneable", default: true, null: false
+    t.text "headnote"
     t.index ["ancestry"], name: "index_content_nodes_on_ancestry"
     t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
     t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
