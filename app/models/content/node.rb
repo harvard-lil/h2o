@@ -11,8 +11,14 @@ class Content::Node < ApplicationRecord
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}
   nilify_blanks
 
+  before_save :sanitize_headnote, if: [:headnote?, :headnote_changed?]
+
   def slug
     super || self.title.parameterize
+  end
+
+  def headnote
+    super.try(:html_safe)
   end
 
   def create_revisions(content_params)
@@ -31,17 +37,16 @@ class Content::Node < ApplicationRecord
     end
   end
 
-  def formatted_headnote
-    unless self.headnote.blank?
-      HTMLUtils.sanitize(self.headnote).html_safe
-    end
-  end
-
   def has_collaborator?(user_id)
     collaborators.pluck(:user_id).include?(user_id)
   end
 
   private
+
+  def sanitize_headnote
+    self.headnote = HTMLUtils.sanitize(headnote)
+    true
+  end
 
   def casebook_id_for_revision
     #if it's a resource return the casebook_id
