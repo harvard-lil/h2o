@@ -11,7 +11,8 @@ module Tidy
               enclose_text: true,
               drop_empty_elements: true,
               hide_comments: true,
-              tidy_mark: false}
+              tidy_mark: false,
+              wrap: 0}
 
     def exec html
       IO.popen("#{PATH} #{flags}", 'r+') do |io|
