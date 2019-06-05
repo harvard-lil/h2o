@@ -22,7 +22,7 @@ public_casebook_section_1_1:
 public_casebook_section_1_2:
   casebook: public_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [1,2]
@@ -31,7 +31,7 @@ public_casebook_section_2:
   casebook: public_casebook
   title: Section Two
   headnote: >
-    This is the second chapter of the casebook.
+    <p>This is the second chapter of the casebook.</p>
   ordinals: [2]
 
 public_annotated_casebook:
@@ -55,7 +55,7 @@ public_annotated_casebook_section_1_1:
 public_annotated_casebook_section_1_2:
   casebook: public_annotated_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_case_to_annotate2
   resource_type: Case
   ordinals: [1,2]
@@ -64,7 +64,7 @@ public_annotated_section_2:
   casebook: public_annotated_casebook
   title: Annotated Section Two
   headnote: >
-    This is the second chapter of the casebook.
+    <p>This is the second chapter of the casebook.</p>
   ordinals: [2]
 
 draft_casebook:
@@ -77,14 +77,14 @@ draft_casebook_section_1:
   casebook: draft_casebook
   title: Section One
   headnote: >
-    This is the first chapter of the casebook.
+    <p>This is the first chapter of the casebook.</p>
   ordinals: [1]
   copy_of: public_casebook_section_1
 
 draft_resource_1:
   casebook: draft_casebook
   headnote: >
-    This is the first resource in the casebook.
+    <p>This is the first resource in the casebook.</p>
   resource: public_case_1
   resource_type: Case
   ordinals: [1,1]
@@ -93,7 +93,7 @@ draft_resource_1:
 draft_resource_2:
   casebook: draft_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [1, 2]
@@ -102,7 +102,7 @@ draft_casebook_section_2:
   casebook: draft_casebook
   title: Section Two
   headnote: >
-    This is the second chapter of the casebook.
+    <p>This is the second chapter of the casebook.</p>
   ordinals: [2]
 
 private_casebook:
@@ -114,7 +114,7 @@ private_casebook_section_1:
   casebook: private_casebook
   title: Section One
   headnote: >
-    This is the first chapter of the casebook.
+    <p>This is the first chapter of the casebook.</p>
   ordinals: [1]
 
 private_casebook_resource_1_1:
@@ -147,7 +147,7 @@ published_casebook_section_1:
   casebook: published_casebook
   title: Link 1
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: link_one
   resource_type: Default
   ordinals: [1]
@@ -156,7 +156,7 @@ published_casebook_section_1:
 published_casebook_section_1_1:
   casebook: published_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [1, 1]
@@ -165,7 +165,7 @@ published_casebook_section_1_1:
 published_casebook_section_1_2:
   #this is for testing deleting a resource
   casebook: published_casebook
-  headnote: Haystack case
+  headnote: <p>Haystack case</p>
   resource: haystack_case_XA
   resource_type: Case
   ordinals: [1, 2]
@@ -174,7 +174,7 @@ published_casebook_section_1_2:
 published_casebook_section_2:
   casebook: published_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [2]
@@ -182,7 +182,7 @@ published_casebook_section_2:
 
 published_casebook_section_3:
   casebook: published_casebook
-  headnote: New Section headnote
+  headnote: <p>New Section headnote</p>
   title: New Section
   ordinals: [3]
 
@@ -201,7 +201,7 @@ draft_merge_section_1:
   casebook: draft_merge_casebook
   title: link 1
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: link_one
   resource_type: Default
   ordinals: [1]
@@ -210,7 +210,7 @@ draft_merge_section_1:
 draft_merge_section_2:
   casebook: draft_merge_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [2]
@@ -220,7 +220,7 @@ draft_merge_section_2_1:
   #for moving ordinals example
   casebook: draft_merge_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_case_to_annotate
   resource_type: Case
   ordinals: [2, 1]
@@ -231,7 +231,7 @@ draft_merge_section_3:
   #this is a new resource (no copy_of_id)
   casebook: draft_merge_casebook
   headnote: >
-    This is an annotatable resource in the casebook.
+    <p>This is an annotatable resource in the casebook.</p>
   resource: public_text_1
   resource_type: TextBlock
   ordinals: [3]
@@ -269,12 +269,12 @@ resource_with_full_case:
     (usually shares in the buyer).</p>\r\n\r\n<p>Under most U.S. statutes such as&nbsp;DGCL&nbsp;251,
     the merger generally requires a merger agreement between the buyer and the target
     to be approved by the boards and a majority of the shareholders of each corporation.
-    This entails two important consequences.</p>\r\n\r\n<p>First, the board controls
+    <p>This entails two important consequences.</p>\r\n\r\n<p>First, the board controls
     the process because only the board can have the corporation enter into the merger
-    agreement. This is one example of why it is at least misleading to call shareholders
+    agreement. <p>This is one example of why it is at least misleading to call shareholders
     the &ldquo;owners of the corporation.&rdquo;</p>\r\n\r\n<p>Two, in public corporations,
     the requirement of shareholder approval means that several months will pass between
-    signing the merger agreement and completion of the merger. This is the time it
+    signing the merger agreement and completion of the merger. <p>This is the time it
     takes to convene the shareholder meeting and solicit proxies in accordance with
     the applicable corporate law and&nbsp;SEC&nbsp;proxy rules. Of course, many things
     can happen during this time. In particular, other potential buyers may appear
