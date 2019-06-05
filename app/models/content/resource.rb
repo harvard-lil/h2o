@@ -4,6 +4,8 @@ class Content::Resource < Content::Child
   belongs_to :resource, polymorphic: true, inverse_of: :casebooks, required: true
   has_many :annotations, class_name: 'Content::Annotation', dependent: :destroy
 
+  after_destroy :update_resource_counter_cache, if: :resource_annotatable?
+
   accepts_nested_attributes_for :resource
 
   def can_delete?
@@ -58,5 +60,16 @@ class Content::Resource < Content::Child
 
   def has_elisions?
     annotations.where(kind: ["elide", "replace"]).any?
+  end
+
+  private
+
+  def resource_annotatable?
+    resource.class < ContentAnnotatable
+  end
+
+  def update_resource_counter_cache
+    resource.update_column :annotations_count,
+                           resource.annotations.count
   end
 end
