@@ -1,5 +1,5 @@
 # Defaults are link resources
-class Default < ApplicationRecord
+class Link < ApplicationRecord
   include MetadataExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension

@@ -8,7 +8,7 @@ class Ability
     can [:new, :create, :edit, :update], :password_resets
     can [:new, :create], :login_notifiers
     can [:new, :create], :user_sessions
-    can :index, [:cases, :text_blocks, :defaults]
+    can :index, [:cases, :text_blocks, :links]
 
     can [:show, :export, :export_as], Content::Node, :public => true
     can [:show, :export, :export_as], Case, :public => true
@@ -22,14 +22,14 @@ class Ability
 
       can :destroy, :user_sessions
       can [:verification_request, :verify], :users
-      can :new, [Content::Casebook, TextBlock, Default]
-      can :create, [:casebooks, :text_blocks, :defaults]
-      can :copy, Default, :public => true
-      can :copy, Default, :user_id => user.id
+      can :new, [Content::Casebook, TextBlock, Link]
+      can :create, [:casebooks, :text_blocks, :links]
+      can :copy, Link, :public => true
+      can :copy, Link, :user_id => user.id
 
       # Can do things on owned items
       if !user.has_role? :superadmin
-        can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [TextBlock, Default], :user_id => user.id
+        can [:edit, :show, :update, :destroy, :export, :export_as, :export_unique], [TextBlock, Link], :user_id => user.id
       end
 
       can :destroy, Response do |response|
@@ -51,7 +51,7 @@ class Ability
       can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :edit, :update, :position_update, :update_notes, :save_readable_state], :all
-      can [:import], [Default]
+      can [:import], [Link]
       can :show_in_app, [Case, User, Content::Casebook]
 
       can [:new, :edit], Page
@@ -60,7 +60,7 @@ class Ability
       can [:new], CaseCourt
       can [:create], :case_courts
 
-      can [:new, :edit, :update, :show], [Case, CaseCourt, Default, TextBlock, User]
+      can [:new, :edit, :update, :show], [Case, CaseCourt, Link, TextBlock, User]
 
       can :manage_collaborators, [Content::Casebook]
     elsif user.has_role? :case_admin
@@ -80,7 +80,7 @@ class Ability
       associated_user_ids = user_ids.flatten.uniq
       can :access, :rails_admin
       can :dashboard, :all
-      can [:index, :show, :export, :export_as, :export_unique, show_in_app], [TextBlock, Default], :user_id => associated_user_ids
+      can [:index, :show, :export, :export_as, :export_unique, show_in_app], [TextBlock, Link], :user_id => associated_user_ids
     end
   end
 end

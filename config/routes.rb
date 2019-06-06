@@ -28,12 +28,6 @@ H2o::Application.routes.draw do
       post 'export_as'
     end
   end
-  resources :defaults do
-    member do
-      post 'copy'
-    end
-  end
-
 
   scope module: 'content' do
     resources :cases, only: [:show], param: :case_id do
