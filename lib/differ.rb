@@ -38,8 +38,7 @@ module Differ
       !!diffs.find { |diff|
         diff[0] == :delete &&
           diff[2].min <= range.min &&
-          diff[2].max >= range.max # &&
-          # diffs[diffs.index(diff) + 1]&.[](0) != :insert
+          diff[2].max >= range.max
       }
     end
 
