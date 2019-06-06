@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_05_125852) do
+ActiveRecord::Schema.define(version: 2019_06_06_203045) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -64,7 +64,7 @@ ActiveRecord::Schema.define(version: 2019_06_05_125852) do
     t.jsonb "opinions"
     t.jsonb "citations"
     t.string "docket_number", limit: 20000
-    t.integer "annotations_count", default: 0
+    t.integer "annotations_count", default: 0, null: false
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
@@ -185,20 +185,7 @@ ActiveRecord::Schema.define(version: 2019_06_05_125852) do
     t.index ["resource_type", "resource_id"], name: "index_content_nodes_on_resource_type_and_resource_id"
   end
 
-  create_table "defaults", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 1024
-    t.string "url", limit: 1024, null: false
-    t.string "description", limit: 5242880
-    t.boolean "public", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string "content_type", limit: 255
-    t.integer "user_id", default: 0
-    t.string "ancestry", limit: 255
-    t.boolean "created_via_import", default: false, null: false
-  end
-
-  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
+  create_table "delayed_jobs", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
     t.text "handler"
@@ -206,10 +193,10 @@ ActiveRecord::Schema.define(version: 2019_06_05_125852) do
     t.datetime "run_at"
     t.datetime "locked_at"
     t.datetime "failed_at"
-    t.string "locked_by", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string "queue", limit: 255
+    t.string "locked_by"
+    t.string "queue"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
@@ -220,6 +207,19 @@ ActiveRecord::Schema.define(version: 2019_06_05_125852) do
     t.string "item_type", limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "links", id: :serial, force: :cascade do |t|
+    t.string "name", limit: 1024
+    t.string "url", limit: 1024, null: false
+    t.string "description", limit: 5242880
+    t.boolean "public", default: true
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string "content_type", limit: 255
+    t.integer "user_id", default: 0
+    t.string "ancestry", limit: 255
+    t.boolean "created_via_import", default: false, null: false
   end
 
   create_table "media_types", id: :serial, force: :cascade do |t|
@@ -408,7 +408,7 @@ ActiveRecord::Schema.define(version: 2019_06_05_125852) do
     t.boolean "enable_feedback", default: true, null: false
     t.boolean "enable_discussions", default: false, null: false
     t.boolean "enable_responses", default: false, null: false
-    t.integer "annotations_count", default: 0
+    t.integer "annotations_count", default: 0, null: false
     t.index ["created_at"], name: "index_text_blocks_on_created_at"
     t.index ["name"], name: "index_text_blocks_on_name"
     t.index ["updated_at"], name: "index_text_blocks_on_updated_at"

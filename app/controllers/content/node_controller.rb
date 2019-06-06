@@ -79,6 +79,8 @@ class Content::NodeController < ApplicationController
   end
 
   def find_casebook
+    binding.pry
+    # https://engineering.gusto.com/a-visual-guide-to-using-includes-in-rails/
     @content = @casebook = Content::Casebook.includes(contents: [:resource]).find params[:casebook_id] || params[:casebook_casebook_id]
   end
 

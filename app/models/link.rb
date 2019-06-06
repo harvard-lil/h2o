@@ -1,4 +1,3 @@
-# Defaults are link resources
 class Link < ApplicationRecord
   include MetadataExtensions
   include VerifiedUserExtensions
