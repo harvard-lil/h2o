@@ -15,13 +15,6 @@ module HTMLUtils
       def tidy html_string
         Tidy.exec(html_string)
       end
-      
-      def unwrap! html
-        html
-          .xpath('//article | //section | //aside')
-          .each { |el| el.replace el.children }
-        html
-      end
 
       # Tidy won't wrap these when using the enclose-text flag since, though they are inline elements in some cases, they're block elements in others.
       # via: https://github.com/htacg/tidy-html5/blob/a71031f9e529f0aa74a819576411594e21767be4/src/tags.c

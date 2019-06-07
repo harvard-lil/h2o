@@ -4,7 +4,7 @@ module HTMLUtils
   class V5 < V4
     EFFECTIVE_DATE = Date.new(2019, 4, 24)
     class << self
-      def unnest! html
+      def unwrap! html
         html
           .xpath('//article | //section | //aside')
           .each { |el| el.replace el.children }
