@@ -10,17 +10,17 @@ module Differ
     end
 
     def calculate_ranges dmp_diffs
-      dmp_diffs.reduce([]) do |diffs, diff|
-        start_before = diffs.last&.[](0) == :insert ?
-                         diffs.last[2].min :
-                         diffs.last&.[](2)&.max || 0
+      dmp_diffs.reduce([]) do |diffs_with_ranges, diff|
+        start_before = diffs_with_ranges.last&.[](0) == :insert ?
+                         diffs_with_ranges.last[2].min :
+                         diffs_with_ranges.last&.[](2)&.max || 0
 
-        start_after = diffs.last&.[](0) == :delete ?
-                        diffs.last[3].min :
-                        diffs.last&.[](3)&.max || 0
+        start_after = diffs_with_ranges.last&.[](0) == :delete ?
+                        diffs_with_ranges.last[3].min :
+                        diffs_with_ranges.last&.[](3)&.max || 0
 
-        diffs + [diff + [start_before..start_before + diff[1].length,
-                         start_after..start_after + diff[1].length]]
+        diffs_with_ranges + [diff + [start_before..start_before + diff[1].length,
+                                     start_after..start_after + diff[1].length]]
       end
     end
 
