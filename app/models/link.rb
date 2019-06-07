@@ -1,13 +1,9 @@
 class Link < ApplicationRecord
   include MetadataExtensions
-  include VerifiedUserExtensions
-  include SpamPreventionExtension
-
   acts_as_taggable_on :tags
   belongs_to :user, optional: true
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
-
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   searchable(:include => [:metadatum, :tags]) do
@@ -17,22 +13,10 @@ class Link < ApplicationRecord
     text :url
     text :description
     integer :user_id, :stored => true
-
-    string :metadatum, :stored => true, :multiple => true
-
     string :user
     boolean :public
-
     time :created_at
     time :updated_at
-
-    string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
   end
 
   def url_format
@@ -49,10 +33,6 @@ class Link < ApplicationRecord
 
   def title
     display_name
-  end
-
-  def self.content_types_options
-    %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
 
   def has_casebooks?

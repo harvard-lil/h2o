@@ -35,12 +35,12 @@
           <div class="resource-type-container">
             <div class="resource-type"> <%= t 'content.resource.type.text' %></div>
           </div>
-        <% elsif content.resource.is_a? Default %>
+        <% elsif content.resource.is_a? Link %>
           <div class="resource-container">
             <div class="section-title"> <%= content.title %></div>
           </div>
           <div class="resource-type-container">
-            <div class="resource-type"> <%= t "content.resource.type.default" %></div>
+            <div class="resource-type"> <%= t "content.resource.type.link" %></div>
           </div>
         <% else %>
           <div class="resource-type">
