@@ -3,6 +3,7 @@ class Default < ApplicationRecord
   include MetadataExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
+  include Rails.application.routes.url_helpers
 
   acts_as_taggable_on :tags
   belongs_to :user, optional: true
@@ -60,8 +61,14 @@ class Default < ApplicationRecord
     Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
   end
 
-  def associated_casebooks
-    casebook_ids = Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).pluck(:casebook_id)
-    Content::Casebook.where(id: casebook_ids).select(:id, :title)
+  def associated_resources
+    links = ""
+    resources = Content::Resource.where(resource_type: self.class.name, resource_id: self.id)
+    resources.each do |resource|
+      casebook = resource.casebook
+      binding.pry
+      links += "<div><a href=#{resource_path(casebook, resource)}>#{casebook.title} [#{casebook.created_at.year}] - #{casebook.owner}</a></div>".html_safe
+    end
+    links.html_safe
   end
 end
