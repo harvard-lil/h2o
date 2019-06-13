@@ -245,11 +245,11 @@ RailsAdmin.config do |config|
       field :parties
       field :opinions
       field :content, :ck_editor
-      field :resource_links do
+      field :associated_resources do
         label "Used in Casebooks"
         read_only true
         pretty_value do
-          bindings[:object].resource_links
+          bindings[:object].associated_resources
         end
       end
     end

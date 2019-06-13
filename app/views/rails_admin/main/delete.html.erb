@@ -2,12 +2,8 @@
 
 <% if %w(TextBlock Case Default).include?(@object.class.name) && @object.has_casebooks? %>
   <div>Can't delete <%= @object.class.name %> because it's used in casebooks:</div>
-
-  <ul>
-    <% @object.associated_casebooks.each do |casebook| %>
-      <li><%= link_to(casebook.title, main_app.layout_casebook_path(casebook.id)) %></li>
-    <% end %>
-  </ul>
+  <div class="associated-resources"><%= @object.associated_resources %></div>
+    
 <% else %>
   <h4>
     <%= t("admin.form.are_you_sure_you_want_to_delete_the_object", model_name: @abstract_model.pretty_name.downcase) %>

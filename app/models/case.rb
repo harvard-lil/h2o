@@ -107,9 +107,9 @@ class Case < ApplicationRecord
     end
   end
 
-  def resource_links
+  def associated_resources
     links = ""
-    resources = Content::Resource.where(resource_type: "Case", resource_id: self.id)
+    resources = Content::Resource.where(resource_type: self.class.name, resource_id: self.id)
     resources.each do |resource|
       casebook = resource.casebook
       links += "<div><a href=#{resource_path(casebook, resource)}>#{casebook.title} [#{casebook.created_at.year}] - #{casebook.owner}</a></div>".html_safe
@@ -119,11 +119,6 @@ class Case < ApplicationRecord
 
   def has_casebooks?
     Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
-  end
-
-  def associated_casebooks
-    casebook_ids = Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).pluck(:casebook_id)
-    Content::Casebook.where(id: casebook_ids).select(:id, :title)
   end
 
   private
