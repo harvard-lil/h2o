@@ -66,7 +66,6 @@ class Default < ApplicationRecord
     resources = Content::Resource.where(resource_type: self.class.name, resource_id: self.id)
     resources.each do |resource|
       casebook = resource.casebook
-      binding.pry
       links += "<div><a href=#{resource_path(casebook, resource)}>#{casebook.title} [#{casebook.created_at.year}] - #{casebook.owner}</a></div>".html_safe
     end
     links.html_safe
