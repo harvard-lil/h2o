@@ -8,6 +8,7 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
   validates :content, presence: true, if: Proc.new { |a| KINDS_WITH_CONTENT.include? a.kind }
 
+  before_save :update_paragraph_based_offsets, if: :global_offset_changed?
   after_create :update_resource_counter_cache
   after_destroy :update_resource_counter_cache, unless: :destroyed_by_association
 
@@ -41,6 +42,15 @@ class Content::Annotation < ApplicationRecord
   end
 
   private
+
+  def global_offset_changed?
+    global_start_offset_changed? || global_end_offset_changed?
+  end
+
+  def update_paragraph_based_offsets
+    nodes = HTMLUtils.parse(resource.resource.content).at('body').children
+    assign_attributes AnnotationConverter.global_offsets_to_node_offsets(nodes, global_start_offset, global_end_offset)
+  end
 
   def update_resource_counter_cache
     resource.resource.update_column :annotations_count,
