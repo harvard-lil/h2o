@@ -32,6 +32,7 @@ class Content::Annotation < ApplicationRecord
     super(value)
   end
 
+  # https://blog.arkency.com/how-to-overwrite-to-json-as-json-in-active-record-models-in-rails/
   def as_json(*)
     super.except("start_paragraph", "end_paragraph").tap do |hash|
       hash["start_offset"] = hash.delete("global_start_offset")
