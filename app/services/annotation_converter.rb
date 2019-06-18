@@ -2,7 +2,7 @@ class AnnotationConverter
   class << self
     def nodes_to_breakpoints(nodes)
       nodes.reduce([0]) {
-        |lens, node| lens << lens[lens.length - 1] + self.get_node_length(node)
+        |breakpoints, node| breakpoints << breakpoints[breakpoints.length - 1] + self.get_node_length(node)
       }
     end
 
