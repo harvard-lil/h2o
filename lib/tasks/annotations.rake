@@ -6,8 +6,8 @@ namespace :annotations do
       count = klass.count
       klass.find_each do |inst|
         i += 1
-        ruby_text = HTMLFormatter.parse(inst.content).text
-        vue_text = HTMLFormatter.parse(Vue::SSR.render(inst.content)).text
+        ruby_text = HTMLUtils.parse(inst.content).text
+        vue_text = HTMLUtils.parse(Vue::SSR.render(inst.content)).text
         diffs = DiffHelpers.get_diffs(ruby_text, vue_text).select { |d| d[0] != :equal }
         puts "*** #{klass.name} id: #{inst.id}; #{i} of #{count} #{diffs.blank? ? "(identical)" : ""}"
         if diffs.present?
