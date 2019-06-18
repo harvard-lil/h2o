@@ -54,13 +54,21 @@ class DifferTest < ActiveSupport::TestCase
       assert_equal offset + delta, Differ.adjust_offset(diffs, offset)
     end
 
-    it "should shift offset backward when text is removed" do
+    it "should shift offset backward when text is removed from beginning" do
       before = "this is the text"
       after = "is the text"
       offset = 10
       delta = after.length - before.length
       diffs = Differ.get_diffs(before, after)
       assert_equal offset + delta, Differ.adjust_offset(diffs, offset)
+    end
+
+    it "should shift offset backward when text is removed from end" do
+      before = "this is the text"
+      after = "this is the"
+      offset = 14
+      diffs = Differ.get_diffs(before, after)
+      assert_equal after.length, Differ.adjust_offset(diffs, offset)
     end
 
     it "should return identical offset when text is identical" do

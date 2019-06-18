@@ -45,9 +45,12 @@ module Differ
     def get_delta_at_offset diffs, offset
       # reverse the list so we find the last diff
       # that includes this offset
-      diffs.reverse.find { |diff|
-        diff[2].include?(offset)
-      }[2..3].map(&:min).reverse.reduce(:-)
+      diff = diffs.reverse.find { |diff| diff[2].include?(offset) }
+      # if the last diff is a deletion, shift the offset backward to the beginning of the deletion,
+      # otherwise get the difference between the before and after ranges
+      diff[0] == :delete ?
+        diff[3].min - offset :
+        diff[2..3].map(&:min).reverse.reduce(:-)
     end
 
     def adjust_offset diffs, offset
