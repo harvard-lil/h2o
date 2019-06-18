@@ -34,8 +34,8 @@ module ContentAnnotatable
 
   def update_annotation_offsets
     # https://api.rubyonrails.org/classes/ActiveModel/Dirty.html#method-i-previous_changes
-    diffs = Differ.get_diffs(HTMLUtils.parse(previous_changes[:content][0]).text,
-                             HTMLUtils.parse(previous_changes[:content][1]).text)
+    before, after = previous_changes[:content].map { |html| HTMLUtils.parse(html).text }
+    diffs = Differ.get_diffs(before, after)
 
     # the where() selects only annotations that might be affected by the changes
     annotations
