@@ -15,7 +15,7 @@ class Content::AnnotationTest < ActiveSupport::TestCase
     end
   end
 
-  test 'converts global offsets to paragraph based offsets when and saves them when creating and updating' do
+  test 'converts global offsets to paragraph based offsets and saves them when creating and updating' do
     resource = content_nodes(:resource_with_full_case)
     annotation = Content::Annotation.create(resource: resource,
                                             kind: 'highlight',
