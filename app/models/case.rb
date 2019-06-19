@@ -117,10 +117,6 @@ class Case < ApplicationRecord
     links.html_safe
   end
 
-  def has_casebooks?
-    Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
-  end
-
   private
 
   def date_check

@@ -57,10 +57,6 @@ class Default < ApplicationRecord
     %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
 
-  def has_casebooks?
-    Content::Resource.where(resource_id: self.id).where.not(casebook_id: nil).present?
-  end
-
   def associated_resources
     links = ""
     resources = Content::Resource.where(resource_type: self.class.name, resource_id: self.id)
