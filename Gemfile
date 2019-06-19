@@ -91,6 +91,7 @@ group :development, :test do
   gem 'minitest-spec-rails'
   gem 'minitest-reporters'
   gem 'poltergeist'
+  gem 'rb-readline'
   gem 'pry-byebug'
   gem 'simplecov'
   gem 'm'
