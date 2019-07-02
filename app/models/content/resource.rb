@@ -21,7 +21,9 @@ class Content::Resource < Content::Child
     #export_footnote_index determines how many astericks are next to a link or note annotation in the exported version of a resource
     export_footnote_index = 0
 
-    annotations.order(:start_paragraph, :id).each do |annotation|
+    # exclude annotations with negative offsets; these are the result of the content being edited
+    # and the offset range that was annotated being removed such that we don't know where to place it now
+    annotations.where.not(global_start_offset: -1).order(:start_paragraph, :id).each do |annotation|
       if annotation.kind.in? %w(note link)
         export_footnote_index += 1
       end
