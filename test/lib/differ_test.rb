@@ -27,6 +27,28 @@ class DifferTest < ActiveSupport::TestCase
     end
   end
 
+  describe Differ, :get_delta_at_offset do
+    it "should return the difference between the original number of characters preceeding this offset and the new number of characters preceeding it" do
+      diffs = Differ.get_diffs("foo ipsum", "foo bar lorum ipsum")
+      assert_equal 10, Differ.get_delta_at_offset(diffs, 5)
+    end
+
+    it "should return correct number of characters deleted preceeding offset when last diff is a deletion" do
+      diffs = Differ.get_diffs("foo bar lorum ipsum", "foo bar ipsum")
+      assert_equal -3, Differ.get_delta_at_offset(diffs, 11)
+    end
+
+    it "should handle deletions immediately followed by insertions" do
+      diffs = Differ.get_diffs("foo bar lorum ipsum", "foo super lorum ipsum")
+      assert_equal 2, Differ.get_delta_at_offset(diffs, 11)
+    end
+
+    it "ignore changes that come after the supplied offset" do
+      diffs = Differ.get_diffs("foobar", "foo bar")
+      assert_equal 0, Differ.get_delta_at_offset(diffs, 3)
+    end
+  end
+
   describe Differ, :range_was_deleted? do
     it "should return true if the specified range was a subset of a deleted range of text" do
       diffs = Differ.get_diffs("foo bar buzz", "foo buzz")
@@ -75,6 +97,12 @@ class DifferTest < ActiveSupport::TestCase
       text = "this is the text"
       offset = 10
       diffs = Differ.get_diffs(text, text)
+      assert_equal offset, Differ.adjust_offset(diffs, offset)
+    end
+
+    it "should not extend offset when text inserted after offset" do
+      diffs = Differ.get_diffs("foobar", "foo bar")
+      offset = 3
       assert_equal offset, Differ.adjust_offset(diffs, offset)
     end
 
