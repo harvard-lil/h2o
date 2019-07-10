@@ -53,7 +53,7 @@ describe('TheResourceBody', () => {
    ['wraps inline elements in an annotation when the annotation entirely spans the elements',
     '<div>%s</div>', ['<em>foo</em> <span>bar</span>'],
     [DEFAULT_ANNOTATION]],
-   
+
    ['wraps innerHTML of a block level element rather than wrapping the block element itself',
     '<div><h1>%s</h1></div>', ['foo bar'],
     [DEFAULT_ANNOTATION]],
@@ -104,8 +104,16 @@ describe('TheResourceBody', () => {
     '<div>\n     </div>',
     [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 6}]],
 
-   ['preserves whitespace after an opening tag',
+   ['preserves whitespace separating block and inline tags',
     '<div>\n   <span>foo</span> bar</div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 11}]],
+
+   ['preserves whitespace separating block-level tags',
+    '<div>\n   <p>foo</p> bar</div>',
+    [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 11}]],
+
+   ['preserves whitespace separating span-level tags',
+    '<span>\n   <span>foo</span> bar</span>',
     [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 11}]],
 
    ['preserves whitespace between tags',
