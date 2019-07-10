@@ -54,13 +54,64 @@ class ResourceSystemTest < ApplicationSystemTestCase
     find(sel).assert_text "m Prickett (argued) and James P. Dall"
   end
 
+  scenario 'multiple annotations stay in the right place when multiples changes are made', js: true do
+    # TODO: feeling lazy.
+    # I just combined all the above tests, with no attempt to make DRY, etc.
+    # just to demo that this passes.
+    highlight = '.highlight .selected-text'
+    highlight_text = 'cash-out merger of Trans Union into the defendant'
+    note = '.note .selected-text'
+    note_text = "m Prickett (argued) and James P. Dall"
+
+    find(highlight).assert_text highlight_text
+    find(note).assert_text note_text
+    assert_content ", Marmon Group, Inc., a Delaware corporation, GL Corporation, a"
+    assert_no_content "Delaware corporation, and New T. Co., a D"
+    assert_content "elaware corporation, Defendants Below, Appellees."
+
+    make_all_changes_at_once
+    refresh_page
+
+    find(highlight).assert_text highlight_text
+    find(note).assert_text note_text
+    assert_content ", Marmon Group, Inc., a Delaware corporation, GL Corporation, a"
+    assert_no_content "Delaware corporation, and New T. Co., a D"
+    assert_content "elaware corporation, Defendants Below, Appellees."
+
+  end
+
   def refresh_page
     visit annotate_resource_path @resource.casebook, @resource
   end
 
+  def make_all_changes_at_once
+    # added "adding new content "
+    # deleted "<center>488 A.2d 858 (1985)</center>\r\n\r\n<center>\r\n<h2>Alden SMITH and John W. Gosselin, Plaintiffs Below, Appellants,<br />\r\nv.<br />\r\nJerome W. VAN GORKOM, Bruce S. Chelberg, William B. Johnson, Joseph B. Lanterman, Graham J. Morgan, Thomas P. O&#39;Boyle, W. Allen Wallis, Sidney H. Bonser, William D. Browder, Trans Union Corporation, a Delaware corporation, Marmon Group, Inc., a Delaware corporation, GL Corporation, a Delaware corporation, and New T. Co., a Delaware corporation, Defendants Below, Appellees.</h2>\r\n</center>\r\n\r\n<center>\r\n<p>Supreme Court of Delaware.<br />\r\nSubmitted: June 11, 1984.<br />\r\nDecided: January 29, 1985.<br />\r\nOpinion on Denial of Reargument: March 14, 1985.</p>\r\n</center>\r\n\r\n<p>William Prickett (argued) and James P. Dalle Pazze, of Prickett, Jones, Elliott, Kristol &amp; Schnee, Wilmington, and Ivan Irwin, Jr. and Brett A. Ringle, of Shank, Irwin, Conant &amp; Williamson, Dallas, Tex., of counsel, for plaintiffs below, appellants.</p>\r\n\r\n<p>Robert K. Payson (argued) and Peter M. Sieglaff of Potter, Anderson &amp; Corroon,</p>\r\n\r\n<p>Before HERRMANN, C.J., and McNEILLY, HORSEY, MOORE and CHRISTIE, JJ., constituting the Court en banc.</p>\r\n\r\n"
+    "<h2>[863] HORSEY, Justice (for the majority):</h2>\r\n\r\n<p>This
+    appeal from the Court of Chancery involves a class action brought by shareholders
+    of the defendant Trans Union Corporation (&quot;Trans Union&quot; or &quot;the
+    Company&quot;), originally seeking rescission of a cash-out merger of Trans Union
+    into the defendant New T Company (&quot;New T&quot;), a wholly-owned subsidiary
+    of the defendant, Marmon Group, Inc. (&quot;Marmon&quot;). Alternate relief in
+    the form of damages is sought against the defendant members of the Board of Directors
+    of Trans Union, [864] New T, and Jay A. Pritzker and Robert A. Pritzker, owners
+    of Marmon.<sup><a href=\"#[1]\" name=\"r[1]\">[1]</a></sup></p>\r\n\r\n<p>----------</p>\r\n\r\n<p><a
+    href=\"#r[1]\" name=\"[1]\">[1]</a> The plaintiff, Alden Smith, originally sought
+    to enjoin the merger; but, following extensive discovery, the Trial Court denied
+    the plaintiff&#39;s motion for preliminary injunction by unreported letter opinion
+    dated February 3, 1981. On February 10, 1981, the proposed merger was approved
+    by Trans Union&#39;s stockholders at a special meeting and the merger became effective
+    on that date. Thereafter, John W. Gosselin was permitted to intervene as an additional
+    plaintiff; and Smith and Gosselin were certified as representing a class consisting
+    of all persons, other than defendants, who held shares of Trans Union common stock
+    on all relevant dates. At the time of the merger, Smith owned 54,000 shares of
+    Trans Union stock, Gosselin owned 23,600 shares, and members of Gosselin&#39;s
+    family owned 20,000 shares.</p>\r\n"
+  end
+
   def delete_top_paragraphs
-    # deleted "<center>488 A.2d 858 (1985)</center>\r\n\r\n<center>\r\n<h2>Alden SMITH and John W. Gosselin, Plaintiffs Below, Appellants,<br />\r\nv.<br />\r\nJerome W. VAN GORKOM, Bruce S. Chelberg, William B. Johnson, Joseph B. Lanterman, Graham J. Morgan, Thomas P. O&#39;Boyle, W. Allen Wallis, Sidney H. Bonser, William D. Browder, Trans Union Corporation, a Delaware corporation, Marmon Group, Inc., a Delaware corporation, GL Corporation, a Delaware corporation, and New T. Co., a Delaware corporation, Defendants Below, Appellees.</h2>\r\n</center>\r\n\r\n<center>\r\n<p>Supreme Court of Delaware.<br />\r\nSubmitted: June 11, 1984.<br />\r\nDecided: January 29, 1985.<br />\r\nOpinion on Denial of Reargument: March 14, 1985.</p>\r\n</center>\r\n\r\n<p>William Prickett (argued) and James P. Dalle Pazze, of Prickett, Jones, Elliott, Kristol &amp; Schnee, Wilmington, and Ivan Irwin, Jr. and Brett A. Ringle, of Shank, Irwin, Conant &amp; Williamson, Dallas, Tex., of counsel, for plaintiffs below, appellants.</p>\r\n\r\n<p>Robert K. Payson (argued) and Peter M. Sieglaff of Potter, Anderson &amp; Corroon,</p>\r\n\r\n<p>Before HERRMANN, C.J., and McNEILLY, HORSEY, MOORE and CHRISTIE, JJ., constituting the Court en banc.</p>\r\n\r\n<h2>"
-    @resource.resource.update(content: 
+    # deleted "<center>488 A.2d 858 (1985)</center>\r\n\r\n<center>\r\n<h2>Alden SMITH and John W. Gosselin, Plaintiffs Below, Appellants,<br />\r\nv.<br />\r\nJerome W. VAN GORKOM, Bruce S. Chelberg, William B. Johnson, Joseph B. Lanterman, Graham J. Morgan, Thomas P. O&#39;Boyle, W. Allen Wallis, Sidney H. Bonser, William D. Browder, Trans Union Corporation, a Delaware corporation, Marmon Group, Inc., a Delaware corporation, GL Corporation, a Delaware corporation, and New T. Co., a Delaware corporation, Defendants Below, Appellees.</h2>\r\n</center>\r\n\r\n<center>\r\n<p>Supreme Court of Delaware.<br />\r\nSubmitted: June 11, 1984.<br />\r\nDecided: January 29, 1985.<br />\r\nOpinion on Denial of Reargument: March 14, 1985.</p>\r\n</center>\r\n\r\n<p>William Prickett (argued) and James P. Dalle Pazze, of Prickett, Jones, Elliott, Kristol &amp; Schnee, Wilmington, and Ivan Irwin, Jr. and Brett A. Ringle, of Shank, Irwin, Conant &amp; Williamson, Dallas, Tex., of counsel, for plaintiffs below, appellants.</p>\r\n\r\n<p>Robert K. Payson (argued) and Peter M. Sieglaff of Potter, Anderson &amp; Corroon,</p>\r\n\r\n<p>Before HERRMANN, C.J., and McNEILLY, HORSEY, MOORE and CHRISTIE, JJ., constituting the Court en banc.</p>\r\n\r\n"
+    @resource.resource.update(content:
       "<h2>[863] HORSEY, Justice (for the majority):</h2>\r\n\r\n<p>This
         appeal from the Court of Chancery involves a class action brought by shareholders
         of the defendant Trans Union Corporation (&quot;Trans Union&quot; or &quot;the
@@ -120,7 +171,7 @@ class ResourceSystemTest < ApplicationSystemTestCase
   end
 
   def add_inline_chars
-    # added "adding new content "
+    # added "added inline chars adding new content "
     "<center>488 A.2d 858 (1985)</center>\r\n\r\n<center>\r\n<h2>Alden SMITH
     and John W. Gosselin, Plaintiffs Below, Appellants,<br />\r\nv.<br />\r\nJerome
     W. VAN GORKOM, Bruce S. Chelberg, William B. Johnson, Joseph B. Lanterman, Graham
