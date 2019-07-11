@@ -105,10 +105,6 @@ class DifferTest < ActiveSupport::TestCase
       offset = 3
       assert_equal offset, Differ.adjust_offset(diffs, offset)
     end
-
-    it "should deal with spaces after word deletion" do
-      skip "we may or may not want this"
-    end
   end
 
   describe Differ, :adjust_range do
