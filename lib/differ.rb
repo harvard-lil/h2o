@@ -50,9 +50,7 @@ module Differ
 
       # if the last diff is a deletion, shift the offset backward to the beginning of the deletion,
       # otherwise get the difference between the before and after ranges
-      diff[0] == :delete ?
-        diff[3].min - offset :
-        diff[2..3].map(&:min).reverse.reduce(:-)
+      diff[3].min - (diff[0] == :delete ? offset : diff[2].min)
     end
 
     def adjust_offset diffs, offset
