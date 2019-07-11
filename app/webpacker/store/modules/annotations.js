@@ -28,7 +28,7 @@ const getters = {
       obj => obj.start_offset <= start && obj.end_offset >= end
     ),
 
-   // Annotations whose start or end points fall WITHIN
+  // Annotations whose start or end points fall WITHIN
   // (i.e. not on the edges) the start and end bounds.
   getWithinOffsets: state => (start, end) =>
     state.all.filter(
