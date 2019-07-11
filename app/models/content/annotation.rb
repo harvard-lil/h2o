@@ -8,7 +8,7 @@ class Content::Annotation < ApplicationRecord
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
   validates :content, presence: true, if: Proc.new { |a| KINDS_WITH_CONTENT.include? a.kind }
 
-  before_save :update_paragraph_based_offsets, if: :global_offset_changed?
+  before_save :update_paragraph_based_offsets, if: :new_record_or_global_offset_changed?
   after_create :update_resource_counter_cache
   after_destroy :update_resource_counter_cache, unless: :destroyed_by_association
 
@@ -43,8 +43,12 @@ class Content::Annotation < ApplicationRecord
 
   private
 
-  def global_offset_changed?
-    global_start_offset_changed? || global_end_offset_changed?
+  def new_record_or_global_offset_changed?
+    # returns true if the global offsets have changed and we're not
+    # in the midst of creating a new record where the paragraph offsets
+    # have already been populated, as is the case when cloning
+    (global_start_offset_changed? || global_end_offset_changed?) &&
+      (persisted? || start_offset.blank?)
   end
 
   def update_paragraph_based_offsets
