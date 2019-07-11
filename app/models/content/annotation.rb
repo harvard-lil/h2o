@@ -33,6 +33,7 @@ class Content::Annotation < ApplicationRecord
     super(value)
   end
 
+  # Serialize to json without including all the columns
   # https://blog.arkency.com/how-to-overwrite-to-json-as-json-in-active-record-models-in-rails/
   def as_json(*)
     super.except("start_paragraph", "end_paragraph").tap do |hash|
