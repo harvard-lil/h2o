@@ -142,9 +142,9 @@ export const annotationBreakpoints = (annotations, start, end) =>
   annotations
     // Annotations whose start or end points fall WITHIN
     // (i.e. not on the edges) the start and end bounds.
-    .filter(obj => obj.start_offset > start || obj.end_offset < end)
-    .reduce((offsets, a) => offsets.concat([a["start_offset"], a["end_offset"]]), [])
-    .filter((n, i, s) => s.indexOf(n) === i) // remove dupes
+    .filter(a => a.start_offset > start || a.end_offset < end)
+    .reduce((breakpoints, a) => breakpoints.concat([a["start_offset"], a["end_offset"]]), [])
+    .filter((breakpoint, index, breakpoints) => breakpoints.indexOf(breakpoint) === index) // remove dupes
     .sort((a, b) => a - b); // sort lowest to highest
 
 export const splitNodeList = (annotations, nodeList, start, end) => {
