@@ -11,13 +11,29 @@ module Differ
 
     def calculate_ranges dmp_diffs
       dmp_diffs.reduce([]) do |diffs_with_ranges, diff|
-        start_before = diffs_with_ranges.last&.[](0) == :insert ?
-                         diffs_with_ranges.last[2].min :
-                         diffs_with_ranges.last&.[](2)&.max || 0
 
-        start_after = diffs_with_ranges.last&.[](0) == :delete ?
-                        diffs_with_ranges.last[3].min :
-                        diffs_with_ranges.last&.[](3)&.max || 0
+        # the last-processed diff_with_range, if any
+        previous = diffs_with_ranges.last
+
+        # For use in calculating the "before..range" of this diff:
+        #
+        # If the last diff was an insertion, the current diff began
+        # in the same spot the last one did: the start of the "before..range".
+        # Otherwise, the current diff began after the last diff finished:
+        # the end of the "before...range".
+        start_before = previous&.[](0) == :insert ?
+                         previous[2].min :
+                         previous&.[](2)&.max || 0
+
+        # For use in calculating the "after..range" of this diff:
+        #
+        # If the last diff was a deletion, the current diff will start
+        # exactly where the deletion did: the start of the "after..range".
+        # Otherwise, the current diff will start after the last diff finishes:
+        # the end of the "after...range".
+        start_after = previous&.[](0) == :delete ?
+                        previous[3].min :
+                        previous&.[](3)&.max || 0
 
         diffs_with_ranges + [diff + [start_before..start_before + diff[1].length,
                                      start_after..start_after + diff[1].length]]
