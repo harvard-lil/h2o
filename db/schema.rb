@@ -37,6 +37,14 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.integer "user_id"
   end
 
+  create_table "bulk_uploads", id: :serial, force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean "has_errors"
+    t.integer "delayed_job_id"
+    t.integer "user_id", default: 0, null: false
+  end
+
   create_table "case_courts", id: :serial, force: :cascade do |t|
     t.string "name_abbreviation", limit: 150
     t.string "name", limit: 500
