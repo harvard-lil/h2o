@@ -22,7 +22,7 @@
     "js-yaml": "^3.12.1",
     "jsdom": "^15.1.0",
     "jsdom-global": "^3.0.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "lodash.template": "^4.5.0",
     "lodash.throttle": "^4.1.1",
     "mocha": "^6.1.4",
