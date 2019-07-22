@@ -91,6 +91,13 @@ class Content::SectionsController < Content::NodeController
     html = render_to_string(layout: 'export', include_annotations: @include_annotations)
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
+    # remove image tags
+    nodes = Nokogiri::HTML.fragment(html)
+    nodes.css('img').each do | img |
+        img.remove
+    end
+    html = nodes.to_s
+
     #Htmltoword doesn't let you switch xslt. So we need to manually do it.
     if @include_annotations
       Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
