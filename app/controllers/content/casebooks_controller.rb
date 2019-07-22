@@ -65,6 +65,13 @@ class Content::CasebooksController < Content::NodeController
 
     html = render_to_string(layout: 'export', include_annotations: @include_annotations)
 
+    # remove image tags
+    nodes = Nokogiri::HTML.fragment(html)
+    nodes.css('img').each do | img |
+        img.remove
+    end
+    html = nodes.to_s
+
     html.gsub! /\\/, '\\\\\\'
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
