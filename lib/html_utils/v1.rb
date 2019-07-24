@@ -62,7 +62,7 @@ module HTMLUtils
       def wrap_bare_inline_tags! html
         html
           .xpath("//body/*[not(self::center|self::#{BLOCK_LEVEL_ELEMENTS.map(&:downcase).join('|self::')})]")
-          .each { |el| el.wrap "<p>" }
+          .each { |el| el.replace "<p>#{el.to_html}</p>" }
         html
       end
 
