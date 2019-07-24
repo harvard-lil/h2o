@@ -14,8 +14,12 @@ class AddRawContents < ActiveRecord::Migration[5.2]
 
       # Apply HTML cleansing / munging to existing content attributes
       klass.find_each do |instance|
+        # V6 switches to Nokogumbo (HTML5 parsing)
+        # V7 adds html-tidy
+        utils = instance.annotated? ? HTMLUtils::V6 : HTMLUtils::V7
+
         # use update_column to avoid touching the timestamps
-        instance.update_column :content, HTMLUtils.sanitize(instance.content)
+        instance.update_column :content, utils.sanitize(instance.content)
       end
     end
   end
