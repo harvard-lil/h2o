@@ -6,25 +6,21 @@ class PasswordResetsController < ApplicationController
     @user = {email_address: params.fetch(:email_address, '')}
   end
 
-  def html_safe x
-    x.html_safe
-  end
-
   def create
     account_email = params.fetch(:user, {}).fetch(:email_address, nil)
     if account_email.blank?
-      flash[:error] = I18n.t('users.reset-password.blank.html', sent_to: account_email, sign_up_path: new_user_path(email_address: account_email)).html_safe
+      flash[:error] = I18n.t('users.reset-password.blank.html').html_safe
       return redirect_to new_password_reset_path
     end
 
     @user = User.where(email_address: account_email).first
     if @user.nil?
-      flash[:error] = I18n.t('users.reset-password.not-found.html', sent_to: account_email, sign_up_path: new_user_path(user: {email_address: account_email})).html_safe
+      flash[:error] = I18n.t('users.reset-password.not-found.html', sent_to: html_escape(account_email), sign_up_path: html_escape(new_user_path(user: {email_address: account_email}))).html_safe
       return redirect_to new_password_reset_path(email_address: account_email)
     end
 
     @user.deliver_password_reset_instructions!
-    flash[:success] = I18n.t('users.reset-password.success.html', sent_to: @user.email_address).html_safe
+    flash[:success] = I18n.t('users.reset-password.success.html', sent_to: html_escape(@user.email_address)).html_safe
     redirect_to new_user_session_path(email_address: @user.email_address)
   end
 
