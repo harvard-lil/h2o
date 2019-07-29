@@ -16,6 +16,8 @@ addons:
 cache:
   bundler: true
   yarn: true
+jdk:
+  - openjdk8
 rvm:
   - 2.4.1
 before_install:
