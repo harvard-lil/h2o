@@ -76,6 +76,12 @@ class TextBlock < ApplicationRecord
     self.content.gsub!(/\p{Cc}/, "")
   end
 
+  def sanitized_to_json
+    # wrap built-in method, to include a sanitation step
+    self.content = ActionController::Base.helpers.sanitize(self.content)
+    self.to_json
+  end
+
   def associated_resources
     links = ""
     resources = Content::Resource.where(resource_type: self.class.name, resource_id: self.id)
