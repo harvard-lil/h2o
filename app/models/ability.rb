@@ -43,26 +43,21 @@ class Ability
     end
 
     if user.has_role? :superadmin
-      can [:edit, :update], User
-
       can :access, :rails_admin
       can [:create], :"ckeditor/pictures"
       can [:create], :"ckeditor/assets"
       can [:create], :"ckeditor/attachment_files"
       can :dashboard, :all
       can [:index, :show, :export, :export_as, :export_unique, :bulk_delete, :destroy, :edit, :update, :position_update, :update_notes, :save_readable_state], :all
+      can [:edit, :update, :grant_admin], User
       can [:import], [Default]
       can :show_in_app, [Case, User, Content::Casebook]
-
       can [:new, :edit], Page
-
       can :approve, Case
-      can [:new], CaseCourt
-      can [:create], :case_courts
-
+      can [:new, :create], CaseCourt
       can [:new, :edit, :update, :show], [Case, CaseCourt, Default, TextBlock, User]
-
       can :manage_collaborators, [Content::Casebook]
+
     elsif user.has_role? :case_admin
       can :access, :rails_admin
       can [:index, :show, :export, :export_as, :export_unique, :show_in_app], Case
@@ -72,9 +67,9 @@ class Ability
       can :create, :cases
 
       can :approve, Case
-      can [:new], CaseCourt
-      can [:create], :case_courts
+      can [:new, :create], CaseCourt
       # Add functionality, ability to modify case requests
+
     elsif user.has_role? :rep
       user_ids = []
       associated_user_ids = user_ids.flatten.uniq

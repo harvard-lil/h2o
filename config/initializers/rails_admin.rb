@@ -124,6 +124,44 @@ module RailsAdmin
           'icon-lock'
         end
       end
+
+      class GrantAdmin < RailsAdmin::Config::Actions::Base
+        RailsAdmin::Config::Actions.register(self)
+
+        register_instance_option :visible? do
+          authorized?
+        end
+
+        register_instance_option :member do
+          true
+        end
+
+        register_instance_option :http_methods do
+          [:get, :post]
+        end
+
+        register_instance_option :controller do
+          Proc.new do
+            if request.get?
+              @show_button = @object.has_role?(:superadmin)
+            elsif request.post?
+              user_id = @object.id 
+              if params[:button] == "grant admin"
+                role_id = Role.create(name: "superadmin").id
+                roles_user = RolesUser.create(role_id: role_id, user_id: user_id)
+                @is_admin = true
+              elsif params[:button] == "remove admin"
+                @object.roles.find_by(name: "superadmin").destroy
+                @is_admin = false
+              end
+            end
+          end
+        end
+
+        register_instance_option :link_icon do
+          'icon-lock'
+        end
+      end
     end
   end
 end
@@ -149,6 +187,7 @@ RailsAdmin.config do |config|
 
     delete
     manage_collaborators
+    grant_admin
     show_in_app
   end
 

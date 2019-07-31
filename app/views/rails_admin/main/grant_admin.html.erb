@@ -1,0 +1,9 @@
+<div class="grant-admin-container">
+  <%= form_tag grant_admin_path, method: "post", class: "grant-admin-form" do %>
+    <% if @is_admin %>
+      <%= button_tag t('admin.actions.grant_admin.remove-button'), class: 'btn btn-danger btn-grant-admin', value: "remove admin" %>
+    <% else %>
+      <%= button_tag t('admin.actions.grant_admin.grant-button'), class: 'btn btn-primary btn-grant-admin', value: "grant admin" %>
+    <% end %>
+  <% end %>
+</div>

@@ -11,3 +11,8 @@ en:
         add-collaborator: "Add user"
         query-placeholder: "New collaborator"
         search-button: "Find"
+      grant_admin: 
+        menu: "Grant Admin"
+        grant-button: "Grant admin privileges"
+        remove-button: "Remove admin privileges"
+        breadcrumb: "Grant Admin"
