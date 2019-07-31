@@ -22,4 +22,31 @@ namespace :annotations do
       end
     end
   end
+
+  desc 'Identify annotations with paragraph based offsets that don\'t exist in the text'
+  task(:impossible => :environment) do
+    annotatable = {Case => {}, TextBlock => {}}
+    annotatable.keys.each do |klass|
+      puts "Calculating #{klass.name.pluralize}"
+      klass.annotated.find_each do |instance|
+        annotatable[klass][instance.id] = []
+        nodes = HTMLUtils.parse(instance.content).at('body').children
+        instance.annotations.find_each do |a|
+          error = [:start, :end].reduce(false) { |error, pos|
+            graph = nodes[a["#{pos}_paragraph"]]
+            if error
+              error
+            elsif graph.nil?
+              "p = #{a["#{pos}_paragraph"]} but nodes.max = #{nodes.length - 1}"
+            elsif a["#{pos}_offset"] > AnnotationConverter.get_node_length(graph)
+              len = AnnotationConverter.get_node_length(graph)
+              "p\##{a["#{pos}_paragraph"]}.length = #{len} but offset = #{a["#{pos}_offset"]}"
+            end
+          }
+          annotatable[klass][instance.id] << error if error
+        end
+      end
+      puts "#{annotatable[klass].values.select(&:present?).length} impossible / #{annotatable[klass].length} total annotated\n"
+    end
+  end
 end
