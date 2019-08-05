@@ -56,3 +56,8 @@ RUN yarn install --frozen-lockfile
 RUN apt-get update \
     && apt-get install -y nano \
     && apt-get install -y wdiff
+
+# Custom version of Pandoc, for export
+RUN wget https://lilresources.s3.amazonaws.com/h2o/pandoc-889810d -O /usr/bin/pandoc \
+    && chmod +x /usr/bin/pandoc
+
