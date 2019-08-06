@@ -1,0 +1,12 @@
+%div.CasebookTitle{data: {'custom-style': 'Casebook Title'}}= @casebook.title
+%div.CasebookSubtitle{data: {'custom-style': 'Casebook Subtitle'}}= @casebook.subtitle
+%div.CasebookHeadnote{data: {'custom-style': 'Casebook Headnote'}}= @casebook.formatted_headnote
+
+/ %table-of-contents
+/   - @node.contents.each_with_index do |content, idx|
+/     %toc-entry{data: {depth: content.ordinals.length, idx: idx + 1}}
+/       = content.ordinal_string
+/       = content.title
+
+- @casebook.contents.each_with_index do |content, idx|
+  = render :partial => "content/export_node", :locals => {:content_node => content, :idx => idx}

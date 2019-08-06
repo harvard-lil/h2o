@@ -1,6 +1,6 @@
 -# %header.CasebookTitle= @casebook.title
 -# %header.CasebookSubtitle= @casebook.subtitle
-- content = @resource
+- content = @content_node
 - if content.is_a? Content::Section
   %header.SectionNumber= content.ordinal_string
   %header.SectionTitle= content.title

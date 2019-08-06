@@ -8,13 +8,14 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: h2o:0.9
+    image: h2o:0.9-pandoc
     tty: true
     command: bash
     environment:
     - DOCKERIZED=true
     - DB_HOSTNAME=db
     - DB_USERNAME=postgres
+    - RAILS_PANDOC_EXPORT=true
     extra_hosts:
     - "h2o-dev.local:127.0.0.1"
     volumes:
