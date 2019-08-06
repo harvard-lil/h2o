@@ -31,7 +31,7 @@ class Content::Node < ApplicationRecord
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
-        
+
         unpublished_revisions.create(field: field, value: value, node_id: self.id, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
       end
     end
