@@ -1,8 +1,9 @@
-%header.SectionNumber= @section.ordinal_string
-%header.CasebookTitle= @section.title
-%header.CasebookSubtitle= @section.subtitle
-%p.CasebookHeadnote= @section.headnote
-- @section.contents.each do |content|
+- section = @content_node
+%header.SectionNumber= section.ordinal_string
+%header.CasebookTitle= section.title
+%header.CasebookSubtitle= section.subtitle
+%p.CasebookHeadnote= section.headnote
+- section.contents.each do |content|
   - if content.is_a? Content::Section
     %header.SectionNumber= content.ordinal_string
     %header.SectionTitle= content.title
