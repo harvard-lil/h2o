@@ -15,6 +15,25 @@ module Export
           img.remove
       end
 
+      # Case Header styling
+      nodes.css(
+        'section.head-matter p',
+        'center',
+        'p[style="text-align:center"]',
+        'p[align="center"]',
+        ).each do | p |
+          p.wrap("<div data-custom-style='Case Header'></div>")
+      end
+      nodes.css(
+        'section.head-matter h4',
+        'center h2',
+        'h2[style="text-align:center"]',
+        'h2[align="center"]',
+        ).each do | heading |
+          heading.name = 'div'
+          heading.set_attribute('custom-style', 'Case Header')
+      end
+
       # legacy escaping of backslashes
       html = nodes.to_s
       html.gsub! /\\/, '\\\\\\'

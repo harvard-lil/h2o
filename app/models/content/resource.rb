@@ -50,10 +50,11 @@ class Content::Resource < Content::Child
     footnote_annotations = ""
     idx = 0
 
+    custom_style_attribute = H2o::Application.config.pandoc_export ? 'custom-style="Footnote Reference"' : 'msword-style="FootnoteReference"'
     annotations.all.sort_by{|annotation| annotation.start_paragraph}.each do |annotation|
       if annotation.kind.in? %w(note link)
         idx += 1
-        footnote_annotations += "<span msword-style='FootnoteReference'>#{("*" * (idx))}</span>#{ApplicationController.helpers.send(:html_escape, annotation.content)} "
+        footnote_annotations += "<span #{custom_style_attribute}>#{("*" * (idx))}</span>#{ApplicationController.helpers.send(:html_escape, annotation.content)} "
       end
     end
 
