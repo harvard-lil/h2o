@@ -33,6 +33,7 @@ namespace :annotations do
     CSV.open(Rails.root.join("migration-report-date-based-utils.csv"), "w") do |csv|
       # Column headers
       csv << ["ID",
+              "Kind",
               "Resource",
               "Casebook Owner",
               "Possible?",
@@ -69,6 +70,7 @@ namespace :annotations do
             possible = !impossible?(graphs, a)
             text = possible ? get_selected_text(graphs, a) : ""
             csv << [a.id,
+                    a.kind,
                     resource_path(resource.casebook, resource),
                     resource.casebook.owner&.display_name,
                     possible,
