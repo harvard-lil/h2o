@@ -881,4 +881,13 @@
       <w:u w:val="dotted"/>
     </w:rPr>
   </w:style>
+  <w:style w:customStyle="1" w:styleId="HighlightedText" w:type="character">
+    <w:name w:val="Highlighted Text"/>
+    <w:basedOn w:val="DefaultParagraphFont"/>
+    <w:uiPriority w:val="1"/>
+    <w:qFormat/>
+    <w:rPr>
+      <w:shd w:val="clear" w:fill="FFFF00" w:color="000000"/>
+    </w:rPr>
+  </w:style>
 </w:styles>
