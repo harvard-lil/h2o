@@ -19,8 +19,12 @@ class AnnotationConverter
       }
     end
 
+    def get_node_text(node)
+      node.text.gsub("\r\n", "\n")
+    end
+
     def get_node_length(node)
-      node.text.gsub("\r\n", "\n").length
+      get_node_text(node).length
     end
   end
 end
