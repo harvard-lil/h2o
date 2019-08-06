@@ -50,9 +50,10 @@ namespace :annotations do
       [Case, TextBlock].each do |klass|
         puts "Calculating #{klass.name.pluralize}"
         klass.annotated.find_each do |instance|
+          puts "#{instance.class.name}\##{instance.id}"
           # cache these to reduce DB access and parsing time
           utils = nil
-          nodes = nil
+          graphs = nil
           resource = nil
 
           instance.annotations.order(created_at: :asc).find_each do |a|
@@ -61,24 +62,24 @@ namespace :annotations do
             new_utils = HTMLUtils.at(date)
             if new_utils != utils
               utils = new_utils
-              nodes = HTMLUtils.parse(utils.sanitize(instance.raw_content.content)).at('body').children
+              graphs = HTMLUtils.parse(utils.sanitize(instance.raw_content.content)).at('body').children.map { |node| AnnotationConverter.get_node_text(node) }
             end
             resource = a.resource if resource&.id != a.resource_id
 
-            possible = !impossible?(nodes, a)
-            text = possible ? get_selected_text(nodes, a) : ""
+            possible = !impossible?(graphs, a)
+            text = possible ? get_selected_text(graphs, a) : ""
             csv << [a.id,
                     resource_path(resource.casebook, resource),
                     resource.casebook.owner&.display_name,
                     possible,
-                    possible && (a.start_offset == 0 || boundary_char?(AnnotationConverter.get_node_text(nodes[a.start_paragraph])[a.start_offset-1])),
-                    possible && (a.end_offset == AnnotationConverter.get_node_length(nodes[a.end_paragraph]) || boundary_char?(AnnotationConverter.get_node_text(nodes[a.end_paragraph])[a.end_offset])),
+                    possible && (a.start_offset == 0 || boundary_char?(graphs[a.start_paragraph][a.start_offset-1])),
+                    possible && (a.end_offset == graphs[a.end_paragraph].length || boundary_char?(graphs[a.end_paragraph][a.end_offset])),
                     text.truncate(50, omission: "{…}#{text.last(25)}"),
-                    nodes.length,
+                    graphs.length,
                     *[:start, :end].reduce([]) { |vals, pos|
                       vals.concat([a["#{pos}_paragraph"],
                                    a["#{pos}_offset"],
-                                   possible ? AnnotationConverter.get_node_length(nodes[a["#{pos}_paragraph"]]) : nil])
+                                   possible ? graphs[a["#{pos}_paragraph"]].length : nil])
                     }]
           end
         end
@@ -86,16 +87,16 @@ namespace :annotations do
     end
   end
 
-  def impossible? nodes, annotation
+  def impossible? graphs, annotation
     [:start, :end].reduce(false) { |impossible, pos|
       impossible ||
-        nodes[annotation["#{pos}_paragraph"]].nil? ||
-        annotation["#{pos}_offset"] > AnnotationConverter.get_node_length(nodes[annotation["#{pos}_paragraph"]])
+        graphs[annotation["#{pos}_paragraph"]].nil? ||
+        annotation["#{pos}_offset"] > graphs[annotation["#{pos}_paragraph"]].length
     }
   end
   
-  def get_selected_text nodes, annotation
-    graphs = nodes[annotation.start_paragraph..annotation.end_paragraph].map { |node| AnnotationConverter.get_node_text(node) }
+  def get_selected_text all_graphs, annotation
+    graphs = all_graphs[annotation.start_paragraph..annotation.end_paragraph]
     if graphs.length == 1
       i = annotation.end_offset
     else
