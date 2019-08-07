@@ -38,8 +38,8 @@ class Annotation(models.Model):
 
 
 class ArInternalMetadata(models.Model):
-    key = models.CharField(primary_key=True, max_length=-1)
-    value = models.CharField(max_length=-1, blank=True, null=True)
+    key = models.CharField(primary_key=True, max_length=255)
+    value = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
@@ -62,7 +62,7 @@ class CaseCourt(models.Model):
 
 class Case(models.Model):
     name_abbreviation = models.CharField(max_length=150)
-    name = models.CharField(max_length=-1, blank=True, null=True)
+    name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
     case_court_id = models.IntegerField(blank=True, null=True)
     header_html = models.CharField(max_length=15360, blank=True, null=True)
@@ -135,12 +135,12 @@ class Collage(models.Model):
 
 class ContentAnnotation(models.Model):
     id = models.BigAutoField(primary_key=True)
-    resource = models.ForeignKey('ContentNodes', models.DO_NOTHING)
+    resource = models.ForeignKey('ContentNode', models.DO_NOTHING)
     start_paragraph = models.IntegerField()
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField()
     end_offset = models.IntegerField()
-    kind = models.CharField(max_length=-1)
+    kind = models.CharField(max_length=2255)
     content = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
@@ -155,8 +155,8 @@ class ContentAnnotation(models.Model):
 class ContentCollaborator(models.Model):
     id = models.BigAutoField(primary_key=True)
     user_id = models.BigIntegerField(blank=True, null=True)
-    content = models.ForeignKey('ContentNodes', models.DO_NOTHING, blank=True, null=True)
-    role = models.CharField(max_length=-1, blank=True, null=True)
+    content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
+    role = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     has_attribution = models.BooleanField()
@@ -187,21 +187,21 @@ class ContentImage(models.Model):
 
 class ContentNode(models.Model):
     id = models.BigAutoField(primary_key=True)
-    title = models.CharField(max_length=-1, blank=True, null=True)
-    slug = models.CharField(max_length=-1, blank=True, null=True)
-    subtitle = models.CharField(max_length=-1, blank=True, null=True)
+    title = models.CharField(max_length=10000, blank=True, null=True)
+    slug = models.CharField(max_length=10000, blank=True, null=True)
+    subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
     # raw_headnote = models.TextField(blank=True, null=True)  # in Greg PR
     public = models.BooleanField()
-    casebook = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    casebook = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='contents')
     ordinals = ArrayField(models.IntegerField())
-    copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='clones')
     is_alias = models.BooleanField(blank=True, null=True)
-    resource_type = models.CharField(max_length=-1, blank=True, null=True)
+    resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    ancestry = models.CharField(max_length=-1, blank=True, null=True)
+    ancestry = models.CharField(max_length=255, blank=True, null=True)
     playlist_id = models.BigIntegerField(blank=True, null=True)
     root_user_id = models.BigIntegerField(blank=True, null=True)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
@@ -466,7 +466,7 @@ class RolesUser(models.Model):
 
 
 class SchemaMigration(models.Model):
-    version = models.CharField(primary_key=True, max_length=-1)
+    version = models.CharField(primary_key=True, max_length=255)
 
     class Meta:
         managed = False
@@ -537,8 +537,8 @@ class TextBlock(models.Model):
 class UnpublishedRevision(models.Model):
     id = models.BigAutoField(primary_key=True)
     node_id = models.IntegerField(blank=True, null=True)
-    field = models.CharField(max_length=-1)
-    value = models.CharField(max_length=-1, blank=True, null=True)
+    field = models.CharField(max_length=255)
+    value = models.CharField(max_length=50000, blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     casebook_id = models.IntegerField(blank=True, null=True)
@@ -616,8 +616,8 @@ class User(models.Model):
     print_links = models.BooleanField()
     toc_levels = models.CharField(max_length=255)
     print_export_format = models.CharField(max_length=255)
-    image_file_name = models.CharField(max_length=-1, blank=True, null=True)
-    image_content_type = models.CharField(max_length=-1, blank=True, null=True)
+    image_file_name = models.CharField(max_length=255, blank=True, null=True)
+    image_content_type = models.CharField(max_length=255, blank=True, null=True)
     image_file_size = models.IntegerField(blank=True, null=True)
     image_updated_at = models.DateTimeField(blank=True, null=True)
     verified_professor = models.BooleanField(blank=True, null=True)
