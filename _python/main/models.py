@@ -9,6 +9,9 @@ from django.db import models
 
 
 class Annotations(models.Model):
+    """
+    Legacy table; does not hold currently-used annotations.
+    """
     collage_id = models.IntegerField(blank=True, null=True)
     annotation = models.CharField(max_length=10240, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -81,6 +84,9 @@ class Cases(models.Model):
 
 
 class CkeditorAssets(models.Model):
+    """
+    Legacy table, from when people could embed assets in books.
+    """
     data_file_name = models.CharField(max_length=255)
     data_content_type = models.CharField(max_length=255, blank=True, null=True)
     data_file_size = models.IntegerField(blank=True, null=True)
@@ -98,6 +104,9 @@ class CkeditorAssets(models.Model):
 
 
 class Collages(models.Model):
+    """
+    Legacy table
+    """
     annotatable_type = models.CharField(max_length=255, blank=True, null=True)
     annotatable_id = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=250)
@@ -158,6 +167,9 @@ class ContentCollaborators(models.Model):
 
 
 class ContentImages(models.Model):
+    """
+    Legacy table
+    """
     name = models.CharField(max_length=255, blank=True, null=True)
     page_id = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -200,6 +212,9 @@ class ContentNodes(models.Model):
 
 
 class Defaults(models.Model):
+    """
+    These are actually Link Resource
+    """
     name = models.CharField(max_length=1024, blank=True, null=True)
     url = models.CharField(max_length=1024)
     description = models.CharField(max_length=5242880, blank=True, null=True)
@@ -217,6 +232,9 @@ class Defaults(models.Model):
 
 
 class DelayedJobs(models.Model):
+    """
+    Legacy table
+    """
     priority = models.IntegerField(blank=True, null=True)
     attempts = models.IntegerField(blank=True, null=True)
     handler = models.TextField(blank=True, null=True)
@@ -235,6 +253,9 @@ class DelayedJobs(models.Model):
 
 
 class FrozenItems(models.Model):
+    """
+    Legacy table
+    """
     content = models.TextField(blank=True, null=True)
     version = models.IntegerField()
     item_id = models.IntegerField()
@@ -248,6 +269,9 @@ class FrozenItems(models.Model):
 
 
 class MediaTypes(models.Model):
+    """
+    Legacy table
+    """
     label = models.CharField(max_length=255, blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -259,6 +283,9 @@ class MediaTypes(models.Model):
 
 
 class Medias(models.Model):
+    """
+    Legacy table
+    """
     name = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
     media_type_id = models.IntegerField(blank=True, null=True)
@@ -275,6 +302,9 @@ class Medias(models.Model):
 
 
 class Metadata(models.Model):
+    """
+    Legacy table
+    """
     contributor = models.CharField(max_length=255, blank=True, null=True)
     coverage = models.CharField(max_length=255, blank=True, null=True)
     creator = models.CharField(max_length=255, blank=True, null=True)
@@ -343,6 +373,9 @@ class Permissions(models.Model):
 
 
 class PlaylistItems(models.Model):
+    """
+    Legacy table
+    """
     playlist_id = models.IntegerField(blank=True, null=True)
     position = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -358,6 +391,9 @@ class PlaylistItems(models.Model):
 
 
 class Playlists(models.Model):
+    """
+    Legacy table
+    """
     name = models.CharField(max_length=1024, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -379,6 +415,9 @@ class Playlists(models.Model):
 
 
 class PlaylistsUserCollections(models.Model):
+    """
+    Legacy table
+    """
     playlist_id = models.IntegerField(blank=True, null=True)
     user_collection_id = models.IntegerField(blank=True, null=True)
 
@@ -388,6 +427,9 @@ class PlaylistsUserCollections(models.Model):
 
 
 class RawContents(models.Model):
+    """
+    Oh... this table is created in PR 812
+    """
     id = models.BigAutoField(primary_key=True)
     content = models.TextField(blank=True, null=True)
     source_type = models.CharField(max_length=-1, blank=True, null=True)
@@ -444,6 +486,9 @@ class Sessions(models.Model):
 
 
 class Taggings(models.Model):
+    """
+    Legacy table
+    """
     tag_id = models.IntegerField(blank=True, null=True)
     taggable_id = models.IntegerField(blank=True, null=True)
     tagger_id = models.IntegerField(blank=True, null=True)
@@ -459,6 +504,9 @@ class Taggings(models.Model):
 
 
 class Tags(models.Model):
+    """
+    Legacy table
+    """
     name = models.CharField(max_length=255, blank=True, null=True)
     taggings_count = models.IntegerField(blank=True, null=True)
 
@@ -504,6 +552,9 @@ class UnpublishedRevisions(models.Model):
 
 
 class UserCollections(models.Model):
+    """
+    Legacy table
+    """
     user_id = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
@@ -516,6 +567,9 @@ class UserCollections(models.Model):
 
 
 class UserCollectionsUsers(models.Model):
+    """
+    Legacy table
+    """
     user_id = models.IntegerField(blank=True, null=True)
     user_collection_id = models.IntegerField(blank=True, null=True)
 
