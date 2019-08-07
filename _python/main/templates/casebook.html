@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ casebook.title }} | H2O</title>
+  <link rel="stylesheet" media="all" href="https://opencasebook.org/packs/css/main-c9f3f2a5.css" />
+  <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy" />
+  <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
+</head>
+<body>
+  <h1>{{ casebook.title }}</h1>
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <section class="table-of-contents">
+          {% for content in contents %}
+              {% if content.type == 'resource'  %}
+                <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
+                  <a class="listing resource" href="#">
+                    <div class="section-number">{{ content.ordinal_string }}</div>
+                      {% if content.resource_type == 'Case' %}
+                        <div class="resource-container">
+                          <div class="section-title case-section-title">{{ content.title }}</div>
+                          <div class="case-metadata-container">
+                            <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
+                            <div class="resource-date">{{ content.resource.date_year }}</div>
+                          </div>
+                        </div>
+                        <div class="resource-type-container">
+                          <div class="resource-type">Case</div>
+                        </div>
+                      {% elif content.resource_type == 'TextBlock' %}
+                        <div class="resource-container">
+                          <div class="section-title"> {{ content.title }}</div>
+                        </div>
+                        <div class="resource-type-container">
+                          <div class="resource-type">Text</div>
+                        </div>
+                      {% elif content.resource_type == 'Default' %}
+                        <div class="resource-container">
+                          <div class="section-title">{{ content.title }}</div>
+                        </div>
+                        <div class="resource-type-container">
+                          <div class="resource-type">Link</div>
+                        </div>
+                    {% endif %}
+                </a>
+              </div>
+              {% elif content.type == 'section' %}
+              <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
+                <a class="listing section" href="#">
+                  <div class="section-number">{{ content.ordinal_string }}</div>
+                  <div class="section-title">{{ content.title }}</div>
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </section>
+      </div>
+    </div>
+  <script src="https://opencasebook.org/packs/js/application-9a84a3f0732a1d7044d5.js"></script>
+</body>
+</html>

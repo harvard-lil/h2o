@@ -3,8 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import ContentAnnotationSerializer
-from .models import ContentNode
-
+from .models import ContentNode, Casebook
 
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
@@ -17,3 +16,13 @@ def annotations(request, resource_id, format=None):
 
 def index(request):
     return render(request, 'index.html')
+
+def casebook(request, casebook_id):
+    casebook = get_object_or_404(Casebook, id=casebook_id)
+    contents = casebook.contents.all().order_by('ordinals')
+
+    return render(request, 'casebook.html', {
+        'casebook': casebook,
+        'contents': contents
+    })
+

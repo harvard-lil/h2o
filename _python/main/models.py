@@ -7,6 +7,7 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.apps import AppConfig
 
 
 class Annotation(models.Model):
@@ -211,6 +212,68 @@ class ContentNode(models.Model):
         managed = False
         db_table = 'content_nodes'
 
+    def type(self):
+        if not self.casebook:
+            return 'casebook'
+        elif not self.resource_id:
+            return 'section'
+        else:
+            return 'resource'
+
+    def resource(self):
+        if not self.resource_id:
+            # or maybe return None?
+            raise Exception("This node has no associated resource")
+        if self.resource_type in ['Case', 'TextBlock', 'Default']:
+            # so fancy...
+            return globals()[self.resource_type].objects.get(id=self.resource_id)
+        else:
+            raise NotImplemented
+
+    def ordinal_string(self):
+       return '.'.join(str(o) for o in self.ordinals)
+
+
+#
+# Start ContentNode Proxies
+#
+
+class CasebookManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(casebook__isnull=True)
+
+class Casebook(ContentNode):
+    class Meta:
+        proxy = True
+
+    objects = CasebookManager()
+
+
+class SectionManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(resource_id__isnull=True)
+
+class Section(ContentNode):
+    class Meta:
+        proxy = True
+
+    objects = SectionManager()
+
+
+class ResourceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
+
+class Resource(ContentNode):
+    class Meta:
+        proxy = True
+
+    objects = ResourceManager()
+
+
+#
+# End ContentNode Proxies
+#
 
 class Default(models.Model):
     """
