@@ -46,6 +46,14 @@ services:
     depends_on:
       - db
 
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./docker/h2o.conf:/etc/nginx/sites-enabled/default
+    ports:
+      - 80:80
+      - 81:81
+
 volumes:
   db_data:
   node_modules:
