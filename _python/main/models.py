@@ -9,6 +9,8 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from django.apps import AppConfig
 
+import bleach
+
 
 class Annotation(models.Model):
     """
@@ -155,7 +157,7 @@ class ContentAnnotation(models.Model):
 
 class ContentCollaborator(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.BigIntegerField(blank=True, null=True)
+    user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
     content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
     role = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
@@ -165,7 +167,7 @@ class ContentCollaborator(models.Model):
     class Meta:
         managed = False
         db_table = 'content_collaborators'
-        unique_together = (('user_id', 'content'),)
+        unique_together = (('user', 'content'),)
 
 
 class ContentImage(models.Model):
@@ -208,6 +210,8 @@ class ContentNode(models.Model):
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
 
+    attributors = models.ManyToManyField('User', through='ContentCollaborator')
+
     class Meta:
         managed = False
         db_table = 'content_nodes'
@@ -233,6 +237,12 @@ class ContentNode(models.Model):
     def ordinal_string(self):
        return '.'.join(str(o) for o in self.ordinals)
 
+    def formatted_headnote(self):
+        # todo: read up on this sanitization library
+        tags = bleach.sanitizer.ALLOWED_TAGS
+        tags.append('p')
+        return bleach.clean(self.headnote, tags=tags)
+
 
 #
 # Start ContentNode Proxies
@@ -247,6 +257,13 @@ class Casebook(ContentNode):
         proxy = True
 
     objects = CasebookManager()
+
+    def root_owner(self):
+        if self.root_user_id:
+          return User.objects.get(id=self.root_user_id)
+        elif self.ancestry:
+          pass
+          # User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
 
 
 class SectionManager(models.Manager):
@@ -690,3 +707,16 @@ class User(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
+
+    def email_domain(self):
+        return self.email_address
+
+    def anonymous_name(self):
+        return "{}#{}".format(self.email_domain, self.id)
+
+    def display_name(self):
+        if self.attribution:
+          return self.attribution
+        elif self.title:
+          return self.title
+        return self.anonymous_name

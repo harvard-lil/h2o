@@ -5,6 +5,8 @@ django-extensions
 djangorestframework
 psycopg2            # postgres connector
 
+bleach              # html sanitization
+
 # Testing
 pytest
 pytest-django

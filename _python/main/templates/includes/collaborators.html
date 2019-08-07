@@ -1,0 +1,5 @@
+{% for user in content.attributors.all %}
+  <div class="user {% if user.verified_professor %} verified{% endif %}">
+    <a href="#">{{ user.display_name }}</a>{% if not forloop.last %}, {% endif %}
+  </div>
+{% endfor %}

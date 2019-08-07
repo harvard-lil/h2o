@@ -7,56 +7,39 @@
   <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
 </head>
 <body>
-  <h1>{{ casebook.title }}</h1>
-  <section class="casebook-public casebook">
-    <div class="content">
-      <div class="casebook-inner">
-        <section class="table-of-contents">
-          {% for content in contents %}
-              {% if content.type == 'resource'  %}
-                <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-                  <a class="listing resource" href="#">
-                    <div class="section-number">{{ content.ordinal_string }}</div>
-                      {% if content.resource_type == 'Case' %}
-                        <div class="resource-container">
-                          <div class="section-title case-section-title">{{ content.title }}</div>
-                          <div class="case-metadata-container">
-                            <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
-                            <div class="resource-date">{{ content.resource.date_year }}</div>
-                          </div>
-                        </div>
-                        <div class="resource-type-container">
-                          <div class="resource-type">Case</div>
-                        </div>
-                      {% elif content.resource_type == 'TextBlock' %}
-                        <div class="resource-container">
-                          <div class="section-title"> {{ content.title }}</div>
-                        </div>
-                        <div class="resource-type-container">
-                          <div class="resource-type">Text</div>
-                        </div>
-                      {% elif content.resource_type == 'Default' %}
-                        <div class="resource-container">
-                          <div class="section-title">{{ content.title }}</div>
-                        </div>
-                        <div class="resource-type-container">
-                          <div class="resource-type">Link</div>
-                        </div>
-                    {% endif %}
-                </a>
-              </div>
-              {% elif content.type == 'section' %}
-              <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-                <a class="listing section" href="#">
-                  <div class="section-number">{{ content.ordinal_string }}</div>
-                  <div class="section-title">{{ content.title }}</div>
-                </a>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </section>
+
+  <main>
+    <header class="casebook-public casebook">
+      <div class="content">
+        <div class="casebook-inner">
+            <div class="tabs">
+              <a class="tab active" href="#">Casebook</a>
+            </div>
+        </div>
       </div>
-    </div>
+    </header>
+    <section class="casebook-public casebook">
+      <div class="content">
+        <div class="casebook-inner">
+          <div class="top-strip"></div>
+          <header class="content">
+            <h1 class="title">{{ casebook.title }}</h1>
+            {% if casebook.subtitle %}<h2 class="subtitle">{{ casebook.subtitle }}</h2>{% endif %}
+            <div class="authorship">
+              <div class="collaborators">
+                {% include 'includes/collaborators.html' with content=casebook%}
+              </div>
+              <div class="root-attribution">
+                {% if casebook.root_owner %}Original author: <a href="#">{{ casebook.root_owner.display_name }}</a>{% endif %}
+              </div>
+            </div>
+        </header>
+        {% include 'includes/headnote.html' with content=casebook %}
+        {% include 'includes/table-of-contents.html' with contents=contents %}
+        </div>
+      </div>
+    </section>
+  </main>
   <script src="https://opencasebook.org/packs/js/application-9a84a3f0732a1d7044d5.js"></script>
 </body>
 </html>
