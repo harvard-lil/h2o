@@ -4,6 +4,8 @@ services:
     image: postgres:9.5.15
     volumes:
       - db_data:/var/lib/postgresql/data:delegated
+    ports:
+      - "54320:5432"
   web:
     build:
       context: .

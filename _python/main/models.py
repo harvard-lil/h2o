@@ -5,6 +5,7 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 
 
@@ -71,12 +72,12 @@ class Case(models.Model):
     public = models.BooleanField(blank=True, null=True)
     created_via_import = models.BooleanField()
     capapi_id = models.IntegerField(blank=True, null=True)
-    attorneys = models.TextField(blank=True, null=True)  # This field type is a guess.
-    parties = models.TextField(blank=True, null=True)  # This field type is a guess.
-    opinions = models.TextField(blank=True, null=True)  # This field type is a guess.
-    citations = models.TextField(blank=True, null=True)  # This field type is a guess.
+    attorneys = JSONField(blank=True, null=True)
+    parties = JSONField(blank=True, null=True)
+    opinions = JSONField(blank=True, null=True)
+    citations = JSONField(blank=True, null=True)
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
-    annotations_count = models.IntegerField()
+    #annotations_count = models.IntegerField()  # in Greg PR
 
     class Meta:
         managed = False
@@ -143,8 +144,8 @@ class ContentAnnotation(models.Model):
     content = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    global_start_offset = models.IntegerField(blank=True, null=True)
-    global_end_offset = models.IntegerField(blank=True, null=True)
+    # global_start_offset = models.IntegerField(blank=True, null=True)  # in Greg PR
+    # global_end_offset = models.IntegerField(blank=True, null=True)  # in Greg PR
 
     class Meta:
         managed = False
@@ -189,10 +190,11 @@ class ContentNode(models.Model):
     title = models.CharField(max_length=-1, blank=True, null=True)
     slug = models.CharField(max_length=-1, blank=True, null=True)
     subtitle = models.CharField(max_length=-1, blank=True, null=True)
-    raw_headnote = models.TextField(blank=True, null=True)
+    headnote = models.TextField(blank=True, null=True)
+    # raw_headnote = models.TextField(blank=True, null=True)  # in Greg PR
     public = models.BooleanField()
     casebook = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
-    ordinals = models.TextField()  # This field type is a guess.
+    ordinals = ArrayField(models.IntegerField())
     copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
     is_alias = models.BooleanField(blank=True, null=True)
     resource_type = models.CharField(max_length=-1, blank=True, null=True)
@@ -204,7 +206,6 @@ class ContentNode(models.Model):
     root_user_id = models.BigIntegerField(blank=True, null=True)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
-    headnote = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -426,21 +427,19 @@ class PlaylistsUserCollection(models.Model):
         db_table = 'playlists_user_collections'
 
 
-class RawContent(models.Model):
-    """
-    Oh... this table is created in PR 812
-    """
-    id = models.BigAutoField(primary_key=True)
-    content = models.TextField(blank=True, null=True)
-    source_type = models.CharField(max_length=-1, blank=True, null=True)
-    source_id = models.BigIntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'raw_contents'
-        unique_together = (('source_type', 'source_id'),)
+# in Greg PR
+# class RawContent(models.Model):
+#     id = models.BigAutoField(primary_key=True)
+#     content = models.TextField(blank=True, null=True)
+#     source_type = models.CharField(max_length=-1, blank=True, null=True)
+#     source_id = models.BigIntegerField(blank=True, null=True)
+#     created_at = models.DateTimeField()
+#     updated_at = models.DateTimeField()
+#
+#     class Meta:
+#         managed = False
+#         db_table = 'raw_contents'
+#         unique_together = (('source_type', 'source_id'),)
 
 
 class Role(models.Model):
@@ -528,7 +527,7 @@ class TextBlock(models.Model):
     enable_feedback = models.BooleanField()
     enable_discussions = models.BooleanField()
     enable_responses = models.BooleanField()
-    annotations_count = models.IntegerField()
+    # annotations_count = models.IntegerField()  # in Greg PR
 
     class Meta:
         managed = False
