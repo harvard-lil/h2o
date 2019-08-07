@@ -2,6 +2,7 @@ pip-tools
 
 django
 django-extensions
+djangorestframework
 psycopg2            # postgres connector
 
 # Testing

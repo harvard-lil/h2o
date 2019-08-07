@@ -135,7 +135,7 @@ class Collage(models.Model):
 
 class ContentAnnotation(models.Model):
     id = models.BigAutoField(primary_key=True)
-    resource = models.ForeignKey('ContentNode', models.DO_NOTHING)
+    resource = models.ForeignKey('ContentNode', models.DO_NOTHING, related_name='annotations')
     start_paragraph = models.IntegerField()
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField()
