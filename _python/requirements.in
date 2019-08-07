@@ -1,0 +1,11 @@
+pip-tools
+
+django
+django-extensions
+psycopg2            # postgres connector
+
+# Testing
+pytest
+pytest-django
+pytest-cov
+
