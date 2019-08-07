@@ -1,0 +1,31 @@
+<!--some webpack loader tag thing-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+        <title>{% block title %}{% endblock %} | H2O Classroom Tools</title>
+        <link rel="icon" href="#" type="image/png" />
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
+        <link rel="stylesheet" type="text/css" href="https://opencasebook.org/packs/css/main-c9f3f2a5.css" />
+        <script type="text/javascript" src="/modernizr.custom.77714.js"></script>
+        <script type="text/javascript" src="//use.typekit.net/yxz4hqb.js"></script>
+        <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+        <style type="text/css" id="additional_styles"></style>
+    </head>
+
+    <body>
+        <a href="#main" class="skip-link">Skip to main content</a>
+        <a href="#footer" class="skip-link">Skip to footer</a>
+        <section id="shell">
+             <!--{% include 'quickbar.html' %}-->
+             <!--{% include 'nav.html' %}-->
+            <div class="wrapper main_wrapper">
+                <p id="main" tabindex="-1" class="sr-only">Main Content</p>
+                {% block mainContent %}{% endblock %}
+            </div>
+            <p id="footer" tabindex="-1" class="sr-only">Footer</p>
+            {% include 'footer.html' %}
+        </section>
+    </body>
+</html>
