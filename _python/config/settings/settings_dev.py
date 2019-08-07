@@ -10,9 +10,9 @@ DEBUG = True
 # don't check password quality locally, since it's annoying
 AUTH_PASSWORD_VALIDATORS = []
 
-# if os.environ.get('DOCKERIZED'):
-#     DATABASES['default']['PASSWORD'] = 'password'
-#     DATABASES['default']['HOST'] = 'db'
+if os.environ.get('DOCKERIZED'):
+    DATABASES['default']['PASSWORD'] = 'password'
+    DATABASES['default']['NAME'] = 'h2o_dev'
 
 
 # avoid test errors when running tests locally, since pytest-django sets DEBUG=False and staticfiles/ doesn't exist
