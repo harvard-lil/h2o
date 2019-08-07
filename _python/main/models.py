@@ -8,7 +8,7 @@
 from django.db import models
 
 
-class Annotations(models.Model):
+class Annotation(models.Model):
     """
     Legacy table; does not hold currently-used annotations.
     """
@@ -47,7 +47,7 @@ class ArInternalMetadata(models.Model):
         db_table = 'ar_internal_metadata'
 
 
-class CaseCourts(models.Model):
+class CaseCourt(models.Model):
     name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -59,7 +59,7 @@ class CaseCourts(models.Model):
         db_table = 'case_courts'
 
 
-class Cases(models.Model):
+class Case(models.Model):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=-1, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
@@ -83,7 +83,7 @@ class Cases(models.Model):
         db_table = 'cases'
 
 
-class CkeditorAssets(models.Model):
+class CkeditorAsset(models.Model):
     """
     Legacy table, from when people could embed assets in books.
     """
@@ -103,7 +103,7 @@ class CkeditorAssets(models.Model):
         db_table = 'ckeditor_assets'
 
 
-class Collages(models.Model):
+class Collage(models.Model):
     """
     Legacy table
     """
@@ -132,7 +132,7 @@ class Collages(models.Model):
         db_table = 'collages'
 
 
-class ContentAnnotations(models.Model):
+class ContentAnnotation(models.Model):
     id = models.BigAutoField(primary_key=True)
     resource = models.ForeignKey('ContentNodes', models.DO_NOTHING)
     start_paragraph = models.IntegerField()
@@ -151,7 +151,7 @@ class ContentAnnotations(models.Model):
         db_table = 'content_annotations'
 
 
-class ContentCollaborators(models.Model):
+class ContentCollaborator(models.Model):
     id = models.BigAutoField(primary_key=True)
     user_id = models.BigIntegerField(blank=True, null=True)
     content = models.ForeignKey('ContentNodes', models.DO_NOTHING, blank=True, null=True)
@@ -166,7 +166,7 @@ class ContentCollaborators(models.Model):
         unique_together = (('user_id', 'content'),)
 
 
-class ContentImages(models.Model):
+class ContentImage(models.Model):
     """
     Legacy table
     """
@@ -184,7 +184,7 @@ class ContentImages(models.Model):
         db_table = 'content_images'
 
 
-class ContentNodes(models.Model):
+class ContentNode(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=-1, blank=True, null=True)
     slug = models.CharField(max_length=-1, blank=True, null=True)
@@ -211,7 +211,7 @@ class ContentNodes(models.Model):
         db_table = 'content_nodes'
 
 
-class Defaults(models.Model):
+class Default(models.Model):
     """
     These are actually Link Resource
     """
@@ -231,7 +231,7 @@ class Defaults(models.Model):
         db_table = 'defaults'
 
 
-class DelayedJobs(models.Model):
+class DelayedJob(models.Model):
     """
     Legacy table
     """
@@ -252,7 +252,7 @@ class DelayedJobs(models.Model):
         db_table = 'delayed_jobs'
 
 
-class FrozenItems(models.Model):
+class FrozenItem(models.Model):
     """
     Legacy table
     """
@@ -268,7 +268,7 @@ class FrozenItems(models.Model):
         db_table = 'frozen_items'
 
 
-class MediaTypes(models.Model):
+class MediaType(models.Model):
     """
     Legacy table
     """
@@ -282,7 +282,7 @@ class MediaTypes(models.Model):
         db_table = 'media_types'
 
 
-class Medias(models.Model):
+class Media(models.Model):
     """
     Legacy table
     """
@@ -330,7 +330,7 @@ class Metadata(models.Model):
         db_table = 'metadata'
 
 
-class Pages(models.Model):
+class Page(models.Model):
     page_title = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
     content = models.TextField(blank=True, null=True)
@@ -348,7 +348,7 @@ class Pages(models.Model):
         db_table = 'pages'
 
 
-class PermissionAssignments(models.Model):
+class PermissionAssignment(models.Model):
     user_collection_id = models.IntegerField(blank=True, null=True)
     user_id = models.IntegerField(blank=True, null=True)
     permission_id = models.IntegerField(blank=True, null=True)
@@ -360,7 +360,7 @@ class PermissionAssignments(models.Model):
         db_table = 'permission_assignments'
 
 
-class Permissions(models.Model):
+class Permission(models.Model):
     key = models.CharField(max_length=255, blank=True, null=True)
     label = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -372,7 +372,7 @@ class Permissions(models.Model):
         db_table = 'permissions'
 
 
-class PlaylistItems(models.Model):
+class PlaylistItem(models.Model):
     """
     Legacy table
     """
@@ -390,7 +390,7 @@ class PlaylistItems(models.Model):
         db_table = 'playlist_items'
 
 
-class Playlists(models.Model):
+class Playlist(models.Model):
     """
     Legacy table
     """
@@ -414,7 +414,7 @@ class Playlists(models.Model):
         db_table = 'playlists'
 
 
-class PlaylistsUserCollections(models.Model):
+class PlaylistsUserCollection(models.Model):
     """
     Legacy table
     """
@@ -426,7 +426,7 @@ class PlaylistsUserCollections(models.Model):
         db_table = 'playlists_user_collections'
 
 
-class RawContents(models.Model):
+class RawContent(models.Model):
     """
     Oh... this table is created in PR 812
     """
@@ -443,7 +443,7 @@ class RawContents(models.Model):
         unique_together = (('source_type', 'source_id'),)
 
 
-class Roles(models.Model):
+class Role(models.Model):
     name = models.CharField(max_length=40, blank=True, null=True)
     authorizable_type = models.CharField(max_length=40, blank=True, null=True)
     authorizable_id = models.IntegerField(blank=True, null=True)
@@ -455,7 +455,7 @@ class Roles(models.Model):
         db_table = 'roles'
 
 
-class RolesUsers(models.Model):
+class RolesUser(models.Model):
     user_id = models.IntegerField(blank=True, null=True)
     role_id = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -466,7 +466,7 @@ class RolesUsers(models.Model):
         db_table = 'roles_users'
 
 
-class SchemaMigrations(models.Model):
+class SchemaMigration(models.Model):
     version = models.CharField(primary_key=True, max_length=-1)
 
     class Meta:
@@ -474,7 +474,7 @@ class SchemaMigrations(models.Model):
         db_table = 'schema_migrations'
 
 
-class Sessions(models.Model):
+class Session(models.Model):
     session_id = models.CharField(max_length=255)
     data = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -485,7 +485,7 @@ class Sessions(models.Model):
         db_table = 'sessions'
 
 
-class Taggings(models.Model):
+class Tagging(models.Model):
     """
     Legacy table
     """
@@ -503,7 +503,7 @@ class Taggings(models.Model):
         unique_together = (('tag_id', 'taggable_id', 'taggable_type', 'context', 'tagger_id', 'tagger_type'),)
 
 
-class Tags(models.Model):
+class Tag(models.Model):
     """
     Legacy table
     """
@@ -515,7 +515,7 @@ class Tags(models.Model):
         db_table = 'tags'
 
 
-class TextBlocks(models.Model):
+class TextBlock(models.Model):
     name = models.CharField(max_length=255)
     content = models.CharField(max_length=5242880)
     public = models.BooleanField(blank=True, null=True)
@@ -535,7 +535,7 @@ class TextBlocks(models.Model):
         db_table = 'text_blocks'
 
 
-class UnpublishedRevisions(models.Model):
+class UnpublishedRevision(models.Model):
     id = models.BigAutoField(primary_key=True)
     node_id = models.IntegerField(blank=True, null=True)
     field = models.CharField(max_length=-1)
@@ -551,7 +551,7 @@ class UnpublishedRevisions(models.Model):
         db_table = 'unpublished_revisions'
 
 
-class UserCollections(models.Model):
+class UserCollection(models.Model):
     """
     Legacy table
     """
@@ -566,7 +566,7 @@ class UserCollections(models.Model):
         db_table = 'user_collections'
 
 
-class UserCollectionsUsers(models.Model):
+class UserCollectionsUser(models.Model):
     """
     Legacy table
     """
@@ -578,7 +578,7 @@ class UserCollectionsUsers(models.Model):
         db_table = 'user_collections_users'
 
 
-class Users(models.Model):
+class User(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
     login = models.CharField(max_length=255, blank=True, null=True)
