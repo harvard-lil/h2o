@@ -40,7 +40,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8001:8001"
+      - "8001:8000"
     depends_on:
       - db
 
