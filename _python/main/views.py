@@ -21,6 +21,7 @@ def casebook(request, casebook_id):
     casebook = get_object_or_404(Casebook, id=casebook_id)
     contents = casebook.contents.all().order_by('ordinals')
 
+    # TODO: find out about the resources that appear in this TOC, but not on prod.
     return render(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
