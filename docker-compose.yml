@@ -49,10 +49,12 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - ./docker/h2o.conf:/etc/nginx/sites-enabled/default
+      - ./docker/h2o.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - 80:80
-      - 81:81
+      - 8002:80
+    depends_on:
+      - web
+      - python
 
 volumes:
   db_data:
