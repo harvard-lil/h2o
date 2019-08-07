@@ -28,6 +28,22 @@ services:
     depends_on:
       - db
 
+  python:
+    build:
+      context: .
+      dockerfile: ./_python/Dockerfile
+    image: h2o-python
+    tty: true
+    command: bash
+    environment:
+    - DOCKERIZED=true
+    volumes:
+      - .:/h2o
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
 volumes:
   db_data:
   node_modules:
