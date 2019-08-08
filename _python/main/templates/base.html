@@ -4,11 +4,7 @@
     {% block prepend_to_head %}{% endblock %}
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta charset="utf-8"/>
-    {% if page_title %}
-      <title>{{ page_title }} | H2O</title>
-    {% else %}
-      <title>Open Casebooks | H2O</title>
-    {% endif %}
+    <title>{% block page_title %}{{ page_title|default:"Open Casebooks" }}{% endblock %} | H2O</title>
     <link rel="icon" href="#" type="image/png"/>
     {% include 'includes/favicon.html' %}
     <link rel="stylesheet" type="text/css" href="{% static "packs/css/main-c9f3f2a5.css" %}"/>

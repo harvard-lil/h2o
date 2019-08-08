@@ -3,7 +3,7 @@
   {% for casebook in content %}
     {% call_method casebook "editable_by" request.user as user_can_edit %}
     {% call_method casebook "drafts" as draft %}
-    <a class="wrapper" href="{{ casebook.get_absolute_url }}/{% if casebook.public %}{% else %}layout{% endif %}">
+    <a class="wrapper" href="{{ casebook.get_absolute_url }}{% if not casebook.public %}/layout{% endif %}">
       <div class="content-page {% if casebook.public %}public{% else %}draft{% endif %}">
         <div class="casebook-info">
           <div class="state">{% if casebook.public %}Published{% else %}Draft{% endif %}</div>

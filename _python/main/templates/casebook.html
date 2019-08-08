@@ -1,45 +1,36 @@
-{% load static %}<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ casebook.title }} | H2O</title>
-  <link rel="stylesheet" media="all" href="{% static "packs/css/main-c9f3f2a5.css" %}" />
-  <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy" />
-  <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
-</head>
-<body>
+{% extends 'base.html' %}
 
-  <main>
-    <header class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-            <div class="tabs">
-              <a class="tab active disabled" href="#">Casebook</a>
-            </div>
-        </div>
+{% block page_title %}{{ casebook.title }}{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+          <div class="tabs">
+            <a class="tab active disabled" href="#">Casebook</a>
+          </div>
       </div>
-    </header>
-    <section class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-          <div class="top-strip"></div>
-          <header class="content">
-            <h1 class="title">{{ casebook.title }}</h1>
-            {% if casebook.subtitle %}<h2 class="subtitle">{{ casebook.subtitle }}</h2>{% endif %}
-            <div class="authorship">
-              <div class="collaborators">
-                {% include 'includes/collaborators.html' with content=casebook%}
-              </div>
-              <div class="root-attribution">
-                {% if casebook.root_owner %}Original author: <a href="#">{{ casebook.root_owner.display_name }}</a>{% endif %}
-              </div>
+    </div>
+  </header>
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="content">
+          <h1 class="title">{{ casebook.title }}</h1>
+          {% if casebook.subtitle %}<h2 class="subtitle">{{ casebook.subtitle }}</h2>{% endif %}
+          <div class="authorship">
+            <div class="collaborators">
+              {% include 'includes/collaborators.html' with content=casebook%}
             </div>
-        </header>
-        {% include 'includes/headnote.html' with content=casebook %}
-        {% include 'includes/table-of-contents.html' with contents=contents %}
-        </div>
+            <div class="root-attribution">
+              {% if casebook.root_owner %}Original author: <a href="#">{{ casebook.root_owner.display_name }}</a>{% endif %}
+            </div>
+          </div>
+      </header>
+      {% include 'includes/headnote.html' with content=casebook %}
+      {% include 'includes/table-of-contents.html' with contents=contents %}
       </div>
-    </section>
-  </main>
-  <script src="{% static "packs/js/application-9a84a3f0732a1d7044d5.js" %}"></script>
-</body>
-</html>
+    </div>
+  </section>
+{% endblock %}

@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import ContentAnnotationSerializer
-from .models import Casebook, Resource, Section
+from .models import Casebook, Resource, Section, User
 
 
 def login_required_response(request):
@@ -37,6 +37,11 @@ def index(request):
         return render(request, 'dashboard.html', {'user': request.user})
     else:
         return render(request, 'index.html')
+
+
+def dashboard(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    return render(request, 'dashboard.html', {'user': user})
 
 
 def casebook(request, casebook_param):
