@@ -33,7 +33,10 @@ def annotations(request, resource_id, format=None):
 
 
 def index(request):
-    return render(request, 'index.html')
+    if request.user.is_authenticated:
+        return render(request, 'dashboard.html', {'user': request.user})
+    else:
+        return render(request, 'index.html')
 
 
 def casebook(request, casebook_param):

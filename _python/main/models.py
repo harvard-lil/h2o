@@ -5,8 +5,10 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -121,9 +123,9 @@ class ContentNode(RailsModel):
     resource_id = models.BigIntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    ancestry = models.CharField(max_length=255, blank=True, null=True)
+    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     playlist_id = models.BigIntegerField(blank=True, null=True)
-    root_user_id = models.BigIntegerField(blank=True, null=True)
+    root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.SET_NULL, related_name='casebooks_and_clones')
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
 
@@ -158,10 +160,25 @@ class ContentNode(RailsModel):
     def formatted_headnote(self):
         return sanitize(self.headnote)
 
+    def users_with_role(self, role):
+        return self.collaborators.filter(contentcollaborator__role=role)
+
     @property
     def attributors(self):
         """ Users whose authorship should be attributed (as opposed to all having edit permission). """
-        return User.objects.filter(contentcollaborator__content=self, contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
+        return self.collaborators.filter(contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
+
+    @property
+    def editors(self):
+        return self.users_with_role('editor')
+
+    @property
+    def owners(self):
+        return self.users_with_role('owner')
+
+    @property
+    def owner(self):
+        return self.owners.first()
 
     def has_collaborator(self, user):
         return self.collaborators.filter(pk=user.pk).exists()
@@ -178,6 +195,24 @@ class ContentNode(RailsModel):
         else:
             raise NotImplementedError
 
+    ###
+    # compatibility for the rails Ancestry gem
+    # see https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
+    ###
+
+    def child_ancestry(self):
+        """ Return ancestry value for children of this node. """
+        return "%s/%s" % (self.ancestry, self.pk) if self.ancestry else str(self.pk)
+
+    def descendants(self):
+        """ Return all descendants of this node. """
+        return type(self).objects.filter(Q(ancestry=self.child_ancestry()) | Q(ancestry__startswith=self.child_ancestry()+"/"))
+
+    def root(self):
+        """ Return root node for this node, or None if no ancestors. """
+        if not self.ancestry:
+            return None
+        return type(self).objects.get(pk=self.ancestry.split("/")[0])
 
 #
 # Start ContentNode Proxies
@@ -196,13 +231,25 @@ class Casebook(ContentNode):
 
     def root_owner(self):
         if self.root_user_id:
-          return User.objects.get(id=self.root_user_id)
+            return self.root_user
         elif self.ancestry:
-          pass
-          # User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
+            return self.root().collaborators.filter(contentcollaborator__role='owner').first()
 
     def viewable_by(self, user):
-        return self.public or (user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin))
+        return self.public or self.editable_by(user)
+
+    def editable_by(self, user):
+        return user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin)
+
+    def get_title(self):
+        return self.title or "Untitled casebook #%s" % self.pk
+
+    def drafts(self):
+        """
+            Return first existing draft.
+            TODO: Should this be named "draft"? It only returns one, and logic should ensure that only one ever exists.
+        """
+        return self.clones.filter(draft_mode_of_published_casebook=True).first()
 
 
 class SectionManager(models.Manager):
@@ -463,6 +510,8 @@ class User(RailsModel):
 
     @property
     def email_domain(self):
+        # m = email_address.match /@(.+)$/
+        # m.try(:[], 1) || '?.edu'
         return self.email_address
 
     @property
@@ -471,10 +520,13 @@ class User(RailsModel):
 
     @property
     def display_name(self):
+        """
+            In rails this is also known as "display" and "simple_display"
+        """
         if self.attribution:
-          return self.attribution
+            return self.attribution
         elif self.title:
-          return self.title
+            return self.title
         return self.anonymous_name
 
     # TODO: are all users active?
@@ -490,3 +542,29 @@ class User(RailsModel):
     # differentiate between real User model and AnonymousUser model:
     is_authenticated = True
     is_anonymous = False
+
+    def __str__(self):
+        return self.display_name
+
+    @property
+    def casebooks(self):
+        return Casebook.objects.filter(collaborators=self)
+
+    def non_draft_casebooks(self):
+        """
+            Casebooks, published or not, but excluding draft copies.
+            Drafts of published casebooks should not show up on their own, but inline with the published casebook.
+            Equivalent of Rails "owned_casebook_compacted"
+        """
+        return self.casebooks.filter(draft_mode_of_published_casebook=None)
+
+    def published_casebooks(self):
+        """
+            Public casebooks owned by this user.
+            Equivalent of Rails "user.owned.published"
+        """
+        return self.casebooks.filter(contentcollaborator__role='owner', public=True)
+
+
+# make AnonymousUser API conform with User API
+AnonymousUser.is_superadmin = False

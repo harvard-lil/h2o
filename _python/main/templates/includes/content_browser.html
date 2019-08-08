@@ -1,0 +1,40 @@
+{% load call_method %}
+<div class="content-browser">
+  {% for casebook in content %}
+    {% call_method casebook "editable_by" request.user as user_can_edit %}
+    {% call_method casebook "drafts" as draft %}
+    <a class="wrapper" href="{{ casebook.get_absolute_url }}/{% if casebook.public %}{% else %}layout{% endif %}">
+      <div class="content-page {% if casebook.public %}public{% else %}draft{% endif %}">
+        <div class="casebook-info">
+          <div class="state">{% if casebook.public %}Published{% else %}Draft{% endif %}</div>
+          <div class="title">{{ casebook.get_title }}</div>
+          <div class="subtitle">{{ casebook.subtitle|default:"" }}</div>
+        </div>
+        {% if draft and user_can_edit %}
+          <a class="wrapper" href="{{ draft.get_absolute_url }}/layout">
+            <div class="unpublished-changes">
+             <span class="exclamation">!</span>
+              <span class="description">This casebook has unpublished changes.</span>
+            </div>
+          </a>
+        {% endif %}
+        <div class="author-info">
+          <div class="owner">
+            {{ casebook.owner }}
+            {% if casebook.owner.verified_professor %}
+              <span class="verified"></span>
+            {% endif %}
+          </div>
+          <div class="affiliation">
+            {{ casebook.owner.affiliation|default:"" }}
+          </div>
+        </div>
+        <div class="root-attribution">
+          {% if casebook.ancestry %}
+            Original author: {{ casebook.root_owner }}
+          {% endif %}
+        </div>
+      </div>
+    </a>
+  {% endfor %}
+</div>
