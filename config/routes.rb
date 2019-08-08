@@ -1,6 +1,4 @@
 H2o::Application.routes.draw do
-  get 'svg_icons/:icon_set/:size', to: 'svg_icons#show'
-
   mount Ckeditor::Engine => '/ckeditor'
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
   mount RailsAdminImport::Engine => '/rails_admin_import', :as => 'rails_admin_import'
@@ -84,11 +82,5 @@ H2o::Application.routes.draw do
   resource :search, only: [:show, :index]
   get '/search', to: 'searches#index'
 
-  scope :iframe, controller: 'iframe' do
-    get 'load/:type/:id(.:format)', action: :load, as: 'iframe_load'
-    get 'show/:type/:id(.:format)', action: :show, as: 'iframe_show'
-  end
-
   get "/pages/*id" => 'pages#show', as: :page, format: false
-
 end
