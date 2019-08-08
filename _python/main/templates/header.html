@@ -25,8 +25,8 @@
                           <span class="caret"></span>
                         </button>
                         <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
-                            <li><a class="user-link" href="#">Dashboard</a></li>
-                            <li><a class="user-link" href="#">Edit Profile</a></li>
+                            <li><a class="user-link" href="users/{{ request.user.id }}">Dashboard</a></li>
+                            <li><a class="user-link" href="users/{{ request.user.id }}/edit">Edit Profile</a></li>
                             <li><a class="user-link" href="#">Sign Out</a></li>
                         </ul>
                     </div>
