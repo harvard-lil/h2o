@@ -44,7 +44,7 @@ def casebook(request, casebook_param):
         return login_required_response(request)
 
     # canonical redirect
-    canonical = casebook.get_canonical_url()
+    canonical = casebook.get_absolute_url()
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
@@ -60,8 +60,10 @@ def casebook(request, casebook_param):
 def section(request, casebook_param, ordinals_param):
     section = get_object_or_404(Section, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
+    # TODO: permissions
+
     # canonical redirect
-    canonical = section.get_canonical_url()
+    canonical = section.get_absolute_url()
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 

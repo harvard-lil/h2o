@@ -166,7 +166,7 @@ class ContentNode(RailsModel):
     def has_collaborator(self, user):
         return self.collaborators.filter(pk=user.pk).exists()
 
-    def get_canonical_url(self):
+    def get_absolute_url(self):
         t = self.type
         if t == 'casebook':
             return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.title)}])

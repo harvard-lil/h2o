@@ -8,16 +8,18 @@ from . import views
 #
 
 class IDSlugConverter:
+    # matches:
+    # 2, 2-, 22-slug, etc.
     regex = '[0-9]+(\-.*)?'
 
     def to_python(self, value):
-        l = value.split('-', 1)
+        id_slug = value.split('-', 1)
         try:
-            slug = l[1]
+            slug = id_slug[1]
         except IndexError:
             slug = ''
         return {
-            'id': int(l[0]),
+            'id': int(id_slug[0]),
             'slug': slug
         }
 
@@ -26,16 +28,18 @@ class IDSlugConverter:
 
 
 class OrdinalSlugConverter:
+    # matches:
+    # 2, 2.2, 22.2.22, 2-, 2-slug, 2.22.2-, 2.2.22-slug, etc.
     regex = '([0-9]+\.)*[0-9]+(\-.*)?'
 
     def to_python(self, value):
-        l = value.split('-', 1)
+        ord_slug = value.split('-', 1)
         try:
-            slug = l[1]
+            slug = ord_slug[1]
         except IndexError:
             slug = ''
         return {
-            'ordinals': [int(i) for i in l[0].split('.')],
+            'ordinals': [int(i) for i in ord_slug[0].split('.')],
             'slug': slug
         }
 
