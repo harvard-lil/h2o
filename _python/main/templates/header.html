@@ -6,9 +6,9 @@
     <div class="links">
         {% if request.user.is_authenticated %}
             <button type="button" class="create-casebook" data-action="show-casebook-modal">Create Casebook</button>
-            <a href="#">SEARCH</a>
+            <a href="search">SEARCH</a>
         {% else %}
-             <a href="#">SEARCH</a>
+            <a href="search">SEARCH</a>
         {% endif %}
     </div>
     <div class="user">
