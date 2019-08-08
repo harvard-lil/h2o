@@ -150,7 +150,7 @@ class ContentNode(RailsModel):
             # so fancy...
             return globals()[self.resource_type].objects.get(id=self.resource_id)
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
     def ordinal_string(self):
        return '.'.join(str(o) for o in self.ordinals)
@@ -176,7 +176,7 @@ class ContentNode(RailsModel):
                 {"ordinals": self.ordinals, "slug": slugify(self.title)}
             ])
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
 
 #
