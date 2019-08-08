@@ -71,7 +71,7 @@ class Content::Casebook < Content::Node
     if root_user_id.present?
       User.find(root_user_id)
     elsif self.ancestry.present?
-      User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
+      User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first
     end
   end
 
@@ -85,10 +85,6 @@ class Content::Casebook < Content::Node
 
   def draft
     descendants.where(draft_mode_of_published_casebook: true).where(copy_of_id: self.id).first
-  end
-
-  def building_draft?(owner, draft_mode)
-    self.owner == owner && self.public && draft_mode
   end
 
   def resources_have_annotations?
