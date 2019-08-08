@@ -4,7 +4,7 @@ class Ability
   def initialize(user)
     can [:show, :index], :users
     can :show, :pages
-    can [:landing, :index, :author_playlists, :search, :not_found, :load_more_users, :tags], :base
+    can [:landing, :index, :author_playlists, :search, :not_found, :load_more_users], :base
     can [:new, :create, :edit, :update], :password_resets
     can [:new, :create], :login_notifiers
     can [:new, :create], :user_sessions

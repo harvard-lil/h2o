@@ -9,7 +9,6 @@ gem 'puma', '~> 3.12'
 gem 'webpacker', '>= 4.0.x'
 
 gem 'actionpack-page_caching'
-gem 'acts-as-taggable-on', git: 'https://github.com/mbleigh/acts-as-taggable-on.git', ref: '9bb5738'
 gem 'ancestry'
 gem 'authlogic'
 gem 'bcrypt'

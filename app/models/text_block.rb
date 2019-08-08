@@ -8,24 +8,10 @@ class TextBlock < ApplicationRecord
   include Rails.application.routes.url_helpers
   include VerifiedUserExtensions
 
-  acts_as_taggable_on :tags
-
   belongs_to :user, optional: true
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   validates_presence_of :name
-
-  def self.tag_list
-    Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
-      JOIN tags t ON ts.tag_id = t.id
-      WHERE taggable_type = 'TextBlock'
-      GROUP BY ts.tag_id, t.name
-      ORDER BY COUNT(*) DESC LIMIT 25")
-  end
-
-  def deleteable_tags
-    []
-  end
 
   def display_name
     name
@@ -35,19 +21,9 @@ class TextBlock < ApplicationRecord
     name
   end
 
-  #Export the content that gets annotated in a Collage - also, render the content for display.
-  #As always, the content method should export valid html/XHTML.
-  def sanitized_content
-    ActionController::Base.helpers.sanitize(
-      self.content,
-      :tags => WHITELISTED_TAGS + ["sup", "sub", "pre"],
-      :attributes => WHITELISTED_ATTRIBUTES + ["style", "name"]
-    )
-  end
-
   alias :to_s :display_name
 
-  searchable(:include => [:metadatum, :tags]) do
+  searchable(:include => [:metadatum]) do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true

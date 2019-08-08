@@ -5,14 +5,13 @@ class Default < ApplicationRecord
   include SpamPreventionExtension
   include Rails.application.routes.url_helpers
 
-  acts_as_taggable_on :tags
   belongs_to :user, optional: true
   validate :url_format
   has_ancestry :orphan_strategy => :adopt
 
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
-  searchable(:include => [:metadatum, :tags]) do
+  searchable(:include => [:metadatum]) do
     text :display_name
     string :display_name, :stored => true
     string :id, :stored => true

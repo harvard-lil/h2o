@@ -13,14 +13,6 @@ GIT
       faraday (~> 0.10)
 
 GIT
-  remote: https://github.com/mbleigh/acts-as-taggable-on.git
-  revision: 9bb57384398cd3e198c893b0345c7b26e3b5ad5e
-  ref: 9bb5738
-  specs:
-    acts-as-taggable-on (4.0.0)
-      activerecord (>= 4.0)
-
-GIT
   remote: https://github.com/smit1625/guard-sunspot.git
   revision: d7b24d843c9f8d12f71f93274bd5d5a3072faef2
   ref: d7b24d8
@@ -510,7 +502,6 @@ PLATFORMS
 DEPENDENCIES
   RedCloth
   actionpack-page_caching
-  acts-as-taggable-on!
   ancestry
   annotate
   authlogic

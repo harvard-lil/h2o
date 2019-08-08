@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_09_141327) do
+ActiveRecord::Schema.define(version: 2019_08_08_191224) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -262,12 +262,6 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.index ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type"
     t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
     t.index ["tagger_type"], name: "index_taggings_on_tagger_type"
-  end
-
-  create_table "tags", id: :serial, force: :cascade do |t|
-    t.string "name", limit: 255
-    t.integer "taggings_count", default: 0
-    t.index ["name"], name: "index_tags_on_name"
   end
 
   create_table "text_blocks", id: :serial, force: :cascade do |t|
