@@ -85,7 +85,6 @@ class Content::SectionsController < Content::NodeController
 
   def export
     @section = Content::Section.find params[:section_id]
-    @decorated_content = @section.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'section'})
     @include_annotations = (params["annotations"] == "true")
 
     html = render_to_string(layout: 'export', include_annotations: @include_annotations)
