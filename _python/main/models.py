@@ -751,14 +751,14 @@ class User(RailsModel):
         return self.email_address
 
     def anonymous_name(self):
-        return "{}#{}".format(self.email_domain, self.id)
+        return "{}#{}".format(self.email_domain(), self.id)
 
     def display_name(self):
         if self.attribution:
           return self.attribution
         elif self.title:
           return self.title
-        return self.anonymous_name
+        return self.anonymous_name()
 
     # TODO: are all users active?
     is_active = True
