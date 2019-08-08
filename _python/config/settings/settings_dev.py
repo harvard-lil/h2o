@@ -16,6 +16,9 @@ if os.environ.get('DOCKERIZED'):
 
 
 # avoid test errors when running tests locally, since pytest-django sets DEBUG=False and staticfiles/ doesn't exist
-STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
+# STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
 RAILS_SECRET_KEY_BASE = 'd3a3c86a4791903d56cd6a4d3aa4e18fbda088c4e88655d0b0ed39e540c84030b3f10982c2e1c2cbd973f550d22bca375f59d86b48034827007c9977d76b29e0'
+
+# load assets from prod for now
+STATIC_URL = 'https://opencasebook.org/'

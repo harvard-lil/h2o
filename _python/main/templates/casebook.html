@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html>
 <head>
   <title>{{ casebook.title }} | H2O</title>
-  <link rel="stylesheet" media="all" href="https://opencasebook.org/packs/css/main-c9f3f2a5.css" />
+  <link rel="stylesheet" media="all" href="{% static "packs/css/main-c9f3f2a5.css" %}" />
   <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy" />
   <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
 </head>
@@ -40,6 +40,6 @@
       </div>
     </section>
   </main>
-  <script src="https://opencasebook.org/packs/js/application-9a84a3f0732a1d7044d5.js"></script>
+  <script src="{% static "packs/js/application-9a84a3f0732a1d7044d5.js" %}"></script>
 </body>
 </html>
