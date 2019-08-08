@@ -7,7 +7,9 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 
 from main.utils import sanitize
 
@@ -256,7 +258,7 @@ class ContentNode(RailsModel):
     @property
     def attributors(self):
         """ Users whose authorship should be attributed (as opposed to all having edit permission). """
-        return self.collaborators.filter(has_attribution=True).order_by('-role')
+        return User.objects.filter(contentcollaborator__content=self, contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
 
     def has_collaborator(self, user):
         return self.collaborators.filter(pk=user.pk).exists()
@@ -269,6 +271,7 @@ class ContentNode(RailsModel):
 class CasebookManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=True)
+
 
 class Casebook(ContentNode):
     class Meta:
@@ -286,9 +289,17 @@ class Casebook(ContentNode):
     def viewable_by(self, user):
         return self.public or (user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin))
 
+    def url_param(self):
+        return "%s-%s" % (self.id, slugify(self.title))
+
+    def get_absolute_url(self):
+        return reverse('casebook', args=[self.url_param()])
+
+
 class SectionManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(resource_id__isnull=True)
+
 
 class Section(ContentNode):
     class Meta:

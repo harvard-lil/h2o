@@ -11,5 +11,5 @@ drf_urlpatterns = [
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
-    path('casebooks/<int:casebook_id>/', views.casebook, name='casebook')
+    path('casebooks/<str:casebook_param>', views.casebook, name='casebook')
 ]
