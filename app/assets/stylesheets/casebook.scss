@@ -300,10 +300,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       }
     }
   }
-  input#playlist_name {
-    @include sans-serif($medium, 36px, 36px);
-    padding: 32px 20px 25px;
-  }
 
   .authorship {
     display: flex;
