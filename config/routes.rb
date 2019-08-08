@@ -12,26 +12,7 @@ H2o::Application.routes.draw do
   get 'log_out' => 'user_sessions#destroy', as: :log_out
   get '/p/:id' => 'pages#show'
 
-  get 'all_materials' => 'base#search', as: :search_all
-
-  resources :users do
-    member do
-      get 'verify/:token' => 'users#verify', as: :verify
-    end
-  end
-  resources :text_blocks do
-    resources :responses, :only => [:create, :destroy]
-    member do
-      get 'export'
-      post 'export_as'
-    end
-  end
-  resources :defaults do
-    member do
-      post 'copy'
-    end
-  end
-
+  resources :users
 
   scope module: 'content' do
     resources :cases, only: [:show], param: :case_id do
