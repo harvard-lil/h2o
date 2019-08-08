@@ -52,7 +52,7 @@
                 {% include 'footer.html' %}
             </footer>
         </div>
-        {% if @include_vuejs %></div><% end %>
+        {% if include_vuejs %}</div>{% endif %}
         <!-- add javascript tags -->
         {% include 'analytics.html' %}
     </body>
