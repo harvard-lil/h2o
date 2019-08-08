@@ -7,7 +7,6 @@ class Content::Node < ApplicationRecord
 
   scope :published, -> {where public: true}
   scope :owned, -> {where content_collaborators: {role: 'owner'}}
-  scope :followed, -> {where content_collaborators: {role: 'followed'}}
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}
   nilify_blanks
 
@@ -21,9 +20,8 @@ class Content::Node < ApplicationRecord
     super.try(:html_safe)
   end
 
+  # Creates a revision for every field even if the field remains unchanged.
   def create_revisions(content_params)
-    #Creates a revision for every field. Could check for changes but there are ever
-    #only 3 fields.
     if self.copy_of.present?
       content_params.each do |field, value|
         previous_revisions = unpublished_revisions.where(field: field)
