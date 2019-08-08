@@ -159,6 +159,30 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
+  create_table "metadata", id: :serial, force: :cascade do |t|
+    t.string "contributor", limit: 255
+    t.string "coverage", limit: 255
+    t.string "creator", limit: 255
+    t.date "date"
+    t.string "description", limit: 5242880
+    t.string "format", limit: 255
+    t.string "identifier", limit: 255
+    t.string "language", limit: 255, default: "en"
+    t.string "publisher", limit: 255
+    t.string "relation", limit: 255
+    t.string "rights", limit: 255
+    t.string "source", limit: 255
+    t.string "subject", limit: 255
+    t.string "title", limit: 255
+    t.string "dc_type", limit: 255, default: "Text"
+    t.string "classifiable_type", limit: 255
+    t.integer "classifiable_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["classifiable_id"], name: "index_metadata_on_classifiable_id"
+    t.index ["classifiable_type"], name: "index_metadata_on_classifiable_type"
+  end
+
   create_table "pages", id: :serial, force: :cascade do |t|
     t.string "page_title", limit: 255, null: false
     t.string "slug", limit: 255, null: false
