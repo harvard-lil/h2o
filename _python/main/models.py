@@ -307,6 +307,22 @@ class Section(ContentNode):
 
     objects = SectionManager()
 
+    @property
+    def contents(self):
+        """
+        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
+        """
+        # Django syntax for inspecting a slice of an array field
+        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
+        # We want only nodes whose first ordinals match this section's.
+        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
+        # but not [2, 1, 1], [1,1], etc.
+        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        return ContentNode.objects.filter(**{
+            "casebook": self.casebook,
+            first_ordinals: self.ordinals,
+            "ordinals__len__gte": len(self.ordinals) + 1
+        }).order_by('ordinals')
 
 class ResourceManager(models.Manager):
     def get_queryset(self):

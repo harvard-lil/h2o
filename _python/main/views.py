@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import ContentAnnotationSerializer
-from .models import Casebook, Resource
+from .models import Casebook, Resource, Section
 
 
 def login_required_response(request):
@@ -51,8 +51,15 @@ def casebook(request, casebook_param):
     contents = casebook.contents.all().order_by('ordinals')
 
     # TODO: find out about the resources that appear in this TOC, but not on prod.
+    # TODO: find out about the "None"s appearing in spots in place of titles
     return render(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
+    })
+
+def section(request, casebook_id, ordinals):
+    section = get_object_or_404(Section, casebook=casebook_id, ordinals=ordinals)
+    return render(request, 'section.html', {
+        'section': section
     })
 

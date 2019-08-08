@@ -1,4 +1,5 @@
 <section class="table-of-contents">
+  {% if section %}<h5>Section Contents</h5>{% endif %}
   {% for content in contents %}
     {% if content.type == 'resource'  %}
       <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
@@ -46,7 +47,7 @@
       </div>
     {% elif content.type == 'section' %}
       <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-        <a class="listing section" href="#">
+        <a class="listing section" href="{% url 'section' casebook_id=content.casebook.id ordinals=content.ordinals %}">
           <div class="section-number">{{ content.ordinal_string }}</div>
           <div class="section-title">{{ content.title }}</div>
         </a>
