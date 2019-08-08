@@ -37,16 +37,16 @@ def index(request):
 
 
 def casebook(request, casebook_param):
-    casebook_id = casebook_param.split('-', 1)[0]  # get id from id-slug
-    casebook = get_object_or_404(Casebook, id=casebook_id)
+    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
     # check permissions
     if not casebook.viewable_by(request.user):
         return login_required_response(request)
 
     # canonical redirect
-    if casebook_param != casebook.url_param():
-        return HttpResponseRedirect(casebook.get_absolute_url())
+    canonical = casebook.get_canonical_url()
+    if request.path != canonical:
+        return HttpResponseRedirect(canonical)
 
     contents = casebook.contents.all().order_by('ordinals')
 
@@ -57,8 +57,14 @@ def casebook(request, casebook_param):
         'contents': contents
     })
 
-def section(request, casebook_id, ordinals):
-    section = get_object_or_404(Section, casebook=casebook_id, ordinals=ordinals)
+def section(request, casebook_param, ordinals_param):
+    section = get_object_or_404(Section, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+
+    # canonical redirect
+    canonical = section.get_canonical_url()
+    if request.path != canonical:
+        return HttpResponseRedirect(canonical)
+
     return render(request, 'section.html', {
         'section': section
     })

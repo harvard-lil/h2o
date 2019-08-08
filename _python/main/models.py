@@ -133,6 +133,7 @@ class ContentNode(RailsModel):
         managed = False
         db_table = 'content_nodes'
 
+    @property
     def type(self):
         if not self.casebook:
             return 'casebook'
@@ -165,6 +166,18 @@ class ContentNode(RailsModel):
     def has_collaborator(self, user):
         return self.collaborators.filter(pk=user.pk).exists()
 
+    def get_canonical_url(self):
+        t = self.type
+        if t == 'casebook':
+            return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.title)}])
+        elif t == 'section':
+            return reverse('section', args=[
+                {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
+                {"ordinals": self.ordinals, "slug": slugify(self.title)}
+            ])
+        else:
+            raise NotImplemented
+
 
 #
 # Start ContentNode Proxies
@@ -190,12 +203,6 @@ class Casebook(ContentNode):
 
     def viewable_by(self, user):
         return self.public or (user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin))
-
-    def url_param(self):
-        return "%s-%s" % (self.id, slugify(self.title))
-
-    def get_absolute_url(self):
-        return reverse('casebook', args=[self.url_param()])
 
 
 class SectionManager(models.Manager):
@@ -225,6 +232,7 @@ class Section(ContentNode):
             first_ordinals: self.ordinals,
             "ordinals__len__gte": len(self.ordinals) + 1
         }).order_by('ordinals')
+
 
 class ResourceManager(models.Manager):
     def get_queryset(self):

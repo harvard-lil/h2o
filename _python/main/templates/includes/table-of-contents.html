@@ -47,7 +47,7 @@
       </div>
     {% elif content.type == 'section' %}
       <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-        <a class="listing section" href="{% url 'section' casebook_id=content.casebook.id ordinals=content.ordinals %}">
+        <a class="listing section" href="{{ content.get_canonical_url }}">
           <div class="section-number">{{ content.ordinal_string }}</div>
           <div class="section-title">{{ content.title }}</div>
         </a>

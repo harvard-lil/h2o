@@ -13,7 +13,7 @@
       <div class="content">
         <div class="casebook-inner">
           <div class="tabs">
-            <a class="tab" href="/casebooks/{{ section.casebook.id }}">Casebook</a>
+            <a class="tab" href="{{ section.casebook.get_canonical_url }}">Casebook</a>
             <a class="tab disabled active">Read</a>
           </div>
         </div>

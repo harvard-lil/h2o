@@ -7,16 +7,45 @@ from . import views
 # Converters
 #
 
-class OrdinalsConverter:
-    regex = '([0-9]+\.)*[0-9]+'
+class IDSlugConverter:
+    regex = '[0-9]+(\-.*)?'
 
     def to_python(self, value):
-        return [int(i) for i in value.split('.')]
+        l = value.split('-', 1)
+        try:
+            slug = l[1]
+        except IndexError:
+            slug = ''
+        return {
+            'id': int(l[0]),
+            'slug': slug
+        }
 
     def to_url(self, value):
-        return '.'.join(str(i) for i in value)
+        return '{}-{}'.format(value['id'], value['slug'])
 
-register_converter(OrdinalsConverter, 'ord')
+
+class OrdinalSlugConverter:
+    regex = '([0-9]+\.)*[0-9]+(\-.*)?'
+
+    def to_python(self, value):
+        l = value.split('-', 1)
+        try:
+            slug = l[1]
+        except IndexError:
+            slug = ''
+        return {
+            'ordinals': [int(i) for i in l[0].split('.')],
+            'slug': slug
+        }
+
+    def to_url(self, value):
+        ordinal_string = '.'.join(str(i) for i in value['ordinals'])
+        return '{}-{}'.format(ordinal_string, value['slug'])
+
+
+register_converter(IDSlugConverter, 'idslug')
+register_converter(OrdinalSlugConverter, 'ordslug')
 
 
 #
@@ -31,6 +60,6 @@ drf_urlpatterns = [
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
-    path('casebooks/<str:casebook_param>', views.casebook, name='casebook'),
-    path('casebooks/<int:casebook_id>/sections/<ord:ordinals>/', views.section, name='section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
+    path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
 ]
