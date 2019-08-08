@@ -14,17 +14,18 @@
         <style type="text/css" id="additional_styles"></style>
     </head>
 
-    <body>
-        <a href="#main" class="skip-link">Skip to main content</a>
-        <a href="#footer" class="skip-link">Skip to footer</a>
-        <section id="shell">
-
-            <div class="wrapper main_wrapper">
+    <body class="view-base-landing">
+        <div id="non-modal">
+            <a href="#main" class="skip-link">Skip to main content</a>
+            <a href="#footer" class="skip-link">Skip to footer</a>
+            <div class="overlap"></div>
+            <header id="main-header"></header>
+            <main>
                 <p id="main" tabindex="-1" class="sr-only">Main Content</p>
                 {% block mainContent %}{% endblock %}
-            </div>
-            <p id="footer" tabindex="-1" class="sr-only">Footer</p>
-            {% include 'footer.html' %}
-        </section>
+            </main
+                <p id="footer" tabindex="-1" class="sr-only">Footer</p>
+                {% include 'footer.html' %}
+        </div>
     </body>
 </html>
