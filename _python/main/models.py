@@ -7,10 +7,25 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.utils import timezone
 
 from main.utils import sanitize
 
-class Annotation(models.Model):
+
+class RailsModel(models.Model):
+    """
+        Tweaks to Django models to match behavior of Rails.
+    """
+    def save(self, *args, **kwargs):
+        # set updated_at for each save
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class Annotation(RailsModel):
     """
     Legacy table; does not hold currently-used annotations.
     """
@@ -38,7 +53,7 @@ class Annotation(models.Model):
         db_table = 'annotations'
 
 
-class ArInternalMetadata(models.Model):
+class ArInternalMetadata(RailsModel):
     key = models.CharField(primary_key=True, max_length=255)
     value = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
@@ -49,7 +64,7 @@ class ArInternalMetadata(models.Model):
         db_table = 'ar_internal_metadata'
 
 
-class CaseCourt(models.Model):
+class CaseCourt(RailsModel):
     name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -61,7 +76,7 @@ class CaseCourt(models.Model):
         db_table = 'case_courts'
 
 
-class Case(models.Model):
+class Case(RailsModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
@@ -85,7 +100,7 @@ class Case(models.Model):
         db_table = 'cases'
 
 
-class CkeditorAsset(models.Model):
+class CkeditorAsset(RailsModel):
     """
     Legacy table, from when people could embed assets in books.
     """
@@ -105,7 +120,7 @@ class CkeditorAsset(models.Model):
         db_table = 'ckeditor_assets'
 
 
-class Collage(models.Model):
+class Collage(RailsModel):
     """
     Legacy table
     """
@@ -134,7 +149,7 @@ class Collage(models.Model):
         db_table = 'collages'
 
 
-class ContentAnnotation(models.Model):
+class ContentAnnotation(RailsModel):
     id = models.BigAutoField(primary_key=True)
     resource = models.ForeignKey('ContentNode', models.DO_NOTHING, related_name='annotations')
     start_paragraph = models.IntegerField()
@@ -153,7 +168,7 @@ class ContentAnnotation(models.Model):
         db_table = 'content_annotations'
 
 
-class ContentCollaborator(models.Model):
+class ContentCollaborator(RailsModel):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
     content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
@@ -168,7 +183,7 @@ class ContentCollaborator(models.Model):
         unique_together = (('user', 'content'),)
 
 
-class ContentImage(models.Model):
+class ContentImage(RailsModel):
     """
     Legacy table
     """
@@ -186,7 +201,7 @@ class ContentImage(models.Model):
         db_table = 'content_images'
 
 
-class ContentNode(models.Model):
+class ContentNode(RailsModel):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=10000, blank=True, null=True)
     slug = models.CharField(max_length=10000, blank=True, null=True)
@@ -194,7 +209,7 @@ class ContentNode(models.Model):
     headnote = models.TextField(blank=True, null=True)
     # raw_headnote = models.TextField(blank=True, null=True)  # in Greg PR
     public = models.BooleanField()
-    casebook = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='contents')
+    casebook = models.ForeignKey('Casebook', models.DO_NOTHING, blank=True, null=True, related_name='contents')
     ordinals = ArrayField(models.IntegerField())
     copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='clones')
     is_alias = models.BooleanField(blank=True, null=True)
@@ -208,7 +223,7 @@ class ContentNode(models.Model):
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
 
-    attributors = models.ManyToManyField('User', through='ContentCollaborator')
+    collaborators = models.ManyToManyField('User', through='ContentCollaborator')
 
     class Meta:
         managed = False
@@ -238,6 +253,14 @@ class ContentNode(models.Model):
     def formatted_headnote(self):
         return sanitize(self.headnote)
 
+    @property
+    def attributors(self):
+        """ Users whose authorship should be attributed (as opposed to all having edit permission). """
+        return self.collaborators.filter(has_attribution=True).order_by('-role')
+
+    def has_collaborator(self, user):
+        return self.collaborators.filter(pk=user.pk).exists()
+
 
 #
 # Start ContentNode Proxies
@@ -260,6 +283,8 @@ class Casebook(ContentNode):
           pass
           # User.joins(:content_collaborators).where(content_collaborators: { content_id: self.root.id, role: 'owner' }).first ## make sure this returns root
 
+    def viewable_by(self, user):
+        return self.public or (user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin))
 
 class SectionManager(models.Manager):
     def get_queryset(self):
@@ -287,7 +312,7 @@ class Resource(ContentNode):
 # End ContentNode Proxies
 #
 
-class Default(models.Model):
+class Default(RailsModel):
     """
     These are actually Link Resource
     """
@@ -307,7 +332,7 @@ class Default(models.Model):
         db_table = 'defaults'
 
 
-class DelayedJob(models.Model):
+class DelayedJob(RailsModel):
     """
     Legacy table
     """
@@ -328,7 +353,7 @@ class DelayedJob(models.Model):
         db_table = 'delayed_jobs'
 
 
-class FrozenItem(models.Model):
+class FrozenItem(RailsModel):
     """
     Legacy table
     """
@@ -344,7 +369,7 @@ class FrozenItem(models.Model):
         db_table = 'frozen_items'
 
 
-class MediaType(models.Model):
+class MediaType(RailsModel):
     """
     Legacy table
     """
@@ -358,7 +383,7 @@ class MediaType(models.Model):
         db_table = 'media_types'
 
 
-class Media(models.Model):
+class Media(RailsModel):
     """
     Legacy table
     """
@@ -377,7 +402,7 @@ class Media(models.Model):
         db_table = 'medias'
 
 
-class Metadata(models.Model):
+class Metadata(RailsModel):
     """
     Legacy table
     """
@@ -406,7 +431,7 @@ class Metadata(models.Model):
         db_table = 'metadata'
 
 
-class Page(models.Model):
+class Page(RailsModel):
     page_title = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
     content = models.TextField(blank=True, null=True)
@@ -424,7 +449,7 @@ class Page(models.Model):
         db_table = 'pages'
 
 
-class PermissionAssignment(models.Model):
+class PermissionAssignment(RailsModel):
     user_collection_id = models.IntegerField(blank=True, null=True)
     user_id = models.IntegerField(blank=True, null=True)
     permission_id = models.IntegerField(blank=True, null=True)
@@ -436,7 +461,7 @@ class PermissionAssignment(models.Model):
         db_table = 'permission_assignments'
 
 
-class Permission(models.Model):
+class Permission(RailsModel):
     key = models.CharField(max_length=255, blank=True, null=True)
     label = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -448,7 +473,7 @@ class Permission(models.Model):
         db_table = 'permissions'
 
 
-class PlaylistItem(models.Model):
+class PlaylistItem(RailsModel):
     """
     Legacy table
     """
@@ -466,7 +491,7 @@ class PlaylistItem(models.Model):
         db_table = 'playlist_items'
 
 
-class Playlist(models.Model):
+class Playlist(RailsModel):
     """
     Legacy table
     """
@@ -490,7 +515,7 @@ class Playlist(models.Model):
         db_table = 'playlists'
 
 
-class PlaylistsUserCollection(models.Model):
+class PlaylistsUserCollection(RailsModel):
     """
     Legacy table
     """
@@ -503,7 +528,7 @@ class PlaylistsUserCollection(models.Model):
 
 
 # in Greg PR
-# class RawContent(models.Model):
+# class RawContent(RailsModel):
 #     id = models.BigAutoField(primary_key=True)
 #     content = models.TextField(blank=True, null=True)
 #     source_type = models.CharField(max_length=-1, blank=True, null=True)
@@ -517,7 +542,10 @@ class PlaylistsUserCollection(models.Model):
 #         unique_together = (('source_type', 'source_id'),)
 
 
-class Role(models.Model):
+class Role(RailsModel):
+    """
+        User roles.
+    """
     name = models.CharField(max_length=40, blank=True, null=True)
     authorizable_type = models.CharField(max_length=40, blank=True, null=True)
     authorizable_id = models.IntegerField(blank=True, null=True)
@@ -529,9 +557,12 @@ class Role(models.Model):
         db_table = 'roles'
 
 
-class RolesUser(models.Model):
-    user_id = models.IntegerField(blank=True, null=True)
-    role_id = models.IntegerField(blank=True, null=True)
+class RolesUser(RailsModel):
+    """
+        Join table for User and Role.
+    """
+    user = models.ForeignKey('User', blank=True, null=True, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, blank=True, null=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -540,7 +571,7 @@ class RolesUser(models.Model):
         db_table = 'roles_users'
 
 
-class SchemaMigration(models.Model):
+class SchemaMigration(RailsModel):
     version = models.CharField(primary_key=True, max_length=255)
 
     class Meta:
@@ -548,7 +579,7 @@ class SchemaMigration(models.Model):
         db_table = 'schema_migrations'
 
 
-class Session(models.Model):
+class Session(RailsModel):
     session_id = models.CharField(max_length=255)
     data = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -559,7 +590,7 @@ class Session(models.Model):
         db_table = 'sessions'
 
 
-class Tagging(models.Model):
+class Tagging(RailsModel):
     """
     Legacy table
     """
@@ -577,7 +608,7 @@ class Tagging(models.Model):
         unique_together = (('tag_id', 'taggable_id', 'taggable_type', 'context', 'tagger_id', 'tagger_type'),)
 
 
-class Tag(models.Model):
+class Tag(RailsModel):
     """
     Legacy table
     """
@@ -589,7 +620,7 @@ class Tag(models.Model):
         db_table = 'tags'
 
 
-class TextBlock(models.Model):
+class TextBlock(RailsModel):
     name = models.CharField(max_length=255)
     content = models.CharField(max_length=5242880)
     public = models.BooleanField(blank=True, null=True)
@@ -609,7 +640,7 @@ class TextBlock(models.Model):
         db_table = 'text_blocks'
 
 
-class UnpublishedRevision(models.Model):
+class UnpublishedRevision(RailsModel):
     id = models.BigAutoField(primary_key=True)
     node_id = models.IntegerField(blank=True, null=True)
     field = models.CharField(max_length=255)
@@ -625,7 +656,7 @@ class UnpublishedRevision(models.Model):
         db_table = 'unpublished_revisions'
 
 
-class UserCollection(models.Model):
+class UserCollection(RailsModel):
     """
     Legacy table
     """
@@ -640,7 +671,7 @@ class UserCollection(models.Model):
         db_table = 'user_collections'
 
 
-class UserCollectionsUser(models.Model):
+class UserCollectionsUser(RailsModel):
     """
     Legacy table
     """
@@ -652,7 +683,7 @@ class UserCollectionsUser(models.Model):
         db_table = 'user_collections_users'
 
 
-class User(models.Model):
+class User(RailsModel):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
     login = models.CharField(max_length=255, blank=True, null=True)
@@ -699,6 +730,8 @@ class User(models.Model):
     professor_verification_requested = models.BooleanField(blank=True, null=True)
     verified_email = models.BooleanField()
 
+    roles = models.ManyToManyField(Role, through=RolesUser)
+
     class Meta:
         managed = False
         db_table = 'users'
@@ -715,3 +748,17 @@ class User(models.Model):
         elif self.title:
           return self.title
         return self.anonymous_name
+
+    # TODO: are all users active?
+    is_active = True
+
+    def has_role(self, role):
+        return self.roles.filter(name=role).exists()
+
+    @property
+    def is_superadmin(self):
+        return self.has_role('superadmin')
+
+    # differentiate between real User model and AnonymousUser model:
+    is_authenticated = True
+    is_anonymous = False

@@ -26,8 +26,11 @@ RUN curl -o nodejs.deb https://deb.nodesource.com/node_11.x/pool/main/n/nodejs/n
     && rm package.json \
     && rm yarn.lock
 
+RUN mkdir /app/_python
+WORKDIR /app/_python
+
 # pip
-COPY _python/requirements.txt /app
+COPY _python/requirements.txt /app/_python
 RUN pip install -U pip \
     && pip install -r requirements.txt \
     && rm requirements.txt

@@ -36,10 +36,17 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'django.contrib.sessions.middleware.SessionMiddleware',  # sets request.session
+    'main.middleware.rails_session_middleware',  # sets request.rails_session
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    # this gets overridden by rails_auth_middleware, but django admin will complain if it's taken out
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'main.middleware.rails_auth_middleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -116,3 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+RAILS_SECRET_KEY_BASE = None
+
+LOGIN_URL = '/user_sessions/new'

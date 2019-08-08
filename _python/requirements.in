@@ -6,6 +6,8 @@ djangorestframework
 psycopg2            # postgres connector
 
 bleach              # html sanitization
+rubymarshal         # read ruby session cookies
+cryptography        # read ruby session cookies
 
 # Testing
 pytest
