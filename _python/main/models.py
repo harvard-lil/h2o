@@ -9,8 +9,7 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from django.apps import AppConfig
 
-import bleach
-
+from main.utils import sanitize
 
 class Annotation(models.Model):
     """
@@ -238,10 +237,7 @@ class ContentNode(models.Model):
        return '.'.join(str(o) for o in self.ordinals)
 
     def formatted_headnote(self):
-        # todo: read up on this sanitization library
-        tags = bleach.sanitizer.ALLOWED_TAGS
-        tags.append('p')
-        return bleach.clean(self.headnote, tags=tags)
+        return sanitize(self.headnote)
 
 
 #
