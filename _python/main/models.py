@@ -747,18 +747,21 @@ class User(RailsModel):
         managed = False
         db_table = 'users'
 
+    @property
     def email_domain(self):
         return self.email_address
 
+    @property
     def anonymous_name(self):
-        return "{}#{}".format(self.email_domain(), self.id)
+        return "{}#{}".format(self.email_domain, self.id)
 
+    @property
     def display_name(self):
         if self.attribution:
           return self.attribution
         elif self.title:
           return self.title
-        return self.anonymous_name()
+        return self.anonymous_name
 
     # TODO: are all users active?
     is_active = True
