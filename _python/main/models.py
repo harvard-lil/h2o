@@ -340,7 +340,6 @@ class SchemaMigration(RailsModel):
 
 
 class Session(RailsModel):
-    session_id = models.CharField(max_length=255)
     data = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
