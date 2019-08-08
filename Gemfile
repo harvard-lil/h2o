@@ -20,8 +20,6 @@ gem 'ckeditor'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
 gem 'deep_cloneable'
-gem 'delayed_job_active_record'
-gem 'delayed_job'
 gem 'diff_match_patch'
 gem 'draper'
 gem 'erubi'
