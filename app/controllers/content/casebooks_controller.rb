@@ -8,14 +8,13 @@ class Content::CasebooksController < Content::NodeController
 
   def new
     @casebook = Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner', has_attribution: true)])
-    logger.debug @casebook.errors.inspect
     @content = @casebook
     redirect_to layout_casebook_path(@content)
   end
 
   def show
     @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebooks'})
-    render 'content/show' # preview page
+    render 'content/show'
   end
 
   def edit
