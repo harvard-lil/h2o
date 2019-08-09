@@ -49,7 +49,7 @@
       <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
         <a class="listing section" href="{{ content.get_absolute_url }}">
           <div class="section-number">{{ content.ordinal_string }}</div>
-          <div class="section-title">{{ content.title }}</div>
+          <div class="section-title">{{ content.get_title }}</div>
         </a>
       </div>
     {% endif %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
 
 {% block mainContent %}
   <header class="casebook-public casebook">
@@ -19,7 +19,7 @@
         <div class="top-strip"></div>
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ resource.casebook.title }}
+            {{ resource.casebook.get_title }}
           </div>
         </header>
         <header class="content">

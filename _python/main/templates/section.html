@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.title }}{% endblock %}
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
 
 {% block mainContent %}
   <header class="casebook-public casebook">
@@ -19,12 +19,12 @@
         <div class="top-strip"></div>
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ section.casebook.title }}
+            {{ section.casebook.get_title }}
           </div>
         </header>
         <header class="content">
           <!-- TODO: Breadcrumbs -->
-          <h1 class="title">{{ section.title }}</h1>
+          <h1 class="title">{{ section.get_title }}</h1>
       </header>
       {% include 'includes/headnote.html' with content=section %}
       {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
