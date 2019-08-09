@@ -2,7 +2,7 @@
 
 module HTMLUtils
   class V7 < V6
-    EFFECTIVE_DATE = Date.new(2019, 7, 24)
+    EFFECTIVE_DATE = Date.new(2019, 8, 9)
     class << self
       # Tidy notes:
       # in HTML 5 mode, Tidy doesn't add missing <ul> around bare <li> tags:
