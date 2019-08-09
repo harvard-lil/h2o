@@ -19,7 +19,7 @@ class AddGlobalOffsetsToAnnotations < ActiveRecord::Migration[5.2]
           new_utils = HTMLUtils.at(date)
           if new_utils != utils
             utils = new_utils
-            nodes = HTMLUtils.parse(utils.sanitize(instance.raw_content.content)).at('body').children
+            nodes = HTMLUtils.parse(utils.cleanse(instance.raw_content.content)).at('body').children
             breakpoints = AnnotationConverter.nodes_to_breakpoints(nodes)
           end
           # use update_columns to avoid touching the timestamps

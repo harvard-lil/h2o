@@ -11,7 +11,7 @@ class Content::Node < ApplicationRecord
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}
   nilify_blanks
 
-  before_save :sanitize_headnote, if: [:headnote?, :headnote_changed?]
+  before_save :cleanse_headnote, if: [:headnote?, :headnote_changed?]
 
   def slug
     super || self.title.parameterize
@@ -43,8 +43,8 @@ class Content::Node < ApplicationRecord
 
   private
 
-  def sanitize_headnote
-    self.headnote = HTMLUtils.sanitize(headnote)
+  def cleanse_headnote
+    self.headnote = HTMLUtils.cleanse(headnote)
     true
   end
 
