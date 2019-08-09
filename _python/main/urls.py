@@ -7,7 +7,7 @@ from . import views
 # Converters
 #
 
-class IDSlugConverter:
+class IdSlugConverter:
     # matches:
     # 2, 2-, 22-slug, etc.
     regex = '[0-9]+(\-.*)?'
@@ -48,7 +48,7 @@ class OrdinalSlugConverter:
         return '{}-{}'.format(ordinal_string, value['slug'])
 
 
-register_converter(IDSlugConverter, 'idslug')
+register_converter(IdSlugConverter, 'idslug')
 register_converter(OrdinalSlugConverter, 'ordslug')
 
 
