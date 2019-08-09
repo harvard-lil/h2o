@@ -1,52 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ section.ordinal_string }} | {{ section.casebook.title }} | H2O</title>
-  <link rel="stylesheet" media="all" href="https://opencasebook.org/packs/css/main-c9f3f2a5.css" />
-  <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy" />
-  <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
-</head>
-<body>
+{% extends 'base.html' %}
 
-  <main>
-    <header class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-          <div class="tabs">
-            <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
-            <a class="tab disabled active">Read</a>
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.title }}{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="tabs">
+          <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
+          <a class="tab disabled active">Read</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="casebook-header">
+          <div class="casebook-title">
+            {{ section.casebook.title }}
           </div>
-        </div>
-      </div>
-    </header>
-    <section class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-          <div class="top-strip"></div>
-          <header class="casebook-header">
-            <div class="casebook-title">
-              {{ section.casebook.title }}
-            </div>
-          </header>
-          <header class="content">
-            <!-- TODO: Breadcrumbs -->
-            <h1 class="title">{{ section.title }}</h1>
-<!--             {% if casebook.subtitle %}<h2 class="subtitle">{{ casebook.subtitle }}</h2>{% endif %}
-            <div class="authorship">
-              <div class="collaborators">
-                {% include 'includes/collaborators.html' with content=casebook%}
-              </div>
-              <div class="root-attribution">
-                {% if casebook.root_owner %}Original author: <a href="#">{{ casebook.root_owner.display_name }}</a>{% endif %}
-              </div>
-            </div> -->
         </header>
-        {% include 'includes/headnote.html' with content=section %}
-        {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
-        </div>
+        <header class="content">
+          <!-- TODO: Breadcrumbs -->
+          <h1 class="title">{{ section.title }}</h1>
+      </header>
+      {% include 'includes/headnote.html' with content=section %}
+      {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
       </div>
-    </section>
-  </main>
-  <script src="https://opencasebook.org/packs/js/application-9a84a3f0732a1d7044d5.js"></script>
-</body>
-</html>
+    </div>
+  </section>
+{% endblock %}

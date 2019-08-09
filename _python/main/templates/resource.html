@@ -1,42 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ resource.ordinal_string }} | {{ resource.casebook.title }} | H2O</title>
-  <link rel="stylesheet" media="all" href="https://opencasebook.org/packs/css/main-c9f3f2a5.css" />
-  <link rel="stylesheet" media="screen" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy" />
-  <link rel="stylesheet" media="screen" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" />
-</head>
-<body>
+{% extends 'base.html' %}
 
-  <main>
-    <header class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-          <div class="tabs">
-            <a class="tab" href="{{ resource.casebook.get_absolute_url }}">Casebook</a>
-            <a class="tab disabled active">Read</a>
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="tabs">
+          <a class="tab" href="{{ resource.casebook.get_absolute_url }}">Casebook</a>
+          <a class="tab disabled active">Read</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="casebook-header">
+          <div class="casebook-title">
+            {{ resource.casebook.title }}
           </div>
-        </div>
-      </div>
-    </header>
-    <section class="casebook-public casebook">
-      <div class="content">
-        <div class="casebook-inner">
-          <div class="top-strip"></div>
-          <header class="casebook-header">
-            <div class="casebook-title">
-              {{ resource.casebook.title }}
-            </div>
-          </header>
-          <header class="content">
-            <!-- TODO: Breadcrumbs -->
-            <h1 class="title">{{ resource.title }}</h1>
         </header>
-        {% include 'includes/headnote.html' with content=resource %}
-        </div>
+        <header class="content">
+          <!-- TODO: Breadcrumbs -->
+          <h1 class="title">{{ resource.title }}</h1>
+      </header>
+      {% include 'includes/headnote.html' with content=resource %}
       </div>
-    </section>
-  </main>
-  <script src="https://opencasebook.org/packs/js/application-9a84a3f0732a1d7044d5.js"></script>
-</body>
-</html>
+    </div>
+  </section>
+{% endblock %}
