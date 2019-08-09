@@ -5,7 +5,6 @@ class ApplicationController < ActionController::Base
   before_action :check_superadmin
 
   after_action(if: Proc.new {Rails.env.development?}) {I18n.backend.reload!}
-  after_action :allow_iframe
 
   protect_from_forgery with: :exception
 
@@ -69,14 +68,6 @@ class ApplicationController < ActionController::Base
 
   def redirect_back_or_default(default)
     redirect_to session[:return_to] || default
-  end
-
-  def iframe?
-    false
-  end
-
-  def allow_iframe
-    response.headers.except!('X-Frame-Options') if iframe?
   end
 
   rescue_from CanCan::AccessDenied do |exception|
