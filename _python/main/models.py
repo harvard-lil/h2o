@@ -205,7 +205,7 @@ class ContentNode(RailsModel):
         if t == 'casebook':
             return Casebook.get_title(self)
         elif t == 'section':
-            raise NotImplementedError
+            return Section.get_title(self)
         elif t == 'resource':
             return Resource.get_title(self)
         else:
@@ -258,7 +258,7 @@ class Casebook(ContentNode):
         return user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin)
 
     def get_absolute_url(self):
-        return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.title)}])
+        return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.get_title())}])
 
     def get_title(self):
         return self.title or "Untitled casebook #%s" % self.pk
@@ -301,8 +301,8 @@ class Section(ContentNode):
 
     def get_absolute_url(self):
         return reverse('section', args=[
-            {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
-            {"ordinals": self.ordinals, "slug": slugify(self.title)}
+            {"id": self.casebook.id, "slug": slugify(self.casebook.get_title())},
+            {"ordinals": self.ordinals, "slug": slugify(self.get_title())}
         ])
 
     def get_title(self):
@@ -321,8 +321,8 @@ class Resource(ContentNode):
 
     def get_absolute_url(self):
         return reverse('resource', args=[
-            {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
-            {"ordinals": self.ordinals, "slug": slugify(self.title)}
+            {"id": self.casebook.id, "slug": slugify(self.casebook.get_title())},
+            {"ordinals": self.ordinals, "slug": slugify(self.get_title())}
         ])
 
     def get_title(self):
