@@ -4,7 +4,7 @@ en:
       casebook:
         name: Enter a concise title.
         subtitle: Subtitle (optional)
-        description: Enter any additional context about this casebook or section.
+        description: Enter any additional context about.html this casebook or section.
         password: Password
         password_confirmation: Confirm password
         save: Save

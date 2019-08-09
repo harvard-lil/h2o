@@ -58,8 +58,8 @@ def casebook(request, casebook_param):
 
     contents = casebook.contents.all().order_by('ordinals')
 
-    # TODO: find out about the resources that appear in this TOC, but not on prod.
-    # TODO: find out about the "None"s appearing in spots in place of titles
+    # TODO: find out about.html the resources that appear in this TOC, but not on prod.
+    # TODO: find out about.html the "None"s appearing in spots in place of titles
     return render(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
