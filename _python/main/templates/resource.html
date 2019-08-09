@@ -25,9 +25,18 @@
         <header class="content">
           <!-- TODO: Breadcrumbs -->
           <h1 class="title">{{ resource.title }}</h1>
-      </header>
+        </header>
       {% include 'includes/headnote.html' with content=resource %}
       </div>
     </div>
+    <section class="resource">
+      {% if resource.resource_type == 'Case' or resource.resource_type == 'TextBlock'  %}
+        <the-resource-body>Case or Text Resource</the-resource-body>
+      {% elif resource.resource_type == 'Default' %}
+        <section class="resource link-resource">
+          Link Resource
+        </section>
+      {% endif %}
+    </section>
   </section>
 {% endblock %}
