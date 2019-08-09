@@ -53,5 +53,9 @@
         </a>
       </div>
     {% endif %}
+  {% empty %}
+    <div class="listing empty">
+      This {% if section %}section{% else %}casebook{% endif %} has no content yet.
+    </div>
   {% endfor %}
 </section>
