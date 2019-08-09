@@ -63,7 +63,7 @@ namespace :annotations do
             new_utils = HTMLUtils.at(date)
             if new_utils != utils
               utils = new_utils
-              graphs = HTMLUtils.parse(utils.sanitize(instance.raw_content.content)).at('body').children.map { |node| AnnotationConverter.get_node_text(node) }
+              graphs = HTMLUtils.parse(utils.cleanse(instance.raw_content.content)).at('body').children.map { |node| AnnotationConverter.get_node_text(node) }
             end
             resource = a.resource if resource&.id != a.resource_id
 

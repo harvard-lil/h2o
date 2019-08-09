@@ -5,8 +5,8 @@ module ContentAnnotatable
     has_one :raw_content, as: :source, dependent: :destroy
     has_many :resources, class_name: 'Content::Resource', as: :resource
     has_many :annotations, through: :resources
-    before_create :prepare_raw_content, :sanitize_content
-    before_update :sanitize_content, if: :content_changed?
+    before_create :prepare_raw_content, :cleanse_content
+    before_update :cleanse_content, if: :content_changed?
     after_update :update_annotation_offsets, if: [:saved_change_to_content?, :annotated?]
   end
 
@@ -27,8 +27,8 @@ module ContentAnnotatable
     true
   end
 
-  def sanitize_content
-    self.content = HTMLUtils.sanitize(content)
+  def cleanse_content
+    self.content = HTMLUtils.cleanse(content)
     true
   end
 
