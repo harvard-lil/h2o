@@ -79,3 +79,18 @@ def section(request, casebook_param, ordinals_param):
         'section': section
     })
 
+
+def resource(request, casebook_param, ordinals_param):
+    resource = get_object_or_404(Resource, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+
+    # TODO: permissions
+
+    # canonical redirect
+    canonical = resource.get_absolute_url()
+    if request.path != canonical:
+        return HttpResponseRedirect(canonical)
+
+    return render(request, 'resource.html', {
+        'resource': resource
+    })
+

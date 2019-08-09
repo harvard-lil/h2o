@@ -3,7 +3,7 @@
   {% for content in contents %}
     {% if content.type == 'resource'  %}
       <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-        <a class="listing resource" href="#">
+        <a class="listing resource" href="{{ content.get_absolute_url }}">
           <div class="section-number">{{ content.ordinal_string }}</div>
             {% if content.resource_type == 'Case' %}
               <div class="resource-container">

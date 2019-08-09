@@ -192,6 +192,11 @@ class ContentNode(RailsModel):
                 {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
                 {"ordinals": self.ordinals, "slug": slugify(self.title)}
             ])
+        elif t == 'resource':
+            return reverse('resource', args=[
+                {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
+                {"ordinals": self.ordinals, "slug": slugify(self.title)}
+            ])
         else:
             raise NotImplementedError
 
