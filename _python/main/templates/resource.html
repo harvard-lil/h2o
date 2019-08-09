@@ -3,7 +3,7 @@
 {% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook">
+  <header class="casebook-public casebook" data-editable="" data-casebook-id="{{ resource.casebook.id }}" data-resource-id="{{ resource.id }}">
     <div class="content">
       <div class="casebook-inner">
         <div class="tabs">
@@ -29,7 +29,7 @@
       {% include 'includes/headnote.html' with content=resource %}
       <section class="resource">
         {% if resource.resource_type == 'Case' or resource.resource_type == 'TextBlock'  %}
-          <the-resource-body>Case or Text Resource</the-resource-body>
+          <the-resource-body :editable="false" :resource="{{ resource.json }}"></the-resource-body>
         {% elif resource.resource_type == 'Default' %}
           <section class="resource link-resource">
             Click here to view this linked resource off-site:

@@ -4,8 +4,9 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import json
 
-from .serializers import ContentAnnotationSerializer
+from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, User
 
 
@@ -90,7 +91,13 @@ def resource(request, casebook_param, ordinals_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
+    if resource.resource_type == 'Case':
+        resource.json = json.dumps(CaseSerializer(resource.resource).data)
+    elif resource.resource_type == 'TextBlock':
+        resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+
     return render(request, 'resource.html', {
-        'resource': resource
+        'resource': resource,
+        'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
     })
 

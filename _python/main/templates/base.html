@@ -10,15 +10,12 @@
     <link rel="stylesheet" type="text/css" href="{% static "packs/css/main-c9f3f2a5.css" %}"/>
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
     <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"/>
-
-    <!--Need correct logic for vue conditional-->
-
-    <!--{% if include_vuejs %}-->
-      <!--<%= javascript_pack_tag "vue_app" %>-->
-      <!--<%= stylesheet_pack_tag "vue_app", media: "all" %>-->
-      <!--{% endif %}-->
+    {% if include_vuejs %}
+      <script src="{% static 'packs/js/vue_app-6fe3bbf4b48f26e6094c.js' %}"></script>
+      <link rel="stylesheet" media="all" href="{% static 'packs/css/vue_app-455ff472.css' %}">
+    {% endif %}
   </head>
-  <body class="view-base-landing"> <!--need parameter here for class based on view? -->
+  <body class=""> <!--need parameter here for class based on view? -->
     {% if include_vuejs %}<div id="app">{% endif %}
     <div id="non-modal">
       <a href="#main" class="skip-link">Skip to main content</a>
