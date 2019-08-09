@@ -16,6 +16,10 @@ def login_required_response(request):
     else:
         return redirect_to_login(request.build_absolute_uri())
 
+
+# TODO: this can't be login_required. Anonymous visitors
+# may see the annotations on published casebooks, which 
+# are applied in-browser by Vue after an API call to this route.
 @login_required
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
