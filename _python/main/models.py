@@ -296,6 +296,13 @@ class Resource(ContentNode):
 
     objects = ResourceManager()
 
+    def get_title(self):
+        if self.resource_type == 'Default':
+            # todo fix "somewhere"
+            return self.resource().name if self.resource().name else "Link to somewhere"
+        else:
+            raise NotImplementedError
+
 
 #
 # End ContentNode Proxies
