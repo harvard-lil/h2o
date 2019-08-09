@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+from urllib.parse import urlparse
+
 from main.utils import sanitize
 
 
@@ -74,6 +76,9 @@ class Case(RailsModel):
     class Meta:
         managed = False
         db_table = 'cases'
+
+    def get_name(self):
+        return self.name_abbreviation if self.name_abbreviation else self.name
 
 
 class ContentAnnotation(RailsModel):
@@ -144,6 +149,7 @@ class ContentNode(RailsModel):
         else:
             return 'resource'
 
+    @property
     def resource(self):
         if not self.resource_id:
             # or maybe return None?
@@ -193,16 +199,15 @@ class ContentNode(RailsModel):
             return Resource.get_absolute_url(self)
         else:
             raise NotImplementedError
+
+    def get_title(self):
+        t = self.type
+        if t == 'casebook':
+            return Casebook.get_title(self)
         elif t == 'section':
-            return reverse('section', args=[
-                {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
-                {"ordinals": self.ordinals, "slug": slugify(self.title)}
-            ])
+            raise NotImplementedError
         elif t == 'resource':
-            return reverse('resource', args=[
-                {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
-                {"ordinals": self.ordinals, "slug": slugify(self.title)}
-            ])
+            return Resource.get_title(self)
         else:
             raise NotImplementedError
 
@@ -300,6 +305,10 @@ class Section(ContentNode):
             {"ordinals": self.ordinals, "slug": slugify(self.title)}
         ])
 
+    def get_title(self):
+        return self.title if self.title else "Untitled section"
+
+
 class ResourceManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
@@ -318,8 +327,16 @@ class Resource(ContentNode):
 
     def get_title(self):
         if self.resource_type == 'Default':
-            # todo fix "somewhere"
-            return self.resource().name if self.resource().name else "Link to somewhere"
+            if self.resource.name:
+                return self.resource.name
+            elif self.resource.title:
+                return self.resource.title
+            else:
+                return "Link to {}".format(urlparse(self.resource.url).netloc)
+        elif self.resource_type == 'TextBlock':
+            return self.resource.name
+        elif self.resource_type == 'Case':
+            return self.resource.get_name()
         else:
             raise NotImplementedError
 

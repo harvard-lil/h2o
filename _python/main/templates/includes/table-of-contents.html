@@ -8,7 +8,7 @@
             {% if content.resource_type == 'Case' %}
               <div class="resource-container">
                 <div class="section-title case-section-title">
-                  {{ content.title }}
+                  {{ content.get_title }}
                 </div>
                 <div class="case-metadata-container">
                   <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
@@ -23,7 +23,7 @@
             {% elif content.resource_type == 'TextBlock' %}
               <div class="resource-container">
                 <div class="section-title">
-                  {{ content.title }}
+                  {{ content.get_title }}
                 </div>
               </div>
               <div class="resource-type-container">
@@ -34,7 +34,7 @@
             {% elif content.resource_type == 'Default' %}
               <div class="resource-container">
                 <div class="section-title">
-                  {{ content.title }}
+                  {{ content.get_title }}
                 </div>
               </div>
               <div class="resource-type-container">
