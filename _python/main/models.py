@@ -186,7 +186,13 @@ class ContentNode(RailsModel):
     def get_absolute_url(self):
         t = self.type
         if t == 'casebook':
-            return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.title)}])
+            return Casebook.get_absolute_url(self)
+        elif t == 'section':
+            return Section.get_absolute_url(self)
+        elif t == 'resource':
+            return Resource.get_absolute_url(self)
+        else:
+            raise NotImplementedError
         elif t == 'section':
             return reverse('section', args=[
                 {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
@@ -246,6 +252,9 @@ class Casebook(ContentNode):
     def editable_by(self, user):
         return user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin)
 
+    def get_absolute_url(self):
+        return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.title)}])
+
     def get_title(self):
         return self.title or "Untitled casebook #%s" % self.pk
 
@@ -285,6 +294,11 @@ class Section(ContentNode):
             "ordinals__len__gte": len(self.ordinals) + 1
         }).order_by('ordinals')
 
+    def get_absolute_url(self):
+        return reverse('section', args=[
+            {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
+            {"ordinals": self.ordinals, "slug": slugify(self.title)}
+        ])
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
@@ -295,6 +309,12 @@ class Resource(ContentNode):
         proxy = True
 
     objects = ResourceManager()
+
+    def get_absolute_url(self):
+        return reverse('resource', args=[
+            {"id": self.casebook.id, "slug": slugify(self.casebook.title)},
+            {"ordinals": self.ordinals, "slug": slugify(self.title)}
+        ])
 
     def get_title(self):
         if self.resource_type == 'Default':
