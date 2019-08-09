@@ -23,45 +23,9 @@ module HTMLUtils
         html
       end
 
-      BLOCK_LEVEL_ELEMENTS = [
-        "ADDRESS",
-        "ARTICLE",
-        "ASIDE",
-        "BLOCKQUOTE",
-        "DETAILS",
-        "DIALOG",
-        "DD",
-        "DIV",
-        "DL",
-        "DT",
-        "FIELDSET",
-        "FIGCAPTION",
-        "FIGURE",
-        "FOOTER",
-        "FORM",
-        "H1",
-        "H2",
-        "H3",
-        "H4",
-        "H5",
-        "H6",
-        "HEADER",
-        "HGROUP",
-        "HR",
-        "LI",
-        "MAIN",
-        "NAV",
-        "OL",
-        "P",
-        "PRE",
-        "SECTION",
-        "TABLE",
-        "UL"
-      ]
-
       def wrap_bare_inline_tags! html
         html
-          .xpath("//body/*[not(self::center|self::#{BLOCK_LEVEL_ELEMENTS.map(&:downcase).join('|self::')})]")
+          .xpath("//body/*[not(self::p|self::center|self::blockquote|self::article)]")
           .each { |el| el.replace "<p>#{el.to_html}</p>" }
         html
       end
