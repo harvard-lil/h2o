@@ -4,12 +4,12 @@
   <div class="layout">
       <div class="link-group">
         <div class="link"><a href="">Home</a></div>
-        <div class="link"><a href="pages/about.html">About</a></div>
+        <div class="link"><a href="{% url 'about' %}">About</a></div>
         <div class="link"><a href="https://about.opencasebook.org/blog">Blog</a></div>
-        <div class="link"><a href="pages/terms-of-service.html">Terms of Service</a></div>
-        <div class="link"><a href="pages/privacy-policy.html">Privacy Policy</a></div>
+        <div class="link"><a href="{% url 'terms-of-service' %}">Terms of Service</a></div>
+        <div class="link"><a href="{% url 'privacy-policy' %}">Privacy Policy</a></div>
         <div class="link"><a href="https://about.opencasebook.org/">Help Guide</a></div>
-        <div class="link"><a href="pages/faq.html">FAQ</a></div>
+        <div class="link"><a href="{% url 'faq' %}">FAQ</a></div>
       </div>
       <div class="info">
         <div class="link"><a href="mailto: info@opencasebook.org">Contact</a></div>
