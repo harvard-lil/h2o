@@ -24,7 +24,10 @@ class IdSlugConverter:
         }
 
     def to_url(self, value):
-        return '{}-{}'.format(value['id'], value['slug'])
+        slug = value.get('slug')
+        if slug:
+            return '{}-{}'.format(value['id'], value.get('slug'))
+        return str(value['id'])
 
 
 class OrdinalSlugConverter:
@@ -45,7 +48,10 @@ class OrdinalSlugConverter:
 
     def to_url(self, value):
         ordinal_string = '.'.join(str(i) for i in value['ordinals'])
-        return '{}-{}'.format(ordinal_string, value['slug'])
+        slug = value.get('slug')
+        if slug:
+            return '{}-{}'.format(ordinal_string, slug)
+        return ordinal_string
 
 
 register_converter(IdSlugConverter, 'idslug')

@@ -163,6 +163,21 @@ class ContentNode(RailsModel):
     def ordinal_string(self):
        return '.'.join(str(o) for o in self.ordinals)
 
+    def ordinals_with_urls(self):
+        return_value = []
+        ordinals = []
+        for o in self.ordinals:
+            ordinals.append(o)
+            return_value.append({
+                'ordinal': o,
+                'ordinals': [*ordinals],
+                'url': reverse('section', args=[
+                    {"id": self.casebook.id},
+                    {"ordinals": ordinals}
+                ])
+            })
+        return return_value
+
     def formatted_headnote(self):
         return sanitize(self.headnote)
 

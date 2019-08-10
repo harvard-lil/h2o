@@ -23,11 +23,11 @@
           </div>
         </header>
         <header class="content">
-          <!-- TODO: Breadcrumbs -->
+          {% include 'includes/breadcrumbs.html' with content=section %}
           <h1 class="title">{{ section.get_title }}</h1>
-      </header>
-      {% include 'includes/headnote.html' with content=section %}
-      {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
+        </header>
+        {% include 'includes/headnote.html' with content=section %}
+        {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
       </div>
     </div>
   </section>

@@ -23,7 +23,7 @@
           </div>
         </header>
         <header class="content">
-          <!-- TODO: Breadcrumbs -->
+          {% include 'includes/breadcrumbs.html' with content=resource %}
           <h1 class="title">{{ resource.get_title }}</h1>
         </header>
       {% include 'includes/headnote.html' with content=resource %}
