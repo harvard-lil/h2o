@@ -72,7 +72,7 @@ class HTMLUtilsTest < ActiveSupport::TestCase
     end
 
     # if vertical_space: 'no'
-    it "adds newlines inside  block-level tags" do
+    it "adds newlines inside block-level tags" do
       # ... but we'd prefer if it didn't.
       # Certain block-level tags get special treatment (article, section, pre)
       ["blockquote", "footer", "nav", "main",
@@ -111,6 +111,12 @@ class HTMLUtilsTest < ActiveSupport::TestCase
       before = "<div>&shy;&copy;&#39;&#169;</div>"
       # NB: the soft hyphen is present, but may not display in your editor
       after = "<div>­©'©</div>"
+      assert_equal after, HTMLUtils.cleanse(before)
+    end
+
+    it "strips dangerous tags and properties" do
+      before = "<div onClick=\"alert('bar')\">foo <script>alert('bar');</script></div>"
+      after = "<div>foo \n</div>" # the extra newline here is inserted by tidy-html; consider running sanitize before tidy
       assert_equal after, HTMLUtils.cleanse(before)
     end
   end
