@@ -1,13 +1,17 @@
 module HTMLUtils
   class V6 < V5
     EFFECTIVE_DATE = Date.new(2019, 8, 9)
+    SANITIZE_CONFIG = Sanitize::Config.merge(
+      Sanitize::Config::RELAXED,
+      elements: Sanitize::Config::RELAXED[:elements] + ['center'])
+
     class << self
       def parse html
         Nokogiri.HTML5(html)
       end
 
-      def sanitize html_string
-        ActionController::Base.helpers.sanitize html_string
+      def sanitize html_node
+        Sanitize::node!(html_node, SANITIZE_CONFIG)
       end
 
       # Tidy notes:
@@ -39,7 +43,9 @@ module HTMLUtils
       end
 
       def pipeline
-        [method(:sanitize), method(:tidy)] + super
+        [method(:tidy),
+         method(:parse),
+         method(:sanitize)] + super[1..-1]
       end
     end
   end
