@@ -17,14 +17,11 @@ class User < ApplicationRecord
 
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id
-  has_attached_file :image, styles: { medium: "300x300>", thumb: "33x33#" }, default_url: "/assets/ui/portrait-anonymous-:style.png"
 
   alias :textblocks :text_blocks
-
   attr_accessor :terms
   attr_accessor :bypass_verification
 
-  validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
   validates_format_of :email_address, :with => /\A([^@\s]+)@((?:[-a-z0-9]+.)+[a-z]{2,})\Z/i, :allow_blank => true
   validates_inclusion_of :tz_name, :in => ActiveSupport::TimeZone::MAPPING.keys, :allow_blank => true
   validate :allowed_email_domain, if: :new_record?
