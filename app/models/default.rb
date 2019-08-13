@@ -1,6 +1,5 @@
 # Defaults are link resources
 class Default < ApplicationRecord
-  include VerifiedUserExtensions
   include SpamPreventionExtension
   include Rails.application.routes.url_helpers
 

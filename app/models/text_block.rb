@@ -5,7 +5,6 @@ class TextBlock < ApplicationRecord
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
   #   exception when destroying a text block in some scenarios.
   include Rails.application.routes.url_helpers
-  include VerifiedUserExtensions
 
   belongs_to :user, optional: true
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
