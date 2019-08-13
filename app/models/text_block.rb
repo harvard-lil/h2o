@@ -36,12 +36,6 @@ class TextBlock < ApplicationRecord
     time :updated_at
 
     string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
   end
 
   def clean_content

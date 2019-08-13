@@ -1,6 +1,5 @@
 # Defaults are link resources
 class Default < ApplicationRecord
-  include SpamPreventionExtension
   include Rails.application.routes.url_helpers
 
   belongs_to :user, optional: true
@@ -24,12 +23,6 @@ class Default < ApplicationRecord
     time :updated_at
 
     string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
   end
 
   def url_format
@@ -46,10 +39,6 @@ class Default < ApplicationRecord
 
   def title
     display_name
-  end
-
-  def self.content_types_options
-    %w(text audio video image other_multimedia).map { |i| [i.gsub('_', ' ').camelize, i] }
   end
 
   def associated_resources

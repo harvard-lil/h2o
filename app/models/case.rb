@@ -56,13 +56,6 @@ class Case < ApplicationRecord
     boolean :public
 
     string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
-
     string(:verified_professor, stored: true)
   end
   
