@@ -4,7 +4,6 @@ class TextBlock < ApplicationRecord
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
   #   exception when destroying a text block in some scenarios.
-  include MetadataExtensions
   include Rails.application.routes.url_helpers
   include VerifiedUserExtensions
 
@@ -23,7 +22,7 @@ class TextBlock < ApplicationRecord
 
   alias :to_s :display_name
 
-  searchable(:include => [:metadatum]) do
+  searchable do
     text :display_name, :boost => 3.0
     string :display_name, :stored => true
     string :id, :stored => true
@@ -33,8 +32,6 @@ class TextBlock < ApplicationRecord
     string :user
     string :user_display, :stored => true
     integer :user_id, :stored => true
-
-    string :metadatum, :stored => true, :multiple => true
 
     time :created_at
     time :updated_at

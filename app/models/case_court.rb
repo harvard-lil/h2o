@@ -12,9 +12,5 @@ class CaseCourt < ApplicationRecord
     self.name
   end
 
-  def user
-    User.where(login: 'h2ocases').first
-  end
-
   alias :to_s :display_name
 end

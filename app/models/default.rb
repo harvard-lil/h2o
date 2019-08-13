@@ -1,6 +1,5 @@
 # Defaults are link resources
 class Default < ApplicationRecord
-  include MetadataExtensions
   include VerifiedUserExtensions
   include SpamPreventionExtension
   include Rails.application.routes.url_helpers
@@ -11,15 +10,13 @@ class Default < ApplicationRecord
 
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
-  searchable(:include => [:metadatum]) do
+  searchable do
     text :display_name
     string :display_name, :stored => true
     string :id, :stored => true
     text :url
     text :description
     integer :user_id, :stored => true
-
-    string :metadatum, :stored => true, :multiple => true
 
     string :user
     boolean :public
