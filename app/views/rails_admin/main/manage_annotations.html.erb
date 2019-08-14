@@ -1,0 +1,23 @@
+<div class="manage-annotations">
+  <% if @annotations.present? %>
+    <% @annotations.each do |annotation| %>
+      <div class="annotation">
+        <ul>
+          <%= form_tag manage_annotations_path, method: "post", class: "manage-annotations-path" do %>
+            <li><%= label_tag "Annotation Id: " %> <%= annotation.id %></li>
+            <li><%= label_tag "Kind: " %> <%= annotation.kind %></li>
+            <li><%= label_tag "Start paragraph: "%> <%= annotation.start_paragraph %></li>
+            <li><%= label_tag "End paragraph: "%> <%= annotation.end_paragraph %></li>
+            <li><%= label_tag "global start offset" %>
+            <%= text_field_tag "global start offset", annotation.global_start_offset %></li>
+            <li><%= label_tag "global end offset:" %>
+            <%= text_field_tag "global end offset:", annotation.global_end_offset %></li>
+            <%= button_tag t('admin.action.manage_annotations.update-offsets'), class: 'annotator-button btn btn-primary', value: annotation.id %>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  <% else %>
+    <h3>No annotations found</h3>
+  <% end %>
+</div>

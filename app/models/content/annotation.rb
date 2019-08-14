@@ -3,6 +3,8 @@ class Content::Annotation < ApplicationRecord
   KINDS_WITH_CONTENT = %w{replace link note}
 
   belongs_to :resource, class_name: 'Content::Resource', required: true
+  accepts_nested_attributes_for :resource
+  
   has_one :unpublished_revision
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"

@@ -11,3 +11,7 @@ en:
         add-collaborator: "Add user"
         query-placeholder: "New collaborator"
         search-button: "Find"
+      manage_annotations:
+        menu: "Manage Annotations"
+        breadcrumb: "Manage Annotations"
+        title: "Manage Annotations"

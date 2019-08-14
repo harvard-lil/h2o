@@ -117,6 +117,30 @@
   }
 }
 
+.manage-annotations {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 20px;
+
+  .annotation {
+    border: solid black 1px;
+    box-shadow: 1px 1px #888888;
+    padding-top: 20px;
+    margin: 12px;
+    padding-right: 15px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    font-size: 15px;
+
+    .annotator-button {
+      margin-top: 8px;
+      padding: 6px 92px;
+    }
+  }
+}
+
 .associated-resources {
   margin-bottom: 40px;
 }
