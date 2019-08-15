@@ -51,9 +51,6 @@
       <% elsif result.is_a? User %>
         <a href="<%= user_path(result.id) %>" class="wrapper" data-result-id="<%= result.id %>">
           <div class="results-entry">
-            <div class="profile-image">
-              <%= image_tag result.image.url(:thumb) %>
-            </div>
             <div class="title">
               <%= result.display_name %>
             </div>

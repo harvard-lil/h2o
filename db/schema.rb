@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_08_191224) do
+ActiveRecord::Schema.define(version: 2019_08_09_141327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -195,15 +195,6 @@ ActiveRecord::Schema.define(version: 2019_08_08_191224) do
     t.boolean "is_user_guide", default: false, null: false
     t.integer "user_guide_sort", default: 1000, null: false
     t.string "user_guide_link_text", limit: 255
-  end
-
-  create_table "raw_contents", force: :cascade do |t|
-    t.text "content"
-    t.string "source_type"
-    t.bigint "source_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["source_type", "source_id"], name: "index_raw_contents_on_source_type_and_source_id", unique: true
   end
 
   create_table "raw_contents", force: :cascade do |t|

@@ -12,7 +12,6 @@
         <%= simple_form_for @user, url: user_path(@user) do |f| %>
           <div class="error-transition <%= @user.errors.any? ? '' : 'hide' %>"><%= f.error_notification %></div>
             <%= f.input :email_address, hint: t('users.sign-up.edu-only_html') %>
-            <%= f.input :image %>
             <%= f.input :attribution %>
             <%= f.input :affiliation %>
 
