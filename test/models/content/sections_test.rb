@@ -1,7 +1,7 @@
-require 'service_test_case'
+require 'test_helper'
 
-class Content::SectionsTest < ServiceTestCase
-  scenario 'Deleting a section deletes its unpublished revisions' do
+class Content::SectionsTest < ActiveSupport::TestCase
+  it 'Deleting a section deletes its unpublished revisions' do
     draft = content_nodes(:draft_merge_casebook)
     draft_section = content_nodes(:draft_merge_section_1)
 

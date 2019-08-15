@@ -1,7 +1,7 @@
-require "service_test_case"
+require 'test_helper'
 
-class UrlDomainFormatterTest < ServiceTestCase
-  scenario "returns domain and path" do
+class UrlDomainFormatterTest < ActiveSupport::TestCase
+  it "returns domain and path" do
   	passed_in_url = "https://cgruppioni.github.io/stuff/otherstuff"
 
   	formatted_domain = UrlDomainFormatter.format(passed_in_url)
@@ -9,7 +9,7 @@ class UrlDomainFormatterTest < ServiceTestCase
   	assert_equal "https://cgruppioni.github.io/stuff/otherstuff/", formatted_domain
   end
 
-  scenario "prepends a protocol if one is missing" do
+  it "prepends a protocol if one is missing" do
   	passed_in_url = "cgruppioni.github.io"
 
   	formatted_domain = UrlDomainFormatter.format(passed_in_url)
@@ -17,7 +17,7 @@ class UrlDomainFormatterTest < ServiceTestCase
   	assert_equal "http://cgruppioni.github.io/", formatted_domain
   end
 
-  scenario "removes leading and trailing whitespace" do
+  it "removes leading and trailing whitespace" do
     passed_in_url = "  http://cgruppioni.github.io "
 
     formatted_domain = UrlDomainFormatter.format(passed_in_url)
