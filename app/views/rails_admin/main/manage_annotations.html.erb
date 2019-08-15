@@ -6,8 +6,8 @@
           <%= form_tag manage_annotations_path, method: "post", class: "manage-annotations-path" do %>
             <li><%= label_tag "Annotation Id: " %> <%= annotation.id %></li>
             <li><%= label_tag "Kind: " %> <%= annotation.kind %></li>
-            <li><%= label_tag "Start paragraph: "%> <%= annotation.start_paragraph %></li>
-            <li><%= label_tag "End paragraph: "%> <%= annotation.end_paragraph %></li>
+            <li><%= label_tag "Start paragraph: "%> <%= annotation.start_paragraph + 1 %></li>
+            <li><%= label_tag "End paragraph: "%> <%= annotation.end_paragraph + 1 %></li>
             <li><%= label_tag "global start offset" %>
             <%= text_field_tag "global start offset", annotation.global_start_offset %></li>
             <li><%= label_tag "global end offset:" %>
