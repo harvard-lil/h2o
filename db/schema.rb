@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_09_141327) do
+ActiveRecord::Schema.define(version: 2019_08_15_202018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -51,7 +51,7 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.jsonb "opinions"
     t.jsonb "citations"
     t.string "docket_number", limit: 20000
-    t.integer "annotations_count", default: 0
+    t.integer "annotations_count", default: 0, null: false
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
@@ -144,21 +144,6 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.boolean "created_via_import", default: false, null: false
   end
 
-  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
-    t.integer "priority", default: 0
-    t.integer "attempts", default: 0
-    t.text "handler"
-    t.text "last_error"
-    t.datetime "run_at"
-    t.datetime "locked_at"
-    t.datetime "failed_at"
-    t.string "locked_by", limit: 255
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string "queue", limit: 255
-    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
-  end
-
   create_table "metadata", id: :serial, force: :cascade do |t|
     t.string "contributor", limit: 255
     t.string "coverage", limit: 255
@@ -248,7 +233,7 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.boolean "enable_feedback", default: true, null: false
     t.boolean "enable_discussions", default: false, null: false
     t.boolean "enable_responses", default: false, null: false
-    t.integer "annotations_count", default: 0
+    t.integer "annotations_count", default: 0, null: false
     t.index ["created_at"], name: "index_text_blocks_on_created_at"
     t.index ["name"], name: "index_text_blocks_on_name"
     t.index ["updated_at"], name: "index_text_blocks_on_updated_at"
@@ -285,30 +270,10 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.string "tz_name", limit: 255
     t.string "attribution", limit: 255, default: "Anonymous", null: false
     t.string "perishable_token", limit: 255
-    t.string "default_font_size", limit: 255, default: "10"
     t.string "title", limit: 255
     t.string "affiliation", limit: 255
     t.string "url", limit: 255
     t.text "description"
-    t.string "canvas_id", limit: 255
-    t.string "default_font", limit: 255, default: "futura"
-    t.boolean "print_titles", default: true, null: false
-    t.boolean "print_dates_details", default: true, null: false
-    t.boolean "print_paragraph_numbers", default: true, null: false
-    t.boolean "print_annotations", default: false, null: false
-    t.string "print_highlights", limit: 255, default: "original", null: false
-    t.string "print_font_face", limit: 255, default: "dagny", null: false
-    t.string "print_font_size", limit: 255, default: "small", null: false
-    t.boolean "default_show_comments", default: false, null: false
-    t.boolean "default_show_paragraph_numbers", default: true, null: false
-    t.boolean "hidden_text_display", default: false, null: false
-    t.boolean "print_links", default: true, null: false
-    t.string "toc_levels", limit: 255, default: "", null: false
-    t.string "print_export_format", limit: 255, default: "", null: false
-    t.string "image_file_name"
-    t.string "image_content_type"
-    t.integer "image_file_size"
-    t.datetime "image_updated_at"
     t.boolean "verified_professor", default: false
     t.boolean "professor_verification_requested", default: false
     t.boolean "verified_email", default: false, null: false
