@@ -149,7 +149,7 @@ published_casebook_section_1:
   headnote: >
     <p>This is an annotatable resource in the casebook.</p>
   resource: link_one
-  resource_type: Default
+  resource_type: Link
   ordinals: [1]
   created_at: <%= DateTime.now - 14.days %>
 
@@ -203,7 +203,7 @@ draft_merge_section_1:
   headnote: >
     <p>This is an annotatable resource in the casebook.</p>
   resource: link_one
-  resource_type: Default
+  resource_type: Link
   ordinals: [1]
   copy_of: published_casebook_section_1
 

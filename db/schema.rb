@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_15_202018) do
+ActiveRecord::Schema.define(version: 2019_08_16_161852) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 2019_08_15_202018) do
     t.index ["resource_type", "resource_id"], name: "index_content_nodes_on_resource_type_and_resource_id"
   end
 
-  create_table "defaults", id: :serial, force: :cascade do |t|
+  create_table "links", id: :serial, force: :cascade do |t|
     t.string "name", limit: 1024
     t.string "url", limit: 1024, null: false
     t.string "description", limit: 5242880

@@ -17,14 +17,14 @@
   <%# render each section or resource within contents %>
   <% if content.is_a? Content::Resource %>
     <div class="listing-wrapper" data-ordinals="<%= content.ordinal_string %>" >
-    <% if content.resource.is_a? Default %>
+    <% if content.resource.is_a? Link %>
         <a class="listing resource" href="<%= edit_resource_path(content.casebook, content) %>" draggable="true" data-ordinals="<%= content.ordinal_string %>" data-editable="" >
           <div class="section-number"><%= content.ordinal_string %></div>
           <div class="resource-container">
             <div class="section-title"><%= content.title %></div>
           </div>
           <div class="resource-type-container">
-            <div class="resource-type"><%= t 'content.resource.type.default' %></div>
+            <div class="resource-type"><%= t 'content.resource.type.link' %></div>
           </div>
         </a>
     <% else %>

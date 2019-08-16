@@ -56,7 +56,7 @@ class CloneCasebook
   end
 
   def clone_resources_resource(resource)
-    # this clones TextBlocks and Defaults
+    # this clones TextBlocks and Links 
     unless resource.resource_type == 'Case'
       new_content = resource.resource.dup
       new_content.update(user_id: original_casebook.owner.id)

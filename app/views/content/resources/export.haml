@@ -21,7 +21,7 @@
         = node.to_html.html_safe
       - if @include_annotations
         %div= content.footnote_annotations
-  - elsif content.resource.is_a? Default
+  - elsif content.resource.is_a? Link 
     %p
       = link_to content.resource.url, content.resource.url, target: '_blank'
 

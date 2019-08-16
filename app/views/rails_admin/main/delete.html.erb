@@ -1,6 +1,6 @@
 <!-- Modified from https://github.com/sferik/rails_admin/blob/master/app/views/rails_admin/main/delete.html.haml -->
 
-<% if %w(TextBlock Case Default).include?(@object.class.name) && @object.associated_resources.present? %>
+<% if %w(TextBlock Case Link).include?(@object.class.name) && @object.associated_resources.present? %>
   <h4>Can't delete <%= @object.class.name %> because it's used in casebooks:</h4>
   <div class="associated-resources"><%= html_escape(@object.associated_resources) %></div>
     

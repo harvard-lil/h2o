@@ -92,21 +92,21 @@ class AdminSystemTest < ApplicationSystemTestCase
       refute_button 'Yes, I\'m sure'
     end
 
-    scenario 'deleting a link (default)', js: true do
-      link = defaults(:unused_link)
-      visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+    scenario 'deleting a link', js: true do
+      link = links(:unused_link)
+      visit(rails_admin.edit_path(model_name: 'link', id: link.id))
 
       click_link 'Delete'
       click_button 'Yes, I\'m sure'
       assert_content 'Link successfully deleted'
     end
 
-    scenario 'can\'t delete a link(default) that is used in a casebook', js: true do
-      link = defaults(:link_one)
-      visit(rails_admin.edit_path(model_name: 'default', id: link.id))
+    scenario 'can\'t delete a link that is used in a casebook', js: true do
+      link = links(:link_one)
+      visit(rails_admin.edit_path(model_name: 'link', id: link.id))
 
       click_link 'Delete'
-      assert_content "Can't delete Default because it's used in casebooks:"
+      assert_content "Can't delete Link because it's used in casebooks:"
       refute_button 'Yes, I\'m sure'
     end
   end

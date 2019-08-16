@@ -17,7 +17,7 @@
       <div class="resource-type">
         <%= t 'content.resource.type.text' %>
       </div>
-    <% elsif result.is_a? Default %>
+    <% elsif result.is_a? Link %>
       <div class="resource-type">
         <%= t "content.resource.type.#{object.resource.content_type.parameterize}" %>
       </div>

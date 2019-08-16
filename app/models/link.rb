@@ -1,5 +1,4 @@
-# Defaults are link resources
-class Default < ApplicationRecord
+class Link < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   belongs_to :user, optional: true

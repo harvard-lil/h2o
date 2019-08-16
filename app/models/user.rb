@@ -13,7 +13,7 @@ class User < ApplicationRecord
 
   has_and_belongs_to_many :roles
   has_many :text_blocks
-  has_many :defaults
+  has_many :links
 
   has_many :content_collaborators, class_name: 'Content::Collaborator', primary_key: :id
   has_many :casebooks, class_name: 'Content::Casebook', through: :content_collaborators, source: :content, primary_key: :id

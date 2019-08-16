@@ -17,14 +17,14 @@ class Content::SectionsController < Content::NodeController
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: text
     elsif params[:link]
       url = UrlDomainFormatter.format(params[:link][:url])
-      link = Default.create(url: url)
+      link = Link.create(url: url)
       @section = Content::Resource.create! ordinals: child_ordinals, casebook:@casebook, resource: link
     else
       @section = Content::Section.create! ordinals: child_ordinals, casebook:@casebook
     end
 
     if @section.is_a?(Content::Resource)
-      if @section.resource_type == 'Default'
+      if @section.resource_type == 'Link'
         redirect_to edit_resource_path @casebook, @section
       else
         redirect_to annotate_resource_path @casebook, @section

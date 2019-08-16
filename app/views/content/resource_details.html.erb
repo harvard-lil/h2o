@@ -15,11 +15,11 @@
     <%= f.cktext_area :headnote, placeholder: t('simple_form.labels.casebook.description'), class: 'ckeditor form-control' %>
   </section>
 
-  <% if @content.resource.is_a?(Default) || @content.resource.is_a?(TextBlock) %>
+  <% if @content.resource.is_a?(Link) || @content.resource.is_a?(TextBlock) %>
     <section class="edit-resource">
       <h5><%= t 'content.show.content' %></h5>
       <%= f.simple_fields_for :resource do |r| %>
-        <% if @content.resource.is_a? Default %>
+        <% if @content.resource.is_a? Link %>
           <%= r.input :url %>
         <% elsif @content.resource.is_a? TextBlock %>
           <%= r.cktext_area :content, class: 'ckeditor form-control' %>

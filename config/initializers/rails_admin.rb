@@ -188,7 +188,7 @@ RailsAdmin.config do |config|
     show_in_app
   end
 
-  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt', 'Content::Resource']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Link', 'Page', 'CaseCourt', 'Content::Resource']
 
   config.model 'Page' do
     list do
@@ -236,7 +236,7 @@ RailsAdmin.config do |config|
     end
   end
 
-  config.model 'Default' do
+  config.model 'Link' do
     label 'Link'
     list do
       filters [:name, :url, :public, :user_id, :created_at]
