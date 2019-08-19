@@ -1,8 +1,10 @@
 from django.urls import path, re_path, register_converter
+from django.views.generic import RedirectView
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
 from .views import DirectTemplateView
+
 
 #
 # Converters
@@ -75,8 +77,14 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
+    # canonical paths for static pages
     path('about/', DirectTemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('privacy-policy/', DirectTemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
     path('terms-of-service/', DirectTemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
     path('faq/', DirectTemplateView.as_view(template_name='pages/faq.html'), name='faq'),
+    # legacy paths for static pages
+    path('pages/about/', RedirectView.as_view(pattern_name='about', permanent=True)),
+    path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),
+    path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
+    path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
 ]
