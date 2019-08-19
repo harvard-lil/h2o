@@ -25,7 +25,7 @@
         {{ banner }}
       {% endif %}
       <header id="main-header">
-        {% include 'header.html' %}
+        {% include 'includes/header.html' %}
       </header>
       <main>
         {% block custom_skip_target %}<p id="main" tabindex="-1" class="sr-only">Main Content</p>{% endblock %}
@@ -38,11 +38,11 @@
       </main>
       <footer id="main-footer">
         <p id="footer" tabindex="-1" class="sr-only">Footer</p>
-        {% include 'footer.html' %}
+        {% include 'includes/footer.html' %}
       </footer>
     </div>
     {% if include_vuejs %}</div>{% endif %}
     <script src="{% static "packs/js/application-9a84a3f0732a1d7044d5.js"%} "></script>
-    {% include 'analytics.html' %}
+    {% include 'includes/analytics.html' %}
   </body>
 </html>
