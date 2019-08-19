@@ -75,9 +75,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
-    re_path(r'^about/?$', DirectTemplateView.as_view(template_name='pages/about.html'), name='about'),
-    re_path(r'^privacy-policy/?$', DirectTemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
-    re_path(r'^terms-of-service/?$', DirectTemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
-    re_path(r'^faq/?$', DirectTemplateView.as_view(template_name='pages/faq.html'), name='faq'),
-
+    path('about/', DirectTemplateView.as_view(template_name='pages/about.html'), name='about'),
+    path('privacy-policy/', DirectTemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
+    path('terms-of-service/', DirectTemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
+    path('faq/', DirectTemplateView.as_view(template_name='pages/faq.html'), name='faq'),
 ]
