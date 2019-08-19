@@ -1,13 +1,13 @@
 {% if content.ordinals %}
-	<div class="breadcrumbs">
-	  Section
-	  {% for ordinal in content.ordinals_with_urls %}
-		  {% if forloop.last %}
-	      <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
-	    {% else %}
-	      <a class="breadcrumb" href="{{ ordinal.url }}">{{ ordinal.ordinal }}</a>
-	      <span class="separator">.</span>
-	    {% endif %}
-	  {% endfor %}
-	</div>
+  <div class="breadcrumbs">
+    {{ content.type | title }}
+    {% for ordinal in content.ordinals_with_urls %}
+        {% if forloop.last %}
+        <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
+      {% else %}
+        <a class="breadcrumb" href="{{ ordinal.url }}">{{ ordinal.ordinal }}</a>
+        <span class="separator">.</span>
+      {% endif %}
+    {% endfor %}
+  </div>
 {% endif %}

@@ -171,10 +171,10 @@ class ContentNode(RailsModel):
             return_value.append({
                 'ordinal': o,
                 'ordinals': [*ordinals],
-                'url': reverse('section', args=[
-                    {"id": self.casebook.id},
-                    {"ordinals": ordinals}
-                ])
+                'url': globals()['ContentNode'].objects.get(
+                    casebook_id=self.casebook_id,
+                    ordinals=ordinals
+                ).get_absolute_url()
             })
         return return_value
 
