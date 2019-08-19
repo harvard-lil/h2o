@@ -78,6 +78,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     re_path(r'^about/?$', DirectTemplateView.as_view(template_name='pages/about.html'), name='about'),
     re_path(r'^privacy-policy/?$', DirectTemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
     re_path(r'^terms-of-service/?$', DirectTemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
-    re_path(r'^faq/?$', DirectTemplateView.as_view(template_name='pages/about.html'), name='faq'),
+    re_path(r'^faq/?$', DirectTemplateView.as_view(template_name='pages/faq.html'), name='faq'),
 
 ]
