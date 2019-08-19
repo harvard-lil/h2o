@@ -73,7 +73,7 @@ export default {
 
     // The selectionchange directive must be bound to the broader
     // <section.resource> (rather than TheAnnotator) so that it has
-    // context about.html which text with which to be concerned.
+    // context about which text with which to be concerned.
     // The TheAnnotator handler is then proxied through rather than
     // set directly on the directive because $refs doesn't exist at
     // the point it's added
