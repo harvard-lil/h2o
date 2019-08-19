@@ -81,7 +81,7 @@
 
     <fieldType name="daterange" class="solr.DateRangeField" omitNorms="true" />
 
-    <!-- Special field type for spell correction. Be careful about.html
+    <!-- Special field type for spell correction. Be careful about
          adding filters here, as they apply *before* your values go in
          the spellcheck. For example, the lowercase filter here means
          all spelling suggestions will be lower case (without it,
