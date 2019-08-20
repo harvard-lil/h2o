@@ -1,0 +1,91 @@
+{% if not results.object_list %}
+  <div class="no-results">No results found</div>
+{% else %}
+  <div class="results-list">
+    {% for result in results %}
+      {% if category == 'casebook' %}
+        <a href="{% url "casebook" result.result_id %}" class="wrapper" data-result-id="{% result.result_id %}">
+          <div class="results-entry">
+            <div class="title">
+              {{ result.metadata.title }}
+            </div>
+            <div class="owner">
+              {% if result.metadata.attribution %}
+                <div class="user verified"></div>
+                {{ result.metadata.attribution }}
+              {% endif %}
+            </div>
+            <div class="date">
+              {{ result.metadata.created_at|slice:"0:4" }}
+            </div>
+          </div>
+        </a>
+      {% elif category == 'case' %}
+        <a href="" class="wrapper" data-result-id="{% result.result_id %}">
+          <div class="results-entry">
+            <div class="title">
+              {{ result.metadata.display_name }}
+            </div>
+            <div class="citation">
+              {{ result.metadata.citations }}
+            </div>
+            <div class="date">
+              {{ result.metadata.decision_date_formatted }}
+            </div>
+          </div>
+        </a>
+{#        TODO: handle CAP case search #}
+{#    <% elsif result.is_a?(Capapi::Case) }}#}
+{#    <a href="#" class="wrapper" data-result-id="{% result.result_id %}" data-result-type="{{ result.class.name.underscore }}">#}
+{#      <div class="results-entry">#}
+{#        <div class="title">#}
+{#          {{ result.name_abbreviation }}#}
+{#        </div>#}
+{#        <div class="citation">#}
+{#          {{ result.citations[0]&.cite }}#}
+{#        </div>#}
+{#        <div class="date">#}
+{#          {{ Capapi::DataHelpers.parse_date result.decision_date }}#}
+{#        </div>#}
+{#      </div>#}
+{#    </a>#}
+      {% elif category == 'user' %}
+        <a href="{% url "dashboard" result.result_id %}" class="wrapper" data-result-id="{% result.result_id %}">
+          <div class="results-entry">
+            <div class="profile-image">
+{#              TODO: handle thumbnails #}
+{#              {{ image_tag result.image.url(:thumb) }}#}
+            </div>
+            <div class="title">
+              {{ result.metadata.attribution }}
+            </div>
+            <div class="casebook-count">
+              {{ result.metadata.casebook_count }}
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% if results.has_other_pages %}
+    <div class="pagination">
+      {% if results.has_previous %}
+        <a class="previous_page" rel="prev" href="/search?author=&amp;page=8&amp;q=&amp;school=&amp;type=casebooks">← Previous</a> <a
+          href="/search?author=&amp;page=1&amp;q=&amp;school=&amp;type=casebooks">1</a> <a
+          href="/search?author=&amp;page=2&amp;q=&amp;school=&amp;type=casebooks">2</a> <span class="gap">…</span> <a
+          href="/search?author=&amp;page=5&amp;q=&amp;school=&amp;type=casebooks">5</a> <a
+          href="/search?author=&amp;page=6&amp;q=&amp;school=&amp;type=casebooks">6</a> <a
+          href="/search?author=&amp;page=7&amp;q=&amp;school=&amp;type=casebooks">7</a> <a rel="prev"
+                                                                                           href="/search?author=&amp;page=8&amp;q=&amp;school=&amp;type=casebooks">8</a>
+    <em class="current">9</em> <a rel="next"
+                                  href="/search?author=&amp;page=10&amp;q=&amp;school=&amp;type=casebooks">10</a> <a
+            href="/search?author=&amp;page=11&amp;q=&amp;school=&amp;type=casebooks">11</a> <a
+            href="/search?author=&amp;page=12&amp;q=&amp;school=&amp;type=casebooks">12</a> <a
+            href="/search?author=&amp;page=13&amp;q=&amp;school=&amp;type=casebooks">13</a> <span class="gap">…</span>
+    <a href="/search?author=&amp;page=17&amp;q=&amp;school=&amp;type=casebooks">17</a> <a
+            href="/search?author=&amp;page=18&amp;q=&amp;school=&amp;type=casebooks">18</a> <a class="next_page"
+                                                                                               rel="next"
+                                                                                               href="/search?author=&amp;page=10&amp;q=&amp;school=&amp;type=casebooks">Next
+      →</a></div>
+{{ will_paginate @paginated_group }}
+{% endif %}

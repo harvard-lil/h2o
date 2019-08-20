@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load current_query_string %}
+
+{% block mainContent %}
+  <header class="advanced-search">
+{#    <%= simple_form_for :search, url: :search, method: :get do |f| %>#}
+{#    <%= f.input :type, as: :hidden, input_html: { name: 'type', value: type }  %>#}
+{#    <div class="narrow-inner">#}
+{#      <%= search_field_tag :q, query, class: 'form-control', placeholder: t('search.labels.query.placeholder'), "aria-label": t('search.labels.query.placeholder') %>#}
+{#    </div>#}
+{#    <div class="search-options">#}
+{#      <% if type == 'casebooks' %>#}
+{#      <% if params[:sort] == 'decision_date' %>#}
+{#      <% params[:sort] = 'created_at' %>#}
+{#      <% end %>#}
+{#      <%= f.input :sort, collection: {'Sort by Title': 'display_name', 'Sort by Date': 'created_at', 'Sort by Relevance': 'score'}, selected: params[:sort] || 'display_name', input_html: { name: 'sort', 'aria-label': 'Sort Results' }, label: false %>#}
+{##}
+{#      <%= f.input :author, collection: attributions, selected: (params[:author].present? ? params[:author] : 'All Authors'), include_blank: 'All Authors', input_html: { name: 'author', 'aria-label': 'Filter by Author' }, label: false %>#}
+{#      <%= f.input :school, collection: affiliations, selected:(params[:school].present? ? params[:school] : 'All Schools'), include_blank: 'All Schools', input_html: { name: 'school', 'aria-label': 'Filter by School' }, label: false %>#}
+{##}
+{#      <% elsif type == 'cases' %>#}
+{#      <% if params[:sort] == 'created_at' %>#}
+{#      <% params[:sort] = 'decision_date' %>#}
+{#      <% end %>#}
+{#      <%= f.input :sort, collection: {'Sort by Title': 'display_name', 'Sort by Date': 'decision_date', 'Sort by Relevance': 'score'}, selected: params[:sort] || 'display_name', label: false, input_html: { name: 'sort', 'aria-label': 'Sort Results' } %>#}
+{##}
+{#      <% elsif type == 'users' %>#}
+{#      <%= f.input :school, collection: affiliations, selected:(params[:school].present? ? params[:school] : 'All Schools'), include_blank: 'All Schools', input_html: { name: 'school', 'aria-label': 'Filter by School'}, label: false %>#}
+{#      <% end %>#}
+{#    </div>#}
+{#    <% end %>#}
+  </header>
+  <section class="search-results">
+    <div class="content">
+      {% if counts %}
+        <div class="results-container">
+          <div class="type-tabs">
+
+            <div class="type-tab {% if category == 'casebook' %}active{% endif %}" {% if category == 'casebook' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="casebooks" %}" class="wrapper">
+                Casebooks ({{ counts.casebook|default:"0" }})
+              </a>
+            </div>
+
+            <div class="type-tab {% if category == 'case' %}active{% endif %}" {% if category == 'case' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="cases" %}" class="wrapper">
+                Cases ({{ counts.case|default:"0" }})
+              </a>
+            </div>
+
+            <div class="type-tab {% if category == 'user' %}active{% endif %}" {% if category == 'user' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="users" %}" class="wrapper">
+                Users ({{ counts.user|default:"0" }})
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if results %}
+        <%= render partial: 'results', locals: {paginated_group: @paginated_group} %>
+      {% else %}
+        <div class="no-results">
+          <h3>No results found</h3>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

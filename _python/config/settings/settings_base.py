@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
     # apps
     'main',
+    'search',
 
     # third party
     'django_extensions',

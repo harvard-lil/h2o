@@ -134,7 +134,7 @@ class ContentNode(RailsModel):
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
 
-    collaborators = models.ManyToManyField('User', through='ContentCollaborator')
+    collaborators = models.ManyToManyField('User', through='ContentCollaborator', related_name='casebooks')
 
     class Meta:
         managed = False
@@ -609,10 +609,6 @@ class User(RailsModel):
 
     def __str__(self):
         return self.display_name
-
-    @property
-    def casebooks(self):
-        return Casebook.objects.filter(collaborators=self)
 
     def non_draft_casebooks(self):
         """
