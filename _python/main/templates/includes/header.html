@@ -4,12 +4,10 @@
       <a class="wrapper logo" href="{% url 'index' %}">H2O</a>
     </div>
     <div class="links">
-        {% if request.user.is_authenticated %}
-            <button type="button" class="create-casebook" data-action="show-casebook-modal">Create Casebook</button>
-            <a href="search">SEARCH</a>
-        {% else %}
-            <a href="search">SEARCH</a>
-        {% endif %}
+      {% if request.user.is_authenticated %}
+        <button type="button" class="create-casebook" data-action="show-casebook-modal">Create Casebook</button>
+      {% endif %}
+      <a href="{% url 'search' %}">Search</a>
     </div>
     <div class="user">
             {% if request.user.is_authenticated %}
