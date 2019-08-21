@@ -10,30 +10,30 @@
       <a href="{% url 'search' %}">Search</a>
     </div>
     <div class="user">
-            {% if request.user.is_authenticated %}
-                <div class="current-user">
-                    {% if request.user.is_verified_professor %}
-                    <div class="verified">Verified User</div>
-                    {% endif %}
-                    <div class="dropdown">
-                        <button type="button" id="dLabel" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
-                          <span class="name">
-                            {{ request.user.display_name }}
-                          </span>
-                          <span class="caret"></span>
-                        </button>
-                        <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
-                            <li><a class="user-link" href="users/{{ request.user.id }}">Dashboard</a></li>
-                            <li><a class="user-link" href="users/{{ request.user.id }}/edit">Edit Profile</a></li>
-                            <li><a class="user-link" href="#">Sign Out</a></li>
-                        </ul>
-                    </div>
-                </div>
-            {% else %}
-                <a class="sign-up" href="users/new">Sign Up</a>
-                <a class="sign-in" href="user_sessions/new">Sign In</a>
-            {% endif %}
+      {% if request.user.is_authenticated %}
+        <div class="current-user">
+          {% if request.user.is_verified_professor %}
+            <div class="verified">Verified User</div>
+          {% endif %}
+          <div class="dropdown">
+            <button type="button" id="dLabel" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+              <span class="name">
+                {{ request.user.display_name }}
+              </span>
+              <span class="caret"></span>
+            </button>
+            <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+              <li><a class="user-link" href="users/{{ request.user.id }}">Dashboard</a></li>
+              <li><a class="user-link" href="users/{{ request.user.id }}/edit">Edit Profile</a></li>
+              <li><a class="user-link" href="#">Sign Out</a></li>
+            </ul>
+          </div>
         </div>
+      {% else %}
+        <a class="sign-up" href="users/new">Sign Up</a>
+        <a class="sign-in" href="user_sessions/new">Sign In</a>
+      {% endif %}
+    </div>
   </div>
 </nav>
 
