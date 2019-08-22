@@ -11,6 +11,21 @@ from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockS
 from .models import Casebook, Resource, Section, User
 
 
+class DirectTemplateView(TemplateView):
+    extra_context = None
+
+    def get_context_data(self, **kwargs):
+        """ Override Django's TemplateView to allow passing in extra_context. """
+        context = super(self.__class__, self).get_context_data(**kwargs)
+        if self.extra_context is not None:
+            for key, value in self.extra_context.items():
+                if callable(value):
+                    context[key] = value()
+                else:
+                    context[key] = value
+        return context
+
+
 def login_required_response(request):
     if request.user.is_authenticated:
         return HttpResponseForbidden()
@@ -19,7 +34,7 @@ def login_required_response(request):
 
 
 # TODO: this can't be login_required. Anonymous visitors
-# may see the annotations on published casebooks, which 
+# may see the annotations on published casebooks, which
 # are applied in-browser by Vue after an API call to this route.
 # @login_required
 @api_view(['GET'])
@@ -43,21 +58,6 @@ def index(request):
         return render(request, 'dashboard.html', {'user': request.user})
     else:
         return render(request, 'index.html')
-
-
-class DirectTemplateView(TemplateView):
-    extra_context = None
-
-    def get_context_data(self, **kwargs):
-        """ Override Django's TemplateView to allow passing in extra_context. """
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        if self.extra_context is not None:
-            for key, value in self.extra_context.items():
-                if callable(value):
-                    context[key] = value()
-                else:
-                    context[key] = value
-        return context
 
 
 def dashboard(request, user_id):
