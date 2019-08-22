@@ -358,8 +358,6 @@ class Resource(ContentNode):
         if self.resource_type == 'Default':
             if self.resource.name:
                 return self.resource.name
-            elif self.resource.title:
-                return self.resource.title
             else:
                 return "Link to {}".format(urlparse(self.resource.url).netloc)
         elif self.resource_type == 'TextBlock':
