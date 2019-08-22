@@ -3,8 +3,8 @@
 {% block custom_skip_target %}{% endblock %}
 
 {% block mainContent %}
-<header class="dashboard"></header>
-<section class="dashboard">
+{# This appears to be solely for spacing <header class="dashboard"></header> #}
+<section class="dashboard" style="margin-top: 15px;">
   <p id="main" tabindex="-1" class="sr-only">Main Content</p>
   <div class="content">
     {% if user == request.user %}

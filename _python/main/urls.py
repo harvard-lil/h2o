@@ -75,7 +75,7 @@ drf_urlpatterns = [
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
-    path('users/<int:user_id>', views.dashboard, name='dashboard'),
+    path('users/<int:user_id>/', views.dashboard, name='dashboard'),
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),

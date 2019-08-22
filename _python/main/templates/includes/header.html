@@ -23,15 +23,15 @@
               <span class="caret"></span>
             </button>
             <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
-              <li><a class="user-link" href="users/{{ request.user.id }}">Dashboard</a></li>
-              <li><a class="user-link" href="users/{{ request.user.id }}/edit">Edit Profile</a></li>
+              <li><a class="user-link" href="{% url 'dashboard' request.user.id %}">Dashboard</a></li>
+              <li><a class="user-link" href="{% url 'dashboard' request.user.id %}/edit">Edit Profile</a></li>
               <li><a class="user-link" href="#">Sign Out</a></li>
             </ul>
           </div>
         </div>
       {% else %}
-        <a class="sign-up" href="users/new">Sign Up</a>
-        <a class="sign-in" href="user_sessions/new">Sign In</a>
+        <a class="sign-up" href="/users/new">Sign Up</a>
+        <a class="sign-in" href="/user_sessions/new">Sign In</a>
       {% endif %}
     </div>
   </div>
