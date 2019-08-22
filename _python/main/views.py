@@ -33,10 +33,6 @@ def login_required_response(request):
         return redirect_to_login(request.build_absolute_uri())
 
 
-# TODO: this can't be login_required. Anonymous visitors
-# may see the annotations on published casebooks, which
-# are applied in-browser by Vue after an API call to this route.
-# @login_required
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
     """
@@ -89,7 +85,9 @@ def casebook(request, casebook_param):
 def section(request, casebook_param, ordinals_param):
     section = get_object_or_404(Section, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
-    # TODO: permissions
+    # check permissions
+    if not section.casebook.viewable_by(request.user):
+        return login_required_response(request)
 
     # canonical redirect
     canonical = section.get_absolute_url()
@@ -104,7 +102,9 @@ def section(request, casebook_param, ordinals_param):
 def resource(request, casebook_param, ordinals_param):
     resource = get_object_or_404(Resource, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
-    # TODO: permissions
+    # check permissions
+    if not resource.casebook.viewable_by(request.user):
+        return login_required_response(request)
 
     # canonical redirect
     canonical = resource.get_absolute_url()
