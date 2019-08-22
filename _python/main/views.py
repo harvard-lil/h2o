@@ -73,17 +73,14 @@ def casebook(request, casebook_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
-    contents = casebook.contents.all().order_by('ordinals')
-
-    # TODO: find out about the resources that appear in this TOC, but not on prod.
-    # TODO: find out about the "None"s appearing in spots in place of titles
     return render(request, 'casebook.html', {
         'casebook': casebook,
-        'contents': contents
+        'contents': casebook.contents.all().order_by('ordinals')
     })
 
+
 def section(request, casebook_param, ordinals_param):
-    section = get_object_or_404(Section, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+    section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
     if not section.casebook.viewable_by(request.user):
@@ -100,7 +97,7 @@ def section(request, casebook_param, ordinals_param):
 
 
 def resource(request, casebook_param, ordinals_param):
-    resource = get_object_or_404(Resource, casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+    resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
     if not resource.casebook.viewable_by(request.user):
